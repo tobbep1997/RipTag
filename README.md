@@ -1,9 +1,11 @@
 # RipTag
 
-**Project Manager:** - Magnus 
+**Project Manager:**
+- Magnus 
 
 **Lead Game Design:**  
 - Henrik
+
 **Game Design:** 
 - Jonatan 
 - Viktor
@@ -12,6 +14,7 @@
 
 **Lead 3D Programmer:**
 - Bobby
+
 **3D Programmer:**
 - Max
 - Joakim
@@ -20,6 +23,7 @@
 
 **Lead Gameplay Programmer:**
 - Fredrik
+
 **Gameplay Programmer:**
 - Bobby
 - Viktor
@@ -28,6 +32,7 @@
 
 **Lead Artist:**
 - Elias
+
 **Artist:**
 - Henrik
 - Jonatan
