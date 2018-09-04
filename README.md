@@ -1,1 +1,5 @@
 # RipTag
+
+
+Contributors: 
+Max Tlatlik
