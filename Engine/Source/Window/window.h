@@ -1,8 +1,21 @@
 #pragma once
 #include <Windows.h>
-#include "Structs.h"
+#include <string>
 #include "../Messages/CoreMessage.h"
 #pragma warning(disable : 4838)
+
+struct WindowContext
+{
+	UINT clientHeight;
+	UINT clientWidth;
+	bool fullscreen;
+
+	LPCWSTR windowTitle;
+	DWORD wndStyle;
+
+	HINSTANCE windowInstance;
+	WNDCLASSEX wcex;
+};
 
 class Window
 {
