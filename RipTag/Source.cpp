@@ -1,5 +1,5 @@
 #include <Windows.h>
-#include "Source/Window/window.h"
+#include "Source/3D Engine/RenderingManager.h"
 
 
 #if _DEBUG
@@ -19,22 +19,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 
-	Window wnd;
-	WindowContext wind;
-	wind.clientHeight = 500;
-	wind.clientWidth = 500;
-	wind.fullscreen = false;
-	wind.windowInstance = hInstance;
-	wind.windowTitle = L"gay";
-	
-	wnd.Init(wind);
+	RenderingManager renderingManager;
 
-	while (wnd.isOpen())
+	renderingManager.Init(hInstance);
+
+	while (renderingManager.GetWindow().isOpen())
 	{
-		wnd.PollEvents();
-		//std::cout << "hello world" << std::endl;
+		renderingManager.Update();
 	}
-
 	
+	renderingManager.Release();
 	return 0;
 }

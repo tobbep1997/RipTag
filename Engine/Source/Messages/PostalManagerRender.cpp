@@ -8,6 +8,11 @@ PostalManagerRender::~PostalManagerRender()
 {
 }
 
+void PostalManagerRender::Init()
+{
+	
+}
+
 void PostalManagerRender::AddMessage(CoreMessage & message)
 {
 	m_incommingMessages.push_back(message);

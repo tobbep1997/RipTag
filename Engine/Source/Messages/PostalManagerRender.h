@@ -1,6 +1,8 @@
 #pragma once
 #include "CoreMessage.h"
 #include <vector>
+#include "../Window/window.h"
+
 
 class PostalManagerRender
 {
@@ -10,6 +12,7 @@ private:
 public:
 	PostalManagerRender();
 	~PostalManagerRender();
+	void Init();
 	void AddMessage(CoreMessage &message);
 	bool PostMessages();
 	void AddReply(CoreMessage & message);

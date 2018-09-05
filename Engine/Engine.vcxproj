@@ -154,15 +154,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Shader\ShaderManager.h" />
+    <ClInclude Include="Source\3D Engine\Render\ForwardRender.h" />
+    <ClInclude Include="Source\3D Engine\RenderingManager.h" />
+    <ClInclude Include="Source\3D Engine\Engine3D.h" />
+    <ClInclude Include="Source\3D Engine\Extern.h" />
     <ClInclude Include="Source\Messages\CoreMessage.h" />
     <ClInclude Include="Source\Messages\DrawMessage.h" />
     <ClInclude Include="Source\Messages\EngineMessage.h" />
     <ClInclude Include="Source\Messages\PostalManagerRender.h" />
     <ClInclude Include="Source\Messages\WindowMessage.h" />
-    <ClInclude Include="Source\Window\Structs.h" />
+    <ClInclude Include="Source\ShaderCreator.h" />
     <ClInclude Include="Source\Window\window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Shader\ShaderManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp" />
+    <ClCompile Include="Source\3D Engine\RenderingManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
     <ClCompile Include="Source\Messages\CoreMessage.cpp" />
     <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
     <ClCompile Include="Source\Window\window.cpp" />
