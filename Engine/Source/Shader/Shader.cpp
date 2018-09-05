@@ -21,8 +21,6 @@ namespace Shaders
 	Shader::~Shader()
 	{
 	}
-
-
 	void Shader::setPath(const std::wstring & path)
 	{
 		this->m_path = path;
@@ -47,30 +45,6 @@ namespace Shaders
 	{
 		return this->m_type;
 	}
-	/*
-	void Shader::LoadShader(ShaderType type, const std::wstring path, const std::string entryPoint)
-	{
-		switch (type)
-		{
-		case Shaders::Vertex:
-			ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, path.c_str(), entryPoint.c_str());
-			break;
-		case Shaders::domain:
-			break;
-		case Shaders::Hull:
-			break;
-		case Shaders::Geometry:
-			break;
-		case Shaders::Pixel:
-			ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, path.c_str(), entryPoint.c_str());
-			break;
-		case Shaders::Compute:
-			break;
-		}
-		setPath(path);
-		setType(type);
-	}*/
-
 	void Shader::Release()
 	{
 		DX::SafeRelease(m_vertexShader);

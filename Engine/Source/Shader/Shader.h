@@ -22,18 +22,25 @@ namespace Shaders
 		Compute
 	};
 
-
+	///<summery>
+	/*
+	Store the acual shader
+	*/
+	///</summery>
 	class Shader
 	{
 	private:
-
+		//There is no better way of doing this ._.
 		ID3D11VertexShader		* m_vertexShader;
 		ID3D11DomainShader		* m_domainShader;
 		ID3D11HullShader		* m_hullShader;
 		ID3D11GeometryShader	* m_geometryShader;
 		ID3D11PixelShader		* m_pixelShader;
 		ID3D11ComputeShader		* m_computeShader;
-			   
+
+
+		//-------------------------------------------------------------------------------------------
+		//identifier
 		std::wstring m_path;
 		unsigned int m_key;
 		ShaderType m_type;
@@ -42,20 +49,28 @@ namespace Shaders
 	public:
 		Shader();
 		~Shader();
-
+		//-------------------------------------------------------------------------------------------
+		//Get/Set functions
 		void setPath(const std::wstring & path);
-		void setKey(const unsigned int key);
-		void setType(const ShaderType & shaderType);
-
 		std::wstring getPath() const;
-		unsigned int getKey() const;
-		ShaderType getType() const;
 
-		//Load shaders
+		void setKey(const unsigned int key);
+		unsigned int getKey() const;
+
+		void setType(const ShaderType & shaderType);
+		ShaderType getType() const;
+		//-------------------------------------------------------------------------------------------
+		/*
+		Default load shader function
+		This dosen't do anything... It's just needed to create the other ones ._.
+		*/
 		template <typename T> void LoadShader(const std::wstring path, const std::string entryPoint = "main");
+		/*
+		Loads the correct shader
+		*/
 		template <> void LoadShader<ID3D11VertexShader>(const std::wstring path, const std::string entryPoint);
 		template <> void LoadShader<ID3D11PixelShader>(const std::wstring path, const std::string entryPoint);
-		
+		//-------------------------------------------------------------------------------------------
 		//Get Shaders
 		template <typename T> T* getShader() const {
 			return nullptr;
@@ -66,6 +81,8 @@ namespace Shaders
 		template <> ID3D11PixelShader * getShader<ID3D11PixelShader>() const {
 			return this->m_pixelShader;
 		}		
+		//-------------------------------------------------------------------------------------------
+		//Relese the shader
 		void Release();
 
 	};
@@ -76,9 +93,33 @@ namespace Shaders
 	}
 
 	template<>
+	inline void Shader::LoadShader<ID3D11DomainShader>(const std::wstring path, const std::string entryPoint)
+	{
+		ShaderCreator::CreateDomainShader(DX::g_device, m_domainShader, path.c_str(), entryPoint.c_str());
+	}
+
+	template<>
+	inline void Shader::LoadShader<ID3D11HullShader>(const std::wstring path, const std::string entryPoint)
+	{
+		ShaderCreator::CreateHullShader(DX::g_device, m_hullShader, path.c_str(), entryPoint.c_str());
+	}
+
+	template<>
+	inline void Shader::LoadShader<ID3D11GeometryShader>(const std::wstring path, const std::string entryPoint)
+	{
+		ShaderCreator::CreateGeometryShader(DX::g_device, m_geometryShader, path.c_str(), entryPoint.c_str());
+	}
+
+	template<>
 	inline void Shader::LoadShader<ID3D11PixelShader>(const std::wstring path, const std::string entryPoint)
 	{
 		ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, path.c_str(), entryPoint.c_str());
+	}
+
+	template<>
+	inline void Shader::LoadShader<ID3D11ComputeShader>(const std::wstring path, const std::string entryPoint)
+	{
+		ShaderCreator::CreateComputeShader(DX::g_device, m_computeShader, path.c_str(), entryPoint.c_str());
 	}
 
 	
