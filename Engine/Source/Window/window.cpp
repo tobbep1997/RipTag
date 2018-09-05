@@ -1,9 +1,8 @@
 #include "window.h"
 
-namespace
-{
-	Window* g_wndPtr = nullptr; 
-}
+
+Window* g_wndPtr = nullptr; 
+
 
 void Window::_resize()
 {
@@ -30,65 +29,73 @@ void Window::_destroy()
 {
 }
 
-LRESULT Window::msgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT Window::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	Window* pParent;
+	if (uMsg == WM_CREATE)
+	{
+		pParent = (Window*)((LPCREATESTRUCT)lParam)->lpCreateParams;
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pParent);
+	}
+	else
+	{
+		pParent = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		if (!pParent) return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+
+	pParent->m_wHandler = hWnd;
+	return pParent->MsgProc(hWnd, uMsg, wParam, lParam);
+}
+
+LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		return 0;
-
+		break;
 	case WM_SIZE:
 		m_windowContext.clientHeight = HIWORD(lParam);
 		m_windowContext.clientWidth = LOWORD(lParam);
-		return 0;
-
-	default:
-		DefWindowProc(hwnd, msg, wParam, lParam);
+		break;
 	}
+	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-LRESULT CALLBACK MainWindProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	if (g_wndPtr) return g_wndPtr->msgProc(hwnd, msg, wParam, lParam);
-	else return DefWindowProc(hwnd, msg, wParam, lParam);
-}
 
 Window::Window()
 {
-	m_windowContext.posX = 50; 
-	m_windowContext.posY = 50; 
-	m_windowContext.clientHeight = 100; 
-	m_windowContext.clientWidth = 100; 
-	m_windowContext.windowTitle = "Hahah"; 
+	
 }
 
 Window::~Window()
 {
 }
 
-bool Window::Init(window::WindowContext windowContext)
+bool Window::Init(WindowContext windowContext)
 {
+	m_windowContext = windowContext;
+
 	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX)); 
 	m_windowContext.wcex.cbClsExtra = 0; 
 	m_windowContext.wcex.cbWndExtra = 0; 
 	m_windowContext.wcex.cbSize = sizeof(WNDCLASSEX); 
 	m_windowContext.wcex.style = CS_HREDRAW | CS_VREDRAW;
 	m_windowContext.wcex.hInstance = m_windowContext.windowInstance; //Member in window instead? (windowInstance)
-	m_windowContext.wcex.lpfnWndProc = MainWindProc;
+	m_windowContext.wcex.lpfnWndProc = StaticWndProc;
 	m_windowContext.wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION); 
 	m_windowContext.wcex.hCursor = LoadCursor(NULL, IDC_ARROW); 
 	m_windowContext.wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 	m_windowContext.wcex.lpszMenuName = NULL;
-	m_windowContext.wcex.lpszClassName = "WNDCLASS"; 
+	m_windowContext.wcex.lpszClassName = L"WNDCLASS"; 
 	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION); 
 
 	if (!RegisterClassEx(&m_windowContext.wcex))
 	{
-		OutputDebugString("FAILED TO CREATE WINDOW CLASS!\n");
+		OutputDebugString(L"FAILED TO CREATE WINDOW CLASS!\n");
 		return false; 
 	}
-
+	
 	RECT r = { 0, 0, m_windowContext.clientWidth, m_windowContext.clientHeight };
 	AdjustWindowRect(&r, m_windowContext.wcex.style, FALSE);
 	UINT width = r.right - r.left;
@@ -98,14 +105,29 @@ bool Window::Init(window::WindowContext windowContext)
 	//m_windowContext.posY = GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
 
 
-	m_wHandler = CreateWindow("WNDCLASS","Example Title" , m_windowContext.wcex.style,
-		m_windowContext.posX, m_windowContext.posY, width, height, NULL, NULL, m_windowContext.windowInstance, NULL);
+	//m_wHandler = CreateWindow(L"WNDCLASS", L"Example Title" , m_windowContext.wcex.style,
+		//m_windowContext.posX, m_windowContext.posY, width, height, NULL, NULL, m_windowContext.windowInstance, NULL);
+
+	m_wHandler = CreateWindow(
+		m_windowContext.wcex.lpszClassName,
+		m_windowContext.windowTitle,
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		r.right - r.left,
+		r.bottom - r.top,
+		nullptr,
+		nullptr,
+		m_windowContext.windowInstance,
+		this);
 
 	if (!m_wHandler)
 	{
-		OutputDebugString("FAILED TO CREATE WINDOW\n");
+		OutputDebugString(L"FAILED TO CREATE WINDOW\n");
 		return false;
 	}
+
+	ShowWindow(m_wHandler, 10);
 
 	return true;
 }
@@ -114,7 +136,21 @@ void Window::Update()
 {
 }
 
-window::WindowContext& Window::getWindowContext()
+void Window::PollEvents()
+{
+	if (PeekMessage(&m_msg, nullptr, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&m_msg);
+		DispatchMessage(&m_msg);
+	}
+}
+
+bool Window::isOpen()
+{
+	return WM_QUIT != m_msg.message;
+}
+
+WindowContext& Window::getWindowContext()
 {
 	return m_windowContext; 
 }

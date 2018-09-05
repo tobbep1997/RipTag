@@ -30,12 +30,21 @@
     <ClInclude Include="Source\Messages\PostalManagerRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Window\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Window\Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Messages\CoreMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Messages\PostalManagerRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Window\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,6 @@
 #include <Windows.h>
+#include "Source/Window/window.h"
+
 
 #if _DEBUG
 #include <iostream>
@@ -17,9 +19,22 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 
+	Window wnd;
+	WindowContext wind;
+	wind.clientHeight = 500;
+	wind.clientWidth = 500;
+	wind.fullscreen = false;
+	wind.windowInstance = hInstance;
+	wind.windowTitle = L"gay";
+	
+	wnd.Init(wind);
 
+	while (wnd.isOpen())
+	{
+		wnd.PollEvents();
+		std::cout << "hello world" << std::endl;
+	}
 
-
-	std::cout << "hello world" << std::endl;
+	
 	return 0;
 }

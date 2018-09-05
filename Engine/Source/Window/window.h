@@ -5,21 +5,28 @@ class Window
 {
 private:
 	HWND m_wHandler; 
-	window::WindowContext m_windowContext; 
+	WindowContext m_windowContext; 
 	void _resize(); 
 	void _setPosition(); 
 	void _toggleFullScreen(); 
 	void _destroy(); 
 
+	MSG m_msg;
 public:
 	Window(); 
 	~Window(); 
-	bool Init(window::WindowContext windowContext); 
+	bool Init(WindowContext windowContext); 
 	void Update(); //Pass through message vector here. 
-	window::WindowContext& getWindowContext();
+
+	void PollEvents();
+	bool isOpen();
+
+	WindowContext& getWindowContext();
 	HWND& getHandler();
 
-	virtual LRESULT msgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	static LRESULT CALLBACK StaticWndProc(HWND, UINT, WPARAM, LPARAM);
+	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 };

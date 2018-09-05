@@ -1,20 +1,16 @@
 #pragma once
 #include <Windows.h>
 #include <string>
-namespace window
-{
-	struct WindowContext
-	{
-		UINT posX; 
-		UINT posY; 
-		UINT clientHeight; 
-		UINT clientWidth;
-		bool fullscreen;
 
-		std::string windowTitle; 
-		DWORD wndStyle; 
+struct WindowContext
+{
+	UINT clientHeight; 
+	UINT clientWidth;
+	bool fullscreen;
+
+	LPCWSTR windowTitle;
+	DWORD wndStyle; 
 		
-		HINSTANCE windowInstance; 
-		WNDCLASSEX wcex;
-	}; 
-}
+	HINSTANCE windowInstance; 
+	WNDCLASSEX wcex;
+}; 
