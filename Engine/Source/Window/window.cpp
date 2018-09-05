@@ -1,9 +1,6 @@
 #include "window.h"
 
 
-Window* g_wndPtr = nullptr; 
-
-
 void Window::_resize()
 {
 
@@ -54,7 +51,7 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	case WM_SIZE:
+	case WM_SIZE: //If user change the window size
 		m_windowContext.clientHeight = HIWORD(lParam);
 		m_windowContext.clientWidth = LOWORD(lParam);
 		break;
@@ -101,13 +98,6 @@ bool Window::Init(WindowContext windowContext)
 	UINT width = r.right - r.left;
 	UINT height = r.bottom - r.top;
 
-	//m_windowContext.posX = GetSystemMetrics(SM_CXSCREEN) / 2 - width / 2;
-	//m_windowContext.posY = GetSystemMetrics(SM_CYSCREEN) / 2 - height / 2;
-
-
-	//m_wHandler = CreateWindow(L"WNDCLASS", L"Example Title" , m_windowContext.wcex.style,
-		//m_windowContext.posX, m_windowContext.posY, width, height, NULL, NULL, m_windowContext.windowInstance, NULL);
-
 	m_wHandler = CreateWindow(
 		m_windowContext.wcex.lpszClassName,
 		m_windowContext.windowTitle,
@@ -132,7 +122,7 @@ bool Window::Init(WindowContext windowContext)
 	return true;
 }
 
-void Window::Update()
+void Window::Update(CoreMessage msg)
 {
 }
 
