@@ -51,6 +51,9 @@
     <ClInclude Include="Source\3D Engine\RenderingManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Shader\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Messages\CoreMessage.cpp">
@@ -74,5 +77,12 @@
     <ClCompile Include="Source\3D Engine\RenderingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Shader\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Shader\VertexShader.hlsl" />
+    <FxCompile Include="Source\Shader\PixelShader.hlsl" />
   </ItemGroup>
 </Project>
