@@ -96,6 +96,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName).lib</OutputFile>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -151,6 +154,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Messages\CoreMessage.h" />
+    <ClInclude Include="Source\Messages\DrawMessage.h" />
+    <ClInclude Include="Source\Messages\EngineMessage.h" />
+    <ClInclude Include="Source\Messages\PostalManagerRender.h" />
+    <ClInclude Include="Source\Messages\WindowMessage.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Messages\CoreMessage.cpp" />
+    <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

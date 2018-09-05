@@ -17,6 +17,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 
+
+
+
 	std::cout << "hello world" << std::endl;
 	return 0;
 }
