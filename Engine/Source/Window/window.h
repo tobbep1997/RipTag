@@ -43,8 +43,8 @@ public:
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); //This is where msg are executed
 
 private:
-	void _resize();
-	void _setPosition();
-	void _toggleFullScreen();
+	void _resize(UINT width, UINT height);	//Will Resize the window to the params specified
+	void _setPosition(UINT posX, UINT posY); //Will Set the position of the window
+	void _toggleFullScreen();	
 	void _destroy();
 };

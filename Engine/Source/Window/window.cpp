@@ -1,17 +1,22 @@
 #include "window.h"
 
 
-void Window::_resize()
+void Window::_resize(UINT width, UINT height)
 {
-
+	m_windowContext.clientWidth = width;
+	m_windowContext.clientHeight = height;
+	SetWindowPos(m_wHandler, HWND_TOP, 0, 0, width, height, SWP_SHOWWINDOW);
 }
 
-void Window::_setPosition()
+void Window::_setPosition(UINT posX, UINT posY)
 {
+	SetWindowPos(m_wHandler, HWND_TOP, posX, posY, m_windowContext.clientWidth, m_windowContext.clientHeight, SWP_SHOWWINDOW);
 }
 
 void Window::_toggleFullScreen()
 {
+	//TODO: Sending the fullscreen comand to the right place for.
+	//changing of the fullscreen
 	if (!m_windowContext.fullscreen)
 	{
 		m_windowContext.fullscreen = true;
@@ -118,7 +123,7 @@ bool Window::Init(WindowContext windowContext)
 	}
 
 	ShowWindow(m_wHandler, 10);
-
+	
 	return true;
 }
 
