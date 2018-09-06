@@ -37,6 +37,7 @@ namespace Shaders
 		ID3D11GeometryShader	* m_geometryShader;
 		ID3D11PixelShader		* m_pixelShader;
 		ID3D11ComputeShader		* m_computeShader;
+		ID3D11InputLayout		* m_inputLayout;
 
 
 		//-------------------------------------------------------------------------------------------
@@ -65,6 +66,8 @@ namespace Shaders
 		This dosen't do anything... It's just needed to create the other ones ._.
 		*/
 		template <typename T> void LoadShader(const std::wstring path, const std::string entryPoint = "main");
+		ID3D11VertexShader * VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size);
+		ID3D11InputLayout * getInputLayout();
 		/*
 		Loads the correct shader
 		*/

@@ -4,15 +4,18 @@
 ID3D11Device*			DX::g_device;
 ID3D11DeviceContext*	DX::g_deviceContext;
 
+Shaders::ShaderManager DX::g_shaderManager;
+
 void DX::SafeRelease(IUnknown * unknown)
 {
 	if (unknown)
 		unknown->Release();
-	unknown = NULL;
+	unknown = nullptr;
 }
 
 Engine3D::Engine3D()
 {
+	
 }
 
 

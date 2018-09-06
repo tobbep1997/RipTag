@@ -36,10 +36,10 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 2, m_inputLayout);
-	ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, L"../Engine/Source/Shader/PixelShader.hlsl");
-
-	
+	//ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 2, m_inputLayout);
+	//ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, L"../Engine/Source/Shader/PixelShader.hlsl");
+	m_vertexShader = DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 2);
+	m_pixelShader =  DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
 }
 
 struct TriangleVertex
@@ -60,7 +60,7 @@ void ForwardRender::GeometryPass()
 
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	DX::g_deviceContext->IASetInputLayout(m_inputLayout);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
@@ -118,8 +118,7 @@ void ForwardRender::Present()
 
 void ForwardRender::Release()
 {
-	DX::SafeRelease(m_inputLayout);
-	DX::SafeRelease(m_vertexShader);
-	DX::SafeRelease(m_pixelShader);
+
+
 }
 

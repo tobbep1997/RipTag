@@ -30,7 +30,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.Update();
 		renderingManager.Flush();
 	}
-
+	DX::g_shaderManager.Release();
 	renderingManager.Release();
 	return 0;
 }

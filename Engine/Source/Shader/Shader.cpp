@@ -13,7 +13,8 @@ namespace Shaders
 		m_hullShader(nullptr),
 		m_geometryShader(nullptr),
 		m_pixelShader(nullptr),
-		m_computeShader(nullptr)
+		m_computeShader(nullptr),
+		m_inputLayout(nullptr)
 	{
 	}
 
@@ -45,6 +46,15 @@ namespace Shaders
 	{
 		return this->m_type;
 	}
+	ID3D11VertexShader * Shader::VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size)
+	{
+		ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, path.c_str(), entryPoint.c_str(), inputDesc, size, m_inputLayout);
+		return m_vertexShader;
+	}
+	ID3D11InputLayout * Shader::getInputLayout()
+	{
+		return m_inputLayout;
+	}
 	void Shader::Release()
 	{
 		DX::SafeRelease(m_vertexShader);
@@ -53,5 +63,6 @@ namespace Shaders
 		DX::SafeRelease(m_geometryShader);
 		DX::SafeRelease(m_pixelShader);
 		DX::SafeRelease(m_computeShader);
+		DX::SafeRelease(m_inputLayout);
 	}
 }

@@ -14,8 +14,8 @@ namespace Shaders
 	class ShaderManager
 	{
 	private:		
-		std::vector<Shader*> shadersHashTable[hashSize];
 
+		std::vector<Shader*> shadersHashTable[hashSize];
 	public:
 		ShaderManager();
 		~ShaderManager();
@@ -23,6 +23,11 @@ namespace Shaders
 		//Do not delete pointer. It's a managed pointer that will be deleted with  the class.
 		template <typename T> T* LoadShader(const std::wstring path, const std::string entryPoint = "main");
 		template <typename T> T* GetShader(const std::wstring path);
+
+		ID3D11VertexShader * VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size);
+		ID3D11InputLayout * GetInputLayout(const std::wstring path);
+
+
 		void UnloadShader(const std::wstring path);
 		//Releases and deletes all shaders
 		void Release();
