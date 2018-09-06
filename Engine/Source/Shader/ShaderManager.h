@@ -22,7 +22,8 @@ namespace Shaders
 		//<ID3D11[type]Shader> 
 		//Do not delete pointer. It's a managed pointer that will be deleted with  the class.
 		template <typename T> T* LoadShader(const std::wstring path, const std::string entryPoint = "main");
-
+		template <typename T> T* GetShader(const std::wstring path);
+		void UnloadShader(const std::wstring path);
 		//Releases and deletes all shaders
 		void Release();
 
@@ -70,7 +71,13 @@ namespace Shaders
 	inline T* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
 		return nullptr;
-	}	
+	}
+	template<typename T>
+	inline T * ShaderManager::GetShader(const std::wstring path)
+	{
+		return loadShader(path);
+	}
+
 	//-------------------
 	/*
 	Explicit template functions to know what kind of shader to create

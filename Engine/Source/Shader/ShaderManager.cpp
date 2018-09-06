@@ -8,6 +8,20 @@ namespace Shaders
 	ShaderManager::~ShaderManager()
 	{
 	}
+	void ShaderManager::UnloadShader(const std::wstring path)
+	{
+		unsigned int key = getKey(path);
+		for (int i = 0; i < shadersHashTable[key].size(); i++)
+		{
+			if (shadersHashTable[key][i]->getPath() == path)
+			{
+				shadersHashTable[key][i]->Release();
+				delete shadersHashTable[key][i];
+				shadersHashTable[key].erase(shadersHashTable[key].begin() + i);
+
+			}
+		}
+	}
 	void ShaderManager::Release()
 	{
 		for (unsigned int i = 0; i < hashSize; i++)
