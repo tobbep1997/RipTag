@@ -37,7 +37,12 @@ void RenderingManager::Release()
 	engine.Release();
 }
 
-Window& RenderingManager::GetWindow()
+Window& RenderingManager::getWindow()
 {
 	return wnd;
+}
+
+ProcMsg RenderingManager::getWindowProcMsg()
+{
+	return wnd.getWindowProcMsg();
 }

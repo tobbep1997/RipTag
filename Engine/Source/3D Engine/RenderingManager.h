@@ -15,6 +15,11 @@ public:
 
 	void Release();
 
-	Window& GetWindow();
+
+
+	//---------------------------------
+	//Explicit window related function
+	Window& getWindow();
+	ProcMsg getWindowProcMsg();
 };
 

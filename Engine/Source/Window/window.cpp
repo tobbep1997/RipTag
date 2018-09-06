@@ -61,7 +61,16 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		m_windowContext.clientWidth = LOWORD(lParam);
 		break;
 	}
+	m_procMsg.msg = msg;
+	m_procMsg.wParam = wParam;
+	m_procMsg.lPARAM = lParam;
+
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+ProcMsg Window::getWindowProcMsg()
+{
+	return m_procMsg;
 }
 
 
@@ -133,16 +142,16 @@ void Window::Update(CoreMessage msg)
 
 void Window::PollEvents()
 {
-	if (PeekMessage(&m_msg, nullptr, 0, 0, PM_REMOVE))
+	if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
 	{
-		TranslateMessage(&m_msg);
-		DispatchMessage(&m_msg);
+		TranslateMessage(&m_Peekmsg);
+		DispatchMessage(&m_Peekmsg);
 	}
 }
 
 bool Window::isOpen()
 {
-	return WM_QUIT != m_msg.message;
+	return WM_QUIT != m_Peekmsg.message;
 }
 
 WindowContext& Window::getWindowContext()
