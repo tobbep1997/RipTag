@@ -20,7 +20,7 @@ Engine3D::~Engine3D()
 {
 }
 
-HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0)
+HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 {
 	UINT createDeviceFlags = 0;
 

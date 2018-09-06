@@ -55,7 +55,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 
-	while (renderingManager.GetWindow().isOpen())
+	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
 	}
