@@ -35,6 +35,18 @@ void SettingLoader::LoadWindowSettings(std::string path)
 						//Set false
 					}
 				}
+				else if(type == "width")
+				{
+					float t = 0;
+					sscanf_s(line.c_str(), " %*s %f", &t);
+					//Set width
+				}
+				else if(type == "height")
+				{
+					float t = 0;
+					sscanf_s(line.c_str(), " %*s %f", &t);
+					//Set he
+				}
 			}
 		}
 
@@ -44,4 +56,23 @@ void SettingLoader::LoadWindowSettings(std::string path)
 		OutputDebugString(L"FAILED TO OPEN WINDOW SETTINGS\n");
 	}
 
+}
+
+void SettingLoader::SaveWindowSettings(std::string path)
+{
+	std::ofstream file(path);
+
+	
+	if (file.is_open())
+	{
+
+		file << "temp";
+	}
+	else
+	{
+		OutputDebugString(L"FAILED TO OPEN WINDOW SETTINGS\n");
+		return;
+	}
+
+	file.close();
 }
