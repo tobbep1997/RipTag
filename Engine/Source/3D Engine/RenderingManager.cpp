@@ -1,5 +1,5 @@
 #include "RenderingManager.h"
-
+#include "../SettingsLoader/SettingsLoader.h"
 
 
 RenderingManager::RenderingManager()
@@ -21,7 +21,8 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	wind.fullscreen = false;
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"Victor är Gay";
-
+	//Will override the settings above
+	SettingLoader::LoadWindowSettings(wind);
 	wnd.Init(wind);
 
 	engine.Init(wnd.getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);

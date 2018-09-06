@@ -3,7 +3,7 @@
 #include <sstream>
 #include <algorithm>
 
-void SettingLoader::LoadWindowSettings(std::string path)
+void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 {
 	std::ifstream file(path);
 
@@ -28,24 +28,24 @@ void SettingLoader::LoadWindowSettings(std::string path)
 					sscanf_s(line.c_str(), " %*s %f", &t);
 					if (t == 1)
 					{
-						//Set True
+						wind.fullscreen = true;
 					}
 					else
 					{
-						//Set false
+						wind.fullscreen = false;
 					}
 				}
 				else if(type == "width")
 				{
 					float t = 0;
 					sscanf_s(line.c_str(), " %*s %f", &t);
-					//Set width
+					wind.clientWidth = t;
 				}
 				else if(type == "height")
 				{
 					float t = 0;
 					sscanf_s(line.c_str(), " %*s %f", &t);
-					//Set he
+					wind.clientHeight = t;
 				}
 			}
 		}
@@ -66,7 +66,7 @@ void SettingLoader::SaveWindowSettings(std::string path)
 	if (file.is_open())
 	{
 
-		file << "temp";
+		//file << "temp";
 	}
 	else
 	{
