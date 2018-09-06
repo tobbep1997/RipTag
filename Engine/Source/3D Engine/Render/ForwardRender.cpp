@@ -4,7 +4,7 @@
 
 ForwardRender::ForwardRender()
 {
-
+	
 
 }
 
@@ -40,6 +40,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	//ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, L"../Engine/Source/Shader/PixelShader.hlsl");
 	m_vertexShader = DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 2);
 	m_pixelShader =  DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
+
+	_CreateConstantBuffer();
 }
 
 struct TriangleVertex
@@ -102,6 +104,8 @@ void ForwardRender::GeometryPass()
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &vertexBuffer);
 	DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 
+	_mapTempConstantBuffer();
+
 	DX::g_deviceContext->Draw(3, 0);
 
 	vertexBuffer->Release();
@@ -122,3 +126,36 @@ void ForwardRender::Release()
 
 }
 
+
+void ForwardRender::_CreateConstantBuffer()
+{
+	D3D11_BUFFER_DESC exampleBufferDesc;
+	exampleBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	exampleBufferDesc.ByteWidth = sizeof(tempCPU);
+	exampleBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	exampleBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	exampleBufferDesc.MiscFlags = 0;
+	exampleBufferDesc.StructureByteStride = 0;
+
+	// check if the creation failed for any reason
+	HRESULT hr = 0;
+	hr = DX::g_device->CreateBuffer(&exampleBufferDesc, nullptr, &m_tempConstant);
+	if (FAILED(hr))
+	{
+		// handle the error, could be fatal or a warning...
+		exit(-1);
+	}
+}
+
+void ForwardRender::_mapTempConstantBuffer()
+{
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	DX::g_deviceContext->Map(m_tempConstant, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+	// copy memory from CPU to GPU the entire struct
+	m_values.val1 += 0.001;
+	memcpy(dataPtr.pData, &m_values, sizeof(tempCPU));
+	// UnMap constant buffer so that we can use it again in the GPU
+	DX::g_deviceContext->Unmap(m_tempConstant, 0);
+	// set resource to Vertex Shader
+	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_tempConstant);
+}

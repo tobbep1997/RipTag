@@ -4,6 +4,15 @@
 class ForwardRender
 {
 
+struct tempCPU
+{
+	float val1;
+	float val2;
+	float val3;
+	float val4;
+
+};
+
 private:
 
 	
@@ -18,7 +27,9 @@ private:
 
 	D3D11_VIEWPORT				m_viewport;
 
-
+	//Constant Buffer TEMP
+	ID3D11Buffer* m_tempConstant = nullptr;
+	tempCPU m_values = { 0.0,0.0,0.0,0.0 };;
 
 public:
 	ForwardRender();
@@ -37,7 +48,7 @@ public:
 
 	void Release();
 private:
-
-	
+	void _CreateConstantBuffer();
+	void _mapTempConstantBuffer();
 };
 
