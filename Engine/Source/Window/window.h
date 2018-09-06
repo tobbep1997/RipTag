@@ -17,12 +17,21 @@ struct WindowContext
 	WNDCLASSEX wcex;
 };
 
+struct ProcMsg
+{
+	UINT msg;
+	WPARAM wParam;
+	LPARAM lPARAM;
+};
+
 class Window
 {
 private:
 	HWND m_wHandler; 
 	WindowContext m_windowContext; 
-	MSG m_msg;
+	MSG m_Peekmsg;
+
+	ProcMsg m_procMsg;
 
 public:
 	Window(); 
@@ -42,6 +51,7 @@ public:
 	static LRESULT CALLBACK StaticWndProc(HWND, UINT, WPARAM, LPARAM); 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); //This is where msg are executed
 
+	ProcMsg getWindowProcMsg(); //Returns the proc msg from the window
 private:
 	void _resize(UINT width, UINT height);	//Will Resize the window to the params specified
 	void _setPosition(UINT posX, UINT posY); //Will Set the position of the window
