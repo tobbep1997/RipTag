@@ -5,4 +5,5 @@
 namespace SettingLoader
 {
 	void LoadWindowSettings(std::string path);
+	void SaveWindowSettings(std::string path);
 }
