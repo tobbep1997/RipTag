@@ -20,7 +20,7 @@ Engine3D::~Engine3D()
 {
 }
 
-HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0)
+HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 {
 	UINT createDeviceFlags = 0;
 
@@ -62,11 +62,19 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 
 		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
 		//we are creating the standard depth buffer here.
 		_createDepthSetencil(width, hight);
+		_initViewPort(width, hight);
 
 		DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
 	}
+	m_forwardRendering.Init(m_swapChain,m_backBufferRTV,m_depthStencilView,m_depthBufferTex,m_samplerState,m_viewport);
 	return hr;
+}
+
+void Engine3D::Draw()
+{
+	m_forwardRendering.GeometryPass();
+	m_forwardRendering.Flush();
 }
 
 void Engine3D::Release()
@@ -78,6 +86,8 @@ void Engine3D::Release()
 	DX::SafeRelease(m_depthStencilView);
 	DX::SafeRelease(m_depthBufferTex);
 	DX::SafeRelease(m_samplerState);	
+
+	m_forwardRendering.Release();
 }
 
 void Engine3D::_createDepthSetencil(UINT width, UINT hight)
@@ -99,4 +109,14 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	//Create the Depth/Stencil View
 	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex);
 	hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView);
+}
+
+void Engine3D::_initViewPort(UINT width, UINT hight)
+{
+	m_viewport.Width = static_cast<float>(width);
+	m_viewport.Height = static_cast<float>(hight);
+	m_viewport.MinDepth = 0.0f;
+	m_viewport.MaxDepth = 1.0f;
+	m_viewport.TopLeftX = 0;
+	m_viewport.TopLeftY = 0;
 }
