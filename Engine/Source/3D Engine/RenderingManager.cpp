@@ -32,6 +32,11 @@ void RenderingManager::Update()
 	wnd.PollEvents();
 }
 
+void RenderingManager::Flush()
+{
+	engine.Draw();
+}
+
 void RenderingManager::Release()
 {
 	engine.Release();

@@ -1,5 +1,11 @@
 
-float4 main() : SV_TARGET
+struct VS_OUTPUT
 {
-	return float4(0,1,0,1);
+	float4 pos : SV_POSITION;
+	float4 color : COLOR;
+};
+
+float4 main(VS_OUTPUT input) : SV_TARGET
+{
+	return input.color;
 }

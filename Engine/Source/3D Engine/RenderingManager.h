@@ -13,6 +13,8 @@ public:
 	void Init(HINSTANCE hInstance);
 	void Update();
 
+	void Flush();
+
 	void Release();
 
 
