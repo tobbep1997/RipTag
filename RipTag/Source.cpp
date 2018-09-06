@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "Source/3D Engine/RenderingManager.h"
-
+#include "Source/Shader/ShaderManager.h"
 
 #if _DEBUG
 #include <iostream>
@@ -23,11 +23,44 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	renderingManager.Init(hInstance);
 
+	Shaders::ShaderManager sm;
+
+	ID3D11VertexShader * vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	vs = sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	sm.UnloadShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+
 	while (renderingManager.GetWindow().isOpen())
 	{
 		renderingManager.Update();
 	}
 	
+	sm.Release();
 	renderingManager.Release();
 	return 0;
 }

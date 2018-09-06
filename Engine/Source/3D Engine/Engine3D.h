@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
+#include "Render/ForwardRender.h"
 
 class Engine3D
 {
@@ -17,13 +18,22 @@ private:
 
 	D3D11_VIEWPORT				m_viewport;
 
+
+	ForwardRender				m_forwardRendering;
+
 	UINT m_sampleCount = 1;
+	
 public:
 	Engine3D();
 	~Engine3D();
 
-	HRESULT Init(HWND hwnd, bool fullscreen);
+	HRESULT Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0);
+
+	void Clear();
 
 	void Release();
+private:
+	void _createDepthSetencil(UINT width = 0, UINT hight = 0);
 };
+
 

@@ -24,7 +24,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 
 	wnd.Init(wind);
 
-	engine.Init(wnd.getHandler(), wind.fullscreen);
+	engine.Init(wnd.getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);
 }
 
 void RenderingManager::Update()

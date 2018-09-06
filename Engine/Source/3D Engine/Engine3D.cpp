@@ -20,7 +20,7 @@ Engine3D::~Engine3D()
 {
 }
 
-HRESULT Engine3D::Init(HWND hwnd, bool fullscreen)
+HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0)
 {
 	UINT createDeviceFlags = 0;
 
@@ -61,7 +61,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen)
 		// use the back buffer address to create the render target
 		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
 		//we are creating the standard depth buffer here.
-		//_createDepthBuffer();
+		_createDepthSetencil(width, hight);
 
 		DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
@@ -78,4 +78,25 @@ void Engine3D::Release()
 	DX::SafeRelease(m_depthStencilView);
 	DX::SafeRelease(m_depthBufferTex);
 	DX::SafeRelease(m_samplerState);	
+}
+
+void Engine3D::_createDepthSetencil(UINT width, UINT hight)
+{
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+
+	depthStencilDesc.Width = width;
+	depthStencilDesc.Height = hight;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = m_sampleCount;
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	//Create the Depth/Stencil View
+	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex);
+	hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView);
 }
