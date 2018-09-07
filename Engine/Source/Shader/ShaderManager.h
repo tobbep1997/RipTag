@@ -22,7 +22,8 @@ namespace Shaders
 		//<ID3D11[type]Shader> 
 		//Do not delete pointer. It's a managed pointer that will be deleted with  the class.
 		template <typename T> T* LoadShader(const std::wstring path, const std::string entryPoint = "main");
-		template <typename T> T* GetShader(const std::wstring path);
+		//DOSE NOT WORK?!?!??!
+		//template <typename T> T* GetShader(const std::wstring path, const std::string entryPoint = "main");
 
 		ID3D11VertexShader * VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size);
 		ID3D11InputLayout * GetInputLayout(const std::wstring path);
@@ -77,12 +78,13 @@ namespace Shaders
 	{
 		return nullptr;
 	}
+	/*
 	template<typename T>
-	inline T * ShaderManager::GetShader(const std::wstring path)
+	inline T * ShaderManager::GetShader(const std::wstring path, const std::string entryPoint)
 	{
-		return loadShader(path);
+		return loadShader(path, entryPoint);
 	}
-
+	*/
 	//-------------------
 	/*
 	Explicit template functions to know what kind of shader to create

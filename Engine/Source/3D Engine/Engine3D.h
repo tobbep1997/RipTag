@@ -30,7 +30,7 @@ public:
 	HRESULT Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0);
 
 	void Draw();
-
+	
 	void Clear();
 
 	void Release();

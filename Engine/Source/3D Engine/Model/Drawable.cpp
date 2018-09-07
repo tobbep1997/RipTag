@@ -25,7 +25,7 @@ void Drawable::_setDynamicBuffer()
 {
 }
 
-void Drawable::CalcMatrix()
+void Drawable::CalcWorldMatrix()
 {
 	using namespace DirectX;
 	XMMATRIX translation	=	XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
@@ -35,7 +35,7 @@ void Drawable::CalcMatrix()
 	DirectX::XMStoreFloat4x4A(&this->p_worldMatrix, XMMatrixTranspose(rotation * scaling * translation));
 }	
 
-void Drawable::SetBuffer()
+void Drawable::CreateBuffer()
 {
 	switch (p_objectType)
 	{
@@ -77,9 +77,58 @@ Drawable::~Drawable()
 	DX::SafeRelease(m_vertexBuffer);
 }
 
+void Drawable::setPosition(DirectX::XMFLOAT4A pos)
+{
+	this->p_position = pos;
+}
+
+void Drawable::setPosition(float x, float y, float z, float w)
+{
+	this->setPosition(DirectX::XMFLOAT4A(x, y, z, w));
+}
+
+void Drawable::setRotation(DirectX::XMFLOAT4A rot)
+{
+	this->p_rotation = rot;
+}
+
+void Drawable::setRotation(float x, float y, float z)
+{
+	this->setRotation(DirectX::XMFLOAT4A(x, y, z, 1));
+}
+
+void Drawable::addRotation(float x, float y, float z)
+{
+	p_rotation.x += x;
+	p_rotation.y += y;
+	p_rotation.z += z;
+}
+
+void Drawable::setScale(DirectX::XMFLOAT4A scale)
+{
+	this->p_scale = scale;
+}
+
+void Drawable::setScale(float x, float y, float z, float w)
+{
+	this->setScale(DirectX::XMFLOAT4A(x, y, z, w));
+}
+
+
+
 void Drawable::Draw()
 {
 	DX::g_geometryQueue.push_back(this);
+}
+
+std::wstring Drawable::getVertexPath() const
+{
+	return this->p_vertexPath;
+}
+
+std::wstring Drawable::getPixelPath() const
+{
+	return this->p_pixelPath;
 }
 
 UINT Drawable::VertexSize()
@@ -94,5 +143,6 @@ ID3D11Buffer * Drawable::getBuffer()
 
 DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 {
+	this->CalcWorldMatrix();
 	return this->p_worldMatrix;
 }
