@@ -8,6 +8,7 @@
 #include "../Extern.h"
 #include "StaticMesh.h"
 #include "DynamicMesh.h"
+#include <string>
 enum ObjectType
 {
 	Static,
@@ -23,21 +24,30 @@ private:
 	void _setStaticBuffer();
 	void _setDynamicBuffer();
 
+
 protected:
+	//Information for worldMatrix
 	DirectX::XMFLOAT4A p_position;
 	DirectX::XMFLOAT4A p_scale;
 	DirectX::XMFLOAT4A p_rotation;
 
-	ObjectType p_objectType;
-
+	//WorldMatrix. scale * rot* translateopn
 	DirectX::XMFLOAT4X4A p_worldMatrix;
+
+	//Calculates the worldMatrix
+	void CalcWorldMatrix();
+
+	//Object type, is it static or dynamic
+	ObjectType p_objectType;
 
 	ID3D11Buffer * m_vertexBuffer;
 
-	void CalcMatrix();
+	std::wstring p_vertexPath;
+	std::wstring p_pixelPath;
 
-	void SetBuffer();
+	void CreateBuffer();
 
+	//Setting the mesh for the object
 	void SetMesh(StaticMesh * staticMesh);
 	void SetMesh(DynamicMesh * dynamicMesh);
 
@@ -45,7 +55,22 @@ public:
 	Drawable(ObjectType ObjecType = ObjectType::Static);
 	virtual ~Drawable();
 
+	void setPosition(DirectX::XMFLOAT4A pos);
+	void setPosition(float x, float y, float z, float w = 1);
+
+	void setRotation(DirectX::XMFLOAT4A rot);
+	void setRotation(float x, float y, float z);
+	void addRotation(float x = 0, float y = 0, float z = 0);
+											  
+	void setScale(DirectX::XMFLOAT4A scale);
+	void setScale(float x = 1, float y = 1, float z = 1, float w = 1);
+
+
+	
 	void Draw();
+
+	std::wstring getVertexPath() const;
+	std::wstring getPixelPath() const;
 
 	UINT VertexSize();
 
@@ -53,5 +78,9 @@ public:
 
 	//Returns the objects worldMatrix
 	DirectX::XMFLOAT4X4A getWorldmatrix();
+
+
+
+
 };
 

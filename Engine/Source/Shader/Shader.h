@@ -46,7 +46,7 @@ namespace Shaders
 		unsigned int m_key;
 		ShaderType m_type;
 
-		
+		//Light quaris? light ocluion google fucking lights TODO
 	public:
 		Shader();
 		~Shader();

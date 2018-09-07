@@ -1,9 +1,8 @@
 cbuffer EXAMPLE_BUFFER : register(b0)
 {
-	float val1;
-	float val2;
-	float val3;
-	float val4;
+	float4x4 view;
+	float4x4 projection;
+	float4x4 worldMatrix;
 };
 
 
@@ -25,12 +24,9 @@ VS_OUTPUT main(VS_INPUT input)
 {
 
 	VS_OUTPUT output;
+	
 
-	input.pos.x += sin(val1);
-	input.color.x += sin(val1);
-	input.color.y += sin(val1 - 0.5);
-	input.color.z += sin(val1 - 1.5);
-	output.pos = input.pos;
+	output.pos = mul(input.pos, mul(worldMatrix, mul(view,  projection)));
 	output.color = input.color;
 	return output;
 }
