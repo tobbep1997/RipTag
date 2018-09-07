@@ -6,6 +6,8 @@ ID3D11DeviceContext*	DX::g_deviceContext;
 
 Shaders::ShaderManager DX::g_shaderManager;
 
+std::vector<Drawable*> DX::g_geometryQueue;
+
 void DX::SafeRelease(IUnknown * unknown)
 {
 	if (unknown)
@@ -67,7 +69,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		_createDepthSetencil(width, hight);
 		_initViewPort(width, hight);
 
-		DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
+		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
 	}
 	m_forwardRendering.Init(m_swapChain,m_backBufferRTV,m_depthStencilView,m_depthBufferTex,m_samplerState,m_viewport);

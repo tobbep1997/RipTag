@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
+#include "Source/3D Engine/Model/Model.h"
 
 #if _DEBUG
 #include <iostream>
@@ -23,14 +24,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	renderingManager.Init(hInstance);
 
-
+	Model m(ObjectType::Static);
+	StaticMesh * s = new StaticMesh();
+	s->SET_DEFAULT();
+	m.SetModel(s);
+	
 
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
+		m.Draw();
 		renderingManager.Flush();
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
+
+	delete s;
 	return 0;
 }

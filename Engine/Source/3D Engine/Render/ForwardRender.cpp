@@ -27,18 +27,16 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	m_samplerState = samplerState;
 	m_viewport = viewport;
 	
-	//RIP
-	//m_vertexShader = m_sm.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/VertexShader.hlsl");
-	//HRESULT hr = DX::g_device->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), blob->GetBufferPointer(), blob->GetBufferSize(), &m_inputLayout);
+
 
 	ID3DBlob * blob = nullptr;
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	//ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 2, m_inputLayout);
-	//ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, L"../Engine/Source/Shader/PixelShader.hlsl");
-	m_vertexShader = DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 2);
+	m_vertexShader = DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
 	m_pixelShader =  DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
 
 	_CreateConstantBuffer();
@@ -53,13 +51,9 @@ struct TriangleVertex
 void ForwardRender::GeometryPass()
 {
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
-
-	//DX::g_deviceContext->ClearState();
+	
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);	
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
-
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
@@ -73,42 +67,57 @@ void ForwardRender::GeometryPass()
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	
 
-
-	TriangleVertex triangleVertices[3] =
+	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		0.0f, 0.5f, 0.0f, 1.0f,  
-		0.0f, 0.0f,  1.0f, 1.0f,  
+		UINT32 vertexSize = sizeof(StaticVertex);
+		UINT32 offset = 0;
+		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
-		0.5f, -0.5f, 0.0f, 1.0f,
-		1.0f, 1.0f,  1.0f, 1.0f, 
-		
-		-0.5f, -0.5f, 0.0f, 1.0f,
-		1.0f, 1.0f,  1.0f, 1.0f  
+		_mapTempConstantBuffer();
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
 
-	};
+	}
 
-	UINT32 vertexSize = sizeof(TriangleVertex);
-	UINT32 offset = 0;
-
-	ID3D11Buffer * vertexBuffer;
-
-	D3D11_BUFFER_DESC bufferDesc;
-	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(TriangleVertex) * 3;
+	DX::g_geometryQueue.clear();
 
 
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = triangleVertices;
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &vertexBuffer);
-	DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 
-	_mapTempConstantBuffer();
+	//TriangleVertex triangleVertices[3] =
+	//{
+	//	0.0f, 0.5f, 0.0f, 1.0f,  
+	//	0.0f, 0.0f,  1.0f, 1.0f,  
 
-	DX::g_deviceContext->Draw(3, 0);
+	//	0.5f, -0.5f, 0.0f, 1.0f,
+	//	1.0f, 1.0f,  1.0f, 1.0f, 
+	//	
+	//	-0.5f, -0.5f, 0.0f, 1.0f,
+	//	1.0f, 1.0f,  1.0f, 1.0f  
 
-	vertexBuffer->Release();
+	//};
+
+	//UINT32 vertexSize = sizeof(TriangleVertex);
+	//UINT32 offset = 0;
+
+	//ID3D11Buffer * vertexBuffer;
+
+	//D3D11_BUFFER_DESC bufferDesc;
+	//memset(&bufferDesc, 0, sizeof(bufferDesc));
+	//bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	//bufferDesc.ByteWidth = sizeof(TriangleVertex) * 3;
+
+
+	//D3D11_SUBRESOURCE_DATA vertexData;
+	//vertexData.pSysMem = triangleVertices;
+	//HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &vertexBuffer);
+	//DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+
+	//_mapTempConstantBuffer();
+
+	//DX::g_deviceContext->Draw(3, 0);
+
+	//vertexBuffer->Release();
 }
 
 void ForwardRender::Flush()
@@ -122,8 +131,7 @@ void ForwardRender::Present()
 
 void ForwardRender::Release()
 {
-
-
+	DX::SafeRelease(m_tempConstant);
 }
 
 
