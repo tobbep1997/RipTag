@@ -137,7 +137,7 @@ void ForwardRender::CREATE_VIEWPROJ()
 {
 	using namespace DirectX;
 
-	XMFLOAT3 cameraStored = XMFLOAT3(0, 0, -2);
+	XMFLOAT3 cameraStored = XMFLOAT3(0, 0, -5);
 
 	XMFLOAT3 lookAtStored = XMFLOAT3(0, 0, 1);
 

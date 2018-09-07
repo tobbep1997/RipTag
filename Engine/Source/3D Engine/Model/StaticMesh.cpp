@@ -30,24 +30,34 @@ void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 void StaticMesh::SET_DEFAULT()
 {
 	using namespace DirectX;
-	StaticVertex v[3];
 
-	v[0].pos = XMFLOAT4A(0.0f, 0.5f, 0.0f, 1.0f);
-	v[0].normal = XMFLOAT4A(0.0f, 0.0f, 1.0f, 1.0f);
-	v[0].tangent = XMFLOAT4A(0, 0, 0, 0);
-	v[0].uvPos = XMFLOAT2A(0, 0);
+	MyLibrary::Loadera meshloader;
+	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
 
-	v[1].pos = XMFLOAT4A(0.5f, -0.5f, 0.0f, 1.0f);
-	v[1].normal = XMFLOAT4A(1.0f, 1.0f, 1.0f, 1.0f);
-	v[1].tangent = XMFLOAT4A(0, 0, 0, 0);
-	v[1].uvPos = XMFLOAT2A(0, 0);
+	StaticVertex tempvertex;
+	for (int i = 0; i < newMesh.mesh_nrOfVertices; i++)
+	{
+		
+		tempvertex.pos.x = newMesh.mesh_vertices[i].vertex_position[0];
+		tempvertex.pos.y = newMesh.mesh_vertices[i].vertex_position[1];
+		tempvertex.pos.z = newMesh.mesh_vertices[i].vertex_position[2];
+		tempvertex.pos.w = 1.0f;
+		
+		tempvertex.normal.x = newMesh.mesh_vertices[i].vertex_normal[0];
+		tempvertex.normal.y = newMesh.mesh_vertices[i].vertex_normal[1];
+		tempvertex.normal.z = newMesh.mesh_vertices[i].vertex_normal[2];
+		tempvertex.normal.w = 0.0f;
+		
+		tempvertex.uvPos.x = newMesh.mesh_vertices[i].vertex_UVCoord[0];
+		tempvertex.uvPos.y = newMesh.mesh_vertices[i].vertex_UVCoord[1];
+		
+		tempvertex.tangent.x = newMesh.mesh_vertices[i].vertex_tangent[0];
+		tempvertex.tangent.y = newMesh.mesh_vertices[i].vertex_tangent[1];
+		tempvertex.tangent.z = newMesh.mesh_vertices[i].vertex_tangent[2];
+		tempvertex.tangent.x = 0.0f;
 
-	v[2].pos = XMFLOAT4A(-0.5f, -0.5f, 0.0f, 1.0f);
-	v[2].normal = XMFLOAT4A(1.0f, 1.0f, 1.0f, 1.0f);
-	v[2].tangent = XMFLOAT4A(0, 0, 0, 0);
-	v[2].uvPos = XMFLOAT2A(0, 0);
+		staticVertex.push_back(tempvertex);
 
-	staticVertex.push_back(v[0]);
-	staticVertex.push_back(v[1]);
-	staticVertex.push_back(v[2]);
+	}
+	delete newMesh.mesh_vertices;
 }
