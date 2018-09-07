@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable : 4172)
 #include "CoreMessage.h"
 #include <vector>
 #include "../Window/window.h"

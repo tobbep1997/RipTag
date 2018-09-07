@@ -39,13 +39,13 @@ void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 				{
 					float t = 0;
 					sscanf_s(line.c_str(), " %*s %f", &t);
-					wind.clientWidth = t;
+					wind.clientWidth = (UINT)t;
 				}
 				else if(type == "height")
 				{
 					float t = 0;
 					sscanf_s(line.c_str(), " %*s %f", &t);
-					wind.clientHeight = t;
+					wind.clientHeight = (UINT)t;
 				}
 			}
 		}

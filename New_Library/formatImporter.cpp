@@ -38,7 +38,7 @@ namespace MyLibrary
 
 			meshToReturn.mesh_vertices = new VertexFromFile[meshname.mesh_nrOfVertices];
 
-			for (int i = 0; i < meshname.mesh_nrOfVertices; i++)
+			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
 				//std::cout << vertices[i].vertex_position[0] << ", " << vertices[i].vertex_position[1] << ", " << vertices[i].vertex_position[2] << std::endl;
 				meshToReturn.mesh_vertices[i].vertex_position[0] = vertices[i].vertex_position[0];
@@ -104,7 +104,7 @@ namespace MyLibrary
 
 			meshToReturn.mesh_vertices = new AnimatedVertexFromFile[meshname.mesh_nrOfVertices];
 
-			for (int i = 0; i < meshname.mesh_nrOfVertices; i++)
+			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
 
 				meshToReturn.mesh_vertices[i].vertex_position[0] = vertices[i].vertex_position[0];
@@ -170,7 +170,7 @@ namespace MyLibrary
 
 			customSkeletonFile.read((char*)joints, skeleton_header.skeleton_nrOfJoints * sizeof(Joint));
 			skeleton_to_return.skeleton_joints = new Joint[skeleton_header.skeleton_nrOfJoints];
-			for (int i = 0; i < skeleton_header.skeleton_nrOfJoints; i++)
+			for (unsigned int i = 0; i < skeleton_header.skeleton_nrOfJoints; i++)
 			{
 				for (int j = 0; j < MAX_FILENAME; j++)
 					skeleton_to_return.skeleton_joints[i].joint_name[j] = joints[i].joint_name[j];
@@ -204,7 +204,7 @@ namespace MyLibrary
 			customAnimationFile.read((char*)keyframes, animation_header.anim_nrOfKeys * sizeof(Transform));
 
 			animation_to_return.keyframe_transformations = new Transform[animation_header.anim_nrOfKeys];
-			for (int i = 0; i < animation_header.anim_nrOfKeys; i++)
+			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys; i++)
 			{
 				animation_to_return.keyframe_transformations[i] = keyframes[i];
 			}
@@ -323,7 +323,7 @@ namespace MyLibrary
 	template<class T>
 	inline void MyLibrary::Loadera::calculateTangentsAndBitangents(T mesh)
 	{
-		for (int i = 0; i < mesh.mesh_nrOfVertices; i += 3)
+		for (unsigned int i = 0; i < mesh.mesh_nrOfVertices; i += 3)
 		{
 			//mesh.mesh_vertices[i].vertex_position;
 			float vec1[3];

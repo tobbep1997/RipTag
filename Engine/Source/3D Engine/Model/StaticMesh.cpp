@@ -35,7 +35,7 @@ void StaticMesh::SET_DEFAULT()
 	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
 
 	StaticVertex tempvertex;
-	for (int i = 0; i < newMesh.mesh_nrOfVertices; i++)
+	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 		
 		tempvertex.pos.x = newMesh.mesh_vertices[i].vertex_position[0];
@@ -70,7 +70,7 @@ void StaticMesh::LoadModel(const std::string & path)
 	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
 
 	StaticVertex tempvertex;
-	for (int i = 0; i < newMesh.mesh_nrOfVertices; i++)
+	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 
 		tempvertex.pos.x = newMesh.mesh_vertices[i].vertex_position[0];

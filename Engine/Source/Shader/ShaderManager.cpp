@@ -36,7 +36,7 @@ namespace Shaders
 			if (shadersHashTable[key][i]->getPath() == path)
 				return shadersHashTable[key][i]->getInputLayout();
 		}
-
+		return nullptr;
 	}
 	void ShaderManager::UnloadShader(const std::wstring path)
 	{

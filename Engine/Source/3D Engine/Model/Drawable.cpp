@@ -13,7 +13,7 @@ void Drawable::_setStaticBuffer()
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(StaticVertex) * m_staticMesh->getVertice().size();
+	bufferDesc.ByteWidth = sizeof(StaticVertex) * (UINT)m_staticMesh->getVertice().size();
 
 
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -133,7 +133,7 @@ std::wstring Drawable::getPixelPath() const
 
 UINT Drawable::VertexSize()
 {
-	return m_staticMesh->getVertice().size();
+	return (UINT)m_staticMesh->getVertice().size();
 }
 
 ID3D11Buffer * Drawable::getBuffer()
