@@ -6,18 +6,25 @@ class ForwardRender
 
 struct tempCPU
 {
-	float val1;
-	float val2;
-	float val3;
-	float val4;
+	DirectX::XMFLOAT4X4A view;
+	DirectX::XMFLOAT4X4A projection;
+
+	DirectX::XMFLOAT4X4A worldMatrix;
 
 };
 
 private:
 
+	DirectX::XMFLOAT4X4A view;
+	DirectX::XMFLOAT4X4A projection;
+
 	
 	ID3D11VertexShader * m_vertexShader;
 	ID3D11PixelShader * m_pixelShader;
+
+	//ShaderTest
+	std::wstring m_lastVertexPath;
+	std::wstring m_lastPixelPath;
 
 	IDXGISwapChain*				m_swapChain;
 	ID3D11RenderTargetView*		m_backBufferRTV;
@@ -29,7 +36,7 @@ private:
 
 	//Constant Buffer TEMP
 	ID3D11Buffer* m_tempConstant = nullptr;
-	tempCPU m_values = { 0.0,0.0,0.0,0.0 };;
+	tempCPU m_values;// = { 0.0,0.0,0.0,0.0 };;
 
 public:
 	ForwardRender();
@@ -50,5 +57,9 @@ public:
 private:
 	void _CreateConstantBuffer();
 	void _mapTempConstantBuffer();
+	void CREATE_VIEWPROJ();
+
+
+	void _SetShaders(int i);
 };
 

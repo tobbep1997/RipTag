@@ -154,6 +154,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
+    <ClInclude Include="Source\3D Engine\Model\Model.h" />
+    <ClInclude Include="Source\3D Engine\Model\StaticMesh.h" />
+    <ClInclude Include="Source\3D Engine\Model\Drawable.h" />
     <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
     <ClInclude Include="Source\Shader\Shader.h" />
     <ClInclude Include="Source\Shader\ShaderManager.h" />
@@ -167,9 +171,14 @@
     <ClInclude Include="Source\Messages\PostalManagerRender.h" />
     <ClInclude Include="Source\Messages\WindowMessage.h" />
     <ClInclude Include="Source\ShaderCreator.h" />
+    <ClInclude Include="Source\Structs.h" />
     <ClInclude Include="Source\Window\window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Model.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Drawable.cpp" />
     <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
     <ClCompile Include="Source\Shader\Shader.cpp" />
     <ClCompile Include="Source\Shader\ShaderManager.cpp" />

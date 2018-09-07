@@ -5,18 +5,21 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-
+#include <vector>
 //#include "../Shader/ShaderManager.h"
+#include "Model/Drawable.h"
 
 namespace Shaders
 {
 	class ShaderManager;
 }
-
+class Drawable;
 namespace DX {
 	extern ID3D11Device*			g_device;
 	extern ID3D11DeviceContext*		g_deviceContext;
 	   
 	extern void SafeRelease(IUnknown * u);
 	extern Shaders::ShaderManager g_shaderManager;
+
+	extern std::vector<Drawable*> g_geometryQueue;
 }
