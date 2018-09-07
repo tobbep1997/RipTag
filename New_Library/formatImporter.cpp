@@ -69,6 +69,8 @@ namespace MyLibrary
 			//meshToReturn.mesh_materialID = meshname.mesh_materialID;
 
 			customMeshFile.close();
+			delete vertices;
+
 		}
 
 		return meshToReturn;

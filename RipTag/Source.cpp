@@ -32,7 +32,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m2.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	m2.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 
-	m.setPosition(1, 0, 0);
+	m.setPosition(0, 0, 0);
 	m2.setPosition(-1, 0, 0);
 	StaticMesh * s = new StaticMesh();
 	s->SET_DEFAULT();
@@ -43,7 +43,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		renderingManager.Update();
 		m.Draw();
-		m2.Draw();
+		//m2.Draw();
 		renderingManager.Flush();
 	}
 	DX::g_shaderManager.Release();
