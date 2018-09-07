@@ -2,7 +2,7 @@
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
-#pragma comment(lib, "../x64/Debug/New_Library.lib")
+#pragma comment(lib, "New_Library.lib")
 
 #if _DEBUG
 #include <iostream>
