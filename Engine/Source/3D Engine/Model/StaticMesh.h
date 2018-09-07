@@ -22,5 +22,7 @@ public:
 
 	void SET_DEFAULT();
 
+	void LoadModel(const std::string & path);
+
 };
 

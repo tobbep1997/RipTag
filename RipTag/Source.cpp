@@ -35,20 +35,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m.setPosition(0, 0, 0);
 	m2.setPosition(-1, 0, 0);
 	StaticMesh * s = new StaticMesh();
-	s->SET_DEFAULT();
+	StaticMesh * d = new StaticMesh();
+	s->LoadModel("../Assets/kub.bin");
+	d->LoadModel("../Assets/sphere.bin");
 	m.SetModel(s);
-	m2.SetModel(s);
+	m2.SetModel(d);
 
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
 		m.Draw();
-		//m2.Draw();
+		m2.Draw();
 		renderingManager.Flush();
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
 
 	delete s;
+	delete d;
 	return 0;
 }
