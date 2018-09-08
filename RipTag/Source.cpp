@@ -25,6 +25,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	renderingManager.Init(hInstance);
 
+	Camera camera = Camera(DirectX::XM_PI * 0.5f, 1.0f);
+	camera.setPosition(0, 0, -5);
+
 	Model m(ObjectType::Static);
 	Model m2;
 	m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
@@ -46,7 +49,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.Update();
 		m.Draw();
 		m2.Draw();
-		renderingManager.Flush();
+		renderingManager.Flush(camera);
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
