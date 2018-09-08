@@ -31,7 +31,7 @@ namespace Shaders
 	ID3D11InputLayout * ShaderManager::GetInputLayout(const std::wstring path)
 	{
 		unsigned int key = getKey(path);
-		for (int i = 0; i < shadersHashTable[key].size(); i++)
+		for (unsigned int i = 0; i < shadersHashTable[key].size(); i++)
 		{
 			if (shadersHashTable[key][i]->getPath() == path)
 				return shadersHashTable[key][i]->getInputLayout();
@@ -41,7 +41,7 @@ namespace Shaders
 	void ShaderManager::UnloadShader(const std::wstring path)
 	{
 		unsigned int key = getKey(path);
-		for (int i = 0; i < shadersHashTable[key].size(); i++)
+		for (unsigned int i = 0; i < shadersHashTable[key].size(); i++)
 		{
 			if (shadersHashTable[key][i]->getPath() == path)
 			{
@@ -67,7 +67,7 @@ namespace Shaders
 	unsigned int ShaderManager::getKey(std::wstring path)
 	{
 		unsigned int sum = 0;
-		for (int i = 0; i < path.size(); i++)
+		for (unsigned int i = 0; i < path.size(); i++)
 		{
 			sum += path[i];
 		}
@@ -77,7 +77,7 @@ namespace Shaders
 	Shader* ShaderManager::find(std::wstring path)
 	{
 		unsigned int key = getKey(path);
-		for (int i = 0; i < shadersHashTable[key].size(); i++)
+		for (unsigned int i = 0; i < shadersHashTable[key].size(); i++)
 		{
 			if (shadersHashTable[key][i]->getPath() == path)
 				return shadersHashTable[key][i];
