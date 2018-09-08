@@ -49,12 +49,14 @@ public:
 				ID3D11SamplerState*			m_samplerState,
 				D3D11_VIEWPORT				m_viewport);
 	
-	void GeometryPass();
+	
 	void Flush();
-	void Present();
+	//void Present();
 
 	void Release();
 private:
+	void _GeometryPass();
+
 	void _CreateConstantBuffer();
 	void _mapTempConstantBuffer();
 	void CREATE_VIEWPROJ();

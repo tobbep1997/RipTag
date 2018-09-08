@@ -78,8 +78,13 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 
 void Engine3D::Draw()
 {
-	m_forwardRendering.GeometryPass();
 	m_forwardRendering.Flush();
+
+}
+
+void Engine3D::Present()
+{
+	m_swapChain->Present(0, 0);
 }
 
 void Engine3D::Release()

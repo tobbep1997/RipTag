@@ -49,7 +49,7 @@ struct TriangleVertex
 	float r, g, b, a;
 };
 
-void ForwardRender::GeometryPass()
+void ForwardRender::_GeometryPass()
 {
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 	
@@ -84,12 +84,12 @@ void ForwardRender::GeometryPass()
 
 void ForwardRender::Flush()
 {
-	m_swapChain->Present(0, 0);
+	_GeometryPass();
 }
-
-void ForwardRender::Present()
-{
-}
+//
+//void ForwardRender::Present()
+//{
+//}
 
 void ForwardRender::Release()
 {
@@ -164,7 +164,6 @@ void ForwardRender::_SetShaders(int i)
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	if (m_lastPixelPath != DX::g_geometryQueue[i]->getPixelPath())
 	{
 		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[i]->getPixelPath()), nullptr, 0);
