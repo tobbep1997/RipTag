@@ -82,6 +82,11 @@ void Engine3D::Flush(Camera & camera)
 	m_forwardRendering.Flush(camera);
 }
 
+void Engine3D::Present()
+{
+	m_swapChain->Present(0, 0);
+}
+
 void Engine3D::Release()
 {
 	DX::SafeRelease(DX::g_device);

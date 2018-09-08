@@ -83,11 +83,12 @@ void ForwardRender::GeometryPass(Camera & camera)
 void ForwardRender::Flush(Camera & camera)
 {
 	this->GeometryPass(camera);
-	m_swapChain->Present(0, 0);
+	
 }
-
+//
 void ForwardRender::Present()
 {
+	m_swapChain->Present(0, 0);
 }
 
 void ForwardRender::Release()
@@ -190,7 +191,6 @@ void ForwardRender::_SetShaders(int i)
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	if (m_lastPixelPath != DX::g_geometryQueue[i]->getPixelPath())
 	{
 		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[i]->getPixelPath()), nullptr, 0);
