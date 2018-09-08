@@ -19,9 +19,10 @@ struct WindowContext
 
 struct ProcMsg
 {
+	HWND hwnd;
 	UINT msg;
 	WPARAM wParam;
-	LPARAM lPARAM;
+	LPARAM lParam;
 };
 
 class Window
@@ -40,18 +41,19 @@ public:
 	bool Init(WindowContext windowContext); //Creating window and calls show
 	void Update(CoreMessage msg); //Updates the window, based on incomming msg
 
-	void PollEvents(); //Get the window msg like "destory" when X button pressed
-
-	bool isOpen(); //Checks if the window is open
+	//Get the window msg like "destory" when X button pressed
+	void PollEvents(); 
+	//Checks if the window is open
+	bool isOpen(); 
 
 	WindowContext& getWindowContext(); //Get the windowcontext like "title", "width", "height"
 	HWND& getHandler();
 
-
+	
 	static LRESULT CALLBACK StaticWndProc(HWND, UINT, WPARAM, LPARAM); 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); //This is where msg are executed
 
-	ProcMsg getWindowProcMsg(); //Returns the proc msg from the window
+	ProcMsg & getWindowProcMsg(); //Returns the proc msg from the window
 private:
 	void _resize(UINT width, UINT height);	//Will Resize the window to the params specified
 	void _setPosition(UINT posX, UINT posY); //Will Set the position of the window

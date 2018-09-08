@@ -1,5 +1,5 @@
 #include "window.h"
-
+#include "../Debug/ImGui/imgui.h"
 
 void Window::_resize(UINT width, UINT height)
 {
@@ -49,8 +49,11 @@ LRESULT Window::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	return pParent->MsgProc(hWnd, uMsg, wParam, lParam);
 }
 
+
 LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	
+
 	switch (msg)
 	{
 	case WM_DESTROY:
@@ -61,14 +64,16 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		m_windowContext.clientWidth = LOWORD(lParam);
 		break;
 	}
+	
+	m_procMsg.hwnd = hwnd;
 	m_procMsg.msg = msg;
 	m_procMsg.wParam = wParam;
-	m_procMsg.lPARAM = lParam;
+	m_procMsg.lParam = lParam;
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-ProcMsg Window::getWindowProcMsg()
+ProcMsg & Window::getWindowProcMsg()
 {
 	return m_procMsg;
 }

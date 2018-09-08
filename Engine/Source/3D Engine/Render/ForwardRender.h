@@ -60,6 +60,8 @@ public:
 
 	void Release();
 private:
+	//void _GeometryPass();
+
 	void _CreateConstantBuffer();
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBuffer(Camera & camera);
