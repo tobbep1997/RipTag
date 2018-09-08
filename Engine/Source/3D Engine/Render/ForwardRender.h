@@ -38,7 +38,7 @@ private:
 
 	//Constant Buffer TEMP
 	ID3D11Buffer* m_objectBuffer = nullptr;
-	ObjectBuffer m_objectValues;// = { 0.0,0.0,0.0,0.0 };;
+	ObjectBuffer m_objectValues;
 
 	ID3D11Buffer * m_cameraBuffer = nullptr;
 	CameraBuffer m_cameraValues;

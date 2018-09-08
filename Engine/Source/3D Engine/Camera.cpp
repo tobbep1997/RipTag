@@ -60,18 +60,28 @@ void Camera::setDirection(float x, float y, float z, float w)
 	this->setDirection(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
-DirectX::XMFLOAT4X4A Camera::getView()
+const DirectX::XMFLOAT4A & Camera::getPosition() const
+{
+	return m_position;
+}
+
+const DirectX::XMFLOAT4A & Camera::getDirection() const
+{
+	return this->m_direction;
+}
+
+const DirectX::XMFLOAT4X4A & Camera::getView()
 {
 	_calcViewMatrix();
 	return this->m_view;
 }
 
-DirectX::XMFLOAT4X4A Camera::getProjection()
+const DirectX::XMFLOAT4X4A & Camera::getProjection() const
 {
 	return this->m_projection;
 }
 
-DirectX::XMFLOAT4X4A Camera::getViewProjection()
+const DirectX::XMFLOAT4X4A & Camera::getViewProjection()
 {
 	_calcViewMatrix();
 	_calcViewProjectionMatrix();

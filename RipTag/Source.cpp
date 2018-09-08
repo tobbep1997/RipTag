@@ -47,8 +47,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
+		m.addRotation(0, 0.001f, 0);
 		m.Draw();
 		m2.Draw();
+		
 		renderingManager.Flush(camera);
 	}
 	DX::g_shaderManager.Release();

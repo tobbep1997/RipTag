@@ -70,8 +70,6 @@ void ForwardRender::GeometryPass(Camera & camera)
 		_SetShaders(i);
 
 		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-		//m_objectValues.worldMatrix = DX::g_geometryQueue[i]->getWorldmatrix();
-		DX::g_geometryQueue[i]->addRotation(0, 0.001f);
 
 		_mapObjectBuffer(DX::g_geometryQueue[i]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
