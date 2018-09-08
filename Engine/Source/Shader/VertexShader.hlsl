@@ -1,10 +1,12 @@
-cbuffer EXAMPLE_BUFFER : register(b0)
+cbuffer OBJECT_BUFFER : register(b0)
 {
-	float4x4 view;
-	float4x4 projection;
 	float4x4 worldMatrix;
 };
 
+cbuffer CAMERA_BUFFER : register(b1)
+{
+    float4x4 viewProjection;
+};
 
 struct VS_INPUT
 {
@@ -29,7 +31,7 @@ VS_OUTPUT main(VS_INPUT input)
 	VS_OUTPUT output;
 	
 
-	output.pos = mul(input.pos, mul(worldMatrix, mul(view,  projection)));
+	output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
     output.worldPos = mul(input.pos, worldMatrix);
     output.normal = mul(input.normal, worldMatrix);
     output.tangent = mul(input.tangent, worldMatrix);

@@ -13,7 +13,7 @@ public:
 	void Init(HINSTANCE hInstance);
 	void Update();
 
-	void Flush();
+	void Flush(Camera & camera);
 
 	void Release();
 
