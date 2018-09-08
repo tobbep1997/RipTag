@@ -35,7 +35,7 @@ void RenderingManager::Update()
 
 void RenderingManager::Flush()
 {
-	engine.Draw();
+	engine.Flush();
 }
 
 void RenderingManager::Release()

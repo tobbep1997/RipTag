@@ -76,7 +76,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	return hr;
 }
 
-void Engine3D::Draw()
+void Engine3D::Flush()
 {
 	m_forwardRendering.GeometryPass();
 	m_forwardRendering.Flush();
