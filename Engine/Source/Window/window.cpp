@@ -1,5 +1,5 @@
 #include "window.h"
-#include "../Debug/ImGui/imgui.h"
+#include "../Debugg/ImGui/imgui.h"
 
 void Window::_resize(UINT width, UINT height)
 {

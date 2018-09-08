@@ -1,7 +1,7 @@
 #pragma once
 #include "../Window/window.h"
 #include "Engine3D.h"
-#include "../Debug/ImGui/ImGuiManager.h"
+#include "../Debugg/ImGui/ImGuiManager.h"
 
 
 

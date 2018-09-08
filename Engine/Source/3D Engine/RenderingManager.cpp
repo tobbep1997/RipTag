@@ -1,8 +1,8 @@
 #include "RenderingManager.h"
 #include "../SettingsLoader/SettingsLoader.h"
-#include "../Debug/ImGui/imgui.h"
-#include "../Debug/ImGui/imgui_impl_win32.h"
-#include "../Debug/ImGui/imgui_impl_dx11.h"
+#include "../Debugg//ImGui/imgui.h"
+#include "../Debugg/ImGui/imgui_impl_win32.h"
+#include "../Debugg/ImGui/imgui_impl_dx11.h"
 
 
 RenderingManager::RenderingManager()
