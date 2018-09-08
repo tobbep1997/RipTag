@@ -1,16 +1,18 @@
 #pragma once
 #include "../../Shader/ShaderManager.h"
+#include "../Camera.h"
 
 class ForwardRender
 {
 
-struct tempCPU
+struct ObjectBuffer
 {
-	DirectX::XMFLOAT4X4A view;
-	DirectX::XMFLOAT4X4A projection;
-
 	DirectX::XMFLOAT4X4A worldMatrix;
+};
 
+struct CameraBuffer
+{
+	DirectX::XMFLOAT4X4A viewProjection;
 };
 
 private:
@@ -35,8 +37,11 @@ private:
 	D3D11_VIEWPORT				m_viewport;
 
 	//Constant Buffer TEMP
-	ID3D11Buffer* m_tempConstant = nullptr;
-	tempCPU m_values;// = { 0.0,0.0,0.0,0.0 };;
+	ID3D11Buffer* m_objectBuffer = nullptr;
+	ObjectBuffer m_objectValues;// = { 0.0,0.0,0.0,0.0 };;
+
+	ID3D11Buffer * m_cameraBuffer = nullptr;
+	CameraBuffer m_cameraValues;
 
 public:
 	ForwardRender();
@@ -49,15 +54,17 @@ public:
 				ID3D11SamplerState*			m_samplerState,
 				D3D11_VIEWPORT				m_viewport);
 	
-	void GeometryPass();
-	void Flush();
+	void GeometryPass(Camera & camera);
+	void Flush(Camera & camera);
 	void Present();
 
 	void Release();
 private:
 	void _CreateConstantBuffer();
-	void _mapTempConstantBuffer();
+	void _mapObjectBuffer(Drawable * drawable);
+	void _mapCameraBuffer(Camera & camera);
 	void CREATE_VIEWPROJ();
+
 
 
 	void _SetShaders(int i);

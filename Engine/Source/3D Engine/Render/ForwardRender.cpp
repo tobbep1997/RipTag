@@ -49,7 +49,7 @@ struct TriangleVertex
 	float r, g, b, a;
 };
 
-void ForwardRender::GeometryPass()
+void ForwardRender::GeometryPass(Camera & camera)
 {
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 	
@@ -61,7 +61,7 @@ void ForwardRender::GeometryPass()
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	
-
+	_mapCameraBuffer(camera);
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		UINT32 vertexSize = sizeof(StaticVertex);
@@ -70,10 +70,10 @@ void ForwardRender::GeometryPass()
 		_SetShaders(i);
 
 		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-		m_values.worldMatrix = DX::g_geometryQueue[i]->getWorldmatrix();
+		//m_objectValues.worldMatrix = DX::g_geometryQueue[i]->getWorldmatrix();
 		DX::g_geometryQueue[i]->addRotation(0, 0.001f);
 
-		_mapTempConstantBuffer();
+		_mapObjectBuffer(DX::g_geometryQueue[i]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
 
@@ -82,8 +82,9 @@ void ForwardRender::GeometryPass()
 	DX::g_geometryQueue.clear();
 }
 
-void ForwardRender::Flush()
+void ForwardRender::Flush(Camera & camera)
 {
+	this->GeometryPass(camera);
 	m_swapChain->Present(0, 0);
 }
 
@@ -93,23 +94,39 @@ void ForwardRender::Present()
 
 void ForwardRender::Release()
 {
-	DX::SafeRelease(m_tempConstant);
+	DX::SafeRelease(m_objectBuffer);
+	DX::SafeRelease(m_cameraBuffer);
 }
 
 
 void ForwardRender::_CreateConstantBuffer()
 {
-	D3D11_BUFFER_DESC exampleBufferDesc;
-	exampleBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	exampleBufferDesc.ByteWidth = sizeof(tempCPU);
-	exampleBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	exampleBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	exampleBufferDesc.MiscFlags = 0;
-	exampleBufferDesc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC objectBufferDesc;
+	objectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	objectBufferDesc.ByteWidth = sizeof(ObjectBuffer);
+	objectBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	objectBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	objectBufferDesc.MiscFlags = 0;
+	objectBufferDesc.StructureByteStride = 0;
 
 	// check if the creation failed for any reason
 	HRESULT hr = 0;
-	hr = DX::g_device->CreateBuffer(&exampleBufferDesc, nullptr, &m_tempConstant);
+	hr = DX::g_device->CreateBuffer(&objectBufferDesc, nullptr, &m_objectBuffer);
+	if (FAILED(hr))
+	{
+		// handle the error, could be fatal or a warning...
+		exit(-1);
+	}
+
+	D3D11_BUFFER_DESC cameraBufferDesc;
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(CameraBuffer);
+	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	hr = DX::g_device->CreateBuffer(&cameraBufferDesc, nullptr, &this->m_cameraBuffer);
 	if (FAILED(hr))
 	{
 		// handle the error, could be fatal or a warning...
@@ -117,22 +134,32 @@ void ForwardRender::_CreateConstantBuffer()
 	}
 }
 
-void ForwardRender::_mapTempConstantBuffer()
+void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	DX::g_deviceContext->Map(m_tempConstant, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-	// copy memory from CPU to GPU the entire struct
-	//m_values.val1 += 0.001;
-	m_values.view = view;
-	m_values.projection = projection;
 
-	memcpy(dataPtr.pData, &m_values, sizeof(tempCPU));
+	m_objectValues.worldMatrix = drawable->getWorldmatrix();
+	DX::g_deviceContext->Map(m_objectBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+	// copy memory from CPU to GPU the entire struct
+	memcpy(dataPtr.pData, &m_objectValues, sizeof(ObjectBuffer));
 	// UnMap constant buffer so that we can use it again in the GPU
-	DX::g_deviceContext->Unmap(m_tempConstant, 0);
+	DX::g_deviceContext->Unmap(m_objectBuffer, 0);
 	// set resource to Vertex Shader
-	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_tempConstant);
+	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_objectBuffer);
 }
 
+void ForwardRender::_mapCameraBuffer(Camera & camera)
+{
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	m_cameraValues.viewProjection = camera.getViewProjection();
+	DX::g_deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	memcpy(dataPtr.pData, &m_cameraValues, sizeof(CameraBuffer));
+	// UnMap constant buffer so that we can use it again in the GPU
+	DX::g_deviceContext->Unmap(m_cameraBuffer, 0);
+	// set resource to Vertex Shader
+	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_cameraBuffer);
+}
 void ForwardRender::CREATE_VIEWPROJ()
 {
 	using namespace DirectX;
@@ -154,6 +181,7 @@ void ForwardRender::CREATE_VIEWPROJ()
 	XMStoreFloat4x4A(&this->view,XMMatrixTranspose(XMMatrixLookToLH(cameraPos, lookAt, UP)));
 
 }
+
 
 void ForwardRender::_SetShaders(int i)
 {

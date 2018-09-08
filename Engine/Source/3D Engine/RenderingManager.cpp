@@ -33,9 +33,9 @@ void RenderingManager::Update()
 	wnd.PollEvents();
 }
 
-void RenderingManager::Flush()
+void RenderingManager::Flush(Camera & camera)
 {
-	engine.Flush();
+	engine.Flush(camera);
 }
 
 void RenderingManager::Release()

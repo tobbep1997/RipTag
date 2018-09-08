@@ -32,6 +32,7 @@ Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
 	this->m_nearPlane = nearPlane;
 	this->m_farPlane = farPlane;
 
+	_calcViewMatrix();
 	_calcProjectionMatrix();
 }
 
@@ -72,6 +73,7 @@ DirectX::XMFLOAT4X4A Camera::getProjection()
 
 DirectX::XMFLOAT4X4A Camera::getViewProjection()
 {
+	_calcViewMatrix();
 	_calcViewProjectionMatrix();
 	return this->m_viewProjection;
 }
