@@ -14,13 +14,29 @@ void _alocConsole() {
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
 #endif
+float rotSpeed = 0.001f;
+float scaleX = 1;
+float scaleY = 1;
+float scaleZ = 1;
+void ImGuiTest()
+{
+#if _DEBUG
+	ImGui::Begin("Cube Setting");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("Rotation", &rotSpeed, 0.0f, 0.1f);
+	ImGui::SliderFloat("ScaleX", &scaleX, 0.0f, 10.f);
+	ImGui::SliderFloat("ScaleY", &scaleY, 0.0f, 10.f);
+	ImGui::SliderFloat("ScaleZ", &scaleZ, 0.0f, 10.f);
+	ImGui::End();
+#endif
+
+}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 #if _DEBUG
 	_alocConsole();
 #endif
-
+	
 	RenderingManager renderingManager;
 
 	renderingManager.Init(hInstance);
@@ -47,7 +63,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
-		m.addRotation(0, 0.001f, 0);
+		renderingManager.ImGuiStartFrame();
+
+		ImGuiTest();
+
+		m.addRotation(0, rotSpeed, 0);
+		m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
 		m2.Draw();
 		

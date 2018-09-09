@@ -25,7 +25,8 @@ public:
 
 	void Release();
 
-	
+	//Starts the new frame for imgui
+	void ImGuiStartFrame();
 
 	//---------------------------------
 	//Explicit window related function
