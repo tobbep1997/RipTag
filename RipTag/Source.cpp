@@ -18,6 +18,10 @@ float rotSpeed = 0.001f;
 float scaleX = 1;
 float scaleY = 1;
 float scaleZ = 1;
+
+float posX = 1;
+float posY = 1;
+float posZ = -6;
 void ImGuiTest()
 {
 #if _DEBUG
@@ -31,6 +35,17 @@ void ImGuiTest()
 
 }
 
+void CameraTest()
+{
+#if _DEBUG
+	ImGui::Begin("Camera Settings");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posX", &posX, -20.0f, 20.f);
+	ImGui::SliderFloat("posY", &posY, -20.0f, 20.f);
+	ImGui::SliderFloat("posZ", &posZ, -20.0f, 20.f);
+	ImGui::End();
+#endif
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 #if _DEBUG
@@ -42,7 +57,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	renderingManager.Init(hInstance);
 
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 1.0f);
-	camera.setPosition(0, 0, -5);
+	camera.setPosition(0, 0, -6);
 
 	Model m(ObjectType::Static);
 	Model m2;
@@ -66,7 +81,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.ImGuiStartFrame();
 
 		ImGuiTest();
+		CameraTest();
 
+		camera.setPosition(posX, posY, posZ);
 		m.addRotation(0, rotSpeed, 0);
 		m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();

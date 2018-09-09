@@ -39,7 +39,7 @@ class Camera
 	//-------------------------------------------------------------------------------------------	
 
 public:
-	Camera(float fov = DirectX::XM_PI * 0.5f, float aspectRatio = 16.0f/9.0f, float nearPlane = 1.0f, float farPlane = 20.0f);
+	Camera(float fov = DirectX::XM_PI * 0.5f, float aspectRatio = 16.0f/9.0f, float nearPlane = 0.1f, float farPlane = 50.0f);
 	~Camera();
 	//-------------------------------------------------------------------------------------------	
 	/*
