@@ -83,9 +83,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.ImGuiStartFrame();
 
 		ImGuiTest();
-		CameraTest();
+		//CameraTest();
 
-		camera.setPosition(posX, posY, posZ);
+		//camera.setPosition(posX, posY, posZ);
+
 		m.addRotation(0, rotSpeed, 0);
 		m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
