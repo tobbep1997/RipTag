@@ -57,6 +57,12 @@ void RenderingManager::Flush(Camera & camera)
 {
 	//Draws Everything in the queue
 	engine.Flush(camera);
+	//Starts the new ImGui frame
+	//TODO: This might be changed. This needs to be called before ImGui::begin()
+	if (DEBUG) {
+		m_ImGuiManager.StartFrame();
+	}
+
 
 	if(DEBUG)
 	{

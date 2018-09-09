@@ -173,6 +173,9 @@
     <ClInclude Include="Source\3D Engine\Model\Model.h" />
     <ClInclude Include="Source\3D Engine\Model\StaticMesh.h" />
     <ClInclude Include="Source\3D Engine\Model\Drawable.h" />
+    <ClInclude Include="Source\Debugg\FunctionQueue.h" />
+    <ClInclude Include="Source\Debugg\FunctionStack.h" />
+    <ClInclude Include="Source\Debugg\FunctionVector.h" />
     <ClInclude Include="Source\Debug\ImGuiManager.h" />
     <ClInclude Include="Source\Debugg\ImGui\imconfig.h" />
     <ClInclude Include="Source\Debugg\ImGui\imgui.h" />

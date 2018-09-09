@@ -30,18 +30,25 @@ void ImGuiManager::Init(HWND & hwnd)
 	// Setup style
 	ImGui::StyleColorsDark();
 
+	m_ImGuiDrawVector.Push(&ImGuiManager::_MemoryManager);
+}
+
+void ImGuiManager::StartFrame()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 }
 
 
 void ImGuiManager::Draw()
 {
 	//Staring a new frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	_MemoryManager();
-
+	
+	for (size_t i = 0; i < m_ImGuiDrawVector.Size(); i++)
+	{
+		m_ImGuiDrawVector.Execute(this, i);
+	}
 
 	//ending the frame
 	ImGui::Render();
