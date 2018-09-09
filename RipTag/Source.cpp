@@ -60,6 +60,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m.SetModel(s);
 	m2.SetModel(d);
 
+	double pos = 0;
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
@@ -71,6 +73,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
 		m2.Draw();
+
+		pos += 0.005;
+		//std::cout << std::cos(180) << std::endl;
+		camera.setPosition((float)std::cos(pos) * 5.0f, 0, (float)std::sin(pos) * 5.0f);
+		camera.setLookTo(0, 0, 0);
 		
 		renderingManager.Flush(camera);
 	}

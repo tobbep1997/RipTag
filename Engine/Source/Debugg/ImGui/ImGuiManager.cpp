@@ -45,7 +45,7 @@ void ImGuiManager::Draw()
 {
 	//Staring a new frame
 	
-	for (size_t i = 0; i < m_ImGuiDrawVector.Size(); i++)
+	for (int i = 0; i < m_ImGuiDrawVector.Size(); i++)
 	{
 		m_ImGuiDrawVector.Execute(this, i);
 	}

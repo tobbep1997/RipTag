@@ -33,10 +33,12 @@ class Camera
 	/*
 		These create all the useful combinations of the matrixes
 	*/
-	void _calcViewMatrix();
+	void _calcViewMatrix(bool dir = true);
 	void _calcProjectionMatrix();
 	void _calcViewProjectionMatrix();
 	//-------------------------------------------------------------------------------------------	
+	bool m_usingDir = true;
+
 
 public:
 	Camera(float fov = DirectX::XM_PI * 0.5f, float aspectRatio = 16.0f/9.0f, float nearPlane = 1.0f, float farPlane = 20.0f);
@@ -50,6 +52,9 @@ public:
 	
 	void setDirection(DirectX::XMFLOAT4A direction);
 	void setDirection(float x, float y, float z, float w = 0);
+
+	void setLookTo(DirectX::XMFLOAT4A pos);
+	void setLookTo(float x, float y, float z, float w = 0);
 
 	const DirectX::XMFLOAT4A & getPosition() const;
 	const DirectX::XMFLOAT4A & getDirection() const;

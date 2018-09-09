@@ -1,12 +1,15 @@
 #include "Camera.h"
 
-void Camera::_calcViewMatrix()
+void Camera::_calcViewMatrix(bool dir)
 {
 	DirectX::XMVECTOR pos = DirectX::XMLoadFloat4A(&this->m_position);
 	DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&this->m_direction);
 	DirectX::XMVECTOR up = DirectX::XMLoadFloat4A(&this->m_UP);
 
-	DirectX::XMStoreFloat4x4A(&this->m_view, DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(pos, direction, up)));
+	if (dir)
+		DirectX::XMStoreFloat4x4A(&this->m_view, DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(pos, direction, up)));
+	else
+		DirectX::XMStoreFloat4x4A(&this->m_view, DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(pos, direction, up)));
 }
 
 void Camera::_calcProjectionMatrix()
@@ -31,6 +34,7 @@ Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
 	this->m_aspectRatio = aspectRatio;
 	this->m_nearPlane = nearPlane;
 	this->m_farPlane = farPlane;
+	this->m_usingDir = true;
 
 	_calcViewMatrix();
 	_calcProjectionMatrix();
@@ -53,11 +57,23 @@ void Camera::setPosition(float x, float y, float z, float w)
 void Camera::setDirection(DirectX::XMFLOAT4A direction)
 {
 	this->m_direction = direction;
+	this->m_usingDir = true;
 }
 
 void Camera::setDirection(float x, float y, float z, float w)
 {
 	this->setDirection(DirectX::XMFLOAT4A(x, y, z, w));
+}
+
+void Camera::setLookTo(DirectX::XMFLOAT4A pos)
+{
+	this->m_direction = pos;
+	this->m_usingDir = false;
+}
+
+void Camera::setLookTo(float x, float y, float z, float w)
+{
+	this->setLookTo(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
 const DirectX::XMFLOAT4A & Camera::getPosition() const
@@ -72,7 +88,7 @@ const DirectX::XMFLOAT4A & Camera::getDirection() const
 
 const DirectX::XMFLOAT4X4A & Camera::getView()
 {
-	_calcViewMatrix();
+	_calcViewMatrix(m_usingDir);
 	return this->m_view;
 }
 
@@ -83,7 +99,7 @@ const DirectX::XMFLOAT4X4A & Camera::getProjection() const
 
 const DirectX::XMFLOAT4X4A & Camera::getViewProjection()
 {
-	_calcViewMatrix();
+	_calcViewMatrix(m_usingDir);
 	_calcViewProjectionMatrix();
 	return this->m_viewProjection;
 }
