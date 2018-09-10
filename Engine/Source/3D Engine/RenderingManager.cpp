@@ -25,8 +25,8 @@ void RenderingManager::Init(HINSTANCE hInstance)
 #endif
 
 	WindowContext wind;
-	wind.clientHeight = 1000;
-	wind.clientWidth = 1000;
+	wind.clientWidth = 1280;
+	wind.clientHeight = 720;
 	wind.fullscreen = false;
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"Victor �r Gay";

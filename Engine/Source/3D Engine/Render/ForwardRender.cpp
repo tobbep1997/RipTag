@@ -176,7 +176,7 @@ void ForwardRender::CREATE_VIEWPROJ()
 	XMVECTOR lookAt = XMLoadFloat3(&lookAtStored);
 
 	XMVECTOR UP = XMLoadFloat3(&UP_STORED);
-	XMStoreFloat4x4A(&this->projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PI * 0.5f, 1/1, 1, 20)));
+	XMStoreFloat4x4A(&this->projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PI * 0.5f, 1/1, 0.1f, 20)));
 	XMStoreFloat4x4A(&this->view,XMMatrixTranspose(XMMatrixLookToLH(cameraPos, lookAt, UP)));
 
 }

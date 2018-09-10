@@ -186,6 +186,7 @@
     <ClInclude Include="Source\Debugg\ImGui\stb_rect_pack.h" />
     <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h" />
     <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h" />
+    <ClInclude Include="Source\Helper\Timer.h" />
     <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
     <ClInclude Include="Source\Shader\Shader.h" />
     <ClInclude Include="Source\Shader\ShaderManager.h" />

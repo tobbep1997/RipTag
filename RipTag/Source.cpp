@@ -3,7 +3,8 @@
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
 #pragma comment(lib, "New_Library.lib")
-
+ 
+#include "Source/Helper/Timer.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -51,10 +52,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
-	
+
+	Timer::StartTimer();
+
 	RenderingManager renderingManager;
 
+	
+
 	renderingManager.Init(hInstance);
+	
+	//std::chrono::
 
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 1.0f);
 	camera.setPosition(0, 0, -6);
@@ -76,6 +83,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m2.SetModel(d);
 
 	double pos = 0;
+
+	Timer::StopTimer();
+	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
 	while (renderingManager.getWindow().isOpen())
 	{
