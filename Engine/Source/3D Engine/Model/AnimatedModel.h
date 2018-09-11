@@ -83,8 +83,9 @@ namespace Animation
 		float m_currentTime = 0.0f;
 		bool m_isPlaying = false;
 
+		XMMATRIX _createMatrixFromSRT(const SRT& srt);
 		void _computeSkinningMatrices();
-		void _computeModelMatrix(Joint* joint);
+		void _computeModelMatrices(SkeletonPose* pose);
 		XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 	};

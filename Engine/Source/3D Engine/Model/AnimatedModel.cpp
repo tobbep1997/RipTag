@@ -44,18 +44,37 @@ void Animation::AnimatedModel::Play()
 	m_isPlaying = true;
 }
 
+DirectX::XMMATRIX Animation::AnimatedModel::_createMatrixFromSRT(const SRT& srt)
+{
+	XMFLOAT4A fScale = { srt.m_scale, srt.m_scale, srt.m_scale, 1.0 };
+	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
+	XMFLOAT4A fTranslation = srt.m_translation;
+	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
+}
+
 void Animation::AnimatedModel::_computeSkinningMatrices()
 {
 	//no
 }
 
-void Animation::AnimatedModel::_computeModelMatrix(Joint * joint)
-{
-	//no
+void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
+{ //TODO
+
+	XMStoreFloat4x4A(&m_globalMatrices[0], _createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
+
+	for (int i = 1; i < m_skeleton->m_jointCount; i++) //start at second joint (first is root, already processed)
+	{
+		uint8_t parentIndex = m_skeleton->m_joints[i].parentIndex;
+		assert(parentIndex > -1);
+
+		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
+		XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
+	}
+
 }
 
 DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose)
-//TODO quadruple check
+//TODO remove
 {
 	XMVECTOR thisRotation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_rotationQuaternion);
 
