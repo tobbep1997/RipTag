@@ -1,4 +1,4 @@
-SamplerState sampState : register(s0);
+SamplerComparisonState sampState : register(s0);
 //SamplerComparisonState sampAniPoint : register(s1);
 
 Texture2D txShadow0 : register(t0);
@@ -52,7 +52,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			dif += attenuation * (saturate(color[i] * input.normal) * difMult);
 
 	}
-	float shadowCoeff = 0;
+	float shadowCoeff = 1;
 	float div = 0;
 	for (int i = 0; i < 6; i++)
 	{
@@ -71,22 +71,98 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 		if (abs(lightView.y) > 1.0f || depth <= 0)
 			continue;
 
+		float epsilon = 0.001;
+
 		if (i == 0)
-			shadowCoeff += (txShadow0.Sample(sampState, smTex).r + 0.001 < depth) ? 0.2f : 1.0f;
+		{
+			float width;
+			txShadow0.GetDimensions(width, width);
+			float texelSize = 1.0f / width;
+
+			for (int x = -3; x <= 3; ++x)
+			{
+				for (int y = -3; y <= 3; ++y)
+				{
+					shadowCoeff += txShadow0.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
+				}
+			}
+		}
+		
 		else if (i == 1)
-			shadowCoeff += (txShadow1.Sample(sampState, smTex).r + 0.001 < depth) ? 0.2f : 1.0f;
+		{
+			float width;
+			txShadow1.GetDimensions(width, width);
+			float texelSize = 1.0f / width;
+
+			for (int x = -3; x <= 3; ++x)
+			{
+				for (int y = -3; y <= 3; ++y)
+				{
+					shadowCoeff += txShadow1.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
+				}
+			}
+		}
 		else if (i == 2)
-			shadowCoeff += (txShadow2.Sample(sampState, smTex).r + 0.001 < depth) ? 0.2f : 1.0f;
+		{
+			float width;
+			txShadow2.GetDimensions(width, width);
+			float texelSize = 1.0f / width;
+
+			for (int x = -3; x <= 3; ++x)
+			{
+				for (int y = -3; y <= 3; ++y)
+				{
+					shadowCoeff += txShadow2.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
+				}
+			}
+		}
 		else if (i == 3)
-			shadowCoeff += (txShadow3.Sample(sampState, smTex).r + 0.001 < depth) ? 0.2f : 1.0f;
+		{
+			float width;
+			txShadow3.GetDimensions(width, width);
+			float texelSize = 1.0f / width;
+
+			for (int x = -3; x <= 3; ++x)
+			{
+				for (int y = -3; y <= 3; ++y)
+				{
+					shadowCoeff += txShadow3.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
+				}
+			}
+		}
 		else if (i == 4)
-			shadowCoeff += (txShadow4.Sample(sampState, smTex).r + 0.001 < depth) ? 0.2f : 1.0f;
+		{
+			float width;
+			txShadow4.GetDimensions(width, width);
+			float texelSize = 1.0f / width;
+
+			for (int x = -3; x <= 3; ++x)
+			{
+				for (int y = -3; y <= 3; ++y)
+				{
+					shadowCoeff += txShadow4.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
+				}
+			}
+		}
 		else if (i == 5)
-			shadowCoeff += (txShadow5.Sample(sampState, smTex).r + 0.001 < depth) ? 0.2f : 1.0f;
+		{
+			float width;
+			txShadow5.GetDimensions(width, width);
+			float texelSize = 1.0f / width;
+
+			for (int x = -3; x <= 3; ++x)
+			{
+				for (int y = -3; y <= 3; ++y)
+				{
+					shadowCoeff += txShadow5.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
+				}
+			}
+		}
+			
 		div += 1.0f;
 	}
 	
-	shadowCoeff /= div;
+	shadowCoeff /= 49.0f * div;
 	
 	//shadowCoeff = min(max(shadowCoeff, 0.2), 1.0f);
 

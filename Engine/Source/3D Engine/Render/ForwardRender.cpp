@@ -406,17 +406,19 @@ void ForwardRender::_createShadowDepthStencilView(UINT width, UINT hight)
 
 	//Create the Depth/Stencil View
 	D3D11_SAMPLER_DESC samplerDescPoint;
-	samplerDescPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDescPoint.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDescPoint.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDescPoint.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDescPoint.MipLODBias = 0.0f;
-	samplerDescPoint.MaxAnisotropy = 1;
-	samplerDescPoint.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samplerDescPoint.MinLOD = -FLT_MAX;
-	samplerDescPoint.MaxLOD = FLT_MAX;
-
-	
+	samplerDescPoint.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescPoint.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescPoint.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescPoint.BorderColor[0] = 1.0f;
+	samplerDescPoint.BorderColor[1] = 1.0f;
+	samplerDescPoint.BorderColor[2] = 1.0f;
+	samplerDescPoint.BorderColor[3] = 1.0f;
+	samplerDescPoint.MinLOD = 0.f;
+	samplerDescPoint.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDescPoint.MipLODBias = 0.f;
+	samplerDescPoint.MaxAnisotropy = 0;
+	samplerDescPoint.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	samplerDescPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 
 	hr = DX::g_device->CreateSamplerState(&samplerDescPoint, &m_shadowSamplerState);
 
