@@ -6,7 +6,7 @@ class PointLight
 {
 private:
 
-	std::vector<Camera> sides;
+	std::vector<Camera *> sides;
 	DirectX::XMFLOAT4A position;
 	DirectX::XMFLOAT4A color;
 	float dropOff;
@@ -18,10 +18,13 @@ public:
 
 	const DirectX::XMFLOAT4A & getPosition();
 	const DirectX::XMFLOAT4A & getColor();
-	const std::vector<Camera> & getSides();
+	const std::vector<Camera *> & getSides();
 	const float & getDropOff();
 
 	void QueueLight();
+
+private:
+	void _createSides();
 
 };
 
