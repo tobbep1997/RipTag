@@ -2,6 +2,7 @@
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
+#include "Source/Light/PointLight.h"
 #pragma comment(lib, "New_Library.lib")
  
 #include "Source/Helper/Timer.h"
@@ -63,7 +64,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	//std::chrono::
 
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 1.0f);
+	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
 
 	Model m(ObjectType::Static);
@@ -82,7 +83,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m.SetModel(s);
 	m2.SetModel(d);
 
-	double pos = 0;
+	m.setPosition(0, -3, 0);
+	m.setScale(5, 1, 5);
+
+	PointLight pl;
+	pl.Init(DirectX::XMFLOAT4A(0,2,0,1), DirectX::XMFLOAT4A(1,1,1,1), 32132154.0f);
 
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
@@ -94,18 +99,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		ImGuiTest();
 		//CameraTest();
-
+		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
 
-		m.addRotation(0, rotSpeed, 0);
-		m.setScale(scaleX,scaleY,scaleZ);
+		//m.addRotation(0, rotSpeed, 0);
+		//m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
 		m2.Draw();
 
-		pos += 0.005;
+		
 		//std::cout << std::cos(180) << std::endl;
-		camera.setPosition((float)std::cos(pos) * 5.0f, 0, (float)std::sin(pos) * 5.0f);
-		camera.setLookTo(0, 0, 0);
+		//camera.setPosition((float)std::cos(pos) * 5.0f, 0, (float)std::sin(pos) * 5.0f);
+		//camera.setLookTo(0, 0, 0);
 		
 		renderingManager.Flush(camera);
 	}

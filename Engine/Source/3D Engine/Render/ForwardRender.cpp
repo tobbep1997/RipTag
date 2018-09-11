@@ -61,6 +61,9 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	
+
+	_mapLightInfoNoMatrix();
+
 	_mapCameraBuffer(camera);
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
@@ -75,9 +78,12 @@ void ForwardRender::GeometryPass(Camera & camera)
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
 
+
+
 	}
 
 	DX::g_geometryQueue.clear();
+	DX::g_lights.clear();
 }
 
 void ForwardRender::Flush(Camera & camera)
@@ -131,6 +137,21 @@ void ForwardRender::_CreateConstantBuffer()
 		// handle the error, could be fatal or a warning...
 		exit(-1);
 	}
+
+	D3D11_BUFFER_DESC lightBufferDesc;
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(CameraBuffer);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	hr = DX::g_device->CreateBuffer(&lightBufferDesc, nullptr, &this->m_lightBuffer);
+	if (FAILED(hr))
+	{
+		// handle the error, could be fatal or a warning...
+		exit(-1);
+	}
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
@@ -159,6 +180,30 @@ void ForwardRender::_mapCameraBuffer(Camera & camera)
 	// set resource to Vertex Shader
 	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_cameraBuffer);
 }
+void ForwardRender::_mapLightInfoNoMatrix()
+{
+	m_lightValues.info = DirectX::XMINT4(DX::g_lights.size(), 0, 0, 0);
+	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
+	{
+		m_lightValues.position[i] = DX::g_lights[i]->getPosition();
+		m_lightValues.color[i] = DX::g_lights[i]->getColor();
+		m_lightValues.dropOff[i] = DX::g_lights[i]->getDropOff();
+	}
+	for (unsigned int i = DX::g_lights.size(); i < 8; i++)
+	{
+		m_lightValues.position[i] = DirectX::XMFLOAT4A();
+		m_lightValues.color[i] = DirectX::XMFLOAT4A();
+		m_lightValues.dropOff[i] = 0.0f;
+	}
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	
+	DX::g_deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	memcpy(dataPtr.pData, &m_lightValues, sizeof(LightBuffer));
+	DX::g_deviceContext->Unmap(m_lightBuffer, 0);
+	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
+}
 void ForwardRender::CREATE_VIEWPROJ()
 {
 	using namespace DirectX;
@@ -169,8 +214,6 @@ void ForwardRender::CREATE_VIEWPROJ()
 
 	XMFLOAT3 UP_STORED = XMFLOAT3(0, 1, 0);
 
-
-
 	XMVECTOR cameraPos = XMLoadFloat3(&cameraStored);
 
 	XMVECTOR lookAt = XMLoadFloat3(&lookAtStored);
@@ -180,6 +223,8 @@ void ForwardRender::CREATE_VIEWPROJ()
 	XMStoreFloat4x4A(&this->view,XMMatrixTranspose(XMMatrixLookToLH(cameraPos, lookAt, UP)));
 
 }
+
+
 
 
 void ForwardRender::_SetShaders(int i)

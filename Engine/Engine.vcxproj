@@ -168,6 +168,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Light\PointLight.h" />
     <ClInclude Include="Source\3D Engine\Camera.h" />
     <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
     <ClInclude Include="Source\3D Engine\Model\Model.h" />
@@ -204,6 +205,7 @@
     <ClInclude Include="Source\Window\window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
     <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Model.cpp" />

@@ -15,6 +15,14 @@ struct CameraBuffer
 	DirectX::XMFLOAT4X4A viewProjection;
 };
 
+struct LightBuffer
+{
+	DirectX::XMINT4		info;
+	DirectX::XMFLOAT4A	position[8];
+	DirectX::XMFLOAT4A	color[8];
+	float				dropOff[8];
+};
+
 private:
 
 	DirectX::XMFLOAT4X4A view;
@@ -43,6 +51,9 @@ private:
 	ID3D11Buffer * m_cameraBuffer = nullptr;
 	CameraBuffer m_cameraValues;
 
+	ID3D11Buffer * m_lightBuffer = nullptr;
+	LightBuffer m_lightValues;
+
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -65,6 +76,7 @@ private:
 	void _CreateConstantBuffer();
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBuffer(Camera & camera);
+	void _mapLightInfoNoMatrix();
 	void CREATE_VIEWPROJ();
 
 

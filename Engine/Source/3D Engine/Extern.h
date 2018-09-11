@@ -8,12 +8,14 @@
 #include <vector>
 //#include "../Shader/ShaderManager.h"
 #include "Model/Drawable.h"
-
+#include "../Light/PointLight.h"
 namespace Shaders
 {
 	class ShaderManager;
 }
+
 class Drawable;
+
 namespace DX {
 	extern ID3D11Device*			g_device;
 	extern ID3D11DeviceContext*		g_deviceContext;
@@ -22,4 +24,6 @@ namespace DX {
 	extern Shaders::ShaderManager g_shaderManager;
 
 	extern std::vector<Drawable*> g_geometryQueue;
+
+	extern std::vector<PointLight*> g_lights;
 }
