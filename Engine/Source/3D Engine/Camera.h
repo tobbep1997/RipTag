@@ -56,6 +56,9 @@ public:
 	void setLookTo(DirectX::XMFLOAT4A pos);
 	void setLookTo(float x, float y, float z, float w = 0);
 
+	void setUP(DirectX::XMFLOAT4A up);
+	void setUP(float x, float y, float z, float w = 0);
+
 	const DirectX::XMFLOAT4A & getPosition() const;
 	const DirectX::XMFLOAT4A & getDirection() const;
 

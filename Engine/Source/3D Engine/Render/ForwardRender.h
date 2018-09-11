@@ -15,6 +15,11 @@ struct CameraBuffer
 	DirectX::XMFLOAT4X4A viewProjection;
 };
 
+struct PointLightBuffer
+{
+	DirectX::XMFLOAT4X4A viewProjection[6];
+};
+
 struct LightBuffer
 {
 	DirectX::XMINT4		info;
@@ -44,6 +49,12 @@ private:
 
 	D3D11_VIEWPORT				m_viewport;
 
+	D3D11_VIEWPORT				m_shadowViewport;
+	ID3D11SamplerState*			m_shadowSamplerState;
+	ID3D11ShaderResourceView *	m_shadowShaderResourceView[6];
+	ID3D11DepthStencilView*		m_shadowDepthStencilView[6];
+	ID3D11Texture2D*			m_shadowDepthBufferTex[6];
+
 	//Constant Buffer TEMP
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
@@ -53,6 +64,12 @@ private:
 
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
+
+	ID3D11Buffer * m_lightMatrixBuffer = nullptr;
+	CameraBuffer m_lightMatrixValues;
+
+	ID3D11Buffer * m_allLightMatrixBuffer = nullptr;
+	PointLightBuffer m_allLightMatrixValues;
 
 public:
 	ForwardRender();
@@ -65,6 +82,7 @@ public:
 				ID3D11SamplerState*			m_samplerState,
 				D3D11_VIEWPORT				m_viewport);
 	
+	void ShadowPass();
 	void GeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Present();
@@ -79,7 +97,13 @@ private:
 	void _mapLightInfoNoMatrix();
 	void CREATE_VIEWPROJ();
 
+	void _mapLightMatrix(PointLight * light, unsigned int i);
+	void _mapAllLightMatrix(PointLight * light);
 
+	void _createShadowViewPort(UINT sizeX, UINT sizeY);
+	void _createShadowDepthStencilView(UINT width, UINT hight);
+
+	void _createSamplerState();
 
 	void _SetShaders(int i);
 };

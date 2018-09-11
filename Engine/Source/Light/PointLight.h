@@ -23,6 +23,8 @@ public:
 
 	void QueueLight();
 
+	
+
 private:
 	void _createSides();
 
