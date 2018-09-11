@@ -17,9 +17,9 @@ void _alocConsole() {
 }
 #endif
 float rotSpeed = 0.001f;
-float scaleX = 1;
-float scaleY = 1;
-float scaleZ = 1;
+float scaleX = 0;
+float scaleY = 0;
+float scaleZ = 0;
 
 float posX = 1;
 float posY = 1;
@@ -27,11 +27,11 @@ float posZ = -6;
 void ImGuiTest()
 {
 #if _DEBUG
-	ImGui::Begin("Cube Setting");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("Rotation", &rotSpeed, 0.0f, 0.1f);
-	ImGui::SliderFloat("ScaleX", &scaleX, 0.0f, 10.f);
-	ImGui::SliderFloat("ScaleY", &scaleY, 0.0f, 10.f);
-	ImGui::SliderFloat("ScaleZ", &scaleZ, 0.0f, 10.f);
+	ImGui::Begin("Sphere Setting");                          // Create a window called "Hello, world!" and append into it.
+	//ImGui::SliderFloat("Rotation", &rotSpeed, 0.0f, 0.1f);
+	ImGui::SliderFloat("PosX", &scaleX, -10.0f, 10.f);
+	ImGui::SliderFloat("PosY", &scaleY, -10.0f, 10.f);
+	ImGui::SliderFloat("PosZ", &scaleZ, -10.0f, 10.f);
 	ImGui::End();
 #endif
 
@@ -84,7 +84,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m2.SetModel(d);
 
 	m.setPosition(0, -3, 0);
-	m.setScale(5, 1, 5);
+	m.setScale(10, 1, 10);
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,2,0,1), DirectX::XMFLOAT4A(1,1,1,1), 32132154.0f);
@@ -101,7 +101,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//CameraTest();
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
-
+		m2.setPosition(scaleX, scaleY, scaleZ);
 		//m.addRotation(0, rotSpeed, 0);
 		//m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
