@@ -26,7 +26,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 
 	for (int i = 0; i < info.x; i++)
 	{
-		posToLight = position[8] - input.worldPos;
+		posToLight = position[i] - input.worldPos;
 		distanceToLight = length(posToLight);
 
 

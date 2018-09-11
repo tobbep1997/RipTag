@@ -101,6 +101,7 @@ void ForwardRender::Release()
 {
 	DX::SafeRelease(m_objectBuffer);
 	DX::SafeRelease(m_cameraBuffer);
+	DX::SafeRelease(m_lightBuffer);
 }
 
 
@@ -140,7 +141,7 @@ void ForwardRender::_CreateConstantBuffer()
 
 	D3D11_BUFFER_DESC lightBufferDesc;
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(CameraBuffer);
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	lightBufferDesc.MiscFlags = 0;
@@ -197,9 +198,9 @@ void ForwardRender::_mapLightInfoNoMatrix()
 	}
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	
-	DX::g_deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
+
+	DX::g_deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	memcpy(dataPtr.pData, &m_lightValues, sizeof(LightBuffer));
 	DX::g_deviceContext->Unmap(m_lightBuffer, 0);
 	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
