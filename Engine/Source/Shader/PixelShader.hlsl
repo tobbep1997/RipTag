@@ -1,7 +1,7 @@
 //SamplerComparisonState sampState : register(s0);
 SamplerState sampAniPoint : register(s0);
 
-Texture2DArray txShadowArray : register(t6);
+Texture2DArray txShadowArray : register(t0);
 
 cbuffer LIGHTS : register (b0)
 {
@@ -48,7 +48,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 
 	}
 	float shadowCoeff = 1;
-	float div = 0;
+	//float div = 0;
 	for (int i = 0; i < 6; i++)
 	{
 
@@ -60,43 +60,21 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 
 		float depth = lightView.z / lightView.w;
 
-		if (abs(lightView.x) > 1.0f || depth <= 0)
+		if (abs(lightView.x) > 1.0f)
 			continue;
 
-		if (abs(lightView.y) > 1.0f || depth <= 0)
+		if (abs(lightView.y) > 1.0f)
 			continue;
-
-		float epsilon = 0.001;
-		
-		float width;
-		//txShadowArray.GetDimensions(width, width, i);
-			
-		//float texelSize = 1.0f / width;
-		//shadowCoeff = txShadowArray[indexPos];
 
 		float3 indexPos = float3(smTex, i);
-		shadowCoeff += (txShadowArray.Sample(sampAniPoint, indexPos).r + 0.001 < depth) ? 0.0f : 1.0f;
-		div += 1.0f;
-		continue;
-
-		//continue;
-		for (int x = -1; x <= 1; ++x)
-		{
-			for (int y = -1; y <= 1; ++y)
-			{
-				//float3 indexPos = float3(smTex + (float2(x, y) * texelSize), i);
-				//shadowCoeff += txShadowArray.SampleCmpLevelZero(sampState,indexPos, epsilon).r;
-			}
-		}
-		
-
+		shadowCoeff += txShadowArray.Sample(sampAniPoint, indexPos).r;
 		
 	}
 	
-	shadowCoeff /= 1.0f * div;
+	//shadowCoeff /= 1.0f * div;
 	
 	//shadowCoeff = min(max(shadowCoeff, 0.2), 1.0f);
-
+	return shadowCoeff;
 	return min(dif, float4(1, 1, 1, 1)) * shadowCoeff;
 
 }

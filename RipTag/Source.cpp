@@ -84,7 +84,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m2.SetModel(d);
 
 	m.setPosition(0, -3, 0);
-	m.setScale(10, 1, 10);
+	m.setScale(20, 1, 20);
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 32132154.0f);
