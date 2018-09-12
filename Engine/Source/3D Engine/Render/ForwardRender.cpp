@@ -49,7 +49,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	   
 	_CreateConstantBuffer();
 
-	shadowMap.Init(32, 32);
+	shadowMap.Init(128, 128);
 	
 	this->CREATE_VIEWPROJ();
 }

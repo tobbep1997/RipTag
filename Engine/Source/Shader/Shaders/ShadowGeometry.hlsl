@@ -10,7 +10,7 @@ struct GSOutput
 	uint RTIndex : SV_RenderTargetArrayIndex;
 };
 
-[maxvertexcount(6 /*Number of splits*/ * 3)]
+[maxvertexcount(6*3)]
 void main(
 	triangle float4 input[3] : SV_POSITION, 
 	inout TriangleStream< GSOutput > output

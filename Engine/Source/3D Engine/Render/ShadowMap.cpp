@@ -38,9 +38,11 @@ void ShadowMap::ShadowPass()
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/Source/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);
-	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl"), nullptr, 0);
+	//DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	DX::g_deviceContext->OMSetRenderTargets(RENDER_TARGET_VIEW_COUNT, m_renderTargetView, m_shadowDepthStencilView);
+	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_shadowDepthStencilView);
 
 	for (int x = 0; x < DX::g_lights.size(); x++)
 	{
@@ -165,7 +167,19 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 	samplerDescPoint.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	samplerDescPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 
-	hr = DX::g_device->CreateSamplerState(&samplerDescPoint, &m_shadowSamplerState);
+	D3D11_SAMPLER_DESC samplerDesc;
+	
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MaxAnisotropy = 0;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+
+
+	hr = DX::g_device->CreateSamplerState(&samplerDesc, &m_shadowSamplerState);
 }
 
 void ShadowMap::_createBuffers()
@@ -230,10 +244,12 @@ void ShadowMap::_createRenderTargets(UINT width, UINT height)
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	   
-	for (size_t i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
+	for (int i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
 	{
 		DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture[i]);
+
 	}
+	
 
 
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};

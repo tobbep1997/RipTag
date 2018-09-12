@@ -197,5 +197,6 @@
     <FxCompile Include="Source\Shader\PixelShader.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
   </ItemGroup>
 </Project>
