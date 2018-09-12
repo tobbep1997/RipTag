@@ -8,6 +8,8 @@ Texture2D txShadow3 : register(t3);
 Texture2D txShadow4 : register(t4);
 Texture2D txShadow5 : register(t5);
 
+
+
 cbuffer LIGHTS : register (b0)
 {
 	int4	info;
@@ -79,9 +81,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			txShadow0.GetDimensions(width, width);
 			float texelSize = 1.0f / width;
 
-			for (int x = -3; x <= 3; ++x)
+			for (int x = -1; x <= 1; ++x)
 			{
-				for (int y = -3; y <= 3; ++y)
+				for (int y = -1; y <= 1; ++y)
 				{
 					shadowCoeff += txShadow0.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
 				}
@@ -94,9 +96,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			txShadow1.GetDimensions(width, width);
 			float texelSize = 1.0f / width;
 
-			for (int x = -3; x <= 3; ++x)
+			for (int x = -1; x <= 1; ++x)
 			{
-				for (int y = -3; y <= 3; ++y)
+				for (int y = -1; y <= 1; ++y)
 				{
 					shadowCoeff += txShadow1.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
 				}
@@ -108,9 +110,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			txShadow2.GetDimensions(width, width);
 			float texelSize = 1.0f / width;
 
-			for (int x = -3; x <= 3; ++x)
+			for (int x = -1; x <= 1; ++x)
 			{
-				for (int y = -3; y <= 3; ++y)
+				for (int y = -1; y <= 1; ++y)
 				{
 					shadowCoeff += txShadow2.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
 				}
@@ -122,9 +124,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			txShadow3.GetDimensions(width, width);
 			float texelSize = 1.0f / width;
 
-			for (int x = -3; x <= 3; ++x)
+			for (int x = -1; x <= 1; ++x)
 			{
-				for (int y = -3; y <= 3; ++y)
+				for (int y = -1; y <= 1; ++y)
 				{
 					shadowCoeff += txShadow3.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
 				}
@@ -136,9 +138,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			txShadow4.GetDimensions(width, width);
 			float texelSize = 1.0f / width;
 
-			for (int x = -3; x <= 3; ++x)
+			for (int x = -1; x <= 1; ++x)
 			{
-				for (int y = -3; y <= 3; ++y)
+				for (int y = -1; y <= 1; ++y)
 				{
 					shadowCoeff += txShadow4.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
 				}
@@ -150,9 +152,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			txShadow5.GetDimensions(width, width);
 			float texelSize = 1.0f / width;
 
-			for (int x = -3; x <= 3; ++x)
+			for (int x = -1; x <= 1; ++x)
 			{
-				for (int y = -3; y <= 3; ++y)
+				for (int y = -1; y <= 1; ++y)
 				{
 					shadowCoeff += txShadow5.SampleCmpLevelZero(sampState, smTex + (float2(x, y) * texelSize), depth - epsilon).r;
 				}
@@ -162,7 +164,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 		div += 1.0f;
 	}
 	
-	shadowCoeff /= 49.0f * div;
+	shadowCoeff /= 9.0f * div;
 	
 	//shadowCoeff = min(max(shadowCoeff, 0.2), 1.0f);
 
