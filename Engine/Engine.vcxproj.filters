@@ -189,5 +189,6 @@
   <ItemGroup>
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
     <FxCompile Include="Source\Shader\PixelShader.hlsl" />
+    <FxCompile Include="Source\Shader\AnimatedVertexShader.hlsl" />
   </ItemGroup>
 </Project>

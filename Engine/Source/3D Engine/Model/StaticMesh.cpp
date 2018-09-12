@@ -9,6 +9,7 @@ StaticMesh::StaticMesh()
 
 StaticMesh::~StaticMesh()
 {
+
 }
 
 const StaticVertex * StaticMesh::getRawVertice() const

@@ -21,7 +21,7 @@ namespace MyLibrary
 		
 	private:
 		int getNrOfVerticesFromFile(std::ifstream& file);
-		template <class T> void calculateTangentsAndBitangents(T mesh);
+		
 	};
 
 }

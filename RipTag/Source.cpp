@@ -68,18 +68,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	camera.setPosition(0, 0, -6);
 
 	Model m(ObjectType::Static);
-	Model m2;
+	Model m2(ObjectType::Dynamic);
 	m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	m.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	m2.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	m2.SetVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
 	m2.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 
 	m.setPosition(0, 0, 0);
 	m2.setPosition(-1, 0, 0);
 	StaticMesh * s = new StaticMesh();
-	StaticMesh * d = new StaticMesh();
-	s->LoadModel("../Assets/kub.bin");
-	d->LoadModel("../Assets/sphere.bin");
+	DynamicMesh * d = new DynamicMesh();
+	s->LoadModel("../Assets/sphere.bin");
+	d->LoadModel("../Assets/Animationmeshtorus.bin");
 	m.SetModel(s);
 	m2.SetModel(d);
 
