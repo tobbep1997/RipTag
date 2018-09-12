@@ -74,7 +74,7 @@ void ShadowMap::mapAllLightMatrix(PointLight * light)
 	DX::g_deviceContext->Map(m_allLightMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	memcpy(dataPtr.pData, &m_allLightMatrixValues, sizeof(PointLightBuffer));
 	DX::g_deviceContext->Unmap(m_allLightMatrixBuffer, 0);
-	//DX::g_deviceContext->GSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
+	DX::g_deviceContext->GSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
@@ -84,10 +84,11 @@ void ShadowMap::mapAllLightMatrix(PointLight * light)
 void ShadowMap::SetSamplerAndShaderResources()
 {
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
+	DX::g_deviceContext->PSSetShaderResources(6, 1, m_shadowShaderResourceView);
 	for (int i = 0; i < 6; i++)
 	{
-		DX::g_deviceContext->PSSetShaderResources(i, 1, &m_shadowShaderResourceView[i]);
 	}
+	
 }
 
 void ShadowMap::Release()
