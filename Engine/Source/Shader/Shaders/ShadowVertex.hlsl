@@ -5,7 +5,7 @@ cbuffer OBJECT_BUFFER : register(b0)
 
 cbuffer LIGHT_MATRIX : register(b1)
 {
-	float4x4 viewProjection;
+	float4x4 viewProjection[6];
 };
 
 struct VS_INPUT
@@ -19,5 +19,6 @@ struct VS_INPUT
 float4 main(VS_INPUT input) : SV_POSITION
 {
 
-	return mul(input.pos, mul(worldMatrix, viewProjection));
+	return mul(input.pos, worldMatrix);
+	//return mul(input.pos, mul(worldMatrix, viewProjection[1]));
 }

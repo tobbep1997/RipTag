@@ -28,12 +28,17 @@ struct LightCameraBuffer
 };
 
 private:
+	const unsigned int RENDER_TARGET_VIEW_COUNT = 6;
+
 	D3D11_VIEWPORT				m_shadowViewport;
 	ID3D11SamplerState*			m_shadowSamplerState;
 	ID3D11ShaderResourceView *	m_shadowShaderResourceView[6];
-	ID3D11DepthStencilView*		m_shadowDepthStencilView[6];
-	ID3D11Texture2D*			m_shadowDepthBufferTex[6];
+	ID3D11DepthStencilView*		m_shadowDepthStencilView;
+	ID3D11Texture2D*			m_shadowDepthBufferTex;
+	
 
+	ID3D11RenderTargetView*		m_renderTargetView[6];
+	ID3D11Texture2D*			m_renderTargetsTexture[6];
 
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
@@ -62,6 +67,7 @@ private:
 	void _createShadowViewPort(UINT width, UINT height);
 	void _createShadowDepthStencilView(UINT width, UINT hight);
 	void _createBuffers();
+	void _createRenderTargets(UINT width, UINT height);
 
 	void _mapLightMatrix(PointLight * pointLight, unsigned int i);
 	void _mapObjectBuffer(Drawable * drawable);
