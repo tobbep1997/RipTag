@@ -159,6 +159,11 @@ bool Window::isOpen()
 	return WM_QUIT != m_Peekmsg.message;
 }
 
+void Window::Close()
+{
+	PostQuitMessage(0);
+}
+
 WindowContext& Window::getWindowContext()
 {
 	return m_windowContext; 
