@@ -79,11 +79,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	StaticMesh * s = new StaticMesh();
 	DynamicMesh * d = new DynamicMesh();
 	s->LoadModel("../Assets/sphere.bin");
-	d->LoadModel("../Assets/animatedCub.bin");
+	d->LoadModel("../Assets/Animationmeshtorus.bin");
 	m.SetModel(s);
 	m2.SetModel(d);
 
-	m.setPosition(0, -333, 0);
+	m.setPosition(0, -3, 0);
 	m.setScale(5, 1, 5);
 
 	PointLight pl;
@@ -92,10 +92,46 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
+	camera.setLookTo(0, 0, 0, 1);
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
+		
+		/*
+			Test Camera movement
+		*/
+		if (GetAsyncKeyState(int('W')))
+			camera.Move(0.0f, 0.0f, 0.01f);
+		else if (GetAsyncKeyState(int('S')))
+			camera.Move(0.0f, 0.0f, -0.01f);
+		if (GetAsyncKeyState(int('A')))
+			camera.Move(-0.01f, 0.0f, 0.0f);
+		else if (GetAsyncKeyState(int('D')))
+			camera.Move(0.01f, 0.0f, 0.0f);
+		if (GetAsyncKeyState(VK_SPACE))
+			camera.Move(0.0f, 0.01f, 0.0f);
+		else if (GetAsyncKeyState(VK_SHIFT))
+			camera.Move(0.0f, -0.01f, 0.0f);
+
+		/*
+			Test Camera rotation
+		*/
+		if (GetAsyncKeyState(VK_UP))
+			camera.Rotate(0.005f, 0.0f, 0.0f);
+		else if (GetAsyncKeyState(VK_DOWN))
+			camera.Rotate(-0.005f, 0.0f, 0.0f);
+		if (GetAsyncKeyState(VK_LEFT))
+			camera.Rotate(0.0f, -0.005f, 0.0f);
+		else if (GetAsyncKeyState(VK_RIGHT))
+			camera.Rotate(0.0f, 0.005f, 0.0f);
+		if (GetAsyncKeyState(VK_ESCAPE))
+			renderingManager.getWindow().Close();
+
+		if (GetAsyncKeyState(VK_BACK))
+			camera.setLookTo(0, 0, 0, 1);
+
 
 		ImGuiTest();
 		//CameraTest();

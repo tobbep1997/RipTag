@@ -170,3 +170,8 @@ DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 	this->CalcWorldMatrix();
 	return this->p_worldMatrix;
 }
+
+ObjectType Drawable::getObjectType()
+{
+	return p_objectType;
+}

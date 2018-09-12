@@ -14,7 +14,7 @@ struct VS_INPUT
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float2 uv : UV;
-	int4 jointinfluences : JOINTINFLUENCES;
+	uint4 jointinfluences : JOINTINFLUENCES;
 	float4 jointweights : JOINTWEIGHTS;
 };
 

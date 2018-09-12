@@ -37,12 +37,12 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
-	{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 64, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 96, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	//TODO:: ADD NEW SHADER FOR ANIMATED OBJECTS, CONNECT TOANIMATEDINPUTDESC
@@ -78,10 +78,19 @@ void ForwardRender::GeometryPass(Camera & camera)
 	_mapLightInfoNoMatrix();
 
 	_mapCameraBuffer(camera);
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		UINT32 vertexSize = sizeof(StaticVertex);
-		UINT32 offset = 0;
+		switch (DX::g_geometryQueue[i]->getObjectType())
+		{
+		case Static:
+			vertexSize = sizeof(StaticVertex);
+			break;
+		case Dynamic:
+			vertexSize = sizeof(DynamicVertex);
+			break;
+		}
 		
 		_SetShaders(i);
 
@@ -245,6 +254,8 @@ void ForwardRender::_SetShaders(int i)
 {
 	if (m_lastVertexPath != DX::g_geometryQueue[i]->getVertexPath())
 	{
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[i]->getVertexPath()));
+
 		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_geometryQueue[i]->getVertexPath()), nullptr, 0);
 	}
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
