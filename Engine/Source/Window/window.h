@@ -45,6 +45,7 @@ public:
 	void PollEvents(); 
 	//Checks if the window is open
 	bool isOpen(); 
+	void Close();
 
 	WindowContext& getWindowContext(); //Get the windowcontext like "title", "width", "height"
 	HWND& getHandler();
