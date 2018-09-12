@@ -48,7 +48,7 @@ namespace Animation
 		JointPose* m_jointPoses;
 	};
 
-	class AnimationClip
+	struct AnimationClip
 	{
 		Skeleton* m_skeleton;
 		uint16_t m_frameCount;
@@ -67,7 +67,7 @@ namespace Animation
 		void Init(SkinnedMesh* mesh);
 
 		void Update(float deltaTime);
-		void SetPlayingClip(AnimationClip* clip);
+		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
 
 		void Pause();
 		void Play();
@@ -76,15 +76,17 @@ namespace Animation
 		std::vector<DX::float4x4> m_skinningMatrices;
 		std::vector<DX::float4x4> m_globalMatrices;
 
-		SkinnedMesh* m_mesh;
-		Skeleton* m_skeleton;
+		SkinnedMesh* m_mesh = nullptr;
+		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
 
 		float m_currentTime = 0.0f;
+		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
+		bool m_isLooping = true;
 
 		XMMATRIX _createMatrixFromSRT(const SRT& srt);
-		void _computeSkinningMatrices();
+		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* pose);
 		XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
