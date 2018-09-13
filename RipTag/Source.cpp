@@ -87,7 +87,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m.setScale(20, 1, 20);
 
 	PointLight pl;
-	pl.Init(DirectX::XMFLOAT4A(0,2,0,1), DirectX::XMFLOAT4A(1,1,1,1), 32132154.0f);
+	pl.Init(DirectX::XMFLOAT4A(0,3,0,1), DirectX::XMFLOAT4A(1,1,1,1), 32132154.0f);
 
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;

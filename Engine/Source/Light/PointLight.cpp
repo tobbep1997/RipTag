@@ -54,7 +54,7 @@ void PointLight::_createSides()
 	using namespace DirectX;
 	Camera * cam;
 
-	float fov = 0.49999999f;
+	float fov = 0.5f;
 
 
 	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);

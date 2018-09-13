@@ -124,7 +124,7 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 	depthStencilDesc.Height = hight;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = RENDER_TARGET_VIEW_COUNT;
-	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	depthStencilDesc.Format = DXGI_FORMAT_R32_TYPELESS;
 	depthStencilDesc.SampleDesc.Count = 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -134,7 +134,7 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = 0;
-	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
 	dsvDesc.Texture2DArray.FirstArraySlice = 0;
 	dsvDesc.Texture2DArray.ArraySize = RENDER_TARGET_VIEW_COUNT;
@@ -143,7 +143,7 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
 	srvDesc.Texture2DArray.MipLevels = depthStencilDesc.MipLevels;
 	srvDesc.Texture2DArray.MostDetailedMip = 0;
@@ -157,9 +157,9 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 
 	//Create the Depth/Stencil View
 	D3D11_SAMPLER_DESC samplerDescPoint;
-	samplerDescPoint.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDescPoint.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDescPoint.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDescPoint.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDescPoint.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDescPoint.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDescPoint.BorderColor[0] = 1.0f;
 	samplerDescPoint.BorderColor[1] = 1.0f;
 	samplerDescPoint.BorderColor[2] = 1.0f;
@@ -174,16 +174,17 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 	D3D11_SAMPLER_DESC samplerDesc;
 	
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.MaxAnisotropy = 0;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	samplerDesc.MipLODBias = 0.0f;
 
+	
 
-	hr = DX::g_device->CreateSamplerState(&samplerDesc, &m_shadowSamplerState);
+	hr = DX::g_device->CreateSamplerState(&samplerDescPoint, &m_shadowSamplerState);
 }
 
 void ShadowMap::_createBuffers()
