@@ -32,7 +32,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 
 		attenuation = 1.0 / (1.0 + 0.01 * pow(distanceToLight, 2));
 
-		difMult = max(dot(input.normal, normalize(posToLight.xyz)), 0.0);
+		difMult = max(dot(input.normal.xyz, normalize(posToLight.xyz)), 0.0);
 		if (difMult > 0)
 
 			dif += attenuation * (saturate(color[i] * input.normal) * difMult);

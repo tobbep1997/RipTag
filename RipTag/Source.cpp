@@ -3,7 +3,8 @@
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/Light/PointLight.h"
-#pragma comment(lib, "New_Library.lib")
+//#pragma comment(lib, "New_Library.lib")
+
  
 #include "Source/Helper/Timer.h"
 #if _DEBUG
