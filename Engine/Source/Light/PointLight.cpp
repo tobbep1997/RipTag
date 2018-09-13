@@ -54,34 +54,37 @@ void PointLight::_createSides()
 	using namespace DirectX;
 	Camera * cam;
 
-	cam = new Camera(XM_PI * .5f, 1.0f, 1.0f, 10.0f);
+	float fov = 0.49999999f;
+
+
+	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);
 	cam->setPosition(this->position);
 	cam->setUP(0, 0, 1);
 	cam->setDirection(0, 1, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * .5f, 1.0f, 1.0f, 10.0f);
+	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);
 	cam->setPosition(this->position);
 	cam->setUP(1, 0, 0);
 	cam->setDirection(0, -1, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * .5f, 1.0f, 1.0f, 10.0f);
+	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);
 	cam->setPosition(this->position);
 	cam->setDirection(1, 0, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * .5f, 1.0f, 1.0f, 10.0f);
+	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);
 	cam->setPosition(this->position);
 	cam->setDirection(-1, 0, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * .5f, 1.0f, 1.0f, 10.0f);
+	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);
 	cam->setPosition(this->position);
 	cam->setDirection(0, 0, 1);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * .5f, 1.0f, 1.0f, 10.0f);
+	cam = new Camera(XM_PI * fov, 1.0f, 1.0f, 10.0f);
 	cam->setPosition(this->position);
 	cam->setDirection(0, 0, -1);
 	sides.push_back(cam);
