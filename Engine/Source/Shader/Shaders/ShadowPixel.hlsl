@@ -21,12 +21,6 @@ PS_OUTPUT main(GSOutput input) : SV_TARGET
 {	
 	PS_OUTPUT output;
 
-output.pos0 = float4(0, 0,0, 1);
-output.pos1 = float4(0, 0,0, 1);
-output.pos2 = float4(0, 0,0, 1);
-output.pos3 = float4(0, 0,0, 1);
-output.pos4 = float4(0, 0,0, 1);
-output.pos5 = float4(0, 0,0, 1);
 
 	if (input.RTIndex == 0)
 		output.pos0 = input.pos;

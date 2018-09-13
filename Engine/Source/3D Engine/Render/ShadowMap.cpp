@@ -28,8 +28,8 @@ void ShadowMap::ShadowPass()
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 	for (int i = 0; i < 6; i++)
 	{
-		DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView[i], c);
 	}
+		DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
 		DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -38,10 +38,10 @@ void ShadowMap::ShadowPass()
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/Source/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);
-	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl"), nullptr, 0);
-	//DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl"), nullptr, 0);
+	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
-	DX::g_deviceContext->OMSetRenderTargets(RENDER_TARGET_VIEW_COUNT, m_renderTargetView, m_shadowDepthStencilView);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_shadowDepthStencilView);
 	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_shadowDepthStencilView);
 
 	for (int x = 0; x < DX::g_lights.size(); x++)
@@ -86,11 +86,7 @@ void ShadowMap::mapAllLightMatrix(PointLight * light)
 void ShadowMap::SetSamplerAndShaderResources()
 {
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
-	DX::g_deviceContext->PSSetShaderResources(6, 1, m_shadowShaderResourceView);
-	for (int i = 0; i < 6; i++)
-	{
-	}
-	
+	DX::g_deviceContext->PSSetShaderResources(0, 1, m_shadowShaderResourceView);	
 }
 
 void ShadowMap::Release()
@@ -136,15 +132,20 @@ void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = 0;
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+	dsvDesc.Texture2DArray.FirstArraySlice = 0;
+	dsvDesc.Texture2DArray.ArraySize = RENDER_TARGET_VIEW_COUNT;
+	dsvDesc.Texture2DArray.MipSlice = 0;
 	dsvDesc.Texture2D.MipSlice = 0;
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = depthStencilDesc.MipLevels;
-	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvDesc.Texture2DArray.MipLevels = depthStencilDesc.MipLevels;
+	srvDesc.Texture2DArray.MostDetailedMip = 0;
+	srvDesc.Texture2DArray.ArraySize = RENDER_TARGET_VIEW_COUNT;
+	srvDesc.Texture2DArray.FirstArraySlice = 0;
 	
 	HRESULT hr;
 	hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_shadowDepthBufferTex);
@@ -238,31 +239,36 @@ void ShadowMap::_createRenderTargets(UINT width, UINT height)
 	textureDesc.Width = width;
 	textureDesc.Height = height;
 	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
+	textureDesc.ArraySize = RENDER_TARGET_VIEW_COUNT;
 	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	   
-	for (int i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
-	{
-		DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture[i]);
-
-	}
 	
 
+	HRESULT hr;
+	
 
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
 
 	renderTargetViewDesc.Format = textureDesc.Format;
 
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+	renderTargetViewDesc.Texture2DArray.ArraySize = RENDER_TARGET_VIEW_COUNT;
+	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
+	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
 	   	 
 
-	for (size_t i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
+		hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture);
+		hr = DX::g_device->CreateRenderTargetView(m_renderTargetsTexture, &renderTargetViewDesc, &m_renderTargetView);
+	for (int i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
 	{
-		DX::g_device->CreateRenderTargetView(m_renderTargetsTexture[i], &renderTargetViewDesc, &m_renderTargetView[i]);
+
 	}
+	
+	
+	
+
 }
 
 void ShadowMap::_mapLightMatrix(PointLight * pointLight, unsigned int i)

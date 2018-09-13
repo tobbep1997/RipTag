@@ -18,7 +18,5 @@ struct VS_INPUT
 
 float4 main(VS_INPUT input) : SV_POSITION
 {
-
-	return mul(input.pos, worldMatrix);
-	//return mul(input.pos, mul(worldMatrix, viewProjection[1]));
+	return mul(input.pos, worldMatrix);	
 }
