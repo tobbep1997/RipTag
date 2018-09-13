@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <string>
 #include "../Messages/CoreMessage.h"
+#include "../InputManager/InputHandler.h"
 #pragma warning(disable : 4838)
 
 struct WindowContext
