@@ -67,7 +67,7 @@ void RenderingManager::Flush(Camera & camera)
 	}
 
 	engine.Present();
-	
+	DX::g_deviceContext->ClearState();
 }
 
 void RenderingManager::Release()

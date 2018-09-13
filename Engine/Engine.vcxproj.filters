@@ -120,6 +120,9 @@
     <ClInclude Include="Source\Light\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Messages\CoreMessage.cpp">
@@ -185,9 +188,15 @@
     <ClCompile Include="Source\Light\PointLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
     <FxCompile Include="Source\Shader\PixelShader.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
   </ItemGroup>
 </Project>

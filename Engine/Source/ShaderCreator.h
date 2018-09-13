@@ -198,7 +198,7 @@ namespace ShaderCreator //Maybe subject to change
 
 		}
 
-		device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &geometryShader);
+		hr = device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &geometryShader);
 
 		pGS->Release();
 	}
