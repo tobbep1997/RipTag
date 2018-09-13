@@ -67,7 +67,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			continue;
 
 		float3 indexPos = float3(smTex, i);
-		shadowCoeff += (txShadowArray.Sample(sampAniPoint, indexPos).r + 0.001 < depth) ? 0.1f : 1.0f;
+		shadowCoefff += (txShadowArray.Sample(sampAniPoint, indexPos).r + 0.001 < depth) ? 0.1f : 1.0f;
 		div += 1.0f;
 	}
 	

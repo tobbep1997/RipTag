@@ -33,6 +33,7 @@ public:
 	Window& getWindow();
 	ProcMsg getWindowProcMsg();
 
-
+private:
+	void _ReloadShaders();
 };
 

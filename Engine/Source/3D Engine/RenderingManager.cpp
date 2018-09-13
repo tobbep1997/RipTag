@@ -51,6 +51,10 @@ void RenderingManager::Update()
 	{
 		m_ImGuiManager.ImGuiProcPoll(wnd.getWindowProcMsg());
 	}
+	if (GetAsyncKeyState(int('P')))
+	{
+		_ReloadShaders();
+	}
 }
 
 void RenderingManager::Flush(Camera & camera)
@@ -96,4 +100,15 @@ Window& RenderingManager::getWindow()
 ProcMsg RenderingManager::getWindowProcMsg()
 {
 	return wnd.getWindowProcMsg();
+}
+
+void RenderingManager::_ReloadShaders()
+{
+	//Unload the shader
+	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
+
+	//Reload shader
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
 }
