@@ -24,6 +24,10 @@ float scaleZ = 0;
 float posX = 1;
 float posY = 1;
 float posZ = -6;
+
+float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
+float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
+float lightIntensity = 1;
 void ImGuiTest()
 {
 #if _DEBUG
@@ -44,6 +48,23 @@ void CameraTest()
 	ImGui::SliderFloat("posX", &posX, -20.0f, 20.f);
 	ImGui::SliderFloat("posY", &posY, -20.0f, 20.f);
 	ImGui::SliderFloat("posZ", &posZ, -20.0f, 20.f);
+	ImGui::End();
+#endif
+}
+
+void MoveLight() {
+#if _DEBUG
+	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posX", &lightPosX, -50.0f, 50.f);
+	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 50.f);
+	ImGui::SliderFloat("posZ", &lightPosZ, -50.0f, 50.f);
+
+	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
+	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
+	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
+
+	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
+
 	ImGui::End();
 #endif
 }
@@ -87,18 +108,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m.setScale(20, 1, 20);
 
 	PointLight pl;
-	pl.Init(DirectX::XMFLOAT4A(0,3,0,1), DirectX::XMFLOAT4A(1,1,1,1), 32132154.0f);
+	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
+	
+	
 
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
 	camera.setLookTo(0, 0, 0, 1);
 
+	double pos = 0;
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
-		
+		pl.SetPosition(lightPosX, lightPosY, lightPosZ);
+		pl.SetColor(lightColorR, lightColorG, lightColorB);
+		pl.SetIntensity(lightIntensity);
+
 		/*
 			Test Camera movement
 		*/
@@ -135,6 +163,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		ImGuiTest();
 		//CameraTest();
+		MoveLight();
+		pos += Timer::GetDurationInSeconds() * 0.03;
+		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
+		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
+		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
 		m2.setPosition(scaleX, scaleY, scaleZ);
@@ -143,9 +176,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		m.Draw();
 		m2.Draw();
 
+
 		
 		//std::cout << std::cos(180) << std::endl;
-		//camera.setPosition((float)std::cos(pos) * 5.0f, 0, (float)std::sin(pos) * 5.0f);
 		//camera.setLookTo(0, 0, 0);
 		
 		renderingManager.Flush(camera);

@@ -13,6 +13,7 @@ struct ObjectBuffer
 
 struct CameraBuffer
 {
+	DirectX::XMFLOAT4A cameraPosition;
 	DirectX::XMFLOAT4X4A viewProjection;
 };
 
@@ -24,9 +25,9 @@ struct PointLightBuffer
 struct LightBuffer
 {
 	DirectX::XMINT4		info;
+	DirectX::XMFLOAT4A	dropOff[8];
 	DirectX::XMFLOAT4A	position[8];
 	DirectX::XMFLOAT4A	color[8];
-	float				dropOff[8];
 };
 
 private:
@@ -49,13 +50,7 @@ private:
 	ID3D11SamplerState*			m_samplerState;
 
 	D3D11_VIEWPORT				m_viewport;
-	/*
-	D3D11_VIEWPORT				m_shadowViewport;
-	ID3D11SamplerState*			m_shadowSamplerState;
-	ID3D11ShaderResourceView *	m_shadowShaderResourceView[6];
-	ID3D11DepthStencilView*		m_shadowDepthStencilView[6];
-	ID3D11Texture2D*			m_shadowDepthBufferTex[6];
-	*/
+
 	//Constant Buffer TEMP
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
@@ -90,7 +85,8 @@ private:
 
 	void _CreateConstantBuffer();
 	void _mapObjectBuffer(Drawable * drawable);
-	void _mapCameraBuffer(Camera & camera);
+	void _mapCameraBufferToVertex(Camera & camera);
+	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();
 	void CREATE_VIEWPROJ();
 
