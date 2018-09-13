@@ -101,6 +101,9 @@ void ShadowMap::Release()
 	DX::SafeRelease(m_objectBuffer);
 	DX::SafeRelease(m_lightMatrixBuffer);
 	DX::SafeRelease(m_allLightMatrixBuffer);
+
+	DX::SafeRelease(m_renderTargetView);
+	DX::SafeRelease(m_renderTargetsTexture);
 }
 
 void ShadowMap::_createShadowViewPort(UINT width, UINT height)
