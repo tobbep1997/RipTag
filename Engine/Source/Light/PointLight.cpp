@@ -72,7 +72,23 @@ void PointLight::SetColor(float x, float y, float z, float w)
 
 void PointLight::SetIntensity(float intencsity)
 {
-	this->dropOff = 1.0 - intencsity;
+	this->dropOff = 1.0f - intencsity;
+}
+
+void PointLight::setNearPlane(float nearPlane)
+{
+	for (unsigned int i = 0; i < sides.size(); i++)
+	{
+		this->sides[i]->setNearPlane(nearPlane);
+	}
+}
+
+void PointLight::setFarPlane(float farPlane)
+{
+	for (unsigned int i = 0; i < sides.size(); i++)
+	{
+		this->sides[i]->setFarPlane(farPlane);
+	}
 }
 
 void PointLight::_createSides()
@@ -81,36 +97,36 @@ void PointLight::_createSides()
 	Camera * cam;
 
 	float fov = 0.5f;
-	float nearPlane = 1.0f, farPlane = 20.0f;
+	
 
-	cam = new Camera(XM_PI * fov, 1.0f, nearPlane, farPlane);
+	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->position);
 	cam->setUP(0, 0, 1);
 	cam->setDirection(0, 1, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, nearPlane, farPlane);
+	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->position);
 	cam->setUP(1, 0, 0);
 	cam->setDirection(0, -1, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, nearPlane, farPlane);
+	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->position);
 	cam->setDirection(1, 0, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, nearPlane, farPlane);
+	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->position);
 	cam->setDirection(-1, 0, 0);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, nearPlane, farPlane);
+	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->position);
 	cam->setDirection(0, 0, 1);
 	sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, nearPlane, farPlane);
+	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->position);
 	cam->setDirection(0, 0, -1);
 	sides.push_back(cam);

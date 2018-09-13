@@ -1,3 +1,5 @@
+#pragma warning(disable : 3078)
+
 SamplerComparisonState sampAniPoint : register(s0);
 //SamplerState sampAniPoint : register(s0);
 
@@ -91,11 +93,11 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 
 		float texelSize = 1.0f / width;
 
+		const int aa = 1;
 		
-		
-		for (int x = -1; x <= 1; ++x)
+		for (int x = -aa; x <= aa; ++x)
 		{
-			for (int y = -1; y <= 1; ++y)
+			for (int y = -aa; y <= aa; ++y)
 			{
                 shadowCoeff += txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos + (float3(x, y, 0) * texelSize), depth - 0.01).r;
 				div += 1.0f;

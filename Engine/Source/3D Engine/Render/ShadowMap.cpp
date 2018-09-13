@@ -263,16 +263,8 @@ void ShadowMap::_createRenderTargets(UINT width, UINT height)
 	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
 	   	 
 
-		hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture);
-		hr = DX::g_device->CreateRenderTargetView(m_renderTargetsTexture, &renderTargetViewDesc, &m_renderTargetView);
-	for (int i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
-	{
-
-	}
-	
-	
-	
-
+	hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture);
+	hr = DX::g_device->CreateRenderTargetView(m_renderTargetsTexture, &renderTargetViewDesc, &m_renderTargetView);
 }
 
 void ShadowMap::_mapLightMatrix(PointLight * pointLight, unsigned int i)

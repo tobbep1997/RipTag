@@ -223,7 +223,7 @@ void ForwardRender::_mapLightInfoNoMatrix()
 		m_lightValues.color[i] = DX::g_lights[i]->getColor();
 		m_lightValues.dropOff[i] = DirectX::XMFLOAT4A(DX::g_lights[i]->getDropOff(), 0,0,0);
 	}
-	for (unsigned int i = DX::g_lights.size(); i < 8; i++)
+	for (unsigned int i = (unsigned int)DX::g_lights.size(); i < 8; i++)
 	{
 		m_lightValues.position[i] = DirectX::XMFLOAT4A(0,0,0,0);
 		m_lightValues.color[i] = DirectX::XMFLOAT4A(0,0,0,0);

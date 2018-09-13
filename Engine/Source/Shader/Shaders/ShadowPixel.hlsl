@@ -17,9 +17,9 @@ struct PS_OUTPUT
 	float4 pos5 : SV_TARGET5;
 };
 
-PS_OUTPUT main(GSOutput input) : SV_TARGET
+PS_OUTPUT main(GSOutput input)
 {	
-	PS_OUTPUT output;
+	PS_OUTPUT output = (PS_OUTPUT)0;
 
 
 	if (input.RTIndex == 0)

@@ -10,6 +10,8 @@ private:
 	DirectX::XMFLOAT4A position;
 	DirectX::XMFLOAT4A color;
 	float dropOff;
+
+	float m_nearPlane = 1.0f, m_farPlane = 20.0f;
 public:
 	PointLight();
 	~PointLight();
@@ -31,7 +33,8 @@ public:
 
 	void SetIntensity(float intencsity);
 	
-
+	void setNearPlane(float nearPlane);
+	void setFarPlane(float farPlane);
 
 private:
 	void _createSides();

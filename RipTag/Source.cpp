@@ -55,7 +55,7 @@ void CameraTest()
 void MoveLight() {
 #if _DEBUG
 	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &lightPosX, -50.0f, 50.f);
+	ImGui::SliderFloat("posX", &lightPosX, -500.0f, 500.f);
 	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 50.f);
 	ImGui::SliderFloat("posZ", &lightPosZ, -50.0f, 50.f);
 
@@ -164,10 +164,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		ImGuiTest();
 		//CameraTest();
 		MoveLight();
+		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;
 		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
 		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
 		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
+		*/
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
 		m2.setPosition(scaleX, scaleY, scaleZ);

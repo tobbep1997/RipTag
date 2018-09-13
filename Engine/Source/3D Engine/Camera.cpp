@@ -163,6 +163,18 @@ void Camera::setUP(float x, float y, float z, float w)
 	this->setUP(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
+void Camera::setNearPlane(float nearPlane)
+{
+	this->m_nearPlane = nearPlane;
+	_calcProjectionMatrix();
+}
+
+void Camera::setFarPlane(float farPlane)
+{
+	this->m_farPlane = farPlane;
+	_calcProjectionMatrix();
+}
+
 const DirectX::XMFLOAT4A & Camera::getPosition() const
 {
 	return m_position;
