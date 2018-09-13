@@ -27,7 +27,15 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	m_samplerState = samplerState;
 	m_viewport = viewport;
 	
+	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 
+	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
 	
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
@@ -38,8 +46,11 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	};
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
-
+	   
 	_CreateConstantBuffer();
+
+	shadowMap.Init(128, 128);
+	
 	this->CREATE_VIEWPROJ();
 }
 
@@ -64,6 +75,9 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 	_mapLightInfoNoMatrix();
 
+	shadowMap.SetSamplerAndShaderResources();
+
+	shadowMap.mapAllLightMatrix(DX::g_lights[0]);
 	_mapCameraBuffer(camera);
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
@@ -88,10 +102,10 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 void ForwardRender::Flush(Camera & camera)
 {
+	this->shadowMap.ShadowPass();
 	this->GeometryPass(camera);
-	
 }
-//
+
 void ForwardRender::Present()
 {
 	m_swapChain->Present(0, 0);
@@ -102,6 +116,8 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_objectBuffer);
 	DX::SafeRelease(m_cameraBuffer);
 	DX::SafeRelease(m_lightBuffer);
+
+	shadowMap.Release();
 }
 
 
@@ -183,14 +199,14 @@ void ForwardRender::_mapCameraBuffer(Camera & camera)
 }
 void ForwardRender::_mapLightInfoNoMatrix()
 {
-	m_lightValues.info = DirectX::XMINT4(DX::g_lights.size(), 0, 0, 0);
+	m_lightValues.info = DirectX::XMINT4((int32_t)DX::g_lights.size(), 0, 0, 0);
 	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
 	{
 		m_lightValues.position[i] = DX::g_lights[i]->getPosition();
 		m_lightValues.color[i] = DX::g_lights[i]->getColor();
 		m_lightValues.dropOff[i] = DX::g_lights[i]->getDropOff();
 	}
-	for (unsigned int i = DX::g_lights.size(); i < 8; i++)
+	for (size_t i = DX::g_lights.size(); i < 8; i++)
 	{
 		m_lightValues.position[i] = DirectX::XMFLOAT4A();
 		m_lightValues.color[i] = DirectX::XMFLOAT4A();
@@ -224,9 +240,6 @@ void ForwardRender::CREATE_VIEWPROJ()
 	XMStoreFloat4x4A(&this->view,XMMatrixTranspose(XMMatrixLookToLH(cameraPos, lookAt, UP)));
 
 }
-
-
-
 
 void ForwardRender::_SetShaders(int i)
 {
