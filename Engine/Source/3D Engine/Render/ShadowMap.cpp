@@ -28,8 +28,8 @@ void ShadowMap::ShadowPass()
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 	for (int i = 0; i < 6; i++)
 	{
-		DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView[i], c);
 	}
+		DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
 		DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -41,7 +41,7 @@ void ShadowMap::ShadowPass()
 	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
-	DX::g_deviceContext->OMSetRenderTargets(6, m_renderTargetView, m_shadowDepthStencilView);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_shadowDepthStencilView);
 	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_shadowDepthStencilView);
 
 	for (int x = 0; x < DX::g_lights.size(); x++)
@@ -239,7 +239,7 @@ void ShadowMap::_createRenderTargets(UINT width, UINT height)
 	textureDesc.Width = width;
 	textureDesc.Height = height;
 	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
+	textureDesc.ArraySize = RENDER_TARGET_VIEW_COUNT;
 	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -254,15 +254,15 @@ void ShadowMap::_createRenderTargets(UINT width, UINT height)
 	renderTargetViewDesc.Format = textureDesc.Format;
 
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-	renderTargetViewDesc.Texture2DArray.ArraySize = 1;
+	renderTargetViewDesc.Texture2DArray.ArraySize = RENDER_TARGET_VIEW_COUNT;
 	renderTargetViewDesc.Texture2DArray.FirstArraySlice = 0;
 	renderTargetViewDesc.Texture2DArray.MipSlice = 0;
 	   	 
 
+		hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture);
+		hr = DX::g_device->CreateRenderTargetView(m_renderTargetsTexture, &renderTargetViewDesc, &m_renderTargetView);
 	for (int i = 0; i < RENDER_TARGET_VIEW_COUNT; i++)
 	{
-		hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetsTexture[i]);
-		hr = DX::g_device->CreateRenderTargetView(m_renderTargetsTexture[i], &renderTargetViewDesc, &m_renderTargetView[i]);
 
 	}
 	

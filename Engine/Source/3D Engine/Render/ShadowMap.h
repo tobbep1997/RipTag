@@ -37,8 +37,8 @@ private:
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
 	
 
-	ID3D11RenderTargetView*		m_renderTargetView[6];
-	ID3D11Texture2D*			m_renderTargetsTexture[6];
+	ID3D11RenderTargetView*		m_renderTargetView;
+	ID3D11Texture2D*			m_renderTargetsTexture;
 
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
