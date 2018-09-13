@@ -168,7 +168,7 @@ namespace ShaderCreator //Maybe subject to change
 		pHS->Release();
 	}
 
-	inline void CreateGeometryShader(ID3D11Device* device, ID3D11GeometryShader*& geometryShader, const LPCWSTR fileName, const LPCSTR entryPoint = "main")
+	inline bool CreateGeometryShader(ID3D11Device* device, ID3D11GeometryShader*& geometryShader, const LPCWSTR fileName, const LPCSTR entryPoint = "main")
 	{
 		HRESULT hr;
 		ID3DBlob* pGS = nullptr;
@@ -195,15 +195,20 @@ namespace ShaderCreator //Maybe subject to change
 			{
 				pGS->Release();
 			}
+			return false;
 
 		}
+		else
+		{
+			hr = device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &geometryShader);
 
-		hr = device->CreateGeometryShader(pGS->GetBufferPointer(), pGS->GetBufferSize(), nullptr, &geometryShader);
+			pGS->Release();
 
-		pGS->Release();
+			return true;
+		}
 	}
 
-	inline void CreatePixelShader(ID3D11Device* device, ID3D11PixelShader*& pixelShader, const LPCWSTR fileName, const LPCSTR entryPoint = "main")
+	inline bool CreatePixelShader(ID3D11Device* device, ID3D11PixelShader*& pixelShader, const LPCWSTR fileName, const LPCSTR entryPoint = "main")
 	{
 		HRESULT hr;
 		ID3DBlob* pPS = nullptr;
@@ -230,11 +235,16 @@ namespace ShaderCreator //Maybe subject to change
 			{
 				pPS->Release();
 			}
+			return false;
 		}
+		else
+		{
 
-		device->CreatePixelShader(pPS->GetBufferPointer(), pPS->GetBufferSize(), nullptr, &pixelShader);
+			device->CreatePixelShader(pPS->GetBufferPointer(), pPS->GetBufferSize(), nullptr, &pixelShader);
 
-		pPS->Release();
+			pPS->Release();
+			return true;
+		}
 	}
 
 	inline void CreateComputeShader(ID3D11Device* device, ID3D11ComputeShader*& computeShader, const LPCWSTR fileName, const LPCSTR entryPoint = "main")
