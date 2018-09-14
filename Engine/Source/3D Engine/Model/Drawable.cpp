@@ -156,6 +156,9 @@ UINT Drawable::VertexSize()
 	case Dynamic:
 		return (UINT)m_dynamicMesh->getVertices().size();
 		break;
+	default:
+		return 0;
+		break;
 	}
 	
 }
