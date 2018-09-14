@@ -67,7 +67,7 @@ private:
 
 
 	//LightCulling Related
- 	float m_lightCullingDistance = 10;	//Culling Distance for lights
+ 	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
 public:
 	ForwardRender();
