@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+#include <FormatHeader.h>
+#include "FormatHeader.h"
 
 struct Joint;
 struct SkeletonPose;
@@ -56,6 +58,7 @@ namespace Animation
 		uint8_t m_framerate;
 	};
 
+	static AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 
 	class AnimatedModel
 	{

@@ -106,3 +106,14 @@ DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t joi
 		return XMMatrixMultiply(thisJoint, recursiveMultiplyParents(m_skeleton->m_joints[jointIndex].parentIndex, pose));
 	else return thisJoint;
 }
+
+Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
+{
+	for (int j = 0; j < jointCount; j++)
+	{
+		for (int k = 0; k < animation->nr_of_keyframes; k++)
+		{
+
+		}
+	}
+}

@@ -42,8 +42,6 @@ VS_OUTPUT main(VS_INPUT input)
 	weights[3] = input.weights.w;
 
 
-	//////////////////
-
 	//Blend verts
 	float3 position = float3(0.0f, 0.0f, 0.0f);
 	float3 nor = float3(0.0f, 0.0f, 0.0f);
@@ -53,8 +51,7 @@ VS_OUTPUT main(VS_INPUT input)
 		if (input.boneIndices[i] >= 0) //unused bone indices are negative
 		{
 			//TODO: cbuffer gWorld
-			position += weights[i] * mul(float4(input.pos, 1.0f),
-				skinningMatrices[input.boneIndices[i]]).xyz;
+			position += weights[i] * mul(float4(input.pos, 1.0f), skinningMatrices[input.boneIndices[i]]).xyz;
 			nor += weights[i] * mul(input.nor,
 				(float3x3)gBoneTransforms[input.boneIndices[i]]);
 		}
