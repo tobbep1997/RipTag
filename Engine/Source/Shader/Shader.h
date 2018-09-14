@@ -72,6 +72,7 @@ namespace Shaders
 		Loads the correct shader
 		*/
 		template <> void LoadShader<ID3D11VertexShader>(const std::wstring path, const std::string entryPoint);
+		template <> void LoadShader<ID3D11GeometryShader>(const std::wstring path, const std::string entryPoint);
 		template <> void LoadShader<ID3D11PixelShader>(const std::wstring path, const std::string entryPoint);
 		//-------------------------------------------------------------------------------------------
 		//Get Shaders
@@ -80,6 +81,9 @@ namespace Shaders
 		}
 		template <> ID3D11VertexShader * getShader<ID3D11VertexShader>() const {
 			return this->m_vertexShader;
+		}
+		template <> ID3D11GeometryShader * getShader<ID3D11GeometryShader>() const {
+			return this->m_geometryShader;
 		}
 		template <> ID3D11PixelShader * getShader<ID3D11PixelShader>() const {
 			return this->m_pixelShader;

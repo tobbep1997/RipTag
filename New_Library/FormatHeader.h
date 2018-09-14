@@ -17,6 +17,7 @@ namespace MyLibrary
 		float vertex_position[3];
 		float vertex_UVCoord[2];
 		float vertex_normal[3];
+		float vertex_tangent[3];
 		unsigned int influencing_joint[4];
 		float joint_weights[4];
 	};
@@ -42,33 +43,7 @@ namespace MyLibrary
 		char normal_pathName[MAX_FILENAME];
 		//char emmissive_pathName[MAX_FILENAME];
 	};
-	struct CameraHeader
-	{
-		unsigned int camera_nrOfCameras;
-	};
-	struct Camera
-	{
-		Transform cam_transform;
-		float cam_FOV;
-	};
-	struct LightHeader
-	{
-		unsigned int light_nrofLights;
-	};
-	struct Light
-	{
-		Transform light_transform;
-		float light_color[4]; //4th value is intensity
-	};
-	struct MorphAnimationHeader
-	{
-		unsigned int morph_nrOfTargets;
-		unsigned int morph_meshID[20];
-	};
-	struct Target
-	{
-		unsigned int morphTarget_nrOfvertices;
-	};
+	
 	struct SkeletonHeader
 	{
 		unsigned int skeleton_nrOfJoints;
@@ -93,14 +68,6 @@ namespace MyLibrary
 	};
 	//Not yet 100% sure how to solve the groups, it will depend a bit on how we solve some other things in the game...
 	//May be stored by name
-	struct GroupHeader
-	{
-		unsigned int group_itemID;
-	};
-	struct Group
-	{
-		char groupItemName[100];
-	};
 
 
 	//Structs for returning
@@ -119,7 +86,6 @@ namespace MyLibrary
 		float vertex_UVCoord[2];
 		float vertex_normal[3];
 		float vertex_tangent[3];
-		float vertex_biTangent[3];
 		unsigned int influencing_joint[4];
 		float joint_weights[4];
 	};
@@ -140,28 +106,7 @@ namespace MyLibrary
 		VertexFromFile* mesh_vertices;
 	};
 
-	struct CameraFromFile
-	{
-		unsigned int cam_nrOfCameras;
-		Camera* cam_cameras;
-	};
-
-	struct MaterialFromFile
-	{
-		unsigned int mat_nrOfMaterials;
-		Material* mat_materials;
-	};
-
-	struct LightFromFile
-	{
-		unsigned int light_nrofLights;
-		Light* light_lights;
-	};
-
-	struct MorphAnimationFromFile
-	{
-
-	};
+	
 
 	struct SkeletonFromFile
 	{

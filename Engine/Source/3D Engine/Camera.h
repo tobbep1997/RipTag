@@ -47,14 +47,33 @@ public:
 	/*
 		Get and sets
 	*/
-	void setPosition(DirectX::XMFLOAT4A pos);
+	void setPosition(const DirectX::XMFLOAT4A & pos);
 	void setPosition(float x, float y, float z, float w = 1);
 	
-	void setDirection(DirectX::XMFLOAT4A direction);
+	/*
+		The Move functions add the input to the position instead of changing it
+		This is relative to the forward vector
+	*/
+	void Move(const DirectX::XMFLOAT4A & pos);
+	void Move(float x, float y, float z, float w = 1);
+	/*
+		The Rotate functions rotates the direction
+		This is relative to the forward vector
+	*/
+	void Rotate(const DirectX::XMFLOAT4A & rotation);
+	void Rotate(float x, float y, float z, float w = 0);
+
+	void setDirection(const DirectX::XMFLOAT4A & direction);
 	void setDirection(float x, float y, float z, float w = 0);
 
-	void setLookTo(DirectX::XMFLOAT4A pos);
+	void setLookTo(const DirectX::XMFLOAT4A & pos);
 	void setLookTo(float x, float y, float z, float w = 0);
+
+	void setUP(DirectX::XMFLOAT4A up);
+	void setUP(float x, float y, float z, float w = 0);
+
+	void setNearPlane(float nearPlane);
+	void setFarPlane(float farPlane);
 
 	const DirectX::XMFLOAT4A & getPosition() const;
 	const DirectX::XMFLOAT4A & getDirection() const;
@@ -64,4 +83,9 @@ public:
 	const DirectX::XMFLOAT4X4A & getViewProjection();
 	//-------------------------------------------------------------------------------------------	
 
+private:
+	/*
+		Help Functions, this might be added to a static math class if more classes needs this
+	*/
+	DirectX::XMFLOAT4A _add(const DirectX::XMFLOAT4A & a, const DirectX::XMFLOAT4A & b);
 };

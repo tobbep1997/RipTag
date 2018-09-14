@@ -79,6 +79,8 @@ public:
 	//Returns the objects worldMatrix
 	DirectX::XMFLOAT4X4A getWorldmatrix();
 
+	//returns static or dynamic objtype
+	ObjectType getObjectType();
 
 
 

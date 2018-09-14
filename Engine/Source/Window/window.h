@@ -2,6 +2,10 @@
 #include <Windows.h>
 #include <string>
 #include "../Messages/CoreMessage.h"
+#include "../InputManager/InputHandler.h"
+
+#pragma comment(lib, "InputManager.lib")
+
 #pragma warning(disable : 4838)
 
 struct WindowContext
@@ -45,6 +49,7 @@ public:
 	void PollEvents(); 
 	//Checks if the window is open
 	bool isOpen(); 
+	void Close();
 
 	WindowContext& getWindowContext(); //Get the windowcontext like "title", "width", "height"
 	HWND& getHandler();

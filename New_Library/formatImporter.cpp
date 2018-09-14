@@ -103,7 +103,7 @@ namespace MyLibrary
 			customMeshFile.read((char*)vertices, meshname.mesh_nrOfVertices * sizeof(AnimatedVertex));
 
 			meshToReturn.mesh_vertices = new AnimatedVertexFromFile[meshname.mesh_nrOfVertices];
-
+	
 			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
 
@@ -117,6 +117,10 @@ namespace MyLibrary
 				meshToReturn.mesh_vertices[i].vertex_normal[0] = vertices[i].vertex_normal[0];
 				meshToReturn.mesh_vertices[i].vertex_normal[1] = vertices[i].vertex_normal[1];
 				meshToReturn.mesh_vertices[i].vertex_normal[2] = vertices[i].vertex_normal[2];
+
+				meshToReturn.mesh_vertices[i].vertex_tangent[0] = vertices[i].vertex_tangent[0];
+				meshToReturn.mesh_vertices[i].vertex_tangent[1] = vertices[i].vertex_tangent[1];
+				meshToReturn.mesh_vertices[i].vertex_tangent[2] = vertices[i].vertex_tangent[2];
 
 				meshToReturn.mesh_vertices[i].influencing_joint[0] = vertices[i].influencing_joint[0];
 				meshToReturn.mesh_vertices[i].influencing_joint[1] = vertices[i].influencing_joint[1];
@@ -135,12 +139,8 @@ namespace MyLibrary
 				meshToReturn.mesh_meshID[i] = meshname.mesh_meshID[i];
 			}
 
-			calculateTangentsAndBitangents(meshToReturn);
-
-			//meshToReturn.mesh_meshID = meshname.mesh_meshID;
-			//meshToReturn.mesh_materialID = meshname.mesh_materialID;
-
 			customMeshFile.close();
+			delete vertices;
 		}
 
 		return meshToReturn;
@@ -219,199 +219,8 @@ namespace MyLibrary
 
 	int Loadera::getNrOfVerticesFromFile(std::ifstream & file)
 	{
-		//read number of vertices in mesh from custom file
 		int nrOfVerticesInFile = 0;
-
-
 		return nrOfVerticesInFile;
 	}
 
-	//	void Loadera::calculateTangentsAndBitangents(MeshFromFile mesh)
-	//	{
-	//		for (int i = 0; i < mesh.mesh_nrOfVertices; i += 3)
-	//		{
-	//			//mesh.mesh_vertices[i].vertex_position;
-	//			float vec1[3];
-	//			float vec2[3];
-	//
-	//			vec1[0] = mesh.mesh_vertices[i + 1].vertex_position[0] - mesh.mesh_vertices[i].vertex_position[0];
-	//			vec1[1] = mesh.mesh_vertices[i + 1].vertex_position[1] - mesh.mesh_vertices[i].vertex_position[1];
-	//			vec1[2] = mesh.mesh_vertices[i + 1].vertex_position[2] - mesh.mesh_vertices[i].vertex_position[2];
-	//
-	//			vec2[0] = mesh.mesh_vertices[i + 2].vertex_position[0] - mesh.mesh_vertices[i].vertex_position[0];
-	//			vec2[1] = mesh.mesh_vertices[i + 2].vertex_position[1] - mesh.mesh_vertices[i].vertex_position[1];
-	//			vec2[2] = mesh.mesh_vertices[i + 2].vertex_position[2] - mesh.mesh_vertices[i].vertex_position[2];
-	//
-	//
-	//			float uVec1[2];
-	//			float uVec2[2];
-	//
-	//			uVec1[0] = mesh.mesh_vertices[i + 1].vertex_UVCoord[0] - mesh.mesh_vertices[i].vertex_UVCoord[0];
-	//			uVec1[1] = mesh.mesh_vertices[i + 1].vertex_UVCoord[1] - mesh.mesh_vertices[i].vertex_UVCoord[1];
-	//
-	//			uVec2[0] = mesh.mesh_vertices[i + 2].vertex_UVCoord[0] - mesh.mesh_vertices[i].vertex_UVCoord[0];
-	//			uVec2[1] = mesh.mesh_vertices[i + 2].vertex_UVCoord[1] - mesh.mesh_vertices[i].vertex_UVCoord[1];
-	//
-	//
-	//			float denominator = (uVec1[0] * uVec2[1]) - (uVec1[1] * uVec2[0]);
-	//			float someFloat = 1.0f / denominator;
-	//
-	//			float dVec1[3];
-	//			float dVec2[3];
-	//
-	//			dVec1[0] = vec1[0] * uVec2[1];
-	//			dVec1[1] = vec1[1] * uVec2[1];
-	//			dVec1[2] = vec1[2] * uVec2[1];
-	//
-	//			dVec2[0] = vec2[0] * uVec1[1];
-	//			dVec2[1] = vec2[1] * uVec1[1];
-	//			dVec2[2] = vec2[2] * uVec1[1];
-	//
-	//			float tan[3];
-	//			tan[0] = dVec1[0] - dVec2[0];
-	//			tan[1] = dVec1[1] - dVec2[1];
-	//			tan[2] = dVec1[2] - dVec2[2];
-	//
-	//			tan[0] = tan[0] * someFloat;
-	//			tan[1] = tan[1] * someFloat;
-	//			tan[2] = tan[2] * someFloat;
-	//
-	//
-	//			//tangent			//store the tangent values 
-	//			//DirectX::XMVECTOR tangent = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&tan));			//normalize?
-	//			mesh.mesh_vertices[i].vertex_tangent[0] = tan[0];
-	//			mesh.mesh_vertices[i].vertex_tangent[1] = tan[1];
-	//			mesh.mesh_vertices[i].vertex_tangent[2] = tan[2];
-	//
-	//			mesh.mesh_vertices[i + 1].vertex_tangent[0] = tan[0];
-	//			mesh.mesh_vertices[i + 1].vertex_tangent[1] = tan[1];
-	//			mesh.mesh_vertices[i + 1].vertex_tangent[2] = tan[2];
-	//
-	//			mesh.mesh_vertices[i + 2].vertex_tangent[0] = tan[0];
-	//			mesh.mesh_vertices[i + 2].vertex_tangent[1] = tan[1];
-	//			mesh.mesh_vertices[i + 2].vertex_tangent[2] = tan[2];
-	//
-	//			//bitangent
-	//			//DirectX::XMVECTOR bitangent = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&vertex[i].tangent), DirectX::XMLoadFloat3(&vertex[i].normal)));
-	//			float bitangent[3];
-	//			bitangent[0] = (mesh.mesh_vertices[i].vertex_tangent[1] * mesh.mesh_vertices[i].vertex_normal[2] - mesh.mesh_vertices[i].vertex_tangent[2] * mesh.mesh_vertices[i].vertex_normal[1]);
-	//			bitangent[1] = (mesh.mesh_vertices[i].vertex_tangent[2] * mesh.mesh_vertices[i].vertex_normal[0] - mesh.mesh_vertices[i].vertex_tangent[0] * mesh.mesh_vertices[i].vertex_normal[2]);
-	//			bitangent[2] = (mesh.mesh_vertices[i].vertex_tangent[0] * mesh.mesh_vertices[i].vertex_normal[1] - mesh.mesh_vertices[i].vertex_tangent[1] * mesh.mesh_vertices[i].vertex_normal[0]);
-	//
-	//			//bitangent[0] = (mesh.mesh_vertices[i + 1].vertex_tangent[1] * mesh.mesh_vertices[i + 1].vertex_normal[2] - mesh.mesh_vertices[i + 1].vertex_tangent[2] * mesh.mesh_vertices[i + 1].vertex_normal[1]);
-	//			//bitangent[1] = (mesh.mesh_vertices[i + 1].vertex_tangent[2] * mesh.mesh_vertices[i + 1].vertex_normal[0] - mesh.mesh_vertices[i + 1].vertex_tangent[0] * mesh.mesh_vertices[i + 1].vertex_normal[2]);
-	//			//bitangent[2] = (mesh.mesh_vertices[i + 1].vertex_tangent[0] * mesh.mesh_vertices[i + 1].vertex_normal[1] - mesh.mesh_vertices[i + 1].vertex_tangent[1] * mesh.mesh_vertices[i + 1].vertex_normal[0]);
-	//			//								   
-	//			//bitangent[0] = (mesh.mesh_vertices[i + 2].vertex_tangent[1] * mesh.mesh_vertices[i + 2].vertex_normal[2] - mesh.mesh_vertices[i + 2].vertex_tangent[2] * mesh.mesh_vertices[i + 2].vertex_normal[1]);
-	//			//bitangent[1] = (mesh.mesh_vertices[i + 2].vertex_tangent[2] * mesh.mesh_vertices[i + 2].vertex_normal[0] - mesh.mesh_vertices[i + 2].vertex_tangent[0] * mesh.mesh_vertices[i + 2].vertex_normal[2]);
-	//			//bitangent[2] = (mesh.mesh_vertices[i + 2].vertex_tangent[0] * mesh.mesh_vertices[i + 2].vertex_normal[1] - mesh.mesh_vertices[i + 2].vertex_tangent[1] * mesh.mesh_vertices[i + 2].vertex_normal[0]);
-	//
-	//			mesh.mesh_vertices[i].vertex_biTangent[0] = bitangent[0];
-	//			mesh.mesh_vertices[i].vertex_biTangent[1] = bitangent[1];
-	//			mesh.mesh_vertices[i].vertex_biTangent[2] = bitangent[2];
-	//
-	//			mesh.mesh_vertices[i + 1].vertex_biTangent[0] = bitangent[0];
-	//			mesh.mesh_vertices[i + 1].vertex_biTangent[1] = bitangent[1];
-	//			mesh.mesh_vertices[i + 1].vertex_biTangent[2] = bitangent[2];
-	//
-	//			mesh.mesh_vertices[i + 2].vertex_biTangent[0] = bitangent[0];
-	//			mesh.mesh_vertices[i + 2].vertex_biTangent[1] = bitangent[1];
-	//			mesh.mesh_vertices[i + 2].vertex_biTangent[2] = bitangent[2];
-	//		}
-	//	}
-	//}
-	template<class T>
-	inline void MyLibrary::Loadera::calculateTangentsAndBitangents(T mesh)
-	{
-		for (unsigned int i = 0; i < mesh.mesh_nrOfVertices; i += 3)
-		{
-			//mesh.mesh_vertices[i].vertex_position;
-			float vec1[3];
-			float vec2[3];
-
-			vec1[0] = mesh.mesh_vertices[i + 1].vertex_position[0] - mesh.mesh_vertices[i].vertex_position[0];
-			vec1[1] = mesh.mesh_vertices[i + 1].vertex_position[1] - mesh.mesh_vertices[i].vertex_position[1];
-			vec1[2] = mesh.mesh_vertices[i + 1].vertex_position[2] - mesh.mesh_vertices[i].vertex_position[2];
-
-			vec2[0] = mesh.mesh_vertices[i + 2].vertex_position[0] - mesh.mesh_vertices[i].vertex_position[0];
-			vec2[1] = mesh.mesh_vertices[i + 2].vertex_position[1] - mesh.mesh_vertices[i].vertex_position[1];
-			vec2[2] = mesh.mesh_vertices[i + 2].vertex_position[2] - mesh.mesh_vertices[i].vertex_position[2];
-
-
-			float uVec1[2];
-			float uVec2[2];
-
-			uVec1[0] = mesh.mesh_vertices[i + 1].vertex_UVCoord[0] - mesh.mesh_vertices[i].vertex_UVCoord[0];
-			uVec1[1] = mesh.mesh_vertices[i + 1].vertex_UVCoord[1] - mesh.mesh_vertices[i].vertex_UVCoord[1];
-
-			uVec2[0] = mesh.mesh_vertices[i + 2].vertex_UVCoord[0] - mesh.mesh_vertices[i].vertex_UVCoord[0];
-			uVec2[1] = mesh.mesh_vertices[i + 2].vertex_UVCoord[1] - mesh.mesh_vertices[i].vertex_UVCoord[1];
-
-
-			float denominator = (uVec1[0] * uVec2[1]) - (uVec1[1] * uVec2[0]);
-			float someFloat = 1.0f / denominator;
-
-			float dVec1[3];
-			float dVec2[3];
-
-			dVec1[0] = vec1[0] * uVec2[1];
-			dVec1[1] = vec1[1] * uVec2[1];
-			dVec1[2] = vec1[2] * uVec2[1];
-
-			dVec2[0] = vec2[0] * uVec1[1];
-			dVec2[1] = vec2[1] * uVec1[1];
-			dVec2[2] = vec2[2] * uVec1[1];
-
-			float tan[3];
-			tan[0] = dVec1[0] - dVec2[0];
-			tan[1] = dVec1[1] - dVec2[1];
-			tan[2] = dVec1[2] - dVec2[2];
-
-			tan[0] = tan[0] * someFloat;
-			tan[1] = tan[1] * someFloat;
-			tan[2] = tan[2] * someFloat;
-
-
-			//tangent			//store the tangent values 
-			//DirectX::XMVECTOR tangent = DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&tan));			//normalize?
-			mesh.mesh_vertices[i].vertex_tangent[0] = tan[0];
-			mesh.mesh_vertices[i].vertex_tangent[1] = tan[1];
-			mesh.mesh_vertices[i].vertex_tangent[2] = tan[2];
-
-			mesh.mesh_vertices[i + 1].vertex_tangent[0] = tan[0];
-			mesh.mesh_vertices[i + 1].vertex_tangent[1] = tan[1];
-			mesh.mesh_vertices[i + 1].vertex_tangent[2] = tan[2];
-
-			mesh.mesh_vertices[i + 2].vertex_tangent[0] = tan[0];
-			mesh.mesh_vertices[i + 2].vertex_tangent[1] = tan[1];
-			mesh.mesh_vertices[i + 2].vertex_tangent[2] = tan[2];
-
-			//bitangent
-			//DirectX::XMVECTOR bitangent = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&vertex[i].tangent), DirectX::XMLoadFloat3(&vertex[i].normal)));
-			float bitangent[3];
-			bitangent[0] = (mesh.mesh_vertices[i].vertex_tangent[1] * mesh.mesh_vertices[i].vertex_normal[2] - mesh.mesh_vertices[i].vertex_tangent[2] * mesh.mesh_vertices[i].vertex_normal[1]);
-			bitangent[1] = (mesh.mesh_vertices[i].vertex_tangent[2] * mesh.mesh_vertices[i].vertex_normal[0] - mesh.mesh_vertices[i].vertex_tangent[0] * mesh.mesh_vertices[i].vertex_normal[2]);
-			bitangent[2] = (mesh.mesh_vertices[i].vertex_tangent[0] * mesh.mesh_vertices[i].vertex_normal[1] - mesh.mesh_vertices[i].vertex_tangent[1] * mesh.mesh_vertices[i].vertex_normal[0]);
-
-			//bitangent[0] = (mesh.mesh_vertices[i + 1].vertex_tangent[1] * mesh.mesh_vertices[i + 1].vertex_normal[2] - mesh.mesh_vertices[i + 1].vertex_tangent[2] * mesh.mesh_vertices[i + 1].vertex_normal[1]);
-			//bitangent[1] = (mesh.mesh_vertices[i + 1].vertex_tangent[2] * mesh.mesh_vertices[i + 1].vertex_normal[0] - mesh.mesh_vertices[i + 1].vertex_tangent[0] * mesh.mesh_vertices[i + 1].vertex_normal[2]);
-			//bitangent[2] = (mesh.mesh_vertices[i + 1].vertex_tangent[0] * mesh.mesh_vertices[i + 1].vertex_normal[1] - mesh.mesh_vertices[i + 1].vertex_tangent[1] * mesh.mesh_vertices[i + 1].vertex_normal[0]);
-			//								   
-			//bitangent[0] = (mesh.mesh_vertices[i + 2].vertex_tangent[1] * mesh.mesh_vertices[i + 2].vertex_normal[2] - mesh.mesh_vertices[i + 2].vertex_tangent[2] * mesh.mesh_vertices[i + 2].vertex_normal[1]);
-			//bitangent[1] = (mesh.mesh_vertices[i + 2].vertex_tangent[2] * mesh.mesh_vertices[i + 2].vertex_normal[0] - mesh.mesh_vertices[i + 2].vertex_tangent[0] * mesh.mesh_vertices[i + 2].vertex_normal[2]);
-			//bitangent[2] = (mesh.mesh_vertices[i + 2].vertex_tangent[0] * mesh.mesh_vertices[i + 2].vertex_normal[1] - mesh.mesh_vertices[i + 2].vertex_tangent[1] * mesh.mesh_vertices[i + 2].vertex_normal[0]);
-
-			mesh.mesh_vertices[i].vertex_biTangent[0] = bitangent[0];
-			mesh.mesh_vertices[i].vertex_biTangent[1] = bitangent[1];
-			mesh.mesh_vertices[i].vertex_biTangent[2] = bitangent[2];
-
-			mesh.mesh_vertices[i + 1].vertex_biTangent[0] = bitangent[0];
-			mesh.mesh_vertices[i + 1].vertex_biTangent[1] = bitangent[1];
-			mesh.mesh_vertices[i + 1].vertex_biTangent[2] = bitangent[2];
-
-			mesh.mesh_vertices[i + 2].vertex_biTangent[0] = bitangent[0];
-			mesh.mesh_vertices[i + 2].vertex_biTangent[1] = bitangent[1];
-			mesh.mesh_vertices[i + 2].vertex_biTangent[2] = bitangent[2];
-		}
-	}
 }
