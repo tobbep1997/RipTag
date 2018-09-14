@@ -54,6 +54,8 @@ public:
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 
+	float GetDistanceFromCamera(Camera & camera);
+
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);

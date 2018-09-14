@@ -1,6 +1,7 @@
 #include "ForwardRender.h"
 #include "../Extern.h"
 #include "../../ShaderCreator.h"
+#include "../RenderingManager.h"
 
 ForwardRender::ForwardRender()
 {
@@ -91,8 +92,11 @@ void ForwardRender::GeometryPass(Camera & camera)
 	_mapLightInfoNoMatrix();
 
 	shadowMap.SetSamplerAndShaderResources();
+	if (!DX::g_lights.empty())
+	{
+		shadowMap.mapAllLightMatrix(DX::g_lights[0]);
 
-	shadowMap.mapAllLightMatrix(DX::g_lights[0]);
+	}
 	_mapCameraBufferToVertex(camera);
 	_mapCameraBufferToPixel(camera);
 	UINT32 vertexSize = sizeof(StaticVertex);
@@ -127,6 +131,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 void ForwardRender::Flush(Camera & camera)
 {
+	_SimpleLightCulling(camera);
 	this->shadowMap.ShadowPass();
 	this->GeometryPass(camera);
 }
@@ -143,6 +148,23 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_lightBuffer);
 
 	shadowMap.Release();
+}
+
+void ForwardRender::_SimpleLightCulling(Camera & cam)
+{
+	float culled = 0;
+	//ImGui::Begin("Light Culling");
+	for (size_t i = 0; i < DX::g_lights.size(); i++)
+	{
+		if (DX::g_lights.at(i)->GetDistanceFromCamera(cam) >= m_lightCullingDistance)
+		{
+			
+			DX::g_lights.erase(DX::g_lights.begin() + i);
+			culled += 1;
+		}
+	}
+	//ImGui::Text("LightsCulled %f", culled);
+	//ImGui::End();
 }
 
 
