@@ -156,18 +156,69 @@ void ForwardRender::_SimpleLightCulling(Camera & cam)
 #if _DEBUG
 	ImGui::Begin("Light Culling");
 #endif
+	//--------------------------------
+	///Early KILL of lights
+	//This is the initial culling, it will cullaway the lights that are too far away
 	for (size_t i = 0; i < DX::g_lights.size(); i++)
 	{
+		//Loops every queued light
 		if (DX::g_lights.at(i)->GetDistanceFromCamera(cam) >= m_lightCullingDistance)
 		{
-			
 			DX::g_lights.erase(DX::g_lights.begin() + i);
 			culled += 1;
 		}
 	}
+	//-----------------------------------
 
+	//Start Extream light kill
+	int needToRemove = DX::g_lights.size() - m_forceCullingLimit;
+
+	if (DX::g_lights.size() > m_forceCullingLimit)
+	{
+		std::vector<sortStruct> lightRemoval;
+		//-----------------------------
+		///Calculating the distance of the lights
+		//The SortStruct can be removed but not know
+		//TODO::remove sortStruct
+		for (size_t i = 0; i < DX::g_lights.size(); i++)
+		{
+			sortStruct temp;
+			temp.distance = DX::g_lights.at(i)->GetDistanceFromCamera(cam);
+			temp.lightBelong = i;
+			lightRemoval.push_back(temp);
+		}
+		//
+		//------------------------------
+		///BubbleSorting the values. 1->...->100000
+		//
+		bool sorted = false;
+		while (false == sorted)
+		{
+			sorted = true;
+			for (int i = 0; i < lightRemoval.size() - 1; ++i)
+			{
+				if (lightRemoval.at(i).distance > lightRemoval.at(i + 1).distance)
+				{
+					sorted = false;
+					sortStruct swap = lightRemoval.at(i);
+					lightRemoval.at(i) = lightRemoval.at(i + 1);
+					lightRemoval.at(i + 1) = swap;
+
+				}
+			}
+		}
+		//Stop BubbleSort
+		//-------------------------------
+		///StartPoppin the lights
+		for (size_t i = 0; i < needToRemove; i++)
+		{
+			DX::g_lights.pop_back();
+			culled++;
+		}
+		//--------------------------------
+	}
+	
 	//TODO::
-	//When over limit
 	//Check distance and check if behind then FORCE CULL THAT BITCH
 
 #if _DEBUG
