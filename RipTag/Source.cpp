@@ -75,7 +75,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
-
+	assert(CoInitializeEx(NULL, NULL) == S_OK);
+	
 	Timer::StartTimer();
 
 	RenderingManager renderingManager;
