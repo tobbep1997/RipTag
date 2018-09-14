@@ -2,6 +2,7 @@
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
+#include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
 //#pragma comment(lib, "New_Library.lib")
 
@@ -120,6 +121,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	camera.setLookTo(0, 0, 0, 1);
 
 	double pos = 0;
+
+	// Texture loading test
+//  	{
+//  		Texture t;
+//  		assert(t.Load(L"../Assets/poop.png") == S_OK);
+//  	}
 
 	while (renderingManager.getWindow().isOpen())
 	{
