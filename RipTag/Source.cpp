@@ -103,34 +103,34 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		/*
 			Test Camera movement
 		*/
-		if (GetAsyncKeyState(int('W')))
+		if (InputHandler::isKeyPressed('W'))
 			camera.Move(0.0f, 0.0f, 0.01f);
-		else if (GetAsyncKeyState(int('S')))
+		else if (InputHandler::isKeyPressed('S'))
 			camera.Move(0.0f, 0.0f, -0.01f);
-		if (GetAsyncKeyState(int('A')))
+		if (InputHandler::isKeyPressed('A'))
 			camera.Move(-0.01f, 0.0f, 0.0f);
-		else if (GetAsyncKeyState(int('D')))
+		else if (InputHandler::isKeyPressed('D'))
 			camera.Move(0.01f, 0.0f, 0.0f);
-		if (GetAsyncKeyState(VK_SPACE))
+		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
 			camera.Move(0.0f, 0.01f, 0.0f);
-		else if (GetAsyncKeyState(VK_SHIFT))
+		else if (InputHandler::isKeyPressed(InputHandler::Shift))
 			camera.Move(0.0f, -0.01f, 0.0f);
 
 		/*
 			Test Camera rotation
 		*/
-		if (GetAsyncKeyState(VK_UP))
+		if (InputHandler::isKeyPressed(InputHandler::UpArrow))
 			camera.Rotate(0.005f, 0.0f, 0.0f);
-		else if (GetAsyncKeyState(VK_DOWN))
+		else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
 			camera.Rotate(-0.005f, 0.0f, 0.0f);
-		if (GetAsyncKeyState(VK_LEFT))
+		if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
 			camera.Rotate(0.0f, -0.005f, 0.0f);
-		else if (GetAsyncKeyState(VK_RIGHT))
+		else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
 			camera.Rotate(0.0f, 0.005f, 0.0f);
-		if (GetAsyncKeyState(VK_ESCAPE))
+		if (InputHandler::isKeyPressed(InputHandler::Esc))
 			renderingManager.getWindow().Close();
 
-		if (GetAsyncKeyState(VK_BACK))
+		if (InputHandler::isKeyPressed(InputHandler::BackSpace))
 			camera.setLookTo(0, 0, 0, 1);
 
 

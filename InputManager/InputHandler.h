@@ -17,6 +17,22 @@ private:
 	InputHandler();
 	~InputHandler();
 
+public:
+
+	//A singelton, only one instance
+	static InputHandler& Instance(); 
+
+	static DirectX::XMFLOAT2 getMousePosition(); 
+	static bool isKeyPressed(int keyCode);
+	static bool isMLeftPressed(bool repeat); 
+	static bool isMMiddlePressed(); 
+	static bool isMRightPressed(); 
+	static int getLastPressed(); 
+	static float getMouseDelta(); 
+	static DirectX::XMFLOAT2 getMousePositionLH(); 
+	static DirectX::XMINT2 getWindowSize(); 
+
+
 	enum Key
 	{
 		Del = 46,
@@ -32,23 +48,11 @@ private:
 		WKey = 0x57,
 		AKey = 0x41,
 		SKey = 0x53,
-		DKey = 0x44
+		DKey = 0x44,
+		Shift = 0x10,
+		Esc = 0x1B,
+		BackSpace = 0x08
 	};
-
-public:
-
-	//A singelton, only one instance
-	static InputHandler& Instance(); 
-
-	static DirectX::XMFLOAT2 getMousePosition(); 
-	static bool isKeyPressed(int keyCode);
-	static bool isMLeftPressed(bool repeat); 
-	static bool isMMiddlePressed(); 
-	static bool isMRightPressed(); 
-	static int getLastPressed(); 
-	static float getMouseDelta(); 
-	static DirectX::XMFLOAT2 getMousePositionLH(); 
-	static DirectX::XMINT2 getWindowSize(); 
 
 
 };
