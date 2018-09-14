@@ -129,6 +129,27 @@
     <ClInclude Include="Source\3D Engine\Model\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DirectXHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\LoaderHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\PlatformHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\window.cpp">
@@ -201,6 +222,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\3D Engine\Model\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

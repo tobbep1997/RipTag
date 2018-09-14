@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -170,6 +170,13 @@
   <ItemGroup>
     <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
     <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DirectXHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\LoaderHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\pch.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\PlatformHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.h" />
     <ClInclude Include="Source\Light\PointLight.h" />
     <ClInclude Include="Source\3D Engine\Camera.h" />
     <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
@@ -210,6 +217,8 @@
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
     <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp" />
