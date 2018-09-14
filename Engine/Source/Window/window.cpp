@@ -1,5 +1,8 @@
 #include "window.h"
+
 #include "../Debugg/ImGui/imgui.h"
+
+//InputHandler::InputHandler& Instance();
 
 void Window::_resize(UINT width, UINT height)
 {
@@ -63,6 +66,56 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		m_windowContext.clientHeight = HIWORD(lParam);
 		m_windowContext.clientWidth = LOWORD(lParam);
 		break;
+
+	//KEYBOARD INPUT
+	case WM_KEYDOWN:
+		
+		InputHandler::m_keys[wParam] = true; 
+		InputHandler::m_lastPressed = static_cast<int>(wParam);
+		break; 
+	
+	case WM_KEYUP:
+		
+		InputHandler::m_keys[wParam] = false;
+		InputHandler::m_lastPressed = -1; 
+		break; 
+
+	//MOUSE INPUT
+
+		//Left MB
+	case WM_LBUTTONDOWN:
+		InputHandler::m_mouseKeys[0] = true; 
+		break;
+	case WM_LBUTTONUP:
+		InputHandler::m_mouseKeys[0] = false; 
+		break; 
+
+		//Middle MB
+	case WM_MBUTTONDOWN:
+		InputHandler::m_mouseKeys[1] = true;
+		break; 
+
+	case WM_MBUTTONUP: 
+		InputHandler::m_mouseKeys[1] = false;
+		break; 
+
+		//Right MB 
+	case WM_RBUTTONDOWN:
+		InputHandler::m_mouseKeys[2] = true; 
+		break; 
+	case WM_RBUTTONUP:
+		InputHandler::m_mouseKeys[2] = false; 
+		break;
+
+	case WM_MOUSEMOVE:
+		InputHandler::m_mousePos.x = LOWORD(lParam); 
+		InputHandler::m_mousePos.y = HIWORD(lParam); 
+		break;
+
+		//1 or -1
+	case WM_MOUSEWHEEL:
+		InputHandler::m_scrollDelta = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f; 
+		break; 
 	}
 	
 	m_procMsg.hwnd = hwnd;
@@ -81,7 +134,7 @@ ProcMsg & Window::getWindowProcMsg()
 
 Window::Window()
 {
-	
+
 }
 
 Window::~Window()
@@ -111,6 +164,13 @@ bool Window::Init(WindowContext windowContext)
 		OutputDebugString(L"FAILED TO CREATE WINDOW CLASS!\n");
 		return false; 
 	}
+
+	InputHandler::Instance();
+
+	//Give InputHandler neccesary dimension information 
+	InputHandler::m_windowSize.x = m_windowContext.clientWidth;
+	InputHandler::m_windowSize.y = m_windowContext.clientHeight; 
+
 	
 	RECT r = { 0, 0, m_windowContext.clientWidth, m_windowContext.clientHeight };
 	AdjustWindowRect(&r, m_windowContext.wcex.style, FALSE);
@@ -137,7 +197,7 @@ bool Window::Init(WindowContext windowContext)
 	}
 
 	ShowWindow(m_wHandler, 10);
-	
+
 	return true;
 }
 
