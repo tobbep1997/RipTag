@@ -105,8 +105,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	s->LoadModel("../Assets/sphere.bin");
 	d->LoadModel("../Assets/RUMMET.bin");
 	m.SetModel(s);
-	m2.SetModel(d);
 
+	m2.SetModel(d);
+	{
+		Texture* tex = new Texture();
+		assert(tex->Load(L"../Assets/poop.png") == S_OK);
+		m2.SetTexture(tex);
+	}
 	m.setPosition(0, -3, 0);
 	m.setScale(1, 1, 1);
 
