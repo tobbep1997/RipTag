@@ -4,7 +4,7 @@
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/Light/PointLight.h"
 //#pragma comment(lib, "New_Library.lib")
-
+#include "Source/Helper/Threading.h"
  
 #include "Source/Helper/Timer.h"
 #if _DEBUG
@@ -75,12 +75,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
-
+	Threading::Init();
 	Timer::StartTimer();
 
 	RenderingManager renderingManager;
 
-	
 
 	renderingManager.Init(hInstance);
 	
