@@ -123,6 +123,9 @@
     <ClInclude Include="Source\Messages\WindowMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\window.cpp">
@@ -191,10 +194,14 @@
     <ClCompile Include="Source\Messages\PostalManagerRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
     <FxCompile Include="Source\Shader\PixelShader.hlsl" />
+    <FxCompile Include="Source\Shader\SkinnedVS.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
