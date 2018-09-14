@@ -153,7 +153,9 @@ void ForwardRender::Release()
 void ForwardRender::_SimpleLightCulling(Camera & cam)
 {
 	float culled = 0;
-	//ImGui::Begin("Light Culling");
+#if _DEBUG
+	ImGui::Begin("Light Culling");
+#endif
 	for (size_t i = 0; i < DX::g_lights.size(); i++)
 	{
 		if (DX::g_lights.at(i)->GetDistanceFromCamera(cam) >= m_lightCullingDistance)
@@ -163,8 +165,15 @@ void ForwardRender::_SimpleLightCulling(Camera & cam)
 			culled += 1;
 		}
 	}
-	//ImGui::Text("LightsCulled %f", culled);
-	//ImGui::End();
+
+	//TODO::
+	//When over limit
+	//Check distance and check if behind then FORCE CULL THAT BITCH
+
+#if _DEBUG
+	ImGui::Text("LightsCulled %f", culled);
+	ImGui::End();
+#endif
 }
 
 
