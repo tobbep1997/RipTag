@@ -145,30 +145,38 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile * skeleton)
 {
 	Skeleton* SkeletonToReturn = new Skeleton();
-	float4x4 tempGlobalMatrix;
-	SRT temp;
-	SRT globalTemp;
+	SkeletonToReturn->m_joints = new Joint[skeleton->skeleton_nrOfJoints];
 
-	XMStoreFloat4(&globalTemp.m_rotationQuaternion,  XMQuaternionRotationRollPitchYaw( skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
-	globalTemp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f};
-	globalTemp.m_translation = { skeleton->skeleton_joints[0].joint_transform.transform_position[0], skeleton->skeleton_joints[0].joint_transform.transform_position[1], skeleton->skeleton_joints[0].joint_transform.transform_position[2], 1.0f };
-	
-	DirectX::XMStoreFloat4x4A(&tempGlobalMatrix, _createMatrixFromSRT(globalTemp));
-
+	//Init parent indices
+	for (int i = 0; i < skeleton->skeleton_nrOfJoints; i++)
+	{
+		SkeletonToReturn->m_joints[i].parentIndex = skeleton->skeleton_joints[i].parentIndex;
+	}
+	//Init joint count
 	SkeletonToReturn->m_jointCount = skeleton->skeleton_nrOfJoints;
-	SkeletonToReturn->m_joints->parentIndex = skeleton->skeleton_joints->parentIndex;
+
+	float4x4 tempGlobalMatrix = {};
+	SRT temp = {};
+	SRT InverseBindPoseTemp = {};
+
+	XMStoreFloat4(&InverseBindPoseTemp.m_rotationQuaternion,  XMQuaternionRotationRollPitchYaw( skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
+	InverseBindPoseTemp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f};
+	InverseBindPoseTemp.m_translation = { skeleton->skeleton_joints[0].joint_transform.transform_position[0], skeleton->skeleton_joints[0].joint_transform.transform_position[1], skeleton->skeleton_joints[0].joint_transform.transform_position[2], 1.0f };
+	
+	DirectX::XMStoreFloat4x4A(&tempGlobalMatrix, _createMatrixFromSRT(InverseBindPoseTemp));
 
 	for (int i = 1; i < skeleton->skeleton_nrOfJoints; i++) //start at second joint (first is root, already processed)
 	{
 		uint8_t parentIndex = skeleton->skeleton_joints[i].parentIndex;
 		assert(parentIndex > -1);
 
-		XMStoreFloat4(&temp.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
-		temp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f };
-		temp.m_translation = { skeleton->skeleton_joints[0].joint_transform.transform_position[0], skeleton->skeleton_joints[0].joint_transform.transform_position[1], skeleton->skeleton_joints[0].joint_transform.transform_position[2], 1.0f };
+		//TODO CHECK ROLL PITCH YAW ORDER
+		XMStoreFloat4(&temp.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], skeleton->skeleton_joints[2].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
+		temp.m_scale = { skeleton->skeleton_joints[i].joint_transform.transform_scale[0], skeleton->skeleton_joints[i].joint_transform.transform_scale[1], skeleton->skeleton_joints[i].joint_transform.transform_scale[2], 1.0f };
+		temp.m_translation = { skeleton->skeleton_joints[i].joint_transform.transform_position[0], skeleton->skeleton_joints[i].joint_transform.transform_position[1], skeleton->skeleton_joints[i].joint_transform.transform_position[2], 1.0f };
 
-		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&SkeletonToReturn->m_joints[parentIndex].m_inverseBindPose);
-		DirectX::XMStoreFloat4x4A(&SkeletonToReturn->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(temp), parentGlobalMatrix));
+		XMMATRIX parentInverseBindPoseMatrix = XMLoadFloat4x4A(&SkeletonToReturn->m_joints[parentIndex].m_inverseBindPose);
+		DirectX::XMStoreFloat4x4A(&SkeletonToReturn->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(temp), parentInverseBindPoseMatrix));
 	}
 	return SkeletonToReturn;
 }
