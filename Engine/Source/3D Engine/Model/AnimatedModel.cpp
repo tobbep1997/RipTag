@@ -59,7 +59,7 @@ DirectX::XMMATRIX Animation::AnimatedModel::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-Animation::SRT Animation::AnimatedModel::_convertToSRT(const MyLibrary::Transform transform)
+Animation::SRT Animation::_convertToSRT(const MyLibrary::Transform transform)
 {
 	SRT srt = {};
 
@@ -124,14 +124,21 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 	AnimationClip* clipToReturn = new AnimationClip();
 	clipToReturn->m_skeletonPoses = new SkeletonPose[jointCount];
 	clipToReturn->m_frameCount = static_cast<uint16_t>(animation->nr_of_keyframes);
+
+	//for each joint
 	for (int j = 0; j < jointCount; j++)
 	{
-		JointPose* keyFramesForThisJoint = new JointPose[keyCount];
+		//for each key
 		for (int k = 0; k < keyCount; k++)
 		{
-			//keyFramesForThisJoint[k] = 
+			//create jointPose for this key
+			JointPose pose = {};
+			pose.m_transformation = Animation::_convertToSRT(animation->keyframe_transformations[j * keyCount + k]);
+
+			clipToReturn->m_skeletonPoses[k].m_jointPoses[j] = pose;
 		}
 	}
+	return clipToReturn;
 }
 
 Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile * skeleton)
