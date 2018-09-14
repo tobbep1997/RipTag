@@ -155,15 +155,15 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 	//Init joint count
 	SkeletonToReturn->m_jointCount = skeleton->skeleton_nrOfJoints;
 
-	float4x4 tempGlobalMatrix = {};
+	float4x4 tempMatrix = {};
 	SRT temp = {};
 	SRT InverseBindPoseTemp = {};
 
-	XMStoreFloat4(&InverseBindPoseTemp.m_rotationQuaternion,  XMQuaternionRotationRollPitchYaw( skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
-	InverseBindPoseTemp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f};
+	XMStoreFloat4(&InverseBindPoseTemp.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
+	InverseBindPoseTemp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f };
 	InverseBindPoseTemp.m_translation = { skeleton->skeleton_joints[0].joint_transform.transform_position[0], skeleton->skeleton_joints[0].joint_transform.transform_position[1], skeleton->skeleton_joints[0].joint_transform.transform_position[2], 1.0f };
-	
-	DirectX::XMStoreFloat4x4A(&tempGlobalMatrix, _createMatrixFromSRT(InverseBindPoseTemp));
+
+	DirectX::XMStoreFloat4x4A(&tempMatrix, _createMatrixFromSRT(InverseBindPoseTemp));
 
 	for (int i = 1; i < skeleton->skeleton_nrOfJoints; i++) //start at second joint (first is root, already processed)
 	{
