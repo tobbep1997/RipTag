@@ -168,8 +168,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\3D Engine\Model\ModelManager.h" />
     <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
-    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
+    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Source\Light\PointLight.h" />
     <ClInclude Include="Source\3D Engine\Camera.h" />
     <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
@@ -207,8 +210,11 @@
     <ClInclude Include="Source\Window\window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
     <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
     <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp" />
@@ -247,11 +253,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\SkinnedVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

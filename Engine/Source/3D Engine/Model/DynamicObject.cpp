@@ -37,7 +37,7 @@ void DynamicMesh::SET_DEFAULT()
 	DynamicVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
-
+		//TODO: Gör ordentligt.
 		tempvertex.pos.x = newMesh.mesh_vertices[i].vertex_position[0];
 		tempvertex.pos.y = newMesh.mesh_vertices[i].vertex_position[1];
 		tempvertex.pos.z = newMesh.mesh_vertices[i].vertex_position[2];

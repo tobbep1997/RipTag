@@ -157,6 +157,7 @@ UINT Drawable::VertexSize()
 		return (UINT)m_dynamicMesh->getVertices().size();
 		break;
 	}
+	return 0;
 	
 }
 

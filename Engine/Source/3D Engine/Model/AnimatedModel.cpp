@@ -7,7 +7,7 @@ Animation::AnimatedModel::AnimatedModel()
 {
 }
 
-Animation::AnimatedModel::AnimatedModel(SkinnedMesh * mesh)
+Animation::AnimatedModel::AnimatedModel(DynamicMesh * mesh)
 {
 	//m_skeleton = mesh->GetSkeleton();
 }
@@ -16,7 +16,7 @@ Animation::AnimatedModel::~AnimatedModel()
 {
 }
 
-void Animation::AnimatedModel::Init(SkinnedMesh * mesh)
+void Animation::AnimatedModel::Init(DynamicMesh * mesh)
 {
 	if (mesh)
 		m_mesh = mesh;

@@ -99,24 +99,27 @@ void ForwardRender::GeometryPass(Camera & camera)
 	UINT32 offset = 0;
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		switch (DX::g_geometryQueue[i]->getObjectType())
-		{
-		case Static:
-			vertexSize = sizeof(StaticVertex);
-			break;
-		case Dynamic:
-			vertexSize = sizeof(DynamicVertex);
-			break;
-		}
 		
-		_SetShaders(i);
 
-		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
-		_mapObjectBuffer(DX::g_geometryQueue[i]);
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
+			switch (DX::g_geometryQueue[i]->getObjectType())
+			{
+			case Static:
+				vertexSize = sizeof(StaticVertex);
+				break;
+			case Dynamic:
+				vertexSize = sizeof(DynamicVertex);
+				break;
+			}
 
+			_SetShaders(i);
+
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
+		
 
 
 	}

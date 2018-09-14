@@ -2,17 +2,17 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-#include <FormatHeader.h>
-#include "FormatHeader.h"
 
+
+#include "DynamicMesh.h"
 struct Joint;
 struct SkeletonPose;
 struct Skeleton;
 struct AnimationClip;
-class SkinnedMesh;
 
 
-#define DX DirectX
+
+
 #define float4x4 XMFLOAT4X4A
 #define float4 XMFLOAT4A
 
@@ -64,10 +64,10 @@ namespace Animation
 	{
 	public:
 		AnimatedModel();
-		AnimatedModel(SkinnedMesh* mesh);
+		AnimatedModel(DynamicMesh* mesh);
 		~AnimatedModel();
 
-		void Init(SkinnedMesh* mesh);
+		void Init(DynamicMesh* mesh);
 
 		void Update(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
@@ -76,10 +76,10 @@ namespace Animation
 		void Play();
 
 	private:
-		std::vector<DX::float4x4> m_skinningMatrices;
-		std::vector<DX::float4x4> m_globalMatrices;
+		std::vector<DirectX::float4x4> m_skinningMatrices;
+		std::vector<DirectX::float4x4> m_globalMatrices;
 
-		SkinnedMesh* m_mesh = nullptr;
+		DynamicMesh* m_mesh = nullptr;
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
 
