@@ -114,6 +114,11 @@ void Drawable::setScale(float x, float y, float z, float w)
 	this->setScale(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
+const DirectX::XMFLOAT4A & Drawable::getPosition() const
+{
+	return p_position;
+}
+
 
 
 void Drawable::Draw()

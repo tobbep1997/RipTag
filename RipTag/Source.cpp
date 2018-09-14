@@ -159,7 +159,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		if (GetAsyncKeyState(VK_BACK))
 			camera.setLookTo(0, 0, 0, 1);
-
+		
 
 		ImGuiTest();
 		//CameraTest();

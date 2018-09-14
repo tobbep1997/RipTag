@@ -17,6 +17,8 @@ public:
 	void SetVertexShader(const std::wstring & path);
 	void SetPixelShader(const std::wstring & path);
 
+
+
 private:
 	void SetBuffer();
 };

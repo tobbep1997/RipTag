@@ -5,7 +5,6 @@
 class PointLight
 {
 private:
-
 	std::vector<Camera *> sides;
 	DirectX::XMFLOAT4A position;
 	DirectX::XMFLOAT4A color;
