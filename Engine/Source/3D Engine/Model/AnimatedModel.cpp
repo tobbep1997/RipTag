@@ -3,6 +3,7 @@
 #define loadMatrix(x) XMLoadFloat4x4(x)
 #define storeMatrix(x,y) XMStoreFloat4x4(x,y)
 
+
 Animation::AnimatedModel::AnimatedModel()
 {
 }
@@ -181,4 +182,45 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 	return SkeletonToReturn;
 }
 
+Animation::AnimationCBuffer::AnimationCBuffer()
+{
+	SetAnimationCBuffer();
+}
 
+Animation::AnimationCBuffer::~AnimationCBuffer()
+{
+
+}
+
+void Animation::AnimationCBuffer::SetAnimationCBuffer()
+{
+	D3D11_BUFFER_DESC AnimationBufferDesc;
+	AnimationBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	AnimationBufferDesc.ByteWidth = (sizeof(float) * 16 * MAXJOINT);
+	AnimationBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	AnimationBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	AnimationBufferDesc.MiscFlags = 0;
+	AnimationBufferDesc.StructureByteStride = 0;
+
+	// check if the creation failed for any reason
+	HRESULT hr = 0;
+	hr = m_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer);
+	if (FAILED(hr))
+	{
+		// handle the error, could be fatal or a warning...
+		exit(-1);
+	}
+}
+
+void Animation::AnimationCBuffer::UpdateBuffer(AnimationBuffer *buffer)
+{
+	memcpy(m_AnimationValues.skinnedMatrix, &buffer->skinnedMatrix, sizeof(sizeof(float) * 16 * MAXJOINT));
+	m_deviceContext->Map(m_AnimationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_dataPtr);
+	memcpy(m_dataPtr.pData, &m_AnimationValues, sizeof(AnimationBuffer));
+	m_deviceContext->Unmap(m_AnimationBuffer, 0);
+}
+
+void Animation::AnimationCBuffer::SetToShader()
+{
+	//m_deviceContext->VSSetConstantBuffers(?, 1, m_AnimationBuffer);
+}
