@@ -24,7 +24,7 @@ namespace Animation
 	{
 		float4 m_rotationQuaternion;
 		float4 m_translation;
-		float m_scale;
+		float4 m_scale;
 	};
 
 	struct Joint
@@ -59,7 +59,7 @@ namespace Animation
 	};
 
 	static AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
-
+	static Skeleton* ConvertToSkeleton(MyLibrary::SkeletonFromFile* skeleton);
 	class AnimatedModel
 	{
 	public:

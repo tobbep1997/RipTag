@@ -53,7 +53,7 @@ void Animation::AnimatedModel::Play()
 
 DirectX::XMMATRIX Animation::AnimatedModel::_createMatrixFromSRT(const SRT& srt)
 {
-	XMFLOAT4A fScale = { srt.m_scale, srt.m_scale, srt.m_scale, 1.0 };
+	XMFLOAT4A fScale = ( srt.m_scale);
 	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
 	XMFLOAT4A fTranslation = srt.m_translation;
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
@@ -91,11 +91,7 @@ DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t joi
 {
 	XMVECTOR thisRotation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_rotationQuaternion);
 
-	XMFLOAT4A scale = XMFLOAT4A
-	(
-		pose->m_jointPoses[jointIndex].m_transformation.m_scale,
-		pose->m_jointPoses[jointIndex].m_transformation.m_scale,
-		pose->m_jointPoses[jointIndex].m_transformation.m_scale,
+	XMFLOAT4A scale = (
 		pose->m_jointPoses[jointIndex].m_transformation.m_scale
 	);
 	XMVECTOR thisScale = XMLoadFloat4A(&scale);
@@ -109,11 +105,24 @@ DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t joi
 
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
+	using std::vector;
+
+	AnimationClip* clipToReturn = new AnimationClip();
+	clipToReturn->m_skeletonPoses = new SkeletonPose[jointCount];
+	clipToReturn->m_frameCount = static_cast<uint8_t>(animation->nr_of_keyframes);
 	for (int j = 0; j < jointCount; j++)
 	{
 		for (int k = 0; k < animation->nr_of_keyframes; k++)
 		{
-
+			//
+			vector<JointPose> jointPoses;
 		}
 	}
 }
+
+Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile * skeleton)
+{
+	return nullptr;
+}
+
+
