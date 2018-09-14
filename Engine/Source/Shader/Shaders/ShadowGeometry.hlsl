@@ -1,3 +1,4 @@
+
 cbuffer LIGHT_MATRIX : register(b0)
 {
 	float4x4 lightViewProjection[6];
@@ -16,7 +17,7 @@ void main(
 	inout TriangleStream< GSOutput > output
 )
 {
-	for (uint i = 0; i < 6; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		GSOutput element;
 		element.RTIndex = i;

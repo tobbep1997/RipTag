@@ -65,8 +65,7 @@ void ShadowMap::ShadowPass()
 
 void ShadowMap::mapAllLightMatrix(PointLight * light)
 {
-
-	for (int i = 0; i < 6; i++)
+	for (unsigned int i = 0; i < 6; i++)
 	{
 		m_allLightMatrixValues.viewProjection[i] = light->getSides()[i]->getViewProjection();
 	}

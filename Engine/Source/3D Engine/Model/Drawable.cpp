@@ -23,6 +23,21 @@ void Drawable::_setStaticBuffer()
 
 void Drawable::_setDynamicBuffer()
 {
+	DX::SafeRelease(m_vertexBuffer);
+
+	UINT32 vertexSize = sizeof(DynamicVertex);
+	UINT32 offset = 0;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(DynamicVertex) * (UINT)m_dynamicMesh->getVertices().size();
+
+
+	D3D11_SUBRESOURCE_DATA vertexData;
+	vertexData.pSysMem = m_dynamicMesh->getRawVertices();
+	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
 }
 
 void Drawable::CalcWorldMatrix()
@@ -138,7 +153,16 @@ std::wstring Drawable::getPixelPath() const
 
 UINT Drawable::VertexSize()
 {
-	return (UINT)m_staticMesh->getVertice().size();
+	switch (p_objectType)
+	{
+	case Static:
+		return (UINT)m_staticMesh->getVertice().size();
+		break;
+	case Dynamic:
+		return (UINT)m_dynamicMesh->getVertices().size();
+		break;
+	}
+	
 }
 
 ID3D11Buffer * Drawable::getBuffer()
@@ -150,4 +174,9 @@ DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 {
 	this->CalcWorldMatrix();
 	return this->p_worldMatrix;
+}
+
+ObjectType Drawable::getObjectType()
+{
+	return p_objectType;
 }

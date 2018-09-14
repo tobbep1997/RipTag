@@ -6,6 +6,7 @@ cbuffer OBJECT_BUFFER : register(b0)
 cbuffer LIGHT_MATRIX : register(b1)
 {
 	float4x4 viewProjection[6];
+	int numberOf;
 };
 
 struct VS_INPUT

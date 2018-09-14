@@ -4,44 +4,101 @@
 
 PointLight::PointLight()
 {
+	m_nearPlane = 1.0f;
+	m_farPlane = 20.0f;
 }
 
 
 PointLight::~PointLight()
 {
-	for (int i = 0; i < sides.size(); i++)
+	for (int i = 0; i < m_sides.size(); i++)
 	{
-		delete sides[i];
+		delete m_sides[i];
 	}
+}
+
+void PointLight::CreateShadowDirection(ShadowDir direction)
+{
+	switch (direction)
+	{
+	case PointLight::Y_POSITIVE:
+		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
+		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
+		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
+		break;
+	case PointLight::Y_NEGATIVE:
+		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
+		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
+		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
+		break;
+	case PointLight::X_POSITIVE:
+		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
+		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
+		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
+
+		break;
+	case PointLight::X_NEGATIVE:
+		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
+		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
+		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
+		break;
+	case PointLight::Z_POSITIVE:
+		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
+		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
+		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
+		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
+		break;
+	case PointLight::Z_NEGATIVE:
+		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
+		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
+		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
+		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
+		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
+		break;
+	case PointLight::XYZ_ALL:
+		this->_createSides();
+		break;
+	}
+
+
 }
 
 void PointLight::Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float power)
 {
-	this->position = position;
-	this->color = color;
-	this->dropOff = 1.0f - power;
+	this->m_position = position;
+	this->m_color = color;
+	this->m_dropOff = 1.0f - power;
 	
-	_createSides();
+	//_createSides();
 }
 
 const DirectX::XMFLOAT4A & PointLight::getPosition()
 {
-	return position;
+	return m_position;
 }
 
 const DirectX::XMFLOAT4A & PointLight::getColor()
 {
-	return color;
+	return m_color;
 }
 
 const std::vector<Camera*>& PointLight::getSides()
 {
-	return sides;
+	return m_sides;
 }
 
 const float & PointLight::getDropOff()
 {
-	return dropOff;
+	return m_dropOff;
 }
 
 void PointLight::QueueLight()
@@ -51,7 +108,7 @@ void PointLight::QueueLight()
 
 void PointLight::SetPosition(const DirectX::XMFLOAT4A & pos)
 {
-	this->position = pos;
+	this->m_position = pos;
 	_updateCameras();
 }
 
@@ -62,7 +119,7 @@ void PointLight::SetPosition(float x, float y, float z, float w)
 
 void PointLight::SetColor(const DirectX::XMFLOAT4A & color)
 {
-	this->color = color;
+	this->m_color = color;
 }
 
 void PointLight::SetColor(float x, float y, float z, float w)
@@ -72,22 +129,22 @@ void PointLight::SetColor(float x, float y, float z, float w)
 
 void PointLight::SetIntensity(float intencsity)
 {
-	this->dropOff = 1.0f - intencsity;
+	this->m_dropOff = 1.0f - intencsity;
 }
 
 void PointLight::setNearPlane(float nearPlane)
 {
-	for (unsigned int i = 0; i < sides.size(); i++)
+	for (unsigned int i = 0; i < m_sides.size(); i++)
 	{
-		this->sides[i]->setNearPlane(nearPlane);
+		this->m_sides[i]->setNearPlane(nearPlane);
 	}
 }
 
 void PointLight::setFarPlane(float farPlane)
 {
-	for (unsigned int i = 0; i < sides.size(); i++)
+	for (unsigned int i = 0; i < m_sides.size(); i++)
 	{
-		this->sides[i]->setFarPlane(farPlane);
+		this->m_sides[i]->setFarPlane(farPlane);
 	}
 }
 
@@ -99,44 +156,55 @@ void PointLight::_createSides()
 	float fov = 0.5f;
 	
 
-	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
-	cam->setPosition(this->position);
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
 	cam->setUP(0, 0, 1);
 	cam->setDirection(0, 1, 0);
-	sides.push_back(cam);
+	m_sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
-	cam->setPosition(this->position);
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
 	cam->setUP(1, 0, 0);
 	cam->setDirection(0, -1, 0);
-	sides.push_back(cam);
+	m_sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
-	cam->setPosition(this->position);
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
 	cam->setDirection(1, 0, 0);
-	sides.push_back(cam);
+	m_sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
-	cam->setPosition(this->position);
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
 	cam->setDirection(-1, 0, 0);
-	sides.push_back(cam);
+	m_sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
-	cam->setPosition(this->position);
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
 	cam->setDirection(0, 0, 1);
-	sides.push_back(cam);
+	m_sides.push_back(cam);
 
-	cam = new Camera(XM_PI * fov, 1.0f, m_nearPlane, m_farPlane);
-	cam->setPosition(this->position);
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
 	cam->setDirection(0, 0, -1);
-	sides.push_back(cam);
+	m_sides.push_back(cam);
 
+}
+
+void PointLight::_createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up)
+{
+	using namespace DirectX;
+	Camera * cam;
+	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
+	cam->setPosition(this->m_position);
+	cam->setUP(up);
+	cam->setDirection(dir);
+	m_sides.push_back(cam);
 }
 
 void PointLight::_updateCameras()
 {
-	for (unsigned int i = 0; i < sides.size(); i++)
+	for (unsigned int i = 0; i < m_sides.size(); i++)
 	{
-		sides[i]->setPosition(this->position);
+		m_sides[i]->setPosition(this->m_position);
 	}
 }

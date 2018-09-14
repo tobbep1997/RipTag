@@ -4,16 +4,35 @@
 
 class PointLight
 {
-private:
-	std::vector<Camera *> sides;
-	DirectX::XMFLOAT4A position;
-	DirectX::XMFLOAT4A color;
-	float dropOff;
+public:
+	enum ShadowDir
+	{
+		Y_POSITIVE = 0,
+		Y_NEGATIVE = 1,
+		X_POSITIVE = 2,
+		X_NEGATIVE = 3,
+		Z_POSITIVE = 4,
+		Z_NEGATIVE = 5,
+		XYZ_ALL = 6
+	};
 
-	float m_nearPlane = 1.0f, m_farPlane = 20.0f;
+private:
+	const float FOV = DirectX::XM_PI * 0.5f;
+	
+	std::vector<Camera *> m_sides;
+	DirectX::XMFLOAT4A m_position;
+	DirectX::XMFLOAT4A m_color;
+
+
+	float m_nearPlane;
+	float m_farPlane;
+	float m_dropOff;
+
 public:
 	PointLight();
 	~PointLight();
+
+	void CreateShadowDirection(ShadowDir direction);
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
 
@@ -37,6 +56,7 @@ public:
 
 private:
 	void _createSides();
+	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
 	void _updateCameras();
 
 };
