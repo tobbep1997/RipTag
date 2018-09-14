@@ -43,6 +43,7 @@ private:
 	std::wstring m_lastVertexPath;
 	std::wstring m_lastPixelPath;
 
+	//Standard §
 	IDXGISwapChain*				m_swapChain;
 	ID3D11RenderTargetView*		m_backBufferRTV;
 	ID3D11DepthStencilView*		m_depthStencilView;
@@ -63,6 +64,11 @@ private:
 
 	ShadowMap shadowMap;
 
+
+
+	//LightCulling Related
+ 	float m_lightCullingDistance = 10;	//Culling Distance for lights
+	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -82,6 +88,7 @@ public:
 	void Release();
 private:
 
+	void _SimpleLightCulling(Camera & cam);
 
 	void _CreateConstantBuffer();
 	void _mapObjectBuffer(Drawable * drawable);

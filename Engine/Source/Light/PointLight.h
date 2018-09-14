@@ -36,6 +36,8 @@ public:
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 
+	float GetDistanceFromCamera(Camera & camera);
+
 private:
 	void _createSides();
 	void _updateCameras();

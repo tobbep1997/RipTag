@@ -91,6 +91,17 @@ void PointLight::setFarPlane(float farPlane)
 	}
 }
 
+float PointLight::GetDistanceFromCamera(Camera& camera)
+{
+	DirectX::XMVECTOR vec1 = DirectX::XMLoadFloat4A(&camera.getPosition());
+	DirectX::XMVECTOR vec2 = DirectX::XMLoadFloat4A(&this->position);
+	DirectX::XMVECTOR vecSubs = DirectX::XMVectorSubtract(vec1, vec2);
+	DirectX::XMVECTOR lenght = DirectX::XMVector4Length(vecSubs);
+
+	return DirectX::XMVectorGetX(lenght);
+
+}
+
 void PointLight::_createSides()
 {
 	using namespace DirectX;
