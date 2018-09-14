@@ -59,6 +59,18 @@ DirectX::XMMATRIX Animation::AnimatedModel::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
+Animation::SRT Animation::AnimatedModel::_convertToSRT(const MyLibrary::Transform transform)
+{
+	SRT srt = {};
+
+	//TODO CHECK 
+	XMStoreFloat4A(&srt.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
+	srt.m_scale = { transform.transform_scale[0], transform.transform_scale[1], transform.transform_scale[2], 1.0 };
+	srt.m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0 };
+
+	return srt;
+}
+
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 {
 	_computeModelMatrices(pose);
@@ -90,13 +102,13 @@ DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t joi
 //TODO remove
 {
 	XMVECTOR thisRotation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_rotationQuaternion);
-
 	XMFLOAT4A scale = (
 		pose->m_jointPoses[jointIndex].m_transformation.m_scale
 	);
 	XMVECTOR thisScale = XMLoadFloat4A(&scale);
 	XMVECTOR thisTranslation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_translation);
 	XMMATRIX thisJoint = DirectX::XMMatrixAffineTransformation(thisScale, { 0, 0, 0, 1 }, thisRotation, thisTranslation);
+	
 	uint8_t parentIndex = m_skeleton->m_joints[jointIndex].parentIndex;
 	if (parentIndex >= 0)
 		return XMMatrixMultiply(thisJoint, recursiveMultiplyParents(m_skeleton->m_joints[jointIndex].parentIndex, pose));
@@ -107,15 +119,17 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 {
 	using std::vector;
 
+	uint32_t keyCount = animation->nr_of_keyframes;
+
 	AnimationClip* clipToReturn = new AnimationClip();
 	clipToReturn->m_skeletonPoses = new SkeletonPose[jointCount];
-	clipToReturn->m_frameCount = static_cast<uint8_t>(animation->nr_of_keyframes);
+	clipToReturn->m_frameCount = static_cast<uint16_t>(animation->nr_of_keyframes);
 	for (int j = 0; j < jointCount; j++)
 	{
-		for (int k = 0; k < animation->nr_of_keyframes; k++)
+		JointPose* keyFramesForThisJoint = new JointPose[keyCount];
+		for (int k = 0; k < keyCount; k++)
 		{
-			//
-			vector<JointPose> jointPoses;
+			//keyFramesForThisJoint[k] = 
 		}
 	}
 }
