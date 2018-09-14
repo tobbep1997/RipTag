@@ -5,6 +5,7 @@ cbuffer OBJECT_BUFFER : register(b0)
 
 cbuffer CAMERA_BUFFER : register(b1)
 {
+	float4 cameraPosition;
 	float4x4 viewProjection;
 };
 

@@ -168,6 +168,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
     <ClInclude Include="Source\Light\PointLight.h" />
     <ClInclude Include="Source\3D Engine\Camera.h" />
     <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
@@ -188,6 +189,11 @@
     <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h" />
     <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h" />
     <ClInclude Include="Source\Helper\Timer.h" />
+    <ClInclude Include="Source\Messages\CoreMessage.h" />
+    <ClInclude Include="Source\Messages\DrawMessage.h" />
+    <ClInclude Include="Source\Messages\EngineMessage.h" />
+    <ClInclude Include="Source\Messages\PostalManagerRender.h" />
+    <ClInclude Include="Source\Messages\WindowMessage.h" />
     <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
     <ClInclude Include="Source\Shader\Shader.h" />
     <ClInclude Include="Source\Shader\ShaderManager.h" />
@@ -195,16 +201,12 @@
     <ClInclude Include="Source\3D Engine\RenderingManager.h" />
     <ClInclude Include="Source\3D Engine\Engine3D.h" />
     <ClInclude Include="Source\3D Engine\Extern.h" />
-    <ClInclude Include="Source\Messages\CoreMessage.h" />
-    <ClInclude Include="Source\Messages\DrawMessage.h" />
-    <ClInclude Include="Source\Messages\EngineMessage.h" />
-    <ClInclude Include="Source\Messages\PostalManagerRender.h" />
-    <ClInclude Include="Source\Messages\WindowMessage.h" />
     <ClInclude Include="Source\ShaderCreator.h" />
     <ClInclude Include="Source\Structs.h" />
     <ClInclude Include="Source\Window\window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
     <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp" />
@@ -217,14 +219,14 @@
     <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Source\Messages\CoreMessage.cpp" />
+    <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
     <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
     <ClCompile Include="Source\Shader\Shader.cpp" />
     <ClCompile Include="Source\Shader\ShaderManager.cpp" />
     <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp" />
     <ClCompile Include="Source\3D Engine\RenderingManager.cpp" />
     <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
-    <ClCompile Include="Source\Messages\CoreMessage.cpp" />
-    <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
     <ClCompile Include="Source\Window\window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +246,23 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
     <FxCompile Include="Source\Shader\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

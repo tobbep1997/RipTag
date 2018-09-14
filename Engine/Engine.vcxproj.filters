@@ -15,21 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Messages\CoreMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\DrawMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\WindowMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\EngineMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\PostalManagerRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Window\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -120,14 +105,26 @@
     <ClInclude Include="Source\Light\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Messages\CoreMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Messages\DrawMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Messages\EngineMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Messages\PostalManagerRender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Messages\WindowMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Messages\CoreMessage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Messages\PostalManagerRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Window\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -185,10 +182,22 @@
     <ClCompile Include="Source\Light\PointLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Messages\CoreMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Messages\PostalManagerRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
     <FxCompile Include="Source\Shader\PixelShader.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
     <FxCompile Include="Source\Shader\AnimatedVertexShader.hlsl" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #pragma once
 #include "../../Shader/ShaderManager.h"
 #include "../Camera.h"
+#include "ShadowMap.h"
 
 class ForwardRender
 {
@@ -12,15 +13,21 @@ struct ObjectBuffer
 
 struct CameraBuffer
 {
+	DirectX::XMFLOAT4A cameraPosition;
 	DirectX::XMFLOAT4X4A viewProjection;
+};
+
+struct PointLightBuffer
+{
+	DirectX::XMFLOAT4X4A viewProjection[6];
 };
 
 struct LightBuffer
 {
 	DirectX::XMINT4		info;
+	DirectX::XMFLOAT4A	dropOff[8];
 	DirectX::XMFLOAT4A	position[8];
 	DirectX::XMFLOAT4A	color[8];
-	float				dropOff[8];
 };
 
 private:
@@ -54,6 +61,8 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
+	ShadowMap shadowMap;
+
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -65,20 +74,21 @@ public:
 				ID3D11SamplerState*			m_samplerState,
 				D3D11_VIEWPORT				m_viewport);
 	
+
 	void GeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Present();
 
 	void Release();
 private:
-	//void _GeometryPass();
+
 
 	void _CreateConstantBuffer();
 	void _mapObjectBuffer(Drawable * drawable);
-	void _mapCameraBuffer(Camera & camera);
+	void _mapCameraBufferToVertex(Camera & camera);
+	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();
 	void CREATE_VIEWPROJ();
-
 
 
 	void _SetShaders(int i);
