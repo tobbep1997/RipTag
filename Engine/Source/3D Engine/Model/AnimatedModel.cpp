@@ -10,6 +10,7 @@ Animation::AnimatedModel::AnimatedModel()
 Animation::AnimatedModel::AnimatedModel(SkinnedMesh * mesh)
 {
 	//m_skeleton = mesh->GetSkeleton();
+	
 }
 
 Animation::AnimatedModel::~AnimatedModel()
@@ -51,7 +52,7 @@ void Animation::AnimatedModel::Play()
 	m_isPlaying = true;
 }
 
-DirectX::XMMATRIX Animation::AnimatedModel::_createMatrixFromSRT(const SRT& srt)
+DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 {
 	XMFLOAT4A fScale = ( srt.m_scale);
 	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
@@ -86,7 +87,7 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 
 void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 {
-	XMStoreFloat4x4A(&m_globalMatrices[0], _createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
+	DirectX::XMStoreFloat4x4A(&m_globalMatrices[0], _createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
 
 	for (int i = 1; i < m_skeleton->m_jointCount; i++) //start at second joint (first is root, already processed)
 	{
@@ -94,7 +95,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 		assert(parentIndex > -1);
 
 		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
-		XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
+		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
 	}
 }
 
@@ -143,7 +144,33 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 
 Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile * skeleton)
 {
-	return nullptr;
+	Skeleton* SkeletonToReturn = new Skeleton();
+	float4x4 tempGlobalMatrix;
+	SRT temp;
+	SRT globalTemp;
+
+	XMStoreFloat4(&globalTemp.m_rotationQuaternion,  XMQuaternionRotationRollPitchYaw( skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
+	globalTemp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f};
+	globalTemp.m_translation = { skeleton->skeleton_joints[0].joint_transform.transform_position[0], skeleton->skeleton_joints[0].joint_transform.transform_position[1], skeleton->skeleton_joints[0].joint_transform.transform_position[2], 1.0f };
+	
+	DirectX::XMStoreFloat4x4A(&tempGlobalMatrix, _createMatrixFromSRT(globalTemp));
+
+	SkeletonToReturn->m_jointCount = skeleton->skeleton_nrOfJoints;
+	SkeletonToReturn->m_joints->parentIndex = skeleton->skeleton_joints->parentIndex;
+
+	for (int i = 1; i < skeleton->skeleton_nrOfJoints; i++) //start at second joint (first is root, already processed)
+	{
+		uint8_t parentIndex = skeleton->skeleton_joints[i].parentIndex;
+		assert(parentIndex > -1);
+
+		XMStoreFloat4(&temp.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(skeleton->skeleton_joints[0].joint_transform.transform_rotation[0], skeleton->skeleton_joints[0].joint_transform.transform_rotation[1], temp.m_rotationQuaternion.z = skeleton->skeleton_joints[0].joint_transform.transform_rotation[2]));
+		temp.m_scale = { skeleton->skeleton_joints[0].joint_transform.transform_scale[0], skeleton->skeleton_joints[0].joint_transform.transform_scale[1], skeleton->skeleton_joints[0].joint_transform.transform_scale[2], 1.0f };
+		temp.m_translation = { skeleton->skeleton_joints[0].joint_transform.transform_position[0], skeleton->skeleton_joints[0].joint_transform.transform_position[1], skeleton->skeleton_joints[0].joint_transform.transform_position[2], 1.0f };
+
+		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&SkeletonToReturn->m_joints[parentIndex].m_inverseBindPose);
+		DirectX::XMStoreFloat4x4A(&SkeletonToReturn->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(temp), parentGlobalMatrix));
+	}
+	return SkeletonToReturn;
 }
 
 

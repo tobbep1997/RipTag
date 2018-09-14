@@ -60,6 +60,8 @@ namespace Animation
 
 	static AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	static Skeleton* ConvertToSkeleton(MyLibrary::SkeletonFromFile* skeleton);
+	static XMMATRIX _createMatrixFromSRT(const SRT& srt);
+
 	static SRT _convertToSRT(const MyLibrary::Transform transform);
 	
 	class AnimatedModel
@@ -90,7 +92,6 @@ namespace Animation
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
 
-		XMMATRIX _createMatrixFromSRT(const SRT& srt);
 		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* pose);
 		XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
