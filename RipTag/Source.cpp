@@ -104,12 +104,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	StaticMesh * s = new StaticMesh();
 	StaticMesh * d = new StaticMesh();
 	s->LoadModel("../Assets/sphere.bin");
-	d->LoadModel("../Assets/RUMMET.bin");
+	d->LoadModel("../Assets/StortRum.bin");
 	m.SetModel(s);
 	m2.SetModel(d);
 
 	m.setPosition(0, -3, 0);
 	m.setScale(1, 1, 1);
+	m2.setScale(0.5, 0.5, 0.5);
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
