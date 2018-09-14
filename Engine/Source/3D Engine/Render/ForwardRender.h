@@ -32,6 +32,12 @@ struct LightBuffer
 
 private:
 
+	struct sortStruct
+	{
+		float distance;
+		int lightBelong;
+	};
+
 	DirectX::XMFLOAT4X4A view;
 	DirectX::XMFLOAT4X4A projection;
 
