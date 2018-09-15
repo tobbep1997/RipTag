@@ -1,5 +1,5 @@
 #include "Drawable.h"
-
+#include "Texture.h"
 
 
 void Drawable::_setStaticBuffer()
@@ -71,6 +71,24 @@ void Drawable::SetMesh(StaticMesh * staticMesh)
 void Drawable::SetMesh(DynamicMesh * dynamicMesh)
 {
 	this->m_dynamicMesh = dynamicMesh;
+}
+
+void Drawable::SetTexture(Texture* texture)
+{
+	m_diffuseTexture = texture;
+}
+
+void Drawable::BindTextures()
+{
+	if (m_diffuseTexture)
+	{
+		m_diffuseTexture->Bind(1);
+	}
+	else
+	{
+		ID3D11ShaderResourceView* nullSRV = { nullptr };
+		DX::g_deviceContext->PSSetShaderResources(1, 1, &nullSRV);
+	}
 }
 
 Drawable::Drawable(ObjectType objecType) :
@@ -155,6 +173,9 @@ UINT Drawable::VertexSize()
 		break;
 	case Dynamic:
 		return (UINT)m_dynamicMesh->getVertices().size();
+		break;
+	default:
+		return 0;
 		break;
 	}
 	

@@ -9,6 +9,9 @@
 #include "StaticMesh.h"
 #include "DynamicMesh.h"
 #include <string>
+
+class Texture;
+
 enum ObjectType
 {
 	Static,
@@ -20,7 +23,7 @@ class Drawable
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
-
+	Texture* m_diffuseTexture = nullptr;
 	void _setStaticBuffer();
 	void _setDynamicBuffer();
 
@@ -51,6 +54,8 @@ protected:
 	void SetMesh(StaticMesh * staticMesh);
 	void SetMesh(DynamicMesh * dynamicMesh);
 
+	//Texture stuff
+
 public:
 	Drawable(ObjectType ObjecType = ObjectType::Static);
 	virtual ~Drawable();
@@ -65,6 +70,8 @@ public:
 	void setScale(DirectX::XMFLOAT4A scale);
 	void setScale(float x = 1, float y = 1, float z = 1, float w = 1);
 
+	void BindTextures();
+	void SetTexture(Texture* texture);
 
 	
 	void Draw();
