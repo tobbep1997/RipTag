@@ -108,9 +108,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	m2.SetModel(d);
 	{
-		Texture* tex = new Texture();
-		assert(tex->Load(L"../Assets/poop.png") == S_OK);
-		m2.SetTexture(tex);
+		//Texture* tex = new Texture();
+		//assert(tex->Load(L"../Assets/poop.png") == S_OK);
+		//m2.SetTexture(tex);
 	}
 	m.setPosition(0, -3, 0);
 	m.setScale(1, 1, 1);
@@ -126,12 +126,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	camera.setLookTo(0, 0, 0, 1);
 
 	double pos = 0;
-
-	// Texture loading test
-//  	{
-//  		Texture t;
-//  		assert(t.Load(L"../Assets/poop.png") == S_OK);
-//  	}
 
 	while (renderingManager.getWindow().isOpen())
 	{
