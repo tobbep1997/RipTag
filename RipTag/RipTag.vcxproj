@@ -159,6 +159,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="defultEngineSettings.ini" />
+    <None Include="imgui.ini" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

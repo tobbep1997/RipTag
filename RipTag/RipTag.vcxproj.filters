@@ -15,6 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="imgui.ini" />
+    <None Include="defultEngineSettings.ini" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
