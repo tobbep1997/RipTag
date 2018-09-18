@@ -67,7 +67,7 @@ void MoveLight() {
 
 	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
 	ImGui::SliderFloat("NearPlane", &nearPlane, 0.1f, 3.0f);
-	ImGui::SliderFloat("FarPlane", &farPlane, 1.0f, 50.0f);
+	ImGui::SliderFloat("FarPlane", &farPlane, 3.1f, 50.0f);
 
 	ImGui::End();
 #endif
@@ -109,7 +109,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	m2.SetModel(d);
 
 	m.setPosition(0, -3, 0);
-	m.setScale(1, 1, 1);
+	m.setScale(0.3, 0.3, 0.3);
 	m2.setScale(0.5, 0.5, 0.5);
 
 	PointLight pl;
@@ -181,7 +181,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		*/
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
-		m.setPosition(scaleX, scaleY, scaleZ);
+		//m.setPosition(scaleX, scaleY, scaleZ);
+		m.setPosition(lightPosX, lightPosY, lightPosZ);
 		//m.addRotation(0, rotSpeed, 0);
 		//m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
