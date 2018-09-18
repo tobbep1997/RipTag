@@ -164,6 +164,11 @@ void Drawable::Draw()
 	DX::g_geometryQueue.push_back(this);
 }
 
+void Drawable::DrawAnimated()
+{
+	DX::g_animatedGeometryQueue.push_back(this);
+}
+
 std::wstring Drawable::getVertexPath() const
 {
 	return this->p_vertexPath;
@@ -188,6 +193,7 @@ UINT Drawable::VertexSize()
 		return 0;
 		break;
 	}
+	return 0;
 	
 }
 

@@ -79,7 +79,7 @@ public:
 	void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
-
+	void DrawAnimated();
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 

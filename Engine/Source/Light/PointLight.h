@@ -11,7 +11,7 @@ private:
 	DirectX::XMFLOAT4A color;
 	float dropOff;
 
-	float m_nearPlane = 1.0f, m_farPlane = 20.0f;
+	float m_nearPlane = 1.0f, m_farPlane = 200.0f;
 public:
 	PointLight();
 	~PointLight();

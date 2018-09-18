@@ -6,6 +6,8 @@ class Model : public Drawable
 {
 public:
 	Model(ObjectType objectType = ObjectType::Static);
+	
+	Model(ObjectType objectType, const std::string &assetFilePath);
 	~Model();
 
 	//Setting the model for the object
@@ -19,5 +21,11 @@ public:
 
 private:
 	void SetBuffer();
+	
+
+	//
+	StaticMesh* m_StaticMeshPointer;
+	DynamicMesh* m_DynamicMeshPointer;
+
 };
 
