@@ -71,9 +71,9 @@ private:
 	ShadowMap shadowMap;
 
 
-	ID3D11Texture2D* m_uavTextureBuffer;
-	ID3D11Texture2D* m_uavTextureBufferCPU;
-	ID3D11UnorderedAccessView* m_visabilityUAV;
+	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
+	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
+	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
 
 	//LightCulling Related
  	float m_lightCullingDistance = 100;	//Culling Distance for lights

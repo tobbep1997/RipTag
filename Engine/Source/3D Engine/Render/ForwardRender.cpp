@@ -124,7 +124,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_geometryQueue.clear();
 
 
-	/*DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
 	D3D11_MAPPED_SUBRESOURCE mr;
 
 	struct ShadowTestData
@@ -138,7 +138,9 @@ void ForwardRender::GeometryPass(Camera & camera)
 		ShadowTestData* data = (ShadowTestData*)mr.pData;
 
 		data = data;
-	}*/
+
+		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	}
 
 }
 
@@ -203,6 +205,10 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_cameraBuffer);
 	DX::SafeRelease(m_lightBuffer);
 	DX::SafeRelease(m_samplerState);
+
+	DX::SafeRelease(m_uavTextureBuffer);
+	DX::SafeRelease(m_uavTextureBufferCPU);
+	DX::SafeRelease(m_visabilityUAV);
 
 	shadowMap.Release();
 }
