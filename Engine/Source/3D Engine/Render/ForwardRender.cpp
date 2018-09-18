@@ -78,12 +78,12 @@ struct TriangleVertex
 
 void ForwardRender::GeometryPass(Camera & camera)
 {
-	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
+	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
 	
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);	
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);

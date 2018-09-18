@@ -23,7 +23,12 @@ class Drawable
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
+
+	//Textures
 	Texture* m_diffuseTexture = nullptr;
+	Texture* m_normalTexture = nullptr;
+	Texture* m_MRATexture = nullptr;
+
 	void _setStaticBuffer();
 	void _setDynamicBuffer();
 
@@ -71,8 +76,7 @@ public:
 	void setScale(float x = 1, float y = 1, float z = 1, float w = 1);
 
 	void BindTextures();
-	void SetTexture(Texture* texture);
-
+	void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
 

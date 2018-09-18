@@ -73,21 +73,31 @@ void Drawable::SetMesh(DynamicMesh * dynamicMesh)
 	this->m_dynamicMesh = dynamicMesh;
 }
 
-void Drawable::SetTexture(Texture* texture)
+void Drawable::SetTextures(Texture* diffuseTexture /*= nullptr*/, Texture* normalTexture /*= nullptr*/, Texture* MRATexture /*= nullptr*/)
 {
-	m_diffuseTexture = texture;
+	m_diffuseTexture = diffuseTexture;
+	m_MRATexture = MRATexture;
+	m_normalTexture = normalTexture;
 }
 
 void Drawable::BindTextures()
-{
+{ //TODO Optimize (one call for all)
 	if (m_diffuseTexture)
 	{
 		m_diffuseTexture->Bind(1);
 	}
-	else
+	if (m_normalTexture)
 	{
-		ID3D11ShaderResourceView* nullSRV = { nullptr };
-		DX::g_deviceContext->PSSetShaderResources(1, 1, &nullSRV);
+		m_normalTexture->Bind(2);
+	}
+	if (m_MRATexture)
+	{
+		m_MRATexture->Bind(3);
+	}
+	else if (!m_diffuseTexture && !m_normalTexture && !m_MRATexture)
+	{
+		std::vector<ID3D11ShaderResourceView*> nullSRV = { nullptr, nullptr, nullptr };
+		DX::g_deviceContext->PSSetShaderResources(1, 3, nullSRV.data());
 	}
 }
 
