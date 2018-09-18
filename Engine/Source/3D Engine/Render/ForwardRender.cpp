@@ -94,7 +94,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	shadowMap.SetSamplerAndShaderResources();
 	if (!DX::g_lights.empty())
 	{
-		shadowMap.mapAllLightMatrix(DX::g_lights[0]);
+		shadowMap.mapAllLightMatrix(&DX::g_lights);
 
 	}
 	_mapCameraBufferToVertex(camera);

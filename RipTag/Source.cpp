@@ -27,6 +27,7 @@ float posY = 1;
 float posZ = -6;
 
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
+float lightPosX1 = 0, lightPosY1 = 5, lightPosZ1 = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
 float lightIntensity = 1;
 float nearPlane = 1.0f, farPlane = 20.0f;
@@ -61,6 +62,11 @@ void MoveLight() {
 	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 30.f);
 	ImGui::SliderFloat("posZ", &lightPosZ, -30.0f, 30.f);
 
+	ImGui::SliderFloat("posX1", &lightPosX1, -30.0f, 30.f);
+	ImGui::SliderFloat("posY1", &lightPosY1, -50.0f, 30.f);
+	ImGui::SliderFloat("posZ1", &lightPosZ1, -30.0f, 30.f);
+
+
 	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
 	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
@@ -94,28 +100,37 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model m(ObjectType::Static);
 	Model m2(ObjectType::Static);
+	Model m3(ObjectType::Static);
 	m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	m.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	m3.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	m3.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	m2.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	m2.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 
 	m.setPosition(0, 0, 0);
+	m3.setPosition(0, 0, 0);
 	m2.setPosition(-1, 0, 0);
 	StaticMesh * s = new StaticMesh();
 	StaticMesh * d = new StaticMesh();
 	s->LoadModel("../Assets/sphere.bin");
 	d->LoadModel("../Assets/StortRum.bin");
 	m.SetModel(s);
+	m3.SetModel(s);
 	m2.SetModel(d);
 
 	m.setPosition(0, -3, 0);
 	m.setScale(0.3, 0.3, 0.3);
+	m3.setPosition(0, -3, 0);
+	m3.setScale(0.3, 0.3, 0.3);
 	m2.setScale(0.5, 0.5, 0.5);
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
 	pl.CreateShadowDirection(PointLight::XYZ_ALL);
-	//pl.CreateShadowDirection(PointLight::X_POSITIVE);
+	PointLight pl2;
+	pl2.Init(DirectX::XMFLOAT4A(5, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.0f);
+	pl2.CreateShadowDirection(PointLight::XYZ_ALL);
 	
 	
 
@@ -135,6 +150,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		pl.SetIntensity(lightIntensity);
 		pl.setFarPlane(farPlane);
 		pl.setNearPlane(nearPlane);
+
+		pl2.SetPosition(lightPosX1, lightPosY1, lightPosZ1);
+		pl2.SetColor(lightColorR, lightColorG, lightColorB);
+		pl2.SetIntensity(lightIntensity);
+		pl2.setFarPlane(farPlane);
+		pl2.setNearPlane(nearPlane);
+
 
 		/*
 			Test Camera movement
@@ -169,6 +191,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		if (InputHandler::isKeyPressed(InputHandler::BackSpace))
 			camera.setLookTo(0, 0, 0, 1);
 		
+		if (InputHandler::isKeyPressed('L'))
+			camera.setPosition(pl2.getPosition());
+
 
 		ImGuiTest();
 		//CameraTest();
@@ -180,14 +205,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
 		*/
 		pl.QueueLight();
+		pl2.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
 		//m.setPosition(scaleX, scaleY, scaleZ);
 		m.setPosition(lightPosX, lightPosY, lightPosZ);
+		m3.setPosition(lightPosX1, lightPosY1, lightPosZ1);
 		//m.addRotation(0, rotSpeed, 0);
 		//m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
 		m2.Draw();
-
+		m3.Draw();
 
 		
 		//std::cout << std::cos(180) << std::endl;

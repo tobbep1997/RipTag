@@ -15,7 +15,8 @@ cbuffer LIGHTS : register (b0)
 
 cbuffer LIGHT_MATRIX : register(b1)
 {	
-	float4x4 lightViewProjection[6];
+    float4x4 lightViewProjection[8][6];
+    int numberOfLights;
 };
 cbuffer CAMERA_BUFFER : register(b2)
 {
@@ -37,44 +38,47 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	//VERY TEMP
     float4 color = float4(1, 1, 1, 1);
 	//PLEASE REMOBVE
+    float4 emptyFloat4 = float4(0, 0, 0, 1);
 
-    float4 dif = float4(0, 0, 0, 1);
     float4 ambient = float4(0.25, 0.25, 0.25, 1) * color;
     float4 posToCam = cameraPosition - input.worldPos;
-    float4 posToLight = float4(0, 0, 0, 0);  
-    float4 spec = float4(0, 0, 0, 1);
+    float4 posToLight = float4(0, 0, 0, 0); 
+
     float specmult = 0;
     float distanceToLight = 0;
     float attenuation = 0;
     float difMult = 0;
-	float shadowCoeff = 1;
-	float div = 1;
+    float4 finalColor = float4(0, 0, 0, 1);
 
-	for (int i = 0; i < info.x; i++)
+
+	for (int light = 0; light < numberOfLights; light++)
 	{
-		posToLight = lightPosition[i] - input.worldPos;
+	    float shadowCoeff = 1;
+	    float div = 1;
+        float4 dif = emptyFloat4;
+        float4 spec = emptyFloat4;
+		posToLight = lightPosition[light] - input.worldPos;
 		distanceToLight = length(posToLight);
 
-		attenuation = 1.0 / (1.0 + lightDropOff[i].x * pow(distanceToLight, 2));
+		attenuation = 1.0 / (1.0 + lightDropOff[light].x * pow(distanceToLight, 2));
 
 		difMult = max(dot((input.normal).xyz, normalize(posToLight).xyz), 0.0f);
 		float lolTemp = dot((input.normal).xyz, normalize(posToLight).xyz);
-		specmult = dot(input.normal, normalize(posToCam + posToLight)) * (1.0f - lightDropOff[i].x);
+		specmult = dot(input.normal, normalize(posToCam + posToLight)) * (1.0f - lightDropOff[light].x);
 		if (difMult > 0)
-			dif += attenuation * (saturate(lightColor[i] * color) * difMult);
+			dif += attenuation * (saturate(lightColor[light] * color) * difMult);
 		if (specmult > 0)
-			spec += lightColor[i] * max(pow(abs(specmult), 32), 0.0f);
+			spec += lightColor[light] * max(pow(abs(specmult), 32), 0.0f);
 
-		for (int i = 0; i < 6; i++)
+		for (int targetMatrix = 0; targetMatrix < 6; targetMatrix++)
 		{
+		    float4 lightView = mul(input.worldPos, lightViewProjection[light][targetMatrix]); // Translate the world position into the view space of the light
+		    lightView.xy /= lightView.w; // Get the texture coords of the "object" in the shadow map
 
-			float4 lightView = mul(input.worldPos, lightViewProjection[i]); // Translate the world position into the view space of the light
-			lightView.xy /= lightView.w; // Get the texture coords of the "object" in the shadow map
+		    float2 smTex = float2(0.5f * lightView.x + 0.5f, -0.5f * lightView.y + 0.5f); // Texcoords are not [-1, 1], change the coords to [0, 1]
 
+		    float depth = lightView.z / lightView.w;
 
-			float2 smTex = float2(0.5f * lightView.x + 0.5f, -0.5f * lightView.y + 0.5f); // Texcoords are not [-1, 1], change the coords to [0, 1]
-
-			float depth = lightView.z / lightView.w;
 
 			if (abs(lightView.x) > 1.0f || depth <= 0)
 				continue;
@@ -82,7 +86,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			if (abs(lightView.y) > 1.0f || depth <= 0)
 				continue;
 
-			float3 indexPos = float3(smTex, i);
+            float3 indexPos = float3(smTex, (light * 6) + targetMatrix);
 
 
 			float width;
@@ -91,7 +95,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 
 			float texelSize = 1.0f / width;
 
-			const float aa = 1.0f;
+			const float aa = 0.0f; // FUCK THIS LOL
 
 			for (float x = -aa; x <= aa; x += 1.0f)
 			{
@@ -99,7 +103,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 				{
 					//shadowCoeff += txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos + (float3(x, y, 0) * texelSize), depth - 0.01).r;
 					//shadowCoeff += txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos + (float3(x, y, 0) * texelSize), depth - max(0.001, difMult) / distanceToLight).r;
-					shadowCoeff += txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos + (float3(x, y, 0) * texelSize), depth - (difMult*0.068)).r;
+					shadowCoeff += txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos + (float3(x, y, 0) * texelSize), depth - 0.01f).r;
 					div += 1.0f;
 
 				}
@@ -107,11 +111,11 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 			}
 
 		}
-
-	}
-	shadowCoeff /= div;
+	    shadowCoeff /= div;
+        finalColor += (spec * shadowCoeff + dif * shadowCoeff);
+        finalColor.a = 1.0f;
+    }
 	//return float4(shadowCoeff, 0, 0, 1);
-	
-    return min(ambient + ((spec * shadowCoeff) + dif) * shadowCoeff, float4(1, 1, 1, 1));
+    return min(ambient + finalColor, float4(1, 1, 1, 1));
 
 }
