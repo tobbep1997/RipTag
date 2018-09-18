@@ -97,7 +97,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	ModelManager modelManager;
 
-	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.addStaticMesh("../Assets/kub.bin");
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 	PointLight pl;
