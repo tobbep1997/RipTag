@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-#include <../../../New_Library/FormatHeader.h>
+#include <../New_Library/FormatHeader.h>
 struct Joint;
 struct SkeletonPose;
 struct Skeleton;
@@ -55,9 +55,11 @@ namespace Animation
 		SkeletonPose* m_skeletonPoses;
 		uint8_t m_framerate;
 	};
-
-	static AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
-	static Skeleton* ConvertToSkeleton(MyLibrary::SkeletonFromFile* skeleton);
+	static SRT ConvertTransformToSRT(MyLibrary::Transform transform);
+	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
+	Skeleton* ConvertToSkeleton     (MyLibrary::SkeletonFromFile* skeleton);
+	static void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, MyLibrary::SkeletonFromFile* importedSkeleton);
+	XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	class AnimatedModel
 	{
 	public:

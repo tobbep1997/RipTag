@@ -4,6 +4,7 @@
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/Light/PointLight.h"
 #include "Source/3D Engine/Model/ModelManager.h"
+#include "Source/3D Engine/Model/AnimatedModel.h"
 //#pragma comment(lib, "New_Library.lib")
 
  
@@ -96,8 +97,28 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+	modelManager.addDynamicMesh("../Assets/pSphere2_ANIMATION_Mesh.bin");
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
+
+	
+	{
+		MyLibrary::Loadera meshloader;
+		//Animation::Skeleton* = ;
+		MyLibrary::SkeletonFromFile skel = meshloader.readSkeletonFile("../Assets/joint1_Skeleton.bin");
+		MyLibrary::Joint jnt= skel.skeleton_joints[1];
+		Animation::AnimationClip* animationClip = Animation::ConvertToAnimationClip(&meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin"), skel.skeleton_nrOfJoints);
+		Animation::Skeleton* skeleton = Animation::ConvertToSkeleton(&skel);
+		modelManager.dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animationClip);
+		std::vector<Animation::SRT> srts;
+
+		{ //FRAME ONE JOINT 0
+			for (int i = 0; i < animationClip->m_frameCount; i++)
+				srts.push_back(animationClip->m_skeletonPoses[i].m_jointPoses[0].m_transformation);
+		}
+
+		int i = 0;
+	}
+
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);
 	

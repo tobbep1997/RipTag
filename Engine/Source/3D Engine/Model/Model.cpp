@@ -72,3 +72,8 @@ void Model::SetPixelShader(const std::wstring & path)
 {
 	this->p_pixelPath = path;
 }
+
+Animation::AnimatedModel* Model::getAnimatedModel()
+{
+	return m_DynamicMeshPointer->getAnimatedModel();
+}

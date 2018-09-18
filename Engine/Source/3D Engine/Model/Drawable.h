@@ -9,6 +9,9 @@
 #include "StaticMesh.h"
 #include "DynamicMesh.h"
 #include <string>
+
+class Animation::AnimatedModel;
+
 enum ObjectType
 {
 	Static,
@@ -20,7 +23,6 @@ class Drawable
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
-
 	void _setStaticBuffer();
 	void _setDynamicBuffer();
 
@@ -75,7 +77,7 @@ public:
 	UINT VertexSize();
 
 	ID3D11Buffer * getBuffer();
-
+	Animation::AnimatedModel* getAnimatedModel();
 	//Returns the objects worldMatrix
 	DirectX::XMFLOAT4X4A getWorldmatrix();
 

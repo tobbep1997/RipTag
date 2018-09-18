@@ -19,6 +19,8 @@ public:
 	void SetVertexShader(const std::wstring & path);
 	void SetPixelShader(const std::wstring & path);
 
+	//
+	Animation::AnimatedModel* getAnimatedModel();
 private:
 	void SetBuffer();
 	

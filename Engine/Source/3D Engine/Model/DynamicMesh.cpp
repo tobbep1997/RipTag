@@ -21,6 +21,11 @@ const std::vector<DynamicVertex>& DynamicMesh::getVertices() const
 	return dynamicVertex;
 }
 
+Animation::AnimatedModel* DynamicMesh::getAnimatedModel()
+{
+	return anim;
+}
+
 void DynamicMesh::setVertices(std::vector<DynamicVertex>& input)
 {
 	dynamicVertex.clear();
@@ -114,4 +119,6 @@ void DynamicMesh::LoadModel(const std::string & path)
 
 	}
 	delete newMesh.mesh_vertices;
+
+	anim = new Animation::AnimatedModel();
 }
