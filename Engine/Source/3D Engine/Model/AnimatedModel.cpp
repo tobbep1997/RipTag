@@ -115,6 +115,24 @@ DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t joi
 	else return thisJoint;
 }
 
+void Animation::AnimatedModel::_interpolatePose(SkeletonPose * firstPose, SkeletonPose * secondPose, float weight) //1.0 weight means 100% second pose
+{
+	for (int i = 0; i < m_skeleton->m_jointCount; i++)
+	{
+		auto firstRotation = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_rotationQuaternion);
+		auto secondRotation = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_rotationQuaternion);
+		auto firstTranslation = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_translation);
+		auto secondTranslation = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_translation);
+		auto firstScale = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_scale);
+		auto secondScale = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_scale);
+
+		auto newRotation = DirectX::XMQuaternionSlerp(firstRotation, secondRotation, weight);
+		auto newTranslation = DirectX::XMVectorLerp(firstTranslation, secondTranslation, weight);
+		auto newScale = DirectX::XMVectorLerp(firstScale, secondScale, weight);
+	}
+	//TODO do stuff / return new skeleton pose
+}
+
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
 	using std::vector;
