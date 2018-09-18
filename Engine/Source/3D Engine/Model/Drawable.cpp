@@ -47,7 +47,7 @@ void Drawable::CalcWorldMatrix()
 	XMMATRIX scaling		=	XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
 	XMMATRIX rotation		=	XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
 
-	XMStoreFloat4x4A(&this->p_worldMatrix, XMMatrixTranspose(rotation * scaling * translation));
+	DirectX::XMStoreFloat4x4A(&this->p_worldMatrix, XMMatrixTranspose(rotation * scaling * translation));
 }	
 
 void Drawable::CreateBuffer()
@@ -80,7 +80,7 @@ void Drawable::SetTextures(Texture* diffuseTexture /*= nullptr*/, Texture* norma
 	m_normalTexture = normalTexture;
 }
 
-void Drawable::BindTextures() const
+void Drawable::BindTextures()
 { //TODO Optimize (one call for all)
 	if (m_diffuseTexture)
 	{
@@ -174,7 +174,7 @@ std::wstring Drawable::getPixelPath() const
 	return this->p_pixelPath;
 }
 
-UINT Drawable::VertexSize() const
+UINT Drawable::VertexSize()
 {
 	switch (p_objectType)
 	{
@@ -196,13 +196,13 @@ ID3D11Buffer * Drawable::getBuffer()
 	return m_vertexBuffer;
 }
 
-DirectX::XMFLOAT4X4A Drawable::getWorldmatrix() const
+DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 {
 	this->CalcWorldMatrix();
 	return this->p_worldMatrix;
 }
 
-ObjectType Drawable::getObjectType() const
+ObjectType Drawable::getObjectType()
 {
 	return p_objectType;
 }
