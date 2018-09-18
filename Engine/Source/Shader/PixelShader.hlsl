@@ -1,9 +1,10 @@
 #pragma warning(disable : 3078)
 
 SamplerComparisonState sampAniPoint : register(s0);
-//SamplerState sampAniPoint : register(s0);
+SamplerState defaultSampler;
 
 Texture2DArray txShadowArray : register(t0);
+Texture2D diffuseTexture : register(t1);
 
 cbuffer LIGHTS : register (b0)
 {
@@ -39,6 +40,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	//PLEASE REMOBVE
 
     float4 dif = float4(0, 0, 0, 1);
+	dif.rgb = diffuseTexture.Sample(defaultSampler, float2(input.uv.x, 1.0 - input.uv.y)).rgb;
     float4 ambient = float4(0.25, 0.25, 0.25, 1) * color;
     float4 posToCam = cameraPosition - input.worldPos;
     float4 posToLight = float4(0, 0, 0, 0);  
