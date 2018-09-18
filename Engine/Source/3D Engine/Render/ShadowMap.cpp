@@ -27,11 +27,8 @@ void ShadowMap::ShadowPass()
 {
 	
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
-	for (int i = 0; i < 6; i++)
-	{
-	}
-		DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
-		DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
+	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
@@ -45,48 +42,43 @@ void ShadowMap::ShadowPass()
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_shadowDepthStencilView);
 	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_shadowDepthStencilView);
 
-	for (int x = 0; x < DX::g_lights.size(); x++)
+	mapAllLightMatrix(&DX::g_lights);
+	for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
 	{
-		//_mapLightMatrix(DX::g_lights[x], x);
-		mapAllLightMatrix(DX::g_lights[x]);
-		for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
-		{
-			
-				UINT32 vertexSize = sizeof(StaticVertex);
-				UINT32 offset = 0;
+		UINT32 vertexSize = sizeof(StaticVertex);
+		UINT32 offset = 0;
 
-				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
+		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
 
-				_mapObjectBuffer(DX::g_geometryQueue[j]);
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->VertexSize(), 0);
-		}
+		_mapObjectBuffer(DX::g_geometryQueue[j]);
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->VertexSize(), 0);
+	}
+	for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
+	{
+		//Kan behï¿½va ï¿½ndra sizeof(StaticVertex) till sizeof(DynamicVertex) fï¿½r fler ljus senare.
+		UINT32 vertexSize = sizeof(DynamicVertex);
+		UINT32 offset = 0;
 
-		for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
-		{
-			//Kan behöva ändra sizeof(StaticVertex) till sizeof(DynamicVertex) för fler ljus senare.
-			UINT32 vertexSize = sizeof(StaticVertex);
-			UINT32 offset = 0;
+		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->getBuffer();
 
-			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->getBuffer();
-
-			_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->VertexSize(), 0);
-		}
-		
-		
-		
+		_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->VertexSize(), 0);
 	}
 
 
 }
 
-void ShadowMap::mapAllLightMatrix(PointLight * light)
+void ShadowMap::mapAllLightMatrix(std::vector<PointLight*> * lights)
 {
-	for (unsigned int i = 0; i < 6; i++)
+	m_allLightMatrixValues.nrOfLights = lights->size();
+	for (unsigned int light = 0; light < lights->size(); light++)
 	{
-		m_allLightMatrixValues.viewProjection[i] = light->getSides()[i]->getViewProjection();
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides()[i]->getViewProjection();
+		}
 	}
 
 
@@ -137,7 +129,6 @@ void ShadowMap::_createShadowViewPort(UINT width, UINT height)
 void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 {
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
-
 	depthStencilDesc.Width = width;
 	depthStencilDesc.Height = hight;
 	depthStencilDesc.MipLevels = 1;
