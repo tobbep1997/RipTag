@@ -71,6 +71,9 @@ private:
 	ShadowMap shadowMap;
 
 
+	ID3D11Texture2D* m_uavTextureBuffer;
+	ID3D11Texture2D* m_uavTextureBufferCPU;
+	ID3D11UnorderedAccessView* m_visabilityUAV;
 
 	//LightCulling Related
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
@@ -110,5 +113,7 @@ private:
 	//void _SetShaders(int i);
 	void _SetAnimatedShaders();
 	void _SetStaticShaders();
+
+	void _createUAV();
 };
 
