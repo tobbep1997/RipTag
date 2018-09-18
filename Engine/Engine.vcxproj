@@ -171,9 +171,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\3D Engine\Model\ModelManager.h" />
     <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
-    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
     <ClInclude Include="Source\Light\PointLight.h" />
     <ClInclude Include="Source\3D Engine\Camera.h" />
     <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
@@ -213,9 +211,7 @@
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
     <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
     <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp" />
@@ -284,6 +280,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InputManager\InputManager.vcxproj">
+      <Project>{62973989-7115-4695-b77e-cefc0fb74fe2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\New_Library\New_Library.vcxproj">
       <Project>{d9942cce-8b39-4bb6-813a-96f7f5148d0b}</Project>
     </ProjectReference>

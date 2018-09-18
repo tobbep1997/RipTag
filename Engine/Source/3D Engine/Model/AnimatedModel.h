@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+#include <d3d11.h>
 #include <../New_Library/FormatHeader.h>
 struct Joint;
 struct SkeletonPose;
@@ -13,6 +14,7 @@ struct AnimationClip;
 
 #define float4x4 XMFLOAT4X4A
 #define float4 XMFLOAT4A
+#define MAXJOINT 128
 
 namespace Animation
 {
@@ -88,11 +90,32 @@ namespace Animation
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
 
-		XMMATRIX _createMatrixFromSRT(const SRT& srt);
 		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* pose);
 		XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+	};
+
+	class AnimationCBuffer
+	{
+		struct AnimationBuffer
+		{
+			XMFLOAT4X4 skinnedMatrix[MAXJOINT];
+		};
+
+		private:
+			ID3D11Buffer* m_AnimationBuffer = nullptr;
+			ID3D11DeviceContext* m_deviceContext = nullptr;
+			ID3D11Device* m_device = nullptr;
+			D3D11_MAPPED_SUBRESOURCE m_dataPtr;
+			AnimationBuffer m_AnimationValues;
+
+		public:
+			AnimationCBuffer();
+			~AnimationCBuffer();
+			void SetAnimationCBuffer();
+			void UpdateBuffer(AnimationBuffer *buffer);
+			void SetToShader();
 	};
 }
 
