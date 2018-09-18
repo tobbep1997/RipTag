@@ -7,7 +7,7 @@ Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);
 Texture2D normalTexture : register(t2);
 Texture2D MRATexture : register(t3);
-
+RWTexture2D<uint> OutputMap : register(u1);
 cbuffer LIGHTS : register (b0)
 {
 	int4	info; // 16
@@ -51,6 +51,14 @@ float4 main(VS_OUTPUT input) : SV_TARGET
     float distanceToLight = 0;
     float attenuation = 0;
     float difMult = 0;
+
+	/*if (input.uv.x > 0.1f)
+	{
+		InterlockedAdd(OutputMap[int2(0, 0)], 1);
+	}
+	
+	InterlockedAdd(OutputMap[int2(1, 0)], 1);*/
+	
 
 	for (int i = 0; i < info.x; i++)
 	{

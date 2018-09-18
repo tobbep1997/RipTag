@@ -68,6 +68,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	
 	
 	this->CREATE_VIEWPROJ();
+
+	this->_createUAV();
 }
 
 struct TriangleVertex
@@ -86,8 +88,15 @@ void ForwardRender::GeometryPass(Camera & camera)
 	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
-	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+
+	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+		1,
+		&m_backBufferRTV,
+		m_depthStencilView,
+		1, 1, &m_visabilityUAV, 0
+	);
 
 	_mapLightInfoNoMatrix();
 
@@ -113,6 +122,23 @@ void ForwardRender::GeometryPass(Camera & camera)
 	}
 
 	DX::g_geometryQueue.clear();
+
+
+	/*DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	D3D11_MAPPED_SUBRESOURCE mr;
+
+	struct ShadowTestData
+	{
+		unsigned int inside;
+		unsigned int outside;
+	};
+
+	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
+	{
+		ShadowTestData* data = (ShadowTestData*)mr.pData;
+
+		data = data;
+	}*/
 
 }
 
@@ -443,7 +469,41 @@ void ForwardRender::_SetAnimatedShaders()
 	
 }
 
+void ForwardRender::_createUAV()
+{
+	D3D11_TEXTURE2D_DESC TextureData;
+	ZeroMemory(&TextureData, sizeof(TextureData));
+	TextureData.ArraySize = 1;
+	TextureData.Height = 1;
+	TextureData.Width = 2;
+	TextureData.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+	TextureData.CPUAccessFlags = 0;
+	TextureData.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	TextureData.MipLevels = 1;
+	TextureData.MiscFlags = 0;
+	TextureData.SampleDesc.Count = 1;
+	TextureData.SampleDesc.Quality = 0;
+	TextureData.Usage = D3D11_USAGE_DEFAULT;
 
-	/*	
-		DX::g_geometryQueue[i]->BindTextures();
-		DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);*/
+	HRESULT hr;
+	//D3D11_SUBRESOURCE_DATA InitialData;
+	//ZeroMemory(&InitialData, sizeof(InitialData));
+	////InitialData.pSysMem = pData;
+	//InitialData.SysMemPitch = 1 * sizeof(UINT);
+	//InitialData.SysMemSlicePitch = 1 * sizeof(UINT) * 1;
+	hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_uavTextureBuffer);
+
+	TextureData.Usage = D3D11_USAGE_STAGING;
+	TextureData.BindFlags = 0;
+	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavTextureBufferCPU);
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
+	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
+	UAVdesc.Format = DXGI_FORMAT_R32_UINT;
+	UAVdesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	UAVdesc.Texture2D.MipSlice = 0;
+	hr = DX::g_device->CreateUnorderedAccessView(m_uavTextureBuffer, &UAVdesc, &m_visabilityUAV);
+
+}
