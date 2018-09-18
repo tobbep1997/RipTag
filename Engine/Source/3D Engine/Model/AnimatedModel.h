@@ -2,9 +2,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-
-
-#include "DynamicMesh.h"
+#include <../../../New_Library/FormatHeader.h>
 struct Joint;
 struct SkeletonPose;
 struct Skeleton;
@@ -64,10 +62,10 @@ namespace Animation
 	{
 	public:
 		AnimatedModel();
-		AnimatedModel(DynamicMesh* mesh);
+	
 		~AnimatedModel();
 
-		void Init(DynamicMesh* mesh);
+
 
 		void Update(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
@@ -79,7 +77,7 @@ namespace Animation
 		std::vector<DirectX::float4x4> m_skinningMatrices;
 		std::vector<DirectX::float4x4> m_globalMatrices;
 
-		DynamicMesh* m_mesh = nullptr;
+
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
 

@@ -68,7 +68,7 @@ public:
 
 	
 	void Draw();
-
+	void DrawAnimated();
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 

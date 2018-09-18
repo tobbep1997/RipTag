@@ -95,11 +95,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	ModelManager modelManager;
 
-	modelManager.addStaticMesh("../Assets/StortRum.bin");
-	//modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
-	modelManager.meshes[0]->setPosition(0, 0, 0);
+	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 	PointLight pl;
-	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
+	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);
 	
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
@@ -152,7 +152,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		
 
 		ImGuiTest();
-		//CameraTest();
+	//	CameraTest();
 		MoveLight();
 		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;
@@ -163,7 +163,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
 		
-
 		modelManager.DrawMeshes();
 	
 		//std::cout << std::cos(180) << std::endl;

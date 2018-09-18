@@ -129,6 +129,9 @@
     <ClInclude Include="Source\3D Engine\Model\ModelManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Window\window.cpp">
@@ -159,9 +162,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\3D Engine\Model\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\3D Engine\Camera.cpp">
@@ -203,6 +203,9 @@
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
@@ -211,5 +214,10 @@
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
     <FxCompile Include="Source\Shader\AnimatedVertexShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

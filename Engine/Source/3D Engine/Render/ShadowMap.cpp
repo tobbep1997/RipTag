@@ -61,8 +61,25 @@ void ShadowMap::ShadowPass()
 				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 				DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->VertexSize(), 0);
 		}
+
+		for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
+		{
+			//Kan behöva ändra sizeof(StaticVertex) till sizeof(DynamicVertex) för fler ljus senare.
+			UINT32 vertexSize = sizeof(StaticVertex);
+			UINT32 offset = 0;
+
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->getBuffer();
+
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->VertexSize(), 0);
+		}
+		
+		
 		
 	}
+
+
 }
 
 void ShadowMap::mapAllLightMatrix(PointLight * light)

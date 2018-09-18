@@ -11,17 +11,25 @@ ModelManager::ModelManager()
 
 ModelManager::~ModelManager()
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < dynamicMesh.size(); i++)
 	{
-		delete meshes[i];
+		delete dynamicMesh[i];
+	}
+	for (int i = 0; i < staticMesh.size(); i++)
+	{
+		delete staticMesh[i];
 	}
 }
 
 void ModelManager::DrawMeshes()
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < staticMesh.size(); i++)
 	{
-		meshes[i]->Draw();
+		staticMesh[i]->Draw();
+	}
+	for (int i = 0; i < dynamicMesh.size(); i++)
+	{
+		dynamicMesh[i]->DrawAnimated();
 	}
 }
 
@@ -31,10 +39,7 @@ void ModelManager::addStaticMesh(const std::string & assetFilePath)
 		assetFilePath
 		);
 	
-	
-	tempModel->setScale(0.1, 0.1, 0.1);
-	
-	meshes.push_back(tempModel);
+	staticMesh.push_back(tempModel);
 }
 
 void ModelManager::addDynamicMesh(const std::string & assetFilePath)
@@ -42,12 +47,8 @@ void ModelManager::addDynamicMesh(const std::string & assetFilePath)
 	Model * tempModel = new Model(ObjectType::Dynamic,
 		assetFilePath
 		);
-	
 
-	
-	tempModel->setScale(1, 1, 1);
-
-	meshes.push_back(tempModel);
+	dynamicMesh.push_back(tempModel);
 }
 
 

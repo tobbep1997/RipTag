@@ -97,34 +97,59 @@ void ForwardRender::GeometryPass(Camera & camera)
 	_mapCameraBufferToPixel(camera);
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
+	_SetStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		
-
-
-			switch (DX::g_geometryQueue[i]->getObjectType())
-			{
-			case Static:
-				vertexSize = sizeof(StaticVertex);
-				break;
-			case Dynamic:
-				vertexSize = sizeof(DynamicVertex);
-				break;
-			}
-
-			_SetShaders(i);
-
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
 		
+	}
+
+	DX::g_geometryQueue.clear();
+
+}
+
+void ForwardRender::AnimatedGeometryPass(Camera & camera)
+{
+	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
+
+	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+
+
+	_mapLightInfoNoMatrix();
+
+	shadowMap.SetSamplerAndShaderResources();
+
+	
+	_mapCameraBufferToVertex(camera);
+	_mapCameraBufferToPixel(camera);
+	UINT32 vertexSize = sizeof(DynamicVertex);
+	UINT32 offset = 0;
+	_SetAnimatedShaders();
+	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+	{
+		
+
+		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->VertexSize(), 0);
+
 
 
 	}
 
-	DX::g_geometryQueue.clear();
+	DX::g_animatedGeometryQueue.clear();
 	DX::g_lights.clear();
 }
 
@@ -132,6 +157,8 @@ void ForwardRender::Flush(Camera & camera)
 {
 	this->shadowMap.ShadowPass();
 	this->GeometryPass(camera);
+	this->AnimatedGeometryPass(camera);
+	
 }
 
 void ForwardRender::Present()
@@ -283,19 +310,35 @@ void ForwardRender::CREATE_VIEWPROJ()
 
 }
 
-void ForwardRender::_SetShaders(int i)
+void ForwardRender::_SetStaticShaders()
 {
-	if (m_lastVertexPath != DX::g_geometryQueue[i]->getVertexPath())
-	{
-		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[i]->getVertexPath()));
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
+	
 
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_geometryQueue[i]->getVertexPath()), nullptr, 0);
-	}
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-	if (m_lastPixelPath != DX::g_geometryQueue[i]->getPixelPath())
+	if (m_lastPixelPath != DX::g_geometryQueue[0]->getPixelPath())
 	{
-		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[i]->getPixelPath()), nullptr, 0);
+		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
 	}
 }
+
+void ForwardRender::_SetAnimatedShaders()
+{
+	if (DX::g_animatedGeometryQueue.size() > 0)
+	{
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_animatedGeometryQueue[0]->getVertexPath()));
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_animatedGeometryQueue[0]->getVertexPath()), nullptr, 0);
+		DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+		if (m_lastPixelPath != DX::g_animatedGeometryQueue[0]->getPixelPath())
+		{
+			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_animatedGeometryQueue[0]->getPixelPath()), nullptr, 0);
+		}
+	}
+	
+}
+
