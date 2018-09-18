@@ -24,6 +24,6 @@ namespace DX {
 	extern Shaders::ShaderManager g_shaderManager;
 
 	extern std::vector<Drawable*> g_geometryQueue;
-
+	extern std::vector<Drawable*> g_animatedGeometryQueue;
 	extern std::vector<PointLight*> g_lights;
 }

@@ -88,6 +88,7 @@ public:
 	
 
 	void GeometryPass(Camera & camera);
+	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Present();
 
@@ -105,6 +106,8 @@ private:
 	void CREATE_VIEWPROJ();
 
 
-	void _SetShaders(int i);
+	//void _SetShaders(int i);
+	void _SetAnimatedShaders();
+	void _SetStaticShaders();
 };
 

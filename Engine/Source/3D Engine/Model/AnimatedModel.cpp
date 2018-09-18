@@ -7,20 +7,12 @@ Animation::AnimatedModel::AnimatedModel()
 {
 }
 
-Animation::AnimatedModel::AnimatedModel(SkinnedMesh * mesh)
-{
-	//m_skeleton = mesh->GetSkeleton();
-}
+
 
 Animation::AnimatedModel::~AnimatedModel()
 {
 }
 
-void Animation::AnimatedModel::Init(SkinnedMesh * mesh)
-{
-	if (mesh)
-		m_mesh = mesh;
-}
 
 void Animation::AnimatedModel::Update(float deltaTime)
 {

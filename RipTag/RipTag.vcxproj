@@ -154,6 +154,9 @@
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{5e822790-44a3-4602-bcd2-54da944cb9c4}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\InputManager\InputManager.vcxproj">
+      <Project>{62973989-7115-4695-b77e-cefc0fb74fe2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\New_Library\New_Library.vcxproj">
       <Project>{d9942cce-8b39-4bb6-813a-96f7f5148d0b}</Project>
     </ProjectReference>
