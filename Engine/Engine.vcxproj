@@ -218,8 +218,16 @@
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
-    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
-    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
+    </ClCompile>
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp">
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
+    </ClCompile>
     <ClCompile Include="Source\Helper\Threading.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
