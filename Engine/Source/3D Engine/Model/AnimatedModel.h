@@ -57,7 +57,7 @@ namespace Animation
 		SkeletonPose* m_skeletonPoses;
 		uint8_t m_framerate;
 	};
-	static SRT ConvertTransformToSRT(MyLibrary::Transform transform);
+	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	Skeleton* ConvertToSkeleton     (MyLibrary::SkeletonFromFile* skeleton);
 	static void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, MyLibrary::SkeletonFromFile* importedSkeleton);

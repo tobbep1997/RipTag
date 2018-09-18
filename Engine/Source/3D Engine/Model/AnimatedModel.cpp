@@ -52,18 +52,6 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-Animation::SRT Animation::_convertToSRT(const MyLibrary::Transform transform)
-{
-	SRT srt = {};
-
-	//TODO CHECK 
-	XMStoreFloat4A(&srt.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
-	srt.m_scale = { transform.transform_scale[0], transform.transform_scale[1], transform.transform_scale[2], 1.0 };
-	srt.m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0 };
-
-	return srt;
-}
-
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 {
 	_computeModelMatrices(pose);
@@ -165,10 +153,6 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 void Animation::SetInverseBindPoses(Skeleton* mainSkeleton, MyLibrary::SkeletonFromFile* importedSkeleton)
 {
 	XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[0].joint_transform)));
-Animation::AnimationCBuffer::AnimationCBuffer()
-{
-	SetAnimationCBuffer();
-}
 
 	for (int i = 0; i < mainSkeleton->m_jointCount; i++)
 	{
@@ -176,6 +160,12 @@ Animation::AnimationCBuffer::AnimationCBuffer()
 		XMStoreFloat4x4A(&mainSkeleton->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[0].joint_transform)), XMLoadFloat4x4A(&mainSkeleton->m_joints[parentIndex].m_inverseBindPose)));
 	}
 }
+
+Animation::AnimationCBuffer::AnimationCBuffer()
+{
+	SetAnimationCBuffer();
+}
+
 Animation::AnimationCBuffer::~AnimationCBuffer()
 {
 
