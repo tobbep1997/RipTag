@@ -38,6 +38,10 @@ struct VS_OUTPUT
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
+    //TODO: CHECK THE LIGHT CALCULATIONS BASED ON SHADOW!!!!
+
+
+
 	//VERY TEMP
     float4 color = float4(1, 1, 1, 1);
 	//PLEASE REMOBVE
