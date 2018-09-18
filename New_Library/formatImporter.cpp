@@ -80,7 +80,7 @@ namespace MyLibrary
 	{
 		//reads the custom mesh file and stores all the data
 
-		AnimatedMeshFromFile meshToReturn;
+		AnimatedMeshFromFile meshToReturn = {};
 
 		bool fileIsOpen = false;
 
@@ -151,7 +151,7 @@ namespace MyLibrary
 	{
 		//read the skeleton file
 
-		SkeletonFromFile skeleton_to_return;
+		SkeletonFromFile skeleton_to_return = {};
 
 		bool fileIsOpen = false;
 
@@ -175,6 +175,21 @@ namespace MyLibrary
 				for (int j = 0; j < MAX_FILENAME; j++)
 					skeleton_to_return.skeleton_joints[i].joint_name[j] = joints[i].joint_name[j];
 				skeleton_to_return.skeleton_joints[i].joint_transform = joints[i].joint_transform;
+				float tempScale[3] =
+				{
+					skeleton_to_return.skeleton_joints[i].joint_transform.transform_scale[0],
+					skeleton_to_return.skeleton_joints[i].joint_transform.transform_scale[1],
+					skeleton_to_return.skeleton_joints[i].joint_transform.transform_scale[2]
+				};
+
+				skeleton_to_return.skeleton_joints[i].joint_transform.transform_scale[0] = skeleton_to_return.skeleton_joints[i].joint_transform.transform_rotation[0];
+				skeleton_to_return.skeleton_joints[i].joint_transform.transform_scale[1] = skeleton_to_return.skeleton_joints[i].joint_transform.transform_rotation[1];
+				skeleton_to_return.skeleton_joints[i].joint_transform.transform_scale[2] = skeleton_to_return.skeleton_joints[i].joint_transform.transform_rotation[2];
+
+				skeleton_to_return.skeleton_joints[i].joint_transform.transform_rotation[0] = tempScale[0];
+				skeleton_to_return.skeleton_joints[i].joint_transform.transform_rotation[1] = tempScale[1];
+				skeleton_to_return.skeleton_joints[i].joint_transform.transform_rotation[2] = tempScale[2];
+
 				skeleton_to_return.skeleton_joints[i].parentIndex = joints[i].parentIndex;
 			}
 			skeleton_to_return.skeleton_nrOfJoints = skeleton_header.skeleton_nrOfJoints;
@@ -207,6 +222,23 @@ namespace MyLibrary
 			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys; i++)
 			{
 				animation_to_return.keyframe_transformations[i] = keyframes[i];
+
+				// TODO
+				float tempScale[3] =
+				{
+					animation_to_return.keyframe_transformations[i].transform_scale[0],
+					animation_to_return.keyframe_transformations[i].transform_scale[1],
+					animation_to_return.keyframe_transformations[i].transform_scale[2]
+				};
+
+				animation_to_return.keyframe_transformations[i].transform_scale[0] = animation_to_return.keyframe_transformations[i].transform_rotation[0];
+				animation_to_return.keyframe_transformations[i].transform_scale[1] = animation_to_return.keyframe_transformations[i].transform_rotation[1];
+				animation_to_return.keyframe_transformations[i].transform_scale[2] = animation_to_return.keyframe_transformations[i].transform_rotation[2];
+
+				animation_to_return.keyframe_transformations[i].transform_rotation[0] = tempScale[0];
+				animation_to_return.keyframe_transformations[i].transform_rotation[1] = tempScale[1];
+				animation_to_return.keyframe_transformations[i].transform_rotation[2] = tempScale[2];
+
 			}
 
 			customAnimationFile.close();
