@@ -75,7 +75,7 @@ public:
 	void setScale(DirectX::XMFLOAT4A scale);
 	void setScale(float x = 1, float y = 1, float z = 1, float w = 1);
 
-	void BindTextures();
+	void BindTextures() const;
 	void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
@@ -83,15 +83,15 @@ public:
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 
-	UINT VertexSize();
+	UINT VertexSize() const;
 
 	ID3D11Buffer * getBuffer();
 
 	//Returns the objects worldMatrix
-	DirectX::XMFLOAT4X4A getWorldmatrix();
+	DirectX::XMFLOAT4X4A getWorldmatrix() const;
 
-	//returns static or dynamic objtype
-	ObjectType getObjectType();
+	//returns static or dynamic object type
+	ObjectType getObjectType() const;
 
 
 
