@@ -101,7 +101,7 @@ void Drawable::BindTextures()
 	}
 }
 
-Drawable::Drawable(ObjectType objecType) :
+Drawable::Drawable(ObjectType objectType) :
 	m_staticMesh(nullptr),
 	m_dynamicMesh(nullptr),
 	m_vertexBuffer(nullptr)
@@ -111,7 +111,7 @@ Drawable::Drawable(ObjectType objecType) :
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
 
 
-	this->p_objectType = objecType;
+	this->p_objectType = objectType;
 }
 
 
