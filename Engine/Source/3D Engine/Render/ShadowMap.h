@@ -20,7 +20,8 @@ struct ObjectBuffer
 };
 struct PointLightBuffer
 {
-	DirectX::XMFLOAT4X4A viewProjection[6];
+	DirectX::XMFLOAT4X4A viewProjection[8][6];
+	unsigned int nrOfLights;
 };
 struct LightCameraBuffer
 {
@@ -28,7 +29,7 @@ struct LightCameraBuffer
 };
 
 private:
-	const unsigned int RENDER_TARGET_VIEW_COUNT = 6;
+	const unsigned int RENDER_TARGET_VIEW_COUNT = 8 * 6;
 
 	D3D11_VIEWPORT				m_shadowViewport;
 	ID3D11SamplerState*			m_shadowSamplerState;
@@ -58,7 +59,7 @@ public:
 
 	void ShadowPass();
 
-	void mapAllLightMatrix(PointLight * light);
+	void mapAllLightMatrix(std::vector<PointLight*> * lights);
 
 	void SetSamplerAndShaderResources();
 

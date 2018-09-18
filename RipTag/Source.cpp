@@ -20,17 +20,12 @@ void _alocConsole() {
 }
 #endif
 
-
-float rotSpeed = 0.001f;
 float scaleX = 0;
 float scaleY = 0;
 float scaleZ = 0;
 
-float posX = 1;
-float posY = 1;
-float posZ = -6;
-
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
+float lightPosX1 = 0, lightPosY1 = 5, lightPosZ1 = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
 float lightIntensity = 1;
 float nearPlane = 1.0f, farPlane = 20.0f;
@@ -47,17 +42,6 @@ void ImGuiTest()
 
 }
 
-void CameraTest()
-{
-#if _DEBUG
-	ImGui::Begin("Camera Settings");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &posX, -20.0f, 20.f);
-	ImGui::SliderFloat("posY", &posY, -20.0f, 20.f);
-	ImGui::SliderFloat("posZ", &posZ, -20.0f, 20.f);
-	ImGui::End();
-#endif
-}
-
 void MoveLight() {
 #if _DEBUG
 	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
@@ -65,13 +49,18 @@ void MoveLight() {
 	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 30.f);
 	ImGui::SliderFloat("posZ", &lightPosZ, -30.0f, 30.f);
 
+	ImGui::SliderFloat("posX1", &lightPosX1, -30.0f, 30.f);
+	ImGui::SliderFloat("posY1", &lightPosY1, -50.0f, 30.f);
+	ImGui::SliderFloat("posZ1", &lightPosZ1, -30.0f, 30.f);
+
+
 	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
 	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
 
 	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
 	ImGui::SliderFloat("NearPlane", &nearPlane, 0.1f, 3.0f);
-	ImGui::SliderFloat("FarPlane", &farPlane, 1.0f, 50.0f);
+	ImGui::SliderFloat("FarPlane", &farPlane, 3.1f, 50.0f);
 
 	ImGui::End();
 #endif
@@ -101,12 +90,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.staticMesh[0]->setScale(10, 1, 10);
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+	modelManager.dynamicMesh[0]->setPosition(0, 2, 0);
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
 	pl.CreateShadowDirection(PointLight::XYZ_ALL);
-	//pl.CreateShadowDirection(PointLight::X_POSITIVE);
+	PointLight pl2;
+	pl2.Init(DirectX::XMFLOAT4A(5, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.0f);
+	pl2.CreateShadowDirection(PointLight::XYZ_ALL);
 	
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
@@ -124,6 +117,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		pl.SetIntensity(lightIntensity);
 		pl.setFarPlane(farPlane);
 		pl.setNearPlane(nearPlane);
+
+		pl2.SetPosition(lightPosX1, lightPosY1, lightPosZ1);
+		pl2.SetColor(lightColorR, lightColorG, lightColorB);
+		pl2.SetIntensity(lightIntensity);
+		pl2.setFarPlane(farPlane);
+		pl2.setNearPlane(nearPlane);
+
 
 		/*
 			Test Camera movement
@@ -158,25 +158,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		if (InputHandler::isKeyPressed(InputHandler::BackSpace))
 			camera.setLookTo(0, 0, 0, 1);
 		
+		if (InputHandler::isKeyPressed('L'))
+			camera.setPosition(pl2.getPosition());
 
 		
 
 		ImGuiTest();
-	//	CameraTest();
 		MoveLight();
-		/*
-		pos += Timer::GetDurationInSeconds() * 0.03;
-		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
-		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
-		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
-		*/
 		pl.QueueLight();
-		//camera.setPosition(posX, posY, posZ);
+		pl2.QueueLight();
 		
 		modelManager.DrawMeshes();
-	
-		//std::cout << std::cos(180) << std::endl;
-		//camera.setLookTo(0, 0, 0);
 		
 		renderingManager.Flush(camera);
 	}
