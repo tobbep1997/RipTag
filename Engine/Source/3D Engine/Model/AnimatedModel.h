@@ -2,7 +2,8 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-#include <../../../New_Library/FormatHeader.h>
+#include <d3d11.h>
+#include <../New_Library/FormatHeader.h>
 struct Joint;
 struct SkeletonPose;
 struct Skeleton;
@@ -97,7 +98,7 @@ namespace Animation
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 	};
 
-	static class AnimationCBuffer
+	class AnimationCBuffer
 	{
 		struct AnimationBuffer
 		{
