@@ -30,19 +30,16 @@ struct VS_OUTPUT
 
 VS_OUTPUT main(VS_INPUT input)
 {
-
 	VS_OUTPUT output;
-
 
 	output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
 	output.worldPos = mul(input.pos, worldMatrix);
-	output.normal = mul(input.normal, worldMatrix);
-	output.tangent = mul(input.tangent, worldMatrix);
+	output.normal = normalize(mul(input.normal, worldMatrix));
+	output.tangent = normalize(mul(input.tangent, worldMatrix));
 	output.uv = input.uv;
 	return output;
 }
 
-//
 //cbuffer OBJECT_BUFFER : register(b0)
 //{
 //	float4x4 worldMatrix;
@@ -62,7 +59,7 @@ VS_OUTPUT main(VS_INPUT input)
 //	float4 weights : WEIGHTS;
 //	uint4 boneIndices : BONE;
 //	float2 uv : UV;
-//
+//	
 //};
 //
 //struct VS_OUTPUT

@@ -168,6 +168,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Source\3D Engine\Model\ModelManager.h" />
     <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
     <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
@@ -216,14 +218,23 @@
     <ClInclude Include="Source\3D Engine\Model\Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
     <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
-    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
-    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
+    </ClCompile>
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp">
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
+      <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
+    </ClCompile>
     <ClCompile Include="Source\Helper\Threading.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Camera.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Model.cpp" />
     <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Drawable.cpp" />
@@ -296,6 +307,9 @@
     <ProjectReference Include="..\New_Library\New_Library.vcxproj">
       <Project>{d9942cce-8b39-4bb6-813a-96f7f5148d0b}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

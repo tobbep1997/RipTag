@@ -25,6 +25,7 @@ void ShadowMap::Init(UINT width, UINT height)
 
 void ShadowMap::ShadowPass()
 {
+	
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 	for (int i = 0; i < 6; i++)
 	{
@@ -50,17 +51,35 @@ void ShadowMap::ShadowPass()
 		mapAllLightMatrix(DX::g_lights[x]);
 		for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
 		{
+			
+				UINT32 vertexSize = sizeof(StaticVertex);
+				UINT32 offset = 0;
+
+				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
+
+				_mapObjectBuffer(DX::g_geometryQueue[j]);
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->VertexSize(), 0);
+		}
+
+		for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
+		{
+			//Kan behöva ändra sizeof(StaticVertex) till sizeof(DynamicVertex) för fler ljus senare.
 			UINT32 vertexSize = sizeof(StaticVertex);
 			UINT32 offset = 0;
 
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->getBuffer();
 
-			_mapObjectBuffer(DX::g_geometryQueue[j]);
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->VertexSize(), 0);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->VertexSize(), 0);
 		}
 		
+		
+		
 	}
+
+
 }
 
 void ShadowMap::mapAllLightMatrix(PointLight * light)
@@ -292,4 +311,5 @@ void ShadowMap::_mapObjectBuffer(Drawable * drawable)
 	DX::g_deviceContext->Unmap(m_objectBuffer, 0);
 	// set resource to Vertex Shader
 	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_objectBuffer);
+
 }

@@ -23,7 +23,12 @@ class Drawable
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
+
+	//Textures
 	Texture* m_diffuseTexture = nullptr;
+	Texture* m_normalTexture = nullptr;
+	Texture* m_MRATexture = nullptr;
+
 	void _setStaticBuffer();
 	void _setDynamicBuffer();
 
@@ -72,11 +77,10 @@ public:
 
 	const DirectX::XMFLOAT4A & getPosition() const;
 	void BindTextures();
-	void SetTexture(Texture* texture);
-
+	void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
-
+	void DrawAnimated();
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 

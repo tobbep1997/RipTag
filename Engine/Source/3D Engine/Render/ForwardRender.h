@@ -88,6 +88,7 @@ public:
 	
 
 	void GeometryPass(Camera & camera);
+	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Present();
 
@@ -97,6 +98,7 @@ private:
 	void _SimpleLightCulling(Camera & cam);
 
 	void _CreateConstantBuffer();
+	void _CreateSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBufferToVertex(Camera & camera);
 	void _mapCameraBufferToPixel(Camera & camera);
@@ -104,6 +106,8 @@ private:
 	void CREATE_VIEWPROJ();
 
 
-	void _SetShaders(int i);
+	//void _SetShaders(int i);
+	void _SetAnimatedShaders();
+	void _SetStaticShaders();
 };
 

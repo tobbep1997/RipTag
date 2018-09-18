@@ -73,25 +73,35 @@ void Drawable::SetMesh(DynamicMesh * dynamicMesh)
 	this->m_dynamicMesh = dynamicMesh;
 }
 
-void Drawable::SetTexture(Texture* texture)
+void Drawable::SetTextures(Texture* diffuseTexture /*= nullptr*/, Texture* normalTexture /*= nullptr*/, Texture* MRATexture /*= nullptr*/)
 {
-	m_diffuseTexture = texture;
+	m_diffuseTexture = diffuseTexture;
+	m_MRATexture = MRATexture;
+	m_normalTexture = normalTexture;
 }
 
 void Drawable::BindTextures()
-{
+{ //TODO Optimize (one call for all)
 	if (m_diffuseTexture)
 	{
 		m_diffuseTexture->Bind(1);
 	}
-	else
+	if (m_normalTexture)
 	{
-		ID3D11ShaderResourceView* nullSRV = { nullptr };
-		DX::g_deviceContext->PSSetShaderResources(1, 1, &nullSRV);
+		m_normalTexture->Bind(2);
+	}
+	if (m_MRATexture)
+	{
+		m_MRATexture->Bind(3);
+	}
+	else if (!m_diffuseTexture && !m_normalTexture && !m_MRATexture)
+	{
+		std::vector<ID3D11ShaderResourceView*> nullSRV = { nullptr, nullptr, nullptr };
+		DX::g_deviceContext->PSSetShaderResources(1, 3, nullSRV.data());
 	}
 }
 
-Drawable::Drawable(ObjectType objecType) :
+Drawable::Drawable(ObjectType objectType) :
 	m_staticMesh(nullptr),
 	m_dynamicMesh(nullptr),
 	m_vertexBuffer(nullptr)
@@ -101,7 +111,7 @@ Drawable::Drawable(ObjectType objecType) :
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
 
 
-	this->p_objectType = objecType;
+	this->p_objectType = objectType;
 }
 
 
@@ -159,6 +169,11 @@ void Drawable::Draw()
 	DX::g_geometryQueue.push_back(this);
 }
 
+void Drawable::DrawAnimated()
+{
+	DX::g_animatedGeometryQueue.push_back(this);
+}
+
 std::wstring Drawable::getVertexPath() const
 {
 	return this->p_vertexPath;
@@ -183,6 +198,7 @@ UINT Drawable::VertexSize()
 		return 0;
 		break;
 	}
+	return 0;
 	
 }
 

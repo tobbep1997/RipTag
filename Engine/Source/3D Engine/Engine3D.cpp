@@ -7,6 +7,8 @@ ID3D11DeviceContext*	DX::g_deviceContext;
 Shaders::ShaderManager DX::g_shaderManager;
 
 std::vector<Drawable*> DX::g_geometryQueue;
+std::vector<Drawable*> DX::g_animatedGeometryQueue;
+
 std::vector<PointLight*> DX::g_lights;
 
 void DX::SafeRelease(IUnknown * unknown)

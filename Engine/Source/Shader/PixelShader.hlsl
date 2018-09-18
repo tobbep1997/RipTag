@@ -1,10 +1,12 @@
 #pragma warning(disable : 3078)
 
 SamplerComparisonState sampAniPoint : register(s0);
-SamplerState defaultSampler;
+SamplerState defaultSampler : register(s1);
 
 Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);
+Texture2D normalTexture : register(t2);
+Texture2D MRATexture : register(t3);
 
 cbuffer LIGHTS : register (b0)
 {

@@ -4,6 +4,7 @@
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
+#include "Source/3D Engine/Model/ModelManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
  
@@ -18,6 +19,8 @@ void _alocConsole() {
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
 #endif
+
+
 float rotSpeed = 0.001f;
 float scaleX = 0;
 float scaleY = 0;
@@ -94,37 +97,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
 
-	Model m(ObjectType::Static);
-	Model m2(ObjectType::Static);
-	m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-	m.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	m2.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-	m2.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	
+	ModelManager modelManager;
 
-	m.setPosition(0, 0, 0);
-	m2.setPosition(-1, 0, 0);
-	StaticMesh * s = new StaticMesh();
-	StaticMesh * d = new StaticMesh();
-	s->LoadModel("../Assets/sphere.bin");
-	d->LoadModel("../Assets/RUMMET.bin");
-	m.SetModel(s);
-
-	m2.SetModel(d);
-	{
-		//Texture* tex = new Texture();
-		//assert(tex->Load(L"../Assets/poop.png") == S_OK);
-		//m2.SetTexture(tex);
-	}
-	m.setPosition(0, -3, 0);
-	m.setScale(1, 1, 1);
-
+	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
 	pl.CreateShadowDirection(PointLight::XYZ_ALL);
 	//pl.CreateShadowDirection(PointLight::X_POSITIVE);
 	
-	
-
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
@@ -176,8 +159,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			camera.setLookTo(0, 0, 0, 1);
 		
 
+		
+
 		ImGuiTest();
-		//CameraTest();
+	//	CameraTest();
 		MoveLight();
 		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;
@@ -187,14 +172,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		*/
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
-		m.setPosition(scaleX, scaleY, scaleZ);
-		//m.addRotation(0, rotSpeed, 0);
-		//m.setScale(scaleX,scaleY,scaleZ);
-		m.Draw();
-		m2.Draw();
-
-
 		
+		modelManager.DrawMeshes();
+	
 		//std::cout << std::cos(180) << std::endl;
 		//camera.setLookTo(0, 0, 0);
 		
@@ -203,7 +183,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
 
-	delete s;
-	delete d;
+	
 	return 0;
 }

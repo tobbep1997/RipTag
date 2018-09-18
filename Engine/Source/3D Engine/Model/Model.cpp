@@ -7,7 +7,6 @@ Model::Model(ObjectType objectType) :
 	switch (objectType)
 	{
 	case Static:
-
 		break;
 	case Dynamic:
 		break;
@@ -16,9 +15,35 @@ Model::Model(ObjectType objectType) :
 	}
 }
 
+Model::Model(ObjectType objectType, const std::string &assetFilePath) 
+	: Drawable(objectType)
+{
+	switch (objectType)
+	{
+	case Static:
+		m_StaticMeshPointer = new StaticMesh();
+		m_StaticMeshPointer->LoadModel(assetFilePath);
+		SetModel(m_StaticMeshPointer);
+		SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+		SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+		break;
+	case Dynamic:
+		m_DynamicMeshPointer = new DynamicMesh();
+		m_DynamicMeshPointer->LoadModel(assetFilePath);
+		SetModel(m_DynamicMeshPointer);
+		SetVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
+		SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+		break;
+	default:
+		break;
+	}
+
+}
 
 Model::~Model()
 {
+	delete m_StaticMeshPointer;
+	delete m_DynamicMeshPointer;
 }
 
 void Model::SetBuffer()
