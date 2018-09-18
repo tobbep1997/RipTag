@@ -62,7 +62,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
 	   
 	_CreateConstantBuffer();
-
+	_CreateSamplerState();
 	shadowMap.Init(128, 128);
 
 	
@@ -87,7 +87,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
-	
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 
 	_mapLightInfoNoMatrix();
 
@@ -147,6 +147,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_objectBuffer);
 	DX::SafeRelease(m_cameraBuffer);
 	DX::SafeRelease(m_lightBuffer);
+	DX::SafeRelease(m_samplerState);
 
 	shadowMap.Release();
 }
@@ -277,6 +278,24 @@ void ForwardRender::_CreateConstantBuffer()
 		// handle the error, could be fatal or a warning...
 		exit(-1);
 	}
+}
+
+
+void ForwardRender::_CreateSamplerState()
+{
+	D3D11_SAMPLER_DESC ssDesc = {};
+	ssDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	ssDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	ssDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	ssDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	ssDesc.MaxAnisotropy = 1;
+	ssDesc.MaxLOD = FLT_MAX;
+	ssDesc.MinLOD = -FLT_MAX;
+	ssDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+	HRESULT hr = DX::g_device->CreateSamplerState(&ssDesc, &m_samplerState);
+	assert(hr == S_OK);
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)

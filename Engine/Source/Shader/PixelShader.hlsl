@@ -1,7 +1,7 @@
 #pragma warning(disable : 3078)
 
 SamplerComparisonState sampAniPoint : register(s0);
-SamplerState defaultSampler;
+SamplerState defaultSampler : register(s1);
 
 Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);

@@ -97,6 +97,7 @@ private:
 	void _SimpleLightCulling(Camera & cam);
 
 	void _CreateConstantBuffer();
+	void _CreateSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBufferToVertex(Camera & camera);
 	void _mapCameraBufferToPixel(Camera & camera);
