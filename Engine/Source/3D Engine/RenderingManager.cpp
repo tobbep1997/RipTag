@@ -107,8 +107,10 @@ void RenderingManager::_ReloadShaders()
 	//Unload the shader
 	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
+	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 
 	//Reload shader
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 }

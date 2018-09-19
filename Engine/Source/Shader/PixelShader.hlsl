@@ -41,7 +41,6 @@ float4 main(VS_OUTPUT input) : SV_TARGET
     //TODO: CHECK THE LIGHT CALCULATIONS BASED ON SHADOW!!!!
 
 
-
 	//VERY TEMP
     float4 color = float4(1, 1, 1, 1);
 	//PLEASE REMOBVE
@@ -63,12 +62,12 @@ float4 main(VS_OUTPUT input) : SV_TARGET
     float difMult = 0;
     float4 finalColor = float4(0, 0, 0, 1);
 
-    //if (input.uv.x > 0.1f)
-    //{
-    //    InterlockedAdd(OutputMap[int2(0, 0)], 1);
-    //}
+   /* if (input.uv.x > 0.1f)
+    {
+        InterlockedAdd(OutputMap[int2(0, 0)], 1);
+    }
 	
-    //InterlockedAdd(OutputMap[int2(1, 0)], 1);
+    InterlockedAdd(OutputMap[int2(1, 0)], 1);*/
 	
 	for (int light = 0; light < numberOfLights; light++)
 	{

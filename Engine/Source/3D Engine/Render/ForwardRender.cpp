@@ -60,7 +60,10 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
-	   
+
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
+
 	_CreateConstantBuffer();
 	_CreateSamplerState();
 	shadowMap.Init(64, 64);
@@ -126,7 +129,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
 	D3D11_MAPPED_SUBRESOURCE mr;
-
+	
 	struct ShadowTestData
 	{
 		unsigned int inside;
@@ -138,7 +141,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 		ShadowTestData* data = (ShadowTestData*)mr.pData;
 
 		data = data;
-
+		
 		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
 	}
 
@@ -189,6 +192,10 @@ void ForwardRender::Flush(Camera & camera)
 {
 	_SimpleLightCulling(camera);
 	this->shadowMap.ShadowPass();
+
+	//TODO
+	VisabilityPass();
+
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	
@@ -209,6 +216,11 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_uavTextureBuffer);
 	DX::SafeRelease(m_uavTextureBufferCPU);
 	DX::SafeRelease(m_visabilityUAV);
+
+
+	//DX::SafeRelease(m_uavKILLER);
+
+	//DX::SafeRelease(m_visLightBuffer);
 
 	shadowMap.Release();
 }
@@ -339,6 +351,21 @@ void ForwardRender::_CreateConstantBuffer()
 		// handle the error, could be fatal or a warning...
 		exit(-1);
 	}
+
+	//D3D11_BUFFER_DESC pointBufferDesc;
+	//lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	//lightBufferDesc.ByteWidth = sizeof(PointLightBuffer);
+	//lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	//lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//lightBufferDesc.MiscFlags = 0;
+	//lightBufferDesc.StructureByteStride = 0;
+
+	//hr = DX::g_device->CreateBuffer(&pointBufferDesc, nullptr, &this->m_visLightBuffer);
+	//if (FAILED(hr))
+	//{
+	//	// handle the error, could be fatal or a warning...
+	//	exit(-1);
+	//}
 }
 
 
@@ -443,6 +470,7 @@ void ForwardRender::CREATE_VIEWPROJ()
 
 }
 
+
 void ForwardRender::_SetStaticShaders()
 {
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
@@ -456,6 +484,74 @@ void ForwardRender::_SetStaticShaders()
 	{
 		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
 	}
+}
+
+void ForwardRender::VisabilityPass()
+{
+	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
+
+	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl"), nullptr, 0);
+
+	//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+
+	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+		1,
+		&m_backBufferRTV,
+		//m_depthStencilView,
+		nullptr,
+		1, 1, &m_visabilityUAV, 0
+	);
+
+	for (unsigned int i = 0; i < DX::g_visabilityDrawQueue.size(); ++i)
+	{
+		UINT32 vertexSize = sizeof(StaticVertex);
+		UINT32 offset = 0;
+
+		ID3D11Buffer * vertexBuffer = DX::g_visabilityDrawQueue[i]->getBuffer();
+
+		_mapObjectBuffer(DX::g_visabilityDrawQueue[i]);
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_visabilityDrawQueue[i]->VertexSize(), 0);
+	}
+
+	DX::g_visabilityDrawQueue.clear();
+
+
+	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	D3D11_MAPPED_SUBRESOURCE mr;
+
+	struct ShadowTestData
+	{
+		unsigned int inside;
+		unsigned int outside;
+	};
+
+	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
+	{
+		ShadowTestData* data = (ShadowTestData*)mr.pData;
+
+		//std::cout << data->inside <<std::endl;
+		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	}
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
+	{
+		ShadowTestData hiv ={ 0,0 };
+		memcpy(dataPtr.pData, &hiv, sizeof(ShadowTestData));
+		DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	}
+	
 }
 
 void ForwardRender::_SetAnimatedShaders()
@@ -501,9 +597,15 @@ void ForwardRender::_createUAV()
 
 	TextureData.Usage = D3D11_USAGE_STAGING;
 	TextureData.BindFlags = 0;
-	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 
 	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavTextureBufferCPU);
+
+	//TextureData.Usage = D3D11_USAGE_STAGING;
+	//TextureData.BindFlags = 0;
+	//TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	//hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavKILLER);
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
 	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
