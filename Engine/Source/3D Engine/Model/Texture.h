@@ -7,9 +7,10 @@ class Texture
 public:
 	Texture();
 	Texture(const wchar_t* file);
+	~Texture();
+
 	HRESULT Load(const wchar_t* file);
 	void Bind(const uint8_t slot);
-	~Texture();
 private:
 	ID3D11ShaderResourceView* m_SRV = nullptr;
 };

@@ -29,8 +29,6 @@
     <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Source\Messages\CoreMessage.cpp" />
-    <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
     <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
     <ClCompile Include="Source\Shader\Shader.cpp" />
     <ClCompile Include="Source\Shader\ShaderManager.cpp" />
@@ -73,11 +71,6 @@
     <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h" />
     <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h" />
     <ClInclude Include="Source\Helper\Timer.h" />
-    <ClInclude Include="Source\Messages\CoreMessage.h" />
-    <ClInclude Include="Source\Messages\DrawMessage.h" />
-    <ClInclude Include="Source\Messages\EngineMessage.h" />
-    <ClInclude Include="Source\Messages\PostalManagerRender.h" />
-    <ClInclude Include="Source\Messages\WindowMessage.h" />
     <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
     <ClInclude Include="Source\Shader\Shader.h" />
     <ClInclude Include="Source\Shader\ShaderManager.h" />

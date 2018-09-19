@@ -29,8 +29,6 @@ private:
 	Texture* m_normalTexture = nullptr;
 	Texture* m_MRATexture = nullptr;
 
-	void _setStaticBuffer();
-	void _setDynamicBuffer();
 
 
 protected:
@@ -43,12 +41,12 @@ protected:
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
 	//Calculates the worldMatrix
-	void CalcWorldMatrix();
+	void p_calcWorldMatrix();
 
 	//Object type, is it static or dynamic
 	ObjectType p_objectType;
 
-	ID3D11Buffer * m_vertexBuffer;
+	ID3D11Buffer * p_vertexBuffer;
 
 	std::wstring p_vertexPath;
 	std::wstring p_pixelPath;
@@ -56,8 +54,8 @@ protected:
 	void CreateBuffer();
 
 	//Setting the mesh for the object
-	void SetMesh(StaticMesh * staticMesh);
-	void SetMesh(DynamicMesh * dynamicMesh);
+	void p_setMesh(StaticMesh * staticMesh);
+	void p_setMesh(DynamicMesh * dynamicMesh);
 
 	//Texture stuff
 
@@ -77,7 +75,7 @@ public:
 
 	const DirectX::XMFLOAT4A & getPosition() const;
 	void BindTextures();
-	void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
+	void setTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
 	void DrawAnimated();
@@ -88,7 +86,7 @@ public:
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 
-	UINT VertexSize();
+	UINT getVertexSize();
 
 	ID3D11Buffer * getBuffer();
 
@@ -98,7 +96,9 @@ public:
 	//returns static or dynamic objtype
 	ObjectType getObjectType();
 
-
+private:
+	void _setStaticBuffer();
+	void _setDynamicBuffer();
 
 };
 
