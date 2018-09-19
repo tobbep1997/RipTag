@@ -8,7 +8,7 @@ class Game
 private:
 	RenderingManager m_renderingManager;
 
-	std::stack<State> m_gameStack;
+	std::stack<State*> m_gameStack;
 
 public:
 	Game();
