@@ -65,20 +65,26 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     //InterlockedAdd(OutputMap[int2(1, 0)], 1);
 	
     for (int light = 0; light < numberOfLights; light++)
-    {
-        float shadowCoeff = 1.0f;
+    {     
         float div = 1.0f;
+        float shadowCoeff = 1.0f;
+
         float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
         float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);
 
-        float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);
+        float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);        
         float specularDot = max(dot(input.normal.xyz, normalize(fragmentPositionToCamera + fragmentPositionToLight).xyz), 0.0f);
-
-        // attenuation = Intensity / (1.0 + lightRange * fragmentDistanceToLight * fragmentDistanceToLight);
+              
         float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
-       // float attenuation = clamp(3.0f / fragmentDistanceToLight, 0.0, 1.0f);
-        float3 specular = attenuation * (lightColor[light].rgb * pow(specularDot, 64.0f));
-        float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot));
+
+        float3 specular = float3(0, 0, 0);
+        if (dot(input.normal.xyz, normalize(fragmentPositionToLight)) >= 0)        
+            specular = attenuation * (lightColor[light].rgb * pow(specularDot, 32.0f));     
+        
+        float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot));  
+            
+
+
         for (int targetMatrix = 0; targetMatrix < 6; targetMatrix++)
         {
              // Translate the world position into the view space of the light
@@ -97,17 +103,16 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
                 continue;
 
             float3 indexPos = float3(smTex, (light * 6) + targetMatrix);
-            float tShadow = txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos, depth - 0.01f).r;
+            //float tShadow = txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos, depth - 0.01f).r;
 
             // REMOVE THIS
             //float tShadow2 = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
 
-            //float tShadow = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+            shadowCoeff = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
             
-            finalColor.rgb += (specular + diffuse.rgb).rgb * tShadow;
+            finalColor.rgb += (specular + diffuse.rgb).rgb * shadowCoeff;
+            div += 1.0f;
             
-            //shadowCoeff += tShadow;
-            //div += 1.0f;
         }
         //finalColor.rgb += (((specular * pow(shadowCoeff, 2)) + diffuse.rgb) * shadowCoeff);
         //finalColor.rgb += (specular + diffuse.rgb).rgb;

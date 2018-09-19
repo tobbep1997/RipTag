@@ -176,7 +176,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		MoveLight();
 		pl.QueueLight();
 
-		pl2.QueueLight();
+		//pl2.QueueLight();
 		
 		modelManager.DrawMeshes();
 		
