@@ -101,23 +101,32 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
-	{
+	
+		Animation::AnimationCBuffer animCB;
+		animCB.SetAnimationCBuffer();
+		
 		MyLibrary::Loadera meshloader;
 		//Animation::Skeleton* = ;
 		MyLibrary::SkeletonFromFile skel = meshloader.readSkeletonFile("../Assets/joint1_Skeleton.bin");
 		MyLibrary::Joint jnt= skel.skeleton_joints[1];
 		Animation::AnimationClip* animationClip = Animation::ConvertToAnimationClip(&meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin"), skel.skeleton_nrOfJoints);
 		Animation::Skeleton* skeleton = Animation::ConvertToSkeleton(&skel);
+		animationClip->m_skeleton = skeleton;
 		modelManager.dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animationClip);
-		std::vector<Animation::SRT> srts;
+		modelManager.dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
+		modelManager.dynamicMesh[0]->getAnimatedModel()->Play();
 
+
+
+
+		std::vector<Animation::SRT> srts;
 		{ //FRAME ONE JOINT 0
 			for (int i = 0; i < animationClip->m_frameCount; i++)
 				srts.push_back(animationClip->m_skeletonPoses[i].m_jointPoses[0].m_transformation);
 		}
 
-		int i = 0;
-	}
+
+	
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);
@@ -132,6 +141,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
+			modelManager.dynamicMesh[0]->getAnimatedModel()->Update(0.002);
 		renderingManager.ImGuiStartFrame();
 		pl.SetPosition(lightPosX, lightPosY, lightPosZ);
 		pl.SetColor(lightColorR, lightColorG, lightColorB);
