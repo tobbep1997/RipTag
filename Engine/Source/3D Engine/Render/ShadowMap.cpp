@@ -35,7 +35,7 @@ void ShadowMap::ShadowPass()
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertex.hlsl"), nullptr, 0);
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/Source/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);
+	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/Source/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);
 	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);

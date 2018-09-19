@@ -443,7 +443,7 @@ void ForwardRender::_mapLightInfoNoMatrix()
 void ForwardRender::_setStaticShaders()
 {
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
 	
 
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -451,7 +451,7 @@ void ForwardRender::_setStaticShaders()
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	if (m_lastPixelPath != DX::g_geometryQueue[0]->getPixelPath())
 	{
-		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
+		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
 	}
 }
 
@@ -460,13 +460,13 @@ void ForwardRender::_setAnimatedShaders()
 	if (DX::g_animatedGeometryQueue.size() > 0)
 	{
 		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_animatedGeometryQueue[0]->getVertexPath()));
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_animatedGeometryQueue[0]->getVertexPath()), nullptr, 0);
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_animatedGeometryQueue[0]->getVertexPath()), nullptr, 0);
 		DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 		DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 		DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 		if (m_lastPixelPath != DX::g_animatedGeometryQueue[0]->getPixelPath())
 		{
-			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_animatedGeometryQueue[0]->getPixelPath()), nullptr, 0);
+			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_animatedGeometryQueue[0]->getPixelPath()), nullptr, 0);
 		}
 	}
 	
