@@ -4,10 +4,10 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <../New_Library/FormatHeader.h>
-struct Joint;
-struct SkeletonPose;
-struct Skeleton;
-struct AnimationClip;
+//struct Joint;
+//struct SkeletonPose;
+//struct Skeleton;
+//struct AnimationClip;
 
 
 
@@ -18,19 +18,18 @@ struct AnimationClip;
 
 namespace Animation
 {
-	using namespace DirectX;
 
 	struct SRT
 	{
-		float4 m_rotationQuaternion;
-		float4 m_translation;
-		float4 m_scale;
+		DirectX::float4 m_rotationQuaternion;
+		DirectX::float4 m_translation;
+		DirectX::float4 m_scale;
 	};
 
 	struct Joint
 	{
-		float4x4 m_inverseBindPose;
-		uint8_t parentIndex;
+		DirectX::float4x4 m_inverseBindPose;
+		int16_t parentIndex;
 	};
 
 	struct Skeleton
@@ -46,7 +45,6 @@ namespace Animation
 
 	struct SkeletonPose
 	{
-		Skeleton* m_skeleton;
 		JointPose* m_jointPoses;
 	};
 
@@ -61,7 +59,7 @@ namespace Animation
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	Skeleton* ConvertToSkeleton     (MyLibrary::SkeletonFromFile* skeleton);
 	static void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, MyLibrary::SkeletonFromFile* importedSkeleton);
-	XMMATRIX _createMatrixFromSRT(const SRT& srt);
+	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	class AnimatedModel
 	{
 	public:
@@ -78,6 +76,7 @@ namespace Animation
 		void Pause();
 		void Play();
 
+		std::vector<DirectX::float4x4>& GetSkinningMatrices();
 	private:
 		std::vector<DirectX::float4x4> m_skinningMatrices;
 		std::vector<DirectX::float4x4> m_globalMatrices;
@@ -93,7 +92,7 @@ namespace Animation
 
 		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* pose);
-		XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
+		DirectX::XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 	};
 
@@ -101,7 +100,7 @@ namespace Animation
 	{
 		struct AnimationBuffer
 		{
-			XMFLOAT4X4 skinnedMatrix[MAXJOINT];
+			DirectX::XMFLOAT4X4 skinnedMatrix[MAXJOINT];
 		};
 
 		private:
@@ -114,6 +113,7 @@ namespace Animation
 			~AnimationCBuffer();
 			void SetAnimationCBuffer();
 			void UpdateBuffer(AnimationBuffer *buffer);
+			void UpdateBuffer(PVOID64 data, size_t dataSize);
 			void SetToShader();
 	};
 }

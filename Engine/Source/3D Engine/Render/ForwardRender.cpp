@@ -1,13 +1,13 @@
 #include "ForwardRender.h"
 #include "../Extern.h"
 #include "../../ShaderCreator.h"
+#include "../Model/AnimatedModel.h"
 
 ForwardRender::ForwardRender()
 {
 	m_lastVertexPath = L"NULL";
 	m_lastPixelPath = L"NULL";
 }
-
 
 ForwardRender::~ForwardRender()
 {
@@ -141,6 +141,13 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
+		//Set skinning matrix cbuffer
+		{
+			auto matrices = DX::g_animatedGeometryQueue[i]->getAnimatedModel()->GetSkinningMatrices();
+			m_animationBuffer->UpdateBuffer(matrices.data(), matrices.size() * sizeof(DirectX::XMFLOAT4X4A));
+			m_animationBuffer->SetToShader();
+		}
+
 		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->VertexSize(), 0);
@@ -171,7 +178,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_objectBuffer);
 	DX::SafeRelease(m_cameraBuffer);
 	DX::SafeRelease(m_lightBuffer);
-
+	delete m_animationBuffer;
 	shadowMap.Release();
 }
 
@@ -224,6 +231,8 @@ void ForwardRender::_CreateConstantBuffer()
 		// handle the error, could be fatal or a warning...
 		exit(-1);
 	}
+	m_animationBuffer = new Animation::AnimationCBuffer();
+	m_animationBuffer->SetAnimationCBuffer();
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)

@@ -201,7 +201,7 @@ namespace MyLibrary
 		return skeleton_to_return;
 	}
 
-	AnimationFromFile Loadera::readAnimationFile(std::string fileName)
+	MyLibrary::AnimationFromFile Loadera::readAnimationFile(std::string fileName, uint16_t jointCount)
 	{
 		bool fileIsOpen = false;
 

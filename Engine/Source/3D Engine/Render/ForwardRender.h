@@ -3,6 +3,8 @@
 #include "../Camera.h"
 #include "ShadowMap.h"
 
+class Animation::AnimationCBuffer;
+
 class ForwardRender
 {
 
@@ -60,6 +62,8 @@ private:
 
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
+
+	Animation::AnimationCBuffer* m_animationBuffer;
 
 	ShadowMap shadowMap;
 

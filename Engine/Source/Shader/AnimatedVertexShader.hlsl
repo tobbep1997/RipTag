@@ -9,6 +9,11 @@ cbuffer CAMERA_BUFFER : register(b1)
 	float4x4 viewProjection;
 };
 
+cbuffer SKINNING_BUFFER : register(b2)
+{
+	row_major float4x4 skinningMatrices[256];
+};
+
 struct VS_INPUT
 {
 	float4 pos : POSITION;
@@ -32,10 +37,40 @@ VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
 
-	output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
-	output.worldPos = mul(input.pos, worldMatrix);
-	output.normal = normalize(mul(input.normal, worldMatrix));
-	output.tangent = normalize(mul(input.tangent, worldMatrix));
+	//output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
+	//output.worldPos = mul(input.pos, worldMatrix);
+	//output.normal = normalize(mul(input.normal, worldMatrix));
+	//output.tangent = normalize(mul(input.tangent, worldMatrix));
+	//output.uv = input.uv;
+	//return output;
+
+
+	//init array
+	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	weights[0] = input.jointweights.x;
+	weights[1] = input.jointweights.y;
+	weights[2] = input.jointweights.z;
+	weights[3] = input.jointweights.w;
+
+	//Blend verts
+	float3 position = float3(0.0f, 0.0f, 0.0f);
+	float3 nor = float3(0.0f, 0.0f, 0.0f);
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (input.jointinfluences[i] >= 0) //unused bone indices are negative
+		{
+			//TODO: cbuffer gWorld
+			position += weights[i] * mul(float4(input.pos.xyz, 1.0f), skinningMatrices[input.jointinfluences[i]]).xyz;
+			nor += weights[i] * mul(input.normal,
+				skinningMatrices[input.jointinfluences[i]]).xyz;
+		}
+	}
+
+	output.pos = mul(float4(position, 1.0f), mul(worldMatrix, viewProjection));
+	output.worldPos = mul(float4(position, 1.0f), worldMatrix);
+	output.normal = mul(input.normal, worldMatrix);
+	output.tangent = mul(input.tangent, worldMatrix);
 	output.uv = input.uv;
 	return output;
 }

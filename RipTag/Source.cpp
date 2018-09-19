@@ -109,8 +109,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//Animation::Skeleton* = ;
 		MyLibrary::SkeletonFromFile skel = meshloader.readSkeletonFile("../Assets/joint1_Skeleton.bin");
 		MyLibrary::Joint jnt= skel.skeleton_joints[1];
-		Animation::AnimationClip* animationClip = Animation::ConvertToAnimationClip(&meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin"), skel.skeleton_nrOfJoints);
+		MyLibrary::AnimationFromFile asd = meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin", skel.skeleton_nrOfJoints);
+		std::vector<MyLibrary::Transform> asdasd;
+		for (int i = 0; i < asd.nr_of_keyframes * skel.skeleton_nrOfJoints; i++)
+			asdasd.push_back(asd.keyframe_transformations[i]);
+
+		Animation::AnimationClip* animationClip = Animation::ConvertToAnimationClip(&asd, skel.skeleton_nrOfJoints);
+
+		std::vector<Animation::SRT> asdasdasd;
+		for (int i = 0; i < skel.skeleton_nrOfJoints; i++)
+		{
+			for (int j = 0; j < asd.nr_of_keyframes; j++)
+				asdasdasd.push_back(animationClip->m_skeletonPoses[j].m_jointPoses[i].m_transformation);
+
+		}
+
+
 		Animation::Skeleton* skeleton = Animation::ConvertToSkeleton(&skel);
+		//skeleton->m_joints->parentIndex = -1;
 		animationClip->m_skeleton = skeleton;
 		modelManager.dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animationClip);
 		modelManager.dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
