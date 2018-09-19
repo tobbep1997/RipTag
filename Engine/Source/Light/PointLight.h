@@ -19,9 +19,9 @@ public:
 private:
 	const float FOV = DirectX::XM_PI * 0.5f;
 	
-	std::vector<Camera *> m_sides;
-	DirectX::XMFLOAT4A m_position;
-	DirectX::XMFLOAT4A m_color;
+	std::vector<Camera *>	m_sides;
+	DirectX::XMFLOAT4A		m_position;
+	DirectX::XMFLOAT4A		m_color;
 
 
 	float m_nearPlane;
@@ -35,30 +35,30 @@ public:
 	void CreateShadowDirection(ShadowDir direction);
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
-
-	const DirectX::XMFLOAT4A & getPosition();
-	const DirectX::XMFLOAT4A & getColor();
-	const std::vector<Camera *> & getSides();
-	const float & getDropOff();
-	const float & getPow() const;
-	const float & getIntensity() const;
+	
 
 	void QueueLight();
 
-	void SetPosition(const DirectX::XMFLOAT4A & pos);
-	void SetPosition(float x, float y, float z, float w = 1);
+	void setPosition(const DirectX::XMFLOAT4A & pos);
+	void setPosition(float x, float y, float z, float w = 1);
 
-	void SetColor(const DirectX::XMFLOAT4A & color);
-	void SetColor(float x, float y, float z, float w = 1);
+	void setColor(const DirectX::XMFLOAT4A & color);
+	void setColor(float x, float y, float z, float w = 1);
 
-	void SetIntensity(float intencsity);
+	void setIntensity(float intencsity);
 	void setPower(float pow);
 	void setDropOff(float dropOff);
 	
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
-
-	float GetDistanceFromCamera(Camera & camera);
+	
+	float getDistanceFromCamera(Camera & camera);
+	const DirectX::XMFLOAT4A & getPosition() const;
+	const DirectX::XMFLOAT4A & getColor() const;
+	const std::vector<Camera *> & getSides() const;
+	const float & getDropOff() const;
+	const float & getPow() const;
+	const float & getIntensity() const;
 
 private:
 	void _createSides();

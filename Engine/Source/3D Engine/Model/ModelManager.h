@@ -15,8 +15,8 @@ public:
 	ModelManager();
 	~ModelManager();
 	
-	std::vector<Model*> staticMesh;
-	std::vector<Model*> dynamicMesh;
+	std::vector<Model*> m_staticMesh;
+	std::vector<Model*> m_dynamicMesh;
 	
 	void DrawMeshes();
 	void addStaticMesh(const std::string & assetFilePath);

@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4267)
 #include <windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -59,10 +60,10 @@ public:
 
 	void ShadowPass();
 
-	void mapAllLightMatrix(std::vector<PointLight*> * lights);
+	void MapAllLightMatrix(std::vector<PointLight*> * lights);
 
 	void SetSamplerAndShaderResources();
-
+	void Clear();
 	void Release();
 private:
 	void _createShadowViewPort(UINT width, UINT height);

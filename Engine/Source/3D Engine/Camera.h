@@ -29,14 +29,6 @@ class Camera
 	float m_fov;
 	float m_aspectRatio;
 	float m_nearPlane, m_farPlane;
-	//-------------------------------------------------------------------------------------------	
-	/*
-		These create all the useful combinations of the matrixes
-	*/
-	void _calcViewMatrix(bool dir = true);
-	void _calcProjectionMatrix();
-	void _calcViewProjectionMatrix();
-	//-------------------------------------------------------------------------------------------	
 	bool m_usingDir = true;
 
 
@@ -51,11 +43,11 @@ public:
 	void setPosition(float x, float y, float z, float w = 1);
 	
 	/*
-		The Move functions add the input to the position instead of changing it
+		The Translate functions add the input to the position instead of changing it
 		This is relative to the forward vector
 	*/
-	void Move(const DirectX::XMFLOAT4A & pos);
-	void Move(float x, float y, float z, float w = 1);
+	void Translate(const DirectX::XMFLOAT4A & pos);
+	void Translate(float x, float y, float z, float w = 1);
 	/*
 		The Rotate functions rotates the direction
 		This is relative to the forward vector
@@ -84,6 +76,14 @@ public:
 	//-------------------------------------------------------------------------------------------	
 
 private:
+	//-------------------------------------------------------------------------------------------	
+	/*
+		These create all the useful combinations of the matrixes
+	*/
+	void _calcViewMatrix(bool dir = true);
+	void _calcProjectionMatrix();
+	void _calcViewProjectionMatrix();
+	//-------------------------------------------------------------------------------------------	
 	/*
 		Help Functions, this might be added to a static math class if more classes needs this
 	*/

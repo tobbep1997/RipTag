@@ -30,8 +30,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 
-	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
-	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
@@ -64,13 +64,10 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 
-	_CreateConstantBuffer();
-	_CreateSamplerState();
-	shadowMap.Init(64, 64);
+	_createConstantBuffer();
+	_createSamplerState();
+	m_shadowMap.Init(64, 64);
 
-	
-	
-	this->CREATE_VIEWPROJ();
 
 	this->_createUAV();
 }
@@ -83,10 +80,9 @@ struct TriangleVertex
 
 void ForwardRender::GeometryPass(Camera & camera)
 {
-	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
 	
-	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);	
-	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);	
+	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
@@ -103,28 +99,28 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 	_mapLightInfoNoMatrix();
 
-	shadowMap.SetSamplerAndShaderResources();
+	m_shadowMap.SetSamplerAndShaderResources();
 	if (!DX::g_lights.empty())
 	{
-		shadowMap.mapAllLightMatrix(&DX::g_lights);
+		m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 
 	}
 	_mapCameraBufferToVertex(camera);
 	_mapCameraBufferToPixel(camera);
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
-	_SetStaticShaders();
+	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
+			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		
 	}
 
-	DX::g_geometryQueue.clear();
+	//DX::g_geometryQueue.clear();
 
 
 	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
@@ -162,14 +158,14 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 	_mapLightInfoNoMatrix();
 
-	shadowMap.SetSamplerAndShaderResources();
+	m_shadowMap.SetSamplerAndShaderResources();
 
 	
 	_mapCameraBufferToVertex(camera);
 	_mapCameraBufferToPixel(camera);
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
-	_SetAnimatedShaders();
+	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
 		
@@ -179,26 +175,43 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		//DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
-		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->VertexSize(), 0);
+		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 
 
 	}
 
-	DX::g_animatedGeometryQueue.clear();
-	DX::g_lights.clear();
+	//DX::g_animatedGeometryQueue.clear();
+	//DX::g_lights.clear();
 }
 
 void ForwardRender::Flush(Camera & camera)
 {
-	_SimpleLightCulling(camera);
-	this->shadowMap.ShadowPass();
-
-	//TODO
+	_simpleLightCulling(camera);
+	this->m_shadowMap.ShadowPass();
 	VisabilityPass();
-
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	
+}
+
+void ForwardRender::Clear()
+{
+	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
+
+
+	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	DX::g_animatedGeometryQueue.clear();
+	DX::g_lights.clear();
+
+	DX::g_geometryQueue.clear();
+
+	this->m_shadowMap.Clear();
+
 }
 
 void ForwardRender::Present()
@@ -217,15 +230,10 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_uavTextureBufferCPU);
 	DX::SafeRelease(m_visabilityUAV);
 
-
-	//DX::SafeRelease(m_uavKILLER);
-
-	//DX::SafeRelease(m_visLightBuffer);
-
-	shadowMap.Release();
+	m_shadowMap.Release();
 }
 
-void ForwardRender::_SimpleLightCulling(Camera & cam)
+void ForwardRender::_simpleLightCulling(Camera & cam)
 {
 	float culled = 0;
 #if _DEBUG
@@ -237,7 +245,7 @@ void ForwardRender::_SimpleLightCulling(Camera & cam)
 	for (size_t i = 0; i < DX::g_lights.size(); i++)
 	{
 		//Loops every queued light
-		if (DX::g_lights.at(i)->GetDistanceFromCamera(cam) >= m_lightCullingDistance)
+		if (DX::g_lights.at(i)->getDistanceFromCamera(cam) >= m_lightCullingDistance)
 		{
 			DX::g_lights.erase(DX::g_lights.begin() + i);
 			culled += 1;
@@ -258,7 +266,7 @@ void ForwardRender::_SimpleLightCulling(Camera & cam)
 		for (size_t i = 0; i < DX::g_lights.size(); i++)
 		{
 			sortStruct temp;
-			temp.distance = DX::g_lights.at(i)->GetDistanceFromCamera(cam);
+			temp.distance = DX::g_lights.at(i)->getDistanceFromCamera(cam);
 			temp.lightBelong = i;
 			lightRemoval.push_back(temp);
 		}
@@ -303,7 +311,7 @@ void ForwardRender::_SimpleLightCulling(Camera & cam)
 }
 
 
-void ForwardRender::_CreateConstantBuffer()
+void ForwardRender::_createConstantBuffer()
 {
 	D3D11_BUFFER_DESC objectBufferDesc;
 	objectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -369,7 +377,7 @@ void ForwardRender::_CreateConstantBuffer()
 }
 
 
-void ForwardRender::_CreateSamplerState()
+void ForwardRender::_createSamplerState()
 {
 	D3D11_SAMPLER_DESC ssDesc = {};
 	ssDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -450,31 +458,11 @@ void ForwardRender::_mapLightInfoNoMatrix()
 	DX::g_deviceContext->Unmap(m_lightBuffer, 0);
 	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
 }
-void ForwardRender::CREATE_VIEWPROJ()
-{
-	using namespace DirectX;
 
-	XMFLOAT3 cameraStored = XMFLOAT3(0, 0, -5);
-
-	XMFLOAT3 lookAtStored = XMFLOAT3(0, 0, 1);
-
-	XMFLOAT3 UP_STORED = XMFLOAT3(0, 1, 0);
-
-	XMVECTOR cameraPos = XMLoadFloat3(&cameraStored);
-
-	XMVECTOR lookAt = XMLoadFloat3(&lookAtStored);
-
-	XMVECTOR UP = XMLoadFloat3(&UP_STORED);
-	XMStoreFloat4x4A(&this->projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(XM_PI * 0.5f, 1/1, 0.1f, 20)));
-	XMStoreFloat4x4A(&this->view,XMMatrixTranspose(XMMatrixLookToLH(cameraPos, lookAt, UP)));
-
-}
-
-
-void ForwardRender::_SetStaticShaders()
+void ForwardRender::_setStaticShaders()
 {
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
 	
 
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -482,7 +470,7 @@ void ForwardRender::_SetStaticShaders()
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	if (m_lastPixelPath != DX::g_geometryQueue[0]->getPixelPath())
 	{
-		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
+		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
 	}
 }
 
@@ -520,7 +508,7 @@ void ForwardRender::VisabilityPass()
 
 		_mapObjectBuffer(DX::g_visabilityDrawQueue[i]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_visabilityDrawQueue[i]->VertexSize(), 0);
+		DX::g_deviceContext->Draw(DX::g_visabilityDrawQueue[i]->getVertexSize(), 0);
 	}
 
 	DX::g_visabilityDrawQueue.clear();
@@ -554,18 +542,18 @@ void ForwardRender::VisabilityPass()
 	
 }
 
-void ForwardRender::_SetAnimatedShaders()
+void ForwardRender::_setAnimatedShaders()
 {
 	if (DX::g_animatedGeometryQueue.size() > 0)
 	{
 		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_animatedGeometryQueue[0]->getVertexPath()));
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DX::g_animatedGeometryQueue[0]->getVertexPath()), nullptr, 0);
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_animatedGeometryQueue[0]->getVertexPath()), nullptr, 0);
 		DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 		DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 		DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 		if (m_lastPixelPath != DX::g_animatedGeometryQueue[0]->getPixelPath())
 		{
-			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(DX::g_animatedGeometryQueue[0]->getPixelPath()), nullptr, 0);
+			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_animatedGeometryQueue[0]->getPixelPath()), nullptr, 0);
 		}
 	}
 	
@@ -588,11 +576,6 @@ void ForwardRender::_createUAV()
 	TextureData.Usage = D3D11_USAGE_DEFAULT;
 
 	HRESULT hr;
-	//D3D11_SUBRESOURCE_DATA InitialData;
-	//ZeroMemory(&InitialData, sizeof(InitialData));
-	////InitialData.pSysMem = pData;
-	//InitialData.SysMemPitch = 1 * sizeof(UINT);
-	//InitialData.SysMemSlicePitch = 1 * sizeof(UINT) * 1;
 	hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_uavTextureBuffer);
 
 	TextureData.Usage = D3D11_USAGE_STAGING;
