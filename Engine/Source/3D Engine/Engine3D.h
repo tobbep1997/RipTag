@@ -30,11 +30,9 @@ public:
 	HRESULT Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0);
 
 	void Flush(Camera & camera);
-	
 	void Clear();
-
 	void Present();
-
+	
 	void Release();
 private:
 	void _createDepthSetencil(UINT width = 0, UINT hight = 0);

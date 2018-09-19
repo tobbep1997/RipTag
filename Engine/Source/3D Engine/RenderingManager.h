@@ -8,9 +8,9 @@
 class RenderingManager
 {
 private:
-	bool DEBUG = false;
-	Window wnd;
-	Engine3D engine;
+	bool		DEBUG = false;
+	Window		m_wnd;
+	Engine3D	m_engine;
 
 	//IMGUI onlt take 1 mb in debug mode
 	ImGuiManager m_ImGuiManager;
@@ -21,6 +21,7 @@ public:
 	void Init(HINSTANCE hInstance);
 	void Update();
 
+	void Clear();
 	void Flush(Camera & camera);
 
 	void Release();
@@ -34,6 +35,6 @@ public:
 	ProcMsg getWindowProcMsg();
 
 private:
-	void _ReloadShaders();
+	void _reloadShaders();
 };
 

@@ -59,10 +59,10 @@ public:
 
 	void ShadowPass();
 
-	void mapAllLightMatrix(std::vector<PointLight*> * lights);
+	void MapAllLightMatrix(std::vector<PointLight*> * lights);
 
 	void SetSamplerAndShaderResources();
-
+	void Clear();
 	void Release();
 private:
 	void _createShadowViewPort(UINT width, UINT height);

@@ -14,18 +14,18 @@ StaticMesh::~StaticMesh()
 
 const StaticVertex * StaticMesh::getRawVertice() const
 {
-	return staticVertex.data();
+	return m_staticVertex.data();
 }
 
 const std::vector<StaticVertex>& StaticMesh::getVertice() const
 {
-	return staticVertex;
+	return m_staticVertex;
 }
 
 void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 {
-	staticVertex.clear();
-	staticVertex = input;
+	m_staticVertex.clear();
+	m_staticVertex = input;
 }
 
 void StaticMesh::SET_DEFAULT()
@@ -57,7 +57,7 @@ void StaticMesh::SET_DEFAULT()
 		tempvertex.tangent.z = newMesh.mesh_vertices[i].vertex_tangent[2];
 		tempvertex.tangent.x = 0.0f;
 
-		staticVertex.push_back(tempvertex);
+		m_staticVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;
@@ -92,7 +92,7 @@ void StaticMesh::LoadModel(const std::string & path)
 		tempvertex.tangent.z = newMesh.mesh_vertices[i].vertex_tangent[2];
 		tempvertex.tangent.x = 0.0f;
 
-		staticVertex.push_back(tempvertex);
+		m_staticVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;

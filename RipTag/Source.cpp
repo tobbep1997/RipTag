@@ -90,9 +90,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.staticMesh[0]->setScale(10, 1, 10);
+	modelManager.m_staticMesh[0]->setScale(10, 1, 10);
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
-	modelManager.dynamicMesh[0]->setPosition(0, 2, 0);
+	modelManager.m_dynamicMesh[0]->setPosition(0, 2, 0);
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
@@ -129,17 +129,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			Test Camera movement
 		*/
 		if (InputHandler::isKeyPressed('W'))
-			camera.Move(0.0f, 0.0f, 0.01f);
+			camera.Translate(0.0f, 0.0f, 0.01f);
 		else if (InputHandler::isKeyPressed('S'))
-			camera.Move(0.0f, 0.0f, -0.01f);
+			camera.Translate(0.0f, 0.0f, -0.01f);
 		if (InputHandler::isKeyPressed('A'))
-			camera.Move(-0.01f, 0.0f, 0.0f);
+			camera.Translate(-0.01f, 0.0f, 0.0f);
 		else if (InputHandler::isKeyPressed('D'))
-			camera.Move(0.01f, 0.0f, 0.0f);
+			camera.Translate(0.01f, 0.0f, 0.0f);
 		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
-			camera.Move(0.0f, 0.01f, 0.0f);
+			camera.Translate(0.0f, 0.01f, 0.0f);
 		else if (InputHandler::isKeyPressed(InputHandler::Shift))
-			camera.Move(0.0f, -0.01f, 0.0f);
+			camera.Translate(0.0f, -0.01f, 0.0f);
 
 		/*
 			Test Camera rotation
@@ -171,6 +171,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		modelManager.DrawMeshes();
 		
 		renderingManager.Flush(camera);
+		renderingManager.Clear();
+		
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();

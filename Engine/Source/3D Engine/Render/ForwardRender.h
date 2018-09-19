@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4267)
 #include "../../Shader/ShaderManager.h"
 #include "../Camera.h"
 #include "ShadowMap.h"
@@ -37,14 +38,6 @@ private:
 		float distance;
 		int lightBelong;
 	};
-
-	DirectX::XMFLOAT4X4A view;
-	DirectX::XMFLOAT4X4A projection;
-
-	
-	ID3D11VertexShader * m_vertexShader;
-	ID3D11PixelShader * m_pixelShader;
-
 	//ShaderTest
 	std::wstring m_lastVertexPath;
 	std::wstring m_lastPixelPath;
@@ -68,7 +61,7 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
-	ShadowMap shadowMap;
+	ShadowMap m_shadowMap;
 
 
 	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
@@ -83,36 +76,37 @@ public:
 	ForwardRender();
 	~ForwardRender();
 
-	void Init(	IDXGISwapChain*				m_swapChain,
-				ID3D11RenderTargetView*		m_backBufferRTV,
-				ID3D11DepthStencilView*		m_depthStencilView,
-				ID3D11Texture2D*			m_depthBufferTex,
-				ID3D11SamplerState*			m_samplerState,
-				D3D11_VIEWPORT				m_viewport);
+	void Init(	IDXGISwapChain*				swapChain,
+				ID3D11RenderTargetView*		backBufferRTV,
+				ID3D11DepthStencilView*		depthStencilView,
+				ID3D11Texture2D*			depthBufferTex,
+				ID3D11SamplerState*			samplerState,
+				D3D11_VIEWPORT				viewport);
 	
 
 	void GeometryPass(Camera & camera);
 	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
+	void Clear();
 	void Present();
-
+	
 	void Release();
 private:
 
-	void _SimpleLightCulling(Camera & cam);
+	void _simpleLightCulling(Camera & cam);
 
-	void _CreateConstantBuffer();
-	void _CreateSamplerState();
+	void _createConstantBuffer();
+	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBufferToVertex(Camera & camera);
 	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();
-	void CREATE_VIEWPROJ();
+
 
 
 	//void _SetShaders(int i);
-	void _SetAnimatedShaders();
-	void _SetStaticShaders();
+	void _setAnimatedShaders();
+	void _setStaticShaders();
 
 	void _createUAV();
 };
