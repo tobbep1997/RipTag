@@ -1,4 +1,5 @@
 #include "AnimatedModel.h"
+#include "../Extern.h"
 
 #define loadMatrix(x) XMLoadFloat4x4(x)
 #define storeMatrix(x,y) XMStoreFloat4x4(x,y)
@@ -32,6 +33,11 @@ void Animation::AnimatedModel::SetPlayingClip(AnimationClip * clip, bool isLoopi
 {
 	m_currentClip = clip;
 	m_currentTime = 0.0f;
+}
+
+void Animation::AnimatedModel::SetSkeleton(Skeleton * skeleton)
+{
+	m_skeleton = skeleton;
 }
 
 void Animation::AnimatedModel::Pause()
@@ -183,7 +189,7 @@ void Animation::AnimationCBuffer::SetAnimationCBuffer()
 
 	// check if the creation failed for any reason
 	HRESULT hr = 0;
-	hr = m_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer);
+	hr = DX::g_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer);
 	if (FAILED(hr))
 	{
 		// handle the error, could be fatal or a warning...
@@ -194,9 +200,9 @@ void Animation::AnimationCBuffer::SetAnimationCBuffer()
 void Animation::AnimationCBuffer::UpdateBuffer(AnimationBuffer *buffer)
 {
 	memcpy(m_AnimationValues.skinnedMatrix, &buffer->skinnedMatrix, sizeof(sizeof(float) * 16 * MAXJOINT));
-	m_deviceContext->Map(m_AnimationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_dataPtr);
+	DX::g_deviceContext->Map(m_AnimationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_dataPtr);
 	memcpy(m_dataPtr.pData, &m_AnimationValues, sizeof(AnimationBuffer));
-	m_deviceContext->Unmap(m_AnimationBuffer, 0);
+	DX::g_deviceContext->Unmap(m_AnimationBuffer, 0);
 }
 
 void Animation::AnimationCBuffer::SetToShader()
