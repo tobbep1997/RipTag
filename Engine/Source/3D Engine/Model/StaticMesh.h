@@ -17,7 +17,6 @@ public:
 
 	const StaticVertex * getRawVertice() const;
 	const std::vector<StaticVertex> & getVertice() const;
-
 	void setVertices(std::vector<StaticVertex>& input);
 
 	void SET_DEFAULT();

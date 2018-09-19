@@ -96,9 +96,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	
 	ModelManager modelManager;
+	modelManager.addStaticMesh("SPHERE");
 
-	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+//	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+	
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);
@@ -109,6 +110,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	camera.setLookTo(0, 0, 0, 1);
 
 	double pos = 0;
+	//modelManager.bindTextures();
 
 	while (renderingManager.getWindow().isOpen())
 	{

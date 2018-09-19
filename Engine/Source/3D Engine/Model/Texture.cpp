@@ -17,8 +17,11 @@ Texture::Texture(const wchar_t* file)
 
 HRESULT Texture::Load(const wchar_t * file)
 {
-	DX::SafeRelease(m_SRV);
-	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, file, nullptr, &m_SRV);
+	std::wstring asd = file;
+	std::wstring albedoName = L"../Assets/";
+	albedoName.append(asd + L"FOLDER/" + asd + L"_ALBEDO.png");
+	//DX::SafeRelease(m_SRV);
+	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), nullptr, &m_SRV);
 	return hr;
 }
 
