@@ -91,9 +91,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.staticMesh[0]->setScale(10, 1, 10);
+	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.staticMesh[1]->setScale(1, 1, 1);
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
 	modelManager.dynamicMesh[0]->setPosition(0, 2, 0);
-	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
+	modelManager.staticMesh[1]->setPosition(0, 1, 0);
+
+
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
 	pl.CreateShadowDirection(PointLight::XYZ_ALL);

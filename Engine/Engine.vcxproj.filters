@@ -7,6 +7,8 @@
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
