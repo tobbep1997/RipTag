@@ -217,6 +217,9 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_uavTextureBufferCPU);
 	DX::SafeRelease(m_visabilityUAV);
 
+
+	DX::SafeRelease(m_uavKILLER);
+
 	//DX::SafeRelease(m_visLightBuffer);
 
 	shadowMap.Release();
