@@ -26,7 +26,7 @@ private:
 
 	float m_nearPlane;
 	float m_farPlane;
-	float m_dropOff;
+	float m_dropOff, m_intensity, m_pow;
 
 public:
 	PointLight();
@@ -40,6 +40,8 @@ public:
 	const DirectX::XMFLOAT4A & getColor();
 	const std::vector<Camera *> & getSides();
 	const float & getDropOff();
+	const float & getPow() const;
+	const float & getIntensity() const;
 
 	void QueueLight();
 
@@ -50,6 +52,8 @@ public:
 	void SetColor(float x, float y, float z, float w = 1);
 
 	void SetIntensity(float intencsity);
+	void setPower(float pow);
+	void setDropOff(float dropOff);
 	
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);

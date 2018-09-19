@@ -6,6 +6,7 @@ PointLight::PointLight()
 {
 	m_nearPlane = 1.0f;
 	m_farPlane = 20.0f;
+	
 }
 
 
@@ -77,7 +78,8 @@ void PointLight::Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, flo
 	this->m_position = position;
 	this->m_color = color;
 	this->m_dropOff = 1.0f - power;
-	
+	this->m_intensity = 1.0f;
+	this->m_pow = 2.0f;
 	//_createSides();
 }
 
@@ -99,6 +101,16 @@ const std::vector<Camera*>& PointLight::getSides()
 const float & PointLight::getDropOff()
 {
 	return m_dropOff;
+}
+
+const float & PointLight::getPow() const
+{
+	return this->m_pow;
+}
+
+const float & PointLight::getIntensity() const
+{
+	return this->m_intensity;
 }
 
 void PointLight::QueueLight()
@@ -129,7 +141,17 @@ void PointLight::SetColor(float x, float y, float z, float w)
 
 void PointLight::SetIntensity(float intencsity)
 {
-	this->m_dropOff = 1.0f - intencsity;
+	this->m_intensity = intencsity;
+}
+
+void PointLight::setPower(float pow)
+{
+	this->m_pow = pow;
+}
+
+void PointLight::setDropOff(float dropOff)
+{
+	this->m_dropOff = dropOff;
 }
 
 void PointLight::setNearPlane(float nearPlane)
