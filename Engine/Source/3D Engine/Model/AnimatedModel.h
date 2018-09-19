@@ -73,6 +73,7 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
+		void SetSkeleton(Skeleton* skeleton);
 
 		void Pause();
 		void Play();
