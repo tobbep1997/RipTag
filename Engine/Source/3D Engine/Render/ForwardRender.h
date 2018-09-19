@@ -74,12 +74,12 @@ private:
 
 	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
 	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
-	ID3D11Texture2D* m_uavKILLER;		//IsReleased
+	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
 	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
 
 	ID3D11VertexShader * m_visaVertexShader;
 	ID3D11PixelShader * m_visaPixelShader;
-	int lazyShit = 0;
+	//int lazyShit = 0;
 
 	//LightCulling Related
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
