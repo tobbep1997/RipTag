@@ -51,7 +51,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     textureColor = float4(1.0f, 1.0, 1.0f, 1.0f);
     // REMOVE ME WHEN WE HAVE TEXTURES
 
-    float4 ambient = float4(0.05f, 0.05f, 0.05f, 0.0f) * textureColor;
+    float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * textureColor;
     float3 fragmentPositionToCamera = cameraPosition.xyz - input.worldPos.xyz;
     float4 finalColor = emptyFloat4;
 
@@ -74,16 +74,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
         float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);
 
-        float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);        
-        float specularDot = max(dot(input.normal.xyz, normalize(fragmentPositionToCamera + fragmentPositionToLight).xyz), 0.0f);
-              
-        float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
-
-        float3 specular = float3(0, 0, 0);
-        if (dot(input.normal.xyz, normalize(fragmentPositionToLight)) >= 0)        
-            specular = attenuation * (lightColor[light].rgb * pow(specularDot, 32.0f));     
-        
-        float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot));  
             
 
 
@@ -110,12 +100,25 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
             // REMOVE THIS
             //float tShadow2 = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
 
-            shadowCoeff = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
-            
-            finalColor.rgb += (specular + diffuse.rgb).rgb * shadowCoeff;
+            shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
             div += 1.0f;
             
+            
         }
+
+        float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);        
+        float specularDot = max(dot(input.normal.xyz, normalize(fragmentPositionToCamera + fragmentPositionToLight).xyz), 0.0f);
+              
+        float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
+        attenuation *= (shadowCoeff / div);
+        float3 specular = float3(0, 0, 0);
+        if (dot(input.normal.xyz, normalize(fragmentPositionToLight)) >= 0)        
+            specular = attenuation * (lightColor[light].rgb * pow(specularDot, 32.0f));     
+        
+        float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot)) * (shadowCoeff / div);
+
+
+        finalColor.rgb = (specular + diffuse.rgb).rgb * (shadowCoeff / div);
         //finalColor.rgb += (((specular * pow(shadowCoeff, 2)) + diffuse.rgb) * shadowCoeff);
         //finalColor.rgb += (specular + diffuse.rgb).rgb;
     }

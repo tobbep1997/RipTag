@@ -12,7 +12,7 @@ struct GSOutput
 };
 
 // after optimization, change this to 8
-static const uint maxLight = 2;
+static const uint maxLight = 8;
 
 [maxvertexcount(maxLight * 6 * 3)]
 void main(

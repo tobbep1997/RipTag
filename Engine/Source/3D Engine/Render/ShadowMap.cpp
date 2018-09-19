@@ -75,7 +75,7 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 	m_allLightMatrixValues.nrOfLights = lights->size();
 	for (unsigned int light = 0; light < lights->size(); light++)
 	{
-		for (unsigned int i = 0; i < 6; i++)
+		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
 			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides()[i]->getViewProjection();
 		}

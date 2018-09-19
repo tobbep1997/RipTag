@@ -60,6 +60,9 @@ public:
 	const float & getPow() const;
 	const float & getIntensity() const;
 
+
+	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
+
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
