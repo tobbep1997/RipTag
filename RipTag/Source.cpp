@@ -27,8 +27,9 @@ float scaleZ = 0;
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
 float lightPosX1 = 0, lightPosY1 = 5, lightPosZ1 = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
-float lightIntensity = 1;
 float nearPlane = 1.0f, farPlane = 20.0f;
+
+float lightIntensity = 1, powVar = 2.0f, dropoff = 1.0f;
 void ImGuiTest()
 {
 #if _DEBUG
@@ -45,20 +46,22 @@ void ImGuiTest()
 void MoveLight() {
 #if _DEBUG
 	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &lightPosX, -30.0f, 30.f);
-	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 30.f);
-	ImGui::SliderFloat("posZ", &lightPosZ, -30.0f, 30.f);
+	ImGui::SliderFloat("posX", &lightPosX, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posZ", &lightPosZ, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
 
-	ImGui::SliderFloat("posX1", &lightPosX1, -30.0f, 30.f);
-	ImGui::SliderFloat("posY1", &lightPosY1, -50.0f, 30.f);
-	ImGui::SliderFloat("posZ1", &lightPosZ1, -30.0f, 30.f);
+	ImGui::SliderFloat("posX1", &lightPosX1, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posY1", &lightPosY1, -50.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posZ1", &lightPosZ1, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
 
 
 	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
 	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
 
-	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
+	ImGui::SliderFloat("DropOff", &dropoff, 0.0f, 1.0f);
+	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 5.0f);
+	ImGui::SliderFloat("pow", &powVar, 1.0f, 5.0f);
 	ImGui::SliderFloat("NearPlane", &nearPlane, 0.1f, 3.0f);
 	ImGui::SliderFloat("FarPlane", &farPlane, 3.1f, 50.0f);
 
@@ -118,15 +121,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.ImGuiStartFrame();
 		pl.SetPosition(lightPosX, lightPosY, lightPosZ);
 		pl.SetColor(lightColorR, lightColorG, lightColorB);
-		pl.SetIntensity(lightIntensity);
 		pl.setFarPlane(farPlane);
 		pl.setNearPlane(nearPlane);
+		
+		pl.SetIntensity(lightIntensity);
+		pl.setDropOff(dropoff);
+		pl.setPower(powVar);
 
 		pl2.SetPosition(lightPosX1, lightPosY1, lightPosZ1);
 		pl2.SetColor(lightColorR, lightColorG, lightColorB);
-		pl2.SetIntensity(lightIntensity);
 		pl2.setFarPlane(farPlane);
 		pl2.setNearPlane(nearPlane);
+
+		pl2.SetIntensity(lightIntensity);
+		pl2.setDropOff(dropoff);
+		pl2.setPower(powVar);
 
 
 		/*
@@ -170,7 +179,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		ImGuiTest();
 		MoveLight();
 		pl.QueueLight();
-		pl2.QueueLight();
+
+		//pl2.QueueLight();
 		
 		modelManager.DrawMeshes();
 		
