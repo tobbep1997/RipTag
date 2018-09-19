@@ -1,6 +1,6 @@
 #pragma warning(disable : 3078)
 #pragma warning(disable : 3570)
-#pragma error(disable : 3662)
+//#pragma error(disable : 3662)
 SamplerState defaultSampler : register(s1);
 
 Texture2DArray txShadowArray : register(t0);
