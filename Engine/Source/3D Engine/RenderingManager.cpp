@@ -51,10 +51,12 @@ void RenderingManager::Update()
 	{
 		m_ImGuiManager.ImGuiProcPoll(wnd.getWindowProcMsg());
 	}
+#if _DEBUG
 	if (GetAsyncKeyState(int('P')))
 	{
 		_ReloadShaders();
 	}
+#endif
 }
 
 void RenderingManager::Flush(Camera & camera)
