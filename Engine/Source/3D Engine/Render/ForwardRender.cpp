@@ -241,7 +241,7 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 	for (size_t i = 0; i < DX::g_lights.size(); i++)
 	{
 		//Loops every queued light
-		if (DX::g_lights.at(i)->GetDistanceFromCamera(cam) >= m_lightCullingDistance)
+		if (DX::g_lights.at(i)->getDistanceFromCamera(cam) >= m_lightCullingDistance)
 		{
 			DX::g_lights.erase(DX::g_lights.begin() + i);
 			culled += 1;
@@ -262,7 +262,7 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 		for (size_t i = 0; i < DX::g_lights.size(); i++)
 		{
 			sortStruct temp;
-			temp.distance = DX::g_lights.at(i)->GetDistanceFromCamera(cam);
+			temp.distance = DX::g_lights.at(i)->getDistanceFromCamera(cam);
 			temp.lightBelong = i;
 			lightRemoval.push_back(temp);
 		}

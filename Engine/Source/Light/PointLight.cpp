@@ -81,22 +81,22 @@ void PointLight::Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, flo
 	//_createSides();
 }
 
-const DirectX::XMFLOAT4A & PointLight::getPosition()
+const DirectX::XMFLOAT4A & PointLight::getPosition() const
 {
 	return m_position;
 }
 
-const DirectX::XMFLOAT4A & PointLight::getColor()
+const DirectX::XMFLOAT4A & PointLight::getColor() const
 {
 	return m_color;
 }
 
-const std::vector<Camera*>& PointLight::getSides()
+const std::vector<Camera*>& PointLight::getSides() const
 {
 	return m_sides;
 }
 
-const float & PointLight::getDropOff()
+const float & PointLight::getDropOff() const
 {
 	return m_dropOff;
 }
@@ -106,28 +106,28 @@ void PointLight::QueueLight()
 	DX::g_lights.push_back(this);
 }
 
-void PointLight::SetPosition(const DirectX::XMFLOAT4A & pos)
+void PointLight::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	this->m_position = pos;
 	_updateCameras();
 }
 
-void PointLight::SetPosition(float x, float y, float z, float w)
+void PointLight::setPosition(float x, float y, float z, float w)
 {
-	this->SetPosition(DirectX::XMFLOAT4A(x, y, z, w));
+	this->setPosition(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
-void PointLight::SetColor(const DirectX::XMFLOAT4A & color)
+void PointLight::setColor(const DirectX::XMFLOAT4A & color)
 {
 	this->m_color = color;
 }
 
-void PointLight::SetColor(float x, float y, float z, float w)
+void PointLight::setColor(float x, float y, float z, float w)
 {
-	this->SetColor(DirectX::XMFLOAT4A(x, y, z, w));
+	this->setColor(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
-void PointLight::SetIntensity(float intencsity)
+void PointLight::setIntensity(float intencsity)
 {
 	this->m_dropOff = 1.0f - intencsity;
 }
@@ -148,7 +148,7 @@ void PointLight::setFarPlane(float farPlane)
 	}
 }
 
-float PointLight::GetDistanceFromCamera(Camera& camera)
+float PointLight::getDistanceFromCamera(Camera& camera)
 {
 	DirectX::XMVECTOR vec1 = DirectX::XMLoadFloat4A(&camera.getPosition());
 	DirectX::XMVECTOR vec2 = DirectX::XMLoadFloat4A(&this->m_position);

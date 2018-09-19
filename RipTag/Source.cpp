@@ -112,15 +112,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
-		pl.SetPosition(lightPosX, lightPosY, lightPosZ);
-		pl.SetColor(lightColorR, lightColorG, lightColorB);
-		pl.SetIntensity(lightIntensity);
+		pl.setPosition(lightPosX, lightPosY, lightPosZ);
+		pl.setColor(lightColorR, lightColorG, lightColorB);
+		pl.setIntensity(lightIntensity);
 		pl.setFarPlane(farPlane);
 		pl.setNearPlane(nearPlane);
 
-		pl2.SetPosition(lightPosX1, lightPosY1, lightPosZ1);
-		pl2.SetColor(lightColorR, lightColorG, lightColorB);
-		pl2.SetIntensity(lightIntensity);
+		pl2.setPosition(lightPosX1, lightPosY1, lightPosZ1);
+		pl2.setColor(lightColorR, lightColorG, lightColorB);
+		pl2.setIntensity(lightIntensity);
 		pl2.setFarPlane(farPlane);
 		pl2.setNearPlane(nearPlane);
 

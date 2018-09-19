@@ -10,12 +10,12 @@ Creates and store shaders.
 namespace Shaders
 {
 
-	const uint8_t hashSize = 13;
+	const uint8_t m_hashSize = 13;
 	class ShaderManager
 	{
 	private:		
 
-		std::vector<Shader*> shadersHashTable[hashSize];
+		std::vector<Shader*> shadersHashTable[m_hashSize];
 	public:
 		ShaderManager();
 		~ShaderManager();
@@ -23,7 +23,7 @@ namespace Shaders
 		//Do not delete pointer. It's a managed pointer that will be deleted with  the class.
 		template <typename T> T* LoadShader(const std::wstring path, const std::string entryPoint = "main");
 		//DOSE NOT WORK?!?!??!
-		//template <typename T> T* GetShader(const std::wstring path, const std::string entryPoint = "main");
+		template <typename T> T* GetShader(const std::wstring path, const std::string entryPoint = "main");
 
 		ID3D11VertexShader * VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size);
 		ID3D11InputLayout * GetInputLayout(const std::wstring path);
@@ -35,10 +35,10 @@ namespace Shaders
 
 	private:
 		//Standard Hash table functions
-		Shader* find(std::wstring path);
-		unsigned int getKey(std::wstring path);
+		Shader* _find(std::wstring path);
+		unsigned int _getKey(std::wstring path);
 				
-		template <typename T> T* loadShader(const std::wstring path, const std::string entryPoint);
+		template <typename T> T* _loadShader(const std::wstring path, const std::string entryPoint);
 	};
 
 
@@ -49,9 +49,9 @@ namespace Shaders
 	Otherwise it just returns the existing shader
 	*/
 	template<typename T>
-	inline T * ShaderManager::loadShader(const std::wstring path, const std::string entryPoint)
+	inline T * ShaderManager::_loadShader(const std::wstring path, const std::string entryPoint)
 	{
-		Shader * shader = this->find(path);
+		Shader * shader = this->_find(path);
 		if (shader)
 		{
 			return shader->getShader<T>();
@@ -60,7 +60,7 @@ namespace Shaders
 		{
 			shader = new Shader();
 			shader->LoadShader<T>(path, entryPoint);
-			shader->setKey(getKey(path));
+			shader->setKey(_getKey(path));
 			shader->setPath(path);
 			shadersHashTable[shader->getKey()].push_back(shader);
 
@@ -78,13 +78,13 @@ namespace Shaders
 	{
 		return nullptr;
 	}
-	/*
+	
 	template<typename T>
 	inline T * ShaderManager::GetShader(const std::wstring path, const std::string entryPoint)
 	{
-		return loadShader(path, entryPoint);
+		return _loadShader<T>(path, entryPoint);
 	}
-	*/
+	
 	//-------------------
 	/*
 	Explicit template functions to know what kind of shader to create
@@ -93,37 +93,37 @@ namespace Shaders
 	template<>
 	inline ID3D11VertexShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
-		return this->loadShader<ID3D11VertexShader>(path, entryPoint);
+		return this->_loadShader<ID3D11VertexShader>(path, entryPoint);
 	}
 
 	template<>
 	inline ID3D11DomainShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
-		return this->loadShader<ID3D11DomainShader>(path, entryPoint);
+		return this->_loadShader<ID3D11DomainShader>(path, entryPoint);
 	}	
 	
 	template<>
 	inline ID3D11HullShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
-		return this->loadShader<ID3D11HullShader>(path, entryPoint);
+		return this->_loadShader<ID3D11HullShader>(path, entryPoint);
 	}	
 		
 	template<>
 	inline ID3D11GeometryShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
-		return this->loadShader<ID3D11GeometryShader>(path, entryPoint);
+		return this->_loadShader<ID3D11GeometryShader>(path, entryPoint);
 	}
 			
 	template<>
 	inline ID3D11PixelShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
-		return this->loadShader<ID3D11PixelShader>(path, entryPoint);
+		return this->_loadShader<ID3D11PixelShader>(path, entryPoint);
 	}
 
 	template<>
 	inline ID3D11ComputeShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
-		return this->loadShader<ID3D11ComputeShader>(path, entryPoint);
+		return this->_loadShader<ID3D11ComputeShader>(path, entryPoint);
 	}
 	//-------------------------------------------------------------------------------------------
 

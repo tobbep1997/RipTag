@@ -8,7 +8,7 @@
 class RenderingManager
 {
 private:
-	bool		DEBUG = false;
+	bool	DEBUG = false;
 	Window		m_wnd;
 	Engine3D	m_engine;
 

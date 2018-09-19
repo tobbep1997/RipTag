@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4267)
 #include <windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
