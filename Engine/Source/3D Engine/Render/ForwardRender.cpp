@@ -406,7 +406,7 @@ void ForwardRender::_mapLightInfoNoMatrix()
 	{
 		m_lightValues.position[i] = DX::g_lights[i]->getPosition();
 		m_lightValues.color[i] = DX::g_lights[i]->getColor();
-		m_lightValues.dropOff[i] = DirectX::XMFLOAT4A(DX::g_lights[i]->getDropOff(), 0,0,0);
+		m_lightValues.dropOff[i] = DirectX::XMFLOAT4A(DX::g_lights[i]->getIntensity(), DX::g_lights[i]->getDropOff(), DX::g_lights[i]->getPow(),0);
 	}
 	for (unsigned int i = (unsigned int)DX::g_lights.size(); i < 8; i++)
 	{

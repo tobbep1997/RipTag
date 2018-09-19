@@ -13,7 +13,7 @@ RWTexture2D<uint> OutputMap : register(u1);
 cbuffer LIGHTS : register (b0)
 {
 	int4	info; // 16
-	float4	lightDropOff[8];
+	float4	lightDropOff[8];    //128
     float4	lightPosition[8]; // 128
     float4	lightColor[8]; //128
 }
@@ -75,8 +75,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         float specularDot = max(dot(input.normal.xyz, normalize(fragmentPositionToCamera + fragmentPositionToLight).xyz), 0.0f);
 
         // attenuation = Intensity / (1.0 + lightRange * fragmentDistanceToLight * fragmentDistanceToLight);
-        //float attenuation = 1.0f / (1.0f + lightDropOff[light].x * pow(fragmentDistanceToLight, 2.0f));
-        float attenuation = clamp(3.0f / fragmentDistanceToLight, 0.0, 1.0f);
+        float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
+       // float attenuation = clamp(3.0f / fragmentDistanceToLight, 0.0, 1.0f);
         float3 specular = attenuation * (lightColor[light].rgb * pow(specularDot, 64.0f));
         float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot));
         for (int targetMatrix = 0; targetMatrix < 6; targetMatrix++)
@@ -100,7 +100,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
             float tShadow = txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos, depth - 0.01f).r;
 
             // REMOVE THIS
-            float tShadow2 = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+            //float tShadow2 = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
 
             //float tShadow = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
             
