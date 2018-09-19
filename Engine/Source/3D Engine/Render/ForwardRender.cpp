@@ -545,7 +545,26 @@ void ForwardRender::VisabilityPass()
 		//lazyShit = data->inside;
 		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
 	}
-	DX::g_deviceContext->DiscardResource(m_uavTextureBuffer);
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
+	{
+		ShadowTestData hiv ={ 0,0 };
+		memcpy(dataPtr.pData, &hiv, sizeof(ShadowTestData));
+		DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	}
+	//D3D11_MAPPED_SUBRESOURCE dataPtr;
+	//m_cameraValues.cameraPosition = camera.getPosition();
+	//m_cameraValues.viewProjection = camera.getViewProjection();
+	//DX::g_deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	//memcpy(dataPtr.pData, &m_cameraValues, sizeof(CameraBuffer));
+	//// UnMap constant buffer so that we can use it again in the GPU
+	//DX::g_deviceContext->Unmap(m_cameraBuffer, 0);
+	//// set resource to Vertex Shader
+	//DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_cameraBuffer);
+	//DX::g_deviceContext->DiscardResource(m_uavTextureBuffer);
 }
 
 void ForwardRender::_SetAnimatedShaders()
@@ -591,9 +610,15 @@ void ForwardRender::_createUAV()
 
 	TextureData.Usage = D3D11_USAGE_STAGING;
 	TextureData.BindFlags = 0;
-	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 
 	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavTextureBufferCPU);
+
+	TextureData.Usage = D3D11_USAGE_STAGING;
+	TextureData.BindFlags = 0;
+	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavKILLER);
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
 	ZeroMemory(&UAVdesc, sizeof(UAVdesc));

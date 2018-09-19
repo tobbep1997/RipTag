@@ -74,6 +74,7 @@ private:
 
 	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
 	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
+	ID3D11Texture2D* m_uavKILLER;		//IsReleased
 	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
 
 	ID3D11VertexShader * m_visaVertexShader;
