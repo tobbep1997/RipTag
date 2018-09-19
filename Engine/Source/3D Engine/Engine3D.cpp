@@ -11,6 +11,8 @@ std::vector<Drawable*> DX::g_animatedGeometryQueue;
 
 std::vector<PointLight*> DX::g_lights;
 
+std::vector<Drawable*> DX::g_visabilityDrawQueue;
+
 void DX::SafeRelease(IUnknown * unknown)
 {
 	if (unknown)

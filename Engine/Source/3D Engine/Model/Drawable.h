@@ -81,6 +81,10 @@ public:
 	
 	void Draw();
 	void DrawAnimated();
+
+	//MIGHT BE CHANGED
+	void QueueVisabilityDraw();
+
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 
