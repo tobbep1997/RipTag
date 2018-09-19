@@ -66,7 +66,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 
 	_createConstantBuffer();
 	_createSamplerState();
-	m_shadowMap.Init(64, 64);
+	m_shadowMap.Init(1024, 1024);
 
 
 	this->_createUAV();

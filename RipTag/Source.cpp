@@ -112,6 +112,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		point.push_back(PointLight());
 	}
+	srand(time(0));
 	for (int i = 0; i < 7; i++)
 	{
 
@@ -121,8 +122,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[i].setColor((rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f);
 		point[i].setFarPlane(farPlane);
 		point[i].setNearPlane(nearPlane);
-		point[i].setIntensity(2);
-		point[i].setDropOff(0.5f);
+		point[i].setIntensity((rand() % 2));
+		point[i].setDropOff((rand() % 100 + 10) / 100.0f);
 		point[i].setPower(2.0f);
 	}
 
@@ -201,19 +202,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		for (int i = 0; i < 7; i++)
 		{
 			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
-			//point[i].QueueLight();
+			point[i].QueueLight();
 		}
-
-
-
-
-
-
-
-
-
-
-
 		
 		modelManager.DrawMeshes();
 		

@@ -118,7 +118,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot)) * (shadowCoeff / div);
 
 
-        finalColor.rgb = (specular + diffuse.rgb).rgb * (shadowCoeff / div);
+        finalColor.rgb += (specular + diffuse.rgb).rgb * (shadowCoeff / div);
         //finalColor.rgb += (((specular * pow(shadowCoeff, 2)) + diffuse.rgb) * shadowCoeff);
         //finalColor.rgb += (specular + diffuse.rgb).rgb;
     }
