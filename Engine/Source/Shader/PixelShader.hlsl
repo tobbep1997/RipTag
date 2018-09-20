@@ -72,11 +72,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         float shadowCoeff = 1.0f;
 
         float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
-        float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);
-
-            
-
-
+        float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);            
+		
         for (int targetMatrix = 0; targetMatrix < 6; targetMatrix++)
         {
              // Translate the world position into the view space of the light
@@ -111,6 +108,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
               
         float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
         attenuation *= (shadowCoeff / div);
+
         float3 specular = float3(0, 0, 0);
         if (dot(input.normal.xyz, normalize(fragmentPositionToLight)) >= 0)        
             specular = attenuation * (lightColor[light].rgb * pow(specularDot, 32.0f));     
