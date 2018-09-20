@@ -19,7 +19,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #endif
 
 	Game game;
-
+	game.Init(hInstance);
 	const float REFRESH_RATE = 60.0f;
 
 	
@@ -37,6 +37,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//HEAVY SHIT
 		game.Clear();
 		game.PollEvents();
+		game.ImGuiFrameStart();
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
@@ -63,7 +64,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	}
 
-
+	DX::g_shaderManager.Release();
 	return 0;
 	
 
