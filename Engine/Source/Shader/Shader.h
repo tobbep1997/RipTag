@@ -39,12 +39,14 @@ namespace Shaders
 		ID3D11ComputeShader		* m_computeShader;
 		ID3D11InputLayout		* m_inputLayout;
 
+		
 
 		//-------------------------------------------------------------------------------------------
 		//identifier
 		std::wstring m_path;
 		unsigned int m_key;
 		ShaderType m_type;
+		std::string m_entryPoint;
 
 		//Light quaris? light ocluion google fucking lights TODO
 	public:
@@ -60,6 +62,9 @@ namespace Shaders
 
 		void setType(const ShaderType & shaderType);
 		ShaderType getType() const;
+
+		void setEntryPoint(const std::string & entryPoint);
+		std::string getEntryPoint() const;
 		//-------------------------------------------------------------------------------------------
 		/*
 		Default load shader function

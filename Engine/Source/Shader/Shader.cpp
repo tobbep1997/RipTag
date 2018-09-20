@@ -46,6 +46,14 @@ namespace Shaders
 	{
 		return this->m_type;
 	}
+	void Shader::setEntryPoint(const std::string & entryPoint)
+	{
+		this->m_entryPoint = entryPoint;
+	}
+	std::string Shader::getEntryPoint() const
+	{
+		return this->m_entryPoint;
+	}
 	ID3D11VertexShader * Shader::VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size)
 	{
 		ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, path.c_str(), entryPoint.c_str(), inputDesc, size, m_inputLayout);
