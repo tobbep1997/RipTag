@@ -53,8 +53,10 @@ namespace Shaders
 			std::string entryPoint;
 			Shaders::ShaderType type;
 		};
-		std::vector<shaderStruct> shaderStructs;
-		int count = 0;
+		std::vector<shaderStruct> shaderStructs;	
+
+		std::cout << "Murdering Shaders---------------------------------------------" << std::endl;
+
 		for (int i = 0; i < m_hashSize; i++)
 		{
 			for (int j = 0; j < m_shadersHashTable[i].size(); j++)
@@ -66,15 +68,25 @@ namespace Shaders
 				s.path = m_shadersHashTable[i][j]->getPath();
 				s.entryPoint = m_shadersHashTable[i][j]->getEntryPoint();
 				shaderStructs.push_back(s);
-				count++;
+			
 
 				m_shadersHashTable[i][j]->Release();
 				delete m_shadersHashTable[i][j];
 				m_shadersHashTable[i].erase(m_shadersHashTable[i].begin() + j);				
 			}
 		}
+		std::cout << "Rest in Peace\nShaders\n2018 - 2018" << std::endl;
+
+		std::cout << "Resurrecting Shaders------------------------------------------" << std::endl;
+		
 		for (int i = 0; i < shaderStructs.size(); i++)
 		{
+#if _DEBUG
+			
+			std::wcout << L"Reloaded : " << this->_getName(shaderStructs[i].path).c_str() << std::flush;
+			std::cout << "			" + std::to_string(static_cast<int>((static_cast<float>(i + 1) / shaderStructs.size()) * 100)) << "%	Done. " << std::endl;
+#endif
+
 			switch (shaderStructs[i].type)
 			{
 			case Shaders::Vertex:
@@ -102,7 +114,11 @@ namespace Shaders
 #endif
 				break;
 			}
-		}
+		}		
+
+		std::cout << "All done :)" << std::endl;
+		std::cout << "--------------------------------------------------------------" << std::endl;
+
 	}
 	void ShaderManager::UnloadShader(const std::wstring path)
 	{
@@ -138,6 +154,12 @@ namespace Shaders
 			sum += path[i];
 		}
 		return sum % m_hashSize;
+	}
+
+	std::wstring ShaderManager::_getName(const std::wstring & path)
+	{		
+		size_t t = path.find_last_of(L'/');
+		return path.substr(t + 1, path.size());
 	}
 
 	Shader* ShaderManager::_find(std::wstring path)

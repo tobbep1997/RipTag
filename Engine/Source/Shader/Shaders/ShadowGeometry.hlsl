@@ -30,7 +30,7 @@ void main(
         {
             GSOutput element;
             element.RTIndex = (lights * 6) + targetMatrix;
-			/*
+			
 			t[0] = mul(input[0], lightViewProjection[lights][targetMatrix]);
 			t[1] = mul(input[1], lightViewProjection[lights][targetMatrix]);
 			t[2] = mul(input[2], lightViewProjection[lights][targetMatrix]);
@@ -40,16 +40,16 @@ void main(
 			{
 				if (abs(t[i]).x <= 1 || abs(t[i]).y <= 1)
 					onScreen = true;
-			}*/
+			}
 
-            for (int vertex = 0; vertex < 3; vertex++)
+            for (int vertex = 0; vertex < 3 && onScreen; vertex++)
             {
                 element.pos = mul(input[vertex], lightViewProjection[lights][targetMatrix]);
                 output.Append(element);
             }
 
-
-            output.RestartStrip();
+			if (onScreen)
+				output.RestartStrip();
         }
     }
 }

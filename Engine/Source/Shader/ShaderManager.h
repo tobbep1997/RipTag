@@ -39,7 +39,9 @@ namespace Shaders
 		//Standard Hash table functions
 		Shader* _find(std::wstring path);
 		unsigned int _getKey(std::wstring path);
-				
+		std::wstring _getName(const std::wstring & path);
+
+
 		template <typename T> T* _loadShader(const std::wstring path, const std::string entryPoint = "main");
 		template<typename T> T * _loadShader(const std::wstring path, const std::string entryPoint, const Shaders::ShaderType & shaderType);
 	};
