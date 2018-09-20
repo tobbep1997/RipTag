@@ -24,6 +24,15 @@ namespace Animation
 		DirectX::float4 m_rotationQuaternion;
 		DirectX::float4 m_translation;
 		DirectX::float4 m_scale;
+
+		SRT() {};
+		SRT(const MyLibrary::Transform& transform)
+		{
+			using namespace DirectX;
+			XMStoreFloat4A(&m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
+			m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
+			m_scale = { 1.0, 1.0, 1.0, 1.0f };
+		}
 	};
 
 	struct Joint
@@ -92,7 +101,6 @@ namespace Animation
 
 		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* pose);
-		DirectX::XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 	};
 

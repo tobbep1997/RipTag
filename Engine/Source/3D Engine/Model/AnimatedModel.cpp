@@ -15,15 +15,19 @@ Animation::AnimatedModel::~AnimatedModel()
 {
 }
 
-
+// | Computes the frame we're currently on and computes final skinning matrices for gpu skinning |
 void Animation::AnimatedModel::Update(float deltaTime)
 {
-	deltaTime /= 5.0;
+	//deltaTime /= 5.0;
 	if (m_isPlaying)
 	{
+		//increase local time
 		m_currentTime += deltaTime;
+
+		//calc time per frame TODO : cache
 		float frameTime = static_cast<float>(1.0 / m_currentClip->m_framerate);
 
+		//if we exceeded clips time, set back to 0 ish if we are looping, or stop if we arent
 		if (m_currentTime > frameTime * m_currentClip->m_frameCount)
 		{
 			m_isPlaying
@@ -31,12 +35,14 @@ void Animation::AnimatedModel::Update(float deltaTime)
 				: m_isPlaying != m_isPlaying;
 		}
 
+		//calc the actual frame index TODO : get progression towards next for interpolation
 		int prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
 
+/*
 		uint16_t lastFrame = m_currentTime * m_currentClip->m_framerate;
-		uint16_t currentFrame = std::floorf(m_currentTime * (1.0 / m_currentClip->m_framerate));
+		uint16_t currentFrame = std::floorf(m_currentTime * (1.0 / m_currentClip->m_framerate));*/
 
-		//if (currentFrame != lastFrame)
+		// compute skinning matrices. TODO : interpolation
 		_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex]);
 	}
 }
@@ -50,6 +56,8 @@ void Animation::AnimatedModel::SetPlayingClip(AnimationClip * clip, bool isLoopi
 void Animation::AnimatedModel::SetSkeleton(Skeleton * skeleton)
 {
 	m_skeleton = skeleton;
+
+	// make sure the matrix vectors can accommodate each joint matrix 
 	m_globalMatrices.resize(skeleton->m_jointCount);
 	m_skinningMatrices.resize(skeleton->m_jointCount);
 }
@@ -64,6 +72,7 @@ void Animation::AnimatedModel::Play()
 	m_isPlaying = true;
 }
 
+// | Returns a reference to the skinning matrix vector |
 std::vector<DirectX::float4x4>& Animation::AnimatedModel::GetSkinningMatrices()
 {
 	return m_skinningMatrices;
@@ -79,6 +88,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
+// | Calls _computeModelMatrices() then multiplies the results with the inverse bind pose | 
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 {
 	using namespace DirectX;
@@ -94,6 +104,7 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 	}
 }
 
+// | Compute model matrix for each joint using its local pose multiplied with it's parent's final model matrix | 
 void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 {
 	using namespace DirectX;
@@ -108,25 +119,6 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
 		XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
 	}
-}
-
-DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose)
-//TODO remove
-{
-	using namespace DirectX;
-
-	XMVECTOR thisRotation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_rotationQuaternion);
-	XMFLOAT4A scale = (
-		pose->m_jointPoses[jointIndex].m_transformation.m_scale
-	);
-	XMVECTOR thisScale = XMLoadFloat4A(&scale);
-	XMVECTOR thisTranslation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_translation);
-	XMMATRIX thisJoint = DirectX::XMMatrixAffineTransformation(thisScale, { 0, 0, 0, 1 }, thisRotation, thisTranslation);
-	
-	int16_t parentIndex = m_skeleton->m_joints[jointIndex].parentIndex;
-	if (parentIndex >= 0)
-		return XMMatrixMultiply(thisJoint, recursiveMultiplyParents(m_skeleton->m_joints[jointIndex].parentIndex, pose));
-	else return thisJoint;
 }
 
 Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
