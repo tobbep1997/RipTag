@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable : 4244)
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
@@ -97,9 +98,8 @@ namespace Animation
 
 		std::vector<DirectX::float4x4>& GetSkinningMatrices();
 	private:
-		std::vector<DirectX::float4x4> m_skinningMatrices;
-		std::vector<DirectX::float4x4> m_globalMatrices;
-
+		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
+		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;

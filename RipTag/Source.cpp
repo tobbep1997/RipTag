@@ -2,11 +2,12 @@
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
+#include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
 #include "Source/3D Engine/Model/ModelManager.h"
 #include "Source/3D Engine/Model/AnimatedModel.h"
 //#pragma comment(lib, "New_Library.lib")
-
+#include "Source/Helper/Threading.h"
  
 #include "Source/Helper/Timer.h"
 #if _DEBUG
@@ -20,19 +21,16 @@ void _alocConsole() {
 }
 #endif
 
-
-float rotSpeed = 0.001f;
 float scaleX = 0;
 float scaleY = 0;
 float scaleZ = 0;
 
-float posX = 1;
-float posY = 1;
-float posZ = -6;
-
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
+float lightPosX1 = 0, lightPosY1 = 5, lightPosZ1 = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
-float lightIntensity = 1;
+float nearPlane = 1.0f, farPlane = 20.0f;
+
+float lightIntensity = 1, powVar = 2.0f, dropoff = 1.0f;
 void ImGuiTest()
 {
 #if _DEBUG
@@ -46,29 +44,27 @@ void ImGuiTest()
 
 }
 
-void CameraTest()
-{
-#if _DEBUG
-	ImGui::Begin("Camera Settings");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &posX, -20.0f, 20.f);
-	ImGui::SliderFloat("posY", &posY, -20.0f, 20.f);
-	ImGui::SliderFloat("posZ", &posZ, -20.0f, 20.f);
-	ImGui::End();
-#endif
-}
-
 void MoveLight() {
 #if _DEBUG
 	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &lightPosX, -500.0f, 500.f);
-	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 50.f);
-	ImGui::SliderFloat("posZ", &lightPosZ, -50.0f, 50.f);
+	ImGui::SliderFloat("posX", &lightPosX, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posZ", &lightPosZ, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+
+	ImGui::SliderFloat("posX1", &lightPosX1, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posY1", &lightPosY1, -50.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posZ1", &lightPosZ1, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
+
 
 	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
 	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
 
-	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
+	ImGui::SliderFloat("DropOff", &dropoff, 0.0f, 1.0f);
+	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 5.0f);
+	ImGui::SliderFloat("pow", &powVar, 1.0f, 5.0f);
+	ImGui::SliderFloat("NearPlane", &nearPlane, 0.1f, 3.0f);
+	ImGui::SliderFloat("FarPlane", &farPlane, 3.1f, 50.0f);
 
 	ImGui::End();
 #endif
@@ -79,12 +75,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
-
+	assert(CoInitializeEx(NULL, NULL) == S_OK);
+	
+	Threading::Init();
 	Timer::StartTimer();
 
 	RenderingManager renderingManager;
 
-	
 
 	renderingManager.Init(hInstance);
 	
@@ -150,8 +147,32 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 
 	PointLight pl;
-	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);
-	
+	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
+	//pl.CreateShadowDirection(PointLight::XYZ_ALL);
+	pl.CreateShadowDirection(std::vector<PointLight::ShadowDir>({ PointLight::ShadowDir::Y_NEGATIVE, PointLight::ShadowDir::X_NEGATIVE}));
+	PointLight pl2;
+	std::vector<PointLight> point;
+
+	for (int i = 0; i < 7; i++)
+	{
+		point.push_back(PointLight());
+	}
+	//srand(time(0));
+	for (int i = 0; i < 7; i++)
+	{
+
+		point[i].Init(DirectX::XMFLOAT4A(0, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.5f);
+		point[i].CreateShadowDirection(PointLight::XYZ_ALL);
+		point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
+		point[i].setColor((rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f);
+		point[i].setFarPlane(farPlane);
+		point[i].setNearPlane(nearPlane);
+		point[i].setIntensity((rand() % 2));
+		point[i].setDropOff(.2f);
+		point[i].setPower(2.0f);
+	}
+
+
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
@@ -164,25 +185,40 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.Update();
 			modelManager.dynamicMesh[0]->getAnimatedModel()->Update(0.002);
 		renderingManager.ImGuiStartFrame();
-		pl.SetPosition(lightPosX, lightPosY, lightPosZ);
-		pl.SetColor(lightColorR, lightColorG, lightColorB);
-		pl.SetIntensity(lightIntensity);
+		pl.setPosition(lightPosX, lightPosY, lightPosZ);
+		pl.setColor(lightColorR, lightColorG, lightColorB);
+		pl.setFarPlane(farPlane);
+		pl.setNearPlane(nearPlane);
+		
+		pl.setIntensity(lightIntensity);
+		pl.setDropOff(dropoff);
+		pl.setPower(powVar);
+
+		pl2.setPosition(lightPosX1, lightPosY1, lightPosZ1);
+		pl2.setColor(lightColorR, lightColorG, lightColorB);
+		pl2.setFarPlane(farPlane);
+		pl2.setNearPlane(nearPlane);
+
+		pl2.setIntensity(lightIntensity);
+		pl2.setDropOff(dropoff);
+		pl2.setPower(powVar);
+
 
 		/*
 			Test Camera movement
 		*/
 		if (InputHandler::isKeyPressed('W'))
-			camera.Move(0.0f, 0.0f, 0.01f);
+			camera.Translate(0.0f, 0.0f, 0.01f);
 		else if (InputHandler::isKeyPressed('S'))
-			camera.Move(0.0f, 0.0f, -0.01f);
+			camera.Translate(0.0f, 0.0f, -0.01f);
 		if (InputHandler::isKeyPressed('A'))
-			camera.Move(-0.01f, 0.0f, 0.0f);
+			camera.Translate(-0.01f, 0.0f, 0.0f);
 		else if (InputHandler::isKeyPressed('D'))
-			camera.Move(0.01f, 0.0f, 0.0f);
+			camera.Translate(0.01f, 0.0f, 0.0f);
 		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
-			camera.Move(0.0f, 0.01f, 0.0f);
+			camera.Translate(0.0f, 0.01f, 0.0f);
 		else if (InputHandler::isKeyPressed(InputHandler::Shift))
-			camera.Move(0.0f, -0.01f, 0.0f);
+			camera.Translate(0.0f, -0.01f, 0.0f);
 
 		/*
 			Test Camera rotation
@@ -200,27 +236,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		if (InputHandler::isKeyPressed(InputHandler::BackSpace))
 			camera.setLookTo(0, 0, 0, 1);
+		
+		if (InputHandler::isKeyPressed('L'))
+			camera.setPosition(pl2.getPosition());
 
 		
 
 		ImGuiTest();
-	//	CameraTest();
 		MoveLight();
-		/*
-		pos += Timer::GetDurationInSeconds() * 0.03;
-		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
-		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
-		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
-		*/
 		pl.QueueLight();
-		//camera.setPosition(posX, posY, posZ);
+		for (int i = 0; i < 7; i++)
+		{
+			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
+			point[i].QueueLight();
+		}
 		
 		modelManager.DrawMeshes();
-	
-		//std::cout << std::cos(180) << std::endl;
-		//camera.setLookTo(0, 0, 0);
 		
 		renderingManager.Flush(camera);
+		renderingManager.Clear();
+		
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();

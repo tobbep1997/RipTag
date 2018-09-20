@@ -7,12 +7,12 @@
 class DynamicMesh 
 {
 private:
-	std::vector <DynamicVertex> dynamicVertex;
+	std::vector <DynamicVertex> m_dynamicVertex;
 	
 public:
 	DynamicMesh();
 	~DynamicMesh();
-	Animation::AnimatedModel *anim;
+	Animation::AnimatedModel *m_anim;
 	const DynamicVertex * getRawVertices() const;
 	const std::vector<DynamicVertex> & getVertices() const;
 	Animation::AnimatedModel* getAnimatedModel();

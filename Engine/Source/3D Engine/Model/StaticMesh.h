@@ -9,7 +9,7 @@
 class StaticMesh
 {
 private:
-	std::vector<StaticVertex> staticVertex;
+	std::vector<StaticVertex> m_staticVertex;
 
 public:
 	StaticMesh();

@@ -2,7 +2,7 @@
 #include "Extern.h"
 
 ID3D11Device*			DX::g_device;
-ID3D11DeviceContext*	DX::g_deviceContext;
+ID3D11DeviceContext1*	DX::g_deviceContext;
 
 Shaders::ShaderManager DX::g_shaderManager;
 
@@ -10,6 +10,8 @@ std::vector<Drawable*> DX::g_geometryQueue;
 std::vector<Drawable*> DX::g_animatedGeometryQueue;
 
 std::vector<PointLight*> DX::g_lights;
+
+std::vector<Drawable*> DX::g_visabilityDrawQueue;
 
 void DX::SafeRelease(IUnknown * unknown)
 {
@@ -39,6 +41,9 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
+	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_1 };
+	D3D_FEATURE_LEVEL fl_out = D3D_FEATURE_LEVEL_11_1;
+
 	// fill the swap chain description struct
 	scd.BufferCount = 1;                                    // one back buffer
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
@@ -47,22 +52,28 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	scd.SampleDesc.Count = m_sampleCount;                   // how many multisamples
 	scd.Windowed = !fullscreen;								// windowed/full-screen mode
 
-															// create a device, device context and swap chain using the information in the scd struct
+
+	ID3D11DeviceContext* pDevResult = nullptr;// create a device, device context and swap chain using the information in the scd struct
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
 		createDeviceFlags,//D3D11_CREATE_DEVICE_DEBUG,
-		NULL,
-		NULL,
+		fl_in,
+		ARRAYSIZE(fl_in),
 		D3D11_SDK_VERSION,
 		&scd,
 		&m_swapChain,
 		&DX::g_device,
-		NULL,
-		&DX::g_deviceContext);
+		&fl_out,
+		&pDevResult);
 
 	if (SUCCEEDED(hr))
 	{
+		if (SUCCEEDED(pDevResult->QueryInterface(__uuidof(ID3D11DeviceContext1), (void**)&DX::g_deviceContext)))
+		{
+			DX::g_deviceContext->Release();
+		}
+
 		// get the address of the back buffer
 		ID3D11Texture2D* pBackBuffer = nullptr;
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
@@ -75,7 +86,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
 	}
-	m_forwardRendering.Init(m_swapChain,m_backBufferRTV,m_depthStencilView,m_depthBufferTex,m_samplerState,m_viewport);
+	m_forwardRendering.Init(m_swapChain, m_backBufferRTV, m_depthStencilView, m_depthBufferTex, m_samplerState, m_viewport);
 	return hr;
 }
 
@@ -83,6 +94,11 @@ void Engine3D::Flush(Camera & camera)
 {
 	
 	m_forwardRendering.Flush(camera);
+}
+
+void Engine3D::Clear()
+{
+	this->m_forwardRendering.Clear();
 }
 
 void Engine3D::Present()

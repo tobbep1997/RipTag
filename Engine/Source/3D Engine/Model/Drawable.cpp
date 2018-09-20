@@ -1,10 +1,10 @@
 #include "Drawable.h"
-
+#include "Texture.h"
 
 
 void Drawable::_setStaticBuffer()
 {
-	DX::SafeRelease(m_vertexBuffer);
+	DX::SafeRelease(p_vertexBuffer);
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
@@ -18,12 +18,12 @@ void Drawable::_setStaticBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_staticMesh->getRawVertice();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
 }
 
 void Drawable::_setDynamicBuffer()
 {
-	DX::SafeRelease(m_vertexBuffer);
+	DX::SafeRelease(p_vertexBuffer);
 
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
@@ -37,10 +37,10 @@ void Drawable::_setDynamicBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_dynamicMesh->getRawVertices();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
 }
 
-void Drawable::CalcWorldMatrix()
+void Drawable::p_calcWorldMatrix()
 {
 	using namespace DirectX;
 	XMMATRIX translation	=	XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
@@ -63,33 +63,61 @@ void Drawable::CreateBuffer()
 	}
 }
 
-void Drawable::SetMesh(StaticMesh * staticMesh)
+void Drawable::p_setMesh(StaticMesh * staticMesh)
 {
 	this->m_staticMesh = staticMesh;
 }
 
-void Drawable::SetMesh(DynamicMesh * dynamicMesh)
+void Drawable::p_setMesh(DynamicMesh * dynamicMesh)
 {
 	this->m_dynamicMesh = dynamicMesh;
 }
 
-Drawable::Drawable(ObjectType objecType) :
+void Drawable::setTextures(Texture* diffuseTexture /*= nullptr*/, Texture* normalTexture /*= nullptr*/, Texture* MRATexture /*= nullptr*/)
+{
+	m_diffuseTexture = diffuseTexture;
+	m_MRATexture = MRATexture;
+	m_normalTexture = normalTexture;
+}
+
+void Drawable::BindTextures()
+{ //TODO Optimize (one call for all)
+	if (m_diffuseTexture)
+	{
+		m_diffuseTexture->Bind(1);
+	}
+	if (m_normalTexture)
+	{
+		m_normalTexture->Bind(2);
+	}
+	if (m_MRATexture)
+	{
+		m_MRATexture->Bind(3);
+	}
+	else if (!m_diffuseTexture && !m_normalTexture && !m_MRATexture)
+	{
+		std::vector<ID3D11ShaderResourceView*> nullSRV = { nullptr, nullptr, nullptr };
+		DX::g_deviceContext->PSSetShaderResources(1, 3, nullSRV.data());
+	}
+}
+
+Drawable::Drawable(ObjectType objectType) :
 	m_staticMesh(nullptr),
 	m_dynamicMesh(nullptr),
-	m_vertexBuffer(nullptr)
+	p_vertexBuffer(nullptr)
 {
 	p_position = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_rotation = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
 
 
-	this->p_objectType = objecType;
+	this->p_objectType = objectType;
 }
 
 
 Drawable::~Drawable()
 {
-	DX::SafeRelease(m_vertexBuffer);
+	DX::SafeRelease(p_vertexBuffer);
 }
 
 void Drawable::setPosition(DirectX::XMFLOAT4A pos)
@@ -129,6 +157,11 @@ void Drawable::setScale(float x, float y, float z, float w)
 	this->setScale(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
+const DirectX::XMFLOAT4A & Drawable::getPosition() const
+{
+	return p_position;
+}
+
 
 
 void Drawable::Draw()
@@ -141,6 +174,11 @@ void Drawable::DrawAnimated()
 	DX::g_animatedGeometryQueue.push_back(this);
 }
 
+void Drawable::QueueVisabilityDraw()
+{
+	DX::g_visabilityDrawQueue.push_back(this);
+}
+
 std::wstring Drawable::getVertexPath() const
 {
 	return this->p_vertexPath;
@@ -151,7 +189,7 @@ std::wstring Drawable::getPixelPath() const
 	return this->p_pixelPath;
 }
 
-UINT Drawable::VertexSize()
+UINT Drawable::getVertexSize()
 {
 	switch (p_objectType)
 	{
@@ -161,6 +199,9 @@ UINT Drawable::VertexSize()
 	case Dynamic:
 		return (UINT)m_dynamicMesh->getVertices().size();
 		break;
+	default:
+		return 0;
+		break;
 	}
 	return 0;
 	
@@ -168,7 +209,7 @@ UINT Drawable::VertexSize()
 
 ID3D11Buffer * Drawable::getBuffer()
 {
-	return m_vertexBuffer;
+	return p_vertexBuffer;
 }
 
 Animation::AnimatedModel* Drawable::getAnimatedModel()
@@ -178,7 +219,7 @@ Animation::AnimatedModel* Drawable::getAnimatedModel()
 
 DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 {
-	this->CalcWorldMatrix();
+	this->p_calcWorldMatrix();
 	return this->p_worldMatrix;
 }
 

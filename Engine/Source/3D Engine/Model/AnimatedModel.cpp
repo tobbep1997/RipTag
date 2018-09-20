@@ -1,8 +1,6 @@
 #include "AnimatedModel.h"
 #include "../Extern.h"
 
-#define loadMatrix(x) XMLoadFloat4x4(x)
-#define storeMatrix(x,y) XMStoreFloat4x4(x,y)
 
 
 Animation::AnimatedModel::AnimatedModel()
@@ -148,10 +146,27 @@ Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
 	return srt;
 }
 
+void Animation::AnimatedModel::_interpolatePose(SkeletonPose * firstPose, SkeletonPose * secondPose, float weight) //1.0 weight means 100% second pose
+{
+	for (int i = 0; i < m_skeleton->m_jointCount; i++)
+	{
+		
+		DirectX::XMVECTOR firstRotation = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_rotationQuaternion);
+		DirectX::XMVECTOR secondRotation = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_rotationQuaternion);
+		DirectX::XMVECTOR firstTranslation = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_translation);
+		DirectX::XMVECTOR secondTranslation = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_translation);
+		DirectX::XMVECTOR firstScale = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_scale);
+		DirectX::XMVECTOR secondScale = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_scale);
+
+		DirectX::XMVECTOR newRotation = DirectX::XMQuaternionSlerp(firstRotation, secondRotation, weight);
+		DirectX::XMVECTOR newTranslation = DirectX::XMVectorLerp(firstTranslation, secondTranslation, weight);
+		DirectX::XMVECTOR newScale = DirectX::XMVectorLerp(firstScale, secondScale, weight);
+	}
+	//TODO do stuff / return new skeleton pose
+}
+
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
-	using std::vector;
-
 	uint32_t keyCount = animation->nr_of_keyframes;
 
 	AnimationClip* clipToReturn = new AnimationClip();
@@ -168,7 +183,7 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 	for (int j = 0; j < jointCount; j++)
 	{
 		//for each key
-		for (int k = 0; k < keyCount; k++)
+		for (unsigned int k = 0; k < keyCount; k++)
 		{
 			// Review
 			Animation::SRT trans = ConvertTransformToSRT(animation->keyframe_transformations[j * animation->nr_of_keyframes + k]);

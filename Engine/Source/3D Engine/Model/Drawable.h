@@ -10,7 +10,7 @@
 #include "DynamicMesh.h"
 #include <string>
 
-class Animation::AnimatedModel;
+class Texture;
 
 enum ObjectType
 {
@@ -23,8 +23,12 @@ class Drawable
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
-	void _setStaticBuffer();
-	void _setDynamicBuffer();
+
+	//Textures
+	Texture* m_diffuseTexture = nullptr;
+	Texture* m_normalTexture = nullptr;
+	Texture* m_MRATexture = nullptr;
+
 
 
 protected:
@@ -37,12 +41,12 @@ protected:
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
 	//Calculates the worldMatrix
-	void CalcWorldMatrix();
+	void p_calcWorldMatrix();
 
 	//Object type, is it static or dynamic
 	ObjectType p_objectType;
 
-	ID3D11Buffer * m_vertexBuffer;
+	ID3D11Buffer * p_vertexBuffer;
 
 	std::wstring p_vertexPath;
 	std::wstring p_pixelPath;
@@ -50,8 +54,10 @@ protected:
 	void CreateBuffer();
 
 	//Setting the mesh for the object
-	void SetMesh(StaticMesh * staticMesh);
-	void SetMesh(DynamicMesh * dynamicMesh);
+	void p_setMesh(StaticMesh * staticMesh);
+	void p_setMesh(DynamicMesh * dynamicMesh);
+
+	//Texture stuff
 
 public:
 	Drawable(ObjectType ObjecType = ObjectType::Static);
@@ -67,14 +73,20 @@ public:
 	void setScale(DirectX::XMFLOAT4A scale);
 	void setScale(float x = 1, float y = 1, float z = 1, float w = 1);
 
-
+	const DirectX::XMFLOAT4A & getPosition() const;
+	void BindTextures();
+	void setTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
 	void DrawAnimated();
+
+	//MIGHT BE CHANGED
+	void QueueVisabilityDraw();
+
 	std::wstring getVertexPath() const;
 	std::wstring getPixelPath() const;
 
-	UINT VertexSize();
+	UINT getVertexSize();
 
 	ID3D11Buffer * getBuffer();
 	Animation::AnimatedModel* getAnimatedModel();
@@ -84,7 +96,9 @@ public:
 	//returns static or dynamic objtype
 	ObjectType getObjectType();
 
-
+private:
+	void _setStaticBuffer();
+	void _setDynamicBuffer();
 
 };
 

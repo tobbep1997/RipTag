@@ -14,12 +14,12 @@ DynamicMesh::~DynamicMesh()
 
 const DynamicVertex * DynamicMesh::getRawVertices() const
 {
-	return dynamicVertex.data();
+	return m_dynamicVertex.data();
 }
 
 const std::vector<DynamicVertex>& DynamicMesh::getVertices() const
 {
-	return dynamicVertex;
+	return m_dynamicVertex;
 }
 
 Animation::AnimatedModel* DynamicMesh::getAnimatedModel()
@@ -29,8 +29,8 @@ Animation::AnimatedModel* DynamicMesh::getAnimatedModel()
 
 void DynamicMesh::setVertices(std::vector<DynamicVertex>& input)
 {
-	dynamicVertex.clear();
-	dynamicVertex = input;
+	m_dynamicVertex.clear();
+	m_dynamicVertex = input;
 }
 
 void DynamicMesh::SET_DEFAULT()
@@ -44,6 +44,7 @@ void DynamicMesh::SET_DEFAULT()
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 		//TODO: G�r ordentligt.
+		//Please do
 		tempvertex.pos.x = newMesh.mesh_vertices[i].vertex_position[0];
 		tempvertex.pos.y = newMesh.mesh_vertices[i].vertex_position[1];
 		tempvertex.pos.z = newMesh.mesh_vertices[i].vertex_position[2];
@@ -72,7 +73,7 @@ void DynamicMesh::SET_DEFAULT()
 		tempvertex.jointWeights.z = newMesh.mesh_vertices[i].joint_weights[2];
 		tempvertex.jointWeights.w = newMesh.mesh_vertices[i].joint_weights[3];
 
-		dynamicVertex.push_back(tempvertex);
+		m_dynamicVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;
@@ -116,7 +117,7 @@ void DynamicMesh::LoadModel(const std::string & path)
 		tempvertex.jointWeights.z = newMesh.mesh_vertices[i].joint_weights[2];
 		tempvertex.jointWeights.w = newMesh.mesh_vertices[i].joint_weights[3];
 
-		dynamicVertex.push_back(tempvertex);
+		m_dynamicVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;

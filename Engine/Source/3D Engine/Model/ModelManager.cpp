@@ -11,25 +11,29 @@ ModelManager::ModelManager()
 
 ModelManager::~ModelManager()
 {
-	for (int i = 0; i < dynamicMesh.size(); i++)
+	for (int i = 0; i < m_dynamicMesh.size(); i++)
 	{
-		delete dynamicMesh[i];
+		delete m_dynamicMesh[i];
 	}
-	for (int i = 0; i < staticMesh.size(); i++)
+	for (int i = 0; i < m_staticMesh.size(); i++)
 	{
-		delete staticMesh[i];
+		delete m_staticMesh[i];
 	}
 }
 
 void ModelManager::DrawMeshes()
 {
-	for (int i = 0; i < staticMesh.size(); i++)
+	for (int i = 0; i < m_staticMesh.size(); i++)
 	{
-		staticMesh[i]->Draw();
+		m_staticMesh[i]->Draw();
+		if (i == 1)
+		{
+			m_staticMesh[i]->QueueVisabilityDraw();
+		}
 	}
-	for (int i = 0; i < dynamicMesh.size(); i++)
+	for (int i = 0; i < m_dynamicMesh.size(); i++)
 	{
-		dynamicMesh[i]->DrawAnimated();
+		m_dynamicMesh[i]->DrawAnimated();
 	}
 }
 
@@ -39,7 +43,7 @@ void ModelManager::addStaticMesh(const std::string & assetFilePath)
 		assetFilePath
 		);
 	
-	staticMesh.push_back(tempModel);
+	m_staticMesh.push_back(tempModel);
 }
 
 void ModelManager::addDynamicMesh(const std::string & assetFilePath)
@@ -48,7 +52,7 @@ void ModelManager::addDynamicMesh(const std::string & assetFilePath)
 		assetFilePath
 		);
 
-	dynamicMesh.push_back(tempModel);
+	m_dynamicMesh.push_back(tempModel);
 }
 
 
