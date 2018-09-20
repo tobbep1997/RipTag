@@ -18,7 +18,7 @@ Animation::AnimatedModel::~AnimatedModel()
 // | Computes the frame we're currently on and computes final skinning matrices for gpu skinning |
 void Animation::AnimatedModel::Update(float deltaTime)
 {
-	//deltaTime /= 5.0;
+	deltaTime /= 20.0;
 	if (m_isPlaying)
 	{
 		//increase local time
@@ -101,6 +101,9 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 		XMFLOAT4X4A inverseBindPose = m_skeleton->m_joints[i].m_inverseBindPose;
 		XMMATRIX skinningMatrix = XMMatrixMultiply(loadMatrix(&global), loadMatrix(&inverseBindPose));
 		storeMatrix(&m_skinningMatrices[i], skinningMatrix);
+		
+		//DEBUG
+		//storeMatrix(&m_skinningMatrices[i], XMMatrixIdentity());
 	}
 }
 
@@ -289,8 +292,7 @@ Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFile& anim
 		for (int k = 0; k < keyCount; k++)
 		{
 			// Review
-			Animation::SRT trans = ConvertTransformToSRT(animation.keyframe_transformations[j * animation.nr_of_keyframes + k]);
-			m_skeletonPoses[k].m_jointPoses[j].m_transformation = trans;
+			m_skeletonPoses[k].m_jointPoses[j].m_transformation = SRT(animation.keyframe_transformations[j * animation.nr_of_keyframes + k]);
 		}
 	}
 }
