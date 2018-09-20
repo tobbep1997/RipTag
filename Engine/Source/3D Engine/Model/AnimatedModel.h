@@ -39,17 +39,35 @@ namespace Animation
 	{
 		DirectX::float4x4 m_inverseBindPose;
 		int16_t parentIndex;
+
+		Joint() {};
+		Joint(const MyLibrary::Joint& joint) 
+		{
+
+		};
 	};
 
 	struct Skeleton
 	{
 		uint8_t m_jointCount;
 		Joint* m_joints;
+
+		Skeleton() {};
+		Skeleton(const MyLibrary::SkeletonFromFile& skeleton)
+		{
+
+		}
 	};
 
 	struct JointPose
 	{
 		SRT m_transformation;
+
+		JointPose() {};
+		JointPose(const SRT& srt)
+		{
+			m_transformation = srt;
+		}
 	};
 
 	struct SkeletonPose
@@ -63,6 +81,12 @@ namespace Animation
 		uint16_t m_frameCount;
 		SkeletonPose* m_skeletonPoses;
 		uint8_t m_framerate;
+
+		AnimationClip() {};
+		AnimationClip(const MyLibrary::AnimationFromFile& animation)
+		{
+
+		}
 	};
 	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
