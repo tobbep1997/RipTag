@@ -72,22 +72,22 @@ void ShadowMap::ShadowPass()
 
 void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 {
-	m_allLightMatrixValues.nrOfLights = lights->size();
+	m_allLightMatrixValues.nrOfLights = DirectX::XMINT4(lights->size(),0,0,0);
 	for (unsigned int light = 0; light < lights->size(); light++)
 	{
-		for (unsigned int i = 0; i < 6; i++)
+		m_allLightMatrixValues.nrOfviewProjection[light] = DirectX::XMINT4(lights->at(light)->getSides().size(),0,0,0);
+		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
 			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides()[i]->getViewProjection();
 		}
 	}
-
+	
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	DX::g_deviceContext->Map(m_allLightMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	memcpy(dataPtr.pData, &m_allLightMatrixValues, sizeof(PointLightBuffer));
 	DX::g_deviceContext->Unmap(m_allLightMatrixBuffer, 0);
 	DX::g_deviceContext->GSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
-	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 

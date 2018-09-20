@@ -66,7 +66,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 
 	_createConstantBuffer();
 	_createSamplerState();
-	m_shadowMap.Init(64, 64);
+	m_shadowMap.Init(128, 128);
 
 
 	this->_createUAV();
@@ -87,15 +87,14 @@ void ForwardRender::GeometryPass(Camera & camera)
 	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
-	//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
-
-	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+	/*DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 		1,
 		&m_backBufferRTV,
 		m_depthStencilView,
 		1, 1, &m_visabilityUAV, 0
-	);
+	);*/
 
 	_mapLightInfoNoMatrix();
 

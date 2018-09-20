@@ -8,7 +8,7 @@ namespace Shaders
 {
 	ShaderManager::ShaderManager()
 	{
-		
+		nrOfShaders = 0;
 	}
 	ShaderManager::~ShaderManager()
 	{
@@ -31,6 +31,7 @@ namespace Shaders
 			shader->setEntryPoint(entryPoint);
 			
 			m_shadersHashTable[shader->getKey()].push_back(shader);
+			nrOfShaders++;
 
 			return shader->getShader<ID3D11VertexShader>();
 		}
@@ -46,63 +47,41 @@ namespace Shaders
 		return nullptr;
 	}
 	void ShaderManager::ReloadAllShaders()
-	{
-		struct shaderStruct
-		{
-			std::wstring path;
-			std::string entryPoint;
-			Shaders::ShaderType type;
-		};
-		std::vector<shaderStruct> shaderStructs;
-		int count = 0;
+	{	
+#if _DEBUG
+		system("cls");
+		std::cout << "Shader Reloader-----------------------------------------------" << std::endl;
+#endif
+		int counter = 0;
 		for (int i = 0; i < m_hashSize; i++)
 		{
 			for (int j = 0; j < m_shadersHashTable[i].size(); j++)
 			{
-				if (m_shadersHashTable[i][j]->getType() == Shaders::Vertex)
-					continue;
-				shaderStruct s;
-				s.type = m_shadersHashTable[i][j]->getType();
-				s.path = m_shadersHashTable[i][j]->getPath();
-				s.entryPoint = m_shadersHashTable[i][j]->getEntryPoint();
-				shaderStructs.push_back(s);
-				count++;
+				counter++;
+				std::wcout << L"Processing : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
 
-				m_shadersHashTable[i][j]->Release();
-				delete m_shadersHashTable[i][j];
-				m_shadersHashTable[i].erase(m_shadersHashTable[i].begin() + j);				
+				HRESULT hr = m_shadersHashTable[i][j]->ReloadShader();			
+
+				if (FAILED(hr))
+				{
+					_com_error err(hr);
+					
+					std::wcout << L"Error : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
+					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\tFAILED " << std::endl;
+
+				}
+				else
+				{
+					std::wcout << L"Complete : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
+					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\tDone " << std::endl;
+				}
+
+		
 			}
 		}
-		for (int i = 0; i < shaderStructs.size(); i++)
-		{
-			switch (shaderStructs[i].type)
-			{
-			case Shaders::Vertex:
-				_loadShader<ID3D11VertexShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
-				break;
-			case Shaders::domain:
-				_loadShader<ID3D11DomainShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
-				break;
-			case Shaders::Hull:
-				_loadShader<ID3D11HullShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
-				break;
-			case Shaders::Geometry:
-				_loadShader<ID3D11GeometryShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
-				break;
-			case Shaders::Pixel:
-				_loadShader<ID3D11PixelShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
-				break;
-			case Shaders::Compute:
-				_loadShader<ID3D11ComputeShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
-				break;
-			default:
 #if _DEBUG
-				std::cout << "Shader could not reload\nBreaking program" << std::endl;
-				throw;
+		std::cout << "All done :)---------------------------------------------------" << std::endl;
 #endif
-				break;
-			}
-		}
 	}
 	void ShaderManager::UnloadShader(const std::wstring path)
 	{
@@ -114,7 +93,7 @@ namespace Shaders
 				m_shadersHashTable[key][i]->Release();
 				delete m_shadersHashTable[key][i];
 				m_shadersHashTable[key].erase(m_shadersHashTable[key].begin() + i);
-
+				nrOfShaders--;
 			}
 		}
 	}
@@ -138,6 +117,12 @@ namespace Shaders
 			sum += path[i];
 		}
 		return sum % m_hashSize;
+	}
+
+	std::wstring ShaderManager::_getName(const std::wstring & path)
+	{		
+		size_t t = path.find_last_of(L'/');
+		return path.substr(t + 1, path.size());
 	}
 
 	Shader* ShaderManager::_find(std::wstring path)
