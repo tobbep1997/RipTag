@@ -110,7 +110,8 @@ ProcMsg RenderingManager::getWindowProcMsg()
 void RenderingManager::_reloadShaders()
 {
 	//Unload the shader
-	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	DX::g_shaderManager.ReloadAllShaders();
+	/*DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
 	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 
@@ -118,4 +119,5 @@ void RenderingManager::_reloadShaders()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
+	*/
 }

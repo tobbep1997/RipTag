@@ -1,5 +1,9 @@
 #include "ShaderManager.h"
 
+#if _DEBUG
+#include <iostream>
+#endif
+
 namespace Shaders
 {
 	ShaderManager::ShaderManager()
@@ -23,7 +27,10 @@ namespace Shaders
 			shader->VertexInputLayout(path, entryPoint, inputDesc, size);
 			shader->setKey(_getKey(path));
 			shader->setPath(path);
-			shadersHashTable[shader->getKey()].push_back(shader);
+			shader->setType(Shaders::ShaderType::Vertex);
+			shader->setEntryPoint(entryPoint);
+			
+			m_shadersHashTable[shader->getKey()].push_back(shader);
 
 			return shader->getShader<ID3D11VertexShader>();
 		}
@@ -31,23 +38,82 @@ namespace Shaders
 	ID3D11InputLayout * ShaderManager::GetInputLayout(const std::wstring path)
 	{
 		unsigned int key = _getKey(path);
-		for (unsigned int i = 0; i < shadersHashTable[key].size(); i++)
+		for (unsigned int i = 0; i < m_shadersHashTable[key].size(); i++)
 		{
-			if (shadersHashTable[key][i]->getPath() == path)
-				return shadersHashTable[key][i]->getInputLayout();
+			if (m_shadersHashTable[key][i]->getPath() == path)
+				return m_shadersHashTable[key][i]->getInputLayout();
 		}
 		return nullptr;
+	}
+	void ShaderManager::ReloadAllShaders()
+	{
+		struct shaderStruct
+		{
+			std::wstring path;
+			std::string entryPoint;
+			Shaders::ShaderType type;
+		};
+		std::vector<shaderStruct> shaderStructs;
+		int count = 0;
+		for (int i = 0; i < m_hashSize; i++)
+		{
+			for (int j = 0; j < m_shadersHashTable[i].size(); j++)
+			{
+				if (m_shadersHashTable[i][j]->getType() == Shaders::Vertex)
+					continue;
+				shaderStruct s;
+				s.type = m_shadersHashTable[i][j]->getType();
+				s.path = m_shadersHashTable[i][j]->getPath();
+				s.entryPoint = m_shadersHashTable[i][j]->getEntryPoint();
+				shaderStructs.push_back(s);
+				count++;
+
+				m_shadersHashTable[i][j]->Release();
+				delete m_shadersHashTable[i][j];
+				m_shadersHashTable[i].erase(m_shadersHashTable[i].begin() + j);				
+			}
+		}
+		for (int i = 0; i < shaderStructs.size(); i++)
+		{
+			switch (shaderStructs[i].type)
+			{
+			case Shaders::Vertex:
+				_loadShader<ID3D11VertexShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
+				break;
+			case Shaders::domain:
+				_loadShader<ID3D11DomainShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
+				break;
+			case Shaders::Hull:
+				_loadShader<ID3D11HullShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
+				break;
+			case Shaders::Geometry:
+				_loadShader<ID3D11GeometryShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
+				break;
+			case Shaders::Pixel:
+				_loadShader<ID3D11PixelShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
+				break;
+			case Shaders::Compute:
+				_loadShader<ID3D11ComputeShader>(shaderStructs[i].path, shaderStructs[i].entryPoint, shaderStructs[i].type);
+				break;
+			default:
+#if _DEBUG
+				std::cout << "Shader could not reload\nBreaking program" << std::endl;
+				throw;
+#endif
+				break;
+			}
+		}
 	}
 	void ShaderManager::UnloadShader(const std::wstring path)
 	{
 		unsigned int key = _getKey(path);
-		for (unsigned int i = 0; i < shadersHashTable[key].size(); i++)
+		for (unsigned int i = 0; i < m_shadersHashTable[key].size(); i++)
 		{
-			if (shadersHashTable[key][i]->getPath() == path)
+			if (m_shadersHashTable[key][i]->getPath() == path)
 			{
-				shadersHashTable[key][i]->Release();
-				delete shadersHashTable[key][i];
-				shadersHashTable[key].erase(shadersHashTable[key].begin() + i);
+				m_shadersHashTable[key][i]->Release();
+				delete m_shadersHashTable[key][i];
+				m_shadersHashTable[key].erase(m_shadersHashTable[key].begin() + i);
 
 			}
 		}
@@ -56,10 +122,10 @@ namespace Shaders
 	{
 		for (unsigned int i = 0; i < m_hashSize; i++)
 		{
-			for (unsigned int j = 0; j < shadersHashTable[i].size(); j++)
+			for (unsigned int j = 0; j < m_shadersHashTable[i].size(); j++)
 			{
-				shadersHashTable[i][j]->Release();
-				delete shadersHashTable[i][j];
+				m_shadersHashTable[i][j]->Release();
+				delete m_shadersHashTable[i][j];
 			}
 		}
 	}
@@ -77,10 +143,10 @@ namespace Shaders
 	Shader* ShaderManager::_find(std::wstring path)
 	{
 		unsigned int key = _getKey(path);
-		for (unsigned int i = 0; i < shadersHashTable[key].size(); i++)
+		for (unsigned int i = 0; i < m_shadersHashTable[key].size(); i++)
 		{
-			if (shadersHashTable[key][i]->getPath() == path)
-				return shadersHashTable[key][i];
+			if (m_shadersHashTable[key][i]->getPath() == path)
+				return m_shadersHashTable[key][i];
 		}
 		return nullptr;
 	}
