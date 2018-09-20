@@ -242,3 +242,55 @@ void Animation::AnimationCBuffer::SetToShader()
 {
 	DX::g_deviceContext->VSSetConstantBuffers(2, 1, &m_AnimationBuffer);
 }
+
+Animation::SRT::SRT(const MyLibrary::Transform& transform)
+{
+	using namespace DirectX;
+	XMStoreFloat4A(&m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
+	m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
+	m_scale = { 1.0, 1.0, 1.0, 1.0f };
+}
+
+Animation::Skeleton::Skeleton(const MyLibrary::SkeletonFromFile& skeleton)
+{
+	m_jointCount = skeleton.skeleton_nrOfJoints;
+	m_joints = new Animation::Joint[m_jointCount];
+
+	for (int i = 0; i < m_jointCount; i++)
+	{
+		m_joints[i].parentIndex = skeleton.skeleton_joints[i].parentIndex;
+	}
+	m_joints[0].parentIndex = -1; // Root does not have a real parent index
+	Animation::SetInverseBindPoses(this, &skeleton);
+}
+
+Animation::JointPose::JointPose(const SRT& srt)
+{
+	m_transformation = srt;
+}
+
+Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFile& animation, Skeleton* skeleton)
+{
+	m_skeleton = skeleton;
+	m_framerate = 24; //TODO
+	uint32_t keyCount = animation.nr_of_keyframes;
+	m_frameCount = static_cast<uint16_t>(keyCount);
+	m_skeletonPoses = new SkeletonPose[m_frameCount];
+
+	//Init joint poses for skeleton poses
+	for (int i = 0; i < m_frameCount; i++)
+	{
+		m_skeletonPoses[i].m_jointPoses = new JointPose[m_skeleton->m_jointCount];
+	}
+
+	for (int j = 0; j < m_skeleton->m_jointCount; j++)
+	{
+		//for each key
+		for (int k = 0; k < keyCount; k++)
+		{
+			// Review
+			Animation::SRT trans = ConvertTransformToSRT(animation.keyframe_transformations[j * animation.nr_of_keyframes + k]);
+			m_skeletonPoses[k].m_jointPoses[j].m_transformation = trans;
+		}
+	}
+}
