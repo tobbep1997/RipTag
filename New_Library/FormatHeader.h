@@ -68,7 +68,6 @@ namespace MyLibrary
 	struct AnimationHeader
 	{
 		unsigned int anim_nrOfKeys;
-
 	};
 	struct AnimKey
 	{

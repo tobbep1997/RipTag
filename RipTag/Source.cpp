@@ -94,7 +94,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.staticMesh[0]->setPosition(10.0, 0.0, 0.0);
+	modelManager.m_staticMesh[0]->setPosition(10.0, 0.0, 0.0);
 	modelManager.addDynamicMesh("../Assets/pSphere2_ANIMATION_Mesh.bin");
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
@@ -130,9 +130,57 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/joint1_Skeleton.bin");
 		auto animation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
-		modelManager.dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animation);
-		modelManager.dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
-		modelManager.dynamicMesh[0]->getAnimatedModel()->Play();
+
+	
+		//for (int i = 0; i < 20; i++)
+		//{
+		//	auto anotherAnimation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
+		//	for (int joint = 0; joint < skeleton->m_jointCount; joint++)
+		//	{
+		//		for (int key = 0; key < animation->m_frameCount; key++)
+		//		{
+		//			Animation::SRT original = animation->m_skeletonPoses[key].m_jointPoses[joint].m_transformation;
+		//			Animation::SRT thisone = anotherAnimation->m_skeletonPoses[key].m_jointPoses[joint].m_transformation;
+		//			//assert(original == thisone);
+
+		//		}
+		//	}
+		//}
+
+
+		for (int i = 0; i < animation->m_frameCount; i++)
+		{
+			
+			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.y += static_cast<float>(i / 2.0f);
+			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.x= 0.0;
+			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.y = 0.0;
+			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.z = 0.0;
+			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.w = 0.0;
+
+			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.x = 0.0;
+			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.y = 0.0;
+			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.z = 0.0;
+
+
+
+			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_scale.x += static_cast<float>(i / 10.0f);
+			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_scale.y += static_cast<float>(i / 10.0f);
+			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_scale.z += static_cast<float>(i / 10.0f);
+
+			animation->m_skeletonPoses[i].m_jointPoses[1].m_transformation.m_scale.x += static_cast<float>(i / 10.0f);
+			animation->m_skeletonPoses[i].m_jointPoses[1].m_transformation.m_scale.y += static_cast<float>(i / 10.0f);
+			animation->m_skeletonPoses[i].m_jointPoses[1].m_transformation.m_scale.z += static_cast<float>(i / 10.0f);
+		}
+
+		for (int i = 0; i < skeleton->m_jointCount; i++)
+		{
+			DirectX::XMStoreFloat4x4A(&skeleton->m_joints[0].m_inverseBindPose, DirectX::XMMatrixIdentity());
+			DirectX::XMStoreFloat4x4A(&skeleton->m_joints[1].m_inverseBindPose, DirectX::XMMatrixIdentity());
+		}
+
+		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animation);
+		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
+		modelManager.m_dynamicMesh[0]->getAnimatedModel()->Play();
 
 		
 
@@ -153,12 +201,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	PointLight pl2;
 	std::vector<PointLight> point;
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		point.push_back(PointLight());
 	}
 	//srand(time(0));
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < point.size(); i++)
 	{
 
 		point[i].Init(DirectX::XMFLOAT4A(0, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.5f);
@@ -183,7 +231,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
-			modelManager.dynamicMesh[0]->getAnimatedModel()->Update(0.002);
+			modelManager.m_dynamicMesh[0]->getAnimatedModel()->Update(0.002);
 		renderingManager.ImGuiStartFrame();
 		pl.setPosition(lightPosX, lightPosY, lightPosZ);
 		pl.setColor(lightColorR, lightColorG, lightColorB);
@@ -245,7 +293,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		ImGuiTest();
 		MoveLight();
 		pl.QueueLight();
-		for (int i = 0; i < 7; i++)
+		for (int i = 0; i < point.size(); i++)
 		{
 			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
 			point[i].QueueLight();

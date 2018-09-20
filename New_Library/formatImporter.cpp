@@ -193,6 +193,7 @@ namespace MyLibrary
 		bool fileIsOpen = false;
 
 		std::ifstream customAnimationFile(fileName, std::ifstream::binary);
+		assert(customAnimationFile.is_open());
 		AnimationHeader animation_header;
 		AnimationFromFile animation_to_return;
 

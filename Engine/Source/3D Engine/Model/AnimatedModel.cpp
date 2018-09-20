@@ -1,13 +1,11 @@
 #include "AnimatedModel.h"
 #include "../Extern.h"
 
-
+#define INVERT_BINDPOSE
 
 Animation::AnimatedModel::AnimatedModel()
 {
 }
-
-
 
 Animation::AnimatedModel::~AnimatedModel()
 {
@@ -16,7 +14,7 @@ Animation::AnimatedModel::~AnimatedModel()
 // | Computes the frame we're currently on and computes final skinning matrices for gpu skinning |
 void Animation::AnimatedModel::Update(float deltaTime)
 {
-	deltaTime /= 20.0;
+	deltaTime /= 8;
 	if (m_isPlaying)
 	{
 		//increase local time
@@ -33,15 +31,22 @@ void Animation::AnimatedModel::Update(float deltaTime)
 				: m_isPlaying != m_isPlaying;
 		}
 
-		//calc the actual frame index TODO : get progression towards next for interpolation
+		//calc the actual frame index and progression towards the next frame
 		int prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
+		float progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
 
-/*
-		uint16_t lastFrame = m_currentTime * m_currentClip->m_framerate;
-		uint16_t currentFrame = std::floorf(m_currentTime * (1.0 / m_currentClip->m_framerate));*/
+		if (prevIndex + 1 >= m_currentClip->m_frameCount)
+		{
+			float neg = (1 / 24.0f) * (m_currentClip->m_frameCount - 1);
+			m_currentTime = m_currentTime - neg;
 
-		// compute skinning matrices. TODO : interpolation
-		_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex]);
+			prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
+			progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
+
+		}
+
+		// compute skinning matrices
+		_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex+1], progression);
 	}
 }
 
@@ -111,9 +116,27 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 	{
 		XMFLOAT4X4A global = m_globalMatrices[i];
 		XMFLOAT4X4A inverseBindPose = m_skeleton->m_joints[i].m_inverseBindPose;
-		XMMATRIX skinningMatrix = XMMatrixMultiply(loadMatrix(&global), loadMatrix(&inverseBindPose));
-		storeMatrix(&m_skinningMatrices[i], skinningMatrix);
+		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&global), XMLoadFloat4x4A(&inverseBindPose));
+		DirectX::XMStoreFloat4x4A(&m_skinningMatrices[i], skinningMatrix);
 		
+		//DEBUG
+		//storeMatrix(&m_skinningMatrices[i], XMMatrixIdentity());
+	}
+}
+
+void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
+{
+	using namespace DirectX;
+
+	_computeModelMatrices(firstPose, secondPose, weight);
+
+	for (int i = 0; i < m_skeleton->m_jointCount; i++)
+	{
+		XMFLOAT4X4A global = m_globalMatrices[i];
+		XMFLOAT4X4A inverseBindPose = m_skeleton->m_joints[i].m_inverseBindPose;
+		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&global), XMLoadFloat4x4A(&inverseBindPose));
+		DirectX::XMStoreFloat4x4A(&m_skinningMatrices[i], skinningMatrix);
+
 		//DEBUG
 		//storeMatrix(&m_skinningMatrices[i], XMMatrixIdentity());
 	}
@@ -124,7 +147,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 {
 	using namespace DirectX;
 
-	XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
+	DirectX::XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
 
 	for (int i = 1; i < m_skeleton->m_jointCount; i++) //start at second joint (first is root, already processed)
 	{
@@ -132,10 +155,26 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 		assert(parentIndex > -1);
 		assert(i > parentIndex);
 		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
-		XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
+		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
 	}
 }
 
+void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
+{
+	using namespace DirectX;
+	auto rootJointPose = _interpolateJointPose(&firstPose->m_jointPoses[0], &secondPose->m_jointPoses[0], weight);
+	DirectX::XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(rootJointPose.m_transformation));
+
+	for (int i = 1; i < m_skeleton->m_jointCount; i++) //start at second joint (first is root, already processed)
+	{
+		int16_t parentIndex = m_skeleton->m_joints[i].parentIndex;
+		assert(parentIndex > -1);
+		assert(i > parentIndex);
+		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
+		auto jointPose = _interpolateJointPose(&firstPose->m_jointPoses[i], &secondPose->m_jointPoses[i], weight);
+		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(jointPose.m_transformation), parentGlobalMatrix));
+	}
+}
 Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
 {
 	using namespace DirectX;
@@ -163,6 +202,29 @@ void Animation::AnimatedModel::_interpolatePose(SkeletonPose * firstPose, Skelet
 		DirectX::XMVECTOR newScale = DirectX::XMVectorLerp(firstScale, secondScale, weight);
 	}
 	//TODO do stuff / return new skeleton pose
+}
+
+Animation::JointPose Animation::AnimatedModel::_interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight)//1.0 weight means 100% second pose
+{
+	using namespace DirectX;
+
+	XMVECTOR firstRotation = XMLoadFloat4A(&firstPose->m_transformation.m_rotationQuaternion);
+	XMVECTOR secondRotation = XMLoadFloat4A(&secondPose->m_transformation.m_rotationQuaternion);
+	XMVECTOR firstTranslation = XMLoadFloat4A(&firstPose->m_transformation.m_translation);
+	XMVECTOR secondTranslation = XMLoadFloat4A(&secondPose->m_transformation.m_translation);
+	XMVECTOR firstScale = XMLoadFloat4A(&firstPose->m_transformation.m_scale);
+	XMVECTOR secondScale = XMLoadFloat4A(&secondPose->m_transformation.m_scale);
+
+	DirectX::XMVECTOR newRotation = XMQuaternionSlerp(firstRotation, secondRotation, weight);
+	DirectX::XMVECTOR newTranslation = XMVectorLerp(firstTranslation, secondTranslation, weight);
+	DirectX::XMVECTOR newScale = XMVectorLerp(firstScale, secondScale, weight);
+
+	SRT srt = {};
+	XMStoreFloat4A(&srt.m_rotationQuaternion, newRotation);
+	XMStoreFloat4A(&srt.m_scale, newScale);
+	XMStoreFloat4A(&srt.m_translation, newTranslation);
+
+	return JointPose(srt);
 }
 
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
@@ -212,16 +274,22 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::SkeletonFromFile* importedSkeleton)
 {
 	using namespace DirectX;
-	XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[0].joint_transform)));
+	DirectX::XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[0].joint_transform)));
 
 	for (int i = 1; i < mainSkeleton->m_jointCount; i++)
 	{
 		int16_t parentIndex = mainSkeleton->m_joints[i].parentIndex;
 		assert(i > parentIndex);
-		XMStoreFloat4x4A
+#ifdef INVERT_BINDPOSE
+		DirectX::XMStoreFloat4x4A
 		(&mainSkeleton->m_joints[i].m_inverseBindPose, XMMatrixInverse(nullptr, XMMatrixMultiply(_createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[i].joint_transform)), XMLoadFloat4x4A(&mainSkeleton->m_joints[parentIndex].m_inverseBindPose))));
-		XMStoreFloat4x4A
+#else
+		DirectX::XMStoreFloat4x4A
 		(&mainSkeleton->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[i].joint_transform)), XMLoadFloat4x4A(&mainSkeleton->m_joints[parentIndex].m_inverseBindPose)));
+#endif
+		DirectX::XMStoreFloat4x4A
+		(&mainSkeleton->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[i].joint_transform)), XMLoadFloat4x4A(&mainSkeleton->m_joints[parentIndex].m_inverseBindPose)));
+
 	}
 }
 
@@ -281,6 +349,23 @@ Animation::SRT::SRT(const MyLibrary::Transform& transform)
 	XMStoreFloat4A(&m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
 	m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
 	m_scale = { 1.0, 1.0, 1.0, 1.0f };
+}
+
+bool Animation::SRT::operator==(const SRT& other)
+{
+	return (m_rotationQuaternion.x == other.m_rotationQuaternion.x
+		&& m_rotationQuaternion.y == other.m_rotationQuaternion.y
+		&& m_rotationQuaternion.z == other.m_rotationQuaternion.z
+		&& m_rotationQuaternion.w == other.m_rotationQuaternion.w
+		&& m_scale.x == other.m_scale.x
+		&& m_scale.z == other.m_scale.z
+		&& m_scale.y == other.m_scale.y
+		&& m_scale.w == other.m_scale.w
+		&& m_translation.x == other.m_translation.x
+		&& m_translation.z == other.m_translation.z
+		&& m_translation.y == other.m_translation.y
+		&& m_translation.w == other.m_translation.w
+		);
 }
 
 Animation::Skeleton::Skeleton(const MyLibrary::SkeletonFromFile& skeleton)

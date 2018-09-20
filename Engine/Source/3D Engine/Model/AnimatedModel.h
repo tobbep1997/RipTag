@@ -19,7 +19,6 @@
 
 namespace Animation
 {
-
 	struct SRT
 	{
 		DirectX::float4 m_rotationQuaternion;
@@ -28,6 +27,7 @@ namespace Animation
 
 		SRT() {};
 		SRT(const MyLibrary::Transform& transform);
+		bool operator==(const SRT& other);
 	};
 
 	struct Joint
@@ -64,13 +64,14 @@ namespace Animation
 	{
 		Skeleton* m_skeleton;
 		uint16_t m_frameCount;
-		std::unique_ptr<SkeletonPose[]> (m_skeletonPoses);
+		std::unique_ptr<SkeletonPose[]> m_skeletonPoses;
 		uint8_t m_framerate;
 
 		AnimationClip() {};
 		AnimationClip(const MyLibrary::AnimationFromFile& animation, Skeleton* skeleton);
 		~AnimationClip();
 	};
+
 	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	Skeleton* ConvertToSkeleton     (MyLibrary::SkeletonFromFile* skeleton);
@@ -110,8 +111,11 @@ namespace Animation
 		bool m_isLooping = true;
 
 		void _computeSkinningMatrices(SkeletonPose* pose);
+		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeModelMatrices(SkeletonPose* pose);
+		void _computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 	};
 
 	class AnimationCBuffer
