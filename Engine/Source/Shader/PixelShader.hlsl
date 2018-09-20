@@ -70,8 +70,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 	
     for (int light = 0; light < numberOfLights.x; light++)
     {     
-        float div = 1.0f;
-        float shadowCoeff = 1.0f;
+		float div = 1.0f;
+		float shadowCoeff = 1.0f;
 		
         float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
         float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);            
@@ -87,10 +87,10 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
             float depth = fragmentLightPosition.z;
 
-            if (smTex.x < 0 || smTex.x > 1 || depth <= 0.0f || depth > 1.0f)
+            if (smTex.x <= 0 || smTex.x >= 1 || depth <= 0.0f || depth > 1.0f)
                 continue;
 
-            if (smTex.y < 0 || smTex.y > 1|| depth <= 0.0f || depth > 1.0f)
+            if (smTex.y <= 0 || smTex.y >= 1|| depth <= 0.0f || depth > 1.0f)
                 continue;
 
             float3 indexPos = float3(smTex, (light * 6) + targetMatrix);
@@ -117,8 +117,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         
         float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot)) * (shadowCoeff / div);
 
-
         finalColor.rgb += (specular + diffuse.rgb).rgb * (shadowCoeff / div);
+		
     }
     finalColor.a = textureColor.a;
     return min(ambient + finalColor, float4(1, 1, 1, 1));

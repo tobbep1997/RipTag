@@ -58,22 +58,26 @@ namespace Shaders
 			for (int j = 0; j < m_shadersHashTable[i].size(); j++)
 			{
 				counter++;
+#if _DEBUG
 				std::wcout << L"Processing : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
-
-				HRESULT hr = m_shadersHashTable[i][j]->ReloadShader();			
+#endif
+				HRESULT hr = m_shadersHashTable[i][j]->ReloadShader();
 
 				if (FAILED(hr))
 				{
 					_com_error err(hr);
-					
+#if _DEBUG
 					std::wcout << L"Error : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
 					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\tFAILED " << std::endl;
+#endif
 
 				}
 				else
 				{
+#if _DEBUG
 					std::wcout << L"Complete : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
 					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\tDone " << std::endl;
+#endif
 				}
 
 		
