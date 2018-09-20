@@ -18,10 +18,23 @@
     <ClInclude Include="InputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="XboxInput\GamePad\GamePad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XboxInput\GamePadHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="XboxInput\GamePadHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="XboxInput\GamePad\DirectXTK.lib" />
+    <Library Include="XboxInput\GamePad\DirectXTKd.lib" />
   </ItemGroup>
 </Project>
