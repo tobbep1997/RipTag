@@ -88,6 +88,20 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
+Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton)
+{
+	MyLibrary::Loadera loader;
+	auto importedAnimation = loader.readAnimationFile(file);
+	return new Animation::AnimationClip(importedAnimation, skeleton);
+}
+
+Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
+{
+	MyLibrary::Loadera loader;
+	auto importedSkeleton = loader.readSkeletonFile(file);
+	return new Animation::Skeleton(importedSkeleton);
+}
+
 // | Calls _computeModelMatrices() then multiplies the results with the inverse bind pose | 
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 {
