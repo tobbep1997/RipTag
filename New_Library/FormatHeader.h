@@ -25,6 +25,14 @@ namespace MyLibrary
 		float transform_position[3];
 		float transform_scale[3];
 		float transform_rotation[3];
+
+		Transform()
+		{
+			ZeroMemory(this, sizeof(Transform));
+			transform_scale[0] = 1.0;
+			transform_scale[1] = 1.0;
+			transform_scale[2] = 1.0;
+		};
 	};
 	struct MeshHeader {
 
@@ -88,6 +96,11 @@ namespace MyLibrary
 		float vertex_tangent[3];
 		unsigned int influencing_joint[4];
 		float joint_weights[4];
+
+		AnimatedVertexFromFile()
+		{
+			ZeroMemory(this, sizeof(AnimatedVertexFromFile));
+		};
 	};
 
 	struct AnimatedMeshFromFile
@@ -112,12 +125,12 @@ namespace MyLibrary
 	{
 		char skeletonID[100];
 		unsigned int skeleton_nrOfJoints;
-		Joint* skeleton_joints;
+		std::unique_ptr<Joint[]> skeleton_joints;
 	};
 
 	struct AnimationFromFile
 	{
 		unsigned int nr_of_keyframes;
-		Transform* keyframe_transformations;
+		std::unique_ptr<Transform[]> keyframe_transformations;
 	};
 }

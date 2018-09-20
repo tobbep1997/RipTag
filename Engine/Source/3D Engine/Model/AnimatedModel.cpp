@@ -156,13 +156,13 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 
 	AnimationClip* clipToReturn = new AnimationClip();
 	clipToReturn->m_frameCount = static_cast<uint16_t>(keyCount);
-	clipToReturn->m_skeletonPoses = new SkeletonPose[clipToReturn->m_frameCount];
+	clipToReturn->m_skeletonPoses = std::make_unique<SkeletonPose[]>(clipToReturn->m_frameCount);
 
 	// Review
 	//Init joint poses for skeleton poses
 	for (int i = 0; i < clipToReturn->m_frameCount; i++)
 	{
-		clipToReturn->m_skeletonPoses[i].m_jointPoses = new JointPose[jointCount];
+		clipToReturn->m_skeletonPoses[i].m_jointPoses = std::make_unique<JointPose[]>(jointCount);
 	}
 
 	for (int j = 0; j < jointCount; j++)
@@ -183,7 +183,7 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 {
 	Animation::Skeleton* skeletonToReturn = new Animation::Skeleton();
 	skeletonToReturn->m_jointCount = skeleton->skeleton_nrOfJoints;
-	skeletonToReturn->m_joints = new Animation::Joint[skeletonToReturn->m_jointCount];
+	skeletonToReturn->m_joints = std::make_unique<Animation::Joint[]>(skeletonToReturn->m_jointCount);
 
 	for (int i = 0; i < skeletonToReturn->m_jointCount; i++)
 	{
@@ -271,7 +271,7 @@ Animation::SRT::SRT(const MyLibrary::Transform& transform)
 Animation::Skeleton::Skeleton(const MyLibrary::SkeletonFromFile& skeleton)
 {
 	m_jointCount = skeleton.skeleton_nrOfJoints;
-	m_joints = new Animation::Joint[m_jointCount];
+	m_joints = std::make_unique<Animation::Joint[]>(m_jointCount);
 
 	for (int i = 0; i < m_jointCount; i++)
 	{
@@ -292,12 +292,12 @@ Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFile& anim
 	m_framerate = 24; //TODO
 	uint32_t keyCount = animation.nr_of_keyframes;
 	m_frameCount = static_cast<uint16_t>(keyCount);
-	m_skeletonPoses = new SkeletonPose[m_frameCount];
+	m_skeletonPoses = std::make_unique<SkeletonPose[]>(m_frameCount);
 
 	//Init joint poses for skeleton poses
 	for (int i = 0; i < m_frameCount; i++)
 	{
-		m_skeletonPoses[i].m_jointPoses = new JointPose[m_skeleton->m_jointCount];
+		m_skeletonPoses[i].m_jointPoses = std::make_unique<JointPose[]>(m_skeleton->m_jointCount);
 	}
 
 	for (int j = 0; j < m_skeleton->m_jointCount; j++)
@@ -306,7 +306,12 @@ Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFile& anim
 		for (int k = 0; k < keyCount; k++)
 		{
 			// Review
-			m_skeletonPoses[k].m_jointPoses[j].m_transformation = SRT(animation.keyframe_transformations[j * animation.nr_of_keyframes + k]);
+			SRT srt = SRT(animation.keyframe_transformations[j * animation.nr_of_keyframes + k]);
+			m_skeletonPoses[k].m_jointPoses[j].m_transformation = srt;
 		}
 	}
+}
+
+Animation::AnimationClip::~AnimationClip()
+{
 }

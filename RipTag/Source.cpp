@@ -97,6 +97,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.staticMesh[0]->setPosition(10.0, 0.0, 0.0);
 	modelManager.addDynamicMesh("../Assets/pSphere2_ANIMATION_Mesh.bin");
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
@@ -105,41 +106,45 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		Animation::AnimationCBuffer animCB;
 		animCB.SetAnimationCBuffer();
 		
-		MyLibrary::Loadera meshloader;
-		//Animation::Skeleton* = ;
-		MyLibrary::SkeletonFromFile skel = meshloader.readSkeletonFile("../Assets/joint1_Skeleton.bin");
-		MyLibrary::Joint jnt= skel.skeleton_joints[1];
-		MyLibrary::AnimationFromFile asd = meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin", skel.skeleton_nrOfJoints);
-		std::vector<MyLibrary::Transform> asdasd;
-		for (int i = 0; i < asd.nr_of_keyframes * skel.skeleton_nrOfJoints; i++)
-			asdasd.push_back(asd.keyframe_transformations[i]);
-
-		Animation::AnimationClip* animationClip = Animation::ConvertToAnimationClip(&asd, skel.skeleton_nrOfJoints);
-
-		std::vector<Animation::SRT> asdasdasd;
-		for (int i = 0; i < skel.skeleton_nrOfJoints; i++)
-		{
-			for (int j = 0; j < asd.nr_of_keyframes; j++)
-				asdasdasd.push_back(animationClip->m_skeletonPoses[j].m_jointPoses[i].m_transformation);
-
-		}
+		//MyLibrary::Loadera meshloader;
+		////Animation::Skeleton* = ;
+		//MyLibrary::SkeletonFromFile skel = meshloader.readSkeletonFile("../Assets/joint1_Skeleton.bin");
+		//MyLibrary::AnimationFromFile importedAnim = meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin");
 
 
-		Animation::Skeleton* skeleton = Animation::ConvertToSkeleton(&skel);
-		//skeleton->m_joints->parentIndex = -1;
-		animationClip->m_skeleton = skeleton;
-		modelManager.dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animationClip);
+
+
+		//DEBUG
+		//for (int i = 24; i < 48; i++)
+		//	importedAnim.keyframe_transformations[i] = MyLibrary::Transform();
+		//
+		//std::vector<MyLibrary::Transform> transformVector;
+		//for (int i = 0; i < importedAnim.nr_of_keyframes * skel.skeleton_nrOfJoints; i++)
+		//	transformVector.push_back(importedAnim.keyframe_transformations[i]);
+
+		//std::vector<Animation::SRT> SRTVector;
+		//for (int i = 0; i < skel.skeleton_nrOfJoints; i++)
+		//{
+		//	for (int j = 0; j < animation->m_frameCount; j++)
+		//		SRTVector.push_back(animation->m_skeletonPoses[j].m_jointPoses[i].m_transformation);
+
+		//}
+
+
+		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/joint1_Skeleton.bin");
+		auto animation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
+		modelManager.dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animation);
 		modelManager.dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
 		modelManager.dynamicMesh[0]->getAnimatedModel()->Play();
 
+		
 
 
-
-		std::vector<Animation::SRT> srts;
-		{ //FRAME ONE JOINT 0
-			for (int i = 0; i < animationClip->m_frameCount; i++)
-				srts.push_back(animationClip->m_skeletonPoses[i].m_jointPoses[0].m_transformation);
-		}
+		//std::vector<Animation::SRT> srts;
+		//{
+		//	for (int i = 0; i < animation->m_frameCount; i++)
+		//		srts.push_back(animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation);
+		//}
 
 
 	
@@ -219,6 +224,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
+
+	delete animation;
+	delete skeleton;
 
 	
 	return 0;

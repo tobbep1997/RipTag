@@ -69,7 +69,7 @@ namespace MyLibrary
 			//meshToReturn.mesh_materialID = meshname.mesh_materialID;
 
 			customMeshFile.close();
-			delete vertices;
+			delete[] vertices;
 
 		}
 
@@ -91,7 +91,7 @@ namespace MyLibrary
 		{
 			fileIsOpen = true;
 
-			MeshHeader meshname;
+			MeshHeader meshname = {};
 
 			//customMeshFile.read((char*)&meshname.mesh_nrOfVertices, sizeof(meshname.mesh_nrOfVertices));
 			//customMeshFile.read((char*)&meshname.mesh_meshID, sizeof(meshname.mesh_meshID));
@@ -106,7 +106,7 @@ namespace MyLibrary
 	
 			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
-
+				meshToReturn.mesh_vertices[i] = AnimatedVertexFromFile();
 				meshToReturn.mesh_vertices[i].vertex_position[0] = vertices[i].vertex_position[0];
 				meshToReturn.mesh_vertices[i].vertex_position[1] = vertices[i].vertex_position[1];
 				meshToReturn.mesh_vertices[i].vertex_position[2] = vertices[i].vertex_position[2];
@@ -140,7 +140,7 @@ namespace MyLibrary
 			}
 
 			customMeshFile.close();
-			delete vertices;
+			delete[] vertices;
 		}
 
 		return meshToReturn;
@@ -169,7 +169,7 @@ namespace MyLibrary
 			//	skeleton_to_return.skeleton_joints = new Joint[skeleton_header.skeleton_nrOfJoints];
 
 			customSkeletonFile.read((char*)joints, skeleton_header.skeleton_nrOfJoints * sizeof(Joint));
-			skeleton_to_return.skeleton_joints = new Joint[skeleton_header.skeleton_nrOfJoints];
+			skeleton_to_return.skeleton_joints = std::make_unique<Joint[]>(skeleton_header.skeleton_nrOfJoints);
 			for (unsigned int i = 0; i < skeleton_header.skeleton_nrOfJoints; i++)
 			{
 				for (int j = 0; j < MAX_FILENAME; j++)
@@ -196,12 +196,13 @@ namespace MyLibrary
 			for (int i = 0; i < MAX_FILENAME; i++)
 				skeleton_to_return.skeletonID[i] = skeleton_header.skeletonID[i];
 			customSkeletonFile.close();
+			delete[] joints;
 		}
 
 		return skeleton_to_return;
 	}
 
-	MyLibrary::AnimationFromFile Loadera::readAnimationFile(std::string fileName, uint16_t jointCount)
+	MyLibrary::AnimationFromFile Loadera::readAnimationFile(std::string fileName)
 	{
 		bool fileIsOpen = false;
 
@@ -216,9 +217,14 @@ namespace MyLibrary
 			customAnimationFile.read((char*)&animation_header, sizeof(AnimationHeader));
 			animation_to_return.nr_of_keyframes = animation_header.anim_nrOfKeys;
 			Transform* keyframes = new Transform[animation_header.anim_nrOfKeys];
+			
+			//Init keyframes
+			for (int i = 0; i < animation_to_return.nr_of_keyframes; i++)
+				keyframes[i] = Transform();
+
 			customAnimationFile.read((char*)keyframes, animation_header.anim_nrOfKeys * sizeof(Transform));
 
-			animation_to_return.keyframe_transformations = new Transform[animation_header.anim_nrOfKeys];
+			animation_to_return.keyframe_transformations = std::make_unique<Transform[]>(animation_header.anim_nrOfKeys);
 			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys; i++)
 			{
 				animation_to_return.keyframe_transformations[i] = keyframes[i];
@@ -240,7 +246,7 @@ namespace MyLibrary
 				animation_to_return.keyframe_transformations[i].transform_rotation[2] = tempScale[2];
 
 			}
-
+			delete[] keyframes;
 			customAnimationFile.close();
 		}
 

@@ -40,7 +40,7 @@ namespace Animation
 	struct Skeleton
 	{
 		uint8_t m_jointCount;
-		Joint* m_joints;
+		std::unique_ptr<Joint[]> m_joints;
 
 		Skeleton() {};
 		Skeleton(const MyLibrary::SkeletonFromFile& skeleton);
@@ -56,18 +56,19 @@ namespace Animation
 
 	struct SkeletonPose
 	{
-		JointPose* m_jointPoses;
+		std::unique_ptr<JointPose[]> m_jointPoses;
 	};
 
 	struct AnimationClip
 	{
 		Skeleton* m_skeleton;
 		uint16_t m_frameCount;
-		SkeletonPose* m_skeletonPoses;
+		std::unique_ptr<SkeletonPose[]> (m_skeletonPoses);
 		uint8_t m_framerate;
 
 		AnimationClip() {};
 		AnimationClip(const MyLibrary::AnimationFromFile& animation, Skeleton* skeleton);
+		~AnimationClip();
 	};
 	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);

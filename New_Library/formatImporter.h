@@ -17,7 +17,7 @@ namespace MyLibrary
 		MeshFromFile readMeshFile(std::string fileName);
 		AnimatedMeshFromFile readAnimatedMeshFile(std::string fileName);
 		SkeletonFromFile readSkeletonFile(std::string fileName);
-		AnimationFromFile readAnimationFile(std::string fileName, uint16_t jointCount);
+		AnimationFromFile readAnimationFile(std::string fileName);
 		
 	private:
 		int getNrOfVerticesFromFile(std::ifstream& file);
