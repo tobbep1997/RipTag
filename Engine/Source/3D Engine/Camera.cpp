@@ -55,7 +55,7 @@ void Camera::setPosition(float x, float y, float z, float w)
 	this->setPosition(pos);
 }
 
-void Camera::Move(const DirectX::XMFLOAT4A & pos)
+void Camera::Translate(const DirectX::XMFLOAT4A & pos)
 {
 
 	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat4A(&this->m_direction);
@@ -86,9 +86,9 @@ void Camera::Move(const DirectX::XMFLOAT4A & pos)
 	this->m_position.w = 1.0f;
 }
 
-void Camera::Move(float x, float y, float z, float w)
+void Camera::Translate(float x, float y, float z, float w)
 {
-	this->Move(DirectX::XMFLOAT4A( x, y, z, w ));
+	this->Translate(DirectX::XMFLOAT4A( x, y, z, w ));
 }
 
 void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)

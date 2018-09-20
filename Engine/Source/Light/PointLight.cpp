@@ -6,6 +6,7 @@ PointLight::PointLight()
 {
 	m_nearPlane = 1.0f;
 	m_farPlane = 20.0f;
+	
 }
 
 
@@ -23,45 +24,20 @@ void PointLight::CreateShadowDirection(ShadowDir direction)
 	{
 	case PointLight::Y_POSITIVE:
 		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
-		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
-		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
 		break;
 	case PointLight::Y_NEGATIVE:
 		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
-		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
-		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
 		break;
 	case PointLight::X_POSITIVE:
-		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
-		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
 		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
-
 		break;
 	case PointLight::X_NEGATIVE:
-		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
-		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
 		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
-		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
 		break;
 	case PointLight::Z_POSITIVE:
-		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
-		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
-		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
-		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
 		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Forward
 		break;
 	case PointLight::Z_NEGATIVE:
-		_createSide(DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 0.0f, 1.0f, 0.0f)); // UP
-		_createSide(DirectX::XMFLOAT4A(0.0f, -1.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f)); // Down
-		_createSide(DirectX::XMFLOAT4A(1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Right
-		_createSide(DirectX::XMFLOAT4A(-1.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Left
 		_createSide(DirectX::XMFLOAT4A(0.0f, 0.0f, -1.0f, 0.0f), DirectX::XMFLOAT4A(0.0f, 1.0f, 0.0f, 0.0f)); // Back
 		break;
 	case PointLight::XYZ_ALL:
@@ -77,59 +53,91 @@ void PointLight::Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, flo
 	this->m_position = position;
 	this->m_color = color;
 	this->m_dropOff = 1.0f - power;
-	
+	this->m_intensity = 1.0f;
+	this->m_pow = 2.0f;
 	//_createSides();
 }
 
-const DirectX::XMFLOAT4A & PointLight::getPosition()
+const DirectX::XMFLOAT4A & PointLight::getPosition() const
 {
 	return m_position;
 }
 
-const DirectX::XMFLOAT4A & PointLight::getColor()
+const DirectX::XMFLOAT4A & PointLight::getColor() const
 {
 	return m_color;
 }
 
-const std::vector<Camera*>& PointLight::getSides()
+const std::vector<Camera*>& PointLight::getSides() const
 {
 	return m_sides;
 }
 
-const float & PointLight::getDropOff()
+const float & PointLight::getDropOff() const
 {
 	return m_dropOff;
 }
+
+const float & PointLight::getPow() const
+{
+	return this->m_pow;
+}
+
+const float & PointLight::getIntensity() const
+{
+	return this->m_intensity;
+}
+
+
+
+void PointLight::CreateShadowDirection(const std::vector<ShadowDir> & shadowDir)
+{
+	for (unsigned int i = 0; i < shadowDir.size(); i++)
+	{
+		CreateShadowDirection(shadowDir[i]);
+	}
+}
+
 
 void PointLight::QueueLight()
 {
 	DX::g_lights.push_back(this);
 }
 
-void PointLight::SetPosition(const DirectX::XMFLOAT4A & pos)
+void PointLight::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	this->m_position = pos;
 	_updateCameras();
 }
 
-void PointLight::SetPosition(float x, float y, float z, float w)
+void PointLight::setPosition(float x, float y, float z, float w)
 {
-	this->SetPosition(DirectX::XMFLOAT4A(x, y, z, w));
+	this->setPosition(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
-void PointLight::SetColor(const DirectX::XMFLOAT4A & color)
+void PointLight::setColor(const DirectX::XMFLOAT4A & color)
 {
 	this->m_color = color;
 }
 
-void PointLight::SetColor(float x, float y, float z, float w)
+void PointLight::setColor(float x, float y, float z, float w)
 {
-	this->SetColor(DirectX::XMFLOAT4A(x, y, z, w));
+	this->setColor(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
-void PointLight::SetIntensity(float intencsity)
+void PointLight::setIntensity(float intencsity)
 {
-	this->m_dropOff = 1.0f - intencsity;
+	this->m_intensity = intencsity;
+}
+
+void PointLight::setPower(float pow)
+{
+	this->m_pow = pow;
+}
+
+void PointLight::setDropOff(float dropOff)
+{
+	this->m_dropOff = dropOff;
 }
 
 void PointLight::setNearPlane(float nearPlane)
@@ -148,7 +156,7 @@ void PointLight::setFarPlane(float farPlane)
 	}
 }
 
-float PointLight::GetDistanceFromCamera(Camera& camera)
+float PointLight::getDistanceFromCamera(Camera& camera)
 {
 	DirectX::XMVECTOR vec1 = DirectX::XMLoadFloat4A(&camera.getPosition());
 	DirectX::XMVECTOR vec2 = DirectX::XMLoadFloat4A(&this->m_position);

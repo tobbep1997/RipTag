@@ -200,11 +200,6 @@
     <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h" />
     <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h" />
     <ClInclude Include="Source\Helper\Timer.h" />
-    <ClInclude Include="Source\Messages\CoreMessage.h" />
-    <ClInclude Include="Source\Messages\DrawMessage.h" />
-    <ClInclude Include="Source\Messages\EngineMessage.h" />
-    <ClInclude Include="Source\Messages\PostalManagerRender.h" />
-    <ClInclude Include="Source\Messages\WindowMessage.h" />
     <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
     <ClInclude Include="Source\Shader\Shader.h" />
     <ClInclude Include="Source\Shader\ShaderManager.h" />
@@ -244,8 +239,6 @@
     <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Source\Messages\CoreMessage.cpp" />
-    <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
     <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
     <ClCompile Include="Source\Shader\Shader.cpp" />
     <ClCompile Include="Source\Shader\ShaderManager.cpp" />
@@ -275,16 +268,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>

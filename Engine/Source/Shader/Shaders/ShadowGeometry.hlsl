@@ -1,7 +1,8 @@
 cbuffer LIGHT_MATRIX : register(b0)
 {
-	float4x4 lightViewProjection[8][6];
-    int numberOfLights;
+	float4x4 lightViewProjection[8][6]; //3072
+	int4 numberOfViewProjection[8]; //32
+	int4 numberOfLights; //16
 };
 
 
@@ -12,7 +13,7 @@ struct GSOutput
 };
 
 // after optimization, change this to 8
-static const uint maxLight = 2;
+static const uint maxLight = 8;
 
 [maxvertexcount(maxLight * 6 * 3)]
 void main(
@@ -20,18 +21,19 @@ void main(
 	inout TriangleStream< GSOutput > output
 )
 {
-    for (int lights = 0; lights < numberOfLights; lights++)
+    for (int lights = 0; lights < numberOfLights.x; lights++)
     {
-        for (int targetMatrix = 0; targetMatrix < 6; targetMatrix++)
+        for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[lights].x; targetMatrix++)
         {
             GSOutput element;
             element.RTIndex = (lights * 6) + targetMatrix;
+
             for (int vertex = 0; vertex < 3; vertex++)
             {
                 element.pos = mul(input[vertex], lightViewProjection[lights][targetMatrix]);
                 output.Append(element);
-            }
-            output.RestartStrip();
+            }			
+			output.RestartStrip();
         }
     }
 }

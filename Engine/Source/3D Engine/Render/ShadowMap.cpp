@@ -27,22 +27,22 @@ void ShadowMap::ShadowPass()
 {
 	
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
-	DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
-	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
+	//DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertex.hlsl"), nullptr, 0);
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/Source/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);
+	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/Source/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);
 	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_shadowDepthStencilView);
 	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_shadowDepthStencilView);
 
-	mapAllLightMatrix(&DX::g_lights);
+	MapAllLightMatrix(&DX::g_lights);
 	for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
 	{
 		UINT32 vertexSize = sizeof(StaticVertex);
@@ -52,7 +52,7 @@ void ShadowMap::ShadowPass()
 
 		_mapObjectBuffer(DX::g_geometryQueue[j]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->VertexSize(), 0);
+		DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->getVertexSize(), 0);
 	}
 	for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
 	{
@@ -64,30 +64,30 @@ void ShadowMap::ShadowPass()
 
 		_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->VertexSize(), 0);
+		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
 	}
 
 
 }
 
-void ShadowMap::mapAllLightMatrix(std::vector<PointLight*> * lights)
+void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 {
-	m_allLightMatrixValues.nrOfLights = lights->size();
+	m_allLightMatrixValues.nrOfLights = DirectX::XMINT4(lights->size(),0,0,0);
 	for (unsigned int light = 0; light < lights->size(); light++)
 	{
-		for (unsigned int i = 0; i < 6; i++)
+		m_allLightMatrixValues.nrOfviewProjection[light] = DirectX::XMINT4(lights->at(light)->getSides().size(),0,0,0);
+		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
 			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides()[i]->getViewProjection();
 		}
 	}
-
+	
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	DX::g_deviceContext->Map(m_allLightMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	memcpy(dataPtr.pData, &m_allLightMatrixValues, sizeof(PointLightBuffer));
 	DX::g_deviceContext->Unmap(m_allLightMatrixBuffer, 0);
 	DX::g_deviceContext->GSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
-	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 
@@ -97,6 +97,14 @@ void ShadowMap::SetSamplerAndShaderResources()
 {
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
 	DX::g_deviceContext->PSSetShaderResources(0, 1, m_shadowShaderResourceView);	
+}
+
+void ShadowMap::Clear()
+{
+	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
+
+	DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
+	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void ShadowMap::Release()
