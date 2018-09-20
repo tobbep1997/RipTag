@@ -177,7 +177,7 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 	return skeletonToReturn;
 }
 
-void Animation::SetInverseBindPoses(Skeleton* mainSkeleton, MyLibrary::SkeletonFromFile* importedSkeleton)
+void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::SkeletonFromFile* importedSkeleton)
 {
 	using namespace DirectX;
 	XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[0].joint_transform)));
