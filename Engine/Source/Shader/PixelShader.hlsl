@@ -21,9 +21,10 @@ cbuffer LIGHTS : register (b0)
 }
 
 cbuffer LIGHT_MATRIX : register(b1)
-{	
-    float4x4 lightViewProjection[8][6];
-    int numberOfLights;
+{
+	float4x4 lightViewProjection[8][6]; //3072
+	int4 numberOfViewProjection[8]; //32
+	int4 numberOfLights; //16
 };
 cbuffer CAMERA_BUFFER : register(b2)
 {
@@ -43,6 +44,7 @@ struct VS_OUTPUT
 
 float4 OptimizedLightCalculation(VS_OUTPUT input)
 {
+	
     float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 textureColor = emptyFloat4;
     textureColor = diffuseTexture.Sample(defaultSampler, float2(input.uv.x, 1.0 - input.uv.y));
@@ -66,15 +68,15 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 	
     //InterlockedAdd(OutputMap[int2(1, 0)], 1);
 	
-    for (int light = 0; light < numberOfLights; light++)
+    for (int light = 0; light < numberOfLights.x; light++)
     {     
         float div = 1.0f;
         float shadowCoeff = 1.0f;
-
+		
         float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
         float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);            
 		
-        for (int targetMatrix = 0; targetMatrix < 6; targetMatrix++)
+        for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[light].x; targetMatrix++)
         {
              // Translate the world position into the view space of the light
             float4 fragmentLightPosition = mul(input.worldPos, lightViewProjection[light][targetMatrix]);
@@ -117,8 +119,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
 
         finalColor.rgb += (specular + diffuse.rgb).rgb * (shadowCoeff / div);
-        //finalColor.rgb += (((specular * pow(shadowCoeff, 2)) + diffuse.rgb) * shadowCoeff);
-        //finalColor.rgb += (specular + diffuse.rgb).rgb;
     }
     finalColor.a = textureColor.a;
     return min(ambient + finalColor, float4(1, 1, 1, 1));
@@ -154,7 +154,7 @@ float4 OldLightCalculation(VS_OUTPUT input)
 	
     InterlockedAdd(OutputMap[int2(1, 0)], 1);*/
 	
-    for (int light = 0; light < numberOfLights; light++)
+    for (int light = 0; light < numberOfLights.x; light++)
     {
         float shadowCoeff = 1;
         float div = 1;

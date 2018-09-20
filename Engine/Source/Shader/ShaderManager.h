@@ -14,7 +14,7 @@ namespace Shaders
 	class ShaderManager
 	{
 	private:		
-
+		unsigned int nrOfShaders = 0;
 		std::vector<Shader*> m_shadersHashTable[m_hashSize];
 	public:
 		ShaderManager();
@@ -72,6 +72,7 @@ namespace Shaders
 			
 			m_shadersHashTable[shader->getKey()].push_back(shader);
 
+			nrOfShaders++;
 			return shader->getShader<T>();
 		}
 			
@@ -94,10 +95,12 @@ namespace Shaders
 			shader->setEntryPoint(entryPoint);
 			m_shadersHashTable[shader->getKey()].push_back(shader);
 
+			nrOfShaders++;
 			return shader->getShader<T>();
 		}
 
 	}
+
 	//-------------------------------------------------------------------------------------------
 	/*
 	Default public load shader function
