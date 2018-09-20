@@ -93,7 +93,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.m_staticMesh[0]->setScale(10, 1, 10);
+	modelManager.m_staticMesh[0]->setScale(20, 1, 20);
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[1]->setScale(1, 1, 1);
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
@@ -103,11 +103,31 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
-	pl.CreateShadowDirection(PointLight::XYZ_ALL);
+	//pl.CreateShadowDirection(PointLight::XYZ_ALL);
+	pl.CreateShadowDirection(std::vector<PointLight::ShadowDir>({ PointLight::ShadowDir::Y_NEGATIVE, PointLight::ShadowDir::X_NEGATIVE}));
 	PointLight pl2;
-	pl2.Init(DirectX::XMFLOAT4A(5, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.0f);
-	pl2.CreateShadowDirection(PointLight::XYZ_ALL);
-	
+	std::vector<PointLight> point;
+
+	for (int i = 0; i < 7; i++)
+	{
+		point.push_back(PointLight());
+	}
+	//srand(time(0));
+	for (int i = 0; i < 7; i++)
+	{
+
+		point[i].Init(DirectX::XMFLOAT4A(0, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.5f);
+		point[i].CreateShadowDirection(PointLight::XYZ_ALL);
+		point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
+		point[i].setColor((rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f);
+		point[i].setFarPlane(farPlane);
+		point[i].setNearPlane(nearPlane);
+		point[i].setIntensity((rand() % 2));
+		point[i].setDropOff(.2f);
+		point[i].setPower(2.0f);
+	}
+
+
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
@@ -179,8 +199,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		ImGuiTest();
 		MoveLight();
 		pl.QueueLight();
-
-		//pl2.QueueLight();
+		for (int i = 0; i < 7; i++)
+		{
+			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
+			point[i].QueueLight();
+		}
 		
 		modelManager.DrawMeshes();
 		

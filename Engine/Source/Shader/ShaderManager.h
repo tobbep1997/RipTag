@@ -14,7 +14,7 @@ namespace Shaders
 	class ShaderManager
 	{
 	private:		
-
+		unsigned int nrOfShaders = 0;
 		std::vector<Shader*> m_shadersHashTable[m_hashSize];
 	public:
 		ShaderManager();
@@ -39,7 +39,9 @@ namespace Shaders
 		//Standard Hash table functions
 		Shader* _find(std::wstring path);
 		unsigned int _getKey(std::wstring path);
-				
+		std::wstring _getName(const std::wstring & path);
+
+
 		template <typename T> T* _loadShader(const std::wstring path, const std::string entryPoint = "main");
 		template<typename T> T * _loadShader(const std::wstring path, const std::string entryPoint, const Shaders::ShaderType & shaderType);
 	};
@@ -70,6 +72,7 @@ namespace Shaders
 			
 			m_shadersHashTable[shader->getKey()].push_back(shader);
 
+			nrOfShaders++;
 			return shader->getShader<T>();
 		}
 			
@@ -92,10 +95,12 @@ namespace Shaders
 			shader->setEntryPoint(entryPoint);
 			m_shadersHashTable[shader->getKey()].push_back(shader);
 
+			nrOfShaders++;
 			return shader->getShader<T>();
 		}
 
 	}
+
 	//-------------------------------------------------------------------------------------------
 	/*
 	Default public load shader function
