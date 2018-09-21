@@ -8,6 +8,8 @@
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
  
+#include <chrono>
+
 #include "Source/Helper/Timer.h"
 #if _DEBUG
 #include <iostream>
@@ -25,11 +27,13 @@ float scaleY = 0;
 float scaleZ = 0;
 
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
-float lightPosX1 = 0, lightPosY1 = 5, lightPosZ1 = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
 float nearPlane = 1.0f, farPlane = 20.0f;
 
 float lightIntensity = 1, powVar = 2.0f, dropoff = 1.0f;
+
+int targetLight = 0;
+
 void ImGuiTest()
 {
 #if _DEBUG
@@ -49,11 +53,6 @@ void MoveLight() {
 	ImGui::SliderFloat("posX", &lightPosX, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
 	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 30.f); // Create a window called "Hello, world!" and append into it.
 	ImGui::SliderFloat("posZ", &lightPosZ, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
-
-	ImGui::SliderFloat("posX1", &lightPosX1, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posY1", &lightPosY1, -50.0f, 30.f); // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posZ1", &lightPosZ1, -30.0f, 30.f); // Create a window called "Hello, world!" and append into it.
-
 
 	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
 	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
@@ -78,6 +77,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Threading::Init();
 	Timer::StartTimer();
+	using namespace std::chrono;
+	const float REFRESH_RATE = 60.0f;
+	auto time = steady_clock::now();
+	auto timer = steady_clock::now();
+	int updates = 0;
+	int fpsCounter = 0;
+	float freq = 1000000000.0f / REFRESH_RATE;
+	float unprocessed = 0;
+
+
+
 
 	RenderingManager renderingManager;
 
@@ -101,19 +111,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	modelManager.m_staticMesh[1]->setPosition(0, 1, 0);
 
 
-	PointLight pl;
-	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
+	//PointLight pl;
+	//pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
 	//pl.CreateShadowDirection(PointLight::XYZ_ALL);
-	pl.CreateShadowDirection(std::vector<PointLight::ShadowDir>({ PointLight::ShadowDir::Y_NEGATIVE, PointLight::ShadowDir::X_NEGATIVE}));
-	PointLight pl2;
+	//pl.CreateShadowDirection(std::vector<PointLight::ShadowDir>({ PointLight::ShadowDir::Y_NEGATIVE, PointLight::ShadowDir::X_NEGATIVE}));
 	std::vector<PointLight> point;
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		point.push_back(PointLight());
 	}
 	//srand(time(0));
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 8; i++)
 	{
 
 		point[i].Init(DirectX::XMFLOAT4A(0, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 0.5f);
@@ -137,69 +146,98 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	while (renderingManager.getWindow().isOpen())
 	{
+		
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
-		pl.setPosition(lightPosX, lightPosY, lightPosZ);
-		pl.setColor(lightColorR, lightColorG, lightColorB);
-		pl.setFarPlane(farPlane);
-		pl.setNearPlane(nearPlane);
-		
-		pl.setIntensity(lightIntensity);
-		pl.setDropOff(dropoff);
-		pl.setPower(powVar);
-
-		pl2.setPosition(lightPosX1, lightPosY1, lightPosZ1);
-		pl2.setColor(lightColorR, lightColorG, lightColorB);
-		pl2.setFarPlane(farPlane);
-		pl2.setNearPlane(nearPlane);
-
-		pl2.setIntensity(lightIntensity);
-		pl2.setDropOff(dropoff);
-		pl2.setPower(powVar);
-
-
-		/*
-			Test Camera movement
-		*/
-		if (InputHandler::isKeyPressed('W'))
-			camera.Translate(0.0f, 0.0f, 0.01f);
-		else if (InputHandler::isKeyPressed('S'))
-			camera.Translate(0.0f, 0.0f, -0.01f);
-		if (InputHandler::isKeyPressed('A'))
-			camera.Translate(-0.01f, 0.0f, 0.0f);
-		else if (InputHandler::isKeyPressed('D'))
-			camera.Translate(0.01f, 0.0f, 0.0f);
-		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
-			camera.Translate(0.0f, 0.01f, 0.0f);
-		else if (InputHandler::isKeyPressed(InputHandler::Shift))
-			camera.Translate(0.0f, -0.01f, 0.0f);
-
-		/*
-			Test Camera rotation
-		*/
-		if (InputHandler::isKeyPressed(InputHandler::UpArrow))
-			camera.Rotate(0.005f, 0.0f, 0.0f);
-		else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
-			camera.Rotate(-0.005f, 0.0f, 0.0f);
-		if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
-			camera.Rotate(0.0f, -0.005f, 0.0f);
-		else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
-			camera.Rotate(0.0f, 0.005f, 0.0f);
-		if (InputHandler::isKeyPressed(InputHandler::Esc))
-			renderingManager.getWindow().Close();
-
-		if (InputHandler::isKeyPressed(InputHandler::BackSpace))
-			camera.setLookTo(0, 0, 0, 1);
-		
-		if (InputHandler::isKeyPressed('L'))
-			camera.setPosition(pl2.getPosition());
-
-		
-
 		ImGuiTest();
 		MoveLight();
-		pl.QueueLight();
-		for (int i = 0; i < 7; i++)
+		point[targetLight].setColor(lightColorR, lightColorG, lightColorB);
+		point[targetLight].setDropOff(dropoff);
+		point[targetLight].setIntensity(lightIntensity);
+		point[targetLight].setPower(powVar);
+		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
+
+		auto currentTime = steady_clock::now();
+		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
+		time = steady_clock::now();
+		unprocessed += (dt / freq);
+
+		while (unprocessed > 1)
+		{
+			updates++;
+			unprocessed -= 1;
+			
+
+			/*
+				Test Camera movement
+			*/
+			if (InputHandler::isKeyPressed('W'))
+				camera.Translate(0.0f, 0.0f, 0.1f);
+			else if (InputHandler::isKeyPressed('S'))
+				camera.Translate(0.0f, 0.0f, -0.1f);
+			if (InputHandler::isKeyPressed('A'))
+				camera.Translate(-0.1f, 0.0f, 0.0f);
+			else if (InputHandler::isKeyPressed('D'))
+				camera.Translate(0.1f, 0.0f, 0.0f);
+			if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
+				camera.Translate(0.0f, 0.1f, 0.0f);
+			else if (InputHandler::isKeyPressed(InputHandler::Shift))
+				camera.Translate(0.0f, -0.1f, 0.0f);
+
+			/*
+				Test Camera rotation
+			*/
+			if (InputHandler::isKeyPressed(InputHandler::UpArrow))
+				camera.Rotate(0.005f, 0.0f, 0.0f);
+			else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
+				camera.Rotate(-0.005f, 0.0f, 0.0f);
+			if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
+				camera.Rotate(0.0f, -0.005f, 0.0f);
+			else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
+				camera.Rotate(0.0f, 0.005f, 0.0f);
+			if (InputHandler::isKeyPressed(InputHandler::Esc))
+				renderingManager.getWindow().Close();
+			if (InputHandler::isKeyPressed(InputHandler::BackSpace))
+				camera.setLookTo(0, 0, 0, 1);
+
+			if (InputHandler::isKeyPressed('1'))
+				targetLight = 0;
+			else if (InputHandler::isKeyPressed('2'))
+				targetLight = 1;
+			else if (InputHandler::isKeyPressed('3'))
+				targetLight = 2;
+			else if (InputHandler::isKeyPressed('4'))
+				targetLight = 3;
+			else if (InputHandler::isKeyPressed('5'))
+				targetLight = 4;
+			else if (InputHandler::isKeyPressed('6'))
+				targetLight = 5;
+			else if (InputHandler::isKeyPressed('7'))
+				targetLight = 6;
+			else if (InputHandler::isKeyPressed('8'))
+				targetLight = 7;
+
+			DirectX::XMFLOAT4A pointPos = point[targetLight].getPosition();
+			DirectX::XMFLOAT4A pointColor = point[targetLight].getColor();
+			dropoff = point[targetLight].getDropOff();
+			lightIntensity = point[targetLight].getIntensity();
+			powVar = point[targetLight].getPow();
+			lightPosX = pointPos.x;
+			lightPosY = pointPos.y;
+			lightPosZ = pointPos.z;
+			lightColorR = pointColor.x;
+			lightColorG = pointColor.y;
+			lightColorB = pointColor.z;
+			
+			
+		}
+		
+		
+
+		
+
+
+		for (int i = 0; i < 8; i++)
 		{
 			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
 			point[i].QueueLight();
@@ -208,6 +246,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		modelManager.DrawMeshes();
 		
 		renderingManager.Flush(camera);
+
+		if (duration_cast<milliseconds>(steady_clock::now() - timer).count() > 1000)
+		{
+			updates = 0;
+			fpsCounter = 0;
+			timer += milliseconds(1000);
+		}
+
 		renderingManager.Clear();
 		
 	}
