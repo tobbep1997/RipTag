@@ -486,6 +486,9 @@
     <ClInclude Include="..\External\RakNet\Source\XBox360Includes.h">
       <Filter>RakNet</Filter>
     </ClInclude>
+    <ClInclude Include="Multiplayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -823,6 +826,9 @@
     </ClCompile>
     <ClCompile Include="..\External\RakNet\Source\WSAStartupSingleton.cpp">
       <Filter>RakNet</Filter>
+    </ClCompile>
+    <ClCompile Include="Multiplayer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

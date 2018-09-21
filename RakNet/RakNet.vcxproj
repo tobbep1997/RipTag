@@ -98,7 +98,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>ws2_32.lib;</AdditionalDependencies>
+      <AdditionalOptions />
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -152,7 +156,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>ws2_32.lib;</AdditionalDependencies>
+      <AdditionalOptions />
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\External\RakNet\Source\AutopatcherPatchContext.h" />
@@ -309,6 +317,7 @@
     <ClInclude Include="..\External\RakNet\Source\WSAStartupSingleton.h" />
     <ClInclude Include="..\External\RakNet\Source\XBox360Includes.h" />
     <ClInclude Include="..\External\RakNet\Source\_FindFirst.h" />
+    <ClInclude Include="Multiplayer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -424,6 +433,7 @@
     <ClCompile Include="..\External\RakNet\Source\WSAStartupSingleton.cpp" />
     <ClCompile Include="..\External\RakNet\Source\_FindFirst - Copy.cpp" />
     <ClCompile Include="..\External\RakNet\Source\_FindFirst.cpp" />
+    <ClCompile Include="Multiplayer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

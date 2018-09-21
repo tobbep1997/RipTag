@@ -1,3 +1,5 @@
+
+#include <WinSock2.h>
 #include <Windows.h>
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
@@ -7,6 +9,7 @@
 
 
 //network
+#include <Multiplayer.h>
 
  
 #include "Source/Helper/Timer.h"
@@ -75,6 +78,12 @@ void MoveLight() {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+	//-------NETWORKING-----------
+	Network::Multiplayer * pNetwork = Network::Multiplayer::GetInstance();
+
+	pNetwork->assignRole(true);
+	pNetwork->StartUp();
+
 #if _DEBUG
 	_alocConsole();
 #endif
@@ -123,6 +132,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	double pos = 0;
 
+	
+
+
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
@@ -131,6 +144,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		pl.SetColor(lightColorR, lightColorG, lightColorB);
 		pl.SetIntensity(lightIntensity);
 
+		/*
+			Test Network		
+		*/
+		if (InputHandler::isKeyPressed('P') && pNetwork->isServer())
+		{
+			pNetwork->SendPacket("P has been pressed on Server");
+		}
+		if (InputHandler::isKeyPressed('P') && !pNetwork->isServer())
+		{
+			pNetwork->SendPacket("P has been pressed on Client");
+		}
 		/*
 			Test Camera movement
 		*/

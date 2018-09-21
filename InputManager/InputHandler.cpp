@@ -89,10 +89,10 @@ InputHandler::~InputHandler()
 {
 }
 
-InputHandler & InputHandler::Instance()
+InputHandler * InputHandler::Instance()
 {
 	static InputHandler instance; 
-	return instance; 
+	return &instance; 
 }
 
 DirectX::XMFLOAT2 InputHandler::getMousePosition()
