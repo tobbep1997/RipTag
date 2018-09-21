@@ -22,9 +22,13 @@ void _alocConsole() {
 }
 #endif
 
-float scaleX = 0;
-float scaleY = 0;
-float scaleZ = 0;
+float playerScaleX = 1.0f;
+float playerScaleY = 1.0f;
+float playerScaleZ = 1.0f;
+
+float playerPosX = 0.0f;
+float playerPosY = 0.0f;
+float playerPosZ = 0.0f;
 
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
@@ -34,14 +38,16 @@ float lightIntensity = 1, powVar = 2.0f, dropoff = 1.0f;
 
 int targetLight = 0;
 
-void ImGuiTest()
+void MovePlayer()
 {
 #if _DEBUG
-	ImGui::Begin("Sphere Setting");                          // Create a window called "Hello, world!" and append into it.
-	//ImGui::SliderFloat("Rotation", &rotSpeed, 0.0f, 0.1f);
-	ImGui::SliderFloat("PosX", &scaleX, -10.0f, 10.f);
-	ImGui::SliderFloat("PosY", &scaleY, -10.0f, 10.f);
-	ImGui::SliderFloat("PosZ", &scaleZ, -10.0f, 10.f);
+	ImGui::Begin("Player Setting");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("PositionX", &playerPosX, -50.0f, 50.f);
+	ImGui::SliderFloat("PositionY", &playerPosY, -50.0f, 50.f);
+	ImGui::SliderFloat("PositionZ", &playerPosZ, -50.0f, 50.f);
+	ImGui::SliderFloat("ScaleX", &playerScaleX, 0.1f, 3.0f);
+	ImGui::SliderFloat("ScaleY", &playerScaleY, -0.1f, 3.0f);
+	ImGui::SliderFloat("ScaleZ", &playerScaleZ, -0.1f, 3.0f);
 	ImGui::End();
 #endif
 
@@ -67,6 +73,8 @@ void MoveLight() {
 	ImGui::End();
 #endif
 }
+
+
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -104,8 +112,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setScale(20, 1, 20);
+
+
+	// Player atm;
 	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.m_staticMesh[1]->setScale(1, 1, 1);
+	// end player
+
+	
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
 	modelManager.m_dynamicMesh[0]->setPosition(0, 2, 0);
 	modelManager.m_staticMesh[1]->setPosition(0, 1, 0);
@@ -149,13 +162,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
-		ImGuiTest();
+		
+		MovePlayer();
 		MoveLight();
+
 		point[targetLight].setColor(lightColorR, lightColorG, lightColorB);
 		point[targetLight].setDropOff(dropoff);
 		point[targetLight].setIntensity(lightIntensity);
 		point[targetLight].setPower(powVar);
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
+
+		modelManager.m_staticMesh[1]->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		modelManager.m_staticMesh[1]->setPosition(playerPosX, playerPosY, playerPosZ);
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
@@ -188,13 +206,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				Test Camera rotation
 			*/
 			if (InputHandler::isKeyPressed(InputHandler::UpArrow))
-				camera.Rotate(0.005f, 0.0f, 0.0f);
+				camera.Rotate(0.05f, 0.0f, 0.0f);
 			else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
-				camera.Rotate(-0.005f, 0.0f, 0.0f);
+				camera.Rotate(-0.05f, 0.0f, 0.0f);
 			if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
-				camera.Rotate(0.0f, -0.005f, 0.0f);
+				camera.Rotate(0.0f, -0.05f, 0.0f);
 			else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
-				camera.Rotate(0.0f, 0.005f, 0.0f);
+				camera.Rotate(0.0f, 0.05f, 0.0f);
+
 			if (InputHandler::isKeyPressed(InputHandler::Esc))
 				renderingManager.getWindow().Close();
 			if (InputHandler::isKeyPressed(InputHandler::BackSpace))
@@ -229,7 +248,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			lightColorG = pointColor.y;
 			lightColorB = pointColor.z;
 			
-			
+			modelManager.m_staticMesh[1]->setScale(1, 1, 1);
 		}
 		
 		
