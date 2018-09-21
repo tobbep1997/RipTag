@@ -51,10 +51,12 @@ void RenderingManager::Update()
 	{
 		m_ImGuiManager.ImGuiProcPoll(m_wnd.getWindowProcMsg());
 	}
+#if _DEBUG
 	if (GetAsyncKeyState(int('P')))
 	{
 		_reloadShaders();
 	}
+#endif
 }
 
 void RenderingManager::Clear()
