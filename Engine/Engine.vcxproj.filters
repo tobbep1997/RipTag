@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="Source\Shader\AnimatedVertexShader.hlsl" />
+    <FxCompile Include="Source\Shader\PixelShader.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
+    <FxCompile Include="Source\Shader\VertexShader.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp" />
+    <ClCompile Include="Source\Helper\Threading.cpp" />
+    <ClCompile Include="Source\Light\PointLight.cpp" />
+    <ClCompile Include="Source\3D Engine\Camera.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Model.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Drawable.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\ImGuiManager.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
+    <ClCompile Include="Source\Shader\Shader.cpp" />
+    <ClCompile Include="Source\Shader\ShaderManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp" />
+    <ClCompile Include="Source\3D Engine\RenderingManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
+    <ClCompile Include="Source\Window\window.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Source\3D Engine\Model\ModelManager.h" />
+    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
+    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DirectXHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\LoaderHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\pch.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\PlatformHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.h" />
+    <ClInclude Include="Source\Helper\Threading.h" />
+    <ClInclude Include="Source\Light\PointLight.h" />
+    <ClInclude Include="Source\3D Engine\Camera.h" />
+    <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
+    <ClInclude Include="Source\3D Engine\Model\Model.h" />
+    <ClInclude Include="Source\3D Engine\Model\StaticMesh.h" />
+    <ClInclude Include="Source\3D Engine\Model\Drawable.h" />
+    <ClInclude Include="Source\Debugg\FunctionQueue.h" />
+    <ClInclude Include="Source\Debugg\FunctionStack.h" />
+    <ClInclude Include="Source\Debugg\FunctionVector.h" />
+    <ClInclude Include="Source\Debug\ImGuiManager.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imconfig.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui.h" />
+    <ClInclude Include="Source\Debugg\ImGui\ImGuiManager.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui_internal.h" />
+    <ClInclude Include="Source\Debugg\ImGui\stb_rect_pack.h" />
+    <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h" />
+    <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h" />
+    <ClInclude Include="Source\Helper\Timer.h" />
+    <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
+    <ClInclude Include="Source\Shader\Shader.h" />
+    <ClInclude Include="Source\Shader\ShaderManager.h" />
+    <ClInclude Include="Source\3D Engine\Render\ForwardRender.h" />
+    <ClInclude Include="Source\3D Engine\RenderingManager.h" />
+    <ClInclude Include="Source\3D Engine\Engine3D.h" />
+    <ClInclude Include="Source\3D Engine\Extern.h" />
+    <ClInclude Include="Source\ShaderCreator.h" />
+    <ClInclude Include="Source\Structs.h" />
+    <ClInclude Include="Source\Window\window.h" />
+    <ClInclude Include="Source\3D Engine\Model\Texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+</Project>
