@@ -11,17 +11,14 @@ ModelManager::ModelManager()
 
 ModelManager::~ModelManager()
 {
-	/*for (int i = 0; i < dynamicMesh.size(); i++)
-	{
-		delete dynamicMesh[i];
-	}
-	for (int i = 0; i < staticMesh.size(); i++)
-	{
-		delete staticMesh[i];
-	}*/
+	
 	for (int i = 0; i < staticModel.size(); i++)
 	{
 		delete staticModel[i];
+	}
+	for (int i = 0; i < dynamicModel.size(); i++)
+	{
+		delete dynamicModel[i];
 	}
 }
 
@@ -33,7 +30,7 @@ void ModelManager::DrawMeshes()
 	}
 	for (int i = 0; i < dynamicModel.size(); i++)
 	{
-		dynamicModel[i].DrawAnimated();
+		dynamicModel[i]->DrawAnimated();
 	}
 }
 
@@ -48,6 +45,13 @@ void ModelManager::addNewModel(StaticMesh* mesh, Texture* texture)
 	tempModel->SetModel(mesh);
 	tempModel->setTexture(texture);
 	staticModel.push_back(tempModel);
+}
+void ModelManager::addNewModel(DynamicMesh* mesh, Texture* texture)
+{
+	Model *tempModel = new Model(Dynamic);
+	tempModel->SetModel(mesh);
+	tempModel->setTexture(texture);
+	dynamicModel.push_back(tempModel);
 }
 
 

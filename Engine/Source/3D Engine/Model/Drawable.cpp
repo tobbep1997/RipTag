@@ -124,7 +124,7 @@ Drawable::Drawable(ObjectType objectType) :
 
 Drawable::~Drawable()
 {
-	delete p_texture;
+	//delete p_texture;
 	DX::SafeRelease(m_vertexBuffer);
 }
 

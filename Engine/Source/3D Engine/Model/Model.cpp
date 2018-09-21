@@ -48,6 +48,7 @@ Model::~Model()
 {
 	delete m_StaticMeshPointer;
 	delete m_DynamicMeshPointer;
+	delete p_texture;
 }
 
 void Model::SetBuffer()

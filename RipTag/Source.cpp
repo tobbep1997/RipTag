@@ -104,12 +104,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	textureManager.loadTextures("SPHERE");
 	textureManager.loadTextures("PIRASRUM");
+	textureManager.loadTextures("TORUS");
 
 	meshManager.loadStaticMesh("SPHERE");
 	meshManager.loadStaticMesh("PIRASRUM");
+	meshManager.loadDynamicMesh("TORUS");
 
 	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
-	modelManager.addNewModel(meshManager.getStaticMesh(1), textureManager.getTexture(1));
+	//modelManager.addNewModel(meshManager.getStaticMesh(1), textureManager.getTexture(1));
+	modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
 
 
 	PointLight pl;
