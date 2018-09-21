@@ -4,20 +4,28 @@
 
 class Model : public Drawable
 {
+private:
+	StaticMesh* m_StaticMeshPointer;
+	DynamicMesh* m_DynamicMeshPointer;
+
 public:
 	Model(ObjectType objectType = ObjectType::Static);
+	Model(ObjectType objectType, const std::string &assetFilePath);
 	~Model();
+	
 
 	//Setting the model for the object
-	void SetModel(StaticMesh * staticMesh);
+	void setModel(StaticMesh * staticMesh);
 	//Setting the model for the object
-	void SetModel(DynamicMesh * dynamicMesh);
+	void setModel(DynamicMesh * dynamicMesh);
 
 	//Set Shaders
-	void SetVertexShader(const std::wstring & path);
-	void SetPixelShader(const std::wstring & path);
+	void setVertexShader(const std::wstring & path);
+	void setPixelShader(const std::wstring & path);
+
+
 
 private:
-	void SetBuffer();
+	void _setBuffer();
 };
 

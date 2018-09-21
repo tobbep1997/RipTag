@@ -1,20 +1,16 @@
 #pragma once
+#pragma warning(disable : 4244)
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-#include <FormatHeader.h>
-#include "FormatHeader.h"
-
+#include <../New_Library/FormatHeader.h>
 struct Joint;
 struct SkeletonPose;
 struct Skeleton;
 struct AnimationClip;
-class SkinnedMesh;
 
 
-#define DX DirectX
-#define float4x4 XMFLOAT4X4A
-#define float4 XMFLOAT4A
+
 
 namespace Animation
 {
@@ -22,14 +18,15 @@ namespace Animation
 
 	struct SRT
 	{
-		float4 m_rotationQuaternion;
-		float4 m_translation;
-		float4 m_scale;
+		
+		DirectX::XMFLOAT4A m_rotationQuaternion;
+		DirectX::XMFLOAT4A m_translation;
+		DirectX::XMFLOAT4A m_scale;
 	};
 
 	struct Joint
 	{
-		float4x4 m_inverseBindPose;
+		DirectX::XMFLOAT4X4A m_inverseBindPose;
 		uint8_t parentIndex;
 	};
 
@@ -60,28 +57,14 @@ namespace Animation
 
 	static AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	static Skeleton* ConvertToSkeleton(MyLibrary::SkeletonFromFile* skeleton);
-	static SRT _convertToSRT(const MyLibrary::Transform transform);
+	static SRT ConvertToSRT(const MyLibrary::Transform transform);
 	
 	class AnimatedModel
 	{
-	public:
-		AnimatedModel();
-		AnimatedModel(SkinnedMesh* mesh);
-		~AnimatedModel();
-
-		void Init(SkinnedMesh* mesh);
-
-		void Update(float deltaTime);
-		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
-
-		void Pause();
-		void Play();
-
 	private:
-		std::vector<DX::float4x4> m_skinningMatrices;
-		std::vector<DX::float4x4> m_globalMatrices;
+		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
+		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 
-		SkinnedMesh* m_mesh = nullptr;
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
 
@@ -90,10 +73,21 @@ namespace Animation
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
 
+	public:
+		AnimatedModel();	
+		~AnimatedModel();
+
+		void Update(float deltaTime);
+		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
+
+		void Pause();
+		void Play();
+
+	private:
 		XMMATRIX _createMatrixFromSRT(const SRT& srt);
 		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* pose);
-		XMMATRIX recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
+		XMMATRIX _recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 	};
 }

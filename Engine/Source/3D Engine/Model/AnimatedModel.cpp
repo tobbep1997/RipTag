@@ -1,32 +1,23 @@
 #include "AnimatedModel.h"
 
-#define loadMatrix(x) XMLoadFloat4x4(x)
-#define storeMatrix(x,y) XMStoreFloat4x4(x,y)
+
 
 Animation::AnimatedModel::AnimatedModel()
 {
 }
 
-Animation::AnimatedModel::AnimatedModel(SkinnedMesh * mesh)
-{
-	//m_skeleton = mesh->GetSkeleton();
-}
+
 
 Animation::AnimatedModel::~AnimatedModel()
 {
 }
 
-void Animation::AnimatedModel::Init(SkinnedMesh * mesh)
-{
-	if (mesh)
-		m_mesh = mesh;
-}
 
 void Animation::AnimatedModel::Update(float deltaTime)
 {
 	if (m_isPlaying)
 	{
-		uint16_t lastFrame = m_currentTime * (1.0 / m_currentClip->m_framerate);
+		uint16_t lastFrame = m_currentTime * (1.0f / m_currentClip->m_framerate);
 		m_currentTime += deltaTime;
 		uint16_t currentFrame = std::floorf(m_currentTime * (1.0 / m_currentClip->m_framerate));
 
@@ -59,7 +50,7 @@ DirectX::XMMATRIX Animation::AnimatedModel::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-Animation::SRT Animation::_convertToSRT(const MyLibrary::Transform transform)
+Animation::SRT Animation::ConvertToSRT(const MyLibrary::Transform transform)
 {
 	SRT srt = {};
 
@@ -79,8 +70,8 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* pose)
 	{
 		XMFLOAT4X4 global = m_globalMatrices[i];
 		XMFLOAT4X4 inverseBindPose = m_skeleton->m_joints[i].m_inverseBindPose;
-		XMMATRIX skinningMatrix = XMMatrixMultiply(loadMatrix(&global), loadMatrix(&inverseBindPose));
-		storeMatrix(&m_skinningMatrices[i], skinningMatrix);
+		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4(&global), XMLoadFloat4x4(&inverseBindPose));
+		XMStoreFloat4x4(&m_skinningMatrices[i], skinningMatrix);
 	}
 }
 
@@ -98,7 +89,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* pose)
 	}
 }
 
-DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose)
+DirectX::XMMATRIX Animation::AnimatedModel::_recursiveMultiplyParents(uint8_t jointIndex, SkeletonPose* pose)
 //TODO remove
 {
 	XMVECTOR thisRotation = XMLoadFloat4A(&pose->m_jointPoses[jointIndex].m_transformation.m_rotationQuaternion);
@@ -111,14 +102,31 @@ DirectX::XMMATRIX Animation::AnimatedModel::recursiveMultiplyParents(uint8_t joi
 	
 	uint8_t parentIndex = m_skeleton->m_joints[jointIndex].parentIndex;
 	if (parentIndex >= 0)
-		return XMMatrixMultiply(thisJoint, recursiveMultiplyParents(m_skeleton->m_joints[jointIndex].parentIndex, pose));
+		return XMMatrixMultiply(thisJoint, _recursiveMultiplyParents(m_skeleton->m_joints[jointIndex].parentIndex, pose));
 	else return thisJoint;
+}
+
+void Animation::AnimatedModel::_interpolatePose(SkeletonPose * firstPose, SkeletonPose * secondPose, float weight) //1.0 weight means 100% second pose
+{
+	for (int i = 0; i < m_skeleton->m_jointCount; i++)
+	{
+		
+		DirectX::XMVECTOR firstRotation = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_rotationQuaternion);
+		DirectX::XMVECTOR secondRotation = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_rotationQuaternion);
+		DirectX::XMVECTOR firstTranslation = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_translation);
+		DirectX::XMVECTOR secondTranslation = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_translation);
+		DirectX::XMVECTOR firstScale = DirectX::XMLoadFloat4A(&firstPose->m_jointPoses[i].m_transformation.m_scale);
+		DirectX::XMVECTOR secondScale = DirectX::XMLoadFloat4A(&secondPose->m_jointPoses[i].m_transformation.m_scale);
+
+		DirectX::XMVECTOR newRotation = DirectX::XMQuaternionSlerp(firstRotation, secondRotation, weight);
+		DirectX::XMVECTOR newTranslation = DirectX::XMVectorLerp(firstTranslation, secondTranslation, weight);
+		DirectX::XMVECTOR newScale = DirectX::XMVectorLerp(firstScale, secondScale, weight);
+	}
+	//TODO do stuff / return new skeleton pose
 }
 
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
-	using std::vector;
-
 	uint32_t keyCount = animation->nr_of_keyframes;
 
 	AnimationClip* clipToReturn = new AnimationClip();
@@ -126,14 +134,14 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 	clipToReturn->m_frameCount = static_cast<uint16_t>(animation->nr_of_keyframes);
 
 	//for each joint
-	for (int j = 0; j < jointCount; j++)
+	for (unsigned int j = 0; j < jointCount; j++)
 	{
 		//for each key
-		for (int k = 0; k < keyCount; k++)
+		for (unsigned int k = 0; k < keyCount; k++)
 		{
 			//create jointPose for this key
 			JointPose pose = {};
-			pose.m_transformation = Animation::_convertToSRT(animation->keyframe_transformations[j * keyCount + k]);
+			pose.m_transformation = Animation::ConvertToSRT(animation->keyframe_transformations[j * keyCount + k]);
 
 			clipToReturn->m_skeletonPoses[k].m_jointPoses[j] = pose;
 		}

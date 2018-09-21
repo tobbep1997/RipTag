@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4267)
 #include <windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -20,7 +21,9 @@ struct ObjectBuffer
 };
 struct PointLightBuffer
 {
-	DirectX::XMFLOAT4X4A viewProjection[6];
+	DirectX::XMFLOAT4X4A viewProjection[8][6];
+	DirectX::XMINT4 nrOfviewProjection[8];
+	DirectX::XMINT4 nrOfLights;
 };
 struct LightCameraBuffer
 {
@@ -28,7 +31,7 @@ struct LightCameraBuffer
 };
 
 private:
-	const unsigned int RENDER_TARGET_VIEW_COUNT = 6;
+	const unsigned int RENDER_TARGET_VIEW_COUNT = 8 * 6;
 
 	D3D11_VIEWPORT				m_shadowViewport;
 	ID3D11SamplerState*			m_shadowSamplerState;
@@ -58,10 +61,10 @@ public:
 
 	void ShadowPass();
 
-	void mapAllLightMatrix(PointLight * light);
+	void MapAllLightMatrix(std::vector<PointLight*> * lights);
 
 	void SetSamplerAndShaderResources();
-
+	void Clear();
 	void Release();
 private:
 	void _createShadowViewPort(UINT width, UINT height);
