@@ -122,7 +122,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
 	modelManager.m_dynamicMesh[0]->setPosition(0, 2, 0);
 	modelManager.m_staticMesh[1]->setPosition(0, 1, 0);
+	Texture * diffuse = new Texture();
+	Texture * normal = new Texture();
+	Texture * PBR = new Texture();
 
+	diffuse->Load(L"../Assets/1.jpg");
+	normal->Load(L"../Assets/2.jpg");
+	PBR->Load(L"../Assets/3.jpg");
 
 	//PointLight pl;
 	//pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
@@ -261,7 +267,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
 			point[i].QueueLight();
 		}
-		
+		diffuse->Bind(1);
+		normal->Bind(2);
+		PBR->Bind(3);
 		modelManager.DrawMeshes();
 		
 		renderingManager.Flush(camera);
@@ -278,7 +286,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
-
+	delete diffuse;
+	delete normal;
+	delete PBR;
 	
 	return 0;
 }
