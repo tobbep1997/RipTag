@@ -11,7 +11,7 @@ cbuffer CAMERA_BUFFER : register(b1)
 
 cbuffer SKINNING_BUFFER : register(b2)
 {
-	float4x4 skinningMatrices[256];
+	row_major float4x4 skinningMatrices[128];
 };
 
 struct VS_INPUT

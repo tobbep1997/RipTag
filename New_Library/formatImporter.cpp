@@ -188,7 +188,7 @@ namespace MyLibrary
 		return skeleton_to_return;
 	}
 
-	MyLibrary::AnimationFromFile Loadera::readAnimationFile(std::string fileName)
+	MyLibrary::AnimationFromFile Loadera::readAnimationFile(std::string fileName, uint16_t jointCount)
 	{
 		bool fileIsOpen = false;
 
@@ -203,19 +203,22 @@ namespace MyLibrary
 			fileIsOpen = true;
 			customAnimationFile.read((char*)&animation_header, sizeof(AnimationHeader));
 			animation_to_return.nr_of_keyframes = animation_header.anim_nrOfKeys;
-			Transform* keyframes = new Transform[animation_header.anim_nrOfKeys];
+			Transform* keyframes = new Transform[animation_header.anim_nrOfKeys * jointCount];
 			
 			//Init keyframes
-			for (int i = 0; i < animation_to_return.nr_of_keyframes; i++)
+			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
 				keyframes[i] = Transform();
 
-			customAnimationFile.read((char*)keyframes, animation_header.anim_nrOfKeys * sizeof(Transform));
+			customAnimationFile.read((char*)keyframes, animation_header.anim_nrOfKeys * jointCount * sizeof(Transform));
 
-			animation_to_return.keyframe_transformations = std::make_unique<Transform[]>(animation_header.anim_nrOfKeys);
-			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys; i++)
+			animation_to_return.keyframe_transformations = std::make_unique<Transform[]>(animation_header.anim_nrOfKeys * jointCount);
+			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys * jointCount; i++)
 			{
 				animation_to_return.keyframe_transformations[i] = keyframes[i];
 			}
+			
+
+
 			delete[] keyframes;
 			customAnimationFile.close();
 		}

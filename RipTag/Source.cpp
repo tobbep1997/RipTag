@@ -95,88 +95,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setPosition(10.0, 0.0, 0.0);
-	modelManager.addDynamicMesh("../Assets/pSphere2_ANIMATION_Mesh.bin");
+	modelManager.addDynamicMesh("../Assets/KUB_ANIMATION_Mesh.bin");
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
 	
 		Animation::AnimationCBuffer animCB;
 		animCB.SetAnimationCBuffer();
-		
-		//MyLibrary::Loadera meshloader;
-		////Animation::Skeleton* = ;
-		//MyLibrary::SkeletonFromFile skel = meshloader.readSkeletonFile("../Assets/joint1_Skeleton.bin");
-		//MyLibrary::AnimationFromFile importedAnim = meshloader.readAnimationFile("../Assets/ANIMATION_ANIMATION.bin");
 
-
-
-
-		//DEBUG
-		//for (int i = 24; i < 48; i++)
-		//	importedAnim.keyframe_transformations[i] = MyLibrary::Transform();
-		//
-		//std::vector<MyLibrary::Transform> transformVector;
-		//for (int i = 0; i < importedAnim.nr_of_keyframes * skel.skeleton_nrOfJoints; i++)
-		//	transformVector.push_back(importedAnim.keyframe_transformations[i]);
-
-		//std::vector<Animation::SRT> SRTVector;
-		//for (int i = 0; i < skel.skeleton_nrOfJoints; i++)
-		//{
-		//	for (int j = 0; j < animation->m_frameCount; j++)
-		//		SRTVector.push_back(animation->m_skeletonPoses[j].m_jointPoses[i].m_transformation);
-
-		//}
-
-
-		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/joint1_Skeleton.bin");
+		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/FIRSTJOINT_Skeleton.bin");
 		auto animation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
 
-	
-		//for (int i = 0; i < 20; i++)
-		//{
-		//	auto anotherAnimation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
-		//	for (int joint = 0; joint < skeleton->m_jointCount; joint++)
-		//	{
-		//		for (int key = 0; key < animation->m_frameCount; key++)
-		//		{
-		//			Animation::SRT original = animation->m_skeletonPoses[key].m_jointPoses[joint].m_transformation;
-		//			Animation::SRT thisone = anotherAnimation->m_skeletonPoses[key].m_jointPoses[joint].m_transformation;
-		//			//assert(original == thisone);
-
-		//		}
-		//	}
-		//}
-
-
-		for (int i = 0; i < animation->m_frameCount; i++)
-		{
-			
-			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.y += static_cast<float>(i / 2.0f);
-			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.x= 0.0;
-			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.y = 0.0;
-			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.z = 0.0;
-			//animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_rotationQuaternion.w = 0.0;
-
-			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.x = 0.0;
-			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.y = 0.0;
-			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_translation.z = 0.0;
-
-
-
-			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_scale.x += static_cast<float>(i / 10.0f);
-			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_scale.y += static_cast<float>(i / 10.0f);
-			animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation.m_scale.z += static_cast<float>(i / 10.0f);
-
-			animation->m_skeletonPoses[i].m_jointPoses[1].m_transformation.m_scale.x += static_cast<float>(i / 10.0f);
-			animation->m_skeletonPoses[i].m_jointPoses[1].m_transformation.m_scale.y += static_cast<float>(i / 10.0f);
-			animation->m_skeletonPoses[i].m_jointPoses[1].m_transformation.m_scale.z += static_cast<float>(i / 10.0f);
-		}
-
+		std::vector<Animation::SRT> srts;
 		for (int i = 0; i < skeleton->m_jointCount; i++)
 		{
-			DirectX::XMStoreFloat4x4A(&skeleton->m_joints[0].m_inverseBindPose, DirectX::XMMatrixIdentity());
-			DirectX::XMStoreFloat4x4A(&skeleton->m_joints[1].m_inverseBindPose, DirectX::XMMatrixIdentity());
+			for (int k = 0; k < animation->m_frameCount; k++)
+			{
+				srts.push_back(animation->m_skeletonPoses[k].m_jointPoses[i].m_transformation);
+			}
 		}
+
 
 		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animation);
 		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
