@@ -71,7 +71,7 @@ void StaticMesh::LoadMesh(const std::string & path)
 	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
 
 	StaticVertex tempvertex;
-	m_meshName = newMesh.mesh_meshID;
+	//m_meshName = newMesh.mesh_meshID;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 

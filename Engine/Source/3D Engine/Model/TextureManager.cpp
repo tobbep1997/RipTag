@@ -9,6 +9,7 @@ TextureManager::TextureManager()
 
 TextureManager::~TextureManager()
 {
+	
 }
 
 void TextureManager::loadTextures(const std::string & path)
@@ -21,6 +22,7 @@ void TextureManager::loadTextures(const std::string & path)
 	texture.append(tempWstring + L"FOLDER/" + tempWstring);
 	tempTexture->Load(texture.c_str());
 	m_Textures.push_back(tempTexture);
+	
 }
 
 Texture * TextureManager::getTexture(int which)

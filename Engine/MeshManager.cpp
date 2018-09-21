@@ -17,21 +17,18 @@ MeshManager::~MeshManager()
 	{
 		delete m_StaticMesh[i];
 	}
+	m_StaticMesh.clear();
+	m_DynamicMesh.clear();
 }
 
 bool MeshManager::loadDynamicMesh(const std::string & meshName)
 {
 	std::string tempString = "../Assets/";
-	tempString.append(meshName /*+ "FOLDER/" + meshName*/ + ".bin");
+	tempString.append(meshName + "FOLDER/" + meshName + ".bin");
 
 	DynamicMesh* tempMesh = new DynamicMesh();
 
-	tempMesh = new DynamicMesh();
 	tempMesh->LoadMesh(tempString);
-	/*SetModel(m_StaticMeshPointer);
-	SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-	SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	assetName = assetFilePath;*/
 	m_DynamicMesh.push_back(tempMesh);
 	
 	return true;
@@ -44,14 +41,10 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 
 	StaticMesh* tempMesh = new StaticMesh();
 
-	tempMesh = new StaticMesh();
+	
 	tempMesh->LoadMesh(tempString);
-	/*SetModel(m_StaticMeshPointer);
-	SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-	SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	assetName = assetFilePath;*/
 	m_StaticMesh.push_back(tempMesh);
-
+	
 	return true;
 }
 

@@ -49,6 +49,9 @@ void Texture::Bind(const uint8_t slot)
 
 Texture::~Texture()
 {
-	for(int i= 0; i < 3; i ++)
-	DX::SafeRelease(m_SRV[i]);
+	for (int i = 0; i < 3; i++)
+	{
+		DX::SafeRelease(m_SRV[i]);
+	}
+	
 }

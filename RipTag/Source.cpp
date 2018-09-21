@@ -99,21 +99,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	TextureManager textureManager;
 	MeshManager meshManager;
+	ModelManager modelManager;
 
 
 	textureManager.loadTextures("SPHERE");
-	meshManager.loadStaticMesh("SPHERE");
-	Model model;
-	model.SetModel(meshManager.getStaticMesh(0));
-	model.setTexture(textureManager.getTexture(0));
-	//model.setTexture("SPHERE");
-	
-//	model.setTexture("SPHERE");
-	//modelManager.addStaticMesh("SPHERE");
+	textureManager.loadTextures("PIRASRUM");
 
-//	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
-	
-	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
+	meshManager.loadStaticMesh("SPHERE");
+	meshManager.loadStaticMesh("PIRASRUM");
+
+	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
+	modelManager.addNewModel(meshManager.getStaticMesh(1), textureManager.getTexture(1));
+
+
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);
 	
@@ -179,8 +177,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		*/
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
-		model.bindTexture(1);
-		model.Draw();
+		//model.bindTexture(1);
+		modelManager.DrawMeshes();
 	
 		//std::cout << std::cos(180) << std::endl;
 		//camera.setLookTo(0, 0, 0);

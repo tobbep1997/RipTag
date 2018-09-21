@@ -105,7 +105,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
+			
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);

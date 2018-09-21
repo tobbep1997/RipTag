@@ -7,7 +7,6 @@ class Model : public Drawable
 {
 public:
 	Model(ObjectType objectType = ObjectType::Static);
-	
 	Model(ObjectType objectType, const std::string &assetFilePath);
 	~Model();
 

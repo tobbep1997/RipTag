@@ -15,13 +15,12 @@ public:
 	ModelManager();
 	~ModelManager();
 	
-	std::vector<Model*> staticMesh;
-	std::vector<Model*> dynamicMesh;
-	std::vector<Texture> meshtextures;
+	std::vector<Model> dynamicModel;
+	std::vector<Model*> staticModel;
+
 	void DrawMeshes();
 	void bindTextures(const std::string& assetName);
-	void addStaticMesh(const std::string & assetFilePath);
-	void addDynamicMesh(const std::string& assetFilePath);
+	void addNewModel(StaticMesh* mesh, Texture* texture);
 	
 
 };

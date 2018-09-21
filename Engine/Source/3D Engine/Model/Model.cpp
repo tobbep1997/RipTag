@@ -68,6 +68,7 @@ void Model::SetModel(DynamicMesh * dynamicMesh)
 {
 	this->p_objectType = Dynamic;
 	SetVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
+	SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	Drawable::SetMesh(dynamicMesh);
 	this->SetBuffer();
 }
@@ -75,19 +76,7 @@ void Model::SetModel(DynamicMesh * dynamicMesh)
 void Model::setTexture(Texture* textureToset)
 {
 	this->p_texture = textureToset;
-	//std::wstring texString;
-	//texString.assign(filepath.begin(), filepath.end());
-	//std::wstring tempString = L"../Assets/";
-	//tempString.append(texString + L"FOLDER/" + texString);
-	//m_texture.Load(tempString.c_str());
-	//m_texture.Bind(1);
-	
-
-	
-	//Drawable::setTextures(texString);
 }
-
-
 
 void Model::SetVertexShader(const std::wstring & path)
 {

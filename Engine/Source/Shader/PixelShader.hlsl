@@ -83,7 +83,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	float roughness = AORoughMet.y;
 	float metallic = AORoughMet.z;
 
-	return float4(AORoughMet, 1);
+	
 
 	float3 posToLight;
 	float3 H;
