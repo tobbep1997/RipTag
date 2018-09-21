@@ -142,7 +142,7 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose,
 	{
 		XMFLOAT4X4A global = m_globalMatrices[i];
 		XMFLOAT4X4A inverseBindPose = m_skeleton->m_joints[i].m_inverseBindPose;
-		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&inverseBindPose), XMLoadFloat4x4A(&global));
+		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&global), XMLoadFloat4x4A(&inverseBindPose));
 		DirectX::XMStoreFloat4x4A(&m_skinningMatrices[i], skinningMatrix);
 
 		//DEBUG
@@ -180,7 +180,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose, Sk
 		assert(i > parentIndex);
 		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
 		auto jointPose = _interpolateJointPose(&firstPose->m_jointPoses[i], &secondPose->m_jointPoses[i], weight);
-		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(parentGlobalMatrix, Animation::_createMatrixFromSRT(jointPose.m_transformation)));
+		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply( Animation::_createMatrixFromSRT(jointPose.m_transformation), parentGlobalMatrix));
 	}
 }
 Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
