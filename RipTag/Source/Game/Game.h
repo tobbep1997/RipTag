@@ -16,7 +16,7 @@ private:
 public:
 	Game();
 	~Game();
-	void Init(HINSTANCE hInstance);
+	void Init(_In_ HINSTANCE hInstance);
 
 	bool isRunning();
 

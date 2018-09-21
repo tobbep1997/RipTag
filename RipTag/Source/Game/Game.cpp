@@ -16,7 +16,7 @@ Game::~Game()
 	}
 }
 
-void Game::Init(HINSTANCE hInstance)
+void Game::Init(_In_ HINSTANCE hInstance)
 {
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
