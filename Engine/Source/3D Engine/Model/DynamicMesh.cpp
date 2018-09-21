@@ -112,10 +112,10 @@ void DynamicMesh::LoadModel(const std::string & path)
 		tempvertex.influencingJoint.z = newMesh.mesh_vertices[i].influencing_joint[2];
 		tempvertex.influencingJoint.w = newMesh.mesh_vertices[i].influencing_joint[3];
 
-		tempvertex.jointWeights.x = 1.0;
-		tempvertex.jointWeights.y = 0.0;// newMesh.mesh_vertices[i].joint_weights[1];
-		tempvertex.jointWeights.z = 0.0;// newMesh.mesh_vertices[i].joint_weights[2];
-		tempvertex.jointWeights.w = 0.0;// newMesh.mesh_vertices[i].joint_weights[3];
+		tempvertex.jointWeights.x = newMesh.mesh_vertices[i].joint_weights[0];
+		tempvertex.jointWeights.y = newMesh.mesh_vertices[i].joint_weights[1];
+		tempvertex.jointWeights.z = newMesh.mesh_vertices[i].joint_weights[2];
+		tempvertex.jointWeights.w = newMesh.mesh_vertices[i].joint_weights[3];
 
 		m_dynamicVertex.push_back(tempvertex);
 
