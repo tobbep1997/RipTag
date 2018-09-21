@@ -111,8 +111,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.m_staticMesh[0]->setScale(20, 1, 20);
-
+	modelManager.m_staticMesh[0]->setScale(20, 20, 20);
+	modelManager.m_staticMesh[0]->setPosition(0, -12, 0);
 
 	// Player atm;
 	modelManager.addStaticMesh("../Assets/KUB.bin");

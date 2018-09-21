@@ -84,27 +84,27 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 {
 	//float3 albedo = diffuseTexture.Sample(defaultSampler, input.uv).xyz;
 	
+    float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 posToLight;
 	float distanceToLight;
 	float attenuation;
-	float4 H;
+	float4 halfwayVecor;
 	float4 radiance;
-	float NDF;
-	float G;
-	float4 V = normalize(cameraPosition - input.worldPos);
+	float roughnessDistribution;
+	float overshadowOcclusion;
+	float4 worldToCamera = normalize(cameraPosition - input.worldPos);
 	float4 kS, kD;
 	float4 numerator;
 	float denominator;
 	float4 specular;
 	float normDotLight;
-
+	float finalShadowCoeff;
 
 	
-    float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 albedo = diffuseTexture.Sample(defaultSampler, input.uv);
 	//float3x3 TBN = float3x3(input.TBN0, input.TBN1, input.TBN2)
 	float3 normal =  mul(normalTexture.Sample(defaultSampler, input.uv).xyz, input.TBN);
-	return float4(normal, 1.0f);
+	//return float4(normal, 1.0f);
 	float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
 	float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
 	float pi = 3.14;
@@ -132,10 +132,10 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
 	float4 lightCal = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float div = 1.0f;
-	float shadowCoeff = 1.0f;
     for (int light = 0; light < numberOfLights.x; light++)
     {     
+		float div = 1.0f;
+		float shadowCoeff = 1.0f;
 		
         //float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
         //float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);            
@@ -164,32 +164,33 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
             
             
         }
-
+		finalShadowCoeff = shadowCoeff / div;
 
 		posToLight = normalize(lightPosition[light] - input.worldPos);
 		distanceToLight = length(lightPosition[light] - input.worldPos);
-		H = normalize(V + posToLight);
-		attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z));
+		halfwayVecor = normalize(worldToCamera + posToLight);
+		attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z))) * finalShadowCoeff;
 		
 		radiance = lightColor[light] * attenuation;
 		
-		NDF = RoughnessDistribution(normal, H, roughness);
-		G = OvershadowOcclusion(normal, V, posToLight, roughness);
+		roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness)* finalShadowCoeff;
+		overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness) * finalShadowCoeff;
 		
-		kS = FresnelReflection(max(dot(H, V), 0.0f), f0);
+		kS = FresnelReflection(max(dot(halfwayVecor, worldToCamera), 0.0f), f0)* finalShadowCoeff;
 		kD = float4(1.0f, 1.0f, 1.0f, 1.0f) - kS;
 		kD *= 1.0f - metallic;
+		kD *= finalShadowCoeff;
 		
-		numerator = NDF * G * kS;
-		denominator = 4.0f * max(dot(normal, V), 0.0f) * max(dot(normal, posToLight), 0.0f);
-		specular = numerator / max(denominator, 0.001f);
+		numerator = roughnessDistribution * overshadowOcclusion * kS* finalShadowCoeff;
+		denominator = 4.0f * max(dot(normal, worldToCamera.xyz), 0.0f) * max(dot(normal, posToLight.xyz), 0.0f);
+		specular = numerator / max(denominator, 0.001f) * finalShadowCoeff;
 		
-		normDotLight = max(dot(normal, posToLight), 0.0f);
-		lightCal += (kD * albedo / pi + specular) * radiance * normDotLight;
+		normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
+		lightCal += (kD * albedo / pi + (specular * attenuation* finalShadowCoeff)) * radiance * normDotLight * finalShadowCoeff;
 			   		 	  	  	   	
 		
 	
-			
+		
 
 		/*
         float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);        
@@ -208,8 +209,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 		
     }
 	finalColor = ambient + lightCal;
-	//finalColor *= shadowCoeff / div;
-	//finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
+	
+	finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
 	finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
     finalColor.a = albedo.a;
     return min(finalColor, float4(1, 1, 1, 1));
