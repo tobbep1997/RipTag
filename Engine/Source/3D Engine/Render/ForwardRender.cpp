@@ -107,6 +107,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
 		
@@ -163,7 +164,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->shadowMap.ShadowPass();
 
 	this->GeometryPass(camera);
-	this->AnimatedGeometryPass(camera);
+	//this->AnimatedGeometryPass(camera);
 	
 }
 

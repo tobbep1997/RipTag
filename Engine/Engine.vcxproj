@@ -168,6 +168,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\3D Engine\Model\ModelManager.h" />
     <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
@@ -216,8 +217,10 @@
     <ClInclude Include="Source\Structs.h" />
     <ClInclude Include="Source\Window\window.h" />
     <ClInclude Include="Source\3D Engine\Model\Texture.h" />
+    <ClInclude Include="Source\3D Engine\Model\TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
     <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
     <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
@@ -254,6 +257,7 @@
     <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
     <ClCompile Include="Source\Window\window.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\AnimatedVertexShader.hlsl">

@@ -1,7 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <stdint.h>
-
+#include <string>
 class Texture
 {
 public:
@@ -10,8 +10,8 @@ public:
 	HRESULT Load(const wchar_t* file);
 	void Bind(const uint8_t slot);
 	~Texture();
-	ID3D11ShaderResourceView* m_SRV = nullptr;
-
+	ID3D11ShaderResourceView* m_SRV[3] = { nullptr, nullptr, nullptr };
+	std::string textureName;
 private:
 };
 

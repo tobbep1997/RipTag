@@ -13,18 +13,18 @@ DynamicMesh::~DynamicMesh()
 
 const DynamicVertex * DynamicMesh::getRawVertices() const
 {
-	return dynamicVertex.data();
+	return m_dynamicVertex.data();
 }
 
 const std::vector<DynamicVertex>& DynamicMesh::getVertices() const
 {
-	return dynamicVertex;
+	return m_dynamicVertex;
 }
 
 void DynamicMesh::setVertices(std::vector<DynamicVertex>& input)
 {
-	dynamicVertex.clear();
-	dynamicVertex = input;
+	m_dynamicVertex.clear();
+	m_dynamicVertex = input;
 }
 
 void DynamicMesh::SET_DEFAULT()
@@ -66,19 +66,20 @@ void DynamicMesh::SET_DEFAULT()
 		tempvertex.jointWeights.z = newMesh.mesh_vertices[i].joint_weights[2];
 		tempvertex.jointWeights.w = newMesh.mesh_vertices[i].joint_weights[3];
 
-		dynamicVertex.push_back(tempvertex);
+		m_dynamicVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;
 }
 
-void DynamicMesh::LoadModel(const std::string & path)
+void DynamicMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
 
 	MyLibrary::Loadera meshloader;
 	MyLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile(path);
 	DynamicVertex tempvertex;
+	m_meshName = newMesh.mesh_meshID;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 
@@ -110,7 +111,7 @@ void DynamicMesh::LoadModel(const std::string & path)
 		tempvertex.jointWeights.z = newMesh.mesh_vertices[i].joint_weights[2];
 		tempvertex.jointWeights.w = newMesh.mesh_vertices[i].joint_weights[3];
 
-		dynamicVertex.push_back(tempvertex);
+		m_dynamicVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;

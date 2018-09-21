@@ -1,469 +1,98 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Source\Window\window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Extern.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Engine3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ShaderCreator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Render\ForwardRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shader\ShaderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\RenderingManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shader\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SettingsLoader\SettingsLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\Drawable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\StaticMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debug\ImGuiManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_win32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\ImGuiManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\stb_rect_pack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\FunctionStack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\FunctionQueue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\FunctionVector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Helper\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Light\PointLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\CoreMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\DrawMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\EngineMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\PostalManagerRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\WindowMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\Window\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Engine3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shader\ShaderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\RenderingManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shader\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\Drawable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\ImGuiManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Light\PointLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Messages\CoreMessage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Messages\PostalManagerRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Source\Shader\VertexShader.hlsl" />
-    <FxCompile Include="Source\Shader\PixelShader.hlsl" />
-    <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
-    <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
-    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
     <FxCompile Include="Source\Shader\AnimatedVertexShader.hlsl" />
-  </ItemGroup>
-=========
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Source\Messages\CoreMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\DrawMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\WindowMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\EngineMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Messages\PostalManagerRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Window\window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Extern.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Engine3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ShaderCreator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Render\ForwardRender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shader\ShaderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\RenderingManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shader\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SettingsLoader\SettingsLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\Drawable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\StaticMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debug\ImGuiManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_win32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\ImGuiManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\stb_rect_pack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\FunctionStack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\FunctionQueue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Debugg\FunctionVector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Helper\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Light\PointLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\Messages\CoreMessage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Messages\PostalManagerRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Window\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Engine3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shader\ShaderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\RenderingManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shader\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\Drawable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\DynamicObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Debugg\ImGui\ImGuiManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Light\PointLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Source\Shader\VertexShader.hlsl" />
     <FxCompile Include="Source\Shader\PixelShader.hlsl" />
-    <FxCompile Include="Source\Shader\SkinnedVS.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowPixel.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
+    <FxCompile Include="Source\Shader\VertexShader.hlsl" />
   </ItemGroup>
->>>>>>>>> Temporary merge branch 2
-</Project>
-    <ClInclude Include="Source\Helper\Threading.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\DirectXHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\LoaderHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\PlatformHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\3D Engine\Model\ModelManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClCompile Include="Source\Helper\Threading.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   <ItemGroup>
-    <ResourceCompile Include="Engine.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.cpp" />
+    <ClCompile Include="Source\Helper\Threading.cpp" />
+    <ClCompile Include="Source\Light\PointLight.cpp" />
+    <ClCompile Include="Source\3D Engine\Camera.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Model.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Drawable.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\ImGuiManager.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Source\Debugg\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Source\Messages\CoreMessage.cpp" />
+    <ClCompile Include="Source\Messages\PostalManagerRender.cpp" />
+    <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
+    <ClCompile Include="Source\Shader\Shader.cpp" />
+    <ClCompile Include="Source\Shader\ShaderManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp" />
+    <ClCompile Include="Source\3D Engine\RenderingManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
+    <ClCompile Include="Source\Window\window.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\TextureManager.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Source\3D Engine\Model\ModelManager.h" />
+    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
+    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\DirectXHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\LoaderHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\pch.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\PlatformHelpers.h" />
+    <ClInclude Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.h" />
+    <ClInclude Include="Source\Helper\Threading.h" />
+    <ClInclude Include="Source\Light\PointLight.h" />
+    <ClInclude Include="Source\3D Engine\Camera.h" />
+    <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
+    <ClInclude Include="Source\3D Engine\Model\Model.h" />
+    <ClInclude Include="Source\3D Engine\Model\StaticMesh.h" />
+    <ClInclude Include="Source\3D Engine\Model\Drawable.h" />
+    <ClInclude Include="Source\Debugg\FunctionQueue.h" />
+    <ClInclude Include="Source\Debugg\FunctionStack.h" />
+    <ClInclude Include="Source\Debugg\FunctionVector.h" />
+    <ClInclude Include="Source\Debug\ImGuiManager.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imconfig.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui.h" />
+    <ClInclude Include="Source\Debugg\ImGui\ImGuiManager.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="Source\Debugg\ImGui\imgui_internal.h" />
+    <ClInclude Include="Source\Debugg\ImGui\stb_rect_pack.h" />
+    <ClInclude Include="Source\Debugg\ImGui\stb_textedit.h" />
+    <ClInclude Include="Source\Debugg\ImGui\stb_truetype.h" />
+    <ClInclude Include="Source\Helper\Timer.h" />
+    <ClInclude Include="Source\Messages\CoreMessage.h" />
+    <ClInclude Include="Source\Messages\DrawMessage.h" />
+    <ClInclude Include="Source\Messages\EngineMessage.h" />
+    <ClInclude Include="Source\Messages\PostalManagerRender.h" />
+    <ClInclude Include="Source\Messages\WindowMessage.h" />
+    <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
+    <ClInclude Include="Source\Shader\Shader.h" />
+    <ClInclude Include="Source\Shader\ShaderManager.h" />
+    <ClInclude Include="Source\3D Engine\Render\ForwardRender.h" />
+    <ClInclude Include="Source\3D Engine\RenderingManager.h" />
+    <ClInclude Include="Source\3D Engine\Engine3D.h" />
+    <ClInclude Include="Source\3D Engine\Extern.h" />
+    <ClInclude Include="Source\ShaderCreator.h" />
+    <ClInclude Include="Source\Structs.h" />
+    <ClInclude Include="Source\Window\window.h" />
+    <ClInclude Include="Source\3D Engine\Model\Texture.h" />
+    <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Source\3D Engine\Model\TextureManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+</Project>

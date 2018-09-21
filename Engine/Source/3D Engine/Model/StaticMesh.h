@@ -10,7 +10,7 @@ class StaticMesh
 {
 private:
 	std::vector<StaticVertex> staticVertex;
-
+	std::string m_meshName;
 public:
 	StaticMesh();
 	~StaticMesh();
@@ -21,7 +21,7 @@ public:
 
 	void SET_DEFAULT();
 
-	void LoadModel(const std::string & path);
+	void LoadMesh(const std::string & path);
 
 };
 

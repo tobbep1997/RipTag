@@ -105,7 +105,7 @@ void Drawable::setTextures(const std::wstring & filePath)
 
 void Drawable::BindTextures()
 { //TODO Optimize (one call for all)
-	
+	p_texture->Bind(1);
 }
 
 Drawable::Drawable(ObjectType objectType) :

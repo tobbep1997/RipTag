@@ -21,7 +21,7 @@ Model::Model(ObjectType objectType, const std::string &assetFilePath)
 	std::string tempString = "../Assets/";
 	tempString.append(assetFilePath + "FOLDER/" + assetFilePath + ".bin");
 
-	switch (objectType)
+	/*switch (objectType)
 	{
 	case Static:
 		m_StaticMeshPointer = new StaticMesh();
@@ -40,7 +40,7 @@ Model::Model(ObjectType objectType, const std::string &assetFilePath)
 		break;
 	default:
 		break;
-	}
+	}*/
 
 }
 
@@ -57,22 +57,33 @@ void Model::SetBuffer()
 
 void Model::SetModel(StaticMesh * staticMesh)
 {
+	this->p_objectType = Static;
+	SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	Drawable::SetMesh(staticMesh);
 	this->SetBuffer();
 }
 
 void Model::SetModel(DynamicMesh * dynamicMesh)
 {
+	this->p_objectType = Dynamic;
+	SetVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
 	Drawable::SetMesh(dynamicMesh);
 	this->SetBuffer();
 }
 
-void Model::setTexture(const std::string & filepath)
+void Model::setTexture(Texture* textureToset)
 {
-	std::wstring texString;
-	texString.assign(filepath.begin(), filepath.end());
-	m_texture.Load(texString.c_str());
-	m_texture.Bind(1);
+	this->p_texture = textureToset;
+	//std::wstring texString;
+	//texString.assign(filepath.begin(), filepath.end());
+	//std::wstring tempString = L"../Assets/";
+	//tempString.append(texString + L"FOLDER/" + texString);
+	//m_texture.Load(tempString.c_str());
+	//m_texture.Bind(1);
+	
+
+	
 	//Drawable::setTextures(texString);
 }
 
@@ -86,4 +97,9 @@ void Model::SetVertexShader(const std::wstring & path)
 void Model::SetPixelShader(const std::wstring & path)
 {
 	this->p_pixelPath = path;
+}
+
+void Model::bindTexture(int slot)
+{
+	this->p_texture->Bind(slot);
 }

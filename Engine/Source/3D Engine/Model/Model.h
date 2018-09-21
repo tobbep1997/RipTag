@@ -15,11 +15,13 @@ public:
 	void SetModel(StaticMesh * staticMesh);
 	//Setting the model for the object
 	void SetModel(DynamicMesh * dynamicMesh);
-	void setTexture(const std::string & filepath);
+	void setTexture(Texture* textureToset);
 	//Set Shaders
 	void SetVertexShader(const std::wstring & path);
 	void SetPixelShader(const std::wstring & path);
 	std::string assetName;
+	
+	void bindTexture(int slot);
 
 private:
 	void SetBuffer();
@@ -27,7 +29,6 @@ private:
 
 	//
 
-	Texture m_texture;
 	StaticMesh* m_StaticMeshPointer;
 	DynamicMesh* m_DynamicMeshPointer;
 

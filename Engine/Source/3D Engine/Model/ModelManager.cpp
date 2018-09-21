@@ -11,14 +11,14 @@ ModelManager::ModelManager()
 
 ModelManager::~ModelManager()
 {
-	for (int i = 0; i < dynamicMesh.size(); i++)
+	/*for (int i = 0; i < dynamicMesh.size(); i++)
 	{
 		delete dynamicMesh[i];
 	}
 	for (int i = 0; i < staticMesh.size(); i++)
 	{
 		delete staticMesh[i];
-	}
+	}*/
 }
 
 void ModelManager::DrawMeshes()
@@ -53,26 +53,26 @@ void ModelManager::bindTextures(const std::string& assetName)
 void ModelManager::addStaticMesh(const std::string & assetFilePath)
 {
 	
-	int i = 0; 
-	Model * tempModel = new Model(ObjectType::Static, 
-		assetFilePath
-		);
-	//STRING TO WSTRING 
-	
-	//tempModel->setTexture(tempModel->assetName);
-	bindTextures(tempModel->assetName);
-	staticMesh.push_back(tempModel);
+	//int i = 0; 
+	//Model * tempModel = new Model(ObjectType::Static, 
+	//	assetFilePath
+	//	);
+	////STRING TO WSTRING 
+	//
+	////tempModel->setTexture(tempModel->assetName);
+	//bindTextures(tempModel->assetName);
+	//staticMesh.push_back(tempModel);
 }
 
 void ModelManager::addDynamicMesh(const std::string & assetFilePath)
 {
-	/*std::string tempString = "../Assets/";
-	tempString.append(assetFilePath + "/" + assetFilePath + ".bin");*/
-	int i = 0;
-	Model * tempModel = new Model(ObjectType::Dynamic,
-		assetFilePath
-		);
-	dynamicMesh.push_back(tempModel);
+	///*std::string tempString = "../Assets/";
+	//tempString.append(assetFilePath + "/" + assetFilePath + ".bin");*/
+	//int i = 0;
+	//Model * tempModel = new Model(ObjectType::Dynamic,
+	//	assetFilePath
+	//	);
+	//dynamicMesh.push_back(tempModel);
 }
 
 

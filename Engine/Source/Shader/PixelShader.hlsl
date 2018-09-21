@@ -83,6 +83,8 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	float roughness = AORoughMet.y;
 	float metallic = AORoughMet.z;
 
+	return float4(AORoughMet, 1);
+
 	float3 posToLight;
 	float3 H;
 	float  distanceToLight;
@@ -135,6 +137,6 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	finalColor = pow(finalColor, float3(0.45f, 0.45f, 0.45f));
 
 
-	return float4(albedo, 1.0f);
+	return float4(finalColor, 1.0f);
 
 }

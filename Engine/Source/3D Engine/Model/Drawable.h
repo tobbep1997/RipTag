@@ -42,7 +42,7 @@ protected:
 	DirectX::XMFLOAT4A p_position;
 	DirectX::XMFLOAT4A p_scale;
 	DirectX::XMFLOAT4A p_rotation;
-
+	Texture * p_texture;
 	//WorldMatrix. scale * rot* translateopn
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 

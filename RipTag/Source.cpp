@@ -5,8 +5,11 @@
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
 #include "Source/3D Engine/Model/ModelManager.h"
+#include "MeshManager.h"
+#include "Source/3D Engine/Model/TextureManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
+
  
 #include "Source/Helper/Timer.h"
 #if _DEBUG
@@ -93,10 +96,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
-
 	
-	ModelManager modelManager;
-	modelManager.addStaticMesh("SPHERE");
+	TextureManager textureManager;
+	MeshManager meshManager;
+
+
+	textureManager.loadTextures("SPHERE");
+	meshManager.loadStaticMesh("SPHERE");
+	Model model;
+	model.SetModel(meshManager.getStaticMesh(0));
+	model.setTexture(textureManager.getTexture(0));
+	//model.setTexture("SPHERE");
+	
+//	model.setTexture("SPHERE");
+	//modelManager.addStaticMesh("SPHERE");
 
 //	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
 	
@@ -166,8 +179,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		*/
 		pl.QueueLight();
 		//camera.setPosition(posX, posY, posZ);
-		
-		modelManager.DrawMeshes();
+		model.bindTexture(1);
+		model.Draw();
 	
 		//std::cout << std::cos(180) << std::endl;
 		//camera.setLookTo(0, 0, 0);
