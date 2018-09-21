@@ -6,7 +6,7 @@ SamplerState defaultSampler : register(s1);
 Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);
 Texture2D normalTexture : register(t2);
-Texture2D diffuseTexture : register(t3);
+Texture2D MRATexture : register(t3);
 
 cbuffer LIGHTS : register (b0)
 {
@@ -28,92 +28,106 @@ cbuffer CAMERA_BUFFER : register(b2)
 
 struct VS_OUTPUT
 {
-    float4 pos : SV_POSITION;
-    float4 worldPos : WORLD;
-    float4 normal : NORMAL;
-    float4 tangent : TANGENT;
-    float2 uv : UV;
+	float4 pos : SV_POSITION;
+	float4 worldPos : WORLD;
+	float4 normal : NORMAL;
+	float3x3 TBN : TBN;
+	float2 uv : UV;
 };
+
+float RoughnessDistribution(float3 N, float3 H, float roughness)
+{
+	float r4 = (roughness * roughness) * (roughness * roughness);
+	float nDotH = max(dot(N, H), 0.0f);
+	float nDotH_2 = nDotH * nDotH;
+
+	float denom = (nDotH_2 * (r4 - 1.0f) + 1.0f);
+	denom = 3.14f * denom * denom;
+
+	return r4 / max(denom, 0.001f);
+}
+
+float Occlusion(float normDotView, float roughness)
+{
+	float r = roughness + 1.0f;
+	float k = (r*r) / 8.0f;
+
+	float denom = normDotView * (1.0f - k) + k;
+
+	return normDotView / denom;
+}
+
+float OvershadowOcclusion(float3 normal, float3 view, float3 light, float roughness)
+{
+	float normDotView = max(dot(normal, view), 0.0f);
+	float normDotLight = max(dot(normal, light), 0.0f);
+	float occlusionView = Occlusion(normDotView, roughness);
+	float occlusionLight = Occlusion(normDotLight, roughness);
+
+	return occlusionView * occlusionLight;
+}
+
+float3 FresnelReflection(float cosTheta, float3 f0)
+{
+	return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 5.0f);
+}
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
-	//VERY TEMP
-    float4 color = float4(1, 1, 1, 1);
-	//PLEASE REMOBVE
+	float3 albedo = diffuseTexture.Sample(defaultSampler, input.uv).xyz;
+	float3 N = mul(normalTexture.Sample(defaultSampler, input.uv).xyz, input.TBN);
+	float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
+	float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
+	float pi = 3.14;
+	float3 posToLight;
+	float3 H;
+	float distanceToLight;
+	float attenuation;
+	float3 radiance;
+	float NDF;
+	float G;
+	float3 V = normalize(cameraPosition.xyz - input.worldPos.xyz);
+	float3 kS, kD;
+	float3 numerator;
+	float denominator;
+	float3 specular;
+	float normDotLight;
 
-    float4 dif = float4(0, 0, 0, 1);
-	dif.rgb = diffuseTexture.Sample(defaultSampler, float2(input.uv.x, 1.0 - input.uv.y)).rgb;
-    float4 ambient = float4(0.25, 0.25, 0.25, 1) * color;
-    float4 posToCam = cameraPosition - input.worldPos;
-    float4 posToLight = float4(0, 0, 0, 0);  
-    float4 spec = float4(0, 0, 0, 1);
-    float specmult = 0;
-    float distanceToLight = 0;
-    float attenuation = 0;
-    float difMult = 0;
+	float3 f0 = float3(0.04f, 0.04f, 0.04f);
+	f0 = lerp(f0, albedo, metallic);
+	albedo = pow(albedo, float3(2.3f, 2.3f, 2.3f));
 
+	float3 lightCal = float3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < info.x; i++)
 	{
-		posToLight = lightPosition[i] - input.worldPos;
+		posToLight = normalize(lightPosition[i].xyz - input.worldPos.xyz);
 		distanceToLight = length(posToLight);
+		H = normalize(V + posToLight);
+		attenuation = 1.0f / (distanceToLight * distanceToLight);
+		radiance = lightColor[i].xyz * attenuation;
 
-        attenuation = 1.0 / (1.0 + lightDropOff[i].x * pow(distanceToLight, 2));
+		NDF = RoughnessDistribution(N, H, roughness);
+		G = OvershadowOcclusion(N, V, posToLight, roughness);
 
-		difMult = max(dot(input.normal, normalize(posToLight)), 0.0);
-        specmult = dot(input.normal, normalize(posToCam + posToLight)) * (1.0 - lightDropOff[i].x);
-		if (difMult > 0)
-            dif += attenuation * (saturate(lightColor[i] * color) * difMult);
-        if (specmult > 0)
-			spec += lightColor[i] * max(pow(abs(specmult), 32), 0.0);
+		kS = FresnelReflection(max(dot(H, V), 0.0f), f0);
+		kD = float3(1.0f, 1.0f, 1.0f) - kS;
+		kD *= 1.0f - metallic;
 
+		numerator = NDF * G * kS;
+		denominator = 4.0f * max(dot(N, V), 0.0f) * max(dot(N, posToLight), 0.0f);
+		specular = numerator / max(denominator, 0.001f);
 
+		normDotLight = max(dot(N, posToLight), 0.0f);
+		lightCal += (kD * albedo / pi + specular) * radiance * normDotLight;
 	}
-	float shadowCoeff = 1;
-	float div = 1;
 
-	for (int i = 0; i < 6; i++)
-	{
+	float3 ambient = float3(0.03f, 0.03f, 0.03f) * albedo * ao;
+	float3 finalColor = ambient + lightCal;
 
-		float4 lightView = mul(input.worldPos, lightViewProjection[i]); // Translate the world position into the view space of the light
-		lightView.xy /= lightView.w; // Get the texture coords of the "object" in the shadow map
+	finalColor = finalColor / (finalColor + float3(1.0f, 1.0f, 1.0f));
+	finalColor = pow(abs(finalColor), float3(0.45f, 0.45f, 0.45f));
 
 
-		float2 smTex = float2(0.5f * lightView.x + 0.5f, -0.5f * lightView.y + 0.5f); // Texcoords are not [-1, 1], change the coords to [0, 1]
-
-		float depth = lightView.z / lightView.w;
-
-		if (abs(lightView.x) > 1.0f || depth <= 0)
-			continue;
-
-		if (abs(lightView.y) > 1.0f || depth <= 0)
-			continue;  
-
-		float3 indexPos = float3(smTex, i);
-	
-
-		float width;
-		int dum, dumbdumb;
-		txShadowArray.GetDimensions(0, width, width, dum, dumbdumb);
-
-		float texelSize = 1.0f / width;
-
-		const int aa = 1;
-		
-		for (int x = -aa; x <= aa; ++x)
-		{
-			for (int y = -aa; y <= aa; ++y)
-			{
-                shadowCoeff += txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos + (float3(x, y, 0) * texelSize), depth - 0.01).r;
-				div += 1.0f;
-
-			}
-
-		}
-
-	}
-	
-	shadowCoeff /= div;
-	
-    return min(ambient + ((spec * shadowCoeff) + dif) * shadowCoeff, float4(1, 1, 1, 1));
+	return float4(finalColor, 1.0f);
 
 }

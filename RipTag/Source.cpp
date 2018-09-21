@@ -108,9 +108,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	m2.SetModel(d);
 	{
-		//Texture* tex = new Texture();
-		//assert(tex->Load(L"../Assets/poop.png") == S_OK);
-		//m2.SetTexture(tex);
+		Texture* tex = new Texture();
+		Texture* tex2 = new Texture();
+		Texture* tex3 = new Texture();
+		tex->Load(L"../Assets/1.jpg");
+		tex2->Load(L"../Assets/2.jpg");
+		tex3->Load(L"../Assets/3.jpg");
+		m2.SetTextures(tex, tex2, tex3);
 	}
 	m.setPosition(0, -3, 0);
 	m.setScale(1, 1, 1);
