@@ -95,7 +95,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setPosition(10.0, 0.0, 0.0);
-	modelManager.addDynamicMesh("../Assets/pCube1_ANIMATION_Mesh.bin");
+	modelManager.addDynamicMesh("../Assets/pCube4_ANIMATION_Mesh.bin");
+	//modelManager.m_dynamicMesh[0]->setScale(0.5, 0.5, 0.5);
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
