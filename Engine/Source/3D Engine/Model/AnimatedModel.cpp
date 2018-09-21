@@ -187,7 +187,10 @@ Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
 {
 	using namespace DirectX;
 	SRT srt = {};
-	XMStoreFloat4A(&srt.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
+	float pitch = DirectX::XMConvertToRadians(transform.transform_rotation[0]);
+	float yaw = DirectX::XMConvertToRadians(transform.transform_rotation[1]);
+	float roll = DirectX::XMConvertToRadians(transform.transform_rotation[2]);
+	XMStoreFloat4A(&srt.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
 	srt.m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
 	srt.m_scale = { 1.0, 1.0, 1.0, 1.0f };
 	return srt;
@@ -354,7 +357,11 @@ void Animation::AnimationCBuffer::SetToShader()
 Animation::SRT::SRT(const MyLibrary::Transform& transform)
 {
 	using namespace DirectX;
-	XMStoreFloat4A(&m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(transform.transform_rotation[0], transform.transform_rotation[1], transform.transform_rotation[2]));
+	
+	float pitch = DirectX::XMConvertToRadians(transform.transform_rotation[0]);
+	float yaw = DirectX::XMConvertToRadians(transform.transform_rotation[1]);
+	float roll = DirectX::XMConvertToRadians(transform.transform_rotation[2]);
+	XMStoreFloat4A(&m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
 	m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
 	m_scale = { 1.0, 1.0, 1.0, 1.0f };
 }

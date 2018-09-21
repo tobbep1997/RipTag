@@ -95,7 +95,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setPosition(10.0, 0.0, 0.0);
-	modelManager.addDynamicMesh("../Assets/KUB_ANIMATION_Mesh.bin");
+	modelManager.addDynamicMesh("../Assets/pCube1_ANIMATION_Mesh.bin");
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
@@ -103,7 +103,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		Animation::AnimationCBuffer animCB;
 		animCB.SetAnimationCBuffer();
 
-		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/FIRSTJOINT_Skeleton.bin");
+		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/joint1_Skeleton.bin");
 		auto animation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
 
 		std::vector<Animation::SRT> srts;
@@ -169,7 +169,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
-			modelManager.m_dynamicMesh[0]->getAnimatedModel()->Update(0.002);
+			modelManager.m_dynamicMesh[0]->getAnimatedModel()->Update(0.01);
 		renderingManager.ImGuiStartFrame();
 		pl.setPosition(lightPosX, lightPosY, lightPosZ);
 		pl.setColor(lightColorR, lightColorG, lightColorB);
