@@ -26,4 +26,7 @@ namespace DX {
 	extern std::vector<Drawable*> g_geometryQueue;
 	extern std::vector<Drawable*> g_animatedGeometryQueue;
 	extern std::vector<PointLight*> g_lights;
+
+	//Might be changed
+	extern std::vector<Drawable*> g_visabilityDrawQueue;
 }

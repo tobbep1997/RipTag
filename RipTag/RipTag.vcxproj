@@ -148,15 +148,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{5e822790-44a3-4602-bcd2-54da944cb9c4}</Project>
     </ProjectReference>
     <ProjectReference Include="..\InputManager\InputManager.vcxproj">
       <Project>{62973989-7115-4695-b77e-cefc0fb74fe2}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Source\Game\Game.cpp" />
+    <ClCompile Include="Source\Game\States\PlayState.cpp" />
+    <ClCompile Include="Source\Game\States\State.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Game\Game.h" />
+    <ClInclude Include="Source\Game\States\PlayState.h" />
+    <ClInclude Include="Source\Game\States\State.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

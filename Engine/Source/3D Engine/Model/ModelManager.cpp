@@ -26,6 +26,10 @@ void ModelManager::DrawMeshes()
 	for (int i = 0; i < m_staticMesh.size(); i++)
 	{
 		m_staticMesh[i]->Draw();
+		if (i == 1)
+		{
+			m_staticMesh[i]->QueueVisabilityDraw();
+		}
 	}
 	for (int i = 0; i < m_dynamicMesh.size(); i++)
 	{

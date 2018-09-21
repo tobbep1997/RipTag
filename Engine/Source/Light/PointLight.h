@@ -23,9 +23,10 @@ private:
 	DirectX::XMFLOAT4A		m_position;
 	DirectX::XMFLOAT4A		m_color;
 
-	float	m_nearPlane;
-	float	m_farPlane;
-	float	m_dropOff;
+
+	float m_nearPlane;
+	float m_farPlane;
+	float m_dropOff, m_intensity, m_pow;
 
 public:
 	PointLight();
@@ -34,7 +35,7 @@ public:
 	void CreateShadowDirection(ShadowDir direction);
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
-
+	
 
 	void QueueLight();
 
@@ -45,6 +46,8 @@ public:
 	void setColor(float x, float y, float z, float w = 1);
 
 	void setIntensity(float intencsity);
+	void setPower(float pow);
+	void setDropOff(float dropOff);
 	
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
@@ -54,6 +57,11 @@ public:
 	const DirectX::XMFLOAT4A & getColor() const;
 	const std::vector<Camera *> & getSides() const;
 	const float & getDropOff() const;
+	const float & getPow() const;
+	const float & getIntensity() const;
+
+
+	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
 
 private:
 	void _createSides();

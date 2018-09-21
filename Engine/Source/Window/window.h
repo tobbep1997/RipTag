@@ -42,7 +42,7 @@ public:
 	Window(); 
 	~Window(); 
 
-	bool Init(WindowContext windowContext); //Creating window and calls show
+	bool Init(_In_ WindowContext windowContext); //Creating window and calls show
 	//void Update(CoreMessage msg); //Updates the window, based on incomming msg
 
 	//Get the window msg like "destory" when X button pressed

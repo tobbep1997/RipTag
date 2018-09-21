@@ -51,10 +51,12 @@ void RenderingManager::Update()
 	{
 		m_ImGuiManager.ImGuiProcPoll(m_wnd.getWindowProcMsg());
 	}
+#if _DEBUG
 	if (GetAsyncKeyState(int('P')))
 	{
 		_reloadShaders();
 	}
+#endif
 }
 
 void RenderingManager::Clear()
@@ -110,10 +112,14 @@ ProcMsg RenderingManager::getWindowProcMsg()
 void RenderingManager::_reloadShaders()
 {
 	//Unload the shader
-	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	DX::g_shaderManager.ReloadAllShaders();
+	/*DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
+	DX::g_shaderManager.UnloadShader(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 
 	//Reload shader
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/ShadowPixel.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
+	*/
 }

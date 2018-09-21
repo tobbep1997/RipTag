@@ -174,6 +174,11 @@ void Drawable::DrawAnimated()
 	DX::g_animatedGeometryQueue.push_back(this);
 }
 
+void Drawable::QueueVisabilityDraw()
+{
+	DX::g_visabilityDrawQueue.push_back(this);
+}
+
 std::wstring Drawable::getVertexPath() const
 {
 	return this->p_vertexPath;

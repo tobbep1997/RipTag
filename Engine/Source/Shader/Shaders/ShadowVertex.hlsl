@@ -3,11 +3,6 @@ cbuffer OBJECT_BUFFER : register(b0)
 	float4x4 worldMatrix;
 };
 
-cbuffer LIGHT_MATRIX : register(b1)
-{
-	float4x4 viewProjection[6];
-};
-
 struct VS_INPUT
 {
 	float4 pos : POSITION;

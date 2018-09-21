@@ -39,12 +39,14 @@ namespace Shaders
 		ID3D11ComputeShader		* m_computeShader;
 		ID3D11InputLayout		* m_inputLayout;
 
+		
 
 		//-------------------------------------------------------------------------------------------
 		//identifier
 		std::wstring m_path;
 		unsigned int m_key;
 		ShaderType m_type;
+		std::string m_entryPoint;
 
 		//Light quaris? light ocluion google fucking lights TODO
 	public:
@@ -60,18 +62,22 @@ namespace Shaders
 
 		void setType(const ShaderType & shaderType);
 		ShaderType getType() const;
+
+		void setEntryPoint(const std::string & entryPoint);
+		std::string getEntryPoint() const;
 		//-------------------------------------------------------------------------------------------
 		/*
 		Default load shader function
 		This dosen't do anything... It's just needed to create the other ones ._.
 		*/
-		template <typename T> void LoadShader(const std::wstring path, const std::string entryPoint = "main");
+		template <typename T> HRESULT LoadShader(const std::wstring path, const std::string entryPoint = "main");
 		ID3D11VertexShader * VertexInputLayout(const std::wstring path, const std::string entryPoint, D3D11_INPUT_ELEMENT_DESC inputDesc[], unsigned int size);
+		void setInputLayout(ID3D11InputLayout *& inputLayout);
 		ID3D11InputLayout * getInputLayout();
 		/*
 		Loads the correct shader
 		*/
-		template <> void LoadShader<ID3D11VertexShader>(const std::wstring path, const std::string entryPoint);
+		template <> HRESULT LoadShader<ID3D11VertexShader>(const std::wstring path, const std::string entryPoint);
 		//-------------------------------------------------------------------------------------------
 		//Get Shaders
 		template <typename T> T* getShader() const {
@@ -98,42 +104,45 @@ namespace Shaders
 		//-------------------------------------------------------------------------------------------
 		//Relese the shader
 		void Release();
+		void ReleaseWithoutInputLayout();
 
+
+		HRESULT ReloadShader();
 	};
 	template<>
-	inline void Shader::LoadShader<ID3D11VertexShader>(const std::wstring path, const std::string entryPoint)
+	inline HRESULT Shader::LoadShader<ID3D11VertexShader>(const std::wstring path, const std::string entryPoint)
 	{
-		ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, path.c_str(), entryPoint.c_str());
+		return ShaderCreator::CreateVertexShader(DX::g_device, m_vertexShader, path.c_str(), entryPoint.c_str());
 	}
 
 	template<>
-	inline void Shader::LoadShader<ID3D11DomainShader>(const std::wstring path, const std::string entryPoint)
+	inline HRESULT Shader::LoadShader<ID3D11DomainShader>(const std::wstring path, const std::string entryPoint)
 	{
-		ShaderCreator::CreateDomainShader(DX::g_device, m_domainShader, path.c_str(), entryPoint.c_str());
+		return ShaderCreator::CreateDomainShader(DX::g_device, m_domainShader, path.c_str(), entryPoint.c_str());
 	}
 
 	template<>
-	inline void Shader::LoadShader<ID3D11HullShader>(const std::wstring path, const std::string entryPoint)
+	inline HRESULT Shader::LoadShader<ID3D11HullShader>(const std::wstring path, const std::string entryPoint)
 	{
-		ShaderCreator::CreateHullShader(DX::g_device, m_hullShader, path.c_str(), entryPoint.c_str());
+		return ShaderCreator::CreateHullShader(DX::g_device, m_hullShader, path.c_str(), entryPoint.c_str());
 	}
 
 	template<>
-	inline void Shader::LoadShader<ID3D11GeometryShader>(const std::wstring path, const std::string entryPoint)
+	inline HRESULT Shader::LoadShader<ID3D11GeometryShader>(const std::wstring path, const std::string entryPoint)
 	{
-		ShaderCreator::CreateGeometryShader(DX::g_device, m_geometryShader, path.c_str(), entryPoint.c_str());
+		return ShaderCreator::CreateGeometryShader(DX::g_device, m_geometryShader, path.c_str(), entryPoint.c_str());
 	}
 
 	template<>
-	inline void Shader::LoadShader<ID3D11PixelShader>(const std::wstring path, const std::string entryPoint)
+	inline HRESULT Shader::LoadShader<ID3D11PixelShader>(const std::wstring path, const std::string entryPoint)
 	{
-		ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, path.c_str(), entryPoint.c_str());
+		return ShaderCreator::CreatePixelShader(DX::g_device, m_pixelShader, path.c_str(), entryPoint.c_str());
 	}
 
 	template<>
-	inline void Shader::LoadShader<ID3D11ComputeShader>(const std::wstring path, const std::string entryPoint)
+	inline HRESULT Shader::LoadShader<ID3D11ComputeShader>(const std::wstring path, const std::string entryPoint)
 	{
-		ShaderCreator::CreateComputeShader(DX::g_device, m_computeShader, path.c_str(), entryPoint.c_str());
+		return ShaderCreator::CreateComputeShader(DX::g_device, m_computeShader, path.c_str(), entryPoint.c_str());
 	}
 
 	

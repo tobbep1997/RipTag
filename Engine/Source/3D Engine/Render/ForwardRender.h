@@ -63,15 +63,21 @@ private:
 
 	ShadowMap m_shadowMap;
 
+	//ConstBuffer for visability
 
 	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
 	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
+	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
 	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
+
+	ID3D11VertexShader * m_visaVertexShader;
+	ID3D11PixelShader * m_visaPixelShader;
+	//int lazyShit = 0;
 
 	//LightCulling Related
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	// after optimization, change this to 8
-	float m_forceCullingLimit = 2;		//If there are more then lights left then the limit it will force cull it
+	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -103,10 +109,14 @@ private:
 	void _mapLightInfoNoMatrix();
 
 
+	//For visability
 
 	//void _SetShaders(int i);
 	void _setAnimatedShaders();
 	void _setStaticShaders();
+
+	//VisabilityPass
+	void VisabilityPass();
 
 	void _createUAV();
 };

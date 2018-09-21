@@ -141,7 +141,7 @@ Window::~Window()
 {
 }
 
-bool Window::Init(WindowContext windowContext)
+bool Window::Init(_In_ WindowContext windowContext)
 {
 	m_windowContext = windowContext;
 
