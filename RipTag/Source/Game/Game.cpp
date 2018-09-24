@@ -1,6 +1,7 @@
 #include "Game.h"
 
 
+
 Game::Game()
 {
 	
@@ -44,6 +45,8 @@ void Game::Clear()
 
 void Game::Update()
 {
+	_handleStateSwaps();
+
 	m_gameStack.top()->Update();
 	
 }
@@ -57,4 +60,20 @@ void Game::Draw()
 void Game::ImGuiFrameStart()
 {
 	m_renderingManager.ImGuiStartFrame();
+}
+
+void Game::_handleStateSwaps()
+{
+	if (m_gameStack.top()->getKillState())
+	{
+		delete m_gameStack.top();
+		m_gameStack.pop();
+	}
+
+	//TODO:: REMOVE CODE THIS IS TEMPORARY
+	/*if (m_gameStack.empty())
+	{
+		m_gameStack.push(new MainMenu(&m_renderingManager));
+	}*/
+	//TODO::Insert code for Handleing states
 }

@@ -11,6 +11,7 @@ PlayState::~PlayState()
 
 void PlayState::Update()
 {
+	
 }
 
 void PlayState::Draw()
