@@ -3,6 +3,7 @@
 #include "../../Shader/ShaderManager.h"
 #include "../Camera.h"
 #include "ShadowMap.h"
+#include <thread>
 
 class ForwardRender
 {
@@ -78,6 +79,9 @@ private:
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	// after optimization, change this to 8
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
+
+	std::thread shaderThreads[3];
+	bool first = true;
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -119,5 +123,8 @@ private:
 	void VisabilityPass();
 
 	void _createUAV();
+
+	void _createShaders();
+	void _createShadersInput();
 };
 
