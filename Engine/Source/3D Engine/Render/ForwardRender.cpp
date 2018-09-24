@@ -59,12 +59,12 @@ void ForwardRender::GeometryPass(Camera & camera)
 	
 	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);	
 	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	if (first == true)
+	if (m_firstRun == true)
 	{
-		shaderThreads[0].join();
-		shaderThreads[1].join();
-		shaderThreads[2].join();
-		first = false;
+		m_shaderThreads[0].join();
+		m_shaderThreads[1].join();
+		m_shaderThreads[2].join();
+		m_firstRun = false;
 	}
 	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
@@ -599,7 +599,7 @@ void ForwardRender::_createShaders()
 
 	//TODO:: ADD NEW SHADER FOR ANIMATED OBJECTS, CONNECT TOANIMATEDINPUTDESC
 
-	shaderThreads[2] = std::thread(&ForwardRender::_createShadersInput, this);
+	m_shaderThreads[2] = std::thread(&ForwardRender::_createShadersInput, this);
 	//shaderThreads[0] = std::thread([](D3D11_INPUT_ELEMENT_DESC animatedInputDesc[]) { DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);  });
 	//DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
 	//DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
@@ -608,10 +608,10 @@ void ForwardRender::_createShaders()
 	//shaderThreads[1] = std::thread([](D3D11_INPUT_ELEMENT_DESC inputDesc[]) {DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4); });
 
 	//DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
-	shaderThreads[0] = std::thread([]() { DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");  });
+	m_shaderThreads[0] = std::thread([]() { DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");  });
 
 	//DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
-	shaderThreads[1] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");  });
+	m_shaderThreads[1] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");  });
 	
 	//DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
 

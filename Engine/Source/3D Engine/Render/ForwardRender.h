@@ -80,8 +80,8 @@ private:
 	// after optimization, change this to 8
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
 
-	std::thread shaderThreads[3];
-	bool first = true;
+	std::thread m_shaderThreads[3];
+	bool m_firstRun = true;
 public:
 	ForwardRender();
 	~ForwardRender();
