@@ -5,8 +5,11 @@
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
 #include "Source/3D Engine/Model/ModelManager.h"
+#include "MeshManager.h"
+#include "Source/3D Engine/Model/TextureManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
+
  
 #include <chrono>
 
@@ -106,28 +109,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
-
 	
+	TextureManager textureManager;
+	MeshManager meshManager;
 	ModelManager modelManager;
 
-	modelManager.addStaticMesh("../Assets/KUB.bin");
-	modelManager.m_staticMesh[0]->setScale(20, 1, 20);
 
+	textureManager.loadTextures("SPHERE");
+//	textureManager.loadTextures("PIRASRUM");
+	//textureManager.loadTextures("KON");
 
-	// Player atm;
-	modelManager.addStaticMesh("../Assets/KUB.bin");
-	// end player
-
-	
-	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
-	modelManager.m_dynamicMesh[0]->setPosition(0, 2, 0);
-	modelManager.m_staticMesh[1]->setPosition(0, 1, 0);
-
-
-	//PointLight pl;
-	//pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
-	//pl.CreateShadowDirection(PointLight::XYZ_ALL);
-	//pl.CreateShadowDirection(std::vector<PointLight::ShadowDir>({ PointLight::ShadowDir::Y_NEGATIVE, PointLight::ShadowDir::X_NEGATIVE}));
+	meshManager.loadStaticMesh("SPHERE");
+	meshManager.loadStaticMesh("PIRASRUM");
+	meshManager.loadDynamicMesh("TORUS");
+	meshManager.loadDynamicMesh("KON");
+  //
+	modelManager.addNewModel(meshManager.getDynamicMesh(1), textureManager.getTexture(0));
+	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
+	//modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
+  //
 	std::vector<PointLight> point;
 
 	for (int i = 0; i < 8; i++)
@@ -148,14 +148,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[i].setDropOff(.2f);
 		point[i].setPower(2.0f);
 	}
-
-
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
 	camera.setLookTo(0, 0, 0, 1);
 
 	double pos = 0;
+	//modelManager.bindTextures();
 
 	while (renderingManager.getWindow().isOpen())
 	{
@@ -172,8 +171,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPower(powVar);
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
-		modelManager.m_staticMesh[1]->setScale(playerScaleX, playerScaleY, playerScaleZ);
-		modelManager.m_staticMesh[1]->setPosition(playerPosX, playerPosY, playerPosZ);
+		//modelManager.m_staticModel[1]->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		//modelManager.m_staticModel[1]->setPosition(playerPosX, playerPosY, playerPosZ);
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
@@ -248,7 +247,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			lightColorG = pointColor.y;
 			lightColorB = pointColor.z;
 			
-			modelManager.m_staticMesh[1]->setScale(1, 1, 1);
+			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
 		
@@ -262,6 +261,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			point[i].QueueLight();
 		}
 		
+		//ImGuiTest();
+	//	CameraTest();
+		MoveLight();
+		/*
+		pos += Timer::GetDurationInSeconds() * 0.03;
+		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
+		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
+		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
+		*/
+		//camera.setPosition(posX, posY, posZ);
+		//model.bindTexture(1);
 		modelManager.DrawMeshes();
 		
 		renderingManager.Flush(camera);

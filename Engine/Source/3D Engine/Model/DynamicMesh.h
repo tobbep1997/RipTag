@@ -8,7 +8,7 @@ class DynamicMesh
 {
 private:
 	std::vector <DynamicVertex> m_dynamicVertex;
-	
+	std::string m_meshName;
 public:
 	DynamicMesh();
 	~DynamicMesh();
@@ -20,6 +20,6 @@ public:
 
 	void SET_DEFAULT();
 
-	void LoadModel(const std::string & path);
+	void LoadMesh(const std::string & path);
 };
 

@@ -9,20 +9,19 @@
 class StaticMesh
 {
 private:
+	std::string m_meshName;
 	std::vector<StaticVertex> m_staticVertex;
-
 public:
 	StaticMesh();
 	~StaticMesh();
 
 	const StaticVertex * getRawVertice() const;
 	const std::vector<StaticVertex> & getVertice() const;
-
 	void setVertices(std::vector<StaticVertex>& input);
 
 	void SET_DEFAULT();
 
-	void LoadModel(const std::string & path);
+	void LoadMesh(const std::string & path);
 
 };
 

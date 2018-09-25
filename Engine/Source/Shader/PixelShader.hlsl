@@ -1,4 +1,5 @@
 #pragma warning(disable : 3078)
+#define PI 3.14159265359
 #pragma warning(disable : 3557)
 #pragma warning(disable : 3570)
 
@@ -28,17 +29,17 @@ cbuffer LIGHT_MATRIX : register(b1)
 };
 cbuffer CAMERA_BUFFER : register(b2)
 {
-    float4 cameraPosition;
-    float4x4 viewProjection;
+	float4 cameraPosition;
+	float4x4 viewProjection;
 };
 
 struct VS_OUTPUT
 {
-    float4 pos : SV_POSITION;
-    float4 worldPos : WORLD;
-    float4 normal : NORMAL;
-    float4 tangent : TANGENT;
-    float2 uv : UV;
+	float4 pos : SV_POSITION;
+	float4 worldPos : WORLD;
+	float4 normal : NORMAL;
+	float3x3 TBN : TBN;
+	float2 uv : UV;
 };
 
 
@@ -50,7 +51,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     textureColor = diffuseTexture.Sample(defaultSampler, float2(input.uv.x, 1.0 - input.uv.y));
 
     // TEMP VAR
-    textureColor = float4(1.0f, 1.0, 1.0f, 1.0f);
+    //textureColor = float4(1.0f, 1.0, 1.0f, 1.0f);
     // REMOVE ME WHEN WE HAVE TEXTURES
 
     float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * textureColor;

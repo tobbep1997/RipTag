@@ -20,9 +20,9 @@ void Game::Init(_In_ HINSTANCE hInstance)
 {
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
-	modelManager.addStaticMesh("../Assets/KUB.bin");
+	//modelManager.addStaticMesh("../Assets/KUB.bin");
 	//modelManager.staticMesh[0]->setScale(10, 1, 10);
-	modelManager.m_staticMesh[0]->setScale(10, 1, 10);
+	//modelManager.m_staticMesh[0]->setScale(10, 1, 10);
 }
 
 bool Game::isRunning()

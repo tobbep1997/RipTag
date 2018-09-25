@@ -73,32 +73,39 @@ void Drawable::p_setMesh(DynamicMesh * dynamicMesh)
 	this->m_dynamicMesh = dynamicMesh;
 }
 
-void Drawable::setTextures(Texture* diffuseTexture /*= nullptr*/, Texture* normalTexture /*= nullptr*/, Texture* MRATexture /*= nullptr*/)
+void Drawable::setTextures(const std::wstring & filePath)
 {
-	m_diffuseTexture = diffuseTexture;
-	m_MRATexture = MRATexture;
-	m_normalTexture = normalTexture;
+	std::wstring albedoName = L"../Assets/";
+	albedoName.append(filePath + L"FOLDER/" + filePath + L"_ALBEDO.png");
+	std::wstring ORMname = L"../Assets/";
+	ORMname.append(filePath + L"FOLDER/" + filePath + L"_ORM.png");
+	std::wstring normalName = L"../Assets/";
+	normalName.append(filePath + L"FOLDER/" + filePath + L"_NORMAL.png");
+	
+	//CD3D11_TEXTURE2D_DESC texDesc();
+	//m_diffuseTexture[0]->Load(albedoName.c_str());
+	//m_diffuseTexture[0]->Bind(1);
+	//HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), nullptr, &m_diffuseTexture[0].);
+	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, normalName.c_str(), nullptr, &m_meshTextures.MeshTextureSRV[1]);
+	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, ORMname.c_str(), nullptr, &m_meshTextures.MeshTextureSRV[2]);
+	//DX::SafeRelease(tempMeshTextureSRV);
+	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), nullptr, &tempMeshTextureSRV);
+	//DX::g_deviceContext->PSSetShaderResources(1, 1, &tempMeshTextureSRV);
+//	DX::g_deviceContext->PSSetShaderResources(2, 3, &m_meshTextures.MeshTextureSRV[1]);
+//	DX::g_deviceContext->PSSetShaderResources(3, 3, &m_meshTextures.MeshTextureSRV[2]);
+	
 }
+
+//void Drawable::SetTextures(Texture* diffuseTexture /*= nullptr*/, Texture* normalTexture /*= nullptr*/, Texture* MRATexture /*= nullptr*/)
+//{
+//	m_diffuseTexture = diffuseTexture;
+//	m_MRATexture = MRATexture;
+//	m_normalTexture = normalTexture;
+//}
 
 void Drawable::BindTextures()
 { //TODO Optimize (one call for all)
-	if (m_diffuseTexture)
-	{
-		m_diffuseTexture->Bind(1);
-	}
-	if (m_normalTexture)
-	{
-		m_normalTexture->Bind(2);
-	}
-	if (m_MRATexture)
-	{
-		m_MRATexture->Bind(3);
-	}
-	else if (!m_diffuseTexture && !m_normalTexture && !m_MRATexture)
-	{
-		std::vector<ID3D11ShaderResourceView*> nullSRV = { nullptr, nullptr, nullptr };
-		DX::g_deviceContext->PSSetShaderResources(1, 3, nullSRV.data());
-	}
+	p_texture->Bind(1);
 }
 
 Drawable::Drawable(ObjectType objectType) :
