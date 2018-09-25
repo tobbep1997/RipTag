@@ -63,7 +63,7 @@ void StaticMesh::SET_DEFAULT()
 	delete newMesh.mesh_vertices;
 }
 
-void StaticMesh::LoadModel(const std::string & path)
+void StaticMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
 
@@ -71,6 +71,7 @@ void StaticMesh::LoadModel(const std::string & path)
 	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
 
 	StaticVertex tempvertex;
+	//m_meshName = newMesh.mesh_meshID;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 
