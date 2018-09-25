@@ -132,80 +132,63 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
 	float4 lightCal = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
+	float div = 1.0f;
+	float shadowCoeff = 1.0f;
+	for (int shadowLight = 0; shadowLight < numberOfLights.x; shadowLight++)
+	{
+		for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
+		{
+			// Translate the world position into the view space of the shadowLight
+			float4 fragmentLightPosition = mul(input.worldPos, lightViewProjection[shadowLight][targetMatrix]);
+			// Get the texture coords of the "object" in the shadow map
+			fragmentLightPosition.xyz /= fragmentLightPosition.w;
+			// Texcoords are not [-1, 1], change the coords to [0, 1]
+			float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
+
+			float depth = fragmentLightPosition.z;
+
+			if (smTex.x <= 0 || smTex.x >= 1 || depth <= 0.0f || depth > 1.0f)
+				continue;
+
+			if (smTex.y <= 0 || smTex.y >= 1 || depth <= 0.0f || depth > 1.0f)
+				continue;
+
+			float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
+
+			shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+			div += 1.0f;
+			break;
+
+
+		}
+	}
+	finalShadowCoeff = pow(shadowCoeff / div, 16);
+
+
     for (int light = 0; light < numberOfLights.x; light++)
     {     
-		float div = 1.0f;
-		float shadowCoeff = 1.0f;
-		
-        //float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
-        //float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);            
-		
-        for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[light].x; targetMatrix++)
-        {
-             // Translate the world position into the view space of the light
-            float4 fragmentLightPosition = mul(input.worldPos, lightViewProjection[light][targetMatrix]);
-             // Get the texture coords of the "object" in the shadow map
-            fragmentLightPosition.xyz /= fragmentLightPosition.w;
-             // Texcoords are not [-1, 1], change the coords to [0, 1]
-            float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
-
-            float depth = fragmentLightPosition.z;
-
-            if (smTex.x <= 0 || smTex.x >= 1 || depth <= 0.0f || depth > 1.0f)
-                continue;
-
-            if (smTex.y <= 0 || smTex.y >= 1|| depth <= 0.0f || depth > 1.0f)
-                continue;
-
-            float3 indexPos = float3(smTex, (light * 6) + targetMatrix);
-
-            shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
-            div += 1.0f;
-            
-            
-        }
-		finalShadowCoeff = shadowCoeff / div;
-
 		posToLight = normalize(lightPosition[light] - input.worldPos);
 		distanceToLight = length(lightPosition[light] - input.worldPos);
 		halfwayVecor = normalize(worldToCamera + posToLight);
-		attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z))) * finalShadowCoeff;
+		attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z)));
 		
 		radiance = lightColor[light] * attenuation;
 		
-		roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness)* finalShadowCoeff;
-		overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness) * finalShadowCoeff;
+		roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
+		overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness) ;
 		
-		kS = FresnelReflection(max(dot(halfwayVecor, worldToCamera), 0.0f), f0)* finalShadowCoeff;
+		kS = FresnelReflection(max(dot(halfwayVecor, worldToCamera), 0.0f), f0);
 		kD = float4(1.0f, 1.0f, 1.0f, 1.0f) - kS;
 		kD *= 1.0f - metallic;
-		kD *= finalShadowCoeff;
 		
-		numerator = roughnessDistribution * overshadowOcclusion * kS* finalShadowCoeff;
+		
+		numerator = roughnessDistribution * overshadowOcclusion * kS;
 		denominator = 4.0f * max(dot(normal, worldToCamera.xyz), 0.0f) * max(dot(normal, posToLight.xyz), 0.0f);
-		specular = numerator / max(denominator, 0.001f) * finalShadowCoeff;
+		specular = numerator / max(denominator, 0.001f);
 		
 		normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
-		lightCal += (kD * albedo / pi + (specular * attenuation* finalShadowCoeff)) * radiance * normDotLight * finalShadowCoeff;
-			   		 	  	  	   	
-		
-	
-		
-
-		/*
-        float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);        
-        float specularDot = max(dot(input.normal.xyz, normalize(fragmentPositionToCamera + fragmentPositionToLight).xyz), 0.0f);
-              
-        float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
-        attenuation *= (shadowCoeff / div);
-
-        float3 specular = float3(0, 0, 0);
-        if (dot(input.normal.xyz, normalize(fragmentPositionToLight)) >= 0)        
-            specular = attenuation * (lightColor[light].rgb * pow(specularDot, 32.0f));     
-        
-        //float4 diffuse = attenuation * (saturate(lightColor[light] * albedo * diffuseDot)) * (shadowCoeff / div);
-		*/
-        //finalColor.rgb += (specular + diffuse.rgb).rgb * (shadowCoeff / div);
+		lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * finalShadowCoeff;
+			  
 		
     }
 	finalColor = ambient + lightCal;
