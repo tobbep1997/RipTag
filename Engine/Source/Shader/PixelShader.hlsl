@@ -51,7 +51,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     textureColor = diffuseTexture.Sample(defaultSampler, float2(input.uv.x, 1.0 - input.uv.y));
 
     // TEMP VAR
-    textureColor = float4(1.0f, 1.0, 1.0f, 1.0f);
+    //textureColor = float4(1.0f, 1.0, 1.0f, 1.0f);
     // REMOVE ME WHEN WE HAVE TEXTURES
 
     float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * textureColor;
