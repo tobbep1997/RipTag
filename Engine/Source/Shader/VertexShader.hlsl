@@ -33,10 +33,11 @@ VS_OUTPUT main(VS_INPUT input)
 	
 	output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
     output.worldPos = mul(input.pos, worldMatrix);
-    output.normal = normalize(mul(input.normal, worldMatrix));
-    float3 newTan = normalize(mul(input.tangent, worldMatrix).xyz);
-	float3 bitangent = cross(output.normal.xyz, newTan);
-	float3x3 TBN = float3x3(newTan, output.normal.xyz, bitangent);
+	output.normal = normalize(mul(input.normal, worldMatrix));
+	float3 tangent = normalize(mul(input.tangent, worldMatrix).xyz);
+	tangent = normalize(tangent - dot(tangent, output.normal.xyz)*output.normal.xyz).xyz;
+	float3 bitangent = cross(output.normal.xyz, tangent);
+	float3x3 TBN = float3x3(tangent, bitangent, output.normal.xyz);
 	
 	output.TBN = TBN;
 
