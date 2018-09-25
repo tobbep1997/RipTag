@@ -115,6 +115,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	ModelManager modelManager;
 
 
+
 	textureManager.loadTextures("SPHERE");
 //	textureManager.loadTextures("PIRASRUM");
 	//textureManager.loadTextures("KON");
@@ -128,6 +129,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
 	//modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
   //
+
 	std::vector<PointLight> point;
 
 	for (int i = 0; i < 8; i++)
@@ -259,8 +261,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
 			point[i].QueueLight();
-		}
-		
+		}		
 		//ImGuiTest();
 	//	CameraTest();
 		MoveLight();
@@ -272,6 +273,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		*/
 		//camera.setPosition(posX, posY, posZ);
 		//model.bindTexture(1);
+//=======
+//		diffuse->Bind(1);
+//		normal->Bind(2);
+//		PBR->Bind(3);
+//>>>>>>> PBR
 		modelManager.DrawMeshes();
 		
 		renderingManager.Flush(camera);
@@ -288,7 +294,5 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
-
-	
 	return 0;
 }
