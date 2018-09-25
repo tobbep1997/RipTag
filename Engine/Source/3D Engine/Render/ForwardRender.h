@@ -32,6 +32,13 @@ struct LightBuffer
 	DirectX::XMFLOAT4A	color[8];
 };
 
+struct GuardBuffer
+{
+	DirectX::XMFLOAT4X4A viewProj;
+	DirectX::XMFLOAT4X4A viewProjInverse;
+	DirectX::XMFLOAT4X4A worldMatrix;
+};
+
 private:
 
 	struct sortStruct
@@ -62,6 +69,8 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
+	ID3D11Buffer* m_GuardBuffer;
+
 	ShadowMap m_shadowMap;
 
 	//ConstBuffer for visability
@@ -79,7 +88,6 @@ private:
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	// after optimization, change this to 8
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
-
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 public:
@@ -102,6 +110,8 @@ public:
 	
 	void Release();
 private:
+
+	void _tempGuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
 

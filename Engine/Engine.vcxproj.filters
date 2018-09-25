@@ -8,6 +8,8 @@
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumPixel.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
@@ -36,6 +38,7 @@
     <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
     <ClCompile Include="Source\Window\window.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
+    <ClCompile Include="Source\3D Engine\Temp_Guard\TempGuard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -81,6 +84,7 @@
     <ClInclude Include="Source\Structs.h" />
     <ClInclude Include="Source\Window\window.h" />
     <ClInclude Include="Source\3D Engine\Model\Texture.h" />
+    <ClInclude Include="Source\3D Engine\Temp_Guard\TempGuard.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />

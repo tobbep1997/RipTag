@@ -171,7 +171,9 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap.ShadowPass();
 	VisabilityPass();
 	this->GeometryPass(camera);
+	
 	this->AnimatedGeometryPass(camera);
+	_tempGuardFrustumDraw();
 	
 }
 
@@ -212,6 +214,68 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_visabilityUAV);
 
 	m_shadowMap.Release();
+}
+
+void ForwardRender::_tempGuardFrustumDraw()
+{
+	struct FrustumPos
+	{
+		DirectX::XMFLOAT4A pos;
+	};
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl"), nullptr, 0);
+
+	for (unsigned int i = 0; i < DX::g_guardDrawQueue.size(); i++)
+	{
+
+		Frustum fust = DX::g_guardDrawQueue[i]->getFrustum();
+		DirectX::XMFLOAT4X4A viewProj = DX::g_guardDrawQueue[i]->getCamera().getViewProjection();
+		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
+		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
+		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
+
+		//mViewProjInverse = DirectX::XMMatrixTranspose(mViewProjInverse);
+		//mViewProj = DirectX::XMMatrixTranspose(mViewProj);
+
+
+		D3D11_MAPPED_SUBRESOURCE dataPtr;
+		GuardBuffer gb;
+		DirectX::XMStoreFloat4x4A(&gb.viewProj, mViewProj);
+		DirectX::XMStoreFloat4x4A(&gb.viewProjInverse, mViewProjInverse);
+		gb.worldMatrix = DX::g_guardDrawQueue[i]->getWorldMatrix();
+		
+		DX::g_deviceContext->Map(m_GuardBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+		// copy memory from CPU to GPU the entire struct
+		memcpy(dataPtr.pData, &gb, sizeof(GuardBuffer));
+		// UnMap constant buffer so that we can use it again in the GPU
+		DX::g_deviceContext->Unmap(m_GuardBuffer, 0);
+		// set resource to Vertex Shader
+		DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_GuardBuffer);
+		FrustumPos fp[36];
+		for (int k = 0; k < 36; k++)
+		{
+			fp[k].pos = fust.p[k];
+		}
+		D3D11_BUFFER_DESC bufferDesc;
+		memset(&bufferDesc, 0, sizeof(bufferDesc));
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = sizeof(FrustumPos) * 36;
+		D3D11_SUBRESOURCE_DATA vertexData;
+		vertexData.pSysMem = &fp->pos;
+
+		ID3D11Buffer * vertexBuffer;
+		HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &vertexBuffer);
+
+		UINT32 lol = sizeof(FrustumPos);
+		UINT32 offset = 0;
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &lol, &offset);
+		DX::g_deviceContext->Draw(36, 0);
+		vertexBuffer->Release();
+	}
+	DX::g_guardDrawQueue.clear();
 }
 
 void ForwardRender::_simpleLightCulling(Camera & cam)
@@ -341,6 +405,20 @@ void ForwardRender::_createConstantBuffer()
 		exit(-1);
 	}
 
+	D3D11_BUFFER_DESC GuardBufferDesc;
+	GuardBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	GuardBufferDesc.ByteWidth = sizeof(GuardBuffer);
+	GuardBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	GuardBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	GuardBufferDesc.MiscFlags = 0;
+	GuardBufferDesc.StructureByteStride = 0;
+
+	hr = DX::g_device->CreateBuffer(&GuardBufferDesc, nullptr, &this->m_GuardBuffer);
+	if (FAILED(hr))
+	{
+		// handle the error, could be fatal or a warning...
+		exit(-1);
+	}
 	//D3D11_BUFFER_DESC pointBufferDesc;
 	//lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	//lightBufferDesc.ByteWidth = sizeof(PointLightBuffer);
@@ -596,7 +674,9 @@ void ForwardRender::_createShaders()
 		{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-
+	D3D11_INPUT_ELEMENT_DESC tempDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 	//TODO:: ADD NEW SHADER FOR ANIMATED OBJECTS, CONNECT TOANIMATEDINPUTDESC
 
 	m_shaderThreads[2] = std::thread(&ForwardRender::_createShadersInput, this);
@@ -616,8 +696,8 @@ void ForwardRender::_createShaders()
 	//DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
 
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
-
-
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", tempDesc, 1);
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
 }
 
 void ForwardRender::_createShadersInput()
