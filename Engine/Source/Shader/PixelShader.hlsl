@@ -173,7 +173,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 		attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z)));
 		
 		radiance = lightColor[light] * attenuation;
-		
+		 
 		roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
 		overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness) ;
 		
@@ -187,7 +187,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 		specular = numerator / max(denominator, 0.001f);
 		
 		normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
-		lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * finalShadowCoeff;
+        lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f) * finalShadowCoeff);
 			  
 		
     }
