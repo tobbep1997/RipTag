@@ -497,16 +497,16 @@ void ForwardRender::VisabilityPass()
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl"), nullptr, 0);
 
-	//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 
-	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-		1,
-		&m_backBufferRTV,
-		//m_depthStencilView,
-		nullptr,
-		1, 1, &m_visabilityUAV, 0
-	);
+	//DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+	//	1,
+	//	&m_backBufferRTV,
+	//	//m_depthStencilView,
+	//	nullptr,
+	//	1, 1, &m_visabilityUAV, 0
+	//);
 
 	for (unsigned int i = 0; i < DX::g_visabilityDrawQueue.size(); ++i)
 	{

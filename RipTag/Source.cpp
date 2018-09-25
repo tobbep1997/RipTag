@@ -95,8 +95,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setPosition(10.0, 0.0, 0.0);
-	modelManager.addDynamicMesh("../Assets/pCube4_ANIMATION_Mesh.bin");
-	//modelManager.m_dynamicMesh[0]->setScale(0.5, 0.5, 0.5);
+	modelManager.addDynamicMesh("../Assets/pCube5_ANIMATION_Mesh.bin");
+	modelManager.m_dynamicMesh[0]->setPosition({ 3.0, -2.0, 0.0, 1.0 });
+	modelManager.m_dynamicMesh[0]->setScale(0.6, 0.6, 0.6);
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
@@ -170,8 +171,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
-			modelManager.m_dynamicMesh[0]->getAnimatedModel()->Update(0.01);
 		renderingManager.ImGuiStartFrame();
+
+		static float speed = 0.01;
+#ifdef _DEBUG
+		ImGui::Begin("Animation");
+		ImGui::SliderFloat("Speed", &speed, 0.0, 0.5);
+		ImGui::End();
+#endif
+		modelManager.m_dynamicMesh[0]->getAnimatedModel()->Update(speed);
+
+
 		pl.setPosition(lightPosX, lightPosY, lightPosZ);
 		pl.setColor(lightColorR, lightColorG, lightColorB);
 		pl.setFarPlane(farPlane);

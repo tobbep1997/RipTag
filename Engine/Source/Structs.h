@@ -20,7 +20,7 @@ struct DynamicVertex
 	DirectX::XMFLOAT4A normal;
 	DirectX::XMFLOAT4A tangent;
 	DirectX::XMFLOAT2A uvPos;
-	DirectX::XMINT4 influencingJoint;
+	DirectX::XMUINT4 influencingJoint;
 	DirectX::XMFLOAT4A jointWeights;
 
 };

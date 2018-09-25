@@ -27,16 +27,44 @@ void Drawable::_setDynamicBuffer()
 
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
+	
+	struct stuff
+	{
+		float pX, pY, pZ, pW;
+		float nX, nY, nZ, nW;
+		float tX, tY, tZ, tW;
+		float u, v;
+		uint32_t i1, i2, i3, i4;
+		float w1, w2, w3, w4;
+		float g1, g2;
+	};
+
+	auto vec = m_dynamicMesh->getVertices();
+	std::vector<stuff> stuffs;
+	for (auto& v : vec)
+	{
+		stuff s =
+		{
+			v.pos.x, v.pos.y, v.pos.z, v.pos.w,
+			v.normal.x, v.normal.y, v.normal.z, v.normal.w,
+			v.tangent.x, v.tangent.y, v.tangent.z, v.tangent.w,
+			v.uvPos.x, v.uvPos.y,
+			v.influencingJoint.x, v.influencingJoint.y, v.influencingJoint.z, v.influencingJoint.w,
+			v.jointWeights.x, v.jointWeights.y, v.jointWeights.z, v.jointWeights.w
+		};
+		stuffs.push_back(s);
+	}
+
 
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(DynamicVertex) * (UINT)m_dynamicMesh->getVertices().size();
+	bufferDesc.ByteWidth = sizeof(stuff) * (UINT)stuffs.size();
 
 
 	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = m_dynamicMesh->getRawVertices();
+	vertexData.pSysMem = stuffs.data();
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
 }
 

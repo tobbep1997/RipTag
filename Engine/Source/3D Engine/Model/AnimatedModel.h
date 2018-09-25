@@ -78,6 +78,7 @@ namespace Animation
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::SkeletonFromFile* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 
+	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt, DirectX::XMFLOAT4A pivot);
 	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
 	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
 

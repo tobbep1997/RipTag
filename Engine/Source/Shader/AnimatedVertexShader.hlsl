@@ -19,7 +19,7 @@ struct VS_INPUT
 	float4 pos : POSITION;
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
-	float2 uv : UV;
+	float4 uv : UV;
 	uint4 jointinfluences : JOINTINFLUENCES;
 	float4 jointweights : JOINTWEIGHTS;
 };
@@ -58,7 +58,7 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 tan = float3(0.0, 0.0, 0.0);
 	for (int i = 0; i < 4; i++)
 	{
-		if (input.jointinfluences[i] <= 129) //unused bone indices are negative
+		if (/*input.jointinfluences[i] <= 129 && */input.jointinfluences[i] > 0) //unused bone indices are negative
 		{
 			//TODO: cbuffer gWorld
 			position += weights[i] * mul(float4(input.pos.xyz, 1.0f), skinningMatrices[input.jointinfluences[i] - 1]).xyz;
@@ -73,7 +73,7 @@ VS_OUTPUT main(VS_INPUT input)
 	output.worldPos = mul(float4(position, 1.0f), worldMatrix);
 	output.normal = mul(float4(nor, 0.0), worldMatrix);
 	output.tangent = mul(float4(tan, 0.0f), worldMatrix);
-	output.uv = input.uv;
+	output.uv = input.uv.xy;
 	return output;
 }
 
