@@ -21,34 +21,12 @@ Model::Model(ObjectType objectType, const std::string &assetFilePath)
 	std::string tempString = "../Assets/";
 	tempString.append(assetFilePath + "FOLDER/" + assetFilePath + ".bin");
 
-	/*switch (objectType)
-	{
-	case Static:
-		m_StaticMeshPointer = new StaticMesh();
-		m_StaticMeshPointer->LoadModel(tempString);
-		SetModel(m_StaticMeshPointer);
-		SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-		SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-		assetName = assetFilePath;
-		break;
-	case Dynamic:
-		m_DynamicMeshPointer = new DynamicMesh();
-		m_DynamicMeshPointer->LoadModel(assetFilePath);
-		SetModel(m_DynamicMeshPointer);
-		SetVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
-		SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-		break;
-	default:
-		break;
-	}*/
-
 }
 
 Model::~Model()
 {
 	delete m_StaticMeshPointer;
 	delete m_DynamicMeshPointer;
-	delete p_texture;
 }
 
 void Model::SetBuffer()

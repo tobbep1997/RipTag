@@ -109,11 +109,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	meshManager.loadStaticMesh("SPHERE");
 	meshManager.loadStaticMesh("PIRASRUM");
 	meshManager.loadDynamicMesh("TORUS");
+//	meshManager.loadDynamicMesh("KON");
 
 	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
-	//modelManager.addNewModel(meshManager.getStaticMesh(1), textureManager.getTexture(1));
+	modelManager.addNewModel(meshManager.getStaticMesh(1), textureManager.getTexture(1));
 	modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
-
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 1.0f);

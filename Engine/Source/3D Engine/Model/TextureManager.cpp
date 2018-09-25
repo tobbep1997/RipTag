@@ -9,7 +9,10 @@ TextureManager::TextureManager()
 
 TextureManager::~TextureManager()
 {
-	
+	for (int i = 0; i < m_Textures.size(); i++)
+	{
+		delete m_Textures[i];
+	}
 }
 
 void TextureManager::loadTextures(const std::string & path)
