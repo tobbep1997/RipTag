@@ -1,6 +1,7 @@
 #pragma once
 #include <MessageIdentifiers.h>
 #include <RakNetTypes.h>
+#include <string>
 
 extern "C" {
 #include <lua.h>
@@ -28,7 +29,12 @@ namespace Network
 	{
 		unsigned char id;
 		//data
-		const char * message;
+		std::string message;
+		SCRIPT_TEST(unsigned char _id, const char * data)
+		{
+			id = _id;
+			message = std::string(data);
+		}
 	};
 #pragma pack(pop)
 
@@ -43,10 +49,8 @@ namespace Network
 	static int New_Test_Data(lua_State * L)
 	{
 		const char * data = lua_tostring(L, lua_gettop(L));
-		SCRIPT_TEST packet;
-		packet.id = ID_PING_MESSAGE;
-		packet.message = data;
-		lua_pushlightuserdata(L, (void*)&packet);
+		SCRIPT_TEST * packet = new SCRIPT_TEST((RakNet::MessageID)ID_PING_MESSAGE, data);
+		lua_pushlightuserdata(L, (void*)packet);
 		return 1;
 	}
 
