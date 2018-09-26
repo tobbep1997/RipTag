@@ -217,9 +217,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			camera.setLookTo(0, 0, 0, 1);
 
 
-		ImGuiTest();
+		//ImGuiTest();
 		//CameraTest();
-		MoveLight();
+		//MoveLight();
 		NetworkSettings(pNetwork);
 
 		pNetwork->Update();
