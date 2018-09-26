@@ -34,8 +34,10 @@ private:
 public:
 	VisabilityPass();
 	~VisabilityPass();
+	void Init();
 	void GuardDepthPrePassFor(Guard * guard);
 	void CalculateVisabilityFor(Guard * guard);
+	void SetViewportAndRenderTarget();
 private:
 	void _init();
 	void _initViewPort();
@@ -49,7 +51,6 @@ private:
 	void _initPixelShaders();
 
 	void _mapViewBuffer(Guard * target);
-
 
 	void _mapObjectBuffer(Drawable * target);
 };

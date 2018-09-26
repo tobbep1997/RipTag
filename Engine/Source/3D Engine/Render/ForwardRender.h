@@ -1,9 +1,8 @@
 #pragma once
 #pragma warning (disable : 4267)
-#include "../../Shader/ShaderManager.h"
-#include "../Camera.h"
 #include "ShadowMap.h"
 #include <thread>
+#include "VisabilityPass/VisabilityPass.h"
 
 class ForwardRender
 {
@@ -70,27 +69,15 @@ private:
 	ObjectBuffer m_objectValues;
 
 	ID3D11Buffer * m_cameraBuffer = nullptr;
-	ID3D11Buffer * m_cameraBuffer2 = nullptr;
 	CameraBuffer m_cameraValues;
-	CameraBuffer m_cameraValues2;
 
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
-	ID3D11Buffer* m_GuardBuffer;
-
 	ShadowMap m_shadowMap;
 
-	//ConstBuffer for visability
-
-	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
-	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
-	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
-	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
-
-	ID3D11VertexShader * m_visaVertexShader;
-	ID3D11PixelShader * m_visaPixelShader;
-	//int lazyShit = 0;
+	VisabilityPass m_visabilityPass;
+	ID3D11Buffer* m_GuardBuffer;
 
 	//LightCulling Related
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
@@ -98,14 +85,6 @@ private:
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
-
-	const short int m_guardWH = 32;
-	D3D11_VIEWPORT m_guardViewPort;
-
-	ID3D11DepthStencilView*		m_guardPreDepthStencil;
-	ID3D11Texture2D*			m_guardPreDepthTex;
-	ID3D11Buffer*				m_objectBuffer2 = nullptr;
-	ID3D11ShaderResourceView *	m_guardShaderResource;
 	ID3D11BlendState* m_alphaBlend;
 
 public:
@@ -128,10 +107,6 @@ public:
 	
 	void Release();
 private:
-
-	void _guardDepthStencil();
-	void _guardDepthPrePass(Guard * guard);
-	void _calcVisabilityFor(Guard * guard);
 	void _tempGuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
@@ -141,8 +116,6 @@ private:
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBufferToVertex(Camera & camera);
 	void _mapCameraBufferToPixel(Camera & camera);
-	void _mapCameraBufferToVertex2(Camera & camera);
-	void _mapCameraBufferToPixel2(Camera & camera);
 	void _mapLightInfoNoMatrix();
 
 
@@ -154,8 +127,6 @@ private:
 
 	//VisabilityPass
 	void VisabilityPass();
-
-	void _createUAV();
 
 	void _createShaders();
 	void _createShadersInput();

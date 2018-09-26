@@ -3,7 +3,7 @@
 
 VisabilityPass::VisabilityPass()
 {
-	_init();
+	
 }
 
 VisabilityPass::~VisabilityPass()
@@ -12,17 +12,23 @@ VisabilityPass::~VisabilityPass()
 	DX::SafeRelease(m_guardDepthStencil);
 	DX::SafeRelease(m_guardDepthTex);
 	DX::SafeRelease(m_guardShaderResource);
+	DX::SafeRelease(m_objectBuffer);
+}
+
+void VisabilityPass::Init()
+{
+	_init();
 }
 
 void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 {
-	_mapViewBuffer(guard);
-
+	DX::g_deviceContext->ClearDepthStencilView(m_guardDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	// Static Objects
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(STATIC_VERTEX_SHADER_PATH));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_VERTEX_SHADER_PATH), nullptr,0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+	_mapViewBuffer(guard); 
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
@@ -46,8 +52,6 @@ void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 {
 	auto l_uav = guard->getUAV();
-
-
 	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 		0,
 		//&m_backBufferRTV,
@@ -82,6 +86,12 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 
 
 	guard->calcVisability();
+}
+
+void VisabilityPass::SetViewportAndRenderTarget()
+{
+	DX::g_deviceContext->RSSetViewports(1, &m_guardViewPort);
+	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_guardDepthStencil);
 }
 
 void VisabilityPass::_init()
