@@ -57,6 +57,11 @@ struct Frustum
 	}
 };
 
+struct FrustumVertex
+{
+	DirectX::XMFLOAT4A pos;
+};
+
 
 class Guard
 {
@@ -68,17 +73,20 @@ private:
 	float				m_range;
 	Frustum				m_frustum;
 	DirectX::XMFLOAT4X4A m_worldMatrix;
+	ID3D11Buffer*		m_vertexBuffer;
 
 
 public:
 	Guard();
-	~Guard() {};
+	~Guard();
 	const Frustum & getFrustum();
 	void setPos(float x, float y, float z);
 	DirectX::XMFLOAT4A getPos();
 	void setDir(float x, float y, float z);
 	DirectX::XMFLOAT4A getDir();
 	void Rotate(float x, float y, float z);
+
+	ID3D11Buffer * getVertexBuffer();
 
 	Camera & getCamera();
 	const DirectX::XMFLOAT4X4A & getWorldMatrix();

@@ -268,27 +268,14 @@ void ForwardRender::_tempGuardFrustumDraw()
 		DX::g_deviceContext->Unmap(m_GuardBuffer, 0);
 		// set resource to Vertex Shader
 		DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_GuardBuffer);
-		FrustumPos fp[36];
-		for (int k = 0; k < 36; k++)
-		{
-			fp[k].pos = fust.p[k];
-		}
-		D3D11_BUFFER_DESC bufferDesc;
-		memset(&bufferDesc, 0, sizeof(bufferDesc));
-		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufferDesc.ByteWidth = sizeof(FrustumPos) * 36;
-		D3D11_SUBRESOURCE_DATA vertexData;
-		vertexData.pSysMem = &fp->pos;
 
-		ID3D11Buffer * vertexBuffer;
-		HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &vertexBuffer);
+		ID3D11Buffer * ver = DX::g_guardDrawQueue[i]->getVertexBuffer();
 
 		UINT32 lol = sizeof(FrustumPos);
 		UINT32 offset = 0;
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &lol, &offset);
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &lol, &offset);
 		DX::g_deviceContext->Draw(36, 0);
-		vertexBuffer->Release();
+
 	}
 	DX::g_guardDrawQueue.clear();
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
