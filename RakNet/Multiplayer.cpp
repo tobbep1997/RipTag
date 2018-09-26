@@ -226,7 +226,7 @@ namespace Network
 
 	void Multiplayer::_onDisconnect()
 	{
-		this->m_isConnected = false;
+		m_isConnected = m_isClient = m_isServer = m_isRunning = false;
 		//might want to log who disconnected
 	}
 
