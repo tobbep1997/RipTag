@@ -11,3 +11,11 @@ namespace Network
 	};
 }
 
+#pragma pack(push, 1)
+struct Game_Event
+{
+	Network::GAME_MESSAGES id;
+	//data
+};
+#pragma pack(pop)
+

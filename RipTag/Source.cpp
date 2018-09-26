@@ -11,6 +11,12 @@
 //network
 #include <Multiplayer.h>
 
+//LUA
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
  
 #include "Source/Helper/Timer.h"
 #if _DEBUG
@@ -85,6 +91,20 @@ void NetworkSettings(Network::Multiplayer * pMP)
 	ImGui::End();
 }
 
+void TestNetworkScript(lua_State * L)
+{
+	ImGui::Begin("Network Data Script");
+	if (ImGui::Button("Run"))
+	{
+		if (luaL_dofile(L, "..//Scripts//Network//SendDataTest.lua") != EXIT_SUCCESS)
+		{
+			printf(lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+	ImGui::End();
+}
+
 void CameraTest()
 {
 #if _DEBUG
@@ -123,6 +143,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
+	//LUA
+	lua_State* L = luaL_newstate();
+	luaL_openlibs(L);
+	//register classes in Lua
+	Network::LUA_Register_Network(L);
 
 	Timer::StartTimer();
 
@@ -221,7 +246,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//CameraTest();
 		//MoveLight();
 		NetworkSettings(pNetwork);
-
+		TestNetworkScript(L);
 		pNetwork->Update();
 		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;
@@ -246,6 +271,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
+	lua_close(L);
 
 	delete s;
 	delete d;
