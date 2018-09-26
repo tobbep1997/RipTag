@@ -25,4 +25,3 @@ public:
 	void LoadModel(const std::string & path);
 
 };
-

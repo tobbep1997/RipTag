@@ -10,7 +10,7 @@
 
 //network
 #include <Multiplayer.h>
-
+#include "CubePrototype.h"
  
 #include "Source/Helper/Timer.h"
 #if _DEBUG
@@ -158,8 +158,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
-	
-	
 
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
@@ -169,7 +167,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	double pos = 0;
 
 	
-
+	// CUBE
+	CubePrototype cP;
+	cP.setPosition(camera.getPosition());
 
 
 	while (renderingManager.getWindow().isOpen())
@@ -199,6 +199,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		else if (InputHandler::isKeyPressed(InputHandler::Shift))
 			camera.Move(0.0f, -0.01f, 0.0f);
 
+		cP.setPosition(camera.getPosition());
 		/*
 			Test Camera rotation
 		*/
