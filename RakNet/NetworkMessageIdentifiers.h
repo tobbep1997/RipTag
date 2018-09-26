@@ -10,6 +10,7 @@ extern "C" {
 }
 
 #define TEST_STRUCT_FOR_LUA "TestPacket"
+#define PACKETS_METATABLE "Packets"
 
 namespace Network
 {
@@ -29,11 +30,11 @@ namespace Network
 	{
 		unsigned char id;
 		//data
-		std::string message;
+		const char* message;
 		SCRIPT_TEST(unsigned char _id, const char * data)
 		{
 			id = _id;
-			message = std::string(data);
+			message = data;
 		}
 	};
 #pragma pack(pop)
@@ -54,9 +55,16 @@ namespace Network
 		return 1;
 	}
 
+	static int Destroy_ScriptTest(lua_State * L)
+	{
+		SCRIPT_TEST * toErase = (SCRIPT_TEST*)lua_touserdata(L, lua_gettop(L));
+		delete toErase;
+		return 0;
+	}
 	static void LUA_Register_Network_Structs(lua_State * L)
 	{
 		lua_register(L, TEST_STRUCT_FOR_LUA, New_Test_Data);
+
 	}
 
 }

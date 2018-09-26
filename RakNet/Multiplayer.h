@@ -90,8 +90,9 @@ namespace Network
 	static int Send_Data(lua_State * L)
 	{
 		void * data = lua_touserdata(L, lua_gettop(L));
+		SCRIPT_TEST * test = (SCRIPT_TEST*)data;
 		Multiplayer::GetInstance()->SendPacket((const char*)data);
-
+		delete data;
 		return 0;
 	}
 

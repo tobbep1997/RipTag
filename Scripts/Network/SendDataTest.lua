@@ -1,5 +1,5 @@
 
-data = TestPacket("PINGPINGPING")
+local data = TestPacket("PINGPINGPING")
 
 network = Multiplayer()
 
