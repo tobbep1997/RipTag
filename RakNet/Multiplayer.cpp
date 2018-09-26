@@ -19,11 +19,8 @@ namespace Network
 		m_isClient = false;
 		m_isRunning = true;
 
-		RakNet::SocketDescriptor * pSD = new RakNet::SocketDescriptor(PEER_PORT, 0);
 		//specify the port(s) to listen on
-		result = this->pPeer->Startup(MAX_CONNECTIONS, pSD, 1, THREAD_PRIORITY_NORMAL);
-
-		delete pSD;
+		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
 
 		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
@@ -41,11 +38,8 @@ namespace Network
 		m_isClient = true;
 		m_isRunning = true;
 
-		RakNet::SocketDescriptor * pSD = new RakNet::SocketDescriptor(PEER_PORT, 0);
-		//specify the port(s) to listen on
-		result = this->pPeer->Startup(MAX_CONNECTIONS, pSD, 1, THREAD_PRIORITY_NORMAL);
-
-		delete pSD;
+		//a client doesn't need to listen on a specific port - auto assigned
+		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
 
 		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
@@ -87,7 +81,8 @@ namespace Network
 				this->m_rIP = packet->systemAddress;
 				this->m_isConnected = true;
 				connectionAttempt = false;
-				//we are now connected we can exit the loop immidietly 
+				//we are now connected we can exit the loop immidietly
+				pPeer->DeallocatePacket(packet);
 				return;
 			}
 			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED)
@@ -108,6 +103,7 @@ namespace Network
 			{
 				m_rIP = packet->systemAddress;
 				m_isConnected = true;
+				pPeer->DeallocatePacket(packet);
 				return;
 			}
 		}
