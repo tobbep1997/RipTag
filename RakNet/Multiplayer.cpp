@@ -107,6 +107,15 @@ namespace Network
 		}
 	}
 
+	void Multiplayer::Disconnect()
+	{
+		if (m_isConnected)
+		{
+			pPeer->CloseConnection(m_rIP, true);
+			m_isConnected = false;
+		}
+	}
+
 	void Multiplayer::ReadPackets()
 	{
 		static int packetsCounter = 0;
@@ -178,7 +187,10 @@ namespace Network
 	Multiplayer::~Multiplayer()
 	{
 		if (this->pPeer)
+		{
+			this->Disconnect();
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
+		}
 
 		std::cout << "Multiplayer Destructor is called.\n";
 	}

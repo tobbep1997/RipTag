@@ -27,6 +27,7 @@ namespace Network
 		void AdvertiseHost();
 		void SearchLANHost();
 		void SearchLANClient();
+		void Disconnect();
 
 		void ReadPackets();
 		void SendPacket(const char* message);

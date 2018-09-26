@@ -79,6 +79,8 @@ void NetworkSettings(Network::Multiplayer * pMP)
 		ImGui::Text(pMP->GetNetworkInfo().c_str());
 		if (ImGui::Button("Ping"))
 			pMP->SendPacket("Pingpingping");
+		if (ImGui::Button("Disconnect"))
+			pMP->Disconnect();
 	}
 	ImGui::End();
 }
