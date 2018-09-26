@@ -12,7 +12,7 @@ std::vector<Drawable*> DX::g_animatedGeometryQueue;
 std::vector<PointLight*> DX::g_lights;
 
 std::vector<Drawable*> DX::g_visabilityDrawQueue;
-std::vector<Guard*> DX::g_guardDrawQueue;
+std::vector<Guardd*> DX::g_guardDrawQueue;
 
 void DX::SafeRelease(IUnknown * unknown)
 {

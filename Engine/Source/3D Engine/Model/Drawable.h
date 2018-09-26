@@ -18,6 +18,13 @@ enum ObjectType
 	Dynamic
 };
 
+enum EntityType
+{
+	Defult = 0,
+	Player = 1,
+	Guardd = 2
+};
+
 class Drawable
 {
 private:
@@ -45,6 +52,7 @@ protected:
 
 	//Object type, is it static or dynamic
 	ObjectType p_objectType;
+	EntityType p_entityType;
 
 	ID3D11Buffer * p_vertexBuffer;
 
@@ -60,7 +68,7 @@ protected:
 	//Texture stuff
 
 public:
-	Drawable(ObjectType ObjecType = ObjectType::Static);
+	Drawable(ObjectType ObjecType = ObjectType::Static, EntityType ent = EntityType::Defult);
 	virtual ~Drawable();
 
 	void setPosition(DirectX::XMFLOAT4A pos);
@@ -95,6 +103,7 @@ public:
 
 	//returns static or dynamic objtype
 	ObjectType getObjectType();
+	EntityType getEntityType();
 
 private:
 	void _setStaticBuffer();

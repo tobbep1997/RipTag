@@ -101,7 +101,7 @@ void Drawable::BindTextures()
 	}
 }
 
-Drawable::Drawable(ObjectType objectType) :
+Drawable::Drawable(ObjectType objectType, EntityType ent) :
 	m_staticMesh(nullptr),
 	m_dynamicMesh(nullptr),
 	p_vertexBuffer(nullptr)
@@ -112,6 +112,7 @@ Drawable::Drawable(ObjectType objectType) :
 
 
 	this->p_objectType = objectType;
+	this->p_entityType = ent;
 }
 
 
@@ -221,4 +222,9 @@ DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 ObjectType Drawable::getObjectType()
 {
 	return p_objectType;
+}
+
+EntityType Drawable::getEntityType()
+{
+	return p_entityType;
 }

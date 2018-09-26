@@ -4,12 +4,13 @@
 #include "../Extern.h"
 struct Frustum
 {
-	DirectX::XMFLOAT4A p[36];
-
+	static const short int NR_OF_VERTICES = 36;
+	DirectX::XMFLOAT4A p[NR_OF_VERTICES];
+	
 
 	void setPoints()
 	{
-		float cubeArr[36 * 3] = {
+		float cubeArr[NR_OF_VERTICES * 3] = {
 		-1.0f, -1.0f, -1.0f, // triangle 1 : begin
 		-1.0f, -1.0f, 1.0f,
 		-1.0f, 1.0f, 1.0f, // triangle 1 : end
@@ -49,7 +50,7 @@ struct Frustum
 		};
 
 		int counter = 0;
-		for (int i = 0; i < 36; i++)
+		for (int i = 0; i < NR_OF_VERTICES; i++)
 		{
 			p[i] = DirectX::XMFLOAT4A(cubeArr[counter], cubeArr[counter + 1], cubeArr[counter + 2], 1.0f);
 			counter += 3;
@@ -87,6 +88,9 @@ public:
 	void Rotate(float x, float y, float z);
 
 	ID3D11Buffer * getVertexBuffer();
+
+	UINT32 getSizeOfStruct();
+	UINT getNrVertices();
 
 	Camera & getCamera();
 	const DirectX::XMFLOAT4X4A & getWorldMatrix();

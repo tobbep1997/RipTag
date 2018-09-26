@@ -95,8 +95,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-	Guard gTemp;
-	gTemp.setPos(0, 5, 0);
+	
 
 	RenderingManager renderingManager;
 
@@ -108,6 +107,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
 
+	Guard gTemp;
+	gTemp.setPos(0, 5, 0);
 	
 	ModelManager modelManager;
 

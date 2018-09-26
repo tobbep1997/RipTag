@@ -73,10 +73,22 @@ ID3D11Buffer* Guard::getVertexBuffer()
 	return m_vertexBuffer;
 }
 
+UINT32 Guard::getSizeOfStruct()
+{
+	return sizeof(FrustumVertex);
+}
+
+UINT Guard::getNrVertices()
+{
+	return Frustum::NR_OF_VERTICES;
+}
+
 Camera & Guard::getCamera()
 {
 	return m_cam;
 }
+
+
 
 const DirectX::XMFLOAT4X4A & Guard::getWorldMatrix()
 {

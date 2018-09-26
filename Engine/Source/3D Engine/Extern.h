@@ -33,6 +33,6 @@ namespace DX {
 	extern std::vector<Drawable*> g_visabilityDrawQueue;
 
 	//TODO:: TEMP AFFF
-	extern std::vector<Guard*> g_guardDrawQueue;
+	extern std::vector<Guardd*> g_guardDrawQueue;
 
 }

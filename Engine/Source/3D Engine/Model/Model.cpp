@@ -1,8 +1,8 @@
 #include "Model.h"
 
 
-Model::Model(ObjectType objectType) : 
-	Drawable(objectType)
+Model::Model(ObjectType objectType, EntityType ent) :
+	Drawable(objectType, ent)
 {
 	switch (objectType)
 	{
@@ -15,8 +15,8 @@ Model::Model(ObjectType objectType) :
 	}
 }
 
-Model::Model(ObjectType objectType, const std::string &assetFilePath) 
-	: Drawable(objectType)
+Model::Model(ObjectType objectType, const std::string &assetFilePath, EntityType ent)
+	: Drawable(objectType, ent)
 {
 	switch (objectType)
 	{

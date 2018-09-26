@@ -23,17 +23,41 @@ ModelManager::~ModelManager()
 
 void ModelManager::DrawMeshes()
 {
+	//TODO::FIX GUARD PASS
 	for (int i = 0; i < m_staticMesh.size(); i++)
 	{
-		m_staticMesh[i]->Draw();
-		if (i == 1)
+		switch (m_staticMesh[i]->getEntityType())
 		{
+		case EntityType::Defult:
+			m_staticMesh[i]->Draw();
+			break;
+		case EntityType::Player:
 			m_staticMesh[i]->QueueVisabilityDraw();
+			m_staticMesh[i]->Draw();
+			break;
+		case EntityType::Guardd:
+
+			m_staticMesh[i]->Draw();
+			break;
 		}
+		
+		
 	}
 	for (int i = 0; i < m_dynamicMesh.size(); i++)
 	{
-		m_dynamicMesh[i]->DrawAnimated();
+		switch (m_dynamicMesh[i]->getEntityType())
+		{
+		case EntityType::Defult:
+			m_dynamicMesh[i]->DrawAnimated();
+			break;
+		case EntityType::Player:
+
+			break;
+		case EntityType::Guardd:
+
+			break;
+		}
+		//m_dynamicMesh[i]->DrawAnimated();
 	}
 }
 

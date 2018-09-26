@@ -225,6 +225,9 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_uavTextureBufferCPU);
 	DX::SafeRelease(m_visabilityUAV);
 
+	DX::SafeRelease(m_alphaBlend);
+	DX::SafeRelease(m_GuardBuffer);
+
 	m_shadowMap.Release();
 }
 
@@ -232,11 +235,6 @@ void ForwardRender::_tempGuardFrustumDraw()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 
-
-	struct FrustumPos
-	{
-		DirectX::XMFLOAT4A pos;
-	};
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -245,14 +243,10 @@ void ForwardRender::_tempGuardFrustumDraw()
 	for (unsigned int i = 0; i < DX::g_guardDrawQueue.size(); i++)
 	{
 
-		Frustum fust = DX::g_guardDrawQueue[i]->getFrustum();
 		DirectX::XMFLOAT4X4A viewProj = DX::g_guardDrawQueue[i]->getCamera().getViewProjection();
 		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
 		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
-
-		//mViewProjInverse = DirectX::XMMatrixTranspose(mViewProjInverse);
-		//mViewProj = DirectX::XMMatrixTranspose(mViewProj);
 
 
 		D3D11_MAPPED_SUBRESOURCE dataPtr;
@@ -271,10 +265,11 @@ void ForwardRender::_tempGuardFrustumDraw()
 
 		ID3D11Buffer * ver = DX::g_guardDrawQueue[i]->getVertexBuffer();
 
-		UINT32 lol = sizeof(FrustumPos);
+		UINT32 sizeVertex = DX::g_guardDrawQueue[i]->getSizeOfStruct();
 		UINT32 offset = 0;
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &lol, &offset);
-		DX::g_deviceContext->Draw(36, 0);
+
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &sizeVertex, &offset);
+		DX::g_deviceContext->Draw(DX::g_guardDrawQueue[i]->getNrVertices(), 0);
 
 	}
 	DX::g_guardDrawQueue.clear();
