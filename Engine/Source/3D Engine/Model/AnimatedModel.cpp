@@ -101,6 +101,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
+// #convert SRT to matrix
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt, DirectX::XMFLOAT4A pivot)
 {
 	using namespace DirectX;
@@ -108,7 +109,14 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt, DirectX::XMFLO
 	XMFLOAT4A fScale = (srt.m_scale);
 	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
 	XMFLOAT4A fTranslation = srt.m_translation;
-	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), XMLoadFloat4A(&pivot), XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
+
+	auto t = XMMatrixTranslationFromVector(XMLoadFloat4A(&fTranslation));
+	auto r = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
+	auto s = XMMatrixScalingFromVector(XMLoadFloat4A(&fTranslation));
+
+	return XMMatrixMultiply(t, r);
+
+	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), XMLoadFloat4A(&pivot), XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
 Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton)
@@ -144,7 +152,7 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose,
 	{
 		XMFLOAT4X4A global = m_globalMatrices[i];
 		XMFLOAT4X4A inverseBindPose = m_skeleton->m_joints[i].m_inverseBindPose;
-		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&global), XMLoadFloat4x4A(&inverseBindPose)); // #matrixmultiplication
+		XMMATRIX skinningMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&inverseBindPose), XMLoadFloat4x4A(&global)); // #matrixmultiplication
 
 		DirectX::XMStoreFloat4x4A(&m_skinningMatrices[i], skinningMatrix);
 	}
@@ -163,7 +171,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose, Sk
 		XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
 		auto jointPose = _interpolateJointPose(&firstPose->m_jointPoses[i], &secondPose->m_jointPoses[i], weight);
 
-		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(parentGlobalMatrix, Animation::_createMatrixFromSRT(jointPose.m_transformation))); // #matrixmultiplication
+		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(jointPose.m_transformation), parentGlobalMatrix)); // #matrixmultiplication
 	}
 }
 
