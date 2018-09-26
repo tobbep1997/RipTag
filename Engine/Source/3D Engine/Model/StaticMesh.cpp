@@ -63,6 +63,16 @@ void StaticMesh::SET_DEFAULT()
 	delete newMesh.mesh_vertices;
 }
 
+void StaticMesh::setName(const std::string & name)
+{
+	this->m_meshName = name;
+}
+
+const std::string & StaticMesh::getName() const
+{
+	return this->m_meshName;
+}
+
 void StaticMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;

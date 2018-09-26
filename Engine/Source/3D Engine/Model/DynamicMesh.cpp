@@ -73,6 +73,16 @@ void DynamicMesh::SET_DEFAULT()
 	delete newMesh.mesh_vertices;
 }
 
+void DynamicMesh::setName(const std::string & name)
+{
+	this->m_meshName = name;
+}
+
+const std::string & DynamicMesh::getName() const
+{
+	return this->m_meshName;
+}
+
 void DynamicMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
@@ -80,7 +90,6 @@ void DynamicMesh::LoadMesh(const std::string & path)
 	MyLibrary::Loadera meshloader;
 	MyLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile(path);
 	DynamicVertex tempvertex;
-	m_meshName = newMesh.mesh_meshID;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 

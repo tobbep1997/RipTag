@@ -117,19 +117,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 	textureManager.loadTextures("SPHERE");
-//	textureManager.loadTextures("PIRASRUM");
-	//textureManager.loadTextures("KON");
+
 
 	meshManager.loadStaticMesh("SCENE");
 	meshManager.loadStaticMesh("SPHERE");
 	meshManager.loadStaticMesh("PIRASRUM");
 	meshManager.loadDynamicMesh("TORUS");
 	meshManager.loadDynamicMesh("KON");
-  //
-	modelManager.addNewModel(meshManager.getDynamicMesh(1), textureManager.getTexture(0));
-	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
-	//modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
-  //
+
+	modelManager.addNewModel(meshManager.getDynamicMesh("KON"), textureManager.getTexture(0));
+	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture(0));
+
+	Model * player = new Model();
+	player->setTexture(textureManager.getTexture(0));
+	player->setModel(meshManager.getStaticMesh("PIRASRUM"));
+	delete player;
 
 	std::vector<PointLight> point;
 
