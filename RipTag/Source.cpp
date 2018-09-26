@@ -133,6 +133,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
   //
 	modelManager.m_staticModel[0]->SetEntityType(EntityType::Player);
+	modelManager.m_staticModel[1]->setScale(100, 1, 100);
 	std::vector<PointLight> point;
 
 	for (int i = 0; i < 8; i++)

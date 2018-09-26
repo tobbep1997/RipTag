@@ -27,8 +27,9 @@ private:
 	ID3D11Buffer *				m_guardViewBuffer;
 	ID3D11DepthStencilView*		m_guardDepthStencil;
 	ID3D11Texture2D*			m_guardDepthTex;
-	ID3D11ShaderResourceView *	m_guardShaderResource;
-
+	ID3D11Texture2D*			m_guatdShaderResourceTex;
+	ID3D11RenderTargetView*		m_guardRenderTargetView;
+	ID3D11ShaderResourceView*	m_guardShaderResource;
 	ID3D11Buffer*				m_objectBuffer;
 
 public:
@@ -45,6 +46,7 @@ private:
 	void _initObjectBuffer();
 	void _initDSV();
 	void _initSRV();
+	void _initRTV();
 	
 	void _initShaders();
 	void _initVertexShaders();

@@ -184,6 +184,7 @@ void ForwardRender::Clear()
 {
 	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
 
+	
 
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -416,18 +417,18 @@ void ForwardRender::VisabilityPass()
 {
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	m_visabilityPass.SetViewportAndRenderTarget();
+	m_shadowMap.SetSamplerAndShaderResources();
+	_mapLightInfoNoMatrix();
+	if (!DX::g_lights.empty())
+	{
+		m_shadowMap.MapAllLightMatrix(&DX::g_lights);
+	}
 	for (Guard * guard : DX::g_guardDrawQueue)
 	{
 		m_visabilityPass.GuardDepthPrePassFor(guard);
-		_mapLightInfoNoMatrix();
-		m_shadowMap.SetSamplerAndShaderResources();
-		if (!DX::g_lights.empty())
-		{
-			m_shadowMap.MapAllLightMatrix(&DX::g_lights);
-
-		}
 		m_visabilityPass.CalculateVisabilityFor(guard);
 	}
+
 }
 
 void ForwardRender::_setAnimatedShaders()
