@@ -1,6 +1,5 @@
 
-data = {}
-data[0] = "Data sent from Lua script"
+data = TestPacket("PINGPINGPING")
 
 network = Multiplayer()
 

@@ -143,7 +143,8 @@ namespace Network
 	{
 		this->pPeer->Send(message,
 			std::strlen(message) + 1,
-			HIGH_PRIORITY, RELIABLE,
+			HIGH_PRIORITY, 
+			RELIABLE,
 			0,
 			RakNet::UNASSIGNED_RAKNET_GUID,
 			true);

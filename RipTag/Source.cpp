@@ -148,6 +148,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	luaL_openlibs(L);
 	//register classes in Lua
 	Network::LUA_Register_Network(L);
+	Network::LUA_Register_Network_Structs(L);
 
 	Timer::StartTimer();
 

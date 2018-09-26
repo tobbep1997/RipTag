@@ -5,6 +5,7 @@
 #include <string>
 #include <NetworkIDManager.h>
 #include "NetworkMessageIdentifiers.h"
+#include <iostream>
 
 extern "C" {
 #include <lua.h>
@@ -89,7 +90,6 @@ namespace Network
 	static int Send_Data(lua_State * L)
 	{
 		void * data = lua_touserdata(L, lua_gettop(L));
-
 		Multiplayer::GetInstance()->SendPacket((const char*)data);
 
 		return 0;
