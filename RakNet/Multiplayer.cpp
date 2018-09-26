@@ -89,7 +89,6 @@ namespace Network
 			{
 				//we should also log the failed connection attempt
 				connectionAttempt = false;
-				
 			}
 		}
 	}
@@ -126,17 +125,17 @@ namespace Network
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			/*packetsCounter++;
+			packetsCounter++;
 			std::cout << "--------------------------NEW PACKET--------------------------\n";
 			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
 			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
 			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
 			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
-			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
+			//std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
+			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
 			unsigned char mID = this->GetPacketIdentifier(packet);
 			this->HandleRakNetMessages(mID);
-			this->HandleGameMessages(mID);
+			this->HandleGameMessages(mID, packet->data);
 		}
 	}
 
@@ -144,7 +143,8 @@ namespace Network
 	{
 		this->pPeer->Send(message,
 			std::strlen(message) + 1,
-			HIGH_PRIORITY, RELIABLE,
+			HIGH_PRIORITY, 
+			RELIABLE,
 			0,
 			RakNet::UNASSIGNED_RAKNET_GUID,
 			true);
@@ -183,6 +183,8 @@ namespace Network
 		if (this->pPeer == 0)
 			this->pPeer = RakNet::RakPeerInterface::GetInstance();
 
+		pNetworkIDManager = new RakNet::NetworkIDManager();
+
 		std::cout << "Multiplayer Constructor is called.\n";
 	}
 
@@ -194,7 +196,7 @@ namespace Network
 			this->Disconnect();
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
 		}
-
+		delete this->pNetworkIDManager;
 		std::cout << "Multiplayer Destructor is called.\n";
 	}
 
@@ -218,10 +220,16 @@ namespace Network
 		}
 	}
 
-	void Multiplayer::HandleGameMessages(unsigned char mID)
+	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
 		switch (mID)
 		{
+		case GAME_MESSAGES::ID_CREATE_REMOTE_PLAYER:
+			//stuff
+			break;
+		case GAME_MESSAGES::ID_PING_MESSAGE:
+			std::cout << ((SCRIPT_TEST*)data)->message << std::endl;
+			break;
 		default:
 			break;
 		}
