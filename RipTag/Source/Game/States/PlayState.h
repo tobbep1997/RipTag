@@ -10,7 +10,7 @@ private:
 	LevelHandler m_levelHandler;
 	ObjectHandler m_objectHandler;
 
-
+	Camera * m_tempCam;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -21,4 +21,5 @@ public:
 
 private:
 
+	void _tempCameraControls();
 };
