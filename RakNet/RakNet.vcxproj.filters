@@ -492,6 +492,9 @@
     <ClInclude Include="NetworkClock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NetworkMessageIdentifiers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

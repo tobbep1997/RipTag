@@ -54,6 +54,13 @@ namespace Network
 		bool m_isConnected = false;
 
 		RakNet::SystemAddress m_rIP;
+
+		unsigned char GetPacketIdentifier(RakNet::Packet * p);
+		void HandleRakNetMessages(unsigned char mID);
+		void HandleGameMessages(unsigned char mID);
+
+		//functions to handle RakNet internal messages
+		void _onDisconnect();
 	};
 
 }

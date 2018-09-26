@@ -114,15 +114,17 @@ namespace Network
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			packetsCounter++;
+			/*packetsCounter++;
 			std::cout << "--------------------------NEW PACKET--------------------------\n";
 			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
 			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
 			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
 			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
 			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
-			
+			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
+			unsigned char mID = this->GetPacketIdentifier(packet);
+			this->HandleRakNetMessages(mID);
+			this->HandleGameMessages(mID);
 		}
 	}
 
@@ -179,6 +181,41 @@ namespace Network
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
 
 		std::cout << "Multiplayer Destructor is called.\n";
+	}
+
+	unsigned char Multiplayer::GetPacketIdentifier(RakNet::Packet * p)
+	{
+		if ((unsigned char)p->data[0] == ID_TIMESTAMP)
+			return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
+		else
+			return (unsigned char)p->data[0];
+	}
+
+	void Multiplayer::HandleRakNetMessages(unsigned char mID)
+	{
+		switch (mID)
+		{
+		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
+			this->_onDisconnect();
+			break;
+		default:
+			break;
+		}
+	}
+
+	void Multiplayer::HandleGameMessages(unsigned char mID)
+	{
+		switch (mID)
+		{
+		default:
+			break;
+		}
+	}
+
+	void Multiplayer::_onDisconnect()
+	{
+		this->m_isConnected = false;
+		//might want to log who disconnected
 	}
 
 
