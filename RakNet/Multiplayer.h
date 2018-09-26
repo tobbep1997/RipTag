@@ -1,27 +1,45 @@
 #pragma once
 #include <RakPeerInterface.h>
+#include <MessageIdentifiers.h>
+#include "NetworkClock.h"
+#include <string>
 
 namespace Network
 {
+	//Network constants
 	const unsigned short SERVER_PORT = 60005;
 	const unsigned short CLIENT_PORT = 60006;
 	const short MAX_CONNECTIONS = 2;
+	const std::string LAN_IP = "255.255.255.255";
 
+	//Other constants
+	const double ADVERTISEMENT_FREQUENCE = 1 / 5.0;
 
 	class Multiplayer
 	{
 	public:
 		//Get a pointer to the Singleton Instance
 		static Multiplayer * GetInstance();
-		//Assign the role, True sets it as Server, False sets it to Client
-		void assignRole(bool isServer) { this->m_isServer = isServer; }
-		void StartUp();
-		void ConnectToLocalhost();
+		
+		void StartUpServer();
+		void StartUpClient();
+
+		void AdvertiseHost();
+		void SearchLANHost();
+		void SearchLANClient();
+
 		void ReadPackets();
 		void SendPacket(const char* message);
 
+		void Update();
+		//GETs
 		bool isServer() { return m_isServer; }
+		bool isClient() { return m_isClient; }
+		bool isRunning() { return m_isRunning; }
+		bool isConnected() { return m_isConnected; }
 
+
+		std::string GetNetworkInfo();
 	private:
 		//private constructor to avoid instanciating more than one object
 		Multiplayer();
@@ -29,7 +47,13 @@ namespace Network
 		~Multiplayer();
 
 		RakNet::RakPeerInterface * pPeer = 0;
+
 		bool m_isServer = false;
+		bool m_isClient = false;
+		bool m_isRunning = false;
+		bool m_isConnected = false;
+
+		RakNet::SystemAddress m_rIP;
 	};
 
 }

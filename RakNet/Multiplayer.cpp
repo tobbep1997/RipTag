@@ -11,26 +11,100 @@ namespace Network
 		return &m_instance;
 	}
 
-	void Multiplayer::StartUp()
+	void Multiplayer::StartUpServer()
 	{
 		RakNet::StartupResult result;
-		if (m_isServer)
+		
+		m_isServer = true;
+		m_isClient = false;
+		m_isRunning = true;
+
+		//specify the port(s) to listen on
+		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(SERVER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
+
+		if (result != RakNet::RAKNET_STARTED)
 		{
-			result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(SERVER_PORT, 0), 1);
-			this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
+			m_isRunning = false;
 		}
-		if (result != RakNet::StartupResult::RAKNET_STARTED)
+
+		this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
+	}
+
+	void Multiplayer::StartUpClient()
+	{
+		RakNet::StartupResult result;
+
+		m_isServer = false;
+		m_isClient = true;
+		m_isRunning = true;
+
+		//a client doesn't need to listen on a specific port - auto assigned
+		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(CLIENT_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
+
+		if (result != RakNet::RAKNET_STARTED)
 		{
-			m_isServer = false;
-			this->pPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
-			this->ConnectToLocalhost();
+			m_isRunning = false;
 		}
 	}
 
-	void Multiplayer::ConnectToLocalhost()
+	void Multiplayer::AdvertiseHost()
 	{
-		if (!m_isServer)
-			this->pPeer->Connect("localhost", SERVER_PORT, 0, 0);
+		static ChronoClock localClock;
+		if (localClock.isRunning() == false)
+		{
+			localClock.start();
+		}
+
+		double elapsedTime = localClock.getElapsedTime();
+
+		if (elapsedTime >= ADVERTISEMENT_FREQUENCE)
+			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), CLIENT_PORT, nullptr, 0);
+	}
+
+	void Multiplayer::SearchLANHost()
+	{
+		static bool connectionAttempt = false;
+
+		RakNet::Packet * packet;
+		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive())
+		{
+			//look for the advertise message
+			if (packet->data[0] == DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM && !packet->wasGeneratedLocally)
+			{
+				//save the server IP and send a connection request
+				this->m_rIP = packet->systemAddress;
+				if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(this->m_rIP.ToString(), this->m_rIP.GetPort(), nullptr, 0))
+					connectionAttempt = true;
+			}
+			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED && !packet->wasGeneratedLocally && connectionAttempt)
+			{
+				this->m_rIP = packet->systemAddress;
+				this->m_isConnected = true;
+				connectionAttempt = false;
+				//we are now connected we can exit the loop immidietly 
+				return;
+			}
+			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED)
+			{
+				//we should also log the failed connection attempt
+				connectionAttempt = false;
+			}
+		}
+	}
+
+	void Multiplayer::SearchLANClient()
+	{
+
+		RakNet::Packet * packet;
+		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive())
+		{
+			if (packet->data[0] == DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION && !packet->wasGeneratedLocally)
+			{
+				m_rIP = packet->systemAddress;
+				m_isConnected = true;
+				return;
+			}
+		}
 	}
 
 	void Multiplayer::ReadPackets()
@@ -56,12 +130,39 @@ namespace Network
 	{
 		this->pPeer->Send(message,
 			std::strlen(message) + 1,
-			LOW_PRIORITY, RELIABLE,
+			HIGH_PRIORITY, RELIABLE,
 			0,
 			RakNet::UNASSIGNED_RAKNET_GUID,
 			true);
 	}
 
+	void Multiplayer::Update()
+	{
+		if (m_isRunning)
+		{
+			if (m_isServer && !m_isConnected)
+			{
+				this->AdvertiseHost();
+				this->SearchLANClient();
+			}
+			else if (m_isClient && !m_isConnected)
+			{
+				this->SearchLANHost();
+			}
+			else if (m_isConnected)
+			{
+				this->ReadPackets();
+			}
+		}
+	}
+
+
+	std::string Multiplayer::GetNetworkInfo()
+	{
+		std::string toReturn = "";
+		toReturn = "Connected to: " + std::string(m_rIP.ToString());
+		return toReturn;
+	}
 
 	Multiplayer::Multiplayer()
 	{

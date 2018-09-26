@@ -48,6 +48,38 @@ void ImGuiTest()
 
 }
 
+void NetworkSettings(Network::Multiplayer * pMP)
+{
+	bool startServer = false;
+	bool startClient = false;
+	ImGui::Begin("Network Settings");
+	if (!pMP->isRunning())
+	{
+		startServer = ImGui::Button("Start Server");
+		startClient = ImGui::Button("Start Client");
+	}
+	if (startServer)
+	{
+		pMP->StartUpServer();
+	}
+	else if (startClient)
+	{
+		pMP->StartUpClient();
+	}
+	if (pMP->isRunning() && !pMP->isConnected())
+	{
+		if (pMP->isServer())
+			ImGui::Text("Server running... Awaiting Connections...");
+		else
+			ImGui::Text("Client running... Looking for Server...");
+	}
+	if (pMP->isRunning() && pMP->isConnected())
+	{
+		ImGui::Text(pMP->GetNetworkInfo().c_str());
+	}
+	ImGui::End();
+}
+
 void CameraTest()
 {
 #if _DEBUG
@@ -81,8 +113,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//-------NETWORKING-----------
 	Network::Multiplayer * pNetwork = Network::Multiplayer::GetInstance();
 
-	pNetwork->assignRole(true);
-	pNetwork->StartUp();
+	
 
 #if _DEBUG
 	_alocConsole();
@@ -147,14 +178,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		/*
 			Test Network		
 		*/
-		if (InputHandler::isKeyPressed('P') && pNetwork->isServer())
-		{
-			pNetwork->SendPacket("P has been pressed on Server");
-		}
-		if (InputHandler::isKeyPressed('P') && !pNetwork->isServer())
-		{
-			pNetwork->SendPacket("P has been pressed on Client");
-		}
 		/*
 			Test Camera movement
 		*/
@@ -192,6 +215,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		ImGuiTest();
 		//CameraTest();
 		MoveLight();
+		NetworkSettings(pNetwork);
+
+		pNetwork->Update();
 		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;
 		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
