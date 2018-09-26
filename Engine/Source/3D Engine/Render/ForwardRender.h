@@ -60,6 +60,10 @@ private:
 	D3D11_VIEWPORT				m_viewport;
 
 	//Constant Buffer TEMP
+	//TODO::Fixa constant buffers
+	//Uppdatera bara 1 gång
+	//Fixa en constant_buffer.hlsl
+
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
 
@@ -91,6 +95,8 @@ private:
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 
+	const short int m_guardWH = 32;
+	D3D11_VIEWPORT m_guardViewPort;
 
 
 	ID3D11BlendState* m_alphaBlend;
@@ -116,6 +122,7 @@ public:
 	void Release();
 private:
 
+	void _guardDepthPrePass();
 	void _tempGuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);

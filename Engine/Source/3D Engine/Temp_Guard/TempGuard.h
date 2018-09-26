@@ -7,7 +7,7 @@ struct Frustum
 	static const short int NR_OF_VERTICES = 36;
 	DirectX::XMFLOAT4A p[NR_OF_VERTICES];
 	
-
+	//TODO:: CPU SHIT stefan saaaaa
 	void setPoints()
 	{
 		float cubeArr[NR_OF_VERTICES * 3] = {
@@ -76,7 +76,10 @@ private:
 	DirectX::XMFLOAT4X4A m_worldMatrix;
 	ID3D11Buffer*		m_vertexBuffer;
 
-
+	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
+	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
+	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
+	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
 public:
 	Guard();
 	~Guard();
@@ -95,4 +98,8 @@ public:
 	Camera & getCamera();
 	const DirectX::XMFLOAT4X4A & getWorldMatrix();
 	void Draw();
+
+private:
+	void _createUAV();
+
 };

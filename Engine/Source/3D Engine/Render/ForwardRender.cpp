@@ -58,6 +58,14 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
 	//this->_createUAV();
+
+	m_guardViewPort.Width = static_cast<float>(m_guardWH);
+	m_guardViewPort.Height = static_cast<float>(m_guardWH);
+	m_guardViewPort.MinDepth = 0.0f;
+	m_guardViewPort.MaxDepth = 1.0f;
+	m_guardViewPort.TopLeftX = 0;
+	m_guardViewPort.TopLeftY = 0;
+
 }
 
 struct TriangleVertex
@@ -229,6 +237,123 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_GuardBuffer);
 
 	m_shadowMap.Release();
+}
+
+void ForwardRender::_guardDepthPrePass()
+{
+
+	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+		1,
+		&m_backBufferRTV,
+		//m_depthStencilView,
+		nullptr,
+		1, 1, &m_visabilityUAV, 0
+	);
+
+	//DX::g_deviceContext->RSSetViewports()
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl"), nullptr, 0);
+
+	for (unsigned int i = 0; i < DX::g_guardDrawQueue.size(); i++)
+	{
+
+		DirectX::XMFLOAT4X4A viewProj = DX::g_guardDrawQueue[i]->getCamera().getViewProjection();
+		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
+		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
+		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
+
+
+		D3D11_MAPPED_SUBRESOURCE dataPtr;
+		GuardBuffer gb;
+		DirectX::XMStoreFloat4x4A(&gb.viewProj, mViewProj);
+		DirectX::XMStoreFloat4x4A(&gb.viewProjInverse, mViewProjInverse);
+		gb.worldMatrix = DX::g_guardDrawQueue[i]->getWorldMatrix();
+
+		DX::g_deviceContext->Map(m_GuardBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+		// copy memory from CPU to GPU the entire struct
+		memcpy(dataPtr.pData, &gb, sizeof(GuardBuffer));
+		// UnMap constant buffer so that we can use it again in the GPU
+		DX::g_deviceContext->Unmap(m_GuardBuffer, 0);
+		// set resource to Vertex Shader
+		DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_GuardBuffer);
+
+		ID3D11Buffer * ver = DX::g_guardDrawQueue[i]->getVertexBuffer();
+
+		UINT32 sizeVertex = DX::g_guardDrawQueue[i]->getSizeOfStruct();
+		UINT32 offset = 0;
+
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &sizeVertex, &offset);
+		DX::g_deviceContext->Draw(DX::g_guardDrawQueue[i]->getNrVertices(), 0);
+
+	}
+
+
+	//float c[4] = { 0.0f,0.0f,0.5f,1.0f };
+
+	////DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	////DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	////DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	//DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+
+	//DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl"), nullptr, 0);
+	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl"), nullptr, 0);
+
+	////DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	//DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+
+	//DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+	//	1,
+	//	&m_backBufferRTV,
+	//	//m_depthStencilView,
+	//	nullptr,
+	//	1, 1, &m_visabilityUAV, 0
+	//);
+
+	//for (unsigned int i = 0; i < DX::g_visabilityDrawQueue.size(); ++i)
+	//{
+	//	UINT32 vertexSize = sizeof(StaticVertex);
+	//	UINT32 offset = 0;
+
+	//	ID3D11Buffer * vertexBuffer = DX::g_visabilityDrawQueue[i]->getBuffer();
+
+	//	_mapObjectBuffer(DX::g_visabilityDrawQueue[i]);
+	//	DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+	//	DX::g_deviceContext->Draw(DX::g_visabilityDrawQueue[i]->getVertexSize(), 0);
+	//}
+
+	//DX::g_visabilityDrawQueue.clear();
+
+
+	//DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	//D3D11_MAPPED_SUBRESOURCE mr;
+
+	//struct ShadowTestData
+	//{
+	//	unsigned int inside;
+	//	unsigned int outside;
+	//};
+
+	//if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
+	//{
+	//	ShadowTestData* data = (ShadowTestData*)mr.pData;
+
+	//	//std::cout << data->inside <<std::endl;
+	//	DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	//}
+	//D3D11_MAPPED_SUBRESOURCE dataPtr;
+	//if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
+	//{
+	//	ShadowTestData hiv = { 0,0 };
+	//	memcpy(dataPtr.pData, &hiv, sizeof(ShadowTestData));
+	//	DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+	//	//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+	//	DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	//}
 }
 
 void ForwardRender::_tempGuardFrustumDraw()

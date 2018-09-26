@@ -23,11 +23,17 @@ Guard::Guard()
 	vertexData.pSysMem = &m_frustum.p;
 
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+
+	_createUAV();
 }
 
 Guard::~Guard()
 {
 	DX::SafeRelease(m_vertexBuffer);
+
+	DX::SafeRelease(m_uavTextureBuffer);
+	DX::SafeRelease(m_uavTextureBufferCPU);
+	DX::SafeRelease(m_visabilityUAV);
 	
 }
 
@@ -107,4 +113,43 @@ const DirectX::XMFLOAT4X4A & Guard::getWorldMatrix()
 void Guard::Draw()
 {
 	DX::g_guardDrawQueue.push_back(this);
+}
+
+void Guard::_createUAV()
+{
+	D3D11_TEXTURE2D_DESC TextureData;
+	ZeroMemory(&TextureData, sizeof(TextureData));
+	TextureData.ArraySize = 1;
+	TextureData.Height = 1;
+	TextureData.Width = 1;
+	TextureData.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+	TextureData.CPUAccessFlags = 0;
+	TextureData.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	TextureData.MipLevels = 1;
+	TextureData.MiscFlags = 0;
+	TextureData.SampleDesc.Count = 1;
+	TextureData.SampleDesc.Quality = 0;
+	TextureData.Usage = D3D11_USAGE_DEFAULT;
+
+	HRESULT hr;
+	hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_uavTextureBuffer);
+
+	TextureData.Usage = D3D11_USAGE_STAGING;
+	TextureData.BindFlags = 0;
+	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+
+	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavTextureBufferCPU);
+
+	//TextureData.Usage = D3D11_USAGE_STAGING;
+	//TextureData.BindFlags = 0;
+	//TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	//hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavKILLER);
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
+	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
+	UAVdesc.Format = DXGI_FORMAT_R32_UINT;
+	UAVdesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	UAVdesc.Texture2D.MipSlice = 0;
+	hr = DX::g_device->CreateUnorderedAccessView(m_uavTextureBuffer, &UAVdesc, &m_visabilityUAV);
 }
