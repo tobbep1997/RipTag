@@ -9,8 +9,7 @@
 #include "Source/3D Engine/Model/TextureManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
-
- 
+#include "Source/3D Engine/Temp_Guard/TempGuard.h"
 #include <chrono>
 
 #include "Source/Helper/Timer.h"
@@ -79,6 +78,7 @@ void MoveLight() {
 
 
 
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 #if _DEBUG
@@ -97,8 +97,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-
-
+	
 
 	RenderingManager renderingManager;
 
@@ -109,6 +108,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
+
+	Guard gTemp;
+	gTemp.setPos(0, 5, 0);
 	
 	TextureManager textureManager;
 	MeshManager meshManager;
@@ -192,17 +194,42 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				Test Camera movement
 			*/
 			if (InputHandler::isKeyPressed('W'))
-				camera.Translate(0.0f, 0.0f, 0.1f);
+				camera.Translate(0.0f, 0.0f, 0.5f);
 			else if (InputHandler::isKeyPressed('S'))
-				camera.Translate(0.0f, 0.0f, -0.1f);
+				camera.Translate(0.0f, 0.0f, -0.5f);
 			if (InputHandler::isKeyPressed('A'))
-				camera.Translate(-0.1f, 0.0f, 0.0f);
+				camera.Translate(-0.5f, 0.0f, 0.0f);
 			else if (InputHandler::isKeyPressed('D'))
-				camera.Translate(0.1f, 0.0f, 0.0f);
+				camera.Translate(0.5f, 0.0f, 0.0f);
 			if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
-				camera.Translate(0.0f, 0.1f, 0.0f);
+				camera.Translate(0.0f, 0.5f, 0.0f);
 			else if (InputHandler::isKeyPressed(InputHandler::Shift))
-				camera.Translate(0.0f, -0.1f, 0.0f);
+				camera.Translate(0.0f, -0.5f, 0.0f);
+
+
+			// VERRY TEMP
+			static float t1 = 0.0f, t2 = 0.0f;
+			static float t3 = gTemp.getPos().y;
+
+			if (InputHandler::isKeyPressed('T'))
+				gTemp.setPos(t2, t3, t1 += 0.5f);
+			else if (InputHandler::isKeyPressed('G'))
+				gTemp.setPos(t2, t3, t1 -= 0.5f);
+			if (InputHandler::isKeyPressed('F'))
+				gTemp.setPos(t2 -= 0.5f, t3, t1);
+			else if (InputHandler::isKeyPressed('H'))
+				gTemp.setPos(t2 += 0.5f, t3, t1);
+
+			if (InputHandler::isKeyPressed('I'))
+				gTemp.Rotate(0.05f, 0.0f, 0.0f);
+			else if (InputHandler::isKeyPressed('K'))
+				gTemp.Rotate(-0.05f, 0.0f, 0.0f);
+			if (InputHandler::isKeyPressed('J'))
+				gTemp.Rotate(0.0f, -0.05f, 0.0f);
+			else if (InputHandler::isKeyPressed('L'))
+				gTemp.Rotate(0.0f, 0.05f, 0.0f);
+			// VERRY TEMP END
+
 
 			/*
 				Test Camera rotation
@@ -280,7 +307,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 //		PBR->Bind(3);
 //>>>>>>> PBR
 		modelManager.DrawMeshes();
-		
+		gTemp.Draw();
 		renderingManager.Flush(camera);
 
 		if (duration_cast<milliseconds>(steady_clock::now() - timer).count() > 1000)

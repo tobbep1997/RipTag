@@ -20,7 +20,7 @@ namespace ShaderCreator //Maybe subject to change
 		shaderError = D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"vs_5_0",		// shader model (target)
 			0,				// shader compile options
@@ -73,7 +73,7 @@ namespace ShaderCreator //Maybe subject to change
 		hr = D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"vs_5_0",		// shader model (target)
 			0,				// shader compile options
@@ -116,7 +116,7 @@ namespace ShaderCreator //Maybe subject to change
 		D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"ds_5_0",		// shader model (target)
 			0,				// shader compile options
@@ -157,7 +157,7 @@ namespace ShaderCreator //Maybe subject to change
 		hr = D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"hs_5_0",		// shader model (target)
 			0,				// shader compile options
@@ -197,7 +197,7 @@ namespace ShaderCreator //Maybe subject to change
 		hr = D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"gs_5_0",		// shader model (target)
 			0,				// shader compile options
@@ -238,7 +238,7 @@ namespace ShaderCreator //Maybe subject to change
 		hr = D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"ps_5_0",		// shader model (target)
 			0,				// shader compile options
@@ -283,7 +283,7 @@ namespace ShaderCreator //Maybe subject to change
 		hr = D3DCompileFromFile(
 			fileName,		// filename
 			nullptr,		// optional macros
-			nullptr,		// optional include files
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"cs_5_0",		// shader model (target)
 			0,				// shader compile options

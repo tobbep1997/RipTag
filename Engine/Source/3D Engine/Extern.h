@@ -9,12 +9,14 @@
 //#include "../Shader/ShaderManager.h"
 #include "Model/Drawable.h"
 #include "../Light/PointLight.h"
+#include "Temp_Guard/TempGuard.h"
 namespace Shaders
 {
 	class ShaderManager;
 }
 
 class Drawable;
+class Guard;
 
 namespace DX {
 	extern ID3D11Device*			g_device;
@@ -29,4 +31,8 @@ namespace DX {
 
 	//Might be changed
 	extern std::vector<Drawable*> g_visabilityDrawQueue;
+
+	//TODO:: TEMP AFFF
+	extern std::vector<Guard*> g_guardDrawQueue;
+
 }

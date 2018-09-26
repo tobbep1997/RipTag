@@ -4,6 +4,7 @@
 #pragma warning(disable : 3557)
 #pragma warning(disable : 3570)
 
+
 SamplerComparisonState sampAniPoint : register(s0);
 SamplerState defaultSampler : register(s1);
 
