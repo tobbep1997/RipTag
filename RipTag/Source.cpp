@@ -52,6 +52,7 @@ void NetworkSettings(Network::Multiplayer * pMP)
 {
 	bool startServer = false;
 	bool startClient = false;
+	
 	ImGui::Begin("Network Settings");
 	if (!pMP->isRunning())
 	{
@@ -76,6 +77,8 @@ void NetworkSettings(Network::Multiplayer * pMP)
 	if (pMP->isRunning() && pMP->isConnected())
 	{
 		ImGui::Text(pMP->GetNetworkInfo().c_str());
+		if (ImGui::Button("Ping"))
+			pMP->SendPacket("Pingpingping");
 	}
 	ImGui::End();
 }
