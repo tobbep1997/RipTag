@@ -21,6 +21,10 @@ void Game::Init(_In_ HINSTANCE hInstance)
 {
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
+
+	meshManager.loadStaticMesh("SCENE");
+	textureManager.loadTextures("SPHERE");
+	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
 	//modelManager.addStaticMesh("../Assets/KUB.bin");
 	//modelManager.staticMesh[0]->setScale(10, 1, 10);
 	//modelManager.m_staticMesh[0]->setScale(10, 1, 10);
