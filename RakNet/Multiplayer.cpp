@@ -184,7 +184,7 @@ namespace Network
 			this->pPeer = RakNet::RakPeerInterface::GetInstance();
 
 		pNetworkIDManager = new RakNet::NetworkIDManager();
-
+		
 		std::cout << "Multiplayer Constructor is called.\n";
 	}
 

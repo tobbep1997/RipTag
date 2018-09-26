@@ -11,6 +11,8 @@
 //network
 #include <Multiplayer.h>
 #include "CubePrototype.h"
+#include "NetworkMessageIdentifiers.h"
+#include "GetTime.h"
 
 //LUA
 extern "C" {
@@ -89,6 +91,26 @@ void NetworkSettings(Network::Multiplayer * pMP)
 		if (ImGui::Button("Disconnect"))
 			pMP->Disconnect();
 	}
+	ImGui::End();
+}
+
+void SendPacketTest(Network::Multiplayer * pMP, DirectX::XMFLOAT4A pos, RakNet::NetworkID id)
+{
+	ImGui::Begin("Send Packet");
+
+	if (ImGui::Button("Send Packet"))
+	{
+		Network::PlayerMovement pM;
+		pM.useTimeStamp = ID_TIMESTAMP;
+		pM.timeStamp = RakNet::GetTime();
+		pM.typeId = Network::ID_UPDATE_SPHERE_LOCATION;
+		pM.x = pos.x;
+		pM.y = pos.y;
+		pM.z = pos.z;
+		pM.networkId = id;
+		pM.systemAddress = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
+	}
+
 	ImGui::End();
 }
 
@@ -250,6 +272,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//MoveLight();
 		NetworkSettings(pNetwork);
 		TestNetworkScript(L);
+		SendPacketTest(pNetwork, camera.getPosition(), cP.GetNetworkID());
 		pNetwork->Update();
 		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;
