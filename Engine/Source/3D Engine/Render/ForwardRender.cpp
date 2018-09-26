@@ -2,7 +2,7 @@
 #include "../Extern.h"
 #include "../../ShaderCreator.h"
 #include "../RenderingManager.h"
-
+#include "DirectXRenderingHelpClass.h"
 ForwardRender::ForwardRender()
 {
 	m_lastVertexPath = L"NULL";
@@ -38,32 +38,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
+	_createShaders();
 	
-	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	//TODO:: ADD NEW SHADER FOR ANIMATED OBJECTS, CONNECT TOANIMATEDINPUTDESC
-	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
-	//DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
-
-	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
-	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
-
-	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
-	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
-
 	_createConstantBuffer();
 	_createSamplerState();
 	m_shadowMap.Init(128, 128);
@@ -72,19 +48,18 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	this->_createUAV();
 }
 
-struct TriangleVertex
-{
-	float x, y, z, w;
-	float r, g, b, a;
-};
-
 void ForwardRender::GeometryPass(Camera & camera)
 {
 	
-	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);	
-	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
+	if (m_firstRun == true)
+	{
+		m_shaderThreads[0].join();
+		m_shaderThreads[1].join();
+		m_shaderThreads[2].join();
+		m_firstRun = false;
+	}
 	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
@@ -112,14 +87,14 @@ void ForwardRender::GeometryPass(Camera & camera)
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
+			
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		
 	}
 
-	//DX::g_geometryQueue.clear();
 
 
 	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
@@ -150,7 +125,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
@@ -172,6 +147,8 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
 		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+		DX::g_animatedGeometryQueue[i]->BindTextures();
+
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		//DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
 		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
@@ -208,6 +185,8 @@ void ForwardRender::Clear()
 	DX::g_lights.clear();
 
 	DX::g_geometryQueue.clear();
+
+	DX::g_visabilityDrawQueue.clear();
 
 	this->m_shadowMap.Clear();
 
@@ -312,126 +291,37 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 
 void ForwardRender::_createConstantBuffer()
 {
-	D3D11_BUFFER_DESC objectBufferDesc;
-	objectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	objectBufferDesc.ByteWidth = sizeof(ObjectBuffer);
-	objectBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	objectBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	objectBufferDesc.MiscFlags = 0;
-	objectBufferDesc.StructureByteStride = 0;
-
-	// check if the creation failed for any reason
-	HRESULT hr = 0;
-	hr = DX::g_device->CreateBuffer(&objectBufferDesc, nullptr, &m_objectBuffer);
-	if (FAILED(hr))
-	{
-		// handle the error, could be fatal or a warning...
-		exit(-1);
-	}
-
-	D3D11_BUFFER_DESC cameraBufferDesc;
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(CameraBuffer);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
-
-	hr = DX::g_device->CreateBuffer(&cameraBufferDesc, nullptr, &this->m_cameraBuffer);
-	if (FAILED(hr))
-	{
-		// handle the error, could be fatal or a warning...
-		exit(-1);
-	}
-
-	D3D11_BUFFER_DESC lightBufferDesc;
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
-
-	hr = DX::g_device->CreateBuffer(&lightBufferDesc, nullptr, &this->m_lightBuffer);
-	if (FAILED(hr))
-	{
-		// handle the error, could be fatal or a warning...
-		exit(-1);
-	}
-
-	//D3D11_BUFFER_DESC pointBufferDesc;
-	//lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	//lightBufferDesc.ByteWidth = sizeof(PointLightBuffer);
-	//lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//lightBufferDesc.MiscFlags = 0;
-	//lightBufferDesc.StructureByteStride = 0;
-
-	//hr = DX::g_device->CreateBuffer(&pointBufferDesc, nullptr, &this->m_visLightBuffer);
-	//if (FAILED(hr))
-	//{
-	//	// handle the error, could be fatal or a warning...
-	//	exit(-1);
-	//}
+	HRESULT hr;
+	hr = DXRHC::CreateConstantBuffer(this->m_objectBuffer, sizeof(ObjectBuffer));	
+	hr = DXRHC::CreateConstantBuffer(this->m_cameraBuffer, sizeof(CameraBuffer));
+	hr = DXRHC::CreateConstantBuffer(this->m_lightBuffer, sizeof(LightBuffer));
 }
 
 
 void ForwardRender::_createSamplerState()
 {
-	D3D11_SAMPLER_DESC ssDesc = {};
-	ssDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	ssDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	ssDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	ssDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	ssDesc.MaxAnisotropy = 1;
-	ssDesc.MaxLOD = FLT_MAX;
-	ssDesc.MinLOD = -FLT_MAX;
-	ssDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-
-	HRESULT hr = DX::g_device->CreateSamplerState(&ssDesc, &m_samplerState);
-	assert(hr == S_OK);
+	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState);
+	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-
 	m_objectValues.worldMatrix = drawable->getWorldmatrix();
-	DX::g_deviceContext->Map(m_objectBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-	// copy memory from CPU to GPU the entire struct
-	memcpy(dataPtr.pData, &m_objectValues, sizeof(ObjectBuffer));
-	// UnMap constant buffer so that we can use it again in the GPU
-	DX::g_deviceContext->Unmap(m_objectBuffer, 0);
-	// set resource to Vertex Shader
-	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_objectBuffer);
+	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
 }
 
 void ForwardRender::_mapCameraBufferToVertex(Camera & camera)
 {
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	m_cameraValues.cameraPosition = camera.getPosition();
 	m_cameraValues.viewProjection = camera.getViewProjection();
-	DX::g_deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-
-	memcpy(dataPtr.pData, &m_cameraValues, sizeof(CameraBuffer));
-	// UnMap constant buffer so that we can use it again in the GPU
-	DX::g_deviceContext->Unmap(m_cameraBuffer, 0);
-	// set resource to Vertex Shader
-	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_cameraBuffer);
+	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 1, 1, ShaderTypes::vertex);
 }
 void ForwardRender::_mapCameraBufferToPixel(Camera & camera)
 {
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	m_cameraValues.cameraPosition = camera.getPosition();
 	m_cameraValues.viewProjection = camera.getViewProjection();
-	DX::g_deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-
-	memcpy(dataPtr.pData, &m_cameraValues, sizeof(CameraBuffer));
-	// UnMap constant buffer so that we can use it again in the GPU
-	DX::g_deviceContext->Unmap(m_cameraBuffer, 0);
-	// set resource to Vertex Shader
-	DX::g_deviceContext->PSSetConstantBuffers(2, 1, &m_cameraBuffer);
+	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::pixel);
 }
 void ForwardRender::_mapLightInfoNoMatrix()
 {
@@ -449,13 +339,7 @@ void ForwardRender::_mapLightInfoNoMatrix()
 		m_lightValues.dropOff[i] = DirectX::XMFLOAT4A(0, 0, 0, 0);
 	}
 
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-
-
-	DX::g_deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-	memcpy(dataPtr.pData, &m_lightValues, sizeof(LightBuffer));
-	DX::g_deviceContext->Unmap(m_lightBuffer, 0);
-	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
+	DXRHC::MapBuffer(m_lightBuffer, &m_lightValues, sizeof(LightBuffer), 0, 1, ShaderTypes::pixel);
 }
 
 void ForwardRender::_setStaticShaders()
@@ -560,34 +444,10 @@ void ForwardRender::_setAnimatedShaders()
 
 void ForwardRender::_createUAV()
 {
-	D3D11_TEXTURE2D_DESC TextureData;
-	ZeroMemory(&TextureData, sizeof(TextureData));
-	TextureData.ArraySize = 1;
-	TextureData.Height = 1;
-	TextureData.Width = 2;
-	TextureData.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
-	TextureData.CPUAccessFlags = 0;
-	TextureData.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
-	TextureData.MipLevels = 1;
-	TextureData.MiscFlags = 0;
-	TextureData.SampleDesc.Count = 1;
-	TextureData.SampleDesc.Quality = 0;
-	TextureData.Usage = D3D11_USAGE_DEFAULT;
-
 	HRESULT hr;
-	hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_uavTextureBuffer);
+	hr = DXRHC::CreateTexture2D(m_uavTextureBuffer, 1, 2, D3D11_BIND_UNORDERED_ACCESS, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R8G8B8A8_TYPELESS);
+	hr = DXRHC::CreateTexture2D(m_uavTextureBufferCPU, 1, 2, 0, 1, 1, 0, 1, D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE, 0, DXGI_FORMAT_R8G8B8A8_TYPELESS, D3D11_USAGE_STAGING);
 
-	TextureData.Usage = D3D11_USAGE_STAGING;
-	TextureData.BindFlags = 0;
-	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-
-	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavTextureBufferCPU);
-
-	//TextureData.Usage = D3D11_USAGE_STAGING;
-	//TextureData.BindFlags = 0;
-	//TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	//hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavKILLER);
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
 	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
@@ -596,4 +456,66 @@ void ForwardRender::_createUAV()
 	UAVdesc.Texture2D.MipSlice = 0;
 	hr = DX::g_device->CreateUnorderedAccessView(m_uavTextureBuffer, &UAVdesc, &m_visabilityUAV);
 
+}
+
+void ForwardRender::_createShaders()
+{
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	//TODO:: ADD NEW SHADER FOR ANIMATED OBJECTS, CONNECT TOANIMATEDINPUTDESC
+
+	m_shaderThreads[2] = std::thread(&ForwardRender::_createShadersInput, this);
+	//shaderThreads[0] = std::thread([](D3D11_INPUT_ELEMENT_DESC animatedInputDesc[]) { DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);  });
+	//DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
+	//DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
+
+	//DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
+	//shaderThreads[1] = std::thread([](D3D11_INPUT_ELEMENT_DESC inputDesc[]) {DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4); });
+
+	//DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");
+	m_shaderThreads[0] = std::thread([]() { DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");  });
+
+	//DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
+	m_shaderThreads[1] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");  });
+	
+	//DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");
+
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
+
+
+}
+
+void ForwardRender::_createShadersInput()
+{
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
+
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
 }

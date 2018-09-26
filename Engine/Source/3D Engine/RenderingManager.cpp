@@ -29,7 +29,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	wind.clientHeight = 720;
 	wind.fullscreen = false;
 	wind.windowInstance = hInstance;
-	wind.windowTitle = L"Victor is Gay";
+	wind.windowTitle = L"RipTag";
 	//Will override the settings above
 	//SettingLoader::LoadWindowSettings(wind);
 	m_wnd.Init(wind);

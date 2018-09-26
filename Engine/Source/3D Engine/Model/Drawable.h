@@ -9,9 +9,12 @@
 #include "StaticMesh.h"
 #include "DynamicMesh.h"
 #include <string>
-
-class Texture;
-
+#include "Texture.h"
+#include "..\WICTextureLoader\WICTextureLoader.h"
+//struct Texture
+//{
+//	ID3D11ShaderResourceView* MeshTextureSRV;
+//};
 enum ObjectType
 {
 	Static,
@@ -23,11 +26,12 @@ class Drawable
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
+//	Texture m_meshTextures;
 
 	//Textures
-	Texture* m_diffuseTexture = nullptr;
-	Texture* m_normalTexture = nullptr;
-	Texture* m_MRATexture = nullptr;
+	
+	//Texture* m_normalTexture = nullptr;
+	//Texture* m_MRATexture = nullptr;
 
 
 
@@ -36,7 +40,7 @@ protected:
 	DirectX::XMFLOAT4A p_position;
 	DirectX::XMFLOAT4A p_scale;
 	DirectX::XMFLOAT4A p_rotation;
-
+	Texture * p_texture;
 	//WorldMatrix. scale * rot* translateopn
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
@@ -60,9 +64,12 @@ protected:
 	//Texture stuff
 
 public:
+	ID3D11ShaderResourceView* tempMeshTextureSRV = nullptr;
+
 	Drawable(ObjectType ObjecType = ObjectType::Static);
 	virtual ~Drawable();
-
+	void setTextures(const std::wstring& filePath);
+	
 	void setPosition(DirectX::XMFLOAT4A pos);
 	void setPosition(float x, float y, float z, float w = 1);
 
@@ -75,7 +82,7 @@ public:
 
 	const DirectX::XMFLOAT4A & getPosition() const;
 	void BindTextures();
-	void setTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
+	//void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
 	void DrawAnimated();
