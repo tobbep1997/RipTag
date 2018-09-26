@@ -8,6 +8,10 @@ public:
 	ObjectHandler();
 	~ObjectHandler();
 
+	void Update();
+
+	void Draw();
+
 private:
 
 };

@@ -7,6 +7,10 @@ public:
 	LevelHandler();
 	~LevelHandler();
 
+	void Update();
+
+	void Draw();
+
 private:
 
 };

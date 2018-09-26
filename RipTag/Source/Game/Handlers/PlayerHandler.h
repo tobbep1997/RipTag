@@ -8,6 +8,10 @@ public:
 	PlayerHandler();
 	~PlayerHandler();
 
+	void Update();
+
+	void Draw();
+
 private:
 
 };

@@ -1,11 +1,16 @@
 #pragma once
 #include "State.h"
 #include "../Handlers/CameraHandler.h"
+#include "../Handlers/LevelHandler.h"
+#include "../Handlers/ObjectHandler.h"
 
 class PlayState : public State
 {
 private:
-	Camera * temp;
+	LevelHandler m_levelHandler;
+	ObjectHandler m_objectHandler;
+
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -13,4 +18,7 @@ public:
 	void Update() override;
 
 	void Draw() override;
+
+private:
+
 };

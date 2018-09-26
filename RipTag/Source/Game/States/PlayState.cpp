@@ -13,8 +13,10 @@ PlayState::~PlayState()
 
 void PlayState::Update()
 {
-	
-	
+
+
+	m_objectHandler.Update();
+	m_levelHandler.Update();
 }
 
 void PlayState::Draw()
@@ -27,5 +29,8 @@ void PlayState::Draw()
 	//m_level.Draw();
 	// Cam camera = getCam();
 	//p_renderingManager->Flush(camera);
+	m_objectHandler.Draw();
+	m_levelHandler.Draw();
+
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
