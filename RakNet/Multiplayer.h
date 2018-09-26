@@ -73,7 +73,7 @@ namespace Network
 
 		unsigned char GetPacketIdentifier(RakNet::Packet * p);
 		void HandleRakNetMessages(unsigned char mID);
-		void HandleGameMessages(unsigned char mID);
+		void HandleGameMessages(unsigned char mID, unsigned char * data);
 
 		//functions to handle RakNet internal messages
 		void _onDisconnect();

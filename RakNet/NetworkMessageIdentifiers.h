@@ -26,7 +26,7 @@ namespace Network
 #pragma pack(push, 1)
 	struct SCRIPT_TEST
 	{
-		GAME_MESSAGES id;
+		unsigned char id;
 		//data
 		const char * message;
 	};
