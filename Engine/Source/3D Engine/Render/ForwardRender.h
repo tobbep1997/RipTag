@@ -70,7 +70,9 @@ private:
 	ObjectBuffer m_objectValues;
 
 	ID3D11Buffer * m_cameraBuffer = nullptr;
+	ID3D11Buffer * m_cameraBuffer2 = nullptr;
 	CameraBuffer m_cameraValues;
+	CameraBuffer m_cameraValues2;
 
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
@@ -139,6 +141,8 @@ private:
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBufferToVertex(Camera & camera);
 	void _mapCameraBufferToPixel(Camera & camera);
+	void _mapCameraBufferToVertex2(Camera & camera);
+	void _mapCameraBufferToPixel2(Camera & camera);
 	void _mapLightInfoNoMatrix();
 
 

@@ -104,6 +104,7 @@ public:
 	//returns static or dynamic objtype
 	ObjectType getObjectType();
 	EntityType getEntityType();
+	void SetEntityType(EntityType en);
 
 private:
 	void _setStaticBuffer();

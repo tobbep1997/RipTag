@@ -114,16 +114,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setScale(20, 1, 20);
-
+	modelManager.m_staticMesh[0]->setPosition(0, -5, 0);
 
 	// Player atm;
 	modelManager.addStaticMesh("../Assets/KUB.bin");
+	modelManager.m_staticMesh[1]->setPosition(0, 5, 0);
+	modelManager.m_staticMesh[1]->SetEntityType(EntityType::Player);
+	
 	// end player
 
 	
-	modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
-	modelManager.m_dynamicMesh[0]->setPosition(0, 2, 0);
-	modelManager.m_staticMesh[1]->setPosition(0, 1, 0);
+	/*modelManager.addDynamicMesh("../Assets/Animationmeshtorus.bin");
+	modelManager.m_dynamicMesh[0]->setPosition(0, 2, 0);*/
+	
 
 
 	//PointLight pl;

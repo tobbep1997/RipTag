@@ -228,3 +228,8 @@ EntityType Drawable::getEntityType()
 {
 	return p_entityType;
 }
+
+void Drawable::SetEntityType(EntityType en)
+{
+	this->p_entityType = en;
+}

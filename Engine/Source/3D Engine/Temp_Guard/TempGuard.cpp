@@ -141,6 +141,8 @@ void Guard::calcVisability()
 		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
 		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
 	}
+	
+	std::cout << "PlayerVis = " << m_vis << "\n"; // Remove me later
 }
 
 ID3D11UnorderedAccessView* Guard::getUAV()
