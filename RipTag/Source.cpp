@@ -128,11 +128,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	meshManager.loadDynamicMesh("TORUS");
 	meshManager.loadDynamicMesh("KON");
   //
-	modelManager.addNewModel(meshManager.getDynamicMesh(1), textureManager.getTexture(0));
+	modelManager.addNewModel(meshManager.getStaticMesh(1), textureManager.getTexture(0));
 	modelManager.addNewModel(meshManager.getStaticMesh(0), textureManager.getTexture(0));
 	//modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
   //
-
+	modelManager.m_staticModel[0]->SetEntityType(EntityType::Player);
 	std::vector<PointLight> point;
 
 	for (int i = 0; i < 8; i++)
@@ -176,8 +176,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPower(powVar);
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
-		modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
-		modelManager.m_dynamicModel[0]->setPosition(playerPosX, playerPosY, playerPosZ);
+		modelManager.m_staticModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		modelManager.m_staticModel[0]->setPosition(playerPosX, playerPosY, playerPosZ);
+
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();

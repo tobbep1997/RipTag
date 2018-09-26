@@ -1,3 +1,10 @@
+
+#pragma warning(disable : 3078)
+#define PI 3.14159265359
+#pragma warning(disable : 3557)
+#pragma warning(disable : 3570)
+
+
 SamplerComparisonState sampAniPoint : register(s0);
 SamplerState defaultSampler : register(s1);
 
@@ -5,8 +12,6 @@ Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);
 Texture2D normalTexture : register(t2);
 Texture2D MRATexture : register(t3);
-
-
 
 cbuffer LIGHTS : register(b0)
 {
@@ -28,30 +33,90 @@ cbuffer CAMERA_BUFFER : register(b2)
     float4x4 viewProjection;
 };
 
+
 struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;
     float4 worldPos : WORLD;
     float4 normal : NORMAL;
-    float4 tangent : TANGENT;
+    float3x3 TBN : TBN;
     float2 uv : UV;
 };
 
+float RoughnessDistribution(float3 N, float3 H, float roughness)
+{
+    float r4 = (roughness * roughness) * (roughness * roughness);
+    float nDotH = max(dot(N, H), 0.0f);
+    float nDotH_2 = nDotH * nDotH;
+
+    float denom = (nDotH_2 * (r4 - 1.0f) + 1.0f);
+    denom = 3.14f * denom * denom;
+
+    return r4 / max(denom, 0.001f);
+}
+
+float Occlusion(float normDotView, float roughness)
+{
+    float r = roughness + 1.0f;
+    float k = (r * r) / 8.0f;
+
+    float denom = normDotView * (1.0f - k) + k;
+
+    return normDotView / denom;
+}
+
+float OvershadowOcclusion(float3 normal, float3 view, float3 light, float roughness)
+{
+    float normDotView = max(dot(normal, view), 0.0f);
+    float normDotLight = max(dot(normal, light), 0.0f);
+    float occlusionView = Occlusion(normDotView, roughness);
+    float occlusionLight = Occlusion(normDotLight, roughness);
+
+    return occlusionView * occlusionLight;
+}
+
+float4 FresnelReflection(float cosTheta, float4 f0)
+{
+    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 5.0f);
+}
 
 float4 OptimizedLightCalculation(VS_OUTPUT input)
 {
+	//float3 albedo = diffuseTexture.Sample(defaultSampler, input.uv).xyz;
 	
     float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float4 textureColor = emptyFloat4;
-    textureColor = diffuseTexture.Sample(defaultSampler, float2(input.uv.x, 1.0 - input.uv.y));
+    float4 posToLight;
+    float distanceToLight;
+    float attenuation;
+    float4 halfwayVecor;
+    float4 radiance;
+    float roughnessDistribution;
+    float overshadowOcclusion;
+    float4 worldToCamera = normalize(cameraPosition - input.worldPos);
+    float4 kS, kD;
+    float4 numerator;
+    float denominator;
+    float4 specular;
+    float normDotLight;
+    float finalShadowCoeff;
 
-    // TEMP VAR
-    textureColor = float4(1.0f, 1.0, 1.0f, 1.0f);
-    // REMOVE ME WHEN WE HAVE TEXTURES
+	
+    float4 albedo = diffuseTexture.Sample(defaultSampler, input.uv);
+	//float3x3 TBN = float3x3(input.TBN0, input.TBN1, input.TBN2)
+    //normalMap = (2.0f * normalMap) - 1.0f;
 
-    //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * textureColor;
-    float4 ambient = float4(0.0, 0.0, 0.0, 1.0f) * textureColor;
-    float3 fragmentPositionToCamera = cameraPosition.xyz - input.worldPos.xyz;
+    float3 normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz) - 1.0f, input.TBN));
+	//normal = input.normal.xyz;
+    //return float4(normal, 1.0f);
+    float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
+    float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
+    float pi = 3.14;
+
+
+    float4 ambient = float4(0.03f, 0.03f, 0.03f, 1.0f) * albedo * ao;
+    ambient = emptyFloat4;
+    //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * albedo;
+    //float3 fragmentPositionToCamera = cameraPosition.xyz - input.worldPos.xyz;
     float4 finalColor = emptyFloat4;
 
     float shadowMapWidth;
@@ -65,21 +130,23 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 	
     //InterlockedAdd(OutputMap[int2(1, 0)], 1);
 	
-    for (int light = 0; light < numberOfLights.x; light++)
+    float4 f0 = float4(0.04f, 0.04f, 0.04f, 1);
+    f0 = lerp(f0, albedo, metallic);
+    albedo = pow(albedo, float4(2.3f, 2.3f, 2.3f, 2.3f));
+
+    float4 lightCal = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    float div = 1.0f;
+    float shadowCoeff = 1.0f;
+    for (int shadowLight = 0; shadowLight < numberOfLights.x; shadowLight++)
     {
-        float div = 1.0f;
-        float shadowCoeff = 1.0f;
-		
-        float3 fragmentPositionToLight = lightPosition[light].xyz - input.worldPos.xyz;
-        float fragmentDistanceToLight = length(fragmentPositionToLight.xyz);
-		
-        for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[light].x; targetMatrix++)
+        for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
-             // Translate the world position into the view space of the light
-            float4 fragmentLightPosition = mul(input.worldPos, lightViewProjection[light][targetMatrix]);
-             // Get the texture coords of the "object" in the shadow map
+			// Translate the world position into the view space of the shadowLight
+            float4 fragmentLightPosition = mul(input.worldPos, lightViewProjection[shadowLight][targetMatrix]);
+			// Get the texture coords of the "object" in the shadow map
             fragmentLightPosition.xyz /= fragmentLightPosition.w;
-             // Texcoords are not [-1, 1], change the coords to [0, 1]
+			// Texcoords are not [-1, 1], change the coords to [0, 1]
             float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
 
             float depth = fragmentLightPosition.z;
@@ -90,33 +157,48 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
             if (smTex.y <= 0 || smTex.y >= 1 || depth <= 0.0f || depth > 1.0f)
                 continue;
 
-            float3 indexPos = float3(smTex, (light * 6) + targetMatrix);
-            //float tShadow = txShadowArray.SampleCmpLevelZero(sampAniPoint, indexPos, depth - 0.01f).r;
-
-            // REMOVE THIS
-            //float tShadow2 = (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+            float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
 
             shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
             div += 1.0f;
-            
-            
+            break;
+
+
         }
+    }
+    finalShadowCoeff = pow(shadowCoeff / div, 16);
 
-        float diffuseDot = max(dot(input.normal.xyz, normalize(fragmentPositionToLight).xyz), 0.0f);
-        float specularDot = max(dot(input.normal.xyz, normalize(fragmentPositionToCamera + fragmentPositionToLight).xyz), 0.0f);
-              
-        float attenuation = lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(fragmentDistanceToLight, lightDropOff[light].z));
-        attenuation *= (shadowCoeff / div);
 
-        float3 specular = float3(0, 0, 0);
-        if (dot(input.normal.xyz, normalize(fragmentPositionToLight)) >= 0)        
-            specular = attenuation * (lightColor[light].rgb * pow(specularDot, 32.0f));
-        
-        float4 diffuse = attenuation * (saturate(lightColor[light] * textureColor * diffuseDot)) * (shadowCoeff / div);
-
-        finalColor.rgb += (specular + diffuse.rgb).rgb * (shadowCoeff / div);
+    for (int light = 0; light < numberOfLights.x; light++)
+    {
+        posToLight = normalize(lightPosition[light] - input.worldPos);
+        distanceToLight = length(lightPosition[light] - input.worldPos);
+        halfwayVecor = normalize(worldToCamera + posToLight);
+        attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z)));
+		
+        radiance = lightColor[light] * attenuation;
+		 
+        roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
+        overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness);
+		
+        kS = FresnelReflection(max(dot(halfwayVecor, worldToCamera), 0.0f), f0);
+        kD = float4(1.0f, 1.0f, 1.0f, 1.0f) - kS;
+        kD *= 1.0f - metallic;
+		
+		
+        numerator = roughnessDistribution * overshadowOcclusion * kS;
+        denominator = 4.0f * max(dot(normal, worldToCamera.xyz), 0.0f) * max(dot(normal, posToLight.xyz), 0.0f);
+        specular = numerator / max(denominator, 0.001f);
+		
+        normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
+        lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f) * finalShadowCoeff);
+			  
 		
     }
-    finalColor.a = textureColor.a;
-    return min(ambient + finalColor, float4(1, 1, 1, 1));
+    finalColor = ambient + lightCal;
+	
+    finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
+    finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
+    finalColor.a = albedo.a;
+    return min(finalColor, float4(1, 1, 1, 1));
 }

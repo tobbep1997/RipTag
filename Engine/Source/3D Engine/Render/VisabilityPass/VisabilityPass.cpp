@@ -1,5 +1,6 @@
 #include "VisabilityPass.h"
 #include "../../Extern.h"
+#include "../DirectXRenderingHelpClass.h"
 
 VisabilityPass::VisabilityPass()
 {
@@ -77,6 +78,7 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
@@ -115,70 +117,27 @@ void VisabilityPass::_initViewPort()
 
 void VisabilityPass::_initViewBuffer()
 {
-	D3D11_BUFFER_DESC cameraBufferDesc;
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(GuardViewBuffer);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
 	HRESULT hr;
-	hr = DX::g_device->CreateBuffer(&cameraBufferDesc, nullptr, &m_guardViewBuffer);
+	hr = DXRHC::CreateConstantBuffer(this->m_guardViewBuffer, sizeof(GuardViewBuffer));
 }
 
 void VisabilityPass::_initObjectBuffer()
 {
-	D3D11_BUFFER_DESC objectBufferDesc;
-	objectBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	objectBufferDesc.ByteWidth = sizeof(ObjectBuffer);
-	objectBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	objectBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	objectBufferDesc.MiscFlags = 0;
-	objectBufferDesc.StructureByteStride = 0;
-	HRESULT hr;
-	hr = DX::g_device->CreateBuffer(&objectBufferDesc, nullptr, &m_objectBuffer);
+
+	HRESULT hr = DXRHC::CreateConstantBuffer(this->m_objectBuffer, sizeof(ObjectBuffer));
+
 }
 
 void VisabilityPass::_initDSV()
 {
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width = GUARD_RES;
-	depthStencilDesc.Height = GUARD_RES;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-	depthStencilDesc.SampleDesc.Count = 1;
-	depthStencilDesc.SampleDesc.Quality = 0;
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	depthStencilDesc.CPUAccessFlags = 0;
-	depthStencilDesc.MiscFlags = 0;
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	dsvDesc.Flags = 0;
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
-	dsvDesc.Texture2DArray.FirstArraySlice = 0;
-	dsvDesc.Texture2DArray.ArraySize = 1;
-	dsvDesc.Texture2DArray.MipSlice = 0;
-	dsvDesc.Texture2D.MipSlice = 0;
-
 	HRESULT hr;
-	hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_guardDepthTex);
-	hr = DX::g_device->CreateDepthStencilView(m_guardDepthTex, &dsvDesc, &m_guardDepthStencil);
+	hr = DXRHC::CreateTexture2D(m_guardDepthTex, GUARD_RES, GUARD_RES, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32_TYPELESS);
+	hr = DXRHC::CreateDepthStencilView(m_guardDepthTex, m_guardDepthStencil, 0, DXGI_FORMAT_D32_FLOAT);
 }
 
 void VisabilityPass::_initSRV()
-{
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-	srvDesc.Texture2DArray.MipLevels = 1;
-	srvDesc.Texture2DArray.MostDetailedMip = 0;
-	srvDesc.Texture2DArray.ArraySize = 1;
-	srvDesc.Texture2DArray.FirstArraySlice = 0;
-	HRESULT hr;
-	hr = DX::g_device->CreateShaderResourceView(m_guardDepthTex, &srvDesc, &m_guardShaderResource);
+{	
+	HRESULT hr = DXRHC::CreateShaderResourceView(m_guardDepthTex, m_guardShaderResource, 420, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2D);
 }
 
 void VisabilityPass::_initShaders()
@@ -199,14 +158,12 @@ void VisabilityPass::_initPixelShaders()
 
 void VisabilityPass::_mapViewBuffer(Guard * target)
 {
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	
 	GuardViewBuffer gvb;
 	gvb.cameraPosition = target->getCamera().getPosition();
 	gvb.viewProjection = target->getCamera().getViewProjection();
 
-	DX::g_deviceContext->Map(m_guardViewBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-	memcpy(dataPtr.pData, &gvb, sizeof(GuardViewBuffer));
-	DX::g_deviceContext->Unmap(m_guardViewBuffer, 0);
+	DXRHC::MapBuffer(m_guardViewBuffer, &gvb, sizeof(GuardViewBuffer));
 
 	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_guardViewBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(2, 1, &m_guardViewBuffer);
@@ -214,14 +171,11 @@ void VisabilityPass::_mapViewBuffer(Guard * target)
 
 void VisabilityPass::_mapObjectBuffer(Drawable * target)
 {
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-
 	ObjectBuffer ob;
 	ob.worldMatrix = target->getWorldmatrix();
 
-	DX::g_deviceContext->Map(m_objectBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-	memcpy(dataPtr.pData, &ob, sizeof(ObjectBuffer));
-	DX::g_deviceContext->Unmap(m_objectBuffer, 0);
+	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
 
-	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_objectBuffer);
+
+
 }
