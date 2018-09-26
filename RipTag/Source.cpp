@@ -125,13 +125,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	meshManager.loadDynamicMesh("TORUS");
 	meshManager.loadDynamicMesh("KON");
 
-	modelManager.addNewModel(meshManager.getDynamicMesh("KON"), textureManager.getTexture(0));
-	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture(0));
+	modelManager.addNewModel(meshManager.getDynamicMesh("KON"), textureManager.getTexture("SPHERE"));
+	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
 
 	Model * player = new Model();
-	player->setTexture(textureManager.getTexture(0));
-	player->setModel(meshManager.getStaticMesh("PIRASRUM"));
-	delete player;
+	player->setModel(meshManager.getStaticMesh("SPHERE"));
+	player->setTexture(textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
 
@@ -163,7 +162,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	while (renderingManager.getWindow().isOpen())
 	{
-		
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
 		
@@ -176,8 +174,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPower(powVar);
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
-		modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
-		modelManager.m_dynamicModel[0]->setPosition(playerPosX, playerPosY, playerPosZ);
+
+		player->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		player->setPosition(playerPosX, playerPosY, playerPosZ);
+		player->Draw();
+		//modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
@@ -262,25 +263,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		for (int i = 0; i < 8; i++)
 		{
-			//point[i].setPosition((rand() % 20) - 10, 5, (rand() % 20) - 10);
 			point[i].QueueLight();
 		}		
-		//ImGuiTest();
-	//	CameraTest();
+
 		MoveLight();
-		/*
-		pos += Timer::GetDurationInSeconds() * 0.03;
-		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
-		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
-		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
-		*/
-		//camera.setPosition(posX, posY, posZ);
-		//model.bindTexture(1);
-//=======
-//		diffuse->Bind(1);
-//		normal->Bind(2);
-//		PBR->Bind(3);
-//>>>>>>> PBR
+
 		modelManager.DrawMeshes();
 		
 		renderingManager.Flush(camera);
@@ -297,5 +284,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
+	delete player;
 	return 0;
 }
