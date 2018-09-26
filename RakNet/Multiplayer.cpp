@@ -89,6 +89,7 @@ namespace Network
 			{
 				//we should also log the failed connection attempt
 				connectionAttempt = false;
+				
 			}
 		}
 	}
