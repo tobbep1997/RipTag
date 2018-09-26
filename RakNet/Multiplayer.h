@@ -7,8 +7,8 @@
 namespace Network
 {
 	//Network constants
-	const unsigned short SERVER_PORT = 60005;
-	const unsigned short CLIENT_PORT = 60006;
+	const unsigned short PEER_PORT = 60005;
+
 	const short MAX_CONNECTIONS = 2;
 	const std::string LAN_IP = "255.255.255.255";
 

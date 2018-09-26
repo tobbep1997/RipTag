@@ -19,10 +19,13 @@ namespace Network
 		m_isClient = false;
 		m_isRunning = true;
 
+		RakNet::SocketDescriptor * pSD = new RakNet::SocketDescriptor(PEER_PORT, 0);
 		//specify the port(s) to listen on
-		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(SERVER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
+		result = this->pPeer->Startup(MAX_CONNECTIONS, pSD, 1, THREAD_PRIORITY_NORMAL);
 
-		if (result != RakNet::RAKNET_STARTED)
+		delete pSD;
+
+		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
 			m_isRunning = false;
 		}
@@ -38,10 +41,13 @@ namespace Network
 		m_isClient = true;
 		m_isRunning = true;
 
-		//a client doesn't need to listen on a specific port - auto assigned
-		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(CLIENT_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
+		RakNet::SocketDescriptor * pSD = new RakNet::SocketDescriptor(PEER_PORT, 0);
+		//specify the port(s) to listen on
+		result = this->pPeer->Startup(MAX_CONNECTIONS, pSD, 1, THREAD_PRIORITY_NORMAL);
 
-		if (result != RakNet::RAKNET_STARTED)
+		delete pSD;
+
+		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
 			m_isRunning = false;
 		}
@@ -58,7 +64,7 @@ namespace Network
 		double elapsedTime = localClock.getElapsedTime();
 
 		if (elapsedTime >= ADVERTISEMENT_FREQUENCE)
-			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), CLIENT_PORT, nullptr, 0);
+			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), PEER_PORT, nullptr, 0);
 	}
 
 	void Multiplayer::SearchLANHost()
@@ -112,7 +118,7 @@ namespace Network
 		if (m_isConnected)
 		{
 			pPeer->CloseConnection(m_rIP, true);
-			m_isConnected = false;
+			m_isConnected = m_isClient = m_isServer = m_isRunning = false;
 		}
 	}
 
