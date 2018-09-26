@@ -91,7 +91,7 @@ void StaticMesh::LoadMesh(const std::string & path)
 		tempvertex.tangent.x = newMesh.mesh_vertices[i].vertex_tangent[0];
 		tempvertex.tangent.y = newMesh.mesh_vertices[i].vertex_tangent[1];
 		tempvertex.tangent.z = newMesh.mesh_vertices[i].vertex_tangent[2];
-		tempvertex.tangent.x = 0.0f;
+		tempvertex.tangent.w = 0.0f;
 
 		m_staticVertex.push_back(tempvertex);
 

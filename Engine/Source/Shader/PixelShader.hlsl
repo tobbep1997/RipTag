@@ -104,9 +104,11 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 	
     float4 albedo = diffuseTexture.Sample(defaultSampler, input.uv);
 	//float3x3 TBN = float3x3(input.TBN0, input.TBN1, input.TBN2)
-	float3 normal = normalize(mul(normalTexture.Sample(defaultSampler, input.uv).xyz, input.TBN));
-	normal = input.normal.xyz;
-	
+    //normalMap = (2.0f * normalMap) - 1.0f;
+
+    float3 normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz) - 1.0f, input.TBN));
+	//normal = input.normal.xyz;
+    //return float4(normal, 1.0f);
 	float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
 	float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
 	float pi = 3.14;
