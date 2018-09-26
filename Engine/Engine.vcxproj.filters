@@ -40,6 +40,7 @@
     <ClCompile Include="Source\Window\window.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
     <ClCompile Include="Source\3D Engine\Temp_Guard\TempGuard.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\VisabilityPass\VisabilityPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="Source\Window\window.h" />
     <ClInclude Include="Source\3D Engine\Model\Texture.h" />
     <ClInclude Include="Source\3D Engine\Temp_Guard\TempGuard.h" />
+    <ClInclude Include="Source\3D Engine\Render\VisabilityPass\VisabilityPass.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />

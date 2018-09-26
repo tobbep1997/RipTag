@@ -3,8 +3,9 @@ cbuffer OBJECT_BUFFER : register(b0)
     float4x4 worldMatrix;
 };
 
-cbuffer GUARD_VIEW : register(b6)
+cbuffer GUARD_VIEW : register(b1)
 {
+    float4 cameraPosition;
     float4x4 viewProj;
 }
 
