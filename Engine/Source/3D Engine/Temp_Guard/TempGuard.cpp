@@ -12,6 +12,23 @@ Guard::Guard()
 	m_cam.setFarPlane(20.0f);
 	m_cam.setDirection(0, 0.5, 0.5);
 	m_range = 20.0f;
+
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(FrustumVertex) * 36;
+	D3D11_SUBRESOURCE_DATA vertexData;
+	vertexData.pSysMem = &m_frustum.p;
+
+	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+}
+
+Guard::~Guard()
+{
+	DX::SafeRelease(m_vertexBuffer);
+	
 }
 
 const Frustum & Guard::getFrustum()
@@ -49,6 +66,11 @@ DirectX::XMFLOAT4A Guard::getDir()
 void Guard::Rotate(float x, float y, float z)
 {
 	m_cam.Rotate(x, y, z);
+}
+
+ID3D11Buffer* Guard::getVertexBuffer()
+{
+	return m_vertexBuffer;
 }
 
 Camera & Guard::getCamera()
