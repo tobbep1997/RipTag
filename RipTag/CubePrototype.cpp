@@ -23,3 +23,8 @@ void CubePrototype::setPosition(DirectX::XMFLOAT4A pos)
 {
 	this->m.setPosition(DirectX::XMFLOAT4A(pos.x, pos.y, pos.z + 2, pos.w));
 }
+
+void CubePrototype::Draw()
+{
+	this->m.Draw();
+}

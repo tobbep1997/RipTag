@@ -8,7 +8,7 @@ public:
 	~CubePrototype();
 
 	void setPosition(DirectX::XMFLOAT4A pos);
-	void setModel();
+	void Draw();
 
 private:
 	Model m;

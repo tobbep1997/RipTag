@@ -237,6 +237,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//m.setScale(scaleX,scaleY,scaleZ);
 		m.Draw();
 		m2.Draw();
+		cP.Draw();
 
 
 		
