@@ -19,10 +19,7 @@ struct CameraBuffer
 	DirectX::XMFLOAT4X4A viewProjection;
 };
 
-struct PointLightBuffer
-{
-	DirectX::XMFLOAT4X4A viewProjection[6];
-};
+
 
 struct LightBuffer
 {
@@ -112,6 +109,7 @@ private:
 	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();
 
+	
 
 	//For visability
 
@@ -126,5 +124,8 @@ private:
 
 	void _createShaders();
 	void _createShadersInput();
+
+
+
 };
 

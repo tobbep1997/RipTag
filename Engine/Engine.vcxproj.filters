@@ -36,6 +36,9 @@
     <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
     <ClCompile Include="Source\Window\window.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\TextureManager.cpp" />
+    <ClCompile Include="Source\3D Engine\Render\DirectXRenderingHelpClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -81,6 +84,9 @@
     <ClInclude Include="Source\Structs.h" />
     <ClInclude Include="Source\Window\window.h" />
     <ClInclude Include="Source\3D Engine\Model\Texture.h" />
+    <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Source\3D Engine\Model\TextureManager.h" />
+    <ClInclude Include="Source\3D Engine\Render\DirectXRenderingHelpClass.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />

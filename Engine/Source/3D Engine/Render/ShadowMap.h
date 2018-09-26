@@ -25,17 +25,14 @@ struct PointLightBuffer
 	DirectX::XMINT4 nrOfviewProjection[8];
 	DirectX::XMINT4 nrOfLights;
 };
-struct LightCameraBuffer
-{
-	DirectX::XMFLOAT4X4A viewProjection;
-};
+
 
 private:
 	const unsigned int RENDER_TARGET_VIEW_COUNT = 8 * 6;
 
 	D3D11_VIEWPORT				m_shadowViewport;
 	ID3D11SamplerState*			m_shadowSamplerState;
-	ID3D11ShaderResourceView *	m_shadowShaderResourceView[6];
+	ID3D11ShaderResourceView *	m_shadowShaderResourceView;
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
 	
@@ -45,9 +42,6 @@ private:
 
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
-
-	ID3D11Buffer * m_lightMatrixBuffer = nullptr;
-	LightCameraBuffer m_lightMatrixValues;
 
 	ID3D11Buffer * m_allLightMatrixBuffer = nullptr;
 	PointLightBuffer m_allLightMatrixValues;
@@ -72,7 +66,7 @@ private:
 	void _createBuffers();
 	void _createRenderTargets(UINT width, UINT height);
 
-	void _mapLightMatrix(PointLight * pointLight, unsigned int i);
+	//void _mapLightMatrix(PointLight * pointLight, unsigned int i);
 	void _mapObjectBuffer(Drawable * drawable);
 };
 
