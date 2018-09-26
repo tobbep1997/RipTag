@@ -3,6 +3,7 @@
 #include "../../Shader/ShaderManager.h"
 #include "../Camera.h"
 #include "ShadowMap.h"
+#include <thread>
 
 class ForwardRender
 {
@@ -18,10 +19,7 @@ struct CameraBuffer
 	DirectX::XMFLOAT4X4A viewProjection;
 };
 
-struct PointLightBuffer
-{
-	DirectX::XMFLOAT4X4A viewProjection[6];
-};
+
 
 struct LightBuffer
 {
@@ -78,6 +76,9 @@ private:
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	// after optimization, change this to 8
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
+
+	std::thread m_shaderThreads[3];
+	bool m_firstRun = true;
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -108,6 +109,7 @@ private:
 	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();
 
+	
 
 	//For visability
 
@@ -119,5 +121,11 @@ private:
 	void VisabilityPass();
 
 	void _createUAV();
+
+	void _createShaders();
+	void _createShadersInput();
+
+
+
 };
 

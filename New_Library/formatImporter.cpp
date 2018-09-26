@@ -175,7 +175,7 @@ namespace MyLibrary
 				for (int j = 0; j < MAX_FILENAME; j++)
 					skeleton_to_return.skeleton_joints[i].joint_name[j] = joints[i].joint_name[j];
 				skeleton_to_return.skeleton_joints[i].joint_transform = joints[i].joint_transform;
-
+				skeleton_to_return.skeleton_joints[i].parentIndex = joints[i].parentIndex;
 			}
 			skeleton_to_return.skeleton_nrOfJoints = skeleton_header.skeleton_nrOfJoints;
 			for (int i = 0; i < MAX_FILENAME; i++)

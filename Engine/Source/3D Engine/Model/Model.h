@@ -2,6 +2,7 @@
 
 #include "Drawable.h"
 
+
 class Model : public Drawable
 {
 private:
@@ -18,12 +19,16 @@ public:
 	void setModel(StaticMesh * staticMesh);
 	//Setting the model for the object
 	void setModel(DynamicMesh * dynamicMesh);
-
+	void setTexture(Texture* textureToset);
 	//Set Shaders
 	void setVertexShader(const std::wstring & path);
 	void setPixelShader(const std::wstring & path);
+	void bindTexture(int slot);
+	std::string assetName;
 
 
+
+	//
 
 private:
 	void _setBuffer();
