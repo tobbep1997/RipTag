@@ -66,6 +66,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	m_guardViewPort.TopLeftX = 0;
 	m_guardViewPort.TopLeftY = 0;
 
+	_guardDepthStencil();
+
 }
 
 struct TriangleVertex
@@ -189,12 +191,11 @@ void ForwardRender::Flush(Camera & camera)
 {
 	_simpleLightCulling(camera);
 	this->m_shadowMap.ShadowPass();
-	//VisabilityPass();
+	VisabilityPass();
 	this->GeometryPass(camera);
 	
 	this->AnimatedGeometryPass(camera);
 	_tempGuardFrustumDraw();
-	
 }
 
 void ForwardRender::Clear()
@@ -239,58 +240,109 @@ void ForwardRender::Release()
 	m_shadowMap.Release();
 }
 
-void ForwardRender::_guardDepthPrePass()
+void ForwardRender::_guardDepthStencil()
 {
+	//D3D11_TEXTURE2D_DESC depthStencilDesc;
 
-	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-		1,
-		&m_backBufferRTV,
-		//m_depthStencilView,
-		nullptr,
-		1, 1, &m_visabilityUAV, 0
-	);
+	//depthStencilDesc.Width = m_guardWH;
+	//depthStencilDesc.Height = m_guardWH;
+	//depthStencilDesc.MipLevels = 1;
+	//depthStencilDesc.ArraySize = 1;
+	//depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	//depthStencilDesc.SampleDesc.Count = 1;
+	//depthStencilDesc.SampleDesc.Quality = 0;
+	//depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	//depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	//depthStencilDesc.CPUAccessFlags = 0;
+	//depthStencilDesc.MiscFlags = 0;
 
-	//DX::g_deviceContext->RSSetViewports()
+	////Create the Depth/Stencil View
+	//HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_guardPreDepthTex);
+	//hr = DX::g_device->CreateDepthStencilView(m_guardPreDepthTex, NULL, &m_guardPreDepthStencil);
 
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	depthStencilDesc.Width = m_guardWH;
+	depthStencilDesc.Height = m_guardWH;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = 0;
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+	dsvDesc.Texture2DArray.FirstArraySlice = 0;
+	dsvDesc.Texture2DArray.ArraySize = 1;
+	dsvDesc.Texture2DArray.MipSlice = 0;
+	dsvDesc.Texture2D.MipSlice = 0;
+
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvDesc.Texture2DArray.MipLevels = depthStencilDesc.MipLevels;
+	srvDesc.Texture2DArray.MostDetailedMip = 0;
+	srvDesc.Texture2DArray.ArraySize = 1;
+	srvDesc.Texture2DArray.FirstArraySlice = 0;
+
+	HRESULT hr;
+	hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_guardPreDepthTex);
+	hr = DX::g_device->CreateDepthStencilView(m_guardPreDepthTex, &dsvDesc, &m_guardPreDepthStencil);
+	hr = DX::g_device->CreateShaderResourceView(m_guardPreDepthTex, &srvDesc, &m_guardShaderResource);
+}
+
+void ForwardRender::_guardDepthPrePass(Guard * guard)
+{
+	
+
+	//TODO::Set Shaders for preepass 
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	//DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl"), nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl"), nullptr, 0);
+	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 
-	for (unsigned int i = 0; i < DX::g_guardDrawQueue.size(); i++)
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	ObjectBuffer gb;
+	gb.worldMatrix = guard->getCamera().getViewProjection();
+
+	DX::g_deviceContext->Map(m_objectBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+	// copy memory from CPU to GPU the entire struct
+	memcpy(dataPtr.pData, &gb, sizeof(ObjectBuffer));
+	// UnMap constant buffer so that we can use it again in the GPU
+	DX::g_deviceContext->Unmap(m_objectBuffer2, 0);
+	// set resource to Vertex Shader
+	DX::g_deviceContext->VSSetConstantBuffers(6, 1, &m_objectBuffer2);
+	
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
+	//_setStaticShaders();
+	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
+		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::Player)
+		{
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
-		DirectX::XMFLOAT4X4A viewProj = DX::g_guardDrawQueue[i]->getCamera().getViewProjection();
-		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
-		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
-		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
-
-
-		D3D11_MAPPED_SUBRESOURCE dataPtr;
-		GuardBuffer gb;
-		DirectX::XMStoreFloat4x4A(&gb.viewProj, mViewProj);
-		DirectX::XMStoreFloat4x4A(&gb.viewProjInverse, mViewProjInverse);
-		gb.worldMatrix = DX::g_guardDrawQueue[i]->getWorldMatrix();
-
-		DX::g_deviceContext->Map(m_GuardBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-		// copy memory from CPU to GPU the entire struct
-		memcpy(dataPtr.pData, &gb, sizeof(GuardBuffer));
-		// UnMap constant buffer so that we can use it again in the GPU
-		DX::g_deviceContext->Unmap(m_GuardBuffer, 0);
-		// set resource to Vertex Shader
-		DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_GuardBuffer);
-
-		ID3D11Buffer * ver = DX::g_guardDrawQueue[i]->getVertexBuffer();
-
-		UINT32 sizeVertex = DX::g_guardDrawQueue[i]->getSizeOfStruct();
-		UINT32 offset = 0;
-
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &sizeVertex, &offset);
-		DX::g_deviceContext->Draw(DX::g_guardDrawQueue[i]->getNrVertices(), 0);
-
+			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+		}
 	}
+	//TODO:: Fix animated drawqueue
 
 
+
+	
+}
+
+void ForwardRender::_calcVisabilityFor(Guard* guard)
+{
 	//float c[4] = { 0.0f,0.0f,0.5f,1.0f };
 
 	////DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
@@ -306,13 +358,15 @@ void ForwardRender::_guardDepthPrePass()
 	////DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 
-	//DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-	//	1,
-	//	&m_backBufferRTV,
-	//	//m_depthStencilView,
-	//	nullptr,
-	//	1, 1, &m_visabilityUAV, 0
-	//);
+	auto l_uav = guard->getUAV();
+
+	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+		0,
+		NULL,
+		//m_depthStencilView,
+		NULL,
+		0, 1, &l_uav, 0
+	);
 
 	//for (unsigned int i = 0; i < DX::g_visabilityDrawQueue.size(); ++i)
 	//{
@@ -498,6 +552,15 @@ void ForwardRender::_createConstantBuffer()
 		exit(-1);
 	}
 
+	// check if the creation failed for any reason
+	//HRESULT hr = 0;
+	hr = DX::g_device->CreateBuffer(&objectBufferDesc, nullptr, &m_objectBuffer2);
+	if (FAILED(hr))
+	{
+		// handle the error, could be fatal or a warning...
+		exit(-1);
+	}
+
 	D3D11_BUFFER_DESC cameraBufferDesc;
 	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cameraBufferDesc.ByteWidth = sizeof(CameraBuffer);
@@ -658,70 +721,80 @@ void ForwardRender::_setStaticShaders()
 
 void ForwardRender::VisabilityPass()
 {
-	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
-
-	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
-	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
-	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
-
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl"), nullptr, 0);
-	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl"), nullptr, 0);
-
-	//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
-	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
-
-	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-		1,
-		&m_backBufferRTV,
-		//m_depthStencilView,
-		nullptr,
-		1, 1, &m_visabilityUAV, 0
-	);
-
-	for (unsigned int i = 0; i < DX::g_visabilityDrawQueue.size(); ++i)
+	DX::g_deviceContext->RSSetViewports(1, &m_guardViewPort);
+	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, m_guardPreDepthStencil);
+	for (auto & g : DX::g_guardDrawQueue)
 	{
-		UINT32 vertexSize = sizeof(StaticVertex);
-		UINT32 offset = 0;
-
-		ID3D11Buffer * vertexBuffer = DX::g_visabilityDrawQueue[i]->getBuffer();
-
-		_mapObjectBuffer(DX::g_visabilityDrawQueue[i]);
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_visabilityDrawQueue[i]->getVertexSize(), 0);
-	}
-
-	DX::g_visabilityDrawQueue.clear();
-
-
-	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
-	D3D11_MAPPED_SUBRESOURCE mr;
-
-	struct ShadowTestData
-	{
-		unsigned int inside;
-		unsigned int outside;
-	};
-
-	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
-	{
-		ShadowTestData* data = (ShadowTestData*)mr.pData;
-
-		//std::cout << data->inside <<std::endl;
-		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
-	}
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
-	{
-		ShadowTestData hiv ={ 0,0 };
-		memcpy(dataPtr.pData, &hiv, sizeof(ShadowTestData));
-		DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
-		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
-		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+		DX::g_deviceContext->ClearDepthStencilView(m_guardPreDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		_guardDepthPrePass(g);
+		_calcVisabilityFor(g);
 	}
 	
+	
+	//float c[4] = { 0.0f,0.0f,0.5f,1.0f };
+
+	////DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
+	////DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	////DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	//DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+
+	//DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl"), nullptr, 0);
+	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl"), nullptr, 0);
+
+	////DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	//DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+
+	//DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+	//	1,
+	//	&m_backBufferRTV,
+	//	//m_depthStencilView,
+	//	nullptr,
+	//	1, 1, &m_visabilityUAV, 0
+	//);
+
+	//for (unsigned int i = 0; i < DX::g_visabilityDrawQueue.size(); ++i)
+	//{
+	//	UINT32 vertexSize = sizeof(StaticVertex);
+	//	UINT32 offset = 0;
+
+	//	ID3D11Buffer * vertexBuffer = DX::g_visabilityDrawQueue[i]->getBuffer();
+
+	//	_mapObjectBuffer(DX::g_visabilityDrawQueue[i]);
+	//	DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+	//	DX::g_deviceContext->Draw(DX::g_visabilityDrawQueue[i]->getVertexSize(), 0);
+	//}
+
+	//DX::g_visabilityDrawQueue.clear();
+
+
+	//DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	//D3D11_MAPPED_SUBRESOURCE mr;
+
+	//struct ShadowTestData
+	//{
+	//	unsigned int inside;
+	//	unsigned int outside;
+	//};
+
+	//if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
+	//{
+	//	ShadowTestData* data = (ShadowTestData*)mr.pData;
+
+	//	//std::cout << data->inside <<std::endl;
+	//	DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	//}
+	//D3D11_MAPPED_SUBRESOURCE dataPtr;
+	//if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
+	//{
+	//	ShadowTestData hiv ={ 0,0 };
+	//	memcpy(dataPtr.pData, &hiv, sizeof(ShadowTestData));
+	//	DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+	//	//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+	//	DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	//}
+	//
 }
 
 void ForwardRender::_setAnimatedShaders()
@@ -821,6 +894,10 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", tempDesc, 1);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
+
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl");
+
+
 }
 
 void ForwardRender::_createShadersInput()

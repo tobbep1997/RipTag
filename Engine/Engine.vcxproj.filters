@@ -10,6 +10,7 @@
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumPixel.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\PreDepthPassVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />

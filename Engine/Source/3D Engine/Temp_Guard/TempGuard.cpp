@@ -115,6 +115,39 @@ void Guard::Draw()
 	DX::g_guardDrawQueue.push_back(this);
 }
 
+void Guard::calcVisability()
+{
+	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	D3D11_MAPPED_SUBRESOURCE mr;
+
+	struct ShadowTestData
+	{
+		unsigned int inside;
+	};
+
+	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
+	{
+		ShadowTestData* data = (ShadowTestData*)mr.pData;
+
+		m_vis = data->inside;
+		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	}
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
+	{
+		ShadowTestData killer = { 0 };
+		memcpy(dataPtr.pData, &killer, sizeof(ShadowTestData));
+		DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
+	}
+}
+
+ID3D11UnorderedAccessView* Guard::getUAV()
+{
+	return m_visabilityUAV;
+}
+
 void Guard::_createUAV()
 {
 	D3D11_TEXTURE2D_DESC TextureData;

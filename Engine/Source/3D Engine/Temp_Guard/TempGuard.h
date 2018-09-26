@@ -76,6 +76,9 @@ private:
 	DirectX::XMFLOAT4X4A m_worldMatrix;
 	ID3D11Buffer*		m_vertexBuffer;
 
+	int m_vis = 0;
+
+
 	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
 	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
 	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
@@ -98,6 +101,10 @@ public:
 	Camera & getCamera();
 	const DirectX::XMFLOAT4X4A & getWorldMatrix();
 	void Draw();
+
+	void calcVisability();
+
+	ID3D11UnorderedAccessView * getUAV();
 
 private:
 	void _createUAV();

@@ -39,6 +39,8 @@ struct GuardBuffer
 	DirectX::XMFLOAT4X4A worldMatrix;
 };
 
+
+
 private:
 
 	struct sortStruct
@@ -98,7 +100,10 @@ private:
 	const short int m_guardWH = 32;
 	D3D11_VIEWPORT m_guardViewPort;
 
-
+	ID3D11DepthStencilView*		m_guardPreDepthStencil;
+	ID3D11Texture2D*			m_guardPreDepthTex;
+	ID3D11Buffer*				m_objectBuffer2 = nullptr;
+	ID3D11ShaderResourceView *	m_guardShaderResource;
 	ID3D11BlendState* m_alphaBlend;
 
 public:
@@ -122,7 +127,9 @@ public:
 	void Release();
 private:
 
-	void _guardDepthPrePass();
+	void _guardDepthStencil();
+	void _guardDepthPrePass(Guard * guard);
+	void _calcVisabilityFor(Guard * guard);
 	void _tempGuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
