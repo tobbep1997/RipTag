@@ -90,6 +90,11 @@ private:
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
+
+
+
+	ID3D11BlendState* m_alphaBlend;
+
 public:
 	ForwardRender();
 	~ForwardRender();

@@ -12,5 +12,5 @@ struct VS_OUT
 
 float4 main(VS_OUT input) : SV_TARGET
 {
-    return float4(input.col, 0.2f);
+    return float4(0, 1, 1, 0.5f);
 }

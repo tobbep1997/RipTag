@@ -43,9 +43,21 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	_createConstantBuffer();
 	_createSamplerState();
 	m_shadowMap.Init(128, 128);
+	D3D11_BLEND_DESC omDesc;
+	ZeroMemory(&omDesc,
 
+		sizeof(D3D11_BLEND_DESC));
+	omDesc.RenderTarget[0].BlendEnable = true;
+	omDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	omDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	omDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	omDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	omDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	omDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
-	this->_createUAV();
+	//this->_createUAV();
 }
 
 struct TriangleVertex
@@ -104,7 +116,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	//DX::g_geometryQueue.clear();
 
 
-	DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
+	/*DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
 	D3D11_MAPPED_SUBRESOURCE mr;
 	
 	struct ShadowTestData
@@ -120,7 +132,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 		data = data;
 		
 		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
-	}
+	}*/
 
 }
 
@@ -169,7 +181,7 @@ void ForwardRender::Flush(Camera & camera)
 {
 	_simpleLightCulling(camera);
 	this->m_shadowMap.ShadowPass();
-	VisabilityPass();
+	//VisabilityPass();
 	this->GeometryPass(camera);
 	
 	this->AnimatedGeometryPass(camera);
@@ -218,6 +230,9 @@ void ForwardRender::Release()
 
 void ForwardRender::_tempGuardFrustumDraw()
 {
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+
+
 	struct FrustumPos
 	{
 		DirectX::XMFLOAT4A pos;
@@ -276,6 +291,7 @@ void ForwardRender::_tempGuardFrustumDraw()
 		vertexBuffer->Release();
 	}
 	DX::g_guardDrawQueue.clear();
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
 void ForwardRender::_simpleLightCulling(Camera & cam)

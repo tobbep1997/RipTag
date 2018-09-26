@@ -33,7 +33,6 @@ VS_OUT main(VS_INPUT input)
         output.col.b = 1;
 
     float4 pos = mul(input.pos, ViewProjInverse);
-    //pos.xyz /= pos.w;
     pos = mul(pos, WorldMatrix);
     output.poss = mul(pos, viewProjection);
     return output;
