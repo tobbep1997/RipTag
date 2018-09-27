@@ -13,11 +13,11 @@ public:
 	Actor();
 	virtual  ~Actor();
 
-	virtual void BeginPlay();
+	virtual void BeginPlay() = 0;
 
-	virtual void Update();
+	virtual void Update() = 0;
 
-	virtual void Draw();
+	virtual void Draw() = 0;
 
 
 };
