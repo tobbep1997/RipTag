@@ -15,6 +15,7 @@ struct VS_INPUT
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float2 uv : UV;
+	
 };
 
 /*struct VS_OUTPUT

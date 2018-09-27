@@ -173,12 +173,15 @@ const DirectX::XMFLOAT4A & Drawable::getPosition() const
 
 void Drawable::Draw()
 {
-	DX::g_geometryQueue.push_back(this);
-}
-
-void Drawable::DrawAnimated()
-{
-	DX::g_animatedGeometryQueue.push_back(this);
+	switch (p_objectType)
+	{
+	case Static:
+		DX::g_geometryQueue.push_back(this);
+		break;
+	case Dynamic:
+		DX::g_animatedGeometryQueue.push_back(this);
+		break;
+	}
 }
 
 void Drawable::QueueVisabilityDraw()
