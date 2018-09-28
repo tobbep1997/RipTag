@@ -116,7 +116,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 
-	//textureManager.loadTextures("SPHERE");
+	textureManager.loadTextures("SPHERE");
 
 
 	meshManager.loadStaticMesh("SCENE");
@@ -125,8 +125,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	meshManager.loadDynamicMesh("TORUS");
 	meshManager.loadDynamicMesh("KON");
 
-	//modelManager.addNewModel(meshManager.getDynamicMesh("TORUS"), textureManager.getTexture("SPHERE"));
-	//modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
+	modelManager.addNewModel(meshManager.getDynamicMesh("TORUS"), textureManager.getTexture("SPHERE"));
+	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
 
 	Model * player = new Model(ObjectType::Dynamic);
 	player->setModel(meshManager.getDynamicMesh("KON"));
@@ -177,7 +177,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		player->setScale(playerScaleX, playerScaleY, playerScaleZ);
 		player->setPosition(playerPosX, playerPosY, playerPosZ);
-		//player->Draw();
+		player->Draw();
 		//modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
 
 		auto currentTime = steady_clock::now();
