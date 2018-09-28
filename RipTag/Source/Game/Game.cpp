@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Source/3D Engine/Extern.h"
+#include "../../../InputManager/XboxInput/GamePadHandler.h"
 
 
 Game::Game()
@@ -26,7 +27,7 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	Manager::g_meshManager.loadStaticMesh("SCENE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	modelManager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
-	
+	GamePadHandler::Instance();
 }
 
 bool Game::isRunning()
@@ -49,7 +50,7 @@ void Game::Clear()
 void Game::Update(double deltaTime)
 {
 	_handleStateSwaps();
-
+	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
 	
 }

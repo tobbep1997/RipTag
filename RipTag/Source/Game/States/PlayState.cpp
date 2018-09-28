@@ -4,6 +4,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 
 	CameraHandler::Instance();
+	
 	player = new Player();
 	enemy = new Enemy();
 	CameraHandler::setActiveCamera(player->getCamera());

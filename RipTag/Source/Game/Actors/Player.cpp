@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "../../../../InputManager/InputHandler.h"
 #include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "../../Input/Input.h"
 
 Player::Player() : Actor(), CameraHolder()
 {
@@ -27,10 +28,12 @@ void Player::Update(double deltaTime)
 
 void Player::_handleInput(double deltaTime)
 {
-	if (InputHandler::isKeyPressed('W'))
-		p_camera->Translate(0.0f, 0.0f, m_moveSpeed * deltaTime);
-	else if (InputHandler::isKeyPressed('S'))
-		p_camera->Translate(0.0f, 0.0f, -m_moveSpeed * deltaTime);
+	
+	p_camera->Translate(0.0f, 0.0f, Input::MoveForward() * m_moveSpeed * deltaTime);
+	/*if (InputHandler::isKeyPressed('W'))
+		p_camera->Translate(0.0f, 0.0f, m_moveSpeed * deltaTime);*/
+	/*else if (InputHandler::isKeyPressed('S'))
+		p_camera->Translate(0.0f, 0.0f, -m_moveSpeed * deltaTime);*/
 	if (InputHandler::isKeyPressed('A'))
 		p_camera->Translate(-m_moveSpeed * deltaTime, 0.0f, 0.0f);
 	else if (InputHandler::isKeyPressed('D'))
