@@ -1,5 +1,7 @@
-#include <chrono>
 #include "Game/Game.h"
+#include "Timer/DeltaTime.h"
+
+
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -20,48 +22,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Game game;
 	game.Init(hInstance);
-	const float REFRESH_RATE = 60.0f;
 
+	DeltaTime dt;
+	float deltaTime = 0.0f;
 	
-	using namespace std::chrono;
-	auto time = steady_clock::now();
-	auto timer = steady_clock::now();
-	int updates = 0;
-	int fpsCounter = 0;
-	float freq = 1000000000.0f / REFRESH_RATE;
-	float unprocessed = 0;
-
-
 	while (game.isRunning())
 	{
-		//HEAVY SHIT
+		deltaTime = dt.getDeltaTimeInSeconds();
+
 		game.Clear();
 		game.PollEvents();
 		game.ImGuiFrameStart();
-
-		auto currentTime = steady_clock::now();
-		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
-		time = steady_clock::now();
-
-		unprocessed += (dt / freq);
-
-		while (unprocessed > 1)
-		{
-			updates++;
-			unprocessed -= 1;
-			game.Update();
-		}
-
-
+		game.Update(deltaTime);
 		game.Draw();
-
-		if (duration_cast<milliseconds>(steady_clock::now() - timer).count() > 1000)
-		{
-			updates = 0;
-			fpsCounter = 0;
-			timer += milliseconds(1000);
-		}
-
 	}
 
 	DX::g_shaderManager.Release();
