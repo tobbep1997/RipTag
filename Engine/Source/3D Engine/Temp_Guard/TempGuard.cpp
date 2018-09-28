@@ -5,7 +5,7 @@ Guard::Guard()
 	m_pos = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 1.0f);
 	m_rot = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 1.0f);
 	//m_cam.setDirection(0.0f, 0.0f, -1.0f);
-	m_cam = Camera(DirectX::XM_PI * 0.5f, 1.0f);
+	m_cam = Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f);
 	m_cam.setUP(0, 1, 0);
 	m_cam.setPosition(0.0f, 1.0f, 0.0f);
 	m_cam.setNearPlane(0.1f);

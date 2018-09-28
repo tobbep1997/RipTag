@@ -7,7 +7,6 @@ cbuffer CAMERA_BUFFER : register(b2)
 struct VS_OUT
 {
     float4 poss : SV_Position;
-    float3 col : Color;
 };
 
 float4 main(VS_OUT input) : SV_TARGET

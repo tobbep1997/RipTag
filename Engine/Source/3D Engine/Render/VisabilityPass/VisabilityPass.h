@@ -5,7 +5,9 @@
 class VisabilityPass
 {
 private:
-	const short int GUARD_RES = 32;
+	const short int GUARD_RES_Y = 32;
+	const short int GUARD_RES_X = (GUARD_RES_Y * (210.0f / 150.0f) + 0.5f);
+	//Ration 210 / 150
 	
 	const wchar_t * DEPTH_PRE_PASS_VERTEX_SHADER_PATH = L"../Engine/Source/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl";
 	const wchar_t * VISABILITY_PASS_PIXEL_SHADER_PATH = L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl";

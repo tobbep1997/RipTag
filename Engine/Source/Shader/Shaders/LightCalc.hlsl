@@ -92,7 +92,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     float4 radiance;
     float roughnessDistribution;
     float overshadowOcclusion;
-    float4 worldToCamera = normalize(cameraPosition - input.worldPos);
+    float4 worldToCamera = normalize(float4(cameraPosition.xyz, 1.0f) - float4(input.worldPos.xyz, 1.0f));
     float4 kS, kD;
     float4 numerator;
     float denominator;
@@ -143,7 +143,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
 			// Translate the world position into the view space of the shadowLight
-            float4 fragmentLightPosition = mul(input.worldPos, lightViewProjection[shadowLight][targetMatrix]);
+            float4 fragmentLightPosition = mul(float4(input.worldPos.xyz, 1), lightViewProjection[shadowLight][targetMatrix]);
 			// Get the texture coords of the "object" in the shadow map
             fragmentLightPosition.xyz /= fragmentLightPosition.w;
 			// Texcoords are not [-1, 1], change the coords to [0, 1]

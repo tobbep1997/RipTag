@@ -110,15 +110,15 @@ void VisabilityPass::_init()
 	_initSRV();
 
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(m_guatdShaderResourceTex, GUARD_RES, GUARD_RES, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
+	hr = DXRHC::CreateTexture2D(m_guatdShaderResourceTex, GUARD_RES_X, GUARD_RES_Y, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 	hr = DXRHC::CreateRenderTargetView(m_guatdShaderResourceTex, m_guardRenderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, 1);
 
 }
 
 void VisabilityPass::_initViewPort()
 {
-	m_guardViewPort.Width = static_cast<float>(GUARD_RES);
-	m_guardViewPort.Height = static_cast<float>(GUARD_RES);
+	m_guardViewPort.Width = static_cast<float>(GUARD_RES_X);
+	m_guardViewPort.Height = static_cast<float>(GUARD_RES_Y);
 	m_guardViewPort.MinDepth = 0.0f;
 	m_guardViewPort.MaxDepth = 1.0f;
 	m_guardViewPort.TopLeftX = 0;
@@ -141,7 +141,7 @@ void VisabilityPass::_initObjectBuffer()
 void VisabilityPass::_initDSV()
 {
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(m_guardDepthTex, GUARD_RES, GUARD_RES, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32_TYPELESS);
+	hr = DXRHC::CreateTexture2D(m_guardDepthTex, GUARD_RES_X, GUARD_RES_Y, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32_TYPELESS);
 	hr = DXRHC::CreateDepthStencilView(m_guardDepthTex, m_guardDepthStencil, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2D, 0, 1);
 	hr = DXRHC::CreateShaderResourceView(m_guardDepthTex, m_guardShaderResource, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2D, 1, 0, 0, 1);
 }

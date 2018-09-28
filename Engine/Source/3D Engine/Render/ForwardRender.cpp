@@ -175,8 +175,11 @@ void ForwardRender::Flush(Camera & camera)
 	_simpleLightCulling(camera);
 	this->m_shadowMap.ShadowPass();
 	VisabilityPass();
-	this->GeometryPass(camera);	
+	/*this->GeometryPass(DX::g_guardDrawQueue[0]->getCamera());	
+	this->AnimatedGeometryPass(DX::g_guardDrawQueue[0]->getCamera());*/
+	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
+	//DX::g_guardDrawQueue.clear();
 	_tempGuardFrustumDraw();
 }
 
