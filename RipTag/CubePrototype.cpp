@@ -1,7 +1,12 @@
 #include "CubePrototype.h"
+#include <Multiplayer.h>
 
 CubePrototype::CubePrototype()
 {
+	Network::Multiplayer * pMp = Network::Multiplayer::GetInstance();
+	this->SetNetworkIDManager(pMp->pNetworkIDManager);
+	this->SetNetworkID(this->GetNetworkID());
+
 	this->s = new StaticMesh();
 	this->s->LoadModel("../Assets/sphere.bin");
 
@@ -22,6 +27,8 @@ CubePrototype::~CubePrototype()
 void CubePrototype::setPosition(DirectX::XMFLOAT4A pos)
 {
 	this->m.setPosition(DirectX::XMFLOAT4A(pos.x, pos.y, pos.z + 2, pos.w));
+	RakNet::NetworkID nId = this->GetNetworkID();
+	
 }
 
 void CubePrototype::Draw()

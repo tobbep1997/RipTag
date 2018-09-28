@@ -1,6 +1,5 @@
 #pragma once
 #include <RakPeerInterface.h>
-#include <MessageIdentifiers.h>
 #include "NetworkClock.h"
 #include <string>
 #include <NetworkIDManager.h>
@@ -16,7 +15,8 @@ extern "C" {
 #define NETWORK_METATABLE "Network"
 #define GET_MP_INSTANCE "Multiplayer"
 #define SEND_DATA "Send"
-#define PLAYER_MOVEMENT "Move"
+
+
 
 namespace Network
 {
@@ -35,7 +35,8 @@ namespace Network
 		//Get a pointer to the Singleton Instance
 		static Multiplayer * GetInstance();
 		lua_State * pLuaState = nullptr;
-
+		RakNet::NetworkIDManager * pNetworkIDManager = 0;
+		
 		void StartUpServer();
 		void StartUpClient();
 
@@ -64,7 +65,6 @@ namespace Network
 		~Multiplayer();
 
 		RakNet::RakPeerInterface * pPeer = 0;
-		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 
 		bool m_isServer = false;
 		bool m_isClient = false;
@@ -98,21 +98,13 @@ namespace Network
 		return 0;
 	}
 
-	static int Player_Movement_Func(lua_State * L)
-	{
-		void * data = lua_touserdata(L, lua_gettop(L));
-		Multiplayer::GetInstance()->SendPacket((const char*)data);
-
-		return 0;
-	}
-
 	static void LUA_Register_Network(lua_State * L)
 	{
 		lua_register(L, GET_MP_INSTANCE, Get_Instance);
 		luaL_newmetatable(L, NETWORK_METATABLE);
 		lua_pushvalue(L, -1); lua_setfield(L, -2, "__index");
 		lua_pushcfunction(L, Send_Data); lua_setfield(L, -2, SEND_DATA);
-		lua_pushcfunction(L, Player_Movement_Func); lua_setfield(L, -2, PLAYER_MOVEMENT);
 		lua_pop(L, 1);
 	}
+
 }

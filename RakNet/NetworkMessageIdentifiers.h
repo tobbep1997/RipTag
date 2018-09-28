@@ -9,9 +9,11 @@ extern "C" {
 #include <lauxlib.h>
 }
 
-#define TEST_STRUCT_FOR_LUA "TestPacket"
-#define PLAYER_MOVEMENT_FOR_LUA "Move"
+#define PLAYER_MOVEMENT_FOR_LUA "MovePacket"
 #define PACKETS_METATABLE "Packets"
+#define LUA_TABLE_MESSAGE_IDENTIFIERS "NETWORK_MESSAGES"
+
+#define ENUM_TO_STR(ENUM) std::string(#ENUM)
 
 namespace Network
 {
@@ -24,30 +26,9 @@ namespace Network
 	};
 
 
+	//STRUCTS BEGIN
 	#pragma pack(push, 1)
-	struct SCRIPT_TEST
-	{
-		unsigned char id;
-		//data
-		char msg[256];
-		
-		SCRIPT_TEST(unsigned char _id, const char * data)
-		{
-			id = _id;
-			std::strncpy(msg, data, sizeof(msg));
-		}
-	};
-//#pragma pack(pop)
-
-//#pragma pack(push, 1)
-	struct Game_Event
-	{
-		GAME_MESSAGES id;
-		//data
-	};
-//#pragma pack(pop)
-
-	//#pragma pack(push, 1)
+	
 	struct Player_Movement
 	{
 		unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
@@ -57,15 +38,9 @@ namespace Network
 		RakNet::NetworkID networkId;
 		RakNet::SystemAddress systemAddress;
 	};
-	#pragma pack(pop)
 
-	static int New_Test_Data(lua_State * L)
-	{
-		const char * data = lua_tostring(L, lua_gettop(L));
-		SCRIPT_TEST * packet = new SCRIPT_TEST((RakNet::MessageID)ID_PING_MESSAGE, data);
-		lua_pushlightuserdata(L, (void*)packet);
-		return 1;
-	}
+	#pragma pack(pop)
+	//STRUCTS END
 
 	static int New_Player_Movement_Data(lua_State * L)
 	{
@@ -79,19 +54,26 @@ namespace Network
 
 	static void LUA_Register_Network_Structs(lua_State * L)
 	{
-		lua_register(L, TEST_STRUCT_FOR_LUA, New_Test_Data);
 		lua_register(L, PLAYER_MOVEMENT_FOR_LUA, New_Player_Movement_Data);
 	}
+
+	static void LUA_Setfield_Enum(lua_State* L, std::string index, int value)
+	{
+		lua_pushstring(L, index.c_str());
+		lua_pushnumber(L, (unsigned char)value);
+		lua_settable(L, -3);
+	}
+
+	static void LUA_Register_Network_MessageTypes(lua_State *L)
+	{
+		lua_newtable(L);
+
+		LUA_Setfield_Enum(L, ENUM_TO_STR(ID_GAME_START), GAME_MESSAGES::ID_GAME_START);
+		LUA_Setfield_Enum(L, ENUM_TO_STR(ID_CREATE_REMOTE_PLAYER), GAME_MESSAGES::ID_CREATE_REMOTE_PLAYER);
+		LUA_Setfield_Enum(L, ENUM_TO_STR(ID_PING_MESSAGE), GAME_MESSAGES::ID_PING_MESSAGE);
+		LUA_Setfield_Enum(L, ENUM_TO_STR(ID_UPDATE_SPHERE_LOCATION), GAME_MESSAGES::ID_UPDATE_SPHERE_LOCATION);
+
+		lua_setglobal(L, LUA_TABLE_MESSAGE_IDENTIFIERS);
+	}
+
 }
-/*
-Network::Player_Movement pM;
-pM.useTimeStamp = ID_TIMESTAMP;
-pM.timeStamp = RakNet::GetTime();
-pM.typeId = Network::ID_UPDATE_SPHERE_LOCATION;
-pM.x = pos.x;
-pM.y = pos.y;
-pM.z = pos.z;
-pM.networkId = id;
-pM.systemAddress = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
-pMP->SendPacket((const char *)&pM);
-*/

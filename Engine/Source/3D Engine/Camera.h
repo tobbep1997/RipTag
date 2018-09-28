@@ -5,6 +5,17 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
+
+#define LUA_CAMERA "CAMERA"
+#define LUA_CAMERA_GETPOS "CameraGetPos"
+
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
+
 class Camera
 {
 	//-------------------------------------------------------------------------------------------	
@@ -89,3 +100,25 @@ private:
 	*/
 	DirectX::XMFLOAT4A _add(const DirectX::XMFLOAT4A & a, const DirectX::XMFLOAT4A & b);
 };
+
+static int GetCameraPos (lua_State * L)
+{
+	Camera * ptr = (Camera*)lua_touserdata(L, lua_gettop(L));
+	if (ptr)
+	{
+		lua_pop(L, 1);
+		DirectX::XMFLOAT4A pos = ptr->getPosition();
+		lua_pushnumber(L, pos.x);
+		lua_pushnumber(L, pos.y);
+		lua_pushnumber(L, pos.z);
+		return 3;
+	}
+	return 0;
+}
+
+static void LUA_Register_Camera(lua_State * L, Camera * cam)
+{
+	lua_pushlightuserdata(L, (void*)cam);
+	lua_setglobal(L, LUA_CAMERA);
+	lua_register(L, LUA_CAMERA_GETPOS, GetCameraPos);
+}

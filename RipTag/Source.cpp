@@ -1,3 +1,4 @@
+
 #include <WinSock2.h>
 #include <Windows.h>
 
@@ -7,11 +8,11 @@
 #include "Source/Light/PointLight.h"
 //#pragma comment(lib, "New_Library.lib")
 
-
 //network
 #include <Multiplayer.h>
 #include "NetworkMessageIdentifiers.h"
 #include "CubePrototype.h"
+
 //LUA
 extern "C" {
 #include <lua.h>
@@ -54,6 +55,20 @@ void ImGuiTest()
 	ImGui::End();
 #endif
 
+}
+
+void TestCameraLua(lua_State * L)
+{
+	ImGui::Begin("LUA CAMERA");
+	if (ImGui::Button("Get Position"))
+	{
+		if (luaL_dofile(L, "..//Scripts//Camera//Camera.lua") != EXIT_SUCCESS)
+		{
+			printf(lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+	}
+	ImGui::End();
 }
 
 void NetworkSettings(Network::Multiplayer * pMP)
@@ -168,6 +183,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//register classes in Lua
 	Network::LUA_Register_Network(L);
 	Network::LUA_Register_Network_Structs(L);
+	Network::LUA_Register_Network_MessageTypes(L);
 
 	Timer::StartTimer();
 
@@ -181,6 +197,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
+
+	LUA_Register_Camera(L, &camera);
 
 	Model m(ObjectType::Static);
 	Model m2(ObjectType::Static);
@@ -268,6 +286,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//MoveLight();
 		NetworkSettings(pNetwork);
 		TestNetworkScript(L);
+		TestCameraLua(L);
 		//SendPacketTest(pNetwork, camera.getPosition(), cP.GetNetworkID());
 		SendPacketTest(L);
 		pNetwork->Update();

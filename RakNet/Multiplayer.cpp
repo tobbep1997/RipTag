@@ -201,7 +201,8 @@ namespace Network
 		if (this->pPeer == 0)
 			this->pPeer = RakNet::RakPeerInterface::GetInstance();
 
-		pNetworkIDManager = new RakNet::NetworkIDManager();
+		if (pNetworkIDManager == 0)
+			pNetworkIDManager = RakNet::NetworkIDManager::GetInstance();
 		
 		std::cout << "Multiplayer Constructor is called.\n";
 	}
@@ -214,7 +215,8 @@ namespace Network
 			this->Disconnect();
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
 		}
-		delete this->pNetworkIDManager;
+		if (this->pNetworkIDManager)
+			RakNet::NetworkIDManager::DestroyInstance(this->pNetworkIDManager);
 		std::cout << "Multiplayer Destructor is called.\n";
 	}
 
@@ -244,7 +246,7 @@ namespace Network
 		switch (mID)
 		{
 		case ID_CREATE_REMOTE_PLAYER:
-			//stuff
+			//run creation script
 			break;
 		case GAME_MESSAGES::ID_PING_MESSAGE:
 			std::cout << ((SCRIPT_TEST*)data)->msg << std::endl;

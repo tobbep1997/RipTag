@@ -1,6 +1,6 @@
 #pragma once
-#include "../Engine/Source/3D Engine/Model/Model.h"
 #include "NetworkIDObject.h"
+#include "../Engine/Source/3D Engine/Model/Model.h"
 
 class CubePrototype : public RakNet::NetworkIDObject
 {
