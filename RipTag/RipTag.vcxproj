@@ -156,8 +156,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Source.cpp" />
     <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
     <ClCompile Include="Source\Game\Actors\Player.cpp" />
