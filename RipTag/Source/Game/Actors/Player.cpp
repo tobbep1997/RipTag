@@ -11,6 +11,7 @@ Player::Player()
 
 Player::~Player()
 {
+	delete m_camera;
 }
 
 void Player::BeginPlay()
