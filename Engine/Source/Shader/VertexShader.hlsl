@@ -30,7 +30,7 @@ VS_OUTPUT main(VS_INPUT input)
 {
 
 	VS_OUTPUT output;
-	
+    input.pos.w = 1.0f;
 
 	output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
     output.worldPos = mul(input.pos, worldMatrix);

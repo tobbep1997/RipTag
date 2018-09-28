@@ -50,7 +50,7 @@ public:
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
 		D3D11_DSV_DIMENSION dimension = D3D11_DSV_DIMENSION_TEXTURE2D,
 		UINT texture2DArray_FirstArraySize = 0,
-		UINT texture2DArray_ArraySize = 0,
+		UINT texture2DArray_ArraySize = 1,
 		UINT texture2DArray_MipSlice = 0);
 
 	static HRESULT CreateShaderResourceView(ID3D11Resource * resource,
@@ -58,16 +58,16 @@ public:
 		UINT flags = 0,
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
 		D3D11_SRV_DIMENSION dimension = D3D11_SRV_DIMENSION_TEXTURE2D,
-		UINT texture2DArray_ArraySize = 0,
+		UINT texture2DArray_ArraySize = 1,
 		UINT texture2DArray_FirstArraySlice = 0,
 		UINT texture2DArray_MostDetailMip = 0,
-		UINT texture2DArray_MipLevel = 0);
+		UINT texture2DArray_MipLevel = 1);
 
 	static HRESULT CreateRenderTargetView(ID3D11Resource * resource,
 		ID3D11RenderTargetView *& rtv,	
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
 		D3D11_RTV_DIMENSION dimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-		UINT texture2DArray_ArraySize = 0,
+		UINT texture2DArray_ArraySize = 1,
 		UINT texture2DArray_FirstArraySlice = 0,
 		UINT texture2DArray_MipSlice = 0);
 

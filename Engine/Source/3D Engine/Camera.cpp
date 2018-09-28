@@ -47,6 +47,8 @@ Camera::~Camera()
 void Camera::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	this->m_position = pos;
+	//_calcViewMatrix();
+	//_calcProjectionMatrix();
 }
 
 void Camera::setPosition(float x, float y, float z, float w)

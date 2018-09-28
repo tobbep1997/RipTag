@@ -1,9 +1,8 @@
 #pragma once
 #pragma warning (disable : 4267)
-#include "../../Shader/ShaderManager.h"
-#include "../Camera.h"
 #include "ShadowMap.h"
 #include <thread>
+#include "VisabilityPass/VisabilityPass.h"
 
 class ForwardRender
 {
@@ -29,6 +28,15 @@ struct LightBuffer
 	DirectX::XMFLOAT4A	color[8];
 };
 
+struct GuardBuffer
+{
+	DirectX::XMFLOAT4X4A viewProj;
+	DirectX::XMFLOAT4X4A viewProjInverse;
+	DirectX::XMFLOAT4X4A worldMatrix;
+};
+
+
+
 private:
 
 	struct sortStruct
@@ -50,6 +58,10 @@ private:
 	D3D11_VIEWPORT				m_viewport;
 
 	//Constant Buffer TEMP
+	//TODO::Fixa constant buffers
+	//Uppdatera bara 1 gång
+	//Fixa en constant_buffer.hlsl
+
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
 
@@ -61,24 +73,17 @@ private:
 
 	ShadowMap m_shadowMap;
 
-	//ConstBuffer for visability
-
-	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
-	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
-	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
-	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
-
-	ID3D11VertexShader * m_visaVertexShader;
-	ID3D11PixelShader * m_visaPixelShader;
-	//int lazyShit = 0;
+	VisabilityPass m_visabilityPass;
+	ID3D11Buffer* m_GuardBuffer;
 
 	//LightCulling Related
  	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	// after optimization, change this to 8
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
-
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
+	ID3D11BlendState* m_alphaBlend;
+
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -99,6 +104,7 @@ public:
 	
 	void Release();
 private:
+	void _tempGuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
 
@@ -119,8 +125,6 @@ private:
 
 	//VisabilityPass
 	void VisabilityPass();
-
-	void _createUAV();
 
 	void _createShaders();
 	void _createShadersInput();

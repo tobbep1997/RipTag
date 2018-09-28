@@ -21,6 +21,13 @@ enum ObjectType
 	Dynamic
 };
 
+enum EntityType
+{
+	Defult = 0,
+	Player = 1,
+	Guardd = 2
+};
+
 class Drawable
 {
 private:
@@ -49,6 +56,7 @@ protected:
 
 	//Object type, is it static or dynamic
 	ObjectType p_objectType;
+	EntityType p_entityType;
 
 	ID3D11Buffer * p_vertexBuffer;
 
@@ -64,9 +72,7 @@ protected:
 	//Texture stuff
 
 public:
-	ID3D11ShaderResourceView* tempMeshTextureSRV = nullptr;
-
-	Drawable(ObjectType ObjecType = ObjectType::Static);
+	Drawable(ObjectType ObjecType = ObjectType::Static, EntityType ent = EntityType::Defult);
 	virtual ~Drawable();
 	void setTextures(const std::wstring& filePath);
 	
@@ -101,6 +107,8 @@ public:
 
 	//returns static or dynamic objtype
 	ObjectType getObjectType();
+	EntityType getEntityType();
+	void SetEntityType(EntityType en);
 
 private:
 	void _setStaticBuffer();
