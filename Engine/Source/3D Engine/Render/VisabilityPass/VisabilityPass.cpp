@@ -14,6 +14,10 @@ VisabilityPass::~VisabilityPass()
 	DX::SafeRelease(m_guardDepthTex);
 	DX::SafeRelease(m_guardShaderResource);
 	DX::SafeRelease(m_objectBuffer);
+
+	DX::SafeRelease(m_guatdShaderResourceTex);
+	DX::SafeRelease(m_guardRenderTargetView);
+
 }
 
 void VisabilityPass::Init()
