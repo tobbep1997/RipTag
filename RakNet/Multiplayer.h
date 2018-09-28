@@ -45,6 +45,7 @@ namespace Network
 
 		void ReadPackets();
 		void SendPacket(const char* message);
+		void DestroySentPacket(void * msg);
 
 		void Update();
 		//GETs
@@ -71,7 +72,7 @@ namespace Network
 
 		RakNet::SystemAddress m_rIP;
 
-		unsigned char GetPacketIdentifier(RakNet::Packet * p);
+		unsigned char GetPacketIdentifier(unsigned char * data);
 		void HandleRakNetMessages(unsigned char mID);
 		void HandleGameMessages(unsigned char mID, unsigned char * data);
 
@@ -90,9 +91,9 @@ namespace Network
 	static int Send_Data(lua_State * L)
 	{
 		void * data = lua_touserdata(L, lua_gettop(L));
-		SCRIPT_TEST * test = (SCRIPT_TEST*)data;
-		Multiplayer::GetInstance()->SendPacket((const char*)data);
-		delete data;
+		Multiplayer * pMp = Multiplayer::GetInstance();
+		pMp->SendPacket((const char*)data);
+		pMp->DestroySentPacket(data);
 		return 0;
 	}
 

@@ -30,11 +30,12 @@ namespace Network
 	{
 		unsigned char id;
 		//data
-		const char* message;
+		char msg[256];
+		
 		SCRIPT_TEST(unsigned char _id, const char * data)
 		{
 			id = _id;
-			message = data;
+			std::strncpy(msg, data, sizeof(msg));
 		}
 	};
 #pragma pack(pop)
@@ -55,12 +56,7 @@ namespace Network
 		return 1;
 	}
 
-	static int Destroy_ScriptTest(lua_State * L)
-	{
-		SCRIPT_TEST * toErase = (SCRIPT_TEST*)lua_touserdata(L, lua_gettop(L));
-		delete toErase;
-		return 0;
-	}
+	
 	static void LUA_Register_Network_Structs(lua_State * L)
 	{
 		lua_register(L, TEST_STRUCT_FOR_LUA, New_Test_Data);

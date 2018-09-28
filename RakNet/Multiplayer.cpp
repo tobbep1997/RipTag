@@ -133,9 +133,10 @@ namespace Network
 			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
 			//std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
 			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
-			unsigned char mID = this->GetPacketIdentifier(packet);
+			unsigned char mID = this->GetPacketIdentifier(packet->data);
 			this->HandleRakNetMessages(mID);
 			this->HandleGameMessages(mID, packet->data);
+			
 		}
 	}
 
@@ -148,6 +149,23 @@ namespace Network
 			0,
 			RakNet::UNASSIGNED_RAKNET_GUID,
 			true);
+	}
+
+	void Multiplayer::DestroySentPacket(void * msg)
+	{
+		unsigned char id = GetPacketIdentifier((unsigned char*)msg);
+		SCRIPT_TEST * stPtr = nullptr;
+
+		switch (id)
+		{
+		case GAME_MESSAGES::ID_PING_MESSAGE:
+			stPtr = (SCRIPT_TEST*)msg;
+			delete stPtr;
+			break;
+		default:
+			break;
+		}
+
 	}
 
 	void Multiplayer::Update()
@@ -200,12 +218,12 @@ namespace Network
 		std::cout << "Multiplayer Destructor is called.\n";
 	}
 
-	unsigned char Multiplayer::GetPacketIdentifier(RakNet::Packet * p)
+	unsigned char Multiplayer::GetPacketIdentifier(unsigned char * data)
 	{
-		if ((unsigned char)p->data[0] == ID_TIMESTAMP)
-			return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
+		if ((unsigned char)data[0] == ID_TIMESTAMP)
+			return (unsigned char)data[sizeof(unsigned char) + sizeof(unsigned long)];
 		else
-			return (unsigned char)p->data[0];
+			return (unsigned char)data[0];
 	}
 
 	void Multiplayer::HandleRakNetMessages(unsigned char mID)
@@ -228,7 +246,7 @@ namespace Network
 			//stuff
 			break;
 		case GAME_MESSAGES::ID_PING_MESSAGE:
-			std::cout << ((SCRIPT_TEST*)data)->message << std::endl;
+			std::cout << ((SCRIPT_TEST*)data)->msg << std::endl;
 			break;
 		default:
 			break;
