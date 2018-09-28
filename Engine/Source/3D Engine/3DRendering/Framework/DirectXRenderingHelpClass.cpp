@@ -1,5 +1,5 @@
 #include "DirectXRenderingHelpClass.h"
-#include "../Extern.h"
+#include "../../Extern.h"
 
 
 HRESULT DXRHC::CreateConstantBuffer(ID3D11Buffer *& buffer, UINT size)
