@@ -33,13 +33,8 @@ void ModelManager::DrawMeshes()
 	}
 	for (int i = 0; i < m_dynamicModel.size(); i++)
 	{
-		m_dynamicModel[i]->DrawAnimated();
+		m_dynamicModel[i]->Draw();
 	}
-}
-
-void ModelManager::bindTextures(const std::string& assetName)
-{
-
 }
 
 void ModelManager::addNewModel(StaticMesh* mesh, Texture* texture)

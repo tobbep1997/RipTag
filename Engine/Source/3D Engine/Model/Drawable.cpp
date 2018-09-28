@@ -105,7 +105,8 @@ void Drawable::setTextures(const std::wstring & filePath)
 
 void Drawable::BindTextures()
 { //TODO Optimize (one call for all)
-	p_texture->Bind(1);
+	if (p_texture)
+		p_texture->Bind(1);
 }
 
 Drawable::Drawable(ObjectType objectType) :
@@ -173,12 +174,15 @@ const DirectX::XMFLOAT4A & Drawable::getPosition() const
 
 void Drawable::Draw()
 {
-	DX::g_geometryQueue.push_back(this);
-}
-
-void Drawable::DrawAnimated()
-{
-	DX::g_animatedGeometryQueue.push_back(this);
+	switch (p_objectType)
+	{
+	case Static:
+		DX::g_geometryQueue.push_back(this);
+		break;
+	case Dynamic:
+		DX::g_animatedGeometryQueue.push_back(this);
+		break;
+	}
 }
 
 void Drawable::QueueVisabilityDraw()
