@@ -19,10 +19,8 @@ public:
 	std::vector<Model*> m_dynamicModel;
 	
 	void DrawMeshes();
-	void bindTextures(const std::string& assetName);
 	void addNewModel(StaticMesh* mesh, Texture* texture);
 	void addNewModel(DynamicMesh* mesh, Texture* texture);
 
 
 };
-

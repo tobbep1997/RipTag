@@ -9,51 +9,93 @@ MeshManager::MeshManager()
 
 MeshManager::~MeshManager()
 {
-	for (int i = 0; i < m_DynamicMesh.size(); i++)
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
 	{
-		delete m_DynamicMesh[i];
+		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)
+		{
+			delete m_dynamicMesh[i][j];
+		}
+		m_dynamicMesh[i].clear();
 	}
-	for (int i = 0; i < m_StaticMesh.size(); i++)
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
 	{
-		delete m_StaticMesh[i];
+		for (unsigned int j = 0; j < m_staticMesh[i].size(); j++)
+		{
+			delete m_staticMesh[i][j];
+		}
+		m_staticMesh[i].clear();
 	}
-	m_StaticMesh.clear();
-	m_DynamicMesh.clear();
 }
 
 bool MeshManager::loadDynamicMesh(const std::string & meshName)
 {
-	std::string tempString = "../Assets/";
-	tempString.append(meshName + "FOLDER/" + meshName + ".bin");
-
 	DynamicMesh* tempMesh = new DynamicMesh();
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
 
-	tempMesh->LoadMesh(tempString);
-	m_DynamicMesh.push_back(tempMesh);
-	
+	tempMesh->setName(fullPath);
+	tempMesh->LoadMesh(fullPath);
+
+	m_dynamicMesh[key].push_back(tempMesh);	
 	return true;
 }
 
 bool MeshManager::loadStaticMesh(const std::string & meshName)
 {
-	std::string tempString = "../Assets/";
-	tempString.append(meshName + "FOLDER/" + meshName + ".bin");
-
 	StaticMesh* tempMesh = new StaticMesh();
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
 
-	
-	tempMesh->LoadMesh(tempString);
-	m_StaticMesh.push_back(tempMesh);
-	
+	tempMesh->setName(fullPath);
+	tempMesh->LoadMesh(fullPath);
+
+	m_staticMesh[key].push_back(tempMesh);	
 	return true;
 }
 
-DynamicMesh * MeshManager::getDynamicMesh(int which)
+DynamicMesh * MeshManager::getDynamicMesh(const std::string & meshName)
 {
-	return m_DynamicMesh[which];
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
+
+	for (unsigned int i = 0; i < m_dynamicMesh[key].size(); i++)
+	{
+		if (m_dynamicMesh[key][i]->getName() == fullPath)
+		{
+			return m_dynamicMesh[key][i];
+		}
+	}
+	return nullptr;
 }
 
-StaticMesh * MeshManager::getStaticMesh(int which)
+StaticMesh * MeshManager::getStaticMesh(const std::string & meshName)
 {
-	return m_StaticMesh[which];
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
+
+	for (unsigned int i = 0; i < m_staticMesh[key].size(); i++)
+	{
+		if (m_staticMesh[key][i]->getName() == fullPath)
+		{
+			return m_staticMesh[key][i];
+		}
+	}
+	return nullptr;
+}
+
+unsigned int MeshManager::_getKey(const std::string & meshName)
+{
+	unsigned int sum = 0;
+	for (unsigned int i = 0; i < meshName.size(); i++)
+	{
+		sum += meshName[i];
+	}
+	return sum % MESH_HASHTABLE_SIZE;
+}
+
+std::string MeshManager::_getFullPath(const std::string & meshName)
+{
+	std::string tempString = "../Assets/";
+	tempString.append(meshName + "FOLDER/" + meshName + ".bin");
+	return tempString;
 }

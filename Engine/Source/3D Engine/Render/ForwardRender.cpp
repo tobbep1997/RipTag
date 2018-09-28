@@ -344,6 +344,8 @@ void ForwardRender::_mapLightInfoNoMatrix()
 
 void ForwardRender::_setStaticShaders()
 {
+	if (DX::g_geometryQueue.empty())
+		return;
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
 	

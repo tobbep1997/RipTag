@@ -18,8 +18,7 @@ Model::Model(ObjectType objectType) :
 Model::Model(ObjectType objectType, const std::string &assetFilePath)
 	: Drawable(objectType)
 {
-	std::string tempString = "../Assets/";
-	tempString.append(assetFilePath + "FOLDER/" + assetFilePath + ".bin");
+
 
 }
 

@@ -20,6 +20,9 @@ public:
 
 	void SET_DEFAULT();
 
+	void setName(const std::string & name);
+	const std::string & getName() const;
+
 	void LoadMesh(const std::string & path);
 };
 
