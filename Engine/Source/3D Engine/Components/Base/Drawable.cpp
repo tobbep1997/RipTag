@@ -107,6 +107,11 @@ void Drawable::Draw()
 	}
 }
 
+void Drawable::QueueVisabilityDraw()
+{
+	DX::g_visabilityDrawQueue.push_back(this);
+}
+
 void Drawable::setVertexShader(const std::wstring & path)
 {
 	this->p_vertexPath = path;
@@ -161,4 +166,14 @@ DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 ObjectType Drawable::getObjectType()
 {
 	return p_objectType;
+}
+
+EntityType Drawable::getEntityType()
+{
+	return this->p_entityType;
+}
+
+void Drawable::setEntityType(EntityType en)
+{
+	this->p_entityType = en;
 }

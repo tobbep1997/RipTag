@@ -4,30 +4,40 @@
 #include "../../Components/Camera.h"
 #include "ShadowMap.h"
 #include <thread>
+#include "VisabilityPass/VisabilityPass.h"
 
 class ForwardRender
 {
 
-struct ObjectBuffer
-{
-	DirectX::XMFLOAT4X4A worldMatrix;
-};
+	struct ObjectBuffer
+	{
+		DirectX::XMFLOAT4X4A worldMatrix;
+	};
 
-struct CameraBuffer
-{
-	DirectX::XMFLOAT4A cameraPosition;
-	DirectX::XMFLOAT4X4A viewProjection;
-};
+	struct CameraBuffer
+	{
+		DirectX::XMFLOAT4A cameraPosition;
+		DirectX::XMFLOAT4X4A viewProjection;
+	};
 
 
 
-struct LightBuffer
-{
-	DirectX::XMINT4		info;
-	DirectX::XMFLOAT4A	dropOff[8];
-	DirectX::XMFLOAT4A	position[8];
-	DirectX::XMFLOAT4A	color[8];
-};
+	struct LightBuffer
+	{
+		DirectX::XMINT4		info;
+		DirectX::XMFLOAT4A	dropOff[8];
+		DirectX::XMFLOAT4A	position[8];
+		DirectX::XMFLOAT4A	color[8];
+	};
+
+	struct GuardBuffer
+	{
+		DirectX::XMFLOAT4X4A viewProj;
+		DirectX::XMFLOAT4X4A viewProjInverse;
+		DirectX::XMFLOAT4X4A worldMatrix;
+	};
+
+
 
 private:
 
@@ -50,6 +60,10 @@ private:
 	D3D11_VIEWPORT				m_viewport;
 
 	//Constant Buffer TEMP
+	//TODO::Fixa constant buffers
+	//Uppdatera bara 1 gång
+	//Fixa en constant_buffer.hlsl
+
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
 
@@ -61,44 +75,38 @@ private:
 
 	ShadowMap m_shadowMap;
 
-	//ConstBuffer for visability
-
-	ID3D11Texture2D* m_uavTextureBuffer;		//IsReleased
-	ID3D11Texture2D* m_uavTextureBufferCPU;		//IsReleased
-	//ID3D11Texture2D* m_uavKILLER;				//IsReleased
-	ID3D11UnorderedAccessView* m_visabilityUAV;	//IsReleased
-
-	ID3D11VertexShader * m_visaVertexShader;
-	ID3D11PixelShader * m_visaPixelShader;
-	//int lazyShit = 0;
+	VisabilityPass m_visabilityPass;
+	ID3D11Buffer* m_GuardBuffer;
 
 	//LightCulling Related
- 	float m_lightCullingDistance = 100;	//Culling Distance for lights
+	float m_lightCullingDistance = 100;	//Culling Distance for lights
 	// after optimization, change this to 8
 	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
-
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
+	ID3D11BlendState* m_alphaBlend;
+
 public:
 	ForwardRender();
 	~ForwardRender();
 
-	void Init(	IDXGISwapChain*				swapChain,
-				ID3D11RenderTargetView*		backBufferRTV,
-				ID3D11DepthStencilView*		depthStencilView,
-				ID3D11Texture2D*			depthBufferTex,
-				ID3D11SamplerState*			samplerState,
-				D3D11_VIEWPORT				viewport);
-	
+	void Init(IDXGISwapChain*				swapChain,
+		ID3D11RenderTargetView*		backBufferRTV,
+		ID3D11DepthStencilView*		depthStencilView,
+		ID3D11Texture2D*			depthBufferTex,
+		ID3D11SamplerState*			samplerState,
+		D3D11_VIEWPORT				viewport);
+
 
 	void GeometryPass(Camera & camera);
 	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();
 	void Present();
-	
+
 	void Release();
 private:
+	void _tempGuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
 
@@ -109,7 +117,7 @@ private:
 	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();
 
-	
+
 
 	//For visability
 
@@ -120,12 +128,9 @@ private:
 	//VisabilityPass
 	void VisabilityPass();
 
-	void _createUAV();
-
 	void _createShaders();
 	void _createShadersInput();
 
 
 
 };
-

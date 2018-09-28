@@ -156,6 +156,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
@@ -169,7 +170,6 @@
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
-    <ClCompile Include="Source\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />

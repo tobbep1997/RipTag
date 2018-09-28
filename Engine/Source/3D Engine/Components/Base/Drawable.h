@@ -19,6 +19,13 @@ enum ObjectType
 	Dynamic
 };
 
+enum EntityType
+{
+	DefultType = 0,
+	PlayerType = 1,
+	GuarddType = 2
+};
+
 class Drawable : public Transform
 {
 private:
@@ -29,6 +36,7 @@ protected:
 
 	//Object type, is it static or dynamic
 	ObjectType p_objectType;
+	EntityType p_entityType;
 
 	ID3D11Buffer * p_vertexBuffer;
 
@@ -53,6 +61,7 @@ public:
 	virtual void BindTextures();
 	
 	virtual void Draw();
+	virtual void QueueVisabilityDraw();
 
 	//Set Shaders
 	virtual void setVertexShader(const std::wstring & path);
@@ -70,6 +79,8 @@ public:
 
 	//returns static or dynamic objtype
 	virtual ObjectType getObjectType();
+	virtual EntityType getEntityType();
+	virtual void setEntityType(EntityType en);
 
 private:
 	virtual void _setStaticBuffer();

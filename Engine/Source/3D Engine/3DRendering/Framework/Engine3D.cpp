@@ -12,6 +12,7 @@ std::vector<Drawable*> DX::g_animatedGeometryQueue;
 std::vector<PointLight*> DX::g_lights;
 
 std::vector<Drawable*> DX::g_visabilityDrawQueue;
+std::vector<Guard*> DX::g_guardDrawQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
@@ -54,7 +55,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	scd.OutputWindow = hwnd;								// the window to be used
 	scd.SampleDesc.Count = m_sampleCount;                   // how many multisamples
 	scd.Windowed = !fullscreen;								// windowed/full-screen mode
-
+	
 
 	ID3D11DeviceContext* pDevResult = nullptr;// create a device, device context and swap chain using the information in the scd struct
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
