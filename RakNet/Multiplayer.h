@@ -6,7 +6,6 @@
 #include <NetworkIDManager.h>
 #include "NetworkMessageIdentifiers.h"
 #include <iostream>
-#include <../../../RipTag/CubePrototype.h>
 
 extern "C" {
 #include <lua.h>

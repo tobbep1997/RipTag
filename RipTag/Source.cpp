@@ -11,6 +11,7 @@
 //network
 #include <Multiplayer.h>
 #include "NetworkMessageIdentifiers.h"
+#include "CubePrototype.h"
 
 //LUA
 extern "C" {
