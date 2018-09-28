@@ -1,4 +1,6 @@
 #include "TempGuard.h"
+#include "../../../../RipTag/Source/Game/States/PlayState.h"
+//#include "../../Debugg/ImGui/imgui.h"
 Guard::Guard()
 {
 	m_frustum.setPoints();
@@ -141,8 +143,13 @@ void Guard::calcVisability()
 		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
 		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
 	}
-	
-	std::cout << "PlayerVis = " << m_vis << "\n"; // Remove me later
+#if _DEBUG
+	ImGui::Begin("PlayerVis");
+	ImGui::Text("Player vis = %f", (float)m_vis);
+	ImGui::End();
+#endif
+
+	//std::cout << "PlayerVis = " << m_vis << "\n"; // Remove me later
 }
 
 ID3D11UnorderedAccessView* Guard::getUAV()

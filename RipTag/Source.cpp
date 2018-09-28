@@ -13,6 +13,7 @@
 #include <chrono>
 
 #include "Source/Helper/Timer.h"
+#include "../InputManager/XboxInput/GamePadHandler.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -116,7 +117,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	MeshManager meshManager;
 	ModelManager modelManager;
 
-
+	GamePadHandler::Instance();
 
 	textureManager.loadTextures("SPHERE");
 
@@ -167,7 +168,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
-		
+		GamePadHandler::UpdateState();
 		MovePlayer();
 		MoveLight();
 
@@ -191,7 +192,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			updates++;
 			unprocessed -= 1;
-			
+			if (GamePadHandler::IsAPressed())
+			{
+				std::cout << "wop" << std::endl;
+			}
 
 			/*
 				Test Camera movement

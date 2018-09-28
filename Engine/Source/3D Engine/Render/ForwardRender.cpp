@@ -68,18 +68,13 @@ void ForwardRender::GeometryPass(Camera & camera)
 		m_shaderThreads[2].join();
 		m_firstRun = false;
 	}
-	//DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
 	
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
-	/*DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-		1,
-		&m_backBufferRTV,
-		m_depthStencilView,
-		1, 1, &m_visabilityUAV, 0
-	);*/
+	
 
 	_mapLightInfoNoMatrix();
 
@@ -105,25 +100,6 @@ void ForwardRender::GeometryPass(Camera & camera)
 		
 	}
 
-
-
-	/*DX::g_deviceContext->CopyResource(m_uavTextureBufferCPU, m_uavTextureBuffer);
-	D3D11_MAPPED_SUBRESOURCE mr;
-	
-	struct ShadowTestData
-	{
-		unsigned int inside;
-		unsigned int outside;
-	};
-
-	if (SUCCEEDED(DX::g_deviceContext->Map(m_uavTextureBufferCPU, 0, D3D11_MAP_READ, 0, &mr)))
-	{
-		ShadowTestData* data = (ShadowTestData*)mr.pData;
-
-		data = data;
-		
-		DX::g_deviceContext->Unmap(m_uavTextureBufferCPU, 0);
-	}*/
 
 }
 
@@ -188,9 +164,6 @@ void ForwardRender::Clear()
 	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
 
 	
-
-	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
-	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
