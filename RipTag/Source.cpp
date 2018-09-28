@@ -1,6 +1,6 @@
-
 #include <WinSock2.h>
 #include <Windows.h>
+
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
@@ -10,17 +10,15 @@
 
 //network
 #include <Multiplayer.h>
-#include "CubePrototype.h"
 #include "NetworkMessageIdentifiers.h"
-#include "GetTime.h"
-
+#include "CubePrototype.h"
 //LUA
 extern "C" {
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 }
- 
+
 #include "Source/Helper/Timer.h"
 #if _DEBUG
 #include <iostream>
@@ -95,21 +93,18 @@ void NetworkSettings(Network::Multiplayer * pMP)
 	ImGui::End();
 }
 
-void SendPacketTest(Network::Multiplayer * pMP, DirectX::XMFLOAT4A pos, RakNet::NetworkID id)
+//void SendPacketTest(Network::Multiplayer * pMP, DirectX::XMFLOAT4A pos, RakNet::NetworkID id)
+void SendPacketTest(lua_State * L)
 {
 	ImGui::Begin("Send Packet");
 
 	if (ImGui::Button("Send Packet"))
 	{
-		Network::PlayerMovement pM;
-		pM.useTimeStamp = ID_TIMESTAMP;
-		pM.timeStamp = RakNet::GetTime();
-		pM.typeId = Network::ID_UPDATE_SPHERE_LOCATION;
-		pM.x = pos.x;
-		pM.y = pos.y;
-		pM.z = pos.z;
-		pM.networkId = id;
-		pM.systemAddress = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
+		if (luaL_dofile(L, "..//Scripts//Network//MovePlayer.lua") != EXIT_SUCCESS)
+		{
+			printf(lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
 	}
 
 	ImGui::End();
@@ -273,7 +268,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//MoveLight();
 		NetworkSettings(pNetwork);
 		TestNetworkScript(L);
-		SendPacketTest(pNetwork, camera.getPosition(), cP.GetNetworkID());
+		//SendPacketTest(pNetwork, camera.getPosition(), cP.GetNetworkID());
+		SendPacketTest(L);
 		pNetwork->Update();
 		/*
 		pos += Timer::GetDurationInSeconds() * 0.03;

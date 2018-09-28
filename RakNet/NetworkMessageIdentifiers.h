@@ -10,6 +10,7 @@ extern "C" {
 }
 
 #define TEST_STRUCT_FOR_LUA "TestPacket"
+#define PLAYER_MOVEMENT_FOR_LUA "Move"
 #define PACKETS_METATABLE "Packets"
 
 namespace Network
@@ -46,23 +47,8 @@ namespace Network
 	};
 //#pragma pack(pop)
 
-	static int New_Test_Data(lua_State * L)
-	{
-		const char * data = lua_tostring(L, lua_gettop(L));
-		SCRIPT_TEST * packet = new SCRIPT_TEST((RakNet::MessageID)ID_PING_MESSAGE, data);
-		lua_pushlightuserdata(L, (void*)packet);
-		return 1;
-	}
-
-	
-	static void LUA_Register_Network_Structs(lua_State * L)
-	{
-		lua_register(L, TEST_STRUCT_FOR_LUA, New_Test_Data);
-
-	}
-
 	//#pragma pack(push, 1)
-	struct PlayerMovement
+	struct Player_Movement
 	{
 		unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
 		RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime() or some other method that returns a similar value
@@ -73,4 +59,39 @@ namespace Network
 	};
 	#pragma pack(pop)
 
+	static int New_Test_Data(lua_State * L)
+	{
+		const char * data = lua_tostring(L, lua_gettop(L));
+		SCRIPT_TEST * packet = new SCRIPT_TEST((RakNet::MessageID)ID_PING_MESSAGE, data);
+		lua_pushlightuserdata(L, (void*)packet);
+		return 1;
+	}
+
+	static int New_Player_Movement_Data(lua_State * L)
+	{
+		const char * data = lua_tostring(L, lua_gettop(L));
+		Player_Movement packet;
+		packet.useTimeStamp = ID_TIMESTAMP;
+		//packet.timeStamp = RakNet::GetTime();
+		packet.typeId = ID_UPDATE_SPHERE_LOCATION;
+		return 0;
+	}
+
+	static void LUA_Register_Network_Structs(lua_State * L)
+	{
+		lua_register(L, TEST_STRUCT_FOR_LUA, New_Test_Data);
+		lua_register(L, PLAYER_MOVEMENT_FOR_LUA, New_Player_Movement_Data);
+	}
 }
+/*
+Network::Player_Movement pM;
+pM.useTimeStamp = ID_TIMESTAMP;
+pM.timeStamp = RakNet::GetTime();
+pM.typeId = Network::ID_UPDATE_SPHERE_LOCATION;
+pM.x = pos.x;
+pM.y = pos.y;
+pM.z = pos.z;
+pM.networkId = id;
+pM.systemAddress = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
+pMP->SendPacket((const char *)&pM);
+*/

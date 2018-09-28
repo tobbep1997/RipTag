@@ -240,9 +240,10 @@ namespace Network
 
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
+		Player_Movement* pM = nullptr;
 		switch (mID)
 		{
-		case GAME_MESSAGES::ID_CREATE_REMOTE_PLAYER:
+		case ID_CREATE_REMOTE_PLAYER:
 			//stuff
 			break;
 		case GAME_MESSAGES::ID_PING_MESSAGE:
