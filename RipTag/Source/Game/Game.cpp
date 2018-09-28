@@ -1,5 +1,5 @@
 #include "Game.h"
-
+#include "Source/3D Engine/Extern.h"
 
 
 Game::Game()
@@ -23,9 +23,9 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	m_gameStack.push(new PlayState(&m_renderingManager));
 
 
-	meshManager.loadStaticMesh("SCENE");
-	textureManager.loadTextures("SPHERE");
-	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
+	Manager::g_meshManager.loadStaticMesh("SCENE");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	modelManager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
 	
 }
 

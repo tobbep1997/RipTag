@@ -9,6 +9,11 @@
 //#include "../Shader/ShaderManager.h"
 #include "Components/Drawable.h"
 #include "../Light/PointLight.h"
+#include "Model/Managers/MeshManager.h"
+#include "Model/Managers/TextureManager.h"
+
+
+
 namespace Shaders
 {
 	class ShaderManager;
@@ -29,4 +34,12 @@ namespace DX {
 
 	//Might be changed
 	extern std::vector<Drawable*> g_visabilityDrawQueue;
+
+
+}
+//Tesla was here
+namespace Manager
+{
+	extern MeshManager g_meshManager;
+	extern TextureManager g_textureManager;
 }

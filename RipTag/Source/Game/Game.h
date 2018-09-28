@@ -3,10 +3,8 @@
 #include <stack>
 #include "States/State.h"
 #include "States/PlayState.h"
-#include "Source/3D Engine/Model/ModelManager.h"
+#include "Source/3D Engine/Model/Managers/ModelManager.h"
 #include "States/MainMenu.h"
-#include "MeshManager.h"
-#include "Source/3D Engine/Model/TextureManager.h"
 
 class Game
 {
@@ -16,11 +14,7 @@ private:
 	std::stack<State*> m_gameStack;
 	//TODO:: This is super temporary, beacuse the render needs 1 object to work
 	ModelManager modelManager;
-	TextureManager textureManager;
-	MeshManager meshManager;
-
-	
-	
+		
 public:
 	Game();
 	~Game();

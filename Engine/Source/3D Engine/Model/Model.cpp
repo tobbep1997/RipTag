@@ -12,10 +12,7 @@ Model::~Model()
 
 }
 
-void Model::_setBuffer()
-{
-	Drawable::p_createBuffer();
-}
+
 
 void Model::setModel(StaticMesh * staticMesh)
 {
@@ -23,7 +20,7 @@ void Model::setModel(StaticMesh * staticMesh)
 	setVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	setPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(staticMesh);
-	this->_setBuffer();
+	p_createBuffer();
 }
 
 void Model::setModel(DynamicMesh * dynamicMesh)
@@ -32,6 +29,6 @@ void Model::setModel(DynamicMesh * dynamicMesh)
 	setVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
 	setPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(dynamicMesh);
-	this->_setBuffer();
+	p_createBuffer();
 }
 

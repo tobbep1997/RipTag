@@ -4,6 +4,7 @@
 #include "../Handlers/LevelHandler.h"
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
+#include "../Actors/Enemy/Enemy.h"
 
 class PlayState : public State
 {
@@ -12,6 +13,9 @@ private:
 	ObjectHandler m_objectHandler;
 
 	Player * player;
+
+	Enemy * enemy;
+	
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

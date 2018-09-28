@@ -3,11 +3,12 @@
 
 #include "Actor.h"
 #include "Source/3D Engine/Model/Model.h"
+#include "Source/3D Engine/Components/CameraHolder.h"
 
-class Player : public Actor
+class Player : public Actor, public CameraHolder
 {
 private:
-	Camera * m_camera;
+	
 
 	float m_moveSpeed = 5.0f;
 	float m_cameraSpeed = 1.0f;
@@ -18,8 +19,6 @@ public:
 	void BeginPlay();
 	void Update(double deltaTime);
 
-
-	Camera * getCamera();
 private:
 
 	void _handleInput(double deltaTime);

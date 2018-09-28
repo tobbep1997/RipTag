@@ -2,9 +2,9 @@
 
 
 
-Enemy::Enemy()
+Enemy::Enemy() : Actor(), CameraHolder()
 {
-	this->_createCamera();
+	
 }
 
 
@@ -14,6 +14,7 @@ Enemy::~Enemy()
 
 void Enemy::BeginPlay()
 {
+	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, .1f,50.f));
 }
 
 void Enemy::Update(double deltaTime)
@@ -21,9 +22,4 @@ void Enemy::Update(double deltaTime)
 }
 
 
-
-void Enemy::_createCamera()
-{
-	this->m_camera = new Camera();
-}
 

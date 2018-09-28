@@ -13,6 +13,9 @@ std::vector<PointLight*> DX::g_lights;
 
 std::vector<Drawable*> DX::g_visabilityDrawQueue;
 
+MeshManager Manager::g_meshManager;
+TextureManager Manager::g_textureManager;
+
 void DX::SafeRelease(IUnknown * unknown)
 {
 	if (unknown)

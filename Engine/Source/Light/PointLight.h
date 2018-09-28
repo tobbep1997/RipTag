@@ -2,7 +2,7 @@
 #include "../3D Engine/Camera.h"
 #include <vector>
 
-class PointLight
+class PointLight 
 {
 public:
 	enum ShadowDir
