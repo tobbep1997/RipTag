@@ -36,7 +36,7 @@ float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
 float nearPlane = 1.0f, farPlane = 20.0f;
 
-float lightIntensity = 1, powVar = 2.0f, dropoff = 1.0f;
+float lightIntensity = 5, powVar = 2.0f, dropoff = 0.0f;
 
 int targetLight = 0;
 
@@ -133,7 +133,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//modelManager.addNewModel(meshManager.getDynamicMesh(0), textureManager.getTexture(2));
   //
 	modelManager.m_staticModel[0]->SetEntityType(EntityType::Player);
-	modelManager.m_staticModel[1]->setScale(100, 1, 100);
+	//modelManager.m_staticModel[1]->setScale(100, 1, 100);
 	std::vector<PointLight> point;
 
 	for (int i = 0; i < 8; i++)

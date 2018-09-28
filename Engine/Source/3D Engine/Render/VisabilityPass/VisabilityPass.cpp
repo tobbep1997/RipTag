@@ -58,7 +58,7 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 		1,
 		&m_guardRenderTargetView,
-		m_guardDepthStencil,
+		nullptr,
 		//NULL,
 		1, 1, &l_uav, 0
 	);
@@ -68,6 +68,9 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(STATIC_VERTEX_SHADER_PATH), nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(VISABILITY_PASS_PIXEL_SHADER_PATH), nullptr, 0);
+
+	DX::g_deviceContext->PSSetShaderResources(10, 1, &m_guardShaderResource);
+
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
