@@ -85,7 +85,6 @@ public:
 	//void SetTextures(Texture* diffuseTexture = nullptr, Texture* normalTexture = nullptr, Texture* MRATexture = nullptr);
 	
 	void Draw();
-	void DrawAnimated();
 
 	//MIGHT BE CHANGED
 	void QueueVisabilityDraw();
