@@ -13,21 +13,26 @@ cbuffer GUARD_BUFFER : register(b0)
 struct VS_INPUT
 {
     float4 pos : POSITION;
+    float4 uv : UV;
+    float4 a : ALPHA;
 }; 
 
 struct VS_OUT
 {
-    float4 poss : SV_Position;
+    float4 pos : SV_Position;
+    float2 uv : TEXCOORDS;
+    float a : ALPHALEVEL;
 };
 
 VS_OUT main(VS_INPUT input)
 {
     VS_OUT output;
-
+    output.a = input.a.x;
+    output.uv = input.uv.xy;
     float4 pos = mul(input.pos, ViewProjInverse);
     pos.xyz /= pos.w;
     pos.w = 1;
     //pos = mul(pos, WorldMatrix);
-    output.poss = mul(pos, viewProjection);
+    output.pos = mul(pos, viewProjection);
     return output;
 }

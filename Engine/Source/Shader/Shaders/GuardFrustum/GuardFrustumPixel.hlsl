@@ -6,10 +6,12 @@ cbuffer CAMERA_BUFFER : register(b2)
 
 struct VS_OUT
 {
-    float4 poss : SV_Position;
+    float4 pos : SV_Position;
+    float2 uv : TEXCOORDS;
+    float a : ALPHALEVEL;
 };
 
 float4 main(VS_OUT input) : SV_TARGET
 {
-    return float4(0, 1, 1, 0.5f);
+    return float4(0, 1, 1, input.a);
 }
