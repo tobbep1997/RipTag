@@ -10,8 +10,8 @@ private:
 	DynamicMesh* m_DynamicMeshPointer;
 
 public:
-	Model(ObjectType objectType = ObjectType::Static);
-	Model(ObjectType objectType, const std::string &assetFilePath);
+	Model(ObjectType objectType = ObjectType::Static, EntityType ent = EntityType::Defult);
+	Model(ObjectType objectType, const std::string &assetFilePath, EntityType ent = EntityType::Defult);
 	~Model();
 	
 

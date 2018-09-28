@@ -23,13 +23,10 @@ ModelManager::~ModelManager()
 
 void ModelManager::DrawMeshes()
 {
+	//TODO::FIX GUARD PASS
 	for (int i = 0; i < m_staticModel.size(); i++)
 	{
-		m_staticModel[i]->Draw();
-		if (i == 1)
-		{
-			m_staticModel[i]->QueueVisabilityDraw();
-		}
+		m_staticModel[i]->Draw();		
 	}
 	for (int i = 0; i < m_dynamicModel.size(); i++)
 	{
