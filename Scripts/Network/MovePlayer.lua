@@ -1,8 +1,14 @@
-function sendMovePacket
-	local data = Move(x, y, z, w, networkId)
 
-	run SendData.lua
-	network = Multiplayer()
+function OnPlayerMove(objectPtr)
+	local x, y ,z = CameraGetPos(CAMERA)
+	local mId = NETWORK_MESSAGES["ID_UPDATE_SPHERE_LOCATION"]
+	local nId = objectPtr.GetNID()
+	
+	NETWORK_MESSAGES.sendMovePacket(mId, nId, x, y , z)
+end
 
-	network.Send(data)
+function OnPlayerMoveNetwork(NID, x, y, z)
+	local object = GetNIDObject(NID)
+	object.Move()
+
 end
