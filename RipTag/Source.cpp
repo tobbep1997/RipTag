@@ -11,7 +11,7 @@
 #include "Source/Helper/Threading.h"
 #include "Source/3D Engine/Temp_Guard/TempGuard.h"
 #include <chrono>
-
+#include <thread>
 #include "Source/Helper/Timer.h"
 #include "../InputManager/XboxInput/GamePadHandler.h"
 #if _DEBUG
@@ -78,7 +78,10 @@ void MoveLight() {
 }
 
 
-
+void loadMesh(MeshManager * meshManager, std::string meshName)
+{
+	meshManager->loadStaticMesh(meshName);
+}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -89,6 +92,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Threading::Init();
 	Timer::StartTimer();
+	
 	using namespace std::chrono;
 	const float REFRESH_RATE = 60.0f;
 	auto time = steady_clock::now();
@@ -98,11 +102,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-	
+	MeshManager meshManager;
+
+	std::thread mesh(loadMesh,&meshManager,"SCENE");
+	std::thread mesh2(loadMesh,&meshManager,"SPHERE");
+	std::thread mesh3(loadMesh,&meshManager,"PIRASRUM");
+
 
 	RenderingManager renderingManager;
 
-
+	
 	renderingManager.Init(hInstance);
 	
 	//std::chrono::
@@ -114,19 +123,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	gTemp.setPos(0, 5, 0);
 	
 	TextureManager textureManager;
-	MeshManager meshManager;
+	
 	ModelManager modelManager;
 
 	GamePadHandler::Instance();
-
+	
 	textureManager.loadTextures("SPHERE");
 
-
-	meshManager.loadStaticMesh("SCENE");
+	
+	/*meshManager.loadStaticMesh("SCENE");
 	meshManager.loadStaticMesh("SPHERE");
-	meshManager.loadStaticMesh("PIRASRUM");
+	meshManager.loadStaticMesh("PIRASRUM");*/
 	meshManager.loadDynamicMesh("TORUS");
 	meshManager.loadDynamicMesh("KON");
+	
 
 	modelManager.addNewModel(meshManager.getDynamicMesh("TORUS"), textureManager.getTexture("SPHERE"));
 	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
@@ -156,6 +166,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[i].setDropOff(.2f);
 		point[i].setPower(2.0f);
 	}
+	mesh.join();
+	mesh2.join();
+	mesh3.join();
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
