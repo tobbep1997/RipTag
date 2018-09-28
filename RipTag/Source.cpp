@@ -13,6 +13,8 @@
 #include "NetworkMessageIdentifiers.h"
 #include "CubePrototype.h"
 
+static std::vector<CubePrototype*> GetPlayers();
+
 //LUA
 extern "C" {
 #include <lua.h>
@@ -115,7 +117,7 @@ void SendPacketTest(lua_State * L)
 
 	if (ImGui::Button("Send Packet"))
 	{
-		if (luaL_dofile(L, "..//Scripts//Network//MovePlayer.lua") != EXIT_SUCCESS)
+		if (luaL_dofile(L, "..//Scripts//Network//SendDataTest.lua") != EXIT_SUCCESS)
 		{
 			printf(lua_tostring(L, -1));
 			lua_pop(L, 1);
@@ -189,6 +191,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	RenderingManager renderingManager;
 
+	
 	
 
 	renderingManager.Init(hInstance);
@@ -318,5 +321,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	delete s;
 	delete d;
+	return 0;
+}
+
+static std::vector<CubePrototype*> GetPlayers()
+{
+	static std::vector<CubePrototype*> Players;
+
+	return Players;
+}
+
+#define LUA_ADD_PLAYER "AddPlayer"
+static int Lua_Player_Add(lua_State *L)
+{
+	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, lua_gettop(L));
+	if (ptr)
+	{
+		GetPlayers().push_back(ptr);
+	}
 	return 0;
 }

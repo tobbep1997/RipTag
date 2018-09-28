@@ -1,6 +1,10 @@
+--[[package.path = "C:\\Users\\mtlat\\Desktop\\RipTag Repos\\RipTag\\Scripts\\Network\\?.lua;" .. package.path]]
 
-local data = TestPacket("PINGPINGPING")
+package.path = ";../" .. ";../Scripts/Network/?.lua;" .. package.path
 
-network = Multiplayer()
 
-network.Send(data)
+mymod = require "RequireTest"
+mymod.foo()
+
+print(package.path) 
+

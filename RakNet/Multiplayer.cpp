@@ -83,6 +83,7 @@ namespace Network
 				connectionAttempt = false;
 				//we are now connected we can exit the loop immidietly
 				pPeer->DeallocatePacket(packet);
+				pPeer->SetOccasionalPing(true);
 				return;
 			}
 			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED)
@@ -104,6 +105,7 @@ namespace Network
 				m_rIP = packet->systemAddress;
 				m_isConnected = true;
 				pPeer->DeallocatePacket(packet);
+				pPeer->SetOccasionalPing(true);
 				return;
 			}
 		}
@@ -154,13 +156,14 @@ namespace Network
 	void Multiplayer::DestroySentPacket(void * msg)
 	{
 		unsigned char id = GetPacketIdentifier((unsigned char*)msg);
-		SCRIPT_TEST * stPtr = nullptr;
+
+		ENTITY_MOVE_MESSAGE * pEMM = 0;
 
 		switch (id)
 		{
-		case GAME_MESSAGES::ID_PING_MESSAGE:
-			stPtr = (SCRIPT_TEST*)msg;
-			delete stPtr;
+		case ID_UPDATE_SPHERE_LOCATION:
+			pEMM = (ENTITY_MOVE_MESSAGE*)msg;
+			delete pEMM; pEMM = 0;
 			break;
 		default:
 			break;
@@ -242,7 +245,7 @@ namespace Network
 
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
-		Player_Movement* pM = nullptr;
+		ENTITY_MOVE_MESSAGE* pM = nullptr;
 
 		switch (mID)
 		{
@@ -251,9 +254,6 @@ namespace Network
 			break;
 		case ID_UPDATE_SPHERE_LOCATION:
 			// Insert script
-			break;
-		case ID_PING_MESSAGE:
-			std::cout << ((SCRIPT_TEST*)data)->msg << std::endl;
 			break;
 		default:
 			break;

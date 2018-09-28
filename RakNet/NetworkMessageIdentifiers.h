@@ -30,7 +30,7 @@ namespace Network
 	//STRUCTS BEGIN
 	#pragma pack(push, 1)
 	
-	struct Player_Movement
+	struct ENTITY_MOVE_MESSAGE
 	{
 		unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
 		RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime() or some other method that returns a similar value
@@ -39,7 +39,7 @@ namespace Network
 		RakNet::NetworkID networkId;
 		//RakNet::SystemAddress systemAddress;
 
-		Player_Movement(unsigned char _id, float _x, float _y, float _z, float _w, RakNet::NetworkID _networkId)
+		ENTITY_MOVE_MESSAGE(unsigned char _id, float _x, float _y, float _z, float _w, RakNet::NetworkID _networkId)
 		{
 			id = _id;
 			x = _x;
@@ -62,7 +62,7 @@ namespace Network
 		w = (float)lua_tonumber(L, lua_gettop(L));
 		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, lua_gettop(L));
 		lua_pop(L, 4);
-		Player_Movement * packet = new Player_Movement(ID_UPDATE_SPHERE_LOCATION, x, y, z, w, networkId);
+		ENTITY_MOVE_MESSAGE * packet = new ENTITY_MOVE_MESSAGE(ID_UPDATE_SPHERE_LOCATION, x, y, z, w, networkId);
 		packet->useTimeStamp = ID_TIMESTAMP;
 		packet->timeStamp = RakNet::GetTime();
 		lua_pushlightuserdata(L, (void*)packet);
