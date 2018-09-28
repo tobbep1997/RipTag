@@ -5,12 +5,12 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-#include "../Extern.h"
-#include "../Model/StaticMesh.h"
-#include "../Model/DynamicMesh.h"
+#include "../../Extern.h"
+#include "../Engine/Source/3D Engine/Model/Meshes/StaticMesh.h"
+#include "../Engine/Source/3D Engine/Model/Meshes/DynamicMesh.h"
 #include <string>
-#include "../Model/Texture.h"
-#include "..\WICTextureLoader\WICTextureLoader.h"
+#include "../Engine/Source/3D Engine/Model/Texture.h"
+//#include "..\WICTextureLoader\WICTextureLoader.h"
 #include "Transform.h"
 
 enum ObjectType

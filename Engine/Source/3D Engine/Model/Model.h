@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Components/Drawable.h"
+#include "../Components/Base/Drawable.h"
 
 
 class Model : public Drawable

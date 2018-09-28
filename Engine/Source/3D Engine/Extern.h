@@ -7,7 +7,7 @@
 #pragma comment (lib, "d3dcompiler.lib")
 #include <vector>
 //#include "../Shader/ShaderManager.h"
-#include "Components/Drawable.h"
+#include "Components/Base/Drawable.h"
 #include "../Light/PointLight.h"
 #include "Model/Managers/MeshManager.h"
 #include "Model/Managers/TextureManager.h"

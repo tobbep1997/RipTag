@@ -1,5 +1,4 @@
 #include "Drawable.h"
-#include "../Model/Texture.h"
 
 
 void Drawable::_setStaticBuffer()

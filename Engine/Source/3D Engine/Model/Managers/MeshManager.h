@@ -1,6 +1,6 @@
 #pragma once
-#include "../StaticMesh.h"
-#include "../DynamicMesh.h"
+#include "../Meshes/StaticMesh.h"
+#include "../Meshes/DynamicMesh.h"
 
 const uint8_t MESH_HASHTABLE_SIZE = 13;
 class MeshManager

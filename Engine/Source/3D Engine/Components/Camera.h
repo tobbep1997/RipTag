@@ -5,7 +5,7 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-#include "Components/Transform.h"
+#include "Base/Transform.h"
 class Camera : public Transform
 {
 	//-------------------------------------------------------------------------------------------	

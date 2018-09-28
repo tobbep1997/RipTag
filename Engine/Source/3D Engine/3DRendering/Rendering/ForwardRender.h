@@ -1,7 +1,7 @@
 #pragma once
 #pragma warning (disable : 4267)
-#include "../../Shader/ShaderManager.h"
-#include "../Camera.h"
+#include "../../../Shader/ShaderManager.h"
+#include "../../Components/Camera.h"
 #include "ShadowMap.h"
 #include <thread>
 

@@ -1,5 +1,5 @@
 #include "Engine3D.h"
-#include "Extern.h"
+#include "../Engine/Source/3D Engine/Extern.h"
 
 ID3D11Device*			DX::g_device;
 ID3D11DeviceContext1*	DX::g_deviceContext;

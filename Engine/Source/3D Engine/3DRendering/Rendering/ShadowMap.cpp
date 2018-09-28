@@ -1,5 +1,5 @@
 #include "ShadowMap.h"
-#include "DirectXRenderingHelpClass.h"
+#include "../Framework/DirectXRenderingHelpClass.h"
 
 ShadowMap::ShadowMap()
 {

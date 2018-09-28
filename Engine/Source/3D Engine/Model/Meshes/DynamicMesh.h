@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
-#include "../../Structs.h"
+#include "../../../Structs.h"
 #pragma comment(lib, "New_Library.lib")
 #include <../New_Library/formatImporter.h>
-#include <../Engine/Source/3D Engine/Model/AnimatedModel.h>
+#include "AnimatedModel.h"
 class DynamicMesh 
 {
 private:

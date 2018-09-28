@@ -1,5 +1,5 @@
 #pragma once
-#include "../3D Engine/Camera.h"
+#include "../3D Engine/Components/Camera.h"
 #include <vector>
 
 class PointLight 

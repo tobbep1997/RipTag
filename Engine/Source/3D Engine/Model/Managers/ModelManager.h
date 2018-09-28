@@ -3,7 +3,7 @@
 #include "../Engine/Source/Shader/ShaderManager.h"
 #include "../Engine/Source/3D Engine/Model/Model.h"
 #include "../Engine/Source/3D Engine/RenderingManager.h"
-#include "../Engine/Source/3D Engine/Model/AnimatedModel.h"
+#include "../Engine/Source/3D Engine/Model/Meshes/AnimatedModel.h"
 
 
 class ModelManager

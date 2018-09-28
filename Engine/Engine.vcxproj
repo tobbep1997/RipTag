@@ -168,14 +168,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\3D Engine\Components\CameraHolder.h" />
-    <ClInclude Include="Source\3D Engine\Components\Transform.h" />
-    <ClInclude Include="Source\3D Engine\Render\DirectXRenderingHelpClass.h" />
+    <ClInclude Include="Source\3D Engine\Components\Base\CameraHolder.h" />
+    <ClInclude Include="Source\3D Engine\Components\Base\Transform.h" />
+    <ClInclude Include="Source\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="Source\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\3D Engine\Model\Managers\ModelManager.h" />
-    <ClInclude Include="Source\3D Engine\Render\ShadowMap.h" />
-    <ClInclude Include="Source\3D Engine\Model\AnimatedModel.h" />
+    <ClInclude Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.h" />
+    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\DirectXHelpers.h" />
@@ -185,11 +185,11 @@
     <ClInclude Include="Source\3D Engine\WICTextureLoader\WICTextureLoader.h" />
     <ClInclude Include="Source\Helper\Threading.h" />
     <ClInclude Include="Source\Light\PointLight.h" />
-    <ClInclude Include="Source\3D Engine\Camera.h" />
-    <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
+    <ClInclude Include="Source\3D Engine\Components\Camera.h" />
+    <ClInclude Include="Source\3D Engine\Model\Meshes\DynamicMesh.h" />
     <ClInclude Include="Source\3D Engine\Model\Model.h" />
-    <ClInclude Include="Source\3D Engine\Model\StaticMesh.h" />
-    <ClInclude Include="Source\3D Engine\Components\Drawable.h" />
+    <ClInclude Include="Source\3D Engine\Model\Meshes\StaticMesh.h" />
+    <ClInclude Include="Source\3D Engine\Components\Base\Drawable.h" />
     <ClInclude Include="Source\Debugg\FunctionQueue.h" />
     <ClInclude Include="Source\Debugg\FunctionStack.h" />
     <ClInclude Include="Source\Debugg\FunctionVector.h" />
@@ -207,9 +207,9 @@
     <ClInclude Include="Source\SettingsLoader\SettingsLoader.h" />
     <ClInclude Include="Source\Shader\Shader.h" />
     <ClInclude Include="Source\Shader\ShaderManager.h" />
-    <ClInclude Include="Source\3D Engine\Render\ForwardRender.h" />
+    <ClInclude Include="Source\3D Engine\3DRendering\Rendering\ForwardRender.h" />
     <ClInclude Include="Source\3D Engine\RenderingManager.h" />
-    <ClInclude Include="Source\3D Engine\Engine3D.h" />
+    <ClInclude Include="Source\3D Engine\3DRendering\Framework\Engine3D.h" />
     <ClInclude Include="Source\3D Engine\Extern.h" />
     <ClInclude Include="Source\ShaderCreator.h" />
     <ClInclude Include="Source\Structs.h" />
@@ -218,13 +218,13 @@
     <ClInclude Include="Source\3D Engine\Model\Managers\TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\3D Engine\Components\CameraHolder.cpp" />
-    <ClCompile Include="Source\3D Engine\Components\Transform.cpp" />
-    <ClCompile Include="Source\3D Engine\Render\DirectXRenderingHelpClass.cpp" />
+    <ClCompile Include="Source\3D Engine\Components\Base\CameraHolder.cpp" />
+    <ClCompile Include="Source\3D Engine\Components\Base\Transform.cpp" />
+    <ClCompile Include="Source\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Managers\ModelManager.cpp" />
-    <ClCompile Include="Source\3D Engine\Render\ShadowMap.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\AnimatedModel.cpp" />
+    <ClCompile Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
@@ -237,11 +237,11 @@
     </ClCompile>
     <ClCompile Include="Source\Helper\Threading.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
-    <ClCompile Include="Source\3D Engine\Camera.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Components\Camera.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Meshes\DynamicMesh.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Model.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp" />
-    <ClCompile Include="Source\3D Engine\Components\Drawable.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Meshes\StaticMesh.cpp" />
+    <ClCompile Include="Source\3D Engine\Components\Base\Drawable.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\ImGuiManager.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_demo.cpp" />
@@ -251,9 +251,9 @@
     <ClCompile Include="Source\SettingsLoader\SettingsLoader.cpp" />
     <ClCompile Include="Source\Shader\Shader.cpp" />
     <ClCompile Include="Source\Shader\ShaderManager.cpp" />
-    <ClCompile Include="Source\3D Engine\Render\ForwardRender.cpp" />
+    <ClCompile Include="Source\3D Engine\3DRendering\Rendering\ForwardRender.cpp" />
     <ClCompile Include="Source\3D Engine\RenderingManager.cpp" />
-    <ClCompile Include="Source\3D Engine\Engine3D.cpp" />
+    <ClCompile Include="Source\3D Engine\3DRendering\Framework\Engine3D.cpp" />
     <ClCompile Include="Source\Window\window.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Texture.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Managers\TextureManager.cpp" />

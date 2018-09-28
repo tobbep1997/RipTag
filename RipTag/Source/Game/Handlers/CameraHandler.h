@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/3D Engine/Camera.h"
+#include "Source/3D Engine/Components/Camera.h"
 //-----------------------
 /*
  * Instructions on how to use

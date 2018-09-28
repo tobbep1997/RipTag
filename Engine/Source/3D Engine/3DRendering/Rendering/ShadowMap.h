@@ -6,8 +6,8 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-#include "../Extern.h"
-#include "../../Shader/ShaderManager.h"
+#include "../../Extern.h"
+#include "../Engine/Source/Shader/ShaderManager.h"
 
 
 

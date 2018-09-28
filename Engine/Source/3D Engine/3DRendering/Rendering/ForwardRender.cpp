@@ -1,8 +1,8 @@
 #include "ForwardRender.h"
-#include "../Extern.h"
-#include "../../ShaderCreator.h"
-#include "../RenderingManager.h"
-#include "DirectXRenderingHelpClass.h"
+#include "../Engine/Source/3D Engine/Extern.h"
+#include "../Engine/Source/Shader/ShaderManager.h"
+#include "../../RenderingManager.h"
+#include "../Framework/DirectXRenderingHelpClass.h"
 ForwardRender::ForwardRender()
 {
 	m_lastVertexPath = L"NULL";
