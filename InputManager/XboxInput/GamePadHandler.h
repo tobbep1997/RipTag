@@ -28,6 +28,9 @@ public:
 	static float GetLeftStickYPosition();
 	static float GetLeftStickXPosition();
 
+	static float GetRightStickYPosition();
+	static float GetRightStickXPosition();
+
 	static DirectX::XMFLOAT2 GetLeftStickposition();
 	static DirectX::XMFLOAT2 GetRightStickposition();
 

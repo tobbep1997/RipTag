@@ -11,4 +11,7 @@ public:
 	//Axis binds
 	static float MoveForward();
 	static float MoveRight();
+
+	static float TurnUp();
+	static float TurnRight();
 };

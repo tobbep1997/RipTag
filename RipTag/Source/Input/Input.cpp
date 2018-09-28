@@ -50,3 +50,43 @@ float Input::MoveRight()
 	return 0;
 }
 
+float Input::TurnUp()
+{
+	if (GamePadHandler::IsConnected())
+	{
+		return GamePadHandler::GetRightStickYPosition();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed(InputHandler::UpArrow))
+		{
+			return 1;
+		}
+		else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
+		{
+			return -1;
+		}
+	}
+	return 0;
+}
+
+float Input::TurnRight()
+{
+	if (GamePadHandler::IsConnected())
+	{
+		return GamePadHandler::GetRightStickXPosition();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed(InputHandler::RightArrow))
+		{
+			return 1;
+		}
+		else if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
+		{
+			return -1;
+		}
+	}
+	return 0;
+}
+

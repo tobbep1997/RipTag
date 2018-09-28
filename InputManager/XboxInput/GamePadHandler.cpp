@@ -147,6 +147,26 @@ float GamePadHandler::GetLeftStickXPosition()
 	return 0.0f;
 }
 
+float GamePadHandler::GetRightStickYPosition()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.thumbSticks.rightY;
+	}
+
+	return 0.0f;
+}
+
+float GamePadHandler::GetRightStickXPosition()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.thumbSticks.rightX;
+	}
+
+	return 0.0f;
+}
+
 DirectX::XMFLOAT2 GamePadHandler::GetLeftStickposition()
 {
 	if (m_state.IsConnected())

@@ -34,19 +34,12 @@ void Player::_handleInput(double deltaTime)
 		p_camera->Translate(0.0f, 0.0f, m_moveSpeed * deltaTime);*/
 	/*else if (InputHandler::isKeyPressed('S'))
 		p_camera->Translate(0.0f, 0.0f, -m_moveSpeed * deltaTime);*/
-	if (InputHandler::isKeyPressed('A'))
-		p_camera->Translate(-m_moveSpeed * deltaTime, 0.0f, 0.0f);
-	else if (InputHandler::isKeyPressed('D'))
-		p_camera->Translate(m_moveSpeed * deltaTime, 0.0f, 0.0f);
+	p_camera->Translate(Input::MoveRight() * m_moveSpeed * deltaTime, 0.0f, 0.0f);
 
-	if (InputHandler::isKeyPressed(InputHandler::UpArrow))
-		p_camera->Rotate(-m_cameraSpeed * deltaTime, 0.0f, 0.0f);
-	else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
-		p_camera->Rotate(m_cameraSpeed * deltaTime, 0.0f, 0.0f);
-	if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
-		p_camera->Rotate(0.0f, -m_cameraSpeed * deltaTime, 0.0f);
-	else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
-		p_camera->Rotate(0.0f, m_cameraSpeed * deltaTime, 0.0f);
+	
+	p_camera->Rotate(Input::TurnUp() * m_moveSpeed * deltaTime, 0.0f, 0.0f);
+	
+	p_camera->Rotate(0.0f, Input::TurnRight() * m_moveSpeed * deltaTime, 0.0f);
 
 	setPosition(p_camera->getPosition());
 }
