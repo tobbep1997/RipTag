@@ -95,9 +95,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	modelManager.addStaticMesh("../Assets/KUB.bin");
 	modelManager.m_staticMesh[0]->setPosition(10.0, 0.0, 0.0);
-	modelManager.addDynamicMesh("../Assets/pCube5_ANIMATION_Mesh.bin");
+	modelManager.addDynamicMesh("../Assets/test_ANIMATION_Mesh.bin");
 	modelManager.m_dynamicMesh[0]->setPosition({ 3.0, -2.0, 0.0, 1.0 });
-	modelManager.m_dynamicMesh[0]->setScale(0.6, 0.6, 0.6);
+	modelManager.m_dynamicMesh[0]->setScale(1, 1, 1);
 	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
@@ -174,11 +174,27 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.ImGuiStartFrame();
 
 		static float speed = 0.01;
+		static bool scrub = true;
+		static int scrubIndex = 0;
+
+		auto srt = srts[scrubIndex];
+
 #ifdef _DEBUG
 		ImGui::Begin("Animation");
 		ImGui::SliderFloat("Speed", &speed, 0.0, 0.5);
+		ImGui::Checkbox("Scrub", &scrub);
+		ImGui::SliderInt("Scrub index", &scrubIndex, 0, 120);
+		
+		ImGui::Text("rX: %f rY: %f rZ: %f rW: %f", srt.m_rotationQuaternion.x, srt.m_rotationQuaternion.y, srt.m_rotationQuaternion.z, srt.m_rotationQuaternion.w);
 		ImGui::End();
 #endif
+
+		scrub
+			? modelManager.m_dynamicMesh[0]->getAnimatedModel()->Play()
+			: modelManager.m_dynamicMesh[0]->getAnimatedModel()->Pause();
+
+		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetScrubIndex(scrubIndex);
+
 		modelManager.m_dynamicMesh[0]->getAnimatedModel()->Update(speed);
 
 
