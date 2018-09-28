@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-#include "../Camera.h"
+#include "../Components/Camera.h"
 #include "../Extern.h"
 struct Frustum
 {

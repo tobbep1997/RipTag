@@ -7,9 +7,11 @@
 #pragma comment (lib, "d3dcompiler.lib")
 #include <vector>
 //#include "../Shader/ShaderManager.h"
-#include "Model/Drawable.h"
+#include "Components/Base/Drawable.h"
 #include "../Light/PointLight.h"
 #include "Temp_Guard/TempGuard.h"
+#include "Model/Managers/MeshManager.h"
+#include "Model/Managers/TextureManager.h"
 namespace Shaders
 {
 	class ShaderManager;
@@ -35,4 +37,10 @@ namespace DX {
 	//TODO:: TEMP AFFF
 	extern std::vector<Guard*> g_guardDrawQueue;
 
+}
+//Tesla was here
+namespace Manager
+{
+	extern MeshManager g_meshManager;
+	extern TextureManager g_textureManager;
 }
