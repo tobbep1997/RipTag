@@ -8,7 +8,7 @@ MainMenu::~MainMenu()
 {
 }
 
-void MainMenu::Update()
+void MainMenu::Update(double deltaTime)
 {
 }
 

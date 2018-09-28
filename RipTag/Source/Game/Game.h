@@ -18,6 +18,9 @@ private:
 	ModelManager modelManager;
 	TextureManager textureManager;
 	MeshManager meshManager;
+
+	
+	
 public:
 	Game();
 	~Game();
@@ -29,7 +32,7 @@ public:
 	bool isRunning();			//Is game running
 	void PollEvents();			//Window Events
 	void Clear();				//Clear screen
-	void Update();				//Updates everything, ex: setPosition();
+	void Update(double deltaTime);				//Updates everything, ex: setPosition();
 	void Draw();				//Calls Draw
 	void ImGuiFrameStart();		//ImGuiStart
 	//------------------------------------

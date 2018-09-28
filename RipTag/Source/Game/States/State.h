@@ -13,7 +13,7 @@ public:
 	State(RenderingManager * rm = nullptr);
 	virtual ~State();
 
-	virtual void Update() = 0;
+	virtual void Update(double deltaTime) = 0;
 
 	virtual void Draw() = 0;
 

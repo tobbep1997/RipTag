@@ -26,10 +26,6 @@ void ModelManager::DrawMeshes()
 	for (int i = 0; i < m_staticModel.size(); i++)
 	{
 		m_staticModel[i]->Draw();
-		if (i == 1)
-		{
-			m_staticModel[i]->QueueVisabilityDraw();
-		}
 	}
 	for (int i = 0; i < m_dynamicModel.size(); i++)
 	{
@@ -46,7 +42,7 @@ void ModelManager::addNewModel(StaticMesh* mesh, Texture* texture)
 }
 void ModelManager::addNewModel(DynamicMesh* mesh, Texture* texture)
 {
-	Model *tempModel = new Model(Dynamic);
+	Model *tempModel = new Model();
 	tempModel->setModel(mesh);
 	tempModel->setTexture(texture);
 	m_dynamicModel.push_back(tempModel);

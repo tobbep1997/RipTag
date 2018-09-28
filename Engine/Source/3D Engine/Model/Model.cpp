@@ -1,36 +1,20 @@
 #include "Model.h"
 
 
-Model::Model(ObjectType objectType) : 
-	Drawable(objectType)
-{
-	switch (objectType)
-	{
-	case Static:
-		break;
-	case Dynamic:
-		break;
-	default:
-		break;
-	}
-}
-
-Model::Model(ObjectType objectType, const std::string &assetFilePath)
-	: Drawable(objectType)
+Model::Model() : Drawable()
 {
 
-
 }
+
 
 Model::~Model()
 {
-	delete m_StaticMeshPointer;
-	delete m_DynamicMeshPointer;
+
 }
 
 void Model::_setBuffer()
 {
-	Drawable::CreateBuffer();
+	Drawable::p_createBuffer();
 }
 
 void Model::setModel(StaticMesh * staticMesh)
@@ -51,22 +35,3 @@ void Model::setModel(DynamicMesh * dynamicMesh)
 	this->_setBuffer();
 }
 
-void Model::setTexture(Texture* textureToset)
-{
-	this->p_texture = textureToset;
-}
-
-void Model::setVertexShader(const std::wstring & path)
-{
-	this->p_vertexPath = path;
-}
-
-void Model::setPixelShader(const std::wstring & path)
-{
-	this->p_pixelPath = path;
-}
-
-void Model::bindTexture(int slot)
-{
-	this->p_texture->Bind(slot);
-}

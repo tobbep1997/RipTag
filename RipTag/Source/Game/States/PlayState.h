@@ -11,17 +11,14 @@ private:
 	LevelHandler m_levelHandler;
 	ObjectHandler m_objectHandler;
 
-	Camera * m_tempCam;
-	Player player;
+	Player * player;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
 
-	void Update() override;
+	void Update(double deltaTime) override;
 
 	void Draw() override;
 
 private:
-
-	void _tempCameraControls();
 };

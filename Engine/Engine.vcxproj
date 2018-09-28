@@ -168,6 +168,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\3D Engine\Components\Transform.h" />
     <ClInclude Include="Source\3D Engine\Render\DirectXRenderingHelpClass.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="resource.h" />
@@ -187,7 +188,7 @@
     <ClInclude Include="Source\3D Engine\Model\DynamicMesh.h" />
     <ClInclude Include="Source\3D Engine\Model\Model.h" />
     <ClInclude Include="Source\3D Engine\Model\StaticMesh.h" />
-    <ClInclude Include="Source\3D Engine\Model\Drawable.h" />
+    <ClInclude Include="Source\3D Engine\Components\Drawable.h" />
     <ClInclude Include="Source\Debugg\FunctionQueue.h" />
     <ClInclude Include="Source\Debugg\FunctionStack.h" />
     <ClInclude Include="Source\Debugg\FunctionVector.h" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Source\3D Engine\Model\TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\3D Engine\Components\Transform.cpp" />
     <ClCompile Include="Source\3D Engine\Render\DirectXRenderingHelpClass.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\ModelManager.cpp" />
@@ -237,7 +239,7 @@
     <ClCompile Include="Source\3D Engine\Model\DynamicMesh.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Model.cpp" />
     <ClCompile Include="Source\3D Engine\Model\StaticMesh.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\Drawable.cpp" />
+    <ClCompile Include="Source\3D Engine\Components\Drawable.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\ImGuiManager.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui.cpp" />
     <ClCompile Include="Source\Debugg\ImGui\imgui_demo.cpp" />

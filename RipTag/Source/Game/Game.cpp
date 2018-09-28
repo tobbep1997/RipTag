@@ -22,10 +22,11 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
 
+
 	meshManager.loadStaticMesh("SCENE");
 	textureManager.loadTextures("SPHERE");
 	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
-
+	
 }
 
 bool Game::isRunning()
@@ -45,11 +46,11 @@ void Game::Clear()
 	m_renderingManager.Clear();
 }
 
-void Game::Update()
+void Game::Update(double deltaTime)
 {
 	_handleStateSwaps();
 
-	m_gameStack.top()->Update();
+	m_gameStack.top()->Update(deltaTime);
 	
 }
 
@@ -71,11 +72,4 @@ void Game::_handleStateSwaps()
 		delete m_gameStack.top();
 		m_gameStack.pop();
 	}
-
-	//TODO:: REMOVE CODE THIS IS TEMPORARY
-	/*if (m_gameStack.empty())
-	{
-		m_gameStack.push(new MainMenu(&m_renderingManager));
-	}*/
-	//TODO::Insert code for Handleing states
 }

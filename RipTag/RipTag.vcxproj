@@ -156,6 +156,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
     <ClCompile Include="Source\Game\Actors\Player.cpp" />
     <ClCompile Include="Source\Game\Game.cpp" />
@@ -170,6 +172,8 @@
     <ClCompile Include="Source\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
+    <ClInclude Include="Source\Timer\DeltaTime.h" />
     <ClInclude Include="Source\Game\Actors\Actor.h" />
     <ClInclude Include="Source\Game\Actors\Player.h" />
     <ClInclude Include="Source\Game\Game.h" />

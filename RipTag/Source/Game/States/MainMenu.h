@@ -10,7 +10,7 @@ public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
 
-	void Update() override;
+	void Update(double deltaTime) override;
 
 	void Draw() override;
 };
