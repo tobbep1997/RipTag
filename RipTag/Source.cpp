@@ -14,6 +14,10 @@
 #include "CubePrototype.h"
 
 static std::vector<CubePrototype*> GetPlayers();
+static void FlushPlayers();
+
+#define LUA_ADD_PLAYER "AddPlayer"
+static int Lua_Player_Add(lua_State *L);
 
 //LUA
 extern "C" {
@@ -186,6 +190,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Network::LUA_Register_Network(L);
 	Network::LUA_Register_Network_Structs(L);
 	Network::LUA_Register_Network_MessageTypes(L);
+	LUA_Register_CubePrototype(L);
+	lua_register(L, LUA_ADD_PLAYER, Lua_Player_Add);
 
 	Timer::StartTimer();
 
@@ -304,9 +310,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		m2.setPosition(scaleX, scaleY, scaleZ);
 		//m.addRotation(0, rotSpeed, 0);
 		//m.setScale(scaleX,scaleY,scaleZ);
+		
 		m.Draw();
 		m2.Draw();
 		cP.Draw();
+		auto vec = GetPlayers();
+		for (auto & obj : vec)
+		{
+			obj->Draw();
+		}
 
 
 		
@@ -318,6 +330,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
 	lua_close(L);
+	FlushPlayers();
 
 	delete s;
 	delete d;
@@ -331,7 +344,6 @@ static std::vector<CubePrototype*> GetPlayers()
 	return Players;
 }
 
-#define LUA_ADD_PLAYER "AddPlayer"
 static int Lua_Player_Add(lua_State *L)
 {
 	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, lua_gettop(L));
@@ -340,4 +352,14 @@ static int Lua_Player_Add(lua_State *L)
 		GetPlayers().push_back(ptr);
 	}
 	return 0;
+}
+
+static void FlushPlayers()
+{
+	std::vector<CubePrototype*> vec = GetPlayers();
+	for (size_t i = 0; i < vec.size(); i++)
+	{
+		delete vec[i];
+	}
+	vec.clear();
 }

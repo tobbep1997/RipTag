@@ -11,8 +11,9 @@ extern "C" {
 }
 
 #define PLAYER_MOVEMENT_FOR_LUA "MovePacket"
-#define PACKETS_METATABLE "Packets"
+#define PACKETS_METATABLE "PACKETS"
 #define LUA_TABLE_MESSAGE_IDENTIFIERS "NETWORK_MESSAGES"
+#define LUA_ENTITY_CREATION "CreateEntityMsg"
 
 #define ENUM_TO_STR(ENUM) std::string(#ENUM)
 
@@ -35,11 +36,11 @@ namespace Network
 		unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
 		RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime() or some other method that returns a similar value
 		unsigned char id; // Our network defined enum types
-		float x, y, z; // Character position
 		RakNet::NetworkID networkId;
+		float x, y, z; // Character position
 		//RakNet::SystemAddress systemAddress;
 
-		ENTITY_MOVE_MESSAGE(unsigned char _id, float _x, float _y, float _z, float _w, RakNet::NetworkID _networkId)
+		ENTITY_MOVE_MESSAGE(unsigned char _id, float _x, float _y, float _z, RakNet::NetworkID _networkId)
 		{
 			id = _id;
 			x = _x;
@@ -49,6 +50,22 @@ namespace Network
 		}
 	};
 
+
+	struct ENTITY_CREATE_MESSAGE
+	{
+		unsigned char id;
+		RakNet::NetworkID nId;
+		float x, y, z;
+
+		ENTITY_CREATE_MESSAGE(unsigned char _id, RakNet::NetworkID _nid, float _x, float _y, float _z)
+		{
+			id = _id;
+			nId = _nid;
+			x = _x;
+			y = _y;
+			z = _z;
+		}
+	};
 	#pragma pack(pop)
 	//STRUCTS END
 
@@ -60,9 +77,23 @@ namespace Network
 		z = (float)lua_tonumber(L, lua_gettop(L));
 		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, lua_gettop(L));
 		lua_pop(L, 4);
-		ENTITY_MOVE_MESSAGE * packet = new ENTITY_MOVE_MESSAGE(ID_UPDATE_SPHERE_LOCATION, x, y, z, w, networkId);
+		ENTITY_MOVE_MESSAGE * packet = new ENTITY_MOVE_MESSAGE(ID_UPDATE_SPHERE_LOCATION, x, y, z, networkId);
 		packet->useTimeStamp = ID_TIMESTAMP;
 		packet->timeStamp = RakNet::GetTime();
+		lua_pushlightuserdata(L, (void*)packet);
+		return 1;
+	}
+
+	static int New_Entity_Creation_Message(lua_State * L)
+	{
+		float x, y, z;
+		unsigned char id = (unsigned char)lua_tonumber(L, -5);
+		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, -4);
+		x = (float)lua_tonumber(L, -3);
+		y = (float)lua_tonumber(L, -2);
+		z = (float)lua_tonumber(L, -1);
+		lua_pop(L, 5);
+		ENTITY_CREATE_MESSAGE * packet = new ENTITY_CREATE_MESSAGE(id, networkId, x, y, z);
 		lua_pushlightuserdata(L, (void*)packet);
 		return 1;
 	}
@@ -70,6 +101,7 @@ namespace Network
 	static void LUA_Register_Network_Structs(lua_State * L)
 	{
 		lua_register(L, PLAYER_MOVEMENT_FOR_LUA, New_Player_Movement_Data);
+		lua_register(L, LUA_ENTITY_CREATION, New_Entity_Creation_Message);
 	}
 
 	static void LUA_Setfield_Enum(lua_State* L, std::string index, int value)
