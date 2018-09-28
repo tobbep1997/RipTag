@@ -61,6 +61,7 @@ public:
 	virtual void BindTextures();
 	
 	virtual void Draw();
+	virtual void QueueVisabilityDraw();
 
 	//Set Shaders
 	virtual void setVertexShader(const std::wstring & path);

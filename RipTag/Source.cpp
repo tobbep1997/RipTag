@@ -4,9 +4,7 @@
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
-#include "Source/3D Engine/Model/ModelManager.h"
-#include "MeshManager.h"
-#include "Source/3D Engine/Model/TextureManager.h"
+#include "Source/3D Engine/Model/Managers/ModelManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
 #include "Source/3D Engine/Temp_Guard/TempGuard.h"
@@ -14,6 +12,7 @@
 #include <thread>
 #include "Source/Helper/Timer.h"
 #include "../InputManager/XboxInput/GamePadHandler.h"
+#include "../Engine/Source/3D Engine/Extern.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -78,10 +77,7 @@ void MoveLight() {
 }
 
 
-void loadMesh(MeshManager * meshManager, std::string meshName)
-{
-	meshManager->loadStaticMesh(meshName);
-}
+/*v*/
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -102,11 +98,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-	MeshManager meshManager;
-
-	std::thread mesh(loadMesh,&meshManager,"SCENE");
-	std::thread mesh2(loadMesh,&meshManager,"SPHERE");
-	std::thread mesh3(loadMesh,&meshManager,"PIRASRUM");
 
 
 	RenderingManager renderingManager;
@@ -116,35 +107,34 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	//std::chrono::
 
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
+	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f, 0.1f, 50.0f);
 	camera.setPosition(0, 0, -6);
 
 	Guard gTemp;
 	gTemp.setPos(0, 5, 0);
 	
-	TextureManager textureManager;
 	
-	ModelManager modelManager;
+	
 
 	GamePadHandler::Instance();
 	
-	textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("SPHERE");
 
 	
-	/*meshManager.loadStaticMesh("SCENE");
-	meshManager.loadStaticMesh("SPHERE");
-	meshManager.loadStaticMesh("PIRASRUM");*/
-	meshManager.loadDynamicMesh("TORUS");
-	meshManager.loadDynamicMesh("KON");
+	Manager::g_meshManager.loadStaticMesh("SCENE");
+	Manager::g_meshManager.loadStaticMesh("PIRASRUM");
+	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_meshManager.loadDynamicMesh("TORUS");
+	Manager::g_meshManager.loadDynamicMesh("KON");
 	
+	ModelManager modelmanager;
+	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
 
-	modelManager.addNewModel(meshManager.getDynamicMesh("TORUS"), textureManager.getTexture("SPHERE"));
-	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
 
-	Model * player = new Model(ObjectType::Static);
-	player->SetEntityType(EntityType::Player);
-	player->setModel(meshManager.getStaticMesh("SPHERE"));
-	player->setTexture(textureManager.getTexture("SPHERE"));
+	Model * player = new Model();
+	player->setEntityType(EntityType::PlayerType);
+	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
 
@@ -166,9 +156,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[i].setDropOff(.2f);
 		point[i].setPower(2.0f);
 	}
-	mesh.join();
-	mesh2.join();
-	mesh3.join();
+
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
@@ -302,7 +290,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		
 		
 
-		
+		modelmanager.DrawMeshes();
 
 
 		for (int i = 0; i < 8; i++)
@@ -312,7 +300,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		MoveLight();
 
-		modelManager.DrawMeshes();
+		
 		gTemp.Draw();
 		player->Draw();
 		player->QueueVisabilityDraw();

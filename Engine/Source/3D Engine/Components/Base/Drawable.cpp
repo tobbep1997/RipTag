@@ -107,6 +107,11 @@ void Drawable::Draw()
 	}
 }
 
+void Drawable::QueueVisabilityDraw()
+{
+	DX::g_visabilityDrawQueue.push_back(this);
+}
+
 void Drawable::setVertexShader(const std::wstring & path)
 {
 	this->p_vertexPath = path;
