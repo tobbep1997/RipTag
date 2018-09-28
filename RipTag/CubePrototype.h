@@ -10,7 +10,7 @@ public:
 
 	void setPosition(DirectX::XMFLOAT4A pos);
 	void Draw();
-
+	
 private:
 	Model m;
 	StaticMesh * s;

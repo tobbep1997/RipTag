@@ -243,12 +243,19 @@ namespace Network
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
 		Player_Movement* pM = nullptr;
+		CubePrototype cP;
+
 		switch (mID)
 		{
 		case ID_CREATE_REMOTE_PLAYER:
 			//run creation script
 			break;
-		case GAME_MESSAGES::ID_PING_MESSAGE:
+		case ID_UPDATE_SPHERE_LOCATION:
+			cP = this->pNetworkIDManager->GET_OBJECT_FROM_ID<CubePrototype>(pM->networkId);
+			pM = (Player_Movement*)data;
+			cP.setPosition(DirectX::XMFLOAT4A(pM->x, pM->y, pM->z, pM->w));
+			break;
+		case ID_PING_MESSAGE:
 			std::cout << ((SCRIPT_TEST*)data)->msg << std::endl;
 			break;
 		default:
