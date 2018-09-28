@@ -1,4 +1,10 @@
+local A = {}
 
-local x, y, z = CameraGetPos(CAMERA)
+local function camHehe()
+	local x, y, z = CameraGetPos(CAMERA)
+	print(x, y, z)
+end
 
-print(x, y, z)
+A.camHehe = camHehe
+
+return A

@@ -154,14 +154,9 @@ namespace Network
 	void Multiplayer::DestroySentPacket(void * msg)
 	{
 		unsigned char id = GetPacketIdentifier((unsigned char*)msg);
-		SCRIPT_TEST * stPtr = nullptr;
 
 		switch (id)
 		{
-		case GAME_MESSAGES::ID_PING_MESSAGE:
-			stPtr = (SCRIPT_TEST*)msg;
-			delete stPtr;
-			break;
 		default:
 			break;
 		}
@@ -251,9 +246,6 @@ namespace Network
 			break;
 		case ID_UPDATE_SPHERE_LOCATION:
 			// Insert script
-			break;
-		case ID_PING_MESSAGE:
-			std::cout << ((SCRIPT_TEST*)data)->msg << std::endl;
 			break;
 		default:
 			break;
