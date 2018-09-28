@@ -94,7 +94,7 @@ namespace Animation
 		void Update(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
 		void SetSkeleton(Skeleton* skeleton);
-
+		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
 
@@ -110,7 +110,7 @@ namespace Animation
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
-
+		unsigned int m_scrubIndex = 0;
 		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeModelMatrices(SkeletonPose* pose);
