@@ -3,8 +3,10 @@
 #include <DirectXMath.h>
 #include <fstream>
 #define MAX_FILENAME 100
+
 namespace MyLibrary
 {
+#pragma region OriginalMyLibraryStructs
 	struct Vertex
 	{
 		 float vertex_position[3];
@@ -73,9 +75,6 @@ namespace MyLibrary
 	{
 		Transform jointTransform;
 	};
-	//Not yet 100% sure how to solve the groups, it will depend a bit on how we solve some other things in the game...
-	//May be stored by name
-
 
 	//Structs for returning
 //--------------------------------------//
@@ -132,13 +131,8 @@ namespace MyLibrary
 		unsigned int nr_of_keyframes;
 		std::unique_ptr<Transform[]> keyframe_transformations;
 	};
-
-	///--------------------------------
-	// -------- Helper Structs --------
-	///---------------v----------------
-
-
-
+#pragma endregion OriginalMyLibraryStructs
+#pragma region HelperStructs
 	struct Vec4
 	{
 		float x, y, z, w;
@@ -188,96 +182,5 @@ namespace MyLibrary
 		unsigned int nr_of_keyframes;
 		std::unique_ptr<DecomposedTransform[]> keyframe_transformations;
 	};
-
-	/////--------------------------------
-	//// ------- Helper Functions -------
-	/////---------------v----------------
-
-	//// Reads a Vec4 (four floats in x, y, z, w order)
-	//Vec4 loadVec4(std::ifstream& file)
-	//{
-	//	if (!file.is_open())
-	//		return Vec4();
-
-	//	Vec4 vec;
-	//	file.read((char*)&vec, sizeof(Vec4));
-
-	//	return vec;
-	//}
-
-	//// Reads a 32-bit int
-	//int32_t loadInt32(std::ifstream& file)
-	//{
-	//	if (!file.is_open())
-	//		return 0;
-
-	//	int32_t int32;
-	//	file.read((char*)&int32, sizeof(int32_t));
-	//	return int32;
-	//}
-
-	//// Reads a DecomposedTransform
-	//// (containing 3xVec4 (T, R, S))
-	//DecomposedTransform loadTransform(std::ifstream& file)
-	//{
-	//	if (!file.is_open())
-	//		return DecomposedTransform();
-
-	//	DecomposedTransform transform;
-
-	//	transform.translation = (loadVec4(file));
-	//	transform.rotation = (loadVec4(file));
-	//	transform.scale = (loadVec4(file));
-
-	//	return transform;
-	//}
-
-	//// Reads a Bone 
-	//// (containing 2xDecomposedTransform and one 32-bit wide int)
-	//Bone loadBone(std::ifstream& file)
-	//{
-	//	if (!file.is_open())
-	//		return Bone();
-
-	//	Bone bone;
-	//	bone.jointInverseBindPoseTransform = loadTransform(file);
-	//	bone.jointReferenceTransform = loadTransform(file);
-	//	bone.parentIndex = loadInt32(file);
-
-	//	return bone;
-	//}
-
-	//// Reads a Skeleton
-	//// (Containing boneCount x Bone)
-	//Skeleton loadSkeleton(std::ifstream& file, int32_t boneCount)
-	//{
-	//	if (!file.is_open())
-	//		return Skeleton();
-
-	//	/// Read and add each bone to vector
-	//	Skeleton skeleton;
-	//	for (int i = 0; i < boneCount; i++)
-	//		skeleton.joints.push_back(loadBone(file));
-
-	//	return skeleton;
-	//}
-
-	//// Reads a Skeleton
-	//// (Containing boneCount x Bone)
-	//// No bonecount is supplied; we assume we read that data first (one 32-bit wide int)
-	//Skeleton loadSkeleton(std::ifstream& file)
-	//{
-	//	if (!file.is_open())
-	//		return Skeleton();
-
-	//	/// Read bone count
-	//	int32_t boneCount = loadInt32(file);
-
-	//	/// Read and add each bone to vector
-	//	Skeleton skeleton;
-	//	for (int i = 0; i < boneCount; i++)
-	//		skeleton.joints.push_back(loadBone(file));
-
-	//	return skeleton;
-	//}
+#pragma endregion HelperStructs
 }
