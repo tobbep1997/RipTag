@@ -2,6 +2,7 @@
 
 namespace MyLibrary
 {
+#pragma region ImportHelpers
 	Vec4 Loadera::loadVec4(std::ifstream& file)
 	{
 		if (!file.is_open())
@@ -88,6 +89,7 @@ namespace MyLibrary
 
 		return skeleton;
 	}
+#pragma endregion ImportHelpers
 
 	Loadera::Loadera()
 	{
@@ -234,47 +236,6 @@ namespace MyLibrary
 		return meshToReturn;
 	}
 
-	SkeletonFromFile Loadera::readSkeletonFile(std::string fileName)
-	{
-		//read the skeleton file
-
-		SkeletonFromFile skeleton_to_return = {};
-
-		bool fileIsOpen = false;
-
-		std::ifstream customSkeletonFile(fileName, std::ifstream::binary);
-		if (customSkeletonFile.is_open())
-		{
-			fileIsOpen = true;
-
-			SkeletonHeader skeleton_header;
-			customSkeletonFile.read((char*)&skeleton_header, sizeof(SkeletonHeader));
-
-
-			Joint* joints = new Joint[skeleton_header.skeleton_nrOfJoints];
-
-			//	skeleton_to_return.skeleton_joints = new Joint[skeleton_header.skeleton_nrOfJoints];
-
-			customSkeletonFile.read((char*)joints, skeleton_header.skeleton_nrOfJoints * sizeof(Joint));
-			skeleton_to_return.skeleton_joints = std::make_unique<Joint[]>(skeleton_header.skeleton_nrOfJoints);
-			for (unsigned int i = 0; i < skeleton_header.skeleton_nrOfJoints; i++)
-			{
-				for (int j = 0; j < MAX_FILENAME; j++)
-					skeleton_to_return.skeleton_joints[i].joint_name[j] = joints[i].joint_name[j];
-				skeleton_to_return.skeleton_joints[i].joint_transform = joints[i].joint_transform;
-
-				skeleton_to_return.skeleton_joints[i].parentIndex = joints[i].parentIndex;
-			}
-			skeleton_to_return.skeleton_nrOfJoints = skeleton_header.skeleton_nrOfJoints;
-			for (int i = 0; i < MAX_FILENAME; i++)
-				skeleton_to_return.skeletonID[i] = skeleton_header.skeletonID[i];
-			customSkeletonFile.close();
-			delete[] joints;
-		}
-
-		return skeleton_to_return;
-	}
-
 	Skeleton Loadera::readSkeletonFileStefan(std::string fileName)
 	{
 		//read the skeleton file
@@ -289,44 +250,6 @@ namespace MyLibrary
 		}
 
 		return skeleton_to_return;
-	}
-
-	MyLibrary::AnimationFromFile Loadera::readAnimationFile(std::string fileName, uint16_t jointCount)
-	{
-		bool fileIsOpen = false;
-
-		std::ifstream customAnimationFile(fileName, std::ifstream::binary);
-		assert(customAnimationFile.is_open());
-		AnimationHeader animation_header;
-		AnimationFromFile animation_to_return;
-
-		if (customAnimationFile.is_open())
-		{
-
-			fileIsOpen = true;
-			customAnimationFile.read((char*)&animation_header, sizeof(AnimationHeader));
-			animation_to_return.nr_of_keyframes = animation_header.anim_nrOfKeys;
-			Transform* keyframes = new Transform[animation_header.anim_nrOfKeys * jointCount];
-			
-			//Init keyframes
-			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
-				keyframes[i] = Transform();
-
-			customAnimationFile.read((char*)keyframes, animation_header.anim_nrOfKeys * jointCount * sizeof(Transform));
-
-			animation_to_return.keyframe_transformations = std::make_unique<Transform[]>(animation_header.anim_nrOfKeys * jointCount);
-			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys * jointCount; i++)
-			{
-				animation_to_return.keyframe_transformations[i] = keyframes[i];
-			}
-			
-
-
-			delete[] keyframes;
-			customAnimationFile.close();
-		}
-
-		return animation_to_return;
 	}
 
 	MyLibrary::AnimationFromFileStefan Loadera::readAnimationFileStefan(std::string fileName, uint16_t jointCount)
