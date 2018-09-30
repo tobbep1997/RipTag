@@ -91,7 +91,7 @@ void Animation::AnimatedModel::Play()
 }
 
 /// Returns a reference to the skinning matrix vector
-std::vector<DirectX::float4x4>& Animation::AnimatedModel::GetSkinningMatrices()
+std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
 {
 	return m_skinningMatrices;
 }
