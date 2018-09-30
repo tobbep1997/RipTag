@@ -12,7 +12,7 @@ Animation::AnimatedModel::~AnimatedModel()
 {
 }
 
-/// Computes the frame we're currently on and computes final skinning matrices for gpu skinning
+// Computes the frame we're currently on and computes final skinning matrices for gpu skinning
 void Animation::AnimatedModel::Update(float deltaTime)
 {
 	deltaTime /= 16.0; // #todo deltatime
@@ -24,8 +24,8 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		/// calc time per frame TODO : cache
 		float frameTime = static_cast<float>(1.0 / m_currentClip->m_framerate);
 
-		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we arent
-		if (m_currentTime > frameTime * m_currentClip->m_frameCount) // #todo check
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (m_currentTime > frameTime * m_currentClip->m_frameCount)
 		{
 			m_isPlaying
 				? m_currentTime -= frameTime * m_currentClip->m_frameCount
@@ -113,24 +113,6 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-// #convert SRT to matrix
-DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt, DirectX::XMFLOAT4A pivot)
-{
-	using namespace DirectX;
-
-	XMFLOAT4A fScale = (srt.m_scale);
-	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
-	XMFLOAT4A fTranslation = srt.m_translation;
-
-	auto t = XMMatrixTranslationFromVector(XMLoadFloat4A(&fTranslation));
-	auto r = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
-	auto s = XMMatrixScalingFromVector(XMLoadFloat4A(&fTranslation));
-
-	return XMMatrixMultiply(t, r);
-
-	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), XMLoadFloat4A(&pivot), XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
-}
-
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform)
 {
 	using namespace DirectX;
@@ -149,21 +131,6 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0f, 0.0f, 0.0f, 1.0f }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton)
-{
-	MyLibrary::Loadera loader;
-	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
-
-	//std::vector<MyLibrary::DecomposedTransform> transforms;
-	//for (int i = 0; i < importedAnimation.nr_of_keyframes * skeleton->m_jointCount; i++)
-	//{
-	//	transforms.push_back(importedAnimation.keyframe_transformations[i]);
-	//}
-
-
-	return new Animation::AnimationClip(importedAnimation, skeleton);
-}
-
 Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string file, Skeleton* skeleton)
 {
 	MyLibrary::Loadera loader;
@@ -176,13 +143,6 @@ Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string fi
 	}
 
 	return new Animation::AnimationClip(importedAnimation, skeleton);
-}
-
-Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
-{
-	MyLibrary::Loadera loader;
-	auto importedSkeleton = loader.readSkeletonFile(file);
-	return new Animation::Skeleton(importedSkeleton);
 }
 
 Animation::Skeleton* Animation::LoadAndCreateSkeletonStefan(std::string file)

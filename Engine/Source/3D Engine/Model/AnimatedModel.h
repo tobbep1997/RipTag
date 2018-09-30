@@ -5,25 +5,17 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <../New_Library/FormatHeader.h>
-//struct Joint;
-//struct SkeletonPose;
-//struct Skeleton;
-//struct AnimationClip;
 
-
-
-
-#define float4x4 XMFLOAT4X4A
-#define float4 XMFLOAT4A
 #define MAXJOINT 128
 
 namespace Animation
 {
+	// Struct containing rotation, translation and scale as XMFLOAT4A, in that order
 	struct SRT
 	{
-		DirectX::float4 m_rotationQuaternion;
-		DirectX::float4 m_translation;
-		DirectX::float4 m_scale;
+		DirectX::XMFLOAT4A m_rotationQuaternion;
+		DirectX::XMFLOAT4A m_translation;
+		DirectX::XMFLOAT4A m_scale;
 
 		SRT() {};
 		SRT(const MyLibrary::Transform& transform);
@@ -31,14 +23,16 @@ namespace Animation
 		bool operator==(const SRT& other);
 	};
 
+	// Struct containing a joint as XMFLOAT4X4A and a parent index as an int16_t, in that order
 	struct Joint
 	{
-		DirectX::float4x4 m_inverseBindPose;
+		DirectX::XMFLOAT4X4A m_inverseBindPose;
 		int16_t parentIndex;
 
 		Joint() {};
 	};
 
+	// Struct containing a joint count as a uint8_t and an array as a unique_ptr, in that order
 	struct Skeleton
 	{
 		uint8_t m_jointCount;
@@ -49,6 +43,7 @@ namespace Animation
 		Skeleton(const MyLibrary::Skeleton& skeleton);
 	};
 
+	// Struct containing rot, trans, scale as an SRT struct
 	struct JointPose
 	{
 		SRT m_transformation;
@@ -57,11 +52,13 @@ namespace Animation
 		JointPose(const SRT& srt);
 	};
 
+	// Struct containing an array of JointPose structs as a unique_ptr
 	struct SkeletonPose
 	{
 		std::unique_ptr<JointPose[]> m_jointPoses;
 	};
 
+	// Struct containing all necessary data for an animation for a given skeleton
 	struct AnimationClip
 	{
 		Skeleton* m_skeleton;
@@ -81,12 +78,8 @@ namespace Animation
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::SkeletonFromFile* importedSkeleton);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
-
-	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt, DirectX::XMFLOAT4A pivot);
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
-	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
 	Animation::AnimationClip* LoadAndCreateAnimationStefan(std::string file, Animation::Skeleton* skeleton);
-	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
 	Animation::Skeleton* LoadAndCreateSkeletonStefan(std::string file);
 
 	class AnimatedModel
@@ -96,8 +89,6 @@ namespace Animation
 	
 		~AnimatedModel();
 
-
-
 		void Update(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
 		void SetSkeleton(Skeleton* skeleton);
@@ -105,7 +96,7 @@ namespace Animation
 		void Pause();
 		void Play();
 
-		std::vector<DirectX::float4x4>& GetSkinningMatrices();
+		std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
