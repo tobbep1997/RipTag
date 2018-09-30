@@ -131,17 +131,49 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt, DirectX::XMFLO
 	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), XMLoadFloat4A(&pivot), XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
+DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform)
+{
+	using namespace DirectX;
+
+	XMFLOAT4A fScale = {transform.scale.x, transform.scale.y, transform.scale.z, transform.scale.w};
+	XMFLOAT4A fRotation = { transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w };
+	XMFLOAT4A fTranslation = { transform.translation.x, transform.translation.y, transform.translation.z, transform.translation.w };
+
+	auto t = XMMatrixTranslationFromVector(XMLoadFloat4A(&fTranslation));
+	auto r = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
+	auto s = XMMatrixScalingFromVector(XMLoadFloat4A(&fTranslation));
+
+	// #NEWCHECK
+	//return XMMatrixMultiply(t, r);
+
+	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0f, 0.0f, 0.0f, 1.0f }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
+}
+
 Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton)
 {
 	MyLibrary::Loadera loader;
 	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
 
-	std::vector<MyLibrary::Transform> transforms;
+	//std::vector<MyLibrary::DecomposedTransform> transforms;
+	//for (int i = 0; i < importedAnimation.nr_of_keyframes * skeleton->m_jointCount; i++)
+	//{
+	//	transforms.push_back(importedAnimation.keyframe_transformations[i]);
+	//}
+
+
+	return new Animation::AnimationClip(importedAnimation, skeleton);
+}
+
+Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string file, Skeleton* skeleton)
+{
+	MyLibrary::Loadera loader;
+	auto importedAnimation = loader.readAnimationFileStefan(file, skeleton->m_jointCount);
+
+	std::vector<MyLibrary::DecomposedTransform> transforms;
 	for (int i = 0; i < importedAnimation.nr_of_keyframes * skeleton->m_jointCount; i++)
 	{
 		transforms.push_back(importedAnimation.keyframe_transformations[i]);
 	}
-
 
 	return new Animation::AnimationClip(importedAnimation, skeleton);
 }
@@ -150,6 +182,13 @@ Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 {
 	MyLibrary::Loadera loader;
 	auto importedSkeleton = loader.readSkeletonFile(file);
+	return new Animation::Skeleton(importedSkeleton);
+}
+
+Animation::Skeleton* Animation::LoadAndCreateSkeletonStefan(std::string file)
+{
+	MyLibrary::Loadera loader;
+	auto importedSkeleton = loader.readSkeletonFileStefan(file);
 	return new Animation::Skeleton(importedSkeleton);
 }
 
@@ -201,8 +240,8 @@ Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
 	float roll = DirectX::XMConvertToRadians(transform.transform_rotation[2]);
 	XMStoreFloat4A(&srt.m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
 
-	//srt.m_rotationQuaternion.x *= -1;
-	//srt.m_rotationQuaternion.y *= -1;
+	srt.m_rotationQuaternion.x *= -1;
+	srt.m_rotationQuaternion.y *= -1;
 
 	srt.m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
 	srt.m_scale = { 1.0, 1.0, 1.0, 1.0f };
@@ -301,6 +340,38 @@ Animation::Skeleton * Animation::ConvertToSkeleton(MyLibrary::SkeletonFromFile *
 }
 
 // #bindpose
+void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton)
+{
+	using namespace DirectX;
+
+	//DirectX::XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, XMMatrixInverse(nullptr, _createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[0].joint_transform))));
+	std::vector<XMFLOAT4X4A> vec;
+	std::vector <MyLibrary::Transform > vec2;
+	DirectX::XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(importedSkeleton->joints[0].jointInverseBindPoseTransform));
+
+	for (int i = 1; i < mainSkeleton->m_jointCount; i++)
+	{
+
+		int16_t parentIndex = mainSkeleton->m_joints[i].parentIndex;
+		assert(i > parentIndex);
+		{
+
+			//DirectX::XMStoreFloat4x4A
+			//(&mainSkeleton->m_joints[i].m_inverseBindPose, XMMatrixInverse(nullptr, XMMatrixMultiply(_createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[i].joint_transform)), XMLoadFloat4x4A(&mainSkeleton->m_joints[parentIndex].m_inverseBindPose))));
+
+			//DirectX::XMStoreFloat4x4A
+			//(&mainSkeleton->m_joints[i].m_inverseBindPose, _createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[i].joint_transform)));
+
+		/*	DirectX::XMStoreFloat4x4A
+			(&mainSkeleton->m_joints[i].m_inverseBindPose, XMMatrixMultiply(_createMatrixFromSRT(ConvertTransformToSRT(importedSkeleton->skeleton_joints[i].joint_transform)), XMLoadFloat4x4A(&mainSkeleton->m_joints[parentIndex].m_inverseBindPose)));*/
+		}
+
+		DirectX::XMStoreFloat4x4A
+		(&mainSkeleton->m_joints[i].m_inverseBindPose, _createMatrixFromSRT(importedSkeleton->joints[i].jointInverseBindPoseTransform));
+	}
+
+}
+
 void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::SkeletonFromFile* importedSkeleton)
 {
 	using namespace DirectX;
@@ -391,11 +462,29 @@ Animation::SRT::SRT(const MyLibrary::Transform& transform)
 	float roll = DirectX::XMConvertToRadians(transform.transform_rotation[2]);
 	XMStoreFloat4A(&m_rotationQuaternion, XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
 
-	//m_rotationQuaternion.x *= -1;
-	//m_rotationQuaternion.y *= -1;
+	m_rotationQuaternion.x *= -1;
+	m_rotationQuaternion.y *= -1;
 
 	m_translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
 	m_scale = { 1.0, 1.0, 1.0, 1.0f };
+}
+
+Animation::SRT::SRT(const MyLibrary::DecomposedTransform& transform)
+{
+	m_rotationQuaternion.x = transform.rotation.x;
+	m_rotationQuaternion.y = transform.rotation.y;
+	m_rotationQuaternion.z = transform.rotation.z;
+	m_rotationQuaternion.w = transform.rotation.w;
+
+	m_translation.x = transform.translation.x;
+	m_translation.y = transform.translation.y;
+	m_translation.z = transform.translation.z;
+	m_translation.w = transform.translation.w;
+
+	m_scale.x = transform.scale.x;
+	m_scale.y = transform.scale.y;
+	m_scale.z = transform.scale.z;
+	m_scale.w = transform.scale.w;
 }
 
 bool Animation::SRT::operator==(const SRT& other)
@@ -428,12 +517,51 @@ Animation::Skeleton::Skeleton(const MyLibrary::SkeletonFromFile& skeleton)
 	Animation::SetInverseBindPoses(this, &skeleton);
 }
 
+Animation::Skeleton::Skeleton(const MyLibrary::Skeleton& skeleton)
+{
+	m_jointCount = skeleton.joints.size();
+	m_joints = std::make_unique<Animation::Joint[]>(m_jointCount);
+
+	for (int i = 0; i < m_jointCount; i++)
+	{
+		m_joints[i].parentIndex = skeleton.joints[i].parentIndex;
+	}
+	m_joints[0].parentIndex = -1; // Root does not have a real parent index
+	Animation::SetInverseBindPoses(this, &skeleton);
+}
+
 Animation::JointPose::JointPose(const SRT& srt)
 {
 	m_transformation = srt;
 }
 
 Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFile& animation, Skeleton* skeleton)
+{
+	m_skeleton = skeleton;
+	m_framerate = 24; //TODO
+	uint32_t keyCount = animation.nr_of_keyframes;
+	m_frameCount = static_cast<uint16_t>(keyCount);
+	m_skeletonPoses = std::make_unique<SkeletonPose[]>(m_frameCount);
+
+	//Init joint poses for skeleton poses
+	for (int i = 0; i < m_frameCount; i++)
+	{
+		m_skeletonPoses[i].m_jointPoses = std::make_unique<JointPose[]>(m_skeleton->m_jointCount);
+	}
+
+	//for each key
+	for (int k = 0; k < keyCount; k++)
+	{
+		for (int j = 0; j < m_skeleton->m_jointCount; j++)
+		{
+			// Review
+			SRT srt = SRT(animation.keyframe_transformations[k * skeleton->m_jointCount + j]);
+			m_skeletonPoses[k].m_jointPoses[j].m_transformation = srt;
+		}
+	}
+}
+
+Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton)
 {
 	m_skeleton = skeleton;
 	m_framerate = 24; //TODO

@@ -27,6 +27,7 @@ namespace Animation
 
 		SRT() {};
 		SRT(const MyLibrary::Transform& transform);
+		SRT(const MyLibrary::DecomposedTransform& transform);
 		bool operator==(const SRT& other);
 	};
 
@@ -45,6 +46,7 @@ namespace Animation
 
 		Skeleton() {};
 		Skeleton(const MyLibrary::SkeletonFromFile& skeleton);
+		Skeleton(const MyLibrary::Skeleton& skeleton);
 	};
 
 	struct JointPose
@@ -69,6 +71,7 @@ namespace Animation
 
 		AnimationClip() {};
 		AnimationClip(const MyLibrary::AnimationFromFile& animation, Skeleton* skeleton);
+		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton);
 		~AnimationClip();
 	};
 
@@ -76,11 +79,15 @@ namespace Animation
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	Skeleton* ConvertToSkeleton     (MyLibrary::SkeletonFromFile* skeleton);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::SkeletonFromFile* importedSkeleton);
+	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt, DirectX::XMFLOAT4A pivot);
+	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
 	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
+	Animation::AnimationClip* LoadAndCreateAnimationStefan(std::string file, Animation::Skeleton* skeleton);
 	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
+	Animation::Skeleton* LoadAndCreateSkeletonStefan(std::string file);
 
 	class AnimatedModel
 	{
