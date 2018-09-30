@@ -243,11 +243,15 @@ namespace MyLibrary
 		Skeleton skeleton_to_return = {};
 
 		std::ifstream customSkeletonFile(fileName, std::ifstream::binary);
+
+		assert(customSkeletonFile.is_open());
+
 		if (customSkeletonFile.is_open())
 		{
 			int32_t jointCount = loadInt32(customSkeletonFile);
 			skeleton_to_return = loadSkeleton(customSkeletonFile, jointCount);
 		}
+		
 
 		return skeleton_to_return;
 	}
