@@ -98,41 +98,28 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	modelManager.addDynamicMesh("../Assets/test_ANIMATION_Mesh.bin");
 	modelManager.m_dynamicMesh[0]->setPosition({ 3.0, -2.0, 0.0, 1.0 });
 	modelManager.m_dynamicMesh[0]->setScale(1, 1, 1);
-	//modelManager.staticMesh[0]->setPosition(0, 0, 0);
 
 	
 	
-		Animation::AnimationCBuffer animCB;
-		animCB.SetAnimationCBuffer();
+	Animation::AnimationCBuffer animCB;
+	animCB.SetAnimationCBuffer();
 
-		auto skeleton = Animation::LoadAndCreateSkeletonStefan("../Assets/joint1_Skeleton.bin");
-		auto animation = Animation::LoadAndCreateAnimationStefan("../Assets/ANIMATION_ANIMATION.bin", skeleton);
+	auto skeleton = Animation::LoadAndCreateSkeletonStefan("../Assets/joint1_Skeleton.bin");
+	auto animation = Animation::LoadAndCreateAnimationStefan("../Assets/ANIMATION_ANIMATION.bin", skeleton);
 
-		std::vector<Animation::SRT> srts;
-		for (int i = 0; i < skeleton->m_jointCount; i++)
+	std::vector<Animation::SRT> srts;
+	for (int i = 0; i < skeleton->m_jointCount; i++)
+	{
+		for (int k = 0; k < animation->m_frameCount; k++)
 		{
-			for (int k = 0; k < animation->m_frameCount; k++)
-			{
-				srts.push_back(animation->m_skeletonPoses[k].m_jointPoses[i].m_transformation);
-			}
+			srts.push_back(animation->m_skeletonPoses[k].m_jointPoses[i].m_transformation);
 		}
+	}
 
 
-		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animation);
-		modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
-		modelManager.m_dynamicMesh[0]->getAnimatedModel()->Play();
-
-		
-
-
-		//std::vector<Animation::SRT> srts;
-		//{
-		//	for (int i = 0; i < animation->m_frameCount; i++)
-		//		srts.push_back(animation->m_skeletonPoses[i].m_jointPoses[0].m_transformation);
-		//}
-
-
-	
+	modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetPlayingClip(animation);
+	modelManager.m_dynamicMesh[0]->getAnimatedModel()->SetSkeleton(skeleton);
+	modelManager.m_dynamicMesh[0]->getAnimatedModel()->Play();
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);

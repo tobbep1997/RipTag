@@ -177,6 +177,7 @@ namespace MyLibrary
 		std::vector<Bone> joints;
 	};
 
+	// #todo rename
 	struct AnimationFromFileStefan
 	{
 		unsigned int nr_of_keyframes;
