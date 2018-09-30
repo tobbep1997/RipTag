@@ -1,6 +1,94 @@
 #include "formatImporter.h"
+
 namespace MyLibrary
 {
+	Vec4 Loadera::loadVec4(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return Vec4();
+
+		Vec4 vec;
+		file.read((char*)&vec, sizeof(Vec4));
+
+		return vec;
+	}
+
+	// Reads a 32-bit int
+	int32_t Loadera::loadInt32(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return 0;
+
+		int32_t int32;
+		file.read((char*)&int32, sizeof(int32_t));
+		return int32;
+	}
+
+	// Reads a DecomposedTransform
+	// (containing 3xVec4 (T, R, S))
+	DecomposedTransform Loadera::loadTransform(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return DecomposedTransform();
+
+		DecomposedTransform transform;
+
+		transform.translation = (loadVec4(file));
+		transform.rotation = (loadVec4(file));
+		transform.scale = (loadVec4(file));
+
+		return transform;
+	}
+
+	// Reads a Bone 
+	// (containing 2xDecomposedTransform and one 32-bit wide int)
+	Bone Loadera::loadBone(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return Bone();
+
+		Bone bone;
+		bone.jointInverseBindPoseTransform = loadTransform(file);
+		bone.jointReferenceTransform = loadTransform(file);
+		bone.parentIndex = loadInt32(file);
+
+		return bone;
+	}
+
+	// Reads a Skeleton
+	// (Containing boneCount x Bone)
+	Skeleton Loadera::loadSkeleton(std::ifstream& file, int32_t boneCount)
+	{
+		if (!file.is_open())
+			return Skeleton();
+
+		/// Read and add each bone to vector
+		Skeleton skeleton;
+		for (int i = 0; i < boneCount; i++)
+			skeleton.joints.push_back(loadBone(file));
+
+		return skeleton;
+	}
+
+	// Reads a Skeleton
+	// (Containing boneCount x Bone)
+	// No bonecount is supplied; we assume we read that data first (one 32-bit wide int)
+	Skeleton Loadera::loadSkeleton(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return Skeleton();
+
+		/// Read bone count
+		int32_t boneCount = loadInt32(file);
+
+		/// Read and add each bone to vector
+		Skeleton skeleton;
+		for (int i = 0; i < boneCount; i++)
+			skeleton.joints.push_back(loadBone(file));
+
+		return skeleton;
+	}
+
 	Loadera::Loadera()
 	{
 
@@ -146,7 +234,6 @@ namespace MyLibrary
 		return meshToReturn;
 	}
 
-
 	SkeletonFromFile Loadera::readSkeletonFile(std::string fileName)
 	{
 		//read the skeleton file
@@ -183,6 +270,22 @@ namespace MyLibrary
 				skeleton_to_return.skeletonID[i] = skeleton_header.skeletonID[i];
 			customSkeletonFile.close();
 			delete[] joints;
+		}
+
+		return skeleton_to_return;
+	}
+
+	Skeleton Loadera::readSkeletonFileStefan(std::string fileName)
+	{
+		//read the skeleton file
+
+		Skeleton skeleton_to_return = {};
+
+		std::ifstream customSkeletonFile(fileName, std::ifstream::binary);
+		if (customSkeletonFile.is_open())
+		{
+			int32_t jointCount = loadInt32(customSkeletonFile);
+			skeleton_to_return = loadSkeleton(customSkeletonFile, jointCount);
 		}
 
 		return skeleton_to_return;
@@ -226,12 +329,37 @@ namespace MyLibrary
 		return animation_to_return;
 	}
 
-
-
-	int Loadera::getNrOfVerticesFromFile(std::ifstream & file)
+	MyLibrary::AnimationFromFileStefan Loadera::readAnimationFileStefan(std::string fileName, uint16_t jointCount)
 	{
-		int nrOfVerticesInFile = 0;
-		return nrOfVerticesInFile;
-	}
+		std::ifstream customAnimationFile(fileName, std::ifstream::binary);
+		assert(customAnimationFile.is_open());
 
+		AnimationFromFileStefan animation_to_return;
+
+		if (customAnimationFile.is_open())
+		{
+			int32_t numberOfKeys = loadInt32(customAnimationFile);
+			animation_to_return.nr_of_keyframes = numberOfKeys;
+
+			DecomposedTransform* keyframes = new DecomposedTransform[numberOfKeys * jointCount];
+
+			//Init keyframes
+			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
+				keyframes[i] = DecomposedTransform();
+
+			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
+				keyframes[i] = loadTransform(customAnimationFile);
+
+			animation_to_return.keyframe_transformations = std::make_unique<DecomposedTransform[]>(numberOfKeys * jointCount);
+			for (unsigned int i = 0; i < numberOfKeys * jointCount; i++)
+			{
+				animation_to_return.keyframe_transformations[i] = keyframes[i];
+			}
+
+			delete[] keyframes;
+			customAnimationFile.close();
+		}
+
+		return animation_to_return;
+	}
 }
