@@ -105,8 +105,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		Animation::AnimationCBuffer animCB;
 		animCB.SetAnimationCBuffer();
 
-		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/joint1_Skeleton.bin");
-		auto animation = Animation::LoadAndCreateAnimation("../Assets/ANIMATION_ANIMATION.bin", skeleton);
+		auto skeleton = Animation::LoadAndCreateSkeletonStefan("../Assets/joint1_Skeleton.bin");
+		auto animation = Animation::LoadAndCreateAnimationStefan("../Assets/ANIMATION_ANIMATION.bin", skeleton);
 
 		std::vector<Animation::SRT> srts;
 		for (int i = 0; i < skeleton->m_jointCount; i++)
