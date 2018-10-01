@@ -1,4 +1,6 @@
 #include "PlayState.h"
+#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "../../Input/Input.h"
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
@@ -18,6 +20,11 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+	if (GamePadHandler::IsAPressed())
+	{
+		Input::ForceDeactivateGamepad();
+	}
+
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	

@@ -5,6 +5,7 @@
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
 #include "../Actors/Enemy/Enemy.h"
+#include "../../../../Engine/Source/3D Engine/RenderingManager.h"
 
 class PlayState : public State
 {

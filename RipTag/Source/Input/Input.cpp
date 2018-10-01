@@ -2,6 +2,8 @@
 #include "../../../InputManager/XboxInput/GamePadHandler.h"
 #include "../../../InputManager/InputHandler.h"
 
+bool Input::m_deactivate = false;
+
 Input::Input()
 {
 }
@@ -10,9 +12,19 @@ Input::~Input()
 {
 }
 
+void Input::ForceDeactivateGamepad()
+{
+	Input::m_deactivate = true;
+}
+
+void Input::ForceActivateGamepad()
+{
+	Input::m_deactivate = false;
+}
+
 float Input::MoveForward()
 {
-	if (GamePadHandler::IsConnected())
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
 	{
 		return GamePadHandler::GetLeftStickYPosition();
 	}
@@ -32,7 +44,7 @@ float Input::MoveForward()
 
 float Input::MoveRight()
 {
-	if (GamePadHandler::IsConnected())
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
 	{
 		return GamePadHandler::GetLeftStickXPosition();
 	}
@@ -52,7 +64,7 @@ float Input::MoveRight()
 
 float Input::TurnUp()
 {
-	if (GamePadHandler::IsConnected())
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
 	{
 		return GamePadHandler::GetRightStickYPosition();
 	}
@@ -72,7 +84,7 @@ float Input::TurnUp()
 
 float Input::TurnRight()
 {
-	if (GamePadHandler::IsConnected())
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
 	{
 		return GamePadHandler::GetRightStickXPosition();
 	}
