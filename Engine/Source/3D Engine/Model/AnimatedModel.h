@@ -10,6 +10,7 @@
 
 namespace Animation
 {
+#pragma region AnimatedModelClassStructs
 	// Struct containing rotation, translation and scale as XMFLOAT4A, in that order
 	struct SRT
 	{
@@ -70,7 +71,9 @@ namespace Animation
 		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton);
 		~AnimationClip();
 	};
+#pragma endregion Joint, Skeleton, AnimationClip, ...
 
+#pragma region GlobalAnimationFunctions
 	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
 	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
@@ -78,6 +81,7 @@ namespace Animation
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
 	Animation::AnimationClip* LoadAndCreateAnimationStefan(std::string file, Animation::Skeleton* skeleton);
 	Animation::Skeleton* LoadAndCreateSkeletonStefan(std::string file);
+#pragma endregion Conversion stuff, Loaders, ...
 
 	class AnimatedModel
 	{
@@ -113,6 +117,7 @@ namespace Animation
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 	};
 
+#pragma region AnimationCBufferClass
 	class AnimationCBuffer
 	{
 		struct AnimationBuffer
@@ -133,6 +138,8 @@ namespace Animation
 			void UpdateBuffer(PVOID64 data, size_t dataSize);
 			void SetToShader();
 	};
+#pragma endregion Class for setting the skinning matrices to GPU
+
 }
 
 
