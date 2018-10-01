@@ -86,6 +86,9 @@ private:
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
 
+	ID3D11RasterizerState * m_standardRast;
+	ID3D11RasterizerState * m_wireFrame;
+
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -131,6 +134,6 @@ private:
 	void _createShaders();
 	void _createShadersInput();
 
-
+	void _wireFramePass(Camera & cam);
 
 };

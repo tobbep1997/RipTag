@@ -61,6 +61,7 @@ public:
 	virtual void BindTextures();
 	
 	virtual void Draw();
+	void DrawWireFrame();
 	virtual void QueueVisabilityDraw();
 
 	//Set Shaders

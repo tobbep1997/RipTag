@@ -58,6 +58,16 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
 	m_visabilityPass.Init();
+
+
+	DX::g_deviceContext->RSGetState(&m_standardRast);
+
+	D3D11_RASTERIZER_DESC wfdesc;
+	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
+	wfdesc.FillMode = D3D11_FILL_WIREFRAME;
+	wfdesc.CullMode = D3D11_CULL_NONE;
+	DX::g_device->CreateRasterizerState(&wfdesc, &m_wireFrame);
+	DX::g_deviceContext->RSSetState(m_wireFrame);
 }
 
 void ForwardRender::GeometryPass(Camera & camera)
@@ -157,6 +167,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->AnimatedGeometryPass(DX::g_guardDrawQueue[0]->getCamera());*/
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
+
+	this->_wireFramePass(camera);
 	//DX::g_guardDrawQueue.clear();
 	_tempGuardFrustumDraw();
 }
@@ -195,6 +207,9 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_alphaBlend);
 	DX::SafeRelease(m_GuardBuffer);
+
+	DX::SafeRelease(m_standardRast);
+	DX::SafeRelease(m_wireFrame);
 
 	m_shadowMap.Release();
 }
@@ -494,4 +509,32 @@ void ForwardRender::_createShadersInput()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl", "main", inputDesc, 4);
+}
+
+void ForwardRender::_wireFramePass(Camera& cam)
+{
+	DX::g_deviceContext->RSSetState(m_wireFrame);
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+
+	_mapCameraBufferToVertex(cam);
+	_mapCameraBufferToPixel(cam);
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
+	_setStaticShaders();
+	for (unsigned int i = 0; i < DX::g_wireFrameDrawQueue.size(); i++)
+	{
+		ID3D11Buffer * vertexBuffer = DX::g_wireFrameDrawQueue[i]->getBuffer();
+
+		_mapObjectBuffer(DX::g_wireFrameDrawQueue[i]);
+		DX::g_wireFrameDrawQueue[i]->BindTextures();
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_wireFrameDrawQueue[i]->getVertexSize(), 0);
+
+	}
+
+	DX::g_deviceContext->RSSetState(m_standardRast);
 }

@@ -107,6 +107,14 @@ void Drawable::Draw()
 	}
 }
 
+void Drawable::DrawWireFrame()
+{
+	if (p_objectType == Static)
+	{
+		DX::g_wireFrameDrawQueue.push_back(this);
+	}
+}
+
 void Drawable::QueueVisabilityDraw()
 {
 	DX::g_visabilityDrawQueue.push_back(this);

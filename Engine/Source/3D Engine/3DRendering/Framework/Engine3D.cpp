@@ -12,6 +12,9 @@ std::vector<Drawable*> DX::g_animatedGeometryQueue;
 std::vector<PointLight*> DX::g_lights;
 
 std::vector<Drawable*> DX::g_visabilityDrawQueue;
+
+std::vector<Drawable*> DX::g_wireFrameDrawQueue;
+
 std::vector<Guard*> DX::g_guardDrawQueue;
 
 MeshManager Manager::g_meshManager;

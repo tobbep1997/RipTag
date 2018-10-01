@@ -303,6 +303,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		
 		gTemp.Draw();
 		player->Draw();
+		//player->DrawWireFrame();
 		player->QueueVisabilityDraw();
 
 
