@@ -223,6 +223,9 @@ namespace MyLibrary
 				meshToReturn.mesh_vertices[i].joint_weights[3] = vertices[i].joint_weights[3];
 			}
 
+			// Switch winding order
+			for (int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
+				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);
 
 			for (int i = 0; i < MAX_FILENAME; i++)
 			{
