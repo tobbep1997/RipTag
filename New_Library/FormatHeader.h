@@ -1,10 +1,12 @@
 #pragma once
 #include <windows.h>
 #include <DirectXMath.h>
-
+#include <fstream>
 #define MAX_FILENAME 100
+
 namespace MyLibrary
 {
+#pragma region OriginalMyLibraryStructs
 	struct Vertex
 	{
 		 float vertex_position[3];
@@ -23,8 +25,16 @@ namespace MyLibrary
 	};
 	struct Transform {
 		float transform_position[3];
-		float transform_scale[3];
 		float transform_rotation[3];
+		float transform_scale[3];
+
+		Transform()
+		{
+			ZeroMemory(this, sizeof(Transform));
+			transform_scale[0] = 1.0;
+			transform_scale[1] = 1.0;
+			transform_scale[2] = 1.0;
+		};
 	};
 	struct MeshHeader {
 
@@ -60,15 +70,11 @@ namespace MyLibrary
 	struct AnimationHeader
 	{
 		unsigned int anim_nrOfKeys;
-
 	};
 	struct AnimKey
 	{
 		Transform jointTransform;
 	};
-	//Not yet 100% sure how to solve the groups, it will depend a bit on how we solve some other things in the game...
-	//May be stored by name
-
 
 	//Structs for returning
 //--------------------------------------//
@@ -88,6 +94,11 @@ namespace MyLibrary
 		float vertex_tangent[3];
 		unsigned int influencing_joint[4];
 		float joint_weights[4];
+
+		AnimatedVertexFromFile()
+		{
+			ZeroMemory(this, sizeof(AnimatedVertexFromFile));
+		};
 	};
 
 	struct AnimatedMeshFromFile
@@ -112,12 +123,65 @@ namespace MyLibrary
 	{
 		char skeletonID[100];
 		unsigned int skeleton_nrOfJoints;
-		Joint* skeleton_joints;
+		std::unique_ptr<Joint[]> skeleton_joints;
 	};
 
 	struct AnimationFromFile
 	{
 		unsigned int nr_of_keyframes;
-		Transform* keyframe_transformations;
+		std::unique_ptr<Transform[]> keyframe_transformations;
 	};
+#pragma endregion OriginalMyLibraryStructs
+#pragma region HelperStructs
+	struct Vec4
+	{
+		float x, y, z, w;
+
+		Vec4(float _x, float _y, float _z, float _w)
+			: x(_x), y(_y), z(_z), w(_w)
+		{};
+		Vec4() {};
+	};
+
+	struct DecomposedTransform
+	{
+		Vec4 translation;
+		Vec4 rotation;
+		Vec4 scale;
+		DecomposedTransform(Vec4 t, Vec4 r = { 0.0, 0.0, 0.0, 0.0 }, Vec4 s = { 1.0, 1.0, 1.0, 1.0 }) : translation(t), rotation(r), scale(s)
+		{}
+		DecomposedTransform()
+		{
+			translation = { 0.0, 0.0, 0.0, 1.0 };
+			rotation = { 0.0, 0.0, 0.0, 0.0 };
+			scale = { 1.0, 1.0, 1.0, 1.0 };
+		}
+	};
+
+	struct Bone
+	{
+		DecomposedTransform jointInverseBindPoseTransform;
+		DecomposedTransform jointReferenceTransform;
+
+		int32_t parentIndex;
+
+		Bone(DecomposedTransform inverseBindPose, DecomposedTransform referenceTransform, int32_t parent)
+			: jointInverseBindPoseTransform(inverseBindPose), jointReferenceTransform(referenceTransform), parentIndex(parent)
+		{}
+		Bone()
+		{}
+	};
+
+	struct Skeleton
+	{
+		std::vector<Bone> joints;
+	};
+
+	// #todo rename
+	struct AnimationFromFileStefan
+	{
+		unsigned int nr_of_keyframes;
+		std::unique_ptr<DecomposedTransform[]> keyframe_transformations;
+	};
+#pragma endregion HelperStructs
 }

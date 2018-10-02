@@ -9,6 +9,11 @@ cbuffer CAMERA_BUFFER : register(b1)
 	float4x4 viewProjection;
 };
 
+cbuffer SKINNING_BUFFER : register(b2)
+{
+	row_major float4x4 skinningMatrices[128];
+};
+
 struct VS_INPUT
 {
 	float4 pos : POSITION;
