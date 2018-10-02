@@ -24,7 +24,7 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
 		if (m_currentTime > frameTime * m_currentClip->m_frameCount)
 		{
-			m_isPlaying
+			m_isLooping
 				? m_currentTime -= frameTime * m_currentClip->m_frameCount
 				: m_isPlaying != m_isPlaying;
 		}
