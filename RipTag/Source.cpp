@@ -13,7 +13,7 @@
 #include "NetworkMessageIdentifiers.h"
 #include "CubePrototype.h"
 
-static std::vector<CubePrototype*> GetPlayers();
+static std::vector<CubePrototype*> * GetPlayers();
 static void FlushPlayers();
 
 #define LUA_ADD_PLAYER "AddPlayer"
@@ -244,6 +244,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	cP.setPosition(camera.getPosition());
 
 
+	std::vector<CubePrototype*> * players = GetPlayers();
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
@@ -314,12 +316,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		m.Draw();
 		m2.Draw();
 		cP.Draw();
-		auto vec = GetPlayers();
-		for (auto & obj : vec)
-		{
-			obj->Draw();
-		}
-
+		
+		for(size_t i = 0; i < players->size(); i++)
+			players->at(i)->Draw();
 
 		
 		//std::cout << std::cos(180) << std::endl;
@@ -337,11 +336,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	return 0;
 }
 
-static std::vector<CubePrototype*> GetPlayers()
+static std::vector<CubePrototype*> * GetPlayers()
 {
 	static std::vector<CubePrototype*> Players;
 
-	return Players;
+	return &Players;
 }
 
 static int Lua_Player_Add(lua_State *L)
@@ -349,17 +348,17 @@ static int Lua_Player_Add(lua_State *L)
 	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, lua_gettop(L));
 	if (ptr)
 	{
-		GetPlayers().push_back(ptr);
+		GetPlayers()->push_back(ptr);
 	}
 	return 0;
 }
 
 static void FlushPlayers()
 {
-	std::vector<CubePrototype*> vec = GetPlayers();
-	for (size_t i = 0; i < vec.size(); i++)
+	std::vector<CubePrototype*> * vec = GetPlayers();
+	for (size_t i = 0; i < vec->size(); i++)
 	{
-		delete vec[i];
+		delete &vec[i];
 	}
-	vec.clear();
+	vec->clear();
 }
