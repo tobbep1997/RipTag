@@ -142,11 +142,11 @@ namespace Network
 		}
 	}
 
-	void Multiplayer::SendPacket(const char * message)
+	void Multiplayer::SendPacket(const char * message, PacketPriority priority)
 	{
 		this->pPeer->Send(message,
 			std::strlen(message) + 1,
-			HIGH_PRIORITY, 
+			priority, 
 			RELIABLE,
 			0,
 			RakNet::UNASSIGNED_RAKNET_GUID,

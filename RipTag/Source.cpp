@@ -206,6 +206,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Network::LUA_Register_Network(L);
 	Network::LUA_Register_Network_Structs(L);
 	Network::LUA_Register_Network_MessageTypes(L);
+	Network::LUA_Register_Packet_Priorities(L);
 	LUA_Register_CubePrototype(L);
 	lua_register(L, LUA_ADD_PLAYER, Lua_Player_Add);
 

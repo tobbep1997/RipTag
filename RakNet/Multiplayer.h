@@ -16,6 +16,7 @@ extern "C" {
 #define GET_MP_INSTANCE "Multiplayer"
 #define SEND_DATA "Send"
 
+#define LUA_TABLE_PACKET_PRIORITIES "PACKET"
 
 
 namespace Network
@@ -46,7 +47,7 @@ namespace Network
 		void Disconnect();
 
 		void ReadPackets();
-		void SendPacket(const char* message);
+		void SendPacket(const char* message, PacketPriority priority);
 		void DestroySentPacket(void * msg);
 
 		void Update();
@@ -92,8 +93,11 @@ namespace Network
 	static int Send_Data(lua_State * L)
 	{
 		void * data = lua_touserdata(L, lua_gettop(L));
+		unsigned int priority = lua_tonumber(L, -1);
+
 		Multiplayer * pMp = Multiplayer::GetInstance();
-		pMp->SendPacket((const char*)data);
+
+		pMp->SendPacket((const char*)data, (PacketPriority)priority);
 		pMp->DestroySentPacket(data);
 		return 0;
 	}
@@ -105,6 +109,17 @@ namespace Network
 		lua_pushvalue(L, -1); lua_setfield(L, -2, "__index");
 		lua_pushcfunction(L, Send_Data); lua_setfield(L, -2, SEND_DATA);
 		lua_pop(L, 1);
+	}
+
+	static void LUA_Register_Packet_Priorities(lua_State * L)
+	{
+		lua_newtable(L);
+
+		LUA_Setfield_Enum(L, ENUM_TO_STR(LOW_PRIORITY), PacketPriority::LOW_PRIORITY);
+		LUA_Setfield_Enum(L, ENUM_TO_STR(HIGH_PRIORITY), PacketPriority::HIGH_PRIORITY);
+		LUA_Setfield_Enum(L, ENUM_TO_STR(IMMEDIATE_PRIORITY), PacketPriority::IMMEDIATE_PRIORITY);
+
+		lua_setglobal(L, LUA_TABLE_PACKET_PRIORITIES);
 	}
 
 }

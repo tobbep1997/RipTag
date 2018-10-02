@@ -9,8 +9,10 @@ function GameStart(isServer)
 	then
 		local msg = GameMessage(NETWORK_MESSAGES["ID_GAME_START"])
 		print (msg)
-		NETWORK_HANDLER.Send(msg)
-		print (NETWORK_HANDLER)
+		
+		NETWORK_HANDLER = Multiplayer()
+		NETWORK_HANDLER.Send(msg, PACKET["IMMEDIATE_PRIORITY"])
+		
 	end
 
 	CreateCubePrototype(x, y, z)

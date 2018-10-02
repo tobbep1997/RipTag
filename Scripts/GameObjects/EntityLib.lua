@@ -9,7 +9,8 @@ function CreateCubePrototype(x, y, z)
 	
 	local msg = CreateEntityMsg(NETWORK_MESSAGES["ID_CREATE_REMOTE_PLAYER"], nid, x, y, z)
 	print(msg)
-	NETWORK_HANDLER.Send(msg)
+	NETWORK_HANDLER = Multiplayer()
+	NETWORK_HANDLER.Send(msg, PACKET["LOW_PRIORITY"])
 end
 
 function CreateCubePrototypeRemote(data)
