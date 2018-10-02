@@ -10,12 +10,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player = new Player();
 	enemy = new Enemy();
 	CameraHandler::setActiveCamera(player->getCamera());
+
+	m_world = new b3World();
 }
 
 PlayState::~PlayState()
 {
 	delete enemy;
 	delete player;
+	delete m_world;
 }
 
 void PlayState::Update(double deltaTime)
