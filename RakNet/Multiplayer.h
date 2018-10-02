@@ -47,7 +47,7 @@ namespace Network
 		void Disconnect();
 
 		void ReadPackets();
-		void SendPacket(const char* message, PacketPriority priority);
+		void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void DestroySentPacket(void * msg);
 
 		void Update();
@@ -92,12 +92,13 @@ namespace Network
 
 	static int Send_Data(lua_State * L)
 	{
-		void * data = lua_touserdata(L, -2);
+		void * data = lua_touserdata(L, -3);
+		size_t length = lua_tonumber(L, -2);
 		unsigned int priority = lua_tonumber(L, -1);
 
 		Multiplayer * pMp = Multiplayer::GetInstance();
 
-		pMp->SendPacket((const char*)data, (PacketPriority)priority);
+		pMp->SendPacket((const char*)data, length, (PacketPriority)priority);
 		pMp->DestroySentPacket(data);
 		return 0;
 	}

@@ -85,7 +85,9 @@ namespace Network
 		lua_pop(L, 1);
 		GAME_MESSAGE * msg = new GAME_MESSAGE(id);
 		lua_pushlightuserdata(L, (void*)msg);
-		return 1;
+		lua_pushnumber(L, sizeof(GAME_MESSAGE));
+
+		return 2;
 	}
 
 	static int New_Player_Movement_Data(lua_State * L)
@@ -105,7 +107,7 @@ namespace Network
 
 	static int New_Entity_Creation_Message(lua_State * L)
 	{
-		double x, y, z;
+		float x, y, z;
 		unsigned char id = (unsigned char)lua_tonumber(L, -5);
 		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, -4);
 		x = lua_tonumber(L, -3);
@@ -114,7 +116,8 @@ namespace Network
 		lua_pop(L, 5);
 		ENTITY_CREATE_MESSAGE * packet = new ENTITY_CREATE_MESSAGE(id, networkId, x, y, z);
 		lua_pushlightuserdata(L, (void*)packet);
-		return 1;
+		lua_pushnumber(L, sizeof(ENTITY_CREATE_MESSAGE));
+		return 2;
 	}
 
 	static void LUA_Register_Network_Structs(lua_State * L)

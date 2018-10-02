@@ -7,11 +7,11 @@ function GameStart(isServer)
 	--Send out a message that we have started the game if we are the server
 	if isServer
 	then
-		local msg = GameMessage(NETWORK_MESSAGES["ID_GAME_START"])
+		local msg, size = GameMessage(NETWORK_MESSAGES["ID_GAME_START"])
 		print (msg)
 		
 		NETWORK_HANDLER = Multiplayer()
-		NETWORK_HANDLER.Send(msg, PACKET["IMMEDIATE_PRIORITY"])
+		NETWORK_HANDLER.Send(msg, size, PACKET["IMMEDIATE_PRIORITY"])
 		
 	end
 
