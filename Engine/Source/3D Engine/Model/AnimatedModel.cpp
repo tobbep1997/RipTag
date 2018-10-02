@@ -101,9 +101,9 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	auto rotationMatrix = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
 	auto scaleMatrix = XMMatrixScalingFromVector(XMLoadFloat4A(&fScale));
 	
-	return XMMatrixMultiply(rotationMatrix, translationMatrix);
+	//return XMMatrixMultiply(rotationMatrix, translationMatrix); // #todo test/make sure we dont need this
 
-	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
+	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform)
