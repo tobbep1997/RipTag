@@ -50,7 +50,7 @@ static int New_Prototype_Network(lua_State * L)
 	CubePrototype * ptr = 0;
 	if (data)
 	{
-		ptr = new CubePrototype(data->nId, data->x, data->y, data->z);
+		ptr = new CubePrototype(data->nId, data->pos[0], data->pos[1], data->pos[2]);
 		lua_pushlightuserdata(L, (void*)ptr);
 		luaL_setmetatable(L, PROTOTYPE_METATABLE);
 		return 1;

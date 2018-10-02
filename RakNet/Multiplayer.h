@@ -92,7 +92,7 @@ namespace Network
 
 	static int Send_Data(lua_State * L)
 	{
-		void * data = lua_touserdata(L, lua_gettop(L));
+		void * data = lua_touserdata(L, -2);
 		unsigned int priority = lua_tonumber(L, -1);
 
 		Multiplayer * pMp = Multiplayer::GetInstance();

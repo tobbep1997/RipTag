@@ -6,7 +6,7 @@ function CreateCubePrototype(x, y, z)
 	AddPlayer(object)
 	local mt = getmetatable(object)
 	local nid = mt.GetNID(object)
-	
+	print(x, y , z)
 	local msg = CreateEntityMsg(NETWORK_MESSAGES["ID_CREATE_REMOTE_PLAYER"], nid, x, y, z)
 	print(msg)
 	NETWORK_HANDLER = Multiplayer()

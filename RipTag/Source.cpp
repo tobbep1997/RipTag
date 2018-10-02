@@ -307,7 +307,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		for(size_t i = 0; i < players->size(); i++)
 			players->at(i)->Draw();
 
-		
+		if (players->size() == 2)
+			int _break = 0;
+
 		renderingManager.Flush(camera);
 	}
 	DX::g_shaderManager.Release();

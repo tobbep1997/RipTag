@@ -29,8 +29,8 @@ namespace Network
 	};
 
 
-	//STRUCTS BEGIN
-	#pragma pack(push, 1)
+//STRUCTS BEGIN
+#pragma pack(push, 1)
 	struct GAME_MESSAGE
 	{
 		unsigned char id;
@@ -39,7 +39,8 @@ namespace Network
 			id = _id;
 		}
 	};
-	
+#pragma pack(pop)
+#pragma pack(push, 1)
 	struct ENTITY_MOVE_MESSAGE
 	{
 		unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
@@ -58,24 +59,24 @@ namespace Network
 			networkId = _networkId;
 		}
 	};
-
-
+#pragma pack(pop)
+#pragma pack(push, 1)
 	struct ENTITY_CREATE_MESSAGE
 	{
 		unsigned char id;
 		RakNet::NetworkID nId;
-		float x, y, z;
+		float pos[3];
 
-		ENTITY_CREATE_MESSAGE(unsigned char _id, RakNet::NetworkID _nid, float _x, float _y, float _z)
+		ENTITY_CREATE_MESSAGE(unsigned char _id, RakNet::NetworkID _nid, double _x, double _y, double _z)
 		{
 			id = _id;
 			nId = _nid;
-			x = _x;
-			y = _y;
-			z = _z;
+			pos[0] = _x;
+			pos[1] = _y;
+			pos[2] = _z;
 		}
 	};
-	#pragma pack(pop)
+#pragma pack(pop)
 	//STRUCTS END
 
 	static int New_Game_Message(lua_State * L)
@@ -104,12 +105,12 @@ namespace Network
 
 	static int New_Entity_Creation_Message(lua_State * L)
 	{
-		float x, y, z;
+		double x, y, z;
 		unsigned char id = (unsigned char)lua_tonumber(L, -5);
 		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, -4);
-		x = (float)lua_tonumber(L, -3);
-		y = (float)lua_tonumber(L, -2);
-		z = (float)lua_tonumber(L, -1);
+		x = lua_tonumber(L, -3);
+		y = lua_tonumber(L, -2);
+		z = lua_tonumber(L, -1);
 		lua_pop(L, 5);
 		ENTITY_CREATE_MESSAGE * packet = new ENTITY_CREATE_MESSAGE(id, networkId, x, y, z);
 		lua_pushlightuserdata(L, (void*)packet);
