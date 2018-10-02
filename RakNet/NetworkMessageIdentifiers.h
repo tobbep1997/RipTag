@@ -14,6 +14,7 @@ extern "C" {
 #define PACKETS_METATABLE "PACKETS"
 #define LUA_TABLE_MESSAGE_IDENTIFIERS "NETWORK_MESSAGES"
 #define LUA_ENTITY_CREATION "CreateEntityMsg"
+#define LUA_GAME_MESSAGE "GameMessage"
 
 #define ENUM_TO_STR(ENUM) std::string(#ENUM)
 
@@ -30,6 +31,14 @@ namespace Network
 
 	//STRUCTS BEGIN
 	#pragma pack(push, 1)
+	struct GAME_MESSAGE
+	{
+		unsigned char id;
+		GAME_MESSAGE(unsigned char _id)
+		{
+			id = _id;
+		}
+	};
 	
 	struct ENTITY_MOVE_MESSAGE
 	{
@@ -69,6 +78,15 @@ namespace Network
 	#pragma pack(pop)
 	//STRUCTS END
 
+	static int New_Game_Message(lua_State * L)
+	{
+		unsigned char id = (unsigned char)lua_tonumber(L, -1);
+		lua_pop(L, 1);
+		GAME_MESSAGE * msg = new GAME_MESSAGE(id);
+		lua_pushlightuserdata(L, (void*)msg);
+		return 1;
+	}
+
 	static int New_Player_Movement_Data(lua_State * L)
 	{
 		float x, y, z;
@@ -100,6 +118,7 @@ namespace Network
 
 	static void LUA_Register_Network_Structs(lua_State * L)
 	{
+		lua_register(L, LUA_GAME_MESSAGE, New_Game_Message);
 		lua_register(L, PLAYER_MOVEMENT_FOR_LUA, New_Player_Movement_Data);
 		lua_register(L, LUA_ENTITY_CREATION, New_Entity_Creation_Message);
 	}

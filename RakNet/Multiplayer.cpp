@@ -245,12 +245,24 @@ namespace Network
 
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
-		ENTITY_MOVE_MESSAGE* pM = nullptr;
+		//Pointer to our lua_State (i just want a short variable for cleaner code)
+		lua_State * L = this->pLuaState;
 
+		//Call script after Message identification
 		switch (mID)
 		{
+		case ID_GAME_START:
+			lua_getglobal(L, "GameStart");
+			lua_pushboolean(L, this->isServer());
+			lua_call(L, 1, 0);
+
+			break;
 		case ID_CREATE_REMOTE_PLAYER:
-			//run creation script
+			//run creation script function
+			lua_getglobal(L, "CreateCubePrototypeRemote");
+			lua_pushlightuserdata(L, (void*)data);
+			lua_call(L, 1, 0);
+			
 			break;
 		case ID_UPDATE_SPHERE_LOCATION:
 			// Insert script

@@ -11,14 +11,15 @@ extern "C" {
 
 #define PROTOTYPE_METATABLE "PrototypeMT"
 #define PROTOTYPE_NEW "Prototype"
+#define PROTOTYPE_NEW_REMOTE "PrototypeRemote"
 #define PROTOTYPE_SET_POS "SetPosition"
 #define PROTOTYPE_GET_NID "GetNID"
 
 class CubePrototype : public RakNet::NetworkIDObject
 {
 public:
-	CubePrototype();
-	CubePrototype(RakNet::NetworkID nid);
+	CubePrototype(float x, float y, float z);
+	CubePrototype(RakNet::NetworkID nid, float x, float y, float z);
 	~CubePrototype();
 
 	void setPosition(DirectX::XMFLOAT4A pos);
@@ -29,13 +30,27 @@ private:
 	StaticMesh * s;
 };
 
+
+static int New_Prototype(lua_State * L)
+{
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+
+	CubePrototype * ptr = new CubePrototype(x, y, z);
+	lua_pushlightuserdata(L, (void*)ptr);
+	luaL_setmetatable(L, PROTOTYPE_METATABLE);
+
+	return 1;
+}
+
 static int New_Prototype_Network(lua_State * L)
 {
 	Network::ENTITY_CREATE_MESSAGE * data = (Network::ENTITY_CREATE_MESSAGE *)lua_touserdata(L, lua_gettop(L));
 	CubePrototype * ptr = 0;
 	if (data)
 	{
-		ptr = new CubePrototype(data->nId);
+		ptr = new CubePrototype(data->nId, data->x, data->y, data->z);
 		lua_pushlightuserdata(L, (void*)ptr);
 		luaL_setmetatable(L, PROTOTYPE_METATABLE);
 		return 1;

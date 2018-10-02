@@ -1,7 +1,7 @@
 #include "CubePrototype.h"
 
 
-CubePrototype::CubePrototype()
+CubePrototype::CubePrototype(float x, float y, float z)
 {
 	Network::Multiplayer * pMp = Network::Multiplayer::GetInstance();
 	this->SetNetworkIDManager(pMp->pNetworkIDManager);
@@ -13,13 +13,12 @@ CubePrototype::CubePrototype()
 	this->m = Model(ObjectType::Static);
 	this->m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	this->m.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	this->m.setPosition(0, 0, 0);
 	this->m.SetModel(s);
-	this->m.setPosition(0, -3, 0);
+	this->m.setPosition(x, y, z);
 	this->m.setScale(1, 1, 1);
 }
 
-CubePrototype::CubePrototype(RakNet::NetworkID nid)
+CubePrototype::CubePrototype(RakNet::NetworkID nid, float x, float y, float z)
 {
 	Network::Multiplayer * pMp = Network::Multiplayer::GetInstance();
 	this->SetNetworkIDManager(pMp->pNetworkIDManager);
@@ -31,9 +30,8 @@ CubePrototype::CubePrototype(RakNet::NetworkID nid)
 	this->m = Model(ObjectType::Static);
 	this->m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
 	this->m.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	this->m.setPosition(0, 0, 0);
 	this->m.SetModel(s);
-	this->m.setPosition(0, -3, 0);
+	this->m.setPosition(x, y, z);
 	this->m.setScale(1, 1, 1);
 }
 

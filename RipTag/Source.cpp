@@ -50,6 +50,8 @@ float posZ = -6;
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
 float lightIntensity = 1;
+
+
 void ImGuiTest()
 {
 #if _DEBUG
@@ -62,6 +64,7 @@ void ImGuiTest()
 #endif
 
 }
+
 
 void TestCameraLua(lua_State * L)
 {
@@ -77,7 +80,9 @@ void TestCameraLua(lua_State * L)
 	ImGui::End();
 }
 
-void NetworkSettings(Network::Multiplayer * pMP)
+bool gameIsRunning = false;
+
+void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 {
 	bool startServer = false;
 	bool startClient = false;
@@ -106,8 +111,13 @@ void NetworkSettings(Network::Multiplayer * pMP)
 	if (pMP->isRunning() && pMP->isConnected())
 	{
 		ImGui::Text(pMP->GetNetworkInfo().c_str());
-		if (ImGui::Button("Ping"))
-			pMP->SendPacket("Pingpingping");
+		if (ImGui::Button("Start Game") && !gameIsRunning && pMP->isServer())
+		{
+			lua_getglobal(L, "StartGame");
+			lua_pushboolean(L, pMP->isServer());
+			lua_call(L, 1, 0);
+			gameIsRunning = true;
+		}
 		if (ImGui::Button("Disconnect"))
 			pMP->Disconnect();
 	}
@@ -193,6 +203,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	LUA_Register_CubePrototype(L);
 	lua_register(L, LUA_ADD_PLAYER, Lua_Player_Add);
 
+	//load our Lua libraries into the global enviroment (maybe run a LoadLibs.lua script for this?)
+	luaL_dofile(L, "..//Scripts//LuaInit.lua");
+	luaL_dofile(L, "..//Scripts//GameObjects//EntityLib.lua");
+	luaL_dofile(L, "..//Scripts//GameObjects//Game.lua");
+
 	Timer::StartTimer();
 
 	RenderingManager renderingManager;
@@ -207,26 +222,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
 	camera.setPosition(0, 0, -6);
 
+
 	LUA_Register_Camera(L, &camera);
-
-	Model m(ObjectType::Static);
-	Model m2(ObjectType::Static);
-	m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-	m.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-	m2.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
-	m2.SetPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
-
-	m.setPosition(0, 0, 0);
-	m2.setPosition(-1, 0, 0);
-	StaticMesh * s = new StaticMesh();
-	StaticMesh * d = new StaticMesh();
-	s->LoadModel("../Assets/sphere.bin");
-	d->LoadModel("../Assets/RUMMET.bin");
-	m.SetModel(s);
-	m2.SetModel(d);
-
-	m.setPosition(0, -3, 0);
-	m.setScale(1, 1, 1);
+	
 
 	PointLight pl;
 	pl.Init(DirectX::XMFLOAT4A(0,5,0,1), DirectX::XMFLOAT4A(1,1,1,1), 0.0f);
@@ -236,15 +234,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	camera.setLookTo(0, 0, 0, 1);
 
-	double pos = 0;
-
-	
-	// CUBE
-	CubePrototype cP;
-	cP.setPosition(camera.getPosition());
-
-
 	std::vector<CubePrototype*> * players = GetPlayers();
+
+	CubePrototype * antiCrashObject = 0;
+	antiCrashObject = new CubePrototype(-1.f, -1.f, -1.f);
 
 	while (renderingManager.getWindow().isOpen())
 	{
@@ -272,8 +265,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			camera.Move(0.0f, 0.01f, 0.0f);
 		else if (InputHandler::isKeyPressed(InputHandler::Shift))
 			camera.Move(0.0f, -0.01f, 0.0f);
-
-		cP.setPosition(camera.getPosition());
 		/*
 			Test Camera rotation
 		*/
@@ -295,34 +286,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//ImGuiTest();
 		//CameraTest();
 		//MoveLight();
-		NetworkSettings(pNetwork);
-		TestNetworkScript(L);
+		NetworkSettings(pNetwork, L);
 		TestCameraLua(L);
-		//SendPacketTest(pNetwork, camera.getPosition(), cP.GetNetworkID());
-		SendPacketTest(L);
+
 		pNetwork->Update();
-		/*
-		pos += Timer::GetDurationInSeconds() * 0.03;
-		pl.SetPosition((float)std::cos(pos) * 5.0f, 5, (float)std::sin(pos) * 5.0f);
-		pl.SetColor((float)std::cos(pos), (float)std::sin(pos), (float)std::tan(pos));
-		pl.SetIntensity(1.0 - std::abs((float)std::sin(pos) * 0.1f));
-		*/
+		
 		pl.QueueLight();
-		//camera.setPosition(posX, posY, posZ);
-		m2.setPosition(scaleX, scaleY, scaleZ);
-		//m.addRotation(0, rotSpeed, 0);
-		//m.setScale(scaleX,scaleY,scaleZ);
 		
-		m.Draw();
-		m2.Draw();
-		cP.Draw();
-		
+		antiCrashObject->Draw();
+
 		for(size_t i = 0; i < players->size(); i++)
 			players->at(i)->Draw();
 
-		
-		//std::cout << std::cos(180) << std::endl;
-		//camera.setLookTo(0, 0, 0);
 		
 		renderingManager.Flush(camera);
 	}
@@ -330,9 +305,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	renderingManager.Release();
 	lua_close(L);
 	FlushPlayers();
+	delete antiCrashObject;
 
-	delete s;
-	delete d;
 	return 0;
 }
 
@@ -358,7 +332,7 @@ static void FlushPlayers()
 	std::vector<CubePrototype*> * vec = GetPlayers();
 	for (size_t i = 0; i < vec->size(); i++)
 	{
-		delete &vec[i];
+		delete vec->at(i);
 	}
 	vec->clear();
 }
