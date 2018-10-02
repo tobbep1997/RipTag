@@ -102,7 +102,6 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	auto scaleMatrix = XMMatrixScalingFromVector(XMLoadFloat4A(&fScale));
 	
 	//return XMMatrixMultiply(rotationMatrix, translationMatrix); // #todo test/make sure we dont need this
-
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
@@ -125,7 +124,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 }
 
 // #todo rename
-Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string file, Skeleton* skeleton)
+Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Skeleton* skeleton)
 {
 	MyLibrary::Loadera loader;
 	auto importedAnimation = loader.readAnimationFileStefan(file, skeleton->m_jointCount);
@@ -140,7 +139,7 @@ Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string fi
 }
 
 // #todo rename
-Animation::Skeleton* Animation::LoadAndCreateSkeletonStefan(std::string file)
+Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 {
 	MyLibrary::Loadera loader;
 	auto importedSkeleton = loader.readSkeletonFileStefan(file);
