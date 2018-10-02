@@ -97,7 +97,7 @@ namespace Animation
 		void Pause();
 		void Play();
 
-		std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
+		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;

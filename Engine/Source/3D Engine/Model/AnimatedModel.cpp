@@ -83,9 +83,8 @@ void Animation::AnimatedModel::Play()
 	m_isPlaying = true;
 }
 
-// #todo const ref
 // Returns a reference to the skinning matrix vector
-std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
+const std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
 {
 	return m_skinningMatrices;
 }
