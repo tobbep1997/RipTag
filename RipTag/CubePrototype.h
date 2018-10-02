@@ -93,7 +93,8 @@ static int Get_NID_Prototype(lua_State *L)
 
 static void LUA_Register_CubePrototype(lua_State *L)
 {
-	lua_register(L, PROTOTYPE_NEW, New_Prototype_Network);
+	lua_register(L, PROTOTYPE_NEW, New_Prototype);
+	lua_register(L, PROTOTYPE_NEW_REMOTE, New_Prototype_Network);
 	luaL_newmetatable(L, PROTOTYPE_METATABLE);
 	lua_pushvalue(L, -1); lua_setfield(L, -2, "__index");
 	lua_pushcfunction(L, Set_Position_Prototype); lua_setfield(L, -2, PROTOTYPE_SET_POS);

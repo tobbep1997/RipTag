@@ -113,10 +113,16 @@ void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 		ImGui::Text(pMP->GetNetworkInfo().c_str());
 		if (ImGui::Button("Start Game") && !gameIsRunning && pMP->isServer())
 		{
-			lua_getglobal(L, "StartGame");
+			lua_getglobal(L, "GameStart");
 			lua_pushboolean(L, pMP->isServer());
-			lua_call(L, 1, 0);
-			gameIsRunning = true;
+			int error = lua_pcall(L, 1, 0, NULL);
+			if (error > 0)
+			{
+				printf(lua_tostring(L, -1));
+				lua_pop(L, 1);
+			}
+			int stop = 0;
+			//gameIsRunning = true;
 		}
 		if (ImGui::Button("Disconnect"))
 			pMP->Disconnect();
@@ -207,6 +213,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	luaL_dofile(L, "..//Scripts//LuaInit.lua");
 	luaL_dofile(L, "..//Scripts//GameObjects//EntityLib.lua");
 	luaL_dofile(L, "..//Scripts//GameObjects//Game.lua");
+
+	pNetwork->pLuaState = L;
 
 	Timer::StartTimer();
 

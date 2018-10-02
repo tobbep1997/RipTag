@@ -254,14 +254,14 @@ namespace Network
 		case ID_GAME_START:
 			lua_getglobal(L, "GameStart");
 			lua_pushboolean(L, this->isServer());
-			lua_call(L, 1, 0);
+			lua_pcall(L, 1, 0, NULL);
 
 			break;
 		case ID_CREATE_REMOTE_PLAYER:
 			//run creation script function
 			lua_getglobal(L, "CreateCubePrototypeRemote");
 			lua_pushlightuserdata(L, (void*)data);
-			lua_call(L, 1, 0);
+			lua_pcall(L, 1, 0, NULL);
 			
 			break;
 		case ID_UPDATE_SPHERE_LOCATION:

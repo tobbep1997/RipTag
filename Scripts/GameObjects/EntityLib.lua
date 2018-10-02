@@ -2,12 +2,13 @@
 
 function CreateCubePrototype(x, y, z)
 	local object = Prototype(x, y, z)
+	print(object)
 	AddPlayer(object)
 	local mt = getmetatable(object)
 	local nid = mt.GetNID(object)
 	
 	local msg = CreateEntityMsg(NETWORK_MESSAGES["ID_CREATE_REMOTE_PLAYER"], nid, x, y, z)
-	
+	print(msg)
 	NETWORK_HANDLER.Send(msg)
 end
 
