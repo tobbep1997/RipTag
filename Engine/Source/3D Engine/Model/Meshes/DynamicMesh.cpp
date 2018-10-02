@@ -21,6 +21,12 @@ const std::vector<DynamicVertex>& DynamicMesh::getVertices() const
 	return m_dynamicVertex;
 }
 
+
+Animation::AnimatedModel* DynamicMesh::getAnimatedModel()
+{
+	return m_anim;
+}
+
 void DynamicMesh::setVertices(std::vector<DynamicVertex>& input)
 {
 	m_dynamicVertex.clear();

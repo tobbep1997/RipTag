@@ -175,8 +175,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.h" />
-    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.h" />
+    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\Temp_Guard\TempGuard.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
@@ -226,8 +226,8 @@
     <ClCompile Include="Source\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="Source\3D Engine\Temp_Guard\TempGuard.cpp" />
     <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>

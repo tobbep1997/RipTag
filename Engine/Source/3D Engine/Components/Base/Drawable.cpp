@@ -193,10 +193,10 @@ ID3D11Buffer * Drawable::getBuffer()
 	return p_vertexBuffer;
 }
 
-Animation::AnimatedModel* Drawable::getAnimatedModel()
-{
-	return m_dynamicMesh->getAnimatedModel();
-}
+//Animation::AnimatedModel* Drawable::getAnimatedModel()
+//{
+//	return m_dynamicMesh->getAnimatedModel();
+//}
 
 DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 {

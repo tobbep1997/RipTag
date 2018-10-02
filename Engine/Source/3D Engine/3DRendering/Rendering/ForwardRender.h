@@ -6,7 +6,12 @@
 #include <thread>
 #include "VisabilityPass/VisabilityPass.h"
 
-class Animation::AnimationCBuffer;
+#pragma region ForwardDeclarations
+namespace Animation
+{
+	class AnimationCBuffer;
+}
+#pragma endregion
 
 class ForwardRender
 {
