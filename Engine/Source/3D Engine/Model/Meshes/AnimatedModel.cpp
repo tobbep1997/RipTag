@@ -299,7 +299,7 @@ void Animation::AnimationCBuffer::UpdateBuffer(PVOID64 data, size_t dataSize)
 
 void Animation::AnimationCBuffer::SetToShader()
 {
-	DX::g_deviceContext->VSSetConstantBuffers(2, 1, &m_AnimationBuffer);
+	DX::g_deviceContext->VSSetConstantBuffers(4, 1, &m_AnimationBuffer);
 }
 
 Animation::SRT::SRT(const MyLibrary::Transform& transform)
