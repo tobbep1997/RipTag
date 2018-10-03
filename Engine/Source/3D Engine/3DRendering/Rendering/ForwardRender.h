@@ -6,6 +6,13 @@
 #include <thread>
 #include "VisabilityPass/VisabilityPass.h"
 
+#pragma region ForwardDeclarations
+namespace Animation
+{
+	class AnimationCBuffer;
+}
+#pragma endregion
+
 class ForwardRender
 {
 
@@ -46,7 +53,7 @@ private:
 	std::wstring m_lastVertexPath;
 	std::wstring m_lastPixelPath;
 
-	//Standard §
+	//Standard ï¿½
 	IDXGISwapChain*				m_swapChain;
 	ID3D11RenderTargetView*		m_backBufferRTV;
 	ID3D11DepthStencilView*		m_depthStencilView;
@@ -57,7 +64,7 @@ private:
 
 	//Constant Buffer TEMP
 	//TODO::Fixa constant buffers
-	//Uppdatera bara 1 gång
+	//Uppdatera bara 1 gï¿½ng
 	//Fixa en constant_buffer.hlsl
 
 	ID3D11Buffer* m_objectBuffer = nullptr;
@@ -69,6 +76,7 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
+	std::unique_ptr<Animation::AnimationCBuffer> m_animationBuffer;
 	ShadowMap m_shadowMap;
 
 	VisabilityPass m_visabilityPass;
@@ -113,6 +121,7 @@ private:
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
 	void _mapCameraBuffer(Camera & camera);
+	void _mapSkinningBuffer(Drawable * drawable);
 	void _mapLightInfoNoMatrix();
 
 

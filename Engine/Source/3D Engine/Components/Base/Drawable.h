@@ -83,6 +83,9 @@ public:
 	virtual EntityType getEntityType();
 	virtual void setEntityType(EntityType en);
 
+	//returns AnimatedModel ptr if valid
+	Animation::AnimatedModel* getAnimatedModel();
+
 private:
 	virtual void _setStaticBuffer();
 	virtual void _setDynamicBuffer();

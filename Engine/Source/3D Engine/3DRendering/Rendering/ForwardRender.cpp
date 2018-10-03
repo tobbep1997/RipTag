@@ -124,10 +124,12 @@ void ForwardRender::AnimatedGeometryPass()
 		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
 		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+		
 		DX::g_animatedGeometryQueue[i]->BindTextures();
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		//DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->VertexSize(), 0);
+		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
 		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 
 
@@ -337,6 +339,20 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
 	m_objectValues.worldMatrix = drawable->getWorldmatrix();
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
+}
+
+void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
+{
+	if (!m_animationBuffer)
+	{
+		m_animationBuffer = std::make_unique<Animation::AnimationCBuffer>();
+		m_animationBuffer->SetAnimationCBuffer();
+	}
+
+	auto skinningVector = drawable->getAnimatedModel()->GetSkinningMatrices();
+
+	m_animationBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
+	m_animationBuffer->SetToShader();
 }
 
 void ForwardRender::_mapCameraBuffer(Camera & camera)
