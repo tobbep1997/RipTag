@@ -76,7 +76,7 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
-	Animation::AnimationCBuffer* m_animationBuffer;
+	std::unique_ptr<Animation::AnimationCBuffer> m_animationBuffer;
 	ShadowMap m_shadowMap;
 
 	VisabilityPass m_visabilityPass;

@@ -345,7 +345,7 @@ void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 {
 	if (!m_animationBuffer)
 	{
-		m_animationBuffer = new Animation::AnimationCBuffer();
+		m_animationBuffer = std::make_unique<Animation::AnimationCBuffer>();
 		m_animationBuffer->SetAnimationCBuffer();
 	}
 
