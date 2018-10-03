@@ -271,6 +271,8 @@ namespace Network
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 			this->_onDisconnect();
 			break;
+		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
+			this->_onDisconnect();
 		default:
 			break;
 		}
