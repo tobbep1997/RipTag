@@ -409,7 +409,7 @@ Animation::AnimationCBuffer::AnimationCBuffer()
 
 Animation::AnimationCBuffer::~AnimationCBuffer()
 {
-
+	DX::SafeRelease(m_AnimationBuffer);
 }
 
 void Animation::AnimationCBuffer::SetAnimationCBuffer()
@@ -434,7 +434,7 @@ void Animation::AnimationCBuffer::SetAnimationCBuffer()
 
 void Animation::AnimationCBuffer::UpdateBuffer(AnimationBuffer *buffer)
 {
-	memcpy(m_AnimationValues.skinnedMatrix, &buffer->skinnedMatrix, sizeof(sizeof(float) * 16 * MAXJOINT));
+	memcpy(m_AnimationValues.skinnedMatrix, &buffer->skinnedMatrix, (sizeof(float) * 16 * MAXJOINT));
 	DX::g_deviceContext->Map(m_AnimationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_dataPtr);
 	memcpy(m_dataPtr.pData, &m_AnimationValues, sizeof(AnimationBuffer));
 	DX::g_deviceContext->Unmap(m_AnimationBuffer, 0);

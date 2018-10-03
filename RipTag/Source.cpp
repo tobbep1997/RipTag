@@ -126,16 +126,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	//Manager::g_meshManager.loadDynamicMesh("TORUS");
 	//Manager::g_meshManager.loadDynamicMesh("KON");
-
-	{
-		Manager::g_meshManager.loadDynamicMesh("BALL");
-		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/BALLFOLDER/BALL_SKELETON.bin");
-		auto animation = Animation::LoadAndCreateAnimation("../Assets/BALLFOLDER/BALL_ANIMATION.bin", skeleton);
-		Manager::g_meshManager.getDynamicMesh("BALL")->m_anim = new Animation::AnimatedModel();
-		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetSkeleton(skeleton);
-		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetPlayingClip(animation);
-		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->Play();
-	}
+	
+	Animation::Skeleton* skeleton = nullptr;
+	Animation::AnimationClip* animation = nullptr;
+	Manager::g_meshManager.loadDynamicMesh("BALL");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/BALLFOLDER/BALL_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/BALLFOLDER/BALL_ANIMATION.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("BALL")->m_anim = new Animation::AnimatedModel();
+	Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetSkeleton(skeleton);
+	Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetPlayingClip(animation);
+	Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->Play();
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -331,6 +331,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.Clear();
 		
 	}
+
+	if (skeleton)
+		delete skeleton;
+	if (animation)
+		delete animation;
+
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
 	delete player;

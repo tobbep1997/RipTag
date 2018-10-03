@@ -9,6 +9,8 @@ DynamicMesh::DynamicMesh()
 
 DynamicMesh::~DynamicMesh()
 {
+	if (m_anim)
+		delete m_anim;
 }
 
 const DynamicVertex * DynamicMesh::getRawVertices() const

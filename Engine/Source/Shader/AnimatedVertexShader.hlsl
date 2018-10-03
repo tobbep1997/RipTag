@@ -5,7 +5,7 @@ cbuffer OBJECT_BUFFER : register(b3)
 	float4x4 worldMatrix;
 };
 
-cbuffer SKINNING_BUFFER : register(b2)
+cbuffer SKINNING_BUFFER : register(b4)
 {
 	row_major float4x4 skinningMatrices[128];
 };
