@@ -12,25 +12,24 @@ Animation::AnimatedModel::~AnimatedModel()
 // Computes the frame we're currently on and computes final skinning matrices for gpu skinning
 void Animation::AnimatedModel::Update(float deltaTime)
 {
-	deltaTime /= 16.0; // #todo deltatime
 	if (m_isPlaying)
 	{
 		/// increase local time
-		m_currentTime += deltaTime;
+		m_currentTime += std::fmod(deltaTime, m_currentClip->m_frameCount / 24.0);
 
 		///calc the actual frame index and progression towards the next frame
-		int prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
-		float progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
-
+		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
+		float progression = std::fmod(m_currentTime, 1.0 / 24.0);
+		progression *= 24;
 		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
-		if (prevIndex == m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
+		if (prevIndex >= m_currentClip->m_frameCount -1) /// -1 because last frame is only used to interpolate towards
 		{
 			if (m_isLooping)
 			{
 				m_currentTime = 0.0 + progression;
 	
-				prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
-				progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
+				prevIndex = std::floorf(m_currentClip->m_framerate / 2 *m_currentTime);
+				progression = std::fmod(m_currentTime, 1.0 / 24.0);
 			}
 			else
 			{
@@ -41,6 +40,8 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		/// compute skinning matrices
 		if (m_isPlaying)
 			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
+
+		int i = 0;
 	}
 	else //scrub
 	{
@@ -128,12 +129,6 @@ Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Sk
 {
 	MyLibrary::Loadera loader;
 	auto importedAnimation = loader.readAnimationFileStefan(file, skeleton->m_jointCount);
-
-	std::vector<MyLibrary::DecomposedTransform> transforms;
-	for (int i = 0; i < importedAnimation.nr_of_keyframes * skeleton->m_jointCount; i++)
-	{
-		transforms.push_back(importedAnimation.keyframe_transformations[i]);
-	}
 
 	return new Animation::AnimationClip(importedAnimation, skeleton);
 }
