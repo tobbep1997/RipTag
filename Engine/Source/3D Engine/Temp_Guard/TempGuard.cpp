@@ -3,7 +3,7 @@
 //#include "../../Debugg/ImGui/imgui.h"
 Guard::Guard()
 {
-	m_frustum.setPoints();
+	m_frustum = NDCBOX::GetNDCBox();
 	m_pos = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 1.0f);
 	m_rot = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 1.0f);
 	//m_cam.setDirection(0.0f, 0.0f, -1.0f);
@@ -22,7 +22,7 @@ Guard::Guard()
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.ByteWidth = sizeof(FrustumVertex) * 36;
 	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = &m_frustum.p;
+	vertexData.pSysMem = m_frustum.data();
 
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
 
@@ -39,9 +39,9 @@ Guard::~Guard()
 	
 }
 
-const Frustum & Guard::getFrustum()
+const std::vector<FrustumVertex> * Guard::getFrustum()
 {
-	return m_frustum;
+	return &m_frustum;
 }
 
 void Guard::setPos(float x, float y, float z)
@@ -86,17 +86,10 @@ UINT32 Guard::getSizeOfStruct()
 	return sizeof(FrustumVertex);
 }
 
-UINT Guard::getNrVertices()
-{
-	return Frustum::NR_OF_VERTICES;
-}
-
 Camera & Guard::getCamera()
 {
 	return m_cam;
 }
-
-
 
 const DirectX::XMFLOAT4X4A & Guard::getWorldMatrix()
 {
@@ -181,12 +174,6 @@ void Guard::_createUAV()
 	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 
 	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavTextureBufferCPU);
-
-	//TextureData.Usage = D3D11_USAGE_STAGING;
-	//TextureData.BindFlags = 0;
-	//TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	//hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_uavKILLER);
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
 	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
