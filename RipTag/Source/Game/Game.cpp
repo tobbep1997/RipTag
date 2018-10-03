@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Source/3D Engine/Extern.h"
 
 
 Game::Game()
@@ -20,9 +21,12 @@ void Game::Init(_In_ HINSTANCE hInstance)
 {
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
-	//modelManager.addStaticMesh("../Assets/KUB.bin");
-	//modelManager.staticMesh[0]->setScale(10, 1, 10);
-	//modelManager.m_staticMesh[0]->setScale(10, 1, 10);
+
+
+	Manager::g_meshManager.loadStaticMesh("SCENE");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	modelManager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
+	
 }
 
 bool Game::isRunning()
@@ -42,9 +46,11 @@ void Game::Clear()
 	m_renderingManager.Clear();
 }
 
-void Game::Update()
+void Game::Update(double deltaTime)
 {
-	m_gameStack.top()->Update();
+	_handleStateSwaps();
+
+	m_gameStack.top()->Update(deltaTime);
 	
 }
 
@@ -57,4 +63,13 @@ void Game::Draw()
 void Game::ImGuiFrameStart()
 {
 	m_renderingManager.ImGuiStartFrame();
+}
+
+void Game::_handleStateSwaps()
+{
+	if (m_gameStack.top()->getKillState())
+	{
+		delete m_gameStack.top();
+		m_gameStack.pop();
+	}
 }

@@ -4,15 +4,15 @@
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
-#include "Source/3D Engine/Model/ModelManager.h"
-#include "MeshManager.h"
-#include "Source/3D Engine/Model/TextureManager.h"
+#include "Source/3D Engine/Model/Managers/ModelManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
 #include "Source/3D Engine/Temp_Guard/TempGuard.h"
 #include <chrono>
-
+#include <thread>
 #include "Source/Helper/Timer.h"
+#include "../InputManager/XboxInput/GamePadHandler.h"
+#include "../Engine/Source/3D Engine/Extern.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -77,7 +77,7 @@ void MoveLight() {
 }
 
 
-
+/*v*/
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -88,6 +88,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Threading::Init();
 	Timer::StartTimer();
+	
 	using namespace std::chrono;
 	const float REFRESH_RATE = 60.0f;
 	auto time = steady_clock::now();
@@ -97,43 +98,43 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-	
+
 
 	RenderingManager renderingManager;
 
-
+	
 	renderingManager.Init(hInstance);
 	
 	//std::chrono::
 
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f);
+	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f/9.0f, 0.1f, 50.0f);
 	camera.setPosition(0, 0, -6);
 
 	Guard gTemp;
 	gTemp.setPos(0, 5, 0);
 	
-	TextureManager textureManager;
-	MeshManager meshManager;
-	ModelManager modelManager;
+	
+	
+
+	GamePadHandler::Instance();
+	
+	Manager::g_textureManager.loadTextures("SPHERE");
+
+	
+	Manager::g_meshManager.loadStaticMesh("SCENE");
+	Manager::g_meshManager.loadStaticMesh("PIRASRUM");
+	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_meshManager.loadDynamicMesh("TORUS");
+	Manager::g_meshManager.loadDynamicMesh("KON");
+	
+	ModelManager modelmanager;
+	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
 
 
-
-	textureManager.loadTextures("SPHERE");
-
-
-	meshManager.loadStaticMesh("SCENE");
-	meshManager.loadStaticMesh("SPHERE");
-	meshManager.loadStaticMesh("PIRASRUM");
-	meshManager.loadDynamicMesh("TORUS");
-	meshManager.loadDynamicMesh("KON");
-
-	modelManager.addNewModel(meshManager.getDynamicMesh("TORUS"), textureManager.getTexture("SPHERE"));
-	modelManager.addNewModel(meshManager.getStaticMesh("SCENE"), textureManager.getTexture("SPHERE"));
-
-	Model * player = new Model(ObjectType::Static);
-	player->SetEntityType(EntityType::Player);
-	player->setModel(meshManager.getStaticMesh("SPHERE"));
-	player->setTexture(textureManager.getTexture("SPHERE"));
+	Model * player = new Model();
+	player->setEntityType(EntityType::PlayerType);
+	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
 
@@ -155,6 +156,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[i].setDropOff(.2f);
 		point[i].setPower(2.0f);
 	}
+
 	Timer::StopTimer();
 	std::cout << Timer::GetDurationInSeconds() << ":s" << std::endl;
 
@@ -167,7 +169,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		renderingManager.Update();
 		renderingManager.ImGuiStartFrame();
-		
+		GamePadHandler::UpdateState();
 		MovePlayer();
 		MoveLight();
 
@@ -191,7 +193,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			updates++;
 			unprocessed -= 1;
-			
+			if (GamePadHandler::IsAPressed())
+			{
+				std::cout << "wop" << std::endl;
+			}
 
 			/*
 				Test Camera movement
@@ -285,7 +290,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		
 		
 
-		
+		modelmanager.DrawMeshes();
 
 
 		for (int i = 0; i < 8; i++)
@@ -295,9 +300,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		MoveLight();
 
-		modelManager.DrawMeshes();
+		
 		gTemp.Draw();
 		player->Draw();
+		//player->DrawWireFrame();
 		player->QueueVisabilityDraw();
 
 
