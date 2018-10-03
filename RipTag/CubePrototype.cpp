@@ -47,7 +47,7 @@ void CubePrototype::setPosition(DirectX::XMFLOAT4A pos)
 	
 }
 
-void CubePrototype::lerpPosition(DirectX::XMFLOAT4 pos, RakNet::Time time)
+void CubePrototype::lerpPosition(DirectX::XMFLOAT4A pos, RakNet::Time time)
 {
 	//c - current, n - new, f - final
 	DirectX::XMVECTOR cPos, nPos, fPos;
@@ -57,7 +57,11 @@ void CubePrototype::lerpPosition(DirectX::XMFLOAT4 pos, RakNet::Time time)
 	cPos = DirectX::XMLoadFloat4A(&currPos);
 	nPos = DirectX::XMLoadFloat4A(&pos);
 
-	fPos = DirectX::XMVectorLerp(cPos, nPos, time);
+	RakNet::Time t = RakNet::GetTime();
+
+	float delta = t - time;
+
+	fPos = DirectX::XMVectorLerp(cPos, nPos, delta);
 
 	DirectX::XMFLOAT4A finalPos;
 

@@ -23,7 +23,7 @@ public:
 	~CubePrototype();
 
 	void setPosition(DirectX::XMFLOAT4A pos);
-	void lerpPosition(DirectX::XMFLOAT4 pos, RakNet::Time time);
+	void lerpPosition(DirectX::XMFLOAT4A pos, RakNet::Time time);
 	void Draw();
 	
 private:

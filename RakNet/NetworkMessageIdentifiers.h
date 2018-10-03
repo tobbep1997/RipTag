@@ -60,8 +60,8 @@ namespace Network
 			networkId = _networkId;
 			useTimeStamp = ID_TIMESTAMP;
 			timeStamp = RakNet::GetTime();
-			//RakNet::BitStream bs;
-			//bs.EndianSwapBytes(1, sizeof(RakNet::Time));
+			RakNet::BitStream * bs = RakNet::BitStream::GetInstance();
+			bs->EndianSwapBytes(1, sizeof(RakNet::Time));
 		}
 	};
 #pragma pack(pop)
