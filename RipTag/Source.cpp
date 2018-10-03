@@ -17,7 +17,9 @@ static std::vector<CubePrototype*> * GetPlayers();
 static void FlushPlayers();
 
 #define LUA_ADD_PLAYER "AddPlayer"
+#define LUA_UPDATE_REMOTE_PLAYER "UpdateRemotePlayer"
 static int Lua_Player_Add(lua_State *L);
+static int Lua_Update_Remote_Player(lua_State * L);
 
 //LUA
 extern "C" {
@@ -141,6 +143,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Network::LUA_Register_Packet_Priorities(L);
 	LUA_Register_CubePrototype(L);
 	lua_register(L, LUA_ADD_PLAYER, Lua_Player_Add);
+	lua_register(L, LUA_UPDATE_REMOTE_PLAYER, Lua_Update_Remote_Player);
 
 	//load our Lua libraries into the global enviroment (maybe run a LoadLibs.lua script for this?)
 	luaL_dofile(L, "..//Scripts//LuaInit.lua");
@@ -180,6 +183,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	CubePrototype * antiCrashObject = 0;
 	antiCrashObject = new CubePrototype(-1.f, -1.f, -1.f);
 
+	bool hasMoved = false;
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
@@ -196,17 +201,35 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		*/
 		{
 			if (InputHandler::isKeyPressed('W'))
-				camera.Move(0.0f, 0.0f, 0.01f);
+			{
+				camera.Move(0.0f, 0.0f, 0.01f); 
+				hasMoved = true;
+			}
 			else if (InputHandler::isKeyPressed('S'))
+			{
 				camera.Move(0.0f, 0.0f, -0.01f);
+				hasMoved = true;
+			}
 			if (InputHandler::isKeyPressed('A'))
+			{
 				camera.Move(-0.01f, 0.0f, 0.0f);
+				hasMoved = true;
+			}
 			else if (InputHandler::isKeyPressed('D'))
+			{
 				camera.Move(0.01f, 0.0f, 0.0f);
+				hasMoved = true;
+			}
 			if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
+			{
 				camera.Move(0.0f, 0.01f, 0.0f);
+				hasMoved = true;
+			}
 			else if (InputHandler::isKeyPressed(InputHandler::Shift))
+			{
 				camera.Move(0.0f, -0.01f, 0.0f);
+				hasMoved = true;
+			}
 			/*
 				Test Camera rotation
 			*/
@@ -225,7 +248,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				camera.setLookTo(0, 0, 0, 1);
 		}
 
-
+		if (hasMoved)
+		{
+			lua_getglobal(L, "PlayerMoved");
+			lua_pcall(L, 0, 0, NULL);
+			hasMoved = false;
+		}
 		//ImGuiTest();
 		//CameraTest();
 		//MoveLight();
@@ -262,6 +290,16 @@ static std::vector<CubePrototype*> * GetPlayers()
 	return &Players;
 }
 
+static void FlushPlayers()
+{
+	std::vector<CubePrototype*> * vec = GetPlayers();
+	for (size_t i = 0; i < vec->size(); i++)
+	{
+		delete vec->at(i);
+	}
+	vec->clear();
+}
+
 static int Lua_Player_Add(lua_State *L)
 {
 	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, lua_gettop(L));
@@ -272,12 +310,20 @@ static int Lua_Player_Add(lua_State *L)
 	return 0;
 }
 
-static void FlushPlayers()
+static int Lua_Update_Remote_Player(lua_State * L)
 {
-	std::vector<CubePrototype*> * vec = GetPlayers();
-	for (size_t i = 0; i < vec->size(); i++)
+	//lerping is added later, this is for testing
+	Network::ENTITY_MOVE_MESSAGE * data = (Network::ENTITY_MOVE_MESSAGE *)lua_touserdata(L, -1);
+	if (data)
 	{
-		delete vec->at(i);
+		RakNet::NetworkID nid = data->networkId;
+		std::vector<CubePrototype*> * players = GetPlayers();
+		for (size_t i = 0; i < players->size(); i++)
+		{
+			if (players->at(i)->GetNetworkID() == nid)
+				players->at(i)->setPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 1.0f));
+		}
 	}
-	vec->clear();
+	return 0;
 }
+

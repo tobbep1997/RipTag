@@ -157,10 +157,21 @@ namespace Network
 	{
 		unsigned char id = GetPacketIdentifier((unsigned char*)msg);
 
+		//list of all structs
 		ENTITY_MOVE_MESSAGE * pEMM = 0;
+		GAME_MESSAGE * pGM = 0;
+		ENTITY_CREATE_MESSAGE * pECM = 0;
 
 		switch (id)
 		{
+		case ID_GAME_START:
+			pGM = (GAME_MESSAGE*)msg;
+			delete pGM; pGM = 0;
+			break;
+		case ID_CREATE_REMOTE_PLAYER:
+			pECM = (ENTITY_CREATE_MESSAGE*)msg;
+			delete pECM; pECM = 0;
+			break;
 		case ID_UPDATE_SPHERE_LOCATION:
 			pEMM = (ENTITY_MOVE_MESSAGE*)msg;
 			delete pEMM; pEMM = 0;
@@ -217,7 +228,7 @@ namespace Network
 	{
 		std::string toReturn = "";
 		toReturn = "Connected to: " + std::string(m_rIP.ToString());
-		toReturn += "\nPing: " + std::to_string(this->pPeer->GetAveragePing(this->m_rIP));
+		toReturn += "\nAverage Ping: " + std::to_string(this->pPeer->GetAveragePing(this->m_rIP));
 		return toReturn;
 	}
 
@@ -288,6 +299,10 @@ namespace Network
 			break;
 		case ID_UPDATE_SPHERE_LOCATION:
 			// Insert script
+			lua_getglobal(L, "RemotePlayerMoved");
+			lua_pushlightuserdata(L, (void*)data);
+			lua_pcall(L, 1, 0, NULL);
+
 			break;
 		default:
 			break;

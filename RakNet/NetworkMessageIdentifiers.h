@@ -50,13 +50,15 @@ namespace Network
 		float x, y, z; // Character position
 		//RakNet::SystemAddress systemAddress;
 
-		ENTITY_MOVE_MESSAGE(unsigned char _id, float _x, float _y, float _z, RakNet::NetworkID _networkId)
+		ENTITY_MOVE_MESSAGE(unsigned char _id, RakNet::NetworkID _networkId, float _x, float _y, float _z)
 		{
 			id = _id;
 			x = _x;
 			y = _y;
 			z = _z;
 			networkId = _networkId;
+			useTimeStamp = ID_TIMESTAMP;
+			timeStamp = RakNet::GetTime();
 		}
 	};
 #pragma pack(pop)
@@ -93,16 +95,19 @@ namespace Network
 	static int New_Player_Movement_Data(lua_State * L)
 	{
 		float x, y, z;
-		x = (float)lua_tonumber(L, lua_gettop(L));
-		y = (float)lua_tonumber(L, lua_gettop(L));
-		z = (float)lua_tonumber(L, lua_gettop(L));
-		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, lua_gettop(L));
-		lua_pop(L, 4);
-		ENTITY_MOVE_MESSAGE * packet = new ENTITY_MOVE_MESSAGE(ID_UPDATE_SPHERE_LOCATION, x, y, z, networkId);
-		packet->useTimeStamp = ID_TIMESTAMP;
-		packet->timeStamp = RakNet::GetTime();
+		unsigned char id = (unsigned char)lua_tonumber(L, -5);
+		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, -4);
+		x = (float)lua_tonumber(L, -3);
+		y = (float)lua_tonumber(L, -2);
+		z = (float)lua_tonumber(L, -1);
+		lua_pop(L, 5);
+
+		ENTITY_MOVE_MESSAGE * packet = new ENTITY_MOVE_MESSAGE(id, networkId, x, y, z);
+		
 		lua_pushlightuserdata(L, (void*)packet);
-		return 1;
+		lua_pushnumber(L, sizeof(ENTITY_MOVE_MESSAGE));
+
+		return 2;
 	}
 
 	static int New_Entity_Creation_Message(lua_State * L)
