@@ -1,12 +1,8 @@
-cbuffer OBJECT_BUFFER : register(b0)
+#include "Shaders/StaticConstantBuffers.hlsli"
+
+cbuffer OBJECT_BUFFER : register(b3)
 {
 	float4x4 worldMatrix;
-};
-
-cbuffer CAMERA_BUFFER : register(b1)
-{
-	float4 cameraPosition;
-	float4x4 viewProjection;
 };
 
 cbuffer SKINNING_BUFFER : register(b2)

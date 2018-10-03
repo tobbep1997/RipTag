@@ -27,6 +27,7 @@ void VisabilityPass::Init()
 
 void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 {
+	_mapViewBuffer(guard); 
 	float c[4] = { 0,0,0,0 };
 	DX::g_deviceContext->ClearRenderTargetView(m_guardRenderTargetView, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_guardDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -35,7 +36,6 @@ void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_VERTEX_SHADER_PATH), nullptr,0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
-	_mapViewBuffer(guard); 
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
@@ -44,16 +44,14 @@ void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 	{
 		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
 	}
-
-	//TODO Dynamic Object
-
+	
+	//TODO :: DYNAMIC
 }
 
 void VisabilityPass::CalculateVisabilityFor(Guard * guard)
@@ -83,9 +81,8 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 	{
 		if (DX::g_geometryQueue[i]->getEntityType() == EntityType::PlayerType)
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
@@ -179,7 +176,7 @@ void VisabilityPass::_mapViewBuffer(Guard * target)
 
 	DXRHC::MapBuffer(m_guardViewBuffer, &gvb, sizeof(GuardViewBuffer));
 
-	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_guardViewBuffer);
+	DX::g_deviceContext->VSSetConstantBuffers(2, 1, &m_guardViewBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(2, 1, &m_guardViewBuffer);
 }
 
@@ -188,8 +185,5 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 	ObjectBuffer ob;
 	ob.worldMatrix = target->getWorldmatrix();
 
-	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
-
-
-
+	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
 }
