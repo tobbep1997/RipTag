@@ -192,6 +192,26 @@ namespace Network
 	}
 
 
+	std::string Multiplayer::GetNetworkStatistics()
+	{
+		RakNet::RakNetStatistics * data = 0;
+		char * buffer = 0;
+
+		if (this->m_isConnected)
+		{
+			if (this->pPeer->GetStatistics(this->m_rIP, data))
+			{
+				RakNet::StatisticsToString(data, buffer, 2);
+				return std::string(buffer);
+			}
+			else
+				return std::string("Failed to Retrieve Network Statistics\n");
+		}
+		else
+			return std::string("No Connection Available\n");
+		
+	}
+
 	std::string Multiplayer::GetNetworkInfo()
 	{
 		std::string toReturn = "";

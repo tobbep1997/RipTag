@@ -38,47 +38,29 @@ void _alocConsole() {
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
 #endif
-float rotSpeed = 0.001f;
-float scaleX = 0;
-float scaleY = 0;
-float scaleZ = 0;
 
-float posX = 1;
-float posY = 1;
-float posZ = -6;
 
 float lightPosX = 0, lightPosY = 5, lightPosZ = 0;
 float lightColorR = 1, lightColorG = 1, lightColor, lightColorB = 1;
 float lightIntensity = 1;
 
-
-void ImGuiTest()
-{
+void MoveLight() {
 #if _DEBUG
-	ImGui::Begin("Sphere Setting");                          // Create a window called "Hello, world!" and append into it.
-	//ImGui::SliderFloat("Rotation", &rotSpeed, 0.0f, 0.1f);
-	ImGui::SliderFloat("PosX", &scaleX, -10.0f, 10.f);
-	ImGui::SliderFloat("PosY", &scaleY, -10.0f, 10.f);
-	ImGui::SliderFloat("PosZ", &scaleZ, -10.0f, 10.f);
+	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::SliderFloat("posX", &lightPosX, -500.0f, 500.f);
+	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 50.f);
+	ImGui::SliderFloat("posZ", &lightPosZ, -50.0f, 50.f);
+
+	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
+	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
+	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
+
+	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
+
 	ImGui::End();
 #endif
-
 }
 
-
-void TestCameraLua(lua_State * L)
-{
-	ImGui::Begin("LUA CAMERA");
-	if (ImGui::Button("Get Position"))
-	{
-		if (luaL_dofile(L, "..//Scripts//Camera//Camera.lua") != EXIT_SUCCESS)
-		{
-			printf(lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
-	}
-	ImGui::End();
-}
 
 bool gameIsRunning = false;
 
@@ -111,18 +93,19 @@ void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 	if (pMP->isRunning() && pMP->isConnected())
 	{
 		ImGui::Text(pMP->GetNetworkInfo().c_str());
-		if (ImGui::Button("Start Game") && !gameIsRunning && pMP->isServer())
+		if (!gameIsRunning && pMP->isServer())
 		{
-			lua_getglobal(L, "GameStart");
-			lua_pushboolean(L, pMP->isServer());
-			int error = lua_pcall(L, 1, 0, NULL);
-			if (error > 0)
+			if (ImGui::Button("Start Game"))
 			{
-				printf(lua_tostring(L, -1));
-				lua_pop(L, 1);
+				lua_getglobal(L, "GameStart");
+				lua_pushboolean(L, pMP->isServer());
+				if (lua_pcall(L, 1, 0, NULL) > 0)
+				{
+					printf(lua_tostring(L, -1));
+					lua_pop(L, 1);
+				}
+				gameIsRunning = true;
 			}
-			int stop = 0;
-			//gameIsRunning = true;
 		}
 		if (ImGui::Button("Disconnect"))
 			pMP->Disconnect();
@@ -130,64 +113,13 @@ void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 	ImGui::End();
 }
 
-//void SendPacketTest(Network::Multiplayer * pMP, DirectX::XMFLOAT4A pos, RakNet::NetworkID id)
-void SendPacketTest(lua_State * L)
+void NetworkDebug(Network::Multiplayer * pMP)
 {
-	ImGui::Begin("Send Packet");
-
-	if (ImGui::Button("Send Packet"))
-	{
-		if (luaL_dofile(L, "..//Scripts//Network//SendDataTest.lua") != EXIT_SUCCESS)
-		{
-			printf(lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
-	}
-
+	ImGui::Begin("Network Debug Statistics");
+	ImGui::Text(pMP->GetNetworkStatistics().c_str());
 	ImGui::End();
 }
 
-void TestNetworkScript(lua_State * L)
-{
-	ImGui::Begin("Network Data Script");
-	if (ImGui::Button("Run"))
-	{
-		if (luaL_dofile(L, "..//Scripts//Network//SendDataTest.lua") != EXIT_SUCCESS)
-		{
-			printf(lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
-	}
-	ImGui::End();
-}
-
-void CameraTest()
-{
-#if _DEBUG
-	ImGui::Begin("Camera Settings");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &posX, -20.0f, 20.f);
-	ImGui::SliderFloat("posY", &posY, -20.0f, 20.f);
-	ImGui::SliderFloat("posZ", &posZ, -20.0f, 20.f);
-	ImGui::End();
-#endif
-}
-
-void MoveLight() {
-#if _DEBUG
-	ImGui::Begin("Light pos");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::SliderFloat("posX", &lightPosX, -500.0f, 500.f);
-	ImGui::SliderFloat("posY", &lightPosY, -50.0f, 50.f);
-	ImGui::SliderFloat("posZ", &lightPosZ, -50.0f, 50.f);
-
-	ImGui::SliderFloat("R", &lightColorR, 0.0f, 1.0f);
-	ImGui::SliderFloat("G", &lightColorG, 0.0f, 1.0f);
-	ImGui::SliderFloat("B", &lightColorB, 0.0f, 1.0f);
-
-	ImGui::SliderFloat("Intensity", &lightIntensity, 0.0f, 1.0f);
-
-	ImGui::End();
-#endif
-}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -262,41 +194,43 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		/*
 			Test Camera movement
 		*/
-		if (InputHandler::isKeyPressed('W'))
-			camera.Move(0.0f, 0.0f, 0.01f);
-		else if (InputHandler::isKeyPressed('S'))
-			camera.Move(0.0f, 0.0f, -0.01f);
-		if (InputHandler::isKeyPressed('A'))
-			camera.Move(-0.01f, 0.0f, 0.0f);
-		else if (InputHandler::isKeyPressed('D'))
-			camera.Move(0.01f, 0.0f, 0.0f);
-		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
-			camera.Move(0.0f, 0.01f, 0.0f);
-		else if (InputHandler::isKeyPressed(InputHandler::Shift))
-			camera.Move(0.0f, -0.01f, 0.0f);
-		/*
-			Test Camera rotation
-		*/
-		if (InputHandler::isKeyPressed(InputHandler::UpArrow))
-			camera.Rotate(0.005f, 0.0f, 0.0f);
-		else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
-			camera.Rotate(-0.005f, 0.0f, 0.0f);
-		if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
-			camera.Rotate(0.0f, -0.005f, 0.0f);
-		else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
-			camera.Rotate(0.0f, 0.005f, 0.0f);
-		if (InputHandler::isKeyPressed(InputHandler::Esc))
-			renderingManager.getWindow().Close();
+		{
+			if (InputHandler::isKeyPressed('W'))
+				camera.Move(0.0f, 0.0f, 0.01f);
+			else if (InputHandler::isKeyPressed('S'))
+				camera.Move(0.0f, 0.0f, -0.01f);
+			if (InputHandler::isKeyPressed('A'))
+				camera.Move(-0.01f, 0.0f, 0.0f);
+			else if (InputHandler::isKeyPressed('D'))
+				camera.Move(0.01f, 0.0f, 0.0f);
+			if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
+				camera.Move(0.0f, 0.01f, 0.0f);
+			else if (InputHandler::isKeyPressed(InputHandler::Shift))
+				camera.Move(0.0f, -0.01f, 0.0f);
+			/*
+				Test Camera rotation
+			*/
+			if (InputHandler::isKeyPressed(InputHandler::UpArrow))
+				camera.Rotate(0.005f, 0.0f, 0.0f);
+			else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
+				camera.Rotate(-0.005f, 0.0f, 0.0f);
+			if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
+				camera.Rotate(0.0f, -0.005f, 0.0f);
+			else if (InputHandler::isKeyPressed(InputHandler::RightArrow))
+				camera.Rotate(0.0f, 0.005f, 0.0f);
+			if (InputHandler::isKeyPressed(InputHandler::Esc))
+				renderingManager.getWindow().Close();
 
-		if (InputHandler::isKeyPressed(InputHandler::BackSpace))
-			camera.setLookTo(0, 0, 0, 1);
+			if (InputHandler::isKeyPressed(InputHandler::BackSpace))
+				camera.setLookTo(0, 0, 0, 1);
+		}
 
 
 		//ImGuiTest();
 		//CameraTest();
 		//MoveLight();
 		NetworkSettings(pNetwork, L);
-		TestCameraLua(L);
+		NetworkDebug(pNetwork);
 
 		pNetwork->Update();
 		
