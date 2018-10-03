@@ -218,3 +218,16 @@ void Drawable::setEntityType(EntityType en)
 {
 	this->p_entityType = en;
 }
+
+Animation::AnimatedModel* Drawable::getAnimatedModel()
+{
+	if (m_dynamicMesh)
+	{
+		if (m_dynamicMesh->getAnimatedModel())
+		{
+			return m_dynamicMesh->getAnimatedModel();
+		}
+		else return nullptr;
+	}
+	else return nullptr;
+}

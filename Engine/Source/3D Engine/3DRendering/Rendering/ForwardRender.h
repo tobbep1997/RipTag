@@ -124,6 +124,7 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
+	void _mapSkinningBuffer(Drawable * drawable);
 	void _mapCameraBufferToVertex(Camera & camera);
 	void _mapCameraBufferToPixel(Camera & camera);
 	void _mapLightInfoNoMatrix();

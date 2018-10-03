@@ -124,8 +124,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Manager::g_meshManager.loadStaticMesh("SCENE");
 	Manager::g_meshManager.loadStaticMesh("PIRASRUM");
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
-	Manager::g_meshManager.loadDynamicMesh("TORUS");
-	Manager::g_meshManager.loadDynamicMesh("KON");
+	//Manager::g_meshManager.loadDynamicMesh("TORUS");
+	//Manager::g_meshManager.loadDynamicMesh("KON");
+
+	{
+		Manager::g_meshManager.loadDynamicMesh("CYLINDER");
+		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/CYLINDER_Skeleton.bin");
+		auto animation = Animation::LoadAndCreateAnimation("../Assets/CYLINDER_ANIMATION.bin", skeleton);
+		Manager::g_meshManager.getDynamicMesh("CYLINDER")->m_anim = new Animation::AnimatedModel();
+		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->SetSkeleton(skeleton);
+		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->SetPlayingClip(animation);
+		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->Play();
+	}
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -133,7 +143,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	player->setModel(Manager::g_meshManager.getDynamicMesh("CYLINDER"));
+	player->setScale(0.03f, 0.03f, 0.03f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -180,12 +191,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
 
-		player->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		//player->setScale(playerScaleX, playerScaleY, playerScaleZ);
 		player->setPosition(playerPosX, playerPosY, playerPosZ);
 		//modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
+		float floatDt = static_cast<float>(dt) / 1000000000;
 		time = steady_clock::now();
 		unprocessed += (dt / freq);
 
@@ -288,7 +300,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
-		
+		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->Update(floatDt);
 
 		modelmanager.DrawMeshes();
 
