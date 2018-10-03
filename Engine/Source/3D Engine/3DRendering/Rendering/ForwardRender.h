@@ -20,8 +20,6 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A viewProjection;
 	};
 
-
-
 	struct LightBuffer
 	{
 		DirectX::XMINT4		info;
@@ -36,8 +34,6 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A viewProjInverse;
 		DirectX::XMFLOAT4X4A worldMatrix;
 	};
-
-
 
 private:
 

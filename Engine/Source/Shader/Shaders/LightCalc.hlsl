@@ -1,9 +1,9 @@
 
 #pragma warning(disable : 3078)
-#define PI 3.14159265359
 #pragma warning(disable : 3557)
 #pragma warning(disable : 3570)
 #pragma warning(disable : 3571)
+#define PI 3.14159265359
 
 SamplerComparisonState sampAniPoint : register(s0);
 SamplerState defaultSampler : register(s1);

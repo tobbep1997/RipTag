@@ -161,15 +161,20 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 void ForwardRender::Flush(Camera & camera)
 {
 	_simpleLightCulling(camera);
+	
+	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 	this->m_shadowMap.ShadowPass();
+	_mapLightInfoNoMatrix();
+	this->m_shadowMap.SetSamplerAndShaderResources();
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+
 	VisabilityPass();
-	/*this->GeometryPass(DX::g_guardDrawQueue[0]->getCamera());	
-	this->AnimatedGeometryPass(DX::g_guardDrawQueue[0]->getCamera());*/
+	
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
-
+	
 	this->_wireFramePass(camera);
-	//DX::g_guardDrawQueue.clear();
+	
 	_tempGuardFrustumDraw();
 }
 
@@ -410,14 +415,7 @@ void ForwardRender::_setStaticShaders()
 
 void ForwardRender::VisabilityPass()
 {
-	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	m_visabilityPass.SetViewportAndRenderTarget();
-	m_shadowMap.SetSamplerAndShaderResources();
-	_mapLightInfoNoMatrix();
-	if (!DX::g_lights.empty())
-	{
-		m_shadowMap.MapAllLightMatrix(&DX::g_lights);
-	}
 	for (Guard * guard : DX::g_guardDrawQueue)
 	{
 		m_visabilityPass.GuardDepthPrePassFor(guard);

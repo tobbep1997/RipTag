@@ -45,7 +45,6 @@ void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
@@ -84,7 +83,6 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 		if (DX::g_geometryQueue[i]->getEntityType() == EntityType::PlayerType)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
@@ -188,8 +186,5 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 	ObjectBuffer ob;
 	ob.worldMatrix = target->getWorldmatrix();
 
-	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
-
-
-
+	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
 }

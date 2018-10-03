@@ -28,7 +28,6 @@ void ShadowMap::ShadowPass()
 	
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 
-
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertex.hlsl"), nullptr, 0);
@@ -39,8 +38,6 @@ void ShadowMap::ShadowPass()
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_shadowDepthStencilView);
 
-
-	MapAllLightMatrix(&DX::g_lights);
 	for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
 	{
 		UINT32 vertexSize = sizeof(StaticVertex);
@@ -81,10 +78,9 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 	}
 	
 	DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer));
-
+	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->GSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
-	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
-
+	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
 }
 
 void ShadowMap::SetSamplerAndShaderResources()

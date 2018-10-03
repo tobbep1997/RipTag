@@ -11,6 +11,7 @@
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumPixel.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\PreDepthPassVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\StaticConstantBuffers.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
