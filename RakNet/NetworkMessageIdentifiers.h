@@ -3,6 +3,7 @@
 #include <RakNetTypes.h>
 #include <string>
 #include <GetTime.h>
+#include <BitStream.h>
 
 extern "C" {
 #include <lua.h>
@@ -43,8 +44,8 @@ namespace Network
 #pragma pack(push, 1)
 	struct ENTITY_MOVE_MESSAGE
 	{
-		//unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
-		//RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime() or some other method that returns a similar value
+		unsigned char useTimeStamp; // Assign ID_TIMESTAMP to this
+		RakNet::Time timeStamp; // Put the system time in here returned by RakNet::GetTime() or some other method that returns a similar value
 		unsigned char id; // Our network defined enum types
 		RakNet::NetworkID networkId;
 		float x, y, z; // Character position
@@ -57,8 +58,10 @@ namespace Network
 			y = _y;
 			z = _z;
 			networkId = _networkId;
-			//useTimeStamp = ID_TIMESTAMP;
-			//timeStamp = RakNet::GetTime();
+			useTimeStamp = ID_TIMESTAMP;
+			timeStamp = RakNet::GetTime();
+			//RakNet::BitStream bs;
+			//bs.EndianSwapBytes(1, sizeof(RakNet::Time));
 		}
 	};
 #pragma pack(pop)

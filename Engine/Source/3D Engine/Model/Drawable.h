@@ -65,7 +65,7 @@ public:
 	void setScale(DirectX::XMFLOAT4A scale);
 	void setScale(float x = 1, float y = 1, float z = 1, float w = 1);
 
-
+	DirectX::XMFLOAT4A getPosition() const { return p_position; }
 	
 	void Draw();
 

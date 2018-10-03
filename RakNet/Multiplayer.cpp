@@ -269,7 +269,7 @@ namespace Network
 	unsigned char Multiplayer::GetPacketIdentifier(unsigned char * data)
 	{
 		if ((unsigned char)data[0] == ID_TIMESTAMP)
-			return (unsigned char)data[sizeof(unsigned char) + sizeof(unsigned long)];
+			return (unsigned char)data[sizeof(unsigned char) + sizeof(RakNet::Time)];
 		else
 			return (unsigned char)data[0];
 	}

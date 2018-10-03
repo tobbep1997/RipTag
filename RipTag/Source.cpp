@@ -325,7 +325,7 @@ static int Lua_Update_Remote_Player(lua_State * L)
 		for (size_t i = 0; i < players->size(); i++)
 		{
 			if (players->at(i)->GetNetworkID() == nid)
-				players->at(i)->setPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 1.0f));
+				players->at(i)->lerpPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 1.0f), data->timeStamp);
 		}
 	}
 	return 0;
