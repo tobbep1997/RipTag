@@ -4,13 +4,14 @@
 #include "Actor.h"
 
 #include "../Engine/Source/3D Engine/Components/Base/CameraHolder.h"
+#include "../../Physics/Wrapper/PhysicsComponent.h"
 
-class Player : public Actor, public CameraHolder
+class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
 	
 
-	float m_moveSpeed = 5.0f;
+	float m_moveSpeed = 100.0f;
 	float m_cameraSpeed = 1.0f;
 public:
 	Player();
@@ -18,6 +19,8 @@ public:
 
 	void BeginPlay();
 	void Update(double deltaTime);
+
+	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
 
 private:
 

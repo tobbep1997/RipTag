@@ -156,6 +156,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3DynamicAABBTree.cpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="Source\Physics\Dynamics\Joints\b3RevoluteJoint.cpp" />
     <ClCompile Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
+    <ClCompile Include="Source\Physics\Wrapper\PhysicsComponent.cpp" />
     <ClCompile Include="Source\Source.cpp" />
     <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
@@ -193,6 +195,7 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
     <ClInclude Include="Source\Physics\Collision\b3AABB.h" />
@@ -228,6 +231,7 @@
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3RevoluteJoint.h" />
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.h" />
     <ClInclude Include="Source\Input\Input.h" />
+    <ClInclude Include="Source\Physics\Wrapper\PhysicsComponent.h" />
     <ClInclude Include="Source\Timer\DeltaTime.h" />
     <ClInclude Include="Source\Game\Actors\Actor.h" />
     <ClInclude Include="Source\Game\Actors\Player.h" />

@@ -8,6 +8,7 @@
 #include "../../../../Engine/Source/3D Engine/RenderingManager.h"
 
 #include "../../Physics/Bounce.h"
+#include "../Actors/BaseActor.h"
 class PlayState : public State
 {
 private:
@@ -19,14 +20,17 @@ private:
 	Enemy * enemy;
 	b3World m_world;
 
-	b3Body* m_body;
+
+	//-----------------------------------------------------------------------------
+	//PLEASE REMOBE THIS //TODO::PLEASE
+	/*b3Body* m_body;
 	b3Polyhedron * poly;
 	b3Hull * bodyBox;
 	b3BodyDef * bodyDef;
 	b3ShapeDef* bodyBoxDef;
-	b3Shape * m_shape;
+	b3Shape *	m_shape;*/
 
-	b3Body* m_floor;
+	b3Body*		m_floor;
 	b3Polyhedron * poly2;
 	b3Hull * bodyBox2;
 	b3BodyDef * bodyDef2;
@@ -34,7 +38,11 @@ private:
 	b3Shape * m_shape2;
 
 
-	Model * temp;
+	//Model * temp;
+
+	//-----------------------------------------------------------------------------
+	BaseActor * actor;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
