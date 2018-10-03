@@ -1,9 +1,3 @@
-cbuffer CAMERA_BUFFER : register(b2)
-{
-    float4 cameraPosition;
-    float4x4 viewProjection;
-};
-
 struct VS_OUT
 {
     float4 pos : SV_Position;

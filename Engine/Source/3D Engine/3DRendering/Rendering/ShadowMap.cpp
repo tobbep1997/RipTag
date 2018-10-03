@@ -62,7 +62,7 @@ void ShadowMap::ShadowPass()
 		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
 	}
 
-
+	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
 void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
@@ -78,9 +78,9 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 	}
 	
 	DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer));
-	DX::g_deviceContext->VSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
-	DX::g_deviceContext->GSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
-	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_allLightMatrixBuffer);
+	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
+	DX::g_deviceContext->GSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
+	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 }
 
 void ShadowMap::SetSamplerAndShaderResources()
