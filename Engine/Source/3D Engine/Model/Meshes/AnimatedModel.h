@@ -79,8 +79,8 @@ namespace Animation
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
-	Animation::AnimationClip* LoadAndCreateAnimationStefan(std::string file, Animation::Skeleton* skeleton);
-	Animation::Skeleton* LoadAndCreateSkeletonStefan(std::string file);
+	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
+	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
 #pragma endregion Conversion stuff, Loaders, ...
 
 	class AnimatedModel
@@ -97,7 +97,7 @@ namespace Animation
 		void Pause();
 		void Play();
 
-		std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
+		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;

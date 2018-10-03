@@ -18,33 +18,29 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		/// increase local time
 		m_currentTime += deltaTime;
 
-		/// calc time per frame TODO : cache
-		float frameTime = static_cast<float>(1.0 / m_currentClip->m_framerate);
-
-		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
-		if (m_currentTime > frameTime * m_currentClip->m_frameCount)
-		{
-			m_isPlaying
-				? m_currentTime -= frameTime * m_currentClip->m_frameCount
-				: m_isPlaying != m_isPlaying;
-		}
-
 		///calc the actual frame index and progression towards the next frame
 		int prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
 		float progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
 
-		if (prevIndex + 1 >= m_currentClip->m_frameCount)
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (prevIndex == m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
 		{
-			float neg = (1 / 24.0f) * (m_currentClip->m_frameCount - 1);
-			m_currentTime = m_currentTime - neg;
-
-			prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
-			progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
-
+			if (m_isLooping)
+			{
+				m_currentTime = 0.0 + progression;
+	
+				prevIndex = std::floorf(m_currentClip->m_framerate*m_currentTime);
+				progression = std::fmod(m_currentClip->m_framerate*m_currentTime, 1.0f);
+			}
+			else
+			{
+				m_isPlaying = false; 
+			}
 		}
 
 		/// compute skinning matrices
-		_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex+1], progression);
+		if (m_isPlaying)
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
 	}
 	else //scrub
 	{
@@ -87,9 +83,8 @@ void Animation::AnimatedModel::Play()
 	m_isPlaying = true;
 }
 
-// #todo const ref
 // Returns a reference to the skinning matrix vector
-std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
+const std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
 {
 	return m_skinningMatrices;
 }
@@ -106,9 +101,8 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	auto rotationMatrix = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
 	auto scaleMatrix = XMMatrixScalingFromVector(XMLoadFloat4A(&fScale));
 	
-	return XMMatrixMultiply(rotationMatrix, translationMatrix);
-
-	//return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
+	//return XMMatrixMultiply(rotationMatrix, translationMatrix); // #todo test/make sure we dont need this
+	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform)
@@ -130,7 +124,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 }
 
 // #todo rename
-Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string file, Skeleton* skeleton)
+Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Skeleton* skeleton)
 {
 	MyLibrary::Loadera loader;
 	auto importedAnimation = loader.readAnimationFileStefan(file, skeleton->m_jointCount);
@@ -145,7 +139,7 @@ Animation::AnimationClip* Animation::LoadAndCreateAnimationStefan(std::string fi
 }
 
 // #todo rename
-Animation::Skeleton* Animation::LoadAndCreateSkeletonStefan(std::string file)
+Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 {
 	MyLibrary::Loadera loader;
 	auto importedSkeleton = loader.readSkeletonFileStefan(file);
