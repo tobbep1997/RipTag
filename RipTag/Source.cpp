@@ -191,7 +191,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
 
-		//player->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		player->setScale(playerScaleX, playerScaleY, playerScaleZ);
 		player->setPosition(playerPosX, playerPosY, playerPosZ);
 		//modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
 
@@ -309,9 +309,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			point[i].QueueLight();
 		}		
-
-		MoveLight();
-
 		
 		gTemp.Draw();
 		player->Draw();
