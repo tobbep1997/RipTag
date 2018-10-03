@@ -1,9 +1,5 @@
-cbuffer CAMERA_BUFFER : register(b1)
-{
-    float4 cameraPosition;
-    float4x4 viewProjection;
-};
-cbuffer GUARD_BUFFER : register(b0)
+#include "../StaticConstantBuffers.hlsli"
+cbuffer GUARD_BUFFER : register(b5)
 {
     float4x4 ViewProj;
     float4x4 ViewProjInverse;

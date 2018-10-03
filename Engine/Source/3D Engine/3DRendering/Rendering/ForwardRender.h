@@ -20,8 +20,6 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A viewProjection;
 	};
 
-
-
 	struct LightBuffer
 	{
 		DirectX::XMINT4		info;
@@ -36,8 +34,6 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A viewProjInverse;
 		DirectX::XMFLOAT4X4A worldMatrix;
 	};
-
-
 
 private:
 
@@ -101,8 +97,8 @@ public:
 		D3D11_VIEWPORT				viewport);
 
 
-	void GeometryPass(Camera & camera);
-	void AnimatedGeometryPass(Camera & camera);
+	void GeometryPass();
+	void AnimatedGeometryPass();
 	void Flush(Camera & camera);
 	void Clear();
 	void Present();
@@ -116,8 +112,7 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
-	void _mapCameraBufferToVertex(Camera & camera);
-	void _mapCameraBufferToPixel(Camera & camera);
+	void _mapCameraBuffer(Camera & camera);
 	void _mapLightInfoNoMatrix();
 
 
@@ -134,6 +129,6 @@ private:
 	void _createShaders();
 	void _createShadersInput();
 
-	void _wireFramePass(Camera & cam);
+	void _wireFramePass();
 
 };

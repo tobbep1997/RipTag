@@ -1,18 +1,11 @@
-
+//#include "StaticConstantBuffers.hlsli"
 #pragma warning(disable : 3078)
-#define PI 3.14159265359
 #pragma warning(disable : 3557)
 #pragma warning(disable : 3570)
 #pragma warning(disable : 3571)
+#define PI 3.14159265359
 
-SamplerComparisonState sampAniPoint : register(s0);
-SamplerState defaultSampler : register(s1);
-
-Texture2DArray txShadowArray : register(t0);
-Texture2D diffuseTexture : register(t1);
-Texture2D normalTexture : register(t2);
-Texture2D MRATexture : register(t3);
-
+// TODO :: Include this
 cbuffer LIGHTS : register(b0)
 {
     int4 info; // 16
@@ -20,7 +13,6 @@ cbuffer LIGHTS : register(b0)
     float4 lightPosition[8]; // 128
     float4 lightColor[8]; //128
 }
-
 cbuffer LIGHT_MATRIX : register(b1)
 {
     float4x4 lightViewProjection[8][6]; //3072
@@ -32,7 +24,16 @@ cbuffer CAMERA_BUFFER : register(b2)
     float4 cameraPosition;
     float4x4 viewProjection;
 };
+// end<TODO>
 
+
+SamplerComparisonState sampAniPoint : register(s0);
+SamplerState defaultSampler : register(s1);
+
+Texture2DArray txShadowArray : register(t0);
+Texture2D diffuseTexture : register(t1);
+Texture2D normalTexture : register(t2);
+Texture2D MRATexture : register(t3);
 
 struct VS_OUTPUT
 {

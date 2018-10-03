@@ -102,4 +102,8 @@
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Shader\Shaders\StaticConstantBuffers.hlsli" />
+    <None Include="Source\Shader\Shaders\LightCalc.hlsli" />
+  </ItemGroup>
 </Project>
