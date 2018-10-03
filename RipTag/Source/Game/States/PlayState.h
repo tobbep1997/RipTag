@@ -18,7 +18,14 @@ private:
 
 	Enemy * enemy;
 	b3World * m_world;
-	
+	b3Body* m_body;
+	b3Shape* shape;
+
+	b3Polyhedron * poly;
+	b3Hull * bodyBox;
+	b3BodyDef * bodyDef;
+	b3ShapeDef* bodyBoxDef;
+	b3Shape * m_shape;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
