@@ -61,6 +61,15 @@ void CubePrototype::lerpPosition(DirectX::XMFLOAT4A pos, RakNet::Time time)
 
 	float delta = t - time;
 
+	OutputDebugStringA((std::string("\nDelta time in ms: ") + std::to_string(delta)).c_str());
+	
+	delta /= 1000.f;
+
+	if (delta < 0)
+		delta = 0.f;
+	if (delta > 1)
+		delta = 1.f;
+	
 	fPos = DirectX::XMVectorLerp(cPos, nPos, delta);
 
 	DirectX::XMFLOAT4A finalPos;

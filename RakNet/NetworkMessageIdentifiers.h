@@ -4,6 +4,7 @@
 #include <string>
 #include <GetTime.h>
 #include <BitStream.h>
+#include <RakNetDefines.h>
 
 extern "C" {
 #include <lua.h>
@@ -49,7 +50,7 @@ namespace Network
 		unsigned char id; // Our network defined enum types
 		RakNet::NetworkID networkId;
 		float x, y, z; // Character position
-		//RakNet::SystemAddress systemAddress;
+		
 
 		ENTITY_MOVE_MESSAGE(unsigned char _id, RakNet::NetworkID _networkId, float _x, float _y, float _z)
 		{
@@ -60,8 +61,6 @@ namespace Network
 			networkId = _networkId;
 			useTimeStamp = ID_TIMESTAMP;
 			timeStamp = RakNet::GetTime();
-			RakNet::BitStream * bs = RakNet::BitStream::GetInstance();
-			bs->EndianSwapBytes(1, sizeof(RakNet::Time));
 		}
 	};
 #pragma pack(pop)

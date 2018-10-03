@@ -316,15 +316,9 @@ static int Lua_Player_Add(lua_State *L)
 
 static int Lua_Update_Remote_Player(lua_State * L)
 {
-	//lerping is added later, this is for testing
-	RakNet::BitStream * bs = RakNet::BitStream::GetInstance();
-
 	Network::ENTITY_MOVE_MESSAGE * data = (Network::ENTITY_MOVE_MESSAGE *)lua_touserdata(L, -1);
 	if (data)
 	{
-		if (bs->DoEndianSwap())
-			bs->ReverseBytesInPlace((unsigned char*)&data->timeStamp, sizeof(RakNet::Time));
-
 		RakNet::NetworkID nid = data->networkId;
 		std::vector<CubePrototype*> * players = GetPlayers();
 		for (size_t i = 0; i < players->size(); i++)
