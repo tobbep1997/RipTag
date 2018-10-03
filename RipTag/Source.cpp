@@ -128,13 +128,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//Manager::g_meshManager.loadDynamicMesh("KON");
 
 	{
-		Manager::g_meshManager.loadDynamicMesh("CYLINDER");
-		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/CYLINDER_Skeleton.bin");
-		auto animation = Animation::LoadAndCreateAnimation("../Assets/CYLINDER_ANIMATION.bin", skeleton);
-		Manager::g_meshManager.getDynamicMesh("CYLINDER")->m_anim = new Animation::AnimatedModel();
-		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->SetSkeleton(skeleton);
-		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->SetPlayingClip(animation);
-		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->Play();
+		Manager::g_meshManager.loadDynamicMesh("BALL");
+		auto skeleton = Animation::LoadAndCreateSkeleton("../Assets/BALLFOLDER/BALL_SKELETON.bin");
+		auto animation = Animation::LoadAndCreateAnimation("../Assets/BALLFOLDER/BALL_ANIMATION.bin", skeleton);
+		Manager::g_meshManager.getDynamicMesh("BALL")->m_anim = new Animation::AnimatedModel();
+		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetSkeleton(skeleton);
+		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetPlayingClip(animation);
+		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->Play();
 	}
 	
 	ModelManager modelmanager;
@@ -143,8 +143,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("CYLINDER"));
-	player->setScale(0.03f, 0.03f, 0.03f);
+	player->setModel(Manager::g_meshManager.getDynamicMesh("BALL"));
+	//player->setScale(0.03f, 0.03f, 0.03f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -300,7 +300,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
-		Manager::g_meshManager.getDynamicMesh("CYLINDER")->getAnimatedModel()->Update(floatDt);
+		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->Update(floatDt);
 
 		modelmanager.DrawMeshes();
 
