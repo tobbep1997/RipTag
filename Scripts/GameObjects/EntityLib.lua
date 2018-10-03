@@ -20,12 +20,15 @@ function CreateCubePrototypeRemote(data)
 end
 
 function PlayerMoved()
+--print("I am in PlayerMoved\n")
 	local x, y, z = CameraGetPos(CAMERA)
-	local msg, size = MovePacket(NETOWRK_MESSAGES["ID_UPDATE_SPHERE_LOCATION"], PLAYER_NID, x, y, z)
+	local msg, size = MovePacket(NETWORK_MESSAGES["ID_UPDATE_SPHERE_LOCATION"], PLAYER_NID, x, y, z)
+--print("Packet:", msg, " Length: ", size)
 	NETWORK_HANDLER = Multiplayer()
 	NETWORK_HANDLER.Send(msg, size, PACKET["HIGH_PRIORITY"])
 end
 
 function RemotePlayerMoved(data)
+--print("I am in RemotePlayerMoved\n")
 	UpdateRemotePlayer(data)
 end
