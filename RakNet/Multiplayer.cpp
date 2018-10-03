@@ -195,15 +195,15 @@ namespace Network
 	std::string Multiplayer::GetNetworkStatistics()
 	{
 		RakNet::RakNetStatistics * data = 0;
-		char buffer[512];
+		char buffer[1024];
 
 		if (this->m_isConnected)
 		{
-			if (this->pPeer->GetStatistics(this->m_rIP, data))
+			data = this->pPeer->GetStatistics(this->m_rIP, data);
+			if (data)
 			{
 				RakNet::StatisticsToString(data, buffer, 2);
 				return std::string(buffer);
-				//return "";
 			}
 			else
 				return std::string("Failed to Retrieve Network Statistics\n");
@@ -217,6 +217,7 @@ namespace Network
 	{
 		std::string toReturn = "";
 		toReturn = "Connected to: " + std::string(m_rIP.ToString());
+		toReturn += "\nPing: " + std::to_string(this->pPeer->GetAveragePing(this->m_rIP));
 		return toReturn;
 	}
 
