@@ -195,7 +195,7 @@ namespace Network
 	std::string Multiplayer::GetNetworkStatistics()
 	{
 		RakNet::RakNetStatistics * data = 0;
-		char * buffer = 0;
+		char buffer[512];
 
 		if (this->m_isConnected)
 		{
@@ -203,6 +203,7 @@ namespace Network
 			{
 				RakNet::StatisticsToString(data, buffer, 2);
 				return std::string(buffer);
+				//return "";
 			}
 			else
 				return std::string("Failed to Retrieve Network Statistics\n");
