@@ -1,7 +1,5 @@
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
-#pragma comment(linker, "/STACK:2000000")
-#pragma comment(linker, "/HEAP:2000000")
 
 #if _DEBUG
 #include <iostream>

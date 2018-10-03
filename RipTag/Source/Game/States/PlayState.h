@@ -17,15 +17,24 @@ private:
 	Player * player;
 
 	Enemy * enemy;
-	b3World * m_world;
-	b3Body* m_body;
-	b3Shape* shape;
+	b3World m_world;
 
+	b3Body* m_body;
 	b3Polyhedron * poly;
 	b3Hull * bodyBox;
 	b3BodyDef * bodyDef;
 	b3ShapeDef* bodyBoxDef;
 	b3Shape * m_shape;
+
+	b3Body* m_floor;
+	b3Polyhedron * poly2;
+	b3Hull * bodyBox2;
+	b3BodyDef * bodyDef2;
+	b3ShapeDef* bodyBoxDef2;
+	b3Shape * m_shape2;
+
+
+	Model * temp;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
