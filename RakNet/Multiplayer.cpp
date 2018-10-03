@@ -21,7 +21,6 @@ namespace Network
 
 		//specify the port(s) to listen on
 		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
-
 		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
 			m_isRunning = false;
@@ -182,6 +181,17 @@ namespace Network
 
 	}
 
+	void Multiplayer::EndConnectionAttempt()
+	{
+		if (m_isConnected)
+			this->Disconnect();
+		else
+		{
+			this->pPeer->Shutdown(1);
+			m_isConnected = m_isClient = m_isServer = m_isRunning = false;
+		}
+	}
+
 	void Multiplayer::Update()
 	{
 		if (m_isRunning)
@@ -269,10 +279,14 @@ namespace Network
 		switch (mID)
 		{
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
-			this->_onDisconnect();
+			this->Disconnect();
 			break;
 		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
-			this->_onDisconnect();
+			this->Disconnect();
+			break;
+		case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
+			// Print message: Server is full
+			break;
 		default:
 			break;
 		}
@@ -314,6 +328,12 @@ namespace Network
 	void Multiplayer::_onDisconnect()
 	{
 		m_isConnected = m_isClient = m_isServer = m_isRunning = false;
+
+
+
+		// Go back to menu and print a message that the player or you lost connection
+
+
 		//might want to log who disconnected
 	}
 

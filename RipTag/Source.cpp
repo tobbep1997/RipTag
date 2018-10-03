@@ -87,6 +87,10 @@ void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 	}
 	if (pMP->isRunning() && !pMP->isConnected())
 	{
+		if (ImGui::Button("Cancel"))
+		{
+			pMP->EndConnectionAttempt();
+		}
 		if (pMP->isServer())
 			ImGui::Text("Server running... Awaiting Connections...");
 		else

@@ -50,7 +50,7 @@ namespace Network
 		void ReadPackets();
 		void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void DestroySentPacket(void * msg);
-
+		void EndConnectionAttempt();
 		void Update();
 		//GETs
 		bool isServer() { return m_isServer; }
