@@ -40,7 +40,6 @@ namespace Animation
 		std::unique_ptr<Joint[]> m_joints;
 
 		Skeleton() {};
-		Skeleton(const MyLibrary::SkeletonFromFile& skeleton);
 		Skeleton(const MyLibrary::Skeleton& skeleton);
 	};
 
