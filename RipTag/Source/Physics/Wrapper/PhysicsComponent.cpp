@@ -11,12 +11,17 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().rotation.z);*/
 	//transform->setRotation(m_body->GetTransform().rotation);
 	//m_shape->GetTransform().rotation;
-	/*b3Mat33 mat = m_body->GetTransform().rotation;
+	b3Mat33 mat = m_body->GetTransform().rotation;
 	float x = atan2(mat.z.z, mat.z.y);
-	std::cout << "X : " << x << std::endl;*/
+	//x = x * DirectX::XM_PI;
+	if (x != 1.5708f)
+	{
+		std::cout << "X : " << x << std::endl;
+	}
+	
 }
 
-void PhysicsComponent::p_setPosition(const float& x, const float& y, const float& z)
+void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
 	m_body->SetTransform(b3Vec3(x, y, z), b3Vec3(0,0,0), 0);
 	//m_shape->ComputeAabb()

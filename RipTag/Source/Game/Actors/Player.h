@@ -13,6 +13,8 @@ private:
 
 	float m_moveSpeed = 100.0f;
 	float m_cameraSpeed = 1.0f;
+
+	bool isPressed = false;
 public:
 	Player();
 	~Player();
