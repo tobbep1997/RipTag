@@ -1,11 +1,19 @@
 #include "PhysicsComponent.h"
+#include <iostream>
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
 	transform->setPosition(m_body->GetTransform().translation.x,
 		m_body->GetTransform().translation.y,
 		m_body->GetTransform().translation.z);
-	
+	/*transform->setRotation(m_body->GetTransform().rotation.x,
+		m_body->GetTransform().rotation.y,
+		m_body->GetTransform().rotation.z);*/
+	//transform->setRotation(m_body->GetTransform().rotation);
+	//m_shape->GetTransform().rotation;
+	/*b3Mat33 mat = m_body->GetTransform().rotation;
+	float x = atan2(mat.z.z, mat.z.y);
+	std::cout << "X : " << x << std::endl;*/
 }
 
 void PhysicsComponent::p_setPosition(const float& x, const float& y, const float& z)
@@ -39,6 +47,20 @@ void PhysicsComponent::setBaseBodyDef(b3BodyType bodyType)
 	m_bodyDef = new b3BodyDef();
 	m_bodyDef->position.Set(0, 0, 0);
 	m_bodyDef->type = bodyType;
+	m_bodyDef->gravityScale = 1;
+	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
+	
+}
+
+void PhysicsComponent::setBodyDef(BodyDefine bodyDefine)
+{
+	m_bodyDef = new b3BodyDef();
+	m_bodyDef->position.Set(bodyDefine.posX, bodyDefine.posY, bodyDefine.posZ);
+	m_bodyDef->type = bodyDefine.bodyType;
+	m_bodyDef->angularVelocity = bodyDefine.angularVelocity;
+	m_bodyDef->linearVelocity = bodyDefine.linearVelocity;
+	m_bodyDef->awake = bodyDefine.awake;
+	m_bodyDef->gravityScale = bodyDefine.gravityScale;
 }
 
 void PhysicsComponent::setBaseShapeDef()
@@ -88,4 +110,12 @@ void PhysicsComponent::Release(b3World& world)
 b3Vec3 PhysicsComponent::getLiniearVelocity()
 {
 	return m_body->GetLinearVelocity();
+}
+
+void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
+{
+	b3Vec3 temp = m_body->GetLinearVelocity();
+	x = temp.x;
+	y = temp.y;
+	z = temp.z;
 }

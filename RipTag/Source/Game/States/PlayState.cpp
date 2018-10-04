@@ -127,7 +127,7 @@ void PlayState::Update(double deltaTime)
 	b3TimeStep m_step;
 	m_step.dt = 1.0 / 60.0f;
 	m_step.velocityIterations = 10;
-	//m_step.sleeping = true;
+	m_step.sleeping = true;
 	m_world.Step(m_step);
 
 	player->PhysicsUpdate(deltaTime);

@@ -57,7 +57,7 @@ void Player::_handleInput(double deltaTime)
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 	//addForceToCenter(x, getLiniearVelocity().y, z);
 
-	std::cout << "Y: " << getLiniearVelocity().y << std::endl;
+	//std::cout << "Y: " << getLiniearVelocity().y << std::endl;
 	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	//setPosition(p_camera->getPosition());
 }
