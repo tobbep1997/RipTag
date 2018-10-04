@@ -338,7 +338,7 @@ void ForwardRender::_createSamplerState()
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
 	m_objectValues.worldMatrix = drawable->getWorldmatrix();
-	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
+	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
 }
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
