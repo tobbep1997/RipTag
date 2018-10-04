@@ -41,4 +41,6 @@ public:
 	virtual void addForceToCenter(float x = 0, float y = 0, float z = 0);
 
 	virtual void Release(b3World & world);
+
+	virtual b3Vec3 getLiniearVelocity();
 };

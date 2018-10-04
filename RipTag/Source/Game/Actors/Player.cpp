@@ -22,10 +22,14 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
-	
-	p_updatePhysics(this);
 	_handleInput(deltaTime);
+
 	p_camera->setPosition(getPosition());
+}
+
+void Player::PhysicsUpdate(double deltaTime)
+{
+	p_updatePhysics(this);
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -50,8 +54,10 @@ void Player::_handleInput(double deltaTime)
 	p_camera->Rotate(Input::TurnUp() * (m_moveSpeed-95) * deltaTime, 0.0f, 0.0f);
 	
 	p_camera->Rotate(0.0f, Input::TurnRight() * (m_moveSpeed-95) * deltaTime, 0.0f);
+	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	//addForceToCenter(x, getLiniearVelocity().y, z);
 
-	//addForceToCenter(x, 0, z);
-	p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
+	std::cout << "Y: " << getLiniearVelocity().y << std::endl;
+	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	//setPosition(p_camera->getPosition());
 }

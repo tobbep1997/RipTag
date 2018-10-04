@@ -5,11 +5,13 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 	transform->setPosition(m_body->GetTransform().translation.x,
 		m_body->GetTransform().translation.y,
 		m_body->GetTransform().translation.z);
+	
 }
 
 void PhysicsComponent::p_setPosition(const float& x, const float& y, const float& z)
 {
 	m_body->SetTransform(b3Vec3(x, y, z), b3Vec3(0,0,0), 0);
+	//m_shape->ComputeAabb()
 	
 }
 
@@ -45,6 +47,7 @@ void PhysicsComponent::setBaseShapeDef()
 	m_bodyBoxDef->shape = m_poly;
 	m_bodyBoxDef->density = 1.0f;
 	m_bodyBoxDef->restitution = 0;
+	//m_bodyBoxDef->friction = -1;
 }
 
 void PhysicsComponent::CreateBox(float x, float y, float z)
@@ -80,4 +83,9 @@ void PhysicsComponent::Release(b3World& world)
 	delete m_bodyDef;
 	delete m_bodyBoxDef;
 	world.DestroyBody(m_body);
+}
+
+b3Vec3 PhysicsComponent::getLiniearVelocity()
+{
+	return m_body->GetLinearVelocity();
 }

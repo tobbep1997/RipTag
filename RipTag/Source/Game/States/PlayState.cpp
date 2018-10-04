@@ -49,7 +49,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_floor = m_world.CreateBody(*bodyDef2);
 	bodyBox2 = new b3Hull();
 
-	bodyBox2->SetAsBox(b3Vec3(100, 1, 100));
+	bodyBox2->SetAsBox(b3Vec3(20, 1, 20));
 
 	poly2 = new b3Polyhedron();
 	poly2->SetHull(bodyBox2);
@@ -86,6 +86,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 PlayState::~PlayState()
 {
 	delete enemy;
+	player->Release(m_world);
 	delete player;
 	//delete m_world;
 	/*m_body->DestroyShape(m_shape);
@@ -129,7 +130,9 @@ void PlayState::Update(double deltaTime)
 	//m_step.sleeping = true;
 	m_world.Step(m_step);
 
-	std::cout << "Y: " << actor->getPosition().y << std::endl;
+	player->PhysicsUpdate(deltaTime);
+
+	//std::cout << "Y: " << actor->getPosition().y << std::endl;
 	
 }
 

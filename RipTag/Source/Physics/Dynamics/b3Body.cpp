@@ -278,6 +278,11 @@ void b3Body::SynchronizeShapes() {
 	}
 }
 
+b3Vec3 b3Body::GetLinearVelocity()
+{
+	return this->m_linearVelocity;
+}
+
 void b3Body::ResetMassData() {
 	// Set mass and inertia tensor to zero.
 	m_mass = B3_ZERO;

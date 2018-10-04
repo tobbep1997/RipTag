@@ -156,10 +156,13 @@ public :
 	// Set the linear velocity of the body. If is a non-zero velocity then the body awakes.
 	// The body must be dynamic or kinematic.
 	void SetLinearVelocity(const b3Vec3& linearVelocity);
-	
+
+	b3Vec3 GetLinearVelocity();
+
 	// Set the angular velocity of the body. If is a non-zero velocity then the body awakes.
 	// The body must be dynamic or kinematic.
 	void SetAngularVelocity(const b3Vec3& angularVelocity);
+
 protected :
 	friend class b3World;
 	friend class b3Island;
