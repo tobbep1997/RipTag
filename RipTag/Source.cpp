@@ -101,7 +101,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-
+	LUA::g_luaTalker.runScript("print('lol')");
 
 	RenderingManager renderingManager;
 
