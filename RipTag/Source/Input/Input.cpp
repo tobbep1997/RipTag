@@ -22,6 +22,26 @@ void Input::ForceActivateGamepad()
 	Input::m_deactivate = false;
 }
 
+bool Input::Jump()
+{
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	{
+		return GamePadHandler::IsAPressed();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return 0;
+}
+
 float Input::MoveForward()
 {
 	if (GamePadHandler::IsConnected() && m_deactivate == false)

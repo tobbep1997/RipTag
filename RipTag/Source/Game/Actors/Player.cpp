@@ -69,11 +69,11 @@ void Player::_handleInput(double deltaTime)
 	z += Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.z;
 
 
-	p_camera->Rotate(Input::TurnUp() * (m_moveSpeed-95) * deltaTime, 0.0f, 0.0f);
+	p_camera->Rotate((Input::TurnUp()*-1) * (m_moveSpeed-95) * deltaTime, 0.0f, 0.0f);
 	
 	p_camera->Rotate(0.0f, Input::TurnRight() * (m_moveSpeed-95) * deltaTime, 0.0f);
 
-	if (InputHandler::isKeyPressed(InputHandler::Key::SPACEBAR))
+	if (Input::Jump())
 	{
 		if (isPressed == false)
 		{
@@ -85,6 +85,8 @@ void Player::_handleInput(double deltaTime)
 	{
 		isPressed = false;
 	}
+
+	
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 

@@ -69,7 +69,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_meshManager.loadStaticMesh("KUB");
 	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHEARE");
+	Manager::g_textureManager.loadTextures("SPHERE");
 	//temp = new Model();
 	////temp->setEntityType();
 	//temp->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -88,7 +88,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
 	wall1->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
-	wall1->setTexture(Manager::g_textureManager.getTexture("SPHEARE"));
+	wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	wall1->setPosition(-1.5, 2.1, -2.1);
 }
 
@@ -123,9 +123,13 @@ void PlayState::Update(double deltaTime)
 {
 	std::cout << "\a";
 
-	if (GamePadHandler::IsAPressed())
+	if (GamePadHandler::IsLeftDpadPressed())
 	{
 		Input::ForceDeactivateGamepad();
+	}
+	if (GamePadHandler::IsRightDpadPressed())
+	{
+		Input::ForceActivateGamepad();
 	}
 
 	player->Update(deltaTime);

@@ -13,6 +13,7 @@ public:
 
 
 	//Action Mappings
+	static bool Jump();
 
 	//Axis binds
 	static float MoveForward();
