@@ -53,7 +53,7 @@ public:
 
 	void Init(UINT width, UINT height);
 
-	void ShadowPass();
+	void ShadowPass(Animation::AnimationCBuffer * animBuffer = nullptr);
 
 	void MapAllLightMatrix(std::vector<PointLight*> * lights);
 
@@ -65,7 +65,7 @@ private:
 	void _createShadowDepthStencilView(UINT width, UINT hight);
 	void _createBuffers();
 	void _createRenderTargets(UINT width, UINT height);
-
+	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
 	//void _mapLightMatrix(PointLight * pointLight, unsigned int i);
 	void _mapObjectBuffer(Drawable * drawable);
 };
