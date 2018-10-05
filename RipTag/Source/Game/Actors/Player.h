@@ -11,7 +11,7 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent
 private:
 	
 
-	float m_moveSpeed = 500.0f;
+	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
 
 	bool isPressed = false;

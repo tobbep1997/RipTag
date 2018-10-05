@@ -255,7 +255,7 @@ void PlayState::Draw()
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
-	wall1->Draw();
+	//wall1->Draw();
 
 	player->Draw();
 	//player->QueueVisabilityDraw();

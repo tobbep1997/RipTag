@@ -73,6 +73,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
 	wfdesc.FillMode = D3D11_FILL_SOLID;
 	wfdesc.CullMode = D3D11_CULL_NONE;
+	//wfdesc.DepthClipEnable = FALSE;
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_disableBackFace);
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
