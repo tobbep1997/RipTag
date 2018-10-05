@@ -1,7 +1,8 @@
 
 
 function GameStart(isServer)
-	--print(isServer)
+	print(isServer)
+	print("I am in GameStart")
 	local x, y, z = CameraGetPos(CAMERA)
 	--print (x, y, z)
 	--Send out a message that we have started the game if we are the server

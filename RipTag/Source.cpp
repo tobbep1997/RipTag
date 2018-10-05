@@ -66,8 +66,6 @@ void MoveLight() {
 }
 
 
-bool gameIsRunning = false;
-
 void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 {
 	bool startServer = false;
@@ -101,7 +99,7 @@ void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 	if (pMP->isRunning() && pMP->isConnected())
 	{
 		ImGui::Text(pMP->GetNetworkInfo().c_str());
-		if (!gameIsRunning && pMP->isServer())
+		if (!pMP->isGameRunning() && pMP->isServer())
 		{
 			if (ImGui::Button("Start Game"))
 			{
@@ -112,11 +110,13 @@ void NetworkSettings(Network::Multiplayer * pMP, lua_State * L)
 					printf(lua_tostring(L, -1));
 					lua_pop(L, 1);
 				}
-				gameIsRunning = true;
+				pMP->setIsGameRunning(true);
 			}
 		}
 		if (ImGui::Button("Disconnect"))
+		{
 			pMP->Disconnect();
+		}
 	}
 	ImGui::End();
 }

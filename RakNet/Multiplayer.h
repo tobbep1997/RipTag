@@ -58,7 +58,8 @@ namespace Network
 		bool isClient() { return m_isClient; }
 		bool isRunning() { return m_isRunning; }
 		bool isConnected() { return m_isConnected; }
-		
+		bool isGameRunning() { return m_isGameRunning; }
+		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 		std::string GetNetworkStatistics();
 
 		std::string GetNetworkInfo();
@@ -74,6 +75,7 @@ namespace Network
 		bool m_isClient = false;
 		bool m_isRunning = false;
 		bool m_isConnected = false;
+		bool m_isGameRunning = false;
 
 		RakNet::SystemAddress m_rIP;
 

@@ -116,7 +116,7 @@ namespace Network
 		if (m_isConnected)
 		{
 			pPeer->CloseConnection(m_rIP, true);
-			m_isConnected = m_isClient = m_isServer = m_isRunning = false;
+			m_isConnected = m_isClient = m_isServer = m_isRunning = m_isGameRunning = false;
 		}
 	}
 
