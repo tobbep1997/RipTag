@@ -83,10 +83,12 @@ static int Get_NID_Prototype(lua_State *L)
 {
 	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, -1);
 	lua_pop(L, 1);
+	uint64_t nid = ptr->GetNetworkID();
+	std::string strNid = std::to_string(nid);
 
 	if (ptr)
 	{
-		lua_pushnumber(L, (double)ptr->GetNetworkID());
+		lua_pushstring(L, strNid.c_str());
 		return 1;
 	}
 	return 0;

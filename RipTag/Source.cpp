@@ -344,7 +344,7 @@ static int Lua_Update_Remote_Player(lua_State * L)
 
 static int Lua_Update_Local_Player(lua_State * L)
 {
-	RakNet::NetworkID nid = lua_tonumber(L, -4);
+	RakNet::NetworkID nid = std::stoull(lua_tostring(L, -4));
 	float x = lua_tonumber(L, -3);
 	float y = lua_tonumber(L, -2);
 	float z = lua_tonumber(L, -1);

@@ -42,8 +42,7 @@ CubePrototype::~CubePrototype()
 
 void CubePrototype::setPosition(DirectX::XMFLOAT4A pos)
 {
-	this->m.setPosition(DirectX::XMFLOAT4A(pos.x, pos.y, pos.z + 2, pos.w));
-	RakNet::NetworkID nId = this->GetNetworkID();
+	this->m.setPosition(DirectX::XMFLOAT4A(pos.x, pos.y, pos.z, pos.w));
 	
 }
 
