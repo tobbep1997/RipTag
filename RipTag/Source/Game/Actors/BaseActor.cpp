@@ -8,7 +8,7 @@ BaseActor::BaseActor() : Actor(), PhysicsComponent()
 
 BaseActor::BaseActor(b3World& world, b3BodyType bodyType) : Actor(), PhysicsComponent()
 {
-	this->Init(world, bodyType,0.5f,0.5f,0.5f);
+	this->Init(world, bodyType,1.0f,1.0f,1.0f);
 	
 }
 

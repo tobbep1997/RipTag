@@ -12,21 +12,23 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().rotation.z);*/
 	//transform->setRotation(m_body->GetTransform().rotation);
 	//m_shape->GetTransform().rotation;
+	
 
+	//double roll;
+	//double pitch;
+	//double yaw;
 
-	double roll;
-	double pitch;
-	double yaw;
+	//b3Mat33 mat = m_body->GetTransform().rotation;
+	////b3Quaternion q = m_body->GetQuaternion();
+	//mat = b3Transpose(mat);
+	////mat = b3Inverse(mat);
+	//pitch = atan2(mat.z.y, mat.z.z);
+	//yaw = atan2(-mat.z.x, sqrt(pow(mat.z.y, 2) + pow(mat.z.z, 2)));
+	//roll = atan2(mat.y.x, mat.x.x);
 
-	b3Mat33 mat = m_body->GetTransform().rotation;
-	//b3Quaternion q = m_body->GetQuaternion();
-	roll = atan2(mat.z.y, mat.z.z);
-	pitch = atan2(-mat.z.x, sqrt(pow(mat.z.y, 2) + pow(mat.z.z, 2)));
-	yaw = atan2(mat.y.x, mat.x.x);
-
-	roll = roll * -1;
+	/*roll = roll * -1;
 	yaw = yaw * -1;
-	pitch = pitch * -1;
+	pitch = pitch * -1;*/
 	//x = x * DirectX::XM_PI;
 	//if (x != 1.5708f)
 	//{
@@ -50,16 +52,18 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 	//double cosy_cosp = +1.0 - 2.0 * (q.b * q.b + q.c * q.c);
 	//yaw = atan2(siny_cosp, cosy_cosp);
 
-	ImGui::Begin("box1");
-	ImGui::Text("Roll; %f", roll);
-	ImGui::Text("pitch; %f", pitch);
-	ImGui::Text("yaw; %f", yaw);
-	/*std::cout << "Roll: " << roll << std::endl;
-	std::cout << "pitch: " << pitch << std::endl;
-	std::cout << "yaw: " << yaw << std::endl;*/
-	ImGui::End();
+	//ImGui::Begin("box1");
+	//ImGui::Text("Roll; %f", roll);
+	//ImGui::Text("pitch; %f", pitch);
+	//ImGui::Text("yaw; %f", yaw);
+	///*std::cout << "Roll: " << roll << std::endl;
+	//std::cout << "pitch: " << pitch << std::endl;
+	//std::cout << "yaw: " << yaw << std::endl;*/
+	//ImGui::End();
 
-	transform->setRotation(roll, pitch, yaw);
+	//transform->setRotation(pitch, yaw, roll);
+	//m_body->SetTransform()
+	//transform->addRotation(pitch, yaw, roll);
 }
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
