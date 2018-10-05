@@ -132,13 +132,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Animation::Skeleton* skeleton = nullptr;
 	Animation::AnimationClip* animation = nullptr;
-	Manager::g_meshManager.loadDynamicMesh("BALL");
-	skeleton = Animation::LoadAndCreateSkeleton("../Assets/BALLFOLDER/BALL_SKELETON.bin");
-	animation = Animation::LoadAndCreateAnimation("../Assets/BALLFOLDER/BALL_ANIMATION.bin", skeleton);
-	Manager::g_meshManager.getDynamicMesh("BALL")->m_anim = new Animation::AnimatedModel();
-	Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetSkeleton(skeleton);
-	Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->SetPlayingClip(animation);
-	Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->Play();
+	Manager::g_meshManager.loadDynamicMesh("JUMP");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/JUMPFOLDER/JUMP_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/JUMPFOLDER/JUMP_ANIMATION.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("JUMP")->m_anim = new Animation::AnimatedModel();
+	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetSkeleton(skeleton);
+	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetPlayingClip(animation);
+	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Play();
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -146,8 +146,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("BALL"));
-	//player->setScale(0.03f, 0.03f, 0.03f);
+	player->setModel(Manager::g_meshManager.getDynamicMesh("JUMP"));
+	player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -194,7 +194,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
 
-		player->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		//player->setScale(playerScaleX, playerScaleY, playerScaleZ);
 		player->setPosition(playerPosX, playerPosY, playerPosZ);
 		//modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
 
@@ -303,7 +303,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
-		Manager::g_meshManager.getDynamicMesh("BALL")->getAnimatedModel()->Update(floatDt);
+		Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Update(floatDt);
 
 		modelmanager.DrawMeshes();
 
@@ -313,6 +313,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			point[i].QueueLight();
 		}		
 		
+		player->setScale(0.05f, 0.05f, 0.05f);
+
 		gTemp.Draw();
 		player->Draw();
 		//player->DrawWireFrame();
