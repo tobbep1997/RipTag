@@ -110,13 +110,16 @@ namespace Animation
 		float m_targetBlendTime = 0.0;
 
 		float m_currentTime = 0.0f;
+		float m_targetClipCurrentTime = 0.0;
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
 		unsigned int m_scrubIndex = 0;
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+		void _computeSkinningMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+		void _computeModelMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 	};

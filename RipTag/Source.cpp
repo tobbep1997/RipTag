@@ -132,13 +132,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Animation::Skeleton* skeleton = nullptr;
 	Animation::AnimationClip* animation = nullptr;
-	Manager::g_meshManager.loadDynamicMesh("JUMP");
-	skeleton = Animation::LoadAndCreateSkeleton("../Assets/JUMPFOLDER/JUMP_SKELETON.bin");
-	animation = Animation::LoadAndCreateAnimation("../Assets/JUMPFOLDER/JUMP_ANIMATION.bin", skeleton);
-	Manager::g_meshManager.getDynamicMesh("JUMP")->m_anim = new Animation::AnimatedModel();
-	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetSkeleton(skeleton);
-	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetPlayingClip(animation);
-	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Play();
+	Animation::AnimationClip* animation2 = nullptr;
+	Manager::g_meshManager.loadDynamicMesh("CYL_UP");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/CYL_UPFOLDER/CYL_UP_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/CYL_UPFOLDER/CYL_UP_ANIMATION_UP.bin", skeleton);
+	animation2 = Animation::LoadAndCreateAnimation("../Assets/CYL_UPFOLDER/CYL_UP_ANIMATION_RIGHT.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("CYL_UP")->m_anim = new Animation::AnimatedModel();
+	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->SetSkeleton(skeleton);
+	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->SetPlayingClip(animation);
+	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->SetTargetClip(animation2);
+	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->Play();
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -146,8 +149,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("JUMP"));
-	player->setScale(0.003f, 0.003f, 0.003f);
+	player->setModel(Manager::g_meshManager.getDynamicMesh("CYL_UP"));
+	//player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -303,7 +306,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
-		Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Update(floatDt);
+		Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->Update(floatDt);
 
 		modelmanager.DrawMeshes();
 
@@ -313,7 +316,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			point[i].QueueLight();
 		}		
 		
-		player->setScale(0.05f, 0.05f, 0.05f);
+		//player->setScale(0.05f, 0.05f, 0.05f);
 
 		gTemp.Draw();
 		player->Draw();
@@ -338,6 +341,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		delete skeleton;
 	if (animation)
 		delete animation;
+	if (animation2)
+		delete animation2;
 
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
