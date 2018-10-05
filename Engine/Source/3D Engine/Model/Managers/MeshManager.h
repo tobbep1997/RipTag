@@ -17,6 +17,7 @@ public:
 	bool loadStaticMesh(const std::string & meshName);
 	DynamicMesh* getDynamicMesh(const std::string & meshName);
 	StaticMesh* getStaticMesh(const std::string & meshName);
+	void UpdateAllAnimations(float deltaTime);
 
 private:
 

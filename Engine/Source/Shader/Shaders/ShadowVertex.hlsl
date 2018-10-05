@@ -1,4 +1,5 @@
-cbuffer OBJECT_BUFFER : register(b0)
+#include "StaticConstantBuffers.hlsli"
+cbuffer OBJECT_BUFFER : register(b3)
 {
 	float4x4 worldMatrix;
 };

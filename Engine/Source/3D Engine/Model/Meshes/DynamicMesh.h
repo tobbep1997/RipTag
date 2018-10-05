@@ -15,7 +15,7 @@ public:
 	Animation::AnimatedModel *m_anim;
 	const DynamicVertex * getRawVertices() const;
 	const std::vector<DynamicVertex> & getVertices() const;
-
+	Animation::AnimatedModel* getAnimatedModel();
 	void setVertices(std::vector<DynamicVertex>& input);
 
 	void SET_DEFAULT();

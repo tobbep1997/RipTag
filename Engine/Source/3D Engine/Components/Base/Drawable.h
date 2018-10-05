@@ -61,6 +61,7 @@ public:
 	virtual void BindTextures();
 	
 	virtual void Draw();
+	void DrawWireFrame();
 	virtual void QueueVisabilityDraw();
 
 	//Set Shaders
@@ -81,6 +82,9 @@ public:
 	virtual ObjectType getObjectType();
 	virtual EntityType getEntityType();
 	virtual void setEntityType(EntityType en);
+
+	//returns AnimatedModel ptr if valid
+	Animation::AnimatedModel* getAnimatedModel();
 
 private:
 	virtual void _setStaticBuffer();

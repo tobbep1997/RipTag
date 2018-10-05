@@ -25,17 +25,17 @@ void VisabilityPass::Init()
 	_init();
 }
 
-void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
+void VisabilityPass::GuardDepthPrePassFor(Guard * guard, Animation::AnimationCBuffer * animBuffer)
 {
+	_mapViewBuffer(guard); 
 	float c[4] = { 0,0,0,0 };
 	DX::g_deviceContext->ClearRenderTargetView(m_guardRenderTargetView, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_guardDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	// Static Objects
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(STATIC_VERTEX_SHADER_PATH));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_VERTEX_SHADER_PATH), nullptr,0);
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_STATIC_VERTEX_SHADER_PATH), nullptr,0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
-	_mapViewBuffer(guard); 
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
@@ -44,19 +44,34 @@ void VisabilityPass::GuardDepthPrePassFor(Guard * guard)
 	{
 		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
 	}
+	if (animBuffer && !DX::g_animatedGeometryQueue.empty())
+	{
+		UINT32 vertexSize = sizeof(DynamicVertex);
+		UINT32 offset = 0;
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DYNAMIC_VERTEX_SHADER_PATH));
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DEPTH_PRE_PASS_DYNAMIC_VERTEX_SHADER_PATH), nullptr, 0);
+		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+		{
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
+			{
+				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
+				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+			}
 
-	//TODO Dynamic Object
-
+		}
+	}
 }
 
-void VisabilityPass::CalculateVisabilityFor(Guard * guard)
+void VisabilityPass::CalculateVisabilityFor(Guard * guard, Animation::AnimationCBuffer * animBuffer)
 {
 	ID3D11UnorderedAccessView * l_uav = guard->getUAV();
 	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
@@ -83,18 +98,33 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard)
 	{
 		if (DX::g_geometryQueue[i]->getEntityType() == EntityType::PlayerType)
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
 
 	}
-	//TODO Dynamic Object
+	if (animBuffer && !DX::g_animatedGeometryQueue.empty())
+	{
+		UINT32 vertexSize = sizeof(DynamicVertex);
+		UINT32 offset = 0;
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DYNAMIC_VERTEX_SHADER_PATH));
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DYNAMIC_VERTEX_SHADER_PATH), nullptr, 0);
+		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+		{
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
+			{
+				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
+				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+			}
 
-
+		}
+	}
 	guard->calcVisability();
 	//DX::g_deviceContext->PSSetShaderResources(8, 0, nullptr);
 }
@@ -162,7 +192,7 @@ void VisabilityPass::_initShaders()
 
 void VisabilityPass::_initVertexShaders()
 {
-	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DEPTH_PRE_PASS_VERTEX_SHADER_PATH);
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DEPTH_PRE_PASS_STATIC_VERTEX_SHADER_PATH);
 }
 
 void VisabilityPass::_initPixelShaders()
@@ -179,8 +209,16 @@ void VisabilityPass::_mapViewBuffer(Guard * target)
 
 	DXRHC::MapBuffer(m_guardViewBuffer, &gvb, sizeof(GuardViewBuffer));
 
-	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_guardViewBuffer);
+	DX::g_deviceContext->VSSetConstantBuffers(2, 1, &m_guardViewBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(2, 1, &m_guardViewBuffer);
+}
+
+void VisabilityPass::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer)
+{
+	std::vector<DirectX::XMFLOAT4X4A> skinningVector = d->getAnimatedModel()->GetSkinningMatrices();
+
+	animBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
+	animBuffer->SetToShader();
 }
 
 void VisabilityPass::_mapObjectBuffer(Drawable * target)
@@ -188,8 +226,5 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 	ObjectBuffer ob;
 	ob.worldMatrix = target->getWorldmatrix();
 
-	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
-
-
-
+	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
 }

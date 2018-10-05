@@ -13,6 +13,7 @@
 #include "Source/Helper/Timer.h"
 #include "../InputManager/XboxInput/GamePadHandler.h"
 #include "../Engine/Source/3D Engine/Extern.h"
+#include "../Lua Talker/Source/LuaTalker.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -23,6 +24,8 @@ void _alocConsole() {
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
 #endif
+
+LuaTalker LUA::g_luaTalker;
 
 float playerScaleX = 1.0f;
 float playerScaleY = 1.0f;
@@ -98,7 +101,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float freq = 1000000000.0f / REFRESH_RATE;
 	float unprocessed = 0;
 
-
+	LUA::g_luaTalker.runScript("print('lol')");
 
 	RenderingManager renderingManager;
 
@@ -124,8 +127,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Manager::g_meshManager.loadStaticMesh("SCENE");
 	Manager::g_meshManager.loadStaticMesh("PIRASRUM");
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
-	Manager::g_meshManager.loadDynamicMesh("TORUS");
-	Manager::g_meshManager.loadDynamicMesh("KON");
+	//Manager::g_meshManager.loadDynamicMesh("TORUS");
+	//Manager::g_meshManager.loadDynamicMesh("KON");
+	
+	Animation::Skeleton* skeleton = nullptr;
+	Animation::AnimationClip* animation = nullptr;
+	Manager::g_meshManager.loadDynamicMesh("JUMP");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/JUMPFOLDER/JUMP_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/JUMPFOLDER/JUMP_ANIMATION.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("JUMP")->m_anim = new Animation::AnimatedModel();
+	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetSkeleton(skeleton);
+	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetPlayingClip(animation);
+	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Play();
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -133,7 +146,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	player->setModel(Manager::g_meshManager.getDynamicMesh("JUMP"));
+	player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -180,12 +194,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		point[targetLight].setPosition(lightPosX, lightPosY, lightPosZ); 
 
 
-		player->setScale(playerScaleX, playerScaleY, playerScaleZ);
+		//player->setScale(playerScaleX, playerScaleY, playerScaleZ);
 		player->setPosition(playerPosX, playerPosY, playerPosZ);
 		//modelManager.m_dynamicModel[0]->setScale(playerScaleX, playerScaleY, playerScaleZ);
 
 		auto currentTime = steady_clock::now();
 		auto dt = duration_cast<nanoseconds>(currentTime - time).count();
+		float floatDt = static_cast<float>(dt) / 1000000000;
 		time = steady_clock::now();
 		unprocessed += (dt / freq);
 
@@ -288,7 +303,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
-		
+		Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Update(floatDt);
 
 		modelmanager.DrawMeshes();
 
@@ -297,12 +312,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			point[i].QueueLight();
 		}		
-
-		MoveLight();
-
 		
+		player->setScale(0.05f, 0.05f, 0.05f);
+
 		gTemp.Draw();
 		player->Draw();
+		//player->DrawWireFrame();
 		player->QueueVisabilityDraw();
 
 
@@ -318,6 +333,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.Clear();
 		
 	}
+
+	if (skeleton)
+		delete skeleton;
+	if (animation)
+		delete animation;
+
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
 	delete player;

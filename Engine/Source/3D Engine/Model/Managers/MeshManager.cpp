@@ -83,6 +83,26 @@ StaticMesh * MeshManager::getStaticMesh(const std::string & meshName)
 	return nullptr;
 }
 
+
+void MeshManager::UpdateAllAnimations(float deltaTime)
+{
+	//for (auto& dynamicMeshVector : m_dynamicMesh)
+	//{
+	//	for (auto& mesh : dynamicMeshVector)
+	//		mesh->getAnimatedModel()->Update(deltaTime);
+	//}
+
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
+	{
+		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)
+		{
+			auto animatedModelPtr = m_dynamicMesh[i][j]->getAnimatedModel();
+			if (animatedModelPtr)
+				animatedModelPtr->Update(deltaTime);
+		}
+	}
+}
+
 unsigned int MeshManager::_getKey(const std::string & meshName)
 {
 	unsigned int sum = 0;

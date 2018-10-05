@@ -57,7 +57,7 @@ void Game::Update(double deltaTime)
 
 void Game::Draw()
 {
-	modelManager.DrawMeshes();
+	//modelManager.DrawMeshes();
 	m_gameStack.top()->Draw();
 }
 
