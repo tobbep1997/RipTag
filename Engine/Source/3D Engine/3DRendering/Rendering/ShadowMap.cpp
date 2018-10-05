@@ -23,11 +23,8 @@ void ShadowMap::Init(UINT width, UINT height)
 
 
 
-void ShadowMap::ShadowPass()
+void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 {
-	
-	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
-
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertex.hlsl"), nullptr, 0);
@@ -49,19 +46,25 @@ void ShadowMap::ShadowPass()
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->getVertexSize(), 0);
 	}
-	for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
+	if (animBuffer && !DX::g_animatedGeometryQueue.empty())
 	{
-		//Kan beh�va �ndra sizeof(StaticVertex) till sizeof(DynamicVertex) f�r fler ljus senare.
 		UINT32 vertexSize = sizeof(DynamicVertex);
 		UINT32 offset = 0;
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl"));
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertexAnimated.hlsl"), nullptr, 0);
+		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+		{
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->getBuffer();
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
-		_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
+			//DX::g_animatedGeometryQueue[i]->BindTextures();
+
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+		}
 	}
-
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
@@ -78,7 +81,7 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 	}
 	
 	DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer));
-	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
+	//DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->GSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 }
@@ -91,7 +94,7 @@ void ShadowMap::SetSamplerAndShaderResources()
 
 void ShadowMap::Clear()
 {
-	float c[4] = { 0.0f,0.0f,0.5f,1.0f };
+	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
 
 	DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -145,6 +148,14 @@ void ShadowMap::_createRenderTargets(UINT width, UINT height)
 	HRESULT hr;
 	hr = DXRHC::CreateTexture2D(m_renderTargetsTexture, height, width, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, RENDER_TARGET_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 	hr = DXRHC::CreateRenderTargetView(m_renderTargetsTexture, m_renderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, RENDER_TARGET_VIEW_COUNT);
+}
+
+void ShadowMap::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer)
+{
+	std::vector<DirectX::XMFLOAT4X4A> skinningVector = d->getAnimatedModel()->GetSkinningMatrices();
+
+	animBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
+	animBuffer->SetToShader();
 }
 
 void ShadowMap::_mapObjectBuffer(Drawable * drawable)
