@@ -69,6 +69,13 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_wireFrame);
 	DX::g_deviceContext->RSSetState(m_wireFrame);
 
+	
+	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
+	wfdesc.FillMode = D3D11_FILL_SOLID;
+	wfdesc.CullMode = D3D11_CULL_NONE;
+	DX::g_device->CreateRasterizerState(&wfdesc, &m_disableBackFace);
+	DX::g_deviceContext->RSSetState(m_disableBackFace);
+
 	m_animationBuffer.SetAnimationCBuffer();
 }
 
@@ -183,12 +190,16 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_standardRast);
 	DX::SafeRelease(m_wireFrame);
 
+	DX::SafeRelease(m_disableBackFace);
+
 	m_shadowMap.Release();
 }
 
 void ForwardRender::_tempGuardFrustumDraw()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+
+	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
@@ -228,6 +239,7 @@ void ForwardRender::_tempGuardFrustumDraw()
 
 	}
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+	DX::g_deviceContext->RSSetState(m_standardRast);
 }
 
 void ForwardRender::_simpleLightCulling(Camera & cam)

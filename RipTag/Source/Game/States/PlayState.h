@@ -46,11 +46,24 @@ private:
 	float x = -1.5;
 	float y = 2.1; 
 	float z = -2.1;
-	float ScaleX, ScaleY, ScaleZ;
+	float ax = -1.5;
+	float ay = 2.1;
+	float az = -2.1;
+	float adirX, adirY, adirZ;
+
+	float intensity = 2;
 	BaseActor * wall1;
 
+	PointLight light1;
+	PointLight light2;
 
+	Guard gTemp;
 
+	Model * model;
+
+	Model * jumper;
+	Animation::Skeleton* skeleton = nullptr;
+	Animation::AnimationClip* animation = nullptr;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
