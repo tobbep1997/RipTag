@@ -13,6 +13,7 @@
 #include "Source/Helper/Timer.h"
 #include "../InputManager/XboxInput/GamePadHandler.h"
 #include "../Engine/Source/3D Engine/Extern.h"
+#include "../Lua Talker/Source/LuaTalker.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
@@ -23,6 +24,8 @@ void _alocConsole() {
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
 #endif
+
+LuaTalker LUA::g_luaTalker;
 
 float playerScaleX = 1.0f;
 float playerScaleY = 1.0f;
