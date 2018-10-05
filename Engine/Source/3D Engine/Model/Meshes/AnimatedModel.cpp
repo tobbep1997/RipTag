@@ -404,7 +404,6 @@ Animation::AnimationClip::~AnimationClip()
 #pragma region AnimationCBufferClass
 Animation::AnimationCBuffer::AnimationCBuffer()
 {
-	SetAnimationCBuffer();
 }
 
 Animation::AnimationCBuffer::~AnimationCBuffer()

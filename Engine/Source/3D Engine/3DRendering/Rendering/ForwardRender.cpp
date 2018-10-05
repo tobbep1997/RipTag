@@ -68,6 +68,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	wfdesc.CullMode = D3D11_CULL_NONE;
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_wireFrame);
 	DX::g_deviceContext->RSSetState(m_wireFrame);
+
+	m_animationBuffer.SetAnimationCBuffer();
 }
 
 void ForwardRender::GeometryPass()
@@ -343,16 +345,17 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 {
-	if (!m_animationBuffer)
-	{
-		m_animationBuffer = std::make_unique<Animation::AnimationCBuffer>();
-		m_animationBuffer->SetAnimationCBuffer();
-	}
+	//if (!m_animationBuffer)
+	//{
+	//	//m_animationBuffer = std::make_unique<Animation::AnimationCBuffer>();
+	//	m_animationBuffer = new Animation::AnimationCBuffer();
+	//	m_animationBuffer->SetAnimationCBuffer();
+	//}
 
 	auto skinningVector = drawable->getAnimatedModel()->GetSkinningMatrices();
 
-	m_animationBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
-	m_animationBuffer->SetToShader();
+	m_animationBuffer.UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
+	m_animationBuffer.SetToShader();
 }
 
 void ForwardRender::_mapCameraBuffer(Camera & camera)
