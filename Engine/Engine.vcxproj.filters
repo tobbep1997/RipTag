@@ -6,11 +6,13 @@
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
-    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumPixel.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\PreDepthPassVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertexAnimated.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\PreDepthPassVertexAnimated.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
