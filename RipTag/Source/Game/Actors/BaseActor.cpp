@@ -8,13 +8,19 @@ BaseActor::BaseActor() : Actor(), PhysicsComponent()
 
 BaseActor::BaseActor(b3World& world, b3BodyType bodyType) : Actor(), PhysicsComponent()
 {
-	this->Init(world, bodyType,1.0f,1.0f,1.0f);
+	
 	
 }
 
 
 BaseActor::~BaseActor()
 {
+	
+}
+
+void BaseActor::Init(b3World& world, b3BodyType bodyType, const float & x, const float & y, const float & z)
+{
+	PhysicsComponent::Init(world, bodyType, x, y, z);
 }
 
 void BaseActor::BeginPlay()

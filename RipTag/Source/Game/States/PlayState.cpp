@@ -73,12 +73,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	//temp->setPosition(0, 10, 0);
 
-	actor = new BaseActor(m_world);
-
+	actor = new BaseActor();
+	actor->Init(m_world, e_dynamicBody, 0.5f, 0.5f, 0.5f);
 	actor->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
 	actor->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	actor->setPosition(0, 50, 0);
-
+	actor->setPosition(0, 10, 0);
+	actor->setScale(1.0f,1.0f,1.0f);
 	player->Init(m_world, e_dynamicBody);
 	player->setPosition(0, 15, 0,0);
 }
@@ -132,7 +132,7 @@ void PlayState::Update(double deltaTime)
 
 	player->PhysicsUpdate(deltaTime);
 
-	//std::cout << "Y: " << actor->getPosition().y << std::endl;
+	std::cout << "Y: " << actor->getPosition().y << std::endl;
 	
 }
 

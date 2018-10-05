@@ -39,6 +39,7 @@ typedef double r64;
 // you're right.
 
 #define B3_ZERO static_cast<r32>(0.0)
+#define B3_QUART static_cast<r32>(0.25)
 #define B3_HALF static_cast<r32>(0.5)
 #define B3_ONE static_cast<r32>(1.0)
 #define B3_TWO static_cast<r32>(2.0)

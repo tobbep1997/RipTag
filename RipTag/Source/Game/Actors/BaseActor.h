@@ -11,6 +11,8 @@ public:
 	BaseActor(b3World & world, b3BodyType bodyType = b3BodyType::e_dynamicBody);
 	~BaseActor();
 
+	void Init(b3World& world, b3BodyType bodyType, const float & x, const float & y, const float & z);
+
 	void BeginPlay() override;
 	void Update(double deltaTime) override;
 
