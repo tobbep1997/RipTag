@@ -22,6 +22,7 @@ end
 function PlayerMoved()
 --print("I am in PlayerMoved\n")
 	local x, y, z = CameraGetPos(CAMERA)
+	UpdateLocalPlayer(PLAYER_NID, x, y, z)
 	local msg, size = MovePacket(NETWORK_MESSAGES["ID_UPDATE_SPHERE_LOCATION"], PLAYER_NID, x, y, z)
 --print("Packet:", msg, " Length: ", size)
 	NETWORK_HANDLER = Multiplayer()

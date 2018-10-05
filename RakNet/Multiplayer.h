@@ -57,6 +57,7 @@ namespace Network
 		bool isClient() { return m_isClient; }
 		bool isRunning() { return m_isRunning; }
 		bool isConnected() { return m_isConnected; }
+		
 		std::string GetNetworkStatistics();
 
 		std::string GetNetworkInfo();

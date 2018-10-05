@@ -25,7 +25,7 @@ CubePrototype::CubePrototype(RakNet::NetworkID nid, float x, float y, float z)
 	this->SetNetworkID(nid);
 
 	this->s = new StaticMesh();
-	this->s->LoadModel("../Assets/sphere.bin");
+	this->s->LoadModel("../Assets/kub.bin");
 
 	this->m = Model(ObjectType::Static);
 	this->m.SetVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");

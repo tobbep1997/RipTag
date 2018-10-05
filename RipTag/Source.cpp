@@ -6,7 +6,7 @@
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/Light/PointLight.h"
-//#pragma comment(lib, "New_Library.lib")
+
 
 //network
 #include <Multiplayer.h>
@@ -18,8 +18,10 @@ static void FlushPlayers();
 
 #define LUA_ADD_PLAYER "AddPlayer"
 #define LUA_UPDATE_REMOTE_PLAYER "UpdateRemotePlayer"
+#define LUA_UPDATE_LOCAL_PLAYER "UpdateLocalPlayer"
 static int Lua_Player_Add(lua_State *L);
 static int Lua_Update_Remote_Player(lua_State * L);
+static int Lua_Update_Local_Player(lua_State * L);
 
 //LUA
 extern "C" {
@@ -148,6 +150,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	LUA_Register_CubePrototype(L);
 	lua_register(L, LUA_ADD_PLAYER, Lua_Player_Add);
 	lua_register(L, LUA_UPDATE_REMOTE_PLAYER, Lua_Update_Remote_Player);
+	lua_register(L, LUA_UPDATE_LOCAL_PLAYER, Lua_Update_Local_Player);
 
 	//load our Lua libraries into the global enviroment (maybe run a LoadLibs.lua script for this?)
 	luaL_dofile(L, "..//Scripts//LuaInit.lua");
@@ -277,6 +280,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			int _break = 0;
 
 		renderingManager.Flush(camera);
+
+		//check if we are disconnected, then flush players if we were connected and then disconnected
+		if (!pNetwork->isConnected())
+			FlushPlayers();
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
@@ -326,6 +333,26 @@ static int Lua_Update_Remote_Player(lua_State * L)
 			if (players->at(i)->GetNetworkID() == nid)
 				players->at(i)->lerpPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 1.0f), data->timeStamp);
 		}
+	}
+	return 0;
+}
+
+static int Lua_Update_Local_Player(lua_State * L)
+{
+	RakNet::NetworkID nid = lua_tonumber(L, -4);
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+
+	lua_pop(L, 4);
+
+	DirectX::XMFLOAT4A pos(x, y, z, 1.0f);
+
+	std::vector<CubePrototype*> * players = GetPlayers();
+	for (size_t i = 0; i < players->size(); i++)
+	{
+		if (players->at(i)->GetNetworkID() == nid)
+			players->at(i)->setPosition(pos);
 	}
 	return 0;
 }
