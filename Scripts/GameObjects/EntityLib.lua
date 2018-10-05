@@ -10,7 +10,8 @@ function CreateCubePrototype(x, y, z)
 	--print(x, y , z)
 	--print("NID: ", nid, " PLAYER NID: ", PLAYER_NID)
 	NETWORK_HANDLER = Multiplayer()
-	if NETWORK_HANDLER.IsConnected() and NETWORK_HANDLER.IsGameRunning() then 
+	if NETWORK_HANDLER.IsConnected() and PLAYER_NID then 
+		print("Game started message")
 		local msg, size = CreateEntityMsg(NETWORK_MESSAGES["ID_CREATE_REMOTE_PLAYER"], nid, x, y, z)
 		--print(msg)
 		NETWORK_HANDLER.Send(msg, size, PACKET["LOW_PRIORITY"])
