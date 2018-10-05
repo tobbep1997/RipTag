@@ -9,6 +9,8 @@ DynamicMesh::DynamicMesh()
 
 DynamicMesh::~DynamicMesh()
 {
+	if (m_anim)
+		delete m_anim;
 }
 
 const DynamicVertex * DynamicMesh::getRawVertices() const
@@ -19,6 +21,12 @@ const DynamicVertex * DynamicMesh::getRawVertices() const
 const std::vector<DynamicVertex>& DynamicMesh::getVertices() const
 {
 	return m_dynamicVertex;
+}
+
+
+Animation::AnimatedModel* DynamicMesh::getAnimatedModel()
+{
+	return m_anim;
 }
 
 void DynamicMesh::setVertices(std::vector<DynamicVertex>& input)

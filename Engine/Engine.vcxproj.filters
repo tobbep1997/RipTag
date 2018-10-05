@@ -34,7 +34,6 @@
     <ClCompile Include="Source\3D Engine\Model\Managers\TextureManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Meshes\DynamicMesh.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Meshes\StaticMesh.cpp" />
     <ClCompile Include="Source\3D Engine\Components\Base\CameraHolder.cpp" />
     <ClCompile Include="Source\3D Engine\Components\Base\Drawable.cpp" />
@@ -46,6 +45,7 @@
     <ClCompile Include="Source\3D Engine\3DRendering\Framework\Engine3D.cpp" />
     <ClCompile Include="Source\3D Engine\Temp_Guard\TempGuard.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -86,7 +86,6 @@
     <ClInclude Include="Source\3D Engine\Model\Managers\TextureManager.h" />
     <ClInclude Include="Source\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="Source\3D Engine\Model\Meshes\DynamicMesh.h" />
-    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\Model\Meshes\StaticMesh.h" />
     <ClInclude Include="Source\3D Engine\Components\Base\Transform.h" />
     <ClInclude Include="Source\3D Engine\Components\Base\CameraHolder.h" />
@@ -98,8 +97,13 @@
     <ClInclude Include="Source\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="Source\3D Engine\Temp_Guard\TempGuard.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.h" />
+    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Shader\Shaders\StaticConstantBuffers.hlsli" />
+    <None Include="Source\Shader\Shaders\LightCalc.hlsli" />
   </ItemGroup>
 </Project>

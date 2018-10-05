@@ -1,0 +1,7 @@
+2
+joint1
+ Rotation:  0  -0  5.53151e-31 Position: -1  -9.65431e-33  0 Scale: 1  1  1  
+Parent index: joint1
+joint2
+ Rotation:  0  -0  0 Position 0  0  0 Scale: 1  1  1  
+Parent index: joint1

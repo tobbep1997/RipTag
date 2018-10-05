@@ -154,8 +154,12 @@
     <ProjectReference Include="..\InputManager\InputManager.vcxproj">
       <Project>{62973989-7115-4695-b77e-cefc0fb74fe2}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Lua Talker\Lua Talker.vcxproj">
+      <Project>{62935a65-da86-4644-8cdc-4a133a3c7282}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
@@ -180,7 +184,6 @@
     <ClCompile Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\PhysicsComponent.cpp" />
-    <ClCompile Include="Source\Source.cpp" />
     <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
     <ClCompile Include="Source\Game\Actors\Player.cpp" />

@@ -6,6 +6,13 @@
 #include <thread>
 #include "VisabilityPass/VisabilityPass.h"
 
+#pragma region ForwardDeclarations
+namespace Animation
+{
+	class AnimationCBuffer;
+}
+#pragma endregion
+
 class ForwardRender
 {
 
@@ -19,8 +26,6 @@ class ForwardRender
 		DirectX::XMFLOAT4A cameraPosition;
 		DirectX::XMFLOAT4X4A viewProjection;
 	};
-
-
 
 	struct LightBuffer
 	{
@@ -37,8 +42,6 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A worldMatrix;
 	};
 
-
-
 private:
 
 	struct sortStruct
@@ -50,7 +53,7 @@ private:
 	std::wstring m_lastVertexPath;
 	std::wstring m_lastPixelPath;
 
-	//Standard §
+	//Standard ï¿½
 	IDXGISwapChain*				m_swapChain;
 	ID3D11RenderTargetView*		m_backBufferRTV;
 	ID3D11DepthStencilView*		m_depthStencilView;
@@ -61,7 +64,7 @@ private:
 
 	//Constant Buffer TEMP
 	//TODO::Fixa constant buffers
-	//Uppdatera bara 1 gång
+	//Uppdatera bara 1 gï¿½ng
 	//Fixa en constant_buffer.hlsl
 
 	ID3D11Buffer* m_objectBuffer = nullptr;
@@ -73,6 +76,7 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
+	Animation::AnimationCBuffer m_animationBuffer;
 	ShadowMap m_shadowMap;
 
 	VisabilityPass m_visabilityPass;
@@ -86,6 +90,9 @@ private:
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
 
+	ID3D11RasterizerState * m_standardRast;
+	ID3D11RasterizerState * m_wireFrame;
+
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -98,8 +105,8 @@ public:
 		D3D11_VIEWPORT				viewport);
 
 
-	void GeometryPass(Camera & camera);
-	void AnimatedGeometryPass(Camera & camera);
+	void GeometryPass();
+	void AnimatedGeometryPass();
 	void Flush(Camera & camera);
 	void Clear();
 	void Present();
@@ -113,8 +120,8 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
-	void _mapCameraBufferToVertex(Camera & camera);
-	void _mapCameraBufferToPixel(Camera & camera);
+	void _mapCameraBuffer(Camera & camera);
+	void _mapSkinningBuffer(Drawable * drawable);
 	void _mapLightInfoNoMatrix();
 
 
@@ -131,6 +138,6 @@ private:
 	void _createShaders();
 	void _createShadersInput();
 
-
+	void _wireFramePass();
 
 };

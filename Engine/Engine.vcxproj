@@ -175,8 +175,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.h" />
-    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.h" />
+    <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="Source\3D Engine\Temp_Guard\TempGuard.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\dds.h" />
     <ClInclude Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
@@ -226,8 +226,8 @@
     <ClCompile Include="Source\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />
-    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.cpp" />
+    <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="Source\3D Engine\Temp_Guard\TempGuard.cpp" />
     <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
@@ -374,6 +374,26 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Shader\Shaders\LightCalc.hlsli">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+      <FileType>Document</FileType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Dummy</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Dummy</EntryPointName>
+    </None>
+    <None Include="Source\Shader\Shaders\StaticConstantBuffers.hlsli">
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Dummy</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Dummy</EntryPointName>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
