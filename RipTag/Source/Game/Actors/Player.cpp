@@ -87,6 +87,20 @@ void Player::_handleInput(double deltaTime)
 	}
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+
+
+	if (InputHandler::isKeyPressed('Y'))
+	{
+		if (isPressed2 == false)
+		{
+			CreateBox(2, 2, 2);
+			isPressed2 = true;
+		}
+	}
+	else
+	{
+		isPressed2 = false;
+	}
 	//addForceToCenter(x, getLiniearVelocity().y, z);
 
 	//std::cout << "Y: " << getLiniearVelocity().y << std::endl;

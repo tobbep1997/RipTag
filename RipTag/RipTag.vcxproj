@@ -159,7 +159,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
@@ -184,6 +183,7 @@
     <ClCompile Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\PhysicsComponent.cpp" />
+    <ClCompile Include="Source\Source.cpp" />
     <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
     <ClCompile Include="Source\Game\Actors\Player.cpp" />

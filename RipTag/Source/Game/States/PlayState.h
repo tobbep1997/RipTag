@@ -43,6 +43,14 @@ private:
 	//-----------------------------------------------------------------------------
 	BaseActor * actor;
 
+	float x = -1.5;
+	float y = 2.1; 
+	float z = -2.1;
+	float ScaleX, ScaleY, ScaleZ;
+	BaseActor * wall1;
+
+
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

@@ -66,7 +66,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_body->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	//m_body->SetGravityScale(-9.82f);
 	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
+	Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_meshManager.loadStaticMesh("KUB");
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHEARE");
 	//temp = new Model();
 	////temp->setEntityType();
 	//temp->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -74,13 +77,19 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//temp->setPosition(0, 10, 0);
 
 	actor = new BaseActor();
-	actor->Init(m_world, e_dynamicBody, 0.5f, 0.5f, 0.5f);
-	actor->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
-	actor->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	actor->setPosition(0, 10, 0);
+	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
+	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
+	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
+	//actor->setPosition(0, 10, 0);
 	actor->setScale(1.0f,1.0f,1.0f);
-	player->Init(m_world, e_dynamicBody);
+	player->Init(m_world, e_dynamicBody,1,1,1);
 	player->setPosition(0, 15, 0,0);
+
+	wall1 = new BaseActor();
+	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
+	wall1->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
+	wall1->setTexture(Manager::g_textureManager.getTexture("SPHEARE"));
+	wall1->setPosition(-1.5, 2.1, -2.1);
 }
 
 PlayState::~PlayState()
@@ -105,6 +114,9 @@ PlayState::~PlayState()
 
 	actor->Release(m_world);
 	delete actor;
+
+	wall1->Release(m_world);
+	delete wall1;
 }
 
 void PlayState::Update(double deltaTime)
@@ -132,8 +144,6 @@ void PlayState::Update(double deltaTime)
 
 	player->PhysicsUpdate(deltaTime);
 
-	std::cout << "Y: " << actor->getPosition().y << std::endl;
-	
 }
 
 void PlayState::Draw()
@@ -141,6 +151,6 @@ void PlayState::Draw()
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
-
+	wall1->Draw();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }

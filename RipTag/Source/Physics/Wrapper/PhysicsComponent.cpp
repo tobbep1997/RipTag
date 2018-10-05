@@ -66,6 +66,10 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 	//transform->addRotation(pitch, yaw, roll);
 }
 
+//x = -1.5
+//y = 2.1
+//z = -2.1
+
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
 	m_body->SetTransform(b3Vec3(x, y, z), b3Vec3(0,0,0), 0);
@@ -126,7 +130,7 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 {
 	m_bodyBox = new b3Hull();
 	m_bodyBox->SetAsBox(b3Vec3(x, y, z));
-
+	
 	m_poly = new b3Polyhedron();
 	m_poly->SetHull(m_bodyBox);
 }
