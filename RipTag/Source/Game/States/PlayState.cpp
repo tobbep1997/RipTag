@@ -66,7 +66,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_body->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	//m_body->SetGravityScale(-9.82f);
 	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
-	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_meshManager.loadStaticMesh("KUB");
 	//temp = new Model();
 	////temp->setEntityType();
 	//temp->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -75,7 +75,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	actor = new BaseActor(m_world);
 
-	actor->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	actor->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
 	actor->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	actor->setPosition(0, 50, 0);
 

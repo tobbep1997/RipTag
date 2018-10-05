@@ -1,5 +1,6 @@
 #include "PhysicsComponent.h"
 #include <iostream>
+#include "Source/3D Engine/RenderingManager.h"
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
@@ -11,14 +12,54 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().rotation.z);*/
 	//transform->setRotation(m_body->GetTransform().rotation);
 	//m_shape->GetTransform().rotation;
+
+
+	double roll;
+	double pitch;
+	double yaw;
+
 	b3Mat33 mat = m_body->GetTransform().rotation;
-	float x = atan2(mat.z.z, mat.z.y);
+	//b3Quaternion q = m_body->GetQuaternion();
+	roll = atan2(mat.z.y, mat.z.z);
+	pitch = atan2(-mat.z.x, sqrt(pow(mat.z.y, 2) + pow(mat.z.z, 2)));
+	yaw = atan2(mat.y.x, mat.x.x);
+
+	roll = roll * -1;
+	yaw = yaw * -1;
+	pitch = pitch * -1;
 	//x = x * DirectX::XM_PI;
-	if (x != 1.5708f)
-	{
-		std::cout << "X : " << x << std::endl;
-	}
+	//if (x != 1.5708f)
+	//{
+	//	std::cout << "X : " << x << std::endl;
+	//}
 	
+
+	//double sinr_cosp = +2.0 * (q.d * q.a + q.b * q.c);
+	//double cosr_cosp = +1.0 - 2.0 * (q.a * q.a + q.b * q.b);
+	//roll = atan2(sinr_cosp, cosr_cosp);
+
+	//// pitch (y-axis rotation)
+	//double sinp = +2.0 * (q.d * q.b - q.c * q.a);
+	////if (fabs(sinp) >= 1)
+	//	//pitch = copysign(DirectX::XM_PI / 2, sinp); // use 90 degrees if out of range
+	///*else*/
+	//pitch = asin(sinp);
+	//pitch = pitch * DirectX::XM_PI;
+	//// yaw (z-axis rotation)
+	//double siny_cosp = +2.0 * (q.d * q.c + q.a * q.b);
+	//double cosy_cosp = +1.0 - 2.0 * (q.b * q.b + q.c * q.c);
+	//yaw = atan2(siny_cosp, cosy_cosp);
+
+	ImGui::Begin("box1");
+	ImGui::Text("Roll; %f", roll);
+	ImGui::Text("pitch; %f", pitch);
+	ImGui::Text("yaw; %f", yaw);
+	/*std::cout << "Roll: " << roll << std::endl;
+	std::cout << "pitch: " << pitch << std::endl;
+	std::cout << "yaw: " << yaw << std::endl;*/
+	ImGui::End();
+
+	transform->setRotation(roll, pitch, yaw);
 }
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)

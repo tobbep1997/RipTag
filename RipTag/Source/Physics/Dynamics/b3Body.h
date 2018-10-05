@@ -163,6 +163,8 @@ public :
 	// The body must be dynamic or kinematic.
 	void SetAngularVelocity(const b3Vec3& angularVelocity);
 
+	b3Quaternion GetQuaternion();
+
 protected :
 	friend class b3World;
 	friend class b3Island;

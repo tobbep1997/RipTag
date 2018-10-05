@@ -283,6 +283,11 @@ b3Vec3 b3Body::GetLinearVelocity()
 	return this->m_linearVelocity;
 }
 
+b3Quaternion b3Body::GetQuaternion()
+{
+	return this->m_orientation;
+}
+
 void b3Body::ResetMassData() {
 	// Set mass and inertia tensor to zero.
 	m_mass = B3_ZERO;

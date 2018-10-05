@@ -60,24 +60,7 @@ void Player::_handleInput(double deltaTime)
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
 
-	//p_position.x += pos.x * right.x;
-	//p_position.y += pos.x * right.y;
-	//p_position.z += pos.x * right.z;
 
-	//p_position.x += pos.y * m_UP.x;
-	//p_position.y += pos.y * m_UP.y;
-	//p_position.z += pos.y * m_UP.z;
-
-	//p_position.x += pos.z * m_direction.x;
-	//p_position.y += pos.z * m_direction.y;
-	//p_position.z += pos.z * m_direction.z;
-
-	//p_camera->Translate(0.0f, 0.0f, Input::MoveForward() * m_moveSpeed * deltaTime);
-	/*if (InputHandler::isKeyPressed('W'))
-		p_camera->Translate(0.0f, 0.0f, m_moveSpeed * deltaTime);*/
-	/*else if (InputHandler::isKeyPressed('S'))
-		p_camera->Translate(0.0f, 0.0f, -m_moveSpeed * deltaTime);*/
-	//p_camera->Translate(Input::MoveRight() * m_moveSpeed * deltaTime, 0.0f, 0.0f);
 	float x = Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * deltaTime * forward.x;
 
