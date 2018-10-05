@@ -91,6 +91,7 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
+		void SetTargetClip(AnimationClip* clip, bool isLooping = true);
 		void SetSkeleton(Skeleton* skeleton);
 		void SetScrubIndex(unsigned int index);
 		void Pause();
@@ -103,6 +104,10 @@ namespace Animation
 
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
+		AnimationClip* m_targetClip = nullptr;
+
+		float m_currentBlendTime = 0.0;
+		float m_targetBlendTime = 0.0;
 
 		float m_currentTime = 0.0f;
 		uint16_t m_currentFrame = 0;

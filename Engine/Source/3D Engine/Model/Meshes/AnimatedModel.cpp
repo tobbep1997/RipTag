@@ -58,6 +58,12 @@ void Animation::AnimatedModel::SetPlayingClip(AnimationClip * clip, bool isLoopi
 	m_currentTime = 0.0f;
 }
 
+void Animation::AnimatedModel::SetTargetClip(AnimationClip* clip, bool isLooping /*= true*/)
+{
+	m_targetClip = clip;
+	m_targetBlendTime = 1.0; // #todo non-hardcoded blendtime
+}
+
 // #todo BlendIntoClip()
 
 void Animation::AnimatedModel::SetSkeleton(Skeleton * skeleton)
@@ -145,6 +151,7 @@ Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {
 	using namespace DirectX;
+
 
 	_computeModelMatrices(firstPose, secondPose, weight);
 
