@@ -302,6 +302,8 @@ namespace Network
 		switch (mID)
 		{
 		case ID_GAME_START:
+			if (m_isClient)
+				this->m_isGameRunning = true;
 			lua_getglobal(L, "GameStart");
 			lua_pushboolean(L, this->isServer());
 			lua_pcall(L, 1, 0, NULL);
