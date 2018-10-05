@@ -156,7 +156,7 @@ void b3Body::DestroyContacts(const b3Shape* shape) {
 
 void b3Body::DestroyShape(b3Shape* shape) {
 	// Remove (and destroy) the given shape from this body.
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	// Make sure the shape belongs to this body.
 	b3Assert(shape->m_body == this);
 	b3Assert(m_shapeCount > 0);
@@ -173,7 +173,7 @@ void b3Body::DestroyShape(b3Shape* shape) {
 	}
 
 	b3Assert(found);
-#endif
+//#endif
 	// Destroy any contacts associated with the shape.
 	DestroyContacts(shape);
 
