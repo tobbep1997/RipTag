@@ -18,15 +18,15 @@ class PhysicsComponent
 {
 private:
 
-	b3Body*			 m_body;
-	b3Shape *		 m_shape;
+	b3Body*			 m_body = nullptr;
+	b3Shape *		 m_shape = nullptr;
 
-	b3BodyDef *		 m_bodyDef;
+	b3BodyDef *		 m_bodyDef = nullptr;
 					 
-	b3Hull *		 m_bodyBox;
-	b3Polyhedron *	 m_poly;
+	b3Hull *		 m_bodyBox = nullptr;
+	b3Polyhedron *	 m_poly = nullptr;
 					 
-	b3ShapeDef*		 m_bodyBoxDef;
+	b3ShapeDef*		 m_bodyBoxDef = nullptr;
 
 protected:
 	virtual void p_updatePhysics(Transform * transform);

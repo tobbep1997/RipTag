@@ -128,11 +128,18 @@ void PhysicsComponent::setBaseShapeDef()
 
 void PhysicsComponent::CreateBox(float x, float y, float z)
 {
-	m_bodyBox = new b3Hull();
-	m_bodyBox->SetAsBox(b3Vec3(x, y, z));
-	
-	m_poly = new b3Polyhedron();
-	m_poly->SetHull(m_bodyBox);
+	if (m_bodyBox == nullptr)
+	{
+		m_bodyBox = new b3Hull();
+		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
+
+		m_poly = new b3Polyhedron();
+		m_poly->SetHull(m_bodyBox);
+	}
+	else
+	{
+		
+	}
 }
 
 void PhysicsComponent::CreateBodyAndShape(b3World& world)
