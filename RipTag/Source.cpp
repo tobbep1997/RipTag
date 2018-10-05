@@ -128,6 +128,7 @@ void NetworkDebug(Network::Multiplayer * pMP)
 	ImGui::End();
 }
 
+lua_State* L = luaL_newstate();
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -140,7 +141,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 	//LUA
-	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
 	//register classes in Lua
 	Network::LUA_Register_Network(L);
@@ -292,10 +292,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
-	lua_close(L);
 	FlushPlayers();
 	delete antiCrashObject;
 
+	//close lua last
+	lua_close(L);
 	return 0;
 }
 
@@ -314,6 +315,9 @@ static void FlushPlayers()
 		delete vec->at(i);
 	}
 	vec->clear();
+
+	lua_pushnil(L);
+	lua_setglobal(L, "PLAYER_NID");
 }
 
 static int Lua_Player_Add(lua_State *L)

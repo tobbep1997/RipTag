@@ -17,6 +17,7 @@ extern "C" {
 #define GET_MP_INSTANCE "Multiplayer"
 #define SEND_DATA "Send"
 #define IS_CONNECTED "IsConnected"
+#define IS_GAME_RUNNING "IsGameRunning"
 
 #define LUA_TABLE_PACKET_PRIORITIES "PACKET"
 
@@ -115,6 +116,13 @@ namespace Network
 		return 1;
 	}
 
+	static int Is_Game_Running(lua_State * L)
+	{
+		Multiplayer * ptr = Multiplayer::GetInstance();
+		lua_pushboolean(L, ptr->isGameRunning());
+		return 1;
+	}
+
 	static void LUA_Register_Network(lua_State * L)
 	{
 		lua_register(L, GET_MP_INSTANCE, Get_Instance);
@@ -122,6 +130,7 @@ namespace Network
 		lua_pushvalue(L, -1); lua_setfield(L, -2, "__index");
 		lua_pushcfunction(L, Send_Data); lua_setfield(L, -2, SEND_DATA);
 		lua_pushcfunction(L, Is_Connected); lua_setfield(L, -2, IS_CONNECTED);
+		lua_pushcfunction(L, Is_Game_Running); lua_setfield(L, -2, IS_GAME_RUNNING);
 		lua_pop(L, 1);
 	}
 

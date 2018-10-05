@@ -98,7 +98,7 @@ namespace Network
 	{
 		float x, y, z;
 		unsigned char id = (unsigned char)lua_tonumber(L, -5);
-		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, -4);
+		RakNet::NetworkID networkId = (RakNet::NetworkID)std::stoull(lua_tostring(L, -4));
 		x = (float)lua_tonumber(L, -3);
 		y = (float)lua_tonumber(L, -2);
 		z = (float)lua_tonumber(L, -1);
@@ -116,7 +116,7 @@ namespace Network
 	{
 		float x, y, z;
 		unsigned char id = (unsigned char)lua_tonumber(L, -5);
-		RakNet::NetworkID networkId = (RakNet::NetworkID)lua_tonumber(L, -4);
+		RakNet::NetworkID networkId = (RakNet::NetworkID)std::stoull(lua_tostring(L, -4));
 		x = lua_tonumber(L, -3);
 		y = lua_tonumber(L, -2);
 		z = lua_tonumber(L, -1);
