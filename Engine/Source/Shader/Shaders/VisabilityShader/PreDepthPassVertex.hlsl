@@ -1,13 +1,9 @@
+#include "../StaticConstantBuffers.hlsli"
+
 cbuffer OBJECT_BUFFER : register(b3)
 {
     float4x4 worldMatrix;
 };
-
-cbuffer GUARD_VIEW : register(b4)
-{
-    float4 cameraPosition;
-    float4x4 viewProj;
-}
 
 struct VS_INPUT
 {
@@ -28,7 +24,7 @@ VS_OUTPUT main(VS_INPUT input)
     VS_OUTPUT output;
     
     output.pos = mul(input.pos, worldMatrix);
-    output.pos = mul(output.pos, viewProj);
+    output.pos = mul(output.pos, viewProjection);
    
     return output;
 }

@@ -78,7 +78,7 @@ void ForwardRender::GeometryPass()
 	if (m_firstRun == true)
 	{
 		m_shaderThreads[0].join();
-		m_shaderThreads[1].join();
+		//m_shaderThreads[1].join();
 		m_shaderThreads[2].join();
 		m_firstRun = false;
 	}
@@ -393,8 +393,8 @@ void ForwardRender::VisabilityPass()
 	m_visabilityPass.SetViewportAndRenderTarget();
 	for (Guard * guard : DX::g_guardDrawQueue)
 	{
-		m_visabilityPass.GuardDepthPrePassFor(guard);
-		m_visabilityPass.CalculateVisabilityFor(guard);
+		m_visabilityPass.GuardDepthPrePassFor(guard, &m_animationBuffer);
+		m_visabilityPass.CalculateVisabilityFor(guard, &m_animationBuffer);
 	}
 	
 
@@ -442,7 +442,7 @@ void ForwardRender::_createShaders()
 
 	m_shaderThreads[2] = std::thread(&ForwardRender::_createShadersInput, this);
 	m_shaderThreads[0] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/PixelShader.hlsl");  });
-	m_shaderThreads[1] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");  });
+	//m_shaderThreads[1] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");  });
 
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/Shaders/ShadowVertexAnimated.hlsl");

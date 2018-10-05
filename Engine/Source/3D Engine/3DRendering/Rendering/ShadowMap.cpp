@@ -81,7 +81,7 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 	}
 	
 	DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer));
-	//DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
+	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->GSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 }
@@ -161,5 +161,5 @@ void ShadowMap::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * a
 void ShadowMap::_mapObjectBuffer(Drawable * drawable)
 {
 	m_objectValues.worldMatrix = drawable->getWorldmatrix();
-	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 0, 1, ShaderTypes::vertex);
+	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
 }
