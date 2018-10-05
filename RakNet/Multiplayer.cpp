@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+
 namespace Network
 {
 
@@ -328,12 +329,7 @@ namespace Network
 	void Multiplayer::_onDisconnect()
 	{
 		m_isConnected = m_isClient = m_isServer = m_isRunning = false;
-
-
-
 		// Go back to menu and print a message that the player or you lost connection
-
-
 		//might want to log who disconnected
 	}
 

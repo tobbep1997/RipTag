@@ -258,8 +258,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		if (hasMoved)
 		{
 			lua_getglobal(L, "PlayerMoved");
-			lua_pcall(L, 0, 0, NULL);
+			int error = lua_pcall(L, 0, 0, NULL);
 			hasMoved = false;
+			if (error > 0)
+			{
+				printf(lua_tostring(L, -1));
+				lua_pop(L, 1);
+			}
 		}
 		//ImGuiTest();
 		//CameraTest();
@@ -282,7 +287,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		renderingManager.Flush(camera);
 
 		//check if we are disconnected, then flush players if we were connected and then disconnected
-		if (!pNetwork->isConnected())
+		if (!pNetwork->isConnected() && !pNetwork->isRunning())
 			FlushPlayers();
 	}
 	DX::g_shaderManager.Release();

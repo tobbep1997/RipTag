@@ -16,6 +16,7 @@ extern "C" {
 #define NETWORK_METATABLE "Network"
 #define GET_MP_INSTANCE "Multiplayer"
 #define SEND_DATA "Send"
+#define IS_CONNECTED "IsConnected"
 
 #define LUA_TABLE_PACKET_PRIORITIES "PACKET"
 
@@ -105,12 +106,20 @@ namespace Network
 		return 0;
 	}
 
+	static int Is_Connected(lua_State * L)
+	{
+		Multiplayer * ptr = Multiplayer::GetInstance();
+		lua_pushboolean(L, ptr->isConnected());
+		return 1;
+	}
+
 	static void LUA_Register_Network(lua_State * L)
 	{
 		lua_register(L, GET_MP_INSTANCE, Get_Instance);
 		luaL_newmetatable(L, NETWORK_METATABLE);
 		lua_pushvalue(L, -1); lua_setfield(L, -2, "__index");
 		lua_pushcfunction(L, Send_Data); lua_setfield(L, -2, SEND_DATA);
+		lua_pushcfunction(L, Is_Connected); lua_setfield(L, -2, IS_CONNECTED);
 		lua_pop(L, 1);
 	}
 
