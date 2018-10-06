@@ -23,12 +23,6 @@ private:
 
 	//-----------------------------------------------------------------------------
 	//PLEASE REMOBE THIS //TODO::PLEASE
-	/*b3Body* m_body;
-	b3Polyhedron * poly;
-	b3Hull * bodyBox;
-	b3BodyDef * bodyDef;
-	b3ShapeDef* bodyBoxDef;
-	b3Shape *	m_shape;*/
 
 	b3Body*		m_floor;
 	b3Polyhedron * poly2;
@@ -37,19 +31,12 @@ private:
 	b3ShapeDef* bodyBoxDef2;
 	b3Shape * m_shape2;
 
-
-	//Model * temp;
-
 	//-----------------------------------------------------------------------------
 	BaseActor * actor;
 
 	float x = -1.5;
 	float y = 2.1; 
 	float z = -2.1;
-	float ax = -1.5;
-	float ay = 2.1;
-	float az = -2.1;
-	float adirX, adirY, adirZ;
 
 	float intensity = 2;
 	BaseActor * wall1;
@@ -61,9 +48,7 @@ private:
 
 	Model * model;
 
-	Model * jumper;
-	Animation::Skeleton* skeleton = nullptr;
-	Animation::AnimationClip* animation = nullptr;
+	
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

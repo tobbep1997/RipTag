@@ -119,26 +119,47 @@ void PhysicsComponent::setBodyDef(BodyDefine bodyDefine)
 
 void PhysicsComponent::setBaseShapeDef()
 {
+	//Create a base shape definition
 	m_bodyBoxDef = new b3ShapeDef();
 	m_bodyBoxDef->shape = m_poly;
 	m_bodyBoxDef->density = 1.0f;
 	m_bodyBoxDef->restitution = 0;
-	//m_bodyBoxDef->friction = -1;
+
+	//everything in this except the shape you can set using m_shape
 }
 
 void PhysicsComponent::CreateBox(float x, float y, float z)
 {
 	if (m_bodyBox == nullptr)
 	{
+		//Create the box
 		m_bodyBox = new b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
 
+		//Then the poly
 		m_poly = new b3Polyhedron();
 		m_poly->SetHull(m_bodyBox);
 	}
 	else
 	{
-		
+		//Destory the exsiting shape
+		//And delete the current body
+		m_body->DestroyShape(m_shape);
+		delete m_bodyBox;
+
+		//Create a new Box
+		m_bodyBox = new b3Hull();
+		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
+
+		//Set the Polyhedron to the new box
+		//Aka connect the box to the wrapper
+		m_poly->SetHull(m_bodyBox);
+
+		//Connect the bodyDef to the shape
+		m_bodyBoxDef->shape = m_poly;
+
+		//Create the shape
+		m_shape = m_body->CreateShape(*m_bodyBoxDef);
 	}
 }
 
