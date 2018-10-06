@@ -23,10 +23,6 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
 
-
-	Manager::g_meshManager.loadStaticMesh("SCENE");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	modelManager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
 	GamePadHandler::Instance();
 }
 
@@ -49,6 +45,9 @@ void Game::Clear()
 
 void Game::Update(double deltaTime)
 {
+#if _DEBUG
+	_restartGameIf();
+#endif
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
@@ -57,7 +56,6 @@ void Game::Update(double deltaTime)
 
 void Game::Draw()
 {
-	//modelManager.DrawMeshes();
 	m_gameStack.top()->Draw();
 }
 
@@ -72,5 +70,24 @@ void Game::_handleStateSwaps()
 	{
 		delete m_gameStack.top();
 		m_gameStack.pop();
+	}
+}
+
+void Game::_restartGameIf()
+{
+	if (InputHandler::isKeyPressed('B'))
+	{
+		if (isPressed == false)
+		{
+			delete m_gameStack.top();
+			m_gameStack.pop();
+
+			m_gameStack.push(new PlayState(&m_renderingManager));
+			isPressed = true;
+		}
+	}
+	else
+	{
+		isPressed = false;
 	}
 }

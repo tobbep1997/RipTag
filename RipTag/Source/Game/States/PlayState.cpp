@@ -192,7 +192,8 @@ void PlayState::Update(double deltaTime)
 
 	if (InputHandler::isKeyPressed('H'))
 	{
-		player->CreateBox(1.0f, 1.0f, 1.0f);
+		Manager::g_meshManager.loadStaticMesh("KOMBIN");
+		//player->CreateBox(1.0f, 1.0f, 1.0f);
 	}
 
 
