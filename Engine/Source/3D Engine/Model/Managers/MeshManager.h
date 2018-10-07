@@ -20,6 +20,7 @@ public:
 	void UpdateAllAnimations(float deltaTime);
 
 	bool UnloadStaticMesh(const std::string & meshName);
+	bool UnloadDynamicMesh(const std::string & meshName);
 
 private:
 

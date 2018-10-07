@@ -72,7 +72,7 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 		else
 		{
 			//Mesh already loaded
-			std::cout << "Mesh " << fullPath << "Already loaded" << std::endl;
+			std::cout << "Mesh " << fullPath << " Already loaded" << std::endl;
 			delete tempMesh;
 			return false;
 		}
@@ -143,6 +143,24 @@ bool MeshManager::UnloadStaticMesh(const std::string& meshName)
 			delete m_staticMesh[key].at(i);
 			m_staticMesh[key].erase(m_staticMesh[key].begin() + i);
 			std::cout << "Static mesh " << fullPath << " Unloaded" << std::endl;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool MeshManager::UnloadDynamicMesh(const std::string& meshName)
+{
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
+
+	for (unsigned int i = 0; i < m_dynamicMesh[key].size(); i++)
+	{
+		if (m_dynamicMesh[key].at(i)->getName() == fullPath)
+		{
+			delete m_dynamicMesh[key].at(i);
+			m_dynamicMesh[key].erase(m_dynamicMesh[key].begin() + i);
+			std::cout << "Dynamic mesh " << fullPath << " Unloaded" << std::endl;
 			return true;
 		}
 	}

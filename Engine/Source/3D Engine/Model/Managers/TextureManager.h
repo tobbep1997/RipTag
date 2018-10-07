@@ -13,6 +13,8 @@ public:
 	~TextureManager();
 	void loadTextures(const std::string & path);
 	Texture* getTexture(const std::string & path);
+
+	bool UnloadTexture(const std::string & path);
 private:
 	unsigned int _getKey(const std::wstring & path);
 	std::wstring _getFullPath(const std::string & name);

@@ -72,6 +72,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
+	//Manager::g_textureManager.loadTextures("PIRASRUM");
 	
 	
 	//temp = new Model();
