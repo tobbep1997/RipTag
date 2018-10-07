@@ -1,5 +1,5 @@
 #include "TextureManager.h"
-
+#include <iostream>
 
 
 TextureManager::TextureManager()
@@ -24,11 +24,39 @@ void TextureManager::loadTextures(const std::string & path)
 	std::wstring fullPath = this->_getFullPath(path);
 	unsigned int key = this->_getKey(fullPath);
 
-	tempTexture->setName(fullPath);
-	tempTexture->Load(fullPath.c_str());
+	if (m_textures[key].size() == 0)
+	{
+		tempTexture->setName(fullPath);
+		tempTexture->Load(fullPath.c_str());
 
-	m_textures[key].push_back(tempTexture);
-	
+		m_textures[key].push_back(tempTexture);
+	}
+	else
+	{
+		bool duplicate = false;
+		for (unsigned int i = 0; i < m_textures[key].size(); i++)
+		{
+			if (m_textures[key].at(i)->getName() == fullPath)
+			{
+				duplicate = true;
+			}
+		}
+		if (duplicate == false)
+		{
+			tempTexture->setName(fullPath);
+			tempTexture->Load(fullPath.c_str());
+
+			m_textures[key].push_back(tempTexture);
+		}
+		else
+		{
+			//Texture already loaded
+			std::cout << "Texture " << fullPath.c_str() << "Already loaded" << std::endl;
+			delete tempTexture;
+			//return false;
+		}
+	}
+
 }
 
 Texture * TextureManager::getTexture(const std::string & path)
