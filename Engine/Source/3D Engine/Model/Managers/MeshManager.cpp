@@ -131,6 +131,24 @@ void MeshManager::UpdateAllAnimations(float deltaTime)
 	}
 }
 
+bool MeshManager::UnloadStaticMesh(const std::string& meshName)
+{
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
+
+	for (unsigned int i = 0; i < m_staticMesh[key].size(); i++)
+	{
+		if (m_staticMesh[key].at(i)->getName() == fullPath)
+		{
+			delete m_staticMesh[key].at(i);
+			m_staticMesh[key].erase(m_staticMesh[key].begin() + i);
+			std::cout << "Static mesh " << fullPath << " Unloaded" << std::endl;
+			return true;
+		}
+	}
+	return false;
+}
+
 unsigned int MeshManager::_getKey(const std::string & meshName)
 {
 	unsigned int sum = 0;

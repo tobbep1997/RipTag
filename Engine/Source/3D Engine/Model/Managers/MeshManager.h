@@ -19,6 +19,8 @@ public:
 	StaticMesh* getStaticMesh(const std::string & meshName);
 	void UpdateAllAnimations(float deltaTime);
 
+	bool UnloadStaticMesh(const std::string & meshName);
+
 private:
 
 	unsigned int _getKey(const std::string & meshName);
