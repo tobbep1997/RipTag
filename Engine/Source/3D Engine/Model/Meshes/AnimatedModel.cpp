@@ -13,14 +13,108 @@ Animation::AnimatedModel::~AnimatedModel()
 void Animation::AnimatedModel::Update(float deltaTime)
 {
 	if (m_targetClip)
-		m_currentBlendTime += deltaTime;
+		UpdateBlend(deltaTime);
 
-	if (m_targetClip && m_currentBlendTime > m_targetBlendTime) //null target clip if the blend is done // #todo
+	//if (m_targetClip && m_currentBlendTime > m_targetBlendTime) //null target clip if the blend is done // #todo
+	//{
+	//	m_currentClip = m_targetClip;
+	//	m_targetClip = nullptr;
+	//	m_currentBlendTime = 0.0;
+	//	m_targetBlendTime = 0.0;
+	//}
+
+	/*if (m_isPlaying && m_targetClip)
+	{
+		m_currentBlendTime += deltaTime;
+		m_currentTime += std::fmod(deltaTime, m_currentClip->m_frameCount / 24.0);
+		m_targetClipCurrentTime += std::fmod(deltaTime, m_targetClip->m_frameCount / 24.0);
+
+		///calc the actual frame index and progression towards the next frame
+		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
+		float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
+
+		int targetPrevIndex = std::floorf(m_targetClip->m_framerate * m_targetClipCurrentTime);
+		float targetProgression = std::fmod(m_targetClipCurrentTime, 1.0 / 24.0) * 24.0;
+
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (prevIndex >= m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
+		{
+			if (m_isLooping)
+			{
+				m_currentTime = 0.0 + progression;
+				prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
+				progression = std::fmod(m_currentTime, 1.0 / 24.0);
+			}
+			else
+			{
+				m_isPlaying = false;
+			}
+		}
+		if (targetPrevIndex >= m_targetClip->m_frameCount - 1)
+		{
+			m_targetClipCurrentTime = 0.0 + targetProgression;
+			targetPrevIndex = std::floorf(m_targetClip->m_framerate * m_targetClipCurrentTime);
+			targetProgression = std::fmod(m_targetClipCurrentTime, 1.0 / 24.0) * 24.0;
+		}
+
+		/// compute skinning matrices
+		if (m_isPlaying)
+		{
+			_computeSkinningMatrices(
+				&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression,
+				&m_targetClip->m_skeletonPoses[targetPrevIndex], &m_targetClip->m_skeletonPoses[targetPrevIndex + 1], targetProgression);
+		}
+	}*/
+	if (!m_targetClip)
+	{
+		/// increase local time
+		m_currentTime += std::fmod(deltaTime, m_currentClip->m_frameCount / 24.0);
+
+		///calc the actual frame index and progression towards the next frame
+		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
+		float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
+
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (prevIndex >= m_currentClip->m_frameCount -1) /// -1 because last frame is only used to interpolate towards
+		{
+			if (m_isLooping)
+			{
+				m_currentTime = 0.0 + progression;
+	
+				prevIndex = std::floorf(m_currentClip->m_framerate / 2* m_currentTime);
+				progression = std::fmod(m_currentTime, 1.0 / 24.0);
+			}
+			else
+			{
+				m_isPlaying = false; 
+			}
+		}
+
+		/// compute skinning matrices
+		if (m_isPlaying && !m_targetClip)
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
+	}
+	//else //scrub
+	//{
+	//	m_scrubIndex + 1 >= m_currentClip->m_frameCount
+	//		? _computeSkinningMatrices(&m_currentClip->m_skeletonPoses[0], &m_currentClip->m_skeletonPoses[1], 0.0)
+	//		: _computeSkinningMatrices(&m_currentClip->m_skeletonPoses[m_scrubIndex], &m_currentClip->m_skeletonPoses[m_scrubIndex + 1], 0.0);
+	//}
+
+}
+
+void Animation::AnimatedModel::UpdateBlend(float deltaTime)
+{
+	m_currentBlendTime += deltaTime;
+
+	if (m_currentBlendTime > m_targetBlendTime) //null target clip if the blend is done // #todo
 	{
 		m_currentClip = m_targetClip;
 		m_targetClip = nullptr;
 		m_currentBlendTime = 0.0;
 		m_targetBlendTime = 0.0;
+		m_currentTime = m_targetClipCurrentTime;
+		m_targetClipCurrentTime = 0.0;
 	}
 
 	if (m_isPlaying && m_targetClip)
@@ -65,42 +159,6 @@ void Animation::AnimatedModel::Update(float deltaTime)
 				&m_targetClip->m_skeletonPoses[targetPrevIndex], &m_targetClip->m_skeletonPoses[targetPrevIndex + 1], targetProgression);
 		}
 	}
-	else
-	{
-		/// increase local time
-		m_currentTime += std::fmod(deltaTime, m_currentClip->m_frameCount / 24.0);
-
-		///calc the actual frame index and progression towards the next frame
-		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
-		float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
-
-		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
-		if (prevIndex >= m_currentClip->m_frameCount -1) /// -1 because last frame is only used to interpolate towards
-		{
-			if (m_isLooping)
-			{
-				m_currentTime = 0.0 + progression;
-	
-				prevIndex = std::floorf(m_currentClip->m_framerate / 2* m_currentTime);
-				progression = std::fmod(m_currentTime, 1.0 / 24.0);
-			}
-			else
-			{
-				m_isPlaying = false; 
-			}
-		}
-
-		/// compute skinning matrices
-		if (m_isPlaying && !m_targetClip)
-			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
-	}
-	//else //scrub
-	//{
-	//	m_scrubIndex + 1 >= m_currentClip->m_frameCount
-	//		? _computeSkinningMatrices(&m_currentClip->m_skeletonPoses[0], &m_currentClip->m_skeletonPoses[1], 0.0)
-	//		: _computeSkinningMatrices(&m_currentClip->m_skeletonPoses[m_scrubIndex], &m_currentClip->m_skeletonPoses[m_scrubIndex + 1], 0.0);
-	//}
-
 }
 
 void Animation::AnimatedModel::SetPlayingClip(AnimationClip * clip, bool isLooping)
@@ -109,13 +167,24 @@ void Animation::AnimatedModel::SetPlayingClip(AnimationClip * clip, bool isLoopi
 	m_currentTime = 0.0f;
 }
 
-void Animation::AnimatedModel::SetTargetClip(AnimationClip* clip, bool isLooping /*= true*/)
+void Animation::AnimatedModel::SetTargetClip(AnimationClip* clip, UINT blendFlags /*= 0*/, float blendTime /*= 1.0f*/, bool isLooping /*= true*/)
 {
+	if (blendFlags & BLEND_MATCH_TIME)
+	{
+		m_targetClipCurrentTime = m_currentTime;
+	}
+	else if (blendFlags & BLEND_FROM_START)
+	{
+		m_targetClipCurrentTime = 0.0;
+	}
+	else if (blendFlags & BLEND_MATCH_NORMALIZED_TIME)
+	{
+		float currentClipNormalizedTime = (m_currentTime / (1.0 / 24.0 * m_currentClip->m_frameCount));
+		m_targetClipCurrentTime = currentClipNormalizedTime * (1.0 / 24.0 * clip->m_frameCount);
+	}
 	m_targetClip = clip;
-	m_targetBlendTime = 20.0; // #todo non-hardcoded blendtime
+	m_targetBlendTime = blendTime;
 }
-
-// #todo BlendIntoClip()
 
 void Animation::AnimatedModel::SetSkeleton(Skeleton * skeleton)
 {
@@ -139,6 +208,16 @@ void Animation::AnimatedModel::Pause()
 void Animation::AnimatedModel::Play()
 {
 	m_isPlaying = true;
+}
+
+float Animation::AnimatedModel::GetCurrentTimeInClip()
+{
+	return m_currentTime;
+}
+
+int Animation::AnimatedModel::GetCurrentFrameIndex()
+{
+	return std::floorf(m_currentClip->m_framerate * m_currentTime);
 }
 
 // Returns a reference to the skinning matrix vector

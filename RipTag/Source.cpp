@@ -79,6 +79,28 @@ void MoveLight() {
 #endif
 }
 
+Animation::AnimatedModel* g_animatedModel = nullptr;
+Animation::AnimationClip* g_currentTargetClip = nullptr;
+Animation::AnimationClip* g_currentClip = nullptr;
+float g_blendTime = 1.0f;
+float g_currentTime = 0.0f;
+int  g_currentFrame = 0.0f;
+void AnimationGUI()
+{
+#if _DEBUG
+	ImGui::Begin("Animation");
+	ImGui::SliderFloat("Blend time", &g_blendTime, 0.1, 10.0);
+	if (ImGui::Button("Blend.."))
+	{
+		g_animatedModel->SetTargetClip(g_currentClip, BLEND_MATCH_NORMALIZED_TIME, g_blendTime);
+		std::swap(g_currentClip, g_currentTargetClip);
+	}
+	ImGui::Text("%f", g_currentTime);
+	ImGui::SliderInt("Frame", &g_currentFrame, 0.0, g_currentClip->m_frameCount);
+	ImGui::End();
+#endif
+}
+
 
 /*v*/
 
@@ -133,15 +155,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Animation::Skeleton* skeleton = nullptr;
 	Animation::AnimationClip* animation = nullptr;
 	Animation::AnimationClip* animation2 = nullptr;
-	Manager::g_meshManager.loadDynamicMesh("CYL_UP");
-	skeleton = Animation::LoadAndCreateSkeleton("../Assets/CYL_UPFOLDER/CYL_UP_SKELETON.bin");
-	animation = Animation::LoadAndCreateAnimation("../Assets/CYL_UPFOLDER/CYL_UP_ANIMATION_UP.bin", skeleton);
-	animation2 = Animation::LoadAndCreateAnimation("../Assets/CYL_UPFOLDER/CYL_UP_ANIMATION_RIGHT.bin", skeleton);
-	Manager::g_meshManager.getDynamicMesh("CYL_UP")->m_anim = new Animation::AnimatedModel();
-	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->SetSkeleton(skeleton);
-	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->SetPlayingClip(animation);
-	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->SetTargetClip(animation2);
-	Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->Play();
+	Manager::g_meshManager.loadDynamicMesh("BLEST1");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/BLEST1FOLDER/BLEST1_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/BLEST1FOLDER/BLEST_ANIM1.bin", skeleton);
+	animation2 = Animation::LoadAndCreateAnimation("../Assets/BLEST1FOLDER/BLEST_ANIM2.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("BLEST1")->m_anim = new Animation::AnimatedModel();
+	g_animatedModel = Manager::g_meshManager.getDynamicMesh("BLEST1")->getAnimatedModel();
+
+	g_animatedModel->SetSkeleton(skeleton);
+	g_animatedModel->SetPlayingClip(animation);
+	g_animatedModel->SetTargetClip(animation2);
+	g_animatedModel->Play();
+
+	g_currentTargetClip = animation2;
+	g_currentClip = animation;
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -149,7 +176,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("CYL_UP"));
+	player->setModel(Manager::g_meshManager.getDynamicMesh("BLEST1"));
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
@@ -189,6 +216,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		GamePadHandler::UpdateState();
 		MovePlayer();
 		MoveLight();
+		AnimationGUI();
 
 		point[targetLight].setColor(lightColorR, lightColorG, lightColorB);
 		point[targetLight].setDropOff(dropoff);
@@ -302,12 +330,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			lightColorR = pointColor.x;
 			lightColorG = pointColor.y;
 			lightColorB = pointColor.z;
-			
-			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
+
 		}
 		
-		Manager::g_meshManager.getDynamicMesh("CYL_UP")->getAnimatedModel()->Update(floatDt);
-
+		g_animatedModel->Update(floatDt);
+		g_currentTime = g_animatedModel->GetCurrentTimeInClip();
+		g_currentFrame = g_animatedModel->GetCurrentFrameIndex();
 		modelmanager.DrawMeshes();
 
 
@@ -315,9 +343,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			point[i].QueueLight();
 		}		
-		
-		//player->setScale(0.05f, 0.05f, 0.05f);
-
 		gTemp.Draw();
 		player->Draw();
 		//player->DrawWireFrame();

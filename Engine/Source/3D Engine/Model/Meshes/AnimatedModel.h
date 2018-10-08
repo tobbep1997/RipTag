@@ -7,6 +7,9 @@
 #include <../New_Library/FormatHeader.h>
 
 #define MAXJOINT 128
+#define BLEND_MATCH_TIME (1<<1)
+#define BLEND_FROM_START (1<<2)
+#define BLEND_MATCH_NORMALIZED_TIME (1<<3)
 
 namespace Animation
 {
@@ -90,12 +93,16 @@ namespace Animation
 		~AnimatedModel();
 
 		void Update(float deltaTime);
+		void UpdateBlend(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
-		void SetTargetClip(AnimationClip* clip, bool isLooping = true);
+		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
 		void SetSkeleton(Skeleton* skeleton);
 		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
+
+		float GetCurrentTimeInClip();
+		int GetCurrentFrameIndex();
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
