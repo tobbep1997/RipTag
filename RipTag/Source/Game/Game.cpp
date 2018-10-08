@@ -82,6 +82,9 @@ void Game::_restartGameIf()
 			delete m_gameStack.top();
 			m_gameStack.pop();
 
+			Manager::g_meshManager.UnloadStaticMesh("KOMBIN");
+			Manager::g_meshManager.UnloadStaticMesh("SPHERE");
+
 			m_gameStack.push(new PlayState(&m_renderingManager));
 			isPressed = true;
 		}

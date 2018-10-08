@@ -1,11 +1,14 @@
 #pragma once
 #include "../Meshes/StaticMesh.h"
 #include "../Meshes/DynamicMesh.h"
+#include <mutex>
 
 const uint8_t MESH_HASHTABLE_SIZE = 13;
 class MeshManager
 {
 private:
+
+	std::mutex m_mutexStatic;
 
 	std::vector<StaticMesh*> m_staticMesh[MESH_HASHTABLE_SIZE];
 	std::vector<DynamicMesh*> m_dynamicMesh[MESH_HASHTABLE_SIZE];

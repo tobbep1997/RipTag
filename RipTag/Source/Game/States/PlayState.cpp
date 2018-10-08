@@ -1,6 +1,7 @@
 #include "PlayState.h"
 #include "../../../../InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
+#include "Source/Helper/Timer.h"
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
@@ -68,8 +69,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_body->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	//m_body->SetGravityScale(-9.82f);
 	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
+	Timer::StartTimer();
 	Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Timer::StopTimer();
+	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
+
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	//Manager::g_textureManager.loadTextures("PIRASRUM");

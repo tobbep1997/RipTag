@@ -49,8 +49,9 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 	{
 		tempMesh->setName(fullPath);
 		tempMesh->LoadMesh(fullPath);
-
+		m_mutexStatic.lock();
 		m_staticMesh[key].push_back(tempMesh);
+		m_mutexStatic.unlock();
 	}
 	else
 	{
@@ -66,8 +67,9 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 		{
 			tempMesh->setName(fullPath);
 			tempMesh->LoadMesh(fullPath);
-
+			m_mutexStatic.lock();
 			m_staticMesh[key].push_back(tempMesh);
+			m_mutexStatic.unlock();
 		}
 		else
 		{
