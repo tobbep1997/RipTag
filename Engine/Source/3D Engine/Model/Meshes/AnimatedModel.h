@@ -10,6 +10,8 @@
 #define BLEND_MATCH_TIME (1<<1)
 #define BLEND_FROM_START (1<<2)
 #define BLEND_MATCH_NORMALIZED_TIME (1<<3)
+#define ANIMATION_SET_KEEP_OTHER (1<<1)
+#define ANIMATION_SET_CLEAN (1<<2)
 
 namespace Animation
 {
@@ -73,6 +75,14 @@ namespace Animation
 		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton);
 		~AnimationClip();
 	};
+
+	struct CombinedClip
+	{
+		AnimationClip* firstClip = nullptr;
+		AnimationClip* secondClip = nullptr;
+		float firstWeight = 1.0;
+		float secondWeight = 0.0;
+	};
 #pragma endregion Joint, Skeleton, AnimationClip, ...
 
 #pragma region GlobalAnimationFunctions
@@ -111,17 +121,19 @@ namespace Animation
 
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
+		CombinedClip m_combinedClip;
 		AnimationClip* m_targetClip = nullptr;
 
 		float m_currentBlendTime = 0.0;
 		float m_targetBlendTime = 0.0;
+		float m_targetClipCurrentTime = 0.0;
 
 		float m_currentTime = 0.0f;
-		float m_targetClipCurrentTime = 0.0;
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
-		unsigned int m_scrubIndex = 0;
+
+		unsigned int m_scrubIndex = 0; // #todo remove
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeSkinningMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
@@ -130,6 +142,7 @@ namespace Animation
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
+		void UpdateCombined(float deltaTime);
 	};
 
 #pragma region AnimationCBufferClass

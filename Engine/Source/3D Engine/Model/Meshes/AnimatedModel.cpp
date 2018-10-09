@@ -12,8 +12,18 @@ Animation::AnimatedModel::~AnimatedModel()
 // Computes the frame we're currently on and computes final skinning matrices for gpu skinning
 void Animation::AnimatedModel::Update(float deltaTime)
 {
+
+
 	if (m_targetClip)
 		UpdateBlend(deltaTime);
+
+	else if (m_combinedClip.firstClip)
+	{
+		if (m_combinedClip.secondClip)
+		{
+			UpdateCombined(deltaTime);
+		}
+	}
 
 	//if (m_targetClip && m_currentBlendTime > m_targetBlendTime) //null target clip if the blend is done // #todo
 	//{
@@ -22,7 +32,6 @@ void Animation::AnimatedModel::Update(float deltaTime)
 	//	m_currentBlendTime = 0.0;
 	//	m_targetBlendTime = 0.0;
 	//}
-
 	/*if (m_isPlaying && m_targetClip)
 	{
 		m_currentBlendTime += deltaTime;
@@ -65,6 +74,7 @@ void Animation::AnimatedModel::Update(float deltaTime)
 				&m_targetClip->m_skeletonPoses[targetPrevIndex], &m_targetClip->m_skeletonPoses[targetPrevIndex + 1], targetProgression);
 		}
 	}*/
+
 	if (!m_targetClip)
 	{
 		/// increase local time
@@ -73,7 +83,9 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		///calc the actual frame index and progression towards the next frame
 		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
 		float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
-
+		auto indexAndProgression = _computeIndexAndProgression(deltaTime, m_currentTime, m_currentClip->m_frameCount);
+		prevIndex = indexAndProgression.first;
+		progression = indexAndProgression.second;
 		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
 		if (prevIndex >= m_currentClip->m_frameCount -1) /// -1 because last frame is only used to interpolate towards
 		{
@@ -91,7 +103,7 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		}
 
 		/// compute skinning matrices
-		if (m_isPlaying && !m_targetClip)
+		if (m_isPlaying)
 			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
 	}
 	//else //scrub
@@ -422,13 +434,25 @@ Animation::JointPose Animation::AnimatedModel::_interpolateJointPose(JointPose *
 std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount)
 {
 	currentTime += deltaTime;
-	float properTime = std::fmod(deltaTime, frameCount / 24.0);
+	frameCount -= 1;
+	//float properTime = currentTime;
+
+	//while (properTime > frameCount / 24.0f)
+	//	properTime -= (frameCount / 24.0f);
+	float properTime = std::fmod(currentTime, frameCount / 24.0);
+
 
 	///calc the actual frame index and progression towards the next frame
-	int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
-	float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
+	float actualTime = properTime / (1.0 / 24.0);
+	int prevIndex = (int)(actualTime);
+	int nextIndex = prevIndex + 1;
+	//float progression = prevIndex * (1.0 / 10.0);
+	float progression = (actualTime) - (float)prevIndex; /// ???
 
+	if (prevIndex < 0)
+		prevIndex = 0;
 	//return values
+
 	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
 }
 
