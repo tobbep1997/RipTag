@@ -9,6 +9,8 @@
 
 #include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
+#include <future>
+
 class PlayState : public State
 {
 private:
@@ -47,8 +49,8 @@ private:
 	Guard gTemp;
 
 	Model * model;
-
-	
+	//std::future<void> future;
+	//std::thread test;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -58,4 +60,5 @@ public:
 	void Draw() override;
 
 private:
+	void thread(std::string s);
 };

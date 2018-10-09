@@ -3,6 +3,7 @@
 #include "../../Input/Input.h"
 #include "Source/Helper/Timer.h"
 
+
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 
@@ -15,7 +16,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_world = new b3World();
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-	
 
 	//bodyDef = new b3BodyDef();
 	//bodyDef->type = e_dynamicBody;
@@ -70,10 +70,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_body->SetGravityScale(-9.82f);
 	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	Timer::StartTimer();
-	Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	Manager::g_meshManager.loadStaticMesh("SPHERE");
-	Timer::StopTimer();
-	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
+	//pool->submit(&thread,"KOMBIN");
+	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	//Manager::g_meshManager.loadStaticMesh("SPHERE");
+	
 
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -85,7 +86,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//temp->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	//temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	//temp->setPosition(0, 10, 0);
-
+	future.get();
+	future1.get();
+	Timer::StopTimer();
+	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 	actor = new BaseActor();
 	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
 	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
@@ -242,4 +246,9 @@ void PlayState::Draw()
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 	
+}
+
+void PlayState::thread(std::string s)
+{
+	Manager::g_meshManager.loadStaticMesh(s);
 }

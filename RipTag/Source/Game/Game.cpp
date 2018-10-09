@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Source/3D Engine/Extern.h"
 #include "../../../InputManager/XboxInput/GamePadHandler.h"
+#include "Source/Helper/Timer.h"
 
 
 Game::Game()
@@ -24,6 +25,7 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	m_gameStack.push(new PlayState(&m_renderingManager));
 
 	GamePadHandler::Instance();
+	Timer::Instance();
 }
 
 bool Game::isRunning()
@@ -84,6 +86,11 @@ void Game::_restartGameIf()
 
 			Manager::g_meshManager.UnloadStaticMesh("KOMBIN");
 			Manager::g_meshManager.UnloadStaticMesh("SPHERE");
+
+			Manager::g_textureManager.UnloadTexture("KOMBIN");
+			Manager::g_textureManager.UnloadTexture("SPHERE");
+
+
 
 			m_gameStack.push(new PlayState(&m_renderingManager));
 			isPressed = true;

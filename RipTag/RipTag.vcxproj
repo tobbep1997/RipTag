@@ -235,6 +235,8 @@
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.h" />
     <ClInclude Include="Source\Input\Input.h" />
     <ClInclude Include="Source\Physics\Wrapper\PhysicsComponent.h" />
+    <ClInclude Include="Source\ThreadPool\SafeQueue.h" />
+    <ClInclude Include="Source\ThreadPool\ThreadPool.h" />
     <ClInclude Include="Source\Timer\DeltaTime.h" />
     <ClInclude Include="Source\Game\Actors\Actor.h" />
     <ClInclude Include="Source\Game\Actors\Player.h" />

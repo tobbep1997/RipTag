@@ -27,9 +27,12 @@ void TextureManager::loadTextures(const std::string & path)
 	if (m_textures[key].size() == 0)
 	{
 		tempTexture->setName(fullPath);
+		
 		tempTexture->Load(fullPath.c_str());
 
+		m_textureMutex.lock();
 		m_textures[key].push_back(tempTexture);
+		m_textureMutex.unlock();
 	}
 	else
 	{
@@ -44,9 +47,12 @@ void TextureManager::loadTextures(const std::string & path)
 		if (duplicate == false)
 		{
 			tempTexture->setName(fullPath);
+			
 			tempTexture->Load(fullPath.c_str());
 
+			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
+			m_textureMutex.unlock();
 		}
 		else
 		{

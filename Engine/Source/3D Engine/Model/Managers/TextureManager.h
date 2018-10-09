@@ -1,11 +1,14 @@
 #pragma once
 #include <vector>
 #include "../Texture.h"
+#include <mutex>
 
 const unsigned int TEXTURE_HASHTABLE_SIZE = 13;
 class TextureManager
 {
-private: 
+private:
+	std::mutex m_textureMutex;
+
 	std::vector<Texture*> m_textures[TEXTURE_HASHTABLE_SIZE];
 	
 public:

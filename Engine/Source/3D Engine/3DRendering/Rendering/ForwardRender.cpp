@@ -3,6 +3,7 @@
 #include "../Engine/Source/Shader/ShaderManager.h"
 #include "../../RenderingManager.h"
 #include "../Framework/DirectXRenderingHelpClass.h"
+#include "../../../Helper/Timer.h"
 
 
 ForwardRender::ForwardRender()
@@ -140,7 +141,6 @@ void ForwardRender::Flush(Camera & camera)
 {
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	_simpleLightCulling(camera);
-
 	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
 	this->m_shadowMap.ShadowPass(&m_animationBuffer);
@@ -151,6 +151,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
 	_tempGuardFrustumDraw();
+	
 }
 
 void ForwardRender::Clear()
