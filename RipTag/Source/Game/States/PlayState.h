@@ -51,6 +51,8 @@ private:
 	Model * model;
 	//std::future<void> future;
 	//std::thread test;
+	b3TimeStep m_step;
+	bool m_firstRun = true;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
