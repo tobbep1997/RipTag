@@ -129,6 +129,7 @@ namespace Animation
 		void _computeModelMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
+		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
 	};
 
 #pragma region AnimationCBufferClass

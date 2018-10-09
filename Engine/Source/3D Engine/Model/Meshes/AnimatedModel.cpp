@@ -418,6 +418,32 @@ Animation::JointPose Animation::AnimatedModel::_interpolateJointPose(JointPose *
 	return JointPose(srt);
 }
 
+// #todo check it works 
+std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount)
+{
+	currentTime += deltaTime;
+	float properTime = std::fmod(deltaTime, frameCount / 24.0);
+
+	///calc the actual frame index and progression towards the next frame
+	int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
+	float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
+
+	//return values
+	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
+}
+
+void Animation::AnimatedModel::UpdateCombined(float deltaTime)
+{
+	if (m_targetClip)
+	{
+
+	}
+	else
+	{
+
+	}
+}
+
 // #convert #animationclip AnimationClip conversion
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
