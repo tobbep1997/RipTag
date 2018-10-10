@@ -25,60 +25,10 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		}
 	}
 
-	//if (m_targetClip && m_currentBlendTime > m_targetBlendTime) //null target clip if the blend is done // #todo
-	//{
-	//	m_currentClip = m_targetClip;
-	//	m_targetClip = nullptr;
-	//	m_currentBlendTime = 0.0;
-	//	m_targetBlendTime = 0.0;
-	//}
-	/*if (m_isPlaying && m_targetClip)
-	{
-		m_currentBlendTime += deltaTime;
-		m_currentTime += std::fmod(deltaTime, m_currentClip->m_frameCount / 24.0);
-		m_targetClipCurrentTime += std::fmod(deltaTime, m_targetClip->m_frameCount / 24.0);
-
-		///calc the actual frame index and progression towards the next frame
-		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
-		float progression = std::fmod(m_currentTime, 1.0 / 24.0) * 24.0;
-
-		int targetPrevIndex = std::floorf(m_targetClip->m_framerate * m_targetClipCurrentTime);
-		float targetProgression = std::fmod(m_targetClipCurrentTime, 1.0 / 24.0) * 24.0;
-
-		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
-		if (prevIndex >= m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
-		{
-			if (m_isLooping)
-			{
-				m_currentTime = 0.0 + progression;
-				prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
-				progression = std::fmod(m_currentTime, 1.0 / 24.0);
-			}
-			else
-			{
-				m_isPlaying = false;
-			}
-		}
-		if (targetPrevIndex >= m_targetClip->m_frameCount - 1)
-		{
-			m_targetClipCurrentTime = 0.0 + targetProgression;
-			targetPrevIndex = std::floorf(m_targetClip->m_framerate * m_targetClipCurrentTime);
-			targetProgression = std::fmod(m_targetClipCurrentTime, 1.0 / 24.0) * 24.0;
-		}
-
-		/// compute skinning matrices
-		if (m_isPlaying)
-		{
-			_computeSkinningMatrices(
-				&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression,
-				&m_targetClip->m_skeletonPoses[targetPrevIndex], &m_targetClip->m_skeletonPoses[targetPrevIndex + 1], targetProgression);
-		}
-	}*/
-
 	if (!m_targetClip)
 	{
 		/// increase local time
-		//m_currentTime += std::fmod(deltaTime, m_currentClip->m_frameCount / 24.0);
+		//done in _computeIndexAndProgression()
 
 		///calc the actual frame index and progression towards the next frame
 		int prevIndex = std::floorf(m_currentClip->m_framerate * m_currentTime);
@@ -252,7 +202,6 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	auto rotationMatrix = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
 	auto scaleMatrix = XMMatrixScalingFromVector(XMLoadFloat4A(&fScale));
 	
-	//return XMMatrixMultiply(rotationMatrix, translationMatrix); // #todo test/make sure we dont need this
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
@@ -274,20 +223,18 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0f, 0.0f, 0.0f, 1.0f }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-// #todo rename
 Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Skeleton* skeleton)
 {
 	MyLibrary::Loadera loader;
-	auto importedAnimation = loader.readAnimationFileStefan(file, skeleton->m_jointCount);
+	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
 
 	return new Animation::AnimationClip(importedAnimation, skeleton);
 }
 
-// #todo rename
 Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 {
 	MyLibrary::Loadera loader;
-	auto importedSkeleton = loader.readSkeletonFileStefan(file);
+	auto importedSkeleton = loader.readSkeletonFile(file);
 	return new Animation::Skeleton(importedSkeleton);
 }
 
@@ -476,7 +423,6 @@ void Animation::AnimatedModel::UpdateCombined(float deltaTime)
 	}
 }
 
-// #convert #animationclip AnimationClip conversion
 Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
 	uint32_t keyCount = animation->nr_of_keyframes;
@@ -485,7 +431,6 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 	clipToReturn->m_frameCount = static_cast<uint16_t>(keyCount);
 	clipToReturn->m_skeletonPoses = std::make_unique<SkeletonPose[]>(clipToReturn->m_frameCount);
 
-	// Review
 	//Init joint poses for skeleton poses
 	for (int i = 0; i < clipToReturn->m_frameCount; i++)
 	{
@@ -497,7 +442,6 @@ Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::Animation
 		//for each key
 		for (unsigned int k = 0; k < keyCount; k++)
 		{
-			// Review
 			Animation::SRT trans = ConvertTransformToSRT(animation->keyframe_transformations[j * animation->nr_of_keyframes + k]);
 			clipToReturn->m_skeletonPoses[k].m_jointPoses[j].m_transformation = trans;
 		}
