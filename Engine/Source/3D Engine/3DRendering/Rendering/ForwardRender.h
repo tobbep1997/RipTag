@@ -6,13 +6,6 @@
 #include <thread>
 #include "VisabilityPass/VisabilityPass.h"
 
-#pragma region ForwardDeclarations
-namespace Animation
-{
-	class AnimationCBuffer;
-}
-#pragma endregion
-
 class ForwardRender
 {
 
@@ -92,7 +85,7 @@ private:
 
 	ID3D11RasterizerState * m_standardRast;
 	ID3D11RasterizerState * m_wireFrame;
-
+	ID3D11RasterizerState * m_disableBackFace;
 public:
 	ForwardRender();
 	~ForwardRender();

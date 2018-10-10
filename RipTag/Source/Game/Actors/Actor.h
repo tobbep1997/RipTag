@@ -1,6 +1,5 @@
 #pragma once
 #include "../Engine/Source/3D Engine/Model/Model.h"
-
 class Actor : public Model
 {
 protected:
