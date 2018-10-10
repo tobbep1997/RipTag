@@ -1,7 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <string>
-#include "../Messages/CoreMessage.h"
+
 #include "../InputManager/InputHandler.h"
 
 #pragma comment(lib, "InputManager.lib")
@@ -32,9 +32,9 @@ struct ProcMsg
 class Window
 {
 private:
-	HWND m_wHandler; 
-	WindowContext m_windowContext; 
-	MSG m_Peekmsg;
+	HWND			m_wHandler; 
+	WindowContext	m_windowContext; 
+	MSG				m_Peekmsg;
 
 	ProcMsg m_procMsg;
 
@@ -42,8 +42,8 @@ public:
 	Window(); 
 	~Window(); 
 
-	bool Init(WindowContext windowContext); //Creating window and calls show
-	void Update(CoreMessage msg); //Updates the window, based on incomming msg
+	bool Init(_In_ WindowContext windowContext); //Creating window and calls show
+	//void Update(CoreMessage msg); //Updates the window, based on incomming msg
 
 	//Get the window msg like "destory" when X button pressed
 	void PollEvents(); 

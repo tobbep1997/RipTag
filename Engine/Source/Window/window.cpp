@@ -141,7 +141,7 @@ Window::~Window()
 {
 }
 
-bool Window::Init(WindowContext windowContext)
+bool Window::Init(_In_ WindowContext windowContext)
 {
 	m_windowContext = windowContext;
 
@@ -201,9 +201,9 @@ bool Window::Init(WindowContext windowContext)
 	return true;
 }
 
-void Window::Update(CoreMessage msg)
-{
-}
+//void Window::Update(CoreMessage msg)
+//{
+//}
 
 void Window::PollEvents()
 {

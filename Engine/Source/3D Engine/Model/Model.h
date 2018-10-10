@@ -1,23 +1,16 @@
 #pragma once
 
-#include "Drawable.h"
+#include "../Components/Base/Drawable.h"
+
 
 class Model : public Drawable
 {
 public:
-	Model(ObjectType objectType = ObjectType::Static);
-	~Model();
+	Model();
+	virtual~Model();	
 
-	//Setting the model for the object
-	void SetModel(StaticMesh * staticMesh);
-	//Setting the model for the object
-	void SetModel(DynamicMesh * dynamicMesh);
+	virtual void setModel(StaticMesh * staticMesh);
+	virtual void setModel(DynamicMesh * dynamicMesh);
 
-	//Set Shaders
-	void SetVertexShader(const std::wstring & path);
-	void SetPixelShader(const std::wstring & path);
-
-private:
-	void SetBuffer();
 };
 

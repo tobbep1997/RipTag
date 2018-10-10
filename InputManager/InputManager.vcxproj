@@ -148,9 +148,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="XboxInput\GamePadHandler.h" />
+    <ClInclude Include="XboxInput\GamePad\GamePad.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputHandler.cpp" />
+    <ClCompile Include="XboxInput\GamePadHandler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="XboxInput\GamePad\DirectXTK.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="XboxInput\GamePad\DirectXTKd.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

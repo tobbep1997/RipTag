@@ -1,49 +1,34 @@
 #include "Model.h"
 
 
-Model::Model(ObjectType objectType) : 
-	Drawable(objectType)
+Model::Model() : Drawable()
 {
-	switch (objectType)
-	{
-	case Static:
 
-		break;
-	case Dynamic:
-		break;
-	default:
-		break;
-	}
 }
 
 
 Model::~Model()
 {
+
 }
 
-void Model::SetBuffer()
+
+
+void Model::setModel(StaticMesh * staticMesh)
 {
-	Drawable::CreateBuffer();
+	this->p_objectType = Static;
+	setVertexShader(L"../Engine/Source/Shader/VertexShader.hlsl");
+	setPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	Drawable::p_setMesh(staticMesh);
+	p_createBuffer();
 }
 
-void Model::SetModel(StaticMesh * staticMesh)
+void Model::setModel(DynamicMesh * dynamicMesh)
 {
-	Drawable::SetMesh(staticMesh);
-	this->SetBuffer();
+	this->p_objectType = Dynamic;
+	setVertexShader(L"../Engine/Source/Shader/AnimatedVertexShader.hlsl");
+	setPixelShader(L"../Engine/Source/Shader/PixelShader.hlsl");
+	Drawable::p_setMesh(dynamicMesh);
+	p_createBuffer();
 }
 
-void Model::SetModel(DynamicMesh * dynamicMesh)
-{
-	Drawable::SetMesh(dynamicMesh);
-	this->SetBuffer();
-}
-
-void Model::SetVertexShader(const std::wstring & path)
-{
-	this->p_vertexPath = path;
-}
-
-void Model::SetPixelShader(const std::wstring & path)
-{
-	this->p_pixelPath = path;
-}
