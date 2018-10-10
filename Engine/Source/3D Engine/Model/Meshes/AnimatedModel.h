@@ -142,6 +142,7 @@ namespace Animation
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
+		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
 		void UpdateCombined(float deltaTime);
 	};
 
