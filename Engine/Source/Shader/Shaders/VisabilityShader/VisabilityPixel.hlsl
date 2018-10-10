@@ -12,9 +12,9 @@ void main (VS_OUTPUT input)
 
     clip(guardDepthTex.Sample(defaultSampler, smTex).r - fragmentLightPosition.z);
     
-    InterlockedAdd(OutputMap[int2(0, 0)], (uint) (1));
+    //InterlockedAdd(OutputMap[int2(0, 0)], (uint) (1));
     
     // TODO:: FIX THIS SHIT
-    //float lightLevel = length(OptimizedLightCalculation(input).rgb);
-    //InterlockedAdd(OutputMap[int2(0, 0)], (uint) (lightLevel * 100));
+    float lightLevel = length(OptimizedLightCalculation(input).rgb);
+    InterlockedAdd(OutputMap[int2(0, 0)], (uint) (lightLevel * 100));
 }

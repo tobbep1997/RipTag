@@ -240,6 +240,7 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
     </ClCompile>
     <ClCompile Include="Source\Helper\Threading.cpp" />
+    <ClCompile Include="Source\Helper\Timer.cpp" />
     <ClCompile Include="Source\Light\PointLight.cpp" />
     <ClCompile Include="Source\3D Engine\Components\Camera.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Meshes\DynamicMesh.cpp" />

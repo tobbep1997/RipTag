@@ -8,7 +8,7 @@ void Transform::p_calcWorldMatrix()
 	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
 	XMMATRIX scaling = XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
 	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
-
+	
 	DirectX::XMStoreFloat4x4A(&this->p_worldMatrix, XMMatrixTranspose(rotation * scaling * translation));
 
 }

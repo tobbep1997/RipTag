@@ -85,7 +85,7 @@ private:
 
 	ID3D11RasterizerState * m_standardRast;
 	ID3D11RasterizerState * m_wireFrame;
-
+	ID3D11RasterizerState * m_disableBackFace;
 public:
 	ForwardRender();
 	~ForwardRender();

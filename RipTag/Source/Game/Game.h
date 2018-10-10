@@ -12,9 +12,8 @@ private:
 	RenderingManager m_renderingManager;
 
 	std::stack<State*> m_gameStack;
-	//TODO:: This is super temporary, beacuse the render needs 1 object to work
-	ModelManager modelManager;
-		
+
+	bool isPressed = false;
 public:
 	Game();
 	~Game();
@@ -33,4 +32,6 @@ public:
 
 private:
 	void _handleStateSwaps();
+
+	void _restartGameIf();
 };
