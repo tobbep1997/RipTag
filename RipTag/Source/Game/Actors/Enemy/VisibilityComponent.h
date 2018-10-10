@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-#include <Source/3D Engine/Components/Camera.h>
+#include "../Engine/Source/3D Engine/Extern.h"
 #include <vector>
 
 class VisibilityComponent
@@ -208,9 +208,11 @@ public:
 	ID3D11Buffer * getFrustumBuffer();
 	Camera * getCamera();
 
+	const int* getVisibilityForPlayers() const;
+
 	void QueueVisibility();
 	void CalculateVisabilityFor(int playerIndex);
-
+	UINT32 sizeOfFrustumVertex();
 
 	ID3D11UnorderedAccessView * getUAV();
 

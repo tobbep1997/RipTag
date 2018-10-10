@@ -1,5 +1,4 @@
 #include "VisibilityComponent.h"
-#include <Source/3D Engine/Extern.h>
 
 VisibilityComponent::VisibilityComponent()
 {
@@ -48,9 +47,14 @@ Camera * VisibilityComponent::getCamera()
 	return m_pCam;
 }
 
+const int * VisibilityComponent::getVisibilityForPlayers() const
+{
+	return m_playerVisability;
+}
+
 void VisibilityComponent::QueueVisibility()
 {
-	// TODO :: QUEUE VISABILITY
+	DX::g_visibilityComponentQueue.push_back(this);
 }
 
 void VisibilityComponent::CalculateVisabilityFor(int playerIndex)
@@ -79,6 +83,11 @@ void VisibilityComponent::CalculateVisabilityFor(int playerIndex)
 		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
 		DX::g_deviceContext->Unmap(m_UAV.uavTextureBufferCPU, 0);
 	}
+}
+
+UINT32 VisibilityComponent::sizeOfFrustumVertex()
+{
+	return sizeof(FrustumVertex);
 }
 
 ID3D11UnorderedAccessView * VisibilityComponent::getUAV()

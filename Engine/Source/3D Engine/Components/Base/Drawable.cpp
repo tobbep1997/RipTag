@@ -126,10 +126,12 @@ void Drawable::Draw()
 		switch (p_objectType)
 		{
 		case Static:
-			DX::g_geometryQueue.push_back(this);
+			if(m_staticMesh)
+				DX::g_geometryQueue.push_back(this);
 			break;
 		case Dynamic:
-			DX::g_animatedGeometryQueue.push_back(this);
+			if (m_dynamicMesh)
+				DX::g_animatedGeometryQueue.push_back(this);
 			break;
 		}
 	}
