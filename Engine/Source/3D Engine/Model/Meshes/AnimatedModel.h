@@ -80,8 +80,8 @@ namespace Animation
 	{
 		AnimationClip* firstClip = nullptr;
 		AnimationClip* secondClip = nullptr;
-		float firstWeight = 1.0;
 		float secondWeight = 0.0;
+		float secondCurrentTime = 0.0;
 	};
 #pragma endregion Joint, Skeleton, AnimationClip, ...
 
@@ -105,6 +105,8 @@ namespace Animation
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
+		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
+		void SetLayeredClipWeight(const float& weight);
 		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
 		void SetSkeleton(Skeleton* skeleton);
 		void SetScrubIndex(unsigned int index);
@@ -137,6 +139,7 @@ namespace Animation
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeSkinningMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
+		void _computeSkinningMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeModelMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
@@ -144,6 +147,7 @@ namespace Animation
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
 		void UpdateCombined(float deltaTime);
+		void _computeModelMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 	};
 
 #pragma region AnimationCBufferClass

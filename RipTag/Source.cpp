@@ -79,11 +79,13 @@ void MoveLight() {
 #endif
 }
 
+#pragma region AnimationDebugStuff
 Animation::AnimatedModel* g_animatedModel = nullptr;
 Animation::AnimationClip* g_currentTargetClip = nullptr;
 Animation::AnimationClip* g_currentClip = nullptr;
 float g_blendTime = 1.0f;
 float g_currentTime = 0.0f;
+float g_weight = 0.0f;
 int  g_currentFrame = 0.0f;
 void AnimationGUI()
 {
@@ -92,15 +94,22 @@ void AnimationGUI()
 	ImGui::SliderFloat("Blend time", &g_blendTime, 0.1, 10.0);
 	if (ImGui::Button("Blend.."))
 	{
-		g_animatedModel->SetTargetClip(g_currentClip, BLEND_MATCH_NORMALIZED_TIME, g_blendTime);
+		g_animatedModel->SetTargetClip(g_currentClip, BLEND_FROM_START, g_blendTime);
 		std::swap(g_currentClip, g_currentTargetClip);
 	}
 	ImGui::Text("%f", g_currentTime);
 	ImGui::SliderInt("Frame", &g_currentFrame, 0.0, g_currentClip->m_frameCount);
+
+	ImGui::Separator();
+
+	if (ImGui::SliderFloat("Weight", &g_weight, 0.0, 1.0))
+		g_animatedModel->SetLayeredClipWeight(g_weight);
+
+
 	ImGui::End();
 #endif
 }
-
+#pragma endregion Animation ImGui stuff and globals for testing
 
 /*v*/
 
@@ -155,16 +164,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Animation::Skeleton* skeleton = nullptr;
 	Animation::AnimationClip* animation = nullptr;
 	Animation::AnimationClip* animation2 = nullptr;
-	Manager::g_meshManager.loadDynamicMesh("DICK");
-	skeleton = Animation::LoadAndCreateSkeleton("../Assets/DICKFOLDER/DICK_SKELETON.bin");
-	animation = Animation::LoadAndCreateAnimation("../Assets/DICKFOLDER/DICK_ANIMATION.bin", skeleton);
-	//animation2 = Animation::LoadAndCreateAnimation("../Assets/DICKFOLDER/DICK_ANIMATION.bin", skeleton);
-	Manager::g_meshManager.getDynamicMesh("DICK")->m_anim = new Animation::AnimatedModel();
-	g_animatedModel = Manager::g_meshManager.getDynamicMesh("DICK")->getAnimatedModel();
+	Manager::g_meshManager.loadDynamicMesh("KUBA");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/KUBAFOLDER/KUBA_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/KUBAFOLDER/KUBA_ANIMATION.bin", skeleton);
+	animation2 = Animation::LoadAndCreateAnimation("../Assets/KUBAFOLDER/KUBB_ANIMATION.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("KUBA")->m_anim = new Animation::AnimatedModel();
+	g_animatedModel = Manager::g_meshManager.getDynamicMesh("KUBA")->getAnimatedModel();
 
 	g_animatedModel->SetSkeleton(skeleton);
 	g_animatedModel->SetPlayingClip(animation);
-	//g_animatedModel->SetTargetClip(animation2);
+	g_animatedModel->SetLayeredClip(animation2, .5, BLEND_MATCH_TIME);
 	g_animatedModel->Play();
 
 	g_currentTargetClip = animation2;
@@ -176,7 +185,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("DICK"));
+	player->setModel(Manager::g_meshManager.getDynamicMesh("KUBA"));
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
