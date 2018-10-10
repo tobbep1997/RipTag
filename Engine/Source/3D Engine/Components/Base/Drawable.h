@@ -91,7 +91,7 @@ public:
 	virtual void setTextureTileMult(float u, float v);
 	const DirectX::XMFLOAT2A & getTextureTileMult () const;
 
-	virtual const bool isTextureAssigned() const;
+	virtual bool isTextureAssigned();
 
 private:
 	virtual void _setStaticBuffer();

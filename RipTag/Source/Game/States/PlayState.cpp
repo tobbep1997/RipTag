@@ -76,10 +76,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
 	
 
+	//Manager::g_textureManager.loadTextures("PIRASRUM");
+
+	std::cout << sizeof(DirectX::XMFLOAT2A) << std::endl;
+	std::cout << sizeof(BOOL) << " " << sizeof(bool) << std::endl;
 	Manager::g_textureManager.loadTextures("KUB");
 	Manager::g_textureManager.loadTextures("SPHERE");
-	//Manager::g_textureManager.loadTextures("PIRASRUM");
-	
 	
 	//temp = new Model();
 	////temp->setEntityType();
@@ -97,7 +99,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//actor->setPosition(0, 10, 0);
 	actor->setScale(10.0f,10.0f,10.0f);
 	actor->setPosition(0, -5, 0);
-	actor->setTextureTileMult(100, 100);
+	actor->setTextureTileMult(1000, 1000);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setPosition(0, 5, 0,0);
 	//player->setEntityType(EntityType::PlayerType);
@@ -108,7 +110,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
 	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	wall1->setPosition(-1.5, 2.1, -2.1);
 
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
@@ -129,6 +131,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setScale(0.5, 0.5, 0.5);
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	model->setTextureTileMult(50, 50);
 	
 }
 

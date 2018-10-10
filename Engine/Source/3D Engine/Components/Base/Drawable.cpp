@@ -242,9 +242,9 @@ const DirectX::XMFLOAT2A & Drawable::getTextureTileMult() const
 	return this->m_textureTileMult;
 }
 
-const bool Drawable::isTextureAssigned() const
+bool Drawable::isTextureAssigned()
 {
-	return this->p_texture;
+	return p_texture;
 }
 
 

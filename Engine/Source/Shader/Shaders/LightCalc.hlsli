@@ -24,11 +24,10 @@ cbuffer CAMERA_BUFFER : register(b2)
     float4 cameraPosition;
     float4x4 viewProjection;
 };
-cbuffer TEXTURE_BUFFER : register(b3)
+cbuffer TEXTURE_BUFFER : register(b7)
 {
-    float2 uvScaling;
-    bool usingTexture;
-    bool pad;
+    int4 usingTexture;
+    float4 uvScaling;
 };
 // end<TODO>
 
@@ -89,6 +88,7 @@ float4 FresnelReflection(float cosTheta, float4 f0)
 
 float4 OptimizedLightCalculation(VS_OUTPUT input)
 {
+   
 	//float3 albedo = diffuseTexture.Sample(defaultSampler, input.uv).xyz;
 	
     float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -107,15 +107,17 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     float normDotLight;
     float finalShadowCoeff;
 
-	
-    float4 albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling);
-	//float3x3 TBN = float3x3(input.TBN0, input.TBN1, input.TBN2)
-    //normalMap = (2.0f * normalMap) - 1.0f;
+    float4 albedo = float4(1.0f, 0.0f, 1.0f, 1.0);
+    float3 normal = input.normal.xyz;
+    float3 AORoughMet = float3(1, 1, 1); 
 
-    float3 normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling).xyz) - 1.0f, input.TBN));
-	//normal = input.normal.xyz;
-    //return float4(normal, 1.0f);
-    float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling).xyz;
+    if (usingTexture.x)
+    {
+        albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy);
+        normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
+        AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
+    }
+
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
     float pi = 3.14;
 

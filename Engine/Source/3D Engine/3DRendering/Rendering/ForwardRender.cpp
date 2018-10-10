@@ -343,9 +343,16 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
 	m_objectValues.worldMatrix = drawable->getWorldmatrix();	
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+	
 
-	m_textureValues.textureTileMult = drawable->getTextureTileMult();
-	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 3, 1, ShaderTypes::pixel);
+
+	m_textureValues.textureTileMult.x = drawable->getTextureTileMult().x;
+	m_textureValues.textureTileMult.y = drawable->getTextureTileMult().y;
+
+	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
+
+
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
 }
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)

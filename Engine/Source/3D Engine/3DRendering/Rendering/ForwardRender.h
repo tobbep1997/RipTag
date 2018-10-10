@@ -37,9 +37,8 @@ class ForwardRender
 
 	struct TextureBuffer
 	{
-		DirectX::XMFLOAT2A	textureTileMult;
-		BOOL				useTexture;
-		BOOL				pad;
+		DirectX::XMINT4		usingTexture;
+		DirectX::XMFLOAT4A	textureTileMult;
 	};
 
 private:
