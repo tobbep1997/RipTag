@@ -39,4 +39,12 @@ void BaseActor::setPosition(const float& x, const float& y, const float& z)
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+void BaseActor::setPositionRot(const float& x, const float& y, const float& z, const float& pitch, const float& yaw,
+	const float& roll)
+{
+	Transform::setPosition(x, y, z);
+	Transform::setRotation(pitch, yaw, roll);
+	PhysicsComponent::p_setPositionRot(x, y, z, pitch, yaw, roll);
+}
+
 

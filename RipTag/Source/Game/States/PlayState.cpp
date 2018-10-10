@@ -6,7 +6,7 @@
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
+	//lua.init("playerState.lua")
 	CameraHandler::Instance();
 	
 	player = new Player();
@@ -74,7 +74,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
-	
+	Manager::g_meshManager.loadStaticMesh("KUB");
 
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -127,6 +127,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setScale(0.5, 0.5, 0.5);
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
+	testCube = new BaseActor();
+	testCube->Init(m_world, e_dynamicBody, 1.0f, 1.0f, 1.0f);
+	testCube->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
+	testCube->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	testCube->setPosition(5, 5.0f, 0);
 	
 }
 
@@ -151,11 +157,15 @@ PlayState::~PlayState()
 
 	delete model;
 
+	testCube->Release(m_world);
+	delete testCube;
 
 }
 
 void PlayState::Update(double deltaTime)
 {
+
+	//lua.update();
 	std::cout << "\a";
 
 #if _DEBUG
@@ -164,9 +174,9 @@ void PlayState::Update(double deltaTime)
 	ImGui::SliderFloat("PositionY", &y, -20.0f, 20.f);
 	ImGui::SliderFloat("PositionZ", &z, -20.0f, 20.f);
 
-	/*ImGui::SliderFloat("DirX", &dirX, -50.0f, 50.f);
-	ImGui::SliderFloat("DirY", &dirY, -50.0f, 50.f);
-	ImGui::SliderFloat("DirZ", &dirZ, -50.0f, 50.f);*/
+	ImGui::SliderFloat("DirX", &xD, -50.0f, 50.f);
+	ImGui::SliderFloat("DirY", &yD, -50.0f, 50.f);
+	ImGui::SliderFloat("DirZ", &zD, -50.0f, 50.f);
 	ImGui::End();
 #endif
 
@@ -180,7 +190,8 @@ void PlayState::Update(double deltaTime)
 
 	light2.setIntensity(intensity);
 	//light1.setPosition(x, y, z, 1);
-	model->setPosition(x, y, z);
+	//model->setPosition(x, y, z);
+	//testCube->setPositionRot(x, y, z,xD,yD,zD);
 	//gTemp.setDir(0, 0, -1);
 	//jumper->setPosition(ax, ay, az);
 	if (GamePadHandler::IsLeftDpadPressed())
@@ -211,7 +222,8 @@ void PlayState::Update(double deltaTime)
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	actor->Update(deltaTime);
-	
+	testCube->Update(deltaTime);
+
 	m_objectHandler.Update();
 	m_levelHandler.Update();
 
@@ -220,6 +232,7 @@ void PlayState::Update(double deltaTime)
 		m_step.dt = 1.0 / 60.0f;
 		m_step.velocityIterations = 10;
 		m_step.sleeping = true;
+		m_firstRun = false;
 	}
 	else
 	{
@@ -230,7 +243,7 @@ void PlayState::Update(double deltaTime)
 	m_world.Step(m_step);
 
 	player->PhysicsUpdate(deltaTime);
-
+	
 }
 
 void PlayState::Draw()
@@ -248,6 +261,7 @@ void PlayState::Draw()
 	//player->QueueVisabilityDraw();
 
 	model->Draw();
+	testCube->Draw();
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 
