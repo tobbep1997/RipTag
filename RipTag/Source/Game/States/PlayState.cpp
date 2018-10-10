@@ -166,60 +166,44 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	std::cout << "\a";
 	static double time = 0.0f;
-	static DirectX::XMFLOAT2 p1(0.0, 0.0);
-	static DirectX::XMFLOAT2 p2(1.0, 1.0);
-	time += deltaTime;
+	static DirectX::XMFLOAT2 current(0.0, 0.0);
+	static DirectX::XMFLOAT2 target(1.0, 1.0);
 	static double timer = 0.0f;
 	timer += deltaTime;
-	static float fmax = 5.5f;
-	static float fmin = 3.0f;
-	static bool turn = false;
+	static float ran = 5.5f;
 
-	if (time > 15.0f)
-	{
-		time = 0.0f;
-	}
 
-	if (timer > 0.1337)
+	if (abs(current.x - target.x) < 0.1)
 	{
 		timer = 0.0;
 
-		fmax = (float)(rand() % 100) / 100.0f;
-		fmin = (float)(rand() % 100) / 100.0f;
+		ran = (float)(rand() % 100) / 100.0f;
 		
-		if (fmax < fmin)
-			std::swap(fmax, fmin);
-		/*
-		fmax = min(fmax, 5.5f);
-		fmin = max(fmin, 3.0f);
-		turn = !turn;
-		*/
+		target.x = ran;
+		
 	}
 
-	p1.x = fmin;
-	p2.x = fmax;
+	//current.x = fmin;
 	
-	auto v1 = DirectX::XMLoadFloat2(&p1);
-	auto v2 = DirectX::XMLoadFloat2(&p2);
+	auto v1 = DirectX::XMLoadFloat2(&current);
+	auto v2 = DirectX::XMLoadFloat2(&target);
 	DirectX::XMVECTOR vec;
-	if (turn)
-		vec = DirectX::XMVectorLerp(v2, v1, deltaTime);
-	else
-		vec = DirectX::XMVectorLerp(v1, v2, deltaTime);
 
-	float sx = DirectX::XMVectorGetX(vec);
+	vec = DirectX::XMVectorLerp(v1, v2, deltaTime * 5);
 
-	float temp = 0.6 + sin(sx) * 0.25;
+
+	current.x = DirectX::XMVectorGetX(vec);
+
+	float temp = 5 + sin(current.x) * 1.5;
 
 	//temp = min(temp, 0.8);
 	//temp = max(temp, 0.65f);
-	float intt = 10.0f * temp;
-	light1.setDropOff(temp);
-	light1.setIntensity(7);
+	
+	light1.setDropOff(.5f);
+	light1.setIntensity(temp);
 
-	std::cout << intt << std::endl;
+	std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
 
 /*
 	float flick = (float)(rand() % 100) / 50.0f;
