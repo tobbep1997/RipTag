@@ -122,9 +122,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
 	light2.setDropOff(0);
 	
-	gTemp.setPos(9, 0.4f, -4.5f);
+	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
-	gTemp.getCamera().setFarPlane(5);
+	gTemp.getCamera()->setFarPlane(5);
+	enemy->setPosition(9.0f, 0.4f, -5.5f);
+	enemy->setDir(1, 0, 0);
+	enemy->getCamera()->setFarPlane(5);
 
 	model = new Model();
 	model->setEntityType(EntityType::PlayerType);
@@ -176,11 +179,19 @@ void PlayState::Update(double deltaTime)
 	ImGui::End();
 #endif
 
+	const int * e1Vis = enemy->getPlayerVisibility();
+	const int * e2Vis = gTemp.getPlayerVisibility();
+
 #if _DEBUG
 	ImGui::Begin("Light");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
-	
 	ImGui::End();
+
+	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
+	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);
+	ImGui::End();
+
 #endif
 
 
@@ -200,7 +211,7 @@ void PlayState::Update(double deltaTime)
 
 	if (InputHandler::isKeyPressed('J'))
 	{
-		CameraHandler::setActiveCamera(&gTemp.getCamera());
+		CameraHandler::setActiveCamera(gTemp.getCamera());
 	}
 	else if (InputHandler::isKeyPressed('K'))
 	{
@@ -217,7 +228,8 @@ void PlayState::Update(double deltaTime)
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	actor->Update(deltaTime);
-	
+	gTemp.Update(deltaTime);
+
 	m_objectHandler.Update();
 	m_levelHandler.Update();
 
@@ -246,6 +258,7 @@ void PlayState::Draw()
 	light2.QueueLight();
 
 	gTemp.Draw();
+	enemy->Draw();
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();

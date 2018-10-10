@@ -10,6 +10,7 @@
 #include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
 #include <future>
+#include "../Actors/Enemy/Enemy.h"
 
 class PlayState : public State
 {
@@ -46,7 +47,7 @@ private:
 	PointLight light1;
 	PointLight light2;
 
-	Guard gTemp;
+	Enemy gTemp;
 
 	Model * model;
 	//std::future<void> future;
