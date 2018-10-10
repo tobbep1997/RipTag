@@ -183,14 +183,14 @@ public:
 private:
 	struct FrustumContent
 	{
-		ID3D11Buffer*				s_frustumBuffer;
+		ID3D11Buffer*				s_frustumBuffer = nullptr;
 		std::vector<FrustumVertex>	s_frustumData;
 	};
 	struct DirectXContent
 	{
-		ID3D11Texture2D*			uavTextureBuffer;		//IsReleased
-		ID3D11Texture2D*			uavTextureBufferCPU;	//IsReleased
-		ID3D11UnorderedAccessView*	UAV;					//IsReleased
+		ID3D11Texture2D*			uavTextureBuffer = nullptr;		//IsReleased
+		ID3D11Texture2D*			uavTextureBufferCPU = nullptr;	//IsReleased
+		ID3D11UnorderedAccessView*	UAV = nullptr;					//IsReleased
 	};
 
 private:
@@ -203,8 +203,8 @@ private:
 public:
 	VisibilityComponent();
 	~VisibilityComponent();
-	void Init(Camera * m_pCam);
-	const std::vector<VisibilityComponent::FrustumVertex> * getFrustum;
+	void Init(Camera * cam);
+	const std::vector<VisibilityComponent::FrustumVertex> * getFrustum();
 	ID3D11Buffer * getFrustumBuffer();
 	Camera * getCamera();
 
