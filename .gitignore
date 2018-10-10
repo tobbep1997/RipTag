@@ -332,4 +332,5 @@ ASALocalRun/
 # Bin Files
 *bin
 
-Assets/*.txt
+# Asset .txt files
+Assets/**/*.txt
