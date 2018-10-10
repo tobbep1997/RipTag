@@ -105,6 +105,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	player->setTextureTileMult(2, 2);
 
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
@@ -115,6 +116,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
 	light1.setDropOff(0);
+	light1.setColor(0.8f, 0.6, 0.4f);
+	light1.setDropOff(1);
 
 	light2.Init(DirectX::XMFLOAT4A(7, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
@@ -123,7 +126,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
 	gTemp.getCamera()->setFarPlane(5);
-	enemy->setPosition(9.0f, 0.4f, -5.5f);
+	enemy->setPosition(0.0f, 0.4f, -5.5f);
 	enemy->setDir(1, 0, 0);
 	enemy->getCamera()->setFarPlane(5);
 
@@ -164,6 +167,69 @@ PlayState::~PlayState()
 void PlayState::Update(double deltaTime)
 {
 	std::cout << "\a";
+	static double time = 0.0f;
+	static DirectX::XMFLOAT2 p1(0.0, 0.0);
+	static DirectX::XMFLOAT2 p2(1.0, 1.0);
+	time += deltaTime;
+	static double timer = 0.0f;
+	timer += deltaTime;
+	static float fmax = 5.5f;
+	static float fmin = 3.0f;
+	static bool turn = false;
+
+	if (time > 15.0f)
+	{
+		time = 0.0f;
+	}
+
+	if (timer > 0.1337)
+	{
+		timer = 0.0;
+
+		fmax = (float)(rand() % 100) / 100.0f;
+		fmin = (float)(rand() % 100) / 100.0f;
+		
+		if (fmax < fmin)
+			std::swap(fmax, fmin);
+		/*
+		fmax = min(fmax, 5.5f);
+		fmin = max(fmin, 3.0f);
+		turn = !turn;
+		*/
+	}
+
+	p1.x = fmin;
+	p2.x = fmax;
+	
+	auto v1 = DirectX::XMLoadFloat2(&p1);
+	auto v2 = DirectX::XMLoadFloat2(&p2);
+	DirectX::XMVECTOR vec;
+	if (turn)
+		vec = DirectX::XMVectorLerp(v2, v1, deltaTime);
+	else
+		vec = DirectX::XMVectorLerp(v1, v2, deltaTime);
+
+	float sx = DirectX::XMVectorGetX(vec);
+
+	float temp = 0.6 + sin(sx) * 0.25;
+
+	//temp = min(temp, 0.8);
+	//temp = max(temp, 0.65f);
+	float intt = 10.0f * temp;
+	light1.setDropOff(temp);
+	light1.setIntensity(7);
+
+	std::cout << intt << std::endl;
+
+/*
+	float flick = (float)(rand() % 100) / 50.0f;
+	light1.setDropOff(flick);
+	flick = (float)(rand() % 100) / 50.0f;
+	light2.setDropOff(flick);
+	flick = (float)(rand() % 100) / 30.0f;
+	light1.setIntensity(flick);
+	flick = (float)(rand() % 100) / 30.0f;
+	light2.setIntensity(flick);*/
 
 #if _DEBUG
 	ImGui::Begin("Player Setting");                          // Create a window called "Hello, world!" and append into it.
@@ -253,10 +319,10 @@ void PlayState::Update(double deltaTime)
 void PlayState::Draw()
 {
 	light1.QueueLight();
-	light2.QueueLight();
+	//light2.QueueLight();
 
 	gTemp.Draw();
-	enemy->Draw();
+	//enemy->Draw();
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
