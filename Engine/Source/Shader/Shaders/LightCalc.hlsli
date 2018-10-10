@@ -114,7 +114,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     float pi = 3.14;
 
 
-    float4 ambient = float4(0.03f, 0.03f, 0.03f, 1.0f) * albedo * ao;
+    float4 ambient = float4(0.01f, 0.01f, 0.02f, 1.0f) * albedo * ao;
    
     //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * albedo;
     //float3 fragmentPositionToCamera = cameraPosition.xyz - input.worldPos.xyz;
