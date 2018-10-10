@@ -31,6 +31,8 @@ class Drawable : public Transform
 private:
 	StaticMesh * m_staticMesh;
 	DynamicMesh * m_dynamicMesh;
+
+	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 protected:	
 	Texture * p_texture;
 
@@ -85,6 +87,11 @@ public:
 
 	//returns AnimatedModel ptr if valid
 	Animation::AnimatedModel* getAnimatedModel();
+
+	virtual void setTextureTileMult(float u, float v);
+	const DirectX::XMFLOAT2A & getTextureTileMult () const;
+
+	virtual bool isTextureAssigned();
 
 private:
 	virtual void _setStaticBuffer();

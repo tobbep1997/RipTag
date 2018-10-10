@@ -71,15 +71,17 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	Timer::StartTimer();
 	//pool->submit(&thread,"KOMBIN");
-	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	auto future = std::async(std::launch::async, &PlayState::thread, this, "KUB");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
 	
 
-	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHERE");
 	//Manager::g_textureManager.loadTextures("PIRASRUM");
-	
+
+	std::cout << sizeof(DirectX::XMFLOAT2A) << std::endl;
+	std::cout << sizeof(BOOL) << " " << sizeof(bool) << std::endl;
+	Manager::g_textureManager.loadTextures("KUB");
+	Manager::g_textureManager.loadTextures("SPHERE");
 	
 	//temp = new Model();
 	////temp->setEntityType();
@@ -92,10 +94,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 	actor = new BaseActor();
 	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
-	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
-	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
+	actor->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
+	actor->setTexture(Manager::g_textureManager.getTexture("KUB"));
 	//actor->setPosition(0, 10, 0);
-	actor->setScale(1.0f,1.0f,1.0f);
+	actor->setScale(10.0f,10.0f,10.0f);
+	actor->setPosition(0, -5, 0);
+	actor->setTextureTileMult(1000, 1000);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0,0);
@@ -107,7 +111,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
 	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	wall1->setPosition(-1.5, 2.1, -2.1);
 
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
@@ -128,6 +132,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setScale(0.5, 0.5, 0.5);
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	model->setTextureTileMult(50, 50);
 	
 }
 
@@ -221,6 +226,7 @@ void PlayState::Update(double deltaTime)
 		m_step.dt = 1.0 / 60.0f;
 		m_step.velocityIterations = 10;
 		m_step.sleeping = true;
+		m_firstRun = false;
 	}
 	else
 	{
