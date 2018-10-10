@@ -239,7 +239,7 @@ namespace MyLibrary
 		return meshToReturn;
 	}
 
-	Skeleton Loadera::readSkeletonFileStefan(std::string fileName)
+	Skeleton Loadera::readSkeletonFile(std::string fileName)
 	{
 		//read the skeleton file
 
@@ -259,7 +259,7 @@ namespace MyLibrary
 		return skeleton_to_return;
 	}
 
-	MyLibrary::AnimationFromFileStefan Loadera::readAnimationFileStefan(std::string fileName, uint16_t jointCount)
+	MyLibrary::AnimationFromFileStefan Loadera::readAnimationFile(std::string fileName, uint16_t jointCount)
 	{
 		std::ifstream customAnimationFile(fileName, std::ifstream::binary);
 		assert(customAnimationFile.is_open());
