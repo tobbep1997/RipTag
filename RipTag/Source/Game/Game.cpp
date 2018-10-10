@@ -1,4 +1,7 @@
 #include "Game.h"
+#include "Source/3D Engine/Extern.h"
+#include "../../../InputManager/XboxInput/GamePadHandler.h"
+#include "Source/Helper/Timer.h"
 
 
 Game::Game()
@@ -20,9 +23,9 @@ void Game::Init(_In_ HINSTANCE hInstance)
 {
 	m_renderingManager.Init(hInstance);
 	m_gameStack.push(new PlayState(&m_renderingManager));
-	//modelManager.addStaticMesh("../Assets/KUB.bin");
-	//modelManager.staticMesh[0]->setScale(10, 1, 10);
-	//modelManager.m_staticMesh[0]->setScale(10, 1, 10);
+
+	GamePadHandler::Instance();
+	Timer::Instance();
 }
 
 bool Game::isRunning()
@@ -42,19 +45,59 @@ void Game::Clear()
 	m_renderingManager.Clear();
 }
 
-void Game::Update()
+void Game::Update(double deltaTime)
 {
-	m_gameStack.top()->Update();
+#if _DEBUG
+	_restartGameIf();
+#endif
+	_handleStateSwaps();
+	GamePadHandler::UpdateState();
+	m_gameStack.top()->Update(deltaTime);
 	
 }
 
 void Game::Draw()
 {
-	modelManager.DrawMeshes();
 	m_gameStack.top()->Draw();
 }
 
 void Game::ImGuiFrameStart()
 {
 	m_renderingManager.ImGuiStartFrame();
+}
+
+void Game::_handleStateSwaps()
+{
+	if (m_gameStack.top()->getKillState())
+	{
+		delete m_gameStack.top();
+		m_gameStack.pop();
+	}
+}
+
+void Game::_restartGameIf()
+{
+	if (InputHandler::isKeyPressed('B'))
+	{
+		if (isPressed == false)
+		{
+			delete m_gameStack.top();
+			m_gameStack.pop();
+
+			Manager::g_meshManager.UnloadStaticMesh("KOMBIN");
+			Manager::g_meshManager.UnloadStaticMesh("SPHERE");
+
+			Manager::g_textureManager.UnloadTexture("KOMBIN");
+			Manager::g_textureManager.UnloadTexture("SPHERE");
+
+
+
+			m_gameStack.push(new PlayState(&m_renderingManager));
+			isPressed = true;
+		}
+	}
+	else
+	{
+		isPressed = false;
+	}
 }

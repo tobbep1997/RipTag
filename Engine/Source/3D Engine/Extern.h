@@ -7,14 +7,18 @@
 #pragma comment (lib, "d3dcompiler.lib")
 #include <vector>
 //#include "../Shader/ShaderManager.h"
-#include "Model/Drawable.h"
+#include "Components/Base/Drawable.h"
 #include "../Light/PointLight.h"
+#include "Temp_Guard/TempGuard.h"
+#include "Model/Managers/MeshManager.h"
+#include "Model/Managers/TextureManager.h"
 namespace Shaders
 {
 	class ShaderManager;
 }
 
 class Drawable;
+class Guard;
 
 namespace DX {
 	extern ID3D11Device*			g_device;
@@ -29,4 +33,16 @@ namespace DX {
 
 	//Might be changed
 	extern std::vector<Drawable*> g_visabilityDrawQueue;
+
+	extern std::vector<Drawable*> g_wireFrameDrawQueue;
+
+	//TODO:: TEMP AFFF
+	extern std::vector<Guard*> g_guardDrawQueue;
+
+}
+//Tesla was here
+namespace Manager
+{
+	extern MeshManager g_meshManager;
+	extern TextureManager g_textureManager;
 }

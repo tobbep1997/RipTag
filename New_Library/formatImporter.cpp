@@ -1,6 +1,96 @@
 #include "formatImporter.h"
+
 namespace MyLibrary
 {
+#pragma region ImportHelpers
+	Vec4 Loadera::loadVec4(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return Vec4();
+
+		Vec4 vec;
+		file.read((char*)&vec, sizeof(Vec4));
+
+		return vec;
+	}
+
+	// Reads a 32-bit int
+	int32_t Loadera::loadInt32(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return 0;
+
+		int32_t int32;
+		file.read((char*)&int32, sizeof(int32_t));
+		return int32;
+	}
+
+	// Reads a DecomposedTransform
+	// (containing 3xVec4 (T, R, S))
+	DecomposedTransform Loadera::loadTransform(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return DecomposedTransform();
+
+		DecomposedTransform transform;
+
+		transform.translation = (loadVec4(file));
+		transform.rotation = (loadVec4(file));
+		transform.scale = (loadVec4(file));
+
+		return transform;
+	}
+
+	// Reads a Bone 
+	// (containing 2xDecomposedTransform and one 32-bit wide int)
+	Bone Loadera::loadBone(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return Bone();
+
+		Bone bone;
+		bone.jointInverseBindPoseTransform = loadTransform(file);
+		bone.jointReferenceTransform = loadTransform(file);
+		bone.parentIndex = loadInt32(file);
+
+		return bone;
+	}
+
+	// Reads a Skeleton
+	// (Containing boneCount x Bone)
+	Skeleton Loadera::loadSkeleton(std::ifstream& file, int32_t boneCount)
+	{
+		if (!file.is_open())
+			return Skeleton();
+
+		/// Read and add each bone to vector
+		Skeleton skeleton;
+		for (int i = 0; i < boneCount; i++)
+			skeleton.joints.push_back(loadBone(file));
+
+		return skeleton;
+	}
+
+	// Reads a Skeleton
+	// (Containing boneCount x Bone)
+	// No bonecount is supplied; we assume we read that data first (one 32-bit wide int)
+	Skeleton Loadera::loadSkeleton(std::ifstream& file)
+	{
+		if (!file.is_open())
+			return Skeleton();
+
+		/// Read bone count
+		int32_t boneCount = loadInt32(file);
+
+		/// Read and add each bone to vector
+		Skeleton skeleton;
+		for (int i = 0; i < boneCount; i++)
+			skeleton.joints.push_back(loadBone(file));
+
+		return skeleton;
+	}
+#pragma endregion ImportHelpers
+
 	Loadera::Loadera()
 	{
 
@@ -69,7 +159,7 @@ namespace MyLibrary
 			//meshToReturn.mesh_materialID = meshname.mesh_materialID;
 
 			customMeshFile.close();
-			delete vertices;
+			delete[] vertices;
 
 		}
 
@@ -80,7 +170,7 @@ namespace MyLibrary
 	{
 		//reads the custom mesh file and stores all the data
 
-		AnimatedMeshFromFile meshToReturn;
+		AnimatedMeshFromFile meshToReturn = {};
 
 		bool fileIsOpen = false;
 
@@ -91,7 +181,7 @@ namespace MyLibrary
 		{
 			fileIsOpen = true;
 
-			MeshHeader meshname;
+			MeshHeader meshname = {};
 
 			//customMeshFile.read((char*)&meshname.mesh_nrOfVertices, sizeof(meshname.mesh_nrOfVertices));
 			//customMeshFile.read((char*)&meshname.mesh_meshID, sizeof(meshname.mesh_meshID));
@@ -106,7 +196,7 @@ namespace MyLibrary
 	
 			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
-
+				meshToReturn.mesh_vertices[i] = AnimatedVertexFromFile();
 				meshToReturn.mesh_vertices[i].vertex_position[0] = vertices[i].vertex_position[0];
 				meshToReturn.mesh_vertices[i].vertex_position[1] = vertices[i].vertex_position[1];
 				meshToReturn.mesh_vertices[i].vertex_position[2] = vertices[i].vertex_position[2];
@@ -133,6 +223,9 @@ namespace MyLibrary
 				meshToReturn.mesh_vertices[i].joint_weights[3] = vertices[i].joint_weights[3];
 			}
 
+			// Switch winding order
+			for (int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
+				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);
 
 			for (int i = 0; i < MAX_FILENAME; i++)
 			{
@@ -140,87 +233,63 @@ namespace MyLibrary
 			}
 
 			customMeshFile.close();
-			delete vertices;
+			delete[] vertices;
 		}
 
 		return meshToReturn;
 	}
 
-
-	SkeletonFromFile Loadera::readSkeletonFile(std::string fileName)
+	Skeleton Loadera::readSkeletonFileStefan(std::string fileName)
 	{
 		//read the skeleton file
 
-		SkeletonFromFile skeleton_to_return;
-
-		bool fileIsOpen = false;
+		Skeleton skeleton_to_return = {};
 
 		std::ifstream customSkeletonFile(fileName, std::ifstream::binary);
+
+		assert(customSkeletonFile.is_open());
+
 		if (customSkeletonFile.is_open())
 		{
-			fileIsOpen = true;
-
-			SkeletonHeader skeleton_header;
-			customSkeletonFile.read((char*)&skeleton_header, sizeof(SkeletonHeader));
-
-
-			Joint* joints = new Joint[skeleton_header.skeleton_nrOfJoints];
-
-			//	skeleton_to_return.skeleton_joints = new Joint[skeleton_header.skeleton_nrOfJoints];
-
-			customSkeletonFile.read((char*)joints, skeleton_header.skeleton_nrOfJoints * sizeof(Joint));
-			skeleton_to_return.skeleton_joints = new Joint[skeleton_header.skeleton_nrOfJoints];
-			for (unsigned int i = 0; i < skeleton_header.skeleton_nrOfJoints; i++)
-			{
-				for (int j = 0; j < MAX_FILENAME; j++)
-					skeleton_to_return.skeleton_joints[i].joint_name[j] = joints[i].joint_name[j];
-				skeleton_to_return.skeleton_joints[i].joint_transform = joints[i].joint_transform;
-				skeleton_to_return.skeleton_joints[i].parentIndex = joints[i].parentIndex;
-			}
-			skeleton_to_return.skeleton_nrOfJoints = skeleton_header.skeleton_nrOfJoints;
-			for (int i = 0; i < MAX_FILENAME; i++)
-				skeleton_to_return.skeletonID[i] = skeleton_header.skeletonID[i];
-			customSkeletonFile.close();
+			int32_t jointCount = loadInt32(customSkeletonFile);
+			skeleton_to_return = loadSkeleton(customSkeletonFile, jointCount);
 		}
+		
 
 		return skeleton_to_return;
 	}
 
-	AnimationFromFile Loadera::readAnimationFile(std::string fileName)
+	MyLibrary::AnimationFromFileStefan Loadera::readAnimationFileStefan(std::string fileName, uint16_t jointCount)
 	{
-		bool fileIsOpen = false;
-
 		std::ifstream customAnimationFile(fileName, std::ifstream::binary);
-		AnimationHeader animation_header;
-		AnimationFromFile animation_to_return;
+		assert(customAnimationFile.is_open());
+
+		AnimationFromFileStefan animation_to_return;
 
 		if (customAnimationFile.is_open())
 		{
+			int32_t numberOfKeys = loadInt32(customAnimationFile);
+			animation_to_return.nr_of_keyframes = numberOfKeys;
 
-			fileIsOpen = true;
-			customAnimationFile.read((char*)&animation_header, sizeof(AnimationHeader));
-			animation_to_return.nr_of_keyframes = animation_header.anim_nrOfKeys;
-			Transform* keyframes = new Transform[animation_header.anim_nrOfKeys];
-			customAnimationFile.read((char*)keyframes, animation_header.anim_nrOfKeys * sizeof(Transform));
+			DecomposedTransform* keyframes = new DecomposedTransform[numberOfKeys * jointCount];
 
-			animation_to_return.keyframe_transformations = new Transform[animation_header.anim_nrOfKeys];
-			for (unsigned int i = 0; i < animation_header.anim_nrOfKeys; i++)
+			//Init keyframes
+			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
+				keyframes[i] = DecomposedTransform();
+
+			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
+				keyframes[i] = loadTransform(customAnimationFile);
+
+			animation_to_return.keyframe_transformations = std::make_unique<DecomposedTransform[]>(numberOfKeys * jointCount);
+			for (unsigned int i = 0; i < numberOfKeys * jointCount; i++)
 			{
 				animation_to_return.keyframe_transformations[i] = keyframes[i];
 			}
 
+			delete[] keyframes;
 			customAnimationFile.close();
 		}
 
 		return animation_to_return;
 	}
-
-
-
-	int Loadera::getNrOfVerticesFromFile(std::ifstream & file)
-	{
-		int nrOfVerticesInFile = 0;
-		return nrOfVerticesInFile;
-	}
-
 }

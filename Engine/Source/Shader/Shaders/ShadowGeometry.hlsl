@@ -1,10 +1,4 @@
-cbuffer LIGHT_MATRIX : register(b0)
-{
-	float4x4 lightViewProjection[8][6]; //3072
-	int4 numberOfViewProjection[8]; //32
-	int4 numberOfLights; //16
-};
-
+#include "StaticConstantBuffers.hlsli"
 
 struct GSOutput
 {
