@@ -146,8 +146,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("JUMP"));
-	player->setScale(0.003f, 0.003f, 0.003f);
+	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	//player->setScale(0.003f, 0.003f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -303,7 +303,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
 		}
 		
-		Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Update(floatDt);
+		//Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Update(floatDt);
 
 		modelmanager.DrawMeshes();
 
@@ -313,7 +313,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			point[i].QueueLight();
 		}		
 		
-		player->setScale(0.05f, 0.05f, 0.05f);
+		//player->setScale(0.05f, 0.05f, 0.05f);
 
 		gTemp.Draw();
 		player->Draw();

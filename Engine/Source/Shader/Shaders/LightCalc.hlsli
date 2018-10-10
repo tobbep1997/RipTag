@@ -51,7 +51,7 @@ float RoughnessDistribution(float3 N, float3 H, float roughness)
     float nDotH_2 = nDotH * nDotH;
 
     float denom = (nDotH_2 * (r4 - 1.0f) + 1.0f);
-    denom = 3.14159265f * denom * denom;
+    denom = 3.14f * denom * denom;
 
     return r4 / max(denom, 0.001f);
 }
@@ -78,7 +78,7 @@ float OvershadowOcclusion(float3 normal, float3 view, float3 light, float roughn
 
 float4 FresnelReflection(float cosTheta, float4 f0)
 {
-    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 5.0f);
+    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
 }
 
 float4 OptimizedLightCalculation(VS_OUTPUT input)
@@ -124,12 +124,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     int elements, numberOfLevels;
     txShadowArray.GetDimensions(0, shadowMapWidth, shadowMapWidth, elements, numberOfLevels);
     float texelSize = 1.0f / shadowMapWidth;
-    //if (input.uv.x > 0.1f)
-    //{
-    //    InterlockedAdd(OutputMap[int2(0, 0)], 1);
-    //}
-	
-    //InterlockedAdd(OutputMap[int2(1, 0)], 1);
 	
     float4 f0 = float4(0.04f, 0.04f, 0.04f, 1);
     f0 = lerp(f0, albedo, metallic);
@@ -137,10 +131,10 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
     float4 lightCal = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-    float div = 1.0f;
-    float shadowCoeff = 1.0f;
     for (int shadowLight = 0; shadowLight < numberOfLights.x; shadowLight++)
     {
+        float div = 1.0f;
+        float shadowCoeff = 1.0f;
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
 			// Translate the world position into the view space of the shadowLight
@@ -160,25 +154,17 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
             float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
 
-            shadowCoeff += (lightDropOff[shadowLight].x / 5) * (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+            shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
             div += 1.0f;
             break;
-
-
         }
-    }
-    finalShadowCoeff = pow(shadowCoeff / div, 16);
-
-    
-
-    for (int light = 0; light < numberOfLights.x; light++)
-    {
-        posToLight = normalize(lightPosition[light] - input.worldPos);
-        distanceToLight = length(lightPosition[light] - input.worldPos);
+        finalShadowCoeff = pow(shadowCoeff / div, 512);
+        posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
+        distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);
-        attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z)));
+        attenuation = (lightDropOff[shadowLight].x / (1.0f + lightDropOff[shadowLight].y * pow(distanceToLight, lightDropOff[shadowLight].z)));
 		
-        radiance = lightColor[light] * attenuation;
+        radiance = lightColor[shadowLight] * attenuation;
 		 
         roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
         overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness);
@@ -193,9 +179,37 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         specular = numerator / max(denominator, 0.001f);
 		
         normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
-        lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f)) * finalShadowCoeff;
-
+        lightCal += finalShadowCoeff * (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[shadowLight].x - attenuation + 1.0f));
     }
+
+
+    //for (int light = 0; light < numberOfLights.x; light++)
+    //{
+    //    posToLight = normalize(lightPosition[light] - input.worldPos);
+    //    distanceToLight = length(lightPosition[light] - input.worldPos);
+    //    halfwayVecor = normalize(worldToCamera + posToLight);
+    //    attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z)));
+		
+    //    radiance = lightColor[light] * attenuation;
+		 
+    //    roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
+    //    overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness);
+		
+    //    kS = FresnelReflection(max(dot(halfwayVecor, worldToCamera), 0.0f), f0);
+    //    kD = float4(1.0f, 1.0f, 1.0f, 1.0f) - kS;
+    //    kD *= 1.0f - metallic;
+		
+		
+    //    numerator = roughnessDistribution * overshadowOcclusion * kS;
+    //    denominator = 4.0f * max(dot(normal, worldToCamera.xyz), 0.0f) * max(dot(normal, posToLight.xyz), 0.0f);
+    //    specular = numerator / max(denominator, 0.001f);
+		
+    //    normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
+    //    lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f) * finalShadowCoeff);
+			  
+		
+    //}
+    
     finalColor = ambient + lightCal;
 	
     finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
