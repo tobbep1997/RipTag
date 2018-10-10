@@ -121,18 +121,17 @@ Drawable::~Drawable()
 
 void Drawable::Draw()
 {
-	if (this)
+
+	switch (p_objectType)
 	{
-		switch (p_objectType)
-		{
-		case Static:
-			DX::g_geometryQueue.push_back(this);
-			break;
-		case Dynamic:
-			DX::g_animatedGeometryQueue.push_back(this);
-			break;
-		}
+	case Static:
+		DX::g_geometryQueue.push_back(this);
+		break;
+	case Dynamic:
+		DX::g_animatedGeometryQueue.push_back(this);
+		break;
 	}
+	
 }
 
 void Drawable::DrawWireFrame()
@@ -231,3 +230,23 @@ Animation::AnimatedModel* Drawable::getAnimatedModel()
 	}
 	else return nullptr;
 }
+
+void Drawable::setTextureTileMult(float u, float v)
+{
+	this->m_textureTileMult.x = u;
+	this->m_textureTileMult.y = v;
+}
+
+const DirectX::XMFLOAT2A & Drawable::getTextureTileMult() const
+{
+	return this->m_textureTileMult;
+}
+
+const bool Drawable::isTextureAssigned() const
+{
+	return this->p_texture;
+}
+
+
+
+

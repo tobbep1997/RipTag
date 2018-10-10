@@ -24,6 +24,12 @@ cbuffer CAMERA_BUFFER : register(b2)
     float4 cameraPosition;
     float4x4 viewProjection;
 };
+cbuffer TEXTURE_BUFFER : register(b3)
+{
+    float2 uvScaling;
+    bool usingTexture;
+    bool pad;
+};
 // end<TODO>
 
 
@@ -102,14 +108,14 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     float finalShadowCoeff;
 
 	
-    float4 albedo = diffuseTexture.Sample(defaultSampler, input.uv);
+    float4 albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling);
 	//float3x3 TBN = float3x3(input.TBN0, input.TBN1, input.TBN2)
     //normalMap = (2.0f * normalMap) - 1.0f;
 
-    float3 normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz) - 1.0f, input.TBN));
+    float3 normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling).xyz) - 1.0f, input.TBN));
 	//normal = input.normal.xyz;
     //return float4(normal, 1.0f);
-    float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
+    float3 AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling).xyz;
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
     float pi = 3.14;
 

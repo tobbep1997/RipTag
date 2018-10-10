@@ -1,6 +1,7 @@
 #include "AnimatedModel.h"
 #include "../../Extern.h"
 
+
 Animation::AnimatedModel::AnimatedModel()
 {
 }
@@ -386,7 +387,7 @@ Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFileStefan
 	}
 
 	//for each key
-	for (int k = 0; k < keyCount; k++)
+	for (unsigned int k = 0; k < keyCount; k++)
 	{
 		for (int j = 0; j < m_skeleton->m_jointCount; j++)
 		{

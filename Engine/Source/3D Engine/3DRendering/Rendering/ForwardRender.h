@@ -35,6 +35,13 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A worldMatrix;
 	};
 
+	struct TextureBuffer
+	{
+		DirectX::XMFLOAT2A	textureTileMult;
+		BOOL				useTexture;
+		BOOL				pad;
+	};
+
 private:
 
 	struct sortStruct
@@ -69,11 +76,16 @@ private:
 	ID3D11Buffer * m_lightBuffer = nullptr;
 	LightBuffer m_lightValues;
 
+	ID3D11Buffer * m_textureBuffer = nullptr;
+	TextureBuffer m_textureValues;
+
 	Animation::AnimationCBuffer m_animationBuffer;
 	ShadowMap m_shadowMap;
 
 	VisabilityPass m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;
+
+	
 
 	//LightCulling Related
 	float m_lightCullingDistance = 100;	//Culling Distance for lights
@@ -132,5 +144,6 @@ private:
 	void _createShadersInput();
 
 	void _wireFramePass();
+
 
 };

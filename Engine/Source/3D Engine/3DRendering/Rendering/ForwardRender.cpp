@@ -185,6 +185,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_cameraBuffer);
 	DX::SafeRelease(m_lightBuffer);
 	DX::SafeRelease(m_samplerState);
+	DX::SafeRelease(m_textureBuffer);
 
 	DX::SafeRelease(m_alphaBlend);
 	DX::SafeRelease(m_GuardBuffer);
@@ -328,19 +329,23 @@ void ForwardRender::_createConstantBuffer()
 	hr = DXRHC::CreateConstantBuffer(this->m_cameraBuffer, sizeof(CameraBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_lightBuffer, sizeof(LightBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_GuardBuffer, sizeof(GuardBuffer));
+	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
 }
 
 void ForwardRender::_createSamplerState()
 {
-	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState);
+	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState, D3D11_TEXTURE_ADDRESS_WRAP);
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
-	m_objectValues.worldMatrix = drawable->getWorldmatrix();
+	m_objectValues.worldMatrix = drawable->getWorldmatrix();	
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+
+	m_textureValues.textureTileMult = drawable->getTextureTileMult();
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 3, 1, ShaderTypes::pixel);
 }
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
@@ -512,3 +517,5 @@ void ForwardRender::_wireFramePass()
 
 	DX::g_deviceContext->RSSetState(m_standardRast);
 }
+
+
