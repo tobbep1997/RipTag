@@ -71,16 +71,14 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	Timer::StartTimer();
 	//pool->submit(&thread,"KOMBIN");
-	auto future = std::async(std::launch::async, &PlayState::thread, this, "KUB");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
 	
 
 	//Manager::g_textureManager.loadTextures("PIRASRUM");
 
-	std::cout << sizeof(DirectX::XMFLOAT2A) << std::endl;
-	std::cout << sizeof(BOOL) << " " << sizeof(bool) << std::endl;
-	Manager::g_textureManager.loadTextures("KUB");
+	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	
 	//temp = new Model();
@@ -94,12 +92,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 	actor = new BaseActor();
 	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
-	actor->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
-	actor->setTexture(Manager::g_textureManager.getTexture("KUB"));
+	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
+	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
 	//actor->setPosition(0, 10, 0);
-	actor->setScale(10.0f,10.0f,10.0f);
-	actor->setPosition(0, -5, 0);
-	actor->setTextureTileMult(1000, 1000);
+	actor->setScale(1.0f,1.0f,1.0f);
+	actor->setPosition(0, 0, 0);
+	actor->setTextureTileMult(10, 10);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0,0);

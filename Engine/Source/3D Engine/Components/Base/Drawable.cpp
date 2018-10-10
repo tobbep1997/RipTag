@@ -121,9 +121,6 @@ Drawable::~Drawable()
 
 void Drawable::Draw()
 {
-
-	switch (p_objectType)
-	{
 		switch (p_objectType)
 		{
 		case Static:
@@ -134,9 +131,7 @@ void Drawable::Draw()
 			if (m_dynamicMesh)
 				DX::g_animatedGeometryQueue.push_back(this);
 			break;
-		}
-	}
-	
+		}	
 }
 
 void Drawable::DrawWireFrame()
