@@ -330,4 +330,7 @@ ASALocalRun/
 .mfractor/
 
 # Bin Files
-*bin
+Assets/**/*.bin
+
+# Asset .txt files
+Assets/**/*.txt

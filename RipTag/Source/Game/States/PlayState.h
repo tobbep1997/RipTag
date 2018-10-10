@@ -37,9 +37,9 @@ private:
 	//-----------------------------------------------------------------------------
 	BaseActor * actor;
 
-	float x = -1.5;
-	float y = 2.1; 
-	float z = -2.1;
+	float x = -1.5f;
+	float y = 2.1f; 
+	float z = -2.1f;
 
 	float intensity = 2;
 	BaseActor * wall1;

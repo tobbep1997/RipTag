@@ -121,7 +121,8 @@ Drawable::~Drawable()
 
 void Drawable::Draw()
 {
-	if (this)
+
+	switch (p_objectType)
 	{
 		switch (p_objectType)
 		{
@@ -135,6 +136,7 @@ void Drawable::Draw()
 			break;
 		}
 	}
+	
 }
 
 void Drawable::DrawWireFrame()
@@ -195,11 +197,6 @@ ID3D11Buffer * Drawable::getBuffer()
 	return p_vertexBuffer;
 }
 
-//Animation::AnimatedModel* Drawable::getAnimatedModel()
-//{
-//	return m_dynamicMesh->getAnimatedModel();
-//}
-
 DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
 {
 	this->p_calcWorldMatrix();
@@ -233,3 +230,23 @@ Animation::AnimatedModel* Drawable::getAnimatedModel()
 	}
 	else return nullptr;
 }
+
+void Drawable::setTextureTileMult(float u, float v)
+{
+	this->m_textureTileMult.x = u;
+	this->m_textureTileMult.y = v;
+}
+
+const DirectX::XMFLOAT2A & Drawable::getTextureTileMult() const
+{
+	return this->m_textureTileMult;
+}
+
+bool Drawable::isTextureAssigned()
+{
+	return p_texture;
+}
+
+
+
+
