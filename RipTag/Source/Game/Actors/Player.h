@@ -16,6 +16,15 @@ private:
 
 	bool isPressed = false;
 	bool isPressed2 = false;
+
+	float walkBob = 0;
+	float m_offset = 0;
+	float freq = 1.9;
+	float walkingBobAmp = 0.06f;
+	float stopBobAmp = 0.010f;
+	float stopBobFreq = 1.9;
+
+	float m_currentAmp = 0;
 public:
 	Player();
 	~Player();

@@ -34,6 +34,8 @@ public:
 	static DirectX::XMFLOAT2 GetLeftStickposition();
 	static DirectX::XMFLOAT2 GetRightStickposition();
 
+	static bool IsLeftStickPressed();
+
 	static bool IsRightTriggerPressed();
 	static bool IsLeftTriggerPressed();
 

@@ -186,6 +186,14 @@ DirectX::XMFLOAT2 GamePadHandler::GetRightStickposition()
 	return DirectX::XMFLOAT2(0, 0);
 }
 
+bool GamePadHandler::IsLeftStickPressed()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.IsLeftStickPressed();
+	}
+}
+
 bool GamePadHandler::IsRightTriggerPressed()
 {
 	if (m_state.IsConnected())
