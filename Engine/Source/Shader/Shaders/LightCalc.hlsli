@@ -51,7 +51,7 @@ float RoughnessDistribution(float3 N, float3 H, float roughness)
     float nDotH_2 = nDotH * nDotH;
 
     float denom = (nDotH_2 * (r4 - 1.0f) + 1.0f);
-    denom = 3.14f * denom * denom;
+    denom = 3.14159265f * denom * denom;
 
     return r4 / max(denom, 0.001f);
 }
@@ -160,7 +160,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
 
             float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
 
-            shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+            shadowCoeff += (lightDropOff[shadowLight].x / 5) * (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
             div += 1.0f;
             break;
 
@@ -169,6 +169,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     }
     finalShadowCoeff = pow(shadowCoeff / div, 16);
 
+    
 
     for (int light = 0; light < numberOfLights.x; light++)
     {
@@ -192,9 +193,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         specular = numerator / max(denominator, 0.001f);
 		
         normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
-        lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f) * finalShadowCoeff);
-			  
-		
+        lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f)) * finalShadowCoeff;
+
     }
     finalColor = ambient + lightCal;
 	
