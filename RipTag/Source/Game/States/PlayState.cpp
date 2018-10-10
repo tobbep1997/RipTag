@@ -97,6 +97,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//actor->setPosition(0, 10, 0);
 	actor->setScale(1.0f,1.0f,1.0f);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0,0);
 	//player->setEntityType(EntityType::PlayerType);
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -235,7 +236,7 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
-	//light1.QueueLight();
+	light1.QueueLight();
 	light2.QueueLight();
 
 	gTemp.Draw();
