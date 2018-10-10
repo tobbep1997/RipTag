@@ -46,6 +46,7 @@ public:
 
 	virtual void CreateBodyAndShape(b3World & world);
 
+	virtual void setGravityScale(float gravity);
 
 	virtual void setLiniearVelocity(float x = 0, float y = 0, float z = 0);
 

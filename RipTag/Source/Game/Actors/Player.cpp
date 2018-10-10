@@ -7,7 +7,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	
 }
 
 Player::~Player()
@@ -25,6 +24,7 @@ void Player::Update(double deltaTime)
 	_handleInput(deltaTime);
 
 	p_camera->setPosition(getPosition());
+	m_teleport.Update(deltaTime);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -36,6 +36,22 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 {
 	Transform::setPosition(x, y, z);
 	PhysicsComponent::p_setPosition(x, y, z);
+}
+
+void Player::InitTeleport(b3World & world)
+{
+	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
+	m_teleport.setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_teleport.setScale(0.1f, 0.1f, 0.1f);
+	m_teleport.setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_teleport.setGravityScale(0.001f);
+	m_teleport.setPosition(-100.0f, -100.0f, -100.0f);
+}
+
+void Player::Draw()
+{
+	m_teleport.Draw();
+	Drawable::Draw();
 }
 
 
@@ -108,4 +124,22 @@ void Player::_handleInput(double deltaTime)
 	//std::cout << "Y: " << getLiniearVelocity().y << std::endl;
 	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	//setPosition(p_camera->getPosition());
+
+	if (InputHandler::isKeyPressed('T'))
+	{
+		if (!m_teleport.getActiveSphere())
+		{
+			m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
+			m_teleport.setActiveSphere(true);
+		}
+	}
+	if (InputHandler::isKeyPressed('G'))
+	{
+		if (m_teleport.getActiveSphere())
+		{
+			DirectX::XMFLOAT4A newPos = m_teleport.TeleportToSphere();
+			setPosition(newPos.x, newPos.y + 0.6f, newPos.z, newPos.w);
+			m_teleport.setActiveSphere(false);
+		}
+	}
 }

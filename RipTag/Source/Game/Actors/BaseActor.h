@@ -18,4 +18,3 @@ public:
 
 	void setPosition(const float & x, const float & y, const float & z);
 };
-

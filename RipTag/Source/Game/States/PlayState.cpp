@@ -6,7 +6,6 @@
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
 	CameraHandler::Instance();
 	
 	player = new Player();
@@ -75,9 +74,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
 	
-
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
+	
 	//Manager::g_textureManager.loadTextures("PIRASRUM");
 	
 	
@@ -102,6 +101,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
+	player->InitTeleport(m_world);
 
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
@@ -220,6 +221,7 @@ void PlayState::Update(double deltaTime)
 		m_step.dt = 1.0 / 60.0f;
 		m_step.velocityIterations = 10;
 		m_step.sleeping = true;
+		m_firstRun = false;
 	}
 	else
 	{
