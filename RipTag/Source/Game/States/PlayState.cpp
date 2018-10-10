@@ -225,6 +225,7 @@ void PlayState::Update(double deltaTime)
 		m_step.dt = 1.0 / 60.0f;
 		m_step.velocityIterations = 10;
 		m_step.sleeping = true;
+		m_firstRun = false;
 	}
 	else
 	{
