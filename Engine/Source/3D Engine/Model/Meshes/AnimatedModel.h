@@ -100,6 +100,8 @@ namespace Animation
 	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
 	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
 	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
+	bool bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip);
+
 #pragma endregion Conversion stuff, Loaders, ...
 
 	class AnimatedModel

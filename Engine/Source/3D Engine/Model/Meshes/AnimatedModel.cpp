@@ -292,6 +292,11 @@ Animation::AnimationClip* Animation::computeDifferenceClip(Animation::AnimationC
 	return differenceClip;
 }
 
+bool Animation::bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip)
+{
+
+}
+
 // #skinningmatrix
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {
