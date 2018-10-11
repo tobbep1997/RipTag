@@ -255,6 +255,11 @@ Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPos
 	return JointPose(differencePose);
 }
 
+Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose differencePose)
+{
+
+}
+
 // Returns null if the clips are not compatible
 Animation::AnimationClip* Animation::computeDifferenceClip(Animation::AnimationClip* sourceClip, Animation::AnimationClip* referenceClip)
 {
