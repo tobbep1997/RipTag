@@ -170,7 +170,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	g_animatedModel = Manager::g_meshManager.getDynamicMesh("CYLS")->getAnimatedModel();
 
 	diffAnimation = Animation::computeDifferenceClip(animation, animation2);
-
+	Animation::bakeDifferenceClipOntoClip(animation2, diffAnimation);
 	g_animatedModel->SetSkeleton(skeleton);
 	g_animatedModel->SetPlayingClip(animation2);
 	g_animatedModel->SetLayeredClip(diffAnimation, .0, BLEND_MATCH_TIME);
