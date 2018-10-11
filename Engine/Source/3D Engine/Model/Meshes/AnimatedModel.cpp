@@ -255,9 +255,41 @@ Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPos
 	return JointPose(differencePose);
 }
 
+// Returns null if the clips are not compatible
 Animation::AnimationClip* Animation::computeDifferenceClip(Animation::AnimationClip* sourceClip, Animation::AnimationClip* referenceClip)
 {
+#pragma region using
+	using namespace Animation;
+	using std::make_unique;
+#pragma endregion 
 
+	if (sourceClip->m_frameCount != referenceClip->m_frameCount
+	   || sourceClip->m_skeleton != referenceClip->m_skeleton)
+		return nullptr;
+
+	AnimationClip* differenceClip = new AnimationClip();
+	differenceClip->m_frameCount = sourceClip->m_frameCount;
+	differenceClip->m_skeleton = sourceClip->m_skeleton;
+	differenceClip->m_skeletonPoses = make_unique<SkeletonPose[]>(differenceClip->m_frameCount);
+
+	//Go through each skeleton pose and set new difference pose for each joint
+	for (int frame = 0; frame < differenceClip->m_frameCount; frame++) 
+	{
+		//Init joint pose array for this skeleton pose
+		differenceClip->m_skeletonPoses[frame].m_jointPoses = make_unique<JointPose[]>(differenceClip->m_skeleton->m_jointCount);
+		
+		//Go through each joint and assign the difference pose
+		for (int jointPose = 0; jointPose < differenceClip->m_skeleton->m_jointCount; jointPose++)
+		{
+			auto sourcePose = sourceClip->m_skeletonPoses[frame].m_jointPoses[jointPose];
+			auto referencePose = referenceClip->m_skeletonPoses[frame].m_jointPoses[jointPose];
+			auto differencePose = getDifferencePose(sourcePose, referencePose);
+
+			differenceClip->m_skeletonPoses[frame].m_jointPoses[jointPose] = differencePose;
+		}
+	}
+
+	return differenceClip;
 }
 
 // #skinningmatrix
