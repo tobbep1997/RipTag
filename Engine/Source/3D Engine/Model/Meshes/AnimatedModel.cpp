@@ -257,7 +257,20 @@ Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPos
 
 Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose differencePose)
 {
+	using namespace DirectX;
+	XMMATRIX targetPoseMatrix = _createMatrixFromSRT(targetPose.m_transformation);
+	XMMATRIX differencePoseMatrix = _createMatrixFromSRT(differencePose.m_transformation);
+	XMMATRIX additivePoseMatrix = XMMatrixMultiply(targetPoseMatrix, differencePoseMatrix);
 
+
+	SRT additivePose = {};
+	XMVECTOR s, r, t;
+	XMMatrixDecompose(&s, &r, &t, additivePoseMatrix);
+	XMStoreFloat4A(&additivePose.m_scale, s);
+	XMStoreFloat4A(&additivePose.m_rotationQuaternion, r);
+	XMStoreFloat4A(&additivePose.m_translation, t);
+
+	return JointPose(additivePose);
 }
 
 // Returns null if the clips are not compatible
