@@ -25,9 +25,9 @@ void VisabilityPass::Init()
 	_init();
 }
 
-void VisabilityPass::GuardDepthPrePassFor(Guard * guard, Animation::AnimationCBuffer * animBuffer)
+void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
 {
-	_mapViewBuffer(guard); 
+	_mapViewBuffer(target); 
 	float c[4] = { 0,0,0,0 };
 	DX::g_deviceContext->ClearRenderTargetView(m_guardRenderTargetView, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_guardDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -71,9 +71,9 @@ void VisabilityPass::GuardDepthPrePassFor(Guard * guard, Animation::AnimationCBu
 	}
 }
 
-void VisabilityPass::CalculateVisabilityFor(Guard * guard, Animation::AnimationCBuffer * animBuffer)
+void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
 {
-	ID3D11UnorderedAccessView * l_uav = guard->getUAV();
+	ID3D11UnorderedAccessView * l_uav = target->getUAV();
 	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 		1,
 		&m_guardRenderTargetView,
@@ -94,6 +94,8 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard, Animation::AnimationC
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
 
+	int playerIndex = 0;
+
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		if (DX::g_geometryQueue[i]->getEntityType() == EntityType::PlayerType)
@@ -103,6 +105,7 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard, Animation::AnimationC
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+			target->CalculateVisabilityFor(playerIndex++);
 		}
 
 	}
@@ -121,12 +124,11 @@ void VisabilityPass::CalculateVisabilityFor(Guard * guard, Animation::AnimationC
 				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 				_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
 				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+				target->CalculateVisabilityFor(playerIndex++);
 			}
 
 		}
 	}
-	guard->calcVisability();
-	//DX::g_deviceContext->PSSetShaderResources(8, 0, nullptr);
 }
 
 void VisabilityPass::SetViewportAndRenderTarget()
@@ -200,12 +202,12 @@ void VisabilityPass::_initPixelShaders()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(VISABILITY_PASS_PIXEL_SHADER_PATH);
 }
 
-void VisabilityPass::_mapViewBuffer(Guard * target)
+void VisabilityPass::_mapViewBuffer(VisibilityComponent * target)
 {
 	
 	GuardViewBuffer gvb;
-	gvb.cameraPosition = target->getCamera().getPosition();
-	gvb.viewProjection = target->getCamera().getViewProjection();
+	gvb.cameraPosition = target->getCamera()->getPosition();
+	gvb.viewProjection = target->getCamera()->getViewProjection();
 
 	DXRHC::MapBuffer(m_guardViewBuffer, &gvb, sizeof(GuardViewBuffer));
 

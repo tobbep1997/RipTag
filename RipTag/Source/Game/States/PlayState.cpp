@@ -76,10 +76,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_meshManager.loadStaticMesh("KUB");
 
+	//Manager::g_textureManager.loadTextures("PIRASRUM");
+
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
-	//Manager::g_textureManager.loadTextures("PIRASRUM");
-	
 	
 	//temp = new Model();
 	////temp->setEntityType();
@@ -96,7 +96,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
 	//actor->setPosition(0, 10, 0);
 	actor->setScale(1.0f,1.0f,1.0f);
+	actor->setPosition(0, 0, 0);
+	actor->setTextureTileMult(10, 10);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0,0);
 	//player->setEntityType(EntityType::PlayerType);
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -106,7 +109,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
 	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	wall1->setPosition(-1.5, 2.1, -2.1);
 
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
@@ -117,9 +120,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
 	light2.setDropOff(0);
 	
-	gTemp.setPos(9, 0.4f, -4.5f);
+	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
-	gTemp.getCamera().setFarPlane(5);
+	gTemp.getCamera()->setFarPlane(5);
+	enemy->setPosition(9.0f, 0.4f, -5.5f);
+	enemy->setDir(1, 0, 0);
+	enemy->getCamera()->setFarPlane(5);
 
 	model = new Model();
 	model->setEntityType(EntityType::PlayerType);
@@ -127,6 +133,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setScale(0.5, 0.5, 0.5);
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	model->setTextureTileMult(50, 50);
 
 	testCube = new BaseActor();
 	testCube->Init(m_world, e_dynamicBody, 1.0f, 1.0f, 1.0f);
@@ -180,11 +187,19 @@ void PlayState::Update(double deltaTime)
 	ImGui::End();
 #endif
 
+	const int * e1Vis = enemy->getPlayerVisibility();
+	const int * e2Vis = gTemp.getPlayerVisibility();
+
 #if _DEBUG
 	ImGui::Begin("Light");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
-	
 	ImGui::End();
+
+	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
+	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);
+	ImGui::End();
+
 #endif
 
 
@@ -205,7 +220,7 @@ void PlayState::Update(double deltaTime)
 
 	if (InputHandler::isKeyPressed('J'))
 	{
-		CameraHandler::setActiveCamera(&gTemp.getCamera());
+		CameraHandler::setActiveCamera(gTemp.getCamera());
 	}
 	else if (InputHandler::isKeyPressed('K'))
 	{
@@ -222,6 +237,8 @@ void PlayState::Update(double deltaTime)
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	actor->Update(deltaTime);
+	gTemp.Update(deltaTime);
+
 	testCube->Update(deltaTime);
 
 	m_objectHandler.Update();
@@ -248,10 +265,11 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
-	//light1.QueueLight();
+	light1.QueueLight();
 	light2.QueueLight();
 
 	gTemp.Draw();
+	enemy->Draw();
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
