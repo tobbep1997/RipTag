@@ -192,7 +192,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 {
 	using namespace DirectX;
 
-	XMFLOAT4A fScale = ( srt.m_scale);
+	XMFLOAT4A fScale = srt.m_scale;
 	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
 	XMFLOAT4A fTranslation = srt.m_translation;				   
 
@@ -234,6 +234,25 @@ Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 	MyLibrary::Loadera loader;
 	auto importedSkeleton = loader.readSkeletonFile(file);
 	return new Animation::Skeleton(importedSkeleton);
+}
+
+Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPose referencePose)
+{
+	using namespace DirectX;
+
+	XMMATRIX sourceMatrix    = _createMatrixFromSRT(sourcePose.m_transformation);
+	XMMATRIX referenceMatrix = _createMatrixFromSRT(referencePose.m_transformation);
+	XMMATRIX referenceMatrixInverse = XMMatrixInverse(nullptr, referenceMatrix);
+	XMMATRIX differenceMatrix = XMMatrixMultiply(sourceMatrix, referenceMatrixInverse);
+
+	SRT differencePose = {};
+	XMVECTOR s, r, t;
+	XMMatrixDecompose(&s, &r, &t, differenceMatrix);
+	XMStoreFloat4A(&differencePose.m_scale, s);
+	XMStoreFloat4A(&differencePose.m_rotationQuaternion, r);
+	XMStoreFloat4A(&differencePose.m_translation, t);
+
+	return JointPose(differencePose);
 }
 
 // #skinningmatrix
