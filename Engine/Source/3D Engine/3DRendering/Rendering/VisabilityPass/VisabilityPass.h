@@ -39,8 +39,8 @@ public:
 	VisabilityPass();
 	~VisabilityPass();
 	void Init();
-	void GuardDepthPrePassFor(Guard * guard, Animation::AnimationCBuffer * animBuffer = nullptr);
-	void CalculateVisabilityFor(Guard * guard, Animation::AnimationCBuffer * animBuffer = nullptr);
+	void GuardDepthPrePassFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
+	void CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
 	void SetViewportAndRenderTarget();
 private:
 	void _init();
@@ -54,7 +54,7 @@ private:
 	void _initVertexShaders();
 	void _initPixelShaders();
 
-	void _mapViewBuffer(Guard * target);
+	void _mapViewBuffer(VisibilityComponent * target);
 
 	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
 

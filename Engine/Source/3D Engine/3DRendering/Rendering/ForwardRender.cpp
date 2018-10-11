@@ -171,7 +171,7 @@ void ForwardRender::Clear()
 	DX::g_visabilityDrawQueue.clear();
 
 	this->m_shadowMap.Clear();
-	DX::g_guardDrawQueue.clear();
+	DX::g_visibilityComponentQueue.clear();
 }
 
 void ForwardRender::Present()
@@ -185,6 +185,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_cameraBuffer);
 	DX::SafeRelease(m_lightBuffer);
 	DX::SafeRelease(m_samplerState);
+	DX::SafeRelease(m_textureBuffer);
 
 	DX::SafeRelease(m_alphaBlend);
 	DX::SafeRelease(m_GuardBuffer);
@@ -208,10 +209,10 @@ void ForwardRender::_tempGuardFrustumDraw()
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/Source/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl"), nullptr, 0);
 
-	for (unsigned int i = 0; i < DX::g_guardDrawQueue.size(); i++)
+	for (unsigned int i = 0; i < DX::g_visibilityComponentQueue.size(); i++)
 	{
 
-		DirectX::XMFLOAT4X4A viewProj = DX::g_guardDrawQueue[i]->getCamera().getViewProjection();
+		DirectX::XMFLOAT4X4A viewProj = DX::g_visibilityComponentQueue[i]->getCamera()->getViewProjection();
 		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
 		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
@@ -221,7 +222,7 @@ void ForwardRender::_tempGuardFrustumDraw()
 		GuardBuffer gb;
 		DirectX::XMStoreFloat4x4A(&gb.viewProj, mViewProj);
 		DirectX::XMStoreFloat4x4A(&gb.viewProjInverse, mViewProjInverse);
-		gb.worldMatrix = DX::g_guardDrawQueue[i]->getWorldMatrix();
+		//gb.worldMatrix = DX::g_visibilityComponentQueue[i]->getWorldMatrix();
 		
 		DX::g_deviceContext->Map(m_GuardBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 		// copy memory from CPU to GPU the entire struct
@@ -231,13 +232,13 @@ void ForwardRender::_tempGuardFrustumDraw()
 		// set resource to Vertex Shader
 		DX::g_deviceContext->VSSetConstantBuffers(5, 1, &m_GuardBuffer);
 
-		ID3D11Buffer * ver = DX::g_guardDrawQueue[i]->getVertexBuffer();
+		ID3D11Buffer * ver = DX::g_visibilityComponentQueue[i]->getFrustumBuffer();
 
-		UINT32 sizeVertex = DX::g_guardDrawQueue[i]->getSizeOfStruct();
+		UINT32 sizeVertex = DX::g_visibilityComponentQueue[i]->sizeOfFrustumVertex();
 		UINT32 offset = 0;
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &sizeVertex, &offset);
-		DX::g_deviceContext->Draw(DX::g_guardDrawQueue[i]->getFrustum()->size(), 0);
+		DX::g_deviceContext->Draw(DX::g_visibilityComponentQueue[i]->getFrustum()->size(), 0);
 
 	}
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
@@ -328,19 +329,30 @@ void ForwardRender::_createConstantBuffer()
 	hr = DXRHC::CreateConstantBuffer(this->m_cameraBuffer, sizeof(CameraBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_lightBuffer, sizeof(LightBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_GuardBuffer, sizeof(GuardBuffer));
+	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
 }
 
 void ForwardRender::_createSamplerState()
 {
-	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState);
+	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState, D3D11_TEXTURE_ADDRESS_WRAP);
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
-	m_objectValues.worldMatrix = drawable->getWorldmatrix();
+	m_objectValues.worldMatrix = drawable->getWorldmatrix();	
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+	
+
+
+	m_textureValues.textureTileMult.x = drawable->getTextureTileMult().x;
+	m_textureValues.textureTileMult.y = drawable->getTextureTileMult().y;
+
+	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
+
+
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
 }
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
@@ -405,7 +417,7 @@ void ForwardRender::_setStaticShaders()
 void ForwardRender::VisabilityPass()
 {
 	m_visabilityPass.SetViewportAndRenderTarget();
-	for (Guard * guard : DX::g_guardDrawQueue)
+	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
 		m_visabilityPass.GuardDepthPrePassFor(guard, &m_animationBuffer);
 		m_visabilityPass.CalculateVisabilityFor(guard, &m_animationBuffer);
@@ -512,3 +524,5 @@ void ForwardRender::_wireFramePass()
 
 	DX::g_deviceContext->RSSetState(m_standardRast);
 }
+
+

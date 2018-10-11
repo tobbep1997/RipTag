@@ -7,6 +7,11 @@
 #include <../New_Library/FormatHeader.h>
 
 #define MAXJOINT 128
+#define BLEND_MATCH_TIME (1<<1)
+#define BLEND_FROM_START (1<<2)
+#define BLEND_MATCH_NORMALIZED_TIME (1<<3)
+#define ANIMATION_SET_KEEP_OTHER (1<<1)
+#define ANIMATION_SET_CLEAN (1<<2)
 
 namespace Animation
 {
@@ -70,6 +75,14 @@ namespace Animation
 		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton);
 		~AnimationClip();
 	};
+
+	struct CombinedClip
+	{
+		AnimationClip* firstClip = nullptr;
+		AnimationClip* secondClip = nullptr;
+		float secondWeight = 0.0;
+		float secondCurrentTime = 0.0;
+	};
 #pragma endregion Joint, Skeleton, AnimationClip, ...
 
 #pragma region GlobalAnimationFunctions
@@ -90,11 +103,18 @@ namespace Animation
 		~AnimatedModel();
 
 		void Update(float deltaTime);
+		void UpdateBlend(float deltaTime);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
+		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
+		void SetLayeredClipWeight(const float& weight);
+		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
 		void SetSkeleton(Skeleton* skeleton);
 		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
+
+		float GetCurrentTimeInClip();
+		int GetCurrentFrameIndex();
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
@@ -103,17 +123,31 @@ namespace Animation
 
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
+		CombinedClip m_combinedClip;
+		AnimationClip* m_targetClip = nullptr;
+
+		float m_currentBlendTime = 0.0;
+		float m_targetBlendTime = 0.0;
+		float m_targetClipCurrentTime = 0.0;
 
 		float m_currentTime = 0.0f;
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
-		unsigned int m_scrubIndex = 0;
+
+		unsigned int m_scrubIndex = 0; // #todo remove
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+		void _computeSkinningMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
+		void _computeSkinningMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+		void _computeModelMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
+		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
+		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
+		void UpdateCombined(float deltaTime);
+		void _computeModelMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 	};
 
 #pragma region AnimationCBufferClass
