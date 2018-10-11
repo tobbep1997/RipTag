@@ -255,6 +255,11 @@ Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPos
 	return JointPose(differencePose);
 }
 
+Animation::AnimationClip* Animation::computeDifferenceClip(Animation::AnimationClip* sourceClip, Animation::AnimationClip* referenceClip)
+{
+
+}
+
 // #skinningmatrix
 void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {

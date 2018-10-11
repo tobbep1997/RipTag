@@ -147,9 +147,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Guard gTemp;
 	gTemp.setPos(0, 5, 0);
 	
-	
-	
-
 	GamePadHandler::Instance();
 	
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -170,6 +167,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	animation2 = Animation::LoadAndCreateAnimation("../Assets/KUBAFOLDER/KUBB_ANIMATION.bin", skeleton);
 	Manager::g_meshManager.getDynamicMesh("KUBA")->m_anim = new Animation::AnimatedModel();
 	g_animatedModel = Manager::g_meshManager.getDynamicMesh("KUBA")->getAnimatedModel();
+
 
 	g_animatedModel->SetSkeleton(skeleton);
 	g_animatedModel->SetPlayingClip(animation);

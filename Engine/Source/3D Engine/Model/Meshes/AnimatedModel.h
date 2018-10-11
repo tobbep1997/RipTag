@@ -99,6 +99,7 @@ namespace Animation
 	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
 	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
 	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
+	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
 #pragma endregion Conversion stuff, Loaders, ...
 
 	class AnimatedModel
