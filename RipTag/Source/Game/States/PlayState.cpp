@@ -61,7 +61,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	bodyBoxDef2 = new b3ShapeDef();
 	bodyBoxDef2->shape = poly2;
 	bodyBoxDef2->density = 1.0f;
-	bodyBoxDef2->restitution = 0.1;
+	bodyBoxDef2->restitution = 0.1f;
 
 	m_shape2 = m_floor->CreateShape(*bodyBoxDef2);
 
@@ -110,7 +110,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
 	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	wall1->setPosition(-1.5, 2.1, -2.1);
+	wall1->setPosition(-1.5f, 2.1f, -2.1f);
 
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
@@ -246,7 +246,7 @@ void PlayState::Update(double deltaTime)
 
 	if (m_firstRun)
 	{
-		m_step.dt = 1.0 / 60.0f;
+		m_step.dt = 1.0f / 60.0f;
 		m_step.velocityIterations = 10;
 		m_step.sleeping = true;
 		m_firstRun = false;
