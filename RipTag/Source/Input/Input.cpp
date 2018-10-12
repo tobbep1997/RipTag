@@ -30,7 +30,7 @@ bool Input::Jump()
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed(InputHandler::SPACEBAR))
+		if (InputHandler::isKeyPressed(InputHandler::Spacebar))
 		{
 			return true;
 		}
@@ -90,11 +90,11 @@ float Input::TurnUp()
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed(InputHandler::UpArrow))
+		if (InputHandler::isKeyPressed(InputHandler::Up))
 		{
 			return 1;
 		}
-		else if (InputHandler::isKeyPressed(InputHandler::DownArrow))
+		else if (InputHandler::isKeyPressed(InputHandler::Down))
 		{
 			return -1;
 		}
@@ -110,11 +110,11 @@ float Input::TurnRight()
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed(InputHandler::RightArrow))
+		if (InputHandler::isKeyPressed(InputHandler::Right))
 		{
 			return 1;
 		}
-		else if (InputHandler::isKeyPressed(InputHandler::LeftArrow))
+		else if (InputHandler::isKeyPressed(InputHandler::Left))
 		{
 			return -1;
 		}

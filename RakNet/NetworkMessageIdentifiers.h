@@ -46,6 +46,7 @@ namespace Network
 		Packets(){}
 		~Packets(){}
 		//MAKE SURE TO CALL THE DESTROY FUNCTION OF THE TYPE AFTER YOU HAVE CREATED ONE AND SENT THE PACKET
+		//ALSO THESE 'CONSTRUCTOR' AND'DESTRUCTOR' FUNCTIONS MUTS BE STATIC
 		static std::tuple<void*, size_t> New_Game_Message(unsigned char _id);
 		static void Destroy_Game_Message(void * ptr);
 
