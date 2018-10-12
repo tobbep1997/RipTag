@@ -129,6 +129,9 @@
     <ClCompile Include="Source\Game\Actors\Enemy\VisibilityComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\Abilities\PhaseAction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Game.h">
@@ -285,6 +288,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Actors\Enemy\VisibilityComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Abilities\PhaseAction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

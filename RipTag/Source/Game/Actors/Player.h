@@ -5,17 +5,19 @@
 
 #include "../Engine/Source/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
+#include "../Abilities/PhaseAction.h"
 
-class Player : public Actor, public CameraHolder, public PhysicsComponent
+class Player : public Actor, public CameraHolder, public PhysicsComponent, public PhaseAction
 {
 private:
-	
 
+	bool isQPressed = false;
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
 
 	bool isPressed = false;
 	bool isPressed2 = false;
+
 public:
 	Player();
 	~Player();

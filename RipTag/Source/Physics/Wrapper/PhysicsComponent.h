@@ -55,4 +55,6 @@ public:
 
 	virtual b3Vec3 getLiniearVelocity();
 	virtual void getLiniearVelocity(_Out_ float & x, _Out_ float & y, _Out_ float &z);
+
+	virtual b3Body* getBody();
 };

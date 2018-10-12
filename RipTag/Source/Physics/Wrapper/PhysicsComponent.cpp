@@ -201,3 +201,8 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	y = temp.y;
 	z = temp.z;
 }
+
+b3Body* PhysicsComponent::getBody()
+{
+	return this->m_body;
+}
