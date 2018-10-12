@@ -64,7 +64,7 @@ public:
 	
 	virtual void Draw();
 	void DrawWireFrame();
-	virtual void QueueVisabilityDraw();
+	
 
 	//Set Shaders
 	virtual void setVertexShader(const std::wstring & path);

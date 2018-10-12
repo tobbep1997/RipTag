@@ -211,7 +211,7 @@ void PlayState::Update(double deltaTime)
 	light1.setDropOff(.5f);
 	light1.setIntensity(temp);
 
-	std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
+	//std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
 
 /*
 	float flick = (float)(rand() % 100) / 50.0f;
@@ -277,7 +277,7 @@ void PlayState::Update(double deltaTime)
 
 	if (InputHandler::isKeyPressed('H'))
 	{
-		Manager::g_meshManager.loadStaticMesh("KOMBIN");
+		CameraHandler::setActiveCamera(enemy->getCamera());
 		//player->CreateBox(1.0f, 1.0f, 1.0f);
 	}
 
@@ -304,11 +304,30 @@ void PlayState::Update(double deltaTime)
 		m_step.dt = deltaTime;
 	}
 	
-	
-	m_world.Step(m_step);
+	// Getho Culling
+	//DirectX::XMFLOAT4A plPos = player->getPosition();
+	//// For each enemy
+	//DirectX::XMFLOAT4A dir = enemy->getCamera()->getDirection();
+	//DirectX::XMFLOAT4A ePos = enemy->getPosition();
+	//DirectX::XMFLOAT4A eToP(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
+	//float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
+	//float l = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat4A(&eToP)));
+	//
+	//if (d > enemy->getCamera()->getFOV() / 2.8f && l <= (enemy->getCamera()->getFarPlane() / d) + 2)
+	enemy->CullingForVisability(*player->getTransform());
+	enemy->QueueForVisibility();
 
+	/*dir = gTemp.getCamera()->getDirection();
+	ePos = gTemp.getPosition();
+	eToP = DirectX::XMFLOAT4A(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
+	d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
+	if (d > gTemp.getCamera()->getFOV() / 2.8f && l <= (gTemp.getCamera()->getFarPlane() / d) + 2)*/
+	gTemp.CullingForVisability(*player->getTransform());
+	gTemp.QueueForVisibility();
+
+	//----------------------------------
+	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
-	
 }
 
 void PlayState::Draw()
@@ -317,7 +336,8 @@ void PlayState::Draw()
 	//light2.QueueLight();
 
 	gTemp.Draw();
-	//enemy->Draw();
+	enemy->Draw();
+
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
