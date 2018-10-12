@@ -12,6 +12,33 @@ namespace Network
 		return &m_instance;
 	}
 
+	void Multiplayer::Init()
+	{
+		if (this->pPeer == 0)
+			this->pPeer = RakNet::RakPeerInterface::GetInstance();
+
+		if (pNetworkIDManager == 0)
+			pNetworkIDManager = RakNet::NetworkIDManager::GetInstance();
+
+		this->SetNetworkID(this->GetNetworkID());
+		this->SetNetworkIDManager(this->networkIDManager);
+	}
+
+	void Multiplayer::Destroy()
+	{
+		if (this->pPeer)
+		{
+			this->Disconnect();
+			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
+			this->pPeer = 0;
+		}
+		if (this->pNetworkIDManager)
+		{
+			RakNet::NetworkIDManager::DestroyInstance(this->pNetworkIDManager);
+			this->pNetworkIDManager = 0;
+		}
+	}
+
 	void Multiplayer::StartUpServer()
 	{
 		RakNet::StartupResult result;
@@ -238,45 +265,31 @@ namespace Network
 		return toReturn;
 	}
 
-	int Multiplayer::Send_Data(lua_State * L)
+	int Multiplayer::Send_Data(sol::this_state s)
 	{
+		lua_State * L = s;
+
 		void * data = lua_touserdata(L, -3);
 		size_t length = lua_tonumber(L, -2);
 		unsigned int priority = lua_tonumber(L, -1);
 
-		Multiplayer * pMp = Multiplayer::GetInstance();
+		lua_pop(L, 3);
 
-		pMp->SendPacket((const char*)data, length, (PacketPriority)priority);
+		//Multiplayer * pMp = Multiplayer::GetInstance();
+
+		this->SendPacket((const char*)data, length, (PacketPriority)priority);
 
 		return 0;
 	}
 
 	Multiplayer::Multiplayer()
 	{
-		if (this->pPeer == 0)
-			this->pPeer = RakNet::RakPeerInterface::GetInstance();
-
-		if (pNetworkIDManager == 0)
-			pNetworkIDManager = RakNet::NetworkIDManager::GetInstance();
-
-		this->SetNetworkID(this->GetNetworkID());
-		this->SetNetworkIDManager(this->networkIDManager);
-
-
-		
 		std::cout << "Multiplayer Constructor is called.\n";
 	}
 
 
 	Multiplayer::~Multiplayer()
 	{
-		if (this->pPeer)
-		{
-			this->Disconnect();
-			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
-		}
-		if (this->pNetworkIDManager)
-			RakNet::NetworkIDManager::DestroyInstance(this->pNetworkIDManager);
 		std::cout << "Multiplayer Destructor is called.\n";
 	}
 
@@ -339,18 +352,31 @@ namespace Network
 
 			sol::state_view * solStateView = talker->getSolState();
 
-			solStateView->set_function(LUA_START_SERVER, &Multiplayer::StartUpServer, *instance);
-			solStateView->set_function(LUA_START_CLIENT, &Multiplayer::StartUpClient, *instance);
-			solStateView->set_function(LUA_END_CONNECTION_ATTEMPT, &Multiplayer::EndConnectionAttempt, *instance);
-			solStateView->set_function(LUA_DISCONNECT, &Multiplayer::Disconnect, *instance);
-			solStateView->set_function(LUA_IS_SERVER, &Multiplayer::isServer, *instance);
-			solStateView->set_function(LUA_IS_CLIENT, &Multiplayer::isClient, *instance);
-			solStateView->set_function(LUA_IS_PEER_RUNNING, &Multiplayer::isRunning, *instance);
-			solStateView->set_function(LUA_IS_CONNECTED, &Multiplayer::isConnected, *instance);
-			solStateView->set_function(LUA_IS_GAME_RUNNING, &Multiplayer::isGameRunning, *instance);
-			solStateView->set_function(LUA_GET_MY_NID, &Multiplayer::GetNID, *instance);
-			solStateView->set_function(LUA_SET_GAME_RUNNING_NETWORK, &Multiplayer::setIsGameRunning, *instance);
-			solStateView->set_function(LUA_SEND_PACKET, &Multiplayer::Send_Data);
+			//Register in a different way
+			solStateView->new_usertype<Multiplayer>("Network",
+				"new", sol::no_constructor,
+				"GetInstance", &Multiplayer::GetInstance,
+				LUA_START_SERVER, &Multiplayer::StartUpServer,
+				LUA_START_CLIENT, &Multiplayer::StartUpClient,
+				LUA_END_CONNECTION_ATTEMPT, &Multiplayer::EndConnectionAttempt,
+				LUA_DISCONNECT, &Multiplayer::Disconnect,
+				LUA_IS_SERVER, &Multiplayer::isServer,
+				LUA_IS_CLIENT, &Multiplayer::isClient,
+				LUA_IS_PEER_RUNNING, &Multiplayer::isRunning,
+				LUA_IS_CONNECTED, &Multiplayer::isConnected,
+				LUA_IS_GAME_RUNNING, &Multiplayer::isGameRunning,
+				LUA_GET_MY_NID, &Multiplayer::GetNID,
+				LUA_SET_GAME_RUNNING_NETWORK, &Multiplayer::setIsGameRunning,
+				LUA_SEND_PACKET, &Multiplayer::Send_Data
+				);
+
+			
+			//Register Enums
+			solStateView->new_enum(LUA_TABLE_PACKET_PRIORITIES,
+				ENUM_TO_STR(LOW_PRIORITY), PacketPriority::LOW_PRIORITY,
+				ENUM_TO_STR(HIGH_PRIORITY), PacketPriority::HIGH_PRIORITY,
+				ENUM_TO_STR(IMMEDIATE_PRIORITY), PacketPriority::IMMEDIATE_PRIORITY
+			);
 
 			
 			isRegistered = true;

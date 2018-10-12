@@ -42,6 +42,8 @@ namespace Network
 	public:
 		//Get a pointer to the Singleton Instance
 		static Multiplayer * GetInstance();
+		void Init();
+		void Destroy();
 		
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
@@ -54,11 +56,10 @@ namespace Network
 		void Disconnect();
 
 		void ReadPackets();
-		void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void DestroySentPacket(void * msg);
 		void EndConnectionAttempt();
 		void Update();
-		//GETs this is horrible design
+		//GETs 
 		bool isServer() { return m_isServer; }
 		bool isClient() { return m_isClient; }
 		bool isRunning() { return m_isRunning; }
@@ -72,16 +73,18 @@ namespace Network
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 
 		//LUA
-		static int Send_Data(lua_State * L);
+		int Send_Data(sol::this_state s);
 		static void REGISTER_TO_LUA();
 
 
 		//unsafe, find a better way
-	private:
-		Multiplayer();
-		~Multiplayer();
 		//private constructor to avoid instanciating more than one object
 		//the destructor of the singleton is called when the program exits.
+		Multiplayer();
+
+		~Multiplayer();
+	private:
+
 		bool m_isServer = false;
 		bool m_isClient = false;
 		bool m_isRunning = false;
@@ -89,31 +92,15 @@ namespace Network
 		bool m_isGameRunning = false;
 
 		RakNet::RakPeerInterface * pPeer = 0;
-
-
 		RakNet::SystemAddress m_rIP;
 
 		unsigned char GetPacketIdentifier(unsigned char * data);
 		void HandleRakNetMessages(unsigned char mID);
 		void HandleGameMessages(unsigned char mID, unsigned char * data);
+		void SendPacket(const char* message, size_t length, PacketPriority priority);
 
 		//functions to handle RakNet internal messages
 		void _onDisconnect();
 
 	};
-
-
-	static void LUA_Register_Packet_Priorities()
-	{
-		
-		LUA::LuaTalker * m_talker = LUA::LuaTalker::GetInstance();
-		m_talker->getSolState().new_enum(LUA_TABLE_PACKET_PRIORITIES,
-			ENUM_TO_STR(LOW_PRIORITY), PacketPriority::LOW_PRIORITY,
-			ENUM_TO_STR(HIGH_PRIORITY), PacketPriority::HIGH_PRIORITY,
-			ENUM_TO_STR(IMMEDIATE_PRIORITY), PacketPriority::IMMEDIATE_PRIORITY
-		);
-	}
-
-
-
 }

@@ -37,6 +37,6 @@ void Network::Packets::REGISTER_TO_LUA()
 void Network::PacketIdentifiers::REGISTER_TO_LUA()
 {
 	LUA::LuaTalker * m_talker = LUA::LuaTalker::GetInstance();
-	m_talker->getSolState().new_enum(LUA_TABLE_MESSAGE_IDENTIFIERS,
+	m_talker->getSolState()->new_enum(LUA_TABLE_MESSAGE_IDENTIFIERS,
 		ENUM_TO_STR(ID_GAME_START), ID_GAME_START);
 }

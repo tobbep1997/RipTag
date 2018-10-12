@@ -12,6 +12,7 @@ Game::Game()
 Game::~Game()
 {
 	m_renderingManager->Release();
+	pNetworkInstance->Destroy();
 	while(!m_gameStack.empty())
 	{
 		delete m_gameStack.top();
@@ -35,8 +36,8 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	//Network Start
 	{
 		pNetworkInstance = Network::Multiplayer::GetInstance();
+		pNetworkInstance->Init();
 		Network::Multiplayer::REGISTER_TO_LUA();
-		Network::LUA_Register_Packet_Priorities();
 		Network::Packets::REGISTER_TO_LUA();
 		
 	}
