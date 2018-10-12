@@ -8,6 +8,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
+	
+	
+
 }
 
 Player::~Player()
@@ -57,6 +60,11 @@ void Player::InitTeleport(b3World & world)
 	m_teleport.setPosition(-100.0f, -100.0f, -100.0f);
 }
 
+void Player::ReleaseTeleport(b3World & world)
+{
+	this->m_teleport.Release(world);
+}
+
 void Player::Draw()
 {
 	m_teleport.Draw();
@@ -86,22 +94,22 @@ void Player::_handleInput(double deltaTime)
 	XMStoreFloat4(&RIGHT, vRight);
 	if (GamePadHandler::IsLeftStickPressed())
 	{
-		m_moveSpeed = 400.0f;
+		m_moveSpeed = 400.0f * deltaTime;
 	}
 	else
 	{
-		m_moveSpeed = 200.0f;
+		m_moveSpeed = 200.0f * deltaTime;
 	}
 
 
-	float x = Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.x;
+	float x = Input::MoveRight() * m_moveSpeed * RIGHT.x;
 	
-	x += Input::MoveForward() * m_moveSpeed * deltaTime * forward.x;
+	x += Input::MoveForward() * m_moveSpeed * forward.x;
 	//walkBob += x;
 
-	float z = Input::MoveForward() * m_moveSpeed * deltaTime * forward.z;
+	float z = Input::MoveForward() * m_moveSpeed * forward.z;
 	
-	z += Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.z;
+	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
 	
 	ImGui::Begin("Bob Slide");
@@ -148,7 +156,7 @@ void Player::_handleInput(double deltaTime)
 	{
 		if (isPressed == false)
 		{
-			addForceToCenter(0, 1000, 0);
+			addForceToCenter(0, 500, 0);
 			isPressed = true;
 		}
 	}

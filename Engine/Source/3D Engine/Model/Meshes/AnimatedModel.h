@@ -23,7 +23,12 @@ namespace Animation
 		DirectX::XMFLOAT4A m_translation;
 		DirectX::XMFLOAT4A m_scale;
 
-		SRT() {};
+		SRT() 
+		{
+			DirectX::XMStoreFloat4A(&m_rotationQuaternion, DirectX::XMVectorZero());
+			DirectX::XMStoreFloat4A(&m_translation, DirectX::XMVectorZero());
+			m_scale = { 1.0, 1.0, 1.0, 1.0 };
+		};
 		SRT(const MyLibrary::Transform& transform);
 		SRT(const MyLibrary::DecomposedTransform& transform);
 		bool operator==(const SRT& other);
@@ -93,6 +98,11 @@ namespace Animation
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
 	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
 	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
+	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
+	Animation::JointPose getAdditivePose(JointPose targetPose, JointPose differencePose);
+	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
+	bool bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip);
+
 #pragma endregion Conversion stuff, Loaders, ...
 
 	class AnimatedModel

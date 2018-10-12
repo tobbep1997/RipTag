@@ -192,7 +192,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 {
 	using namespace DirectX;
 
-	XMFLOAT4A fScale = ( srt.m_scale);
+	XMFLOAT4A fScale = srt.m_scale;
 	XMFLOAT4A fRotation = srt.m_rotationQuaternion;
 	XMFLOAT4A fTranslation = srt.m_translation;				   
 
@@ -234,6 +234,104 @@ Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
 	MyLibrary::Loadera loader;
 	auto importedSkeleton = loader.readSkeletonFile(file);
 	return new Animation::Skeleton(importedSkeleton);
+}
+
+Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPose referencePose)
+{
+	using namespace DirectX;
+
+	XMMATRIX sourceMatrix    = _createMatrixFromSRT(sourcePose.m_transformation);
+	XMMATRIX referenceMatrix = _createMatrixFromSRT(referencePose.m_transformation);
+	XMMATRIX referenceMatrixInverse = XMMatrixInverse(nullptr, referenceMatrix);
+	XMMATRIX differenceMatrix = XMMatrixMultiply(sourceMatrix, referenceMatrixInverse);
+
+	SRT differencePose = {};
+	XMVECTOR s, r, t;
+	XMMatrixDecompose(&s, &r, &t, differenceMatrix);
+	XMStoreFloat4A(&differencePose.m_scale, s);
+	XMStoreFloat4A(&differencePose.m_rotationQuaternion, r);
+	XMStoreFloat4A(&differencePose.m_translation, t);
+
+	return JointPose(differencePose);
+}
+
+Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose differencePose)
+{
+	using namespace DirectX;
+
+	XMMATRIX targetPoseMatrix = _createMatrixFromSRT(targetPose.m_transformation);
+	XMMATRIX differencePoseMatrix = _createMatrixFromSRT(differencePose.m_transformation);
+	XMMATRIX additivePoseMatrix = XMMatrixMultiply(targetPoseMatrix, differencePoseMatrix);
+
+
+	SRT additivePose = {};
+	XMVECTOR s, r, t;
+	XMMatrixDecompose(&s, &r, &t, additivePoseMatrix);
+	XMStoreFloat4A(&additivePose.m_scale, s);
+	XMStoreFloat4A(&additivePose.m_rotationQuaternion, r);
+	XMStoreFloat4A(&additivePose.m_translation, t);
+
+	return JointPose(additivePose);
+}
+
+// Returns null if the clips are not compatible
+Animation::AnimationClip* Animation::computeDifferenceClip(Animation::AnimationClip* sourceClip, Animation::AnimationClip* referenceClip)
+{
+#pragma region using
+	using namespace Animation;
+	using std::make_unique;
+#pragma endregion 
+
+	if (sourceClip->m_frameCount != referenceClip->m_frameCount
+	   || sourceClip->m_skeleton != referenceClip->m_skeleton)
+		return nullptr;
+
+	AnimationClip* differenceClip = new AnimationClip();
+	differenceClip->m_frameCount = sourceClip->m_frameCount;
+	differenceClip->m_skeleton = sourceClip->m_skeleton;
+	differenceClip->m_skeletonPoses = make_unique<SkeletonPose[]>(differenceClip->m_frameCount);
+
+	//Go through each skeleton pose and set new difference pose for each joint
+	for (int frame = 0; frame < differenceClip->m_frameCount; frame++) 
+	{
+		//Init joint pose array for this skeleton pose
+		differenceClip->m_skeletonPoses[frame].m_jointPoses = make_unique<JointPose[]>(differenceClip->m_skeleton->m_jointCount);
+		
+		//Go through each joint and assign the difference pose
+		for (int jointPose = 0; jointPose < differenceClip->m_skeleton->m_jointCount; jointPose++)
+		{
+			auto sourcePose = sourceClip->m_skeletonPoses[frame].m_jointPoses[jointPose];
+			auto referencePose = referenceClip->m_skeletonPoses[frame].m_jointPoses[jointPose];
+			auto differencePose = getDifferencePose(sourcePose, referencePose);
+
+			differenceClip->m_skeletonPoses[frame].m_jointPoses[jointPose] = differencePose;
+		}
+	}
+
+	return differenceClip;
+}
+
+bool Animation::bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip)
+{
+#pragma region early
+	if (targetClip->m_frameCount != differenceClip->m_frameCount // #todo support different clip lengths
+		|| targetClip->m_skeleton != differenceClip->m_skeleton)
+		return false;
+#pragma endregion incompatibility of clips check
+
+	for (int frame = 0; frame < targetClip->m_frameCount; frame++) //for each frame
+	{
+		for (int jointPose = 0; jointPose < targetClip->m_skeleton->m_jointCount; jointPose++) //for each joint in this frame
+		{
+			auto targetPose = targetClip->m_skeletonPoses[frame].m_jointPoses[jointPose];
+			auto differencePose = differenceClip->m_skeletonPoses[frame].m_jointPoses[jointPose];
+
+			//Concatenate the target pose and difference pose and store in target animation clip
+			targetClip->m_skeletonPoses[frame].m_jointPoses[jointPose] = getAdditivePose(targetPose, differencePose);
+		}
+	}
+
+	return true;
 }
 
 // #skinningmatrix

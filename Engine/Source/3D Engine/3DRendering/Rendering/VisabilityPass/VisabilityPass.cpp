@@ -28,11 +28,23 @@ void VisabilityPass::Init()
 void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
 {
 	_mapViewBuffer(target); 
+	ID3D11ShaderResourceView * tes = nullptr;
+	DX::g_deviceContext->PSSetShaderResources(10, 1, &tes);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_guardRenderTargetView, m_guardDepthStencil);
+	
 	float c[4] = { 0,0,0,0 };
 	DX::g_deviceContext->ClearRenderTargetView(m_guardRenderTargetView, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_guardDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+	//	0,
+	//	nullptr,
+	//	nullptr,
+	//	//NULL,
+	//	0, 0, nullptr, 0
+	//);
+	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	
 	// Static Objects
-	DX::g_deviceContext->OMSetRenderTargets(1, &m_guardRenderTargetView, m_guardDepthStencil);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(STATIC_VERTEX_SHADER_PATH));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_STATIC_VERTEX_SHADER_PATH), nullptr,0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -74,6 +86,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animatio
 
 void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
 {
+
 	ID3D11UnorderedAccessView * l_uav = target->getUAV();
 	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 		1,
@@ -90,7 +103,6 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.LoadShader<ID3D11PixelShader>(VISABILITY_PASS_PIXEL_SHADER_PATH), nullptr, 0);
 
 	DX::g_deviceContext->PSSetShaderResources(10, 1, &m_guardShaderResource);
-
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
@@ -130,6 +142,7 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 
 		}
 	}
+	//DX::g_deviceContext->PSSetShaderResources(10, 0, nullptr);
 }
 
 void VisabilityPass::SetViewportAndRenderTarget()
