@@ -29,7 +29,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
-			deltaTime = 1 / 60.0f;
+			deltaTime = 1.0f / 60.0f;
 
 
 		game.Clear();

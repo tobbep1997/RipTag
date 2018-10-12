@@ -23,6 +23,12 @@ void BaseActor::Init(b3World& world, b3BodyType bodyType, const float & x, const
 	PhysicsComponent::Init(world, bodyType, x, y, z);
 }
 
+void BaseActor::Init(b3World & world, std::vector<CollisionObject> boxes)
+{
+	PhysicsComponent::Init(world, boxes);
+
+}
+
 void BaseActor::BeginPlay()
 {
 

@@ -36,6 +36,21 @@ namespace MyLibrary
 			transform_scale[2] = 1.0;
 		};
 	};
+	struct CollisionBox
+	{
+		float translation[3];
+		float scale[3];
+		float rotation[3];
+	};
+	struct CollisionHeader
+	{
+		int nrOfBoxes;		
+	};
+	struct CollisionBoxes
+	{
+		int nrOfBoxes;
+		CollisionBox* boxes;
+	};
 	struct MeshHeader {
 
 		unsigned int mesh_nrOfVertices;
