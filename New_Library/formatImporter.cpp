@@ -292,4 +292,51 @@ namespace MyLibrary
 
 		return animation_to_return;
 	}
+	CollisionBoxes Loadera::readMeshCollisionBoxes(const std::string & fileName)
+	{
+		CollisionBoxes collisionBoxes;
+
+		bool fileIsOpen = false;
+
+		std::ifstream customBoxFile(fileName, std::ifstream::binary);
+	
+
+		if (customBoxFile.is_open()) // opens file
+		{
+			fileIsOpen = true; // ya its open
+
+			CollisionHeader header; // okey i guess i need an error
+			customBoxFile.read((char*)&header, sizeof(CollisionHeader)); // what is happening here?!! i just copied this code
+
+			collisionBoxes.nrOfBoxes = header.nrOfBoxes; // get the number of boxes
+			
+			CollisionBox* box = new CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i need an array
+			customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox)); // got litraly no fucking clue whats going on here please send help
+
+			collisionBoxes.boxes = new CollisionBox[collisionBoxes.nrOfBoxes]; // why can't i use the first array
+
+			for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+			{
+				//Do the copy thing	
+				collisionBoxes.boxes[i].translation[0] = box[i].translation[0];
+				collisionBoxes.boxes[i].translation[1] = box[i].translation[1];
+				collisionBoxes.boxes[i].translation[2] = box[i].translation[2];
+
+				collisionBoxes.boxes[i].scale[0] = box[i].scale[0];
+				collisionBoxes.boxes[i].scale[1] = box[i].scale[1];
+				collisionBoxes.boxes[i].scale[2] = box[i].scale[2];
+
+				collisionBoxes.boxes[i].rotation[0] = box[i].rotation[0];
+				collisionBoxes.boxes[i].rotation[1] = box[i].rotation[1];
+				collisionBoxes.boxes[i].rotation[2] = box[i].rotation[2];
+
+			}
+			//copy thing done
+
+			customBoxFile.close(); // close file
+			delete[] box; // gotta keep ya memmory happy
+
+		}
+		return collisionBoxes; // done :D
+	}
 }

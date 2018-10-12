@@ -3,6 +3,8 @@
 #include "../../Input/Input.h"
 #include "Source/Helper/Timer.h"
 
+#include "../New_Library/formatImporter.h"
+
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
@@ -14,6 +16,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	//m_world = new b3World();
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
+
+	MyLibrary::Loadera l;
+	
+	MyLibrary::CollisionBoxes bb = l.readMeshCollisionBoxes("../Assets/BBoX.bin");
+
 
 
 	//bodyDef = new b3BodyDef();
@@ -40,29 +47,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	////std::cout << "Hello waiter" << std::endl; // flush is intentional
 	////auto start = std::chrono::high_resolution_clock::now();
 	//
-	//m_shape = m_body->CreateShape(*bodyBoxDef);
 
-	bodyDef2 = new b3BodyDef();
-	bodyDef2->type = e_staticBody;
-
-	// Position the body 10 meters high from the world origin.
-	bodyDef2->position.Set(0.0f, 0.0f, 0.0f);
-
-	m_floor = m_world.CreateBody(*bodyDef2);
-	bodyBox2 = new b3Hull();
-
-	bodyBox2->SetAsBox(b3Vec3(20, 1, 20));
-
-	poly2 = new b3Polyhedron();
-	poly2->SetHull(bodyBox2);
-
-
-	bodyBoxDef2 = new b3ShapeDef();
-	bodyBoxDef2->shape = poly2;
-	bodyBoxDef2->density = 1.0f;
-	bodyBoxDef2->restitution = 0.1f;
-
-	m_shape2 = m_floor->CreateShape(*bodyBoxDef2);
 
 	//std::this_thread::sleep_for(2s);
 	//m_body->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
@@ -94,6 +79,19 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
 	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
 	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
+
+
+	CollisionBoxes = new BaseActor();
+	std::vector<CollisionObject> boxes;
+	for (int i = 0; i < bb.nrOfBoxes; i++)
+	{
+		
+		boxes.push_back(CollisionObject(DirectX::XMFLOAT3(bb.boxes[i].translation[0], bb.boxes[i].translation[1], bb.boxes[i].translation[2]), DirectX::XMFLOAT3(bb.boxes[i].scale[0], bb.boxes[i].scale[1], bb.boxes[i].scale[2])));
+
+	}
+	CollisionBoxes->Init(m_world, boxes);
+
+
 	//actor->setPosition(0, 10, 0);
 	actor->setScale(1.0f,1.0f,1.0f);
 	actor->setPosition(0, 0, 0);
@@ -108,13 +106,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
-
-	wall1 = new BaseActor();
-	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
-	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	wall1->setPosition(-1.5f, 2.1f, -2.1f);
-
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
 	light1.setDropOff(0);
@@ -146,6 +137,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	testCube->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	testCube->setPosition(5, 5.0f, 0);
 	
+
+	delete [] bb.boxes;
 }
 
 PlayState::~PlayState()
@@ -154,23 +147,18 @@ PlayState::~PlayState()
 	player->Release(m_world);
 	delete player;
 
-	m_floor->DestroyShape(m_shape2);
-	delete poly2;
-	delete bodyBox2;
-	delete bodyDef2;
-	delete bodyBoxDef2;
-	m_world.DestroyBody(m_floor);
-
 	actor->Release(m_world);
 	delete actor;
 
-	wall1->Release(m_world);
-	delete wall1;
+
 
 	delete model;
 
 	testCube->Release(m_world);
 	delete testCube;
+
+	CollisionBoxes->Release(m_world);
+	delete CollisionBoxes;
 
 }
 
@@ -182,7 +170,6 @@ void PlayState::Update(double deltaTime)
 	static double timer = 0.0f;
 	timer += deltaTime;
 	static float ran = 5.5f;
-
 
 	if (abs(current.x - target.x) < 0.1)
 	{
@@ -294,17 +281,15 @@ void PlayState::Update(double deltaTime)
 	m_objectHandler.Update();
 	m_levelHandler.Update();
 
-	if (m_firstRun)
-	{
-		m_step.dt = 1.0f / 60.0f;
-		m_step.velocityIterations = 10;
-		m_step.sleeping = true;
-		m_firstRun = false;
-	}
-	else
-	{
-		m_step.dt = deltaTime;
-	}
+
+	
+	m_step.dt = deltaTime * 2;
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
+	
+	
 	
 	// Getho Culling
 	//DirectX::XMFLOAT4A plPos = player->getPosition();
