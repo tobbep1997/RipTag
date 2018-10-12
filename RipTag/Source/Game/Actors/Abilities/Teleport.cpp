@@ -12,7 +12,7 @@ void Teleport::chargeSphere()
 {
 	m_charging = true;
 	if (m_charge < 2.0f)
-		m_charge += 0.05;
+		m_charge += 0.01;
 }
 
 void Teleport::ThrowSphere(DirectX::XMFLOAT4A StartPos, DirectX::XMFLOAT4A Direction)
