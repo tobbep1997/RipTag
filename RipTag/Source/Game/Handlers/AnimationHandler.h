@@ -13,9 +13,6 @@ public:
 	AnimationHandler();
 	~AnimationHandler();
 
-	///Loads all animations with prefix and adds a collection with newCollectionName key
-	bool loadClipCollection(std::string prefix, std::string newCollectionName);
-
 	///Loads all animations with prefix and adds a collection with newCollectionName key under directory
 	bool loadClipCollection(std::string prefix, std::string newCollectionName, std::string directory, std::string skeletonskeletonPath);
 
