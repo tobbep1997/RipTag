@@ -378,6 +378,7 @@ namespace Network
 				ENUM_TO_STR(IMMEDIATE_PRIORITY), PacketPriority::IMMEDIATE_PRIORITY
 			);
 
+
 			
 			isRegistered = true;
 		}

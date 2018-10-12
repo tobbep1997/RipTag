@@ -8,11 +8,10 @@
 
 #include<LuaTalker.h>
 
-#define PLAYER_MOVEMENT_FOR_LUA "MovePacket"
-#define PACKETS_METATABLE "PACKETS"
+#define LUA_PACKETS_METATABLE "Packets"
 #define LUA_TABLE_MESSAGE_IDENTIFIERS "PacketID"
-#define LUA_ENTITY_CREATION "CreateEntityMsg"
-#define LUA_GAME_MESSAGE "GameMessage"
+#define LUA_GAME_MESSAGE_PACKET "GameMessage"
+#define LUA_DESTROY_GAME_MESSAGE "DestroyGameMessage"
 
 #define ENUM_TO_STR(ENUM) std::string(#ENUM)
 
@@ -47,22 +46,14 @@ namespace Network
 		Packets(){}
 		~Packets(){}
 		//MAKE SURE TO CALL THE DESTROY FUNCTION OF THE TYPE AFTER YOU HAVE CREATED ONE AND SENT THE PACKET
-		static int New_Game_Message(lua_State * L);
-		static int Destroy_Game_Message(lua_State * L);
+		static std::tuple<void*, size_t> New_Game_Message(unsigned char _id);
+		static void Destroy_Game_Message(void * ptr);
 
 
 		static void REGISTER_TO_LUA();
 
 	};
 
-	class PacketIdentifiers
-	{
-	private:
-		PacketIdentifiers(){}
-		~PacketIdentifiers(){}
-	public:
-		static void REGISTER_TO_LUA();
-	};
 	
 
 }
