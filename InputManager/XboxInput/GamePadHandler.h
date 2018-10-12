@@ -8,6 +8,13 @@ private:
 	static DirectX::GamePad::ButtonStateTracker m_buttons;
 	static DirectX::GamePad::State m_state;
 
+	static float m_leftMotorVibration;
+	static float m_rightMotorVibration;
+	static float m_rightTriggerMotorVibration;
+	static float m_leftTriggerMotorVibration;
+
+
+
 	GamePadHandler();
 	~GamePadHandler();
 
@@ -35,6 +42,7 @@ public:
 	static DirectX::XMFLOAT2 GetRightStickposition();
 
 	static bool IsLeftStickPressed();
+	static bool IsRightStickPressed();
 
 	static bool IsRightTriggerPressed();
 	static bool IsLeftTriggerPressed();
@@ -47,4 +55,8 @@ public:
 	static bool IsLeftShoulderPressed();
 	static bool IsRightShoulderPressed();
 
+	static void SetLeftVibration(const float & left);
+	static void SetRightVibration(const float & left);
+	static void SetVibration(const float & left, const float & right);
+	static void SetVibration(const float & left, const float & right, const float & leftTrigger, const float & rightTrigger);
 };

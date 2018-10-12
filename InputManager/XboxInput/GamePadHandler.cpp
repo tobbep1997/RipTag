@@ -4,6 +4,11 @@ std::unique_ptr<DirectX::GamePad> GamePadHandler::m_gamePad;
 DirectX::GamePad::ButtonStateTracker GamePadHandler::m_buttons;
 DirectX::GamePad::State GamePadHandler::m_state;
 
+float GamePadHandler::m_leftMotorVibration;
+float GamePadHandler::m_rightMotorVibration;
+float GamePadHandler::m_rightTriggerMotorVibration;
+float GamePadHandler::m_leftTriggerMotorVibration;
+
 GamePadHandler::GamePadHandler()
 {
 	m_gamePad = nullptr;
@@ -192,6 +197,16 @@ bool GamePadHandler::IsLeftStickPressed()
 	{
 		return m_state.IsLeftStickPressed();
 	}
+	return false;
+}
+
+bool GamePadHandler::IsRightStickPressed()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.IsRightStickPressed();
+	}
+	return false;
 }
 
 bool GamePadHandler::IsRightTriggerPressed()
@@ -339,6 +354,47 @@ bool GamePadHandler::IsRightShoulderPressed()
 	else
 	{
 		return false;
+	}
+}
+
+void GamePadHandler::SetLeftVibration(const float& left)
+{
+	if (m_state.IsConnected())
+	{
+		m_gamePad->SetVibration(0, left, m_rightMotorVibration);
+		m_leftMotorVibration = left;
+	}
+}
+
+void GamePadHandler::SetRightVibration(const float& left)
+{
+	if (m_state.IsConnected())
+	{
+		m_gamePad->SetVibration(0, m_leftMotorVibration , left);
+		m_rightMotorVibration = left;
+	}
+}
+
+void GamePadHandler::SetVibration(const float& left, const float& right)
+{
+	if (m_state.IsConnected())
+	{
+		m_gamePad->SetVibration(0, left, right);
+		m_leftMotorVibration = left;
+		m_rightMotorVibration = right;
+	}
+}
+
+void GamePadHandler::SetVibration(const float& left, const float& right, const float& leftTrigger,
+	const float& rightTrigger)
+{
+	if (m_state.IsConnected())
+	{
+		m_gamePad->SetVibration(0, left, right,leftTrigger,rightTrigger);
+		m_leftMotorVibration = left;
+		m_rightMotorVibration = right;
+		m_leftTriggerMotorVibration = leftTrigger;
+		m_rightTriggerMotorVibration = rightTrigger;
 	}
 }
 
