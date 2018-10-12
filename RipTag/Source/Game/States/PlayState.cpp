@@ -244,25 +244,27 @@ void PlayState::Update(double deltaTime)
 	}
 	
 	// Getho Culling
-	DirectX::XMFLOAT4A plPos = player->getPosition();
-	// For each enemy
-	DirectX::XMFLOAT4A dir = enemy->getCamera()->getDirection();
-	DirectX::XMFLOAT4A ePos = enemy->getPosition();
-	DirectX::XMFLOAT4A eToP(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
-	float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
-	float l = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat4A(&eToP)));
-	
-	if (d > enemy->getCamera()->getFOV() / 2.8f && l <= (enemy->getCamera()->getFarPlane() / d) + 2)
-		enemy->QueueForVisibility();
+	//DirectX::XMFLOAT4A plPos = player->getPosition();
+	//// For each enemy
+	//DirectX::XMFLOAT4A dir = enemy->getCamera()->getDirection();
+	//DirectX::XMFLOAT4A ePos = enemy->getPosition();
+	//DirectX::XMFLOAT4A eToP(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
+	//float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
+	//float l = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat4A(&eToP)));
+	//
+	//if (d > enemy->getCamera()->getFOV() / 2.8f && l <= (enemy->getCamera()->getFarPlane() / d) + 2)
+	enemy->CullingForVisability(*player->getTransform());
+	enemy->QueueForVisibility();
 
-	dir = gTemp.getCamera()->getDirection();
+	/*dir = gTemp.getCamera()->getDirection();
 	ePos = gTemp.getPosition();
 	eToP = DirectX::XMFLOAT4A(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
 	d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
-	if (d > gTemp.getCamera()->getFOV() / 2.8f && l <= (gTemp.getCamera()->getFarPlane() / d) + 2)
-		gTemp.QueueForVisibility();
+	if (d > gTemp.getCamera()->getFOV() / 2.8f && l <= (gTemp.getCamera()->getFarPlane() / d) + 2)*/
+	gTemp.CullingForVisability(*player->getTransform());
+	gTemp.QueueForVisibility();
 
-	
+	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
 }

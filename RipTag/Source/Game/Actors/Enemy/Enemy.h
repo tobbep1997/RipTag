@@ -9,6 +9,8 @@ class Enemy : public Actor, public CameraHolder
 {
 private:
 	VisibilityComponent m_vc;
+	bool m_allowVisability = false;
+
 public:
 	Enemy();
 	~Enemy();
@@ -19,10 +21,15 @@ public:
 	const int* getPlayerVisibility() const;
 
 	// Inherited via Actor
+
+	void CullingForVisability(const Transform & player);
+
 	virtual void setPosition(const DirectX::XMFLOAT4A & pos) override;
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
+
+	//Depending on the culling, this can cancel the queue
 	void QueueForVisibility();
 };
 

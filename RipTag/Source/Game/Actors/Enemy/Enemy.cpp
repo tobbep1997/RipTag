@@ -28,6 +28,25 @@ const int * Enemy::getPlayerVisibility() const
 	return m_vc.getVisibilityForPlayers();
 }
 
+void Enemy::CullingForVisability(const Transform& player)
+{
+	
+	DirectX::XMVECTOR enemyToPlayer = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&player.getPosition()), DirectX::XMLoadFloat4A(&getPosition()));
+
+	float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
+	float lenght = DirectX::XMVectorGetX(DirectX::XMVector3Length(enemyToPlayer));
+
+	if (d > p_camera->getFOV() / 5.3f && lenght <= (p_camera->getFarPlane() / d) + 3)
+	{
+		m_allowVisability = true;
+	}
+	else
+	{
+		m_allowVisability = false;
+	}
+		
+}
+
 void Enemy::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	Transform::setPosition(pos);
@@ -53,5 +72,9 @@ void Enemy::Update(double deltaTime)
 
 void Enemy::QueueForVisibility()
 {
-	m_vc.QueueVisibility();
+	if (true == m_allowVisability)
+	{
+		m_vc.QueueVisibility();
+	}
+	
 }

@@ -102,6 +102,11 @@ void Transform::addRotation(const float & x, const float & y, const float & z, c
 	this->p_rotation.w += w;
 }
 
+const Transform* Transform::getTransform()
+{
+	return this;
+}
+
 
 const DirectX::XMFLOAT4A  & Transform::getPosition() const
 {

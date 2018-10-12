@@ -95,6 +95,8 @@ ID3D11UnorderedAccessView * VisibilityComponent::getUAV()
 	return m_UAV.UAV;
 }
 
+
+
 void VisibilityComponent::_createUAV()
 {
 	D3D11_TEXTURE2D_DESC TextureData;
