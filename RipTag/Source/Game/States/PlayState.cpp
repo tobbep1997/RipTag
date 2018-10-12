@@ -6,7 +6,6 @@
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-	//lua.init("playerState.lua")
 	CameraHandler::Instance();
 	
 	player = new Player();
@@ -80,6 +79,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
+	//Manager::g_textureManager.loadTextures("PIRASRUM");
 	
 	//temp = new Model();
 	////temp->setEntityType();
@@ -106,6 +106,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	player->setTextureTileMult(2, 2);
+
+	player->InitTeleport(m_world);
 
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);

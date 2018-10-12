@@ -139,9 +139,14 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
 }
 
+void PhysicsComponent::setGravityScale(float gravity)
+{
+	m_body->SetGravityScale(gravity);
+}
+
 void PhysicsComponent::setLiniearVelocity(float x, float y, float z)
 {
-	m_body->SetLinearVelocity(b3Vec3(x,y,z));
+	m_body->SetLinearVelocity(b3Vec3(x, y, z));
 }
 
 void PhysicsComponent::addForceToCenter(float x, float y, float z)
@@ -170,4 +175,9 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
+}
+
+void PhysicsComponent::setAwakeState(const bool& awa)
+{
+	m_body->SetAwake(awa);
 }
