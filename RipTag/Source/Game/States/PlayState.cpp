@@ -211,7 +211,7 @@ void PlayState::Update(double deltaTime)
 	light1.setDropOff(.5f);
 	light1.setIntensity(temp);
 
-	std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
+	//std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
 
 /*
 	float flick = (float)(rand() % 100) / 50.0f;
@@ -277,7 +277,7 @@ void PlayState::Update(double deltaTime)
 
 	if (InputHandler::isKeyPressed('H'))
 	{
-		Manager::g_meshManager.loadStaticMesh("KOMBIN");
+		CameraHandler::setActiveCamera(enemy->getCamera());
 		//player->CreateBox(1.0f, 1.0f, 1.0f);
 	}
 

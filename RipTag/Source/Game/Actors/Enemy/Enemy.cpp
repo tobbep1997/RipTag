@@ -42,7 +42,7 @@ void Enemy::CullingForVisability(const Transform& player)
 	}
 	else
 	{
-		m_allowVisability = false;
+		m_allowVisability = true;
 	}
 		
 }
