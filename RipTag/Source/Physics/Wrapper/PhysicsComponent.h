@@ -3,6 +3,7 @@
 #include "../../Physics/Bounce.h"
 #include "../Engine/Source/3D Engine/Components/Base/Transform.h"
 #include <vector>
+#include "../New_Library/FormatHeader.h"
 struct BodyDefine
 {
 	float posX = 0;
@@ -57,7 +58,7 @@ public:
 	virtual ~PhysicsComponent();
 
 	virtual void Init(b3World & world, b3BodyType bodyType, float x = 1, float y = 1, float z = 1);
-	virtual void Init(b3World & world, std::vector<CollisionObject> boxes);
+	virtual void Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes);
 
 
 	virtual void setBaseBodyDef(b3BodyType bodyType = b3BodyType::e_dynamicBody);

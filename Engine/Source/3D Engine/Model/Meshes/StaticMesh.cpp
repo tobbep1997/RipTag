@@ -9,7 +9,7 @@ StaticMesh::StaticMesh()
 
 StaticMesh::~StaticMesh()
 {
-
+	delete [] m_collisionBox.boxes;
 }
 
 const StaticVertex * StaticMesh::getRawVertice() const
@@ -26,6 +26,11 @@ void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 {
 	m_staticVertex.clear();
 	m_staticVertex = input;
+}
+
+const MyLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const
+{
+	return this->m_collisionBox;
 }
 
 void StaticMesh::SET_DEFAULT()
@@ -107,4 +112,10 @@ void StaticMesh::LoadMesh(const std::string & path)
 
 	}
 	delete newMesh.mesh_vertices;
+}
+
+void StaticMesh::LoadCollision(const std::string & path)
+{
+	MyLibrary::Loadera meshloader;
+	m_collisionBox = meshloader.readMeshCollisionBoxes(path);
 }

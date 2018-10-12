@@ -4,9 +4,13 @@
 #include <mutex>
 
 const uint8_t MESH_HASHTABLE_SIZE = 13;
+
+
 class MeshManager
 {
 private:
+
+
 
 	std::mutex m_mutexStatic;
 
@@ -20,6 +24,7 @@ public:
 	bool loadStaticMesh(const std::string & meshName);
 	DynamicMesh* getDynamicMesh(const std::string & meshName);
 	StaticMesh* getStaticMesh(const std::string & meshName);
+	const MyLibrary::CollisionBoxes & getCollisionBoxes(const std::string & meshName);
 	void UpdateAllAnimations(float deltaTime);
 
 	bool UnloadStaticMesh(const std::string & meshName);
@@ -29,5 +34,6 @@ private:
 
 	unsigned int _getKey(const std::string & meshName);
 	std::string _getFullPath(const std::string & meshName);
+	std::string _getFullPathCollision(const std::string & meshName);
 };
 
