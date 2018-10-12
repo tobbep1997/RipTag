@@ -309,7 +309,7 @@ namespace MyLibrary
 			customBoxFile.read((char*)&header, sizeof(CollisionHeader)); // what is happening here?!! i just copied this code
 
 			collisionBoxes.nrOfBoxes = header.nrOfBoxes; // get the number of boxes
-			
+
 			CollisionBox* box = new CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i need an array
 			customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox)); // got litraly no fucking clue whats going on here please send help
 
@@ -337,6 +337,8 @@ namespace MyLibrary
 			delete[] box; // gotta keep ya memmory happy
 
 		}
+		else
+			return CollisionBoxes();
 		return collisionBoxes; // done :D
 	}
 }

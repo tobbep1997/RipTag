@@ -45,10 +45,12 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 	StaticMesh* tempMesh = new StaticMesh();
 	std::string fullPath = this->_getFullPath(meshName);
 	unsigned int key = this->_getKey(fullPath);
+
 	if (m_staticMesh[key].size() == 0)
-	{
+	{		
 		tempMesh->setName(fullPath);
 		tempMesh->LoadMesh(fullPath);
+		tempMesh->LoadCollision(this->_getFullPathCollision(meshName));
 		m_mutexStatic.lock();
 		m_staticMesh[key].push_back(tempMesh);
 		m_mutexStatic.unlock();
@@ -67,6 +69,7 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 		{
 			tempMesh->setName(fullPath);
 			tempMesh->LoadMesh(fullPath);
+			tempMesh->LoadCollision(this->_getFullPathCollision(meshName));
 			m_mutexStatic.lock();
 			m_staticMesh[key].push_back(tempMesh);
 			m_mutexStatic.unlock();
@@ -111,6 +114,21 @@ StaticMesh * MeshManager::getStaticMesh(const std::string & meshName)
 		}
 	}
 	return nullptr;
+}
+
+const MyLibrary::CollisionBoxes & MeshManager::getCollisionBoxes(const std::string & meshName)
+{
+	std::string fullPath = this->_getFullPath(meshName);
+	unsigned int key = this->_getKey(fullPath);
+
+	for (unsigned int i = 0; i < m_staticMesh[key].size(); i++)
+	{
+		if (m_staticMesh[key][i]->getName() == fullPath)
+		{
+			return m_staticMesh[key][i]->getCollisionBoxes();
+		}
+	}
+	return MyLibrary::CollisionBoxes();
 }
 
 
@@ -183,5 +201,12 @@ std::string MeshManager::_getFullPath(const std::string & meshName)
 {
 	std::string tempString = "../Assets/";
 	tempString.append(meshName + "FOLDER/" + meshName + ".bin");
+	return tempString;
+}
+
+std::string MeshManager::_getFullPathCollision(const std::string & meshName)
+{
+	std::string tempString = "../Assets/";
+	tempString.append(meshName + "FOLDER/" + meshName + "_COLLISION.bin");
 	return tempString;
 }

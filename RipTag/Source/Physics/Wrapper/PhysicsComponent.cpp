@@ -62,7 +62,7 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 	CreateBodyAndShape(world);
 }
 
-void PhysicsComponent::Init(b3World & world, std::vector<CollisionObject> boxes)
+void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes)
 {
 	singelCollider = false;
 	//setBaseBodyDef---------------------------------------
@@ -78,10 +78,10 @@ void PhysicsComponent::Init(b3World & world, std::vector<CollisionObject> boxes)
 	b3Polyhedron * p;
 	b3ShapeDef* s;
 
-	for (int i = 0; i < boxes.size(); i++)
+	for (int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		h = new b3Hull();
-		h->SetAsBox(b3Vec3(boxes[i].scale.x / 2.0f, boxes[i].scale.y / 2.0f, boxes[i].scale.z / 2.0f));
+		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_hulls.push_back(h);
 
 		//-----------------------------------------------------
@@ -101,17 +101,16 @@ void PhysicsComponent::Init(b3World & world, std::vector<CollisionObject> boxes)
 		m_shapeDefs.push_back(s);
 	}
 
-	for (int i = 0; i < boxes.size(); i++)
+	for (int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		b3Body * b = world.CreateBody(*m_bodyDef);
-		b->SetTransform(b3Vec3(boxes[i].pos.x, boxes[i].pos.y, boxes[i].pos.z), b3Vec3(0, 0, 0), 0);
+		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
+			b3Vec3(0, 0, 0), 0);
 
 		m_bodys.push_back(b);
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
 	}
-
-
-}
+  }
 
 
 
