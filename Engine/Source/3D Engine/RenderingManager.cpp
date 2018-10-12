@@ -16,6 +16,12 @@ RenderingManager::~RenderingManager()
 	
 }
 
+RenderingManager * RenderingManager::GetInstance()
+{
+	static RenderingManager m_instance;
+	return &m_instance;
+}
+
 void RenderingManager::Init(HINSTANCE hInstance)
 {
 #if _DEBUG

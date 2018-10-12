@@ -2,6 +2,7 @@
 //#include "Source/3D Engine/RenderingManager.h"
 #include "../../../../Engine/Source/3D Engine/RenderingManager.h"
 
+#define LUA_STATE_METATABLE "STATE"
 
 class State
 {

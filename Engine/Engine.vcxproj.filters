@@ -106,5 +106,6 @@
   <ItemGroup>
     <None Include="Source\Shader\Shaders\StaticConstantBuffers.hlsli" />
     <None Include="Source\Shader\Shaders\LightCalc.hlsli" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
