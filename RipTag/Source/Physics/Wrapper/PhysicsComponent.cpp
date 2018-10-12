@@ -206,3 +206,8 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	y = temp.y;
 	z = temp.z;
 }
+
+void PhysicsComponent::setAwakeState(const bool& awa)
+{
+	m_body->SetAwake(awa);
+}

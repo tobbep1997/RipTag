@@ -140,6 +140,9 @@ void Player::_handleInput(double deltaTime)
 			DirectX::XMFLOAT4A newPos = m_teleport.TeleportToSphere();
 			setPosition(newPos.x, newPos.y + 0.6f, newPos.z, newPos.w);
 			m_teleport.setActiveSphere(false);
+			//If we want skill... remove
+			setLiniearVelocity(0, 0, 0);
+			setAwakeState(true);
 		}
 	}
 }
