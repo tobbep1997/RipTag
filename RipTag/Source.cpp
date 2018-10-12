@@ -147,9 +147,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Guard gTemp;
 	gTemp.setPos(0, 5, 0);
 	
-	
-	
-
 	GamePadHandler::Instance();
 	
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -164,20 +161,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Animation::Skeleton* skeleton = nullptr;
 	Animation::AnimationClip* animation = nullptr;
 	Animation::AnimationClip* animation2 = nullptr;
-	Manager::g_meshManager.loadDynamicMesh("KUBA");
-	skeleton = Animation::LoadAndCreateSkeleton("../Assets/KUBAFOLDER/KUBA_SKELETON.bin");
-	animation = Animation::LoadAndCreateAnimation("../Assets/KUBAFOLDER/KUBA_ANIMATION.bin", skeleton);
-	animation2 = Animation::LoadAndCreateAnimation("../Assets/KUBAFOLDER/KUBB_ANIMATION.bin", skeleton);
-	Manager::g_meshManager.getDynamicMesh("KUBA")->m_anim = new Animation::AnimatedModel();
-	g_animatedModel = Manager::g_meshManager.getDynamicMesh("KUBA")->getAnimatedModel();
+	Animation::AnimationClip* diffAnimation = nullptr;
+	Manager::g_meshManager.loadDynamicMesh("CYLS");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/CYLSFOLDER/CYLS_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/CYLSFOLDER/CYLS_ANIMATION.bin", skeleton);
+	animation2 = Animation::LoadAndCreateAnimation("../Assets/CYLSFOLDER/CYLR_ANIMATION.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("CYLS")->m_anim = new Animation::AnimatedModel();
+	g_animatedModel = Manager::g_meshManager.getDynamicMesh("CYLS")->getAnimatedModel();
 
+	diffAnimation = Animation::computeDifferenceClip(animation, animation2);
+	Animation::bakeDifferenceClipOntoClip(animation2, diffAnimation);
 	g_animatedModel->SetSkeleton(skeleton);
-	g_animatedModel->SetPlayingClip(animation);
-	g_animatedModel->SetLayeredClip(animation2, .5, BLEND_MATCH_TIME);
+	g_animatedModel->SetPlayingClip(animation2);
+	g_animatedModel->SetLayeredClip(diffAnimation, .0, BLEND_MATCH_TIME);
 	g_animatedModel->Play();
 
 	g_currentTargetClip = animation2;
-	g_currentClip = animation;
+	g_currentClip = diffAnimation;
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -185,7 +185,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("KUBA"));
+	player->setModel(Manager::g_meshManager.getDynamicMesh("CYLS"));
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
