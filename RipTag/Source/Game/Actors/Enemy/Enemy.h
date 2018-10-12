@@ -23,6 +23,6 @@ public:
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
-	virtual void Draw() override;
+	void QueueForVisibility();
 };
 

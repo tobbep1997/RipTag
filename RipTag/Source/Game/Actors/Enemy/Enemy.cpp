@@ -51,9 +51,7 @@ void Enemy::Update(double deltaTime)
 	
 }
 
-void Enemy::Draw()
+void Enemy::QueueForVisibility()
 {
 	m_vc.QueueVisibility();
-	Drawable::Draw();
 }
-
