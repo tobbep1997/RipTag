@@ -8,7 +8,10 @@ public:
 	StaticAsset();
 	~StaticAsset();
 
-	void Init(b3World& world, std::vector<CollisionObject> boxes);
+	void Init(b3World& world, const MyLibrary::CollisionBoxes & collisionBoxes);
+
+	void BeginPlay() override;
+	void Update(double deltaTime) override;
 
 	void setPosition(const float& x, const float& y, const float& z);
 };

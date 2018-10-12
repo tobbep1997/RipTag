@@ -13,6 +13,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player = new Player();
 	enemy = new Enemy();
 	CameraHandler::setActiveCamera(player->getCamera());	
+	Manager::g_meshManager.loadStaticMesh("KUB");
+	
 
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
@@ -21,7 +23,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 
-	Manager::g_meshManager.loadStaticMesh("KUB");
+	
 
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -78,17 +80,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
-	testCube = new BaseActor();
-	testCube->Init(m_world, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-	testCube->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
-	testCube->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	testCube->setPosition(5, 5.0f, 0);
 	
+	m_levelHandler.Init(m_world);
 
 }
 
 PlayState::~PlayState()
 {
+
+	m_levelHandler.Release();
 	delete enemy;
 	player->Release(m_world);
 	player->ReleaseTeleport(m_world);
@@ -101,8 +101,7 @@ PlayState::~PlayState()
 
 	delete model;
 
-	testCube->Release(m_world);
-	delete testCube;
+	
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
@@ -223,10 +222,10 @@ void PlayState::Update(double deltaTime)
 	actor->Update(deltaTime);
 	gTemp.Update(deltaTime);
 
-	testCube->Update(deltaTime);
+	
 
 	m_objectHandler.Update();
-	m_levelHandler.Update();
+	m_levelHandler.Update(deltaTime);
 
 
 	
@@ -281,7 +280,7 @@ void PlayState::Draw()
 	//player->QueueVisabilityDraw();
 
 	model->Draw();
-	testCube->Draw();
+	
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 

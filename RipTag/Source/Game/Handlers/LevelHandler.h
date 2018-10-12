@@ -1,21 +1,25 @@
 #pragma once
 #include "../Level/Room.h"
 #include <Vector>
+#include "../Actors/BaseActor.h"
 
 class LevelHandler
 {
 private:
 	std::vector<Room*> m_rooms;
 
-	b3World * worldPtr;
+	b3World * m_worldPtr;
+	BaseActor * testCube;
 
+	StaticAsset testtt;
 public:
 	LevelHandler();
 	~LevelHandler();
 
 	void Init(b3World & worldPtr);
+	void Release();
 
-	void Update();
+	void Update(float deltaTime);
 
 	void Draw();
 

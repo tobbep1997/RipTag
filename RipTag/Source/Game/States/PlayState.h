@@ -38,8 +38,7 @@ private:
 
 	float intensity = 2;
 	
-	BaseActor * testCube;
-
+	
 	PointLight light1;
 	PointLight light2;
 
