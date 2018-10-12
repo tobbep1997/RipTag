@@ -36,13 +36,13 @@ void Enemy::CullingForVisability(const Transform& player)
 	float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
 	float lenght = DirectX::XMVectorGetX(DirectX::XMVector3Length(enemyToPlayer));
 
-	if (d > p_camera->getFOV() / 5.3f && lenght <= (p_camera->getFarPlane() / d) + 3)
+	if (d > p_camera->getFOV() / 3.14f && lenght <= (p_camera->getFarPlane() / d) + 3)
 	{
 		m_allowVisability = true;
 	}
 	else
 	{
-		m_allowVisability = true;
+		m_allowVisability = false;
 	}
 		
 }
