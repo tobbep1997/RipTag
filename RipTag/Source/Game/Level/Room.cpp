@@ -22,6 +22,7 @@ unsigned short int Room::getRoomIndex()
 void Room::LoadRoomFromFile(const std::string& fileName)
 {
 	//TODO:: add all the assets to whatever
+
 }
 
 void Room::Update()

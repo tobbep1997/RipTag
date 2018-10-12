@@ -7,9 +7,13 @@ class LevelHandler
 private:
 	std::vector<Room*> m_rooms;
 
+	b3World * worldPtr;
+
 public:
 	LevelHandler();
 	~LevelHandler();
+
+	void Init(b3World & worldPtr);
 
 	void Update();
 

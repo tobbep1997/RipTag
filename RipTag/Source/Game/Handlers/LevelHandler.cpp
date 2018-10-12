@@ -40,6 +40,6 @@ void LevelHandler::_LoadRoom(const int roomIndex)
 
 void LevelHandler::UnloadRoom(const int roomNumber)
 {
-	m_rooms.emplace_back(roomNumber);
+	//m_rooms.emplace_back(m_rooms.begin() + roomNumber);
 	m_rooms.pop_back();
 }
