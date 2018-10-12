@@ -86,7 +86,7 @@ float4 FresnelReflection(float cosTheta, float4 f0)
     return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
 }
 
-float4 OptimizedLightCalculation(VS_OUTPUT input)
+float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 {
    
 	//float3 albedo = diffuseTexture.Sample(defaultSampler, input.uv).xyz;
@@ -122,7 +122,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
     float pi = 3.14;
 
 
-    float4 ambient = float4(0.01f, 0.01f, 0.02f, 1.0f) * albedo * ao;
+    ambient = float4(0.2f, 0.2f, 0.25f, 1.0f) * albedo * ao;
+    //ambient = float4(0.02f, 0.02f, 0.025f, 1.0f) * albedo * ao;
    
     //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * albedo;
     //float3 fragmentPositionToCamera = cameraPosition.xyz - input.worldPos.xyz;
@@ -189,39 +190,13 @@ float4 OptimizedLightCalculation(VS_OUTPUT input)
         normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
         lightCal += finalShadowCoeff * (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[shadowLight].x - attenuation + 1.0f));
     }
-
-
-    //for (int light = 0; light < numberOfLights.x; light++)
-    //{
-    //    posToLight = normalize(lightPosition[light] - input.worldPos);
-    //    distanceToLight = length(lightPosition[light] - input.worldPos);
-    //    halfwayVecor = normalize(worldToCamera + posToLight);
-    //    attenuation = (lightDropOff[light].x / (1.0f + lightDropOff[light].y * pow(distanceToLight, lightDropOff[light].z)));
-		
-    //    radiance = lightColor[light] * attenuation;
-		 
-    //    roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
-    //    overshadowOcclusion = OvershadowOcclusion(normal, worldToCamera.xyz, posToLight.xyz, roughness);
-		
-    //    kS = FresnelReflection(max(dot(halfwayVecor, worldToCamera), 0.0f), f0);
-    //    kD = float4(1.0f, 1.0f, 1.0f, 1.0f) - kS;
-    //    kD *= 1.0f - metallic;
-		
-		
-    //    numerator = roughnessDistribution * overshadowOcclusion * kS;
-    //    denominator = 4.0f * max(dot(normal, worldToCamera.xyz), 0.0f) * max(dot(normal, posToLight.xyz), 0.0f);
-    //    specular = numerator / max(denominator, 0.001f);
-		
-    //    normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
-    //    lightCal += (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[light].x - attenuation + 1.0f) * finalShadowCoeff);
-			  
-		
-    //}
     
     finalColor = ambient + lightCal;
 	
-    finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
-    finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
+    // why do we need this?
+    finalColor = saturate(finalColor);
+    //finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
+    //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
     finalColor.a = albedo.a;
     return min(finalColor, float4(1, 1, 1, 1));
 }

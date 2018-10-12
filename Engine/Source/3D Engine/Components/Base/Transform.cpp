@@ -7,7 +7,16 @@ void Transform::p_calcWorldMatrix()
 	using namespace DirectX;
 	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
 	XMMATRIX scaling = XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
-	XMMATRIX rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
+	XMMATRIX rotation;
+	if (p_physicsRotation._11 == INT16_MIN)
+	{
+		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
+	}
+	else
+	{
+		rotation = DirectX::XMLoadFloat3x3(&p_physicsRotation);
+	}
+	
 	
 	DirectX::XMStoreFloat4x4A(&this->p_worldMatrix, XMMatrixTranspose(rotation * scaling * translation));
 
@@ -18,6 +27,8 @@ Transform::Transform()
 	p_position = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_rotation = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
+
+	p_physicsRotation._11 = INT16_MIN;
 }
 
 
@@ -116,4 +127,19 @@ const DirectX::XMFLOAT4A & Transform::getScale() const
 const DirectX::XMFLOAT4A & Transform::getEulerRotation() const
 {
 	return this->p_rotation;
+}
+
+void Transform::setPhysicsRotation(const b3Mat33 & rot)
+{
+	p_physicsRotation._11 = rot.x.x;
+	p_physicsRotation._12 = rot.x.y;
+	p_physicsRotation._13 = rot.x.z;
+
+	p_physicsRotation._21 = rot.y.x;
+	p_physicsRotation._22 = rot.y.y;
+	p_physicsRotation._23 = rot.y.z;
+
+	p_physicsRotation._31 = rot.z.x;
+	p_physicsRotation._32 = rot.z.y;
+	p_physicsRotation._33 = rot.z.z;
 }

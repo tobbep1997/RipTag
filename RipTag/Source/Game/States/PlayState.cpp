@@ -6,7 +6,7 @@
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
+	//lua.init("playerState.lua")
 	CameraHandler::Instance();
 	
 	player = new Player();
@@ -61,7 +61,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	bodyBoxDef2 = new b3ShapeDef();
 	bodyBoxDef2->shape = poly2;
 	bodyBoxDef2->density = 1.0f;
-	bodyBoxDef2->restitution = 0.1;
+	bodyBoxDef2->restitution = 0.1f;
 
 	m_shape2 = m_floor->CreateShape(*bodyBoxDef2);
 
@@ -74,7 +74,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	//Manager::g_meshManager.loadStaticMesh("SPHERE");
-	
+	Manager::g_meshManager.loadStaticMesh("KUB");
 
 	//Manager::g_textureManager.loadTextures("PIRASRUM");
 
@@ -105,16 +105,19 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	player->setTextureTileMult(2, 2);
 
 	wall1 = new BaseActor();
 	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
 	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	wall1->setPosition(-1.5, 2.1, -2.1);
+	wall1->setPosition(-1.5f, 2.1f, -2.1f);
 
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
 	light1.setDropOff(0);
+	light1.setColor(0.8f, 0.6, 0.4f);
+	light1.setDropOff(1);
 
 	light2.Init(DirectX::XMFLOAT4A(7, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
@@ -123,7 +126,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
 	gTemp.getCamera()->setFarPlane(5);
-	enemy->setPosition(9.0f, 0.4f, -5.5f);
+	enemy->setPosition(0.0f, 0.4f, -5.5f);
 	enemy->setDir(1, 0, 0);
 	enemy->getCamera()->setFarPlane(5);
 
@@ -134,6 +137,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
+
+	testCube = new BaseActor();
+	testCube->Init(m_world, e_dynamicBody, 1.0f, 1.0f, 1.0f);
+	testCube->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
+	testCube->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	testCube->setPosition(5, 5.0f, 0);
 	
 }
 
@@ -158,12 +167,61 @@ PlayState::~PlayState()
 
 	delete model;
 
+	testCube->Release(m_world);
+	delete testCube;
 
 }
 
 void PlayState::Update(double deltaTime)
 {
-	std::cout << "\a";
+	static double time = 0.0f;
+	static DirectX::XMFLOAT2 current(0.0, 0.0);
+	static DirectX::XMFLOAT2 target(1.0, 1.0);
+	static double timer = 0.0f;
+	timer += deltaTime;
+	static float ran = 5.5f;
+
+
+	if (abs(current.x - target.x) < 0.1)
+	{
+		timer = 0.0;
+
+		ran = (float)(rand() % 100) / 100.0f;
+		
+		target.x = ran;
+		
+	}
+
+	//current.x = fmin;
+	
+	auto v1 = DirectX::XMLoadFloat2(&current);
+	auto v2 = DirectX::XMLoadFloat2(&target);
+	DirectX::XMVECTOR vec;
+
+	vec = DirectX::XMVectorLerp(v1, v2, deltaTime * 5);
+
+
+	current.x = DirectX::XMVectorGetX(vec);
+
+	float temp = 5 + sin(current.x) * 1.5;
+
+	//temp = min(temp, 0.8);
+	//temp = max(temp, 0.65f);
+	
+	light1.setDropOff(.5f);
+	light1.setIntensity(temp);
+
+	std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
+
+/*
+	float flick = (float)(rand() % 100) / 50.0f;
+	light1.setDropOff(flick);
+	flick = (float)(rand() % 100) / 50.0f;
+	light2.setDropOff(flick);
+	flick = (float)(rand() % 100) / 30.0f;
+	light1.setIntensity(flick);
+	flick = (float)(rand() % 100) / 30.0f;
+	light2.setIntensity(flick);*/
 
 #if _DEBUG
 	ImGui::Begin("Player Setting");                          // Create a window called "Hello, world!" and append into it.
@@ -171,9 +229,9 @@ void PlayState::Update(double deltaTime)
 	ImGui::SliderFloat("PositionY", &y, -20.0f, 20.f);
 	ImGui::SliderFloat("PositionZ", &z, -20.0f, 20.f);
 
-	/*ImGui::SliderFloat("DirX", &dirX, -50.0f, 50.f);
-	ImGui::SliderFloat("DirY", &dirY, -50.0f, 50.f);
-	ImGui::SliderFloat("DirZ", &dirZ, -50.0f, 50.f);*/
+	ImGui::SliderFloat("DirX", &xD, -50.0f, 50.f);
+	ImGui::SliderFloat("DirY", &yD, -50.0f, 50.f);
+	ImGui::SliderFloat("DirZ", &zD, -50.0f, 50.f);
 	ImGui::End();
 #endif
 
@@ -195,7 +253,8 @@ void PlayState::Update(double deltaTime)
 
 	light2.setIntensity(intensity);
 	//light1.setPosition(x, y, z, 1);
-	model->setPosition(x, y, z);
+	//model->setPosition(x, y, z);
+	//testCube->setPositionRot(x, y, z,xD,yD,zD);
 	//gTemp.setDir(0, 0, -1);
 	//jumper->setPosition(ax, ay, az);
 	if (GamePadHandler::IsLeftDpadPressed())
@@ -228,12 +287,14 @@ void PlayState::Update(double deltaTime)
 	actor->Update(deltaTime);
 	gTemp.Update(deltaTime);
 
+	testCube->Update(deltaTime);
+
 	m_objectHandler.Update();
 	m_levelHandler.Update();
 
 	if (m_firstRun)
 	{
-		m_step.dt = 1.0 / 60.0f;
+		m_step.dt = 1.0f / 60.0f;
 		m_step.velocityIterations = 10;
 		m_step.sleeping = true;
 		m_firstRun = false;
@@ -247,16 +308,16 @@ void PlayState::Update(double deltaTime)
 	m_world.Step(m_step);
 
 	player->PhysicsUpdate(deltaTime);
-
+	
 }
 
 void PlayState::Draw()
 {
 	light1.QueueLight();
-	light2.QueueLight();
+	//light2.QueueLight();
 
 	gTemp.Draw();
-	enemy->Draw();
+	//enemy->Draw();
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
@@ -266,6 +327,7 @@ void PlayState::Draw()
 	//player->QueueVisabilityDraw();
 
 	model->Draw();
+	testCube->Draw();
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 

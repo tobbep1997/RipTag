@@ -150,7 +150,18 @@ void ForwardRender::Flush(Camera & camera)
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
-	_tempGuardFrustumDraw();
+	static bool drawFrustum = true;
+	if (InputHandler::isKeyPressed('J'))
+	{
+		drawFrustum = false;
+	}
+	else if (InputHandler::isKeyPressed('K'))
+	{
+		drawFrustum = true;
+	}
+
+	if (drawFrustum)
+		_GuardFrustumDraw();
 	
 }
 
@@ -198,7 +209,7 @@ void ForwardRender::Release()
 	m_shadowMap.Release();
 }
 
-void ForwardRender::_tempGuardFrustumDraw()
+void ForwardRender::_GuardFrustumDraw()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 

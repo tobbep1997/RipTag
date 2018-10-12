@@ -112,6 +112,8 @@ public :
 	const b3Transform& GetTransform() const;
 	void SetTransform(const b3Vec3& position, const b3Vec3& axis, r32 radians);
 
+	void SetTransform(const b3Vec3 & position, const b3Quaternion & quartinion);
+
 	// Get the user data associated with the body.
 	// The user data is usually a game entity.
 	void* GetUserData() const;
@@ -292,6 +294,19 @@ inline const b3Shape* b3Body::GetShapeList() const { return m_shapeList; }
 inline void b3Body::SetTransform(const b3Vec3& position, const b3Vec3& axis, r32 radians) {
 	m_worldCenter = position;
 	m_orientation.Set(axis, radians);
+
+	SynchronizeTransform();
+	SynchronizeShapes();
+}
+
+inline void b3Body::SetTransform(const b3Vec3& position, const b3Quaternion& quartinion) {
+	m_worldCenter = position;
+	b3Quaternion quar;
+	quar.a = quartinion.a;
+	quar.b = quartinion.b;
+	quar.c = quartinion.c;
+	quar.d = quartinion.d;
+	m_orientation = quar;
 
 	SynchronizeTransform();
 	SynchronizeShapes();

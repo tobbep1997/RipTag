@@ -41,8 +41,14 @@ private:
 	float y = 2.1f; 
 	float z = -2.1f;
 
+	float xD = 0;
+	float yD = 0;
+	float zD = 0;
+
 	float intensity = 2;
 	BaseActor * wall1;
+
+	BaseActor * testCube;
 
 	PointLight light1;
 	PointLight light2;
