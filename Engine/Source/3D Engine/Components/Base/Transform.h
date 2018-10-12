@@ -1,11 +1,15 @@
 #pragma once
 #include <DirectXMath.h>
+#include "../../../../../RipTag/Source/Physics/Common/Math/b3Mat33.h"
+
 class Transform
 {
 protected:
 	DirectX::XMFLOAT4A p_position;
 	DirectX::XMFLOAT4A p_scale;
 	DirectX::XMFLOAT4A p_rotation;
+
+	DirectX::XMFLOAT3X3 p_physicsRotation;
 
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
@@ -33,9 +37,13 @@ public:
 	virtual void addRotation(const DirectX::XMFLOAT4A & rot);
 	virtual void addRotation(const float & x, const float & y, const float & z, const float & w = 0.0f);
 
-	
+	virtual const Transform * getTransform();
+
 	virtual const DirectX::XMFLOAT4A & getPosition() const;
 	virtual const DirectX::XMFLOAT4A & getScale() const;
 	virtual const DirectX::XMFLOAT4A & getEulerRotation() const;
+
+
+	virtual void setPhysicsRotation(const b3Mat33 & rot);
 };
 
