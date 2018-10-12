@@ -10,8 +10,6 @@
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
-	const DirectX::XMFLOAT4A MAX_PEEK_LEFT{-0.5f, 0.5f, 0.0f, 0.0f};
-	const DirectX::XMFLOAT4A MAX_PEEK_RIGHT{ 0.5f, 0.5f, 0.0f, 0.0f };
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 
 private:
@@ -30,7 +28,9 @@ private:
 	float stopBobFreq = 1.9f;
 	float m_currentAmp = 0.0f;
 	DirectX::XMFLOAT4A m_lastPeek;
-	float m_peekSpeed = 2.0f;
+	DirectX::XMFLOAT4A m_lastSideStep;
+
+	float m_peekSpeed = 10.0f;
 
 public:
 	Player();

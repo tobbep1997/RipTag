@@ -9,6 +9,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lastPeek = DEFAULT_UP;
+	m_lastSideStep = DirectX::XMFLOAT4A(0, 0, 0, 0);
 }
 
 Player::~Player()
@@ -23,8 +24,11 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
+	DirectX::XMFLOAT4A pos = getPosition();
+	//pos.y += m_offset;
+	p_camera->setPosition(pos);
+
 	_handleInput(deltaTime);
-	
 
 	m_teleport.Update(deltaTime);
 	ImGui::Begin("Walk bob");
@@ -32,9 +36,6 @@ void Player::Update(double deltaTime)
 	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
 	ImGui::End();
 
-	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += m_offset;
-	p_camera->setPosition(pos);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -81,10 +82,6 @@ void Player::_handleInput(double deltaTime)
 	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
 	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
 
-
-
-
-
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
 	if (GamePadHandler::IsLeftStickPressed())
@@ -99,24 +96,29 @@ void Player::_handleInput(double deltaTime)
 	float targetPeek = Input::PeekRight();
 
 	XMVECTOR in = XMLoadFloat4A(&m_lastPeek);
-
 	XMFLOAT4A none{ 0,1,0,0 };
-
 	XMVECTOR target = XMLoadFloat4A(&none);
-
-	/*if (targetPeek > 0)
-		target = XMLoadFloat4A(&MAX_PEEK_RIGHT);
-	else if (targetPeek < 0)
-		target = XMLoadFloat4A(&MAX_PEEK_LEFT);*/
 
 	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
 	target = XMVector4Transform(target, rot);
-	XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * m_peekSpeed, 1.0f));
+	XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	//out = XMVector4Transform(out, rot);
-
 	XMStoreFloat4A(&m_lastPeek, out);
 	p_camera->setUP(m_lastPeek);
+	XMFLOAT4A cPos = p_camera->getPosition();
+	XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&p_position));
 
+	vToCam = XMVector4Transform(vToCam, rot);
+	out = vToCam;
+	//out = XMVectorLerp(vToCam, target, min(deltaTime * m_peekSpeed, 1.0f));
+	out = XMVectorAdd(DirectX::XMLoadFloat4A(&p_position), out);
+	XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+	XMStoreFloat4A(&m_lastSideStep, sideStep);
+	out = XMVectorAdd(out, sideStep);
+	XMStoreFloat4(&cPos, out);
+
+	p_camera->setPosition(cPos);
 
 	float x = Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.x;
 	
