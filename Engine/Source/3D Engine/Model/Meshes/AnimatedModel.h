@@ -85,6 +85,7 @@ namespace Animation
 	{
 		AnimationClip* firstClip = nullptr;
 		AnimationClip* secondClip = nullptr;
+		float* pSecondWeight = nullptr;
 		float secondWeight = 0.0;
 		float secondCurrentTime = 0.0;
 	};
