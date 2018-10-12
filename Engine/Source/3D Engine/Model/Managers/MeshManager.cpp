@@ -207,6 +207,6 @@ std::string MeshManager::_getFullPath(const std::string & meshName)
 std::string MeshManager::_getFullPathCollision(const std::string & meshName)
 {
 	std::string tempString = "../Assets/";
-	tempString.append(meshName + "FOLDER/" + meshName + "_COLLISION.bin");
+	tempString.append(meshName + "FOLDER/" + meshName + "_BOUNDINGBOX.bin");
 	return tempString;
 }
