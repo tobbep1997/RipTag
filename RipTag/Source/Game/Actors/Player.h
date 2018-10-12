@@ -2,6 +2,7 @@
 //#include "../Engine/Source/3D Engine/Components/Base/Transform.h"
 
 #include "Actor.h"
+#include "Abilities/Teleport.h"
 
 #include "../Engine/Source/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
@@ -9,11 +10,11 @@
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
-	
+	Teleport m_teleport;
 
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
-
+	
 	bool isPressed = false;
 	bool isPressed2 = false;
 
@@ -35,6 +36,10 @@ public:
 	void PhysicsUpdate(double deltaTime);
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
+
+	void InitTeleport(b3World & world);
+
+	void Draw() override;
 
 private:
 
