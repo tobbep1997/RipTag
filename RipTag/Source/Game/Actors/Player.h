@@ -38,6 +38,7 @@ public:
 	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
 
 	void InitTeleport(b3World & world);
+	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
 

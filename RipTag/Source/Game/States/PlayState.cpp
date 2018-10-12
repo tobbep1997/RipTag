@@ -109,7 +109,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
 	light1.setDropOff(0);
-	light1.setColor(0.8f, 0.6, 0.4f);
+	light1.setColor(0.8f, 0.6f, 0.4f);
 	light1.setDropOff(1);
 
 	light2.Init(DirectX::XMFLOAT4A(7, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
@@ -145,6 +145,7 @@ PlayState::~PlayState()
 {
 	delete enemy;
 	player->Release(m_world);
+	player->ReleaseTeleport(m_world);
 	delete player;
 
 	actor->Release(m_world);

@@ -60,6 +60,11 @@ void Player::InitTeleport(b3World & world)
 	m_teleport.setPosition(-100.0f, -100.0f, -100.0f);
 }
 
+void Player::ReleaseTeleport(b3World & world)
+{
+	this->m_teleport.Release(world);
+}
+
 void Player::Draw()
 {
 	m_teleport.Draw();
