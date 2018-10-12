@@ -1,9 +1,11 @@
 #pragma once
-
+#include <string>
 class Room
 {
 private:
-	int m_roomIndex;
+	short unsigned int m_roomIndex;
+
+	
 
 public:
 	Room(const short unsigned int roomIndex);
@@ -16,5 +18,6 @@ public:
 	void setRoomIndex(const short unsigned int roomIndex);
 	short unsigned int getRoomIndex();
 
+	void LoadRoomFromFile(const std::string & fileName);
 private:
 };

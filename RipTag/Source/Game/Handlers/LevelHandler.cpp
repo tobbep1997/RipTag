@@ -27,3 +27,19 @@ void LevelHandler::Draw()
 		m_rooms.at(i)->Draw();
 	}
 }
+
+void LevelHandler::_LoadRoom(const int roomIndex)
+{
+	Room * room = new Room(roomIndex);
+
+	//Insert assets
+	room->LoadRoomFromFile("");
+
+
+}
+
+void LevelHandler::UnloadRoom(const int roomNumber)
+{
+	m_rooms.emplace_back(roomNumber);
+	m_rooms.pop_back();
+}

@@ -15,6 +15,8 @@ public:
 
 	void Draw();
 
+	
+	void UnloadRoom(const int roomNumber);
 private:
-
+	void _LoadRoom(const int roomIndex);
 };
