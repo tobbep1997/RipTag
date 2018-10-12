@@ -44,6 +44,11 @@ bool GamePadHandler::UpdateState()
 	
 }
 
+bool GamePadHandler::IsConnected()
+{
+	return m_state.IsConnected();
+}
+
 bool GamePadHandler::IsAPressed()
 {
 	if (m_state.IsConnected())
@@ -122,11 +127,51 @@ bool GamePadHandler::IsXPressed()
 	}
 }
 
+float GamePadHandler::GetLeftStickYPosition()
+{
+	if(m_state.IsConnected())
+	{
+		return m_state.thumbSticks.leftY;
+	}
+	
+	return 0.0f;
+}
+
+float GamePadHandler::GetLeftStickXPosition()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.thumbSticks.leftX;
+	}
+
+	return 0.0f;
+}
+
+float GamePadHandler::GetRightStickYPosition()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.thumbSticks.rightY;
+	}
+
+	return 0.0f;
+}
+
+float GamePadHandler::GetRightStickXPosition()
+{
+	if (m_state.IsConnected())
+	{
+		return m_state.thumbSticks.rightX;
+	}
+
+	return 0.0f;
+}
+
 DirectX::XMFLOAT2 GamePadHandler::GetLeftStickposition()
 {
 	if (m_state.IsConnected())
 	{
-		m_state.thumbSticks.leftX;
+		
 		return DirectX::XMFLOAT2(m_state.thumbSticks.leftX, m_state.thumbSticks.leftY);
 	}
 	return DirectX::XMFLOAT2(0,0);
@@ -136,7 +181,6 @@ DirectX::XMFLOAT2 GamePadHandler::GetRightStickposition()
 {
 	if (m_state.IsConnected())
 	{
-		m_state.thumbSticks.leftX;
 		return DirectX::XMFLOAT2(m_state.thumbSticks.rightX, m_state.thumbSticks.rightY);
 	}
 	return DirectX::XMFLOAT2(0, 0);

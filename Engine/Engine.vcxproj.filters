@@ -6,11 +6,13 @@
     <FxCompile Include="Source\Shader\Shaders\ShadowGeometry.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\ShadowVertex.hlsl" />
     <FxCompile Include="Source\Shader\VertexShader.hlsl" />
-    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumVertex.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\GuardFrustum\GuardFrustumPixel.hlsl" />
     <FxCompile Include="Source\Shader\Shaders\VisabilityShader\PreDepthPassVertex.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\ShadowVertexAnimated.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\PreDepthPassVertexAnimated.hlsl" />
+    <FxCompile Include="Source\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
@@ -43,9 +45,9 @@
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Framework\Engine3D.cpp" />
-    <ClCompile Include="Source\3D Engine\Temp_Guard\TempGuard.cpp" />
     <ClCompile Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.cpp" />
     <ClCompile Include="Source\3D Engine\Model\Meshes\AnimatedModel.cpp" />
+    <ClCompile Include="Source\Helper\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -95,7 +97,6 @@
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\ShadowMap.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Framework\Engine3D.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
-    <ClInclude Include="Source\3D Engine\Temp_Guard\TempGuard.h" />
     <ClInclude Include="Source\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.h" />
     <ClInclude Include="Source\3D Engine\Model\Meshes\AnimatedModel.h" />
   </ItemGroup>

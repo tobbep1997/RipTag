@@ -224,7 +224,7 @@ namespace MyLibrary
 			}
 
 			// Switch winding order
-			for (int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
+			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
 				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);
 
 			for (int i = 0; i < MAX_FILENAME; i++)
@@ -274,10 +274,10 @@ namespace MyLibrary
 			DecomposedTransform* keyframes = new DecomposedTransform[numberOfKeys * jointCount];
 
 			//Init keyframes
-			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
+			for (unsigned int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
 				keyframes[i] = DecomposedTransform();
 
-			for (int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
+			for (unsigned int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
 				keyframes[i] = loadTransform(customAnimationFile);
 
 			animation_to_return.keyframe_transformations = std::make_unique<DecomposedTransform[]>(numberOfKeys * jointCount);

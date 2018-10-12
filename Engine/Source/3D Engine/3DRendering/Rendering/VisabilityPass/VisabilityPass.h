@@ -8,9 +8,11 @@ private:
 	const short int GUARD_RES_X = (GUARD_RES_Y * (210.0f / 150.0f) + 0.5f);
 	//Ration 210 / 150
 	
-	const wchar_t * DEPTH_PRE_PASS_VERTEX_SHADER_PATH = L"../Engine/Source/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl";
+	const wchar_t * DEPTH_PRE_PASS_STATIC_VERTEX_SHADER_PATH = L"../Engine/Source/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl";
+	const wchar_t * DEPTH_PRE_PASS_DYNAMIC_VERTEX_SHADER_PATH = L"../Engine/Source/Shader/Shaders/VisabilityShader/PreDepthPassVertexAnimated.hlsl";
 	const wchar_t * VISABILITY_PASS_PIXEL_SHADER_PATH = L"../Engine/Source/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl";
 	const wchar_t * STATIC_VERTEX_SHADER_PATH = L"../Engine/Source/Shader/VertexShader.hlsl";
+	const wchar_t * DYNAMIC_VERTEX_SHADER_PATH = L"../Engine/Source/Shader/AnimatedVertexShader.hlsl";
 
 
 	struct GuardViewBuffer
@@ -37,8 +39,8 @@ public:
 	VisabilityPass();
 	~VisabilityPass();
 	void Init();
-	void GuardDepthPrePassFor(Guard * guard);
-	void CalculateVisabilityFor(Guard * guard);
+	void GuardDepthPrePassFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
+	void CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
 	void SetViewportAndRenderTarget();
 private:
 	void _init();
@@ -47,13 +49,14 @@ private:
 	void _initObjectBuffer();
 	void _initDSV();
 	void _initSRV();
-	void _initRTV();
 	
 	void _initShaders();
 	void _initVertexShaders();
 	void _initPixelShaders();
 
-	void _mapViewBuffer(Guard * target);
+	void _mapViewBuffer(VisibilityComponent * target);
+
+	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
 
 	void _mapObjectBuffer(Drawable * target);
 };

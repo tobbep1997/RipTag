@@ -1,6 +1,5 @@
 #include "StaticConstantBuffers.hlsli"
 
-
 struct GSOutput
 {
 	float4 pos : SV_POSITION;

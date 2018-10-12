@@ -5,6 +5,12 @@
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
 #include "../Actors/Enemy/Enemy.h"
+#include "../../../../Engine/Source/3D Engine/RenderingManager.h"
+
+#include "../../Physics/Bounce.h"
+#include "../Actors/BaseActor.h"
+#include <future>
+#include "../Actors/Enemy/Enemy.h"
 
 class PlayState : public State
 {
@@ -15,7 +21,39 @@ private:
 	Player * player;
 
 	Enemy * enemy;
-	
+	b3World m_world;
+
+
+	//-----------------------------------------------------------------------------
+	//PLEASE REMOBE THIS //TODO::PLEASE
+
+	b3Body*		m_floor;
+	b3Polyhedron * poly2;
+	b3Hull * bodyBox2;
+	b3BodyDef * bodyDef2;
+	b3ShapeDef* bodyBoxDef2;
+	b3Shape * m_shape2;
+
+	//-----------------------------------------------------------------------------
+	BaseActor * actor;
+
+	float x = -1.5f;
+	float y = 2.1f; 
+	float z = -2.1f;
+
+	float intensity = 2;
+	BaseActor * wall1;
+
+	PointLight light1;
+	PointLight light2;
+
+	Enemy gTemp;
+
+	Model * model;
+	//std::future<void> future;
+	//std::thread test;
+	b3TimeStep m_step;
+	bool m_firstRun = true;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -25,4 +63,5 @@ public:
 	void Draw() override;
 
 private:
+	void thread(std::string s);
 };

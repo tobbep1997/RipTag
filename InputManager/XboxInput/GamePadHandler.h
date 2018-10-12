@@ -18,11 +18,18 @@ public:
 	static void Resume();
 	static void Suspend();
 	static bool UpdateState();
+	static bool IsConnected();
 
 	static bool IsAPressed();
 	static bool IsBPressed();
 	static bool IsYPressed();
 	static bool IsXPressed();
+
+	static float GetLeftStickYPosition();
+	static float GetLeftStickXPosition();
+
+	static float GetRightStickYPosition();
+	static float GetRightStickXPosition();
 
 	static DirectX::XMFLOAT2 GetLeftStickposition();
 	static DirectX::XMFLOAT2 GetRightStickposition();

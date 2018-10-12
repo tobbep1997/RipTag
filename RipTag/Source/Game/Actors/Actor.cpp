@@ -2,7 +2,10 @@
 
 Actor::Actor() : Model()
 {
+	
 }
+
+
 
 Actor::~Actor()
 {
