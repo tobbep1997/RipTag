@@ -48,7 +48,7 @@ namespace MyLibrary
 	};
 	struct CollisionBoxes
 	{
-		int nrOfBoxes;
+		unsigned int nrOfBoxes;
 		CollisionBox* boxes;
 	};
 	struct MeshHeader {

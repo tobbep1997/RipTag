@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4172)
 #include "../Meshes/StaticMesh.h"
 #include "../Meshes/DynamicMesh.h"
 #include <mutex>

@@ -268,7 +268,7 @@ namespace MyLibrary
 
 		if (customAnimationFile.is_open())
 		{
-			int32_t numberOfKeys = loadInt32(customAnimationFile);
+			uint32_t numberOfKeys = loadInt32(customAnimationFile);
 			animation_to_return.nr_of_keyframes = numberOfKeys;
 
 			DecomposedTransform* keyframes = new DecomposedTransform[numberOfKeys * jointCount];
