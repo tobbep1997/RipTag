@@ -47,6 +47,9 @@ public:
 	static bool IsRightTriggerPressed();
 	static bool IsLeftTriggerPressed();
 
+	static float RightTrigger();
+	static float LeftTrigger();
+
 	static bool IsRightDpadPressed();
 	static bool IsLeftDpadPressed();
 	static bool IsUpDpadPressed();

@@ -93,7 +93,9 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 		this->m_usingDir = true;
 	}
 
-	DirectX::XMVECTOR vUp = DirectX::XMLoadFloat4A(&this->m_UP);
+	DirectX::XMFLOAT4A l_UP(0, 1, 0, 0);
+
+	DirectX::XMVECTOR vUp = DirectX::XMLoadFloat4A(&l_UP);
 	DirectX::XMVECTOR vRight = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vUp, vDir));
 
 	vRight = DirectX::XMVectorScale(vRight, rotation.x);

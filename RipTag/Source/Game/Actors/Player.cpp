@@ -8,6 +8,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
+	m_lastPeek = DEFAULT_UP;
 }
 
 Player::~Player()
@@ -74,11 +75,13 @@ void Player::_handleInput(double deltaTime)
 	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
-	XMVECTOR vUP= XMLoadFloat4(&UP);
+	XMVECTOR vUP = XMLoadFloat4(&UP);
 	XMVECTOR vRight;
 
 	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
 	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
+
+
 
 
 
@@ -92,6 +95,27 @@ void Player::_handleInput(double deltaTime)
 	{
 		m_moveSpeed = 200.0f;
 	}
+
+	float targetPeek = Input::PeekRight();
+
+	XMVECTOR in = XMLoadFloat4A(&m_lastPeek);
+
+	XMFLOAT4A none{ 0,1,0,0 };
+
+	XMVECTOR target = XMLoadFloat4A(&none);
+
+	/*if (targetPeek > 0)
+		target = XMLoadFloat4A(&MAX_PEEK_RIGHT);
+	else if (targetPeek < 0)
+		target = XMLoadFloat4A(&MAX_PEEK_LEFT);*/
+
+	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
+	target = XMVector4Transform(target, rot);
+	XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * m_peekSpeed, 1.0f));
+	//out = XMVector4Transform(out, rot);
+
+	XMStoreFloat4A(&m_lastPeek, out);
+	p_camera->setUP(m_lastPeek);
 
 
 	float x = Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.x;
