@@ -71,13 +71,13 @@ namespace Animation
 	// Struct containing all necessary data for an animation for a given skeleton
 	struct AnimationClip
 	{
-		Skeleton* m_skeleton;
+		std::shared_ptr<Skeleton> m_skeleton;
 		uint16_t m_frameCount;
 		std::unique_ptr<SkeletonPose[]> m_skeletonPoses;
 		uint8_t m_framerate;
 
 		AnimationClip() {};
-		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton);
+		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Skeleton> skeleton);
 		~AnimationClip();
 	};
 
@@ -96,8 +96,8 @@ namespace Animation
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
-	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
-	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
+	std::shared_ptr<Animation::AnimationClip> LoadAndCreateAnimation(std::string file, std::shared_ptr<Animation::Skeleton> skeleton);
+	std::shared_ptr<Animation::Skeleton> LoadAndCreateSkeleton(std::string file);
 	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
 	Animation::JointPose getAdditivePose(JointPose targetPose, JointPose differencePose);
 	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);

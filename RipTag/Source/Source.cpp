@@ -1,6 +1,6 @@
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
-
+#include "Game/Handlers/AnimationHandler.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console
