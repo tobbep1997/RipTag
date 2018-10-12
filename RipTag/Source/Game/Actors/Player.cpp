@@ -3,15 +3,16 @@
 #include "../../../../InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
 
-Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), PhaseAction()
+Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
+	this->m_rayListener = new RayCastListener();
 }
 
 Player::~Player()
 {	
-
+	delete this->m_rayListener;
 }
 
 void Player::BeginPlay()
@@ -35,6 +36,21 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 {
 	Transform::setPosition(x, y, z);
 	PhysicsComponent::p_setPosition(x, y, z);
+}
+
+void Player::Phase()
+{
+	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), 2);
+	b3Vec3 pos = b3Vec3(0, 0, 0);
+	if (this->m_rayListener->shape != nullptr)
+	{
+		pos.x = this->m_rayListener->contactPoint.x + (0.5*(-this->m_rayListener->normal.x));
+		pos.y = this->m_rayListener->contactPoint.y + (0.5*(-this->m_rayListener->normal.y));
+		pos.z = this->m_rayListener->contactPoint.z + (0.5*(-this->m_rayListener->normal.z));
+	}
+	this->m_rayListener->clear();
+	if (!(pos.x == 0 && pos.z == 0))
+		p_setPosition(pos.x, this->getPosition().y, pos.z);
 }
 
 
@@ -94,15 +110,7 @@ void Player::_handleInput(double deltaTime)
 	}
 	else if (isQPressed)
 	{
-		forward.y = yDir;
-		b3Vec3 pos = Phase(this->getBody(), forward, 5);
-		if(pos.x != 0 && pos.y != 0 && pos.z != 0)
-		p_setPosition(pos.x, getPosition().y + getLiniearVelocity().y, pos.z);
-		//std::cout << "Contact Point: " << this->m_rayListener->contactPoint.x << "," << this->m_rayListener->contactPoint.y << "," << this->m_rayListener->contactPoint.z << std::endl;
-		//std::cout << "Normal: " << this->m_rayListener->normal.x << "," << this->m_rayListener->normal.y << "," << this->m_rayListener->normal.z << std::endl;
-		//std::cout << "Ray End Position: " << x1 << ", " << getPosition().y << ", " << z1 << std::endl;
-		std::cout << "foward Vec: " << forward.x << ", " << forward.y << ", " << forward.z << std::endl;
-		std::cout << "new Pos: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+		this->Phase();
 		isQPressed = false;
 	}
 

@@ -5,11 +5,12 @@
 
 #include "../Engine/Source/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
-#include "../Abilities/PhaseAction.h"
+#include "../../Physics/Wrapper/RayCastListener.h"
 
-class Player : public Actor, public CameraHolder, public PhysicsComponent, public PhaseAction
+class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
+	RayCastListener *m_rayListener;
 
 	bool isQPressed = false;
 	float m_moveSpeed = 200.0f;
@@ -28,6 +29,8 @@ public:
 	void PhysicsUpdate(double deltaTime);
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
+
+	void Phase();
 
 private:
 

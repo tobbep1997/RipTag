@@ -293,5 +293,8 @@
     <ClInclude Include="Source\Game\Abilities\PhaseAction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
