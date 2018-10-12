@@ -159,7 +159,7 @@ void PlayState::Update(double deltaTime)
 	std::cout << "\a";
 
 #if _DEBUG
-	ImGui::Begin("Player Setting");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin("Player Setting");                          
 	ImGui::SliderFloat("PositionX", &x, -20.0f, 20.f);
 	ImGui::SliderFloat("PositionY", &y, -20.0f, 20.f);
 	ImGui::SliderFloat("PositionZ", &z, -20.0f, 20.f);
@@ -171,7 +171,7 @@ void PlayState::Update(double deltaTime)
 #endif
 
 #if _DEBUG
-	ImGui::Begin("Light");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin("Light");                         
 	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
 	
 	ImGui::End();

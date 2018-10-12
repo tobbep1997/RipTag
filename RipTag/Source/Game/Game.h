@@ -1,15 +1,21 @@
 #pragma once
+//Make sure includes from the network lib are put at the top. This is to avoid 'rereference' error from Windows headers
+#include <Multiplayer.h>
+
+
 #include "Source/3D Engine/RenderingManager.h"
 #include <stack>
 #include "States/State.h"
 #include "States/PlayState.h"
 #include "Source/3D Engine/Model/Managers/ModelManager.h"
 #include "States/MainMenu.h"
+#include <LuaTalker.h>
 
 class Game
 {
 private:
-	RenderingManager m_renderingManager;
+	RenderingManager * m_renderingManager = 0;
+	Network::Multiplayer * pNetworkInstance = 0;
 
 	std::stack<State*> m_gameStack;
 

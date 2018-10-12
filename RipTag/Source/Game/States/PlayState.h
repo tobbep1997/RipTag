@@ -11,6 +11,13 @@
 #include "../Actors/BaseActor.h"
 #include <future>
 
+
+//lua 
+#include <LuaTalker.h>
+
+#define LUA_PLAYSTATE "PlayState"
+
+
 class PlayState : public State
 {
 private:
@@ -64,3 +71,24 @@ public:
 private:
 	void thread(std::string s);
 };
+
+static int New_PlayState(lua_State * L)
+{
+	RenderingManager * ptr = (RenderingManager*)lua_touserdata(L, -1);
+	lua_pop(L, 1);
+
+	PlayState * state = 0;
+	if (ptr)
+	{
+		state = new PlayState(ptr);
+		lua_pushlightuserdata(L, (void*)state);
+	}
+}
+
+static void LUA_Register_PlayState(lua_State * L)
+{
+	lua_register(L, LUA_PLAYSTATE, New_PlayState);
+	luaL_newmetatable(L, LUA_STATE_METATABLE);
+
+}
+

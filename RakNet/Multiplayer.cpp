@@ -158,23 +158,13 @@ namespace Network
 		unsigned char id = GetPacketIdentifier((unsigned char*)msg);
 
 		//list of all structs
-		ENTITY_MOVE_MESSAGE * pEMM = 0;
 		GAME_MESSAGE * pGM = 0;
-		ENTITY_CREATE_MESSAGE * pECM = 0;
-
+		
 		switch (id)
 		{
 		case ID_GAME_START:
 			pGM = (GAME_MESSAGE*)msg;
 			delete pGM; pGM = 0;
-			break;
-		case ID_CREATE_REMOTE_PLAYER:
-			pECM = (ENTITY_CREATE_MESSAGE*)msg;
-			delete pECM; pECM = 0;
-			break;
-		case ID_UPDATE_SPHERE_LOCATION:
-			pEMM = (ENTITY_MOVE_MESSAGE*)msg;
-			delete pEMM; pEMM = 0;
 			break;
 		default:
 			break;
@@ -235,12 +225,30 @@ namespace Network
 		
 	}
 
+	std::string Multiplayer::GetNID()
+	{
+		return std::to_string(Multiplayer::GetInstance()->GetNetworkID());
+	}
+
 	std::string Multiplayer::GetNetworkInfo()
 	{
 		std::string toReturn = "";
 		toReturn = "Connected to: " + std::string(m_rIP.ToString());
 		toReturn += "\nAverage Ping: " + std::to_string(this->pPeer->GetAveragePing(this->m_rIP));
 		return toReturn;
+	}
+
+	int Multiplayer::Send_Data(lua_State * L)
+	{
+		void * data = lua_touserdata(L, -3);
+		size_t length = lua_tonumber(L, -2);
+		unsigned int priority = lua_tonumber(L, -1);
+
+		Multiplayer * pMp = Multiplayer::GetInstance();
+
+		pMp->SendPacket((const char*)data, length, (PacketPriority)priority);
+
+		return 0;
 	}
 
 	Multiplayer::Multiplayer()
@@ -250,6 +258,11 @@ namespace Network
 
 		if (pNetworkIDManager == 0)
 			pNetworkIDManager = RakNet::NetworkIDManager::GetInstance();
+
+		this->SetNetworkID(this->GetNetworkID());
+		this->SetNetworkIDManager(this->networkIDManager);
+
+
 		
 		std::cout << "Multiplayer Constructor is called.\n";
 	}
@@ -296,32 +309,12 @@ namespace Network
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
 		//Pointer to our lua_State (i just want a short variable for cleaner code)
-		lua_State * L = this->pLuaState;
 
 		//Call script after Message identification
 		switch (mID)
 		{
 		case ID_GAME_START:
-			if (m_isClient)
-				this->m_isGameRunning = true;
-			lua_getglobal(L, "GameStart");
-			lua_pushboolean(L, this->isServer());
-			lua_pcall(L, 1, 0, NULL);
-
-			break;
-		case ID_CREATE_REMOTE_PLAYER:
-			//run creation script function
-			lua_getglobal(L, "CreateCubePrototypeRemote");
-			lua_pushlightuserdata(L, (void*)data);
-			lua_pcall(L, 1, 0, NULL);
 			
-			break;
-		case ID_UPDATE_SPHERE_LOCATION:
-			// Insert script
-			lua_getglobal(L, "RemotePlayerMoved");
-			lua_pushlightuserdata(L, (void*)data);
-			lua_pcall(L, 1, 0, NULL);
-
 			break;
 		default:
 			break;
@@ -333,6 +326,30 @@ namespace Network
 		m_isConnected = m_isClient = m_isServer = m_isRunning = false;
 		// Go back to menu and print a message that the player or you lost connection
 		//might want to log who disconnected
+	}
+
+	void Multiplayer::REGISTER_TO_LUA()
+	{
+		 sol::usertype<Multiplayer> object(
+			"new", sol::no_constructor,
+			"StartServer", &Multiplayer::StartUpServerLUA,
+			"StartClient", &Multiplayer::StartUpClientLUA,
+			"CancelConnectionAttempt", &Multiplayer::EndConnectionAttemptLUA,
+			"IsServer", &Multiplayer::isServerLUA,
+			"IsClient", &Multiplayer::isClientLUA,
+			"IsPeerRunning", &Multiplayer::isRunningLUA,
+			"IsConnected", &Multiplayer::isConnectedLUA,
+			"IsGameRunning", &Multiplayer::isGameRunningLUA,
+			"GetNID", &Multiplayer::GetNidLUA,
+			"SendPacket", &Multiplayer::Send_Data
+
+		);
+
+		LUA::LuaTalker * ptr = LUA::LuaTalker::GetInstance();
+
+		ptr->defineObjectToLua(NETWORK_METATABLE, object);
+
+		ptr->runScript("print(Network.GetNID())");
 	}
 
 

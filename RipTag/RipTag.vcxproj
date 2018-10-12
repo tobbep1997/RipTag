@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine; $(SolutionDir)RakNet; $(SolutionDir)External\RakNet\Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Extern\RakNet\Include;$(SolutionDir)Lua Talker\Source; $(SolutionDir)RakNet; $(SolutionDir)External\RakNet\Include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -139,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine; $(SolutionDir)Network;$(SolutionDir)RakNet; $(SolutionDir)External\RakNet\Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Extern\RakNet\Include;$(SolutionDir)Lua Talker\Source; $(SolutionDir)Network;$(SolutionDir)RakNet; $(SolutionDir)External\RakNet\Include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -256,15 +256,5 @@
     <ClInclude Include="Source\Game\States\State.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\lua.redist.5.3.5\build\native\lua.redist.targets" Condition="Exists('..\packages\lua.redist.5.3.5\build\native\lua.redist.targets')" />
-    <Import Project="..\packages\lua.5.3.5\build\native\lua.targets" Condition="Exists('..\packages\lua.5.3.5\build\native\lua.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\lua.redist.5.3.5\build\native\lua.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\lua.redist.5.3.5\build\native\lua.redist.targets'))" />
-    <Error Condition="!Exists('..\packages\lua.5.3.5\build\native\lua.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\lua.5.3.5\build\native\lua.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

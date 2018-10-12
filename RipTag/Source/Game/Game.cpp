@@ -11,7 +11,7 @@ Game::Game()
 
 Game::~Game()
 {
-	m_renderingManager.Release();
+	m_renderingManager->Release();
 	while(!m_gameStack.empty())
 	{
 		delete m_gameStack.top();
@@ -21,28 +21,43 @@ Game::~Game()
 
 void Game::Init(_In_ HINSTANCE hInstance)
 {
-	m_renderingManager.Init(hInstance);
-	m_gameStack.push(new PlayState(&m_renderingManager));
+	
+	//Rendering Manager Start
+	{
+		m_renderingManager = RenderingManager::GetInstance();
+		m_renderingManager->Init(hInstance);
+	}
+
+	m_gameStack.push(new PlayState(m_renderingManager));
 
 	GamePadHandler::Instance();
 	Timer::Instance();
+
+	//Network Start
+	{
+		pNetworkInstance = Network::Multiplayer::GetInstance();
+		Network::Multiplayer::REGISTER_TO_LUA();
+		Network::LUA_Register_Packet_Priorities();
+		Network::Packets::REGISTER_TO_LUA();
+		
+	}
 }
 
 bool Game::isRunning()
 {
-	return m_renderingManager.getWindow().isOpen();
+	return m_renderingManager->getWindow().isOpen();
 }
 
 void Game::PollEvents()
 {
-	m_renderingManager.Update();
+	m_renderingManager->Update();
 
 }
 
 void Game::Clear()
 {
 	//TODO Fix clear
-	m_renderingManager.Clear();
+	m_renderingManager->Clear();
 }
 
 void Game::Update(double deltaTime)
@@ -53,6 +68,7 @@ void Game::Update(double deltaTime)
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
+	pNetworkInstance->Update();
 	
 }
 
@@ -63,7 +79,7 @@ void Game::Draw()
 
 void Game::ImGuiFrameStart()
 {
-	m_renderingManager.ImGuiStartFrame();
+	m_renderingManager->ImGuiStartFrame();
 }
 
 void Game::_handleStateSwaps()
@@ -92,7 +108,7 @@ void Game::_restartGameIf()
 
 
 
-			m_gameStack.push(new PlayState(&m_renderingManager));
+			m_gameStack.push(new PlayState(m_renderingManager));
 			isPressed = true;
 		}
 	}

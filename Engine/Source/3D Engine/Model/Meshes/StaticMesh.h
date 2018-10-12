@@ -1,9 +1,8 @@
 #pragma once
 #include <vector>
 #include "../../../Structs.h"
-#pragma comment(lib, "New_Library.lib")
 //#include <../../../New_Library/formatImporter.h>
-
+#pragma comment(lib, "New_Library")
 #include <../New_Library/formatImporter.h>
 
 class StaticMesh
