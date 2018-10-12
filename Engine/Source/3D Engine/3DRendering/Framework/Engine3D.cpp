@@ -15,7 +15,7 @@ std::vector<Drawable*> DX::g_visabilityDrawQueue;
 
 std::vector<Drawable*> DX::g_wireFrameDrawQueue;
 
-std::vector<Guard*> DX::g_guardDrawQueue;
+std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;

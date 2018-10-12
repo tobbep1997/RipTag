@@ -66,6 +66,10 @@ public:
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 
+	const float & getFarPlane() const;
+	const float & getNearPlane() const;
+	const float & getFOV() const;
+
 	const DirectX::XMFLOAT4A & getDirection() const;
 
 	const DirectX::XMFLOAT4X4A & getView();

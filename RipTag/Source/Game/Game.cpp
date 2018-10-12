@@ -137,11 +137,11 @@ void Game::_restartGameIf()
 			delete m_gameStack.top();
 			m_gameStack.pop();
 
-			Manager::g_meshManager.UnloadStaticMesh("KOMBIN");
-			Manager::g_meshManager.UnloadStaticMesh("SPHERE");
+			//Manager::g_meshManager.UnloadStaticMesh("KOMBIN");
+			//Manager::g_meshManager.UnloadStaticMesh("SPHERE");
 
-			Manager::g_textureManager.UnloadTexture("KOMBIN");
-			Manager::g_textureManager.UnloadTexture("SPHERE");
+			//Manager::g_textureManager.UnloadTexture("KOMBIN");
+			//Manager::g_textureManager.UnloadTexture("SPHERE");
 
 
 

@@ -164,8 +164,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Game\Actors\Enemy\VisibilityComponent.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3DynamicAABBTree.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3SAT.cpp" />
@@ -203,8 +205,10 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
+    <ClInclude Include="Source\Game\Actors\Enemy\VisibilityComponent.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
     <ClInclude Include="Source\Physics\Collision\b3AABB.h" />
     <ClInclude Include="Source\Physics\Collision\b3BroadPhase.h" />

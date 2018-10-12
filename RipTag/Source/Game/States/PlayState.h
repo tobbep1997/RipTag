@@ -10,6 +10,7 @@
 #include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
 #include <future>
+#include "../Actors/Enemy/Enemy.h"
 
 
 //lua 
@@ -43,17 +44,23 @@ private:
 	//-----------------------------------------------------------------------------
 	BaseActor * actor;
 
-	float x = -1.5;
-	float y = 2.1; 
-	float z = -2.1;
+	float x = -1.5f;
+	float y = 2.1f; 
+	float z = -2.1f;
+
+	float xD = 0;
+	float yD = 0;
+	float zD = 0;
 
 	float intensity = 2;
 	BaseActor * wall1;
 
+	BaseActor * testCube;
+
 	PointLight light1;
 	PointLight light2;
 
-	Guard gTemp;
+	Enemy gTemp;
 
 	Model * model;
 	//std::future<void> future;

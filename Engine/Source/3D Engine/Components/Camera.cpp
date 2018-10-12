@@ -166,6 +166,19 @@ void Camera::setFarPlane(float farPlane)
 	_calcProjectionMatrix();
 }
 
+const float & Camera::getFarPlane() const
+{
+	return this->m_farPlane;
+}
+const float & Camera::getNearPlane() const
+{
+	return this->m_nearPlane;
+}
+const float & Camera::getFOV() const
+{
+	return this->m_fov;
+}
+
 const DirectX::XMFLOAT4A & Camera::getDirection() const
 {
 	return this->m_direction;
