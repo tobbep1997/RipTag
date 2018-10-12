@@ -1,42 +1,42 @@
 #include "NetworkMessageIdentifiers.h"
 
-int Network::Packets::New_Game_Message(lua_State * L)
+
+std::tuple<void*, size_t> Network::Packets::New_Game_Message(unsigned char _id)
 {
-	unsigned char id = (unsigned char)lua_tonumber(L, -1);
-	lua_pop(L, -1);
-
-	GAME_MESSAGE * ptr = new GAME_MESSAGE(id);
-
-	lua_pushlightuserdata(L, (void*)ptr);
-	lua_pushnumber(L, sizeof(GAME_MESSAGE));
-
-	return 2;
+	GAME_MESSAGE * ptr = new GAME_MESSAGE(_id);
+	return std::make_tuple((void*)ptr, sizeof(GAME_MESSAGE));
 }
 
-int Network::Packets::Destroy_Game_Message(lua_State * L)
+void Network::Packets::Destroy_Game_Message(void * in_ptr)
 {
-	GAME_MESSAGE * ptr = (GAME_MESSAGE*)lua_touserdata(L, -1);
+	GAME_MESSAGE * ptr = (GAME_MESSAGE*)in_ptr;
 	delete ptr; ptr = 0;
-	return 0;
 }
 
 void Network::Packets::REGISTER_TO_LUA()
 {
-	static sol::usertype<Packets> object(
-		"new", sol::no_constructor,
-		"GameMessage", &New_Game_Message,
-		"DestroyGameMessage", &Destroy_Game_Message
-		);
+	static bool isRegged = false;
 
-	LUA::LuaTalker * m_talker = LUA::LuaTalker::GetInstance();
-	m_talker->defineObjectToLua("Packets", object);
+	if (!isRegged)
+	{
+		LUA::LuaTalker * talker = LUA::LuaTalker::GetInstance();
+		sol::state_view * solStateView = talker->getSolState();
+
+		solStateView->new_usertype<Packets>(LUA_PACKETS_METATABLE,
+			"new", sol::no_constructor,
+			LUA_GAME_MESSAGE_PACKET, &Packets::New_Game_Message,
+			LUA_DESTROY_GAME_MESSAGE, &Packets::Destroy_Game_Message
+			);
+
+		
+		talker->getSolState()->new_enum(LUA_TABLE_MESSAGE_IDENTIFIERS,
+			ENUM_TO_STR(ID_GAME_START), ID_GAME_START);
+
+
+		isRegged = true;
+	}
 
 
 }
 
-void Network::PacketIdentifiers::REGISTER_TO_LUA()
-{
-	LUA::LuaTalker * m_talker = LUA::LuaTalker::GetInstance();
-	m_talker->getSolState()->new_enum(LUA_TABLE_MESSAGE_IDENTIFIERS,
-		ENUM_TO_STR(ID_GAME_START), ID_GAME_START);
-}
+
