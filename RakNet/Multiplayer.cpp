@@ -330,26 +330,31 @@ namespace Network
 
 	void Multiplayer::REGISTER_TO_LUA()
 	{
-		 sol::usertype<Multiplayer> object(
-			"new", sol::no_constructor,
-			"StartServer", &Multiplayer::StartUpServerLUA,
-			"StartClient", &Multiplayer::StartUpClientLUA,
-			"CancelConnectionAttempt", &Multiplayer::EndConnectionAttemptLUA,
-			"IsServer", &Multiplayer::isServerLUA,
-			"IsClient", &Multiplayer::isClientLUA,
-			"IsPeerRunning", &Multiplayer::isRunningLUA,
-			"IsConnected", &Multiplayer::isConnectedLUA,
-			"IsGameRunning", &Multiplayer::isGameRunningLUA,
-			"GetNID", &Multiplayer::GetNidLUA,
-			"SendPacket", &Multiplayer::Send_Data
+		static bool isRegistered = false;
 
-		);
+		if (!isRegistered)
+		{
+			LUA::LuaTalker * talker = LUA::LuaTalker::GetInstance();
+			Multiplayer * instance = Multiplayer::GetInstance();
 
-		LUA::LuaTalker * ptr = LUA::LuaTalker::GetInstance();
+			sol::state_view * solStateView = talker->getSolState();
 
-		ptr->defineObjectToLua(NETWORK_METATABLE, object);
+			solStateView->set_function(LUA_START_SERVER, &Multiplayer::StartUpServer, *instance);
+			solStateView->set_function(LUA_START_CLIENT, &Multiplayer::StartUpClient, *instance);
+			solStateView->set_function(LUA_END_CONNECTION_ATTEMPT, &Multiplayer::EndConnectionAttempt, *instance);
+			solStateView->set_function(LUA_DISCONNECT, &Multiplayer::Disconnect, *instance);
+			solStateView->set_function(LUA_IS_SERVER, &Multiplayer::isServer, *instance);
+			solStateView->set_function(LUA_IS_CLIENT, &Multiplayer::isClient, *instance);
+			solStateView->set_function(LUA_IS_PEER_RUNNING, &Multiplayer::isRunning, *instance);
+			solStateView->set_function(LUA_IS_CONNECTED, &Multiplayer::isConnected, *instance);
+			solStateView->set_function(LUA_IS_GAME_RUNNING, &Multiplayer::isGameRunning, *instance);
+			solStateView->set_function(LUA_GET_MY_NID, &Multiplayer::GetNID, *instance);
+			solStateView->set_function(LUA_SET_GAME_RUNNING_NETWORK, &Multiplayer::setIsGameRunning, *instance);
+			solStateView->set_function(LUA_SEND_PACKET, &Multiplayer::Send_Data);
 
-		ptr->runScript("print(Network.GetNID())");
+			
+			isRegistered = true;
+		}
 	}
 
 

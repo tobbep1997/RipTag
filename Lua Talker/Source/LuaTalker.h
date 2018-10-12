@@ -11,7 +11,7 @@ namespace LUA
 		LuaTalker();
 		~LuaTalker();
 		lua_State* getLuaState();
-		sol::state_view getSolState();
+		sol::state_view* getSolState();
 
 
 		int loadFile(const char * adress);

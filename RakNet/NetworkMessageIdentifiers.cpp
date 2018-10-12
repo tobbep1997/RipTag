@@ -30,6 +30,8 @@ void Network::Packets::REGISTER_TO_LUA()
 
 	LUA::LuaTalker * m_talker = LUA::LuaTalker::GetInstance();
 	m_talker->defineObjectToLua("Packets", object);
+
+
 }
 
 void Network::PacketIdentifiers::REGISTER_TO_LUA()

@@ -33,6 +33,7 @@ public:
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 
+	static void REGISTER_TO_LUA();
 
 	enum Key
 	{

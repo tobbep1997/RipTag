@@ -30,9 +30,9 @@ namespace LUA
 		return this->L;
 	}
 
-	sol::state_view LuaTalker::getSolState()
+	sol::state_view* LuaTalker::getSolState()
 	{
-		return *lua;
+		return lua;
 	}
 
 	int LuaTalker::loadFile(const char * adress)

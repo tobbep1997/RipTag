@@ -28,7 +28,6 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		m_renderingManager->Init(hInstance);
 	}
 
-	m_gameStack.push(new PlayState(m_renderingManager));
 
 	GamePadHandler::Instance();
 	Timer::Instance();
@@ -41,6 +40,8 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		Network::Packets::REGISTER_TO_LUA();
 		
 	}
+
+	m_gameStack.push(new PlayState(m_renderingManager));
 }
 
 bool Game::isRunning()
@@ -80,6 +81,39 @@ void Game::Draw()
 void Game::ImGuiFrameStart()
 {
 	m_renderingManager->ImGuiStartFrame();
+}
+
+void Game::PushStateLUA(State * ptr)
+{
+	MainMenu * menuPtr = 0;
+	PlayState * playPtr = 0;
+
+	if (ptr)
+	{
+		menuPtr = dynamic_cast<MainMenu*>(ptr);
+		if (menuPtr)
+		{
+			this->m_gameStack.push(menuPtr);
+			return;
+		}
+		playPtr = dynamic_cast<PlayState*>(ptr);
+		if (playPtr)
+		{
+			this->m_gameStack.push(playPtr);
+			return;
+		}
+		//pause menu and lobby menu to add
+	}
+}
+
+void Game::PopStateLUA()
+{
+	this->m_gameStack.pop();
+}
+
+void Game::REGISTER_TO_LUA(Game & gameInstance)
+{
+
 }
 
 void Game::_handleStateSwaps()

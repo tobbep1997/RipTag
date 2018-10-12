@@ -9,7 +9,20 @@
 
 #include <LuaTalker.h>
 
-#define NETWORK_METATABLE "Network"
+
+#define LUA_START_SERVER "StartServer"
+#define LUA_START_CLIENT "StartClient"
+#define LUA_END_CONNECTION_ATTEMPT "EndConnectionAttempt"
+#define LUA_DISCONNECT "Disconnect"
+#define LUA_IS_SERVER "IsServer"
+#define LUA_IS_CLIENT "IsClient"
+#define LUA_IS_PEER_RUNNING "IsPeerRunning"
+#define LUA_IS_CONNECTED "IsPeerConnected"
+#define LUA_IS_GAME_RUNNING "IsGameRunningNetwork"
+#define LUA_GET_MY_NID "GetMyNID"
+#define LUA_SET_GAME_RUNNING_NETWORK "SetGameIsRunningNetwork"
+#define LUA_SEND_PACKET "SendPacket"
+
 #define LUA_TABLE_PACKET_PRIORITIES "PACKET"
 
 
@@ -52,30 +65,21 @@ namespace Network
 		bool isConnected() { return m_isConnected; }
 		bool isGameRunning() { return m_isGameRunning; }
 
-		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 		std::string GetNetworkStatistics();
 		std::string GetNID();
 		std::string GetNetworkInfo();
 
+		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 
 		//LUA
-		static bool isServerLUA() { return Multiplayer::GetInstance()->isServer(); }
-		static bool isClientLUA() { return Multiplayer::GetInstance()->isClient(); }
-		static bool isRunningLUA() { return Multiplayer::GetInstance()->isRunning(); }
-		static bool isConnectedLUA() { return Multiplayer::GetInstance()->isConnected(); }
-		static bool isGameRunningLUA() { return Multiplayer::GetInstance()->isGameRunning(); }
-		static void StartUpServerLUA() { Multiplayer::GetInstance()->StartUpServer(); }
-		static void StartUpClientLUA() { Multiplayer::GetInstance()->StartUpClient(); }
-		static void EndConnectionAttemptLua() { Multiplayer::GetInstance()->EndConnectionAttempt(); }
-		static std::string GetNidLUA() { Multiplayer::GetInstance()->GetNID(); }
 		static int Send_Data(lua_State * L);
 		static void REGISTER_TO_LUA();
 
-		Multiplayer();
-		~Multiplayer();
 
 		//unsafe, find a better way
 	private:
+		Multiplayer();
+		~Multiplayer();
 		//private constructor to avoid instanciating more than one object
 		//the destructor of the singleton is called when the program exits.
 		bool m_isServer = false;
@@ -97,14 +101,6 @@ namespace Network
 		void _onDisconnect();
 
 	};
-
-	static int Get_Instance(lua_State * L)
-	{
-		Multiplayer * pIns = Multiplayer::GetInstance();
-		lua_pushlightuserdata(L, (void*)pIns);
-		luaL_setmetatable(L, NETWORK_METATABLE);
-		return 1;
-	}
 
 
 	static void LUA_Register_Packet_Priorities()

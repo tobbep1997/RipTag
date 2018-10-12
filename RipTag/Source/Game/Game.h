@@ -35,6 +35,10 @@ public:
 	void Draw();				//Calls Draw
 	void ImGuiFrameStart();		//ImGuiStart
 	//------------------------------------
+	//LUA EXPOSE
+	void PushStateLUA(State * ptr);
+	void PopStateLUA();
+	static void REGISTER_TO_LUA(Game & gameInstance);
 
 private:
 	void _handleStateSwaps();
