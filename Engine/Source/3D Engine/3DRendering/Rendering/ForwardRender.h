@@ -117,7 +117,7 @@ public:
 
 	void Release();
 private:
-	void _tempGuardFrustumDraw();
+	void _GuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
 
