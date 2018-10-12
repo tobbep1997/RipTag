@@ -129,9 +129,13 @@ void Player::_handleInput(double deltaTime)
 	{
 		if (!m_teleport.getActiveSphere())
 		{
-			m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
-			m_teleport.setActiveSphere(true);
+			m_teleport.chargeSphere();
 		}
+	}
+	else if (m_teleport.getCharging())
+	{
+		m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
+		m_teleport.setCharging(false);
 	}
 	if (InputHandler::isKeyPressed('G'))
 	{
@@ -139,7 +143,6 @@ void Player::_handleInput(double deltaTime)
 		{
 			DirectX::XMFLOAT4A newPos = m_teleport.TeleportToSphere();
 			setPosition(newPos.x, newPos.y + 0.6f, newPos.z, newPos.w);
-			m_teleport.setActiveSphere(false);
 			//If we want skill... remove
 			setLiniearVelocity(0, 0, 0);
 			setAwakeState(true);
