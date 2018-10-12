@@ -12,65 +12,20 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	player = new Player();
 	enemy = new Enemy();
-	CameraHandler::setActiveCamera(player->getCamera());
-	
-	//m_world = new b3World();
+	CameraHandler::setActiveCamera(player->getCamera());	
+
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-	MyLibrary::Loadera l;
-	
-	MyLibrary::CollisionBoxes bb = l.readMeshCollisionBoxes("../Assets/BBoX.bin");
-
-
-
-	//bodyDef = new b3BodyDef();
-	//bodyDef->type = e_dynamicBody;
-
-	//// Position the body 10 meters high from the world origin.
-	//bodyDef->position.Set(0.0f, 100.0f, 0.0f);
-	//
-	//m_body = m_world.CreateBody(*bodyDef);
-	//bodyBox = new b3Hull();
-
-	//bodyBox->SetAsBox(b3Vec3(1, 1, 1));
-
-	//poly = new b3Polyhedron();
-	//poly->SetHull(bodyBox);
-	//
-	//
-	//bodyBoxDef = new b3ShapeDef();
-	//bodyBoxDef->shape = poly;
-	//bodyBoxDef->density = 1.0f;
-	//bodyBoxDef->restitution = 0;
-	//
-	//using namespace std::chrono_literals;
-	////std::cout << "Hello waiter" << std::endl; // flush is intentional
-	////auto start = std::chrono::high_resolution_clock::now();
-	//
-
-
-	//std::this_thread::sleep_for(2s);
-	//m_body->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
-	//m_body->SetGravityScale(-9.82f);
-	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	Timer::StartTimer();
-	//pool->submit(&thread,"KOMBIN");
+
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	//Manager::g_meshManager.loadStaticMesh("SPHERE");
-	Manager::g_meshManager.loadStaticMesh("KUB");
 
-	//Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_meshManager.loadStaticMesh("KUB");
 
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
-	//Manager::g_textureManager.loadTextures("PIRASRUM");
-	
-	//temp = new Model();
-	////temp->setEntityType();
-	//temp->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	//temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	//temp->setPosition(0, 10, 0);
+
 	future.get();
 	future1.get();
 	Timer::StopTimer();
@@ -80,16 +35,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
 	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
 
-
 	CollisionBoxes = new BaseActor();
-	std::vector<CollisionObject> boxes;
-	for (int i = 0; i < bb.nrOfBoxes; i++)
-	{
-		
-		boxes.push_back(CollisionObject(DirectX::XMFLOAT3(bb.boxes[i].translation[0], bb.boxes[i].translation[1], bb.boxes[i].translation[2]), DirectX::XMFLOAT3(bb.boxes[i].scale[0], bb.boxes[i].scale[1], bb.boxes[i].scale[2])));
-
-	}
-	CollisionBoxes->Init(m_world, boxes);
+	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
 
 
 	//actor->setPosition(0, 10, 0);
@@ -138,7 +85,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	testCube->setPosition(5, 5.0f, 0);
 	
 
-	delete [] bb.boxes;
 }
 
 PlayState::~PlayState()
