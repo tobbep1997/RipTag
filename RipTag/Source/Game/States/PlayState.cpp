@@ -1,9 +1,8 @@
 #include "PlayState.h"
 #include "../../../../InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
-#include "Source/Helper/Timer.h"
-
-#include "../New_Library/formatImporter.h"
+#include "EngineSource/Helper/Timer.h"
+#include "ImportLibrary/formatImporter.h"
 
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
@@ -39,14 +38,14 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
 
 
-	//actor->setPosition(0, 10, 0);
+
 	actor->setScale(1.0f,1.0f,1.0f);
 	actor->setPosition(0, 0, 0);
 	actor->setTextureTileMult(10, 10);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0,0);
-	//player->setEntityType(EntityType::PlayerType);
+
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -70,11 +69,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	enemy->setDir(1, 0, 0);
 	enemy->getCamera()->setFarPlane(5);
 
-	model = new Model();
+	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
 	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	model->setScale(0.5, 0.5, 0.5);
-	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
@@ -127,8 +125,6 @@ void PlayState::Update(double deltaTime)
 		target.x = ran;
 		
 	}
-
-	//current.x = fmin;
 	
 	auto v1 = DirectX::XMLoadFloat2(&current);
 	auto v2 = DirectX::XMLoadFloat2(&target);
@@ -141,23 +137,12 @@ void PlayState::Update(double deltaTime)
 
 	float temp = 5 + sin(current.x) * 1.5;
 
-	//temp = min(temp, 0.8);
-	//temp = max(temp, 0.65f);
+
 	
 	light1.setDropOff(.5f);
 	light1.setIntensity(temp);
 
-	//std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
 
-/*
-	float flick = (float)(rand() % 100) / 50.0f;
-	light1.setDropOff(flick);
-	flick = (float)(rand() % 100) / 50.0f;
-	light2.setDropOff(flick);
-	flick = (float)(rand() % 100) / 30.0f;
-	light1.setIntensity(flick);
-	flick = (float)(rand() % 100) / 30.0f;
-	light2.setIntensity(flick);*/
 
 #if _DEBUG
 	ImGui::Begin("Player Setting");                          // Create a window called "Hello, world!" and append into it.
@@ -188,11 +173,7 @@ void PlayState::Update(double deltaTime)
 
 
 	light2.setIntensity(intensity);
-	//light1.setPosition(x, y, z, 1);
-	//model->setPosition(x, y, z);
-	//testCube->setPositionRot(x, y, z,xD,yD,zD);
-	//gTemp.setDir(0, 0, -1);
-	//jumper->setPosition(ax, ay, az);
+
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
 		Input::ForceDeactivateGamepad();
@@ -234,28 +215,13 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
+	
+	
 
-	
-	
-	
-	// Getho Culling
-	//DirectX::XMFLOAT4A plPos = player->getPosition();
-	//// For each enemy
-	//DirectX::XMFLOAT4A dir = enemy->getCamera()->getDirection();
-	//DirectX::XMFLOAT4A ePos = enemy->getPosition();
-	//DirectX::XMFLOAT4A eToP(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
-	//float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
-	//float l = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat4A(&eToP)));
-	//
-	//if (d > enemy->getCamera()->getFOV() / 2.8f && l <= (enemy->getCamera()->getFarPlane() / d) + 2)
 	enemy->CullingForVisability(*player->getTransform());
 	enemy->QueueForVisibility();
 
-	/*dir = gTemp.getCamera()->getDirection();
-	ePos = gTemp.getPosition();
-	eToP = DirectX::XMFLOAT4A(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
-	d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
-	if (d > gTemp.getCamera()->getFOV() / 2.8f && l <= (gTemp.getCamera()->getFarPlane() / d) + 2)*/
+
 	gTemp.CullingForVisability(*player->getTransform());
 	gTemp.QueueForVisibility();
 

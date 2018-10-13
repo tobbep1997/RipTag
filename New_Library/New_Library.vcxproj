@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FormatHeader.h" />
-    <ClInclude Include="formatImporter.h" />
+    <ClInclude Include="ImportLibrary\FormatHeader.h" />
+    <ClInclude Include="ImportLibrary\formatImporter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="formatImporter.cpp" />
+    <ClCompile Include="ImportLibrary\formatImporter.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

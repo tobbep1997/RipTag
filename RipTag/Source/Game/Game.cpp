@@ -1,7 +1,7 @@
 #include "Game.h"
-#include "Source/3D Engine/Extern.h"
+#include "EngineSource/3D Engine/Extern.h"
 #include "../../../InputManager/XboxInput/GamePadHandler.h"
-#include "Source/Helper/Timer.h"
+#include "EngineSource/Helper/Timer.h"
 
 
 Game::Game()

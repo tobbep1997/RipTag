@@ -1,6 +1,6 @@
 #pragma once 
 #include <DirectXMath.h>
-#include "../Engine/Source/Window/window.h"
+#include <EngineSource/Window/window.h>
 class InputHandler
 {
 	friend class Window; 

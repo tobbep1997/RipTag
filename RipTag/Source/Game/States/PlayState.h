@@ -5,8 +5,7 @@
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
 #include "../Actors/Enemy/Enemy.h"
-#include "../../../../Engine/Source/3D Engine/RenderingManager.h"
-
+#include "EngineSource/3D Engine/RenderingManager.h"
 #include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
 #include <future>
@@ -45,7 +44,7 @@ private:
 
 	Enemy gTemp;
 
-	Model * model;
+	Drawable * model;
 	//std::future<void> future;
 	//std::thread test;
 	b3TimeStep m_step;

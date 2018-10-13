@@ -1,10 +1,9 @@
 #pragma once
-//#include "../Engine/Source/3D Engine/Components/Base/Transform.h"
+//#include "../Engine/EngineSource/3D Engine/Components/Base/Transform.h"
 
 #include "Actor.h"
 #include "Abilities/Teleport.h"
-
-#include "../Engine/Source/3D Engine/Components/Base/CameraHolder.h"
+#include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
