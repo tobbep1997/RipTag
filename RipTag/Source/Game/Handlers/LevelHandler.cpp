@@ -18,20 +18,18 @@ void LevelHandler::Init(b3World& worldPtr)
 {
 	m_worldPtr = &worldPtr;
 
-	testCube = new BaseActor();
-	testCube->Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-	testCube->setPosition(5, 5.0f, 0);
-	testCube->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
-	testCube->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	_GenerateLevelStruct(1);
 
-
+	_LoadRoom(1);
 	//testtt.Init(m_worldPtr, );
 }
 
 void LevelHandler::Release()
 {
-	testCube->Release(*m_worldPtr);
-	delete testCube;
+	for (int i = 0; i < m_rooms.size(); ++i)
+	{
+		m_rooms.at(i)->Release();
+	}
 }
 
 void LevelHandler::Update(float deltaTime)
@@ -41,7 +39,7 @@ void LevelHandler::Update(float deltaTime)
 		m_rooms.at(i)->Update();
 	}
 
-	testCube->Update(deltaTime);
+	//testCube->Update(deltaTime);
 }
 
 void LevelHandler::Draw()
@@ -50,17 +48,25 @@ void LevelHandler::Draw()
 	{
 		m_rooms.at(i)->Draw();
 	}
-	testCube->Draw();
+	//testCube->Draw();
 }
 
 void LevelHandler::_LoadRoom(const int roomIndex)
 {
-	Room * room = new Room(roomIndex);
+	Room * room = new Room(roomIndex, m_worldPtr);
 
 	//Insert assets
 	room->LoadRoomFromFile("");
 
+	m_rooms.push_back(room);
+}
 
+void LevelHandler::_GenerateLevelStruct(const int seed)
+{
+	std::experimental::filesystem::path Path = std::experimental::filesystem::current_path() / "../Assets/ROOMSPREFAB";
+	for (auto & p : std::experimental::filesystem::directory_iterator(Path))
+		std::cout << p << std::endl;
+	//std::cout << std::experimental::filesystem::current_path() << std::endl;
 }
 
 void LevelHandler::UnloadRoom(const int roomNumber)

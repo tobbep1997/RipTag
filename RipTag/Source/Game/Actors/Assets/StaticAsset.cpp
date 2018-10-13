@@ -14,6 +14,11 @@ void StaticAsset::Init(b3World& world, const MyLibrary::CollisionBoxes& collisio
 	PhysicsComponent::Init(world, collisionBoxes);
 }
 
+void StaticAsset::Init(b3World& world, const float& x, const float& y, const float& z)
+{
+	PhysicsComponent::Init(world,e_staticBody,x,y,z);
+}
+
 void StaticAsset::BeginPlay()
 {
 }

@@ -2,16 +2,19 @@
 #include "../Level/Room.h"
 #include <Vector>
 #include "../Actors/BaseActor.h"
+#include <filesystem>
+#include <iostream>
+
 
 class LevelHandler
 {
 private:
 	std::vector<Room*> m_rooms;
 
-	b3World * m_worldPtr;
-	BaseActor * testCube;
+	
 
-	StaticAsset testtt;
+	b3World * m_worldPtr;
+
 public:
 	LevelHandler();
 	~LevelHandler();
@@ -27,4 +30,6 @@ public:
 	void UnloadRoom(const int roomNumber);
 private:
 	void _LoadRoom(const int roomIndex);
+
+	void _GenerateLevelStruct(const int seed);
 };
