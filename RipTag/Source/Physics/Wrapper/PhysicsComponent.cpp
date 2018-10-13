@@ -1,6 +1,6 @@
 #include "PhysicsComponent.h"
 #include <iostream>
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
