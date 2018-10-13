@@ -182,16 +182,6 @@ DirectX::XMFLOAT2 GamePadHandler::GetLeftStickposition()
 	return DirectX::XMFLOAT2(0,0);
 }
 
-std::tuple<float, float> GamePadHandler::GetLeftStickPosLUA()
-{
-	if (m_state.IsConnected())
-	{
-
-		return std::tuple<float, float>(m_state.thumbSticks.leftX, m_state.thumbSticks.leftY);
-	}
-	return std::tuple<float,float>(0, 0);
-}
-
 DirectX::XMFLOAT2 GamePadHandler::GetRightStickposition()
 {
 	if (m_state.IsConnected())
@@ -199,16 +189,6 @@ DirectX::XMFLOAT2 GamePadHandler::GetRightStickposition()
 		return DirectX::XMFLOAT2(m_state.thumbSticks.rightX, m_state.thumbSticks.rightY);
 	}
 	return DirectX::XMFLOAT2(0, 0);
-}
-
-std::tuple<float, float> GamePadHandler::GetRightStickPosLUA()
-{
-	if (m_state.IsConnected())
-	{
-
-		return std::tuple<float, float>(m_state.thumbSticks.rightX, m_state.thumbSticks.rightY);
-	}
-	return std::tuple<float, float>(0, 0);
 }
 
 bool GamePadHandler::IsLeftStickPressed()
@@ -425,19 +405,6 @@ void GamePadHandler::SetVibration(const float& left, const float& right, const f
 		m_rightMotorVibration = right;
 		m_leftTriggerMotorVibration = leftTrigger;
 		m_rightTriggerMotorVibration = rightTrigger;
-	}
-}
-
-void GamePadHandler::REGISTER_TO_LUA()
-{
-	static bool isRegged = false;
-
-	if (!isRegged)
-	{
-		LUA::LuaTalker * talker = LUA::LuaTalker::GetInstance();
-		
-		
-
 	}
 }
 
