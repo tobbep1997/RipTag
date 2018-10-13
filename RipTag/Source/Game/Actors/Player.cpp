@@ -1,8 +1,8 @@
 #include "Player.h"
-#include "../../../../InputManager/InputHandler.h"
-#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
@@ -27,13 +27,14 @@ void Player::Update(double deltaTime)
 {
 	_handleInput(deltaTime);
 	
+#if _DEBUG
 
 	m_teleport.Update(deltaTime);
 	ImGui::Begin("Walk bob");
 	ImGui::Text("HeadBob : %f", m_offset);
 	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
 	ImGui::End();
-
+#endif
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += m_offset;
 	p_camera->setPosition(pos);
@@ -111,13 +112,14 @@ void Player::_handleInput(double deltaTime)
 	
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-	
+#if _DEBUG
 	ImGui::Begin("Bob Slide");
 	ImGui::SliderFloat("WalkingFreq", &freq, 4.0f, 0.0f);
 	ImGui::SliderFloat("WalkingBobAmp", &walkingBobAmp, 0.2f, 0.0f);
 	ImGui::SliderFloat("StopBobAmp", &stopBobAmp, 0.2f, 0.0f);
 	ImGui::SliderFloat("StopBobFreq", &stopBobFreq, 4.0f, 0.0f);
 	ImGui::End();
+#endif
 	if (Input::MoveForward() != 0)
 	{
 		if (m_currentAmp < walkingBobAmp)
@@ -125,7 +127,7 @@ void Player::_handleInput(double deltaTime)
 			m_currentAmp += 0.0003f;
 		}
 		walkBob += Input::MoveForward() / 20;
-		m_offset = walkingBobAmp * sin(freq*walkBob);
+		m_offset = walkingBobAmp * sin(freq*walkBob) * deltaTime;
 	}
 	else
 	{

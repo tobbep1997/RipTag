@@ -129,9 +129,6 @@
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Actors\Enemy\VisibilityComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Game.h">
@@ -288,9 +285,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\Enemy\VisibilityComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
