@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "EngineSource/3D Engine/Extern.h"
-#include "../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "EngineSource/Helper/Timer.h"
 
 

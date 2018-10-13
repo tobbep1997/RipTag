@@ -1,12 +1,9 @@
 #pragma once
+#pragma warning(disable : 4838)
+
 #include <Windows.h>
 #include <string>
-
-#include "../InputManager/InputHandler.h"
-
-#pragma comment(lib, "InputManager.lib")
-
-#pragma warning(disable : 4838)
+#include "../InputManager/InputManager/InputHandler.h"
 
 struct WindowContext
 {

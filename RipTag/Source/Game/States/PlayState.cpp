@@ -1,5 +1,5 @@
 #include "PlayState.h"
-#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"

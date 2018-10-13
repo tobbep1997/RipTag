@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <stdint.h>
 #include <string>
+
 class Texture
 {
 private:

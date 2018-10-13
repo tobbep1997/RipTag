@@ -1,6 +1,6 @@
 #include "Player.h"
-#include "../../../../InputManager/InputHandler.h"
-#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 

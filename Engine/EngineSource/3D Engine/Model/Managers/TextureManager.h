@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "../Texture.h"
 #include <mutex>
+#include "../Texture.h"
 
 const unsigned int TEXTURE_HASHTABLE_SIZE = 13;
 class TextureManager

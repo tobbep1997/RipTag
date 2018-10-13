@@ -1,5 +1,4 @@
 #pragma once
-#include "../../../Components/Camera.h"
 #include "../../../../Shader/ShaderManager.h"
 class VisabilityPass
 {

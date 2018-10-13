@@ -1,8 +1,8 @@
 #pragma once
 #pragma warning (disable : 4172)
+#include <mutex>
 #include "../Meshes/StaticMesh.h"
 #include "../Meshes/DynamicMesh.h"
-#include <mutex>
 
 const uint8_t MESH_HASHTABLE_SIZE = 13;
 

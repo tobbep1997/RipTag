@@ -1,9 +1,4 @@
 #pragma once
-//#include "EngineSource/3D Engine/RenderingManager.h"
-//#include "EngineSource/Shader/ShaderManager.h"
-//#include "EngineSource/3D Engine/Model/Model.h"
-//#include "EngineSource/3D Engine/RenderingManager.h"
-//#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 #include "../../Components/Base/Drawable.h"
 
 class ModelManager

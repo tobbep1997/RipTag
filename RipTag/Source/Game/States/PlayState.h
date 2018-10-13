@@ -1,14 +1,13 @@
 #pragma once
+
+#include <future>
 #include "State.h"
+#include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
-#include "../Actors/Enemy/Enemy.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
-#include <future>
 #include "../Actors/Enemy/Enemy.h"
 
 class PlayState : public State

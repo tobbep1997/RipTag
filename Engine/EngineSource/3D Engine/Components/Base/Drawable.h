@@ -1,16 +1,11 @@
 #pragma once
-#include <windows.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
 #include <DirectXMath.h>
-#pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "d3dcompiler.lib")
+#include <string>
+
 #include "../../Extern.h"
-//#include "../EngineSource/3D Engine/Model/Meshes/StaticMesh.h"
-//#include "../EngineSource/3D Engine/Model/Meshes/DynamicMesh.h"
 #include "../../Model/Meshes/DynamicMesh.h"
 #include "../../Model/Meshes/StaticMesh.h"
-#include <string>
 #include "../../Model/Texture.h"
 
 #include "Transform.h"

@@ -1,7 +1,6 @@
 #pragma once
 #include "EngineSource/3D Engine/RenderingManager.h"
 
-
 class State
 {
 private:

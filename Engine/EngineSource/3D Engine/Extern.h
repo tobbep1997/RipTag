@@ -1,15 +1,11 @@
 #pragma once
 #include <windows.h>
 #include <d3d11_1.h>
-#include <d3dcompiler.h>
 #include <DirectXMath.h>
-#pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "d3dcompiler.lib")
 #include <vector>
-//#include "../Shader/ShaderManager.h"
-#include "Components/Base/Drawable.h"
+
 #include "../Light/PointLight.h"
-//#include "Temp_Guard/TempGuard.h"
+#include "Components/Base/Drawable.h"
 #include "Model/Managers/MeshManager.h"
 #include "Model/Managers/TextureManager.h"
 #include "3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
