@@ -101,9 +101,6 @@
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Engine.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />
     <None Include="EngineSource\Shader\Shaders\StaticConstantBuffers.hlsli" />
   </ItemGroup>
