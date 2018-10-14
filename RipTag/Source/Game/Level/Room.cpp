@@ -21,7 +21,29 @@ unsigned short int Room::getRoomIndex()
 	return this->m_roomIndex;
 }
 
-void Room::LoadRoomFromFile(const std::string& fileName)
+void Room::setAssetFilePath(const std::string& fileName)
+{
+	m_assetFilePath = fileName;
+}
+
+std::string Room::getAssetFilePath()
+{
+	return m_assetFilePath;
+}
+
+void Room::UnloadRoomFromMemory()
+{
+	for (auto asset : m_staticAssets)
+	{
+		asset->Release(*m_worldPtr);
+	}
+	for (auto asset : m_staticAssets)
+	{
+		delete asset;
+	}
+}
+
+void Room::LoadRoomToMemory(const std::string& fileName)
 {
 	//TODO:: add all the assets to whatever
 	

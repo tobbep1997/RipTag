@@ -124,7 +124,7 @@ void Player::_handleInput(double deltaTime)
 		{
 			m_currentAmp += 0.0003f;
 		}
-		walkBob += Input::MoveForward() / 20;
+		walkBob += (Input::MoveForward() * (m_moveSpeed * deltaTime));
 		m_offset = walkingBobAmp * sin(freq*walkBob);
 	}
 	else

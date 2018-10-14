@@ -6,7 +6,13 @@
 class Room
 {
 private:
+	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_roomIndex;
+
+	//The assetFilPath is file we load the assets from
+	//This is how we create the room 
+	std::string m_assetFilePath;
+	//---------------------------------------------------
 
 	std::vector<StaticAsset*> m_staticAssets;
 
@@ -26,6 +32,12 @@ public:
 	void setRoomIndex(const short unsigned int roomIndex);
 	short unsigned int getRoomIndex();
 
-	void LoadRoomFromFile(const std::string & fileName);
+	void setAssetFilePath(const std::string & fileName);
+	std::string getAssetFilePath();
+
+	//---------------------------------------------------
+	//Memory Management
+	void UnloadRoomFromMemory();
+	void LoadRoomToMemory(const std::string & fileName);
 private:
 };

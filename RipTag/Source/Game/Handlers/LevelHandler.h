@@ -9,6 +9,10 @@
 class LevelHandler
 {
 private:
+	const std::string m_roomString = "../Assets/ROOMSPREFAB";
+	std::vector<std::string> m_prefabRoomFiles;
+
+
 	std::vector<Room*> m_rooms;
 
 	
@@ -31,5 +35,6 @@ public:
 private:
 	void _LoadRoom(const int roomIndex);
 
-	void _GenerateLevelStruct(const int seed);
+	void _LoadPreFabs();
+	void _GenerateLevelStruct(const int seed, const int amountOfRooms = 5);
 };
