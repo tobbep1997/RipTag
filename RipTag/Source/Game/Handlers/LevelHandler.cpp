@@ -1,4 +1,5 @@
 #include "LevelHandler.h"
+#include "../../../../InputManager/InputHandler.h"
 
 LevelHandler::LevelHandler()
 {
@@ -16,10 +17,13 @@ LevelHandler::~LevelHandler()
 
 void LevelHandler::Init(b3World& worldPtr)
 {
+	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
 
 	_LoadPreFabs();
-	_GenerateLevelStruct(1);
+	_GenerateLevelStruct(2);
+
+	_RoomLoadingManager();
 
 	//_LoadRoom(1);
 	//testtt.Init(m_worldPtr, );
@@ -35,31 +39,25 @@ void LevelHandler::Release()
 
 void LevelHandler::Update(float deltaTime)
 {
-	for (unsigned int i = 0; i < m_rooms.size(); ++i)
+	m_rooms.at(m_activeRoom)->Update();
+	if (InputHandler::isKeyPressed('N'))
 	{
-		m_rooms.at(i)->Update();
+		m_activeRoom = 0;
 	}
-
-	//testCube->Update(deltaTime);
+	else if (InputHandler::isKeyPressed('M'))
+	{
+		m_activeRoom = 1;
+	}
 }
 
 void LevelHandler::Draw()
 {
-	for (unsigned int i = 0; i < m_rooms.size(); ++i)
+	/*for (unsigned int i = 0; i < m_rooms.size(); ++i)
 	{
 		m_rooms.at(i)->Draw();
-	}
+	}*/
+	m_rooms.at(m_activeRoom)->Draw();
 	//testCube->Draw();
-}
-
-void LevelHandler::_LoadRoom(const int roomIndex)
-{
-	Room * room = new Room(roomIndex, m_worldPtr);
-
-	//Insert assets
-	room->LoadRoomToMemory("");
-
-	m_rooms.push_back(room);
 }
 
 void LevelHandler::_LoadPreFabs()
@@ -72,11 +70,6 @@ void LevelHandler::_LoadPreFabs()
 
 		m_prefabRoomFiles.push_back(std::string(temp.begin(), temp.end()));
 	}
-
-	/*for (size_t i = 0; i < m_prefabRoomFiles.size(); i++)
-	{
-		std::cout << m_prefabRoomFiles.at(i) << std::endl;
-	}*/
 }
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
@@ -97,13 +90,45 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	}
 }
 
-void LevelHandler::UnloadRoom(const int roomNumber)
+void LevelHandler::_RoomLoadingManager(short int room)
 {
-	for (unsigned int i = 0; i < m_rooms.size(); ++i)
+	short int current;
+	if (room == -1)
 	{
-		if (m_rooms.at(i)->getRoomIndex() == roomNumber)
-		{
-			m_rooms.erase(m_rooms.begin() + i);
-		}
+		current = m_activeRoom;
 	}
+	else
+	{
+		current = room;
+	}
+
+	//Room Unload and Load
+	if ((current - 2) >= 0)
+	{
+		m_rooms.at(current - 2)->UnloadRoomFromMemory();
+		m_unloadingQueue.push_back(current);
+	}
+
+	if ((current - 1) >= 0)
+	{
+		m_rooms.at(current)->LoadRoomToMemory();
+		m_loadingQueue.push_back(current);
+	}
+
+	m_rooms.at(current)->LoadRoomToMemory();
+
+	if ((current + 1) < m_rooms.size())
+	{
+		m_rooms.at(current + 1)->LoadRoomToMemory();
+		m_loadingQueue.push_back(current);
+	}
+
+	if ((current + 2) < m_rooms.size())
+	{
+		m_rooms.at(current + 2)->UnloadRoomFromMemory();
+		m_unloadingQueue.push_back(current);
+	}
+	
+
 }
+

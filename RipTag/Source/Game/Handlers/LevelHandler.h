@@ -12,12 +12,16 @@ private:
 	const std::string m_roomString = "../Assets/ROOMSPREFAB";
 	std::vector<std::string> m_prefabRoomFiles;
 
-
+	short unsigned int m_activeRoom;
 	std::vector<Room*> m_rooms;
 
 	
 
 	b3World * m_worldPtr;
+
+private:
+	std::vector<int> m_unloadingQueue;
+	std::vector<int> m_loadingQueue;
 
 public:
 	LevelHandler();
@@ -30,11 +34,10 @@ public:
 
 	void Draw();
 
-	
-	void UnloadRoom(const int roomNumber);
 private:
-	void _LoadRoom(const int roomIndex);
 
 	void _LoadPreFabs();
 	void _GenerateLevelStruct(const int seed, const int amountOfRooms = 5);
+
+	void _RoomLoadingManager(short int room = -1);
 };

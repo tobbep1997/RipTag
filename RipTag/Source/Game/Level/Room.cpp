@@ -31,31 +31,69 @@ std::string Room::getAssetFilePath()
 	return m_assetFilePath;
 }
 
+const bool Room::getRoomLoaded()
+{
+	return m_roomLoaded;
+}
+
 void Room::UnloadRoomFromMemory()
 {
-	for (auto asset : m_staticAssets)
+	if (m_roomLoaded == true)
 	{
-		asset->Release(*m_worldPtr);
-	}
-	for (auto asset : m_staticAssets)
-	{
-		delete asset;
+		for (auto asset : m_staticAssets)
+		{
+			asset->Release(*m_worldPtr);
+		}
+		for (auto asset : m_staticAssets)
+		{
+			delete asset;
+		}
+		m_staticAssets.clear();
+		m_roomLoaded = false;
 	}
 }
 
-void Room::LoadRoomToMemory(const std::string& fileName)
+void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
+	if (m_roomLoaded == false)
+	{
 	
-	StaticAsset * temp = new StaticAsset();
-	temp->Init(*m_worldPtr, 1, 1, 1);
-	//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-	temp->setPosition(5, 5.0f, 0);
-	temp->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
-	temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+		if (m_roomIndex == 0)
+		{
+		StaticAsset * temp = new StaticAsset();
+		temp->Init(*m_worldPtr,1,1,1);
+		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
+		temp->setPosition(5, 5.0f, 0);
+		temp->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
+		temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	
+		m_staticAssets.push_back(temp);
+	
+		}
+		else
+		{
+			StaticAsset * temp = new StaticAsset();
+			temp->Init(*m_worldPtr, 1, 1, 1);
+			//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
+			temp->setPosition(10, 5.0f, 0);
+			temp->setModel(Manager::g_meshManager.getStaticMesh("KUB"));
+			temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	
+			m_staticAssets.push_back(temp);
+		}
+		m_roomLoaded = true;
+	
+		std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
 
-	m_staticAssets.push_back(temp);
+	}
+	else
+	{
+		std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
+	}
 }
+
+
 void Room::Update()
 {
 }

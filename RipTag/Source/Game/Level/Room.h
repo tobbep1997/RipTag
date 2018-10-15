@@ -14,6 +14,7 @@ private:
 	std::string m_assetFilePath;
 	//---------------------------------------------------
 
+	bool m_roomLoaded = false;
 	std::vector<StaticAsset*> m_staticAssets;
 
 	//-------------------------------------
@@ -35,9 +36,13 @@ public:
 	void setAssetFilePath(const std::string & fileName);
 	std::string getAssetFilePath();
 
+	const bool getRoomLoaded();
+
 	//---------------------------------------------------
 	//Memory Management
 	void UnloadRoomFromMemory();
-	void LoadRoomToMemory(const std::string & fileName);
+	void LoadRoomToMemory();
 private:
+
+	
 };
