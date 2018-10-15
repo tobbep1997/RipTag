@@ -25,6 +25,10 @@ void LevelHandler::Init(b3World& worldPtr)
 
 	_RoomLoadingManager();
 
+	
+	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingManager, this, m_activeRoom);
+
+	
 	//_LoadRoom(1);
 	//testtt.Init(m_worldPtr, );
 }
@@ -39,14 +43,44 @@ void LevelHandler::Release()
 
 void LevelHandler::Update(float deltaTime)
 {
+	using namespace std::chrono_literals;
+	if (future.valid())
+	{
+		auto status = future.wait_for(0s);
+		if (status == std::future_status::ready) {
+			std::cout << "Thread finished" << std::endl;
+			future.get();
+		}
+		else {
+			//std::cout << "Thread still running" << std::endl;
+		}
+	}
+
 	m_rooms.at(m_activeRoom)->Update();
 	if (InputHandler::isKeyPressed('N'))
 	{
-		m_activeRoom = 0;
+		if (pressed == false)
+		{
+			m_activeRoom--;
+			std::cout << m_activeRoom << std::endl;
+			_RoomLoadingManager();
+			pressed = true;
+		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
 	{
-		m_activeRoom = 1;
+		if (pressed == false)
+		{
+			
+			m_activeRoom++;
+			std::cout << m_activeRoom << std::endl;
+			_RoomLoadingManager();
+			pressed = true;
+		}
+	}
+	else
+	{
+		pressed = false;
 	}
 }
 
@@ -105,30 +139,56 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	//Room Unload and Load
 	if ((current - 2) >= 0)
 	{
-		m_rooms.at(current - 2)->UnloadRoomFromMemory();
-		m_unloadingQueue.push_back(current);
+		//m_rooms.at(current - 2)->UnloadRoomFromMemory();
+
+		m_unloadMutex.lock();
+		m_unloadingQueue.push_back(current- 2);
+		m_unloadMutex.unlock();
 	}
 
 	if ((current - 1) >= 0)
 	{
-		m_rooms.at(current)->LoadRoomToMemory();
-		m_loadingQueue.push_back(current);
+		//m_rooms.at(current)->LoadRoomToMemory();
+
+		m_loadMutex.lock();
+		m_loadingQueue.push_back(current - 1);
+		m_loadMutex.unlock();
 	}
 
 	m_rooms.at(current)->LoadRoomToMemory();
 
 	if ((current + 1) < m_rooms.size())
 	{
-		m_rooms.at(current + 1)->LoadRoomToMemory();
-		m_loadingQueue.push_back(current);
+		//m_rooms.at(current + 1)->LoadRoomToMemory();
+
+		m_loadMutex.lock();
+		m_loadingQueue.push_back(current + 1);
+		m_loadMutex.unlock();
 	}
 
 	if ((current + 2) < m_rooms.size())
 	{
-		m_rooms.at(current + 2)->UnloadRoomFromMemory();
-		m_unloadingQueue.push_back(current);
+		//m_rooms.at(current + 2)->UnloadRoomFromMemory();
+
+		m_unloadMutex.lock();
+		m_unloadingQueue.push_back(current + 2);
+		m_unloadMutex.unlock();
 	}
 	
+	future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
+}
 
+void LevelHandler::_RoomLoadingThreading()
+{
+	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
+	{
+		m_rooms.at(m_loadingQueue.at(i))->LoadRoomToMemory();
+	}
+	m_loadingQueue.clear();
+	for (unsigned int i = 0; i < m_unloadingQueue.size(); i++)
+	{
+		m_rooms.at(m_unloadingQueue.at(i))->UnloadRoomFromMemory();
+	}
+	m_unloadingQueue.clear();
 }
 

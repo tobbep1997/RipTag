@@ -50,12 +50,15 @@ void Room::UnloadRoomFromMemory()
 		}
 		m_staticAssets.clear();
 		m_roomLoaded = false;
+
+		//std::cout << "Room " << m_roomIndex << " UNLoaded" << std::endl;
 	}
 }
 
 void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
+	
 	if (m_roomLoaded == false)
 	{
 	
@@ -84,12 +87,12 @@ void Room::LoadRoomToMemory()
 		}
 		m_roomLoaded = true;
 	
-		std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
+		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
 
 	}
 	else
 	{
-		std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
+		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
 	}
 }
 
