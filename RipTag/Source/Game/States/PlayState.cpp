@@ -44,7 +44,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	actor->setTextureTileMult(10, 10);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
-	player->setPosition(0, 5, 0,0);
+	player->setPosition(0, 2, 0,0);
 
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
