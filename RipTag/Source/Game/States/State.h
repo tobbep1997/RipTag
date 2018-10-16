@@ -1,6 +1,7 @@
 #pragma once
 #include "EngineSource/3D Engine/RenderingManager.h"
 
+#define LUA_STATE_METATABLE "STATE"
 class State
 {
 private:
