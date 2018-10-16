@@ -99,11 +99,7 @@ PlayState::~PlayState()
 	actor->Release(m_world);
 	delete actor;
 
-
-
 	delete model;
-
-	
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
@@ -188,10 +184,14 @@ void PlayState::Update(double deltaTime)
 
 	if (InputHandler::isKeyPressed('J'))
 	{
+		player->LockPlayerInput();
 		CameraHandler::setActiveCamera(gTemp.getCamera());
+		gTemp.UnlockEnemyInput();
 	}
 	else if (InputHandler::isKeyPressed('K'))
 	{
+		gTemp.LockEnemyInput();
+		player->UnlockPlayerInput();
 		CameraHandler::setActiveCamera(player->getCamera());
 	}
 

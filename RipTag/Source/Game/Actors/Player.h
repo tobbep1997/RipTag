@@ -26,6 +26,8 @@ private:
 
 	float m_visability = 0.0f;
 
+	bool m_lockPlayerInput;
+
 	Drawable * visSphear;
 public:
 	Player();
@@ -45,8 +47,10 @@ public:
 
 	void SetCurrentVisability(const float & guard);
 
+	void LockPlayerInput();
+	void UnlockPlayerInput();
+
 private:
 
 	void _handleInput(double deltaTime);
-
 };

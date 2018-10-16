@@ -8,10 +8,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
+	m_lockPlayerInput = false;
 	
 	visSphear = new Drawable();
 	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	visSphear->setScale(0.5, 0.5, 0.5);
+	visSphear->setScale(0.2f, 0.2f, 0.2f);
 	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	visSphear->setPosition(5, 5, 2);
 	visSphear->setColor(1, 1, 1, 1.0f);
@@ -30,8 +31,10 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
-	_handleInput(deltaTime);
-	
+	if (m_lockPlayerInput == false)
+	{
+		_handleInput(deltaTime);
+	}
 #if _DEBUG
 
 	m_teleport.Update(deltaTime);
@@ -96,6 +99,16 @@ void Player::Draw()
 void Player::SetCurrentVisability(const float & guard)
 {
 	this->m_visability = guard;
+}
+
+void Player::LockPlayerInput()
+{
+	m_lockPlayerInput = true;
+}
+
+void Player::UnlockPlayerInput()
+{
+	m_lockPlayerInput = false;
 }
 
 
@@ -174,7 +187,6 @@ void Player::_handleInput(double deltaTime)
 		m_offset = m_currentAmp * sin(stopBobFreq * walkBob);
 		
 	}
-	
 
 	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
 	
@@ -196,25 +208,6 @@ void Player::_handleInput(double deltaTime)
 	
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
-
-
-	if (InputHandler::isKeyPressed('Y'))
-	{
-		if (isPressed2 == false)
-		{
-			CreateBox(2, 2, 2);
-			isPressed2 = true;
-		}
-	}
-	else
-	{
-		isPressed2 = false;
-	}
-	//addForceToCenter(x, getLiniearVelocity().y, z);
-
-	//std::cout << "Y: " << getLiniearVelocity().y << std::endl;
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
-	//setPosition(p_camera->getPosition());
 
 	if (InputHandler::isKeyPressed('T'))
 	{
@@ -240,3 +233,4 @@ void Player::_handleInput(double deltaTime)
 		}
 	}
 }
+
