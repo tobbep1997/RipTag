@@ -63,7 +63,6 @@ void Player::Phase(float searchLength)
 				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
 				(-this->m_rayListener->normal.z))
 			);
-
 		if (this->m_rayListener->normal.y != 0)
 		{
 			p_setPosition(
