@@ -20,7 +20,8 @@ enum EntityType
 {
 	DefultType = 0,
 	PlayerType = 1,
-	GuarddType = 2
+	GuarddType = 2,
+	ExcludeType = 3
 };
 
 class Drawable : public Transform

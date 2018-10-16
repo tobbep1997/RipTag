@@ -23,6 +23,10 @@ private:
 	float stopBobFreq = 1.9f;
 
 	float m_currentAmp = 0.0f;
+
+	float m_visability = 0.0f;
+
+	Drawable * visSphear;
 public:
 	Player();
 	~Player();
@@ -38,6 +42,8 @@ public:
 	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
+
+	void SetCurrentVisability(const float & guard);
 
 private:
 

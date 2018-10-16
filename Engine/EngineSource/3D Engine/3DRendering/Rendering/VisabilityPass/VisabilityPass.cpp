@@ -18,6 +18,7 @@ VisabilityPass::~VisabilityPass()
 	DX::SafeRelease(m_guatdShaderResourceTex);
 	DX::SafeRelease(m_guardRenderTargetView);
 
+	DX::SafeRelease(m_textureBuffer);
 }
 
 void VisabilityPass::Init()
@@ -55,7 +56,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animatio
 	
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_geometryQueue[i]->getEntityType() != EntityType::ExcludeType)
 		{
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
@@ -71,7 +72,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animatio
 		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DEPTH_PRE_PASS_DYNAMIC_VERTEX_SHADER_PATH), nullptr, 0);
 		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 		{
-			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_geometryQueue[i]->getEntityType() != EntityType::ExcludeType)
 			{
 				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
@@ -162,7 +163,7 @@ void VisabilityPass::_init()
 	HRESULT hr;
 	hr = DXRHC::CreateTexture2D(m_guatdShaderResourceTex, GUARD_RES_Y, GUARD_RES_X, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
 	hr = DXRHC::CreateRenderTargetView(m_guatdShaderResourceTex, m_guardRenderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, 1);
-
+	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
 }
 
 void VisabilityPass::_initViewPort()
@@ -243,4 +244,13 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 	ob.worldMatrix = target->getWorldmatrix();
 
 	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+
+	m_textureValues.textureTileMult.x = target->getTextureTileMult().x;
+	m_textureValues.textureTileMult.y = target->getTextureTileMult().y;
+
+	m_textureValues.usingTexture.x = target->isTextureAssigned();
+
+	m_textureValues.color = target->getColor();
+
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
 }

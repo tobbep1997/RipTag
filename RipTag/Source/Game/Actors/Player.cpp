@@ -9,13 +9,18 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	
-	
-
+	visSphear = new Drawable();
+	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	visSphear->setScale(0.5, 0.5, 0.5);
+	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	visSphear->setPosition(5, 5, 2);
+	visSphear->setColor(1, 1, 1, 1.0f);
+	visSphear->setEntityType(EntityType::ExcludeType);
 }
 
 Player::~Player()
 {	
-
+	delete visSphear;
 }
 
 void Player::BeginPlay()
@@ -38,6 +43,18 @@ void Player::Update(double deltaTime)
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += m_offset;
 	p_camera->setPosition(pos);
+
+	DirectX::XMFLOAT4A po = Transform::getPosition();
+
+	DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
+
+	DirectX::XMVECTOR cm  = DirectX::XMLoadFloat4A(&p_camera->getDirection());
+
+	DirectX::XMStoreFloat4A(&po,DirectX::XMVectorAdd(ve, cm));
+
+	visSphear->setPosition(po);
+	visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability);
+
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -70,6 +87,12 @@ void Player::Draw()
 {
 	m_teleport.Draw();
 	Drawable::Draw();
+	visSphear->Draw();
+}
+
+void Player::SetCurrentVisability(const float & guard)
+{
+	this->m_visability = guard;
 }
 
 

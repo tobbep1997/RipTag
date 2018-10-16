@@ -48,7 +48,7 @@ private:
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 
-	Drawable * visSphear;
+	
 
 public:
 	PlayState(RenderingManager * rm);

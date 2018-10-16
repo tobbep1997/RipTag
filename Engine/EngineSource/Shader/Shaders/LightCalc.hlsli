@@ -108,7 +108,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float normDotLight;
     float finalShadowCoeff;
 
-    float4 albedo = ObjectColor;
+    float4 albedo = ObjectColor; //float4(1,1,0,1);
     float3 normal = input.normal.xyz;
     float3 AORoughMet = float3(1, 1, 1); 
 

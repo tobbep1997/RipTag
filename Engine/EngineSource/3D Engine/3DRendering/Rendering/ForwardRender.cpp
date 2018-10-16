@@ -58,6 +58,17 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
+	//D3D11_BLEND_DESC omDesc;
+	ZeroMemory(&omDesc, sizeof(D3D11_BLEND_DESC));
+	omDesc.RenderTarget[0].BlendEnable = true;
+	omDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	omDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	omDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	omDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	omDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	omDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlendGeo);
 	m_visabilityPass.Init();
 
 
@@ -83,7 +94,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 
 void ForwardRender::GeometryPass()
 {
-	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlendGeo, 0, 0xffffffff);
 	if (m_firstRun == true)
 	{
 		m_shaderThreads[0].join();
@@ -199,6 +210,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_textureBuffer);
 
 	DX::SafeRelease(m_alphaBlend);
+	DX::SafeRelease(m_alphaBlendGeo);
 	DX::SafeRelease(m_GuardBuffer);
 
 	DX::SafeRelease(m_standardRast);

@@ -24,6 +24,13 @@ private:
 		DirectX::XMFLOAT4X4A worldMatrix;
 	};
 
+	struct TextureBuffer
+	{
+		DirectX::XMINT4		usingTexture;
+		DirectX::XMFLOAT4A	textureTileMult;
+		DirectX::XMFLOAT4A	color;
+	};
+
 private:
 	D3D11_VIEWPORT				m_guardViewPort;
 	ID3D11Buffer *				m_guardViewBuffer;
@@ -34,6 +41,8 @@ private:
 	ID3D11ShaderResourceView*	m_guardShaderResource;
 	ID3D11Buffer*				m_objectBuffer;
 
+	ID3D11Buffer*				m_textureBuffer;
+	TextureBuffer				m_textureValues;
 public:
 	VisabilityPass();
 	~VisabilityPass();

@@ -8,11 +8,9 @@
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	CameraHandler::Instance();
+	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	
-	player = new Player();
-	enemy = new Enemy();
-
-	CameraHandler::setActiveCamera(player->getCamera());	
 	Manager::g_meshManager.loadStaticMesh("KUB");
 	
 
@@ -20,8 +18,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Timer::StartTimer();
 
-	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	
 
 	
 
@@ -41,13 +38,18 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
 
 
+	player = new Player();
+	enemy = new Enemy();
+
+	CameraHandler::setActiveCamera(player->getCamera());
 
 	actor->setScale(1.0f,1.0f,1.0f);
 	actor->setPosition(0, 0, 0);
 	actor->setTextureTileMult(10, 10);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
-	player->setPosition(0, 5, 0,0);
+	player->setPosition(0, 5, 0, 0);
+	player->setColor(10, 10, 0, 1);
 
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
@@ -79,12 +81,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
-	visSphear = new Drawable();
-	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	visSphear->setScale(0.5, 0.5, 0.5);
-	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	visSphear->setPosition(5, 5, 2);
-	visSphear->setColor(10, 10, 0, 0.6f);
+	
 	
 	m_levelHandler.Init(m_world);
 
@@ -106,7 +103,7 @@ PlayState::~PlayState()
 
 	delete model;
 
-	delete visSphear;
+	
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
@@ -204,7 +201,7 @@ void PlayState::Update(double deltaTime)
 		//player->CreateBox(1.0f, 1.0f, 1.0f);
 	}
 
-
+	player->SetCurrentVisability(e2Vis[0] / 5000.0f);
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	actor->Update(deltaTime);
@@ -253,7 +250,7 @@ void PlayState::Draw()
 	//player->QueueVisabilityDraw();
 
 	model->Draw();
-	visSphear->Draw();
+	
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 
