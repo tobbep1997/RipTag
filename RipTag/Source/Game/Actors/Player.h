@@ -3,6 +3,15 @@
 #include "Abilities/Teleport.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
+#include <functional>
+#include "../../Input/Input.h"
+
+namespace FUNCTION_STRINGS
+{
+	static const char * JUMP = "Jump";
+
+}
+
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
@@ -29,6 +38,11 @@ private:
 	DirectX::XMFLOAT4A m_lastPeek;
 	float m_peekSpeed = 2.0f;
 
+	//STUFF RELATED TO STATE MACHINE HANDLING
+	bool hasJumped = false;
+	bool isRising = false;
+	bool isFalling = false;
+
 public:
 	Player();
 	~Player();
@@ -45,6 +59,15 @@ public:
 
 	void Draw() override;
 
+	//GAMEPLAY FUNCTIONS
+	void Jump(); //implement logic
+	void MoveRight(); //implement logic
+	void MoveLeft(); //implement logic
+	void MoveForward(); //implement logic
+	void MoveBackward(); //implement logic
+
+
+	void RegisterThisInstanceToInput();
 private:
 
 	void _handleInput(double deltaTime);

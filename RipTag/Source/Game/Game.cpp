@@ -72,6 +72,7 @@ void Game::Update(double deltaTime)
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
+	InputMapping::Call();
 	pNetworkInstance->Update();
 	
 }

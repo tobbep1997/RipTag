@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "InputManager/InputHandler.h"
 #include "InputManager/XboxInput/GamePadHandler.h"
-#include "../../Input/Input.h"
+
 #include "EngineSource/3D Engine/RenderingManager.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
@@ -38,6 +38,10 @@ void Player::Update(double deltaTime)
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += m_offset;
 	p_camera->setPosition(pos);
+
+	//ADD THE STATE MACHINE
+	if (hasJumped)
+		this->Jump();
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -72,6 +76,64 @@ void Player::Draw()
 	Drawable::Draw();
 }
 
+void Player::Jump()
+{
+	static float lastY = 0;
+	static int frameCounter = 0;
+	frameCounter++;
+	std::cout << "In function Jump\n";
+	if (!hasJumped) //this is to avoid input spam
+	{
+		hasJumped = true;
+		isRising = true;
+		lastY = this->getPosition().y;
+		this->addForceToCenter(0, 300, 0);
+	}
+	
+	if (hasJumped && isRising)
+	{
+		//play rising jump animation
+		if (frameCounter >= 5)
+		{
+			frameCounter = 0;
+			float yDiff = this->getPosition().y - lastY;
+			if (yDiff <= 0)
+			{
+				isRising = false;
+				isFalling = true;
+			}
+			lastY = this->getPosition().y;
+		}
+	}
+	else if (hasJumped && isFalling)
+	{
+		
+		//play Falling animation
+		if (frameCounter >= 5)
+		{
+			frameCounter = 0;
+			float yDiff = this->getPosition().y - lastY;
+			if (yDiff >= 0.0f)
+			{
+				isFalling = false;
+				hasJumped = false;
+				lastY = 0;
+			}
+			lastY = this->getPosition().y;
+		}
+	}
+	
+}
+
+
+void Player::RegisterThisInstanceToInput()
+{
+	using namespace std::placeholders;
+	
+	InputMapping::addToFuncMap("Jump", std::bind(&Player::Jump, this));
+
+
+}
 
 void Player::_handleInput(double deltaTime)
 {
@@ -157,7 +219,7 @@ void Player::_handleInput(double deltaTime)
 	
 	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
 
-	if (Input::Jump())
+	/*if (Input::Jump())
 	{
 		if (isPressed == false)
 		{
@@ -168,7 +230,7 @@ void Player::_handleInput(double deltaTime)
 	else
 	{
 		isPressed = false;
-	}
+	}*/
 
 	
 

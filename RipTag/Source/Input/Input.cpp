@@ -146,3 +146,36 @@ float Input::TurnRight()
 	return 0;
 }
 
+std::map<std::string, std::function<void()>> InputMapping::functionMap;
+std::map<char, std::string> InputMapping::keyMap;
+
+void InputMapping::addToKeyMap(char key, std::string value)
+{
+	keyMap.insert(std::pair<char, std::string>(key, value));
+}
+
+void InputMapping::addToFuncMap(std::string key, std::function<void()> func)
+{
+	functionMap.insert(std::pair<std::string, std::function<void()>>(key, func));
+}
+
+
+
+void InputMapping::Call()
+{
+	std::map<char, std::string>::iterator keyIterator = keyMap.begin();
+	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			std::map<std::string, std::function<void()>>::iterator funcIterator;
+			
+			//find the function to call with the extracted key
+			funcIterator = functionMap.find(keyIterator->second);
+				//make sure it is mapped and found
+			if (funcIterator != functionMap.end())
+				funcIterator->second();
+			
+		}
+	}
+}
