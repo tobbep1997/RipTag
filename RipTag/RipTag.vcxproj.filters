@@ -38,6 +38,7 @@
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
+    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -151,172 +152,59 @@
     <ClCompile Include="Source\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\Actors\Enemy\VisibilityComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Game\Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\States\PlayState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\States\State.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\States\MainMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Handlers\LevelHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Handlers\ObjectHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Handlers\PlayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Handlers\CameraHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Level\Room.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\Actor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Timer\DeltaTime.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Input\Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\Shapes\b3Hull.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\Shapes\b3Polyhedron.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\Shapes\b3Shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\b3AABB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\b3BroadPhase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\b3Collision.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\b3DynamicAABBTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Collision\b3SAT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Math\b3Mat33.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Math\b3Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Math\b3Quaternion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Math\b3Vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Memory\b3Array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Memory\b3ArrayPOD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Memory\b3BlockAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\Memory\b3StackAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\b3Draw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\b3Settings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Common\b3Time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Contacts\b3Contact.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Contacts\b3ContactGraph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Contacts\b3ContactSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Joints\b3Joint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Joints\b3JointGraph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Joints\b3JointSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Joints\b3MouseJoint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Joints\b3RevoluteJoint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\b3Body.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\b3Island.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\b3World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Dynamics\b3WorldListeners.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Bounce.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Physics\Wrapper\PhysicsComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\BaseActor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ThreadPool\ThreadPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ThreadPool\SafeQueue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\Actors\Enemy\VisibilityComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
+    <ClInclude Include="Source\Game\Actors\BaseActor.h" />
+    <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
+    <ClInclude Include="Source\Physics\Bounce.h" />
+    <ClInclude Include="Source\Physics\Collision\b3AABB.h" />
+    <ClInclude Include="Source\Physics\Collision\b3BroadPhase.h" />
+    <ClInclude Include="Source\Physics\Collision\b3Collision.h" />
+    <ClInclude Include="Source\Physics\Collision\b3DynamicAABBTree.h" />
+    <ClInclude Include="Source\Physics\Collision\b3SAT.h" />
+    <ClInclude Include="Source\Physics\Collision\Shapes\b3Hull.h" />
+    <ClInclude Include="Source\Physics\Collision\Shapes\b3Polyhedron.h" />
+    <ClInclude Include="Source\Physics\Collision\Shapes\b3Shape.h" />
+    <ClInclude Include="Source\Physics\Common\b3Draw.h" />
+    <ClInclude Include="Source\Physics\Common\b3Settings.h" />
+    <ClInclude Include="Source\Physics\Common\b3Time.h" />
+    <ClInclude Include="Source\Physics\Common\Math\b3Mat33.h" />
+    <ClInclude Include="Source\Physics\Common\Math\b3Math.h" />
+    <ClInclude Include="Source\Physics\Common\Math\b3Quaternion.h" />
+    <ClInclude Include="Source\Physics\Common\Math\b3Vec3.h" />
+    <ClInclude Include="Source\Physics\Common\Memory\b3Array.h" />
+    <ClInclude Include="Source\Physics\Common\Memory\b3ArrayPOD.h" />
+    <ClInclude Include="Source\Physics\Common\Memory\b3BlockAllocator.h" />
+    <ClInclude Include="Source\Physics\Common\Memory\b3StackAllocator.h" />
+    <ClInclude Include="Source\Physics\Dynamics\b3Body.h" />
+    <ClInclude Include="Source\Physics\Dynamics\b3Island.h" />
+    <ClInclude Include="Source\Physics\Dynamics\b3World.h" />
+    <ClInclude Include="Source\Physics\Dynamics\b3WorldListeners.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Contacts\b3Contact.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Contacts\b3ContactGraph.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Contacts\b3ContactSolver.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Joints\b3Joint.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Joints\b3JointGraph.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Joints\b3JointSolver.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Joints\b3MouseJoint.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Joints\b3RevoluteJoint.h" />
+    <ClInclude Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.h" />
+    <ClInclude Include="Source\Input\Input.h" />
+    <ClInclude Include="Source\Physics\Wrapper\PhysicsComponent.h" />
+    <ClInclude Include="Source\ThreadPool\SafeQueue.h" />
+    <ClInclude Include="Source\ThreadPool\ThreadPool.h" />
+    <ClInclude Include="Source\Timer\DeltaTime.h" />
+    <ClInclude Include="Source\Game\Actors\Actor.h" />
+    <ClInclude Include="Source\Game\Actors\Player.h" />
+    <ClInclude Include="Source\Game\Game.h" />
+    <ClInclude Include="Source\Game\Handlers\CameraHandler.h" />
+    <ClInclude Include="Source\Game\Handlers\LevelHandler.h" />
+    <ClInclude Include="Source\Game\Handlers\ObjectHandler.h" />
+    <ClInclude Include="Source\Game\Handlers\PlayerHandler.h" />
+    <ClInclude Include="Source\Game\Level\Room.h" />
+    <ClInclude Include="Source\Game\States\MainMenu.h" />
+    <ClInclude Include="Source\Game\States\PlayState.h" />
+    <ClInclude Include="Source\Game\States\State.h" />
   </ItemGroup>
 </Project>

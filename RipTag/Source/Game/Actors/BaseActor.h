@@ -12,6 +12,7 @@ public:
 	~BaseActor();
 
 	void Init(b3World& world, b3BodyType bodyType, const float & x, const float & y, const float & z);
+	void Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes);
 
 	void BeginPlay() override;
 	void Update(double deltaTime) override;

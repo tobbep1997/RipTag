@@ -1,8 +1,8 @@
 #include "Player.h"
-#include "../../../../InputManager/InputHandler.h"
-#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
@@ -25,17 +25,23 @@ void Player::BeginPlay()
 void Player::Update(double deltaTime)
 {
 	DirectX::XMFLOAT4A pos = getPosition();
-	//pos.y += m_offset;
+	float camOffset = 1.0f;
+	pos.y += camOffset;
 	p_camera->setPosition(pos);
-
 	_handleInput(deltaTime);
+	pos = p_camera->getPosition();
+	pos.y += m_offset;
+	p_camera->setPosition(pos);
+#if _DEBUG
 
 	m_teleport.Update(deltaTime);
 	ImGui::Begin("Walk bob");
 	ImGui::Text("HeadBob : %f", m_offset);
 	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
 	ImGui::End();
-
+#endif
+	//pos.y += m_offset;
+	//p_camera->setPosition(pos);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -57,6 +63,11 @@ void Player::InitTeleport(b3World & world)
 	m_teleport.setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_teleport.setGravityScale(0.001f);
 	m_teleport.setPosition(-100.0f, -100.0f, -100.0f);
+}
+
+void Player::ReleaseTeleport(b3World & world)
+{
+	this->m_teleport.Release(world);
 }
 
 void Player::Draw()
@@ -86,11 +97,11 @@ void Player::_handleInput(double deltaTime)
 	XMStoreFloat4(&RIGHT, vRight);
 	if (GamePadHandler::IsLeftStickPressed())
 	{
-		m_moveSpeed = 400.0f;
+		m_moveSpeed = 400.0f * deltaTime;
 	}
 	else
 	{
-		m_moveSpeed = 200.0f;
+		m_moveSpeed = 200.0f * deltaTime;
 	}
 
 	float targetPeek = Input::PeekRight();
@@ -112,30 +123,32 @@ void Player::_handleInput(double deltaTime)
 	out = vToCam;
 	//out = XMVectorLerp(vToCam, target, min(deltaTime * m_peekSpeed, 1.0f));
 	out = XMVectorAdd(DirectX::XMLoadFloat4A(&p_position), out);
-	XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
-	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+
+	float MAX_PEEK = 1.0f;
+
+	//XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), MAX_PEEK));
+	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	XMStoreFloat4A(&m_lastSideStep, sideStep);
 	out = XMVectorAdd(out, sideStep);
 	XMStoreFloat4(&cPos, out);
 
 	p_camera->setPosition(cPos);
 
-	float x = Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.x;
-	
-	x += Input::MoveForward() * m_moveSpeed * deltaTime * forward.x;
+	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
+	x += Input::MoveForward() * m_moveSpeed * forward.x;
 	//walkBob += x;
 
-	float z = Input::MoveForward() * m_moveSpeed * deltaTime * forward.z;
-	
-	z += Input::MoveRight() * m_moveSpeed * deltaTime * RIGHT.z;
+	float z = Input::MoveForward() * m_moveSpeed * forward.z;
+	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-	
+#if _DEBUG
 	ImGui::Begin("Bob Slide");
 	ImGui::SliderFloat("WalkingFreq", &freq, 4.0f, 0.0f);
 	ImGui::SliderFloat("WalkingBobAmp", &walkingBobAmp, 0.2f, 0.0f);
 	ImGui::SliderFloat("StopBobAmp", &stopBobAmp, 0.2f, 0.0f);
 	ImGui::SliderFloat("StopBobFreq", &stopBobFreq, 4.0f, 0.0f);
 	ImGui::End();
+#endif
 	if (Input::MoveForward() != 0)
 	{
 		if (m_currentAmp < walkingBobAmp)
@@ -143,7 +156,7 @@ void Player::_handleInput(double deltaTime)
 			m_currentAmp += 0.0003f;
 		}
 		walkBob += Input::MoveForward() / 20;
-		m_offset = walkingBobAmp * sin(freq*walkBob);
+		m_offset = walkingBobAmp * sin(freq*walkBob) * deltaTime;
 	}
 	else
 	{
@@ -165,16 +178,17 @@ void Player::_handleInput(double deltaTime)
 		
 	}
 	
-
-	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
 	
+	// TODO::FIX SO THAT IT DONT LOOK LIKE SHIT WHEN YOU PEEK
+	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
 	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
+	// TODO::END
 
 	if (Input::Jump())
 	{
 		if (isPressed == false)
 		{
-			addForceToCenter(0, 1000, 0);
+			addForceToCenter(0, 500, 0);
 			isPressed = true;
 		}
 	}
@@ -183,7 +197,7 @@ void Player::_handleInput(double deltaTime)
 		isPressed = false;
 	}
 
-	
+	//std::cout << x << "\n";
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 

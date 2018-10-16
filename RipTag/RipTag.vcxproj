@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Extern\RakNet\Include;$(SolutionDir)Lua Talker\Source; $(SolutionDir)RakNet; $(SolutionDir)External\RakNet\Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;C:\Users\Magnus Nyqvist\Documents\RipTag\External\RakNet\Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -139,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)Extern\RakNet\Include;$(SolutionDir)Lua Talker\Source; $(SolutionDir)Network;$(SolutionDir)RakNet; $(SolutionDir)External\RakNet\Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;C:\Users\Magnus Nyqvist\Documents\RipTag\External\RakNet\Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -167,7 +167,6 @@
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
-    <ClCompile Include="Source\Game\Actors\Enemy\VisibilityComponent.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3DynamicAABBTree.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3SAT.cpp" />
@@ -208,7 +207,6 @@
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
-    <ClInclude Include="Source\Game\Actors\Enemy\VisibilityComponent.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
     <ClInclude Include="Source\Physics\Collision\b3AABB.h" />
     <ClInclude Include="Source\Physics\Collision\b3BroadPhase.h" />
