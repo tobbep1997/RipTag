@@ -1,6 +1,7 @@
 #pragma once 
 #include <DirectXMath.h>
 #include "../Engine/Source/Window/window.h"
+
 class InputHandler
 {
 	friend class Window; 
@@ -20,7 +21,7 @@ private:
 public:
 
 	//A singelton, only one instance
-	static InputHandler& Instance(); 
+	static InputHandler* Instance(); 
 
 	static DirectX::XMFLOAT2 getMousePosition(); 
 	static bool isKeyPressed(int keyCode);
@@ -32,6 +33,7 @@ public:
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 
+	static void REGISTER_TO_LUA();
 
 	enum Key
 	{

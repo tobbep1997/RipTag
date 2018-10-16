@@ -1,6 +1,7 @@
 #pragma once
-#include "../Engine/Source/3D Engine/Model/Model.h"
-class Actor : public Model
+#include "EngineSource/3D Engine/Components/Base/Drawable.h"
+
+class Actor : public Drawable
 {
 protected:
 public:      

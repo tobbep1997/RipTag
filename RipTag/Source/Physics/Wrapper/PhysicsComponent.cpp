@@ -1,6 +1,6 @@
 #include "PhysicsComponent.h"
 #include <iostream>
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
@@ -62,6 +62,58 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 	CreateBodyAndShape(world);
 }
 
+void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes)
+{
+	singelCollider = false;
+	//setBaseBodyDef---------------------------------------
+	m_bodyDef = new b3BodyDef();
+	m_bodyDef->position.Set(0, 0, 0);
+	m_bodyDef->type = e_staticBody;
+	m_bodyDef->gravityScale = 1;
+	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
+	//-----------------------------------------------------
+		
+
+	b3Hull * h;
+	b3Polyhedron * p;
+	b3ShapeDef* s;
+
+	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	{
+		h = new b3Hull();
+		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+		m_hulls.push_back(h);
+
+		//-----------------------------------------------------
+
+		p = new b3Polyhedron();
+		p->SetHull(h);
+		m_polys.push_back(p);
+		
+
+		//-----------------------------------------------------
+
+		s = new b3ShapeDef();
+		s->shape = p;
+		s->density = 1.0f;
+		s->restitution = 0;
+		s->friction = 0;	
+		m_shapeDefs.push_back(s);
+	}
+
+	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	{
+		b3Body * b = world.CreateBody(*m_bodyDef);
+	
+	
+		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
+			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
+		
+		m_bodys.push_back(b);
+		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
+	}
+  }
+
 
 
 void PhysicsComponent::setBaseBodyDef(b3BodyType bodyType)
@@ -92,7 +144,12 @@ void PhysicsComponent::setBaseShapeDef()
 	m_bodyBoxDef->shape = m_poly;
 	m_bodyBoxDef->density = 1.0f;
 	m_bodyBoxDef->restitution = 0;
-	//m_bodyBoxDef->friction = 1000000;
+
+
+	m_bodyBoxDef->density = 1.0f;
+	m_bodyBoxDef->friction = 1.0f;
+	m_bodyBoxDef->restitution = 0;
+
 
 	//everything in this except the shape you can set using m_shape
 }
@@ -104,7 +161,6 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 		//Create the box
 		m_bodyBox = new b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
-
 		//Then the poly
 		m_poly = new b3Polyhedron();
 		m_poly->SetHull(m_bodyBox);
@@ -139,9 +195,14 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
 }
 
+void PhysicsComponent::setGravityScale(float gravity)
+{
+	m_body->SetGravityScale(gravity);
+}
+
 void PhysicsComponent::setLiniearVelocity(float x, float y, float z)
 {
-	m_body->SetLinearVelocity(b3Vec3(x,y,z));
+	m_body->SetLinearVelocity(b3Vec3(x, y, z));
 }
 
 void PhysicsComponent::addForceToCenter(float x, float y, float z)
@@ -151,12 +212,32 @@ void PhysicsComponent::addForceToCenter(float x, float y, float z)
 
 void PhysicsComponent::Release(b3World& world)
 {
-	m_body->DestroyShape(m_shape);
-	delete m_poly;
-	delete m_bodyBox;
 	delete m_bodyDef;
-	delete m_bodyBoxDef;
-	world.DestroyBody(m_body);
+	if (singelCollider)
+	{
+		m_body->DestroyShape(m_shape);
+		delete m_poly;
+		delete m_bodyBox;
+		delete m_bodyBoxDef;
+		world.DestroyBody(m_body);
+	}
+
+
+
+
+	for (int i = 0; i < m_bodys.size(); i++) 
+		m_bodys[i]->DestroyShape(m_shapes[i]);
+	for (int i = 0; i < m_polys.size(); i++)
+		delete m_polys[i];
+	for (int i = 0; i < m_hulls.size(); i++)
+		delete m_hulls[i];
+	for (int i = 0; i < m_shapeDefs.size(); i++)
+		delete m_shapeDefs[i];
+	for (int i = 0; i < m_bodys.size(); i++)
+		world.DestroyBody(m_bodys[i]);
+
+	
+	
 }
 
 b3Vec3 PhysicsComponent::getLiniearVelocity()
@@ -170,4 +251,9 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
+}
+
+void PhysicsComponent::setAwakeState(const bool& awa)
+{
+	m_body->SetAwake(awa);
 }
