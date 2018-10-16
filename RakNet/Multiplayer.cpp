@@ -172,7 +172,7 @@ namespace Network
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)
 	{
 		this->pPeer->Send(message,
-			length + 1,
+			(int)length + 1,
 			priority, 
 			RELIABLE_ORDERED,
 			0,
@@ -270,8 +270,8 @@ namespace Network
 		lua_State * L = s;
 
 		void * data = lua_touserdata(L, -3);
-		size_t length = lua_tonumber(L, -2);
-		unsigned int priority = lua_tonumber(L, -1);
+		size_t length = (size_t)lua_tonumber(L, -2);
+		unsigned int priority = (size_t)lua_tonumber(L, -1);
 
 		lua_pop(L, 3);
 
