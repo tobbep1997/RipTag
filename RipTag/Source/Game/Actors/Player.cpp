@@ -8,14 +8,12 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	
-	
-
+	this->m_rayListener = new RayCastListener();
 }
 
 Player::~Player()
 {	
-
+	delete this->m_rayListener;
 }
 
 void Player::BeginPlay()
@@ -51,6 +49,35 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+void Player::Phase(float searchLength)
+{
+	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
+	if (this->m_rayListener->shape != nullptr)
+	{
+		p_setPosition(
+			this->m_rayListener->contactPoint.x + (
+				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
+				(-this->m_rayListener->normal.x)), 
+			this->getPosition().y,
+			this->m_rayListener->contactPoint.z + (
+				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
+				(-this->m_rayListener->normal.z))
+			);
+
+		if (this->m_rayListener->normal.y != 0)
+		{
+			p_setPosition(
+				this->getPosition().x,
+				this->m_rayListener->contactPoint.y + (
+				(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
+					(-this->m_rayListener->normal.y)),
+				this->getPosition().z
+			);
+		}
+		this->m_rayListener->clear();
+	}
+}
+
 void Player::InitTeleport(b3World & world)
 {
 	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
@@ -72,12 +99,13 @@ void Player::Draw()
 	Drawable::Draw();
 }
 
-
 void Player::_handleInput(double deltaTime)
 {
 	using namespace DirectX;
 
 	XMFLOAT4A forward = p_camera->getDirection();
+
+	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
 	//GeT_RiGhT;
@@ -167,7 +195,16 @@ void Player::_handleInput(double deltaTime)
 		isPressed = false;
 	}
 
-	
+
+	if (!InputHandler::isKeyPressed('C')) //Phase acts like short range teleport through objects
+	{
+		isCPressed = true;
+	}
+	else if (isCPressed)
+	{
+		this->Phase(2);
+		isCPressed = false;
+	}
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 

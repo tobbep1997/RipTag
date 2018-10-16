@@ -287,5 +287,8 @@
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

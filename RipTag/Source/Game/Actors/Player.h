@@ -3,12 +3,15 @@
 #include "Abilities/Teleport.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
+#include "../../Physics/Wrapper/RayCastListener.h"
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
 	Teleport m_teleport;
+	RayCastListener *m_rayListener;
 
+	bool isCPressed = false;
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
 	
@@ -38,6 +41,8 @@ public:
 	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
+
+	void Phase(float searchLength);
 
 private:
 
