@@ -12,7 +12,7 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent
 private:
 	RayCastListener *m_rayListener;
 
-	bool isQPressed = false;
+	bool isCPressed = false;
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
 
@@ -30,7 +30,7 @@ public:
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
 
-	void Phase();
+	void Phase(float searchLength);
 
 private:
 

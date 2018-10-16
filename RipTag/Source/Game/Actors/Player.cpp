@@ -38,19 +38,33 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
-void Player::Phase()
+void Player::Phase(float searchLength)
 {
-	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), 2);
-	b3Vec3 pos = b3Vec3(0, 0, 0);
+	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
 	if (this->m_rayListener->shape != nullptr)
 	{
-		pos.x = this->m_rayListener->contactPoint.x + (0.5*(-this->m_rayListener->normal.x));
-		pos.y = this->m_rayListener->contactPoint.y + (0.5*(-this->m_rayListener->normal.y));
-		pos.z = this->m_rayListener->contactPoint.z + (0.5*(-this->m_rayListener->normal.z));
+		p_setPosition(
+			this->m_rayListener->contactPoint.x + (
+				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
+				(-this->m_rayListener->normal.x)), 
+			this->getPosition().y,
+			this->m_rayListener->contactPoint.z + (
+				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
+				(-this->m_rayListener->normal.z))
+			);
+
+		if (this->m_rayListener->normal.y != 0)
+		{
+			p_setPosition(
+				this->getPosition().x,
+				this->m_rayListener->contactPoint.y + (
+					(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
+					(-this->m_rayListener->normal.y)),
+				this->getPosition().z
+			);
+		}
+		this->m_rayListener->clear();
 	}
-	this->m_rayListener->clear();
-	if (!(pos.x == 0 && pos.z == 0))
-		p_setPosition(pos.x, this->getPosition().y, pos.z);
 }
 
 
@@ -104,14 +118,14 @@ void Player::_handleInput(double deltaTime)
 	}
 
 
-	if (!InputHandler::isKeyPressed('Q')) //Phase acts like short range teleport through objects
+	if (!InputHandler::isKeyPressed('C')) //Phase acts like short range teleport through objects
 	{
-		isQPressed = true;
+		isCPressed = true;
 	}
-	else if (isQPressed)
+	else if (isCPressed)
 	{
-		this->Phase();
-		isQPressed = false;
+		this->Phase(2);
+		isCPressed = false;
 	}
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
