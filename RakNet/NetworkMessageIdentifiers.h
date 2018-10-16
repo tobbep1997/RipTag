@@ -6,7 +6,7 @@
 #include <BitStream.h>
 #include <RakNetDefines.h>
 
-#include<LuaTalker.h>
+#include <LuaTalker.h>
 
 #define LUA_PACKETS_METATABLE "Packets"
 #define LUA_TABLE_MESSAGE_IDENTIFIERS "PacketID"
