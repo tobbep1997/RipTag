@@ -95,13 +95,23 @@ void LevelHandler::Draw()
 
 void LevelHandler::_LoadPreFabs()
 {
+	int temp = 0;
 	std::experimental::filesystem::path Path = std::experimental::filesystem::current_path() / m_roomString;
+
 	for (auto & p : std::experimental::filesystem::directory_iterator(Path))
 	{
 		std::wstring temp(p.path().c_str());
 
 
 		m_prefabRoomFiles.push_back(std::string(temp.begin(), temp.end()));
+		temp += 1;
+	}
+	if (temp == 0)
+	{
+		std::ofstream file;
+		file.open(Path);
+		file << "asd";
+		file.close();
 	}
 }
 
