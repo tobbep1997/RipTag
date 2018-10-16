@@ -15,15 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FormatHeader.h">
+    <ClInclude Include="ImportLibrary\formatImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="formatImporter.h">
+    <ClInclude Include="ImportLibrary\FormatHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="formatImporter.cpp">
+    <ClCompile Include="ImportLibrary\formatImporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

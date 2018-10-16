@@ -1,14 +1,13 @@
 #pragma once
+
+#include <future>
 #include "State.h"
+#include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
-#include "../Actors/Enemy/Enemy.h"
-#include "../../Engine/Source/3D Engine/RenderingManager.h"
-#include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
-#include <future>
 #include "../Actors/Enemy/Enemy.h"
 
 
@@ -29,19 +28,10 @@ private:
 	Enemy * enemy;
 	b3World m_world;
 
-
-	//-----------------------------------------------------------------------------
-	//PLEASE REMOBE THIS //TODO::PLEASE
-
-	b3Body*		m_floor;
-	b3Polyhedron * poly2;
-	b3Hull * bodyBox2;
-	b3BodyDef * bodyDef2;
-	b3ShapeDef* bodyBoxDef2;
-	b3Shape * m_shape2;
-
-	//-----------------------------------------------------------------------------
+	
 	BaseActor * actor;
+
+	BaseActor * CollisionBoxes;
 
 	float x = -1.5f;
 	float y = 2.1f; 
@@ -52,8 +42,7 @@ private:
 	float zD = 0;
 
 	float intensity = 2;
-	BaseActor * wall1;
-
+	
 	BaseActor * testCube;
 
 	PointLight light1;
@@ -61,7 +50,7 @@ private:
 
 	Enemy gTemp;
 
-	Model * model;
+	Drawable * model;
 	//std::future<void> future;
 	//std::thread test;
 	b3TimeStep m_step;

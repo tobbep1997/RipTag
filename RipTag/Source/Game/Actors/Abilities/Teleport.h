@@ -1,5 +1,4 @@
 #pragma once
-#include "../../../Physics/Wrapper/PhysicsComponent.h"
 #include "../BaseActor.h"
 
 class Teleport : public BaseActor

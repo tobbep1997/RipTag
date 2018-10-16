@@ -1,6 +1,6 @@
 #include "Input.h"
-#include "../../../InputManager/XboxInput/GamePadHandler.h"
-#include "../../../InputManager/InputHandler.h"
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 
 bool Input::m_deactivate = false;
 

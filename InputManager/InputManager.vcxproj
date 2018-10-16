@@ -91,6 +91,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Lua Talker\Source;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,7 +140,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Lua Talker\Source;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -149,19 +149,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="InputHandler.h" />
-    <ClInclude Include="XboxInput\GamePadHandler.h" />
-    <ClInclude Include="XboxInput\GamePad\GamePad.h" />
+    <ClInclude Include="InputManager\InputHandler.h" />
+    <ClInclude Include="InputManager\XboxInput\GamePadHandler.h" />
+    <ClInclude Include="InputManager\XboxInput\GamePad\GamePad.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InputHandler.cpp" />
-    <ClCompile Include="XboxInput\GamePadHandler.cpp" />
+    <ClCompile Include="InputManager\InputHandler.cpp" />
+    <ClCompile Include="InputManager\XboxInput\GamePadHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="XboxInput\GamePad\DirectXTK.lib">
+    <Library Include="InputManager\XboxInput\GamePad\DirectXTK.lib">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Library>
-    <Library Include="XboxInput\GamePad\DirectXTKd.lib">
+    <Library Include="InputManager\XboxInput\GamePad\DirectXTKd.lib">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Library>
   </ItemGroup>

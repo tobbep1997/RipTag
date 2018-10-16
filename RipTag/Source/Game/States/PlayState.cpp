@@ -1,7 +1,8 @@
 #include "PlayState.h"
-#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
-#include "Source/Helper/Timer.h"
+#include "EngineSource/Helper/Timer.h"
+#include "ImportLibrary/formatImporter.h"
 
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
@@ -10,82 +11,20 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	player = new Player();
 	enemy = new Enemy();
-	CameraHandler::setActiveCamera(player->getCamera());
-	
-	//m_world = new b3World();
+	CameraHandler::setActiveCamera(player->getCamera());	
+
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-
-	//bodyDef = new b3BodyDef();
-	//bodyDef->type = e_dynamicBody;
-
-	//// Position the body 10 meters high from the world origin.
-	//bodyDef->position.Set(0.0f, 100.0f, 0.0f);
-	//
-	//m_body = m_world.CreateBody(*bodyDef);
-	//bodyBox = new b3Hull();
-
-	//bodyBox->SetAsBox(b3Vec3(1, 1, 1));
-
-	//poly = new b3Polyhedron();
-	//poly->SetHull(bodyBox);
-	//
-	//
-	//bodyBoxDef = new b3ShapeDef();
-	//bodyBoxDef->shape = poly;
-	//bodyBoxDef->density = 1.0f;
-	//bodyBoxDef->restitution = 0;
-	//
-	//using namespace std::chrono_literals;
-	////std::cout << "Hello waiter" << std::endl; // flush is intentional
-	////auto start = std::chrono::high_resolution_clock::now();
-	//
-	//m_shape = m_body->CreateShape(*bodyBoxDef);
-
-	bodyDef2 = new b3BodyDef();
-	bodyDef2->type = e_staticBody;
-
-	// Position the body 10 meters high from the world origin.
-	bodyDef2->position.Set(0.0f, 0.0f, 0.0f);
-
-	m_floor = m_world.CreateBody(*bodyDef2);
-	bodyBox2 = new b3Hull();
-
-	bodyBox2->SetAsBox(b3Vec3(20, 1, 20));
-
-	poly2 = new b3Polyhedron();
-	poly2->SetHull(bodyBox2);
-
-
-	bodyBoxDef2 = new b3ShapeDef();
-	bodyBoxDef2->shape = poly2;
-	bodyBoxDef2->density = 1.0f;
-	bodyBoxDef2->restitution = 0.1f;
-
-	m_shape2 = m_floor->CreateShape(*bodyBoxDef2);
-
-	//std::this_thread::sleep_for(2s);
-	//m_body->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
-	//m_body->SetGravityScale(-9.82f);
-	//m_shape->SetTransform(b3Vec3(0, 10, 0), b3Vec3(0, 0, 0), 0);
 	Timer::StartTimer();
-	//pool->submit(&thread,"KOMBIN");
+
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	//Manager::g_meshManager.loadStaticMesh("SPHERE");
-	Manager::g_meshManager.loadStaticMesh("KUB");
 
-	//Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_meshManager.loadStaticMesh("KUB");
 
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
-	//Manager::g_textureManager.loadTextures("PIRASRUM");
-	
-	//temp = new Model();
-	////temp->setEntityType();
-	//temp->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	//temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	//temp->setPosition(0, 10, 0);
+
 	future.get();
 	future1.get();
 	Timer::StopTimer();
@@ -94,31 +33,29 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
 	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
 	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
-	//actor->setPosition(0, 10, 0);
+
+	CollisionBoxes = new BaseActor();
+	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
+
+
+
 	actor->setScale(1.0f,1.0f,1.0f);
 	actor->setPosition(0, 0, 0);
 	actor->setTextureTileMult(10, 10);
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0,0);
-	//player->setEntityType(EntityType::PlayerType);
+
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
-
-	wall1 = new BaseActor();
-	wall1->Init(m_world, e_staticBody, 8.0f, 2.0f, 0.1f);
-	wall1->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	//wall1->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	wall1->setPosition(-1.5f, 2.1f, -2.1f);
-
 	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
 	light1.setDropOff(0);
-	light1.setColor(0.8f, 0.6, 0.4f);
+	light1.setColor(0.8f, 0.6f, 0.4f);
 	light1.setDropOff(1);
 
 	light2.Init(DirectX::XMFLOAT4A(7, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
@@ -132,11 +69,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	enemy->setDir(1, 0, 0);
 	enemy->getCamera()->setFarPlane(5);
 
-	model = new Model();
+	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
 	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	model->setScale(0.5, 0.5, 0.5);
-	//player->setScale(0.003f, 0.003f, 0.003f);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
@@ -146,31 +82,28 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	testCube->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	testCube->setPosition(5, 5.0f, 0);
 	
+
 }
 
 PlayState::~PlayState()
 {
 	delete enemy;
 	player->Release(m_world);
+	player->ReleaseTeleport(m_world);
 	delete player;
-
-	m_floor->DestroyShape(m_shape2);
-	delete poly2;
-	delete bodyBox2;
-	delete bodyDef2;
-	delete bodyBoxDef2;
-	m_world.DestroyBody(m_floor);
 
 	actor->Release(m_world);
 	delete actor;
 
-	wall1->Release(m_world);
-	delete wall1;
+
 
 	delete model;
 
 	testCube->Release(m_world);
 	delete testCube;
+
+	CollisionBoxes->Release(m_world);
+	delete CollisionBoxes;
 
 }
 
@@ -183,7 +116,6 @@ void PlayState::Update(double deltaTime)
 	timer += deltaTime;
 	static float ran = 5.5f;
 
-
 	if (abs(current.x - target.x) < 0.1)
 	{
 		timer = 0.0;
@@ -193,8 +125,6 @@ void PlayState::Update(double deltaTime)
 		target.x = ran;
 		
 	}
-
-	//current.x = fmin;
 	
 	auto v1 = DirectX::XMLoadFloat2(&current);
 	auto v2 = DirectX::XMLoadFloat2(&target);
@@ -207,23 +137,12 @@ void PlayState::Update(double deltaTime)
 
 	float temp = 5 + sin(current.x) * 1.5;
 
-	//temp = min(temp, 0.8);
-	//temp = max(temp, 0.65f);
+
 	
 	light1.setDropOff(.5f);
 	light1.setIntensity(temp);
 
-	//std::cout << "Current: " << current.x << " Target: " << target.x << "	Result: " << temp << std::endl;
 
-/*
-	float flick = (float)(rand() % 100) / 50.0f;
-	light1.setDropOff(flick);
-	flick = (float)(rand() % 100) / 50.0f;
-	light2.setDropOff(flick);
-	flick = (float)(rand() % 100) / 30.0f;
-	light1.setIntensity(flick);
-	flick = (float)(rand() % 100) / 30.0f;
-	light2.setIntensity(flick);*/
 
 #if _DEBUG
 	ImGui::Begin("Player Setting");                          
@@ -254,11 +173,7 @@ void PlayState::Update(double deltaTime)
 
 
 	light2.setIntensity(intensity);
-	//light1.setPosition(x, y, z, 1);
-	//model->setPosition(x, y, z);
-	//testCube->setPositionRot(x, y, z,xD,yD,zD);
-	//gTemp.setDir(0, 0, -1);
-	//jumper->setPosition(ax, ay, az);
+
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
 		Input::ForceDeactivateGamepad();
@@ -294,36 +209,19 @@ void PlayState::Update(double deltaTime)
 	m_objectHandler.Update();
 	m_levelHandler.Update();
 
-	if (m_firstRun)
-	{
-		m_step.dt = 1.0f / 60.0f;
-		m_step.velocityIterations = 10;
-		m_step.sleeping = true;
-		m_firstRun = false;
-	}
-	else
-	{
-		m_step.dt = deltaTime;
-	}
+
 	
-	// Getho Culling
-	//DirectX::XMFLOAT4A plPos = player->getPosition();
-	//// For each enemy
-	//DirectX::XMFLOAT4A dir = enemy->getCamera()->getDirection();
-	//DirectX::XMFLOAT4A ePos = enemy->getPosition();
-	//DirectX::XMFLOAT4A eToP(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
-	//float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
-	//float l = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat4A(&eToP)));
-	//
-	//if (d > enemy->getCamera()->getFOV() / 2.8f && l <= (enemy->getCamera()->getFarPlane() / d) + 2)
+	m_step.dt = deltaTime * 2;
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+	
+	
+
 	enemy->CullingForVisability(*player->getTransform());
 	enemy->QueueForVisibility();
 
-	/*dir = gTemp.getCamera()->getDirection();
-	ePos = gTemp.getPosition();
-	eToP = DirectX::XMFLOAT4A(plPos.x - ePos.x, plPos.y - ePos.y, plPos.z - ePos.z, 0.0f);
-	d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir)), DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&eToP))));
-	if (d > gTemp.getCamera()->getFOV() / 2.8f && l <= (gTemp.getCamera()->getFarPlane() / d) + 2)*/
+
 	gTemp.CullingForVisability(*player->getTransform());
 	gTemp.QueueForVisibility();
 

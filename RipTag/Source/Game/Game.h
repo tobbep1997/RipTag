@@ -4,10 +4,11 @@
 
 
 #include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 #include <stack>
 #include "States/State.h"
 #include "States/PlayState.h"
-#include "Source/3D Engine/Model/Managers/ModelManager.h"
+#include "EngineSource/3D Engine/Model/Managers/ModelManager.h"
 #include "States/MainMenu.h"
 #include <LuaTalker.h>
 

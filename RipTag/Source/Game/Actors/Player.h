@@ -1,10 +1,7 @@
 #pragma once
-//#include "../Engine/Source/3D Engine/Components/Base/Transform.h"
-
 #include "Actor.h"
 #include "Abilities/Teleport.h"
-
-#include "../Engine/Source/3D Engine/Components/Base/CameraHolder.h"
+#include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
@@ -44,6 +41,7 @@ public:
 	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
 
 	void InitTeleport(b3World & world);
+	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
 
