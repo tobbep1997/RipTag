@@ -83,7 +83,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 
 void ForwardRender::GeometryPass()
 {
-	
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	if (m_firstRun == true)
 	{
 		m_shaderThreads[0].join();
@@ -110,7 +110,7 @@ void ForwardRender::GeometryPass()
 		
 	}
 
-
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
 void ForwardRender::AnimatedGeometryPass()
@@ -362,6 +362,7 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 
 	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
 
+	m_textureValues.color = drawable->getColor();
 
 	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
 }

@@ -28,6 +28,7 @@ cbuffer TEXTURE_BUFFER : register(b7)
 {
     int4 usingTexture;
     float4 uvScaling;
+    float4 ObjectColor;
 };
 // end<TODO>
 
@@ -107,13 +108,13 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float normDotLight;
     float finalShadowCoeff;
 
-    float4 albedo = float4(1.0f, 0.0f, 1.0f, 1.0);
+    float4 albedo = ObjectColor;
     float3 normal = input.normal.xyz;
     float3 AORoughMet = float3(1, 1, 1); 
 
     if (usingTexture.x)
     {
-        albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy);
+        albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
         normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
     }

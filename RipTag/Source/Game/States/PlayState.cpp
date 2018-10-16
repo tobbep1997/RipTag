@@ -80,6 +80,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 
 	visSphear = new Drawable();
+	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	visSphear->setScale(0.5, 0.5, 0.5);
+	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	visSphear->setPosition(5, 5, 2);
+	visSphear->setColor(10, 10, 0, 0.6f);
 	
 	m_levelHandler.Init(m_world);
 
@@ -101,7 +106,7 @@ PlayState::~PlayState()
 
 	delete model;
 
-	
+	delete visSphear;
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
@@ -248,7 +253,7 @@ void PlayState::Draw()
 	//player->QueueVisabilityDraw();
 
 	model->Draw();
-	
+	visSphear->Draw();
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 

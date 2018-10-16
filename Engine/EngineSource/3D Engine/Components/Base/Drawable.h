@@ -42,6 +42,8 @@ protected:
 	std::wstring p_vertexPath;
 	std::wstring p_pixelPath;
 
+	DirectX::XMFLOAT4A p_color;
+
 	virtual void p_createBuffer();
 
 	//Setting the mesh for the object
@@ -92,6 +94,10 @@ public:
 
 	virtual void setModel(StaticMesh * staticMesh);
 	virtual void setModel(DynamicMesh * dynamicMesh);
+
+	virtual void setColor(const DirectX::XMFLOAT4A & color);
+	virtual void setColor(const float & x, const float & y, const float & z, const float & w);
+	virtual const DirectX::XMFLOAT4A & getColor() const;
 
 private:
 	virtual void _setStaticBuffer();
