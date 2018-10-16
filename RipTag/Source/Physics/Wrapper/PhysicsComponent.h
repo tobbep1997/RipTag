@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../../Physics/Bounce.h"
-#include "../Engine/Source/3D Engine/Components/Base/Transform.h"
+#include "EngineSource/3D Engine/Components/Base/Transform.h"
 #include <vector>
-#include "../New_Library/FormatHeader.h"
+#include "ImportLibrary/FormatHeader.h"
 struct BodyDefine
 {
 	float posX = 0;

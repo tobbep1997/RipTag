@@ -1,6 +1,5 @@
 #include "LevelHandler.h"
-#include "../../../../InputManager/InputHandler.h"
-
+#include "InputManager/InputHandler.h"
 LevelHandler::LevelHandler()
 {
 }

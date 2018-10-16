@@ -1,15 +1,13 @@
 #pragma once
+
+#include <future>
 #include "State.h"
+#include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/Player.h"
-#include "../Actors/Enemy/Enemy.h"
-#include "../../../../Engine/Source/3D Engine/RenderingManager.h"
-
-#include "../../Physics/Bounce.h"
 #include "../Actors/BaseActor.h"
-#include <future>
 #include "../Actors/Enemy/Enemy.h"
 
 class PlayState : public State
@@ -44,11 +42,14 @@ private:
 
 	Enemy gTemp;
 
-	Model * model;
+	Drawable * model;
 	//std::future<void> future;
 	//std::thread test;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
+
+	Drawable * visSphear;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

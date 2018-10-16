@@ -1,6 +1,6 @@
 #include "PhysicsComponent.h"
 #include <iostream>
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
@@ -78,7 +78,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 	b3Polyhedron * p;
 	b3ShapeDef* s;
 
-	for (int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		h = new b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
@@ -101,7 +101,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		m_shapeDefs.push_back(s);
 	}
 
-	for (int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		b3Body * b = world.CreateBody(*m_bodyDef);
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
