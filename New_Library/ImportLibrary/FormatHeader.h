@@ -41,6 +41,7 @@ namespace MyLibrary
 		float translation[3];
 		float scale[3];
 		float rotation[3];
+		int typeOfBox;
 	};
 	struct CollisionHeader
 	{
