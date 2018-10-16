@@ -42,6 +42,22 @@ bool Input::Jump()
 	return 0;
 }
 
+bool Input::CheckVisability()
+{
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	{
+		GamePadHandler::IsLeftShoulderPressed();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed('C'))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 float Input::MoveForward()
 {
 	if (GamePadHandler::IsConnected() && m_deactivate == false)

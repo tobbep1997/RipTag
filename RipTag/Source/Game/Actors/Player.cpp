@@ -44,17 +44,16 @@ void Player::Update(double deltaTime)
 	pos.y += m_offset;
 	p_camera->setPosition(pos);
 
-	DirectX::XMFLOAT4A po = Transform::getPosition();
+	if (Input::CheckVisability())
+	{
+		DirectX::XMFLOAT4A po = Transform::getPosition();
+		DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
+		DirectX::XMVECTOR cm = DirectX::XMLoadFloat4A(&p_camera->getDirection());
+		DirectX::XMStoreFloat4A(&po, DirectX::XMVectorAdd(ve, cm));
 
-	DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
-
-	DirectX::XMVECTOR cm  = DirectX::XMLoadFloat4A(&p_camera->getDirection());
-
-	DirectX::XMStoreFloat4A(&po,DirectX::XMVectorAdd(ve, cm));
-
-	visSphear->setPosition(po);
-	visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability);
-
+		visSphear->setPosition(po);
+		visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1);
+	}
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -87,7 +86,11 @@ void Player::Draw()
 {
 	m_teleport.Draw();
 	Drawable::Draw();
-	visSphear->Draw();
+	if (Input::CheckVisability())
+	{
+		visSphear->Draw();
+	}
+	
 }
 
 void Player::SetCurrentVisability(const float & guard)
