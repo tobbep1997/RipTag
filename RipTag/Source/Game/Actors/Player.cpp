@@ -52,7 +52,7 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 void Player::Phase(float searchLength)
 {
 	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
-	if (this->m_rayListener->shape != nullptr)
+	if (this->m_rayListener->type == 1)
 	{
 		p_setPosition(
 			this->m_rayListener->contactPoint.x + (
@@ -73,8 +73,9 @@ void Player::Phase(float searchLength)
 				this->getPosition().z
 			);
 		}
-		this->m_rayListener->clear();
+		
 	}
+	this->m_rayListener->clear();
 }
 
 void Player::InitTeleport(b3World & world)
@@ -193,7 +194,6 @@ void Player::_handleInput(double deltaTime)
 	{
 		isPressed = false;
 	}
-
 
 	if (!InputHandler::isKeyPressed('C')) //Phase acts like short range teleport through objects
 	{

@@ -6,8 +6,9 @@ class RayCastListener : public b3RayCastListener
 public:
 	b3Vec3 contactPoint;
 	b3Vec3 normal;
-	r32 fraction;
+	r32 fraction = 0;
 	b3Shape* shape;
+	int type = -1;
 
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
@@ -17,8 +18,9 @@ public:
 			this->contactPoint = point;
 			this->normal = normal;
 			this->fraction = fraction;
+			this->type = (int)shape->GetUserData();
+			std::cout << this->type << std::endl;
 		}
-
 		return fraction;
 	}
 
@@ -28,6 +30,7 @@ public:
 		this->contactPoint = b3Vec3(0, 0, 0);
 		this->normal = b3Vec3(0, 0, 0);
 		this->fraction = 0;
+		this->type = -1;
 	}
 
 	void shotRay(b3Body* body, DirectX::XMFLOAT4A direction, float length)
