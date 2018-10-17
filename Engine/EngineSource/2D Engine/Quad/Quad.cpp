@@ -10,8 +10,7 @@ void Quad::p_createBuffer()
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(QUAD_VERTEX) * (UINT)4;
-
+	bufferDesc.ByteWidth = sizeof(QUAD_VERTEX) * 4;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = quadVertex;
@@ -34,7 +33,7 @@ void Quad::p_setStaticQuadVertex()
 
 }
 
-Quad::Quad()
+Quad::Quad() : Transform2D(), Button(this)
 {
 }
 
@@ -47,7 +46,7 @@ Quad::~Quad()
 void Quad::init(DirectX::XMFLOAT2A position, DirectX::XMFLOAT2A size)
 {
 	Transform2D::setPosition(position);
-	this->setScale(size);
+	Transform2D::setScale(size);
 	p_setStaticQuadVertex();
 	p_createBuffer();
 }
@@ -74,19 +73,45 @@ void Quad::MapTexture()
 
 void Quad::setPosition(const float & x, const float & y)
 {
-	Transform2D::setPosition(x, y);
-	//-1 -1 
-	quadVertex[0].position.x = (x * 2) - 1;
-	quadVertex[0].position.y = (y * 2) - 1;
-	//-1 1
+	this->setPosition(DirectX::XMFLOAT2A(x, y));
+}
+
+void Quad::setPosition(const DirectX::XMFLOAT2A & position)
+{
+	Transform2D::setPosition(position);
+	quadVertex[0].position.x = (position.x * 2) - 1;
+	quadVertex[0].position.y = (position.y * 2) - 1;
+
 	quadVertex[1].position.x = quadVertex[0].position.x;
 	quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
-	//1 -1
+
 	quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
 	quadVertex[2].position.y = quadVertex[0].position.y;
-	//1 1
+
 	quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
 	quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+
+	p_createBuffer();
+}
+
+void Quad::setScale(const float & x, const float & y)
+{
+	this->setScale(DirectX::XMFLOAT2A(x, y));
+}
+
+void Quad::setScale(const DirectX::XMFLOAT2A & size)
+{
+	Transform2D::setScale(size);
+
+	quadVertex[1].position.x = quadVertex[0].position.x;
+	quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
+
+	quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
+	quadVertex[2].position.y = quadVertex[0].position.y;
+
+	quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
+	quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+
 	p_createBuffer();
 }
 

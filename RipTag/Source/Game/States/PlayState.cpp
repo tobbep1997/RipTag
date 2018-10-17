@@ -79,8 +79,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	quad = new Quad();
 	quad->init();
-	quad->setScale(0.25f, 0.25f);
 	quad->setPosition(0.25f, 0.25f);
+	quad->setScale(0.25f, 0.25f);
 	
 	quad->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
@@ -143,11 +143,6 @@ void PlayState::Update(double deltaTime)
 
 #endif
 
-	if (!unlockMouse)
-	{
-
-	
-	}
 
 	
 

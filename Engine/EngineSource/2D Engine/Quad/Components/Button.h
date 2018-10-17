@@ -1,8 +1,13 @@
 #pragma once
-class Button
+#include "Transform2D.h"
+class Button 
 {
+private:
+	Transform2D * m_transform2D;
 public:
-	Button();
+	Button(Transform2D * transform2D);
 	~Button();
+
+	const bool Inside(const DirectX::XMFLOAT2 & mousePos) const;
 };
 

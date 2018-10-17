@@ -10,10 +10,6 @@ class Render2D
 private:
 	ID3D11SamplerState *	m_sampler;
 
-	ID3D11Buffer *					m_positionBuffer;
-	Transform2D::Transform2DBuffer	m_positionValues;
-
-	ID3D11RasterizerState *			m_rasterizerState;
 public:
 	Render2D();
 	~Render2D();
@@ -22,7 +18,5 @@ public:
 	void GUIPass();
 	void Release();
 
-private:
-	void _mapBuffers(Quad * quad);
 };
 

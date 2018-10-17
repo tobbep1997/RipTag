@@ -18,7 +18,7 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
-	output.pos = float4(input.pos.x, input.pos.y,0,1);
+	output.pos = float4(input.pos.x, input.pos.y, 0, 1);
 	output.UV = input.UV;
 	return output;
 }
