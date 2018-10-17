@@ -193,18 +193,6 @@ void Player::_handleInput(double deltaTime)
 		
 	}
 
-	if (InputHandler::isKeyPressed('F'))
-	{
-		unlockMouse = false;
-		ShowCursor(FALSE);
-
-	}
-	if (InputHandler::isKeyPressed('G'))
-	{
-		unlockMouse = true;
-		ShowCursor(TRUE);
-
-	}
 	float deltaX = 0;
 	float deltaY = 0;
 	if (!unlockMouse)
@@ -247,7 +235,7 @@ void Player::_handleInput(double deltaTime)
 	{
 		if (!m_teleport.getActiveSphere())
 		{
-			m_teleport.chargeSphere();
+			m_teleport.ChargeSphere(deltaTime);
 		}
 	}
 	else if (m_teleport.getCharging())

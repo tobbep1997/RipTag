@@ -1,4 +1,5 @@
 #include "Teleport.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 Teleport::Teleport() : BaseActor()
 {
@@ -8,13 +9,16 @@ Teleport::~Teleport()
 {
 }
 
-void Teleport::chargeSphere()
+void Teleport::ChargeSphere(double deltaTime)
 {
 	m_charging = true;
 	if (m_charge < 2.0f)
-		m_charge += 0.01f;
-}
+		m_charge += 1.0f * deltaTime;
 
+	ImGui::Begin("charge");
+	ImGui::Text("Charge: %f", m_charge);
+	ImGui::End();
+}
 void Teleport::ThrowSphere(DirectX::XMFLOAT4A StartPos, DirectX::XMFLOAT4A Direction)
 {
 	DirectX::XMFLOAT4A forward = Direction;
