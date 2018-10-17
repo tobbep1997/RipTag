@@ -95,8 +95,6 @@ PlayState::~PlayState()
 	actor->Release(m_world);
 	delete actor;
 
-
-
 	delete model;
 
 	testCube->Release(m_world);
