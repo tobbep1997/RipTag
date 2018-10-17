@@ -101,12 +101,16 @@ void ForwardRender::GeometryPass()
 	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
+		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-			
+
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+		}
+		
 		
 	}
 
@@ -125,15 +129,18 @@ void ForwardRender::AnimatedGeometryPass()
 	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		{
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 		
-		DX::g_animatedGeometryQueue[i]->BindTextures();
+			DX::g_animatedGeometryQueue[i]->BindTextures();
 
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
-		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+		}		
 	}
 }
 
@@ -206,6 +213,7 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_disableBackFace);
 
+	DX::SafeRelease(m_shadowSampler);
 	m_shadowMap.Release();
 }
 
@@ -346,8 +354,10 @@ void ForwardRender::_createConstantBuffer()
 void ForwardRender::_createSamplerState()
 {
 	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState, D3D11_TEXTURE_ADDRESS_WRAP);
+	hr = DXRHC::CreateSamplerState(m_shadowSampler);
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)

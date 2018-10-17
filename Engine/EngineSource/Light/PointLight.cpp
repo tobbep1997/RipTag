@@ -5,7 +5,7 @@
 PointLight::PointLight()
 {
 	m_nearPlane = 1.0f;
-	m_farPlane = 20.0f;
+	m_farPlane = 50.0f;
 	
 }
 
@@ -98,7 +98,7 @@ void PointLight::CreateShadowDirection(const std::vector<ShadowDir> & shadowDir)
 	}
 }
 
-float PointLight::TourchEffect(double deltaTime)
+float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 {
 	static double time = 0.0f;
 	static DirectX::XMFLOAT2 current(0.0, 0.0);
@@ -126,7 +126,7 @@ float PointLight::TourchEffect(double deltaTime)
 
 	current.x = DirectX::XMVectorGetX(vec);
 
-	float temp = 5 + sin(current.x) * 1.5;
+	float temp = base + sin(current.x) * amplitude;
 	return temp;
 }
 

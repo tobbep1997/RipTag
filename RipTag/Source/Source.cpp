@@ -43,7 +43,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		game.PollEvents();
 		Timer::StopTimer();
 		deltaNega = Timer::GetDurationInSeconds();
-
 		//Draw and update
 		game.ImGuiFrameStart();
 		game.Update(deltaTime);

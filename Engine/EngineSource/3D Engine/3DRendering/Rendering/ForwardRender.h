@@ -59,13 +59,10 @@ private:
 	ID3D11DepthStencilView*		m_depthStencilView;
 	ID3D11Texture2D*			m_depthBufferTex;
 	ID3D11SamplerState*			m_samplerState;
+	ID3D11SamplerState*			m_shadowSampler;
+	
 
 	D3D11_VIEWPORT				m_viewport;
-
-	//Constant Buffer TEMP
-	//TODO::Fixa constant buffers
-	//Uppdatera bara 1 g�ng
-	//Fixa en constant_buffer.hlsl
 
 	ID3D11Buffer* m_objectBuffer = nullptr;
 	ObjectBuffer m_objectValues;
@@ -87,10 +84,8 @@ private:
 
 	
 
-	//LightCulling Related
-	float m_lightCullingDistance = 100;	//Culling Distance for lights
-	// after optimization, change this to 8
-	float m_forceCullingLimit = 8;		//If there are more then lights left then the limit it will force cull it
+	float m_lightCullingDistance = 100;	
+	float m_forceCullingLimit = 8;		
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;

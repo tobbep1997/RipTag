@@ -57,15 +57,14 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
-	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
+	light1.Init(DirectX::XMFLOAT4A(0, 3, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
-	light1.setDropOff(0);
 	light1.setColor(0.8f, 0.6f, 0.4f);
 	light1.setDropOff(1);
 
-	light2.Init(DirectX::XMFLOAT4A(7, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
+	light2.Init(DirectX::XMFLOAT4A(5, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
-	light2.setDropOff(0);
+	light2.setDropOff(1);
 	
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
@@ -108,38 +107,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	/*static double time = 0.0f;
-	static DirectX::XMFLOAT2 current(0.0, 0.0);
-	static DirectX::XMFLOAT2 target(1.0, 1.0);
-	static double timer = 0.0f;
-	timer += deltaTime;
-	static float ran = 5.5f;
-
-	if (abs(current.x - target.x) < 0.1)
-	{
-		timer = 0.0;
-
-		ran = (float)(rand() % 100) / 100.0f;
-		
-		target.x = ran;
-		
-	}
-	
-	auto v1 = DirectX::XMLoadFloat2(&current);
-	auto v2 = DirectX::XMLoadFloat2(&target);
-	DirectX::XMVECTOR vec;
-
-	vec = DirectX::XMVectorLerp(v1, v2, deltaTime * 5);
-
-
-	current.x = DirectX::XMVectorGetX(vec);
-
-	float temp = 5 + sin(current.x) * 1.5;*/
-
-
-	
-	light1.setDropOff(.5f);
-	light1.setIntensity(light1.TourchEffect(deltaTime));
+	light1.setIntensity(light1.TourchEffect(deltaTime, 25, 1.5f));
 
 
 
@@ -179,7 +147,7 @@ void PlayState::Update(double deltaTime)
 	
 
 
-	light2.setIntensity(intensity);
+	light2.setIntensity(light2.TourchEffect(deltaTime, 7, 2));
 
 	if (GamePadHandler::IsLeftDpadPressed())
 	{

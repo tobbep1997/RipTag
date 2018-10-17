@@ -143,14 +143,10 @@ void Player::_handleInput(double deltaTime)
 	}
 	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	//walkBob += x;
 
 	float z = Input::MoveForward() * m_moveSpeed * forward.z;
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-
-	float deltaX = 0;
-	float deltaY = 0;
 	if (!unlockMouse)
 	{
 		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
@@ -158,16 +154,20 @@ void Player::_handleInput(double deltaTime)
 
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
 
-		deltaX = ((InputHandler::getWindowSize().x / 2)) - poss.x;
-		deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
+		float deltaX = ((InputHandler::getWindowSize().x / 2)) - poss.x;
+		float deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
 		
 		SetCursorPos(midX, midY);
+
+		if (deltaY)
+			p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
+		
+		if (deltaX && !Input::PeekRight())
+			p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
 	}
 	
 
-	p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
 	
-	p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
 
 	if (Input::Jump())
 	{

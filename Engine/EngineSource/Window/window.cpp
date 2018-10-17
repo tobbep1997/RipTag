@@ -122,7 +122,7 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		InputHandler::m_windowInFocus = false;
 		break;
 	case WM_SETFOCUS:
-		if (InputHandler::m_windowInFocus)
+		if (!InputHandler::m_windowInFocus)
 			GainedFocus = true;
 		InputHandler::m_windowInFocus = true;
 		break;
