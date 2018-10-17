@@ -40,16 +40,10 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
-#if _DEBUG
-
 	m_teleport.Update(deltaTime);
-	ImGui::Begin("Walk bob");
-	ImGui::Text("HeadBob : %f", m_offset);
-	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
-	ImGui::End();
-#endif
+
 	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += m_offset;
+	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
 	p_camera->setPosition(pos);
 
 	if (Input::CheckVisability())
@@ -156,42 +150,6 @@ void Player::_handleInput(double deltaTime)
 	
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-#if _DEBUG
-	ImGui::Begin("Bob Slide");
-	ImGui::SliderFloat("WalkingFreq", &freq, 4.0f, 0.0f);
-	ImGui::SliderFloat("WalkingBobAmp", &walkingBobAmp, 0.2f, 0.0f);
-	ImGui::SliderFloat("StopBobAmp", &stopBobAmp, 0.2f, 0.0f);
-	ImGui::SliderFloat("StopBobFreq", &stopBobFreq, 4.0f, 0.0f);
-	ImGui::End();
-#endif
-	if (Input::MoveForward() != 0)
-	{
-		if (m_currentAmp < walkingBobAmp)
-		{
-			m_currentAmp += 0.0003f;
-		}
-		walkBob += (Input::MoveForward() * (m_moveSpeed * deltaTime));
-		m_offset = walkingBobAmp * sin(freq*walkBob);
-	}
-	else
-	{
-		walkBob += 0.009f;
-
-		if (m_currentAmp > stopBobAmp)
-		{
-			m_currentAmp -= 0.0001f;
-		}
-		/*if (walkBob < 0.0f)
-		{
-			walkBob += 0.01;
-		}
-		else if (walkBob > 0.0)
-		{
-			walkBob -= 0.01;
-		}*/
-		m_offset = m_currentAmp * sin(stopBobFreq * walkBob);
-		
-	}
 
 	float deltaX = 0;
 	float deltaY = 0;
