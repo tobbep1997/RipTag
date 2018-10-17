@@ -187,12 +187,6 @@ ID3D11Buffer * Drawable::getBuffer()
 	return p_vertexBuffer;
 }
 
-DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
-{
-	this->p_calcWorldMatrix();
-	return this->p_worldMatrix;
-}
-
 ObjectType Drawable::getObjectType()
 {
 	return p_objectType;

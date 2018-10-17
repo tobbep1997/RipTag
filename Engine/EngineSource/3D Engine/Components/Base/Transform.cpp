@@ -14,11 +14,15 @@ void Transform::p_calcWorldMatrix()
 	}
 	else
 	{
-		rotation = DirectX::XMLoadFloat3x3(&p_physicsRotation);
+		rotation = XMLoadFloat3x3(&p_physicsRotation);
 	}
+	XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
+
+	if (m_parent)
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+
 	
-	
-	DirectX::XMStoreFloat4x4A(&this->p_worldMatrix, XMMatrixTranspose(rotation * scaling * translation));
+	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);
 
 }
 
@@ -34,6 +38,16 @@ Transform::Transform()
 
 Transform::~Transform()
 {
+}
+
+void Transform::setParent(Transform & parent)
+{
+	this->m_parent = &parent;
+}
+
+const Transform & Transform::getParent() const
+{
+	return *this->m_parent;
 }
 
 
@@ -132,6 +146,12 @@ const DirectX::XMFLOAT4A & Transform::getScale() const
 const DirectX::XMFLOAT4A & Transform::getEulerRotation() const
 {
 	return this->p_rotation;
+}
+
+DirectX::XMFLOAT4X4A Transform::getWorldmatrix()
+{
+	this->p_calcWorldMatrix();
+	return this->p_worldMatrix;
 }
 
 void Transform::setPhysicsRotation(const b3Mat33 & rot)

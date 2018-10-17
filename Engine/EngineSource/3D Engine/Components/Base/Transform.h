@@ -4,6 +4,8 @@
 
 class Transform
 {
+private:
+	Transform * m_parent;
 protected:
 	DirectX::XMFLOAT4A p_position;
 	DirectX::XMFLOAT4A p_scale;
@@ -13,11 +15,13 @@ protected:
 
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
-	//Calculates the worldMatrix
 	void p_calcWorldMatrix();
 public:
 	Transform();
 	virtual ~Transform();
+
+	virtual void setParent(Transform & parent);
+	virtual const Transform & getParent() const;
 
 	virtual void setPosition(const DirectX::XMFLOAT4A & pos);
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f);
@@ -43,6 +47,7 @@ public:
 	virtual const DirectX::XMFLOAT4A & getScale() const;
 	virtual const DirectX::XMFLOAT4A & getEulerRotation() const;
 
+	virtual DirectX::XMFLOAT4X4A getWorldmatrix();
 
 	virtual void setPhysicsRotation(const b3Mat33 & rot);
 };

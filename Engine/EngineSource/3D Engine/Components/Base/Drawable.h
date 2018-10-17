@@ -74,8 +74,6 @@ public:
 
 	virtual ID3D11Buffer * getBuffer();
 
-	//Returns the objects worldMatrix
-	virtual DirectX::XMFLOAT4X4A getWorldmatrix();
 
 	//returns static or dynamic objtype
 	virtual ObjectType getObjectType();
