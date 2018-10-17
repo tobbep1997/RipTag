@@ -18,8 +18,8 @@ private:
 protected:
 	Camera * p_camera;
 
-	DirectX::XMFLOAT4A m_lastPeek;
-	DirectX::XMFLOAT4A m_lastSideStep;
+	DirectX::XMFLOAT4A m_lastPeek = { 0,0,0,0 };
+	DirectX::XMFLOAT4A m_lastSideStep = { 0,0,0,0 };
 	float m_peekSpeed = 10.0f;
 
 	void p_initCamera(Camera * camera);

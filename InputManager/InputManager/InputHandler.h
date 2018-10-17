@@ -16,7 +16,7 @@ private:
 	static int m_lastPressed; 
 
 	static DirectX::XMFLOAT2 m_windowPos;
-
+	static DirectX::XMFLOAT2 m_viewportPos;
 	static DirectX::XMFLOAT2 m_mouseDelta;
 
 	static bool m_windowInFocus;
@@ -40,7 +40,7 @@ public:
 
 	static DirectX::XMFLOAT2 getMousePosDelta();
 	static DirectX::XMFLOAT2 getWindowPos();
-	static void REGISTER_TO_LUA();
+	static DirectX::XMFLOAT2 getviewportPos();
 
 	static bool getWindowFocus();
 	enum Key

@@ -13,6 +13,7 @@ DirectX::XMINT2 InputHandler::m_windowSize;
 DirectX::XMFLOAT2 InputHandler::m_mouseDelta;
 
 DirectX::XMFLOAT2 InputHandler::m_windowPos;
+DirectX::XMFLOAT2 InputHandler::m_viewportPos;
 
 bool InputHandler::m_windowInFocus;
 bool InputHandler::isKeyPressed(int keyCode)
@@ -95,6 +96,11 @@ DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
 DirectX::XMFLOAT2 InputHandler::getWindowPos()
 {
 	return m_windowPos;
+}
+
+DirectX::XMFLOAT2 InputHandler::getviewportPos()
+{
+	return m_viewportPos;
 }
 
 bool InputHandler::getWindowFocus()

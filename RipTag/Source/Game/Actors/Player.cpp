@@ -42,10 +42,11 @@ void Player::Update(double deltaTime)
 	}
 	m_teleport.Update(deltaTime);
 
+	float cameraOffset = 1.0f;
 	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += 1;
-	
-	//pos = p_CameraTilting(deltaTime, Input::PeekRight(), pos);
+	pos.y += cameraOffset;
+	p_camera->setPosition(pos);
+	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
 
 	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
 	p_camera->setPosition(pos);

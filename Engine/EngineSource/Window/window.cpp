@@ -56,7 +56,7 @@ LRESULT Window::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	
+	bool GainedFocus = false;
 
 	switch (msg)
 	{
@@ -122,6 +122,8 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		InputHandler::m_windowInFocus = false;
 		break;
 	case WM_SETFOCUS:
+		if (InputHandler::m_windowInFocus)
+			GainedFocus = true;
 		InputHandler::m_windowInFocus = true;
 		break;
 	}
@@ -130,7 +132,15 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
 
 	InputHandler::m_windowPos = DirectX::XMFLOAT2(Rect.left, Rect.top);
-	
+	InputHandler::m_viewportPos = DirectX::XMFLOAT2(Rect.left + (!m_windowContext.fullscreen * 8), Rect.top + (!m_windowContext.fullscreen * 31));
+	if (GainedFocus)
+	{
+		SetCursorPos(static_cast<int>(InputHandler::m_viewportPos.x + m_windowContext.clientWidth / 2), static_cast<int>(InputHandler::m_viewportPos.y + m_windowContext.clientHeight / 2));
+		InputHandler::m_mousePos.x = m_windowContext.clientWidth / 2;
+		InputHandler::m_mousePos.y = m_windowContext.clientHeight / 2;
+	}
+
+
 	m_procMsg.hwnd = hwnd;
 	m_procMsg.msg = msg;
 	m_procMsg.wParam = wParam;
@@ -196,8 +206,8 @@ bool Window::Init(_In_ WindowContext windowContext)
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		r.right - r.left + +(!m_windowContext.fullscreen * 16),
-		r.bottom - r.top +(!m_windowContext.fullscreen * 39),
+		r.right - r.left + (!m_windowContext.fullscreen * 16),
+		r.bottom - r.top + (!m_windowContext.fullscreen * 39),
 		nullptr,
 		nullptr,
 		m_windowContext.windowInstance,
