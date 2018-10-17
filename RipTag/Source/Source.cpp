@@ -1,5 +1,6 @@
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
+#include "EngineSource/Helper/Timer.h"
 
 #if _DEBUG
 #include <iostream>
@@ -24,15 +25,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	DeltaTime dt;
 	float deltaTime = 0.0f;
-	
+	float deltaNega = 0;
 	while (game.isRunning())
 	{
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
 
+		//This is to avoid Pollevents from fucking with the game
+		deltaTime = deltaTime - deltaNega;
 		game.Clear();
+
+		//Pollevents
+		Timer::StartTimer();
 		game.PollEvents();
+		Timer::StopTimer();
+		deltaNega = Timer::GetDurationInSeconds();
+
+		//Draw and update
 		game.ImGuiFrameStart();
 		game.Update(deltaTime);
 		game.Draw();

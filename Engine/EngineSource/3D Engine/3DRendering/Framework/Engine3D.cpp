@@ -85,7 +85,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		// get the address of the back buffer
 		ID3D11Texture2D* pBackBuffer = nullptr;
 		//m_swapChain->ResizeBuffers(0, width, hight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY);
-		//
+		
 		// use the back buffer address to create the render target
 		DX::g_deviceContext->OMSetRenderTargets(NULL, NULL, NULL);
 		DX::g_deviceContext->Flush();
