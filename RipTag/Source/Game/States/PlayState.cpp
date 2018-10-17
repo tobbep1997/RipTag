@@ -18,10 +18,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Timer::StartTimer();
 
-	
-
-	
-
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
@@ -43,9 +39,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
-	actor->setScale(1.0f,1.0f,1.0f);
-	actor->setPosition(0, 0, 0);
-	actor->setTextureTileMult(10, 10);
+
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
 	player->setPosition(0, 5, 0, 0);
@@ -251,7 +245,7 @@ void PlayState::Draw()
 
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
-	actor->Draw();
+	
 	//wall1->Draw();
 
 	player->Draw();

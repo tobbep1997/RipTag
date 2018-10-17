@@ -95,32 +95,7 @@ void LevelHandler::Draw()
 
 void LevelHandler::_LoadPreFabs()
 {
-	int temp = 0;
-	std::filesystem::path Path = std::filesystem::current_path() / m_roomString;
-
-	for (auto & p : std::filesystem::directory_iterator(Path))
-	{
-		std::wstring temp(p.path().c_str());
-
-		m_prefabRoomFiles.push_back(std::string(temp.begin(), temp.end()));
-		temp += 1;
-	}
-	if (temp == 0)
-	{
-		std::filesystem::create_directory(Path);
-
-		std::ofstream file;
-		file.open(Path / "asd.txt");
-		file << "asd";
-		file.close();
-	}
-
-	for (auto & p : std::filesystem::directory_iterator(Path))
-	{
-		std::wstring temp(p.path().c_str());
-
-		m_prefabRoomFiles.push_back(std::string(temp.begin(), temp.end()));
-	}
+	
 }
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
@@ -130,11 +105,11 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	for (short unsigned int i = 0; i < amountOfRooms; i++)
 	{
 		//Create a room
-		Room * room = new Room(i, m_worldPtr);
+		Room * room = new Room(1 , m_worldPtr, i);
 		//Get a random int
-		int randomRoom = rand() % m_prefabRoomFiles.size();
+		int randomRoom = rand() % 1+1;
 		//Set the File path for loading and unloading
-		room->setAssetFilePath(m_prefabRoomFiles.at(randomRoom));
+		//room->setAssetFilePath(m_prefabRoomFiles.at(randomRoom));
 
 
 		m_rooms.push_back(room);

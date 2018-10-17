@@ -344,4 +344,32 @@ namespace MyLibrary
 			return CollisionBoxes();
 		return collisionBoxes; // done :D
 	}
+	PointLights Loadera::readLightFile(const std::string & fileName)
+	{
+
+		PointLights pointLights;
+		bool fileIsOpen = false;
+
+		std::string newFileName = "../Assets/";
+		newFileName.append(fileName + "FOLDER/" + fileName + "_LIGHTS.bin");
+
+		std::ifstream customLightFile(newFileName, std::ifstream::binary);
+
+		if (customLightFile.is_open()) // opens file
+		{
+			fileIsOpen = true; // ya its open
+			int nrOf;
+
+			customLightFile.read((char*)&nrOf, sizeof(int)); // what is happening here?!! i just copied this code
+			pointLights.nrOf = nrOf;
+			pointLights.lights = new pointLight[nrOf];
+			customLightFile.read((char*)pointLights.lights, pointLights.nrOf * sizeof(pointLight)); // got litraly no fucking clue whats going on here please send help
+
+			//copy thing done
+			customLightFile.close(); // close file
+		}
+		else
+			return PointLights();
+		return pointLights; // done :D
+	}
 }

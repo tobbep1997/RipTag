@@ -18,6 +18,8 @@ namespace MyLibrary
 		AnimationFromFileStefan readAnimationFile(std::string fileName, uint16_t jointCount);
 
 		CollisionBoxes readMeshCollisionBoxes(const std::string & fileName);
+		PointLights readLightFile(const std::string & roomIndex);
+
 
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);

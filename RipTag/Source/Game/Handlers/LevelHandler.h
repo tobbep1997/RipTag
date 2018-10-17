@@ -10,7 +10,7 @@
 class LevelHandler
 {
 private:
-	const std::string m_roomString = "../Assets/ROOMSPREFAB";
+	const std::string m_roomString;
 	std::vector<std::string> m_prefabRoomFiles;
 
 	short unsigned int m_activeRoom;
