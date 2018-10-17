@@ -1,9 +1,36 @@
+
+#include <WinSock2.h>
 #include <Windows.h>
+
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
+
+
+//network
+#include <Multiplayer.h>
+#include "NetworkMessageIdentifiers.h"
+#include "CubePrototype.h"
+
+static std::vector<CubePrototype*> * GetPlayers();
+static void FlushPlayers();
+
+#define LUA_ADD_PLAYER "AddPlayer"
+#define LUA_UPDATE_REMOTE_PLAYER "UpdateRemotePlayer"
+#define LUA_UPDATE_LOCAL_PLAYER "UpdateLocalPlayer"
+static int Lua_Player_Add(lua_State *L);
+static int Lua_Update_Remote_Player(lua_State * L);
+static int Lua_Update_Local_Player(lua_State * L);
+
+//LUA
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
 #include "Source/3D Engine/Model/Managers/ModelManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
@@ -19,6 +46,7 @@
 //Allocates memory to the console
 void _alocConsole() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 	AllocConsole();
 	FILE* fp;
 	freopen_s(&fp, "CONOUT$", "w", stdout);
@@ -113,8 +141,6 @@ void AnimationGUI()
 
 /*v*/
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
-{
 #if _DEBUG
 	_alocConsole();
 #endif
@@ -137,6 +163,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	RenderingManager renderingManager;
 
 	
+
 	renderingManager.Init(hInstance);
 	
 	//std::chrono::
@@ -217,6 +244,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	double pos = 0;
 	//modelManager.bindTextures();
+
+	CubePrototype * antiCrashObject = 0;
+	antiCrashObject = new CubePrototype(-1.f, -1.f, -1.f);
+
+	bool hasMoved = false;
 
 	while (renderingManager.getWindow().isOpen())
 	{
@@ -383,3 +415,70 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	delete player;
 	return 0;
 }
+
+static std::vector<CubePrototype*> * GetPlayers()
+{
+	static std::vector<CubePrototype*> Players;
+
+	return &Players;
+}
+
+static void FlushPlayers()
+{
+	std::vector<CubePrototype*> * vec = GetPlayers();
+	for (size_t i = 0; i < vec->size(); i++)
+	{
+		delete vec->at(i);
+	}
+	vec->clear();
+
+	lua_pushnil(L);
+	lua_setglobal(L, "PLAYER_NID");
+}
+
+static int Lua_Player_Add(lua_State *L)
+{
+	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, lua_gettop(L));
+	if (ptr)
+	{
+		GetPlayers()->push_back(ptr);
+	}
+	return 0;
+}
+
+static int Lua_Update_Remote_Player(lua_State * L)
+{
+	Network::ENTITY_MOVE_MESSAGE * data = (Network::ENTITY_MOVE_MESSAGE *)lua_touserdata(L, -1);
+	if (data)
+	{
+		RakNet::NetworkID nid = data->networkId;
+		std::vector<CubePrototype*> * players = GetPlayers();
+		for (size_t i = 0; i < players->size(); i++)
+		{
+			if (players->at(i)->GetNetworkID() == nid)
+				players->at(i)->lerpPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 1.0f), data->timeStamp);
+		}
+	}
+	return 0;
+}
+
+static int Lua_Update_Local_Player(lua_State * L)
+{
+	RakNet::NetworkID nid = std::stoull(lua_tostring(L, -4));
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+
+	lua_pop(L, 4);
+
+	DirectX::XMFLOAT4A pos(x, y, z, 1.0f);
+
+	std::vector<CubePrototype*> * players = GetPlayers();
+	for (size_t i = 0; i < players->size(); i++)
+	{
+		if (players->at(i)->GetNetworkID() == nid)
+			players->at(i)->setPosition(pos);
+	}
+	return 0;
+}
+

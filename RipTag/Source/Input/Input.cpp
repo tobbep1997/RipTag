@@ -1,6 +1,6 @@
 #include "Input.h"
-#include "../../../InputManager/XboxInput/GamePadHandler.h"
-#include "../../../InputManager/InputHandler.h"
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 
 bool Input::m_deactivate = false;
 
@@ -75,6 +75,30 @@ float Input::MoveRight()
 			return 1;
 		}
 		else if (InputHandler::isKeyPressed('A'))
+		{
+			return -1;
+		}
+	}
+	return 0;
+}
+
+float Input::PeekRight()
+{
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	{
+		float delta = 0.0f;
+
+		delta = GamePadHandler::LeftTrigger() - GamePadHandler::RightTrigger();
+
+		return delta;
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed('Q'))
+		{
+			return 1;
+		}
+		else if (InputHandler::isKeyPressed('E'))
 		{
 			return -1;
 		}

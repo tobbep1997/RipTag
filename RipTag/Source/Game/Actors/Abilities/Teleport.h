@@ -1,5 +1,4 @@
 #pragma once
-#include "../../../Physics/Wrapper/PhysicsComponent.h"
 #include "../BaseActor.h"
 
 class Teleport : public BaseActor
@@ -11,7 +10,7 @@ private:
 	bool m_gotActiveSphere = false;
 public:
 	Teleport();
-	~Teleport();
+	virtual ~Teleport();
 
 	void chargeSphere();
 	void ThrowSphere(DirectX::XMFLOAT4A startPos, DirectX::XMFLOAT4A Direction);

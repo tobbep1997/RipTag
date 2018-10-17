@@ -1,16 +1,15 @@
 #include "Player.h"
-#include "../../../../InputManager/InputHandler.h"
-#include "../../../../InputManager/XboxInput/GamePadHandler.h"
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	
-	
-
+	m_lastPeek = DEFAULT_UP;
+	m_lastSideStep = DirectX::XMFLOAT4A(0, 0, 0, 0);
 }
 
 Player::~Player()
@@ -25,18 +24,24 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
+	DirectX::XMFLOAT4A pos = getPosition();
+	float camOffset = 1.0f;
+	pos.y += camOffset;
+	p_camera->setPosition(pos);
 	_handleInput(deltaTime);
-	
+	pos = p_camera->getPosition();
+	pos.y += m_offset;
+	p_camera->setPosition(pos);
+#if _DEBUG
 
 	m_teleport.Update(deltaTime);
 	ImGui::Begin("Walk bob");
 	ImGui::Text("HeadBob : %f", m_offset);
 	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
 	ImGui::End();
-
-	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += m_offset;
-	p_camera->setPosition(pos);
+#endif
+	//pos.y += m_offset;
+	//p_camera->setPosition(pos);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -82,13 +87,11 @@ void Player::_handleInput(double deltaTime)
 	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
-	XMVECTOR vUP= XMLoadFloat4(&UP);
+	XMVECTOR vUP = XMLoadFloat4(&UP);
 	XMVECTOR vRight;
 
 	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
 	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
-
-
 
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
@@ -101,23 +104,51 @@ void Player::_handleInput(double deltaTime)
 		m_moveSpeed = 200.0f * deltaTime;
 	}
 
+	float targetPeek = Input::PeekRight();
 
-	float x = Input::MoveRight() * m_moveSpeed * RIGHT.x;
-	
+	XMVECTOR in = XMLoadFloat4A(&m_lastPeek);
+	XMFLOAT4A none{ 0,1,0,0 };
+	XMVECTOR target = XMLoadFloat4A(&none);
+
+	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
+	target = XMVector4Transform(target, rot);
+	XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+	//out = XMVector4Transform(out, rot);
+	XMStoreFloat4A(&m_lastPeek, out);
+	p_camera->setUP(m_lastPeek);
+	XMFLOAT4A cPos = p_camera->getPosition();
+	XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&p_position));
+
+	vToCam = XMVector4Transform(vToCam, rot);
+	out = vToCam;
+	//out = XMVectorLerp(vToCam, target, min(deltaTime * m_peekSpeed, 1.0f));
+	out = XMVectorAdd(DirectX::XMLoadFloat4A(&p_position), out);
+
+	float MAX_PEEK = 1.0f;
+
+	//XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), MAX_PEEK));
+	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+	XMStoreFloat4A(&m_lastSideStep, sideStep);
+	out = XMVectorAdd(out, sideStep);
+	XMStoreFloat4(&cPos, out);
+
+	p_camera->setPosition(cPos);
+
+	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
 	//walkBob += x;
 
 	float z = Input::MoveForward() * m_moveSpeed * forward.z;
-	
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-	
+#if _DEBUG
 	ImGui::Begin("Bob Slide");
 	ImGui::SliderFloat("WalkingFreq", &freq, 4.0f, 0.0f);
 	ImGui::SliderFloat("WalkingBobAmp", &walkingBobAmp, 0.2f, 0.0f);
 	ImGui::SliderFloat("StopBobAmp", &stopBobAmp, 0.2f, 0.0f);
 	ImGui::SliderFloat("StopBobFreq", &stopBobFreq, 4.0f, 0.0f);
 	ImGui::End();
+#endif
 	if (Input::MoveForward() != 0)
 	{
 		if (m_currentAmp < walkingBobAmp)
@@ -125,7 +156,7 @@ void Player::_handleInput(double deltaTime)
 			m_currentAmp += 0.0003f;
 		}
 		walkBob += Input::MoveForward() / 20;
-		m_offset = walkingBobAmp * sin(freq*walkBob);
+		m_offset = walkingBobAmp * sin(freq*walkBob) * deltaTime;
 	}
 	else
 	{
@@ -147,10 +178,11 @@ void Player::_handleInput(double deltaTime)
 		
 	}
 	
-
-	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
 	
+	// TODO::FIX SO THAT IT DONT LOOK LIKE SHIT WHEN YOU PEEK
+	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
 	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
+	// TODO::END
 
 	if (Input::Jump())
 	{
@@ -165,7 +197,7 @@ void Player::_handleInput(double deltaTime)
 		isPressed = false;
 	}
 
-	
+	//std::cout << x << "\n";
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 

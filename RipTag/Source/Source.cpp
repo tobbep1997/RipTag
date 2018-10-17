@@ -1,5 +1,7 @@
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
+#include <LuaTalker.h>
+
 
 #if _DEBUG
 #include <iostream>
@@ -30,6 +32,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
+
 		game.Clear();
 		game.PollEvents();
 		game.ImGuiFrameStart();

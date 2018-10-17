@@ -18,6 +18,8 @@ public:
 	//Axis binds
 	static float MoveForward();
 	static float MoveRight();
+	static float PeekRight();
+
 
 	static float TurnUp();
 	static float TurnRight();
