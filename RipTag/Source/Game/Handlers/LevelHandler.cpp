@@ -96,6 +96,7 @@ void LevelHandler::Draw()
 void LevelHandler::_LoadPreFabs()
 {
 	int temp = 0;
+
 	std::filesystem::path Path = std::filesystem::current_path() / m_roomString;
 
 	for (auto & p : std::filesystem::directory_iterator(Path))

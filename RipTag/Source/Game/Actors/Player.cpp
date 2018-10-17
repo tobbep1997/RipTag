@@ -108,16 +108,6 @@ void Player::Draw()
 	
 }
 
-void Player::SetCurrentVisability(const float & guard)
-{
-	this->m_visability = guard;
-}
-void Player::Jump()
-{
-	static float lastY = 0;
-	static int frameCounter = 0;
-	frameCounter++;
-
 void Player::LockPlayerInput()
 {
 	m_lockPlayerInput = true;
@@ -127,6 +117,18 @@ void Player::UnlockPlayerInput()
 {
 	m_lockPlayerInput = false;
 }
+
+void Player::SetCurrentVisability(const float & guard)
+{
+	this->m_visability = guard;
+}
+
+void Player::Jump()
+{
+	static float lastY = 0;
+	static int frameCounter = 0;
+	frameCounter++;
+
 
 
 	if (!hasJumped) //this is to avoid input spam
@@ -308,7 +310,7 @@ void Player::_handleInput(double deltaTime)
 		deltaX = ((InputHandler::getWindowSize().x / 2) - 8) - poss.x;
 		deltaY = ((InputHandler::getWindowSize().y / 2) - 31) - poss.y;
 		
-		SetCursorPos(midX, midY);
+		//SetCursorPos(midX, midY);
 		
 	}
 	

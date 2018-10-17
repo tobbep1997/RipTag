@@ -36,7 +36,6 @@ private:
 	float walkingBobAmp = 0.06f;
 	float stopBobAmp = 0.010f;
 	float stopBobFreq = 1.9f;
-	float m_currentAmp = 0.0f;
 	DirectX::XMFLOAT4A m_lastPeek;
 	float m_peekSpeed = 2.0f;
 

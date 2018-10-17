@@ -27,6 +27,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	future.get();
 	future1.get();
+	player = new Player();
+	enemy = new Enemy();
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 	actor = new BaseActor();
