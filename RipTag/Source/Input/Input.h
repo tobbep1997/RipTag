@@ -3,6 +3,7 @@
 #include <map>
 #include <functional>
 #include <string>
+#include <list>
 
 class Input
 {
@@ -38,6 +39,7 @@ public:
 
 	static void addToKeyMap(char key, std::string value);
 	static void addToFuncMap(std::string key, std::function<void()> func);
+	static void LoadKeyMapFromFile(std::string file);
 
 	static void Call();
 };

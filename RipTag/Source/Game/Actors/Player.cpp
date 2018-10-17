@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "InputManager/InputHandler.h"
 #include "InputManager/XboxInput/GamePadHandler.h"
-
 #include "EngineSource/3D Engine/RenderingManager.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
@@ -25,6 +24,8 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
+	this->deltaTime = deltaTime;
+
 	_handleInput(deltaTime);
 	
 #if _DEBUG
@@ -81,7 +82,7 @@ void Player::Jump()
 	static float lastY = 0;
 	static int frameCounter = 0;
 	frameCounter++;
-	std::cout << "In function Jump\n";
+
 	if (!hasJumped) //this is to avoid input spam
 	{
 		hasJumped = true;
@@ -113,7 +114,7 @@ void Player::Jump()
 		{
 			frameCounter = 0;
 			float yDiff = this->getPosition().y - lastY;
-			if (yDiff >= 0.0f)
+			if (yDiff >= 0.0f )
 			{
 				isFalling = false;
 				hasJumped = false;
@@ -125,12 +126,38 @@ void Player::Jump()
 	
 }
 
+void Player::MoveRight()
+{
+	this->_moveRight(true);
+}
+
+void Player::MoveLeft()
+{
+	this->_moveRight(false);
+}
+
+void Player::MoveForward()
+{
+	this->_moveDirection(true);
+}
+
+void Player::MoveBackward()
+{
+	this->_moveDirection(false);
+}
+
 
 void Player::RegisterThisInstanceToInput()
 {
+	
+	InputMapping::LoadKeyMapFromFile("..\\Configuration\\KeyMapping.ini");
 	using namespace std::placeholders;
 	
 	InputMapping::addToFuncMap("Jump", std::bind(&Player::Jump, this));
+	InputMapping::addToFuncMap("MoveRight", std::bind(&Player::MoveRight, this));
+	InputMapping::addToFuncMap("MoveLeft", std::bind(&Player::MoveLeft, this));
+	InputMapping::addToFuncMap("MoveForward", std::bind(&Player::MoveForward, this));
+	InputMapping::addToFuncMap("MoveBackward", std::bind(&Player::MoveBackward, this));
 
 
 }
@@ -152,9 +179,6 @@ void Player::_handleInput(double deltaTime)
 	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
 
 
-
-
-
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
 	if (GamePadHandler::IsLeftStickPressed())
@@ -163,19 +187,19 @@ void Player::_handleInput(double deltaTime)
 	}
 	else
 	{
-		m_moveSpeed = 200.0f * deltaTime;
+		//m_moveSpeed = 200.0f * deltaTime;
 	}
 
 	float targetPeek = Input::PeekRight();
 
-	float x = Input::MoveRight() * m_moveSpeed * RIGHT.x;
-	
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	//walkBob += x;
+	//float x = Input::MoveRight() * m_moveSpeed * RIGHT.x;
+	//
+	//x += Input::MoveForward() * m_moveSpeed * forward.x;
+	////walkBob += x;
 
-	float z = Input::MoveForward() * m_moveSpeed * forward.z;
-	
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	//float z = Input::MoveForward() * m_moveSpeed * forward.z;
+	//
+	//z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
 #if _DEBUG
 	ImGui::Begin("Bob Slide");
@@ -234,7 +258,7 @@ void Player::_handleInput(double deltaTime)
 
 	
 
-	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	//setLiniearVelocity(x, getLiniearVelocity().y, z);
 
 
 	if (InputHandler::isKeyPressed('Y'))
@@ -278,4 +302,36 @@ void Player::_handleInput(double deltaTime)
 			setAwakeState(true);
 		}
 	}
+}
+
+void Player::_moveDirection(bool _forward)
+{
+	DirectX::XMFLOAT4A direction;
+
+	direction = p_camera->getDirection();
+
+	float multiplier = this->m_moveSpeed * this->deltaTime;
+	if (!_forward)
+		multiplier *= -1.f;
+
+	direction.x = direction.x * multiplier;
+	direction.z = direction.z * multiplier;
+
+	this->setLiniearVelocity(direction.x, 0.0f, direction.z);
+}
+
+void Player::_moveRight(bool _right)
+{
+	DirectX::XMFLOAT4A right;
+
+	right = p_camera->getRight();
+
+	float multiplier = this->m_moveSpeed * this->deltaTime;
+	if (!_right)
+		multiplier *= -1.f;
+
+	right.x = right.x * multiplier;
+	right.z = right.z * multiplier;
+
+	this->setLiniearVelocity(right.x, 0.0f, right.z);
 }

@@ -37,8 +37,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CollisionBoxes = new BaseActor();
 	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
 
-	InputMapping::addToKeyMap(0x20, "Jump");
-
 	player->RegisterThisInstanceToInput();
 
 	actor->setScale(1.0f,1.0f,1.0f);

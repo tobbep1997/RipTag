@@ -159,6 +159,41 @@ void InputMapping::addToFuncMap(std::string key, std::function<void()> func)
 	functionMap.insert(std::pair<std::string, std::function<void()>>(key, func));
 }
 
+void InputMapping::LoadKeyMapFromFile(std::string file)
+{
+	const int bufferSize = 1024;
+	char buffer[bufferSize];
+
+	if (GetPrivateProfileStringA("Keyboard", NULL, NULL, buffer, bufferSize, file.c_str()))
+	{
+		std::vector<std::string> nameList;
+		std::istringstream nameStream;
+		nameStream.str(std::string(buffer, bufferSize));
+
+		std::string name = "";
+		while (std::getline(nameStream, name, '\0'))
+		{
+			if (name == "")
+				break;
+			nameList.push_back(name);
+		}
+
+
+		for (size_t i = 0; i < nameList.size(); i++)
+		{
+			char key = ' ';
+			key = (char)GetPrivateProfileIntA("Keyboard", nameList[i].c_str(), -1, file.c_str());
+			if (key != -1)
+				InputMapping::addToKeyMap(key, nameList[i]);
+		}
+	}
+	else
+	{
+		std::cout << GetLastError() << std::endl;
+	}
+
+}
+
 
 
 void InputMapping::Call()

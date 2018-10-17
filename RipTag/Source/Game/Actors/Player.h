@@ -24,7 +24,9 @@ private:
 	
 	Teleport m_teleport;
 
-	float m_moveSpeed = 200.0f;
+	float deltaTime = 0.0f;
+
+	float m_moveSpeed = 100.0f;
 	float m_cameraSpeed = 1.0f;
 	bool isPressed = false;
 	bool isPressed2 = false;
@@ -66,10 +68,12 @@ public:
 	void MoveForward(); //implement logic
 	void MoveBackward(); //implement logic
 
-
 	void RegisterThisInstanceToInput();
+	void RegisterThisInstanceToNetwork();
 private:
 
 	void _handleInput(double deltaTime);
+	void _moveDirection(bool);
+	void _moveRight(bool);
 
 };
