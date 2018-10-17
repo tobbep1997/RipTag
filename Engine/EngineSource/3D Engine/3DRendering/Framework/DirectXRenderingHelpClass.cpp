@@ -149,3 +149,30 @@ void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSiz
 		}
 	}
 }
+
+HRESULT DXRHC::CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
+	BOOL antialiasedLineEnable ,
+	D3D11_CULL_MODE cullMode ,
+	INT depthBias,
+	FLOAT depthBiasClamp,
+	BOOL depthClipEnable,
+	D3D11_FILL_MODE fillMode,
+	BOOL frontCounterClockwise,
+	BOOL multisampleEnable,
+	BOOL scissorEnable,
+	FLOAT SlopeScaledDepthBias)
+{
+	D3D11_RASTERIZER_DESC wfdesc{};
+	wfdesc.AntialiasedLineEnable = antialiasedLineEnable;
+	wfdesc.CullMode = cullMode;
+	wfdesc.DepthBias = depthBias;
+	wfdesc.DepthBiasClamp = depthBiasClamp;
+	wfdesc.DepthClipEnable = depthClipEnable;
+	wfdesc.FillMode = fillMode;
+	wfdesc.FrontCounterClockwise = frontCounterClockwise;
+	wfdesc.MultisampleEnable = multisampleEnable;
+	wfdesc.ScissorEnable = FALSE;
+	wfdesc.SlopeScaledDepthBias = SlopeScaledDepthBias;
+
+	return DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState);
+}

@@ -5,12 +5,13 @@ class Transform2D
 public:
 	struct Transform2DBuffer
 	{
-		DirectX::XMFLOAT2A m_position;
-		DirectX::XMFLOAT2A m_size;
+		DirectX::XMFLOAT4X4A worldMatrix;
 	};
 private:
 	DirectX::XMFLOAT2A m_position;
 	DirectX::XMFLOAT2A m_size;
+
+	DirectX::XMFLOAT4X4A m_worldMatrix;
 public:
 	Transform2D();
 	~Transform2D();
@@ -24,5 +25,7 @@ public:
 	virtual void setScale(const DirectX::XMFLOAT2A & size);
 
 	virtual const DirectX::XMFLOAT2A & getSize() const;
+	virtual const DirectX::XMFLOAT4X4A & getWorldMatrix();
+
 };
 

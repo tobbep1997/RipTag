@@ -153,7 +153,7 @@ void Player::_handleInput(double deltaTime)
 		if (crouching == false)
 		{
 			m_standHeight = this->p_camera->getPosition().y;
-			this->CreateBox(0.5, 0.10, 0.5);
+			this->CreateBox(0.5f, 0.10f, 0.5f);
 			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
 			crouching = true;
 		}

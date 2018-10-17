@@ -8,11 +8,6 @@ class Quad : public Transform2D
 public:
 	struct QUAD_VERTEX
 	{
-		QUAD_VERTEX()
-		{
-			position = DirectX::XMFLOAT2A(0, 0);
-			UV = DirectX::XMFLOAT2A(0, 0);
-		}
 		DirectX::XMFLOAT2A position;
 		DirectX::XMFLOAT2A UV;
 	};
@@ -38,6 +33,8 @@ public:
 
 	void setTexture(Texture * texture);
 	void MapTexture();
+
+	void setPosition(const float & x, const float & y) override;
 
 	ID3D11Buffer * getVertexBuffer() const;
 };

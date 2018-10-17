@@ -12,6 +12,8 @@ private:
 
 	ID3D11Buffer *					m_positionBuffer;
 	Transform2D::Transform2DBuffer	m_positionValues;
+
+	ID3D11RasterizerState *			m_rasterizerState;
 public:
 	Render2D();
 	~Render2D();

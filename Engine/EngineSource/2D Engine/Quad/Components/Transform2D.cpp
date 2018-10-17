@@ -40,3 +40,11 @@ const DirectX::XMFLOAT2A & Transform2D::getSize() const
 {
 	return this->m_size;
 }
+
+const DirectX::XMFLOAT4X4A & Transform2D::getWorldMatrix()
+{
+	using namespace DirectX;
+
+	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixTranspose(XMMatrixTranslation(m_position.x, m_position.y, 1)));
+	return this->m_worldMatrix;
+}

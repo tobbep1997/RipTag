@@ -63,7 +63,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
 
-	D3D11_RASTERIZER_DESC wfdesc;
+	D3D11_RASTERIZER_DESC wfdesc{};
 	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
 	wfdesc.FillMode = D3D11_FILL_WIREFRAME;
 	wfdesc.CullMode = D3D11_CULL_NONE;
@@ -97,6 +97,7 @@ void ForwardRender::GeometryPass()
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
