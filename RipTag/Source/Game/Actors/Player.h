@@ -12,12 +12,12 @@ private:
 private:
 	
 	Teleport m_teleport;
-
+	float m_standHeight;
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
 	bool isPressed = false;
 	bool isPressed2 = false;
-
+	bool crouching = false;
 
 	float m_visability = 0.0f;
 
