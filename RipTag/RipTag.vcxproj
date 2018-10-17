@@ -167,7 +167,7 @@
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
-    <ClCompile Include="Source\Game\Pathfinding\Pathfinder.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
     <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3DynamicAABBTree.cpp" />
@@ -210,7 +210,6 @@
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
     <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
-    <ClInclude Include="Source\Game\Pathfinding\Pathfinder.h" />
     <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
     <ClInclude Include="Source\Physics\Collision\b3AABB.h" />

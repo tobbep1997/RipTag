@@ -40,7 +40,7 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
-    <ClCompile Include="Source\Game\Pathfinding\Pathfinder.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -209,7 +209,6 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
-    <ClInclude Include="Source\Game\Pathfinding\Pathfinder.h" />
     <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
   </ItemGroup>
 </Project>
