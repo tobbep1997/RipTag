@@ -38,7 +38,7 @@ public:
 
 	void PhysicsUpdate(double deltaTime);
 
-	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
+	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void InitTeleport(b3World & world);
 	void ReleaseTeleport(b3World & world);

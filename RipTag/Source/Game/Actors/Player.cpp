@@ -51,7 +51,7 @@ void Player::PhysicsUpdate(double deltaTime)
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
 {
-	Transform::setPosition(x, y, z);
+	Transform::setPosition(x, y, z, w);
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
