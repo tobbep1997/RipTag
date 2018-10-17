@@ -50,6 +50,7 @@ private:
 
 	
 
+	bool unlockMouse = true;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

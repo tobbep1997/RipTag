@@ -3,7 +3,7 @@
 #include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
-
+#include <algorithm>
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
@@ -188,9 +188,22 @@ void Player::_handleInput(double deltaTime)
 		
 	}
 
-	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
+	DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
+	int deltaX, deltaY;
+
+	deltaX = poss.x - mouseX;
+	deltaY = poss.y - mouseY;
+
+	mouseX = poss.x;
+	mouseY = poss.y;
+	//SetCursorPos(100, 100);
+	std::cout << deltaX << " " << deltaY << std::endl;
+
 	
-	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
+
+	p_camera->Rotate((deltaY) * 5 * deltaTime, 0.0f, 0.0f);
+	
+	p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
 
 	if (Input::Jump())
 	{

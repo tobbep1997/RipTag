@@ -170,6 +170,21 @@ void PlayState::Update(double deltaTime)
 
 #endif
 
+	if (!unlockMouse)
+	{
+
+	
+	}
+
+	if (InputHandler::isKeyPressed('F'))
+	{
+		unlockMouse = false;
+	}
+	if (InputHandler::isKeyPressed('G'))
+	{
+		unlockMouse = true;
+	}
+
 
 	light2.setIntensity(intensity);
 

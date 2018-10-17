@@ -29,6 +29,9 @@ private:
 	bool m_lockPlayerInput;
 
 	Drawable * visSphear;
+
+	int mouseX = 0;
+	int mouseY = 0;
 public:
 	Player();
 	~Player();

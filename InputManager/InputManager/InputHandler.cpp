@@ -49,6 +49,9 @@ int InputHandler::getLastPressed()
 	return m_lastPressed; 
 }
 
+//FUCKING READ THIS
+//THIS IS NOT THE MOUSE POS DELTA. IT'S SCROLL DELTA
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 float InputHandler::getMouseDelta()
 {
 	float returnDelta = m_scrollDelta; 

@@ -96,9 +96,9 @@ void LevelHandler::Draw()
 void LevelHandler::_LoadPreFabs()
 {
 	int temp = 0;
-	std::experimental::filesystem::path Path = std::experimental::filesystem::current_path() / m_roomString;
+	std::filesystem::path Path = std::filesystem::current_path() / m_roomString;
 
-	for (auto & p : std::experimental::filesystem::directory_iterator(Path))
+	for (auto & p : std::filesystem::directory_iterator(Path))
 	{
 		std::wstring temp(p.path().c_str());
 
@@ -107,7 +107,7 @@ void LevelHandler::_LoadPreFabs()
 	}
 	if (temp == 0)
 	{
-		std::experimental::filesystem::create_directory(Path);
+		std::filesystem::create_directory(Path);
 
 		std::ofstream file;
 		file.open(Path / "asd.txt");
@@ -115,7 +115,7 @@ void LevelHandler::_LoadPreFabs()
 		file.close();
 	}
 
-	for (auto & p : std::experimental::filesystem::directory_iterator(Path))
+	for (auto & p : std::filesystem::directory_iterator(Path))
 	{
 		std::wstring temp(p.path().c_str());
 
