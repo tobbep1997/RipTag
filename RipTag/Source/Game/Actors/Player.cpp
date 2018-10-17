@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "InputManager/InputHandler.h"
 #include "InputManager/XboxInput/GamePadHandler.h"
-#include "../../Input/Input.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include <algorithm>
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
@@ -40,6 +39,10 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
+	this->deltaTime = deltaTime;
+
+	_handleInput(deltaTime);
+	
 #if _DEBUG
 
 	m_teleport.Update(deltaTime);
@@ -62,6 +65,10 @@ void Player::Update(double deltaTime)
 		visSphear->setPosition(po);
 		visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1);
 	}
+
+	//ADD THE STATE MACHINE
+	if (hasJumped)
+		this->Jump();
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -105,6 +112,11 @@ void Player::SetCurrentVisability(const float & guard)
 {
 	this->m_visability = guard;
 }
+void Player::Jump()
+{
+	static float lastY = 0;
+	static int frameCounter = 0;
+	frameCounter++;
 
 void Player::LockPlayerInput()
 {
@@ -117,6 +129,85 @@ void Player::UnlockPlayerInput()
 }
 
 
+	if (!hasJumped) //this is to avoid input spam
+	{
+		hasJumped = true;
+		isRising = true;
+		lastY = this->getPosition().y;
+		this->addForceToCenter(0, 300, 0);
+	}
+	
+	if (hasJumped && isRising)
+	{
+		//play rising jump animation
+		if (frameCounter >= 5)
+		{
+			frameCounter = 0;
+			float yDiff = this->getPosition().y - lastY;
+			if (yDiff <= 0)
+			{
+				isRising = false;
+				isFalling = true;
+			}
+			lastY = this->getPosition().y;
+		}
+	}
+	else if (hasJumped && isFalling)
+	{
+		
+		//play Falling animation
+		if (frameCounter >= 5)
+		{
+			frameCounter = 0;
+			float yDiff = this->getPosition().y - lastY;
+			if (yDiff >= 0.0f )
+			{
+				isFalling = false;
+				hasJumped = false;
+				lastY = 0;
+			}
+			lastY = this->getPosition().y;
+		}
+	}
+	
+}
+
+void Player::MoveRight()
+{
+	this->_moveRight(true);
+}
+
+void Player::MoveLeft()
+{
+	this->_moveRight(false);
+}
+
+void Player::MoveForward()
+{
+	this->_moveDirection(true);
+}
+
+void Player::MoveBackward()
+{
+	this->_moveDirection(false);
+}
+
+
+void Player::RegisterThisInstanceToInput()
+{
+	
+	InputMapping::LoadKeyMapFromFile("..\\Configuration\\KeyMapping.ini");
+	using namespace std::placeholders;
+	
+	InputMapping::addToFuncMap("Jump", std::bind(&Player::Jump, this));
+	InputMapping::addToFuncMap("MoveRight", std::bind(&Player::MoveRight, this));
+	InputMapping::addToFuncMap("MoveLeft", std::bind(&Player::MoveLeft, this));
+	InputMapping::addToFuncMap("MoveForward", std::bind(&Player::MoveForward, this));
+	InputMapping::addToFuncMap("MoveBackward", std::bind(&Player::MoveBackward, this));
+
+
+}
+
 void Player::_handleInput(double deltaTime)
 {
 	using namespace DirectX;
@@ -127,12 +218,11 @@ void Player::_handleInput(double deltaTime)
 	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
-	XMVECTOR vUP= XMLoadFloat4(&UP);
+	XMVECTOR vUP = XMLoadFloat4(&UP);
 	XMVECTOR vRight;
 
 	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
 	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
-
 
 
 	XMStoreFloat4A(&forward, vForward);
@@ -143,18 +233,19 @@ void Player::_handleInput(double deltaTime)
 	}
 	else
 	{
-		m_moveSpeed = 200.0f * deltaTime;
+		//m_moveSpeed = 200.0f * deltaTime;
 	}
 
+	float targetPeek = Input::PeekRight();
 
-	float x = Input::MoveRight() * m_moveSpeed * RIGHT.x;
-	
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	//walkBob += x;
+	//float x = Input::MoveRight() * m_moveSpeed * RIGHT.x;
+	//
+	//x += Input::MoveForward() * m_moveSpeed * forward.x;
+	////walkBob += x;
 
-	float z = Input::MoveForward() * m_moveSpeed * forward.z;
-	
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	//float z = Input::MoveForward() * m_moveSpeed * forward.z;
+	//
+	//z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
 #if _DEBUG
 	ImGui::Begin("Bob Slide");
@@ -226,7 +317,7 @@ void Player::_handleInput(double deltaTime)
 	
 	p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
 
-	if (Input::Jump())
+	/*if (Input::Jump())
 	{
 		if (isPressed == false)
 		{
@@ -237,11 +328,11 @@ void Player::_handleInput(double deltaTime)
 	else
 	{
 		isPressed = false;
-	}
+	}*/
 
 	
 
-	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	//setLiniearVelocity(x, getLiniearVelocity().y, z);
 
 	if (InputHandler::isKeyPressed('T'))
 	{
@@ -268,3 +359,34 @@ void Player::_handleInput(double deltaTime)
 	}
 }
 
+void Player::_moveDirection(bool _forward)
+{
+	DirectX::XMFLOAT4A direction;
+
+	direction = p_camera->getDirection();
+
+	float multiplier = this->m_moveSpeed * this->deltaTime;
+	if (!_forward)
+		multiplier *= -1.f;
+
+	direction.x = direction.x * multiplier;
+	direction.z = direction.z * multiplier;
+
+	this->setLiniearVelocity(direction.x, 0.0f, direction.z);
+}
+
+void Player::_moveRight(bool _right)
+{
+	DirectX::XMFLOAT4A right;
+
+	right = p_camera->getRight();
+
+	float multiplier = this->m_moveSpeed * this->deltaTime;
+	if (!_right)
+		multiplier *= -1.f;
+
+	right.x = right.x * multiplier;
+	right.z = right.z * multiplier;
+
+	this->setLiniearVelocity(right.x, 0.0f, right.z);
+}

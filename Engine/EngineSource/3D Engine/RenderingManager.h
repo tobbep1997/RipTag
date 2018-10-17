@@ -18,6 +18,8 @@ public:
 	RenderingManager();
 	~RenderingManager();
 
+	static RenderingManager * GetInstance();
+
 	void Init(HINSTANCE hInstance);
 	void Update();
 

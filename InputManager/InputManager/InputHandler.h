@@ -1,6 +1,23 @@
 #pragma once 
 #include <DirectXMath.h>
-#include <EngineSource/Window/window.h>
+#include <LuaTalker.h>
+#include "EngineSource/Window/window.h"
+
+#define LUA_INPUT "Input"
+#define LUA_INPUT_IS_KEY_PRESSED "IsKeyPressed"
+#define LUA_INPUT_IS_LEFT_MOUSE_PRESSED "IsLeftMousePressed"
+#define LUA_INPUT_IS_MIDDLE_MOUSE_PRESSED "IsMiddleMousePressed"
+#define LUA_INPUT_IS_RIGHT_MOUSE_PRESSED "IsRightMousePressed"
+#define LUA_INPUT_GET_LAST_PRESSED "GetLastPressed"
+#define LUA_INPUT_GET_MOUSE_DELTA "GetMouseDelta"
+#define LUA_INPUT_GET_MOUSE_POS "GetMousePos"
+#define LUA_INPUT_GET_MOUSE_POS_LH "GetMousePosLH"
+#define LUA_INPUT_GET_WINDOW_SIZE "GetWindowSize"
+
+#define LUA_INPUT_KEY_ENUM "Keys"
+
+#define ENUM_TO_STRING(ENUM) std::string(#ENUM)
+
 class InputHandler
 {
 	friend class Window; 
@@ -20,12 +37,12 @@ private:
 
 	static bool m_windowInFocus;
 	InputHandler();
-	~InputHandler();
 
 public:
+	~InputHandler();
 
 	//A singelton, only one instance
-	static InputHandler& Instance(); 
+	static InputHandler * Instance(); 
 
 	static DirectX::XMFLOAT2 getMousePosition(); 
 	static bool isKeyPressed(int keyCode);
@@ -41,25 +58,31 @@ public:
 	static DirectX::XMFLOAT2 getWindowPos();
 
 	static bool getWindowFocus();
+	static std::tuple<float, float> getMousePositionLUA();
+	static std::tuple<float, float> getMousePositionLHLUA();
+	static std::tuple<int, int> getWindowSizeLUA();
+
+	static void REGISTER_TO_LUA();
 	enum Key
 	{
 		Del = 46,
-		LeftArrow = 37,
-		UpArrow = 38,
-		RightArrow = 39,
-		DownArrow = 40,
-		SPACEBAR = 0x20,
+		Left = 37,
+		Up = 38,
+		Right = 39,
+		Down = 40,
+		Spacebar = 0x20,
 		Comma = 0xBC,
 		Period = 0xBE,
 		F5 = 0x74,
 		F6 = 0x75,
-		WKey = 0x57,
-		AKey = 0x41,
-		SKey = 0x53,
-		DKey = 0x44,
+		W = 0x57,
+		A = 0x41,
+		S = 0x53,
+		D = 0x44,
 		Shift = 0x10,
 		Esc = 0x1B,
-		BackSpace = 0x08
+		Backspace = 0x08,
+		Return = 0x0D
 	};
 
 
