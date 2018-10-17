@@ -107,6 +107,8 @@ void LevelHandler::_LoadPreFabs()
 	}
 	if (temp == 0)
 	{
+		std::experimental::filesystem::create_directory(Path);
+
 		std::ofstream file;
 		file.open(Path / "asd.txt");
 		file << "asd";
