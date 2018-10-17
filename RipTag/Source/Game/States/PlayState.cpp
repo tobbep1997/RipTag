@@ -18,10 +18,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Timer::StartTimer();
 
-	
-
-	
-
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
@@ -57,14 +53,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
-	light1.Init(DirectX::XMFLOAT4A(0, 3, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
+	light1.Init(DirectX::XMFLOAT4A(0, 5, 0, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light1.CreateShadowDirection(PointLight::XYZ_ALL);
 	light1.setColor(0.8f, 0.6f, 0.4f);
 	light1.setDropOff(1);
 
-	light2.Init(DirectX::XMFLOAT4A(5, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
+	light2.Init(DirectX::XMFLOAT4A(8.4, 5, 14.3, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
 	light2.setDropOff(1);
+	light2.setColor(0.8f, 0.6f, 0.4f);
 	
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
@@ -108,8 +105,7 @@ PlayState::~PlayState()
 void PlayState::Update(double deltaTime)
 {
 	light1.setIntensity(light1.TourchEffect(deltaTime, 25, 1.5f));
-
-
+	light2.setIntensity(light2.TourchEffect(deltaTime, 25, 1.5f));
 
 #if _DEBUG
 	ImGui::Begin("Player Setting");                          
@@ -147,7 +143,7 @@ void PlayState::Update(double deltaTime)
 	
 
 
-	light2.setIntensity(light2.TourchEffect(deltaTime, 7, 2));
+	//light2.setIntensity(light2.TourchEffect(deltaTime, 7, 2));
 
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
@@ -212,7 +208,7 @@ void PlayState::Update(double deltaTime)
 void PlayState::Draw()
 {
 	light1.QueueLight();
-	//light2.QueueLight();
+	light2.QueueLight();
 
 	gTemp.Draw();
 	enemy->Draw();
