@@ -102,16 +102,22 @@ void LevelHandler::_LoadPreFabs()
 	{
 		std::wstring temp(p.path().c_str());
 
-
 		m_prefabRoomFiles.push_back(std::string(temp.begin(), temp.end()));
 		temp += 1;
 	}
 	if (temp == 0)
 	{
 		std::ofstream file;
-		file.open(Path);
+		file.open(Path / "asd.txt");
 		file << "asd";
 		file.close();
+	}
+
+	for (auto & p : std::experimental::filesystem::directory_iterator(Path))
+	{
+		std::wstring temp(p.path().c_str());
+
+		m_prefabRoomFiles.push_back(std::string(temp.begin(), temp.end()));
 	}
 }
 
