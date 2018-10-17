@@ -3,14 +3,22 @@
 
 struct Node
 {
-	Node * parent;
+	Tile tile;
 	float fCost, gCost, hCost;
 
-	Node(Node * _parent, float _gCost, float _hCost)
+	Node(int _x, int _y, float _gCost, float _hCost)
 	{
-		parent = _parent;
+		tile = Tile(_x, _y);
 		gCost = _gCost;
 		hCost = _hCost;
+		fCost = gCost + hCost;
+	}
+	Node(Tile _tile, float _gCost, float _hCost)
+	{
+		tile = _tile;
+		gCost = _gCost;
+		hCost = _hCost;
+		fCost = gCost + hCost;
 	}
 };
 

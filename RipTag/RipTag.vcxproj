@@ -167,6 +167,7 @@
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3DynamicAABBTree.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3SAT.cpp" />

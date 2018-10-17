@@ -39,6 +39,7 @@
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">

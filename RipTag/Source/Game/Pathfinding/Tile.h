@@ -7,6 +7,7 @@ private:
 
 public:
 	Tile();
+	Tile(int _x, int _y);
 	virtual ~Tile();
 
 private:
