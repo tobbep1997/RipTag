@@ -43,8 +43,7 @@ private:
 
 	float intensity = 2;
 	
-	BaseActor * testCube;
-
+	
 	PointLight light1;
 	PointLight light2;
 
@@ -55,6 +54,10 @@ private:
 	//std::thread test;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
+
+	
+
+	bool unlockMouse = true;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

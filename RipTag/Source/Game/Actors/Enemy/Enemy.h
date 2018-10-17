@@ -11,6 +11,9 @@ private:
 	VisibilityComponent m_vc;
 	bool m_allowVisability = false;
 
+	bool m_inputLocked = true;
+
+	float m_movementSpeed = 10;
 public:
 	Enemy();
 	~Enemy();
@@ -31,5 +34,15 @@ public:
 
 	//Depending on the culling, this can cancel the queue
 	void QueueForVisibility();
+
+	void LockEnemyInput();
+	void UnlockEnemyInput();
+
+private:
+
+	void _handleInput(double deltaTime);
+	//Movement
+	void _handleMovement(double deltaTime);
+	void _handleRotation(double deltaTime);
 };
 

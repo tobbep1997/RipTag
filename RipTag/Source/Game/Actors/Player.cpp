@@ -3,18 +3,26 @@
 #include "InputManager/XboxInput/GamePadHandler.h"
 #include "../../Input/Input.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
-
+#include <algorithm>
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	m_lastPeek = DEFAULT_UP;
-	m_lastSideStep = DirectX::XMFLOAT4A(0, 0, 0, 0);
+	m_lockPlayerInput = false;
+	
+	visSphear = new Drawable();
+	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	visSphear->setScale(0.2f, 0.2f, 0.2f);
+	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	visSphear->setPosition(5, 5, 2);
+	visSphear->setColor(1, 1, 1, 1.0f);
+	visSphear->setEntityType(EntityType::ExcludeType);
+	ShowCursor(FALSE);
 }
 
 Player::~Player()
 {	
-
+	delete visSphear;
 }
 
 void Player::BeginPlay()
@@ -24,24 +32,34 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
-	DirectX::XMFLOAT4A pos = getPosition();
-	float camOffset = 1.0f;
-	pos.y += camOffset;
-	p_camera->setPosition(pos);
-	_handleInput(deltaTime);
-	pos = p_camera->getPosition();
-	pos.y += m_offset;
-	p_camera->setPosition(pos);
-#if _DEBUG
-
+	if (m_lockPlayerInput == false)
+	{
+		if (InputHandler::getWindowFocus())
+		{
+			_handleInput(deltaTime);
+		}
+		
+	}
 	m_teleport.Update(deltaTime);
-	ImGui::Begin("Walk bob");
-	ImGui::Text("HeadBob : %f", m_offset);
-	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
-	ImGui::End();
-#endif
-	//pos.y += m_offset;
-	//p_camera->setPosition(pos);
+
+	DirectX::XMFLOAT4A pos = getPosition();
+	pos.y += 1;
+	
+	//pos = p_CameraTilting(deltaTime, Input::PeekRight(), pos);
+
+	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
+	p_camera->setPosition(pos);
+
+	if (Input::CheckVisability())
+	{
+		DirectX::XMFLOAT4A po = Transform::getPosition();
+		DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
+		DirectX::XMVECTOR cm = DirectX::XMLoadFloat4A(&p_camera->getDirection());
+		DirectX::XMStoreFloat4A(&po, DirectX::XMVectorAdd(ve, cm));
+
+		visSphear->setPosition(po);
+		visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1);
+	}
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -74,6 +92,26 @@ void Player::Draw()
 {
 	m_teleport.Draw();
 	Drawable::Draw();
+	if (Input::CheckVisability())
+	{
+		visSphear->Draw();
+	}
+	
+}
+
+void Player::SetCurrentVisability(const float & guard)
+{
+	this->m_visability = guard;
+}
+
+void Player::LockPlayerInput()
+{
+	m_lockPlayerInput = true;
+}
+
+void Player::UnlockPlayerInput()
+{
+	m_lockPlayerInput = false;
 }
 
 
@@ -132,7 +170,6 @@ void Player::_handleInput(double deltaTime)
 	//out = XMVectorAdd(out, sideStep);
 	//XMStoreFloat4(&cPos, out);
 
-	p_camera->setPosition(p_CameraTilting(deltaTime, Input::PeekRight(), p_position));
 
 	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
@@ -141,48 +178,27 @@ void Player::_handleInput(double deltaTime)
 	float z = Input::MoveForward() * m_moveSpeed * forward.z;
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-#if _DEBUG
-	ImGui::Begin("Bob Slide");
-	ImGui::SliderFloat("WalkingFreq", &freq, 4.0f, 0.0f);
-	ImGui::SliderFloat("WalkingBobAmp", &walkingBobAmp, 0.2f, 0.0f);
-	ImGui::SliderFloat("StopBobAmp", &stopBobAmp, 0.2f, 0.0f);
-	ImGui::SliderFloat("StopBobFreq", &stopBobFreq, 4.0f, 0.0f);
-	ImGui::End();
-#endif
-	if (Input::MoveForward() != 0)
-	{
-		if (m_currentAmp < walkingBobAmp)
-		{
-			m_currentAmp += 0.0003f;
-		}
-		walkBob += Input::MoveForward() / 20;
-		m_offset = walkingBobAmp * sin(freq*walkBob) * deltaTime;
-	}
-	else
-	{
-		walkBob += 0.009f;
 
-		if (m_currentAmp > stopBobAmp)
-		{
-			m_currentAmp -= 0.0001f;
-		}
-		/*if (walkBob < 0.0f)
-		{
-			walkBob += 0.01;
-		}
-		else if (walkBob > 0.0)
-		{
-			walkBob -= 0.01;
-		}*/
-		m_offset = m_currentAmp * sin(stopBobFreq * walkBob);
+	float deltaX = 0;
+	float deltaY = 0;
+	if (!unlockMouse)
+	{
+		int midX = InputHandler::getWindowPos().x + (InputHandler::getWindowSize().x / 2);
+		int midY = InputHandler::getWindowPos().y + (InputHandler::getWindowSize().y / 2);
+
+		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
+
+		deltaX = ((InputHandler::getWindowSize().x / 2) - 8) - poss.x;
+		deltaY = ((InputHandler::getWindowSize().y / 2) - 31) - poss.y;
+		
+		SetCursorPos(midX, midY);
 		
 	}
 	
+
+	p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
 	
-	// TODO::FIX SO THAT IT DONT LOOK LIKE SHIT WHEN YOU PEEK
-	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
-	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
-	// TODO::END
+	p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
 
 	if (Input::Jump())
 	{
@@ -201,30 +217,11 @@ void Player::_handleInput(double deltaTime)
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 
-
-	if (InputHandler::isKeyPressed('Y'))
-	{
-		if (isPressed2 == false)
-		{
-			CreateBox(2, 2, 2);
-			isPressed2 = true;
-		}
-	}
-	else
-	{
-		isPressed2 = false;
-	}
-	//addForceToCenter(x, getLiniearVelocity().y, z);
-
-	//std::cout << "Y: " << getLiniearVelocity().y << std::endl;
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
-	//setPosition(p_camera->getPosition());
-
 	if (InputHandler::isKeyPressed('T'))
 	{
 		if (!m_teleport.getActiveSphere())
 		{
-			m_teleport.chargeSphere();
+			m_teleport.ChargeSphere(deltaTime);
 		}
 	}
 	else if (m_teleport.getCharging())
@@ -244,3 +241,4 @@ void Player::_handleInput(double deltaTime)
 		}
 	}
 }
+

@@ -15,6 +15,11 @@ private:
 	static DirectX::XMINT2 m_windowSize; 
 	static int m_lastPressed; 
 
+	static DirectX::XMFLOAT2 m_windowPos;
+
+	static DirectX::XMFLOAT2 m_mouseDelta;
+
+	static bool m_windowInFocus;
 	InputHandler();
 	~InputHandler();
 
@@ -33,8 +38,11 @@ public:
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 
+	static DirectX::XMFLOAT2 getMousePosDelta();
+	static DirectX::XMFLOAT2 getWindowPos();
 	static void REGISTER_TO_LUA();
 
+	static bool getWindowFocus();
 	enum Key
 	{
 		Del = 46,
