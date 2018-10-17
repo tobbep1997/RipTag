@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include "../Debugg/ImGui/imgui.h"
+#include <iostream>
 
 //InputHandler::InputHandler& Instance();
 
@@ -117,6 +118,11 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		InputHandler::m_scrollDelta = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f; 
 		break; 
 	}
+	RECT Rect;
+	GetWindowRect(hwnd, &Rect);
+	MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
+
+	InputHandler::m_windowPos = DirectX::XMFLOAT2(Rect.left, Rect.top);
 	
 	m_procMsg.hwnd = hwnd;
 	m_procMsg.msg = msg;

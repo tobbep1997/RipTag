@@ -10,6 +10,9 @@ float InputHandler::m_scrollDelta;
 int InputHandler::m_lastPressed;
 DirectX::XMINT2 InputHandler::m_windowSize;
 
+DirectX::XMFLOAT2 InputHandler::m_mouseDelta;
+
+DirectX::XMFLOAT2 InputHandler::m_windowPos;
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -72,6 +75,24 @@ DirectX::XMFLOAT2 InputHandler::getMousePositionLH()
 DirectX::XMINT2 InputHandler::getWindowSize()
 {
 	return m_windowSize; 
+}
+
+DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
+{
+	/*DirectX::XMFLOAT2 temp = m_mouseDelta;
+	m_mouseDelta.x =  0;
+	m_mouseDelta.y =  0;
+	return temp;*/
+
+	float x =  m_mousePos.x - m_windowPos.x;
+	float y =  m_mousePos.y - m_windowPos.y;
+	return DirectX::XMFLOAT2(x, y);
+	//return { x, y };
+}
+
+DirectX::XMFLOAT2 InputHandler::getWindowPos()
+{
+	return m_windowPos;
 }
 
 InputHandler::InputHandler()

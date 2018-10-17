@@ -17,6 +17,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	visSphear->setPosition(5, 5, 2);
 	visSphear->setColor(1, 1, 1, 1.0f);
 	visSphear->setEntityType(EntityType::ExcludeType);
+	ShowCursor(FALSE);
 }
 
 Player::~Player()
@@ -188,22 +189,44 @@ void Player::_handleInput(double deltaTime)
 		
 	}
 
-	DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-	int deltaX, deltaY;
+	if (InputHandler::isKeyPressed('F'))
+	{
+		unlockMouse = false;
+		ShowCursor(FALSE);
 
-	deltaX = poss.x - mouseX;
-	deltaY = poss.y - mouseY;
+	}
+	if (InputHandler::isKeyPressed('G'))
+	{
+		unlockMouse = true;
+		ShowCursor(TRUE);
 
-	mouseX = poss.x;
-	mouseY = poss.y;
-	//SetCursorPos(100, 100);
-	std::cout << deltaX << " " << deltaY << std::endl;
+	}
+	float deltaX = 0;
+	float deltaY = 0;
+	if (!unlockMouse)
+	{
+		int midX = InputHandler::getWindowPos().x + (InputHandler::getWindowSize().x / 2);
+		int midY = InputHandler::getWindowPos().y + (InputHandler::getWindowSize().y / 2);
 
+		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
+
+		deltaX = ((InputHandler::getWindowSize().x / 2) - 8) - poss.x;
+		deltaY = ((InputHandler::getWindowSize().y / 2) - 31) - poss.y;
+
+		/*mouseX = midX;
+		mouseY = midY;*/
+
+
+		SetCursorPos(midX, midY);
+		std::cout << deltaX << " " << deltaY << std::endl;
+		
+		//SetCursorPos(100, 100);
+	}
 	
 
-	p_camera->Rotate((deltaY) * 5 * deltaTime, 0.0f, 0.0f);
+	p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
 	
-	p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
+	p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
 
 	if (Input::Jump())
 	{

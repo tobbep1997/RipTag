@@ -32,6 +32,8 @@ private:
 
 	int mouseX = 0;
 	int mouseY = 0;
+
+	bool unlockMouse = false;
 public:
 	Player();
 	~Player();

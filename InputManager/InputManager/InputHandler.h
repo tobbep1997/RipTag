@@ -14,6 +14,9 @@ private:
 	static DirectX::XMINT2 m_windowSize; 
 	static int m_lastPressed; 
 
+	static DirectX::XMFLOAT2 m_windowPos;
+
+	static DirectX::XMFLOAT2 m_mouseDelta;
 	InputHandler();
 	~InputHandler();
 
@@ -32,6 +35,8 @@ public:
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 
+	static DirectX::XMFLOAT2 getMousePosDelta();
+	static DirectX::XMFLOAT2 getWindowPos();
 
 	enum Key
 	{
