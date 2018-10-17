@@ -304,8 +304,7 @@ void PlayState::TemporaryLobby()
 	{
 		if (ptr->isServer() && !ptr->isGameRunning())
 			if (ImGui::Button("Start Game"))
-			{
-				//set game running, send a start game message
+			{				//set game running, send a start game message
 			}
 		ImGui::Text(ptr->GetNetworkInfo().c_str());
 		if (ImGui::Button("Disconnect"))

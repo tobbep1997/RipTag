@@ -142,6 +142,7 @@ namespace Network
 			if (packet->data[0] == DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION && !packet->wasGeneratedLocally)
 			{
 				m_rIP = packet->systemAddress;
+				this->pPeer->Connect(m_rIP.ToString(), m_rIP.GetPort(), nullptr, 0);
 				m_isConnected = true;
 				pPeer->DeallocatePacket(packet);
 				pPeer->SetOccasionalPing(true);
