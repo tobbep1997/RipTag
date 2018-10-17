@@ -194,6 +194,19 @@ void Player::MoveBackward()
 	this->_moveDirection(false);
 }
 
+void Player::SendOnJumpMessage()
+{
+	Network::ENTITY_EVENT packet(Network::ID_PLAYER_JUMP, Network::Multiplayer::GetInstance()->GetNetworkID());
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::MEDIUM_PRIORITY);
+}
+
+void Player::SendOnMovementMessage()
+{
+	DirectX::XMFLOAT4A pos = this->getPosition();
+	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
+}
+
 
 void Player::RegisterThisInstanceToInput()
 {
@@ -208,6 +221,15 @@ void Player::RegisterThisInstanceToInput()
 	InputMapping::addToFuncMap("MoveBackward", std::bind(&Player::MoveBackward, this));
 
 
+}
+
+void Player::RegisterThisInstanceToNetwork()
+{
+	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnJumpMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnMovementMessage, this));
 }
 
 void Player::_handleInput(double deltaTime)

@@ -5,6 +5,8 @@
 
 namespace Network
 {
+	std::map<std::string, std::function<void()>> Multiplayer::onSendMap;
+	std::map<unsigned char, std::function<void(unsigned char *)>> Multiplayer::onReceiveMap;
 
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
@@ -37,6 +39,16 @@ namespace Network
 			RakNet::NetworkIDManager::DestroyInstance(this->pNetworkIDManager);
 			this->pNetworkIDManager = 0;
 		}
+	}
+
+	void Multiplayer::addToOnSendFuncMap(std::string key, std::function<void()> func)
+	{
+		onSendMap.insert(std::pair < std::string, std::function<void()>>(key, func));
+	}
+
+	void Multiplayer::addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char *)> func)
+	{
+		onReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char *)>>(key, func));
 	}
 
 	void Multiplayer::StartUpServer()
@@ -171,9 +183,14 @@ namespace Network
 
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)
 	{
+		Multiplayer::GetInstance()->_send_packet(message, length, priority);
+	}
+
+	void Multiplayer::_send_packet(const char * message, size_t length, PacketPriority priority)
+	{
 		this->pPeer->Send(message,
 			length + 1,
-			priority, 
+			priority,
 			RELIABLE_ORDERED,
 			0,
 			RakNet::UNASSIGNED_RAKNET_GUID,

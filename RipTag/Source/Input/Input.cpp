@@ -219,13 +219,18 @@ void InputMapping::Call()
 	{
 		if (InputHandler::isKeyPressed(keyIterator->first))
 		{
-			std::map<std::string, std::function<void()>>::iterator funcIterator;
+			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
 			
 			//find the function to call with the extracted key
-			funcIterator = functionMap.find(keyIterator->second);
+			inputFuncIterator = functionMap.find(keyIterator->second);
+			networkFuncIterator = Network::Multiplayer::onSendMap.find(keyIterator->second);
 				//make sure it is mapped and found
-			if (funcIterator != functionMap.end())
-				funcIterator->second();
+			if (inputFuncIterator != functionMap.end())
+				inputFuncIterator->second();
+
+			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+				networkFuncIterator->second();
 			
 		}
 	}

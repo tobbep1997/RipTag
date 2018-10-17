@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Multiplayer.h>
 #include <map>
 #include <functional>
 #include <string>

@@ -1,12 +1,12 @@
 #pragma once
 
+#include "../Actors/Player.h"
 #include <future>
 #include "State.h"
 #include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
 #include "../Handlers/ObjectHandler.h"
-#include "../Actors/Player.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 
@@ -24,6 +24,7 @@ private:
 	ObjectHandler m_objectHandler;
 
 	Player * player;
+	Player * RemotePlayer = 0;
 
 	Enemy * enemy;
 	b3World m_world;
@@ -68,6 +69,7 @@ public:
 
 private:
 	void thread(std::string s);
+	void TemporaryLobby();
 };
 
 static int New_PlayState(lua_State * L)

@@ -1,4 +1,5 @@
 #pragma once
+#include <Multiplayer.h>
 #include "Actor.h"
 #include "Abilities/Teleport.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
@@ -56,6 +57,9 @@ private:
 	int mouseY = 0;
 
 	bool unlockMouse = false;
+
+
+
 public:
 	Player();
 	~Player();
@@ -79,8 +83,13 @@ public:
 	void MoveForward(); //implement logic
 	void MoveBackward(); //implement logic
 
+	//Networking
+	void SendOnJumpMessage();
+	void SendOnMovementMessage();
+
 	void RegisterThisInstanceToInput();
 	void RegisterThisInstanceToNetwork();
+
 	void SetCurrentVisability(const float & guard);
 
 	void LockPlayerInput();
