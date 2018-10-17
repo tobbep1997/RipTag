@@ -15,6 +15,7 @@ public:
 	//Action Mappings
 	static bool Jump();
 	static bool CheckVisability();
+	static bool Crouch();
 
 	//Axis binds
 	static float MoveForward();

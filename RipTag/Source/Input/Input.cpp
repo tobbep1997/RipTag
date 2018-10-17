@@ -58,6 +58,26 @@ bool Input::CheckVisability()
 	return false;
 }
 
+bool Input::Crouch()
+{
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	{
+		return GamePadHandler::IsRightStickPressed();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed('C'))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return 0;
+}
+
 float Input::MoveForward()
 {
 	if (GamePadHandler::IsConnected() && m_deactivate == false)

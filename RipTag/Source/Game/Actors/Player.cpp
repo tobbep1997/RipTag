@@ -48,6 +48,7 @@ void Player::Update(double deltaTime)
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
 	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
+	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
 
 	if (Input::CheckVisability())
@@ -141,6 +142,42 @@ void Player::_handleInput(double deltaTime)
 	{
 		m_moveSpeed = 1.0f;
 	}
+
+	if (crouching)
+	{
+		m_moveSpeed = 0.5;
+	}
+
+	if (Input::Crouch())
+	{
+		if (crouching == false)
+		{
+			m_standHeight = this->p_camera->getPosition().y;
+			this->CreateBox(0.5, 0.10, 0.5);
+			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+			crouching = true;
+		}
+	}
+	else
+	{
+		if (crouching)
+		{
+			m_standHeight = this->p_camera->getPosition().y;
+			this->CreateBox(0.5, 0.5, 0.5);
+			this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+			crouching = false;
+		}
+	}
+
+
+	/*DirectX::XMFLOAT4A camPos = p_camera->getPosition();
+		if (crouchAnim.getSteps() != 1)
+		{
+			DirectX::XMFLOAT4A standPos = p_camera->getPosition();
+			standPos.y = p_camera->getPosition().y + (this->standHeight - p_camera->getPosition().y);
+			collectedPos = XMVectorAdd(collectedPos, XMLoadFloat4A(&crouchAnim.lerp(&this->standPos, &camPos, float(deltaTime * 5))));
+			collectedPos = XMVectorSubtract(collectedPos, XMLoadFloat4A(&camPos));
+		}*/
 	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
 	//walkBob += x;
