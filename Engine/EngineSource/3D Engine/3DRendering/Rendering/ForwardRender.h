@@ -5,6 +5,7 @@
 #include "VisabilityPass/VisabilityPass.h"
 #include "../../../Shader/ShaderManager.h"
 #include "../../Components/Camera.h"
+#include "../../../2D Engine/Render2D.h"
 
 class ForwardRender
 {
@@ -78,6 +79,8 @@ private:
 
 	Animation::AnimationCBuffer m_animationBuffer;
 	ShadowMap m_shadowMap;
+	Render2D m_2DRender;
+
 
 	VisabilityPass m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;
@@ -93,6 +96,7 @@ private:
 	ID3D11RasterizerState * m_standardRast;
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
+
 public:
 	ForwardRender();
 	~ForwardRender();

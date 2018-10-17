@@ -13,6 +13,8 @@
     <FxCompile Include="EngineSource\Shader\AnimatedVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\PixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\VertexShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\2DPixel.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\2DVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
@@ -48,6 +50,10 @@
     <ClCompile Include="EngineSource\Shader\ShaderManager.cpp" />
     <ClCompile Include="EngineSource\Window\window.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Render2D.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Quad\Quad.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Quad\Components\Button.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Quad\Components\Transform2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -99,9 +105,14 @@
     <ClInclude Include="EngineSource\ShaderCreator.h" />
     <ClInclude Include="EngineSource\Structs.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.h" />
+    <ClInclude Include="EngineSource\2D Engine\Render2D.h" />
+    <ClInclude Include="EngineSource\2D Engine\Quad\Quad.h" />
+    <ClInclude Include="EngineSource\2D Engine\Quad\Components\Button.h" />
+    <ClInclude Include="EngineSource\2D Engine\Quad\Components\Transform2D.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />
     <None Include="EngineSource\Shader\Shaders\StaticConstantBuffers.hlsli" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

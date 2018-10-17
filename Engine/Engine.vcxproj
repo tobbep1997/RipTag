@@ -168,11 +168,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EngineSource\2D Engine\Quad\Components\Button.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Base\CameraHolder.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Transform.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
+    <ClInclude Include="EngineSource\2D Engine\Render2D.h" />
+    <ClInclude Include="EngineSource\2D Engine\Quad\Quad.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.h" />
@@ -217,8 +220,10 @@
     <ClInclude Include="EngineSource\Window\window.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Texture.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\TextureManager.h" />
+    <ClInclude Include="EngineSource\2D Engine\Quad\Components\Transform2D.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EngineSource\2D Engine\Quad\Components\Button.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\CameraHolder.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\Transform.cpp" />
@@ -260,6 +265,9 @@
     <ClCompile Include="EngineSource\Window\window.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Texture.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\TextureManager.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Render2D.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Quad\Quad.cpp" />
+    <ClCompile Include="EngineSource\2D Engine\Quad\Components\Transform2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="EngineSource\Shader\AnimatedVertexShader.hlsl">
@@ -280,6 +288,26 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="EngineSource\Shader\Shaders\2DPixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="EngineSource\Shader\Shaders\2DVertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="EngineSource\Shader\Shaders\GuardFrustum\GuardFrustumPixel.hlsl">

@@ -77,7 +77,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
+	quad = new Quad();
+	quad->init();
+	//quad->setPosition(0.25f, 0.25f);
+	//quad->setScale(0.25f, 0.25f);
 	
+	quad->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
 	
 	m_levelHandler.Init(m_world);
 
@@ -99,6 +105,9 @@ PlayState::~PlayState()
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
+
+	quad->Release();
+	delete quad;
 
 }
 
@@ -223,6 +232,8 @@ void PlayState::Draw()
 
 	model->Draw();
 	
+	quad->Draw();
+
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 

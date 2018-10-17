@@ -6,6 +6,7 @@
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 #include "../Rendering/ForwardRender.h"
+#include "../../../2D Engine/Render2D.h"
 
 class Engine3D
 {
@@ -20,6 +21,7 @@ private:
 
 
 	ForwardRender				m_forwardRendering;
+
 
 	UINT m_sampleCount = 1;
 	

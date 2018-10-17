@@ -79,6 +79,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
 	m_animationBuffer.SetAnimationCBuffer();
+
+	m_2DRender.Init();
 }
 
 void ForwardRender::GeometryPass()
@@ -169,7 +171,7 @@ void ForwardRender::Flush(Camera & camera)
 
 	if (drawFrustum)
 		_GuardFrustumDraw();
-	
+	m_2DRender.GUIPass();
 }
 
 void ForwardRender::Clear()
@@ -215,6 +217,7 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_shadowSampler);
 	m_shadowMap.Release();
+	m_2DRender.Release();
 }
 
 void ForwardRender::_GuardFrustumDraw()
