@@ -12,7 +12,7 @@ public:
 	Teleport();
 	~Teleport();
 
-	void chargeSphere();
+	void ChargeSphere(double deltaTime);
 	void ThrowSphere(DirectX::XMFLOAT4A startPos, DirectX::XMFLOAT4A Direction);
 	DirectX::XMFLOAT4A TeleportToSphere();
 

@@ -39,6 +39,7 @@ class ForwardRender
 	{
 		DirectX::XMINT4		usingTexture;
 		DirectX::XMFLOAT4A	textureTileMult;
+		DirectX::XMFLOAT4A	color;
 	};
 
 private:

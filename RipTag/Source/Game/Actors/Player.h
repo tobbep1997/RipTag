@@ -17,18 +17,18 @@ private:
 	float m_cameraSpeed = 1.0f;
 	bool isPressed = false;
 	bool isPressed2 = false;
-	float walkBob = 0.0f;
-	float m_offset = 0.0f;
-	float freq = 1.9f;
-	float walkingBobAmp = 0.06f;
-	float stopBobAmp = 0.010f;
-	float stopBobFreq = 1.9f;
-	float m_currentAmp = 0.0f;
-	DirectX::XMFLOAT4A m_lastPeek;
-	DirectX::XMFLOAT4A m_lastSideStep;
 
-	float m_peekSpeed = 10.0f;
 
+	float m_visability = 0.0f;
+
+	bool m_lockPlayerInput;
+
+	Drawable * visSphear;
+
+	int mouseX = 0;
+	int mouseY = 0;
+
+	bool unlockMouse = false;
 public:
 	Player();
 	~Player();
@@ -45,8 +45,12 @@ public:
 
 	void Draw() override;
 
+	void SetCurrentVisability(const float & guard);
+
+	void LockPlayerInput();
+	void UnlockPlayerInput();
+
 private:
 
 	void _handleInput(double deltaTime);
-
 };
