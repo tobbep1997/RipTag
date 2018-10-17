@@ -47,7 +47,6 @@ void Player::Update(double deltaTime)
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-
 	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
 	p_camera->setPosition(pos);
 
@@ -136,42 +135,12 @@ void Player::_handleInput(double deltaTime)
 	XMStoreFloat4(&RIGHT, vRight);
 	if (GamePadHandler::IsLeftStickPressed())
 	{
-		m_moveSpeed = 400.0f * deltaTime;
+		m_moveSpeed = 1.0f;
 	}
 	else
 	{
-		m_moveSpeed = 200.0f * deltaTime;
+		m_moveSpeed = 1.0f;
 	}
-
-	//float targetPeek = Input::PeekRight();
-
-	//XMVECTOR in = XMLoadFloat4A(&m_lastPeek);
-	//XMFLOAT4A none{ 0,1,0,0 };
-	//XMVECTOR target = XMLoadFloat4A(&none);
-
-	//XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
-	//target = XMVector4Transform(target, rot);
-	//XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
-	////out = XMVector4Transform(out, rot);
-	//XMStoreFloat4A(&m_lastPeek, out);
-	//p_camera->setUP(m_lastPeek);
-	//XMFLOAT4A cPos = p_camera->getPosition();
-	//XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&p_position));
-	//
-	//vToCam = XMVector4Transform(vToCam, rot);
-	//out = vToCam;
-	////out = XMVectorLerp(vToCam, target, min(deltaTime * m_peekSpeed, 1.0f));
-	//out = XMVectorAdd(DirectX::XMLoadFloat4A(&p_position), out);
-
-	//float MAX_PEEK = 1.0f;
-
-	////XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), MAX_PEEK));
-	//XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
-	//XMStoreFloat4A(&m_lastSideStep, sideStep);
-	//out = XMVectorAdd(out, sideStep);
-	//XMStoreFloat4(&cPos, out);
-
-
 	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
 	//walkBob += x;
@@ -184,16 +153,15 @@ void Player::_handleInput(double deltaTime)
 	float deltaY = 0;
 	if (!unlockMouse)
 	{
-		int midX = InputHandler::getWindowPos().x + (InputHandler::getWindowSize().x / 2);
-		int midY = InputHandler::getWindowPos().y + (InputHandler::getWindowSize().y / 2);
+		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
+		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2);
 
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
 
-		deltaX = ((InputHandler::getWindowSize().x / 2) - 8) - poss.x;
-		deltaY = ((InputHandler::getWindowSize().y / 2) - 31) - poss.y;
+		deltaX = ((InputHandler::getWindowSize().x / 2)) - poss.x;
+		deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
 		
 		SetCursorPos(midX, midY);
-		
 	}
 	
 
