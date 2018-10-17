@@ -34,7 +34,11 @@ void Player::Update(double deltaTime)
 {
 	if (m_lockPlayerInput == false)
 	{
-		_handleInput(deltaTime);
+		if (InputHandler::getWindowFocus())
+		{
+			_handleInput(deltaTime);
+		}
+		
 	}
 #if _DEBUG
 
@@ -212,15 +216,9 @@ void Player::_handleInput(double deltaTime)
 
 		deltaX = ((InputHandler::getWindowSize().x / 2) - 8) - poss.x;
 		deltaY = ((InputHandler::getWindowSize().y / 2) - 31) - poss.y;
-
-		/*mouseX = midX;
-		mouseY = midY;*/
-
-
-		SetCursorPos(midX, midY);
-		std::cout << deltaX << " " << deltaY << std::endl;
 		
-		//SetCursorPos(100, 100);
+		SetCursorPos(midX, midY);
+		
 	}
 	
 

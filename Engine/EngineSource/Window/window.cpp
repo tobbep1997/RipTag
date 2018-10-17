@@ -116,7 +116,14 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		//1 or -1
 	case WM_MOUSEWHEEL:
 		InputHandler::m_scrollDelta = GET_WHEEL_DELTA_WPARAM(wParam) / 120.0f; 
-		break; 
+		break;
+
+	case WM_KILLFOCUS:
+		InputHandler::m_windowInFocus = false;
+		break;
+	case WM_SETFOCUS:
+		InputHandler::m_windowInFocus = true;
+		break;
 	}
 	RECT Rect;
 	GetWindowRect(hwnd, &Rect);

@@ -13,6 +13,8 @@ DirectX::XMINT2 InputHandler::m_windowSize;
 DirectX::XMFLOAT2 InputHandler::m_mouseDelta;
 
 DirectX::XMFLOAT2 InputHandler::m_windowPos;
+
+bool InputHandler::m_windowInFocus;
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -95,6 +97,11 @@ DirectX::XMFLOAT2 InputHandler::getWindowPos()
 	return m_windowPos;
 }
 
+bool InputHandler::getWindowFocus()
+{
+	return m_windowInFocus;
+}
+
 InputHandler::InputHandler()
 {
 	for (int i = 0; i < 256; i++)
@@ -115,7 +122,8 @@ InputHandler::~InputHandler()
 
 InputHandler & InputHandler::Instance()
 {
-	static InputHandler instance; 
+	static InputHandler instance;
+	m_windowInFocus = true;
 	return instance; 
 }
 

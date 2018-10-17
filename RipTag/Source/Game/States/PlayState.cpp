@@ -108,7 +108,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	static double time = 0.0f;
+	/*static double time = 0.0f;
 	static DirectX::XMFLOAT2 current(0.0, 0.0);
 	static DirectX::XMFLOAT2 target(1.0, 1.0);
 	static double timer = 0.0f;
@@ -134,12 +134,12 @@ void PlayState::Update(double deltaTime)
 
 	current.x = DirectX::XMVectorGetX(vec);
 
-	float temp = 5 + sin(current.x) * 1.5;
+	float temp = 5 + sin(current.x) * 1.5;*/
 
 
 	
 	light1.setDropOff(.5f);
-	light1.setIntensity(temp);
+	light1.setIntensity(light1.TourchEffect(deltaTime));
 
 
 

@@ -17,6 +17,8 @@ private:
 	static DirectX::XMFLOAT2 m_windowPos;
 
 	static DirectX::XMFLOAT2 m_mouseDelta;
+
+	static bool m_windowInFocus;
 	InputHandler();
 	~InputHandler();
 
@@ -38,6 +40,7 @@ public:
 	static DirectX::XMFLOAT2 getMousePosDelta();
 	static DirectX::XMFLOAT2 getWindowPos();
 
+	static bool getWindowFocus();
 	enum Key
 	{
 		Del = 46,
