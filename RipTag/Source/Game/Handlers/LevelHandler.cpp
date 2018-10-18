@@ -107,7 +107,7 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 		//Create a room
 		Room * room = new Room(1 , m_worldPtr, i);
 		//Get a random int
-		int randomRoom = rand() % 1+1;
+		int randomRoom = rand() % 2+1;
 		//Set the File path for loading and unloading
 		//room->setAssetFilePath(m_prefabRoomFiles.at(randomRoom));
 

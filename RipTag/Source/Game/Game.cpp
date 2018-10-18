@@ -41,7 +41,6 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		Network::Packets::REGISTER_TO_LUA();
 		
 	}
-
 	m_gameStack.push(new PlayState(m_renderingManager));
 }
 

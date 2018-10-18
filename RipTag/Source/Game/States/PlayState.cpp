@@ -30,10 +30,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
 	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
 
-	CollisionBoxes = new BaseActor();
-	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
-
-
+	
 	player = new Player();
 	enemy = new Enemy();
 
@@ -95,8 +92,8 @@ PlayState::~PlayState()
 
 	delete model;
 
-	CollisionBoxes->Release(m_world);
-	delete CollisionBoxes;
+	//CollisionBoxes->Release(m_world);
+	//delete CollisionBoxes;
 
 }
 

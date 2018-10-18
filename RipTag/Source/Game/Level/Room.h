@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "../Actors/BaseActor.h"
 #include "../Actors/Assets/StaticAsset.h"
 #include "../../../New_Library/ImportLibrary/FormatHeader.h"
 #include "../../../New_Library/ImportLibrary/formatImporter.h"
@@ -24,7 +25,7 @@ private:
 	float m_playerStartPos;
 	std::vector<MyLibrary::GuardStartPos> m_guardStartPos;
 
-	
+	BaseActor * CollisionBoxes;
 	
 	//-------------------------------------
 	//Physics

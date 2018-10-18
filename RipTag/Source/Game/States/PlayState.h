@@ -2,6 +2,7 @@
 
 #include <future>
 #include "State.h"
+
 #include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"

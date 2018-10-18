@@ -17,7 +17,8 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::~Room()
 {
-	
+	CollisionBoxes->Release(*m_worldPtr);
+	delete CollisionBoxes;
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -78,9 +79,9 @@ void Room::LoadRoomToMemory()
 		
 		
 		StaticAsset * temp = new StaticAsset();
-		temp->Init(*m_worldPtr,1,1,1);
+		temp->Init(*m_worldPtr, 0.01f,0.01f,0.01f);
 		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-		temp->setPosition(5, 5.0f, 0);
+		temp->setPosition(0, 0, 0);
 		Manager::g_textureManager.loadTextures(this->getAssetFilePath());
 		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
@@ -88,7 +89,11 @@ void Room::LoadRoomToMemory()
 	
 		m_staticAssets.push_back(temp);
 	
-		
+		CollisionBoxes = new BaseActor();
+		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
+
+
+
 		m_roomLoaded = true;
 	
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
