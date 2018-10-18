@@ -27,6 +27,24 @@
     <ClCompile Include="2D Engine\Render2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\SpriteBatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\SpriteFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\BinaryReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\CommonStates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\DDSTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2D Engine\Quad\Components\Button.h">
@@ -41,5 +59,58 @@
     <ClInclude Include="2D Engine\Render2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\SpriteBatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\SpriteFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\AlignedNew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\BinaryReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\CommonStates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\ConstantBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\dds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\DDSTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\DemandCreate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\DirectXHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\GraphicsMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\LoaderHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\PlatformHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\SharedResourcePool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="2D Engine\DirectXTK\SpriteEffect_SpritePixelShader.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="2D Engine\DirectXTK\SpriteEffect_SpriteVertexShader.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

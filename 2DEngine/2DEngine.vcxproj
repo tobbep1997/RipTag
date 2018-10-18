@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -106,7 +106,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -144,7 +144,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -155,16 +155,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="2D Engine\DirectXTK\BinaryReader.cpp" />
+    <ClCompile Include="2D Engine\DirectXTK\CommonStates.cpp" />
+    <ClCompile Include="2D Engine\DirectXTK\DDSTextureLoader.cpp" />
+    <ClCompile Include="2D Engine\DirectXTK\pch.cpp" />
+    <ClCompile Include="2D Engine\DirectXTK\SpriteBatch.cpp" />
+    <ClCompile Include="2D Engine\DirectXTK\SpriteFont.cpp" />
     <ClCompile Include="2D Engine\Quad\Components\Button.cpp" />
     <ClCompile Include="2D Engine\Quad\Components\Transform2D.cpp" />
     <ClCompile Include="2D Engine\Quad\Quad.cpp" />
     <ClCompile Include="2D Engine\Render2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="2D Engine\DirectXTK\AlignedNew.h" />
+    <ClInclude Include="2D Engine\DirectXTK\BinaryReader.h" />
+    <ClInclude Include="2D Engine\DirectXTK\CommonStates.h" />
+    <ClInclude Include="2D Engine\DirectXTK\ConstantBuffer.h" />
+    <ClInclude Include="2D Engine\DirectXTK\dds.h" />
+    <ClInclude Include="2D Engine\DirectXTK\DDSTextureLoader.h" />
+    <ClInclude Include="2D Engine\DirectXTK\DemandCreate.h" />
+    <ClInclude Include="2D Engine\DirectXTK\DirectXHelpers.h" />
+    <ClInclude Include="2D Engine\DirectXTK\GraphicsMemory.h" />
+    <ClInclude Include="2D Engine\DirectXTK\LoaderHelpers.h" />
+    <ClInclude Include="2D Engine\DirectXTK\pch.h" />
+    <ClInclude Include="2D Engine\DirectXTK\PlatformHelpers.h" />
+    <ClInclude Include="2D Engine\DirectXTK\SharedResourcePool.h" />
+    <ClInclude Include="2D Engine\DirectXTK\SpriteBatch.h" />
+    <ClInclude Include="2D Engine\DirectXTK\SpriteFont.h" />
     <ClInclude Include="2D Engine\Quad\Components\Button.h" />
     <ClInclude Include="2D Engine\Quad\Components\Transform2D.h" />
     <ClInclude Include="2D Engine\Quad\Quad.h" />
     <ClInclude Include="2D Engine\Render2D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="2D Engine\DirectXTK\SpriteEffect_SpritePixelShader.inc" />
+    <None Include="2D Engine\DirectXTK\SpriteEffect_SpriteVertexShader.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

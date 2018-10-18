@@ -115,6 +115,16 @@ void Quad::setScale(const DirectX::XMFLOAT2A & size)
 	p_createBuffer();
 }
 
+void Quad::setFont(DirectX::SpriteFont * font)
+{
+	this->m_spriteFont = font;
+}
+
+void Quad::setString(const std::string & string)
+{
+	this->m_string = string;
+}
+
 ID3D11Buffer * Quad::getVertexBuffer() const
 {
 	return m_vertexBuffer;
