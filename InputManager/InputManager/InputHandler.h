@@ -1,6 +1,7 @@
 #pragma once 
 #include <DirectXMath.h>
-#include <EngineSource/Window/window.h>
+#include "EngineSource/Window/window.h"
+
 class InputHandler
 {
 	friend class Window; 
@@ -14,13 +15,18 @@ private:
 	static DirectX::XMINT2 m_windowSize; 
 	static int m_lastPressed; 
 
+	static DirectX::XMFLOAT2 m_windowPos;
+	static DirectX::XMFLOAT2 m_viewportPos;
+	static DirectX::XMFLOAT2 m_mouseDelta;
+
+	static bool m_windowInFocus;
 	InputHandler();
 	~InputHandler();
 
 public:
 
 	//A singelton, only one instance
-	static InputHandler& Instance(); 
+	static InputHandler* Instance(); 
 
 	static DirectX::XMFLOAT2 getMousePosition(); 
 	static bool isKeyPressed(int keyCode);
@@ -32,7 +38,11 @@ public:
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 
+	static DirectX::XMFLOAT2 getMousePosDelta();
+	static DirectX::XMFLOAT2 getWindowPos();
+	static DirectX::XMFLOAT2 getviewportPos();
 
+	static bool getWindowFocus();
 	enum Key
 	{
 		Del = 46,

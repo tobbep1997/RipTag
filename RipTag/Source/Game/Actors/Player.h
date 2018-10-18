@@ -8,24 +8,31 @@
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
+	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
+
+private:
+	
 	Teleport m_teleport;
+	float m_standHeight;
 	RayCastListener *m_rayListener;
 
 	bool isCPressed = false;
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
-	
 	bool isPressed = false;
 	bool isPressed2 = false;
+	bool crouching = false;
 
-	float walkBob = 0.0f;
-	float m_offset = 0.0f;
-	float freq = 1.9f;
-	float walkingBobAmp = 0.06f;
-	float stopBobAmp = 0.010f;
-	float stopBobFreq = 1.9f;
+	float m_visability = 0.0f;
 
-	float m_currentAmp = 0.0f;
+	bool m_lockPlayerInput;
+
+	Drawable * visSphear;
+
+	int mouseX = 0;
+	int mouseY = 0;
+
+	bool unlockMouse = false;
 public:
 	Player();
 	~Player();
@@ -35,17 +42,21 @@ public:
 
 	void PhysicsUpdate(double deltaTime);
 
-	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
+	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void InitTeleport(b3World & world);
 	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
 
+	void SetCurrentVisability(const float & guard);
+
+	void LockPlayerInput();
+	void UnlockPlayerInput();
+
 	void Phase(float searchLength);
 
 private:
 
 	void _handleInput(double deltaTime);
-
 };

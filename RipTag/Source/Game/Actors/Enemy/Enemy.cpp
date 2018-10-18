@@ -1,5 +1,5 @@
 #include "Enemy.h"
-
+#include "../RipTag/Source/Input/Input.h"
 
 
 Enemy::Enemy() : Actor(), CameraHolder()
@@ -67,6 +67,10 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
+	if (!m_inputLocked)
+	{
+		_handleInput(deltaTime);
+	}
 	
 }
 
@@ -77,4 +81,64 @@ void Enemy::QueueForVisibility()
 		m_vc.QueueVisibility();
 	}
 	
+}
+
+void Enemy::LockEnemyInput()
+{
+	m_inputLocked = true;
+}
+
+void Enemy::UnlockEnemyInput()
+{
+	m_inputLocked = false;
+}
+
+void Enemy::_handleInput(double deltaTime)
+{
+	_handleMovement(deltaTime);
+	_handleRotation(deltaTime);
+	
+}
+
+void Enemy::_handleMovement(double deltaTime)
+{
+	using namespace DirectX;
+
+	XMFLOAT4A forward = p_camera->getDirection();
+	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
+	XMFLOAT4 RIGHT;
+	//GeT_RiGhT;
+
+	XMVECTOR vForward = XMLoadFloat4A(&forward);
+	XMVECTOR vUP = XMLoadFloat4(&UP);
+	XMVECTOR vRight;
+
+	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
+	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
+
+
+
+	XMStoreFloat4A(&forward, vForward);
+	XMStoreFloat4(&RIGHT, vRight);
+
+	float x = Input::MoveRight() * (m_movementSpeed * deltaTime) * RIGHT.x;
+
+	x += Input::MoveForward() * (m_movementSpeed * deltaTime) * forward.x;
+	//walkBob += x;
+
+	float z = Input::MoveForward() * (m_movementSpeed * deltaTime) * forward.z;
+
+	z += Input::MoveRight() * (m_movementSpeed * deltaTime) * RIGHT.z;
+
+	x = Transform::getPosition().x + x;
+	z = Transform::getPosition().z + z;
+
+	Transform::setPosition(x, getPosition().y, z);
+}
+
+void Enemy::_handleRotation(double deltaTime)
+{
+	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
+
+	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
 }

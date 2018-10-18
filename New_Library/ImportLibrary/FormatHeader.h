@@ -40,7 +40,7 @@ namespace MyLibrary
 	{
 		float translation[3];
 		float scale[3];
-		float rotation[3];
+		float rotation[4];
 		int typeOfBox;
 	};
 	struct CollisionHeader

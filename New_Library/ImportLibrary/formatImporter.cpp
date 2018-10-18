@@ -329,6 +329,7 @@ namespace MyLibrary
 				collisionBoxes.boxes[i].rotation[0] = box[i].rotation[0];
 				collisionBoxes.boxes[i].rotation[1] = box[i].rotation[1];
 				collisionBoxes.boxes[i].rotation[2] = box[i].rotation[2];
+				collisionBoxes.boxes[i].rotation[3] = box[i].rotation[3];
 
 				collisionBoxes.boxes[i].typeOfBox = box[i].typeOfBox;
 

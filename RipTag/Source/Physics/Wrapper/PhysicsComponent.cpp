@@ -105,9 +105,11 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		b3Body * b = world.CreateBody(*m_bodyDef);
+	
+	
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
-			b3Vec3(0, 0, 0), 0);
-
+			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
+		
 		b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
 		m_bodys.push_back(b);
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
@@ -161,7 +163,6 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 		//Create the box
 		m_bodyBox = new b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
-
 		//Then the poly
 		m_poly = new b3Polyhedron();
 		m_poly->SetHull(m_bodyBox);

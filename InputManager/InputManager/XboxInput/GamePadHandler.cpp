@@ -243,6 +243,16 @@ bool GamePadHandler::IsLeftTriggerPressed()
 	return false;
 }
 
+float GamePadHandler::RightTrigger()
+{
+	return m_state.triggers.right;
+}
+
+float GamePadHandler::LeftTrigger()
+{
+	return m_state.triggers.left;
+}
+
 bool GamePadHandler::IsRightDpadPressed()
 {
 	if (m_state.IsConnected())

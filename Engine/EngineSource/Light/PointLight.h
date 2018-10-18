@@ -63,6 +63,8 @@ public:
 
 	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
 
+	float TourchEffect(double deltaTime, float base, float amplitude);
+
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
