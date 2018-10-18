@@ -9,7 +9,7 @@
 #include "../Actors/Player.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
-#include "EngineSource/2D Engine/Quad/Quad.h"
+#include "2D Engine/Quad/Quad.h"
 
 
 //lua 

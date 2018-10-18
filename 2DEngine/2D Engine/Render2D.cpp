@@ -1,7 +1,6 @@
 #include "Render2D.h"
-#include "../3D Engine/Extern.h"
-#include "../Shader/ShaderManager.h"
-
+#include "EngineSource/3D Engine/Extern.h"
+#include "EngineSource/Shader/ShaderManager.h"
 Render2D::Render2D()
 {
 }
