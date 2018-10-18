@@ -40,6 +40,7 @@ Quad::Quad() : Transform2D(), Button(this)
 
 Quad::~Quad()
 {
+	delete m_spriteFont;
 	delete[] quadVertex;
 }
 
@@ -123,6 +124,26 @@ void Quad::setFont(DirectX::SpriteFont * font)
 void Quad::setString(const std::string & string)
 {
 	this->m_string = string;
+}
+
+DirectX::SpriteFont & Quad::getSpriteFont() const
+{
+	return *m_spriteFont;
+}
+
+const std::string & Quad::getString() const
+{
+	return m_string;
+}
+
+void Quad::setTextColor(const DirectX::XMFLOAT4A & color)
+{
+	this->m_textColor = color;
+}
+
+const DirectX::XMFLOAT4A & Quad::getTextColor() const
+{
+	return m_textColor;
 }
 
 ID3D11Buffer * Quad::getVertexBuffer() const

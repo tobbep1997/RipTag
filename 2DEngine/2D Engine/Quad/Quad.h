@@ -24,6 +24,8 @@ private:
 	DirectX::SpriteFont * m_spriteFont;
 	std::string m_string;
 
+	DirectX::XMFLOAT4A m_textColor;
+
 	void p_createBuffer();
 	void p_setStaticQuadVertex();
 public:
@@ -46,6 +48,12 @@ public:
 
 	void setFont(DirectX::SpriteFont * font);
 	void setString(const std::string & string);
+
+	DirectX::SpriteFont & getSpriteFont() const;
+	const std::string & getString() const;
+
+	void setTextColor(const DirectX::XMFLOAT4A & color);
+	const DirectX::XMFLOAT4A & getTextColor() const;
 
 	ID3D11Buffer * getVertexBuffer() const;
 };

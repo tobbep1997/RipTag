@@ -81,9 +81,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	quad->init();
 	quad->setPosition(0.25f, 0.25f);
 	quad->setScale(0.25f, 0.25f);
-	
-	quad->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
+	quad->setString("FITT FAN");
+	quad->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	quad->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	
 	m_levelHandler.Init(m_world);
 

@@ -161,10 +161,12 @@
     <ClCompile Include="2D Engine\DirectXTK\pch.cpp" />
     <ClCompile Include="2D Engine\DirectXTK\SpriteBatch.cpp" />
     <ClCompile Include="2D Engine\DirectXTK\SpriteFont.cpp" />
+    <ClCompile Include="2D Engine\DirectXTK\VertexTypes.cpp" />
     <ClCompile Include="2D Engine\Quad\Components\Button.cpp" />
     <ClCompile Include="2D Engine\Quad\Components\Transform2D.cpp" />
     <ClCompile Include="2D Engine\Quad\Quad.cpp" />
     <ClCompile Include="2D Engine\Render2D.cpp" />
+    <ClCompile Include="Fonts\FontHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2D Engine\DirectXTK\AlignedNew.h" />
@@ -182,10 +184,12 @@
     <ClInclude Include="2D Engine\DirectXTK\SharedResourcePool.h" />
     <ClInclude Include="2D Engine\DirectXTK\SpriteBatch.h" />
     <ClInclude Include="2D Engine\DirectXTK\SpriteFont.h" />
+    <ClInclude Include="2D Engine\DirectXTK\VertexTypes.h" />
     <ClInclude Include="2D Engine\Quad\Components\Button.h" />
     <ClInclude Include="2D Engine\Quad\Components\Transform2D.h" />
     <ClInclude Include="2D Engine\Quad\Quad.h" />
     <ClInclude Include="2D Engine\Render2D.h" />
+    <ClInclude Include="Fonts\FontHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="2D Engine\DirectXTK\SpriteEffect_SpritePixelShader.inc" />
