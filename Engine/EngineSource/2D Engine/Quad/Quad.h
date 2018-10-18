@@ -34,12 +34,7 @@ public:
 
 	void setTexture(Texture * texture);
 	void MapTexture();
-
-	/*
-	Sets the position based on botten left corner.
-	(0,0) == Botten left
-	(1,1) == Top Right
-	*/
+	
 	void setPosition(const float & x, const float & y) override;
 	void setPosition(const DirectX::XMFLOAT2A & position) override;
 

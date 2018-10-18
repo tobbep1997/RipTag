@@ -33,11 +33,12 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/2DPixel.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetSamplers(4, 1, &m_sampler);
+
+	UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
+	UINT32 offset = 0;
+
 	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
 	{
-		UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
-		UINT32 offset = 0;
-
 		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
 
 		DX::g_2DQueue[j]->MapTexture();
