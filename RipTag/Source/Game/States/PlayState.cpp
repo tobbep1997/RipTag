@@ -18,10 +18,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Timer::StartTimer();
 
-	
-
-	
-
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
@@ -39,7 +35,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CollisionBoxes = new BaseActor();
 	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
 
-	player->RegisterThisInstanceToInput();
 	player->RegisterThisInstanceToNetwork();
 
 	actor->setScale(1.0f,1.0f,1.0f);

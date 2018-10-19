@@ -41,10 +41,16 @@ class InputMapping
 public:
 	static std::map<std::string, std::function<void()>> functionMap;
 	static std::map<int, std::string> keyMap;
+	static std::map<int, std::string> devKeyMap; //This key map is reserved for keybinding for Dev tools
+
+	static void Init();
+	static bool isInitialized;
 
 	static void addToKeyMap(int key, std::string value);
+	static void addToDevKeyMap(int key, std::string value);
 	static void addToFuncMap(std::string key, std::function<void()> func);
-	static void LoadKeyMapFromFile(std::string file);
 
 	static void Call();
+private:
+	static void _ReloadKeyMapping();
 };

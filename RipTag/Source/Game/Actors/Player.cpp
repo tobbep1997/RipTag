@@ -132,14 +132,6 @@ void Player::SendOnMovementMessage()
 }
 
 
-void Player::RegisterThisInstanceToInput()
-{
-	
-	InputMapping::LoadKeyMapFromFile("..\\Configuration\\KeyMapping.ini");
-	using namespace std::placeholders;
-	
-}
-
 void Player::RegisterThisInstanceToNetwork()
 {
 	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnJumpMessage, this));

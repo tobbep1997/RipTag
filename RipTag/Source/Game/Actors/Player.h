@@ -58,7 +58,6 @@ public:
 	void SendOnJumpMessage();
 	void SendOnMovementMessage();
 
-	void RegisterThisInstanceToInput();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);

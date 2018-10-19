@@ -29,9 +29,10 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		m_renderingManager->Init(hInstance);
 	}
 
-	//Input handler
+	//Input handler and mapping
 	{
 		GamePadHandler::Instance();
+		InputMapping::Init();
 	}
 	Timer::Instance();
 
