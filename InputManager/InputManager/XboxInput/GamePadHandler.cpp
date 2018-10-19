@@ -333,7 +333,7 @@ bool GamePadHandler::IsLeftShoulderPressed()
 {
 	if (m_state.IsConnected())
 	{
-		if (m_buttons.leftShoulder == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		if (m_buttons.leftShoulder/* == DirectX::GamePad::ButtonStateTracker::PRESSED*/)
 		{
 			return true;
 		}
@@ -352,7 +352,7 @@ bool GamePadHandler::IsRightShoulderPressed()
 {
 	if (m_state.IsConnected())
 	{
-		if (m_buttons.rightShoulder == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		if (m_buttons.rightShoulder/* == DirectX::GamePad::ButtonStateTracker::PRESSED*/)
 		{
 			return true;
 		}

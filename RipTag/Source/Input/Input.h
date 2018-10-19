@@ -28,12 +28,16 @@ public:
 	static float MoveRight();
 	static float PeekRight();
 	static bool Sprinting();
+	static bool Teleport();
+
 
 
 	static float TurnUp();
 	static float TurnRight();
 
 	static bool isUsingGamepad();
+
+	static void ResetMouse();
 };
 
 class InputMapping
