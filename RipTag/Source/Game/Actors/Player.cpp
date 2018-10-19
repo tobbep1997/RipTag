@@ -79,7 +79,7 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 void Player::Phase(float searchLength)
 {
 	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
-	if (this->m_rayListener->type == 1)
+	if (this->m_rayListener->shape != nullptr)
 	{
 		p_setPosition(
 			this->m_rayListener->contactPoint.x + (
@@ -100,7 +100,6 @@ void Player::Phase(float searchLength)
 				this->getPosition().z
 			);
 		}
-		
 	}
 	this->m_rayListener->clear();
 }
@@ -252,13 +251,13 @@ void Player::_handleInput(double deltaTime)
 		isPressed = false;
 	}
 
-	if (!InputHandler::isKeyPressed('C')) //Phase acts like short range teleport through objects
+	if (!InputHandler::isMLeftPressed(false)) //Phase acts like short range teleport through objects
 	{
 		isCPressed = true;
 	}
 	else if (isCPressed)
 	{
-		this->Phase(2);
+		this->Phase(10);
 		isCPressed = false;
 	}
 	//std::cout << x << "\n";

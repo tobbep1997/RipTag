@@ -17,7 +17,7 @@ private:
 	RayCastListener *m_rayListener;
 
 	bool isCPressed = false;
-	float m_moveSpeed = 200.0f;
+	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	bool isPressed = false;
 	bool isPressed2 = false;
