@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "InputManager/InputHandler.h"
 #include "InputManager/XboxInput/GamePadHandler.h"
-#include "../../Input/Input.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include <algorithm>
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
@@ -40,6 +39,7 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
+
 	m_teleport.Update(deltaTime);
 
 	float cameraOffset = 1.0f;
@@ -100,11 +100,6 @@ void Player::Draw()
 	
 }
 
-void Player::SetCurrentVisability(const float & guard)
-{
-	this->m_visability = guard;
-}
-
 void Player::LockPlayerInput()
 {
 	m_lockPlayerInput = true;
@@ -115,6 +110,41 @@ void Player::UnlockPlayerInput()
 	m_lockPlayerInput = false;
 }
 
+void Player::SetCurrentVisability(const float & guard)
+{
+	this->m_visability = guard;
+}
+
+void Player::SendOnJumpMessage()
+{
+	Network::ENTITY_EVENT packet(Network::ID_PLAYER_JUMP, Network::Multiplayer::GetInstance()->GetNetworkID());
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::MEDIUM_PRIORITY);
+}
+
+void Player::SendOnMovementMessage()
+{
+	DirectX::XMFLOAT4A pos = this->getPosition();
+	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
+}
+
+
+void Player::RegisterThisInstanceToInput()
+{
+	
+	InputMapping::LoadKeyMapFromFile("..\\Configuration\\KeyMapping.ini");
+	using namespace std::placeholders;
+	
+}
+
+void Player::RegisterThisInstanceToNetwork()
+{
+	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnJumpMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnMovementMessage, this));
+}
 
 void Player::_handleInput(double deltaTime)
 {
@@ -126,7 +156,7 @@ void Player::_handleInput(double deltaTime)
 	}
 	else
 	{
-		m_moveSpeed = 1.0f;
+		m_moveSpeed = 200.0f * deltaTime;
 	}
 
 	if (crouching)
@@ -134,7 +164,9 @@ void Player::_handleInput(double deltaTime)
 		m_moveSpeed = 0.5;
 	}
 
-	if (Input::Crouch())
+	_onMovement();
+
+	if (Input::MoveForward() != 0)
 	{
 		if (crouching == false)
 		{
@@ -155,7 +187,6 @@ void Player::_handleInput(double deltaTime)
 		}
 	}
 
-	_onMovement();
 
 	if (!unlockMouse)
 	{
@@ -168,17 +199,14 @@ void Player::_handleInput(double deltaTime)
 		float deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
 		
 		SetCursorPos(midX, midY);
-
-		if (deltaY)
-			p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
 		
 		if (deltaX && !Input::PeekRight())
 			p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
+		if (deltaY)
+			p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
+
 	}
 	
-
-	
-
 	if (Input::Jump())
 	{
 		if (isPressed == false)
@@ -191,10 +219,6 @@ void Player::_handleInput(double deltaTime)
 	{
 		isPressed = false;
 	}
-
-	//std::cout << x << "\n";
-
-	
 
 	if (InputHandler::isKeyPressed('T'))
 	{
@@ -224,7 +248,6 @@ void Player::_handleInput(double deltaTime)
 void Player::_onMovement()
 {
 	using namespace DirectX;
-
 	XMFLOAT4A forward = p_camera->getDirection();
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;

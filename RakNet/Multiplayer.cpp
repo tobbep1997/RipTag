@@ -5,6 +5,8 @@
 
 namespace Network
 {
+	std::map<std::string, std::function<void()>> Multiplayer::onSendMap;
+	std::map<unsigned char, std::function<void(unsigned char *)>> Multiplayer::onReceiveMap;
 
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
@@ -37,6 +39,16 @@ namespace Network
 			RakNet::NetworkIDManager::DestroyInstance(this->pNetworkIDManager);
 			this->pNetworkIDManager = 0;
 		}
+	}
+
+	void Multiplayer::addToOnSendFuncMap(std::string key, std::function<void()> func)
+	{
+		onSendMap.insert(std::pair < std::string, std::function<void()>>(key, func));
+	}
+
+	void Multiplayer::addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char *)> func)
+	{
+		onReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char *)>>(key, func));
 	}
 
 	void Multiplayer::StartUpServer()
@@ -130,6 +142,7 @@ namespace Network
 			if (packet->data[0] == DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION && !packet->wasGeneratedLocally)
 			{
 				m_rIP = packet->systemAddress;
+				this->pPeer->Connect(m_rIP.ToString(), m_rIP.GetPort(), nullptr, 0);
 				m_isConnected = true;
 				pPeer->DeallocatePacket(packet);
 				pPeer->SetOccasionalPing(true);
@@ -170,6 +183,11 @@ namespace Network
 	}
 
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)
+	{
+		Multiplayer::GetInstance()->_send_packet(message, length, priority);
+	}
+
+	void Multiplayer::_send_packet(const char * message, size_t length, PacketPriority priority)
 	{
 		this->pPeer->Send(message,
 			(int)length + 1,

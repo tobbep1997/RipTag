@@ -1,8 +1,18 @@
 #pragma once
+#include <Multiplayer.h>
 #include "Actor.h"
 #include "Abilities/Teleport.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
+#include <functional>
+#include "../../Input/Input.h"
+
+namespace FUNCTION_STRINGS
+{
+	static const char * JUMP = "Jump";
+
+}
+
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
@@ -43,6 +53,13 @@ public:
 	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
+
+	//Networking
+	void SendOnJumpMessage();
+	void SendOnMovementMessage();
+
+	void RegisterThisInstanceToInput();
+	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
 

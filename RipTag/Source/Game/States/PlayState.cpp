@@ -18,11 +18,17 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Timer::StartTimer();
 
+	
+
+	
+
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 	future.get();
 	future1.get();
+	player = new Player();
+	enemy = new Enemy();
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 	actor = new BaseActor();
@@ -33,11 +39,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CollisionBoxes = new BaseActor();
 	CollisionBoxes->Init(m_world, Manager::g_meshManager.getCollisionBoxes("KOMBIN"));
 
-
-	player = new Player();
-	enemy = new Enemy();
-
-	CameraHandler::setActiveCamera(player->getCamera());
+	player->RegisterThisInstanceToInput();
+	player->RegisterThisInstanceToNetwork();
 
 	actor->setScale(1.0f,1.0f,1.0f);
 	actor->setPosition(0, 0, 0);
@@ -131,6 +134,8 @@ void PlayState::Update(double deltaTime)
 	ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
 	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);
 	ImGui::End();
+
+	TemporaryLobby();
 
 #endif
 
@@ -233,4 +238,48 @@ void PlayState::Draw()
 void PlayState::thread(std::string s)
 {
 	Manager::g_meshManager.loadStaticMesh(s);
+}
+
+void PlayState::TemporaryLobby()
+{
+	Network::Multiplayer * ptr = Network::Multiplayer::GetInstance();
+
+	ImGui::Begin("Network Lobby");
+	if (!ptr->isConnected() && !ptr->isRunning())
+	{
+		if (ImGui::Button("Start Server"))
+		{
+			ptr->StartUpServer();
+		}
+		else if (ImGui::Button("Start Client"))
+		{
+			ptr->StartUpClient();
+		}
+	}
+
+	if (ptr->isRunning() && ptr->isServer() && !ptr->isConnected())
+	{
+		ImGui::Text("Server running... Awaiting Connections...");
+		if (ImGui::Button("Cancel"))
+			ptr->EndConnectionAttempt();
+	}
+
+	if (ptr->isRunning() && ptr->isClient() && !ptr->isConnected())
+	{
+		ImGui::Text("Client running... Searching for Host...");
+		if (ImGui::Button("Cancel"))
+			ptr->EndConnectionAttempt();
+	}
+
+	if (ptr->isRunning() && ptr->isConnected())
+	{
+		if (ptr->isServer() && !ptr->isGameRunning())
+			if (ImGui::Button("Start Game"))
+			{				//set game running, send a start game message
+			}
+		ImGui::Text(ptr->GetNetworkInfo().c_str());
+		if (ImGui::Button("Disconnect"))
+			ptr->Disconnect();
+	}
+	ImGui::End();
 }
