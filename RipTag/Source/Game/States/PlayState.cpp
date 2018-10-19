@@ -59,7 +59,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	light1.setColor(0.8f, 0.6f, 0.4f);
 	light1.setDropOff(1);
 
-	light2.Init(DirectX::XMFLOAT4A(8.4, 5, 14.3, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
+	light2.Init(DirectX::XMFLOAT4A(8.4f, 5.f, 14.3f, 1.f), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
 	light2.setDropOff(1);
 	light2.setColor(0.8f, 0.6f, 0.4f);
