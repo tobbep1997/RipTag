@@ -50,7 +50,7 @@ bool Input::CheckVisability()
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed('C'))
+		if (InputHandler::isKeyPressed('V'))
 		{
 			return true;
 		}

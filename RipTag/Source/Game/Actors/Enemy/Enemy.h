@@ -14,6 +14,11 @@ private:
 	bool m_inputLocked = true;
 
 	float m_movementSpeed = 10;
+
+	float m_walk = 0;
+	bool forward = true;
+	float distance = 0.1f;
+	float m_speed = 0.5f;
 public:
 	Enemy();
 	~Enemy();
@@ -44,5 +49,7 @@ private:
 	//Movement
 	void _handleMovement(double deltaTime);
 	void _handleRotation(double deltaTime);
+
+	void _TempGuardPath(bool x, double deltaTime);
 };
 

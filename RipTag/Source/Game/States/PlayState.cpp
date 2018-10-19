@@ -66,9 +66,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
 	gTemp.getCamera()->setFarPlane(5);
+	gTemp.setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	gTemp.setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	enemy->setPosition(0.0f, 0.4f, -5.5f);
 	enemy->setDir(1, 0, 0);
 	enemy->getCamera()->setFarPlane(5);
+	enemy->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	enemy->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
@@ -173,7 +177,7 @@ void PlayState::Update(double deltaTime)
 		//player->CreateBox(1.0f, 1.0f, 1.0f);
 	}
 
-	player->SetCurrentVisability(e2Vis[0] / 5000.0f);
+	player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Vis[0] / 5000));
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	actor->Update(deltaTime);
