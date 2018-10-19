@@ -216,7 +216,7 @@ public:
 
 	ID3D11UnorderedAccessView * getUAV();
 
-	
+	void Reset();
 
 private:
 	void _createUAV();

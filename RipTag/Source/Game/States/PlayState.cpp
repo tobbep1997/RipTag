@@ -75,16 +75,19 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	enemy->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	enemy->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
-	model = new Drawable();
-	model->setEntityType(EntityType::PlayerType);
+	/*model = new Drawable();
+	model->setEntityType(EntityType::DefultType);
 	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	model->setScale(0.5, 0.5, 0.5);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	model->setTextureTileMult(50, 50);
+	model->setTextureTileMult(50, 50);*/
 
 
 	
 	m_levelHandler.Init(m_world);
+
+	CameraHandler::setActiveCamera(player->getCamera());
+
 	Input::ResetMouse();
 
 }
@@ -193,18 +196,18 @@ void PlayState::Update(double deltaTime)
 	
 	
 
-	enemy->CullingForVisability(*player->getTransform());
+	//enemy->CullingForVisability(*player->getTransform());
 	enemy->QueueForVisibility();
 
 
-	gTemp.CullingForVisability(*player->getTransform());
+	//gTemp.CullingForVisability(*player->getTransform());
 	gTemp.QueueForVisibility();
 
 	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
 
-	if (InputHandler::isKeyPressed(InputHandler::Esc))
+	if (Input::Exit())
 	{
 		setKillState(true);
 	}
@@ -232,17 +235,11 @@ void PlayState::Draw()
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	actor->Draw();
-	//wall1->Draw();
 
 	player->Draw();
-	//player->QueueVisabilityDraw();
 
-	model->Draw();
+	//model->Draw();
 	
-
-	//model->QueueVisabilityDraw();
-	//m_world.Draw()
-
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 	
 }
