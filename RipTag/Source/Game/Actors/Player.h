@@ -6,6 +6,7 @@
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <functional>
 #include "../../Input/Input.h"
+#include "../../Physics/Wrapper/RayCastListener.h"
 
 namespace FUNCTION_STRINGS
 {
@@ -18,6 +19,8 @@ struct KeyPressed
 	bool jump = false;
 	bool crouching = false;
 	bool teleport = false;
+	bool blink = false;
+	bool unlockMouse = false;
 };
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
@@ -28,7 +31,8 @@ private:
 private:
 	Teleport m_teleport;
 	float m_standHeight;
-	float m_moveSpeed = 200.0f;
+	RayCastListener *m_rayListener;
+	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
 
@@ -40,9 +44,8 @@ private:
 
 	int mouseX = 0;
 	int mouseY = 0;
-
-	bool unlockMouse = false;
 public:
+	bool unlockMouse = false;
 	Player();
 	~Player();
 
@@ -70,11 +73,14 @@ public:
 	void LockPlayerInput();
 	void UnlockPlayerInput();
 
+	void Phase(float searchLength);
+
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
+	void _onBlink();
 	void _onRotate(double deltaTime);
 	void _onJump();
 	void _onCheckVisibility();

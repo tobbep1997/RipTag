@@ -75,6 +75,16 @@ public:
 		unsigned int slot = 0, 
 		unsigned int numBuffer = 0,
 		ShaderTypes i_shader = ShaderTypes::vertex);
-
+	static HRESULT CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
+		BOOL antialiasedLineEnable = FALSE,
+		D3D11_CULL_MODE cullMode = D3D11_CULL_NONE,
+		INT depthBias = 0,
+		FLOAT depthBiasClamp = 0.0f,
+		BOOL depthClipEnable = FALSE,
+		D3D11_FILL_MODE fillMode = D3D11_FILL_SOLID,
+		BOOL frontCounterClockwise = FALSE,
+		BOOL multisampleEnable = FALSE,
+		BOOL scissorEnable = FALSE,
+		FLOAT SlopeScaledDepthBias = 0.0f);
 };
 

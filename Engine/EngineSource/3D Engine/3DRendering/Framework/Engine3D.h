@@ -21,6 +21,7 @@ private:
 
 	ForwardRender				m_forwardRendering;
 
+
 	UINT m_sampleCount = 1;
 	
 public:

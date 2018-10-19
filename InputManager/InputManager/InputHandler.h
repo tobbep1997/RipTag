@@ -22,6 +22,8 @@ private:
 	static bool m_windowInFocus;
 	InputHandler();
 
+	static BOOL m_showCursor;
+
 public:
 	~InputHandler();
 
@@ -44,6 +46,8 @@ public:
 
 	static bool getWindowFocus();
 
+	static void setShowCursor(BOOL b);
+	static BOOL getShowCursor();
 	enum Key
 	{
 		Del = 46,
@@ -61,6 +65,8 @@ public:
 		S = 0x53,
 		D = 0x44,
 		Shift = 0x10,
+		Ctrl = 0x11,
+		Alt = 0x12,
 		Esc = 0x1B,
 		Backspace = 0x08,
 		Return = 0x0D

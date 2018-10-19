@@ -9,6 +9,7 @@
 #include "../Handlers/ObjectHandler.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
+#include "2D Engine/Quad/Quad.h"
 
 
 //lua 

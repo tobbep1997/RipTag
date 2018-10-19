@@ -16,6 +16,9 @@ DirectX::XMFLOAT2 InputHandler::m_windowPos;
 DirectX::XMFLOAT2 InputHandler::m_viewportPos;
 
 bool InputHandler::m_windowInFocus;
+
+BOOL InputHandler::m_showCursor;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -136,4 +139,18 @@ InputHandler * InputHandler::Instance()
 DirectX::XMFLOAT2 InputHandler::getMousePosition()
 {
 	return m_mousePos; 
+}
+
+void InputHandler::setShowCursor(BOOL b)
+{
+	m_showCursor = b;
+	if (b)
+		while (ShowCursor(b) <= 0) {}
+	else
+		while (ShowCursor(b) >= 0) {}
+}
+
+BOOL InputHandler::getShowCursor()
+{
+	return m_showCursor;
 }

@@ -33,8 +33,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
+
+
+
 	while (game.isRunning())
 	{
+
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;

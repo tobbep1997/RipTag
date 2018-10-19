@@ -7,6 +7,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
+	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 	
 	visSphear = new Drawable();
@@ -16,11 +17,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	visSphear->setPosition(5, 5, 2);
 	visSphear->setColor(1, 1, 1, 1.0f);
 	visSphear->setEntityType(EntityType::ExcludeType);
-	ShowCursor(FALSE);
 }
 
 Player::~Player()
 {	
+	delete this->m_rayListener;
 	delete visSphear;
 }
 
@@ -54,6 +55,34 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+void Player::Phase(float searchLength)
+{
+	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
+	if (this->m_rayListener->shape != nullptr)
+	{
+		p_setPosition(
+			this->m_rayListener->contactPoint.x + (
+				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
+				(-this->m_rayListener->normal.x)), 
+			this->getPosition().y,
+			this->m_rayListener->contactPoint.z + (
+				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
+				(-this->m_rayListener->normal.z))
+			);
+		if (this->m_rayListener->normal.y != 0)
+		{
+			p_setPosition(
+				this->getPosition().x,
+				this->m_rayListener->contactPoint.y + (
+				(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
+					(-this->m_rayListener->normal.y)),
+				this->getPosition().z
+			);
+		}
+	}
+	this->m_rayListener->clear();
+}
+
 void Player::InitTeleport(b3World & world)
 {
 	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
@@ -77,7 +106,6 @@ void Player::Draw()
 	{
 		visSphear->Draw();
 	}
-	
 }
 
 void Player::LockPlayerInput()
@@ -127,9 +155,18 @@ void Player::RegisterThisInstanceToNetwork()
 
 void Player::_handleInput(double deltaTime)
 {
+	if (Input::MouseLock() && !m_kp.unlockMouse)
+	{
+		m_kp.unlockMouse = true;
+		unlockMouse = !unlockMouse;
+	}
+	else if (!Input::MouseLock())
+		m_kp.unlockMouse = false;
+
 	_onSprint();
 	_onMovement();
 	_onCrouch();
+	_onBlink();
 	_onRotate(deltaTime);
 	_onJump();
 	_onTeleport(deltaTime);
@@ -140,6 +177,8 @@ void Player::_onMovement()
 {
 	using namespace DirectX;
 	XMFLOAT4A forward = p_camera->getDirection();
+
+	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
 	//GeT_RiGhT;
@@ -188,7 +227,7 @@ void Player::_onCrouch()
 		if (m_kp.crouching == false)
 		{
 			m_standHeight = this->p_camera->getPosition().y;
-			this->CreateBox(0.5, 0.10, 0.5);
+			this->CreateBox(0.5f, 0.10f, 0.5f);
 			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
 			m_kp.crouching = true;
 		}
@@ -205,11 +244,26 @@ void Player::_onCrouch()
 	}
 }
 
+void Player::_onBlink()
+{
+	if (Input::Blink()) //Phase acts like short range teleport through objects
+	{
+		if (m_kp.blink == false)
+		{
+			this->Phase(10);
+			m_kp.blink = true;
+		}
+	}
+	else
+	{
+		m_kp.blink = false;
+	}
+}
+
 void Player::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
-	{
-		
+	{	
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
 		if (deltaX && !Input::PeekRight())
@@ -217,7 +271,6 @@ void Player::_onRotate(double deltaTime)
 		if (deltaY)
 			p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
 	}
-	
 }
 
 void Player::_onJump()
@@ -241,13 +294,13 @@ void Player::_onCheckVisibility()
 	if (Input::CheckVisability())
 	{
 		DirectX::XMFLOAT4A po = Transform::getPosition();
-		po.y += 1.0f;
+		po.y += 1;
 		DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
 		DirectX::XMVECTOR cm = DirectX::XMLoadFloat4A(&p_camera->getDirection());
 		DirectX::XMStoreFloat4A(&po, DirectX::XMVectorAdd(ve, cm));
 
 		visSphear->setPosition(po);
-		visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1);
+		visSphear->setColor(2.0f * m_visability, 2.0f * m_visability, 2.0f * m_visability, 1);
 	}
 }
 

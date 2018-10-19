@@ -24,7 +24,7 @@ void Input::ForceActivateGamepad()
 
 bool Input::Jump()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		return GamePadHandler::IsAPressed();
 	}
@@ -217,6 +217,61 @@ bool Input::Teleport()
 		}
 	}
 
+	return false;
+}
+
+bool Input::Blink()
+{
+	if (isUsingGamepad())
+	{
+		return GamePadHandler::IsYPressed();
+	}
+	else
+	{
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "Blink")
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::Exit()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "Exit")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::MouseLock()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "UnlockMouse")
+			{
+				return true;
+			}
+		}
+	}
 	return false;
 }
 

@@ -130,13 +130,13 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	GetWindowRect(hwnd, &Rect);
 	MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
 
-	InputHandler::m_windowPos = DirectX::XMFLOAT2(Rect.left, Rect.top);
-	InputHandler::m_viewportPos = DirectX::XMFLOAT2(Rect.left + (!m_windowContext.fullscreen * 8), Rect.top + (!m_windowContext.fullscreen * 31));
+	InputHandler::m_windowPos = DirectX::XMFLOAT2((float)Rect.left, (float)Rect.top);
+	InputHandler::m_viewportPos = DirectX::XMFLOAT2((float)Rect.left + (!m_windowContext.fullscreen * 8.f), (float)Rect.top + (!m_windowContext.fullscreen * 31.f));
 	if (GainedFocus)
 	{
 		SetCursorPos(static_cast<int>(InputHandler::m_viewportPos.x + m_windowContext.clientWidth / 2), static_cast<int>(InputHandler::m_viewportPos.y + m_windowContext.clientHeight / 2));
-		InputHandler::m_mousePos.x = m_windowContext.clientWidth / 2;
-		InputHandler::m_mousePos.y = m_windowContext.clientHeight / 2;
+		InputHandler::m_mousePos.x = m_windowContext.clientWidth / 2.0f;
+		InputHandler::m_mousePos.y = m_windowContext.clientHeight / 2.0f;
 	}
 
 

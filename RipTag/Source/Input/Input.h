@@ -29,8 +29,10 @@ public:
 	static float PeekRight();
 	static bool Sprinting();
 	static bool Teleport();
+	static bool Blink();
 
-
+	static bool Exit();
+	static bool MouseLock();
 
 	static float TurnUp();
 	static float TurnRight();
