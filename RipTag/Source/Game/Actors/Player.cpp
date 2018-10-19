@@ -136,13 +136,6 @@ void Player::SendOnMovementMessage()
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
 }
 
-void Player::RegisterThisInstanceToInput()
-{
-	
-	InputMapping::LoadKeyMapFromFile("..\\Configuration\\KeyMapping.ini");
-	using namespace std::placeholders;
-	
-}
 
 void Player::RegisterThisInstanceToNetwork()
 {

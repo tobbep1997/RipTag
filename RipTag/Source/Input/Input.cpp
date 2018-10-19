@@ -309,23 +309,89 @@ bool Input::isUsingGamepad()
 	return GamePadHandler::IsConnected() && m_deactivate == false;
 }
 
-void Input::ResetMouse()
-{
-	if (InputHandler::getWindowFocus())
-	{
-		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
-		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2);
-
-		SetCursorPos(midX, midY);
-	}
-}
-
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
 std::map<int, std::string> InputMapping::keyMap;
+std::map<int, std::string> InputMapping::devKeyMap;
+bool InputMapping::isInitialized = false;
+
+
+void InputMapping::Init()
+{
+	if (!isInitialized)
+	{
+
+		std::string file = "..\\Configuration\\KeyMapping.ini";
+		const int bufferSize = 1024;
+		char buffer[bufferSize];
+
+			//Load in Keyboard section
+		if (GetPrivateProfileStringA("Keyboard", NULL, NULL, buffer, bufferSize, file.c_str()))
+		{
+			std::vector<std::string> nameList;
+			std::istringstream nameStream;
+			nameStream.str(std::string(buffer, bufferSize));
+		
+			std::string name = "";
+			while (std::getline(nameStream, name, '\0'))
+			{
+				if (name == "")
+					break;
+				nameList.push_back(name);
+			}
+
+			for (size_t i = 0; i < nameList.size(); i++)
+			{
+				int key = -1;
+				key = GetPrivateProfileIntA("Keyboard", nameList[i].c_str(), -1, file.c_str());
+				if (key != -1)
+					InputMapping::addToKeyMap(key, nameList[i]);
+			}
+			//Clear buffer for reuse
+			ZeroMemory(buffer, bufferSize);
+
+		}
+		else
+			std::cout << GetLastError() << std::endl;
+		//Load in Dev section (Keybindings for Dev Tools)
+		if (GetPrivateProfileStringA("Dev", NULL, NULL, buffer, bufferSize, file.c_str()))
+		{
+			std::vector<std::string> nameList;
+			std::istringstream nameStream;
+			nameStream.str(std::string(buffer, bufferSize));
+
+			std::string name = "";
+			while (std::getline(nameStream, name, '\0'))
+			{
+				if (name == "")
+					break;
+				nameList.push_back(name);
+			}
+
+			for (size_t i = 0; i < nameList.size(); i++)
+			{
+				int key = -1;
+				key = GetPrivateProfileIntA("Dev", nameList[i].c_str(), -1, file.c_str());
+				if (key != -1)
+					InputMapping::addToDevKeyMap(key, nameList[i]);
+			}
+			//Clear buffer for reuse
+			ZeroMemory(buffer, bufferSize);
+		}
+		else
+			std::cout << GetLastError() << std::endl;
+
+		isInitialized = true;
+	}
+}
 
 void InputMapping::addToKeyMap(int key, std::string value)
 {
 	keyMap.insert(std::pair<int, std::string>(key, value));
+}
+
+void InputMapping::addToDevKeyMap(int key, std::string value)
+{
+	devKeyMap.insert(std::pair<int, std::string>(key, value));
 }
 
 void InputMapping::addToFuncMap(std::string key, std::function<void()> func)
@@ -333,41 +399,11 @@ void InputMapping::addToFuncMap(std::string key, std::function<void()> func)
 	functionMap.insert(std::pair<std::string, std::function<void()>>(key, func));
 }
 
-void InputMapping::LoadKeyMapFromFile(std::string file)
-{
-	const int bufferSize = 1024;
-	char buffer[bufferSize];
-	if (GetPrivateProfileStringA("Keyboard", NULL, NULL, buffer, bufferSize, file.c_str()))
-	{
-		std::vector<std::string> nameList;
-		std::istringstream nameStream;
-		nameStream.str(std::string(buffer, bufferSize));
-
-		std::string name = "";
-		while (std::getline(nameStream, name, '\0'))
-		{
-			if (name == "")
-				break;
-			nameList.push_back(name);
-		}
-
-		for (size_t i = 0; i < nameList.size(); i++)
-		{
-			int key = -1;
-			key = GetPrivateProfileIntA("Keyboard", nameList[i].c_str(), -1, file.c_str());
-			if (key != -1)
-				InputMapping::addToKeyMap(key, nameList[i]);
-		}
-	}
-	else
-	{
-		std::cout << GetLastError() << std::endl;
-	}
-
-}
-
 void InputMapping::Call()
 {
+	//Reload if we pressed the assigned key
+	_ReloadKeyMapping();
+
 	std::map<int, std::string>::iterator keyIterator = keyMap.begin();
 	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
 	{
@@ -389,3 +425,37 @@ void InputMapping::Call()
 		}
 	}
 }
+
+void InputMapping::_ReloadKeyMapping()
+{
+	std::map<int, std::string>::iterator keyIterator = devKeyMap.begin();
+	for (keyIterator; keyIterator != devKeyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "ReloadKeyMapping")
+			{
+				//clear all of our keymaps
+				keyMap.clear();
+				devKeyMap.clear();
+				//Load them in with Init again
+				isInitialized = false;
+				InputMapping::Init();
+				return;
+			}
+		}
+	}
+}
+
+void Input::ResetMouse()
+{
+	if (InputHandler::getWindowFocus())
+	{
+		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
+		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2);
+
+		SetCursorPos(midX, midY);
+	}
+}
+
+//DEFINITIONS FOR INPUTMAPPING STATICS
