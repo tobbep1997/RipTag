@@ -78,7 +78,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	
 	m_levelHandler.Init(m_world);
-
+	Input::ResetMouse();
 }
 
 PlayState::~PlayState()
@@ -203,6 +203,10 @@ void PlayState::Update(double deltaTime)
 	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
+
+
+	// Must be last in update
+	Input::ResetMouse();
 }
 
 void PlayState::Draw()

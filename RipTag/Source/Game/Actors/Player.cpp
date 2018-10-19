@@ -40,30 +40,7 @@ void Player::Update(double deltaTime)
 		
 	}
 	m_teleport.Update(deltaTime);
-
-
-
-	float cameraOffset = 1.0f;
-	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += cameraOffset;
-	p_camera->setPosition(pos);
-	
-	_onTilt(deltaTime, pos);
-
-	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
-	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
-	p_camera->setPosition(pos);
-
-	if (Input::CheckVisability())
-	{
-		DirectX::XMFLOAT4A po = Transform::getPosition();
-		DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
-		DirectX::XMVECTOR cm = DirectX::XMLoadFloat4A(&p_camera->getDirection());
-		DirectX::XMStoreFloat4A(&po, DirectX::XMVectorAdd(ve, cm));
-
-		visSphear->setPosition(po);
-		visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1);
-	}
+	_cameraPlacement(deltaTime);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -144,17 +121,12 @@ void Player::RegisterThisInstanceToNetwork()
 void Player::_handleInput(double deltaTime)
 {
 	_onSprint();
-
 	_onMovement();
-
 	_onCrouch();
-
 	_onRotate(deltaTime);
-
 	_onJump();
-	
 	_onTeleport(deltaTime);
-	
+	_onCheckVisibility();
 }
 
 void Player::_onMovement()
@@ -196,7 +168,7 @@ void Player::_onSprint()
 		m_moveSpeed = 1.0f;
 	}
 
-	if (crouching)
+	if (m_kp.crouching)
 	{
 		m_moveSpeed = 0.5;
 	}
@@ -206,22 +178,22 @@ void Player::_onCrouch()
 {
 	if (Input::Crouch())
 	{
-		if (crouching == false)
+		if (m_kp.crouching == false)
 		{
 			m_standHeight = this->p_camera->getPosition().y;
 			this->CreateBox(0.5, 0.10, 0.5);
 			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
-			crouching = true;
+			m_kp.crouching = true;
 		}
 	}
 	else
 	{
-		if (crouching)
+		if (m_kp.crouching)
 		{
 			m_standHeight = this->p_camera->getPosition().y;
 			this->CreateBox(0.5, 0.5, 0.5);
 			this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
-			crouching = false;
+			m_kp.crouching = false;
 		}
 	}
 }
@@ -230,57 +202,57 @@ void Player::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
 	{
-		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
-		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2);
-
-		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-
-		float deltaX = ((InputHandler::getWindowSize().x / 2)) - poss.x;
-		float deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
-
-		SetCursorPos(midX, midY);
-
+		
+		float deltaY = Input::TurnUp();
+		float deltaX = Input::TurnRight();
 		if (deltaX && !Input::PeekRight())
-			p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
+			p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
 		if (deltaY)
-			p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
-
+			p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
 	}
+	
 }
 
 void Player::_onJump()
 {
 	if (Input::Jump())
 	{
-		if (isPressed == false)
+		if (m_kp.jump == false)
 		{
 			addForceToCenter(0, 500, 0);
-			isPressed = true;
+			m_kp.jump = true;
 		}
 	}
 	else
 	{
-		isPressed = false;
+		m_kp.jump = false;
+	}
+}
+
+void Player::_onCheckVisibility()
+{
+	if (Input::CheckVisability())
+	{
+		DirectX::XMFLOAT4A po = Transform::getPosition();
+		po.y += 1.0f;
+		DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
+		DirectX::XMVECTOR cm = DirectX::XMLoadFloat4A(&p_camera->getDirection());
+		DirectX::XMStoreFloat4A(&po, DirectX::XMVectorAdd(ve, cm));
+
+		visSphear->setPosition(po);
+		visSphear->setColor(1.0f * m_visability, 1.0f * m_visability, 1.0f * m_visability, 1);
 	}
 }
 
 void Player::_onTeleport(double deltaTime)
 {
-	if (InputHandler::isKeyPressed('T'))
+	if (Input::Teleport())
 	{
-		if (!m_teleport.getActiveSphere())
+		if (!m_teleport.getActiveSphere() && m_kp.teleport == false)
 		{
 			m_teleport.ChargeSphere(deltaTime);
 		}
-	}
-	else if (m_teleport.getCharging())
-	{
-		m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
-		m_teleport.setCharging(false);
-	}
-	if (InputHandler::isKeyPressed('G'))
-	{
-		if (m_teleport.getActiveSphere())
+		else if (m_teleport.getActiveSphere())
 		{
 			DirectX::XMFLOAT4A newPos = m_teleport.TeleportToSphere();
 			setPosition(newPos.x, newPos.y + 0.6f, newPos.z, newPos.w);
@@ -289,29 +261,26 @@ void Player::_onTeleport(double deltaTime)
 			setAwakeState(true);
 		}
 	}
+	else if (m_teleport.getCharging())
+	{
+		m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
+		m_teleport.setCharging(false);
+		m_kp.teleport = true;
+	}
+	else if (!m_teleport.getActiveSphere())
+		m_kp.teleport = false;
 }
 
-void Player::_onTilt(double deltaTime, DirectX::XMFLOAT4A & referencePos)
+void Player::_cameraPlacement(double deltaTime)
 {
-	if (Input::isUsingGamepad())
-		referencePos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	else
-	{
-		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
-		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
-		{
-			if (InputHandler::isKeyPressed(keyIterator->first))
-			{
-				if (keyIterator->second == "TiltRight")
-				{
-					referencePos = p_CameraTilting(deltaTime, -1, getPosition());
-				}
-				else if (keyIterator->second == "TiltLeft")
-				{
-					referencePos = p_CameraTilting(deltaTime, 1, getPosition());
-				}
-			}
-		}
-	}
+	float cameraOffset = 1.0f;
+	DirectX::XMFLOAT4A pos = getPosition();
+	pos.y += cameraOffset;
+	p_camera->setPosition(pos);
+	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
+	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
+	p_camera->setPosition(pos);
 }
+
 

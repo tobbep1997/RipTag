@@ -13,6 +13,12 @@ namespace FUNCTION_STRINGS
 
 }
 
+struct KeyPressed
+{
+	bool jump = false;
+	bool crouching = false;
+	bool teleport = false;
+};
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
@@ -24,9 +30,7 @@ private:
 	float m_standHeight;
 	float m_moveSpeed = 200.0f;
 	float m_cameraSpeed = 1.0f;
-	bool isPressed = false;
-	bool isPressed2 = false;
-	bool crouching = false;
+	KeyPressed m_kp;
 
 	float m_visability = 0.0f;
 
@@ -72,6 +76,7 @@ private:
 	void _onCrouch();
 	void _onRotate(double deltaTime);
 	void _onJump();
+	void _onCheckVisibility();
 	void _onTeleport(double deltaTime);
-	void _onTilt(double deltaTime, _Inout_ DirectX::XMFLOAT4A & referencePos);
+	void _cameraPlacement(double deltaTime);
 };
