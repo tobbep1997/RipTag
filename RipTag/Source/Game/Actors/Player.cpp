@@ -79,7 +79,7 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 void Player::Phase(float searchLength)
 {
 	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
-	if (this->m_rayListener->shape != nullptr)
+	if (this->m_rayListener->type == 1)
 	{
 		p_setPosition(
 			this->m_rayListener->contactPoint.x + (
