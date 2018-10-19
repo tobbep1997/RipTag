@@ -28,23 +28,29 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	
-	Grid grid = Grid(25, 25);
-	std::vector<Node> path;
+	Grid grid = Grid(30, 30);
+	std::vector<Node*> path;
 
 	grid.blockGrid();
 	grid.printGrid();
 
-	path = grid.findPath(Tile(3, 10), Tile(10, 11));
+	path = grid.FindPath(Tile(3, 10), Tile(13, 29));
 
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)
 	{
-		std::cout << "x: " << path.at(i).tile.getX() << " y: " << path.at(i).tile.getY() << std::endl;
+		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
 	}
 	std::cout << std::endl << "Path is finished printing..." << std::endl;
 
 	grid.printGrid();
 	system("pause");
+
+	for (int i = 0; i < path.size(); i++)
+	{
+		delete path.at(i);
+		path.at(i) = nullptr;
+	}
 
 	while (game.isRunning())
 	{

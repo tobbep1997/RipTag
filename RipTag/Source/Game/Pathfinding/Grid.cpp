@@ -11,7 +11,7 @@ Grid::Grid(int _width, int _height)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_nodeMap.push_back(Node(Tile(j, i)));
+			m_tileMap.push_back(Tile(j, i));
 		}
 	}
 }
@@ -20,42 +20,51 @@ Grid::~Grid()
 {
 }
 
-std::vector<Node> Grid::findPath(Tile source, Tile destination)
+std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
-	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
-
-	if (!_isValid(dest))
+	if (!_isValid(destination))
 	{
 		std::cout << "Destination is invalid\n";
-		return std::vector<Node>();
+		return std::vector<Node*>();
 	}
 
+	Tile dest = m_tileMap.at(destination.getX() + destination.getY() * m_width);
 	if (dest.getBlocked())
 	{
 		std::cout << "Destination is blocked\n";
-		return std::vector<Node>();
+		return std::vector<Node*>();
 	}
 
-	std::vector<Node> closedList;
-	std::vector<Node> openList;
+	std::vector<Node*> closedList;
+	std::vector<Node*> openList;
 
-	Node current = Node(source, -1, -1, 0.0f, _calcHValue(source, dest));
+	Node * current = new Node(source, nullptr, 0.0f, _calcHValue(source, dest));
 	openList.push_back(current);
 
 	while (!openList.empty())
 	{
-		std::sort(openList.begin(), openList.end(), [](Node first, Node second) { return first.fCost < second.fCost; });
+		std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
 		current = openList.at(0);
 
-		if (current.tile == dest)
+		if (current->tile == dest)
 		{
 			// Do complete path stuff
-			std::vector<Node> path;
+			std::vector<Node*> path;
 
-			while (current.parent_x != -1)
+			while (current->parent != nullptr)
 			{
-				path.push_back(current);
-				current = m_nodeMap.at(current.parent_x + current.parent_y * m_width);
+				Node * nextPathNode = new Node(current);
+				path.push_back(nextPathNode);
+				current = nextPathNode->parent;
+			}
+
+			for (int i = 0; i < closedList.size(); i++)
+			{
+				delete closedList.at(i);
+			}
+			for (int i = 0; i < openList.size(); i++)
+			{
+				delete openList.at(i);
 			}
 
 			std::reverse(path.begin(), path.end());
@@ -107,7 +116,7 @@ std::vector<Node> Grid::findPath(Tile source, Tile destination)
 		_checkNode(current, 1.414f, 1, 1, dest, openList, closedList);
 	}
 
-	return std::vector<Node>();
+	return std::vector<Node*>();
 }
 
 void Grid::printGrid()
@@ -116,7 +125,7 @@ void Grid::printGrid()
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			std::cout << m_nodeMap.at(j + i * m_width).tile.getBlocked() << " ";
+			std::cout << m_tileMap.at(j + i * m_width).getBlocked() << " ";
 		}
 		std::cout << "\n";
 	}
@@ -124,25 +133,27 @@ void Grid::printGrid()
 
 void Grid::blockGrid()
 {
-	m_nodeMap.at(26).tile.setBlocked(true);
-	m_nodeMap.at(10 + 10 * 25).tile.setBlocked(true);
+	m_tileMap.at(26).setBlocked(true);
+	m_tileMap.at(10 + 10 * 25).setBlocked(true);
 }
 
-void Grid::_checkNode(Node current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node> & openList, std::vector<Node> & closedList)
+void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList, std::vector<Node*> & closedList)
 {
-	int currentX = current.tile.getX();
-	int currentY = current.tile.getY();
+	int currentX = current->tile.getX();
+	int currentY = current->tile.getY();
 	Tile nextTile = Tile(currentX + offsetX, currentY + offsetY);
 	int nextTileIndex = nextTile.getX() + nextTile.getY() * m_width;
 
-	if (_isValid(nextTile) && !m_nodeMap.at(nextTileIndex).tile.getBlocked())
+	if (_isValid(nextTile) && !m_tileMap.at(nextTileIndex).getBlocked())
 	{
-		Node newNode = Node(m_nodeMap.at(nextTileIndex).tile, currentX, currentY, current.gCost + addedGCost, _calcHValue(nextTile, dest));
+		Node * newNode = new Node(m_tileMap.at(nextTileIndex), current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
 		if (_checkAddToClosedList(closedList, newNode))
 		{
 			openList.push_back(newNode);
-			m_nodeMap.at(nextTileIndex).parent_x = currentX;
-			m_nodeMap.at(nextTileIndex).parent_y = currentY;
+		}
+		else
+		{
+			delete newNode;
 		}
 	}
 }
@@ -162,10 +173,10 @@ float Grid::_calcHValue(Tile src, Tile dest) const
 	return std::max(abs(x), abs(y));
 }
 
-bool Grid::_checkAddToClosedList(std::vector<Node>& list, Node checkNode) const
+bool Grid::_checkAddToClosedList(std::vector<Node*>& list, Node * checkNode) const
 {
 	for (int i = 0; i < list.size(); i++)
-		if (list.at(i) == checkNode && list.at(i).fCost < checkNode.fCost)
+		if (*list.at(i) == *checkNode && list.at(i)->fCost <= checkNode->fCost)
 			return false;
 	return true;
 }

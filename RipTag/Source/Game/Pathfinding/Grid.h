@@ -12,53 +12,60 @@
 struct Node
 {
 	Tile tile;
-	int parent_x, parent_y;
+	Node * parent;
 	float fCost, gCost, hCost;
 
 	Node(Tile _tile = Tile())
 	{
 		tile = _tile;
-		parent_x = -1;
-		parent_y = -1;
-		gCost = 1000000.0f;
-		hCost = 1000000.0f;
-		fCost = 1000000.0f;
+		parent = nullptr;
+		gCost = FLT_MAX;
+		hCost = FLT_MAX;
+		fCost = FLT_MAX;
 	}
 
-	Node(int _x, int _y, int _parent_x, int _parent_y, float _gCost, float _hCost)
+	Node(int _x, int _y, Node * _parent, float _gCost, float _hCost)
 	{
 		tile = Tile(_x, _y);
-		parent_x = _parent_x;
-		parent_y = _parent_y;
+		parent = _parent;
 		gCost = _gCost;
 		hCost = _hCost;
 		fCost = gCost + hCost;
 	}
 	
-	Node(Tile _tile, int _parent_x, int _parent_y, float _gCost, float _hCost)
+	Node(Tile _tile, Node * _parent, float _gCost, float _hCost)
 	{
 		tile = _tile;
-		parent_x = _parent_x;
-		parent_y = _parent_y;
+		parent = _parent;
 		gCost = _gCost;
 		hCost = _hCost;
 		fCost = gCost + hCost;
 	}
-	
+
+	Node(Node * node)
+	{
+		tile = node->tile;
+		parent = node->parent;
+		fCost = node->fCost;
+		gCost = node->gCost;
+		hCost = node->hCost;
+	}
+
 	bool operator==(Node & other) const { return tile == other.tile; }
 };
 
 class Grid
 {
 private:
-	std::vector<Node> m_nodeMap;
+	std::vector<Tile> m_tileMap;
+	//std::vector<Node> m_nodeMap;
 	int m_width, m_height;
 
 public:
 	Grid(int _width = 0, int _height = 0);
 	virtual ~Grid();
 
-	std::vector<Node> findPath(Tile src, Tile dest);
+	std::vector<Node*> FindPath(Tile src, Tile dest);
 
 	// Test function
 	void printGrid();
@@ -66,10 +73,10 @@ public:
 	
 private:
 	// Utility functions
-	void _checkNode(Node current, float addedGCost, int offsetX, int offsetY, Tile dest,
-			std::vector<Node> & openList, std::vector<Node> & closedList);
+	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,
+			std::vector<Node*> & openList, std::vector<Node*> & closedList);
 	bool _isValid(Tile tile) const;
 	float _calcHValue(Tile src, Tile dest) const;
-	bool _checkAddToClosedList(std::vector<Node> & list, Node checkNode) const;
+	bool _checkAddToClosedList(std::vector<Node*> & list, Node * checkNode) const;
 	
 };
