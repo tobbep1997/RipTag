@@ -71,6 +71,10 @@ void Enemy::Update(double deltaTime)
 	{
 		_handleInput(deltaTime);
 	}
+	else
+	{
+		_TempGuardPath(true,deltaTime);
+	}
 	
 }
 
@@ -142,3 +146,9 @@ void Enemy::_handleRotation(double deltaTime)
 
 	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
 }
+
+void Enemy::_TempGuardPath(bool x, double deltaTime)
+{
+	p_camera->Rotate(0.0f, .1f * 5 * deltaTime, 0.0f);
+}
+

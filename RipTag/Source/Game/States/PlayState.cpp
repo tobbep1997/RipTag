@@ -7,6 +7,7 @@
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
+
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -58,7 +59,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	light1.setColor(0.8f, 0.6f, 0.4f);
 	light1.setDropOff(1);
 
-	light2.Init(DirectX::XMFLOAT4A(8.4, 5, 14.3, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
+	light2.Init(DirectX::XMFLOAT4A(8.4f, 5.f, 14.3f, 1.f), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
 	light2.CreateShadowDirection(PointLight::XYZ_ALL);
 	light2.setDropOff(1);
 	light2.setColor(0.8f, 0.6f, 0.4f);
@@ -66,9 +67,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
 	gTemp.getCamera()->setFarPlane(5);
+	gTemp.setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	gTemp.setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	enemy->setPosition(0.0f, 0.4f, -5.5f);
 	enemy->setDir(1, 0, 0);
 	enemy->getCamera()->setFarPlane(5);
+	enemy->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	enemy->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
@@ -77,7 +82,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
-	
+
 	
 	m_levelHandler.Init(m_world);
 
@@ -99,11 +104,13 @@ PlayState::~PlayState()
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
-
 }
 
 void PlayState::Update(double deltaTime)
 {
+	if (InputHandler::getShowCursor() != FALSE)
+		InputHandler::setShowCursor(FALSE);
+
 	light1.setIntensity(light1.TourchEffect(deltaTime, 25, 1.5f));
 	light2.setIntensity(light2.TourchEffect(deltaTime, 25, 1.5f));
 
@@ -127,23 +134,13 @@ void PlayState::Update(double deltaTime)
 	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
 	ImGui::End();
 
-	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin("Player Visibility");                          
 	ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
 	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);
 	ImGui::End();
 
 #endif
 
-	if (!unlockMouse)
-	{
-
-	
-	}
-
-	
-
-
-	//light2.setIntensity(light2.TourchEffect(deltaTime, 7, 2));
 
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
@@ -173,7 +170,7 @@ void PlayState::Update(double deltaTime)
 		//player->CreateBox(1.0f, 1.0f, 1.0f);
 	}
 
-	player->SetCurrentVisability(e2Vis[0] / 5000.0f);
+	player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Vis[0] / 5000));
 	player->Update(deltaTime);
 	enemy->Update(deltaTime);
 	actor->Update(deltaTime);
@@ -203,6 +200,12 @@ void PlayState::Update(double deltaTime)
 	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
+
+	if (InputHandler::isKeyPressed(InputHandler::Esc))
+	{
+		setKillState(true);
+	}
+
 }
 
 void PlayState::Draw()
@@ -223,6 +226,7 @@ void PlayState::Draw()
 
 	model->Draw();
 	
+
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 

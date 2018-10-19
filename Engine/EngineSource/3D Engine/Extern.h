@@ -17,6 +17,7 @@ namespace Shaders
 
 class Drawable;
 class VisibilityComponent;
+class Quad;
 
 namespace DX {
 	extern ID3D11Device*			g_device;
@@ -31,6 +32,8 @@ namespace DX {
 
 	extern std::vector<PointLight*> g_lights;
 	extern std::vector<VisibilityComponent*> g_visibilityComponentQueue;
+
+	extern std::vector<Quad*> g_2DQueue;
 
 }
 namespace Manager
