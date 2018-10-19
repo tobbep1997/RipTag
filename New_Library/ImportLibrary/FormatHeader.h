@@ -7,6 +7,28 @@
 namespace MyLibrary
 {
 #pragma region OriginalMyLibraryStructs
+
+	
+	struct startingPos
+	{
+		float startingPos[3];
+	};
+	struct GuardStartingPositions {
+		int nrOf;
+		startingPos *startingPositions;
+	};
+	struct pointLight
+	{
+		float translate[3];
+		float color[3];
+		float intensity;
+	};
+	struct PointLights
+	{
+		int nrOf;
+		pointLight *lights;
+	};
+
 	struct Vertex
 	{
 		 float vertex_position[3];

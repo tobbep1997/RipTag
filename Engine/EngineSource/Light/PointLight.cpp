@@ -8,7 +8,19 @@ PointLight::PointLight()
 	m_farPlane = 50.0f;
 	
 }
-
+PointLight::PointLight(float * translation, float * color, float intensity)
+{
+	m_nearPlane = 1.0f;
+	m_farPlane = 20.0f;
+	this->m_position = DirectX::XMFLOAT4A(translation[0], translation[1], translation[2], 1);
+	this->m_color = DirectX::XMFLOAT4A(color[0], color[1], color[2], 1.0);
+	this->m_dropOff = 1.0f;
+	this->m_intensity = intensity;
+	this->m_pow = 2.0f;
+	_createSides();
+	CreateShadowDirection(PointLight::XYZ_ALL);
+	this->m_dropOff = .5f;
+}
 
 PointLight::~PointLight()
 {
@@ -52,7 +64,7 @@ void PointLight::Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, flo
 {
 	this->m_position = position;
 	this->m_color = color;
-	this->m_dropOff = 1.0f - power;
+	this->m_dropOff = 1.0f;
 	this->m_intensity = 1.0f;
 	this->m_pow = 2.0f;
 	//_createSides();

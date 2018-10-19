@@ -6,6 +6,18 @@ Enemy::Enemy() : Actor(), CameraHolder()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
+
+}
+
+Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
+{
+	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
+	m_vc.Init(this->p_camera);
+	this->setPosition(startPosX, startPosY, startPosZ);
+	this->setDir(1, 0, 0);
+	this->getCamera()->setFarPlane(5);
+	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 }
 
 
