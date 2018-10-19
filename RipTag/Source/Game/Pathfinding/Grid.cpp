@@ -11,7 +11,6 @@ Grid::Grid(int _width, int _height)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			//m_tileGrid.push_back(Tile(j, i));
 			m_nodeMap.push_back(Node(Tile(j, i)));
 		}
 	}
@@ -126,7 +125,7 @@ void Grid::printGrid()
 void Grid::blockGrid()
 {
 	m_nodeMap.at(26).tile.setBlocked(true);
-	m_nodeMap.at(260).tile.setBlocked(true);
+	m_nodeMap.at(10 + 10 * 25).tile.setBlocked(true);
 }
 
 void Grid::_checkNode(Node current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node> & openList, std::vector<Node> & closedList)
@@ -163,9 +162,6 @@ float Grid::_calcHValue(Tile src, Tile dest) const
 	return std::max(abs(x), abs(y));
 }
 
-/*---------------------------------------------
-	Check if the fCost logic works as supposed
----------------------------------------------*/
 bool Grid::_checkAddToClosedList(std::vector<Node>& list, Node checkNode) const
 {
 	for (int i = 0; i < list.size(); i++)

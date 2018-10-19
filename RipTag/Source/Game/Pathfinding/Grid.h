@@ -51,7 +51,6 @@ struct Node
 class Grid
 {
 private:
-	//std::vector<Tile> m_tileGrid;
 	std::vector<Node> m_nodeMap;
 	int m_width, m_height;
 
