@@ -39,14 +39,17 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
-
 	m_teleport.Update(deltaTime);
+
+
 
 	float cameraOffset = 1.0f;
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
-	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	
+	_onTilt(deltaTime, pos);
+
 	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
@@ -148,25 +151,100 @@ void Player::RegisterThisInstanceToNetwork()
 
 void Player::_handleInput(double deltaTime)
 {
-	using namespace DirectX;
+	_onSprint();
 
+	_onMovement();
+
+	_onCrouch();
+
+	_onRotate(deltaTime);
+
+	_onJump();
+	
+	_onTeleport(deltaTime);
+	
+}
+
+void Player::_onMovement()
+{
+	using namespace DirectX;
+	XMFLOAT4A forward = p_camera->getDirection();
+	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
+	XMFLOAT4 RIGHT;
+	//GeT_RiGhT;
+
+	XMVECTOR vForward = XMLoadFloat4A(&forward);
+	XMVECTOR vUP = XMLoadFloat4(&UP);
+	XMVECTOR vRight;
+
+	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
+	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
+
+	XMStoreFloat4A(&forward, vForward);
+	XMStoreFloat4(&RIGHT, vRight);
+	float x = 0;
+	float z = 0;
+
+	if (Input::isUsingGamepad())
+	{
+		x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
+		x += Input::MoveForward() * m_moveSpeed * forward.x;
+		z = Input::MoveForward() * m_moveSpeed * forward.z;
+		z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	}
+	else
+	{
+		std::map<char, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "MoveRight")
+				{
+					x += m_moveSpeed  * RIGHT.x;
+					z += m_moveSpeed * RIGHT.z;
+				}
+				else if (keyIterator->second == "MoveLeft")
+				{
+					x +=  -1.0f * m_moveSpeed * RIGHT.x;
+					z += -1.0f * m_moveSpeed * RIGHT.z;
+				}
+				else if (keyIterator->second == "MoveForward")
+				{
+					x += m_moveSpeed * forward.x;
+					z += m_moveSpeed * forward.z;
+				}
+				else if (keyIterator->second == "MoveBackward")
+				{
+					x += -1.0f * m_moveSpeed * forward.x;
+					z += -1.0f * m_moveSpeed * forward.z;
+				}
+			}
+		}
+	}
+	setLiniearVelocity(x, getLiniearVelocity().y, z);
+}
+
+void Player::_onSprint()
+{
 	if (GamePadHandler::IsLeftStickPressed())
 	{
 		m_moveSpeed = 1.0f;
 	}
 	else
 	{
-		m_moveSpeed = 200.0f * deltaTime;
+		m_moveSpeed = 1.0f;
 	}
 
 	if (crouching)
 	{
 		m_moveSpeed = 0.5;
 	}
+}
 
-	_onMovement();
-
-	if (Input::MoveForward() != 0)
+void Player::_onCrouch()
+{
+	if (Input::Crouch())
 	{
 		if (crouching == false)
 		{
@@ -186,8 +264,10 @@ void Player::_handleInput(double deltaTime)
 			crouching = false;
 		}
 	}
+}
 
-
+void Player::_onRotate(double deltaTime)
+{
 	if (!unlockMouse)
 	{
 		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
@@ -197,16 +277,19 @@ void Player::_handleInput(double deltaTime)
 
 		float deltaX = ((InputHandler::getWindowSize().x / 2)) - poss.x;
 		float deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
-		
+
 		SetCursorPos(midX, midY);
-		
+
 		if (deltaX && !Input::PeekRight())
 			p_camera->Rotate(0.0f, (deltaX*-1 / 10.0f) * 1 * deltaTime, 0.0f);
 		if (deltaY)
 			p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);
 
 	}
-	
+}
+
+void Player::_onJump()
+{
 	if (Input::Jump())
 	{
 		if (isPressed == false)
@@ -219,7 +302,10 @@ void Player::_handleInput(double deltaTime)
 	{
 		isPressed = false;
 	}
+}
 
+void Player::_onTeleport(double deltaTime)
+{
 	if (InputHandler::isKeyPressed('T'))
 	{
 		if (!m_teleport.getActiveSphere())
@@ -245,27 +331,27 @@ void Player::_handleInput(double deltaTime)
 	}
 }
 
-void Player::_onMovement()
+void Player::_onTilt(double deltaTime, DirectX::XMFLOAT4A & referencePos)
 {
-	using namespace DirectX;
-	XMFLOAT4A forward = p_camera->getDirection();
-	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
-	XMFLOAT4 RIGHT;
-	//GeT_RiGhT;
-
-	XMVECTOR vForward = XMLoadFloat4A(&forward);
-	XMVECTOR vUP = XMLoadFloat4(&UP);
-	XMVECTOR vRight;
-
-	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
-	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
-
-	XMStoreFloat4A(&forward, vForward);
-	XMStoreFloat4(&RIGHT, vRight);
-	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	float z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
-	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	if (Input::isUsingGamepad())
+		referencePos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	else
+	{
+		std::map<char, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "TiltRight")
+				{
+					referencePos = p_CameraTilting(deltaTime, -1, getPosition());
+				}
+				else if (keyIterator->second == "TiltLeft")
+				{
+					referencePos = p_CameraTilting(deltaTime, 1, getPosition());
+				}
+			}
+		}
+	}
 }
 

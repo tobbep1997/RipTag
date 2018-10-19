@@ -69,4 +69,10 @@ public:
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
+	void _onSprint();
+	void _onCrouch();
+	void _onRotate(double deltaTime);
+	void _onJump();
+	void _onTeleport(double deltaTime);
+	void _onTilt(double deltaTime, _Inout_ DirectX::XMFLOAT4A & referencePos);
 };

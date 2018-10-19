@@ -31,12 +31,13 @@ public:
 
 	static float TurnUp();
 	static float TurnRight();
+
+	static bool isUsingGamepad();
 };
 
 class InputMapping
 {
 public:
-	
 	static std::map<std::string, std::function<void()>> functionMap;
 	static std::map<char, std::string> keyMap;
 

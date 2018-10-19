@@ -144,7 +144,7 @@ float Input::PeekRight()
 
 float Input::TurnUp()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		return GamePadHandler::GetRightStickYPosition();
 	}
@@ -182,6 +182,11 @@ float Input::TurnRight()
 	return 0;
 }
 
+bool Input::isUsingGamepad()
+{
+	return GamePadHandler::IsConnected() && m_deactivate == false;
+}
+
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
 std::map<char, std::string> InputMapping::keyMap;
 
@@ -199,7 +204,6 @@ void InputMapping::LoadKeyMapFromFile(std::string file)
 {
 	const int bufferSize = 1024;
 	char buffer[bufferSize];
-
 	if (GetPrivateProfileStringA("Keyboard", NULL, NULL, buffer, bufferSize, file.c_str()))
 	{
 		std::vector<std::string> nameList;
@@ -213,7 +217,6 @@ void InputMapping::LoadKeyMapFromFile(std::string file)
 				break;
 			nameList.push_back(name);
 		}
-
 
 		for (size_t i = 0; i < nameList.size(); i++)
 		{
