@@ -61,11 +61,14 @@ void Render2D::GUIPass()
 		std::wstring wstring = std::wstring(
 			DX::g_2DQueue[j]->getString().begin(),
 			DX::g_2DQueue[j]->getString().end());
-
+		
 		DirectX::XMVECTOR pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * 1280) + ((DX::g_2DQueue[j]->getSize().x / 4.0f) * 1280),
-			((1.0f - DX::g_2DQueue[j]->getPosition().y) * 720) - ((DX::g_2DQueue[j]->getSize().y / 4.0f) * 720)
+			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * 1280) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * 1280),
+			((1.0f - DX::g_2DQueue[j]->getPosition().y) * 720) - ((DX::g_2DQueue[j]->getSize().y / 2.0f) * 720)
 			));
+
+		pos = DirectX::XMLoadFloat2A(
+			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * 1280, (1.0f -DX::g_2DQueue[j]->getPosition().y) * 720));
 
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 

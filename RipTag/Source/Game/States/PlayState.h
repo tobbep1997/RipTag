@@ -29,7 +29,6 @@ private:
 	Enemy * enemy;
 	b3World m_world;
 
-	Quad * quad;
 	
 	BaseActor * actor;
 

@@ -1,6 +1,6 @@
 #include "Quad.h"
 #include "EngineSource/3D Engine/Extern.h"
-
+#include "InputManager/InputHandler.h"
 
 void Quad::p_createBuffer()
 {
@@ -62,14 +62,22 @@ void Quad::Release()
 	DX::SafeRelease(m_vertexBuffer);
 }
 
-void Quad::setTexture(Texture * texture)
+void Quad::setPressedTexture(Texture * texture)
 {
-	this->m_texture = texture;
+	this->m_pressedTexture = texture;
+}
+
+void Quad::setUnpressedTexture(Texture * texture)
+{
+	this->m_unpressedTexture = texture;
 }
 
 void Quad::MapTexture()
 {
-	this->m_texture->Bind(1);
+	if (this->m_isPressed)
+		this->m_pressedTexture->Bind(1);
+	else
+		this->m_unpressedTexture->Bind(1);
 }
 
 void Quad::setPosition(const float & x, const float & y)
@@ -80,8 +88,8 @@ void Quad::setPosition(const float & x, const float & y)
 void Quad::setPosition(const DirectX::XMFLOAT2A & position)
 {
 	Transform2D::setPosition(position);
-	quadVertex[0].position.x = (position.x * 2) - 1;
-	quadVertex[0].position.y = (position.y * 2) - 1;
+	quadVertex[0].position.x = ((position.x * 2) - 1) - (this->getSize().x / 2.0f);
+	quadVertex[0].position.y = ((position.y * 2) - 1) - (this->getSize().y / 2.0f);
 
 	quadVertex[1].position.x = quadVertex[0].position.x;
 	quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
@@ -103,6 +111,9 @@ void Quad::setScale(const float & x, const float & y)
 void Quad::setScale(const DirectX::XMFLOAT2A & size)
 {
 	Transform2D::setScale(size);
+
+	quadVertex[0].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x / 2.0f);
+	quadVertex[0].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y / 2.0f);
 
 	quadVertex[1].position.x = quadVertex[0].position.x;
 	quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
@@ -149,4 +160,13 @@ const DirectX::XMFLOAT4A & Quad::getTextColor() const
 ID3D11Buffer * Quad::getVertexBuffer() const
 {
 	return m_vertexBuffer;
+}
+
+const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
+{
+	if (InputHandler::isMLeftPressed(true))
+		this->m_isPressed = Button::Inside(mousepos);
+	else
+		this->m_isPressed = false;
+	return this->m_isPressed;
 }

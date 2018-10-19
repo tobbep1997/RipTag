@@ -19,7 +19,10 @@ private:
 	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 
 	ID3D11Buffer * m_vertexBuffer;
-	Texture * m_texture;
+
+	bool m_isPressed = false;
+	Texture * m_unpressedTexture;
+	Texture * m_pressedTexture;
 
 	DirectX::SpriteFont * m_spriteFont;
 	std::string m_string;
@@ -37,7 +40,8 @@ public:
 	
 	void Release();
 
-	void setTexture(Texture * texture);
+	void setPressedTexture(Texture * texture);
+	void setUnpressedTexture(Texture * texture);
 	void MapTexture();
 	
 	void setPosition(const float & x, const float & y) override;
@@ -56,5 +60,7 @@ public:
 	const DirectX::XMFLOAT4A & getTextColor() const;
 
 	ID3D11Buffer * getVertexBuffer() const;
+
+	const bool isPressed(const DirectX::XMFLOAT2 & mousePos);
 };
 

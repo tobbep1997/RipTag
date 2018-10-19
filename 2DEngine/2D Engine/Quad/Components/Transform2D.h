@@ -2,11 +2,6 @@
 #include <DirectXMath.h>
 class Transform2D
 {
-public:
-	struct Transform2DBuffer
-	{
-		DirectX::XMFLOAT4X4A worldMatrix;
-	};
 private:
 	DirectX::XMFLOAT2A m_position;
 	DirectX::XMFLOAT2A m_size;

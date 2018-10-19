@@ -8,6 +8,6 @@ public:
 	Button(Transform2D * transform2D);
 	~Button();
 
-	const bool Inside(const DirectX::XMFLOAT2 & mousePos) const;
+	virtual const bool Inside(const DirectX::XMFLOAT2 & mousePos);
 };
 
