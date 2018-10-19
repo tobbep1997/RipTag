@@ -147,6 +147,7 @@ void ForwardRender::AnimatedGeometryPass()
 void ForwardRender::Flush(Camera & camera)
 {
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
 	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
