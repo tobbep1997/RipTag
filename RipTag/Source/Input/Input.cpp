@@ -60,39 +60,49 @@ bool Input::CheckVisability()
 
 bool Input::Crouch()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		return GamePadHandler::IsRightStickPressed();
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed('C'))
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
-			return true;
-		}
-		else
-		{
-			return false;
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "Crouch")
+				{
+					return true;
+				}
+			}
 		}
 	}
-	return 0;
+	return false;
 }
 
 float Input::MoveForward()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		return GamePadHandler::GetLeftStickYPosition();
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed('W'))
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
-			return 1;
-		}
-		else if (InputHandler::isKeyPressed('S'))
-		{
-			return -1;
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "MoveForward")
+				{
+					return 1;
+				}
+				else if (keyIterator->second == "MoveBackward")
+				{
+					return -1;
+				}
+			}
 		}
 	}
 	return 0;
@@ -100,19 +110,26 @@ float Input::MoveForward()
 
 float Input::MoveRight()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		return GamePadHandler::GetLeftStickXPosition();
 	}
 	else
 	{
-		if (InputHandler::isKeyPressed('D'))
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
-			return 1;
-		}
-		else if (InputHandler::isKeyPressed('A'))
-		{
-			return -1;
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "MoveRight")
+				{
+					return 1;
+				}
+				else if (keyIterator->second == "MoveLeft")
+				{
+					return -1;
+				}
+			}
 		}
 	}
 	return 0;
@@ -120,7 +137,7 @@ float Input::MoveRight()
 
 float Input::PeekRight()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		float delta = 0.0f;
 
@@ -140,6 +157,27 @@ float Input::PeekRight()
 		}
 	}
 	return 0;
+}
+
+bool Input::Sprinting()
+{
+	if (isUsingGamepad())
+		return GamePadHandler::IsLeftStickPressed();
+	else
+	{
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "Sprint")
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 float Input::TurnUp()
@@ -164,7 +202,7 @@ float Input::TurnUp()
 
 float Input::TurnRight()
 {
-	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	if (isUsingGamepad())
 	{
 		return GamePadHandler::GetRightStickXPosition();
 	}
@@ -188,11 +226,11 @@ bool Input::isUsingGamepad()
 }
 
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
-std::map<char, std::string> InputMapping::keyMap;
+std::map<int, std::string> InputMapping::keyMap;
 
-void InputMapping::addToKeyMap(char key, std::string value)
+void InputMapping::addToKeyMap(int key, std::string value)
 {
-	keyMap.insert(std::pair<char, std::string>(key, value));
+	keyMap.insert(std::pair<int, std::string>(key, value));
 }
 
 void InputMapping::addToFuncMap(std::string key, std::function<void()> func)
@@ -220,8 +258,8 @@ void InputMapping::LoadKeyMapFromFile(std::string file)
 
 		for (size_t i = 0; i < nameList.size(); i++)
 		{
-			char key = ' ';
-			key = (char)GetPrivateProfileIntA("Keyboard", nameList[i].c_str(), -1, file.c_str());
+			int key = -1;
+			key = GetPrivateProfileIntA("Keyboard", nameList[i].c_str(), -1, file.c_str());
 			if (key != -1)
 				InputMapping::addToKeyMap(key, nameList[i]);
 		}
@@ -237,7 +275,7 @@ void InputMapping::LoadKeyMapFromFile(std::string file)
 
 void InputMapping::Call()
 {
-	std::map<char, std::string>::iterator keyIterator = keyMap.begin();
+	std::map<int, std::string>::iterator keyIterator = keyMap.begin();
 	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
 	{
 		if (InputHandler::isKeyPressed(keyIterator->first))

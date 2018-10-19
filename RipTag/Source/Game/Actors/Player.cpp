@@ -185,51 +185,19 @@ void Player::_onMovement()
 	float x = 0;
 	float z = 0;
 
-	if (Input::isUsingGamepad())
-	{
-		x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-		x += Input::MoveForward() * m_moveSpeed * forward.x;
-		z = Input::MoveForward() * m_moveSpeed * forward.z;
-		z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
-	}
-	else
-	{
-		std::map<char, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
-		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
-		{
-			if (InputHandler::isKeyPressed(keyIterator->first))
-			{
-				if (keyIterator->second == "MoveRight")
-				{
-					x += m_moveSpeed  * RIGHT.x;
-					z += m_moveSpeed * RIGHT.z;
-				}
-				else if (keyIterator->second == "MoveLeft")
-				{
-					x +=  -1.0f * m_moveSpeed * RIGHT.x;
-					z += -1.0f * m_moveSpeed * RIGHT.z;
-				}
-				else if (keyIterator->second == "MoveForward")
-				{
-					x += m_moveSpeed * forward.x;
-					z += m_moveSpeed * forward.z;
-				}
-				else if (keyIterator->second == "MoveBackward")
-				{
-					x += -1.0f * m_moveSpeed * forward.x;
-					z += -1.0f * m_moveSpeed * forward.z;
-				}
-			}
-		}
-	}
+	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
+	x += Input::MoveForward() * m_moveSpeed * forward.x;
+	z = Input::MoveForward() * m_moveSpeed * forward.z;
+	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
 void Player::_onSprint()
 {
-	if (GamePadHandler::IsLeftStickPressed())
+	if (Input::Sprinting())
 	{
-		m_moveSpeed = 1.0f;
+		m_moveSpeed = 2.0f;
 	}
 	else
 	{
@@ -337,7 +305,7 @@ void Player::_onTilt(double deltaTime, DirectX::XMFLOAT4A & referencePos)
 		referencePos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
 	else
 	{
-		std::map<char, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
 			if (InputHandler::isKeyPressed(keyIterator->first))

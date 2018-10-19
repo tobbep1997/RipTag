@@ -27,6 +27,7 @@ public:
 	static float MoveForward();
 	static float MoveRight();
 	static float PeekRight();
+	static bool Sprinting();
 
 
 	static float TurnUp();
@@ -39,9 +40,9 @@ class InputMapping
 {
 public:
 	static std::map<std::string, std::function<void()>> functionMap;
-	static std::map<char, std::string> keyMap;
+	static std::map<int, std::string> keyMap;
 
-	static void addToKeyMap(char key, std::string value);
+	static void addToKeyMap(int key, std::string value);
 	static void addToFuncMap(std::string key, std::function<void()> func);
 	static void LoadKeyMapFromFile(std::string file);
 
