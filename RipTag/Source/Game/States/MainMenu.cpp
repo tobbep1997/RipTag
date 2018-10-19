@@ -45,10 +45,10 @@ void MainMenu::Update(double deltaTime)
 	if (InputHandler::getShowCursor() != TRUE)
 		InputHandler::setShowCursor(TRUE);
 
-	if (playButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / 1280, InputHandler::getMousePosition().y / 720)))
+	if (playButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / 1920, InputHandler::getMousePosition().y / 1080)))
 		pushNewState(new PlayState(this->p_renderingManager));
 
-	if (quitButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / 1280, InputHandler::getMousePosition().y / 720)))
+	if (quitButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / 1920, InputHandler::getMousePosition().y / 1080)))
 		PostQuitMessage(0);
 	
 }

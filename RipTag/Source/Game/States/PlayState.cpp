@@ -96,17 +96,7 @@ void PlayState::Update(double deltaTime)
 
 
 #if _DEBUG
-	ImGui::Begin("Light");                         
-	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
-	ImGui::End();
-
-	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
-	/*ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
-	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);*/
-	ImGui::End();
-
 	TemporaryLobby();
-
 #endif
 	   
 	//light2.setIntensity(intensity);

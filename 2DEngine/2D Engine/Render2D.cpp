@@ -1,6 +1,7 @@
 #include "Render2D.h"
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/Shader/ShaderManager.h"
+
 Render2D::Render2D()
 {
 }
@@ -64,12 +65,12 @@ void Render2D::GUIPass()
 			DX::g_2DQueue[j]->getString().end());
 
 		DirectX::XMVECTOR pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * 1280) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * 1280),
+			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * 1920) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * 1920),
 			((1.0f - DX::g_2DQueue[j]->getPosition().y) * 720) - ((DX::g_2DQueue[j]->getSize().y / 2.0f) * 720)
 			));
 
 		pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * 1280, (1.0f - DX::g_2DQueue[j]->getPosition().y) * 720));
+			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * 1920, (1.0f - DX::g_2DQueue[j]->getPosition().y) * 1080));
 
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 
