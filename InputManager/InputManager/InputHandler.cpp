@@ -144,7 +144,10 @@ DirectX::XMFLOAT2 InputHandler::getMousePosition()
 void InputHandler::setShowCursor(BOOL b)
 {
 	m_showCursor = b;
-	ShowCursor(b);
+	if (b)
+		while (ShowCursor(b) <= 0) {}
+	else
+		while (ShowCursor(b) >= 0) {}
 }
 
 BOOL InputHandler::getShowCursor()
