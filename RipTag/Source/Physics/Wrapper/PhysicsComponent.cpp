@@ -1,6 +1,7 @@
 #include "PhysicsComponent.h"
 #include <iostream>
 #include "EngineSource/3D Engine/RenderingManager.h"
+#pragma warning (disable : 4312)
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
@@ -9,22 +10,17 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().translation.z);
 
 	b3Mat33 mat = m_body->GetTransform().rotation;
-	//b3Quaternion q = m_body->GetQuaternion();
-	//mat = b3Transpose(mat);
-
 	transform->setPhysicsRotation(mat);
 	
 }
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
-	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
-	
+	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
 }
 
 void PhysicsComponent::p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll)
 {
-	//DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
 	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
 
 	float xx = DirectX::XMVectorGetX(t);
