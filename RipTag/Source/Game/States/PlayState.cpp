@@ -118,7 +118,7 @@ void PlayState::Update(double deltaTime)
 		Input::ForceActivateGamepad();
 	}
 
-	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Vis[0] / 5000));
+	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	player->Update(deltaTime);
 
 	m_objectHandler.Update();
