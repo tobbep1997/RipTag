@@ -39,6 +39,8 @@ private:
 	void p_createBuffer();
 	void p_setStaticQuadVertex();
 
+	bool m_preState = false;
+	bool m_currentState = false;
 
 public:
 	Quad();
@@ -72,6 +74,7 @@ public:
 	ID3D11Buffer * getVertexBuffer() const;
 
 	const bool isPressed(const DirectX::XMFLOAT2 & mousePos);
+	const bool isReleased(const DirectX::XMFLOAT2 & mousePos);
 	
 };
 

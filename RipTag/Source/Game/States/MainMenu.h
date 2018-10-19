@@ -6,10 +6,9 @@
 class MainMenu : public State
 {
 private:
-	bool m_playPrev;
-	bool m_playCurrent;
-private:
 	Quad * playButton;
+	Quad * quitButton;
+
 
 public:
 	MainMenu(RenderingManager * rm);
