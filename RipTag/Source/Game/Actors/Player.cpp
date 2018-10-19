@@ -8,6 +8,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
+	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 	
 	visSphear = new Drawable();
@@ -21,6 +22,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 
 Player::~Player()
 {	
+	delete this->m_rayListener;
 	delete visSphear;
 }
 
@@ -74,6 +76,34 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+void Player::Phase(float searchLength)
+{
+	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
+	if (this->m_rayListener->type == 1)
+	{
+		p_setPosition(
+			this->m_rayListener->contactPoint.x + (
+				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
+				(-this->m_rayListener->normal.x)), 
+			this->getPosition().y,
+			this->m_rayListener->contactPoint.z + (
+				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
+				(-this->m_rayListener->normal.z))
+			);
+		if (this->m_rayListener->normal.y != 0)
+		{
+			p_setPosition(
+				this->getPosition().x,
+				this->m_rayListener->contactPoint.y + (
+				(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
+					(-this->m_rayListener->normal.y)),
+				this->getPosition().z
+			);
+		}
+	}
+	this->m_rayListener->clear();
+}
+
 void Player::InitTeleport(b3World & world)
 {
 	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
@@ -121,6 +151,8 @@ void Player::_handleInput(double deltaTime)
 	using namespace DirectX;
 
 	XMFLOAT4A forward = p_camera->getDirection();
+
+	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
 	//GeT_RiGhT;
@@ -169,15 +201,6 @@ void Player::_handleInput(double deltaTime)
 		}
 	}
 
-
-	/*DirectX::XMFLOAT4A camPos = p_camera->getPosition();
-		if (crouchAnim.getSteps() != 1)
-		{
-			DirectX::XMFLOAT4A standPos = p_camera->getPosition();
-			standPos.y = p_camera->getPosition().y + (this->standHeight - p_camera->getPosition().y);
-			collectedPos = XMVectorAdd(collectedPos, XMLoadFloat4A(&crouchAnim.lerp(&this->standPos, &camPos, float(deltaTime * 5))));
-			collectedPos = XMVectorSubtract(collectedPos, XMLoadFloat4A(&camPos));
-		}*/
 	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
 
@@ -232,7 +255,18 @@ void Player::_handleInput(double deltaTime)
 		isPressed = false;
 	}
 
-	//std::cout << x << "\n";
+	if (InputHandler::isMLeftPressed(false)) //Phase acts like short range teleport through objects
+	{
+		if (isPhaseKeyPressed == false)
+		{
+			this->Phase(10);
+			isPhaseKeyPressed = true;
+		}
+	}
+	else
+	{
+		isPhaseKeyPressed = false;
+	}
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 

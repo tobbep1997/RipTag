@@ -97,7 +97,8 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		s->shape = p;
 		s->density = 1.0f;
 		s->restitution = 0;
-		s->friction = 0;	
+		s->friction = 0;
+		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
 		m_shapeDefs.push_back(s);
 	}
 
@@ -109,6 +110,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
 			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
 		
+		b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
 		m_bodys.push_back(b);
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
 	}
@@ -251,6 +253,11 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
+}
+
+b3Body* PhysicsComponent::getBody()
+{
+	return this->m_body;
 }
 
 void PhysicsComponent::setAwakeState(const bool& awa)
