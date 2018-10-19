@@ -119,7 +119,7 @@ void Grid::printGrid()
 		{
 			std::cout << m_nodeMap.at(j + i * m_width).tile.getBlocked() << " ";
 		}
-		std::cout << std::endl;
+		std::cout << "\n";
 	}
 }
 
@@ -135,6 +135,7 @@ void Grid::_checkNode(Node current, float addedGCost, int offsetX, int offsetY, 
 	int currentY = current.tile.getY();
 	Tile nextTile = Tile(currentX + offsetX, currentY + offsetY);
 	int nextTileIndex = nextTile.getX() + nextTile.getY() * m_width;
+
 	if (_isValid(nextTile) && !m_nodeMap.at(nextTileIndex).tile.getBlocked())
 	{
 		Node newNode = Node(m_nodeMap.at(nextTileIndex).tile, currentX, currentY, current.gCost + addedGCost, _calcHValue(nextTile, dest));
@@ -159,7 +160,7 @@ float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = src.getX() - dest.getX();
 	int y = src.getY() - dest.getY();
-	return (float)sqrt((x * x) + (y * y));
+	return std::max(abs(x), abs(y));
 }
 
 /*---------------------------------------------
