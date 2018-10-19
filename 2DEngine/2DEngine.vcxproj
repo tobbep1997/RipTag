@@ -166,6 +166,7 @@
     <ClCompile Include="2D Engine\Quad\Components\Transform2D.cpp" />
     <ClCompile Include="2D Engine\Quad\Quad.cpp" />
     <ClCompile Include="2D Engine\Render2D.cpp" />
+    <ClCompile Include="2D Engine\Cursor\Cursor.cpp" />
     <ClCompile Include="Fonts\FontHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +190,7 @@
     <ClInclude Include="2D Engine\Quad\Components\Transform2D.h" />
     <ClInclude Include="2D Engine\Quad\Quad.h" />
     <ClInclude Include="2D Engine\Render2D.h" />
+    <ClInclude Include="2D Engine\Cursor\Cursor.h" />
     <ClInclude Include="Fonts\FontHandler.h" />
   </ItemGroup>
   <ItemGroup>

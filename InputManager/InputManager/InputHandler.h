@@ -23,6 +23,8 @@ private:
 	InputHandler();
 	~InputHandler();
 
+	static BOOL m_showCursor;
+
 public:
 
 	//A singelton, only one instance
@@ -43,6 +45,9 @@ public:
 	static DirectX::XMFLOAT2 getviewportPos();
 
 	static bool getWindowFocus();
+
+	static void setShowCursor(BOOL b);
+	static BOOL getShowCursor();
 	enum Key
 	{
 		Del = 46,

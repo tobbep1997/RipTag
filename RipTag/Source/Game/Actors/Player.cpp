@@ -17,7 +17,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	visSphear->setPosition(5, 5, 2);
 	visSphear->setColor(1, 1, 1, 1.0f);
 	visSphear->setEntityType(EntityType::ExcludeType);
-	ShowCursor(FALSE);
 }
 
 Player::~Player()
@@ -195,6 +194,7 @@ void Player::_handleInput(double deltaTime)
 		float deltaY = ((InputHandler::getWindowSize().y / 2)) - poss.y;
 		
 		SetCursorPos(midX, midY);
+		ShowCursor(FALSE);
 
 		if (deltaY)
 			p_camera->Rotate((deltaY*-1 / 10.0f) * 1 * deltaTime, 0.0f, 0.0f);

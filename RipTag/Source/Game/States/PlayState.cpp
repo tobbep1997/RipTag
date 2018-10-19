@@ -104,6 +104,9 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+	if (InputHandler::getShowCursor() != FALSE)
+		InputHandler::setShowCursor(FALSE);
+
 	light1.setIntensity(light1.TourchEffect(deltaTime, 25, 1.5f));
 	light2.setIntensity(light2.TourchEffect(deltaTime, 25, 1.5f));
 
@@ -198,7 +201,6 @@ void PlayState::Update(double deltaTime)
 	{
 		setKillState(true);
 	}
-	ShowCursor(FALSE);
 
 }
 

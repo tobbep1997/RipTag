@@ -25,7 +25,9 @@ MainMenu::~MainMenu()
 
 void MainMenu::Update(double deltaTime)
 {
-	ShowCursor(TRUE);
+	if (InputHandler::getShowCursor() != TRUE)
+		InputHandler::setShowCursor(TRUE);
+
 	m_playCurrent = playButton->isPressed(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / 1280, InputHandler::getMousePosition().y / 720));
 	if (m_playCurrent == false && m_playPrev == true && playButton->Inside(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / 1280, InputHandler::getMousePosition().y / 720)))
 		pushNewState(new PlayState(this->p_renderingManager));
