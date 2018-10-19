@@ -120,20 +120,6 @@ void Player::_handleInput(double deltaTime)
 {
 	using namespace DirectX;
 
-	XMFLOAT4A forward = p_camera->getDirection();
-	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
-	XMFLOAT4 RIGHT;
-	//GeT_RiGhT;
-
-	XMVECTOR vForward = XMLoadFloat4A(&forward);
-	XMVECTOR vUP = XMLoadFloat4(&UP);
-	XMVECTOR vRight;
-
-	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
-	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
-
-	XMStoreFloat4A(&forward, vForward);
-	XMStoreFloat4(&RIGHT, vRight);
 	if (GamePadHandler::IsLeftStickPressed())
 	{
 		m_moveSpeed = 1.0f;
@@ -169,20 +155,7 @@ void Player::_handleInput(double deltaTime)
 		}
 	}
 
-
-	/*DirectX::XMFLOAT4A camPos = p_camera->getPosition();
-		if (crouchAnim.getSteps() != 1)
-		{
-			DirectX::XMFLOAT4A standPos = p_camera->getPosition();
-			standPos.y = p_camera->getPosition().y + (this->standHeight - p_camera->getPosition().y);
-			collectedPos = XMVectorAdd(collectedPos, XMLoadFloat4A(&crouchAnim.lerp(&this->standPos, &camPos, float(deltaTime * 5))));
-			collectedPos = XMVectorSubtract(collectedPos, XMLoadFloat4A(&camPos));
-		}*/
-	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-
-	float z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	_onMovement();
 
 	if (!unlockMouse)
 	{
@@ -221,7 +194,7 @@ void Player::_handleInput(double deltaTime)
 
 	//std::cout << x << "\n";
 
-	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	
 
 	if (InputHandler::isKeyPressed('T'))
 	{
@@ -246,5 +219,30 @@ void Player::_handleInput(double deltaTime)
 			setAwakeState(true);
 		}
 	}
+}
+
+void Player::_onMovement()
+{
+	using namespace DirectX;
+
+	XMFLOAT4A forward = p_camera->getDirection();
+	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
+	XMFLOAT4 RIGHT;
+	//GeT_RiGhT;
+
+	XMVECTOR vForward = XMLoadFloat4A(&forward);
+	XMVECTOR vUP = XMLoadFloat4(&UP);
+	XMVECTOR vRight;
+
+	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
+	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
+
+	XMStoreFloat4A(&forward, vForward);
+	XMStoreFloat4(&RIGHT, vRight);
+	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
+	x += Input::MoveForward() * m_moveSpeed * forward.x;
+	float z = Input::MoveForward() * m_moveSpeed * forward.z;
+	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 

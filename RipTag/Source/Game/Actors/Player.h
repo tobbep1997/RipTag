@@ -10,7 +10,6 @@ private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 
 private:
-	
 	Teleport m_teleport;
 	float m_standHeight;
 	float m_moveSpeed = 200.0f;
@@ -51,6 +50,6 @@ public:
 	void UnlockPlayerInput();
 
 private:
-
 	void _handleInput(double deltaTime);
+	void _onMovement();
 };
