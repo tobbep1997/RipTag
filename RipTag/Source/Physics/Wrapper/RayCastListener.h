@@ -1,6 +1,8 @@
 #pragma once
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <iostream>
+#pragma warning(disable : 4311)
+#pragma warning(disable : 4302)
 class RayCastListener : public b3RayCastListener
 {	
 public:

@@ -41,34 +41,35 @@ void Render2D::GUIPass()
 	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
 	{
 		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
-
+		Quad * q = DX::g_2DQueue[j];
 		DX::g_2DQueue[j]->MapTexture();
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		DX::g_deviceContext->Draw(4, 0);
-
-
+	}
+	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
+	{
 		//Draw quad on fonts
 		m_spriteBatch->Begin();
 
 		DirectX::XMVECTOR origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(
-			std::wstring(DX::g_2DQueue[j]->getString().begin(), 
+			std::wstring(DX::g_2DQueue[j]->getString().begin(),
 				DX::g_2DQueue[j]->getString().end()).data());
 		origin = DirectX::XMVectorScale(origin, 0.5f);
-		
-		
+
+
 
 		std::wstring wstring = std::wstring(
 			DX::g_2DQueue[j]->getString().begin(),
 			DX::g_2DQueue[j]->getString().end());
-		
+
 		DirectX::XMVECTOR pos = DirectX::XMLoadFloat2A(
 			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * 1280) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * 1280),
 			((1.0f - DX::g_2DQueue[j]->getPosition().y) * 720) - ((DX::g_2DQueue[j]->getSize().y / 2.0f) * 720)
 			));
 
 		pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * 1280, (1.0f -DX::g_2DQueue[j]->getPosition().y) * 720));
+			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * 1280, (1.0f - DX::g_2DQueue[j]->getPosition().y) * 720));
 
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 
@@ -82,8 +83,8 @@ void Render2D::GUIPass()
 		);
 
 		m_spriteBatch->End();
-
 	}
+
 	DX::g_2DQueue.clear();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

@@ -30,6 +30,7 @@ private:
 
 public:
 	PointLight();
+	PointLight(float * translation, float * color, float intensity);
 	~PointLight();
 
 	void CreateShadowDirection(ShadowDir direction);

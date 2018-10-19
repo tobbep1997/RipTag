@@ -41,6 +41,7 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		pNetworkInstance = Network::Multiplayer::GetInstance();
 		pNetworkInstance->Init();
 	}
+
 	m_gameStack.push(new MainMenu(m_renderingManager));
 }
 

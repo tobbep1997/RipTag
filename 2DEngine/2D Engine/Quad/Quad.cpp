@@ -41,7 +41,7 @@ Quad::Quad() : Transform2D(), Button(this)
 
 Quad::~Quad()
 {
-	delete m_spriteFont;
+	delete m_spriteFont; // this is temp
 	delete[] quadVertex;
 	delete[] m_textures;
 }
@@ -168,6 +168,7 @@ ID3D11Buffer * Quad::getVertexBuffer() const
 
 const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 {
+	m_preState = m_currentState;
 	if (Button::Inside(mousepos))
 	{
 		if (InputHandler::isMLeftPressed(true))
@@ -180,9 +181,17 @@ const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 	else
 		m_buttonState = buttonState::normal;
 
+	
 
 	if (m_buttonState == buttonState::presesd)
-		return true;
+		m_currentState = true;
 	else
-		return false;
+		m_currentState = false;
+	return m_currentState;
 }
+
+const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
+{
+	return !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
+}
+
