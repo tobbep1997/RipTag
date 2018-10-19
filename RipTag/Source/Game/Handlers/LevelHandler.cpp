@@ -10,8 +10,6 @@ LevelHandler::~LevelHandler()
 	{
 		delete room;
 	}
-
-	
 }
 
 void LevelHandler::Init(b3World& worldPtr)
@@ -34,9 +32,14 @@ void LevelHandler::Init(b3World& worldPtr)
 
 void LevelHandler::Release()
 {
+	
 	for (int i = 0; i < m_rooms.size(); ++i)
 	{
 		m_rooms.at(i)->Release();
+	}
+	for (size_t i = 0; i < m_rooms.size(); i++)
+	{
+		m_rooms.at(i)->getCollissionBox();
 	}
 }
 
@@ -64,17 +67,20 @@ void LevelHandler::Update(float deltaTime)
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
 	{
 		if (pressed == false)
 		{
-			
 			m_activeRoom++;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 		}
 	}
 	else
@@ -93,6 +99,11 @@ void LevelHandler::Draw()
 	//testCube->Draw();
 }
 
+void LevelHandler::setPlayer(Player * playerPtr)
+{
+	this->m_playerPtr = playerPtr;
+}
+
 void LevelHandler::_LoadPreFabs()
 {
 	
@@ -105,9 +116,10 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	for (short unsigned int i = 0; i < amountOfRooms; i++)
 	{
 		//Create a room
-		Room * room = new Room(1 , m_worldPtr, i);
 		//Get a random int
 		int randomRoom = rand() % 2+1;
+		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
+
 		//Set the File path for loading and unloading
 		//room->setAssetFilePath(m_prefabRoomFiles.at(randomRoom));
 
@@ -146,7 +158,9 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		m_loadingQueue.push_back(current - 1);
 		m_loadMutex.unlock();
 	}
+	
 
+	m_rooms.at(current)->loadTextures();
 	m_rooms.at(current)->LoadRoomToMemory();
 
 	if ((current + 1) < m_rooms.size())
@@ -166,8 +180,14 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		m_unloadingQueue.push_back(current + 2);
 		m_unloadMutex.unlock();
 	}
-	
+	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
+		m_rooms.at(m_loadingQueue.at(i))->loadTextures();
+
 	future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
+	
+	
+	//m_loadingQueue.clear();
+
 }
 
 void LevelHandler::_RoomLoadingThreading()

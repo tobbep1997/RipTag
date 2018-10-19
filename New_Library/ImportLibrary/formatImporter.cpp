@@ -346,7 +346,6 @@ namespace MyLibrary
 	}
 	PointLights Loadera::readLightFile(const std::string & fileName)
 	{
-
 		PointLights pointLights;
 		bool fileIsOpen = false;
 
@@ -371,5 +370,61 @@ namespace MyLibrary
 		else
 			return PointLights();
 		return pointLights; // done :D
+	}
+
+
+	startingPos Loadera::readPlayerStartFile(const std::string & fileName, int whichPlayer)
+	{
+		startingPos startPos;
+		bool fileIsOpen = false;
+
+		
+		std::string newFileName = "../Assets/";
+		newFileName.append(fileName + "FOLDER/" + fileName + "_PPOS" + to_string(whichPlayer)  + ".bin");
+		std::ifstream customPosFile(newFileName, std::ifstream::binary);
+		if (customPosFile.is_open()) // opens file
+		{
+			fileIsOpen = true; // ya its open
+
+			customPosFile.read((char*)&startPos, sizeof(startingPos)); // what is happening here?!! i just copied this code
+			
+			//copy thing done
+			customPosFile.close(); // close file
+		}
+		else
+			return startingPos();
+		return startPos; // done :D
+	}
+	GuardStartingPositions Loadera::readGuardStartFiles(const std::string & fileName)
+	{
+		GuardStartingPositions guardPos;
+
+		bool fileIsOpen = false;
+		std::string newFileName = "../Assets/";
+		newFileName.append(fileName + "FOLDER/" + fileName + "_GPOS.bin");
+
+		std::ifstream customGuardFile(newFileName, std::ifstream::binary);
+
+
+		if (customGuardFile.is_open()) // opens file
+		{
+			fileIsOpen = true; // ya its open
+
+			
+			customGuardFile.read((char*)&guardPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
+
+			guardPos.startingPositions = new startingPos[guardPos.nrOf];
+			customGuardFile.read((char*)guardPos.startingPositions, sizeof(startingPos) * guardPos.nrOf); // what is happening here?!! i just copied this code
+
+			
+			//copy thing done
+
+			customGuardFile.close(); // close file
+			
+
+		}
+		else
+			return GuardStartingPositions();
+		return guardPos; // done :D
 	}
 }

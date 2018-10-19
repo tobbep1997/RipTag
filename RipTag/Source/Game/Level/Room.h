@@ -5,6 +5,8 @@
 #include "../Actors/Assets/StaticAsset.h"
 #include "../../../New_Library/ImportLibrary/FormatHeader.h"
 #include "../../../New_Library/ImportLibrary/formatImporter.h"
+#include "../Actors/Enemy/Enemy.h"
+#include "../Actors/Player.h"
 class Room
 {
 private:
@@ -20,19 +22,23 @@ private:
 	bool m_roomLoaded = false;
 	std::vector<StaticAsset*> m_staticAssets;
 	
-
 	std::vector<PointLight*> m_pointLights;
 	float m_playerStartPos;
-	std::vector<MyLibrary::GuardStartPos> m_guardStartPos;
+
+
+
+	DirectX::XMFLOAT4 m_player1StartPos;
+	DirectX::XMFLOAT4 m_player2StartPos;
 
 	BaseActor * CollisionBoxes;
-	
+	Player * m_playerInRoomPtr;
+	std::vector<Enemy*> m_roomGuards;
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
 public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
-	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex);
+	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	~Room();
 
 	void Update();
@@ -41,6 +47,8 @@ public:
 
 	void Release();
 
+	void loadTextures();
+
 	void setRoomIndex(const short unsigned int roomIndex);
 	short unsigned int getRoomIndex();
 
@@ -48,6 +56,11 @@ public:
 	std::string getAssetFilePath();
 
 	const bool getRoomLoaded();
+
+	BaseActor * getCollissionBox() { return CollisionBoxes; };
+
+	DirectX::XMFLOAT4 getPlayer1StartPos();
+	DirectX::XMFLOAT4 getPlayer2StartPos();
 
 	//---------------------------------------------------
 	//Memory Management

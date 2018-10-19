@@ -8,9 +8,14 @@ namespace MyLibrary
 {
 #pragma region OriginalMyLibraryStructs
 
-	struct GuardStartPos
+	
+	struct startingPos
 	{
-		float guardStartingPos[3];
+		float startingPos[3];
+	};
+	struct GuardStartingPositions {
+		int nrOf;
+		startingPos *startingPositions;
 	};
 	struct pointLight
 	{

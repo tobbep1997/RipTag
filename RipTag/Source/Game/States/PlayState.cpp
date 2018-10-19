@@ -11,35 +11,28 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	
-	Manager::g_meshManager.loadStaticMesh("KUB");
-	
-
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
 	Timer::StartTimer();
 
-	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 	future.get();
 	future1.get();
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
-	actor = new BaseActor();
-	actor->Init(m_world, e_staticBody, 0.01f, 0.01f, 0.01f);
-	actor->setModel(Manager::g_meshManager.getStaticMesh("KOMBIN"));
-	actor->setTexture(Manager::g_textureManager.getTexture("KOMBIN"));
 
 	
 	player = new Player();
-	enemy = new Enemy();
+	//enemy = new Enemy();
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
 
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
-	player->setPosition(0, 5, 0, 0);
+	//player->setPosition(0, 5, 0, 0);
 	player->setColor(10, 10, 0, 1);
 
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -48,22 +41,14 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
-	light1.Init(DirectX::XMFLOAT4A(7, 4, 4, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
-	light1.CreateShadowDirection(PointLight::XYZ_ALL);
-	light1.setDropOff(0);
-	light1.setColor(0.8f, 0.6f, 0.4f);
-	light1.setDropOff(1);
-
-	light2.Init(DirectX::XMFLOAT4A(7, 3, -6, 1), DirectX::XMFLOAT4A(1, 1, 1, 1), 1);
-	light2.CreateShadowDirection(PointLight::XYZ_ALL);
-	light2.setDropOff(0);
 	
+
 	gTemp.setPosition(9, 0.4f, -4.5f);
 	gTemp.setDir(0, 0, 1);
 	gTemp.getCamera()->setFarPlane(5);
-	enemy->setPosition(0.0f, 0.4f, -5.5f);
-	enemy->setDir(1, 0, 0);
-	enemy->getCamera()->setFarPlane(5);
+	//enemy->setPosition(0.0f, 0.4f, -5.5f);
+	//enemy->setDir(1, 0, 0);
+	//enemy->getCamera()->setFarPlane(5);
 
 	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
@@ -73,28 +58,23 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 
 	
-	
+	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
-
+	
 }
 
 PlayState::~PlayState()
 {
 
 	m_levelHandler.Release();
-	delete enemy;
+	
 	player->Release(m_world);
 	player->ReleaseTeleport(m_world);
 	delete player;
 
-	actor->Release(m_world);
-	delete actor;
-
+	//actor->Release(m_world);
+	
 	delete model;
-
-	//CollisionBoxes->Release(m_world);
-	//delete CollisionBoxes;
-
 }
 
 void PlayState::Update(double deltaTime)
@@ -129,8 +109,8 @@ void PlayState::Update(double deltaTime)
 
 
 	
-	light1.setDropOff(.5f);
-	light1.setIntensity(light1.TourchEffect(deltaTime));
+	//light1.setDropOff(.5f);
+	//light1.setIntensity(light1.TourchEffect(deltaTime));
 
 
 
@@ -155,8 +135,8 @@ void PlayState::Update(double deltaTime)
 	ImGui::End();
 
 	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
-	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);
+	/*ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
+	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);*/
 	ImGui::End();
 
 #endif
@@ -170,7 +150,7 @@ void PlayState::Update(double deltaTime)
 	
 
 
-	light2.setIntensity(intensity);
+	//light2.setIntensity(intensity);
 
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
@@ -202,8 +182,8 @@ void PlayState::Update(double deltaTime)
 
 	player->SetCurrentVisability(e2Vis[0] / 5000.0f);
 	player->Update(deltaTime);
-	enemy->Update(deltaTime);
-	actor->Update(deltaTime);
+	//enemy->Update(deltaTime);
+	//actor->Update(deltaTime);
 	gTemp.Update(deltaTime);
 
 	
@@ -220,8 +200,7 @@ void PlayState::Update(double deltaTime)
 	
 	
 
-	enemy->CullingForVisability(*player->getTransform());
-	enemy->QueueForVisibility();
+	
 
 
 	gTemp.CullingForVisability(*player->getTransform());
@@ -234,11 +213,10 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
-	light1.QueueLight();
+	//light1.QueueLight();
 	//light2.QueueLight();
 
-	gTemp.Draw();
-	enemy->Draw();
+	//enemy->Draw();
 
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();

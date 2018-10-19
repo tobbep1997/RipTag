@@ -32,7 +32,6 @@ private:
 	
 	BaseActor * actor;
 
-	BaseActor * CollisionBoxes;
 
 	float x = -1.5f;
 	float y = 2.1f; 
@@ -45,8 +44,7 @@ private:
 	float intensity = 2;
 	
 	
-	PointLight light1;
-	PointLight light2;
+	
 
 	Enemy gTemp;
 

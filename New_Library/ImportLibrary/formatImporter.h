@@ -1,9 +1,18 @@
 #pragma once
 #include <vector>
 #include "FormatHeader.h"
+#include <string>
+#include <sstream>
 
 namespace MyLibrary
 {
+	template <typename T> std::string to_string(const T& n)
+	{
+		std::ostringstream stream;
+		stream << n;
+		return stream.str();
+	}
+
 	class Loadera
 	{
 	public:
@@ -20,6 +29,8 @@ namespace MyLibrary
 		CollisionBoxes readMeshCollisionBoxes(const std::string & fileName);
 		PointLights readLightFile(const std::string & roomIndex);
 
+		startingPos readPlayerStartFile(const std::string & fileName, int whichPlayer);
+		GuardStartingPositions readGuardStartFiles(const std::string & fileName);
 
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);

@@ -15,9 +15,11 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_position = DirectX::XMFLOAT4A(translation[0], translation[1], translation[2], 1);
 	this->m_color = DirectX::XMFLOAT4A(color[0], color[1], color[2], 1.0);
 	this->m_dropOff = 1.0f;
-	this->m_intensity = 1.0f;
+	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
 	_createSides();
+	CreateShadowDirection(PointLight::XYZ_ALL);
+	this->m_dropOff = .5f;
 }
 
 PointLight::~PointLight()

@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <future>
-
+#include "../Actors/Player.h"
 
 class LevelHandler
 {
@@ -18,6 +18,7 @@ private:
 
 	bool pressed = false; 
 
+	Player * m_playerPtr;
 	b3World * m_worldPtr;
 
 private:
@@ -37,6 +38,8 @@ public:
 	void Update(float deltaTime);
 
 	void Draw();
+
+	void setPlayer(Player * playerPtr);
 
 private:
 

@@ -16,6 +16,7 @@ private:
 	float m_movementSpeed = 10;
 public:
 	Enemy();
+	Enemy(float startPosX, float startPosY, float startPosZ);
 	~Enemy();
 
 	//TEMP
