@@ -1,6 +1,7 @@
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
 #include <LuaTalker.h>
+#include "../RipTag/Source/Game/Pathfinding/Grid.h"
 
 
 #if _DEBUG
@@ -27,6 +28,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	
+	Grid grid = Grid(25, 25);
+	std::vector<Node> path;
+
+	grid.blockGrid();
+	grid.printGrid();
+
+	path = grid.findPath(Tile(3, 10), Tile(10, 11));
+
+	std::cout << "Printing path..." << std::endl << std::endl;
+	for (int i = 0; i < path.size(); i++)
+	{
+		std::cout << "x: " << path.at(i).tile.getX() << " y: " << path.at(i).tile.getY() << std::endl;
+	}
+	std::cout << std::endl << "Path is finished printing..." << std::endl;
+
+	grid.printGrid();
+	system("pause");
+
 	while (game.isRunning())
 	{
 		deltaTime = dt.getDeltaTimeInSeconds();

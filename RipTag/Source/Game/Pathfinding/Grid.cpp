@@ -11,8 +11,8 @@ Grid::Grid(int _width, int _height)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_tileGrid.push_back(Tile(j, i));
-			//m_nodeMap.push_back(Node());
+			//m_tileGrid.push_back(Tile(j, i));
+			m_nodeMap.push_back(Node(Tile(j, i)));
 		}
 	}
 }
@@ -21,36 +21,46 @@ Grid::~Grid()
 {
 }
 
-std::vector<Node> Grid::findPath(Tile src, Tile dest)
+std::vector<Node> Grid::findPath(Tile source, Tile destination)
 {
+	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
+
 	if (!_isValid(dest))
 	{
 		std::cout << "Destination is invalid\n";
-		return;
+		return std::vector<Node>();
 	}
 
 	if (dest.getBlocked())
 	{
 		std::cout << "Destination is blocked\n";
-		return;
+		return std::vector<Node>();
 	}
 
 	std::vector<Node> closedList;
 	std::vector<Node> openList;
 
-	Node current = Node(src, src.getX(), src.getY(), 0.0f, _calcHValue(src, dest));
+	Node current = Node(source, -1, -1, 0.0f, _calcHValue(source, dest));
 	openList.push_back(current);
 
 	while (!openList.empty())
 	{
 		std::sort(openList.begin(), openList.end(), [](Node first, Node second) { return first.fCost < second.fCost; });
 		current = openList.at(0);
-		Tile currentTile = current.tile;
 
-		if (currentTile == dest)
+		if (current.tile == dest)
 		{
 			// Do complete path stuff
+			std::vector<Node> path;
 
+			while (current.parent_x != -1)
+			{
+				path.push_back(current);
+				current = m_nodeMap.at(current.parent_x + current.parent_y * m_width);
+			}
+
+			std::reverse(path.begin(), path.end());
+			return path;
 		}
 
 		closedList.push_back(current);
@@ -78,59 +88,74 @@ std::vector<Node> Grid::findPath(Tile src, Tile dest)
 			S.E	-->	Southeast		= (1, 1)
 		*/
 
-		// AddedGCost based on the distance to the node, 1 for direct paths and 1.414 for diagonal paths.
+		// AddedGCost based on the distance to the node, 1.0 for direct paths and 1.414 for diagonal paths.
+		// Offset defined by the new tiles direction standing at the source tile.
 		/*---------- North ----------*/
-		_checkNode(currentTile, 0, -1, dest, openList, closedList, current, 1.0f);
+		_checkNode(current, 1.0f, 0, -1, dest, openList, closedList);
 		/*---------- South ----------*/
-		_checkNode(currentTile, 0, 1, dest, openList, closedList, current, 1.0f);
+		_checkNode(current, 1.0f, 0, 1, dest, openList, closedList);
 		/*---------- West ----------*/
-		_checkNode(currentTile, -1, 0, dest, openList, closedList, current, 1.0f);
+		_checkNode(current, 1.0f , -1, 0, dest, openList, closedList);
 		/*---------- East ----------*/
-		_checkNode(currentTile, 1, 0, dest, openList, closedList, current, 1.0f);
+		_checkNode(current, 1.0f, 1, 0, dest, openList, closedList);
 		/*---------- Northwest ----------*/
-		_checkNode(currentTile, -1, -1, dest, openList, closedList, current, 1.414f);
+		_checkNode(current, 1.414f , -1, -1, dest, openList, closedList);
 		/*---------- Northeast ----------*/
-		_checkNode(currentTile, 1, -1, dest, openList, closedList, current, 1.414f);
+		_checkNode(current, 1.414f, 1, -1, dest, openList, closedList);
 		/*---------- Southwest ----------*/
-		_checkNode(currentTile, -1, 1, dest, openList, closedList, current, 1.414f);
+		_checkNode(current, 1.414f , -1, 1, dest, openList, closedList);
 		/*---------- Southeast ----------*/
-		_checkNode(currentTile, 1, 1, dest, openList, closedList, current, 1.414f);
+		_checkNode(current, 1.414f, 1, 1, dest, openList, closedList);
 	}
 
 	return std::vector<Node>();
 }
 
-void Grid::_checkNode(Tile checkNextTile, int offsetX, int offsetY, Tile dest, std::vector<Node> & openList, std::vector<Node> & closedList, Node current, float addedGCost)
+void Grid::printGrid()
 {
-	if (_isValid(checkNextTile, offsetX, offsetY))
+	for (int i = 0; i < m_height; i++)
 	{
-		Tile nextTile = Tile(checkNextTile.getX() + offsetX, checkNextTile.getY() + offsetY);
-		if (nextTile.getX() == dest.getX() && nextTile.getY() == dest.getY())
+		for (int j = 0; j < m_width; j++)
 		{
-			//return true;
+			std::cout << m_nodeMap.at(j + i * m_width).tile.getBlocked() << " ";
 		}
+		std::cout << std::endl;
+	}
+}
 
-		int nextTileIndex = nextTile.getX() + nextTile.getY() * m_width;
-		Node newNode = Node(m_tileGrid.at(nextTileIndex), current.tile.getX(), current.tile.getY(), current.gCost + addedGCost, _calcHValue(nextTile, dest));
-		if (!m_tileGrid.at(nextTileIndex).getBlocked())
+void Grid::blockGrid()
+{
+	m_nodeMap.at(26).tile.setBlocked(true);
+	m_nodeMap.at(260).tile.setBlocked(true);
+}
+
+void Grid::_checkNode(Node current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node> & openList, std::vector<Node> & closedList)
+{
+	int currentX = current.tile.getX();
+	int currentY = current.tile.getY();
+	Tile nextTile = Tile(currentX + offsetX, currentY + offsetY);
+	int nextTileIndex = nextTile.getX() + nextTile.getY() * m_width;
+	if (_isValid(nextTile) && !m_nodeMap.at(nextTileIndex).tile.getBlocked())
+	{
+		Node newNode = Node(m_nodeMap.at(nextTileIndex).tile, currentX, currentY, current.gCost + addedGCost, _calcHValue(nextTile, dest));
+		if (_checkAddToClosedList(closedList, newNode))
 		{
-			if (_checkAddToClosedList(closedList, newNode))
-			{
-				openList.push_back(newNode);
-			}
+			openList.push_back(newNode);
+			m_nodeMap.at(nextTileIndex).parent_x = currentX;
+			m_nodeMap.at(nextTileIndex).parent_y = currentY;
 		}
 	}
 }
 
-bool Grid::_isValid(Tile tile, int offsetX, int offsetY)
+bool Grid::_isValid(Tile tile) const
 {
-	int x = tile.getX() + offsetX;
-	int y = tile.getY() + offsetY;
+	int x = tile.getX();
+	int y = tile.getY();
 	return (x >= 0) && (x < m_width) &&
 		(y >= 0) && (y < m_height);
 }
 
-float Grid::_calcHValue(Tile src, Tile dest)
+float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = src.getX() - dest.getX();
 	int y = src.getY() - dest.getY();
@@ -140,10 +165,10 @@ float Grid::_calcHValue(Tile src, Tile dest)
 /*---------------------------------------------
 	Check if the fCost logic works as supposed
 ---------------------------------------------*/
-bool Grid::_checkAddToClosedList(std::vector<Node>& list, Node checkNode)
+bool Grid::_checkAddToClosedList(std::vector<Node>& list, Node checkNode) const
 {
 	for (int i = 0; i < list.size(); i++)
-		if (list.at(i) == checkNode && list.at(i).fCost <= checkNode.fCost)
+		if (list.at(i) == checkNode && list.at(i).fCost < checkNode.fCost)
 			return false;
 	return true;
 }

@@ -15,9 +15,9 @@ struct Node
 	int parent_x, parent_y;
 	float fCost, gCost, hCost;
 
-	Node()
+	Node(Tile _tile = Tile())
 	{
-		tile = Tile();
+		tile = _tile;
 		parent_x = -1;
 		parent_y = -1;
 		gCost = 1000000.0f;
@@ -51,8 +51,8 @@ struct Node
 class Grid
 {
 private:
-	std::vector<Tile> m_tileGrid;
-	//std::vector<Node> m_nodeMap;
+	//std::vector<Tile> m_tileGrid;
+	std::vector<Node> m_nodeMap;
 	int m_width, m_height;
 
 public:
@@ -60,13 +60,17 @@ public:
 	virtual ~Grid();
 
 	std::vector<Node> findPath(Tile src, Tile dest);
+
+	// Test function
+	void printGrid();
+	void blockGrid();
 	
 private:
 	// Utility functions
-	void _checkNode(Tile checkNextTile, int offsetX, int offsetY, Tile dest,
-			std::vector<Node> & openList, std::vector<Node> & closedList, Node current, float addedGCost);
-	bool _isValid(Tile tile, int offsetX = 0, int offsetY = 0);
-	float _calcHValue(Tile src, Tile dest);
-	bool _checkAddToClosedList(std::vector<Node> & list, Node checkNode);
+	void _checkNode(Node current, float addedGCost, int offsetX, int offsetY, Tile dest,
+			std::vector<Node> & openList, std::vector<Node> & closedList);
+	bool _isValid(Tile tile) const;
+	float _calcHValue(Tile src, Tile dest) const;
+	bool _checkAddToClosedList(std::vector<Node> & list, Node checkNode) const;
 	
 };
