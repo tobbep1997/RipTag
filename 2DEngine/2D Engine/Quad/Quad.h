@@ -20,9 +20,16 @@ private:
 
 	ID3D11Buffer * m_vertexBuffer;
 
-	bool m_isPressed = false;
-	Texture * m_unpressedTexture;
-	Texture * m_pressedTexture;
+	enum buttonState
+	{
+		normal,
+		hover,
+		presesd
+	};
+
+	buttonState m_buttonState = buttonState::normal;
+
+	Texture ** m_textures;
 
 	DirectX::SpriteFont * m_spriteFont;
 	std::string m_string;
@@ -31,6 +38,8 @@ private:
 
 	void p_createBuffer();
 	void p_setStaticQuadVertex();
+
+
 public:
 	Quad();
 	~Quad();
@@ -41,6 +50,7 @@ public:
 	void Release();
 
 	void setPressedTexture(Texture * texture);
+	void setHoverTexture(Texture * texture);
 	void setUnpressedTexture(Texture * texture);
 	void MapTexture();
 	
@@ -62,5 +72,6 @@ public:
 	ID3D11Buffer * getVertexBuffer() const;
 
 	const bool isPressed(const DirectX::XMFLOAT2 & mousePos);
+	
 };
 

@@ -20,21 +20,22 @@ void Quad::p_createBuffer()
 void Quad::p_setStaticQuadVertex()
 {
 	quadVertex[0].position = DirectX::XMFLOAT2A(-1, -1);
-	quadVertex[0].UV = DirectX::XMFLOAT2A(0, 0);
+	quadVertex[0].UV = DirectX::XMFLOAT2A(0, 1);
 
 	quadVertex[1].position = DirectX::XMFLOAT2A(-1, 1);
-	quadVertex[1].UV = DirectX::XMFLOAT2A(0, 1);
+	quadVertex[1].UV = DirectX::XMFLOAT2A(0, 0);
 
 	quadVertex[2].position = DirectX::XMFLOAT2A(1, -1);
-	quadVertex[2].UV = DirectX::XMFLOAT2A(1, 0);
+	quadVertex[2].UV = DirectX::XMFLOAT2A(1, 1);
 
 	quadVertex[3].position = DirectX::XMFLOAT2A(1, 1);
-	quadVertex[3].UV = DirectX::XMFLOAT2A(1, 1);
+	quadVertex[3].UV = DirectX::XMFLOAT2A(1, 0);
 
 }
 
 Quad::Quad() : Transform2D(), Button(this)
 {
+	m_textures = new Texture*[3];
 }
 
 
@@ -42,6 +43,7 @@ Quad::~Quad()
 {
 	delete m_spriteFont;
 	delete[] quadVertex;
+	delete[] m_textures;
 }
 
 void Quad::init(DirectX::XMFLOAT2A position, DirectX::XMFLOAT2A size)
@@ -64,20 +66,22 @@ void Quad::Release()
 
 void Quad::setPressedTexture(Texture * texture)
 {
-	this->m_pressedTexture = texture;
+	this->m_textures[buttonState::presesd] = texture;
+}
+
+void Quad::setHoverTexture(Texture * texture)
+{
+	this->m_textures[buttonState::hover] = texture;
 }
 
 void Quad::setUnpressedTexture(Texture * texture)
 {
-	this->m_unpressedTexture = texture;
+	this->m_textures[buttonState::normal] = texture;
 }
 
 void Quad::MapTexture()
 {
-	if (this->m_isPressed)
-		this->m_pressedTexture->Bind(1);
-	else
-		this->m_unpressedTexture->Bind(1);
+	this->m_textures[m_buttonState]->Bind(1);
 }
 
 void Quad::setPosition(const float & x, const float & y)
@@ -164,9 +168,21 @@ ID3D11Buffer * Quad::getVertexBuffer() const
 
 const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 {
-	if (InputHandler::isMLeftPressed(true))
-		this->m_isPressed = Button::Inside(mousepos);
+	if (Button::Inside(mousepos))
+	{
+		if (InputHandler::isMLeftPressed(true))
+		{
+			m_buttonState = buttonState::presesd;
+		}
+		else
+			m_buttonState = buttonState::hover;
+	}
 	else
-		this->m_isPressed = false;
-	return this->m_isPressed;
+		m_buttonState = buttonState::normal;
+
+
+	if (m_buttonState == buttonState::presesd)
+		return true;
+	else
+		return false;
 }

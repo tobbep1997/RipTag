@@ -4,6 +4,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
 
 	playButton = new Quad();
 	playButton->init();
@@ -13,6 +14,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	playButton->setString("Play Game");
 	playButton->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	playButton->setPressedTexture(Manager::g_textureManager.getTexture("KOMBIN"));
+	playButton->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	playButton->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	playButton->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 }
