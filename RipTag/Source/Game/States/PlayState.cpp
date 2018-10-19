@@ -7,6 +7,7 @@
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
+
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -77,7 +78,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
-	
+
 	
 	m_levelHandler.Init(m_world);
 
@@ -99,11 +100,13 @@ PlayState::~PlayState()
 
 	CollisionBoxes->Release(m_world);
 	delete CollisionBoxes;
-
 }
 
 void PlayState::Update(double deltaTime)
 {
+	if (InputHandler::getShowCursor() != FALSE)
+		InputHandler::setShowCursor(FALSE);
+
 	light1.setIntensity(light1.TourchEffect(deltaTime, 25, 1.5f));
 	light2.setIntensity(light2.TourchEffect(deltaTime, 25, 1.5f));
 
@@ -127,23 +130,13 @@ void PlayState::Update(double deltaTime)
 	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
 	ImGui::End();
 
-	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin("Player Visibility");                          
 	ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
 	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);
 	ImGui::End();
 
 #endif
 
-	if (!unlockMouse)
-	{
-
-	
-	}
-
-	
-
-
-	//light2.setIntensity(light2.TourchEffect(deltaTime, 7, 2));
 
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
@@ -203,6 +196,12 @@ void PlayState::Update(double deltaTime)
 	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
+
+	if (InputHandler::isKeyPressed(InputHandler::Esc))
+	{
+		setKillState(true);
+	}
+
 }
 
 void PlayState::Draw()
@@ -223,6 +222,7 @@ void PlayState::Draw()
 
 	model->Draw();
 	
+
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()
 

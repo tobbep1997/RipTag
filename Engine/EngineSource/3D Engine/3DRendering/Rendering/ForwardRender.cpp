@@ -56,14 +56,14 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	omDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	omDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
+	HRESULT hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
 	m_visabilityPass.Init();
 
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
 
-	D3D11_RASTERIZER_DESC wfdesc;
+	D3D11_RASTERIZER_DESC wfdesc{};
 	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
 	wfdesc.FillMode = D3D11_FILL_WIREFRAME;
 	wfdesc.CullMode = D3D11_CULL_NONE;
@@ -79,6 +79,8 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
 	m_animationBuffer.SetAnimationCBuffer();
+
+	m_2DRender.Init();
 }
 
 void ForwardRender::GeometryPass()
@@ -170,7 +172,7 @@ void ForwardRender::Flush(Camera & camera)
 
 	if (drawFrustum)
 		_GuardFrustumDraw();
-	
+	m_2DRender.GUIPass();
 }
 
 void ForwardRender::Clear()
@@ -216,6 +218,7 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_shadowSampler);
 	m_shadowMap.Release();
+	m_2DRender.Release();
 }
 
 void ForwardRender::_GuardFrustumDraw()
