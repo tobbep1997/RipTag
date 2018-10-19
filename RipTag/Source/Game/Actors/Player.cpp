@@ -272,7 +272,7 @@ void Player::_onJump()
 	{
 		if (m_kp.jump == false)
 		{
-			addForceToCenter(0, 500, 0);
+			addForceToCenter(0, 200, 0);
 			m_kp.jump = true;
 		}
 	}

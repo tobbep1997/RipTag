@@ -17,6 +17,7 @@ private:
 
 	static DirectX::XMFLOAT2 m_windowPos;
 	static DirectX::XMFLOAT2 m_viewportPos;
+	static DirectX::XMINT2 m_viewportSize;
 	static DirectX::XMFLOAT2 m_mouseDelta;
 
 	static bool m_windowInFocus;
@@ -39,7 +40,7 @@ public:
 	static float getMouseDelta(); 
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
-
+	static DirectX::XMINT2 getViewportSize();
 	static DirectX::XMFLOAT2 getMousePosDelta();
 	static DirectX::XMFLOAT2 getWindowPos();
 	static DirectX::XMFLOAT2 getviewportPos();

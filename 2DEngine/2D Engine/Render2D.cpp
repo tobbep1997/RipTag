@@ -1,7 +1,7 @@
 #include "Render2D.h"
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/Shader/ShaderManager.h"
-
+#include "InputManager/InputHandler.h"
 Render2D::Render2D()
 {
 }
@@ -65,12 +65,11 @@ void Render2D::GUIPass()
 			DX::g_2DQueue[j]->getString().end());
 
 		DirectX::XMVECTOR pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * 1920) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * 1920),
-			((1.0f - DX::g_2DQueue[j]->getPosition().y) * 720) - ((DX::g_2DQueue[j]->getSize().y / 2.0f) * 720)
-			));
+			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * InputHandler::getWindowSize().x) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * InputHandler::getWindowSize().x),
+			((1.0f - DX::g_2DQueue[j]->getPosition().y) * InputHandler::getWindowSize().y - ((DX::g_2DQueue[j]->getSize().y / 2.0f) * InputHandler::getWindowSize().y))));
 
 		pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * 1920, (1.0f - DX::g_2DQueue[j]->getPosition().y) * 1080));
+			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * InputHandler::getViewportSize().x, (1.0f - DX::g_2DQueue[j]->getPosition().y) * InputHandler::getViewportSize().y));
 
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 

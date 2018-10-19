@@ -31,8 +31,8 @@ void RenderingManager::Init(HINSTANCE hInstance)
 #endif
 
 	WindowContext wind;
-	wind.clientWidth = 1920;
-	wind.clientHeight = 1080;
+	wind.clientWidth = 1280;
+	wind.clientHeight = 720;
 	wind.fullscreen = true;
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"RipTag";

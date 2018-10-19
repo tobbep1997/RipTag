@@ -14,6 +14,7 @@ DirectX::XMFLOAT2 InputHandler::m_mouseDelta;
 
 DirectX::XMFLOAT2 InputHandler::m_windowPos;
 DirectX::XMFLOAT2 InputHandler::m_viewportPos;
+DirectX::XMINT2 InputHandler::m_viewportSize;
 
 bool InputHandler::m_windowInFocus;
 
@@ -81,6 +82,11 @@ DirectX::XMFLOAT2 InputHandler::getMousePositionLH()
 DirectX::XMINT2 InputHandler::getWindowSize()
 {
 	return m_windowSize; 
+}
+
+DirectX::XMINT2 InputHandler::getViewportSize()
+{
+	return m_viewportSize;
 }
 
 DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
