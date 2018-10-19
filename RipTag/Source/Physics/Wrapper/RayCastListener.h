@@ -19,7 +19,6 @@ public:
 			this->normal = normal;
 			this->fraction = fraction;
 			this->type = (int)shape->GetUserData();
-			std::cout << this->type << std::endl;
 		}
 		return fraction;
 	}
