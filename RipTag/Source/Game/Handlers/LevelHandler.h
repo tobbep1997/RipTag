@@ -5,12 +5,12 @@
 #include <filesystem>
 #include <iostream>
 #include <future>
-
+#include "../Actors/Player.h"
 
 class LevelHandler
 {
 private:
-	const std::string m_roomString = "../Assets/ROOMSPREFAB";
+	const std::string m_roomString;
 	std::vector<std::string> m_prefabRoomFiles;
 
 	short unsigned int m_activeRoom;
@@ -18,6 +18,7 @@ private:
 
 	bool pressed = false; 
 
+	Player * m_playerPtr;
 	b3World * m_worldPtr;
 
 private:
@@ -37,6 +38,8 @@ public:
 	void Update(float deltaTime);
 
 	void Draw();
+
+	void setPlayer(Player * playerPtr);
 
 private:
 
