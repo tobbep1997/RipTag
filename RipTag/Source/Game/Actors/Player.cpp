@@ -201,15 +201,6 @@ void Player::_handleInput(double deltaTime)
 		}
 	}
 
-
-	/*DirectX::XMFLOAT4A camPos = p_camera->getPosition();
-		if (crouchAnim.getSteps() != 1)
-		{
-			DirectX::XMFLOAT4A standPos = p_camera->getPosition();
-			standPos.y = p_camera->getPosition().y + (this->standHeight - p_camera->getPosition().y);
-			collectedPos = XMVectorAdd(collectedPos, XMLoadFloat4A(&crouchAnim.lerp(&this->standPos, &camPos, float(deltaTime * 5))));
-			collectedPos = XMVectorSubtract(collectedPos, XMLoadFloat4A(&camPos));
-		}*/
 	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
 
@@ -251,16 +242,18 @@ void Player::_handleInput(double deltaTime)
 		isPressed = false;
 	}
 
-	if (!InputHandler::isMLeftPressed(false)) //Phase acts like short range teleport through objects
+	if (InputHandler::isMLeftPressed(false)) //Phase acts like short range teleport through objects
 	{
-		isCPressed = true;
+		if (isPhaseKeyPressed == false)
+		{
+			this->Phase(10);
+			isPhaseKeyPressed = true;
+		}
 	}
-	else if (isCPressed)
+	else
 	{
-		this->Phase(10);
-		isCPressed = false;
+		isPhaseKeyPressed = false;
 	}
-	//std::cout << x << "\n";
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 

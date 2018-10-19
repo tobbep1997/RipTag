@@ -16,7 +16,7 @@ private:
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 
-	bool isCPressed = false;
+	bool isPhaseKeyPressed = false;
 	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	bool isPressed = false;

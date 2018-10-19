@@ -60,6 +60,8 @@ public:
 		SKey = 0x53,
 		DKey = 0x44,
 		Shift = 0x10,
+		Ctrl = 0x11,
+		Alt = 0x12,
 		Esc = 0x1B,
 		BackSpace = 0x08
 	};
