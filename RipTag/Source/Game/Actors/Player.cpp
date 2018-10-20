@@ -41,6 +41,7 @@ void Player::Update(double deltaTime)
 		
 	}
 	m_teleport.Update(deltaTime);
+	m_teleport.UpdateLight();
 	_cameraPlacement(deltaTime);
 }
 
@@ -101,6 +102,7 @@ void Player::ReleaseTeleport(b3World & world)
 void Player::Draw()
 {
 	m_teleport.Draw();
+	m_teleport.QueueLight();
 	Drawable::Draw();
 	if (Input::CheckVisability())
 	{
