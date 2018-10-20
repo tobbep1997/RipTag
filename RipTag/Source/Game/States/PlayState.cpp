@@ -79,35 +79,7 @@ PlayState::~PlayState()
 void PlayState::Update(double deltaTime)
 {
 	if (InputHandler::getShowCursor() != FALSE)
-		InputHandler::setShowCursor(FALSE);
-
-
-#if _DEBUG
-	ImGui::Begin("Player Setting");                          
-	ImGui::SliderFloat("PositionX", &x, -20.0f, 20.f);
-	ImGui::SliderFloat("PositionY", &y, -20.0f, 20.f);
-	ImGui::SliderFloat("PositionZ", &z, -20.0f, 20.f);
-
-	ImGui::SliderFloat("DirX", &xD, -50.0f, 50.f);
-	ImGui::SliderFloat("DirY", &yD, -50.0f, 50.f);
-	ImGui::SliderFloat("DirZ", &zD, -50.0f, 50.f);
-	ImGui::End();
-#endif
-
-
-#if _DEBUG
-	ImGui::Begin("Light");                         
-	ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.f);
-	ImGui::End();
-
-	ImGui::Begin("Player Visibility");                          // Create a window called "Hello, world!" and append into it.
-	/*ImGui::Text("Guard1: playerVis: %d", e1Vis[0]);
-	ImGui::Text("Guard2: playerVis: %d", e2Vis[0]);*/
-	ImGui::End();
-
-#endif
-	   
-	//light2.setIntensity(intensity);
+		InputHandler::setShowCursor(FALSE);	   
 
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
@@ -118,19 +90,16 @@ void PlayState::Update(double deltaTime)
 		Input::ForceActivateGamepad();
 	}
 
-	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	player->Update(deltaTime);
 
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	
-	m_step.dt = deltaTime * 2;
+	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-
-	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
 
@@ -138,29 +107,17 @@ void PlayState::Update(double deltaTime)
 	{
 		setKillState(true);
 	}
-
 }
 
 void PlayState::Draw()
 {
-
-
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	
-	//wall1->Draw();
-
 	player->Draw();
-	//player->QueueVisabilityDraw();
-
 	model->Draw();
-	
 
-	//model->QueueVisabilityDraw();
-	//m_world.Draw()
-
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
-	
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 
 void PlayState::thread(std::string s)

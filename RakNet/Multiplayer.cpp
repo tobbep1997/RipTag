@@ -271,7 +271,7 @@ namespace Network
 
 		void * data = lua_touserdata(L, -3);
 		size_t length = (size_t)lua_tonumber(L, -2);
-		unsigned int priority = (size_t)lua_tonumber(L, -1);
+		unsigned int priority = (unsigned int)lua_tonumber(L, -1);
 
 		lua_pop(L, 3);
 
