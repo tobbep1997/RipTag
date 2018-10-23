@@ -6,7 +6,7 @@
 namespace Network
 {
 	std::map<std::string, std::function<void()>> Multiplayer::onSendMap;
-	std::map<unsigned char, std::function<void(unsigned char *)>> Multiplayer::onReceiveMap;
+	std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> Multiplayer::onReceiveMap;
 
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
@@ -46,9 +46,9 @@ namespace Network
 		onSendMap.insert(std::pair < std::string, std::function<void()>>(key, func));
 	}
 
-	void Multiplayer::addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char *)> func)
+	void Multiplayer::addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func)
 	{
-		onReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char *)>>(key, func));
+		onReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char, unsigned char *)>>(key, func));
 	}
 
 	void Multiplayer::StartUpServer()
@@ -142,7 +142,6 @@ namespace Network
 			if (packet->data[0] == DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION && !packet->wasGeneratedLocally)
 			{
 				m_rIP = packet->systemAddress;
-				this->pPeer->Connect(m_rIP.ToString(), m_rIP.GetPort(), nullptr, 0);
 				m_isConnected = true;
 				pPeer->DeallocatePacket(packet);
 				pPeer->SetOccasionalPing(true);
@@ -283,22 +282,6 @@ namespace Network
 		return toReturn;
 	}
 
-	int Multiplayer::Send_Data(sol::this_state s)
-	{
-		lua_State * L = s;
-
-		void * data = lua_touserdata(L, -3);
-		size_t length = (size_t)lua_tonumber(L, -2);
-		unsigned int priority = (size_t)lua_tonumber(L, -1);
-
-		lua_pop(L, 3);
-
-		//Multiplayer * pMp = Multiplayer::GetInstance();
-
-		this->SendPacket((const char*)data, length, (PacketPriority)priority);
-
-		return 0;
-	}
 
 	Multiplayer::Multiplayer()
 	{
@@ -357,49 +340,6 @@ namespace Network
 		m_isConnected = m_isClient = m_isServer = m_isRunning = false;
 		// Go back to menu and print a message that the player or you lost connection
 		//might want to log who disconnected
-	}
-
-	void Multiplayer::REGISTER_TO_LUA()
-	{
-		static bool isRegistered = false;
-
-		if (!isRegistered)
-		{
-			LUA::LuaTalker * talker = LUA::LuaTalker::GetInstance();
-			Multiplayer * instance = Multiplayer::GetInstance();
-
-			sol::state_view * solStateView = talker->getSolState();
-
-			//Register in a different way
-			solStateView->new_usertype<Multiplayer>("Network",
-				"new", sol::no_constructor,
-				"GetInstance", &Multiplayer::GetInstance,
-				LUA_START_SERVER, &Multiplayer::StartUpServer,
-				LUA_START_CLIENT, &Multiplayer::StartUpClient,
-				LUA_END_CONNECTION_ATTEMPT, &Multiplayer::EndConnectionAttempt,
-				LUA_DISCONNECT, &Multiplayer::Disconnect,
-				LUA_IS_SERVER, &Multiplayer::isServer,
-				LUA_IS_CLIENT, &Multiplayer::isClient,
-				LUA_IS_PEER_RUNNING, &Multiplayer::isRunning,
-				LUA_IS_CONNECTED, &Multiplayer::isConnected,
-				LUA_IS_GAME_RUNNING, &Multiplayer::isGameRunning,
-				LUA_GET_MY_NID, &Multiplayer::GetNID,
-				LUA_SET_GAME_RUNNING_NETWORK, &Multiplayer::setIsGameRunning,
-				LUA_SEND_PACKET, &Multiplayer::Send_Data
-				);
-
-			
-			//Register Enums
-			solStateView->new_enum(LUA_TABLE_PACKET_PRIORITIES,
-				ENUM_TO_STR(LOW_PRIORITY), PacketPriority::LOW_PRIORITY,
-				ENUM_TO_STR(HIGH_PRIORITY), PacketPriority::HIGH_PRIORITY,
-				ENUM_TO_STR(IMMEDIATE_PRIORITY), PacketPriority::IMMEDIATE_PRIORITY
-			);
-
-
-			
-			isRegistered = true;
-		}
 	}
 
 

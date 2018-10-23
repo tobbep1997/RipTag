@@ -33,13 +33,14 @@
     <ClCompile Include="Source\Game\Handlers\CameraHandler.cpp" />
     <ClCompile Include="Source\Game\Handlers\LevelHandler.cpp" />
     <ClCompile Include="Source\Game\Handlers\ObjectHandler.cpp" />
-    <ClCompile Include="Source\Game\Handlers\PlayerHandler.cpp" />
     <ClCompile Include="Source\Game\Level\Room.cpp" />
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
+    <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
+    <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -205,7 +206,6 @@
     <ClInclude Include="Source\Game\Handlers\CameraHandler.h" />
     <ClInclude Include="Source\Game\Handlers\LevelHandler.h" />
     <ClInclude Include="Source\Game\Handlers\ObjectHandler.h" />
-    <ClInclude Include="Source\Game\Handlers\PlayerHandler.h" />
     <ClInclude Include="Source\Game\Level\Room.h" />
     <ClInclude Include="Source\Game\States\MainMenu.h" />
     <ClInclude Include="Source\Game\States\PlayState.h" />
@@ -264,5 +264,7 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
+    <ClInclude Include="Source\Game\Handlers\PlayerManager.h" />
+    <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
   </ItemGroup>
 </Project>

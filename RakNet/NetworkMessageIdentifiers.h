@@ -6,14 +6,7 @@
 #include <BitStream.h>
 #include <RakNetDefines.h>
 
-#include <LuaTalker.h>
 
-#define LUA_PACKETS_METATABLE "Packets"
-#define LUA_TABLE_MESSAGE_IDENTIFIERS "PacketID"
-#define LUA_GAME_MESSAGE_PACKET "GameMessage"
-#define LUA_DESTROY_GAME_MESSAGE "DestroyGameMessage"
-
-#define ENUM_TO_STR(ENUM) std::string(#ENUM)
 
 namespace Network
 {
@@ -60,7 +53,8 @@ namespace Network
 		unsigned char id;
 		RakNet::NetworkID nID;
 		float x, y, z;
-		ENTITY_MOVE(unsigned char _id, RakNet::NetworkID _nid, float _x, float _y, float _z)
+		int state;
+		ENTITY_MOVE(unsigned char _id, RakNet::NetworkID _nid, float _x, float _y, float _z, int _state)
 		{
 			useTimestamp = ID_TIMESTAMP;
 			timeStamp = RakNet::GetTime();
@@ -69,6 +63,7 @@ namespace Network
 			x = _x;
 			y = _y;
 			z = _z;
+			state = _state;
 		}
 	};
 
@@ -84,25 +79,6 @@ namespace Network
 	};
 #pragma pack(pop)
 	//STRUCTS END
-	
-
-	class Packets
-	{
-	private:
-	public:
-		//always create a pair of constructor and destructor for each struct declared
-		Packets(){}
-		~Packets(){}
-		//MAKE SURE TO CALL THE DESTROY FUNCTION OF THE TYPE AFTER YOU HAVE CREATED ONE AND SENT THE PACKET
-		//ALSO THESE 'CONSTRUCTOR' AND'DESTRUCTOR' FUNCTIONS MUTS BE STATIC
-		static std::tuple<void*, size_t> New_Game_Message(unsigned char _id);
-		static void Destroy_Game_Message(void * ptr);
-
-
-		static void REGISTER_TO_LUA();
-
-	};
-
 	
 
 }

@@ -309,6 +309,7 @@ bool Input::isUsingGamepad()
 	return GamePadHandler::IsConnected() && m_deactivate == false;
 }
 
+//DEFINITIONS FOR INPUTMAPPING STATICS
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
 std::map<int, std::string> InputMapping::keyMap;
 std::map<int, std::string> InputMapping::devKeyMap;
@@ -457,5 +458,3 @@ void Input::ResetMouse()
 		SetCursorPos(midX, midY);
 	}
 }
-
-//DEFINITIONS FOR INPUTMAPPING STATICS

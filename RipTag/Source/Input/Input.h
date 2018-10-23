@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <list>
+#include <sstream>
 
 class Input
 {

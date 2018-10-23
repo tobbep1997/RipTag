@@ -8,11 +8,7 @@
 #include "../../Input/Input.h"
 #include "../../Physics/Wrapper/RayCastListener.h"
 
-namespace FUNCTION_STRINGS
-{
-	static const char * JUMP = "Jump";
 
-}
 
 struct KeyPressed
 {
@@ -23,12 +19,15 @@ struct KeyPressed
 	bool unlockMouse = false;
 };
 
+
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 
 private:
+	PlayerState m_currentState = PlayerState::Idle;
+
 	Teleport m_teleport;
 	float m_standHeight;
 	RayCastListener *m_rayListener;
@@ -44,9 +43,19 @@ private:
 
 	int mouseX = 0;
 	int mouseY = 0;
+
+	//Network related
+	bool isRemotePlayer = false;
+	RakNet::NetworkID mNID;
+	DirectX::XMFLOAT4A mMostRecentPosition;
+
+
+
 public:
 	bool unlockMouse = false;
 	Player();
+	Player(RakNet::NetworkID nID, float x, float y, float z);
+
 	~Player();
 
 	void BeginPlay();
@@ -64,7 +73,6 @@ public:
 	//Networking
 	void SendOnJumpMessage();
 	void SendOnMovementMessage();
-
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);

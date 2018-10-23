@@ -3,6 +3,7 @@
 #include "InputManager/XboxInput/GamePadHandler.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include <algorithm>
+
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
@@ -17,6 +18,22 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	visSphear->setPosition(5, 5, 2);
 	visSphear->setColor(1, 1, 1, 1.0f);
 	visSphear->setEntityType(EntityType::ExcludeType);
+}
+
+Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
+{
+	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	p_camera->setPosition(x, y, z);
+	this->m_rayListener = new RayCastListener();
+	m_lockPlayerInput = false;
+
+	visSphear = new Drawable();
+	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	visSphear->setScale(0.2f, 0.2f, 0.2f);
+	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	visSphear->setPosition(5, 5, 2);
+	visSphear->setColor(1, 1, 1, 1.0f);
+	visSphear->setEntityType(EntityType::PlayerType);
 }
 
 Player::~Player()
@@ -48,6 +65,16 @@ void Player::Update(double deltaTime)
 void Player::PhysicsUpdate(double deltaTime)
 {
 	p_updatePhysics(this);
+
+	//temporary
+	std::string output;
+	output += "X: " + std::to_string(this->getLiniearVelocity().x);
+	output += "\nY: " + std::to_string(this->getLiniearVelocity().y);
+	output += "\nZ: " + std::to_string(this->getLiniearVelocity().z);
+
+	ImGui::Begin("Player Velocity");
+	ImGui::Text(output.c_str());
+	ImGui::End();
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -128,14 +155,14 @@ void Player::SetCurrentVisability(const float & guard)
 void Player::SendOnJumpMessage()
 {
 	Network::ENTITY_EVENT packet(Network::ID_PLAYER_JUMP, Network::Multiplayer::GetInstance()->GetNetworkID());
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::MEDIUM_PRIORITY);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::LOW_PRIORITY);
 }
 
 void Player::SendOnMovementMessage()
 {
 	DirectX::XMFLOAT4A pos = this->getPosition();
-	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z);
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
+	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z, this->m_currentState);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::LOW_PRIORITY);
 }
 
 
@@ -278,10 +305,11 @@ void Player::_onJump()
 			m_kp.jump = true;
 		}
 	}
-	else
-	{
+
+
+	float epsilon = 0.0002;
+	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
-	}
 }
 
 void Player::_onCheckVisibility()
