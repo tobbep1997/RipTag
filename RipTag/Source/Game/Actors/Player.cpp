@@ -300,6 +300,12 @@ void Player::_onCheckVisibility()
 
 		visSphear->setPosition(po);
 		visSphear->setColor(2.0f * m_visability, 2.0f * m_visability, 2.0f * m_visability, 1);
+
+		float temp = (float)m_visability / (float)g_fullVisability;
+
+		ImGui::Begin("visability");
+		ImGui::Text("Vis: %f", temp);
+		ImGui::End();
 	}
 }
 

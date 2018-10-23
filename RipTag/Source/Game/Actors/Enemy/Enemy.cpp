@@ -1,5 +1,7 @@
 #include "Enemy.h"
 #include "../RipTag/Source/Input/Input.h"
+#include "../Player.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 
 Enemy::Enemy() : Actor(), CameraHolder()
@@ -18,6 +20,8 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
 	this->getCamera()->setFarPlane(5);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
+	srand(time(NULL));
 }
 
 
@@ -94,6 +98,7 @@ void Enemy::Update(double deltaTime)
 		else
 		{
 			_TempGuardPath(true, deltaTime);
+			//_IsInSight();
 		}
 	}
 	
@@ -186,5 +191,25 @@ void Enemy::_handleRotation(double deltaTime)
 void Enemy::_TempGuardPath(bool x, double deltaTime)
 {
 	p_camera->Rotate(0.0f, .1f * 5 * deltaTime, 0.0f);
+}
+
+void Enemy::_IsInSight()
+{
+	float temp = (float)m_vc.getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+	temp *= 100;
+
+	//std::cout << m_vc.getVisibilityForPlayers()[0] << std::endl;
+
+	int ran = rand() % 100 + 1;
+
+	ImGui::Begin("Sight");
+	ImGui::Text("vis: %f", temp);
+	ImGui::Text("FullVis: %f", Player::g_fullVisability);
+	ImGui::End();
+
+	if (ran < temp)
+	{
+		std::cout << "Saw you" << std::endl;
+	}
 }
 
