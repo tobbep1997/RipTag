@@ -229,10 +229,18 @@ bool Window::Init(_In_ WindowContext windowContext)
 
 void Window::PollEvents()
 {
-	if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
+	for (unsigned int i = 0; i < 10; ++i)
 	{
-		TranslateMessage(&m_Peekmsg);
-		DispatchMessage(&m_Peekmsg);
+
+		if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&m_Peekmsg);
+			DispatchMessage(&m_Peekmsg);
+		}
+		else
+		{
+			break;
+		}
 	}
 }
 
