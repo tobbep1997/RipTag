@@ -112,8 +112,6 @@ void ForwardRender::GeometryPass()
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
-		
-		
 	}
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);

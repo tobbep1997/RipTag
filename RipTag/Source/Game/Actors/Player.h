@@ -27,16 +27,23 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 3.0f;
+	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
-	const float JUMP_POWER = 400.0f;
+	const float JUMP_POWER = 2200.0f;
 
 private:
 	Teleport m_teleport;
 	float m_standHeight;
 	RayCastListener *m_rayListener;
-	float m_moveSpeed = 2.0f;
+	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
+	float m_offPutY = 0.4f; 
+	
+	float m_currClick = false; 
+	float m_prevClick = false; 
+	
+	int m_toogleCrouch = 0; 
+
 	KeyPressed m_kp;
 
 	float m_visability = 0.0f;
@@ -88,4 +95,6 @@ private:
 	void _onCheckVisibility();
 	void _onTeleport(double deltaTime);
 	void _cameraPlacement(double deltaTime);
+	void _activateChrouch(); 
+	void _deActivateChrouch();
 };

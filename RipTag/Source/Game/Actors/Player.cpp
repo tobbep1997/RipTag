@@ -170,6 +170,7 @@ void Player::_handleInput(double deltaTime)
 	_onRotate(deltaTime);
 	_onTeleport(deltaTime);
 	_onCheckVisibility();
+
 }
 
 void Player::_onMovement()
@@ -221,24 +222,42 @@ void Player::_onSprint()
 
 void Player::_onCrouch()
 {
-	if (Input::Crouch())
+	if(Input::isUsingGamepad())
 	{
-		if (m_kp.crouching == false)
+		m_currClick = Input::Crouch();
+		if (m_currClick && !m_prevClick && m_toogleCrouch == 0)
 		{
-			m_standHeight = this->p_camera->getPosition().y;
-			this->CreateBox(0.5f, 0.10f, 0.5f);
-			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
-			m_kp.crouching = true;
+			_activateChrouch();
+			m_toogleCrouch = 1;
 		}
+		else if (m_currClick && !m_prevClick && m_toogleCrouch == 1)
+		{
+			_deActivateChrouch();
+			m_toogleCrouch = 0;
+		}
+		m_prevClick = m_currClick;
 	}
 	else
 	{
-		if (m_kp.crouching)
+		if (Input::Crouch())
 		{
-			m_standHeight = this->p_camera->getPosition().y;
-			this->CreateBox(0.5, 0.5, 0.5);
-			this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
-			m_kp.crouching = false;
+			if (m_kp.crouching == false)
+			{
+				m_standHeight = this->p_camera->getPosition().y;
+				this->CreateBox(0.5f, 0.10f, 0.5f);
+				this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+				m_kp.crouching = true;
+			}
+		}
+		else
+		{
+			if (m_kp.crouching)
+			{
+				m_standHeight = this->p_camera->getPosition().y;
+				this->CreateBox(0.5, 0.5, 0.5);
+				this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+				m_kp.crouching = false;
+			}
 		}
 	}
 }
@@ -340,6 +359,22 @@ void Player::_cameraPlacement(double deltaTime)
 	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
+}
+
+void Player::_activateChrouch()
+{
+	this->setPosition(this->getPosition().x, this->getPosition().y - m_offPutY, this->getPosition().z);
+	m_standHeight = this->p_camera->getPosition().y;
+	this->CreateBox(0.5f, 0.10f, 0.5f);
+	m_kp.crouching = true; 
+}
+
+void Player::_deActivateChrouch()
+{
+	this->setPosition(this->getPosition().x, this->getPosition().y + m_offPutY, this->getPosition().z);
+	m_standHeight = this->p_camera->getPosition().y;
+	this->CreateBox(0.5, 0.5, 0.5);
+	m_kp.crouching = false;
 }
 
 

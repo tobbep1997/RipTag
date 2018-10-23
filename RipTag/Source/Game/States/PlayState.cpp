@@ -27,8 +27,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
-	
-
 	CameraHandler::setActiveCamera(player->getCamera());
 
 
@@ -101,6 +99,7 @@ void PlayState::Update(double deltaTime)
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
+	
 	m_firstRun = false;
 
 	m_world.Step(m_step);
