@@ -28,13 +28,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	
-	Grid grid = Grid(30, 30);
+	Grid grid = Grid(300, 300);
 	std::vector<Node*> path;
 
-	grid.blockGrid();
-	grid.printGrid();
-
-	path = grid.FindPath(Tile(3, 10), Tile(13, 29));
+	//grid.blockGrid();
+	//grid.printGrid();
+	
+	dt.getDeltaTimeInSeconds();
+	path = grid.FindPath(Tile(0, 0), Tile(299, 299));
+	std::cout << dt.getDeltaTimeInSeconds() << " seconds." << std::endl;
 
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)
@@ -43,7 +45,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	std::cout << std::endl << "Path is finished printing..." << std::endl;
 
-	grid.printGrid();
 	system("pause");
 
 	for (int i = 0; i < path.size(); i++)

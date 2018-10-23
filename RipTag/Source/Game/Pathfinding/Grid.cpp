@@ -43,8 +43,8 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 	while (!openList.empty())
 	{
-		std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
-		current = openList.at(0);
+		std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost > second->fCost; });
+		current = openList.at(openList.size() - 1);
 
 		if (current->tile == dest)
 		{
@@ -72,7 +72,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		}
 
 		closedList.push_back(current);
-		openList.erase(openList.begin());
+		openList.erase(openList.end() - 1);
 
 		/*
 			Generate all the eight successors of the cell
@@ -170,7 +170,7 @@ float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = src.getX() - dest.getX();
 	int y = src.getY() - dest.getY();
-	return std::max(abs(x), abs(y));
+	return abs(x) + abs(y);
 }
 
 bool Grid::_checkAddToClosedList(std::vector<Node*>& list, Node * checkNode) const
