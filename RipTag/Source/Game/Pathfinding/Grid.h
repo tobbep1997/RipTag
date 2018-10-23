@@ -69,14 +69,12 @@ public:
 
 	// Test function
 	void printGrid();
-	void blockGrid();
 	
 private:
 	// Utility functions
 	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,
-			std::vector<Node*> & openList, std::vector<Node*> & closedList);
+			std::vector<Node*> & openList, bool * closedList);
 	bool _isValid(Tile tile) const;
 	float _calcHValue(Tile src, Tile dest) const;
-	bool _checkAddToClosedList(std::vector<Node*> & list, Node * checkNode) const;
 	
 };
