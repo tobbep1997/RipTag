@@ -12,7 +12,7 @@
 /// \brief Forwards UDP datagrams. Independent of RakNet's protocol.
 ///
 
-
+#pragma warning (disable : 4477)
 
 #include "NativeFeatureIncludes.h"
 #if _RAKNET_SUPPORT_UDPForwarder==1

@@ -30,6 +30,7 @@ private:
 
 public:
 	PointLight();
+	PointLight(float * translation, float * color, float intensity);
 	~PointLight();
 
 	void CreateShadowDirection(ShadowDir direction);
@@ -62,6 +63,8 @@ public:
 
 
 	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
+
+	float TourchEffect(double deltaTime, float base, float amplitude);
 
 private:
 	void _createSides();

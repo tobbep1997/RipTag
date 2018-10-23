@@ -42,6 +42,42 @@ bool Input::Jump()
 	return 0;
 }
 
+bool Input::CheckVisability()
+{
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	{
+		GamePadHandler::IsLeftShoulderPressed();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed('V'))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Input::Crouch()
+{
+	if (GamePadHandler::IsConnected() && m_deactivate == false)
+	{
+		return GamePadHandler::IsRightStickPressed();
+	}
+	else
+	{
+		if (InputHandler::isKeyPressed('C'))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return 0;
+}
+
 float Input::MoveForward()
 {
 	if (GamePadHandler::IsConnected() && m_deactivate == false)

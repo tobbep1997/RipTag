@@ -15,8 +15,15 @@ private:
 	static DirectX::XMINT2 m_windowSize; 
 	static int m_lastPressed; 
 
+	static DirectX::XMFLOAT2 m_windowPos;
+	static DirectX::XMFLOAT2 m_viewportPos;
+	static DirectX::XMFLOAT2 m_mouseDelta;
+
+	static bool m_windowInFocus;
 	InputHandler();
 	~InputHandler();
+
+	static BOOL m_showCursor;
 
 public:
 
@@ -33,8 +40,14 @@ public:
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 
-	static void REGISTER_TO_LUA();
+	static DirectX::XMFLOAT2 getMousePosDelta();
+	static DirectX::XMFLOAT2 getWindowPos();
+	static DirectX::XMFLOAT2 getviewportPos();
 
+	static bool getWindowFocus();
+
+	static void setShowCursor(BOOL b);
+	static BOOL getShowCursor();
 	enum Key
 	{
 		Del = 46,
@@ -52,6 +65,8 @@ public:
 		SKey = 0x53,
 		DKey = 0x44,
 		Shift = 0x10,
+		Ctrl = 0x11,
+		Alt = 0x12,
 		Esc = 0x1B,
 		BackSpace = 0x08
 	};

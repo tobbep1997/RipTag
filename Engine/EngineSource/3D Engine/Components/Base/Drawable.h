@@ -20,7 +20,8 @@ enum EntityType
 {
 	DefultType = 0,
 	PlayerType = 1,
-	GuarddType = 2
+	GuarddType = 2,
+	ExcludeType = 3
 };
 
 class Drawable : public Transform
@@ -41,6 +42,8 @@ protected:
 
 	std::wstring p_vertexPath;
 	std::wstring p_pixelPath;
+
+	DirectX::XMFLOAT4A p_color;
 
 	virtual void p_createBuffer();
 
@@ -74,8 +77,6 @@ public:
 
 	virtual ID3D11Buffer * getBuffer();
 
-	//Returns the objects worldMatrix
-	virtual DirectX::XMFLOAT4X4A getWorldmatrix();
 
 	//returns static or dynamic objtype
 	virtual ObjectType getObjectType();
@@ -92,6 +93,10 @@ public:
 
 	virtual void setModel(StaticMesh * staticMesh);
 	virtual void setModel(DynamicMesh * dynamicMesh);
+
+	virtual void setColor(const DirectX::XMFLOAT4A & color);
+	virtual void setColor(const float & x, const float & y, const float & z, const float & w);
+	virtual const DirectX::XMFLOAT4A & getColor() const;
 
 private:
 	virtual void _setStaticBuffer();

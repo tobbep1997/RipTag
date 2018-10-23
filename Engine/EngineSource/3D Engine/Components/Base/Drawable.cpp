@@ -108,6 +108,7 @@ Drawable::Drawable() : Transform()
 	m_staticMesh = nullptr;
 	m_dynamicMesh = nullptr;
 	p_vertexBuffer = nullptr;
+	p_color = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	
 }
 
@@ -187,12 +188,6 @@ ID3D11Buffer * Drawable::getBuffer()
 	return p_vertexBuffer;
 }
 
-DirectX::XMFLOAT4X4A Drawable::getWorldmatrix()
-{
-	this->p_calcWorldMatrix();
-	return this->p_worldMatrix;
-}
-
 ObjectType Drawable::getObjectType()
 {
 	return p_objectType;
@@ -253,6 +248,21 @@ void Drawable::setModel(DynamicMesh * dynamicMesh)
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(dynamicMesh);
 	p_createBuffer();
+}
+
+void Drawable::setColor(const DirectX::XMFLOAT4A& color)
+{
+	this->p_color = color;
+}
+
+void Drawable::setColor(const float& x, const float& y, const float& z, const float& w)
+{
+	setColor(DirectX::XMFLOAT4A(x, y, z, w));
+}
+
+const DirectX::XMFLOAT4A& Drawable::getColor() const
+{
+	return this->p_color;
 }
 
 

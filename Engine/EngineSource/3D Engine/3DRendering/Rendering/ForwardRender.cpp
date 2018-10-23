@@ -56,14 +56,14 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	omDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	omDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
+	HRESULT hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
 	m_visabilityPass.Init();
 
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
 
-	D3D11_RASTERIZER_DESC wfdesc;
+	D3D11_RASTERIZER_DESC wfdesc{};
 	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
 	wfdesc.FillMode = D3D11_FILL_WIREFRAME;
 	wfdesc.CullMode = D3D11_CULL_NONE;
@@ -79,11 +79,13 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
 	m_animationBuffer.SetAnimationCBuffer();
+
+	m_2DRender.Init();
 }
 
 void ForwardRender::GeometryPass()
 {
-	
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	if (m_firstRun == true)
 	{
 		m_shaderThreads[0].join();
@@ -101,16 +103,20 @@ void ForwardRender::GeometryPass()
 	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
+		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-			
+
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_geometryQueue[i]->BindTextures();
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+		}
+		
 		
 	}
 
-
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
 void ForwardRender::AnimatedGeometryPass()
@@ -125,21 +131,25 @@ void ForwardRender::AnimatedGeometryPass()
 	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		{
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 		
-		DX::g_animatedGeometryQueue[i]->BindTextures();
+			DX::g_animatedGeometryQueue[i]->BindTextures();
 
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
-		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+		}		
 	}
 }
 
 void ForwardRender::Flush(Camera & camera)
 {
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
 	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
@@ -162,7 +172,7 @@ void ForwardRender::Flush(Camera & camera)
 
 	if (drawFrustum)
 		_GuardFrustumDraw();
-	
+	m_2DRender.GUIPass();
 }
 
 void ForwardRender::Clear()
@@ -206,7 +216,9 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_disableBackFace);
 
+	DX::SafeRelease(m_shadowSampler);
 	m_shadowMap.Release();
+	m_2DRender.Release();
 }
 
 void ForwardRender::_GuardFrustumDraw()
@@ -346,8 +358,10 @@ void ForwardRender::_createConstantBuffer()
 void ForwardRender::_createSamplerState()
 {
 	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState, D3D11_TEXTURE_ADDRESS_WRAP);
+	hr = DXRHC::CreateSamplerState(m_shadowSampler);
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 }
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
@@ -362,6 +376,7 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 
 	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
 
+	m_textureValues.color = drawable->getColor();
 
 	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
 }
