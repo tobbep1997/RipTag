@@ -11,7 +11,7 @@
 /// \file
 /// \brief SocketLayer class implementation
 ///
-
+#pragma warning (disable : 4477)
 
 #include "SocketLayer.h"
 #include "RakAssert.h"

@@ -1,8 +1,12 @@
 
+
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
 #include "EngineSource/Helper/Timer.h"
 #include <LuaTalker.h>
+
+
+
 
 
 #if _DEBUG
@@ -25,7 +29,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Game game;
 	game.Init(hInstance);
-
+	std::cout << "hello";
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	float deltaNega = 0;

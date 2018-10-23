@@ -95,7 +95,11 @@ ID3D11UnorderedAccessView * VisibilityComponent::getUAV()
 	return m_UAV.UAV;
 }
 
-
+void VisibilityComponent::Reset()
+{
+	m_playerVisability[0] = 0;
+	m_playerVisability[1] = 0;
+}
 
 void VisibilityComponent::_createUAV()
 {

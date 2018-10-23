@@ -70,11 +70,10 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	//KEYBOARD INPUT
 	case WM_KEYDOWN:
-		
 		InputHandler::m_keys[wParam] = true; 
 		InputHandler::m_lastPressed = static_cast<int>(wParam);
 		break; 
-	
+
 	case WM_KEYUP:
 		
 		InputHandler::m_keys[wParam] = false;
@@ -130,7 +129,7 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	RECT Rect;
 	GetWindowRect(hwnd, &Rect);
 	MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
-
+	InputHandler::m_windowSize = { (INT) m_windowContext.clientWidth, (INT) m_windowContext.clientHeight };
 	InputHandler::m_windowPos = DirectX::XMFLOAT2((float)Rect.left, (float)Rect.top);
 	InputHandler::m_viewportPos = DirectX::XMFLOAT2((float)Rect.left + (!m_windowContext.fullscreen * 8.f), (float)Rect.top + (!m_windowContext.fullscreen * 31.f));
 	if (GainedFocus)
@@ -189,7 +188,7 @@ bool Window::Init(_In_ WindowContext windowContext)
 	}
 
 	InputHandler::Instance();
-
+	InputHandler::m_viewportSize = { (INT) m_windowContext.clientWidth, (INT) m_windowContext.clientHeight };
 	//Give InputHandler neccesary dimension information 
 	InputHandler::m_windowSize.x = m_windowContext.clientWidth;
 	InputHandler::m_windowSize.y = m_windowContext.clientHeight; 
@@ -230,10 +229,18 @@ bool Window::Init(_In_ WindowContext windowContext)
 
 void Window::PollEvents()
 {
-	if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
+	for (unsigned int i = 0; i < 10; ++i)
 	{
-		TranslateMessage(&m_Peekmsg);
-		DispatchMessage(&m_Peekmsg);
+
+		if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&m_Peekmsg);
+			DispatchMessage(&m_Peekmsg);
+		}
+		else
+		{
+			break;
+		}
 	}
 }
 

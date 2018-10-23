@@ -4,6 +4,8 @@
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
 
+#define JAAH TRUE
+#define NEIN FALSE
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
@@ -21,12 +23,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	future.get();
 	future1.get();
+	player = new Player();
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
 	
-	player = new Player();
-	//enemy = new Enemy();
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
@@ -62,11 +63,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
 	
+	Input::ResetMouse();
 }
 
 PlayState::~PlayState()
 {
-
 	m_levelHandler.Release();
 	
 	player->Release(m_world);
@@ -74,7 +75,6 @@ PlayState::~PlayState()
 	delete player;
 
 	//actor->Release(m_world);
-	
 	delete model;
 }
 
@@ -83,6 +83,9 @@ void PlayState::Update(double deltaTime)
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
+#if _DEBUG
+	TemporaryLobby();
+#endif
 	if (GamePadHandler::IsLeftDpadPressed())
 	{
 		Input::ForceDeactivateGamepad();
@@ -105,9 +108,20 @@ void PlayState::Update(double deltaTime)
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
 
-	if (InputHandler::isKeyPressed(InputHandler::Esc))
+	if (Input::Exit())
 	{
 		setKillState(true);
+	}
+
+	// Must be last in update
+	if (!player->unlockMouse)
+	{
+		Input::ResetMouse();
+		InputHandler::setShowCursor(NEIN);
+	}
+	else
+	{
+		InputHandler::setShowCursor(JAAH);
 	}
 }
 
@@ -125,4 +139,48 @@ void PlayState::Draw()
 void PlayState::thread(std::string s)
 {
 	Manager::g_meshManager.loadStaticMesh(s);
+}
+
+void PlayState::TemporaryLobby()
+{
+	Network::Multiplayer * ptr = Network::Multiplayer::GetInstance();
+
+	ImGui::Begin("Network Lobby");
+	if (!ptr->isConnected() && !ptr->isRunning())
+	{
+		if (ImGui::Button("Start Server"))
+		{
+			ptr->StartUpServer();
+		}
+		else if (ImGui::Button("Start Client"))
+		{
+			ptr->StartUpClient();
+		}
+	}
+
+	if (ptr->isRunning() && ptr->isServer() && !ptr->isConnected())
+	{
+		ImGui::Text("Server running... Awaiting Connections...");
+		if (ImGui::Button("Cancel"))
+			ptr->EndConnectionAttempt();
+	}
+
+	if (ptr->isRunning() && ptr->isClient() && !ptr->isConnected())
+	{
+		ImGui::Text("Client running... Searching for Host...");
+		if (ImGui::Button("Cancel"))
+			ptr->EndConnectionAttempt();
+	}
+
+	if (ptr->isRunning() && ptr->isConnected())
+	{
+		if (ptr->isServer() && !ptr->isGameRunning())
+			if (ImGui::Button("Start Game"))
+			{				//set game running, send a start game message
+			}
+		ImGui::Text(ptr->GetNetworkInfo().c_str());
+		if (ImGui::Button("Disconnect"))
+			ptr->Disconnect();
+	}
+	ImGui::End();
 }
