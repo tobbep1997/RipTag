@@ -221,7 +221,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0f, 0.0f, 0.0f, 1.0f }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Skeleton* skeleton)
+Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton)
 {
 	MyLibrary::Loadera loader;
 	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
@@ -229,11 +229,11 @@ Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, Sk
 	return new Animation::AnimationClip(importedAnimation, skeleton);
 }
 
-Animation::Skeleton* Animation::LoadAndCreateSkeleton(std::string file)
+std::shared_ptr<Animation::Skeleton> Animation::LoadAndCreateSkeleton(std::string file)
 {
 	MyLibrary::Loadera loader;
 	auto importedSkeleton = loader.readSkeletonFile(file);
-	return new Animation::Skeleton(importedSkeleton);
+	return std::make_shared<Animation::Skeleton>(importedSkeleton);
 }
 
 Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPose referencePose)
@@ -706,7 +706,7 @@ Animation::JointPose::JointPose(const SRT& srt)
 	m_transformation = srt;
 }
 
-Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton)
+Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Skeleton> skeleton)
 {
 	m_skeleton = skeleton;
 	m_framerate = 24; //TODO maybe...
