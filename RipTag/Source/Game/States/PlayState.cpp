@@ -71,7 +71,6 @@ PlayState::~PlayState()
 	player->Release(m_world);
 	player->ReleaseTeleport(m_world);
 	delete player;
-
 	//actor->Release(m_world);
 	delete model;
 }
@@ -92,6 +91,7 @@ void PlayState::Update(double deltaTime)
 	{
 		Input::ForceActivateGamepad();
 	}
+
 
 	player->Update(deltaTime);
 

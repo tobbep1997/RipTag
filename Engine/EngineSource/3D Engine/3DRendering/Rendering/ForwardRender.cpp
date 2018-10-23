@@ -160,18 +160,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
-	static bool drawFrustum = true;
-	if (InputHandler::isKeyPressed('J'))
-	{
-		drawFrustum = false;
-	}
-	else if (InputHandler::isKeyPressed('K'))
-	{
-		drawFrustum = true;
-	}
 
-	if (drawFrustum)
-		_GuardFrustumDraw();
+	_GuardFrustumDraw();
 	m_2DRender.GUIPass();
 }
 
