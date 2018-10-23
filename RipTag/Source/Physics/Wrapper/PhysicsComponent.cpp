@@ -1,80 +1,44 @@
 #include "PhysicsComponent.h"
 #include <iostream>
-#include "Source/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
+#pragma warning (disable : 4312)
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
 	transform->setPosition(m_body->GetTransform().translation.x,
 		m_body->GetTransform().translation.y,
 		m_body->GetTransform().translation.z);
-	/*transform->setRotation(m_body->GetTransform().rotation.x,
-		m_body->GetTransform().rotation.y,
-		m_body->GetTransform().rotation.z);*/
-	//transform->setRotation(m_body->GetTransform().rotation);
-	//m_shape->GetTransform().rotation;
+
+	b3Mat33 mat = m_body->GetTransform().rotation;
+	transform->setPhysicsRotation(mat);
 	
-
-	//double roll;
-	//double pitch;
-	//double yaw;
-
-	//b3Mat33 mat = m_body->GetTransform().rotation;
-	////b3Quaternion q = m_body->GetQuaternion();
-	//mat = b3Transpose(mat);
-	////mat = b3Inverse(mat);
-	//pitch = atan2(mat.z.y, mat.z.z);
-	//yaw = atan2(-mat.z.x, sqrt(pow(mat.z.y, 2) + pow(mat.z.z, 2)));
-	//roll = atan2(mat.y.x, mat.x.x);
-
-	/*roll = roll * -1;
-	yaw = yaw * -1;
-	pitch = pitch * -1;*/
-	//x = x * DirectX::XM_PI;
-	//if (x != 1.5708f)
-	//{
-	//	std::cout << "X : " << x << std::endl;
-	//}
-	
-
-	//double sinr_cosp = +2.0 * (q.d * q.a + q.b * q.c);
-	//double cosr_cosp = +1.0 - 2.0 * (q.a * q.a + q.b * q.b);
-	//roll = atan2(sinr_cosp, cosr_cosp);
-
-	//// pitch (y-axis rotation)
-	//double sinp = +2.0 * (q.d * q.b - q.c * q.a);
-	////if (fabs(sinp) >= 1)
-	//	//pitch = copysign(DirectX::XM_PI / 2, sinp); // use 90 degrees if out of range
-	///*else*/
-	//pitch = asin(sinp);
-	//pitch = pitch * DirectX::XM_PI;
-	//// yaw (z-axis rotation)
-	//double siny_cosp = +2.0 * (q.d * q.c + q.a * q.b);
-	//double cosy_cosp = +1.0 - 2.0 * (q.b * q.b + q.c * q.c);
-	//yaw = atan2(siny_cosp, cosy_cosp);
-
-	//ImGui::Begin("box1");
-	//ImGui::Text("Roll; %f", roll);
-	//ImGui::Text("pitch; %f", pitch);
-	//ImGui::Text("yaw; %f", yaw);
-	///*std::cout << "Roll: " << roll << std::endl;
-	//std::cout << "pitch: " << pitch << std::endl;
-	//std::cout << "yaw: " << yaw << std::endl;*/
-	//ImGui::End();
-
-	//transform->setRotation(pitch, yaw, roll);
-	//m_body->SetTransform()
-	//transform->addRotation(pitch, yaw, roll);
 }
-
-//x = -1.5
-//y = 2.1
-//z = -2.1
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
-	m_body->SetTransform(b3Vec3(x, y, z), b3Vec3(0,0,0), 0);
-	//m_shape->ComputeAabb()
-	
+	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
+}
+
+void PhysicsComponent::p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll)
+{
+	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
+
+	float xx = DirectX::XMVectorGetX(t);
+	float yy = DirectX::XMVectorGetY(t);
+	float zz = DirectX::XMVectorGetZ(t);
+	float ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(b3Vec3(x, y, z), b3Quaternion(xx, yy, zz, ww));
+}
+
+void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const float& roll)
+{
+	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
+
+	float xx = DirectX::XMVectorGetX(t);
+	float yy = DirectX::XMVectorGetY(t);
+	float zz = DirectX::XMVectorGetZ(t);
+	float ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
 }
 
 PhysicsComponent::PhysicsComponent()
@@ -93,6 +57,60 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 	setBaseShapeDef();
 	CreateBodyAndShape(world);
 }
+
+void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes)
+{
+	singelCollider = false;
+	//setBaseBodyDef---------------------------------------
+	m_bodyDef = new b3BodyDef();
+	m_bodyDef->position.Set(0, 0, 0);
+	m_bodyDef->type = e_staticBody;
+	m_bodyDef->gravityScale = 1;
+	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
+	//-----------------------------------------------------
+		
+
+	b3Hull * h;
+	b3Polyhedron * p;
+	b3ShapeDef* s;
+
+	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	{
+		h = new b3Hull();
+		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+		m_hulls.push_back(h);
+
+		//-----------------------------------------------------
+
+		p = new b3Polyhedron();
+		p->SetHull(h);
+		m_polys.push_back(p);
+		
+
+		//-----------------------------------------------------
+
+		s = new b3ShapeDef();
+		s->shape = p;
+		s->density = 1.0f;
+		s->restitution = 0;
+		s->friction = 0;
+		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
+		m_shapeDefs.push_back(s);
+	}
+
+	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	{
+		b3Body * b = world.CreateBody(*m_bodyDef);
+	
+	
+		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
+			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
+		
+		b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
+		m_bodys.push_back(b);
+		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
+	}
+  }
 
 
 
@@ -125,6 +143,12 @@ void PhysicsComponent::setBaseShapeDef()
 	m_bodyBoxDef->density = 1.0f;
 	m_bodyBoxDef->restitution = 0;
 
+
+	m_bodyBoxDef->density = 1.0f;
+	m_bodyBoxDef->friction = 1.0f;
+	m_bodyBoxDef->restitution = 0;
+
+
 	//everything in this except the shape you can set using m_shape
 }
 
@@ -135,7 +159,6 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 		//Create the box
 		m_bodyBox = new b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
-
 		//Then the poly
 		m_poly = new b3Polyhedron();
 		m_poly->SetHull(m_bodyBox);
@@ -161,6 +184,7 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 		//Create the shape
 		m_shape = m_body->CreateShape(*m_bodyBoxDef);
 	}
+	
 }
 
 void PhysicsComponent::CreateBodyAndShape(b3World& world)
@@ -169,9 +193,14 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
 }
 
+void PhysicsComponent::setGravityScale(float gravity)
+{
+	m_body->SetGravityScale(gravity);
+}
+
 void PhysicsComponent::setLiniearVelocity(float x, float y, float z)
 {
-	m_body->SetLinearVelocity(b3Vec3(x,y,z));
+	m_body->SetLinearVelocity(b3Vec3(x, y, z));
 }
 
 void PhysicsComponent::addForceToCenter(float x, float y, float z)
@@ -181,12 +210,32 @@ void PhysicsComponent::addForceToCenter(float x, float y, float z)
 
 void PhysicsComponent::Release(b3World& world)
 {
-	m_body->DestroyShape(m_shape);
-	delete m_poly;
-	delete m_bodyBox;
 	delete m_bodyDef;
-	delete m_bodyBoxDef;
-	world.DestroyBody(m_body);
+	if (singelCollider)
+	{
+		m_body->DestroyShape(m_shape);
+		delete m_poly;
+		delete m_bodyBox;
+		delete m_bodyBoxDef;
+		world.DestroyBody(m_body);
+	}
+
+
+
+
+	for (int i = 0; i < m_bodys.size(); i++) 
+		m_bodys[i]->DestroyShape(m_shapes[i]);
+	for (int i = 0; i < m_polys.size(); i++)
+		delete m_polys[i];
+	for (int i = 0; i < m_hulls.size(); i++)
+		delete m_hulls[i];
+	for (int i = 0; i < m_shapeDefs.size(); i++)
+		delete m_shapeDefs[i];
+	for (int i = 0; i < m_bodys.size(); i++)
+		world.DestroyBody(m_bodys[i]);
+
+	
+	
 }
 
 b3Vec3 PhysicsComponent::getLiniearVelocity()
@@ -200,4 +249,14 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
+}
+
+b3Body* PhysicsComponent::getBody()
+{
+	return this->m_body;
+}
+
+void PhysicsComponent::setAwakeState(const bool& awa)
+{
+	m_body->SetAwake(awa);
 }

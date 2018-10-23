@@ -23,6 +23,11 @@ void BaseActor::Init(b3World& world, b3BodyType bodyType, const float & x, const
 	PhysicsComponent::Init(world, bodyType, x, y, z);
 }
 
+void BaseActor::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes)
+{
+	PhysicsComponent::Init(world, collisionBoxes);
+}
+
 void BaseActor::BeginPlay()
 {
 
@@ -37,6 +42,14 @@ void BaseActor::setPosition(const float& x, const float& y, const float& z)
 {
 	Transform::setPosition(x, y, z);
 	PhysicsComponent::p_setPosition(x, y, z);
+}
+
+void BaseActor::setPositionRot(const float& x, const float& y, const float& z, const float& pitch, const float& yaw,
+	const float& roll)
+{
+	Transform::setPosition(x, y, z);
+	Transform::setRotation(pitch, yaw, roll);
+	PhysicsComponent::p_setPositionRot(x, y, z, pitch, yaw, roll);
 }
 
 

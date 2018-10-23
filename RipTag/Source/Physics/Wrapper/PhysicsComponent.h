@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../../Physics/Bounce.h"
-#include "../Engine/Source/3D Engine/Components/Base/Transform.h"
+#include "EngineSource/3D Engine/Components/Base/Transform.h"
+#include <vector>
+#include "ImportLibrary/FormatHeader.h"
 struct BodyDefine
 {
 	float posX = 0;
@@ -14,9 +16,21 @@ struct BodyDefine
 	float gravityScale = 1;
 };
 
+struct CollisionObject
+{
+	CollisionObject(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale)
+	{
+		this->pos = pos;
+		this->scale = scale;
+	}
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 scale;
+};
+
 class PhysicsComponent
 {
 private:
+	bool singelCollider = true;
 
 	b3Body*			 m_body = nullptr;
 	b3Shape *		 m_shape = nullptr;
@@ -28,15 +42,24 @@ private:
 					 
 	b3ShapeDef*		 m_bodyBoxDef = nullptr;
 
+	std::vector<b3Hull*> m_hulls;
+	std::vector<b3Polyhedron*> m_polys;
+	std::vector<b3ShapeDef*> m_shapeDefs;
+	std::vector <b3Body*>	m_bodys;
+	std::vector <b3Shape *> m_shapes;
+
 protected:
 	virtual void p_updatePhysics(Transform * transform);
 	virtual void p_setPosition(const float & x, const float & y, const float & z);
-
+	virtual void p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
+	virtual void p_setRotation(const float & pitch, const float & yaw, const float & roll);
 public:
 	PhysicsComponent();
 	virtual ~PhysicsComponent();
 
 	virtual void Init(b3World & world, b3BodyType bodyType, float x = 1, float y = 1, float z = 1);
+	virtual void Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes);
+
 
 	virtual void setBaseBodyDef(b3BodyType bodyType = b3BodyType::e_dynamicBody);
 	virtual void setBodyDef(BodyDefine bodyDefine);
@@ -46,6 +69,7 @@ public:
 
 	virtual void CreateBodyAndShape(b3World & world);
 
+	virtual void setGravityScale(float gravity);
 
 	virtual void setLiniearVelocity(float x = 0, float y = 0, float z = 0);
 
@@ -55,4 +79,8 @@ public:
 
 	virtual b3Vec3 getLiniearVelocity();
 	virtual void getLiniearVelocity(_Out_ float & x, _Out_ float & y, _Out_ float &z);
+
+	virtual void setAwakeState(const bool & awa);
+
+	virtual b3Body* getBody();
 };

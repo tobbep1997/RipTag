@@ -1,9 +1,36 @@
+
+#include <WinSock2.h>
 #include <Windows.h>
+
 #include "Source/3D Engine/RenderingManager.h"
 #include "Source/Shader/ShaderManager.h"
 #include "Source/3D Engine/Model/Model.h"
 #include "Source/3D Engine/Model/Texture.h"
 #include "Source/Light/PointLight.h"
+
+
+//network
+#include <Multiplayer.h>
+#include "NetworkMessageIdentifiers.h"
+#include "CubePrototype.h"
+
+static std::vector<CubePrototype*> * GetPlayers();
+static void FlushPlayers();
+
+#define LUA_ADD_PLAYER "AddPlayer"
+#define LUA_UPDATE_REMOTE_PLAYER "UpdateRemotePlayer"
+#define LUA_UPDATE_LOCAL_PLAYER "UpdateLocalPlayer"
+static int Lua_Player_Add(lua_State *L);
+static int Lua_Update_Remote_Player(lua_State * L);
+static int Lua_Update_Local_Player(lua_State * L);
+
+//LUA
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
+
 #include "Source/3D Engine/Model/Managers/ModelManager.h"
 //#pragma comment(lib, "New_Library.lib")
 #include "Source/Helper/Threading.h"
@@ -19,6 +46,7 @@
 //Allocates memory to the console
 void _alocConsole() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 	AllocConsole();
 	FILE* fp;
 	freopen_s(&fp, "CONOUT$", "w", stdout);
@@ -79,11 +107,40 @@ void MoveLight() {
 #endif
 }
 
+#pragma region AnimationDebugStuff
+Animation::AnimatedModel* g_animatedModel = nullptr;
+Animation::AnimationClip* g_currentTargetClip = nullptr;
+Animation::AnimationClip* g_currentClip = nullptr;
+float g_blendTime = 1.0f;
+float g_currentTime = 0.0f;
+float g_weight = 0.0f;
+int  g_currentFrame = 0.0f;
+void AnimationGUI()
+{
+#if _DEBUG
+	ImGui::Begin("Animation");
+	ImGui::SliderFloat("Blend time", &g_blendTime, 0.1, 10.0);
+	if (ImGui::Button("Blend.."))
+	{
+		g_animatedModel->SetTargetClip(g_currentClip, BLEND_FROM_START, g_blendTime);
+		std::swap(g_currentClip, g_currentTargetClip);
+	}
+	ImGui::Text("%f", g_currentTime);
+	ImGui::SliderInt("Frame", &g_currentFrame, 0.0, g_currentClip->m_frameCount);
+
+	ImGui::Separator();
+
+	if (ImGui::SliderFloat("Weight", &g_weight, 0.0, 1.0))
+		g_animatedModel->SetLayeredClipWeight(g_weight);
+
+
+	ImGui::End();
+#endif
+}
+#pragma endregion Animation ImGui stuff and globals for testing
 
 /*v*/
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
-{
 #if _DEBUG
 	_alocConsole();
 #endif
@@ -106,6 +163,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	RenderingManager renderingManager;
 
 	
+
 	renderingManager.Init(hInstance);
 	
 	//std::chrono::
@@ -116,9 +174,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Guard gTemp;
 	gTemp.setPos(0, 5, 0);
 	
-	
-	
-
 	GamePadHandler::Instance();
 	
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -132,13 +187,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Animation::Skeleton* skeleton = nullptr;
 	Animation::AnimationClip* animation = nullptr;
-	Manager::g_meshManager.loadDynamicMesh("JUMP");
-	skeleton = Animation::LoadAndCreateSkeleton("../Assets/JUMPFOLDER/JUMP_SKELETON.bin");
-	animation = Animation::LoadAndCreateAnimation("../Assets/JUMPFOLDER/JUMP_ANIMATION.bin", skeleton);
-	Manager::g_meshManager.getDynamicMesh("JUMP")->m_anim = new Animation::AnimatedModel();
-	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetSkeleton(skeleton);
-	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->SetPlayingClip(animation);
-	Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Play();
+	Animation::AnimationClip* animation2 = nullptr;
+	Animation::AnimationClip* diffAnimation = nullptr;
+	Manager::g_meshManager.loadDynamicMesh("CYLS");
+	skeleton = Animation::LoadAndCreateSkeleton("../Assets/CYLSFOLDER/CYLS_SKELETON.bin");
+	animation = Animation::LoadAndCreateAnimation("../Assets/CYLSFOLDER/CYLS_ANIMATION.bin", skeleton);
+	animation2 = Animation::LoadAndCreateAnimation("../Assets/CYLSFOLDER/CYLR_ANIMATION.bin", skeleton);
+	Manager::g_meshManager.getDynamicMesh("CYLS")->m_anim = new Animation::AnimatedModel();
+	g_animatedModel = Manager::g_meshManager.getDynamicMesh("CYLS")->getAnimatedModel();
+
+	diffAnimation = Animation::computeDifferenceClip(animation, animation2);
+	Animation::bakeDifferenceClipOntoClip(animation2, diffAnimation);
+	g_animatedModel->SetSkeleton(skeleton);
+	g_animatedModel->SetPlayingClip(animation2);
+	g_animatedModel->SetLayeredClip(diffAnimation, .0, BLEND_MATCH_TIME);
+	g_animatedModel->Play();
+
+	g_currentTargetClip = animation2;
+	g_currentClip = diffAnimation;
 	
 	ModelManager modelmanager;
 	modelmanager.addNewModel(Manager::g_meshManager.getStaticMesh("SCENE"), Manager::g_textureManager.getTexture("SPHERE"));
@@ -146,8 +212,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Model * player = new Model();
 	player->setEntityType(EntityType::PlayerType);
-	player->setModel(Manager::g_meshManager.getDynamicMesh("JUMP"));
-	player->setScale(0.003f, 0.003f, 0.003f);
+	player->setModel(Manager::g_meshManager.getDynamicMesh("CYLS"));
+	//player->setScale(0.003f, 0.003f, 0.003f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<PointLight> point;
@@ -179,6 +245,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	double pos = 0;
 	//modelManager.bindTextures();
 
+	CubePrototype * antiCrashObject = 0;
+	antiCrashObject = new CubePrototype(-1.f, -1.f, -1.f);
+
+	bool hasMoved = false;
+
 	while (renderingManager.getWindow().isOpen())
 	{
 		renderingManager.Update();
@@ -186,6 +257,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		GamePadHandler::UpdateState();
 		MovePlayer();
 		MoveLight();
+		AnimationGUI();
 
 		point[targetLight].setColor(lightColorR, lightColorG, lightColorB);
 		point[targetLight].setDropOff(dropoff);
@@ -299,12 +371,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			lightColorR = pointColor.x;
 			lightColorG = pointColor.y;
 			lightColorB = pointColor.z;
-			
-			//modelManager.m_staticModel[1]->setScale(1, 1, 1);
+
 		}
 		
-		Manager::g_meshManager.getDynamicMesh("JUMP")->getAnimatedModel()->Update(floatDt);
-
+		g_animatedModel->Update(floatDt);
+		g_currentTime = g_animatedModel->GetCurrentTimeInClip();
+		g_currentFrame = g_animatedModel->GetCurrentFrameIndex();
 		modelmanager.DrawMeshes();
 
 
@@ -312,9 +384,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			point[i].QueueLight();
 		}		
-		
-		player->setScale(0.05f, 0.05f, 0.05f);
-
 		gTemp.Draw();
 		player->Draw();
 		//player->DrawWireFrame();
@@ -338,9 +407,78 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		delete skeleton;
 	if (animation)
 		delete animation;
+	if (animation2)
+		delete animation2;
 
 	DX::g_shaderManager.Release();
 	renderingManager.Release();
 	delete player;
 	return 0;
 }
+
+static std::vector<CubePrototype*> * GetPlayers()
+{
+	static std::vector<CubePrototype*> Players;
+
+	return &Players;
+}
+
+static void FlushPlayers()
+{
+	std::vector<CubePrototype*> * vec = GetPlayers();
+	for (size_t i = 0; i < vec->size(); i++)
+	{
+		delete vec->at(i);
+	}
+	vec->clear();
+
+	lua_pushnil(L);
+	lua_setglobal(L, "PLAYER_NID");
+}
+
+static int Lua_Player_Add(lua_State *L)
+{
+	CubePrototype * ptr = (CubePrototype*)lua_touserdata(L, lua_gettop(L));
+	if (ptr)
+	{
+		GetPlayers()->push_back(ptr);
+	}
+	return 0;
+}
+
+static int Lua_Update_Remote_Player(lua_State * L)
+{
+	Network::ENTITY_MOVE_MESSAGE * data = (Network::ENTITY_MOVE_MESSAGE *)lua_touserdata(L, -1);
+	if (data)
+	{
+		RakNet::NetworkID nid = data->networkId;
+		std::vector<CubePrototype*> * players = GetPlayers();
+		for (size_t i = 0; i < players->size(); i++)
+		{
+			if (players->at(i)->GetNetworkID() == nid)
+				players->at(i)->lerpPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 1.0f), data->timeStamp);
+		}
+	}
+	return 0;
+}
+
+static int Lua_Update_Local_Player(lua_State * L)
+{
+	RakNet::NetworkID nid = std::stoull(lua_tostring(L, -4));
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+
+	lua_pop(L, 4);
+
+	DirectX::XMFLOAT4A pos(x, y, z, 1.0f);
+
+	std::vector<CubePrototype*> * players = GetPlayers();
+	for (size_t i = 0; i < players->size(); i++)
+	{
+		if (players->at(i)->GetNetworkID() == nid)
+			players->at(i)->setPosition(pos);
+	}
+	return 0;
+}
+
