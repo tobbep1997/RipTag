@@ -48,6 +48,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//enemy->setDir(1, 0, 0);
 	//enemy->getCamera()->setFarPlane(5);
 
+	//#model creation
+
 	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
 	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
