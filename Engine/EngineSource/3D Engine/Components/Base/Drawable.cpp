@@ -116,6 +116,8 @@ Drawable::Drawable() : Transform()
 Drawable::~Drawable()
 {
 	DX::SafeRelease(p_vertexBuffer);
+	if (m_anim)
+		delete m_anim;
 }
 
 
@@ -240,6 +242,7 @@ void Drawable::setModel(DynamicMesh * dynamicMesh)
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(dynamicMesh);
 	p_createBuffer();
+	m_anim = new Animation::AnimatedModel();
 }
 
 void Drawable::setColor(const DirectX::XMFLOAT4A& color)

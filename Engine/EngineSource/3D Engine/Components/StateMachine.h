@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-namespace SMachine
+#include <functional>
+#include <optional>
+namespace SM
 {
 	enum MACHINE_STATE
 	{
@@ -30,7 +32,7 @@ namespace SMachine
 	};
 
 	template <class StateData, class TransitionData>
-	void SMachine::State<StateData, TransitionData>::AddOutState(std::pair<State*, TransitionData> outState)
+	void SM::State<StateData, TransitionData>::AddOutState(std::pair<State*, TransitionData> outState)
 	{
 		m_OutStates.push_back(outState);
 	}
@@ -43,16 +45,16 @@ namespace SMachine
 		~StateMachine();
 
 		std::string GetCurrentState();
-		TransitionData* TryGoTo(std::string state);
+		std::optional<std::pair<const StateData*, const TransitionData*>> TryGoTo(std::string state);
 		void AddState(std::string name, StateData stateData);
 		void AddOutStates(std::string state, std::vector<std::pair<std::string, TransitionData>> outStates);
 	private:
-		SMachine::State<StateData, TransitionData>* m_CurrentState = nullptr;
-		std::vector<SMachine::State<StateData, TransitionData>> m_States;
+		SM::State<StateData, TransitionData>* m_CurrentState = nullptr;
+		std::vector<SM::State<StateData, TransitionData>> m_States;
 	};
 
 	template <class StateData, class TransitionData>
-	void SMachine::StateMachine<StateData, TransitionData>::AddOutStates(std::string state, std::vector<std::pair<std::string, TransitionData>> outStates)
+	void SM::StateMachine<StateData, TransitionData>::AddOutStates(std::string state, std::vector<std::pair<std::string, TransitionData>> outStates)
 	{
 		auto iter = std::find(std::begin(m_States), std::end(m_States), state);
 		if (iter != std::end(m_States))
@@ -91,26 +93,25 @@ namespace SMachine
 	// Returns the related TransitionData towards passed state if 
 	// go to is successful, nullptr otherwise
 	template <class StateData, class TransitionData>
-	TransitionData* StateMachine<StateData, TransitionData>::TryGoTo(std::string state)
+	std::optional < std::pair<const StateData*, const TransitionData*>> StateMachine<StateData, TransitionData>::TryGoTo(std::string state)
 	{
-		auto iter = std::find(m_States.begin(), m_States.end(), state);
-		if (iter != m_States.end())
+		if (m_CurrentState->HasOutState(state))
 		{
 			auto transitionData = m_CurrentState->GetTransitionData(state);
-			m_CurrentState = &(*iter);
-			return transitionData;
+			m_CurrentState = &(*std::find(m_States.begin(), m_States.end(), state));
+			return std::make_pair(&m_CurrentState->GetStateData(), transitionData);
 		}
-		else return nullptr;
+		else return {};
 	}
 
 	template <class StateData, class TransitionData>
-	SMachine::State<StateData, TransitionData>::State(std::string name, std::vector<std::pair<State*, TransitionData>> outStates) : m_StateName(name)
+	SM::State<StateData, TransitionData>::State(std::string name, std::vector<std::pair<State*, TransitionData>> outStates) : m_StateName(name)
 	{
 		std::copy(outStates.begin(), outStates.end(), std::back_inserter(m_OutStates));
 	}
 
 	template <class StateData, class TransitionData>
-	SMachine::State<StateData, TransitionData>::State(std::string name, StateData stateData) : m_StateName(name), m_StateData(stateData)
+	SM::State<StateData, TransitionData>::State(std::string name, StateData stateData) : m_StateName(name), m_StateData(stateData)
 	{}
 
 	// Gets the associated StateData for this state
@@ -124,7 +125,7 @@ namespace SMachine
 	TransitionData* State<StateData, TransitionData>::GetTransitionData(std::string outState)
 	{
 		auto iter = std::find_if(m_OutStates.begin(), m_OutStates.end(),
-			[&outState](std::pair<SMachine::State<StateData, TransitionData>*, TransitionData>& element) { return *(element.first) == outState; });
+			[&outState](std::pair<SM::State<StateData, TransitionData>*, TransitionData>& element) { return *(element.first) == outState; });
 
 		if (iter != m_OutStates.end())
 			return &((*iter).second);
@@ -146,7 +147,9 @@ namespace SMachine
 	template <class StateData, class TransitionData>
 	bool State<StateData, TransitionData>::HasOutState(std::string state)
 	{
-		if (std::find(std::begin(m_OutStates), std::end(m_OutStates), state) != std::end(m_OutStates))
+		auto iter = std::find_if(m_OutStates.begin(), m_OutStates.end(),
+			[&state](std::pair<SM::State<StateData, TransitionData>*, TransitionData>& element) { return *(element.first) == state; });
+		if (iter != m_OutStates.end())
 			return true;
 		else return false;
 	}
@@ -160,7 +163,7 @@ namespace SMachine
 	template <class StateData, class TransitionData>
 	void StateMachine<StateData, TransitionData>::AddState(std::string name, StateData stateData)
 	{
-		m_States.push_back(SMachine::State<StateData, TransitionData>(name, stateData));
+		m_States.push_back(SM::State<StateData, TransitionData>(name, stateData));
 		if (m_States.size() == 1)
 			m_CurrentState = &m_States[0];
 	}

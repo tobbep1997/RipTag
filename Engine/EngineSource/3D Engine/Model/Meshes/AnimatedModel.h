@@ -4,7 +4,9 @@
 #include <vector>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <unordered_map>
 #include "ImportLibrary/FormatHeader.h"
+#include "../../Components/StateMachine.h"
 
 #define MAXJOINT 128
 #define BLEND_MATCH_TIME (1<<1)
@@ -104,6 +106,9 @@ namespace Animation
 	bool bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip);
 
 #pragma endregion Conversion stuff, Loaders, ...
+	typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
+	typedef std::unordered_map<std::string, SharedAnimation> ClipCollection;
+	typedef std::shared_ptr<ClipCollection> SharedClipCollection;
 
 	class AnimatedModel
 	{
@@ -122,7 +127,6 @@ namespace Animation
 		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
-
 		float GetCurrentTimeInClip();
 		int GetCurrentFrameIndex();
 
@@ -130,7 +134,8 @@ namespace Animation
 	private:
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
-
+		
+		std::unique_ptr<SM::StateMachine<bool, float>> m_StateMachine;
 		Skeleton* m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
 		CombinedClip m_combinedClip;

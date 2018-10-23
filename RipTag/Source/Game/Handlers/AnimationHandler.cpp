@@ -3,7 +3,10 @@
 #include <vector>
 #include <iostream>
 #include <experimental/filesystem>
+#include "../../../Engine/EngineSource/3D Engine/Extern.h"
 namespace fs = std::experimental::filesystem;
+
+AnimationHandler g_animationManager;
 
 #pragma warning(disable : 4996)
 
@@ -24,11 +27,9 @@ AnimationHandler::~AnimationHandler()
 {
 }
 
-bool AnimationHandler::loadClipCollection(std::string prefix, std::string newCollectionName, std::string directory, std::string skeletonPath)
+bool AnimationHandler::loadClipCollection(std::string prefix, std::string newCollectionName, std::string directory, SharedSkeleton skeleton)
 {
 	typedef std::pair<std::wstring, std::string> FileInfo;
-	
-	auto skeleton = Animation::LoadAndCreateSkeleton(skeletonPath);
 
 	std::vector<FileInfo> vFileInfo;
 
@@ -45,9 +46,9 @@ bool AnimationHandler::loadClipCollection(std::string prefix, std::string newCol
 		auto filenameStart = fileInfo.first.find_last_of(L"\\");
 		fileInfo.second = std::string( fileInfo.first.begin() + filenameStart + 1, fileInfo.first.end());
 
-		if (fileInfo.second.find("ani") < fileInfo.second.size())
+		if (fileInfo.second.find("animation") < fileInfo.second.size())
 			qualifiedFiles.push_back(fileInfo);
-		else if (fileInfo.second.find("ANI") < fileInfo.second.size())
+		else if (fileInfo.second.find("ANIMATION") < fileInfo.second.size())
 			qualifiedFiles.push_back(fileInfo);
 	}
 
@@ -89,6 +90,21 @@ bool AnimationHandler::loadClip(std::string file, std::string collection)
 	m_clipCollectionMap.at(collection)->insert(std::make_pair(name, animation));
 
 	return true;
+}
+
+bool AnimationHandler::loadSkeleton(std::string file, std::string key)
+{
+	auto skeleton = Animation::LoadAndCreateSkeleton(file);
+
+	if (!skeleton)
+		return false;
+
+	m_skeletonMap.insert(std::make_pair(key, skeleton));
+}
+
+SharedSkeleton AnimationHandler::getSkeleton(std::string key)
+{
+	return m_skeletonMap.at(key);
 }
 
 SharedClipCollection AnimationHandler::getClipCollection(std::string collectionKey)

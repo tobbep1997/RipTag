@@ -4,8 +4,6 @@
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
 
-#define JAAH TRUE
-#define NEIN FALSE
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
@@ -19,6 +17,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Timer::StartTimer();
 
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_animationManager.loadSkeleton("../Assets/IDLEDUDEFOLDER/IDLEDUDE_SKELETON.bin", "IDLEDUDE");
+	Manager::g_animationManager.loadClipCollection("IDLEDUDE", "IDLEDUDE", "../Assets/IDLEDUDEFOLDER", Manager::g_animationManager.getSkeleton("IDLEDUDE"));
+	Manager::g_meshManager.loadDynamicMesh("IDLEDUDE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 	future.get();
@@ -27,7 +28,25 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
-	
+	SM::StateMachine<bool, float> machine(5);
+	machine.AddState("idle", true);
+	machine.AddState("walk", true);
+	machine.AddState("jump_start", false);
+	machine.AddState("jump_land", false);
+
+	machine.AddOutStates("idle", { {"walk", 0.2f} , {"jump_start", 0.1f} });
+	machine.AddOutStates("walk", { {"idle", 0.2f} , {"jump_start", 0.1f} });
+	machine.AddOutStates("jump_start", { {"jump_land", 0.2f} });
+	machine.AddOutStates("jump_land", { {"idle", 0.2f}, {"walk", 0.2f} });
+
+	if (machine.TryGoTo("walk").has_value())
+	{
+		std::cout << "po";
+	}
+	if (machine.TryGoTo("jump_land").has_value())
+	{
+		std::cout << "popo";
+	}
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
@@ -117,11 +136,11 @@ void PlayState::Update(double deltaTime)
 	if (!player->unlockMouse)
 	{
 		Input::ResetMouse();
-		InputHandler::setShowCursor(NEIN);
+		InputHandler::setShowCursor(FALSE);
 	}
 	else
 	{
-		InputHandler::setShowCursor(JAAH);
+		InputHandler::setShowCursor(TRUE);
 	}
 }
 
