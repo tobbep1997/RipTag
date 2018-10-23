@@ -50,7 +50,6 @@
     <ClCompile Include="EngineSource\Shader\ShaderManager.cpp" />
     <ClCompile Include="EngineSource\Window\window.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />

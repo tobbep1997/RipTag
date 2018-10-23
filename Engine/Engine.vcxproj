@@ -261,7 +261,6 @@
     <ClCompile Include="EngineSource\Window\window.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Texture.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\TextureManager.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="EngineSource\Shader\AnimatedVertexShader.hlsl">
