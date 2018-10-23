@@ -205,15 +205,7 @@ void Drawable::setEntityType(EntityType en)
 
 Animation::AnimatedModel* Drawable::getAnimatedModel()
 {
-	if (m_dynamicMesh)
-	{
-		if (m_dynamicMesh->getAnimatedModel())
-		{
-			return m_dynamicMesh->getAnimatedModel();
-		}
-		else return nullptr;
-	}
-	else return nullptr;
+	return m_anim;
 }
 
 void Drawable::setTextureTileMult(float u, float v)
