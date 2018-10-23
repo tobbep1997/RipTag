@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)2DEngine;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -103,9 +103,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)2DEngine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Source</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -123,8 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)2DEngine;</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -140,10 +139,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)2DEngine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Include</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

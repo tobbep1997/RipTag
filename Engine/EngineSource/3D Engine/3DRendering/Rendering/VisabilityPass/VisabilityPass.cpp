@@ -87,7 +87,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animatio
 
 void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
 {
-
+	target->Reset();
 	ID3D11UnorderedAccessView * l_uav = target->getUAV();
 	DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 		1,

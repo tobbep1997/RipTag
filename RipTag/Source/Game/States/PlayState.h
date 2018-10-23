@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Actors/Player.h"
 #include <future>
 #include "State.h"
 
@@ -7,7 +8,6 @@
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
 #include "../Handlers/ObjectHandler.h"
-#include "../Actors/Player.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
@@ -59,6 +59,7 @@ public:
 
 private:
 	void thread(std::string s);
+	void TemporaryLobby();
 };
 
 static int New_PlayState(lua_State * L)

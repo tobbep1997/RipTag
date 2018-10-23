@@ -3,6 +3,13 @@
 
 Teleport::Teleport() : BaseActor()
 {
+	pl.Init(DirectX::XMFLOAT4A(0, 0, 0, 1), DirectX::XMFLOAT4A(0.3, 1, 1, 1));
+	//pl.CreateShadowDirection(PointLight::XYZ_ALL);
+	pl.setFarPlane(50);
+	pl.setNearPlane(0.01);
+	pl.setIntensity(10);
+	pl.setDropOff(1);
+	//pl.setPower(10);
 }
 
 Teleport::~Teleport()
@@ -15,9 +22,11 @@ void Teleport::ChargeSphere(double deltaTime)
 	if (m_charge < 2.0f)
 		m_charge += 1.0f * deltaTime;
 
+#ifdef _DEBUG
 	ImGui::Begin("charge");
 	ImGui::Text("Charge: %f", m_charge);
 	ImGui::End();
+#endif
 }
 void Teleport::ThrowSphere(DirectX::XMFLOAT4A StartPos, DirectX::XMFLOAT4A Direction)
 {
@@ -63,4 +72,14 @@ bool Teleport::getCharging() const
 void Teleport::setCharging(bool charging)
 {
 	m_charging = charging;
+}
+
+void Teleport::QueueLight()
+{
+	pl.QueueLight();
+}
+
+void Teleport::UpdateLight()
+{
+	pl.setPosition(Transform::getPosition());
 }

@@ -8,6 +8,7 @@ private:
 	float m_travelSpeed = 10.0f;
 	bool m_charging = false;
 	bool m_gotActiveSphere = false;
+	PointLight pl;
 public:
 	Teleport();
 	~Teleport();
@@ -19,4 +20,6 @@ public:
 	bool getActiveSphere() const;
 	bool getCharging() const;
 	void setCharging(bool charging);
+	void QueueLight();
+	void UpdateLight();
 };

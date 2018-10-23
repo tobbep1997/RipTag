@@ -1,9 +1,9 @@
 #pragma once
-#include "../RakNet/Multiplayer.h"
+//Make sure includes from the network lib are put at the top. This is to avoid 'rereference' error from Windows header
+#include "States/PlayState.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include <stack>
 #include "States/State.h"
-#include "States/PlayState.h"
 #include "EngineSource/3D Engine/Model/Managers/ModelManager.h"
 #include "States/MainMenu.h"
 #include <LuaTalker.h>
@@ -35,7 +35,6 @@ public:
 	//LUA EXPOSE
 	void PushStateLUA(State * ptr);
 	void PopStateLUA();
-	static void REGISTER_TO_LUA(Game & gameInstance);
 
 private:
 	void _handleStateSwaps();

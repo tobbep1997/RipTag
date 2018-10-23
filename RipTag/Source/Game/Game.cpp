@@ -29,17 +29,17 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		m_renderingManager->Init(hInstance);
 	}
 
-
-	GamePadHandler::Instance();
+	//Input handler and mapping
+	{
+		GamePadHandler::Instance();
+		InputMapping::Init();
+	}
 	Timer::Instance();
 
 	//Network Start
 	{
 		pNetworkInstance = Network::Multiplayer::GetInstance();
 		pNetworkInstance->Init();
-		Network::Multiplayer::REGISTER_TO_LUA();
-		Network::Packets::REGISTER_TO_LUA();
-		
 	}
 
 	m_gameStack.push(new MainMenu(m_renderingManager));
@@ -73,6 +73,7 @@ void Game::Update(double deltaTime)
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
+	InputMapping::Call();
 	pNetworkInstance->Update();
 	
 }
@@ -113,11 +114,6 @@ void Game::PushStateLUA(State * ptr)
 void Game::PopStateLUA()
 {
 	this->m_gameStack.pop();
-}
-
-void Game::REGISTER_TO_LUA(Game & gameInstance)
-{
-
 }
 
 void Game::_handleStateSwaps()

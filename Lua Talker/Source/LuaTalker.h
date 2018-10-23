@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "../Lua Talker/Lua Externals/sol.hpp"
+
 namespace LUA
 {
 	

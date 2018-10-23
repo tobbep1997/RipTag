@@ -23,5 +23,8 @@
     <ClInclude Include="Source\LuaTalker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Lua Externals\sol.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
