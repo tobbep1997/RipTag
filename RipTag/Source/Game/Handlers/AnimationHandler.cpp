@@ -5,6 +5,8 @@
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
+#pragma warning(disable : 4996)
+
 std::string ws2s(const std::wstring& wstr)
 {
 	using convert_typeX = std::codecvt_utf8<wchar_t>;

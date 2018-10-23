@@ -1,5 +1,5 @@
 #pragma once
-#include "../../../../Engine/Source/3D Engine/Model/Meshes/AnimatedModel.h"
+#include "../../../Engine/EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 #include <unordered_map>
 
 typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
