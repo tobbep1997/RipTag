@@ -21,6 +21,7 @@ std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
+ 
 
 void DX::SafeRelease(IUnknown * unknown)
 {

@@ -11,6 +11,7 @@
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
+#include "../../../Engine/EngineSource/3D Engine/Extern.h"
 
 
 //lua 

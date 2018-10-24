@@ -8,7 +8,7 @@
 #include "Components/Base/Drawable.h"
 #include "Model/Managers/MeshManager.h"
 #include "Model/Managers/TextureManager.h"
-#include "../Handlers/AnimationHandler.h"
+#include "../../../RipTag/Source/Game/Handlers/AnimationHandler.h"
 #include "3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 
 namespace Shaders

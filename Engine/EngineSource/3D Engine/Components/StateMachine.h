@@ -3,13 +3,139 @@
 #include <vector>
 #include <functional>
 #include <optional>
+#include "../Model/Meshes/AnimatedModel.h"
+
 namespace SM
 {
+#pragma region AnimationMachine
+	enum COMPARISON_TYPE
+	{
+		COMPARISON_EQUAL,
+		COMPARISON_NOT_EQUAL,
+		COMPARISON_LESS_THAN,
+		COMPARISON_GREATER_THAN
+	};
+
+	class TransitionBase
+	{
+	public:
+		
+		~TransitionBase() {};
+		virtual bool Evaluate() const = 0;
+
+	};
+	typedef std::unique_ptr<TransitionBase> UniqueTransition;
+
+	template <typename T>
+	class TransitionCondition : public TransitionBase
+	{
+	public:
+		TransitionCondition(T* reference, const T value, const COMPARISON_TYPE type);
+		~TransitionCondition() {};
+
+		bool Evaluate() const override;
+	private:
+		T* m_Reference = nullptr;
+		T m_Value = 0;
+		COMPARISON_TYPE m_Type;
+	};
+
+	template <typename T>
+	bool SM::TransitionCondition<T>::Evaluate() const
+	{
+		switch (m_Type)
+		{
+		case SM::COMPARISON_EQUAL:
+			return *m_Reference == m_Value;
+			break;
+		case SM::COMPARISON_NOT_EQUAL:
+			return *m_Reference != m_Value;
+			break;
+		case SM::COMPARISON_LESS_THAN:
+			return *m_Reference < m_Value;
+			break;
+		case SM::COMPARISON_GREATER_THAN:
+			return *m_Reference > m_Value;
+			break;
+		default:
+			return false;
+			break;
+		}
+	}
+
+	template <typename T>
+	SM::TransitionCondition<T>::TransitionCondition(T* reference, const T value, const COMPARISON_TYPE type)
+		: m_Reference(reference), m_Value(value), m_Type(type)
+	{}
+
+	class AnimationState;
+
+	typedef std::vector<std::unique_ptr<TransitionBase>> TransitionVector;
+	typedef std::unordered_map<std::string, TransitionVector> TransitionMap;
+
+	struct OutState 
+	{
+		AnimationState* state;
+		TransitionVector transitions;
+
+		template <class T>
+		void AddTransition(T* ref, const T value, COMPARISON_TYPE type);
+	};
+
+	template <class T>
+	void SM::OutState::AddTransition(T* ref, const T value, COMPARISON_TYPE type)
+	{
+		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, value, type));
+	}
+
+	class AnimationState
+	{
+	public:
+		AnimationState(std::string name, Animation::SharedAnimation clip);
+		~AnimationState();
+
+		template <class T>
+		void AddTransition(T* ref, const T value, COMPARISON_TYPE type);
+		OutState& AddOutState(AnimationState* outState);
+		//Returns true if all transition conditions
+		//for the given out state are met; false otherwise.
+		std::optional<AnimationState*> EvaluateAllTransitions(std::string key);
+
+		////Returns true if all transitions for the outstate are met; false otherwise.
+		//bool EvaluateAllTransitions(std::string key);
+		AnimationState(const AnimationState& other) = delete;
+	private:
+		std::string m_Name = "";
+		Animation::SharedAnimation m_AnimationClip;
+
+		std::unordered_map<std::string, OutState> m_OutStates;
+	};
+
+	class AnimationStateMachine
+	{
+	public:
+		AnimationStateMachine(size_t size);
+		~AnimationStateMachine();
+
+		//Add a new animation state.
+		//Returns a reference to the new state.
+		AnimationState* AddState(std::string name, Animation::SharedAnimation clip);
+	private:
+		//The animated model to set the clip to when we enter a state
+		Animation::AnimatedModel* m_AnimatedModel;
+
+		//The states of this machine
+		std::vector<AnimationState*> m_States;
+	};
+
+#pragma endregion AnimationMachine
+#pragma region TemplateStateMachine
 	enum MACHINE_STATE
 	{
 		MACHINE_IS_TRANSITIONING,
 		MACHINE_IS_IN_STATE
 	};
+
 	template <class StateData, class TransitionData>
 	class State
 	{
@@ -167,5 +293,5 @@ namespace SM
 		if (m_States.size() == 1)
 			m_CurrentState = &m_States[0];
 	}
-
+#pragma endregion TemplateStateMachine
 }

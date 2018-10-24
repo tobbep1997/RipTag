@@ -5,10 +5,8 @@
 #include <experimental/filesystem>
 #include "../../../Engine/EngineSource/3D Engine/Extern.h"
 namespace fs = std::experimental::filesystem;
-
-AnimationHandler g_animationManager;
-
 #pragma warning(disable : 4996)
+AnimationHandler Manager::g_animationManager;
 
 std::string ws2s(const std::wstring& wstr)
 {
