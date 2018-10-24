@@ -3,13 +3,16 @@
 #include "../../Input/Input.h"
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
+#include "../RipTagExtern/RipExtern.h"
+
+b3World * RipExtern::g_world = nullptr;
 
 #define JAAH TRUE
 #define NEIN FALSE
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
+	RipExtern::g_world = &m_world;
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -40,11 +43,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	player->setTextureTileMult(2, 2);
-
-	player->InitTeleport(m_world);
-	
-
+	player->setTextureTileMult(2, 2);	
 
 	//enemy->setDir(1, 0, 0);
 	//enemy->getCamera()->setFarPlane(5);
@@ -69,7 +68,6 @@ PlayState::~PlayState()
 	m_levelHandler.Release();
 	
 	player->Release(m_world);
-	player->ReleaseTeleport(m_world);
 	delete player;
 	//actor->Release(m_world);
 	delete model;
