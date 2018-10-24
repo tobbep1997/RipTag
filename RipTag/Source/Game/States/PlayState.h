@@ -29,7 +29,6 @@ private:
 
 	b3World m_world;
 
-	
 
 
 	float x = -1.5f;

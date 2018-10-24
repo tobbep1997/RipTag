@@ -13,6 +13,8 @@ private:
 
 	bool m_inputLocked = true;
 
+	bool m_disabled = false;
+
 	float m_movementSpeed = 10;
 
 	float m_walk = 0;
@@ -43,6 +45,10 @@ public:
 
 	void LockEnemyInput();
 	void UnlockEnemyInput();
+
+	void DisableEnemy();
+	void EnableEnemy();
+	bool GetDisabledState();
 
 private:
 

@@ -42,15 +42,21 @@ const int * Enemy::getPlayerVisibility() const
 
 void Enemy::CullingForVisability(const Transform& player)
 {
-	
-	DirectX::XMVECTOR enemyToPlayer = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&player.getPosition()), DirectX::XMLoadFloat4A(&getPosition()));
-
-	float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
-	float lenght = DirectX::XMVectorGetX(DirectX::XMVector3Length(enemyToPlayer));
-
-	if (d > p_camera->getFOV() / 3.14f && lenght <= (p_camera->getFarPlane() / d) + 3)
+	if (!m_disabled)
 	{
-		m_allowVisability = true;
+		DirectX::XMVECTOR enemyToPlayer = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&player.getPosition()), DirectX::XMLoadFloat4A(&getPosition()));
+
+		float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
+		float lenght = DirectX::XMVectorGetX(DirectX::XMVector3Length(enemyToPlayer));
+
+		if (d > p_camera->getFOV() / 3.14f && lenght <= (p_camera->getFarPlane() / d) + 3)
+		{
+			m_allowVisability = true;
+		}
+		else
+		{
+			m_allowVisability = false;
+		}
 	}
 	else
 	{
@@ -79,13 +85,16 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	if (!m_inputLocked)
+	if (!m_disabled)
 	{
-		_handleInput(deltaTime);
-	}
-	else
-	{
-		_TempGuardPath(true,deltaTime);
+		if (!m_inputLocked)
+		{
+			_handleInput(deltaTime);
+		}
+		else
+		{
+			_TempGuardPath(true, deltaTime);
+		}
 	}
 	
 }
@@ -107,6 +116,21 @@ void Enemy::LockEnemyInput()
 void Enemy::UnlockEnemyInput()
 {
 	m_inputLocked = false;
+}
+
+void Enemy::DisableEnemy()
+{
+	m_disabled = true;
+}
+
+void Enemy::EnableEnemy()
+{
+	m_disabled = false;
+}
+
+bool Enemy::GetDisabledState()
+{
+	return m_disabled;
 }
 
 void Enemy::_handleInput(double deltaTime)
