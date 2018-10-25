@@ -18,9 +18,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Timer::StartTimer();
 
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
-	//Manager::g_animationManager.loadSkeleton("../Assets/IDLEDUDEFOLDER/IDLEDUDE_SKELETON.bin", "IDLEDUDE");
-	//Manager::g_animationManager.loadClipCollection("IDLEDUDE", "IDLEDUDE", "../Assets/IDLEDUDEFOLDER", Manager::g_animationManager.getSkeleton("IDLEDUDE"));
-	//Manager::g_meshManager.loadDynamicMesh("IDLEDUDE");
+	Manager::g_animationManager.loadSkeleton("../Assets/IDLEDUDEFOLDER/IDLEDUDE_SKELETON.bin", "IDLEDUDE");
+	Manager::g_animationManager.loadClipCollection("IDLEDUDE", "IDLEDUDE", "../Assets/IDLEDUDEFOLDER", Manager::g_animationManager.getSkeleton("IDLEDUDE"));
+	Manager::g_meshManager.loadDynamicMesh("IDLEDUDE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 	future.get();
@@ -42,7 +42,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//player->setPosition(0, 5, 0, 0);
 	player->setColor(10, 10, 0, 1);
 
-	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	player->setModel(Manager::g_meshManager.getDynamicMesh("IDLEDUDE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	player->setTextureTileMult(2, 2);
@@ -57,14 +57,29 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//#model creation
 
 	model = new Drawable();
-	model->setEntityType(EntityType::PlayerType);
-	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	model->setScale(0.5, 0.5, 0.5);
+	model->setEntityType(EntityType::GuarddType);
+	model->setModel(Manager::g_meshManager.getDynamicMesh("IDLEDUDE"));
+	model->setScale(0.1, 0.1, 0.1);
+	model->setPosition({ 0.0, -5.0, 0.0, 1.0 });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
+	auto clip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_ANIMATION");
+	auto chillclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_CHILL_ANIMATION");
+	model->getAnimatedModel()->SetPlayingClip(clip.get());
+	model->getAnimatedModel()->Play();
+	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE").get());
+	auto stateMachine = model->InitStateMachine();
+	static float poop = 1.f;
+	auto blendState = stateMachine->AddBlendSpace1DState("idle_states", &poop, 0.0, 1.0);
+	blendState->AddBlendNodes(
+		{
+			{clip, 0.0},
+			{chillclip, 1.0f}
+		});
+	stateMachine->SetState("idle_states");
+	stateMachine->SetModel(model->getAnimatedModel());
 
 
-	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
 	
@@ -87,6 +102,9 @@ void PlayState::Update(double deltaTime)
 {
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
+	
+	//#todoREMOVE
+	//static SM::StateVisitor visitor(model->getAnimatedModel());
 
 #if _DEBUG
 	TemporaryLobby();
@@ -101,7 +119,8 @@ void PlayState::Update(double deltaTime)
 	}
 
 	player->Update(deltaTime);
-
+	//model->m_stateMachine->GetCurrentState().recieveStateVisitor(visitor);
+	//model->getAnimatedModel()->Update(deltaTime);
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	

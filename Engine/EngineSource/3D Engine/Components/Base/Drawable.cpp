@@ -67,6 +67,12 @@ void Drawable::_setDynamicBuffer()
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
 }
 
+SM::AnimationStateMachine* Drawable::InitStateMachine()
+{
+	m_stateMachine = new SM::AnimationStateMachine(1);
+	return m_stateMachine;
+}
+
 void Drawable::p_createBuffer()
 {
 	switch (p_objectType)
@@ -118,6 +124,8 @@ Drawable::~Drawable()
 	DX::SafeRelease(p_vertexBuffer);
 	if (m_anim)
 		delete m_anim;
+	if (m_stateMachine)
+		delete m_stateMachine;
 }
 
 

@@ -4,6 +4,12 @@
 #include <algorithm>
 Animation::AnimatedModel::AnimatedModel()
 {
+	m_skinningMatrices.resize(128);
+	m_globalMatrices.resize(128);
+	DirectX::XMFLOAT4X4A identityMatrix = {};
+	DirectX::XMStoreFloat4x4A(&identityMatrix, DirectX::XMMatrixIdentity());
+	std::fill(m_skinningMatrices.begin(), m_skinningMatrices.end(), identityMatrix);
+	std::fill(m_globalMatrices.begin(), m_globalMatrices.end(), identityMatrix);
 }
 
 Animation::AnimatedModel::~AnimatedModel()

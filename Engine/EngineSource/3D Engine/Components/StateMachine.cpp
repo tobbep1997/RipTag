@@ -46,13 +46,6 @@ namespace SM
 			delete i;
 	}
 
-	AnimationState* AnimationStateMachine::AddState(std::string name)
-	{
-		//auto p = new AnimationState(name, clip);
-		//m_States.push_back(p);
-		return nullptr;
-	}
-
 	SM::BlendSpace1D* AnimationStateMachine::AddBlendSpace1DState(std::string name, float* blendSpaceDriver, float min, float max)
 	{
 		BlendSpace1D* state = new BlendSpace1D(name, blendSpaceDriver, min, max);
@@ -66,6 +59,11 @@ namespace SM
 			[&](const auto& p) { return p->GetName() == stateName; });
 		if (it != m_States.end())
 			m_CurrentState = *it;
+	}
+
+	void AnimationStateMachine::SetModel(Animation::AnimatedModel* model)
+	{
+		m_AnimatedModel = model;
 	}
 
 	SM::AnimationState& AnimationStateMachine::GetCurrentState()

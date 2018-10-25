@@ -8,6 +8,7 @@
 #include "../../Model/Meshes/StaticMesh.h"
 #include "../../Model/Texture.h"
 #include "../../Model/Meshes/AnimatedModel.h"
+#include "../../Components/StateMachine.h"
 
 #include "Transform.h"
 
@@ -28,11 +29,13 @@ enum EntityType
 class Drawable : public Transform
 {
 private:
-	StaticMesh * m_staticMesh = nullptr;
-	DynamicMesh * m_dynamicMesh = nullptr;
-	Animation::AnimatedModel *m_anim = nullptr;
-
+	StaticMesh* m_staticMesh = nullptr;
+	DynamicMesh* m_dynamicMesh = nullptr;
+	Animation::AnimatedModel* m_anim = nullptr;
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
+public:
+	SM::AnimationStateMachine* InitStateMachine();
+	SM::AnimationStateMachine* m_stateMachine = nullptr;
 protected:	
 	Texture * p_texture;
 

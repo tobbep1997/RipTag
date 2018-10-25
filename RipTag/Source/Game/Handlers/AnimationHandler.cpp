@@ -58,7 +58,7 @@ bool AnimationHandler::loadClipCollection(std::string prefix, std::string newCol
 		
 
 		std::string name = fileInfo.second;
-		name.erase(name.end() - 3, name.end());
+		name.erase(name.end() - 4, name.end());
 
 		thisCollection->insert(std::make_pair(name, animation));
 	}

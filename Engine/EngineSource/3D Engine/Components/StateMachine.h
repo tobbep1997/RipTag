@@ -175,6 +175,7 @@ namespace SM
 		BlendSpace1D* AddBlendSpace1DState(std::string name, float* blendSpaceDriver, float min, float max);
 
 		void SetState(std::string stateName);
+		void SetModel(Animation::AnimatedModel* model);
 		AnimationState& GetCurrentState();
 	private:
 		//The animated model to set the clip to when we enter a state
