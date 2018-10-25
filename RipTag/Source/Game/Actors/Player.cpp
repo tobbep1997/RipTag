@@ -87,15 +87,15 @@ void Player::Phase(float searchLength)
 	this->m_rayListener->clear();
 }
 
-void Player::InitStateMachine(std::unique_ptr<SM::StateMachine<bool, float>>& stateMachine)
-{
-	m_StateMachine = std::move(stateMachine);
-}
-
-std::unique_ptr<SM::StateMachine<bool, float>>& Player::GetStateMachine()
-{
-	return m_StateMachine;
-}
+//void Player::InitStateMachine(std::unique_ptr<SM::StateMachine<bool, float>>& stateMachine)
+//{
+//	m_StateMachine = std::move(stateMachine);
+//}
+//
+//std::unique_ptr<SM::StateMachine<bool, float>>& Player::GetStateMachine()
+//{
+//	return m_StateMachine;
+//}
 
 void Player::InitTeleport(b3World & world)
 {

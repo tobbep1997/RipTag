@@ -28,21 +28,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player = new Player();
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
-	float f = 1.001f;
-	int i = 3;
 
-	bool isGrounded = false;
-	SM::AnimationStateMachine machine(5);
-	auto walkState = machine.AddState("walk", nullptr);
-	auto idleState = machine.AddState("idle", nullptr);
-	auto jumpState = machine.AddState("jump", nullptr);
-	auto& walkToIdle = walkState->AddOutState(idleState);
-	auto& idleToJump = idleState->AddOutState(jumpState);
-	idleToJump.AddTransition(&isGrounded, true, SM::COMPARISON_EQUAL);
-	walkToIdle.AddTransition(&f, 1.0f, SM::COMPARISON_GREATER_THAN);
-
-	assert(walkState->EvaluateAllTransitions("idle").has_value());
-	assert(idleState->EvaluateAllTransitions("jump").has_value());
 
 	//state.AddTransition<float>(&f, 1.0f, SM::COMPARISON_GREATER_THAN);
 	//state.AddTransition<int>(&i, 3, SM::COMPARISON_EQUAL);

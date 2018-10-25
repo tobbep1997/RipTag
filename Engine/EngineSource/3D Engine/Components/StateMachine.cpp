@@ -1,6 +1,7 @@
 #include "StateMachine.h"
 #include <assert.h>
 #include <algorithm>
+#include <iostream>
 namespace SM
 {
 
@@ -29,6 +30,11 @@ namespace SM
 		return {};
 	}
 
+	std::string AnimationState::GetName()
+	{
+		return m_Name;
+	}
+
 	AnimationStateMachine::AnimationStateMachine(size_t size)
 	{
 		m_States.reserve(size);
@@ -54,6 +60,19 @@ namespace SM
 		return state;
 	}
 
+	void AnimationStateMachine::SetState(std::string stateName)
+	{
+		auto it = std::find_if(m_States.begin(), m_States.end(), 
+			[&](const auto& p) { return p->GetName() == stateName; });
+		if (it != m_States.end())
+			m_CurrentState = *it;
+	}
+
+	SM::AnimationState& AnimationStateMachine::GetCurrentState()
+	{
+		return *m_CurrentState;
+	}
+
 	void BlendSpace1D::AddBlendNodes(const std::vector<BlendSpaceClipData>& nodes)
 	{
 		std::copy(nodes.begin(), nodes.end(), std::back_inserter(m_Clips));
@@ -66,9 +85,12 @@ namespace SM
 			[&](const auto& data) {return data.location >= *m_Current; });
 
 		if (it != m_Clips.end())
-			return it == m_Clips.begin() 	
+		{
+			std::cout << it->location << std::endl;
+			return it == m_Clips.begin()
 				? std::make_pair(it->clip, nullptr)
-				: std::make_pair((it-1)->clip, it->clip);
+				: std::make_pair((it - 1)->clip, it->clip);
+		}
 		else return { nullptr, nullptr };
 	}
 }

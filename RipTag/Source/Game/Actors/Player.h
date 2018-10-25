@@ -27,7 +27,7 @@ struct KeyPressed
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
-	std::unique_ptr<SM::StateMachine<bool, float>> m_StateMachine;
+	//std::unique_ptr<SM::AnimationStateMachine<bool, float>> m_StateMachine;
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 3.0f;
@@ -80,8 +80,8 @@ public:
 
 	void Phase(float searchLength);
 
-	void InitStateMachine(std::unique_ptr<SM::StateMachine<bool, float>>& stateMachine);
-	std::unique_ptr<SM::StateMachine<bool, float>>& GetStateMachine();
+	//void InitStateMachine(std::unique_ptr<SM::StateMachine<bool, float>>& stateMachine);
+	//std::unique_ptr<SM::StateMachine<bool, float>>& GetStateMachine();
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

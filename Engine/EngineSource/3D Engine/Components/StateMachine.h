@@ -100,14 +100,17 @@ namespace SM
 		//Returns true if all transition conditions
 		//for the given out state are met; false otherwise.
 		std::optional<AnimationState*> EvaluateAllTransitions(std::string key);
-
+		std::string GetName();
 		AnimationState(const AnimationState& other) = delete;
 		virtual void recieveStateVisitor(StateVisitorBase& visitor) = 0;
+		bool operator=(const std::string name) { return m_Name == name; }
 	private:
 		std::string m_Name = "";
 
 		std::unordered_map<std::string, OutState> m_OutStates;
 	};
+
+	class BlendSpace1D;
 
 	class StateVisitorBase{
 	public:
@@ -150,6 +153,8 @@ namespace SM
 		virtual void dispatch(BlendSpace1D& state) override {
 			auto clips = state.CalculateCurrentClips();
 			
+			if (!m_AnimatedModel)
+				return;
 			// #todo
 			m_AnimatedModel->SetPlayingClip(clips.first.get(), true);
 		}
@@ -169,9 +174,14 @@ namespace SM
 		AnimationState* AddState(std::string name);
 		BlendSpace1D* AddBlendSpace1DState(std::string name, float* blendSpaceDriver, float min, float max);
 
+		void SetState(std::string stateName);
+		AnimationState& GetCurrentState();
 	private:
 		//The animated model to set the clip to when we enter a state
 		Animation::AnimatedModel* m_AnimatedModel;
+
+		//The current state
+		AnimationState* m_CurrentState = nullptr;
 
 		//The states of this machine
 		std::vector<AnimationState*> m_States;
