@@ -97,10 +97,12 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 	}
 }
 
-void Animation::AnimatedModel::SetPlayingClip(AnimationClip * clip, bool isLooping)
+void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
 {
 	m_currentClip = clip;
-	m_currentTime = 0.0f;
+	m_currentTime = keepCurrentNormalizedTime
+		? m_currentTime
+		: 0.0;
 }
 
 void Animation::AnimatedModel::SetLayeredClip(AnimationClip* clip, float weight, UINT flags /*= BLEND_MATCH_NORMALIZED_TIME*/, bool isLooping /*= true*/)
@@ -214,9 +216,6 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 	auto t = XMMatrixTranslationFromVector(XMLoadFloat4A(&fTranslation));
 	auto r = XMMatrixRotationQuaternion(XMLoadFloat4A(&fRotation));
 	auto s = XMMatrixScalingFromVector(XMLoadFloat4A(&fTranslation));
-
-	// #NEWCHECK
-	//return XMMatrixMultiply(t, r);
 
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0f, 0.0f, 0.0f, 1.0f }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
