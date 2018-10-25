@@ -90,24 +90,25 @@ namespace Animation
 		float secondCurrentTime = 0.0;
 	};
 #pragma endregion Joint, Skeleton, AnimationClip, ...
-
+	typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
+	typedef std::unordered_map<std::string, SharedAnimation> ClipCollection;
+	typedef std::shared_ptr<ClipCollection> SharedClipCollection;
+	typedef std::shared_ptr<Skeleton> SharedSkeleton;
 #pragma region GlobalAnimationFunctions
 	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
-	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
+	Animation::SharedAnimation ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
-	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
-	std::shared_ptr<Skeleton> LoadAndCreateSkeleton(std::string file);
+	Animation::SharedAnimation LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
+	SharedSkeleton LoadAndCreateSkeleton(std::string file);
 	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
 	Animation::JointPose getAdditivePose(JointPose targetPose, JointPose differencePose);
 	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
 	bool bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip);
 
 #pragma endregion Conversion stuff, Loaders, ...
-	typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
-	typedef std::unordered_map<std::string, SharedAnimation> ClipCollection;
-	typedef std::shared_ptr<ClipCollection> SharedClipCollection;
+
 
 	class AnimatedModel
 	{
@@ -118,11 +119,11 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
-		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
+		void SetPlayingClip(SharedAnimation clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
 		void SetLayeredClipWeight(const float& weight);
-		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
-		void SetSkeleton(Skeleton* skeleton);
+		void SetTargetClip(SharedAnimation clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
+		void SetSkeleton(SharedSkeleton skeleton);
 		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
@@ -134,10 +135,10 @@ namespace Animation
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 		
-		Skeleton* m_skeleton = nullptr;
-		AnimationClip* m_currentClip = nullptr;
+		SharedSkeleton m_skeleton = nullptr;
+		SharedAnimation m_currentClip = nullptr;
 		CombinedClip m_combinedClip;
-		AnimationClip* m_targetClip = nullptr;
+		SharedAnimation m_targetClip = nullptr;
 
 		float m_currentBlendTime = 0.0;
 		float m_targetBlendTime = 0.0;

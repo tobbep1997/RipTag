@@ -103,7 +103,7 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 	}
 }
 
-void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
+void Animation::AnimatedModel::SetPlayingClip(SharedAnimation clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
 {
 	m_currentClip = clip;
 	m_currentTime = keepCurrentNormalizedTime
@@ -136,7 +136,7 @@ void Animation::AnimatedModel::SetLayeredClipWeight(const float& weight)
 	m_combinedClip.secondWeight = weight;
 }
 
-void Animation::AnimatedModel::SetTargetClip(AnimationClip* clip, UINT blendFlags /*= 0*/, float blendTime /*= 1.0f*/, bool isLooping /*= true*/)
+void Animation::AnimatedModel::SetTargetClip(SharedAnimation clip, UINT blendFlags /*= 0*/, float blendTime /*= 1.0f*/, bool isLooping /*= true*/)
 {
 	if (blendFlags & BLEND_MATCH_TIME)
 	{
@@ -156,7 +156,7 @@ void Animation::AnimatedModel::SetTargetClip(AnimationClip* clip, UINT blendFlag
 	m_targetBlendTime = blendTime;
 }
 
-void Animation::AnimatedModel::SetSkeleton(Skeleton * skeleton)
+void Animation::AnimatedModel::SetSkeleton(SharedSkeleton skeleton)
 {
 	m_skeleton = skeleton;
 
@@ -226,12 +226,12 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0f, 0.0f, 0.0f, 1.0f }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-Animation::AnimationClip* Animation::LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton)
+Animation::SharedAnimation Animation::LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton)
 {
 	MyLibrary::Loadera loader;
 	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
 
-	return new Animation::AnimationClip(importedAnimation, skeleton);
+	return std::make_shared<Animation::AnimationClip>(importedAnimation, skeleton);
 }
 
 std::shared_ptr<Animation::Skeleton> Animation::LoadAndCreateSkeleton(std::string file)
@@ -581,11 +581,11 @@ void Animation::AnimatedModel::_computeModelMatricesCombined(SkeletonPose* first
 	}
 }
 
-Animation::AnimationClip* Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
+Animation::SharedAnimation Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
 	uint32_t keyCount = animation->nr_of_keyframes;
 
-	AnimationClip* clipToReturn = new AnimationClip();
+	Animation::SharedAnimation clipToReturn = std::make_shared<Animation::AnimationClip>();
 	clipToReturn->m_frameCount = static_cast<uint16_t>(keyCount);
 	clipToReturn->m_skeletonPoses = std::make_unique<SkeletonPose[]>(clipToReturn->m_frameCount);
 

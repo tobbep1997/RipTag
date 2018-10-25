@@ -42,7 +42,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//player->setPosition(0, 5, 0, 0);
 	player->setColor(10, 10, 0, 1);
 
-	player->setModel(Manager::g_meshManager.getDynamicMesh("IDLEDUDE"));
+	//player->setModel(Manager::g_meshManager.getDynamicMesh("IDLEDUDE"));
+	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	player->setTextureTileMult(2, 2);
@@ -65,19 +66,19 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 	auto clip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_ANIMATION");
 	auto chillclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_CHILL_ANIMATION");
-	model->getAnimatedModel()->SetPlayingClip(clip.get());
+    model->getAnimatedModel()->SetPlayingClip(clip);
 	model->getAnimatedModel()->Play();
-	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE").get());
+	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE"));
 	auto stateMachine = model->InitStateMachine();
 	static float poop = 1.f;
 	auto blendState = stateMachine->AddBlendSpace1DState("idle_states", &poop, 0.0, 1.0);
-	blendState->AddBlendNodes(
-		{
-			{clip, 0.0},
-			{chillclip, 1.0f}
-		});
-	stateMachine->SetState("idle_states");
-	stateMachine->SetModel(model->getAnimatedModel());
+// 	blendState->AddBlendNodes(
+// 		{
+// 			{clip, 0.0},
+// 			{chillclip, 1.0f}
+// 		});
+// 	stateMachine->SetState("idle_states");
+// 	stateMachine->SetModel(model->getAnimatedModel());
 
 
 	m_levelHandler.setPlayer(player);

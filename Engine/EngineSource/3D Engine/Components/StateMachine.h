@@ -156,7 +156,7 @@ namespace SM
 			if (!m_AnimatedModel)
 				return;
 			// #todo
-			m_AnimatedModel->SetPlayingClip(clips.first.get(), true);
+			m_AnimatedModel->SetPlayingClip(clips.first, true);
 		}
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
