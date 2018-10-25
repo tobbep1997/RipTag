@@ -122,7 +122,7 @@ namespace SM
 	public:
 		struct BlendSpaceClipData
 		{
-			Animation::SharedAnimation clip;
+			Animation::AnimationClip* clip;
 			float location;
 		};
 
@@ -131,15 +131,16 @@ namespace SM
 		{}
 
 		//Assumes nodes are sorted from lowest to highest
-		void AddBlendNodes(const std::vector<BlendSpaceClipData>& nodes);
-
+		void AddBlendNodes(const std::vector<BlendSpaceClipData> nodes);
+		
 		void recieveStateVisitor(StateVisitorBase& visitor) override {
 			visitor.dispatch(*this);
 		}
 
-		std::pair<Animation::SharedAnimation, Animation::SharedAnimation> CalculateCurrentClips();
+		std::pair<Animation::AnimationClip*, Animation::AnimationClip*> CalculateCurrentClips();
 	private:
 		std::vector<BlendSpaceClipData> m_Clips;
+		std::vector<std::shared_ptr<Animation::AnimationClip>> m_fClips;
 		float m_Min = 0.0f;
 		float m_Max = 1.0f;
 		float* m_Current = nullptr;
@@ -156,7 +157,7 @@ namespace SM
 			if (!m_AnimatedModel)
 				return;
 			// #todo
-			m_AnimatedModel->SetPlayingClip(clips.first, true);
+			m_AnimatedModel->SetPlayingClip(clips.first, true, true);
 		}
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;

@@ -71,13 +71,13 @@ namespace SM
 		return *m_CurrentState;
 	}
 
-	void BlendSpace1D::AddBlendNodes(const std::vector<BlendSpaceClipData>& nodes)
+	void BlendSpace1D::AddBlendNodes(const std::vector<BlendSpaceClipData> nodes)
 	{
 		std::copy(nodes.begin(), nodes.end(), std::back_inserter(m_Clips));
 	}
 
-	std::pair<Animation::SharedAnimation, Animation::SharedAnimation> BlendSpace1D::CalculateCurrentClips()
-	{
+	std::pair<Animation::AnimationClip*, Animation::AnimationClip*> BlendSpace1D::CalculateCurrentClips()
+{
 		//#todo check and get weight
 		auto it = std::find_if(m_Clips.begin(), m_Clips.end(),
 			[&](const auto& data) {return data.location >= *m_Current; });

@@ -103,7 +103,7 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 	}
 }
 
-void Animation::AnimatedModel::SetPlayingClip(SharedAnimation clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
+void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
 {
 	m_currentClip = clip;
 	m_currentTime = keepCurrentNormalizedTime
@@ -136,7 +136,7 @@ void Animation::AnimatedModel::SetLayeredClipWeight(const float& weight)
 	m_combinedClip.secondWeight = weight;
 }
 
-void Animation::AnimatedModel::SetTargetClip(SharedAnimation clip, UINT blendFlags /*= 0*/, float blendTime /*= 1.0f*/, bool isLooping /*= true*/)
+void Animation::AnimatedModel::SetTargetClip(AnimationClip* clip, UINT blendFlags /*= 0*/, float blendTime /*= 1.0f*/, bool isLooping /*= true*/)
 {
 	if (blendFlags & BLEND_MATCH_TIME)
 	{

@@ -66,19 +66,16 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 	auto clip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_ANIMATION");
 	auto chillclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_CHILL_ANIMATION");
-    model->getAnimatedModel()->SetPlayingClip(clip);
+    model->getAnimatedModel()->SetPlayingClip(clip.get());
 	model->getAnimatedModel()->Play();
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE"));
 	auto stateMachine = model->InitStateMachine();
-	static float poop = 1.f;
+	static float poop = 4.f;
 	auto blendState = stateMachine->AddBlendSpace1DState("idle_states", &poop, 0.0, 1.0);
-// 	blendState->AddBlendNodes(
-// 		{
-// 			{clip, 0.0},
-// 			{chillclip, 1.0f}
-// 		});
-// 	stateMachine->SetState("idle_states");
-// 	stateMachine->SetModel(model->getAnimatedModel());
+	std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 5.0f}, {chillclip.get(), 10.0f} };
+ 	blendState->AddBlendNodes(v);
+	stateMachine->SetState("idle_states");
+	stateMachine->SetModel(model->getAnimatedModel());
 
 
 	m_levelHandler.setPlayer(player);
@@ -105,7 +102,7 @@ void PlayState::Update(double deltaTime)
 		InputHandler::setShowCursor(FALSE);	   
 	
 	//#todoREMOVE
-	//static SM::StateVisitor visitor(model->getAnimatedModel());
+	static SM::StateVisitor visitor(model->getAnimatedModel());
 
 #if _DEBUG
 	TemporaryLobby();
@@ -120,8 +117,8 @@ void PlayState::Update(double deltaTime)
 	}
 
 	player->Update(deltaTime);
-	//model->m_stateMachine->GetCurrentState().recieveStateVisitor(visitor);
-	//model->getAnimatedModel()->Update(deltaTime);
+	model->m_stateMachine->GetCurrentState().recieveStateVisitor(visitor);
+	model->getAnimatedModel()->Update(deltaTime);
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	

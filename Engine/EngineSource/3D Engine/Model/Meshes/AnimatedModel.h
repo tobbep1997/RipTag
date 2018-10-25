@@ -119,10 +119,10 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
-		void SetPlayingClip(SharedAnimation clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
+		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
 		void SetLayeredClipWeight(const float& weight);
-		void SetTargetClip(SharedAnimation clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
+		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
 		void SetSkeleton(SharedSkeleton skeleton);
 		void SetScrubIndex(unsigned int index);
 		void Pause();
@@ -136,9 +136,9 @@ namespace Animation
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 		
 		SharedSkeleton m_skeleton = nullptr;
-		SharedAnimation m_currentClip = nullptr;
+		AnimationClip* m_currentClip = nullptr;
 		CombinedClip m_combinedClip;
-		SharedAnimation m_targetClip = nullptr;
+		AnimationClip* m_targetClip = nullptr;
 
 		float m_currentBlendTime = 0.0;
 		float m_targetBlendTime = 0.0;
