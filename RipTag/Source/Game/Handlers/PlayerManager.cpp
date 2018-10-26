@@ -59,10 +59,23 @@ void PlayerManager::_onRemotePlayerDisconnect(unsigned id, unsigned char * data)
 
 void PlayerManager::Update(float dt)
 {
+	static float accumulatedDT = 0;
+	static const float frequency = 1.0f / 5.f;
+
+	accumulatedDT += dt;
+
 	if (mRemotePlayer && hasRemotePlayer)
 		mRemotePlayer->Update(dt);
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Update(dt);
+	if (hasRemotePlayer && hasLocalPlayer)
+	{
+		if (accumulatedDT >= frequency)
+		{
+			accumulatedDT -= frequency;
+			mLocalPlayer->SendOnUpdateMessage();
+		}
+	}
 }
 
 void PlayerManager::PhysicsUpdate()
