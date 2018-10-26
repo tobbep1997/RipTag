@@ -1,20 +1,58 @@
 #include "Player.h"
 #include "InputManager/InputHandler.h"
 #include "InputManager/XboxInput/GamePadHandler.h"
-#include "../../Input/Input.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
+#include <algorithm>
+#include <iostream>
+#include <bits.h>
+#include "../Handlers/CameraHandler.h"
 
-Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
+Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
+	Manager::g_textureManager.loadTextures("CROSS");
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	m_lastPeek = DEFAULT_UP;
-	m_lastSideStep = DirectX::XMFLOAT4A(0, 0, 0, 0);
+	this->m_rayListener = new RayCastListener();
+	m_lockPlayerInput = false;
+	
+	VisabilityAbility * visAbl = new VisabilityAbility();
+	visAbl->setOwner(this);
+	visAbl->Init();
+	
+
+	TeleportAbility * m_teleport = new TeleportAbility();
+	m_teleport->setOwner(this);
+	m_teleport->Init();
+
+	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
+	m_abilityComponents[0] = m_teleport;
+	m_abilityComponents[1] = visAbl;
+
+	Quad * quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 49);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.1f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 50);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
+	HUDComponent::AddQuad(quad);
 }
 
 Player::~Player()
-{	
+{
+	delete this->m_rayListener;
 
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)	
+		delete m_abilityComponents[i];	
+	delete[] m_abilityComponents;
 }
 
 void Player::BeginPlay()
@@ -24,24 +62,28 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
-	DirectX::XMFLOAT4A pos = getPosition();
-	float camOffset = 1.0f;
-	pos.y += camOffset;
-	p_camera->setPosition(pos);
-	_handleInput(deltaTime);
-	pos = p_camera->getPosition();
-	pos.y += m_offset;
-	p_camera->setPosition(pos);
-#if _DEBUG
-
-	m_teleport.Update(deltaTime);
-	ImGui::Begin("Walk bob");
-	ImGui::Text("HeadBob : %f", m_offset);
-	ImGui::Text("HeadBobAmp : %f", m_currentAmp);
-	ImGui::End();
-#endif
-	//pos.y += m_offset;
-	//p_camera->setPosition(pos);
+	if (m_lockPlayerInput == false)
+	{
+		if (InputHandler::getWindowFocus())
+		{
+			_handleInput(deltaTime);
+		}
+		
+	}
+	m_abilityComponents[m_currentAbility]->Update(deltaTime);
+	this->possessGuard(10);
+	_cameraPlacement(deltaTime);
+	//HUDComponent::HUDUpdate(deltaTime);
+	
+	if (Input::SelectAbility1())	
+		m_currentAbility = 0;		
+	else if (Input::SelectAbility2())	
+		m_currentAbility = 1;	
+	else if (Input::SelectAbility3())	
+		m_currentAbility = 2;	
+	
+	HUDComponent::ResetStates();
+	HUDComponent::setSelectedQuad(m_currentAbility);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -51,37 +93,152 @@ void Player::PhysicsUpdate(double deltaTime)
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
 {
-	Transform::setPosition(x, y, z);
+	Transform::setPosition(x, y, z, w);
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
-void Player::InitTeleport(b3World & world)
+void Player::Phase(float searchLength)
 {
-	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
-	m_teleport.setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_teleport.setScale(0.1f, 0.1f, 0.1f);
-	m_teleport.setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_teleport.setGravityScale(0.001f);
-	m_teleport.setPosition(-100.0f, -100.0f, -100.0f);
+	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
+	if ((int)this->m_rayListener->userData == 1)
+	{
+		p_setPosition(
+			this->m_rayListener->contactPoint.x + (
+				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
+				(-this->m_rayListener->normal.x)), 
+			this->getPosition().y,
+			this->m_rayListener->contactPoint.z + (
+				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
+				(-this->m_rayListener->normal.z))
+			);
+		if (this->m_rayListener->normal.y != 0)
+		{
+			p_setPosition(
+				this->getPosition().x,
+				this->m_rayListener->contactPoint.y + (
+				(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
+					(-this->m_rayListener->normal.y)),
+				this->getPosition().z
+			);
+		}
+	}
+	this->m_rayListener->clear();
 }
 
-void Player::ReleaseTeleport(b3World & world)
+void Player::possessGuard(float searchLength)
 {
-	this->m_teleport.Release(world);
+	if (InputHandler::isKeyPressed(InputHandler::Del))
+	{
+		if (this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength))
+		{
+			this->possessTarget = static_cast<Enemy*>(this->m_rayListener->shape->GetBody()->GetUserData());
+			if (this->possessTarget != nullptr)
+			{
+				this->possessTarget->UnlockEnemyInput();
+				this->LockPlayerInput();
+				CameraHandler::setActiveCamera(this->possessTarget->getCamera());
+			}
+			this->m_rayListener->clear();
+		}
+	}
+	if (InputHandler::isKeyPressed(InputHandler::F5))
+	{	
+		if (possessTarget != nullptr)
+		{
+			this->possessTarget->LockEnemyInput();
+			this->UnlockPlayerInput();
+			CameraHandler::setActiveCamera(p_camera);
+			possessTarget = nullptr;
+		}
+	}
+	//m_playerInRoomPtr->possessGuard(10);
+}
+	
+const float & Player::getVisability() const
+{
+	return m_visability;
+}
+
+const int & Player::getFullVisability() const
+{
+	return g_fullVisability;
 }
 
 void Player::Draw()
 {
-	m_teleport.Draw();
+	m_abilityComponents[m_currentAbility]->Draw();
 	Drawable::Draw();
+	HUDComponent::HUDDraw();
+}
+
+void Player::LockPlayerInput()
+{
+	m_lockPlayerInput = true;
+}
+
+void Player::UnlockPlayerInput()
+{
+	m_lockPlayerInput = false;
+}
+
+void Player::SetCurrentVisability(const float & guard)
+{
+	this->m_visability = guard;
+}
+
+void Player::SendOnJumpMessage()
+{
+	Network::ENTITY_EVENT packet(Network::ID_PLAYER_JUMP, Network::Multiplayer::GetInstance()->GetNetworkID());
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::MEDIUM_PRIORITY);
+}
+
+void Player::SendOnMovementMessage()
+{
+	DirectX::XMFLOAT4A pos = this->getPosition();
+	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
 }
 
 
+void Player::RegisterThisInstanceToNetwork()
+{
+	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnJumpMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnMovementMessage, this));
+}
+
 void Player::_handleInput(double deltaTime)
 {
-	using namespace DirectX;
+	if (Input::MouseLock() && !m_kp.unlockMouse)
+	{
+		m_kp.unlockMouse = true;
+		unlockMouse = !unlockMouse;
+	}
+	else if (!Input::MouseLock())
+		m_kp.unlockMouse = false;
 
+	
+	_onSprint();
+	_onMovement();
+	_onCrouch();
+	_onJump();
+	_onBlink();
+	_onRotate(deltaTime);
+
+
+	if (Input::UseAbility())
+		m_abilityComponents[m_currentAbility]->Use();
+	
+}
+
+void Player::_onMovement()
+{
+	using namespace DirectX;
 	XMFLOAT4A forward = p_camera->getDirection();
+
+	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
 	//GeT_RiGhT;
@@ -95,152 +252,115 @@ void Player::_handleInput(double deltaTime)
 
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
-	if (GamePadHandler::IsLeftStickPressed())
-	{
-		m_moveSpeed = 400.0f * deltaTime;
-	}
-	else
-	{
-		m_moveSpeed = 200.0f * deltaTime;
-	}
+	float x = 0;
+	float z = 0;
 
-	float targetPeek = Input::PeekRight();
-
-	XMVECTOR in = XMLoadFloat4A(&m_lastPeek);
-	XMFLOAT4A none{ 0,1,0,0 };
-	XMVECTOR target = XMLoadFloat4A(&none);
-
-	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
-	target = XMVector4Transform(target, rot);
-	XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
-	//out = XMVector4Transform(out, rot);
-	XMStoreFloat4A(&m_lastPeek, out);
-	p_camera->setUP(m_lastPeek);
-	XMFLOAT4A cPos = p_camera->getPosition();
-	XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&p_position));
-
-	vToCam = XMVector4Transform(vToCam, rot);
-	out = vToCam;
-	//out = XMVectorLerp(vToCam, target, min(deltaTime * m_peekSpeed, 1.0f));
-	out = XMVectorAdd(DirectX::XMLoadFloat4A(&p_position), out);
-
-	float MAX_PEEK = 1.0f;
-
-	//XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), MAX_PEEK));
-	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
-	XMStoreFloat4A(&m_lastSideStep, sideStep);
-	out = XMVectorAdd(out, sideStep);
-	XMStoreFloat4(&cPos, out);
-
-	p_camera->setPosition(cPos);
-
-	float x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
+	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
 	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	//walkBob += x;
-
-	float z = Input::MoveForward() * m_moveSpeed * forward.z;
+	z = Input::MoveForward() * m_moveSpeed * forward.z;
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-#if _DEBUG
-	ImGui::Begin("Bob Slide");
-	ImGui::SliderFloat("WalkingFreq", &freq, 4.0f, 0.0f);
-	ImGui::SliderFloat("WalkingBobAmp", &walkingBobAmp, 0.2f, 0.0f);
-	ImGui::SliderFloat("StopBobAmp", &stopBobAmp, 0.2f, 0.0f);
-	ImGui::SliderFloat("StopBobFreq", &stopBobFreq, 4.0f, 0.0f);
-	ImGui::End();
-#endif
-	if (Input::MoveForward() != 0)
-	{
-		if (m_currentAmp < walkingBobAmp)
-		{
-			m_currentAmp += 0.0003f;
-		}
-		walkBob += Input::MoveForward() / 20;
-		m_offset = walkingBobAmp * sin(freq*walkBob) * deltaTime;
-	}
-	else
-	{
-		walkBob += 0.009f;
-
-		if (m_currentAmp > stopBobAmp)
-		{
-			m_currentAmp -= 0.0001f;
-		}
-		/*if (walkBob < 0.0f)
-		{
-			walkBob += 0.01;
-		}
-		else if (walkBob > 0.0)
-		{
-			walkBob -= 0.01;
-		}*/
-		m_offset = m_currentAmp * sin(stopBobFreq * walkBob);
-		
-	}
-	
-	
-	// TODO::FIX SO THAT IT DONT LOOK LIKE SHIT WHEN YOU PEEK
-	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
-	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
-	// TODO::END
-
-	if (Input::Jump())
-	{
-		if (isPressed == false)
-		{
-			addForceToCenter(0, 500, 0);
-			isPressed = true;
-		}
-	}
-	else
-	{
-		isPressed = false;
-	}
-
-	//std::cout << x << "\n";
-
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+}
 
-
-	if (InputHandler::isKeyPressed('Y'))
+void Player::_onSprint()
+{
+	if (Input::Sprinting())
 	{
-		if (isPressed2 == false)
+		m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+	}
+	else
+	{
+		m_moveSpeed = MOVE_SPEED;
+	}
+
+	if (m_kp.crouching)
+	{
+		m_moveSpeed = MOVE_SPEED * 0.5f;
+	}
+}
+
+void Player::_onCrouch()
+{
+	if (Input::Crouch())
+	{
+		if (m_kp.crouching == false)
 		{
-			CreateBox(2, 2, 2);
-			isPressed2 = true;
+			m_standHeight = this->p_camera->getPosition().y;
+			this->CreateBox(0.5f, 0.10f, 0.5f);
+			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+			m_kp.crouching = true;
 		}
 	}
 	else
 	{
-		isPressed2 = false;
-	}
-	//addForceToCenter(x, getLiniearVelocity().y, z);
-
-	//std::cout << "Y: " << getLiniearVelocity().y << std::endl;
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
-	//setPosition(p_camera->getPosition());
-
-	if (InputHandler::isKeyPressed('T'))
-	{
-		if (!m_teleport.getActiveSphere())
+		if (m_kp.crouching)
 		{
-			m_teleport.chargeSphere();
-		}
-	}
-	else if (m_teleport.getCharging())
-	{
-		m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
-		m_teleport.setCharging(false);
-	}
-	if (InputHandler::isKeyPressed('G'))
-	{
-		if (m_teleport.getActiveSphere())
-		{
-			DirectX::XMFLOAT4A newPos = m_teleport.TeleportToSphere();
-			setPosition(newPos.x, newPos.y + 0.6f, newPos.z, newPos.w);
-			//If we want skill... remove
-			setLiniearVelocity(0, 0, 0);
-			setAwakeState(true);
+			m_standHeight = this->p_camera->getPosition().y;
+			this->CreateBox(0.5, 0.5, 0.5);
+			this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+			m_kp.crouching = false;
 		}
 	}
 }
+
+void Player::_onBlink()
+{
+	if (Input::Blink()) //Phase acts like short range teleport through objects
+	{
+		if (m_kp.blink == false)
+		{
+			this->Phase(10);
+			m_kp.blink = true;
+		}
+	}
+	else
+	{
+		m_kp.blink = false;
+	}
+}
+
+void Player::_onRotate(double deltaTime)
+{
+	if (!unlockMouse)
+	{	
+		float deltaY = Input::TurnUp();
+		float deltaX = Input::TurnRight();
+		if (deltaX && !Input::PeekRight())
+			p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
+		if (deltaY)
+			p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+	}
+}
+
+void Player::_onJump()
+{
+	if (Input::Jump())
+	{
+		if (m_kp.jump == false)
+		{
+			addForceToCenter(0, JUMP_POWER, 0);
+			m_kp.jump = true;
+		}
+	}
+	else
+	{
+		m_kp.jump = false;
+	}
+}
+
+
+
+void Player::_cameraPlacement(double deltaTime)
+{
+	float cameraOffset = 1.0f;
+	DirectX::XMFLOAT4A pos = getPosition();
+	pos.y += cameraOffset;
+	p_camera->setPosition(pos);
+	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
+	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
+	p_camera->setPosition(pos);
+}
+
+

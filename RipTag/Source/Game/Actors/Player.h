@@ -1,35 +1,66 @@
 #pragma once
+#include <Multiplayer.h>
 #include "Actor.h"
-#include "Abilities/Teleport.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
+#include <functional>
+#include "../../Input/Input.h"
+#include "../../Physics/Wrapper/RayCastListener.h"
+#include "../Abilities/TeleportAbility.h"
+#include "2D Engine/Quad/Components/HUDComponent.h"
+#include "../Abilities/VisabilityAbility.h"
+#include "Enemy/Enemy.h"
 
-class Player : public Actor, public CameraHolder, public PhysicsComponent
+
+namespace FUNCTION_STRINGS
+{
+	static const char * JUMP = "Jump";
+}
+
+struct KeyPressed
+{
+	bool jump = false;
+	bool crouching = false;
+	bool teleport = false;
+	bool blink = false;
+	bool unlockMouse = false;
+};
+
+
+
+//This value has to be changed to match the players 
+class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
+	const float MOVE_SPEED = 10.0f;
+	const float SPRINT_MULT = 2.0f;
+	const float JUMP_POWER = 400.0f;
 
+	const unsigned short int m_nrOfAbilitys = 2;
 private:
-	
-	Teleport m_teleport;
-
-	float m_moveSpeed = 200.0f;
+	AbilityComponent ** m_abilityComponents;	
+	int m_currentAbility = 0;
+	Enemy* possessTarget;	
+	float m_standHeight;
+	RayCastListener *m_rayListener;
+	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
-	bool isPressed = false;
-	bool isPressed2 = false;
-	float walkBob = 0.0f;
-	float m_offset = 0.0f;
-	float freq = 1.9f;
-	float walkingBobAmp = 0.06f;
-	float stopBobAmp = 0.010f;
-	float stopBobFreq = 1.9f;
-	float m_currentAmp = 0.0f;
-	DirectX::XMFLOAT4A m_lastPeek;
-	DirectX::XMFLOAT4A m_lastSideStep;
+	KeyPressed m_kp;
 
-	float m_peekSpeed = 10.0f;
+	float m_visability = 0.0f;
 
+	bool m_lockPlayerInput;
+
+
+	int mouseX = 0;
+	int mouseY = 0;
 public:
+	//Magic number
+	static const int g_fullVisability = 2800;
+
+
+	bool unlockMouse = false;
 	Player();
 	~Player();
 
@@ -38,15 +69,33 @@ public:
 
 	void PhysicsUpdate(double deltaTime);
 
-	void setPosition(const float& x, const float& y, const float& z, const float& w) override;
-
-	void InitTeleport(b3World & world);
-	void ReleaseTeleport(b3World & world);
+	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void Draw() override;
 
+	//Networking
+	void SendOnJumpMessage();
+	void SendOnMovementMessage();
+
+	void RegisterThisInstanceToNetwork();
+
+	void SetCurrentVisability(const float & guard);
+
+	void LockPlayerInput();
+	void UnlockPlayerInput();
+
+	void Phase(float searchLength);
+	const float & getVisability() const;
+	const int & getFullVisability() const;
+	void possessGuard(float searchLength);
+	Enemy* getPossesTarget() { return this->possessTarget; };
 private:
-
 	void _handleInput(double deltaTime);
-
+	void _onMovement();
+	void _onSprint();
+	void _onCrouch();
+	void _onBlink();
+	void _onRotate(double deltaTime);
+	void _onJump();
+	void _cameraPlacement(double deltaTime);
 };

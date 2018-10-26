@@ -10,6 +10,16 @@ float InputHandler::m_scrollDelta;
 int InputHandler::m_lastPressed;
 DirectX::XMINT2 InputHandler::m_windowSize;
 
+DirectX::XMFLOAT2 InputHandler::m_mouseDelta;
+
+DirectX::XMFLOAT2 InputHandler::m_windowPos;
+DirectX::XMFLOAT2 InputHandler::m_viewportPos;
+DirectX::XMINT2 InputHandler::m_viewportSize;
+
+bool InputHandler::m_windowInFocus;
+
+BOOL InputHandler::m_showCursor;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -49,6 +59,9 @@ int InputHandler::getLastPressed()
 	return m_lastPressed; 
 }
 
+//FUCKING READ THIS
+//THIS IS NOT THE MOUSE POS DELTA. IT'S SCROLL DELTA
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 float InputHandler::getMouseDelta()
 {
 	float returnDelta = m_scrollDelta; 
@@ -71,6 +84,39 @@ DirectX::XMINT2 InputHandler::getWindowSize()
 	return m_windowSize; 
 }
 
+DirectX::XMINT2 InputHandler::getViewportSize()
+{
+	return m_viewportSize;
+}
+
+DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
+{
+	/*DirectX::XMFLOAT2 temp = m_mouseDelta;
+	m_mouseDelta.x =  0;
+	m_mouseDelta.y =  0;
+	return temp;*/
+
+	float x =  m_mousePos.x - m_windowPos.x;
+	float y =  m_mousePos.y - m_windowPos.y;
+	return DirectX::XMFLOAT2(x, y);
+	//return { x, y };
+}
+
+DirectX::XMFLOAT2 InputHandler::getWindowPos()
+{
+	return m_windowPos;
+}
+
+DirectX::XMFLOAT2 InputHandler::getviewportPos()
+{
+	return m_viewportPos;
+}
+
+bool InputHandler::getWindowFocus()
+{
+	return m_windowInFocus;
+}
+
 InputHandler::InputHandler()
 {
 	for (int i = 0; i < 256; i++)
@@ -91,11 +137,26 @@ InputHandler::~InputHandler()
 
 InputHandler * InputHandler::Instance()
 {
-	static InputHandler instance; 
+	static InputHandler instance;
+	m_windowInFocus = true;
 	return &instance; 
 }
 
 DirectX::XMFLOAT2 InputHandler::getMousePosition()
 {
 	return m_mousePos; 
+}
+
+void InputHandler::setShowCursor(BOOL b)
+{
+	m_showCursor = b;
+	if (b)
+		while (ShowCursor(b) <= 0) {}
+	else
+		while (ShowCursor(b) >= 0) {}
+}
+
+BOOL InputHandler::getShowCursor()
+{
+	return m_showCursor;
 }

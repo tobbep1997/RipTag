@@ -115,8 +115,7 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 
 	DirectX::XMVECTOR vDot = DirectX::XMVector3Dot(vNewDir, vUp);
 	float dot = DirectX::XMVectorGetX(vDot);
-	if (dot > -0.99f && dot < 0.99f)
-		DirectX::XMStoreFloat4A(&this->m_direction, DirectX::XMVector3Normalize(vNewDir));
+	DirectX::XMStoreFloat4A(&this->m_direction, DirectX::XMVector3Normalize(vNewDir));
 }
 
 void Camera::Rotate(float x, float y, float z, float w)
@@ -184,6 +183,22 @@ const float & Camera::getFOV() const
 const DirectX::XMFLOAT4A & Camera::getDirection() const
 {
 	return this->m_direction;
+}
+
+const DirectX::XMFLOAT4A & Camera::getRight() const
+{
+	DirectX::XMVECTOR dir, up, right;
+	dir = DirectX::XMLoadFloat4A(&this->m_direction);
+	up = DirectX::XMLoadFloat4A(&this->m_UP);
+	right = DirectX::g_XMZero;
+
+	DirectX::XMFLOAT4A toReturn;
+	right = DirectX::XMVector3Cross(up, dir);
+	right = DirectX::XMVector3Normalize(right);
+
+	DirectX::XMStoreFloat4A(&toReturn, right);
+
+	return toReturn;
 }
 
 const DirectX::XMFLOAT4X4A & Camera::getView()

@@ -15,6 +15,8 @@ std::vector<Drawable*> DX::g_visabilityDrawQueue;
 
 std::vector<Drawable*> DX::g_wireFrameDrawQueue;
 
+std::vector<Quad*> DX::g_2DQueue;
+
 std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
@@ -59,6 +61,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	scd.SampleDesc.Count = m_sampleCount;                   // how many multisamples
 	scd.Windowed = !fullscreen;								// windowed/full-screen mode
 	
+	
 
 	ID3D11DeviceContext* pDevResult = nullptr;// create a device, device context and swap chain using the information in the scd struct
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
@@ -83,13 +86,20 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 
 		// get the address of the back buffer
 		ID3D11Texture2D* pBackBuffer = nullptr;
-		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		//m_swapChain->ResizeBuffers(0, width, hight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY);
+		
 		// use the back buffer address to create the render target
+		DX::g_deviceContext->OMSetRenderTargets(NULL, NULL, NULL);
+		DX::g_deviceContext->Flush();
+
+		m_swapChain->ResizeBuffers(0, width, hight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
 		//we are creating the standard depth buffer here.
 		_createDepthSetencil(width, hight);
 		_initViewPort(width, hight);
 
+	
 		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
 	}
@@ -110,7 +120,7 @@ void Engine3D::Clear()
 
 void Engine3D::Present()
 {
-	m_swapChain->Present(0, 0);
+	m_swapChain->Present(1, 0);
 }
 
 void Engine3D::Release()

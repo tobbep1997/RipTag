@@ -1,6 +1,7 @@
 #include "PhysicsComponent.h"
 #include <iostream>
 #include "EngineSource/3D Engine/RenderingManager.h"
+#pragma warning (disable : 4312)
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
@@ -9,22 +10,17 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().translation.z);
 
 	b3Mat33 mat = m_body->GetTransform().rotation;
-	//b3Quaternion q = m_body->GetQuaternion();
-	//mat = b3Transpose(mat);
-
 	transform->setPhysicsRotation(mat);
 	
 }
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
-	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
-	
+	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
 }
 
 void PhysicsComponent::p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll)
 {
-	//DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
 	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
 
 	float xx = DirectX::XMVectorGetX(t);
@@ -97,7 +93,8 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		s->shape = p;
 		s->density = 1.0f;
 		s->restitution = 0;
-		s->friction = 0;	
+		s->friction = 0;
+		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
 		m_shapeDefs.push_back(s);
 	}
 
@@ -109,6 +106,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
 			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
 		
+		b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
 		m_bodys.push_back(b);
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
 	}
@@ -251,6 +249,11 @@ void PhysicsComponent::getLiniearVelocity(float& x, float& y, float& z)
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
+}
+
+b3Body* PhysicsComponent::getBody()
+{
+	return this->m_body;
 }
 
 void PhysicsComponent::setAwakeState(const bool& awa)

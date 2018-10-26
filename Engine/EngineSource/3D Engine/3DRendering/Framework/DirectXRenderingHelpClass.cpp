@@ -149,3 +149,49 @@ void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSiz
 		}
 	}
 }
+
+HRESULT DXRHC::CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
+	BOOL antialiasedLineEnable ,
+	D3D11_CULL_MODE cullMode ,
+	INT depthBias,
+	FLOAT depthBiasClamp,
+	BOOL depthClipEnable,
+	D3D11_FILL_MODE fillMode,
+	BOOL frontCounterClockwise,
+	BOOL multisampleEnable,
+	BOOL scissorEnable,
+	FLOAT SlopeScaledDepthBias)
+{
+	D3D11_RASTERIZER_DESC wfdesc{};
+	wfdesc.AntialiasedLineEnable = antialiasedLineEnable;
+	wfdesc.CullMode = cullMode;
+	wfdesc.DepthBias = depthBias;
+	wfdesc.DepthBiasClamp = depthBiasClamp;
+	wfdesc.DepthClipEnable = depthClipEnable;
+	wfdesc.FillMode = fillMode;
+	wfdesc.FrontCounterClockwise = frontCounterClockwise;
+	wfdesc.MultisampleEnable = multisampleEnable;
+	wfdesc.ScissorEnable = FALSE;
+	wfdesc.SlopeScaledDepthBias = SlopeScaledDepthBias;
+
+	return DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState);
+}
+
+HRESULT DXRHC::CreateBlendState(ID3D11BlendState *& blendState, BOOL BlendEnable, D3D11_BLEND SrcBlend, D3D11_BLEND DestBlend, D3D11_BLEND_OP BlendOp, D3D11_BLEND SrcBlendAlpha, D3D11_BLEND DestBlendAlpha, D3D11_BLEND_OP BlendOpAlpha, UINT8 RenderTargetWriteMask)
+{
+	D3D11_BLEND_DESC omDesc{};
+
+	ZeroMemory(&omDesc, sizeof(D3D11_BLEND_DESC));
+	omDesc.RenderTarget[0].BlendEnable = BlendEnable;
+	omDesc.RenderTarget[0].SrcBlend = SrcBlend;
+	omDesc.RenderTarget[0].DestBlend = DestBlend;
+	omDesc.RenderTarget[0].BlendOp = BlendOp;
+	omDesc.RenderTarget[0].SrcBlendAlpha = SrcBlendAlpha;
+	omDesc.RenderTarget[0].DestBlendAlpha = DestBlendAlpha;
+	omDesc.RenderTarget[0].BlendOpAlpha = BlendOpAlpha;
+	omDesc.RenderTarget[0].RenderTargetWriteMask = RenderTargetWriteMask;
+
+	return DX::g_device->CreateBlendState(&omDesc, &blendState);
+
+}
+

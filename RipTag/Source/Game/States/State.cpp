@@ -1,5 +1,7 @@
 #include "State.h"
 
+
+
 State::State(RenderingManager * rm)
 {
 	p_renderingManager = rm;
@@ -9,6 +11,17 @@ State::State(RenderingManager * rm)
 State::~State()
 {
 	p_renderingManager = nullptr;
+}
+
+State * State::getNewState()
+{
+	State * newState = m_newState;
+	return newState;
+}
+
+void State::pushNewState(State * state)
+{
+	m_newState = state;
 }
 
 bool State::getKillState()

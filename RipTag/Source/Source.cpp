@@ -1,7 +1,13 @@
+
+
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
+#include "EngineSource/Helper/Timer.h"
 #include <LuaTalker.h>
 #include "../RipTag/Source/Game/Pathfinding/Grid.h"
+
+
+
 
 
 #if _DEBUG
@@ -24,11 +30,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Game game;
 	game.Init(hInstance);
-
+	std::cout << "hello";
 	DeltaTime dt;
 	float deltaTime = 0.0f;
+	float deltaNega = 0;
+
+
+
 	
-	Grid grid = Grid(300, 300);
+	/*Grid grid = Grid(300, 300);
 	std::vector<Node*> path;
 	
 	dt.getDeltaTimeInSeconds();
@@ -48,16 +58,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	{
 		delete path.at(i);
 		path.at(i) = nullptr;
-	}
+	}*/
 
 	while (game.isRunning())
 	{
+
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
 
+		//This is to avoid Pollevents from fucking with the game
+		deltaTime = deltaTime - deltaNega;
 		game.Clear();
+
+		//Pollevents
+		Timer::StartTimer();
 		game.PollEvents();
+		Timer::StopTimer();
+		deltaNega = Timer::GetDurationInSeconds();
+		//Draw and update
 		game.ImGuiFrameStart();
 		game.Update(deltaTime);
 		game.Draw();
