@@ -120,10 +120,6 @@ void Enemy::Update(double deltaTime)
 			//_IsInSight();
 		}
 	}
-
-	ImGui::Begin("ene");
-	ImGui::Text("disabled?: %d", m_disabled);
-	ImGui::End();
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -153,8 +149,6 @@ void Enemy::UnlockEnemyInput()
 void Enemy::DisableEnemy()
 {
 	m_disabled = true;
-	addForceToCenter(100, 100, 100);
-	std::cout << "disabled" << std::endl;
 }
 
 void Enemy::EnableEnemy()
