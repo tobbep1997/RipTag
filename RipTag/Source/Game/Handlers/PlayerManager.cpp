@@ -79,8 +79,6 @@ void PlayerManager::Draw()
 	}
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Draw();
-
-	//mRemotePlayer->getPosition();
 	
 	ImGui::Begin("possese");
 	if (hasRemotePlayer)

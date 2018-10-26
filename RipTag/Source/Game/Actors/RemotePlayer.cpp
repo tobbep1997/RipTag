@@ -25,7 +25,7 @@ RemotePlayer::RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float
 	this->networkID = nID;
 
 	//4.
-	//this->setEntityType(EntityType::PlayerType);
+	this->setEntityType(EntityType::PlayerType);
 
 	//5.
 	this->m_stateStack.push(PlayerState::Idle);
@@ -57,13 +57,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 void RemotePlayer::Update(double dt)
 {
 	//TODO:
-	//1. Update physics component 
-	//2. Handle the state machine (transitions are handled in the called functions)
+	//1. Handle the state machine (transitions are handled in the called functions)
 
 	//1.
-	this->p_updatePhysics(this);
-
-	//2.
 	switch (this->m_stateStack.top())
 	{
 	case PlayerState::Idle:
@@ -91,6 +87,7 @@ void RemotePlayer::Update(double dt)
 void RemotePlayer::PhysicsUpdate()
 {
 	this->p_updatePhysics(this);
+	this->setLiniearVelocity(0, this->getLiniearVelocity().y, 0);
 }
 
 void RemotePlayer::Draw()
@@ -145,8 +142,8 @@ void RemotePlayer::_onMovement(Network::ENTITY_MOVE * data)
 		}
 
 		//In any case we always apply the given velocity
-		this->setPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 0.0f));
-		this->p_setPosition(data->x, data->y, data->z);
+		//this->setPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 0.0f));
+		this->setLiniearVelocity(data->x, getLiniearVelocity().y, data->z);
 	}
 }
 
