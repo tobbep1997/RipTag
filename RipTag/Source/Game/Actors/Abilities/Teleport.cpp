@@ -3,10 +3,10 @@
 
 Teleport::Teleport() : BaseActor()
 {
-	pl.Init(DirectX::XMFLOAT4A(0, 0, 0, 1), DirectX::XMFLOAT4A(0.3, 1, 1, 1));
+	pl.Init(DirectX::XMFLOAT4A(0, 0, 0, 1), DirectX::XMFLOAT4A(0.3f, 1, 1, 1));
 	//pl.CreateShadowDirection(PointLight::XYZ_ALL);
 	pl.setFarPlane(50);
-	pl.setNearPlane(0.01);
+	pl.setNearPlane(0.01f);
 	pl.setIntensity(10);
 	pl.setDropOff(1);
 	//pl.setPower(10);

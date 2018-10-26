@@ -7,6 +7,7 @@
 #include <functional>
 #include "../../Input/Input.h"
 #include "../../Physics/Wrapper/RayCastListener.h"
+#include "2D Engine/Quad/Components/HUDComponent.h"
 
 namespace FUNCTION_STRINGS
 {
@@ -23,7 +24,7 @@ struct KeyPressed
 	bool unlockMouse = false;
 };
 
-class Player : public Actor, public CameraHolder, public PhysicsComponent
+class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };

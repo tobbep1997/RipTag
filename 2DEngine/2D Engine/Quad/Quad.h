@@ -32,7 +32,7 @@ private:
 	Texture ** m_textures;
 
 	DirectX::SpriteFont * m_spriteFont;
-	std::string m_string;
+	std::string m_string = "";
 
 	DirectX::XMFLOAT4A m_textColor;
 
@@ -76,5 +76,6 @@ public:
 	const bool isPressed(const DirectX::XMFLOAT2 & mousePos);
 	const bool isReleased(const DirectX::XMFLOAT2 & mousePos);
 	
+	void setState(const unsigned int & buttonState);
 };
 

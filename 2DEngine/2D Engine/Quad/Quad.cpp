@@ -48,10 +48,9 @@ Quad::~Quad()
 
 void Quad::init(DirectX::XMFLOAT2A position, DirectX::XMFLOAT2A size)
 {
-	Transform2D::setPosition(position);
-	Transform2D::setScale(size);
 	p_setStaticQuadVertex();
-	p_createBuffer();
+	setPosition(position);
+	setScale(size);
 }
 
 void Quad::Draw()
@@ -194,4 +193,14 @@ const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
 {
 	return !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
 }
+
+//0 == Normal
+//1 == Hover
+//2 == Pressed
+void Quad::setState(const unsigned int & bs)
+{
+	this->m_buttonState = (buttonState)bs;
+}
+
+
 

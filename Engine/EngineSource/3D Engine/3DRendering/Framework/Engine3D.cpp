@@ -120,7 +120,7 @@ void Engine3D::Clear()
 
 void Engine3D::Present()
 {
-	m_swapChain->Present(0, 0);
+	m_swapChain->Present(1, 0);
 }
 
 void Engine3D::Release()

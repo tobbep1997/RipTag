@@ -12,6 +12,8 @@ private:
 	ID3D11SamplerState *	m_sampler;
 	DirectX::SpriteBatch *	m_spriteBatch;
 
+	ID3D11BlendState *		m_blendState;
+
 public:
 	Render2D();
 	~Render2D();
