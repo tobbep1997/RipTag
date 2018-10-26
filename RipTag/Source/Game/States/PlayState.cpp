@@ -23,26 +23,29 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	future.get();
 	future1.get();
-	player = new Player();
+	
+	m_playerManager = new PlayerManager();
+	m_playerManager->CreateLocalPlayer();
+
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
 	
 
-	CameraHandler::setActiveCamera(player->getCamera());
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 
 
-	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
-	player->setEntityType(EntityType::PlayerType);
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
 	//player->setPosition(0, 5, 0, 0);
-	player->setColor(10, 10, 0, 1);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
 
-	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	player->setScale(1.0f, 1.0f, 1.0f);
-	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	player->setTextureTileMult(2, 2);
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 
-	player->InitTeleport(m_world);
+	m_playerManager->getLocalPlayer()->InitTeleport(m_world);
 	
 
 
@@ -58,7 +61,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 
 	
-	m_levelHandler.setPlayer(player);
+	m_levelHandler.setPlayer(m_playerManager->getLocalPlayer());
 	m_levelHandler.Init(m_world);
 	
 	Input::ResetMouse();
@@ -68,9 +71,9 @@ PlayState::~PlayState()
 {
 	m_levelHandler.Release();
 	
-	player->Release(m_world);
-	player->ReleaseTeleport(m_world);
-	delete player;
+	m_playerManager->getLocalPlayer()->Release(m_world);
+	m_playerManager->getLocalPlayer()->ReleaseTeleport(m_world);
+	delete m_playerManager;
 
 	//actor->Release(m_world);
 	delete model;
@@ -111,7 +114,7 @@ void PlayState::Update(double deltaTime)
 	}
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	player->Update(deltaTime);
+	m_playerManager->Update(deltaTime);
 
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
@@ -124,7 +127,7 @@ void PlayState::Update(double deltaTime)
 
 	//----------------------------------
 	m_world.Step(m_step);
-	player->PhysicsUpdate(deltaTime);
+	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit())
 	{
@@ -132,14 +135,14 @@ void PlayState::Update(double deltaTime)
 	}
 
 	// Must be last in update
-	if (!player->unlockMouse)
+	if (!m_playerManager->getLocalPlayer()->unlockMouse)
 	{
 		Input::ResetMouse();
-		InputHandler::setShowCursor(NEIN);
+		InputHandler::setShowCursor(false);
 	}
 	else
 	{
-		InputHandler::setShowCursor(JAAH);
+		InputHandler::setShowCursor(true);
 	}
 }
 
@@ -148,7 +151,7 @@ void PlayState::Draw()
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	
-	player->Draw();
+	m_playerManager->Draw();
 		
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -189,15 +192,23 @@ void PlayState::TemporaryLobby()
 			ptr->EndConnectionAttempt();
 	}
 
-	if (ptr->isRunning() && ptr->isConnected())
+	if (ptr->isRunning() && ptr->isConnected() && !ptr->isGameRunning())
 	{
 		if (ptr->isServer() && !ptr->isGameRunning())
 			if (ImGui::Button("Start Game"))
-			{				//set game running, send a start game message
+			{
+				ptr->setIsGameRunning(true);
 			}
 		ImGui::Text(ptr->GetNetworkInfo().c_str());
 		if (ImGui::Button("Disconnect"))
 			ptr->Disconnect();
 	}
+
+	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
+	{
+		if (ImGui::Button("Spawn on Remote"))
+			m_playerManager->SendOnPlayerCreate();
+	}
+
 	ImGui::End();
 }

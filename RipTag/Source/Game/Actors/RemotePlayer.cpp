@@ -35,6 +35,10 @@ RemotePlayer::~RemotePlayer()
 {
 }
 
+void RemotePlayer::BeginPlay()
+{
+}
+
 void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 {
 	using namespace Network;
@@ -49,7 +53,7 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	}
 }
 
-void RemotePlayer::Update(float dt)
+void RemotePlayer::Update(double dt)
 {
 	//TODO:
 	//1. Update physics component 
@@ -83,8 +87,14 @@ void RemotePlayer::Update(float dt)
 
 }
 
+void RemotePlayer::PhysicsUpdate()
+{
+	this->p_updatePhysics(this);
+}
+
 void RemotePlayer::Draw()
 {
+	Drawable::Draw();
 }
 
 void RemotePlayer::_onMovement(Network::ENTITY_MOVE * data)

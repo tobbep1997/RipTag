@@ -61,7 +61,7 @@ public:
 	void BeginPlay();
 	void Update(double deltaTime);
 
-	void PhysicsUpdate(double deltaTime);
+	void PhysicsUpdate();
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 

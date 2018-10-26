@@ -17,9 +17,11 @@ private:
 
 public:
 	//PUBLIC MEMBER FUNCTIONS
+	void BeginPlay();
 	void HandlePacket(unsigned char id, unsigned char * data);
-	void Update(float dt);
-	void Draw();
+	void Update(double dt);
+	void PhysicsUpdate();
+	void Draw() override;
 
 private:
 	//PRIVATE FUNCTIONS

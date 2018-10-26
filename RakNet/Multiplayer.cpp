@@ -305,12 +305,14 @@ namespace Network
 
 	void Multiplayer::HandleRakNetMessages(unsigned char mID)
 	{
+		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator;
 		switch (mID)
 		{
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
-			this->Disconnect();
-			break;
 		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
+			mapIterator = onReceiveMap.find(GAME_MESSAGES::ID_PLAYER_DISCONNECT);
+			if (mapIterator != onReceiveMap.end())
+				mapIterator->second(0, nullptr);
 			this->Disconnect();
 			break;
 		case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -323,17 +325,9 @@ namespace Network
 
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
-		//Pointer to our lua_State (i just want a short variable for cleaner code)
-
-		//Call script after Message identification
-		switch (mID)
-		{
-		case ID_GAME_START:
-			
-			break;
-		default:
-			break;
-		}
+		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = onReceiveMap.find(mID);
+		if (mapIterator != onReceiveMap.end())
+			mapIterator->second(mID, data);
 	}
 
 	void Multiplayer::_onDisconnect()

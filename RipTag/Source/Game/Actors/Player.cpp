@@ -62,7 +62,7 @@ void Player::Update(double deltaTime)
 	_cameraPlacement(deltaTime);
 }
 
-void Player::PhysicsUpdate(double deltaTime)
+void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Actors/Player.h"
+#include "../Handlers/PlayerManager.h"
 #include <future>
 #include "State.h"
 
@@ -25,7 +25,7 @@ private:
 	LevelHandler m_levelHandler;
 	ObjectHandler m_objectHandler;
 
-	Player * player;
+	PlayerManager * m_playerManager;
 
 	b3World m_world;
 
