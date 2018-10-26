@@ -1,5 +1,5 @@
 #include "CameraHolder.h"
-
+#include <iostream>
 
 
 void CameraHolder::p_initCamera(Camera * camera)
@@ -7,27 +7,40 @@ void CameraHolder::p_initCamera(Camera * camera)
 	this->p_camera = camera;
 }
 
-double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed)
+double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState)
 {
-	if (velocity != 0)
+	//std::cout << moveState << std::endl;
+	switch (moveState)
 	{
-		if (m_currentAmp < walkingBobAmp)
+	case Walking:
+		if (velocity != 0)
 		{
-			m_currentAmp += 0.0003f;
+			m_walkBob += (velocity * (moveSpeed * deltaTime));					
+			m_offset = m_walkingBobAmp * sin(m_walkingFreq * m_walkBob);
 		}
-		walkBob += (velocity * (moveSpeed * deltaTime));
-		m_offset = walkingBobAmp * sin(freq*walkBob);
-	}
-	else
-	{
-		walkBob += 0.009f;
+		else
+		{
 
-		if (m_currentAmp > stopBobAmp)
-		{
-			m_currentAmp -= 0.0001f;
 		}
-		m_offset = m_currentAmp * sin(stopBobFreq * walkBob);
+
+		break;
+	case Sprinting:
+
+		if (velocity != 0)
+		{
+			m_sprintBob += (velocity * (moveSpeed * deltaTime));
+			m_offset = m_sprintingBobAmp * sin(m_sprintingFreq * m_sprintBob);
+		}
+		else
+		{
+		}
+		break;
+	case Idle:
+		m_currentAmp += deltaTime; 
+		m_offset = m_stopBobAmp * sin(m_stopBobFreq * m_currentAmp);
+		break;
 	}
+
 	return m_offset;
 }
 

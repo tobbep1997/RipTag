@@ -215,6 +215,7 @@ void Player::_onSprint()
 		if (m_toggleSprint == 1 && Input::MoveForward() > 0.1)
 		{
 			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+			p_moveState = Sprinting; 
 		}
 		else
 		{
@@ -224,6 +225,13 @@ void Player::_onSprint()
 		if (m_toggleSprint == 0)
 		{
 			m_moveSpeed = MOVE_SPEED;
+			p_moveState = Walking;
+		}
+
+		if (Input::MoveForward() == 0)
+		{
+			p_moveState = Idle;
+
 		}
 
 		m_prevClickSprint = m_currClickSprint; 
@@ -233,10 +241,12 @@ void Player::_onSprint()
 		if (Input::Sprinting())
 		{
 			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+			p_moveState = Sprinting; 
 		}
 		else
 		{ 
 			m_moveSpeed = MOVE_SPEED;
+			p_moveState = Sprinting; 
 		}
 	}
 }
@@ -380,12 +390,12 @@ void Player::_onTeleport(double deltaTime)
 
 void Player::_cameraPlacement(double deltaTime)
 {
-	float cameraOffset = 1.0f;
+	float cameraOffset = 1.87f;
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
+	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
 }
