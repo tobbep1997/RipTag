@@ -25,6 +25,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_teleport.setOwner(this);
 	m_teleport.Init();
 
+	m_disable.setOwner(this);
+	m_disable.Init();
+
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -72,6 +75,7 @@ void Player::Update(double deltaTime)
 		
 	}
 	m_teleport.Update(deltaTime);
+	m_disable.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	HUDComponent::HUDUpdate(deltaTime);
 }
@@ -118,6 +122,7 @@ void Player::Phase(float searchLength)
 void Player::Draw()
 {
 	m_teleport.Draw();
+	m_disable.Draw();
 	Drawable::Draw();
 	if (Input::CheckVisability())
 	{
@@ -328,7 +333,8 @@ void Player::_onTeleport(double deltaTime)
 {
 	if (Input::Teleport())
 	{
-		m_teleport.Use();
+		//m_teleport.Use();
+		m_disable.Use();
 	}
 }
 

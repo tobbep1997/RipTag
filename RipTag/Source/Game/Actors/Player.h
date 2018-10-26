@@ -8,6 +8,7 @@
 #include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include "../Abilities/Disable/DisableAbility.h"
 
 
 namespace FUNCTION_STRINGS
@@ -36,6 +37,8 @@ private:
 
 private:
 	TeleportAbility m_teleport;
+	DisableAbility m_disable;
+
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
