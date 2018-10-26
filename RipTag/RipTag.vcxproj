@@ -166,6 +166,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
     <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
@@ -207,6 +208,7 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\Assets\StaticAsset.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />

@@ -100,7 +100,7 @@ void Room::LoadRoomToMemory()
 		
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			this->m_roomGuards.push_back(new Enemy(tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
+			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
 		}
 		delete tempGuards.startingPositions;
 		
@@ -135,14 +135,22 @@ void Room::LoadRoomToMemory()
 }
 
 
-void Room::Update()
+void Room::Update(float deltaTime)
 {
+	m_playerInRoomPtr->possessGuard(10);
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(0.001f);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
+		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
+		if ((int)this->m_roomGuards.at(i)->getBody()->GetUserData() == 3)
+		{
+			this->m_roomGuards.at(i)->getBody()->SetUserData((void*)2);
+			this->m_roomGuards.at(i)->UnlockEnemyInput();
+			this->m_playerInRoomPtr->LockPlayerInput();
+		}
 	}
 	int endvis = 0;
 	for (int i = 0; i < vis.size(); ++i)
@@ -150,6 +158,7 @@ void Room::Update()
 		endvis += vis.at(i)[0] / 100;
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
+	
 	vis.clear();
 }
 

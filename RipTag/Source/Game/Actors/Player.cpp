@@ -87,6 +87,21 @@ void Player::Phase(float searchLength)
 	this->m_rayListener->clear();
 }
 
+void Player::possessGuard(float searchLength)
+{
+	if (InputHandler::isKeyPressed(InputHandler::Del))
+	{
+		this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
+
+		if ((int)this->m_rayListener->shape->GetBody()->GetUserData() == 2)
+		{
+			this->m_rayListener->shape->GetBody()->SetUserData((void*)3);
+		}
+		this->m_rayListener->clear();
+	}
+	//m_playerInRoomPtr->possessGuard(10);
+	
+}
 void Player::InitTeleport(b3World & world)
 {
 	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);

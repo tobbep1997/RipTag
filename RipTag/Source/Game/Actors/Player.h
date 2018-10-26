@@ -27,7 +27,7 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 3.0f;
+	const float MOVE_SPEED = 10.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
@@ -76,6 +76,7 @@ public:
 	void UnlockPlayerInput();
 
 	void Phase(float searchLength);
+	void possessGuard(float searchLength);
 
 private:
 	void _handleInput(double deltaTime);
