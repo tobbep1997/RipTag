@@ -13,6 +13,8 @@ b3World * RipExtern::g_world = nullptr;
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	RipExtern::g_world = &m_world;
+	//RipExtern::g_world->SetContactListener()
+
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
