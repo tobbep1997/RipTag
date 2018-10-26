@@ -47,8 +47,9 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	while (!openList.empty())
 	{
 		int listSize = openList.size() - 1;
-		std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost > second->fCost; });
-		current = openList.at(listSize);
+		std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
+		current = openList.at(0);
+		openList.erase(openList.begin());
 
 		if (current->tile == dest)
 		{
@@ -76,8 +77,8 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			return path;
 		}
 
+		// Flag the tile as visited
 		closedList[current->tile.getX() + current->tile.getY() * m_width] = true;
-		openList.erase(openList.end() - 1);
 
 		/*
 			Generate all the eight successors of the cell
@@ -166,7 +167,7 @@ bool Grid::_isValid(Tile tile) const
 
 float Grid::_calcHValue(Tile src, Tile dest) const
 {
-	int x = src.getX() - dest.getX();
-	int y = src.getY() - dest.getY();
-	return abs(x) + abs(y);
+	int x = abs(src.getX() - dest.getX());
+	int y = abs(src.getY() - dest.getY());
+	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * std::min(x, y);
 }
