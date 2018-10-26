@@ -24,12 +24,16 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_teleport->setOwner(this);
 	m_teleport->Init();
 
+	DisableAbility * m_dis = new DisableAbility();
+	m_dis->setOwner(this);
+	m_dis->Init();
+
 	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
 	m_abilityComponents[0] = m_teleport;
 	m_abilityComponents[1] = visAbl;
+	m_abilityComponents[2] = m_dis;
 
-	m_disable.setOwner(this);
-	m_disable.Init();
+	
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -39,6 +43,12 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 50);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	HUDComponent::AddQuad(quad, 50);
@@ -81,7 +91,6 @@ void Player::Update(double deltaTime)
 	}
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
 	this->possessGuard(10);
-	m_disable.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
@@ -177,7 +186,6 @@ const int & Player::getFullVisability() const
 void Player::Draw()
 {
 	m_abilityComponents[m_currentAbility]->Draw();
-	m_disable.Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
 }

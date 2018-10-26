@@ -273,5 +273,6 @@
     <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
     <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
     <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
+    <ClInclude Include="RipTagExtern\RipExtern.h" />
   </ItemGroup>
 </Project>

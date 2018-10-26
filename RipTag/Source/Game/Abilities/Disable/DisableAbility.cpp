@@ -23,6 +23,10 @@ void DisableAbility::Init()
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	BaseActor::setGravityScale(0.01f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
+
+	PhysicsComponent::setUserDataBody(this);
+	this->getBody()->SetObjectTag("Dis");
+	std::cout << "DIS" << this << std::endl;
 }
 
 void DisableAbility::Update(double deltaTime)
@@ -83,7 +87,64 @@ void DisableAbility::_logic(double deltaTime)
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			m_charge = 0.0f;
 			break;
+		case DisableAbility::Moving:
+			bool cont = false;
+			for (auto contact : RipExtern::m_contactListener->GetBeginContacts())
+			{
+				/*if (contact->GetShapeA()->GetBody()->GetUserData() == this)
+				{
+					std::cout << "self" << std::endl;
+					
+				}
+*/
+				if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Dis")
+				{
+					if (contact->GetShapeB()->GetBody()->GetObjectTag() == "Eny")
+					{
+						Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
+						temp->DisableEnemy();
+					}
+				}
+				//std::cout << contact->GetShapeA()->GetBody()->GetUserData() << std::endl;
+				//std::cout << contact->GetShapeB()->GetBody()->GetUserData() << std::endl;
+				//if (static_cast<DisableAbility*>(contact->GetShapeA()->GetBody()->GetUserData()) != nullptr)
+				//{
+				//	//dynamic_cast<DisableAbility*>(contact->GetShapeA()->GetBody()->GetUserData());
+				//	void* v = contact->GetShapeB()->GetBody()->GetUserData();
+				//	if (v == nullptr || (long long)v == 0xFFFFFFFFCCCCCCCC)
+				//		std::cout << "FAK" << std::endl;
+				//	Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
+				//	Enemy * oo = temp->validate();
+				//	if (oo && (long long)v != 0xFFFFFFFFCCCCCCCC)
+				//	{
+				//		
+				//		//RipExtern::lol = oo;
+				//		oo->DisableEnemy();
+				//		//std::cout << contact->GetShapeA()->GetBody()->GetUserData() << std::endl;
+				//		//std::cout << contact->GetShapeB()->GetBody()->GetUserData() << std::endl;
+				//		break;
+				//	}
+				//	
+				//}
+				/*if (static_cast<Enemy*>(contact->GetShapeA()->GetBody()->GetUserData()))
+				{
+					if (static_cast<DisableAbility*>(contact->GetShapeB()->GetBody()->GetUserData()))
+					{
+						
+						cont = true;
+						break;
+					}
+				}*/
+				
+			}
+			/*if (cont == true)
+			{
+				
+			}*/
+			break;
 		}
+	
+
 	}
 
 	m_useFunctionCalled = false;

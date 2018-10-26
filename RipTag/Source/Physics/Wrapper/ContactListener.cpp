@@ -15,6 +15,7 @@ ContactListener::~ContactListener()
 void ContactListener::BeginContact(b3Contact* contact)
 {
 	m_beginContacts.push_back(contact);
+	
 	void* bodyUserDataA = contact->GetShapeA()->GetBody()->GetUserData();
 	void* bodyUserDataB = contact->GetShapeB()->GetBody()->GetUserData();
 

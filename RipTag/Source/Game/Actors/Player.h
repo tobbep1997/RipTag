@@ -38,9 +38,9 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
-	const unsigned short int m_nrOfAbilitys = 2;
+	const unsigned short int m_nrOfAbilitys = 3;
 private:
-	DisableAbility m_disable;
+	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
 	int m_currentAbility = 0;
 	Enemy* possessTarget;	

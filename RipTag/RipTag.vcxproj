@@ -213,6 +213,7 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RipTagExtern\RipExtern.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
