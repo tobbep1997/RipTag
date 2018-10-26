@@ -26,7 +26,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
-
+	int i = sizeof(Transform);
 	Game game;
 	game.Init(hInstance);
 	std::cout << "hello";

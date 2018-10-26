@@ -198,24 +198,6 @@ namespace Network
 			true);
 	}
 
-	void Multiplayer::DestroySentPacket(void * msg)
-	{
-		unsigned char id = GetPacketIdentifier((unsigned char*)msg);
-
-		//list of all structs
-		GAME_MESSAGE * pGM = 0;
-		
-		switch (id)
-		{
-		case ID_GAME_START:
-			pGM = (GAME_MESSAGE*)msg;
-			delete pGM; pGM = 0;
-			break;
-		default:
-			break;
-		}
-
-	}
 
 	void Multiplayer::EndConnectionAttempt()
 	{
@@ -310,7 +292,7 @@ namespace Network
 		{
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
-			mapIterator = onReceiveMap.find(GAME_MESSAGES::ID_PLAYER_DISCONNECT);
+			mapIterator = onReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
 			if (mapIterator != onReceiveMap.end())
 				mapIterator->second(0, nullptr);
 			this->Disconnect();
@@ -325,8 +307,8 @@ namespace Network
 
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
-		if (mID == GAME_MESSAGES::ID_GAME_START)
-			this->isGameRunning = true;
+		if (mID == NETWORKMESSAGES::ID_GAME_START)
+			this->m_isGameRunning = true;
 
 		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = onReceiveMap.find(mID);
 		if (mapIterator != onReceiveMap.end())

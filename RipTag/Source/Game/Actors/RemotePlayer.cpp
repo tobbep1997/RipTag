@@ -2,24 +2,23 @@
 
 
 
-RemotePlayer::RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float y, float z) : Actor(), PhysicsComponent()
+RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
 	//TODO:
 	//1. Load the correct mesh and configure it
-	//2. Set the position
+	//2. Set the transform
 	//3. Assign the NID
 	//4. Set the correct entity type
 	//5. Push the intial state on the stack
 	
 	//1.
-	this->Init(world, e_dynamicBody);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setScale(1.0f, 1.0f, 1.0f);
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	//2.
-	this->setPosition(DirectX::XMFLOAT4A(x, y, z, 1.0f));
-	this->p_setPosition(x, y, z);
+	this->setPosition(pos);
+	this->setScale(scale);
+	this->setRotation(rot);
 
 	//3.
 	this->networkID = nID;
@@ -45,11 +44,8 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	using namespace Network;
 	switch (id)
 	{
-	case GAME_MESSAGES::ID_PLAYER_MOVE:
-		this->_onMovement((ENTITY_MOVE*)data);
-		break;
-	case GAME_MESSAGES::ID_PLAYER_JUMP:
-		this->_onJumpEvent((ENTITY_EVENT*)data);
+	case NETWORKMESSAGES::ID_PLAYER_UPDATE:
+		this->_onNetworkUpdate((Network::ENTITYUPDATEPACKET*)data);
 		break;
 	}
 }
@@ -84,87 +80,28 @@ void RemotePlayer::Update(double dt)
 
 }
 
-void RemotePlayer::PhysicsUpdate()
-{
-	this->p_updatePhysics(this);
-	this->setLiniearVelocity(0, this->getLiniearVelocity().y, 0);
-}
-
 void RemotePlayer::Draw()
 {
 	Drawable::Draw();
 }
 
-void RemotePlayer::_onMovement(Network::ENTITY_MOVE * data)
+void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 {
-	//Check the NID first then update the current velocity
-	if (this->networkID == data->nID)
+	//Check the NID first then update the current position
+	if (this->networkID == data->nid)
 	{
 		//Determine if we need to update the state stack
-		//data->state can be walking, sprinting and crouching
-		switch (this->m_stateStack.top())
+		//if the new state is different from the current state
+		//we have to handle the transition animation
+		if (!m_stateStack.top() == data->state)
 		{
-		//under these circumstances the stack is locked 
-		case PlayerState::Jumping:
-		case PlayerState::Falling:
-		case PlayerState::CheckingVisibility:
-		case PlayerState::InBlink:
-		case PlayerState::InTeleport:
-			break;
-		case PlayerState::Idle:
-			this->m_stateStack.push((PlayerState)data->state);
-			break;
-		case PlayerState::Walking:
-			if (data->state != PlayerState::Walking)
-			{
-				//if we have a different movement state update the stack
-				this->m_stateStack.pop();
-				this->m_stateStack.push((PlayerState)data->state);
-			}
-			break;
-		case PlayerState::Sprinting:
-			if (data->state != PlayerState::Sprinting)
-			{
-				this->m_stateStack.pop();
-				this->m_stateStack.push((PlayerState)data->state);
-			}
-			break;
-		case PlayerState::Crouching:
-			if (data->state != PlayerState::Crouching)
-			{
-				this->m_stateStack.pop();
-				this->m_stateStack.push((PlayerState)data->state);
-			}
-			break;
-
-		default:
-			break;
+			handleTransition = true;
+			m_stateStack.push((PlayerState)data->state);
 		}
 
-		//In any case we always apply the given velocity
-		//this->setPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 0.0f));
-		this->setLiniearVelocity(data->x, getLiniearVelocity().y, data->z);
-	}
-}
-
-void RemotePlayer::_onJumpEvent(Network::ENTITY_EVENT * data)
-{
-	//Check NID first then check the current state machine
-	if (this->networkID == data->nID)
-	{
-		//We can jump under these circumstances
-		switch (this->m_stateStack.top())
-		{
-		case PlayerState::Idle:
-		case PlayerState::Walking:
-		case PlayerState::Sprinting:
-			//We can apply jump from this state
-			this->addForceToCenter(0.0f, 200.0f, 0.0f);
-			this->m_stateStack.push(PlayerState::Jumping);
-			break;
-		default:
-			break;
-		}
+		//In any case we always apply position and rotation
+		this->setPosition(data->pos);
+		this->setRotation(data->rot);
 	}
 }
 
@@ -190,29 +127,10 @@ void RemotePlayer::_Sprinting(float dt)
 
 void RemotePlayer::_Jumping(float dt)
 {
-	if (this->getLiniearVelocity().y < 0)
-	{
-		this->m_stateStack.pop();
-		this->m_stateStack.push(PlayerState::Falling);
-	}
-	else
-	{
-		//Play Jumping animation
-
-	}
+	//Play Jumping animation
 }
 
 void RemotePlayer::_Falling(float dt)
 {
-	float epsilon = 0.0002;
-
-	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
-	{
-		this->m_stateStack.pop();
-	}
-	else
-	{
-		//play falling animation
-
-	}
+	//play falling animation
 }

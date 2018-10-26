@@ -19,13 +19,11 @@
 
 namespace Network
 {
+
 	//Network constants
 	const unsigned short PEER_PORT = 60005;
-
 	const short MAX_CONNECTIONS = 2;
 	const std::string LAN_IP = "255.255.255.255";
-
-	//Other constants
 	const double ADVERTISEMENT_FREQUENCE = 1 / 5.0;
 
 	class Multiplayer : public RakNet::NetworkIDObject
@@ -53,7 +51,6 @@ namespace Network
 		void Disconnect();
 
 		void ReadPackets();
-		void DestroySentPacket(void * msg);
 		void EndConnectionAttempt();
 		void Update();
 		//GETs 

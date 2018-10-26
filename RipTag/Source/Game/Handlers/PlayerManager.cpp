@@ -10,6 +10,10 @@ PlayerManager::PlayerManager(b3World * physWorld)
 
 PlayerManager::~PlayerManager()
 {
+	if (mRemotePlayer)
+		delete mRemotePlayer;
+	if (mLocalPlayer)
+		delete mLocalPlayer;
 }
 
 void PlayerManager::RegisterThisInstanceToNetwork()
@@ -20,18 +24,17 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnSendFuncMap("RemotePlayerCreate", std::bind(&PlayerManager::SendOnPlayerCreate, this));
 
 	//Receive handling
-	Multiplayer::addToOnReceiveFuncMap(GAME_MESSAGES::ID_PLAYER_CREATE, std::bind(&PlayerManager::_onRemotePlayerCreate, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(GAME_MESSAGES::ID_PLAYER_MOVE, std::bind(&PlayerManager::_onRemotePlayerEvent, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(GAME_MESSAGES::ID_PLAYER_JUMP, std::bind(&PlayerManager::_onRemotePlayerEvent, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(GAME_MESSAGES::ID_PLAYER_DISCONNECT, std::bind(&PlayerManager::_onRemotePlayerDisconnect, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CREATE, std::bind(&PlayerManager::_onRemotePlayerCreate, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerEvent, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_DISCONNECT, std::bind(&PlayerManager::_onRemotePlayerDisconnect, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
 {
-	Network::ENTITY_CREATE * packet = (Network::ENTITY_CREATE*)data;
+	Network::CREATEPACKET * packet = (Network::CREATEPACKET*)data;
 	if (!mRemotePlayer && !hasRemotePlayer)
 	{
-		this->mRemotePlayer = new RemotePlayer(*this->mWorld, packet->nID, packet->x, packet->y, packet->z);
+		this->mRemotePlayer = new RemotePlayer(packet->nid, packet->pos, packet->scale, packet->rotation);
 		hasRemotePlayer = true;
 	}
 }
@@ -64,8 +67,6 @@ void PlayerManager::Update(float dt)
 
 void PlayerManager::PhysicsUpdate()
 {
-	if (mRemotePlayer && hasRemotePlayer)
-		mRemotePlayer->PhysicsUpdate();
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->PhysicsUpdate();
 }
@@ -112,14 +113,17 @@ void PlayerManager::SendOnPlayerCreate()
 	if (mLocalPlayer && hasLocalPlayer)
 	{
 		DirectX::XMFLOAT4A pos = mLocalPlayer->getPosition();
-		Network::ENTITY_CREATE packet(Network::GAME_MESSAGES::ID_PLAYER_CREATE,
+		DirectX::XMFLOAT4A scale = mLocalPlayer->getScale();
+		DirectX::XMFLOAT4A rot = mLocalPlayer->getEulerRotation();
+
+		Network::CREATEPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CREATE,
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
-			pos.x,
-			pos.y,
-			pos.z
+			pos,
+			scale,
+			rot
 		);
 
-		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_CREATE), PacketPriority::LOW_PRIORITY);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 	}
 }
 

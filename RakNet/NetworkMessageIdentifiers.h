@@ -5,79 +5,67 @@
 #include <GetTime.h>
 #include <BitStream.h>
 #include <RakNetDefines.h>
+#include <DirectXMath.h>
 
 
 
 namespace Network
 {
+	using namespace DirectX;
 
-	enum GAME_MESSAGES
+	enum NETWORKMESSAGES
 	{
 		ID_GAME_START = ID_USER_PACKET_ENUM,
 		ID_PLAYER_CREATE = ID_USER_PACKET_ENUM + 1,
 		ID_PLAYER_DISCONNECT = ID_USER_PACKET_ENUM + 2,
-		ID_PLAYER_MOVE = ID_USER_PACKET_ENUM + 3,
-		ID_PLAYER_JUMP = ID_USER_PACKET_ENUM + 4
+		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3
 	};
 
 
 //STRUCTS BEGIN
 #pragma pack(push, 1)
-	struct GAME_MESSAGE
+	struct EVENTPACKET
 	{
 		unsigned char id;
-		GAME_MESSAGE(unsigned char _id)
-		{
-			id = _id;
-		}
+		EVENTPACKET(unsigned char _id) : id(_id) {}
 	};
 
-	struct ENTITY_CREATE
+	struct CREATEPACKET
 	{
-		unsigned char id;
-		RakNet::NetworkID nID;
-		float x, y, z;
-		ENTITY_CREATE(unsigned char _id, RakNet::NetworkID _nid, float _x, float _y, float _z)
-		{
-			id = _id;
-			nID = _nid;
-			x = _x;
-			y = _y;
-			z = _z;
-		}
-	};
-
-	struct ENTITY_MOVE
-	{
-		unsigned char useTimestamp;
+		unsigned char id; //variable name must be the same for all structs
 		RakNet::Time timeStamp;
-		unsigned char id;
-		RakNet::NetworkID nID;
-		float x, y, z;
-		int state;
-		ENTITY_MOVE(unsigned char _id, RakNet::NetworkID _nid, float _x, float _y, float _z, int _state)
-		{
-			useTimestamp = ID_TIMESTAMP;
-			timeStamp = RakNet::GetTime();
-			id = _id;
-			nID = _nid;
-			x = _x;
-			y = _y;
-			z = _z;
-			state = _state;
-		}
+		unsigned char m_id; //this is our identifier
+		RakNet::NetworkID nid;
+		XMFLOAT4A pos;
+		XMFLOAT4A scale;
+		XMFLOAT4A rotation;
+		CREATEPACKET(unsigned char _id, RakNet::NetworkID _nid, XMFLOAT4A _pos, XMFLOAT4A _scale, XMFLOAT4A _rot) 
+			: id(DefaultMessageIDTypes::ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), nid(_nid), pos(_pos), scale(_scale), rotation(_rot) {}
 	};
 
-	struct ENTITY_EVENT
+	struct ENTITYUPDATEPACKET
 	{
 		unsigned char id;
-		RakNet::NetworkID nID;
-		ENTITY_EVENT(unsigned char _id, RakNet::NetworkID _nid)
-		{
-			id = _id;
-			nID = _nid;
-		}
+		RakNet::Time timeStamp;
+		unsigned char m_id;
+		RakNet::NetworkID nid;
+		unsigned int state;
+		XMFLOAT4A pos;
+		XMFLOAT4A rot;
+		ENTITYUPDATEPACKET(unsigned char _id, RakNet::NetworkID _nid, unsigned int _state, XMFLOAT4A _pos, XMFLOAT4A _rot)
+			: id(DefaultMessageIDTypes::ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), nid(_nid), state(_state), pos(_pos), rot(_rot) {}
 	};
+
+	struct PACKET
+	{
+		union
+		{
+			EVENTPACKET _event;
+			CREATEPACKET _create;
+			ENTITYUPDATEPACKET _update;
+		};
+	};
+
 #pragma pack(pop)
 	//STRUCTS END
 	

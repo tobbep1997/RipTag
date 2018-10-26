@@ -71,8 +71,7 @@ public:
 	void Draw() override;
 
 	//Networking
-	void SendOnJumpMessage();
-	void SendOnMovementMessage();
+	void SendOnUpdateMessage();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
