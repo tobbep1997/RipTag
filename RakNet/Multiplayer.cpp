@@ -325,6 +325,9 @@ namespace Network
 
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
+		if (mID == GAME_MESSAGES::ID_GAME_START)
+			this->isGameRunning = true;
+
 		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = onReceiveMap.find(mID);
 		if (mapIterator != onReceiveMap.end())
 			mapIterator->second(mID, data);

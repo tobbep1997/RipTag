@@ -25,7 +25,7 @@ RemotePlayer::RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float
 	this->networkID = nID;
 
 	//4.
-	this->setEntityType(EntityType::PlayerType);
+	this->setEntityType(EntityType::DefultType);
 
 	//5.
 	this->m_stateStack.push(PlayerState::Idle);
