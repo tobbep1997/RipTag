@@ -25,8 +25,8 @@ void DisableAbility::Init()
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 
 	PhysicsComponent::setUserDataBody(this);
-	this->getBody()->SetObjectTag("Dis");
-	std::cout << "DIS" << this << std::endl;
+	this->getBody()->SetObjectTag("Enemy");
+
 }
 
 void DisableAbility::Update(double deltaTime)

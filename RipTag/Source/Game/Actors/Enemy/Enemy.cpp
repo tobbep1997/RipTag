@@ -35,12 +35,10 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->Init(*world, e_staticBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
-	this->getBody()->SetObjectTag("Eny");
+	this->getBody()->SetObjectTag("Enemy");
 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
-
-	std::cout << "Enemy: " << this << std::endl;
 }
 
 
