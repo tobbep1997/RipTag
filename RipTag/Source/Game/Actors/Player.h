@@ -51,7 +51,10 @@ private:
 	int mouseX = 0;
 	int mouseY = 0;
 public:
+	//Magic number
 	static const int g_fullVisability = 2800;
+
+
 	bool unlockMouse = false;
 	Player();
 	~Player();

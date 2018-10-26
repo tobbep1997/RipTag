@@ -200,16 +200,16 @@ void Enemy::_IsInSight()
 
 	//std::cout << m_vc.getVisibilityForPlayers()[0] << std::endl;
 
-	int ran = rand() % 100 + 1;
+	//int ran = rand() % 100 + 1;
 
 	ImGui::Begin("Sight");
 	ImGui::Text("vis: %f", temp);
 	ImGui::Text("FullVis: %f", Player::g_fullVisability);
 	ImGui::End();
 
-	if (ran < temp)
-	{
-		std::cout << "Saw you" << std::endl;
-	}
+	//if (ran < temp) 
+	//{
+	//	std::cout << "Saw you" << std::endl;
+	//}
 }
 
