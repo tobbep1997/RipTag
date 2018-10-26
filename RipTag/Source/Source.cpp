@@ -22,11 +22,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 	AudioEngine::Init();
-	
-	AudioEngine::LoadSound("../Assets/Audio/SoundEffects/AutoLol.ogg");
-	AudioEngine::PlaySounds();
-
-
 
 	Game game;
 	game.Init(hInstance);
@@ -56,6 +51,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		//Draw and update
 		game.ImGuiFrameStart();
 		game.Update(deltaTime);
+		AudioEngine::Update();
 		game.Draw();
 	}
 

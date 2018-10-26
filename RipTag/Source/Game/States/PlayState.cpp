@@ -4,6 +4,7 @@
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
 #include "../RipTagExtern/RipExtern.h"
+#include <AudioEngine.h>
 
 b3World * RipExtern::g_world = nullptr;
 
@@ -55,8 +56,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
+	AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/AutoLol.ogg");
 
-	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
 	
@@ -66,7 +67,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
-	
 	player->Release(m_world);
 	delete player;
 	//actor->Release(m_world);
