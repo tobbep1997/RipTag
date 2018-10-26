@@ -10,6 +10,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//3. Assign the NID
 	//4. Set the correct entity type
 	//5. Push the intial state on the stack
+	//6. Register abilities
 	
 	//1.
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -28,6 +29,29 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 	//5.
 	this->m_stateStack.push(PlayerState::Idle);
+
+	//6.
+	VisabilityAbility * visAbl = new VisabilityAbility();
+	visAbl->setOwner(this);
+	visAbl->Init();
+
+	VisabilityAbility * visAbl2 = new VisabilityAbility();
+	visAbl2->setOwner(this);
+	visAbl2->Init();
+
+	TeleportAbility * m_teleport = new TeleportAbility();
+	m_teleport->setOwner(this);
+	m_teleport->Init();
+
+	DisableAbility * m_dis = new DisableAbility();
+	m_dis->setOwner(this);
+	m_dis->Init();
+
+	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
+	m_abilityComponents[0] = m_teleport;
+	m_abilityComponents[1] = visAbl;
+	m_abilityComponents[2] = m_dis;
+	m_abilityComponents[3] = visAbl2;
 }
 
 

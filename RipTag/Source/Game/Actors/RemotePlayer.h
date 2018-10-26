@@ -4,6 +4,10 @@
 #include "Multiplayer.h"
 #include <stack>
 
+#include "../Abilities/TeleportAbility.h"
+#include "../Abilities/VisabilityAbility.h"
+#include "../Abilities/Disable/DisableAbility.h"
+
 
 class RemotePlayer : public Actor, public RakNet::NetworkIDObject
 {
@@ -15,7 +19,8 @@ private:
 	//PRIVATE MEMBERS
 	std::stack<PlayerState> m_stateStack;
 	bool handleTransition = false;
-
+	AbilityComponent ** m_abilityComponents;
+	const unsigned short int m_nrOfAbilitys = 4;
 public:
 	//PUBLIC MEMBER FUNCTIONS
 	void BeginPlay();
