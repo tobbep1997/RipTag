@@ -40,16 +40,25 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		closedList[i] = false;
 
 	std::vector<Node*> openList;
+	std::vector<Node*> earlyExploration;
 
+	Node * earlyExplorationNode = nullptr;
 	Node * current = new Node(source, nullptr, 0.0f, _calcHValue(source, dest));
 	openList.push_back(current);
 
 	while (!openList.empty())
 	{
-		int listSize = openList.size() - 1;
-		std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
-		current = openList.at(0);
-		openList.erase(openList.begin());
+		if (earlyExplorationNode != nullptr)
+		{
+			current = earlyExplorationNode;
+			earlyExplorationNode = nullptr;
+		}
+		else
+		{
+			std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
+			current = openList.at(0);
+			openList.erase(openList.begin());
+		}
 
 		if (current->tile == dest)
 		{
@@ -68,7 +77,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			// Deletes any spare grid pointers
 			delete current;
 			delete closedList;
-			for (int i = 0; i < listSize; i++)
+			for (int i = 0; i < openList.size(); i++)
 			{
 				delete openList.at(i);
 			}
@@ -105,21 +114,30 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// AddedGCost based on the distance to the node, 1.0 for direct paths and 1.414 for diagonal paths.
 		// Offset defined by the new tiles direction standing at the source tile.
 		/*---------- North ----------*/
-		_checkNode(current, 1.0f, 0, -1, dest, openList, closedList);
+		_checkNode(current, 1.0f, 0, -1, dest, earlyExploration, closedList);
 		/*---------- South ----------*/
-		_checkNode(current, 1.0f, 0, 1, dest, openList, closedList);
+		_checkNode(current, 1.0f, 0, 1, dest, earlyExploration, closedList);
 		/*---------- West ----------*/
-		_checkNode(current, 1.0f , -1, 0, dest, openList, closedList);
+		_checkNode(current, 1.0f , -1, 0, dest, earlyExploration, closedList);
 		/*---------- East ----------*/
-		_checkNode(current, 1.0f, 1, 0, dest, openList, closedList);
+		_checkNode(current, 1.0f, 1, 0, dest, earlyExploration, closedList);
 		/*---------- Northwest ----------*/
-		_checkNode(current, 1.414f , -1, -1, dest, openList, closedList);
+		_checkNode(current, 1.414f , -1, -1, dest, earlyExploration, closedList);
 		/*---------- Northeast ----------*/
-		_checkNode(current, 1.414f, 1, -1, dest, openList, closedList);
+		_checkNode(current, 1.414f, 1, -1, dest, earlyExploration, closedList);
 		/*---------- Southwest ----------*/
-		_checkNode(current, 1.414f , -1, 1, dest, openList, closedList);
+		_checkNode(current, 1.414f , -1, 1, dest, earlyExploration, closedList);
 		/*---------- Southeast ----------*/
-		_checkNode(current, 1.414f, 1, 1, dest, openList, closedList);
+		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, closedList);
+
+		std::sort(earlyExploration.begin(), earlyExploration.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
+		if (earlyExploration.at(0)->fCost <= current->fCost)
+		{
+			earlyExplorationNode = earlyExploration.at(0);
+			earlyExploration.erase(earlyExploration.begin());
+		}
+		openList.insert(std::end(openList), std::begin(earlyExploration), std::end(earlyExploration));
+		earlyExploration.clear();
 	}
 
 	delete current;

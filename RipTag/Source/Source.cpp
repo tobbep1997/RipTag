@@ -30,9 +30,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 	Grid grid = Grid(300, 300);
 	std::vector<Node*> path;
-
-	//grid.blockGrid();
-	//grid.printGrid();
 	
 	dt.getDeltaTimeInSeconds();
 	path = grid.FindPath(Tile(0, 0), Tile(299, 299));
