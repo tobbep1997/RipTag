@@ -22,6 +22,7 @@ private:
 	bool forward = true;
 	float distance = 0.1f;
 	float m_speed = 0.5f;
+	Actor* m_possessor;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -57,6 +58,7 @@ public:
 
 	Enemy * validate();
 
+	void setPossessor(Actor* possessor);
 private:
 
 	void _handleInput(double deltaTime);
@@ -65,7 +67,6 @@ private:
 	void _handleRotation(double deltaTime);
 
 	void _TempGuardPath(bool x, double deltaTime);
-
-	
+	void _possessed();
 };
 

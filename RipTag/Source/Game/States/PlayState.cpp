@@ -37,8 +37,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
-	
-
 	CameraHandler::setActiveCamera(player->getCamera());
 
 

@@ -5,8 +5,9 @@
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <functional>
 #include "../../Input/Input.h"
-#include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
+#include "../Abilities/PossessGuard.h"
+#include "../Abilities/BlinkAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 #include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
@@ -24,6 +25,7 @@ struct KeyPressed
 	bool crouching = false;
 	bool teleport = false;
 	bool blink = false;
+	bool possess = false;
 	bool unlockMouse = false;
 };
 
@@ -43,9 +45,9 @@ private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
 	int m_currentAbility = 0;
-	Enemy* possessTarget;	
+	PossessGuard m_possess;
+	BlinkAbility m_blink;
 	float m_standHeight;
-	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
@@ -86,19 +88,19 @@ public:
 	void SetCurrentVisability(const float & guard);
 
 	void LockPlayerInput();
+	bool IsInputLocked();
 	void UnlockPlayerInput();
 
-	void Phase(float searchLength);
+	int getPossessState();
 	const float & getVisability() const;
 	const int & getFullVisability() const;
-	void possessGuard(float searchLength);
-	Enemy* getPossesTarget() { return this->possessTarget; };
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
 	void _onBlink();
+	void _onPossess();
 	void _onRotate(double deltaTime);
 	void _onJump();
 	void _cameraPlacement(double deltaTime);
