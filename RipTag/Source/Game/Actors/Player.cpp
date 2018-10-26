@@ -44,7 +44,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(quad, 51);
 
 	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(1.0f, 1.0f));
+	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0 /9.0f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
 }
