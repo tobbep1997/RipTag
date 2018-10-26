@@ -7,6 +7,7 @@
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
+Enemy * RipExtern::lol;
 
 #define JAAH TRUE
 #define NEIN FALSE
@@ -18,7 +19,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	RipExtern::m_contactListener = m_contactListener;
 
 	RipExtern::g_world->SetContactListener(m_contactListener);
-
+	RipExtern::lol = nullptr;
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -102,9 +103,10 @@ void PlayState::Update(double deltaTime)
 	m_step.sleeping = false;
 	m_firstRun = false;
 
+	m_contactListener->ClearContactQueue();
 	m_world.Step(m_step);
 
-	m_contactListener->ClearContactQueue();
+	
 	player->PhysicsUpdate(deltaTime);
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())

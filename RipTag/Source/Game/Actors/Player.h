@@ -10,6 +10,7 @@
 #include "2D Engine/Quad/Components/HUDComponent.h"
 #include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
+#include "../Abilities/Disable/DisableAbility.h"
 
 
 namespace FUNCTION_STRINGS
@@ -39,6 +40,7 @@ private:
 
 	const unsigned short int m_nrOfAbilitys = 4;
 private:
+	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
 	int m_currentAbility = 0;
 	Enemy* possessTarget;	

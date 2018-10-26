@@ -21,7 +21,7 @@
 
 #include "../Common/b3Settings.h"
 #include "../Common/Math/b3Math.h"
-
+#include <string>
 class b3World;
 class b3Shape;
 struct b3ShapeDef;
@@ -120,6 +120,9 @@ public :
 	
 	// Set the user data to the body.
 	void SetUserData(void* _userData);
+
+	void SetObjectTag(std::string tag);
+	std::string GetObjectTag();
 
 	// Set the awake status of the body.
 	void SetAwake(bool flag);
@@ -222,7 +225,9 @@ protected :
 	u32 m_shapeCount;
 
 	// Application specific data (usually a entity).
-	void* m_userData;
+	void* m_userData = nullptr;
+
+	std::string m_objectTag;
 
 	// Rigid body data.
 	r32 m_mass, m_invMass;
@@ -288,6 +293,11 @@ inline void b3Body::SetType(b3BodyType type) {
 inline void* b3Body::GetUserData() const { return m_userData; }
 
 inline void b3Body::SetUserData(void* userData) { m_userData = userData; }
+
+inline void b3Body::SetObjectTag(std::string tag) { m_objectTag = tag; }
+
+inline std::string b3Body::GetObjectTag() { return m_objectTag; }
+
 
 inline const b3Shape* b3Body::GetShapeList() const { return m_shapeList; }
 

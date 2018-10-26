@@ -55,6 +55,8 @@ public:
 
 	void _IsInSight();
 
+	Enemy * validate();
+
 private:
 
 	void _handleInput(double deltaTime);

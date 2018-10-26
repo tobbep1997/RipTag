@@ -4,7 +4,7 @@
 #include "EngineSource/3D Engine/RenderingManager.h"
 
 
-Enemy::Enemy() : Actor(), CameraHolder()
+Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
@@ -24,7 +24,7 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
 	srand(time(NULL));
 }
 
-Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ)
+Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
@@ -33,7 +33,10 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ)
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->Init(*world, e_staticBody);
-	this->getBody()->SetUserData(this);
+
+	this->getBody()->SetUserData(Enemy::validate());
+	this->getBody()->SetObjectTag("Enemy");
+
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 }
@@ -117,7 +120,10 @@ void Enemy::Update(double deltaTime)
 			//_IsInSight();
 		}
 	}
-	
+
+	ImGui::Begin("ene");
+	ImGui::Text("disabled?: %d", m_disabled);
+	ImGui::End();
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -147,6 +153,8 @@ void Enemy::UnlockEnemyInput()
 void Enemy::DisableEnemy()
 {
 	m_disabled = true;
+	addForceToCenter(100, 100, 100);
+	std::cout << "disabled" << std::endl;
 }
 
 void Enemy::EnableEnemy()
@@ -232,5 +240,10 @@ void Enemy::_IsInSight()
 	//{
 	//	std::cout << "Saw you" << std::endl;
 	//}
+}
+
+Enemy* Enemy::validate()
+{
+	return this;
 }
 

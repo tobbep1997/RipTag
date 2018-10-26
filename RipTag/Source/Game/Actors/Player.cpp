@@ -23,19 +23,21 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	visAbl2->setOwner(this);
 	visAbl2->Init();
 
-	VisabilityAbility * visAbl3 = new VisabilityAbility();
-	visAbl3->setOwner(this);
-	visAbl3->Init();
-
 	TeleportAbility * m_teleport = new TeleportAbility();
 	m_teleport->setOwner(this);
 	m_teleport->Init();
 
+	DisableAbility * m_dis = new DisableAbility();
+	m_dis->setOwner(this);
+	m_dis->Init();
+
 	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
 	m_abilityComponents[0] = m_teleport;
 	m_abilityComponents[1] = visAbl;
-	m_abilityComponents[2] = visAbl2;
-	m_abilityComponents[3] = visAbl3;
+	m_abilityComponents[2] = m_dis;
+	m_abilityComponents[3] = visAbl2;
+
+	
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
