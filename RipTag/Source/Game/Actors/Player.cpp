@@ -20,6 +20,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	visSphear->setPosition(5, 5, 2);
 	visSphear->setColor(1, 1, 1, 1.0f);
 	visSphear->setEntityType(EntityType::ExcludeType);
+	
+	m_teleport.setOwner(this);
+	m_teleport.Init();
 }
 
 Player::~Player()
@@ -44,7 +47,6 @@ void Player::Update(double deltaTime)
 		
 	}
 	m_teleport.Update(deltaTime);
-	m_teleport.UpdateLight();
 	_cameraPlacement(deltaTime);
 }
 
@@ -90,8 +92,8 @@ void Player::Phase(float searchLength)
 void Player::possessGuard(float searchLength)
 {
 	if (InputHandler::isKeyPressed(InputHandler::Del))
-	{
 		this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
+	{
 
 		if ((int)this->m_rayListener->shape->GetBody()->GetUserData() == 2)
 		{
@@ -100,27 +102,11 @@ void Player::possessGuard(float searchLength)
 		this->m_rayListener->clear();
 	}
 	//m_playerInRoomPtr->possessGuard(10);
+}
 	
-}
-void Player::InitTeleport(b3World & world)
-{
-	m_teleport.Init(world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
-	m_teleport.setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_teleport.setScale(0.1f, 0.1f, 0.1f);
-	m_teleport.setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_teleport.setGravityScale(0.001f);
-	m_teleport.setPosition(-100.0f, -100.0f, -100.0f);
-}
-
-void Player::ReleaseTeleport(b3World & world)
-{
-	this->m_teleport.Release(world);
-}
-
 void Player::Draw()
 {
 	m_teleport.Draw();
-	m_teleport.QueueLight();
 	Drawable::Draw();
 	if (Input::CheckVisability())
 	{
@@ -322,27 +308,8 @@ void Player::_onTeleport(double deltaTime)
 {
 	if (Input::Teleport())
 	{
-		if (!m_teleport.getActiveSphere() && m_kp.teleport == false)
-		{
-			m_teleport.ChargeSphere(deltaTime);
-		}
-		else if (m_teleport.getActiveSphere())
-		{
-			DirectX::XMFLOAT4A newPos = m_teleport.TeleportToSphere();
-			setPosition(newPos.x, newPos.y + 0.6f, newPos.z, newPos.w);
-			//If we want skill... remove
-			setLiniearVelocity(0, 0, 0);
-			setAwakeState(true);
-		}
+		m_teleport.Use();
 	}
-	else if (m_teleport.getCharging())
-	{
-		m_teleport.ThrowSphere(getPosition(), p_camera->getDirection());
-		m_teleport.setCharging(false);
-		m_kp.teleport = true;
-	}
-	else if (!m_teleport.getActiveSphere())
-		m_kp.teleport = false;
 }
 
 void Player::_cameraPlacement(double deltaTime)

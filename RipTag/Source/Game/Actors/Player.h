@@ -1,17 +1,16 @@
 #pragma once
 #include <Multiplayer.h>
 #include "Actor.h"
-#include "Abilities/Teleport.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <functional>
 #include "../../Input/Input.h"
 #include "../../Physics/Wrapper/RayCastListener.h"
+#include "../Abilities/TeleportAbility.h"
 
 namespace FUNCTION_STRINGS
 {
 	static const char * JUMP = "Jump";
-
 }
 
 struct KeyPressed
@@ -32,7 +31,7 @@ private:
 	const float JUMP_POWER = 400.0f;
 
 private:
-	Teleport m_teleport;
+	TeleportAbility m_teleport;
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
@@ -58,9 +57,6 @@ public:
 	void PhysicsUpdate(double deltaTime);
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
-
-	void InitTeleport(b3World & world);
-	void ReleaseTeleport(b3World & world);
 
 	void Draw() override;
 

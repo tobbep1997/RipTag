@@ -38,9 +38,10 @@
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
-    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
+    <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
+    <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -159,7 +160,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
@@ -265,6 +265,5 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
-    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
   </ItemGroup>
 </Project>
