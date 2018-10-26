@@ -82,5 +82,7 @@ public:
 
 	virtual void setAwakeState(const bool & awa);
 
+	virtual void setUserDataBody(void * self);
+
 	virtual b3Body* getBody();
 };
