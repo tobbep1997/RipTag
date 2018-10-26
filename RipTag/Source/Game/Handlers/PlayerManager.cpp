@@ -2,8 +2,9 @@
 
 
 
-PlayerManager::PlayerManager()
+PlayerManager::PlayerManager(b3World * physWorld)
 {
+	this->mWorld = physWorld;
 }
 
 
@@ -30,7 +31,7 @@ void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data
 	Network::ENTITY_CREATE * packet = (Network::ENTITY_CREATE*)data;
 	if (!mRemotePlayer && !hasRemotePlayer)
 	{
-		this->mRemotePlayer = new RemotePlayer(packet->nID, packet->x, packet->y, packet->z);
+		this->mRemotePlayer = new RemotePlayer(*this->mWorld, packet->nID, packet->x, packet->y, packet->z);
 		hasRemotePlayer = true;
 	}
 }
@@ -83,6 +84,7 @@ void PlayerManager::CreateLocalPlayer()
 	{
 		mLocalPlayer = new Player();
 		hasLocalPlayer = true;
+		mLocalPlayer->RegisterThisInstanceToNetwork();
 	}
 }
 

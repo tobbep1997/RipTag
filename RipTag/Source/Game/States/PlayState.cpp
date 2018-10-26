@@ -24,7 +24,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	future.get();
 	future1.get();
 	
-	m_playerManager = new PlayerManager();
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->RegisterThisInstanceToNetwork();
 	m_playerManager->CreateLocalPlayer();
 
 	Timer::StopTimer();

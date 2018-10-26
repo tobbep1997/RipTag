@@ -6,9 +6,12 @@
 class PlayerManager
 {
 public:
-	PlayerManager();
+	PlayerManager(b3World * physWorld);
 	~PlayerManager();
 private:
+	//our physics world
+	b3World * mWorld = 0;
+
 	//since we only have co-op we only need tohandle a local and remote player
 	Player * mLocalPlayer = 0;
 	RemotePlayer * mRemotePlayer = 0;

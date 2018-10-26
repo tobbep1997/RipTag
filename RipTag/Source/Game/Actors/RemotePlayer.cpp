@@ -2,7 +2,7 @@
 
 
 
-RemotePlayer::RemotePlayer(RakNet::NetworkID nID, float x, float y, float z) : Actor(), PhysicsComponent()
+RemotePlayer::RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float y, float z) : Actor(), PhysicsComponent()
 {
 	//TODO:
 	//1. Load the correct mesh and configure it
@@ -12,6 +12,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, float x, float y, float z) : A
 	//5. Push the intial state on the stack
 	
 	//1.
+	this->Init(world, e_dynamicBody);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setScale(0.2f, 0.2f, 0.2f);
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));

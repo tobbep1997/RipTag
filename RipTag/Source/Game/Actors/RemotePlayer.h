@@ -8,7 +8,7 @@
 class RemotePlayer : public Actor, public PhysicsComponent, public RakNet::NetworkIDObject
 {
 public:
-	RemotePlayer(RakNet::NetworkID nID, float x, float y, float z);
+	RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float y, float z);
 	~RemotePlayer();
 
 private:
