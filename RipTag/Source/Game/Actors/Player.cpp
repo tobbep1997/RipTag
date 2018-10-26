@@ -160,8 +160,8 @@ void Player::SendOnJumpMessage()
 
 void Player::SendOnMovementMessage()
 {
-	b3Vec3 vel = this->getLiniearVelocity();
-	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), vel.x, vel.y, vel.z, this->m_currentState);
+	DirectX::XMFLOAT4A pos = this->getPosition();
+	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z, this->m_currentState);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::LOW_PRIORITY);
 }
 

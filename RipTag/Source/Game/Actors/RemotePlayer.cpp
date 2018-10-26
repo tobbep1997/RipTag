@@ -14,7 +14,7 @@ RemotePlayer::RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float
 	//1.
 	this->Init(world, e_dynamicBody);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setScale(0.2f, 0.2f, 0.2f);
+	this->setScale(1.0f, 1.0f, 1.0f);
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	//2.
@@ -25,7 +25,7 @@ RemotePlayer::RemotePlayer(b3World &world, RakNet::NetworkID nID, float x, float
 	this->networkID = nID;
 
 	//4.
-	this->setEntityType(EntityType::PlayerType);
+	//this->setEntityType(EntityType::PlayerType);
 
 	//5.
 	this->m_stateStack.push(PlayerState::Idle);
@@ -145,7 +145,8 @@ void RemotePlayer::_onMovement(Network::ENTITY_MOVE * data)
 		}
 
 		//In any case we always apply the given velocity
-		this->setLiniearVelocity(data->x, data->y, data->z);
+		this->setPosition(DirectX::XMFLOAT4A(data->x, data->y, data->z, 0.0f));
+		this->p_setPosition(data->x, data->y, data->z);
 	}
 }
 
