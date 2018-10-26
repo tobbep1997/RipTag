@@ -1,13 +1,8 @@
-
-
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
 #include "EngineSource/Helper/Timer.h"
 #include <LuaTalker.h>
-
-
-
-
+#include <AudioEngine.h>
 
 #if _DEBUG
 #include <iostream>
@@ -26,6 +21,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
+	AudioEngine::Init();
+	
+	AudioEngine::LoadSound("../Assets/Audio/SoundEffects/AutoLol.ogg");
+	AudioEngine::PlaySounds();
+
+
 
 	Game game;
 	game.Init(hInstance);
@@ -59,6 +60,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	DX::g_shaderManager.Release();
+	AudioEngine::Release();
 	return 0;
 	
 
