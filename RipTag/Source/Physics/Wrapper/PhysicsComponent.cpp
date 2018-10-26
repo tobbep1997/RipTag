@@ -28,6 +28,7 @@ void PhysicsComponent::p_setPositionRot(const float & x, const float & y, const 
 	float zz = DirectX::XMVectorGetZ(t);
 	float ww = DirectX::XMVectorGetW(t);
 	m_body->SetTransform(b3Vec3(x, y, z), b3Quaternion(xx, yy, zz, ww));
+	
 }
 
 void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const float& roll)
@@ -259,4 +260,9 @@ b3Body* PhysicsComponent::getBody()
 void PhysicsComponent::setAwakeState(const bool& awa)
 {
 	m_body->SetAwake(awa);
+}
+
+void PhysicsComponent::setUserDataBody(void* self)
+{
+	this->m_body->SetUserData(self);
 }

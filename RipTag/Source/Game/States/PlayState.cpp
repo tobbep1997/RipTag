@@ -6,6 +6,7 @@
 #include "../RipTagExtern/RipExtern.h"
 
 b3World * RipExtern::g_world = nullptr;
+ContactListener * RipExtern::m_contactListener;
 
 #define JAAH TRUE
 #define NEIN FALSE
@@ -13,6 +14,11 @@ b3World * RipExtern::g_world = nullptr;
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+
+	RipExtern::g_world->SetContactListener(m_contactListener);
+
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -66,6 +72,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
+	delete m_contactListener;
 	
 	player->Release(m_world);
 	delete player;
@@ -92,7 +99,6 @@ void PlayState::Update(double deltaTime)
 
 
 	player->Update(deltaTime);
-
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	
@@ -102,6 +108,8 @@ void PlayState::Update(double deltaTime)
 	m_firstRun = false;
 
 	m_world.Step(m_step);
+
+	m_contactListener->ClearContactQueue();
 	player->PhysicsUpdate(deltaTime);
 
 	if (Input::Exit())

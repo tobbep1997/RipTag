@@ -1,6 +1,4 @@
 #include "HUDComponent.h"
-#include "InputManager/InputHandler.h"
-
 
 HUDComponent::HUDComponent()
 {
@@ -25,17 +23,25 @@ void HUDComponent::AddQuad(Quad *& quad, unsigned int keyCode)
 	m_quads.push_back(qo);
 }
 
-void HUDComponent::HUDUpdate(double deltaTime)
+void HUDComponent::ResetStates()
 {
 	for (unsigned int i = 0; i < m_quads.size(); i++)
 	{
 		m_quads[i]->quad->setState(0);
-		if (InputHandler::isKeyPressed(m_quads[i]->keyCode) && m_quads[i]->keyCode != 0x0)		
-			m_currentTarget = i;
 	}
-	m_quads[m_currentTarget]->quad->setState(2);
+}
 
-	
+void HUDComponent::setSelectedQuad(const unsigned short int & i)
+{
+	if (i < m_quads.size())
+		m_quads[i]->quad->setState(2);
+	else
+		throw "u stoopid";
+}
+
+void HUDComponent::HUDUpdate(double deltaTime)
+{
+	auto lol = 2;	
 }
 
 void HUDComponent::HUDDraw()

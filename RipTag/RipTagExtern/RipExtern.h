@@ -1,10 +1,11 @@
 #pragma once
 #include <DirectXMath.h>
 #include "../Source/Physics/Bounce.h"
-
+#include "../RipTag/Source/Physics/Wrapper/ContactListener.h"
 namespace RipExtern
 {
 	extern b3World * g_world;
+	extern ContactListener * m_contactListener;
 }
 
 class XMMATH

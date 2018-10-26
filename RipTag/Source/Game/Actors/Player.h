@@ -8,6 +8,8 @@
 #include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include "../Abilities/VisabilityAbility.h"
+#include "Enemy/Enemy.h"
 #include "../Abilities/Disable/DisableAbility.h"
 
 
@@ -26,19 +28,22 @@ struct KeyPressed
 };
 
 
+
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 3.0f;
+	const float MOVE_SPEED = 10.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
+	const unsigned short int m_nrOfAbilitys = 2;
 private:
-	TeleportAbility m_teleport;
 	DisableAbility m_disable;
-
+	AbilityComponent ** m_abilityComponents;	
+	int m_currentAbility = 0;
+	Enemy* possessTarget;	
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
@@ -49,7 +54,6 @@ private:
 
 	bool m_lockPlayerInput;
 
-	Drawable * visSphear;
 
 	int mouseX = 0;
 	int mouseY = 0;
@@ -61,6 +65,8 @@ public:
 	bool unlockMouse = false;
 	Player();
 	~Player();
+
+	void Init(b3World& world, b3BodyType bodyType, float x, float y, float z);
 
 	void BeginPlay();
 	void Update(double deltaTime);
@@ -83,7 +89,10 @@ public:
 	void UnlockPlayerInput();
 
 	void Phase(float searchLength);
-
+	const float & getVisability() const;
+	const int & getFullVisability() const;
+	void possessGuard(float searchLength);
+	Enemy* getPossesTarget() { return this->possessTarget; };
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
@@ -92,7 +101,5 @@ private:
 	void _onBlink();
 	void _onRotate(double deltaTime);
 	void _onJump();
-	void _onCheckVisibility();
-	void _onTeleport(double deltaTime);
 	void _cameraPlacement(double deltaTime);
 };

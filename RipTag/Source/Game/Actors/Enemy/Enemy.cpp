@@ -24,9 +24,24 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
 	srand(time(NULL));
 }
 
+Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ)
+{
+	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	m_vc.Init(this->p_camera);
+	this->setDir(1, 0, 0);
+	this->getCamera()->setFarPlane(5);
+	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	this->Init(*world, e_staticBody);
+	this->getBody()->SetUserData(this);
+	this->setEntityType(EntityType::GuarddType);
+	this->setPosition(startPosX, startPosY, startPosZ);
+}
+
 
 Enemy::~Enemy()
 {
+	this->Release(*this->getBody()->GetScene());
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -80,6 +95,7 @@ void Enemy::setPosition(const DirectX::XMFLOAT4A & pos)
 void Enemy::setPosition(const float & x, const float & y, const float & z, const float & w)
 {
 	this->Enemy::setPosition(DirectX::XMFLOAT4A(x, y, z, w));
+	PhysicsComponent::p_setPosition(x, y, z);
 }
 
 void Enemy::BeginPlay()
@@ -102,6 +118,11 @@ void Enemy::Update(double deltaTime)
 		}
 	}
 	
+}
+
+void Enemy::PhysicsUpdate(double deltaTime)
+{
+	p_updatePhysics(this);
 }
 
 void Enemy::QueueForVisibility()
