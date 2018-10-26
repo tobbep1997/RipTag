@@ -9,8 +9,8 @@ private:
 	float walkBob = 0.0f;
 	float m_offset = 0.0f;
 	float freq = 1.9f;
-	float walkingBobAmp = 0.06f;
-	float stopBobAmp = 0.010f;
+	float walkingBobAmp = 0.15f;
+	float stopBobAmp = 0.10f;
 	float stopBobFreq = 1.9f;
 
 	float m_currentAmp = 0.0f;

@@ -161,10 +161,9 @@ void Player::_handleInput(double deltaTime)
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
 
-	
 	_onSprint();
-	_onMovement();
 	_onCrouch();
+	_onMovement();
 	_onJump();
 	_onBlink();
 	_onRotate(deltaTime);
@@ -205,18 +204,40 @@ void Player::_onMovement()
 
 void Player::_onSprint()
 {
-	if (Input::Sprinting())
+	if (Input::isUsingGamepad())
 	{
-		m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+		m_currClickSprint = Input::Sprinting(); 
+		if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.1)
+		{
+			m_toggleSprint = 1; 
+		}
+	
+		if (m_toggleSprint == 1 && Input::MoveForward() > 0.1)
+		{
+			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+		}
+		else
+		{
+			m_toggleSprint = 0; 
+		}
+		
+		if (m_toggleSprint == 0)
+		{
+			m_moveSpeed = MOVE_SPEED;
+		}
+
+		m_prevClickSprint = m_currClickSprint; 
 	}
 	else
 	{
-		m_moveSpeed = MOVE_SPEED;
-	}
-
-	if (m_kp.crouching)
-	{
-		m_moveSpeed = MOVE_SPEED * 0.5f;
+		if (Input::Sprinting())
+		{
+			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+		}
+		else
+		{ 
+			m_moveSpeed = MOVE_SPEED;
+		}
 	}
 }
 
@@ -224,18 +245,21 @@ void Player::_onCrouch()
 {
 	if(Input::isUsingGamepad())
 	{
-		m_currClick = Input::Crouch();
-		if (m_currClick && !m_prevClick && m_toogleCrouch == 0)
+		m_currClickCrouch = Input::Crouch();
+		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
 		{
-			_activateChrouch();
-			m_toogleCrouch = 1;
+			_activateCrouch();
+			m_toggleCrouch = 1;
 		}
-		else if (m_currClick && !m_prevClick && m_toogleCrouch == 1)
+		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
 		{
-			_deActivateChrouch();
-			m_toogleCrouch = 0;
+			_deActivateCrouch();
+			m_toggleCrouch = 0; 
+
+			//Just so we don't end up in an old sprint-mode when deactivating crouch.
+			m_toggleSprint = 0;
 		}
-		m_prevClick = m_currClick;
+		m_prevClickCrouch = m_currClickCrouch;
 	}
 	else
 	{
@@ -259,6 +283,11 @@ void Player::_onCrouch()
 				m_kp.crouching = false;
 			}
 		}
+	}
+
+	if (m_kp.crouching)
+	{
+		m_moveSpeed = MOVE_SPEED * 0.5f;
 	}
 }
 
@@ -361,7 +390,7 @@ void Player::_cameraPlacement(double deltaTime)
 	p_camera->setPosition(pos);
 }
 
-void Player::_activateChrouch()
+void Player::_activateCrouch()
 {
 	this->setPosition(this->getPosition().x, this->getPosition().y - m_offPutY, this->getPosition().z);
 	m_standHeight = this->p_camera->getPosition().y;
@@ -369,7 +398,7 @@ void Player::_activateChrouch()
 	m_kp.crouching = true; 
 }
 
-void Player::_deActivateChrouch()
+void Player::_deActivateCrouch()
 {
 	this->setPosition(this->getPosition().x, this->getPosition().y + m_offPutY, this->getPosition().z);
 	m_standHeight = this->p_camera->getPosition().y;

@@ -39,10 +39,14 @@ private:
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
 	
-	float m_currClick = false; 
-	float m_prevClick = false; 
+	bool m_currClickCrouch = false; 
+	bool m_prevClickCrouch = false;
+	bool m_currClickSprint = false; 
+	bool m_prevClickSprint = false; 
+	bool m_isSprinting = false; 
 	
-	int m_toogleCrouch = 0; 
+	int m_toggleCrouch = 0; 
+	int m_toggleSprint = 0; 
 
 	KeyPressed m_kp;
 
@@ -95,6 +99,6 @@ private:
 	void _onCheckVisibility();
 	void _onTeleport(double deltaTime);
 	void _cameraPlacement(double deltaTime);
-	void _activateChrouch(); 
-	void _deActivateChrouch();
+	void _activateCrouch(); 
+	void _deActivateCrouch();
 };
