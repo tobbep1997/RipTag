@@ -289,9 +289,11 @@ void Player::_onCheckVisibility()
 
 		float temp = (float)m_visability / (float)g_fullVisability;
 
-		ImGui::Begin("visability");
-		ImGui::Text("Vis: %f", temp);
-		ImGui::End();
+		#if _DEBUG
+			ImGui::Begin("visability");
+			ImGui::Text("Vis: %f", temp);
+			ImGui::End();
+		#endif
 	}
 }
 
