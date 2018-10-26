@@ -46,6 +46,8 @@
     <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
     <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
     <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -274,5 +276,7 @@
     <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
     <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
     <ClInclude Include="RipTagExtern\RipExtern.h" />
+    <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
+    <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
   </ItemGroup>
 </Project>

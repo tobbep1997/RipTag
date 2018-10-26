@@ -166,6 +166,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
@@ -217,6 +219,8 @@
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\Assets\StaticAsset.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
