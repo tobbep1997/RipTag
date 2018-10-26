@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include "../Source/Physics/Bounce.h"
-
+#include "../../Physics/Wrapper/ContactListener.h"
 namespace RipExtern
 {
 	extern b3World * g_world;

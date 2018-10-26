@@ -6,6 +6,7 @@
 #include "../RipTagExtern/RipExtern.h"
 
 b3World * RipExtern::g_world = nullptr;
+ContactListener * RipExtern::m_contactListener;
 
 #define JAAH TRUE
 #define NEIN FALSE
