@@ -67,9 +67,9 @@ void PossessGuard::_logic(double deltaTime)
 
 			if (this->m_rayListener->shotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE))
 			{
-				this->possessTarget = static_cast<Enemy*>(this->m_rayListener->bodyUserData);
-				if (this->m_rayListener->bodyUserData != nullptr && (long long)this->possessTarget != 0xffffffffcccccccc)
+				if (this->m_rayListener->shape->GetBody()->GetObjectTag() == "Enemy")
 				{
+					this->possessTarget = static_cast<Enemy*>(this->m_rayListener->bodyUserData);
 					this->possessTarget->UnlockEnemyInput();
 					this->possessTarget->setPossessor(pPointer);
 					pPointer->LockPlayerInput();
