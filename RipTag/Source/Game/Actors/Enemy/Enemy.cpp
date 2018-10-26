@@ -22,14 +22,14 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
 
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ)
 {
-	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
+	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
 	this->setDir(1, 0, 0);
 	this->getCamera()->setFarPlane(5);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->Init(*world, e_staticBody);
-	this->getBody()->SetUserData((void*)2);
+	this->getBody()->SetUserData(this);
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 }

@@ -7,6 +7,7 @@
 #include "../../Input/Input.h"
 #include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
+#include "Enemy/Enemy.h"
 
 namespace FUNCTION_STRINGS
 {
@@ -31,6 +32,7 @@ private:
 	const float JUMP_POWER = 400.0f;
 
 private:
+	Enemy* possessTarget;
 	TeleportAbility m_teleport;
 	float m_standHeight;
 	RayCastListener *m_rayListener;
@@ -73,7 +75,7 @@ public:
 
 	void Phase(float searchLength);
 	void possessGuard(float searchLength);
-
+	Enemy* getPossesTarget() { return this->possessTarget; };
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

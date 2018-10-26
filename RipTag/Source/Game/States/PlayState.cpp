@@ -92,7 +92,6 @@ void PlayState::Update(double deltaTime)
 
 
 	player->Update(deltaTime);
-
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	

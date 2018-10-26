@@ -137,7 +137,6 @@ void Room::LoadRoomToMemory()
 
 void Room::Update(float deltaTime)
 {
-	m_playerInRoomPtr->possessGuard(10);
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(0.001f);
@@ -145,12 +144,7 @@ void Room::Update(float deltaTime)
 		this->m_roomGuards.at(i)->QueueForVisibility();
 		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
-		if ((int)this->m_roomGuards.at(i)->getBody()->GetUserData() == 3)
-		{
-			this->m_roomGuards.at(i)->getBody()->SetUserData((void*)2);
-			this->m_roomGuards.at(i)->UnlockEnemyInput();
-			this->m_playerInRoomPtr->LockPlayerInput();
-		}
+
 	}
 	int endvis = 0;
 	for (int i = 0; i < vis.size(); ++i)

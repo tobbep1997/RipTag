@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <bits.h>
+#include "../Handlers/CameraHandler.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
@@ -46,6 +47,7 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
+	this->possessGuard(10);
 	m_teleport.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 }
@@ -64,7 +66,7 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 void Player::Phase(float searchLength)
 {
 	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
-	if (this->m_rayListener->type == 1)
+	if ((int)this->m_rayListener->userData == 1)
 	{
 		p_setPosition(
 			this->m_rayListener->contactPoint.x + (
@@ -92,14 +94,28 @@ void Player::Phase(float searchLength)
 void Player::possessGuard(float searchLength)
 {
 	if (InputHandler::isKeyPressed(InputHandler::Del))
-		this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
 	{
-
-		if ((int)this->m_rayListener->shape->GetBody()->GetUserData() == 2)
+		if (this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength))
 		{
-			this->m_rayListener->shape->GetBody()->SetUserData((void*)3);
+			this->possessTarget = static_cast<Enemy*>(this->m_rayListener->shape->GetBody()->GetUserData());
+			if (this->possessTarget != nullptr)
+			{
+				this->possessTarget->UnlockEnemyInput();
+				this->LockPlayerInput();
+				CameraHandler::setActiveCamera(this->possessTarget->getCamera());
+			}
+			this->m_rayListener->clear();
 		}
-		this->m_rayListener->clear();
+	}
+	if (InputHandler::isKeyPressed(InputHandler::F5))
+	{	
+		if (possessTarget != nullptr)
+		{
+			this->possessTarget->LockEnemyInput();
+			this->UnlockPlayerInput();
+			CameraHandler::setActiveCamera(p_camera);
+			possessTarget = nullptr;
+		}
 	}
 	//m_playerInRoomPtr->possessGuard(10);
 }
