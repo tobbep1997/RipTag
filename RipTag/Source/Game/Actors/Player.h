@@ -8,6 +8,7 @@
 #include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
 
 
@@ -26,6 +27,7 @@ struct KeyPressed
 };
 
 
+
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
 {
@@ -35,9 +37,11 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
+	const unsigned short int m_nrOfAbilitys = 2;
 private:
-	Enemy* possessTarget;
-	TeleportAbility m_teleport;
+	AbilityComponent ** m_abilityComponents;	
+	int m_currentAbility = 0;
+	Enemy* possessTarget;	
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
@@ -48,7 +52,6 @@ private:
 
 	bool m_lockPlayerInput;
 
-	Drawable * visSphear;
 
 	int mouseX = 0;
 	int mouseY = 0;
@@ -82,6 +85,8 @@ public:
 	void UnlockPlayerInput();
 
 	void Phase(float searchLength);
+	const float & getVisability() const;
+	const int & getFullVisability() const;
 	void possessGuard(float searchLength);
 	Enemy* getPossesTarget() { return this->possessTarget; };
 private:
@@ -92,7 +97,5 @@ private:
 	void _onBlink();
 	void _onRotate(double deltaTime);
 	void _onJump();
-	void _onCheckVisibility();
-	void _onTeleport(double deltaTime);
 	void _cameraPlacement(double deltaTime);
 };

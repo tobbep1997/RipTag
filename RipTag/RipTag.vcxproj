@@ -207,6 +207,7 @@
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
+    <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
@@ -266,6 +267,7 @@
     <ClInclude Include="Source\Game\States\MainMenu.h" />
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
+    <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
