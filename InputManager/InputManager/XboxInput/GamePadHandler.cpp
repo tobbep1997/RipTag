@@ -408,3 +408,41 @@ void GamePadHandler::SetVibration(const float& left, const float& right, const f
 	}
 }
 
+bool GamePadHandler::IsSelectPressed()
+{
+	if (m_state.IsConnected())
+	{
+		if (m_buttons.view == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool GamePadHandler::IsStartPressed()
+{
+	if (m_state.IsConnected())
+	{
+		if (m_buttons.start == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+

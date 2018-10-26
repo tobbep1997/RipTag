@@ -37,8 +37,14 @@
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
-    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
+    <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
+    <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
+    <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
     <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
     <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
   </ItemGroup>
@@ -154,12 +160,8 @@
     <ClCompile Include="Source\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
@@ -210,7 +212,6 @@
     <ClInclude Include="Source\Game\States\MainMenu.h" />
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
-    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\Assets\StaticAsset.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
@@ -264,6 +265,15 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
+    <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
+    <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
+    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
+    <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
+    <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
+    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
+    <ClInclude Include="RipTagExtern\RipExtern.h" />
     <ClInclude Include="Source\Game\Handlers\PlayerManager.h" />
     <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
   </ItemGroup>

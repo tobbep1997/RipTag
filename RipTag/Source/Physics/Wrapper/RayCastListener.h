@@ -10,7 +10,7 @@ public:
 	b3Vec3 normal;
 	r32 fraction = 0;
 	b3Shape* shape;
-	int type = -1;
+	void* userData;// type = -1;
 
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
@@ -20,7 +20,8 @@ public:
 			this->contactPoint = point;
 			this->normal = normal;
 			this->fraction = fraction;
-			this->type = (int)shape->GetUserData();
+			this->userData = shape->GetUserData();
+			//this->type = (int)shape->GetUserData();
 		}
 		return fraction;
 	}
@@ -31,10 +32,11 @@ public:
 		this->contactPoint = b3Vec3(0, 0, 0);
 		this->normal = b3Vec3(0, 0, 0);
 		this->fraction = 0;
-		this->type = -1;
+		this->userData = nullptr;
+		//this->type = -1;
 	}
 
-	void shotRay(b3Body* body, DirectX::XMFLOAT4A direction, float length)
+	bool shotRay(b3Body* body, DirectX::XMFLOAT4A direction, float length)
 	{
 		//b3Vec3 pos;
 
@@ -45,6 +47,8 @@ public:
 		body->GetScene()->RayCast(this,
 			b3Vec3(body->GetTransform().translation.x, body->GetTransform().translation.y, body->GetTransform().translation.z),
 			b3Vec3(x, y, z));
+
+		return this->shape != nullptr;
 	}
 
 	virtual ~RayCastListener() { }

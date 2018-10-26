@@ -32,7 +32,7 @@ private:
 	Texture ** m_textures;
 
 	DirectX::SpriteFont * m_spriteFont;
-	std::string m_string;
+	std::string m_string = "";
 
 	DirectX::XMFLOAT4A m_textColor;
 
@@ -41,6 +41,8 @@ private:
 
 	bool m_preState = false;
 	bool m_currentState = false;
+
+	bool m_selected = false;
 
 public:
 	Quad();
@@ -76,5 +78,9 @@ public:
 	const bool isPressed(const DirectX::XMFLOAT2 & mousePos);
 	const bool isReleased(const DirectX::XMFLOAT2 & mousePos);
 	
+	void setState(const unsigned int & buttonState);
+
+	void Select(const bool & b);
+	const bool & isSelected() const;
 };
 

@@ -3,13 +3,23 @@
 #include "../../Input/Input.h"
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
+#include "../RipTagExtern/RipExtern.h"
+
+b3World * RipExtern::g_world = nullptr;
+ContactListener * RipExtern::m_contactListener;
+Enemy * RipExtern::lol;
 
 #define JAAH TRUE
 #define NEIN FALSE
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
+	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
 
+	RipExtern::g_world->SetContactListener(m_contactListener);
+	RipExtern::lol = nullptr;
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -71,6 +81,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
+	delete m_contactListener;
 	
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	m_playerManager->getLocalPlayer()->ReleaseTeleport(m_world);
@@ -82,58 +93,38 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	/*if (InputHandler::getShowCursor() != FALSE)
-		InputHandler::setShowCursor(FALSE);*/
-
-
-#if _DEBUG
-	ImGui::Begin("Player Setting");                          
-	ImGui::SliderFloat("PositionX", &x, -20.0f, 20.f);
-	ImGui::SliderFloat("PositionY", &y, -20.0f, 20.f);
-	ImGui::SliderFloat("PositionZ", &z, -20.0f, 20.f);
-
-	ImGui::SliderFloat("DirX", &xD, -50.0f, 50.f);
-	ImGui::SliderFloat("DirY", &yD, -50.0f, 50.f);
-	ImGui::SliderFloat("DirZ", &zD, -50.0f, 50.f);
-	ImGui::End();
-#endif
-
+	if (InputHandler::getShowCursor() != FALSE)
+		InputHandler::setShowCursor(FALSE);	   
 
 #if _DEBUG
 	TemporaryLobby();
 #endif
-	   
-	//light2.setIntensity(intensity);
-
-	if (GamePadHandler::IsLeftDpadPressed())
+	if (GamePadHandler::IsSelectPressed())
 	{
-		Input::ForceDeactivateGamepad();
-	}
-	if (GamePadHandler::IsRightDpadPressed())
-	{
-		Input::ForceActivateGamepad();
+		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	m_playerManager->Update(deltaTime);
 
+	player->Update(deltaTime);
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	
-	m_step.dt = deltaTime * 2;
+	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-
-	//----------------------------------
+	m_contactListener->ClearContactQueue();
 	m_world.Step(m_step);
 	m_playerManager->PhysicsUpdate();
 
-	if (Input::Exit())
+	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		setKillState(true);
 	}
+
 
 	// Must be last in update
 	if (!m_playerManager->getLocalPlayer()->unlockMouse)

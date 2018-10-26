@@ -91,7 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)RipTag;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)RipTag;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)RipTag;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)RipTag;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -167,6 +167,7 @@
     <ClCompile Include="2D Engine\Quad\Quad.cpp" />
     <ClCompile Include="2D Engine\Render2D.cpp" />
     <ClCompile Include="Fonts\FontHandler.cpp" />
+    <ClCompile Include="2D Engine\Quad\Components\HUDComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2D Engine\DirectXTK\AlignedNew.h" />
@@ -190,6 +191,7 @@
     <ClInclude Include="2D Engine\Quad\Quad.h" />
     <ClInclude Include="2D Engine\Render2D.h" />
     <ClInclude Include="Fonts\FontHandler.h" />
+    <ClInclude Include="2D Engine\Quad\Components\HUDComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="2D Engine\DirectXTK\SpriteEffect_SpritePixelShader.inc" />

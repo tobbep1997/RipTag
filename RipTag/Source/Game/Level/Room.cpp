@@ -100,7 +100,7 @@ void Room::LoadRoomToMemory()
 		
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			this->m_roomGuards.push_back(new Enemy(tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
+			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
 		}
 		delete tempGuards.startingPositions;
 		
@@ -135,21 +135,34 @@ void Room::LoadRoomToMemory()
 }
 
 
-void Room::Update()
+void Room::Update(float deltaTime)
 {
+	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
+	{
+		if (m_roomGuards.at(i) == RipExtern::lol)
+		{
+			m_roomGuards.erase(m_roomGuards.begin() + i);
+			RipExtern::lol == nullptr;
+		}
+	}
+
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(0.001f);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
+		this->m_roomGuards.at(i)->_IsInSight();
+		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
+
 	}
 	int endvis = 0;
 	for (int i = 0; i < vis.size(); ++i)
 	{
-		endvis += vis.at(i)[0] / 100;
+		endvis += vis.at(i)[0];
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
+	
 	vis.clear();
 }
 
