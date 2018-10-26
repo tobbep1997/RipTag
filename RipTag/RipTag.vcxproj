@@ -166,6 +166,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
@@ -209,6 +211,10 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
+    <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
+    <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\Assets\StaticAsset.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
@@ -247,6 +253,7 @@
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3RevoluteJoint.h" />
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.h" />
     <ClInclude Include="Source\Input\Input.h" />
+    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
     <ClInclude Include="Source\Physics\Wrapper\PhysicsComponent.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
     <ClInclude Include="Source\ThreadPool\SafeQueue.h" />

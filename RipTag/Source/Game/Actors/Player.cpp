@@ -12,7 +12,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	Manager::g_textureManager.loadTextures("CROSS");
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 	
 	visSphear = new Drawable();
@@ -25,6 +24,12 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	
 	m_teleport.setOwner(this);
 	m_teleport.Init();
+
+	m_possess.setOwner(this);
+	m_possess.Init();
+	
+	m_blink.setOwner(this);
+	m_blink.Init();
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -52,9 +57,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 Player::~Player()
 {	
-	delete this->m_rayListener;
 	delete visSphear;
-	
 }
 
 void Player::BeginPlay()
@@ -72,8 +75,9 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
-	this->possessGuard(10);
 	m_teleport.Update(deltaTime);
+	m_possess.Update(deltaTime);
+	m_blink.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	HUDComponent::HUDUpdate(deltaTime);
 }
@@ -89,61 +93,9 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
-void Player::Phase(float searchLength)
+int Player::getPossessState()
 {
-	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
-	if ((int)this->m_rayListener->userData == 1)
-	{
-		p_setPosition(
-			this->m_rayListener->contactPoint.x + (
-				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
-				(-this->m_rayListener->normal.x)), 
-			this->getPosition().y,
-			this->m_rayListener->contactPoint.z + (
-				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
-				(-this->m_rayListener->normal.z))
-			);
-		if (this->m_rayListener->normal.y != 0)
-		{
-			p_setPosition(
-				this->getPosition().x,
-				this->m_rayListener->contactPoint.y + (
-				(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
-					(-this->m_rayListener->normal.y)),
-				this->getPosition().z
-			);
-		}
-	}
-	this->m_rayListener->clear();
-}
-
-void Player::possessGuard(float searchLength)
-{
-	if (InputHandler::isKeyPressed(InputHandler::Del))
-	{
-		if (this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength))
-		{
-			this->possessTarget = static_cast<Enemy*>(this->m_rayListener->shape->GetBody()->GetUserData());
-			if (this->possessTarget != nullptr)
-			{
-				this->possessTarget->UnlockEnemyInput();
-				this->LockPlayerInput();
-				CameraHandler::setActiveCamera(this->possessTarget->getCamera());
-			}
-			this->m_rayListener->clear();
-		}
-	}
-	if (InputHandler::isKeyPressed(InputHandler::F5))
-	{	
-		if (possessTarget != nullptr)
-		{
-			this->possessTarget->LockEnemyInput();
-			this->UnlockPlayerInput();
-			CameraHandler::setActiveCamera(p_camera);
-			possessTarget = nullptr;
-		}
-	}
-	//m_playerInRoomPtr->possessGuard(10);
+	return m_possess.getPossessState();
 }
 	
 void Player::Draw()
@@ -160,6 +112,11 @@ void Player::Draw()
 void Player::LockPlayerInput()
 {
 	m_lockPlayerInput = true;
+}
+
+bool Player::IsInputLocked()
+{
+	return m_lockPlayerInput;
 }
 
 void Player::UnlockPlayerInput()
@@ -211,6 +168,7 @@ void Player::_handleInput(double deltaTime)
 	_onCrouch();
 	_onJump();
 	_onBlink();
+	_onPossess();
 	_onRotate(deltaTime);
 	_onTeleport(deltaTime);
 	_onCheckVisibility();
@@ -293,13 +251,31 @@ void Player::_onBlink()
 	{
 		if (m_kp.blink == false)
 		{
-			this->Phase(10);
+			m_blink.Use();
+			//this->Phase(10);
 			m_kp.blink = true;
 		}
 	}
 	else
 	{
 		m_kp.blink = false;
+	}
+}
+
+void Player::_onPossess()
+{
+	if (Input::Possess()) //Phase acts like short range teleport through objects
+	{
+		
+		if (m_kp.possess == false)
+		{
+			m_possess.Use();
+			m_kp.possess = true;
+		}
+	}
+	else
+	{
+		m_kp.possess = false;
 	}
 }
 

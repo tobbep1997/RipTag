@@ -245,7 +245,17 @@ bool Input::Blink()
 
 bool Input::Possess()
 {
-
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "Possess")
+			{
+				return true;
+			}
+		}
+	}
 	return false;
 }
 

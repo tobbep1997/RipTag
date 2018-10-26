@@ -10,7 +10,7 @@ public:
 	b3Vec3 normal;
 	r32 fraction = 0;
 	b3Shape* shape;
-	void* userData;// type = -1;
+	void* bodyUserData;// type = -1;
 
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
@@ -20,7 +20,7 @@ public:
 			this->contactPoint = point;
 			this->normal = normal;
 			this->fraction = fraction;
-			this->userData = shape->GetUserData();
+			this->bodyUserData = shape->GetBody()->GetUserData();
 			//this->type = (int)shape->GetUserData();
 		}
 		return fraction;
@@ -32,7 +32,7 @@ public:
 		this->contactPoint = b3Vec3(0, 0, 0);
 		this->normal = b3Vec3(0, 0, 0);
 		this->fraction = 0;
-		this->userData = nullptr;
+		this->bodyUserData = nullptr;
 		//this->type = -1;
 	}
 
