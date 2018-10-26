@@ -30,6 +30,7 @@ public:
 	static bool Sprinting();
 	static bool Teleport();
 	static bool Blink();
+	static bool Possess();
 
 	static bool Exit();
 	static bool MouseLock();

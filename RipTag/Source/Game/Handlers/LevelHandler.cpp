@@ -58,7 +58,7 @@ void LevelHandler::Update(float deltaTime)
 		}
 	}
 
-	m_rooms.at(m_activeRoom)->Update();
+	m_rooms.at(m_activeRoom)->Update(deltaTime);
 	if (InputHandler::isKeyPressed('N'))
 	{
 		if (pressed == false)

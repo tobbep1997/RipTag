@@ -8,6 +8,7 @@
 #include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include "Enemy/Enemy.h"
 
 
 namespace FUNCTION_STRINGS
@@ -30,11 +31,12 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent , publ
 {
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 3.0f;
+	const float MOVE_SPEED = 10.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
 private:
+	Enemy* possessTarget;
 	TeleportAbility m_teleport;
 	float m_standHeight;
 	RayCastListener *m_rayListener;
@@ -80,7 +82,8 @@ public:
 	void UnlockPlayerInput();
 
 	void Phase(float searchLength);
-
+	void possessGuard(float searchLength);
+	Enemy* getPossesTarget() { return this->possessTarget; };
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

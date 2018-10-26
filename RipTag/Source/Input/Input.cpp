@@ -243,6 +243,12 @@ bool Input::Blink()
 	return false;
 }
 
+bool Input::Possess()
+{
+
+	return false;
+}
+
 bool Input::Exit()
 {
 	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
