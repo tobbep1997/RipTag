@@ -42,6 +42,8 @@ private:
 	bool m_preState = false;
 	bool m_currentState = false;
 
+	bool m_selected = false;
+
 public:
 	Quad();
 	~Quad();
@@ -77,5 +79,8 @@ public:
 	const bool isReleased(const DirectX::XMFLOAT2 & mousePos);
 	
 	void setState(const unsigned int & buttonState);
+
+	void Select(const bool & b);
+	const bool & isSelected() const;
 };
 

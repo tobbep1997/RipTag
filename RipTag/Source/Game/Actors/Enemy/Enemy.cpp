@@ -231,10 +231,10 @@ void Enemy::_IsInSight()
 
 	//int ran = rand() % 100 + 1;
 #if _DEBUG
-	ImGui::Begin("Sight");
+	/*ImGui::Begin("Sight");
 	ImGui::Text("vis: %f", temp);
 	ImGui::Text("FullVis: %f", Player::g_fullVisability);
-	ImGui::End();
+	ImGui::End();*/
 #endif
 	//if (ran < temp) 
 	//{

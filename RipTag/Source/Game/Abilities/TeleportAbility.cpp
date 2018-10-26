@@ -33,6 +33,14 @@ void TeleportAbility::Init()
 	m_light.setIntensity(10.0f);
 	m_light.setDropOff(1.0f);
 
+	m_bar = new Quad();
+	Manager::g_textureManager.loadTextures("BAR");
+	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	Texture * texture = Manager::g_textureManager.getTexture("BAR");
+	m_bar->setUnpressedTexture(texture);
+	
+	HUDComponent::AddQuad(m_bar);
+
 }
 
 void TeleportAbility::Update(double deltaTime)
@@ -44,6 +52,7 @@ void TeleportAbility::Update(double deltaTime)
 
 void TeleportAbility::Use()
 {
+
 	m_useFunctionCalled = true;
 	switch (m_tpState)
 	{
@@ -67,14 +76,17 @@ void TeleportAbility::Draw()
 		BaseActor::Draw();
 		m_light.QueueLight();
 	}
+	HUDComponent::HUDDraw();
 }
 
 void TeleportAbility::_logic(double deltaTime)
 {
+	m_bar->setScale(0.f, 0.1f);
 	if (m_useFunctionCalled) // the Use() function were called last frame
 	{
 		if (m_tpState == TeleportAbility::Charge)
 		{
+			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += deltaTime;
 		}

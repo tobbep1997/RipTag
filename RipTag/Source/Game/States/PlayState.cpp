@@ -77,7 +77,6 @@ PlayState::~PlayState()
 	
 	player->Release(m_world);
 	delete player;
-	//actor->Release(m_world);
 	delete model;
 }
 
@@ -89,13 +88,9 @@ void PlayState::Update(double deltaTime)
 #if _DEBUG
 	TemporaryLobby();
 #endif
-	if (GamePadHandler::IsLeftDpadPressed())
+	if (GamePadHandler::IsSelectPressed())
 	{
-		Input::ForceDeactivateGamepad();
-	}
-	if (GamePadHandler::IsRightDpadPressed())
-	{
-		Input::ForceActivateGamepad();
+		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
 
@@ -114,10 +109,11 @@ void PlayState::Update(double deltaTime)
 	
 	player->PhysicsUpdate(deltaTime);
 
-	if (Input::Exit())
+	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		setKillState(true);
 	}
+
 
 	// Must be last in update
 	if (!player->unlockMouse)

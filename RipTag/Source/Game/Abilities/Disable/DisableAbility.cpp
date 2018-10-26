@@ -12,7 +12,7 @@ DisableAbility::DisableAbility(void* owner) : AbilityComponent(owner), BaseActor
 
 DisableAbility::~DisableAbility()
 {
-
+	PhysicsComponent::Release(*RipExtern::g_world);
 }
 
 void DisableAbility::Init()

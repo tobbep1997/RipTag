@@ -191,7 +191,10 @@ const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 
 const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
 {
-	return !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
+	bool b = !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
+	if (m_selected)
+		m_buttonState = buttonState::hover;
+	return b;
 }
 
 //0 == Normal
@@ -202,5 +205,12 @@ void Quad::setState(const unsigned int & bs)
 	this->m_buttonState = (buttonState)bs;
 }
 
+void Quad::Select(const bool & b)
+{
+	m_selected = b;
+}
 
-
+const bool & Quad::isSelected() const
+{
+	return m_selected;
+}

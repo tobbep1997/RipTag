@@ -38,7 +38,7 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
-	const unsigned short int m_nrOfAbilitys = 3;
+	const unsigned short int m_nrOfAbilitys = 4;
 private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
