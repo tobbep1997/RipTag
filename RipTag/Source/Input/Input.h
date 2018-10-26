@@ -16,6 +16,7 @@ public:
 
 	static void ForceDeactivateGamepad();
 	static void ForceActivateGamepad();
+	static void SetActivateGamepad(const bool & b);
 
 
 	//Action Mappings
@@ -45,6 +46,8 @@ public:
 	static bool SelectAbility1();
 	static bool SelectAbility2();
 	static bool SelectAbility3();
+	static bool SelectAbility4();
+
 };
 
 class InputMapping

@@ -18,7 +18,14 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
 	visAbl->Init();
-	
+
+	VisabilityAbility * visAbl2 = new VisabilityAbility();
+	visAbl2->setOwner(this);
+	visAbl2->Init();
+
+	VisabilityAbility * visAbl3 = new VisabilityAbility();
+	visAbl3->setOwner(this);
+	visAbl3->Init();
 
 	TeleportAbility * m_teleport = new TeleportAbility();
 	m_teleport->setOwner(this);
@@ -27,15 +34,29 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
 	m_abilityComponents[0] = m_teleport;
 	m_abilityComponents[1] = visAbl;
+	m_abilityComponents[2] = visAbl2;
+	m_abilityComponents[3] = visAbl3;
 
 	Quad * quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	HUDComponent::AddQuad(quad, 49);
 
 	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.1f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 50);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.1f, 0.05f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 50);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	HUDComponent::AddQuad(quad, 50);
@@ -87,7 +108,18 @@ void Player::Update(double deltaTime)
 		m_currentAbility = 1;	
 	else if (Input::SelectAbility3())	
 		m_currentAbility = 2;	
+	else if (Input::SelectAbility4())
+		m_currentAbility = 3;
 	
+	if (GamePadHandler::IsUpDpadPressed())
+		m_currentAbility = 0;
+	else if (GamePadHandler::IsRightDpadPressed())
+		m_currentAbility = 1;
+	else if (GamePadHandler::IsDownDpadPressed())
+		m_currentAbility = 2;
+	else if (GamePadHandler::IsLeftDpadPressed())
+		m_currentAbility = 3;
+
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
 }
