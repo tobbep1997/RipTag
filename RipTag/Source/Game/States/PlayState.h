@@ -15,6 +15,7 @@
 
 //lua 
 #include <LuaTalker.h>
+#include "../../Physics/Wrapper/ContactListener.h"
 
 #define LUA_PLAYSTATE "PlayState"
 
@@ -24,6 +25,7 @@ class PlayState : public State
 private:
 	LevelHandler m_levelHandler;
 	ObjectHandler m_objectHandler;
+	ContactListener * m_contactListener;
 
 	Player * player;
 

@@ -64,6 +64,8 @@ public:
 	Player();
 	~Player();
 
+	void Init(b3World& world, b3BodyType bodyType, float x, float y, float z);
+
 	void BeginPlay();
 	void Update(double deltaTime);
 

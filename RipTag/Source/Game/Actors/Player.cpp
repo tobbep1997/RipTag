@@ -55,6 +55,12 @@ Player::~Player()
 	delete[] m_abilityComponents;
 }
 
+void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
+{
+	PhysicsComponent::Init(world, bodyType, x, y, z);
+	setUserDataBody(this);
+}
+
 void Player::BeginPlay()
 {
 
