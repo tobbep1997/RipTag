@@ -1,5 +1,5 @@
 #include "PlayerManager.h"
-
+#include "../Engine/EngineSource/Debugg/ImGui/imgui.h"
 
 
 PlayerManager::PlayerManager(b3World * physWorld)
@@ -73,9 +73,24 @@ void PlayerManager::PhysicsUpdate()
 void PlayerManager::Draw()
 {
 	if (mRemotePlayer && hasRemotePlayer)
+	{
 		mRemotePlayer->Draw();
+		mRemotePlayer->getPosition();
+	}
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Draw();
+
+	//mRemotePlayer->getPosition();
+
+	ImGui::Begin("possese");
+	ImGui::Text("X: %f", mRemotePlayer->getPosition().x);
+	ImGui::Text("Y: %f", mRemotePlayer->getPosition().y);
+	ImGui::Text("Z: %f", mRemotePlayer->getPosition().z);
+	ImGui::Text("--------");
+	ImGui::Text("X: %f", mLocalPlayer->getPosition().x);
+	ImGui::Text("Y: %f", mLocalPlayer->getPosition().y);
+	ImGui::Text("Z: %f", mLocalPlayer->getPosition().z);
+	ImGui::End();
 }
 
 void PlayerManager::CreateLocalPlayer()
