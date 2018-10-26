@@ -36,11 +36,11 @@ public:
 
 	void Init() override;
 
+	/* This Function needs to be used before the Update() function */
+	void Use() override;
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
 
-	/* This Function needs to be used before the Update() function */
-	void Use() override;
 
 	void Draw() override;
 

@@ -14,16 +14,18 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 	
-	visSphear = new Drawable();
-	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	visSphear->setScale(0.2f, 0.2f, 0.2f);
-	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	visSphear->setPosition(5, 5, 2);
-	visSphear->setColor(1, 1, 1, 1.0f);
-	visSphear->setEntityType(EntityType::ExcludeType);
+	VisabilityAbility * visAbl = new VisabilityAbility();
+	visAbl->setOwner(this);
+	visAbl->Init();
 	
-	m_teleport.setOwner(this);
-	m_teleport.Init();
+
+	TeleportAbility * m_teleport = new TeleportAbility();
+	m_teleport->setOwner(this);
+	m_teleport->Init();
+
+	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
+	m_abilityComponents[0] = m_teleport;
+	m_abilityComponents[1] = visAbl;
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -38,22 +40,18 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(quad, 50);
 
 	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	HUDComponent::AddQuad(quad, 51);
-
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0 /9.0f));
+	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
 }
 
 Player::~Player()
-{	
+{
 	delete this->m_rayListener;
-	delete visSphear;
-	
+
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)	
+		delete m_abilityComponents[i];	
+	delete[] m_abilityComponents;
 }
 
 void Player::BeginPlay()
@@ -71,9 +69,19 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
-	m_teleport.Update(deltaTime);
+	m_abilityComponents[m_currentAbility]->Update(deltaTime);
 	_cameraPlacement(deltaTime);
-	HUDComponent::HUDUpdate(deltaTime);
+	//HUDComponent::HUDUpdate(deltaTime);
+	
+	if (Input::SelectAbility1())	
+		m_currentAbility = 0;		
+	else if (Input::SelectAbility2())	
+		m_currentAbility = 1;	
+	else if (Input::SelectAbility3())	
+		m_currentAbility = 2;	
+	
+	HUDComponent::ResetStates();
+	HUDComponent::setSelectedQuad(m_currentAbility);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -115,14 +123,20 @@ void Player::Phase(float searchLength)
 	this->m_rayListener->clear();
 }
 
+const float & Player::getVisability() const
+{
+	return m_visability;
+}
+
+const int & Player::getFullVisability() const
+{
+	return g_fullVisability;
+}
+
 void Player::Draw()
 {
-	m_teleport.Draw();
+	m_abilityComponents[m_currentAbility]->Draw();
 	Drawable::Draw();
-	if (Input::CheckVisability())
-	{
-		visSphear->Draw();
-	}
 	HUDComponent::HUDDraw();
 }
 
@@ -181,8 +195,11 @@ void Player::_handleInput(double deltaTime)
 	_onJump();
 	_onBlink();
 	_onRotate(deltaTime);
-	_onTeleport(deltaTime);
-	_onCheckVisibility();
+
+
+	if (Input::UseAbility())
+		m_abilityComponents[m_currentAbility]->Use();
+	
 }
 
 void Player::_onMovement()
@@ -301,34 +318,7 @@ void Player::_onJump()
 	}
 }
 
-void Player::_onCheckVisibility()
-{
-	if (Input::CheckVisability())
-	{
-		DirectX::XMFLOAT4A po = Transform::getPosition();
-		po.y += 1;
-		DirectX::XMVECTOR ve = DirectX::XMLoadFloat4A(&po);
-		DirectX::XMVECTOR cm = DirectX::XMLoadFloat4A(&p_camera->getDirection());
-		DirectX::XMStoreFloat4A(&po, DirectX::XMVectorAdd(ve, cm));
 
-		visSphear->setPosition(po);
-		visSphear->setColor(2.0f * m_visability, 2.0f * m_visability, 2.0f * m_visability, 1);
-
-		float temp = (float)m_visability / (float)g_fullVisability;
-
-		ImGui::Begin("visability");
-		ImGui::Text("Vis: %f", temp);
-		ImGui::End();
-	}
-}
-
-void Player::_onTeleport(double deltaTime)
-{
-	if (Input::Teleport())
-	{
-		m_teleport.Use();
-	}
-}
 
 void Player::_cameraPlacement(double deltaTime)
 {

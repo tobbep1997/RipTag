@@ -198,7 +198,7 @@ bool Input::Sprinting()
 	return false;
 }
 
-bool Input::Teleport()
+bool Input::UseAbility()
 {
 	if (isUsingGamepad())
 		return GamePadHandler::IsRightShoulderPressed();
@@ -209,7 +209,7 @@ bool Input::Teleport()
 		{
 			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
-				if (keyIterator->second == "Teleport")
+				if (keyIterator->second == "UseAbility")
 				{
 					return true;
 				}
@@ -457,5 +457,56 @@ void Input::ResetMouse()
 		SetCursorPos(midX, midY);
 	}
 }
+
+bool Input::SelectAbility1()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility1")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::SelectAbility2()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility2")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::SelectAbility3()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility3")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+
 
 //DEFINITIONS FOR INPUTMAPPING STATICS

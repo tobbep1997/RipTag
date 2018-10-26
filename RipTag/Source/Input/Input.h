@@ -28,7 +28,7 @@ public:
 	static float MoveRight();
 	static float PeekRight();
 	static bool Sprinting();
-	static bool Teleport();
+	static bool UseAbility();
 	static bool Blink();
 
 	static bool Exit();
@@ -40,6 +40,10 @@ public:
 	static bool isUsingGamepad();
 
 	static void ResetMouse();
+
+	static bool SelectAbility1();
+	static bool SelectAbility2();
+	static bool SelectAbility3();
 };
 
 class InputMapping

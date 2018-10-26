@@ -20,6 +20,9 @@ public:
 
 	virtual void AddQuad(Quad *& quad, unsigned int keyCode = 0x0);
 
+	virtual void ResetStates();
+	virtual void setSelectedQuad(const unsigned short int & i);
+
 	virtual void HUDUpdate(double deltaTime);
 	virtual void HUDDraw();
 
