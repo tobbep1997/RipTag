@@ -56,7 +56,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 
-	m_playerManager->getLocalPlayer()->InitTeleport(m_world);
 	
 
 
@@ -84,7 +83,7 @@ PlayState::~PlayState()
 	delete m_contactListener;
 	
 	m_playerManager->getLocalPlayer()->Release(m_world);
-	m_playerManager->getLocalPlayer()->ReleaseTeleport(m_world);
+	
 	delete m_playerManager;
 
 	//actor->Release(m_world);
@@ -106,8 +105,6 @@ void PlayState::Update(double deltaTime)
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	m_playerManager->Update(deltaTime);
-
-	player->Update(deltaTime);
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	

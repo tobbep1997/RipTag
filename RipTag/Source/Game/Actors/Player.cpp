@@ -75,14 +75,6 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_camera->setPosition(x, y, z);
 	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
-
-	visSphear = new Drawable();
-	visSphear->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	visSphear->setScale(0.2f, 0.2f, 0.2f);
-	visSphear->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	visSphear->setPosition(5, 5, 2);
-	visSphear->setColor(1, 1, 1, 1.0f);
-	visSphear->setEntityType(EntityType::PlayerType);
 }
 
 Player::~Player()
