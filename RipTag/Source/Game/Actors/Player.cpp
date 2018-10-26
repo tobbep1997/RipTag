@@ -6,8 +6,9 @@
 #include <iostream>
 #include <bits.h>
 
-Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
+Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
+	Manager::g_textureManager.loadTextures("CROSS");
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	this->m_rayListener = new RayCastListener();
@@ -23,12 +24,36 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 	
 	m_teleport.setOwner(this);
 	m_teleport.Init();
+
+	Quad * quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 49);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.1f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 50);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	HUDComponent::AddQuad(quad, 51);
+
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(1.0f, 1.0f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
+	HUDComponent::AddQuad(quad);
 }
 
 Player::~Player()
 {	
 	delete this->m_rayListener;
 	delete visSphear;
+	
 }
 
 void Player::BeginPlay()
@@ -48,6 +73,7 @@ void Player::Update(double deltaTime)
 	}
 	m_teleport.Update(deltaTime);
 	_cameraPlacement(deltaTime);
+	HUDComponent::HUDUpdate(deltaTime);
 }
 
 void Player::PhysicsUpdate(double deltaTime)
@@ -97,6 +123,7 @@ void Player::Draw()
 	{
 		visSphear->Draw();
 	}
+	HUDComponent::HUDDraw();
 }
 
 void Player::LockPlayerInput()

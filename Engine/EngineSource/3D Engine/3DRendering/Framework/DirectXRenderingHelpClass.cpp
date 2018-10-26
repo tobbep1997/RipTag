@@ -176,3 +176,22 @@ HRESULT DXRHC::CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
 
 	return DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState);
 }
+
+HRESULT DXRHC::CreateBlendState(ID3D11BlendState *& blendState, BOOL BlendEnable, D3D11_BLEND SrcBlend, D3D11_BLEND DestBlend, D3D11_BLEND_OP BlendOp, D3D11_BLEND SrcBlendAlpha, D3D11_BLEND DestBlendAlpha, D3D11_BLEND_OP BlendOpAlpha, UINT8 RenderTargetWriteMask)
+{
+	D3D11_BLEND_DESC omDesc{};
+
+	ZeroMemory(&omDesc, sizeof(D3D11_BLEND_DESC));
+	omDesc.RenderTarget[0].BlendEnable = BlendEnable;
+	omDesc.RenderTarget[0].SrcBlend = SrcBlend;
+	omDesc.RenderTarget[0].DestBlend = DestBlend;
+	omDesc.RenderTarget[0].BlendOp = BlendOp;
+	omDesc.RenderTarget[0].SrcBlendAlpha = SrcBlendAlpha;
+	omDesc.RenderTarget[0].DestBlendAlpha = DestBlendAlpha;
+	omDesc.RenderTarget[0].BlendOpAlpha = BlendOpAlpha;
+	omDesc.RenderTarget[0].RenderTargetWriteMask = RenderTargetWriteMask;
+
+	return DX::g_device->CreateBlendState(&omDesc, &blendState);
+
+}
+

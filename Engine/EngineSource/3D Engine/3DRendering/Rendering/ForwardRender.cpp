@@ -185,11 +185,6 @@ void ForwardRender::Clear()
 	DX::g_visibilityComponentQueue.clear();
 }
 
-void ForwardRender::Present()
-{
-	m_swapChain->Present(0, 0);
-}
-
 void ForwardRender::Release()
 {
 	DX::SafeRelease(m_objectBuffer);
@@ -261,9 +256,6 @@ void ForwardRender::_GuardFrustumDraw()
 void ForwardRender::_simpleLightCulling(Camera & cam)
 {
 	float culled = 0;
-#if _DEBUG
-	ImGui::Begin("Light Culling");
-#endif
 	//--------------------------------
 	///Early KILL of lights
 	//This is the initial culling, it will cullaway the lights that are too far away
@@ -329,10 +321,7 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 	//TODO::
 	//Check distance and check if behind then FORCE CULL THAT BITCH
 
-#if _DEBUG
-	ImGui::Text("LightsCulled %f", culled);
-	ImGui::End();
-#endif
+
 }
 
 void ForwardRender::_createConstantBuffer()
