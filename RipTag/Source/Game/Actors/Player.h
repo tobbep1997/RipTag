@@ -22,6 +22,9 @@ struct KeyPressed
 	bool unlockMouse = false;
 };
 
+//This value has to be changed to match the players 
+
+
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
@@ -47,6 +50,10 @@ private:
 	int mouseX = 0;
 	int mouseY = 0;
 public:
+	//Magic number
+	static const int g_fullVisability = 2800;
+
+
 	bool unlockMouse = false;
 	Player();
 	~Player();

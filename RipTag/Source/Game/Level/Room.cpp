@@ -142,12 +142,13 @@ void Room::Update()
 		this->m_roomGuards.at(i)->Update(0.001f);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
+		this->m_roomGuards.at(i)->_IsInSight();
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
 	}
 	int endvis = 0;
 	for (int i = 0; i < vis.size(); ++i)
 	{
-		endvis += vis.at(i)[0] / 100;
+		endvis += vis.at(i)[0];
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	vis.clear();

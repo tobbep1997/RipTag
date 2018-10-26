@@ -50,6 +50,8 @@ public:
 	void EnableEnemy();
 	bool GetDisabledState();
 
+	void _IsInSight();
+
 private:
 
 	void _handleInput(double deltaTime);
@@ -58,5 +60,7 @@ private:
 	void _handleRotation(double deltaTime);
 
 	void _TempGuardPath(bool x, double deltaTime);
+
+	
 };
 
