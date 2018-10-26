@@ -108,18 +108,19 @@ void Room::LoadRoomToMemory()
 
 
 		StaticAsset * temp = new StaticAsset();
-		temp->Init(*m_worldPtr, 0.01f,0.01f,0.01f);
+		temp->Init(*m_worldPtr, 1,1,1);
 		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
 		temp->setPosition(0, 0, 0);
 		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
 		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 		
-	
-		m_staticAssets.push_back(temp);
-		 
 		CollisionBoxes = new BaseActor();
 		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
+	
+		m_grid = fileLoader.readGridFIle(this->getAssetFilePath());
+		m_staticAssets.push_back(temp);
+		 
 
 
 

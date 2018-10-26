@@ -8,17 +8,17 @@
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	CameraHandler::Instance();
-	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	//auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
 	Timer::StartTimer();
 
-	Manager::g_meshManager.loadStaticMesh("SPHERE");
+//	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
-	future.get();
+//	future.get();
 	future1.get();
 	Timer::StopTimer();
 	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
@@ -32,12 +32,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
-	//player->setPosition(0, 5, 0, 0);
+	
 	player->setColor(10, 10, 0, 1);
 
-	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	//player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
-	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+//	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
@@ -50,12 +50,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//enemy->setDir(1, 0, 0);
 	//enemy->getCamera()->setFarPlane(5);
 
-	model = new Drawable();
-	model->setEntityType(EntityType::PlayerType);
-	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	model->setScale(0.5, 0.5, 0.5);
-	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	model->setTextureTileMult(50, 50);
+
 
 	
 	m_levelHandler.setPlayer(player);
@@ -223,10 +218,10 @@ void PlayState::Draw()
 	
 	//wall1->Draw();
 
-	player->Draw();
+	//player->Draw();
 	//player->QueueVisabilityDraw();
 
-	model->Draw();
+	//model->Draw();
 	
 	//model->QueueVisabilityDraw();
 	//m_world.Draw()

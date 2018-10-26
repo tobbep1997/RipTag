@@ -13,6 +13,11 @@ namespace MyLibrary
 	{
 		float startingPos[3];
 	};
+	struct gridPoint
+	{
+		int pathable;
+		startingPos translation;
+	};
 	struct GuardStartingPositions {
 		int nrOf;
 		startingPos *startingPositions;
@@ -57,6 +62,11 @@ namespace MyLibrary
 			transform_scale[1] = 1.0;
 			transform_scale[2] = 1.0;
 		};
+	};
+	struct GridStruct
+	{
+		gridPoint * translation;
+		int nrOf;
 	};
 	struct CollisionBox
 	{

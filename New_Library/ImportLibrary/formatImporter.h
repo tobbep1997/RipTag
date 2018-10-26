@@ -31,7 +31,7 @@ namespace MyLibrary
 
 		startingPos readPlayerStartFile(const std::string & fileName, int whichPlayer);
 		GuardStartingPositions readGuardStartFiles(const std::string & fileName);
-
+		GridStruct readGridFIle(const std::string & fileName);
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);
 		Skeleton loadSkeleton(std::ifstream& file, int32_t boneCount);
