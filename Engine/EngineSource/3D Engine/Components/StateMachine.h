@@ -184,6 +184,9 @@ namespace SM
 
 		Current2DStateData CalculateCurrentClips();
 	private:
+		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
+		std::pair<std::optional<size_t>, std::optional<size_t>> BlendSpace2D::GetTopAndBottomRows();
+	private:
 		typedef std::vector<BlendSpaceClipData2D> Row;
 		std::vector<std::pair<float, Row>> m_Rows;
 		float m_Min_X = -1.0f;
@@ -216,13 +219,8 @@ namespace SM
 
 			if (!m_AnimatedModel)
 				return;
+
 			// #todo
-			if (clips.first)
-				m_AnimatedModel->SetPlayingClip(clips.first, true, true);
-			if (clips.second)
-				m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
-			else
-				m_AnimatedModel->SetLayeredClipWeight(0.0);
 		}
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;

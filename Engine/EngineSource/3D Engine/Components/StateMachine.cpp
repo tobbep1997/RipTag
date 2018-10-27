@@ -122,29 +122,136 @@ namespace SM
 		m_Rows.push_back(std::make_pair(y, std::move(nodes)));
 	}
 
+
 	BlendSpace2D::Current2DStateData BlendSpace2D::CalculateCurrentClips()
 	{ //#todo check end()
-		auto topRowIt = std::find_if(m_Rows.begin(), m_Rows.end(),
-			[&](const auto& row) {return row.first >= *m_Current_Y; });
+		using Animation::AnimationClip;
+		using std::tuple;
 
-		if (topRowIt == std::begin(m_Rows))
+		auto rowIndices = GetTopAndBottomRows();
+		if (rowIndices.first.has_value())
 		{
-			// do only first row blend
-			// (no lerp along Y)
+			tuple<AnimationClip*, AnimationClip*, float> clipsAndWeightFirst = { nullptr, nullptr, 0.0f };
+			tuple<AnimationClip*, AnimationClip*, float> clipsAndWeightSecond = { nullptr, nullptr, 0.0f };
+
+			clipsAndWeightFirst = GetLeftAndRightClips(rowIndices.first.value());
+
+			if (rowIndices.second.has_value())
+			{
+				clipsAndWeightSecond = GetLeftAndRightClips(rowIndices.second.value());
+			}
+
+			Current2DStateData data;
+			data.firstTop = std::get<0>(clipsAndWeightFirst);
+			data.secondTop = std::get<1>(clipsAndWeightFirst);
+			data.weightTop = std::get<2>(clipsAndWeightFirst);
+
+			data.firstBottom = std::get<0>(clipsAndWeightSecond);
+			data.secondBottom = std::get<1>(clipsAndWeightSecond);
+			data.weightBottom = std::get<2>(clipsAndWeightSecond);
+
+			if (rowIndices.second.has_value())
+				data.weightY = (*m_Current_Y - m_Rows.at(rowIndices.first.value()).first) / (m_Rows.at(rowIndices.first.value()).first - m_Rows.at(rowIndices.second.value()).first);
+			return data;
 		}
+		else
+			return BlendSpace2D::Current2DStateData();
 
-		auto bottomRowIt = topRowIt - 1;
+		//bool firstRowOnly = false;
+		//bool firstXOnly = false;
+		//auto topRowIt = std::find_if(m_Rows.begin(), m_Rows.end(),
+		//	[&](const auto& row) {return row.first >= *m_Current_Y; });
+		//assert(topRowIt != std::end(m_Rows));
 
-		auto rightTopIt = std::find_if(topRowIt->second.begin(), topRowIt->second.end(),
-			[&](const auto& data) {return data.locationX >= *m_Current_X; });
+		//if (topRowIt != std::begin(m_Rows))
+		//{
+		//	//Process first row only.
+		//	// do only first row blend
+		//	// (no lerp along Y)
+		//	firstRowOnly = true;
+		//}
 
-		if (rightTopIt == std::begin(topRowIt->second))
-		{
-			// no blend necessary on X, use first
-		}
+		//auto bottomRowIt = firstRowOnly
+		//	? topRowIt
+		//	: topRowIt - 1;
 
-		auto leftTopIt = rightTopIt - 1;
+		//auto rightTopIt = std::find_if(topRowIt->second.begin(), topRowIt->second.end(),
+		//	[&](const auto& data) {return data.locationX >= *m_Current_X; });
+		//assert(rightTopIt != std::end(topRowIt->second));
 
-		return Current2DStateData();
+		//if (rightTopIt == std::begin(topRowIt->second))
+		//{
+		//	// no blend necessary on X, use first
+		//	firstXOnly = true;
+		//}
+
+		//auto rightBottomIt = std::find_if(bottomRowIt->second.begin(), bottomRowIt->second.end(),
+		//	[&](const auto& data) {return data.locationX >= *m_Current_X; });
+		//assert(rightBottomIt != std::end(bottomRowIt->second));
+
+		//if (rightBottomIt == std::begin(bottomRowIt->second))
+		//{
+		//	// no blend necessary on X, use first
+		//}
+		//auto leftTopIt = rightTopIt - 1;
+		//auto leftBottomIt = rightBottomIt - 1;
+
+		//Current2DStateData data;
+		//data.firstTop = leftTopIt->clip;
+		//data.secondTop = rightTopIt->clip;
+		//if (!firstRowOnly)
+		//{
+		//	data.firstBottom = leftBottomIt->clip;
+		//	data.secondBottom = rightBottomIt->clip;
+		//	data.weightBottom = (*m_Current_X - leftBottomIt->locationX) / (rightBottomIt->locationX - leftBottomIt->locationX);
+		//	data.weightY = (*m_Current_Y - bottomRowIt->first) / (topRowIt->first - bottomRowIt->first);
+		//}
+
+		//data.weightTop = (*m_Current_X - leftTopIt->locationX) / (rightTopIt->locationX - leftTopIt->locationX);
+
+		//return data;
 	}
+
+	std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> BlendSpace2D::GetLeftAndRightClips(size_t rowIndex)
+{
+		auto rightIt = std::find_if(m_Rows.at(rowIndex).second.begin(), m_Rows.at(rowIndex).second.end(),
+			[&](const auto& e) {return *m_Current_X >= e.locationX; });
+
+		if (rightIt != m_Rows.at(rowIndex).second.end())
+		{
+			if (rightIt == m_Rows.at(rowIndex).second.begin())
+			{
+				return { rightIt->clip, nullptr, 0.0f };
+			}
+			else
+			{
+				auto leftIt = rightIt - 1;
+				float weight = (*m_Current_X - leftIt->locationX) / (rightIt->locationX - leftIt->locationX);
+				return { leftIt->clip, rightIt->clip, weight };
+			}
+		}
+		else return { nullptr, nullptr, 0.0f };
+	}
+
+	std::pair<std::optional<size_t>, std::optional<size_t>> BlendSpace2D::GetTopAndBottomRows()
+	{
+		auto topRowIt = std::find_if(m_Rows.begin(), m_Rows.end(),
+			[&](const auto& e) { return *m_Current_Y >= e.first; });
+
+		if (topRowIt != std::end(m_Rows))
+		{
+			if (topRowIt == std::begin(m_Rows))
+			{
+				return std::make_pair(std::optional<size_t>{0}, std::nullopt);
+			}
+			else
+			{
+				size_t topRowIndex = static_cast<size_t>(std::distance(std::begin(m_Rows), topRowIt));
+				assert(topRowIndex > 0);
+				return std::make_pair(std::optional<size_t>{topRowIndex - 1}, std::optional<size_t>{topRowIndex});
+			}
+		}
+		else return std::make_pair(std::nullopt, std::nullopt);
+	}
+
 }

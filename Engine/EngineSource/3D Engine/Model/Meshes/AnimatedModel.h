@@ -113,6 +113,12 @@ namespace Animation
 	class AnimatedModel
 	{
 	public:
+		enum ANIMATION_TYPE_STATE
+		{
+			STATE_1D_BLEND,
+			STATE_2D_BLEND,
+			STATE_SINGLE_CLIP
+		};
 		AnimatedModel();
 	
 		~AnimatedModel();
@@ -132,6 +138,8 @@ namespace Animation
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
+
+
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 		
