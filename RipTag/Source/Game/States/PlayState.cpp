@@ -70,9 +70,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->getAnimatedModel()->Play();
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE"));
 	auto stateMachine = model->InitStateMachine();
-	static float poop = 4.f;
+	static float& poop = player->m_Velocity.x;
 	auto blendState = stateMachine->AddBlendSpace1DState("idle_states", &poop, 0.0, 1.0);
-	std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 5.0f}, {chillclip.get(), 10.0f} };
+	std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 2.0f} };
  	blendState->AddBlendNodes(v);
 	stateMachine->SetState("idle_states");
 	stateMachine->SetModel(model->getAnimatedModel());

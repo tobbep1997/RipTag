@@ -168,3 +168,15 @@ void Transform::setPhysicsRotation(const b3Mat33 & rot)
 	p_physicsRotation._32 = rot.z.y;
 	p_physicsRotation._33 = rot.z.z;
 }
+
+// #todoREMOVE
+void Transform::setVelocity(b3Vec3 vel)
+{
+	m_Velocity = vel;
+}
+
+// #todoREMOVE
+b3Vec3 & Transform::getVelocityReference()
+{
+	return m_Velocity;
+}

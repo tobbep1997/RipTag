@@ -115,6 +115,7 @@ namespace SM
 	class StateVisitorBase{
 	public:
 		virtual void dispatch(BlendSpace1D& state) = 0;
+		virtual void dispatch(BlendSpace2D& state) = 0;
 	};
 
 	class BlendSpace1D : public AnimationState
@@ -125,25 +126,72 @@ namespace SM
 			Animation::AnimationClip* clip;
 			float location;
 		};
+		struct Current1DStateData 
+		{
+			Animation::AnimationClip* first = nullptr;
+			Animation::AnimationClip* second = nullptr;
+			float weight = 0.0f;
+		};
 
 		BlendSpace1D(std::string name, float* blendSpaceDriver, float min, float max)
 			: m_Current(blendSpaceDriver), m_Min(min), m_Max(max), AnimationState(name)
 		{}
 
-		//Assumes nodes are sorted from lowest to highest
+		//Assumes arguments are sorted from lowest to highest
 		void AddBlendNodes(const std::vector<BlendSpaceClipData> nodes);
 		
 		void recieveStateVisitor(StateVisitorBase& visitor) override {
 			visitor.dispatch(*this);
 		}
 
-		std::pair<Animation::AnimationClip*, Animation::AnimationClip*> CalculateCurrentClips();
+		Current1DStateData CalculateCurrentClips();
 	private:
 		std::vector<BlendSpaceClipData> m_Clips;
-		std::vector<std::shared_ptr<Animation::AnimationClip>> m_fClips;
 		float m_Min = 0.0f;
 		float m_Max = 1.0f;
 		float* m_Current = nullptr;
+	};
+
+	class BlendSpace2D : public AnimationState
+	{
+	public:
+		struct BlendSpaceClipData2D
+		{
+			Animation::AnimationClip* clip;
+			float locationX;
+		};
+		struct Current2DStateData
+		{
+			Animation::AnimationClip* firstTop = nullptr;
+			Animation::AnimationClip* secondTop = nullptr;
+			Animation::AnimationClip* firstBottom = nullptr;
+			Animation::AnimationClip* secondBottom = nullptr;
+			float weightTop = 0.0f;
+			float weightBottom = 0.0f;
+			float weightY = 0.0f;
+		};
+
+		BlendSpace2D(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY)
+			: m_Current_X(blendSpaceDriverX), m_Current_Y(blendSpaceDriverY), m_Min_X(minX), m_Max_X(maxX), m_Min_Y(minY), m_Max_Y(maxY), AnimationState(name)
+		{}
+
+		//Assumes arguments are sorted from lowest to highest
+		void AddRow(float y, std::vector<BlendSpaceClipData2D>&& nodes);
+
+		void recieveStateVisitor(StateVisitorBase& visitor) override {
+			visitor.dispatch(*this);
+		}
+
+		Current2DStateData CalculateCurrentClips();
+	private:
+		typedef std::vector<BlendSpaceClipData2D> Row;
+		std::vector<std::pair<float, Row>> m_Rows;
+		float m_Min_X = -1.0f;
+		float m_Max_X = 1.0f;
+		float m_Min_Y = -1.0f;
+		float m_Max_Y = 1.0f;
+		float* m_Current_X = nullptr;
+		float* m_Current_Y = nullptr;
 	};
 
 #pragma region "Visitors"
@@ -156,8 +204,25 @@ namespace SM
 			
 			if (!m_AnimatedModel)
 				return;
+			if (clips.first)
+				m_AnimatedModel->SetPlayingClip(clips.first, true, true);
+			if (clips.second)
+				m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
+			else
+				m_AnimatedModel->SetLayeredClipWeight(0.0);
+		}
+		virtual void dispatch(BlendSpace2D& state) override {
+			auto clips = state.CalculateCurrentClips();
+
+			if (!m_AnimatedModel)
+				return;
 			// #todo
-			m_AnimatedModel->SetPlayingClip(clips.first, true, true);
+			if (clips.first)
+				m_AnimatedModel->SetPlayingClip(clips.first, true, true);
+			if (clips.second)
+				m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
+			else
+				m_AnimatedModel->SetLayeredClipWeight(0.0);
 		}
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;

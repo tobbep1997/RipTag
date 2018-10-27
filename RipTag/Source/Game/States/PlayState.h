@@ -30,17 +30,6 @@ private:
 
 	b3World m_world;
 
-	
-
-
-	float x = -1.5f;
-	float y = 2.1f; 
-	float z = -2.1f;
-
-	float xD = 0;
-	float yD = 0;
-	float zD = 0;
-
 	float intensity = 2;
 		
 	Drawable * model;
