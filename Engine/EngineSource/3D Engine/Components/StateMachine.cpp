@@ -2,8 +2,10 @@
 #include <assert.h>
 #include <algorithm>
 #include <iostream>
+#include "../Model/Meshes/AnimatedModel.h"
 namespace SM
 {
+#pragma region "AnimationState"
 
 	AnimationState::AnimationState(std::string name)
 		: m_Name(name)
@@ -34,7 +36,9 @@ namespace SM
 	{
 		return m_Name;
 	}
+#pragma endregion "AnimationState"
 
+#pragma region "StateMachine"
 	AnimationStateMachine::AnimationStateMachine(size_t size)
 	{
 		m_States.reserve(size);
@@ -53,12 +57,11 @@ namespace SM
 		return state;
 	}
 
-	void AnimationStateMachine::SetState(std::string stateName)
+	SM::BlendSpace2D* AnimationStateMachine::AddBlendSpace2DState(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY)
 	{
-		auto it = std::find_if(m_States.begin(), m_States.end(), 
-			[&](const auto& p) { return p->GetName() == stateName; });
-		if (it != m_States.end())
-			m_CurrentState = *it;
+		BlendSpace2D* state = new BlendSpace2D(name, blendSpaceDriverX, blendSpaceDriverY, minX, maxX, minY, maxY);
+		m_States.push_back(static_cast<AnimationState*>(state));
+		return state;
 	}
 
 	void AnimationStateMachine::SetModel(Animation::AnimatedModel* model)
@@ -66,10 +69,47 @@ namespace SM
 		m_AnimatedModel = model;
 	}
 
+	void AnimationStateMachine::SetState(std::string stateName)
+	{
+		auto it = std::find_if(m_States.begin(), m_States.end(),
+			[&](const auto& p) { return p->GetName() == stateName; });
+		if (it != m_States.end())
+			m_CurrentState = *it;
+	}
+
 	SM::AnimationState& AnimationStateMachine::GetCurrentState()
 	{
 		return *m_CurrentState;
 	}
+#pragma endregion "StateMachine"
+
+#pragma region "StateVisitor"
+
+	void StateVisitor::dispatch(BlendSpace1D& state){
+		auto clips = state.CalculateCurrentClips();
+
+		if (!m_AnimatedModel)
+			return;
+		if (clips.first)
+			m_AnimatedModel->SetPlayingClip(clips.first, true, true);
+		if (clips.second)
+			m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
+		else
+			m_AnimatedModel->SetLayeredClipWeight(0.0);
+	}
+	void StateVisitor::dispatch(BlendSpace2D& state) {
+		auto clips = state.CalculateCurrentClips();
+		if (!m_AnimatedModel)
+			return;
+
+		m_AnimatedModel->UpdateBlendspace2D(clips);
+
+
+		// #todo
+	}
+#pragma endregion "StateVisitor"
+
+#pragma region "BlendSpace1D"
 
 	void BlendSpace1D::AddBlendNodes(const std::vector<BlendSpaceClipData> nodes)
 	{
@@ -112,6 +152,9 @@ namespace SM
 		}
 		else return { nullptr, nullptr, 0.0f};
 	}
+#pragma endregion "BlendSpace1D"
+
+#pragma region "BlendSpace2D"
 
 	void BlendSpace2D::AddRow(float y, std::vector<BlendSpaceClipData2D>&& nodes)
 	{
@@ -121,7 +164,6 @@ namespace SM
 #endif
 		m_Rows.push_back(std::make_pair(y, std::move(nodes)));
 	}
-
 
 	BlendSpace2D::Current2DStateData BlendSpace2D::CalculateCurrentClips()
 	{ //#todo check end()
@@ -151,71 +193,17 @@ namespace SM
 			data.weightBottom = std::get<2>(clipsAndWeightSecond);
 
 			if (rowIndices.second.has_value())
-				data.weightY = (*m_Current_Y - m_Rows.at(rowIndices.first.value()).first) / (m_Rows.at(rowIndices.first.value()).first - m_Rows.at(rowIndices.second.value()).first);
+				data.weightY = (*m_Current_Y - m_Rows.at(rowIndices.first.value()).first) / (m_Rows.at(rowIndices.second.value()).first - m_Rows.at(rowIndices.first.value()).first);
 			return data;
 		}
 		else
 			return BlendSpace2D::Current2DStateData();
-
-		//bool firstRowOnly = false;
-		//bool firstXOnly = false;
-		//auto topRowIt = std::find_if(m_Rows.begin(), m_Rows.end(),
-		//	[&](const auto& row) {return row.first >= *m_Current_Y; });
-		//assert(topRowIt != std::end(m_Rows));
-
-		//if (topRowIt != std::begin(m_Rows))
-		//{
-		//	//Process first row only.
-		//	// do only first row blend
-		//	// (no lerp along Y)
-		//	firstRowOnly = true;
-		//}
-
-		//auto bottomRowIt = firstRowOnly
-		//	? topRowIt
-		//	: topRowIt - 1;
-
-		//auto rightTopIt = std::find_if(topRowIt->second.begin(), topRowIt->second.end(),
-		//	[&](const auto& data) {return data.locationX >= *m_Current_X; });
-		//assert(rightTopIt != std::end(topRowIt->second));
-
-		//if (rightTopIt == std::begin(topRowIt->second))
-		//{
-		//	// no blend necessary on X, use first
-		//	firstXOnly = true;
-		//}
-
-		//auto rightBottomIt = std::find_if(bottomRowIt->second.begin(), bottomRowIt->second.end(),
-		//	[&](const auto& data) {return data.locationX >= *m_Current_X; });
-		//assert(rightBottomIt != std::end(bottomRowIt->second));
-
-		//if (rightBottomIt == std::begin(bottomRowIt->second))
-		//{
-		//	// no blend necessary on X, use first
-		//}
-		//auto leftTopIt = rightTopIt - 1;
-		//auto leftBottomIt = rightBottomIt - 1;
-
-		//Current2DStateData data;
-		//data.firstTop = leftTopIt->clip;
-		//data.secondTop = rightTopIt->clip;
-		//if (!firstRowOnly)
-		//{
-		//	data.firstBottom = leftBottomIt->clip;
-		//	data.secondBottom = rightBottomIt->clip;
-		//	data.weightBottom = (*m_Current_X - leftBottomIt->locationX) / (rightBottomIt->locationX - leftBottomIt->locationX);
-		//	data.weightY = (*m_Current_Y - bottomRowIt->first) / (topRowIt->first - bottomRowIt->first);
-		//}
-
-		//data.weightTop = (*m_Current_X - leftTopIt->locationX) / (rightTopIt->locationX - leftTopIt->locationX);
-
-		//return data;
 	}
 
 	std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> BlendSpace2D::GetLeftAndRightClips(size_t rowIndex)
 {
 		auto rightIt = std::find_if(m_Rows.at(rowIndex).second.begin(), m_Rows.at(rowIndex).second.end(),
-			[&](const auto& e) {return *m_Current_X >= e.locationX; });
+			[&](const auto& e) {return e.locationX >= *m_Current_X; });
 
 		if (rightIt != m_Rows.at(rowIndex).second.end())
 		{
@@ -236,7 +224,7 @@ namespace SM
 	std::pair<std::optional<size_t>, std::optional<size_t>> BlendSpace2D::GetTopAndBottomRows()
 	{
 		auto topRowIt = std::find_if(m_Rows.begin(), m_Rows.end(),
-			[&](const auto& e) { return *m_Current_Y >= e.first; });
+			[&](const auto& e) { return e.first >= *m_Current_Y; });
 
 		if (topRowIt != std::end(m_Rows))
 		{
@@ -253,5 +241,5 @@ namespace SM
 		}
 		else return std::make_pair(std::nullopt, std::nullopt);
 	}
-
+#pragma endregion "BlendSpace2D"
 }

@@ -69,11 +69,17 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
     model->getAnimatedModel()->SetPlayingClip(clip.get());
 	model->getAnimatedModel()->Play();
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE"));
-	auto stateMachine = model->InitStateMachine();
-	static float& poop = player->m_Velocity.x;
-	auto blendState = stateMachine->AddBlendSpace1DState("idle_states", &poop, 0.0, 1.0);
-	std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 2.0f} };
- 	blendState->AddBlendNodes(v);
+	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(1);
+	
+	static float sX = .75f;
+	static float sY = .25;
+
+	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_Velocity.x, &player->m_Velocity.z, -4.0, 4.0, 0.0, 4.0);
+	//std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 2.0f} };
+	blendState->AddRow(4.0, { {clip.get(), -4.0 }, {chillclip.get(), 0.0 }, {clip.get(), 4.0 } });
+	blendState->AddRow(2.0, { {chillclip.get(), -4.0 }, {chillclip.get(), 0.0 }, {chillclip.get(), 4.0 } });
+	blendState->AddRow(0.0, { {clip.get(), -4.0 }, {clip.get(), 0.0 }, {clip.get(), 4.0 } });
+ 	//blendState->AddBlendNodes(v);
 	stateMachine->SetState("idle_states");
 	stateMachine->SetModel(model->getAnimatedModel());
 
@@ -117,7 +123,6 @@ void PlayState::Update(double deltaTime)
 	}
 
 	player->Update(deltaTime);
-	model->m_stateMachine->GetCurrentState().recieveStateVisitor(visitor);
 	model->getAnimatedModel()->Update(deltaTime);
 	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);

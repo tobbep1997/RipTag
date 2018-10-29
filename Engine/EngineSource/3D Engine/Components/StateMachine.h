@@ -3,11 +3,20 @@
 #include <vector>
 #include <functional>
 #include <optional>
-#include "../Model/Meshes/AnimatedModel.h"
+
+#pragma region "FwdDec"
+namespace Animation
+{
+	struct AnimationClip;
+	class AnimatedModel;
+}
+#pragma endregion "FwdDec"
 
 namespace SM
 {
-#pragma region AnimationMachine
+#pragma region "AnimationMachine"
+
+#pragma region "Transition"
 	enum COMPARISON_TYPE
 	{
 		COMPARISON_EQUAL,
@@ -87,14 +96,23 @@ namespace SM
 	{
 		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, value, type));
 	}
+#pragma endregion "Transition"
 
+#pragma region "AnimationState"
 	class StateVisitorBase;
+
+	enum STATE_TYPE
+	{
+		LOOPING,
+		BLEND_1D,
+		BLEND_2D
+	};
 
 	class AnimationState
 	{
 	public:
 		AnimationState(std::string name);
-		~AnimationState();
+		virtual ~AnimationState();
 
 		OutState& AddOutState(AnimationState* outState);
 		//Returns true if all transition conditions
@@ -102,7 +120,7 @@ namespace SM
 		std::optional<AnimationState*> EvaluateAllTransitions(std::string key);
 		std::string GetName();
 		AnimationState(const AnimationState& other) = delete;
-		virtual void recieveStateVisitor(StateVisitorBase& visitor) = 0;
+		virtual STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
 	private:
 		std::string m_Name = "";
@@ -111,16 +129,20 @@ namespace SM
 	};
 
 	class BlendSpace1D;
-
+	class BlendSpace2D;
 	class StateVisitorBase{
 	public:
 		virtual void dispatch(BlendSpace1D& state) = 0;
 		virtual void dispatch(BlendSpace2D& state) = 0;
 	};
+#pragma endregion "AnimationState"
+
+#pragma region "BlendSpace1D"
 
 	class BlendSpace1D : public AnimationState
 	{
 	public:
+		virtual ~BlendSpace1D() = default;
 		struct BlendSpaceClipData
 		{
 			Animation::AnimationClip* clip;
@@ -140,8 +162,9 @@ namespace SM
 		//Assumes arguments are sorted from lowest to highest
 		void AddBlendNodes(const std::vector<BlendSpaceClipData> nodes);
 		
-		void recieveStateVisitor(StateVisitorBase& visitor) override {
+		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override {
 			visitor.dispatch(*this);
+			return BLEND_1D;
 		}
 
 		Current1DStateData CalculateCurrentClips();
@@ -151,6 +174,9 @@ namespace SM
 		float m_Max = 1.0f;
 		float* m_Current = nullptr;
 	};
+#pragma endregion "BlendSpace1D"
+
+#pragma region "BlendSpace2D"
 
 	class BlendSpace2D : public AnimationState
 	{
@@ -174,18 +200,19 @@ namespace SM
 		BlendSpace2D(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY)
 			: m_Current_X(blendSpaceDriverX), m_Current_Y(blendSpaceDriverY), m_Min_X(minX), m_Max_X(maxX), m_Min_Y(minY), m_Max_Y(maxY), AnimationState(name)
 		{}
-
+		virtual ~BlendSpace2D() = default;
 		//Assumes arguments are sorted from lowest to highest
 		void AddRow(float y, std::vector<BlendSpaceClipData2D>&& nodes);
 
-		void recieveStateVisitor(StateVisitorBase& visitor) override {
-			visitor.dispatch(*this);
+		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override {
+			visitor.dispatch(static_cast<BlendSpace2D&>(*this));
+			return BLEND_2D;
 		}
 
 		Current2DStateData CalculateCurrentClips();
 	private:
 		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
-		std::pair<std::optional<size_t>, std::optional<size_t>> BlendSpace2D::GetTopAndBottomRows();
+		std::pair<std::optional<size_t>, std::optional<size_t>> GetTopAndBottomRows();
 	private:
 		typedef std::vector<BlendSpaceClipData2D> Row;
 		std::vector<std::pair<float, Row>> m_Rows;
@@ -196,37 +223,21 @@ namespace SM
 		float* m_Current_X = nullptr;
 		float* m_Current_Y = nullptr;
 	};
+#pragma endregion "BlendSpace2D"
 
 #pragma region "Visitors"
 	class StateVisitor : public StateVisitorBase{
 	public:
 		StateVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
 		{}
-		virtual void dispatch(BlendSpace1D& state) override {
-			auto clips = state.CalculateCurrentClips();
-			
-			if (!m_AnimatedModel)
-				return;
-			if (clips.first)
-				m_AnimatedModel->SetPlayingClip(clips.first, true, true);
-			if (clips.second)
-				m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
-			else
-				m_AnimatedModel->SetLayeredClipWeight(0.0);
-		}
-		virtual void dispatch(BlendSpace2D& state) override {
-			auto clips = state.CalculateCurrentClips();
-
-			if (!m_AnimatedModel)
-				return;
-
-			// #todo
-		}
+		virtual void dispatch(BlendSpace1D& state) override;
+		virtual void dispatch(BlendSpace2D& state) override;
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
 	};
 #pragma endregion "Visitors"
 
+#pragma region "StateMachine"
 	class AnimationStateMachine
 	{
 	public:
@@ -235,9 +246,12 @@ namespace SM
 
 		//Add a new animation state.
 		//Returns a pointer to the new state.
-		AnimationState* AddState(std::string name);
-		BlendSpace1D* AddBlendSpace1DState(std::string name, float* blendSpaceDriver, float min, float max);
-
+		///AnimationState* AddState(std::string name);
+		BlendSpace1D* AddBlendSpace1DState
+		(std::string name, float* blendSpaceDriver, float min, float max);
+		BlendSpace2D* AddBlendSpace2DState
+		(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY);
+		
 		void SetState(std::string stateName);
 		void SetModel(Animation::AnimatedModel* model);
 		AnimationState& GetCurrentState();
@@ -251,172 +265,7 @@ namespace SM
 		//The states of this machine
 		std::vector<AnimationState*> m_States;
 	};
+#pragma endregion "StateMachine"
 
-#pragma endregion AnimationMachine
-//#pragma region TemplateStateMachine
-//	enum MACHINE_STATE
-//	{
-//		MACHINE_IS_TRANSITIONING,
-//		MACHINE_IS_IN_STATE
-//	};
-//
-//	template <class StateData, class TransitionData>
-//	class State
-//	{
-//	public:
-//		State(std::string name, std::vector<std::pair<State*, TransitionData>> outStates);
-//		State(std::string name, StateData stateData);
-//		~State();
-//		std::string GetName();
-//		bool HasOutState(std::string state);
-//		bool operator==(const std::string& name);
-//		StateData& GetStateData();
-//		TransitionData* GetTransitionData(std::string outState);
-//		void SetStateData(StateData data);
-//		void AddOutState(std::pair<State*, TransitionData> outState);
-//
-//	private:
-//		std::string m_StateName;
-//		std::vector<std::pair<State*, TransitionData>> m_OutStates;
-//		StateData m_StateData;
-//	};
-//
-//	template <class StateData, class TransitionData>
-//	void SM::State<StateData, TransitionData>::AddOutState(std::pair<State*, TransitionData> outState)
-//	{
-//		m_OutStates.push_back(outState);
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	class StateMachine
-//	{
-//	public:
-//		StateMachine(size_t maxStates);
-//		~StateMachine();
-//
-//		std::string GetCurrentState();
-//		std::optional<std::pair<const StateData*, const TransitionData*>> TryGoTo(std::string state);
-//		void AddState(std::string name, StateData stateData);
-//		void AddOutStates(std::string state, std::vector<std::pair<std::string, TransitionData>> outStates);
-//	private:
-//		SM::State<StateData, TransitionData>* m_CurrentState = nullptr;
-//		std::vector<SM::State<StateData, TransitionData>> m_States;
-//	};
-//
-//	template <class StateData, class TransitionData>
-//	void SM::StateMachine<StateData, TransitionData>::AddOutStates(std::string state, std::vector<std::pair<std::string, TransitionData>> outStates)
-//	{
-//		auto iter = std::find(std::begin(m_States), std::end(m_States), state);
-//		if (iter != std::end(m_States))
-//		{
-//			for (auto& p : outStates)
-//			{
-//				auto outStateIter = std::find(std::begin(m_States), std::end(m_States), p.first);
-//
-//				if (outStateIter != std::end(m_States))
-//					(*iter).AddOutState(std::make_pair(&*outStateIter, p.second));
-//			}
-//		}
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	StateMachine<StateData, TransitionData>::StateMachine(size_t maxStates)
-//	{
-//		m_States.reserve(maxStates);
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	State<StateData, TransitionData>::~State()
-//	{}
-//
-//	template <class StateData, class TransitionData>
-//	StateMachine<StateData, TransitionData>::~StateMachine()
-//	{
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	std::string StateMachine<StateData, TransitionData>::GetCurrentState()
-//	{
-//		return m_CurrentState->GetName();
-//	}
-//
-//	// Returns the related TransitionData towards passed state if 
-//	// go to is successful, nullptr otherwise
-//	template <class StateData, class TransitionData>
-//	std::optional < std::pair<const StateData*, const TransitionData*>> StateMachine<StateData, TransitionData>::TryGoTo(std::string state)
-//	{
-//		if (m_CurrentState->HasOutState(state))
-//		{
-//			auto transitionData = m_CurrentState->GetTransitionData(state);
-//			m_CurrentState = &(*std::find(m_States.begin(), m_States.end(), state));
-//			return std::make_pair(&m_CurrentState->GetStateData(), transitionData);
-//		}
-//		else return {};
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	SM::State<StateData, TransitionData>::State(std::string name, std::vector<std::pair<State*, TransitionData>> outStates) : m_StateName(name)
-//	{
-//		std::copy(outStates.begin(), outStates.end(), std::back_inserter(m_OutStates));
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	SM::State<StateData, TransitionData>::State(std::string name, StateData stateData) : m_StateName(name), m_StateData(stateData)
-//	{}
-//
-//	// Gets the associated StateData for this state
-//	template <class StateData, class TransitionData>
-//	StateData& State<StateData, TransitionData>::GetStateData()
-//	{
-//		return m_StateData;
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	TransitionData* State<StateData, TransitionData>::GetTransitionData(std::string outState)
-//	{
-//		auto iter = std::find_if(m_OutStates.begin(), m_OutStates.end(),
-//			[&outState](std::pair<SM::State<StateData, TransitionData>*, TransitionData>& element) { return *(element.first) == outState; });
-//
-//		if (iter != m_OutStates.end())
-//			return &((*iter).second);
-//		else return nullptr;
-//	}
-//
-//	template<class StateData, class TransitionData>
-//	void State<StateData, TransitionData>::SetStateData(StateData data)
-//	{
-//		m_StateData = data;
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	std::string State<StateData, TransitionData>::GetName()
-//	{
-//		return m_StateName;
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	bool State<StateData, TransitionData>::HasOutState(std::string state)
-//	{
-//		auto iter = std::find_if(m_OutStates.begin(), m_OutStates.end(),
-//			[&state](std::pair<SM::State<StateData, TransitionData>*, TransitionData>& element) { return *(element.first) == state; });
-//		if (iter != m_OutStates.end())
-//			return true;
-//		else return false;
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	bool State<StateData, TransitionData>::operator==(const std::string& name)
-//	{
-//		return m_StateName == name;
-//	}
-//
-//	template <class StateData, class TransitionData>
-//	void StateMachine<StateData, TransitionData>::AddState(std::string name, StateData stateData)
-//	{
-//		m_States.push_back(SM::State<StateData, TransitionData>(name, stateData));
-//		if (m_States.size() == 1)
-//			m_CurrentState = &m_States[0];
-//	}
-//#pragma endregion TemplateStateMachine
-//
+#pragma endregion "AnimationMachine"
 }
