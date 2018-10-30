@@ -60,8 +60,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
 	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-	model->setScale(0.1, 0.1, 0.1);
-	model->setPosition({ 0.0, -5.0, 0.0, 1.0 });
+	model->setScale(0.05, 0.05, 0.05);
+	model->setPosition({ 0.0, -11.0, 0.0, 1.0 });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
@@ -76,11 +76,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	static float hSpeed = 1.50;
 	static float hDir = 78;
-	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_currentDirection, &player->m_currentSpeed, -180.0, 180.0, 0.0, 3.1);
+	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_currentDirection, &player->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
 	//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
 
-	blendState->AddRow(0.0, { { idle_clip.get(), -180.0 }, { idle_clip.get(), -90.0 }, { idle_clip.get(), 0.0 }, { idle_clip.get(), 90.0 }, { idle_clip.get(), 180.0 } });
-	blendState->AddRow(3.1, { {bwd_clip.get(), -180.0 }, {lft_clip.get(), -90.0 }, {fwd_clip.get(), 0.0 }, {rgt_clip.get(), 90.0 }, {bwd_clip.get(), 180.0 } });
+	blendState->AddRow(0.0, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
+	blendState->AddRow(3.1, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
 	//blendState->AddBlendNodes(v);
 	stateMachine->SetState("idle_states");
 	stateMachine->SetModel(model->getAnimatedModel());

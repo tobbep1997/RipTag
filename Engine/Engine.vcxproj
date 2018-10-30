@@ -177,6 +177,7 @@
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Transform.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
+    <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.h" />
@@ -245,6 +246,7 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
     </ClCompile>
+    <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
     <ClCompile Include="EngineSource\Helper\Threading.cpp" />
     <ClCompile Include="EngineSource\Helper\Timer.cpp" />
     <ClCompile Include="EngineSource\Light\PointLight.cpp" />

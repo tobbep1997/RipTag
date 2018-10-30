@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <bits.h>
+#include "../../../Engine/EngineSource/Helper/HelperFunctions.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent()
 {
@@ -39,41 +40,41 @@ void Player::Update(double deltaTime)
 
 	//calculate walk direction (-1, 1, based on camera) and movement speed
 	{
+		///Speed
 		auto physSpeed = this->getLiniearVelocity();
 		float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-		m_currentSpeed = std::fabs(speed);
+		m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+
+		///Walk dir
+			//Get camera direction and normalize on X,Z plane
 		auto cameraDir = p_camera->getDirection();
 		XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+		///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+		auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+		auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+		auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+		auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+		///AssertHasLength(XZCameraDir);
+		//AssertHasLength(XZMovement);
+
+			//Get dot product of cam dir and player movement
 		auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+		dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
 		m_currentDirection = XMConvertToDegrees(std::acos(dot));
-		//m_currentDirection = dot;
-		float inverter = 1.0;
-		if (std::fabs(dot) <= 0.98f)
-			inverter = 1.0;// (XMVectorGetY(XMVector3Cross(XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0), cameraDirNormalized)));
+			//Negate if necessary
+		float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
 		m_currentDirection *= (inverter > 0.0)
 			? -1.0
 			: 1.0;
-		//if (180 - std::fabs(m_currentDirection) < 5.0)
-		//{
-		//	float lol = 1.0f;
-		//	if (m_currentDirection < 0)
-		//		lol = -1.0f;
-		//	m_currentDirection = 180.0f * lol;
-		//}
-		//else if (std::fabs(m_currentDirection) < 5.0)
-		//	m_currentDirection = 0.0f;
+		m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+		///AssertNotNAN(m_currentDirection);
 
-		//static float timeLol = 0;
-		//timeLol += deltaTime;
-
-		//{
-		//	timeLol -= 0.2;
-		//	//std::cout << m_currentSpeed << std::endl;
-		//	//std::cout << m_currentDirection << std::endl;
-		//	//std::cout << "\t" << m_currentSpeed << std::endl;
-		//}
 	}
 
+	
 
 	if (m_lockPlayerInput == false)
 	{
