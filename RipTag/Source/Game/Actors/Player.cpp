@@ -89,6 +89,14 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 {
 	PhysicsComponent::Init(world, bodyType, x, y, z);
 	setUserDataBody(this);
+
+	setEntityType(EntityType::PlayerType);
+	setColor(10, 10, 0, 1);
+
+	setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	setScale(1.0f, 1.0f, 1.0f);
+	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	setTextureTileMult(2, 2);
 }
 
 void Player::BeginPlay()
