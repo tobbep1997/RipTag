@@ -61,11 +61,12 @@ private:
 	int mouseY = 0;
 
 	//Mana, if you want %. go currentMana
-	int m_currentMana;
-	int m_maxMana;
+	float m_currentMana;
+	float m_maxMana;
 
 	const int STANDARD_START_MANA = 100;
 
+	Quad * m_manaBar;
 	
 public:
 	//Magic number
