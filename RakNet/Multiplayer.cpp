@@ -7,7 +7,6 @@ namespace Network
 {
 	std::map<std::string, std::function<void()>> Multiplayer::LocalPlayerOnSendMap;
 	std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> Multiplayer::RemotePlayerOnReceiveMap;
-	bool Multiplayer::hasGameInstance;
 
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
@@ -25,7 +24,6 @@ namespace Network
 
 		this->SetNetworkID(this->GetNetworkID());
 		this->SetNetworkIDManager(this->networkIDManager);
-		Multiplayer::hasGameInstance = false;
 	}
 
 	void Multiplayer::Destroy()
@@ -311,12 +309,11 @@ namespace Network
 	{
 		if (mID == NETWORKMESSAGES::ID_GAME_START)
 			this->m_isGameRunning = true;
+	
+		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = RemotePlayerOnReceiveMap.find(mID);
+		if (mapIterator != RemotePlayerOnReceiveMap.end())
+			mapIterator->second(mID, data);
 
-		if (Multiplayer::hasGameInstance) {
-			std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = RemotePlayerOnReceiveMap.find(mID);
-			if (mapIterator != RemotePlayerOnReceiveMap.end())
-				mapIterator->second(mID, data);
-		}
 	}
 
 	void Multiplayer::_onDisconnect()

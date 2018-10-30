@@ -14,7 +14,6 @@ Enemy * RipExtern::lol;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-	Network::Multiplayer::hasGameInstance = false;
 
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
@@ -81,7 +80,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 PlayState::~PlayState()
 {
-	Network::Multiplayer::hasGameInstance = false;
 	m_levelHandler.Release();
 	delete m_contactListener;
 	

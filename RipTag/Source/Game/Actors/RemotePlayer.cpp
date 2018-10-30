@@ -176,7 +176,7 @@ void RemotePlayer::_lerpPosition(float dt)
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
 
-	newPos = DirectX::XMVectorLerp(curr, next, dt * this->m_timeDiff);
+	newPos = DirectX::XMVectorLerp(curr, next, dt + (this->m_timeDiff/1000.0f));
 
 	DirectX::XMFLOAT4A _newPos;
 	DirectX::XMStoreFloat4A(&_newPos, newPos);
