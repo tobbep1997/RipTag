@@ -44,7 +44,14 @@ void VisabilityAbility::Update(double deltaTime)
 
 void VisabilityAbility::Use()
 {
-	m_isUsing = true;
+	if (((Player*)p_owner)->CheckManaCost(getManaCost()))
+	{
+		m_isUsing = true;
+		((Player*)p_owner)->DrainMana(getManaCost());
+
+	}
+	else
+		m_isUsing = false;
 }
 
 void VisabilityAbility::Draw()

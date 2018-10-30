@@ -3,7 +3,7 @@
 class AbilityComponent
 {
 private:
-	int m_manaCost;
+	float m_manaCost;
 protected:
 	void * p_owner;
 
@@ -13,8 +13,8 @@ public:
 
 	virtual void setOwner(void * owner);
 
-	virtual void setManaCost(int mana);
-	virtual int getManaCost() const;
+	virtual void setManaCost(float mana);
+	virtual float getManaCost() const;
 
 	virtual void Init() = 0;
 	virtual void Update(double deltaTime) = 0;

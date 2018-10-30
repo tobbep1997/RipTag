@@ -17,6 +17,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
 	visAbl->Init();
+	visAbl->setManaCost(1);
 
 	VisabilityAbility * visAbl2 = new VisabilityAbility();
 	visAbl2->setOwner(this);
@@ -75,6 +76,14 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_maxMana = STANDARD_START_MANA;
 	m_currentMana = m_maxMana;
 
+	m_manaBar = new Quad();
+	m_manaBar->init(DirectX::XMFLOAT2A(0.2f, 0.2f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
+
+
+	HUDComponent::AddQuad(m_manaBar);
+
 }
 
 Player::~Player()
@@ -121,6 +130,8 @@ void Player::Update(double deltaTime)
 	ImGui::Text("Max mana %d", m_maxMana);
 	ImGui::End();
 #endif
+
+	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 
 	if (InputHandler::isKeyPressed('I'))
 	{

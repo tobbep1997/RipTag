@@ -38,6 +38,7 @@ void TeleportAbility::Init()
 	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	Texture * texture = Manager::g_textureManager.getTexture("BAR");
 	m_bar->setUnpressedTexture(texture);
+	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
 
