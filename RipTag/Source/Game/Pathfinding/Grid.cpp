@@ -20,6 +20,17 @@ Grid::~Grid()
 {
 }
 
+void Grid::ThreadPath(Tile src, Tile dest)
+{
+	pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
+}
+
+std::vector<Node*> Grid::getPath()
+{
+	path = pathfindingFuture.get();
+	return path;
+}
+
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!_isValid(destination))
@@ -159,6 +170,13 @@ void Grid::printGrid()
 		}
 		std::cout << "\n";
 	}
+}
+
+bool Grid::ready()
+{
+	using namespace std::chrono_literals;
+	auto status = pathfindingFuture.wait_for(0s);
+	return status == std::future_status::ready;
 }
 
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList, bool * closedList)

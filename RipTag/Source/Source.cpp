@@ -35,34 +35,35 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
 
-
-
-	
-	/*Grid grid = Grid(300, 300);
+	Grid grid = Grid(300, 300);
 	std::vector<Node*> path;
-	
+	//path = grid.FindPath(Tile(0, 0), Tile(299, 299));
+	bool nP = false;
 	dt.getDeltaTimeInSeconds();
-	path = grid.FindPath(Tile(0, 0), Tile(299, 299));
-	std::cout << dt.getDeltaTimeInSeconds() << " seconds." << std::endl;
-
-	std::cout << "Printing path..." << std::endl << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-	}
-	std::cout << std::endl << "Path is finished printing..." << std::endl;
-
-	system("pause");
-
-	for (int i = 0; i < path.size(); i++)
-	{
-		delete path.at(i);
-		path.at(i) = nullptr;
-	}*/
+	grid.ThreadPath(Tile(0, 0), Tile(299, 299));
 
 	while (game.isRunning())
 	{
-
+		if (!nP)
+		{
+			if (grid.ready())
+			{
+				path = grid.getPath();
+				std::cout << dt.getDeltaTimeInSeconds() << " seconds." << std::endl;
+				std::cout << "Printing path..." << std::endl << std::endl;
+				for (int i = 0; i < path.size(); i++)
+				{
+					std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
+				}
+				std::cout << std::endl << "Path is finished printing..." << std::endl;
+				for (int i = 0; i < path.size(); i++)
+				{
+					delete path.at(i);
+					path.at(i) = nullptr;
+				}
+				nP = true;
+			}
+		}
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;

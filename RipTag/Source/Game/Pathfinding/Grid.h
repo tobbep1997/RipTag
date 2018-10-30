@@ -2,6 +2,7 @@
 #include "Tile.h"
 #include <vector>
 #include <algorithm>
+#include <future>
 
 /*
 	gCost = the movement cost to move from the starting point to a
@@ -58,17 +59,22 @@ class Grid
 {
 private:
 	std::vector<Tile> m_tileMap;
-	//std::vector<Node> m_nodeMap;
 	int m_width, m_height;
+
+	std::vector<Node*> path;
+	std::future<std::vector<Node*>> pathfindingFuture;
 
 public:
 	Grid(int _width = 0, int _height = 0);
 	virtual ~Grid();
 
+	void ThreadPath(Tile src, Tile dest);
+	std::vector<Node*> getPath();
 	std::vector<Node*> FindPath(Tile src, Tile dest);
 
 	// Test function
 	void printGrid();
+	bool ready();
 	
 private:
 	// Utility functions
