@@ -20,6 +20,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	this->setPosition(pos);
 	this->setScale(scale);
 	this->setRotation(rot);
+	this->m_mostRecentPosition = pos;
 
 	//3.
 	this->networkID = nID;
@@ -124,7 +125,8 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 		}
 
 		//In any case we always apply position and rotation
-		this->setPosition(data->pos);
+		//this->setPosition(data->pos);
+		this->m_mostRecentPosition = data->pos;
 		this->setRotation(data->rot);
 	}
 }
@@ -132,29 +134,50 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 void RemotePlayer::_Idle(float dt)
 {
 	//Play the idle animation
+	this->_lerpPosition(dt);
 }
 
 void RemotePlayer::_Walking(float dt)
 {
 	//play the walking animation
+	this->_lerpPosition(dt);
 }
 
 void RemotePlayer::_Crouching(float dt)
 {
 	//play the crouching animation
+	this->_lerpPosition(dt);
 }
 
 void RemotePlayer::_Sprinting(float dt)
 {
 	//play sprinting animation
+	this->_lerpPosition(dt);
 }
 
 void RemotePlayer::_Jumping(float dt)
 {
 	//Play Jumping animation
+	this->_lerpPosition(dt);
 }
 
 void RemotePlayer::_Falling(float dt)
 {
 	//play falling animation
+	this->_lerpPosition(dt);
+}
+
+void RemotePlayer::_lerpPosition(float dt)
+{
+	DirectX::XMVECTOR curr, next, newPos;
+
+	curr = DirectX::XMLoadFloat4A(&this->getPosition());
+	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
+
+	newPos = DirectX::XMVectorLerp(curr, next, dt);
+
+	DirectX::XMFLOAT4A _newPos;
+	DirectX::XMStoreFloat4A(&_newPos, newPos);
+
+	this->setPosition(_newPos);
 }

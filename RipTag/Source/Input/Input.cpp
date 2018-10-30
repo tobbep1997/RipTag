@@ -324,6 +324,9 @@ bool Input::isUsingGamepad()
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
 std::map<int, std::string> InputMapping::keyMap;
 std::map<int, std::string> InputMapping::devKeyMap;
+std::map<std::function<float()>, std::string> gamePadFunctionMapFloat;
+std::map<std::function<bool()>, std::string> gamePadFunctionMapBool;
+
 bool InputMapping::isInitialized = false;
 
 
@@ -331,6 +334,7 @@ void InputMapping::Init()
 {
 	if (!isInitialized)
 	{
+		InputMapping::_LoadGamePadMapping();
 
 		std::string file = "..\\Configuration\\KeyMapping.ini";
 		const int bufferSize = 1024;
@@ -415,27 +419,8 @@ void InputMapping::Call()
 {
 	//Reload if we pressed the assigned key
 	_ReloadKeyMapping();
-
-	std::map<int, std::string>::iterator keyIterator = keyMap.begin();
-	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
-	{
-		if (InputHandler::isKeyPressed(keyIterator->first))
-		{
-			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
-			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
-			
-			//find the function to call with the extracted key
-			inputFuncIterator = functionMap.find(keyIterator->second);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(keyIterator->second);
-				//make sure it is mapped and found
-			if (inputFuncIterator != functionMap.end())
-				inputFuncIterator->second();
-
-			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
-				networkFuncIterator->second();
-			
-		}
-	}
+	_KeyboardCalls();
+	_GamePadCalls();
 }
 
 void InputMapping::_ReloadKeyMapping()
@@ -455,6 +440,90 @@ void InputMapping::_ReloadKeyMapping()
 				InputMapping::Init();
 				return;
 			}
+		}
+	}
+}
+
+void InputMapping::_LoadGamePadMapping()
+{
+	if (gamePadFunctionMapFloat.size() == 0 && gamePadFunctionMapBool.size() == 0)
+	{
+		//Gamepad bindings are hardcoded and unchangeable by the user
+		//FLOAT FUNCTIONS
+		gamePadFunctionMapFloat.insert(std::pair<std::function<float()>, std::string>(std::bind(&GamePadHandler::GetLeftStickYPosition), "MoveForward"));
+		gamePadFunctionMapFloat.insert(std::pair<std::function<float()>, std::string>(std::bind(&GamePadHandler::GetLeftStickXPosition), "MoveRight"));
+
+		//BOOL FUNCTION
+		gamePadFunctionMapBool.insert(std::pair<std::function<bool()>, std::string>(std::bind(&GamePadHandler::IsAPressed), "Jump"));
+		
+	}
+}
+
+void InputMapping::_KeyboardCalls()
+{
+	std::map<int, std::string>::iterator keyIterator = keyMap.begin();
+	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			//Input func map is always empty currently, do we really need it in the future? 
+			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+
+			//find the function to call with the extracted key
+			inputFuncIterator = functionMap.find(keyIterator->second);
+			networkFuncIterator = Network::Multiplayer::onSendMap.find(keyIterator->second);
+			//make sure it is mapped and found
+			if (inputFuncIterator != functionMap.end())
+				inputFuncIterator->second();
+
+			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+				networkFuncIterator->second();
+
+		}
+	}
+}
+
+void InputMapping::_GamePadCalls()
+{
+	//check if we have input from gamepad. If true then call the mapped function from the OnSend map and Input map
+	std::map<std::function<float()>, std::string>::iterator floatMapIterator = gamePadFunctionMapFloat.begin();
+	for (floatMapIterator; floatMapIterator != gamePadFunctionMapFloat.end(); floatMapIterator++)
+	{
+		if (floatMapIterator->first() != 0.0f)
+		{
+			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+
+			inputFuncIterator = functionMap.find(floatMapIterator->second);
+			networkFuncIterator = Network::Multiplayer::onSendMap.find(floatMapIterator->second);
+
+			//make sure it is mapped and found
+			if (inputFuncIterator != functionMap.end())
+				inputFuncIterator->second();
+
+			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+				networkFuncIterator->second();
+		}
+	}
+	//do the same thing for the bool map
+	std::map<std::function<bool()>, std::string>::iterator boolMapIterator = gamePadFunctionMapBool.begin();
+	for (boolMapIterator; boolMapIterator != gamePadFunctionMapBool.end(); boolMapIterator++)
+	{
+		if (boolMapIterator->first())
+		{
+			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+
+			inputFuncIterator = functionMap.find(boolMapIterator->second);
+			networkFuncIterator = Network::Multiplayer::onSendMap.find(boolMapIterator->second);
+
+			//make sure it is mapped and found
+			if (inputFuncIterator != functionMap.end())
+				inputFuncIterator->second();
+
+			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+				networkFuncIterator->second();
 		}
 	}
 }

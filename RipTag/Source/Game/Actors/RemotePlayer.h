@@ -21,6 +21,8 @@ private:
 	bool handleTransition = false;
 	AbilityComponent ** m_abilityComponents;
 	const unsigned short int m_nrOfAbilitys = 4;
+	DirectX::XMFLOAT4A m_mostRecentPosition;
+
 public:
 	//PUBLIC MEMBER FUNCTIONS
 	void BeginPlay();
@@ -41,6 +43,8 @@ private:
 	void _Sprinting(float dt);
 	void _Jumping(float dt);
 	void _Falling(float dt);
+
+	void _lerpPosition(float dt);
 
 
 };
