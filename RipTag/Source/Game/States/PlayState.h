@@ -31,7 +31,6 @@ private:
 	b3World m_world;
 
 	float intensity = 2;
-		
 	Drawable * model;
 	//std::future<void> future;
 	//std::thread test;
@@ -40,6 +39,7 @@ private:
 	bool unlockMouse = true;
 
 public:
+
 	PlayState(RenderingManager * rm);
 	~PlayState();
 

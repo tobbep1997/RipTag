@@ -18,9 +18,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Timer::StartTimer();
 
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
-	Manager::g_animationManager.loadSkeleton("../Assets/IDLEDUDEFOLDER/IDLEDUDE_SKELETON.bin", "IDLEDUDE");
-	Manager::g_animationManager.loadClipCollection("IDLEDUDE", "IDLEDUDE", "../Assets/IDLEDUDEFOLDER", Manager::g_animationManager.getSkeleton("IDLEDUDE"));
-	Manager::g_meshManager.loadDynamicMesh("IDLEDUDE");
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 	future.get();
@@ -59,27 +59,28 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
-	model->setModel(Manager::g_meshManager.getDynamicMesh("IDLEDUDE"));
+	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	model->setScale(0.1, 0.1, 0.1);
 	model->setPosition({ 0.0, -5.0, 0.0, 1.0 });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
-	auto clip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_ANIMATION");
-	auto chillclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_CHILL_ANIMATION");
-	auto headclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_HEADTURN_ANIMATION");
-	model->getAnimatedModel()->SetPlayingClip(clip.get());
+	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
+	auto fwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION");
+	auto bwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION");
+	auto lft_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT_ANIMATION");
+	auto rgt_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT_ANIMATION");
+	model->getAnimatedModel()->SetPlayingClip(idle_clip.get());
 	model->getAnimatedModel()->Play();
-	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE"));
+	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(1);
-	
-	static float sX = .75f;
-	static float sY = .25;
 
-	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_Velocity.x, &player->m_Velocity.z, -4.0, 4.0, 0.0, 4.0);
-	//std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 2.0f} };
-	blendState->AddRow(4.0, { {headclip.get(), -4.0 }, {chillclip.get(), 0.0 }, {headclip.get(), 4.0 } });
-	blendState->AddRow(2.0, { {chillclip.get(), -4.0 }, {chillclip.get(), 0.0 }, {chillclip.get(), 4.0 } });
-	blendState->AddRow(0.0, { {clip.get(), -4.0 }, {clip.get(), 0.0 }, {clip.get(), 4.0 } });
+	static float hSpeed = 1.50;
+	static float hDir = 78;
+	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_currentDirection, &player->m_currentSpeed, -180.0, 180.0, 0.0, 3.1);
+	//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
+
+	blendState->AddRow(0.0, { { idle_clip.get(), -180.0 }, { idle_clip.get(), -90.0 }, { idle_clip.get(), 0.0 }, { idle_clip.get(), 90.0 }, { idle_clip.get(), 180.0 } });
+	blendState->AddRow(3.1, { {bwd_clip.get(), -180.0 }, {lft_clip.get(), -90.0 }, {fwd_clip.get(), 0.0 }, {rgt_clip.get(), 90.0 }, {bwd_clip.get(), 180.0 } });
 	//blendState->AddBlendNodes(v);
 	stateMachine->SetState("idle_states");
 	stateMachine->SetModel(model->getAnimatedModel());
@@ -107,9 +108,7 @@ void PlayState::Update(double deltaTime)
 {
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
-	
-	//#todoREMOVE
-	static SM::StateVisitor visitor(model->getAnimatedModel());
+
 
 #if _DEBUG
 	TemporaryLobby();

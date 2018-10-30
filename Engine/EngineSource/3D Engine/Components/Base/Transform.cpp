@@ -174,9 +174,3 @@ void Transform::setVelocity(b3Vec3 vel)
 {
 	m_Velocity = vel;
 }
-
-// #todoREMOVE
-b3Vec3 & Transform::getVelocityReference()
-{
-	return m_Velocity;
-}

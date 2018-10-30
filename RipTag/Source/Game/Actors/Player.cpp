@@ -32,9 +32,49 @@ void Player::BeginPlay()
 {
 
 }
-
+#include <math.h>
 void Player::Update(double deltaTime)
 {
+	using namespace DirectX;
+
+	//calculate walk direction (-1, 1, based on camera) and movement speed
+	{
+		auto physSpeed = this->getLiniearVelocity();
+		float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+		m_currentSpeed = std::fabs(speed);
+		auto cameraDir = p_camera->getDirection();
+		XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+		auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+		m_currentDirection = XMConvertToDegrees(std::acos(dot));
+		//m_currentDirection = dot;
+		float inverter = 1.0;
+		if (std::fabs(dot) <= 0.98f)
+			inverter = 1.0;// (XMVectorGetY(XMVector3Cross(XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0), cameraDirNormalized)));
+		m_currentDirection *= (inverter > 0.0)
+			? -1.0
+			: 1.0;
+		//if (180 - std::fabs(m_currentDirection) < 5.0)
+		//{
+		//	float lol = 1.0f;
+		//	if (m_currentDirection < 0)
+		//		lol = -1.0f;
+		//	m_currentDirection = 180.0f * lol;
+		//}
+		//else if (std::fabs(m_currentDirection) < 5.0)
+		//	m_currentDirection = 0.0f;
+
+		//static float timeLol = 0;
+		//timeLol += deltaTime;
+
+		//{
+		//	timeLol -= 0.2;
+		//	//std::cout << m_currentSpeed << std::endl;
+		//	//std::cout << m_currentDirection << std::endl;
+		//	//std::cout << "\t" << m_currentSpeed << std::endl;
+		//}
+	}
+
+
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())

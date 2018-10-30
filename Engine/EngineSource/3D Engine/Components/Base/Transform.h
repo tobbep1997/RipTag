@@ -56,7 +56,6 @@ public:
 
 	// #todoREMOVE
 	void setVelocity(b3Vec3 vel);
-	b3Vec3& getVelocityReference();
 	// #todoREMOVE
 private:
 	b3Vec3 m_Velocity = { 0.0, 0.0, 0.0 };

@@ -2,6 +2,12 @@
 #include "../../Extern.h"
 #include <iostream>
 #include <algorithm>
+
+float constexpr getNewValueInNewRange(float x, float a, float b, float c, float d)
+{
+	return ((x - a) * ((d - c) / (b - a))) + c;
+}
+
 Animation::AnimatedModel::AnimatedModel()
 {
 	m_skinningMatrices.resize(128);
@@ -116,14 +122,15 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 
 void Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
 {
+	if (!stateData.firstTop)
+		return;
+
 	///calc the actual frame index and progression towards the next frame
-	auto indexAndProgression = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_currentNormalizedTime, m_currentClip->m_frameCount);
+	auto indexAndProgression = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_currentNormalizedTime, stateData.firstTop->m_frameCount);
 	auto prevIndex = indexAndProgression.first;
 	auto progression = indexAndProgression.second;
 	SkeletonPose finalPose;
 
-	if (!stateData.firstTop)
-		return;
 
 	if (!stateData.secondTop)
 	{
@@ -650,23 +657,54 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
 }
 
-std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float * currentTime, uint16_t frameCount)
-{
-	std::cout << *currentTime << std::endl;
-	float currentNonNormalizedTime = *currentTime * (frameCount / 24.0f);
-	currentNonNormalizedTime += deltaTime;
+std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float * currentNormalizedTime, uint16_t frameCount)
+{/*
+	static int cntr = 0;
+	cntr++;
+*/
+	deltaTime /= (frameCount / 24.0);
+	*currentNormalizedTime += deltaTime;
 	frameCount -= 1;
 
-	float properTime = std::fmod(currentNonNormalizedTime, frameCount / 24.0);
-	currentNonNormalizedTime = properTime;
-	*currentTime = currentNonNormalizedTime / (frameCount / 24.0);
+	float properTime = std::fmod(*currentNormalizedTime, 1.0f);
+	*currentNormalizedTime = properTime;
 	///calc the actual frame index and progression towards the next frame
-	float actualTime = properTime / (1.0 / 24.0);
-	int prevIndex = (int)(actualTime);
-	float progression = (actualTime)-(float)prevIndex;
+	//float actualTime = properTime / (1.0 / 24.0);
+	float prevIndexFloat = (properTime * frameCount) ;
+	int prevIndexInt = (int)prevIndexFloat;
+	float lol = properTime * frameCount;
+	float progression = prevIndexFloat - (float)prevIndexInt;
+
+	//if (cntr % 5 == 0)
+	//{
+	//	std::cout << deltaTime << std::endl;
+	//	std::cout << "\t" << *currentNormalizedTime << std::endl;
+	//}
 
 	//return values
-	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
+	return std::move(std::make_pair(static_cast<uint16_t>(prevIndexInt), progression));
+
+
+	//float currentNonNormalizedTime = getNewValueInNewRange(*currentNormalizedTime, 0.0, 1.0, 0.0, frameCount / 24.0f); /**currentTime * (frameCount / 24.0f);*/
+	//currentNonNormalizedTime += deltaTime;
+	//frameCount -= 1;
+
+	//float properTime = std::fmod(currentNonNormalizedTime, frameCount / 24.0);
+	//currentNonNormalizedTime = properTime;
+	//*currentNormalizedTime = getNewValueInNewRange(currentNonNormalizedTime, 0.0, frameCount / 24.0f, 0.0, 1.0); /* currentNonNormalizedTime / (frameCount / 24.0);*/
+
+	//if (cntr % 5 == 0)
+	//{
+	//	std::cout << deltaTime << std::endl;
+	//	std::cout << "\t" << *currentNormalizedTime << std::endl;
+	//}
+	/////calc the actual frame index and progression towards the next frame
+	//float actualTime = properTime / (1.0 / 24.0);
+	//int prevIndex = (int)(actualTime);
+	//float progression = (actualTime)-(float)prevIndex;
+
+	////return values
+	//return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
 }
 
 void Animation::AnimatedModel::UpdateCombined(float deltaTime)

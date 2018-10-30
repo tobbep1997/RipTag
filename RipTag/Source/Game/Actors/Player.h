@@ -27,7 +27,7 @@ struct KeyPressed
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
-	//std::unique_ptr<SM::AnimationStateMachine<bool, float>> m_StateMachine;
+	friend class PlayState;
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 3.0f;
@@ -39,9 +39,11 @@ private:
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
+	float m_currentSpeed = 0.0f; //[0,1]
+	float m_currentDirection = 0.0; //[-1,1]
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
-
+	
 	float m_visability = 0.0f;
 
 	bool m_lockPlayerInput;

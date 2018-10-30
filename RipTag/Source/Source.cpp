@@ -29,11 +29,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 	static float f = 0.0f;
-	//SM::AnimationStateMachine machine(5);
-	//SM::StateVisitor visitor(nullptr);
-	//auto blendstate = machine.AddBlendSpace1DState("idle_walk_run", &f, 0.0f, 10.0f);
-	//blendstate->AddBlendNodes({ {nullptr, 0.0f}, {nullptr, 3.0f}, {nullptr, 10.0f} });
-	//machine.SetState("idle_walk_run");
 	while (game.isRunning())
 	{
 		deltaTime = dt.getDeltaTimeInSeconds();
