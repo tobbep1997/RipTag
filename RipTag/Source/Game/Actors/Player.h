@@ -65,6 +65,8 @@ private:
 	int m_maxMana;
 
 	const int STANDARD_START_MANA = 100;
+
+	
 public:
 	//Magic number
 	static const int g_fullVisability = 2800;
@@ -106,7 +108,7 @@ public:
 	bool CheckManaCost(const int & manaCost);
 
 	bool DrainMana(const int & manaCost);
-
+	void RefillMana(const int & manaFill);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

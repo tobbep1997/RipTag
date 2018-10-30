@@ -114,6 +114,14 @@ void Player::Update(double deltaTime)
 	ImGui::End();
 #endif
 
+	if (InputHandler::isKeyPressed('I'))
+	{
+		RefillMana(10);
+	}
+	if (InputHandler::isKeyPressed('J'))
+	{
+		m_maxMana += 10;
+	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
 	m_possess.Update(deltaTime);
@@ -191,6 +199,17 @@ bool Player::DrainMana(const int& manaCost)
 	else
 	{
 		return false;
+	}
+}
+
+void Player::RefillMana(const int& manaFill)
+{
+	m_currentMana += manaFill;
+
+	int rest = m_maxMana - m_currentMana;
+	if (rest < 0)
+	{
+		m_currentMana += rest;
 	}
 }
 

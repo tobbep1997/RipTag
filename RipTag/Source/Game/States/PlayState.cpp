@@ -7,7 +7,6 @@
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
-Enemy * RipExtern::lol;
 
 #define JAAH TRUE
 #define NEIN FALSE
@@ -19,7 +18,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	RipExtern::m_contactListener = m_contactListener;
 
 	RipExtern::g_world->SetContactListener(m_contactListener);
-	RipExtern::lol = nullptr;
+
 	CameraHandler::Instance();
 	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -59,7 +58,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setScale(0.5, 0.5, 0.5);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
-
 
 	
 	m_levelHandler.setPlayer(player);
