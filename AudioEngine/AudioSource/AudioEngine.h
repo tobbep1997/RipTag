@@ -10,10 +10,10 @@ class AudioEngine
 public:
 	struct Listener
 	{
-		DirectX::XMFLOAT4A pos;
-		DirectX::XMFLOAT4A vel; // Units per second! == (pos-lastpos / dt)
-		DirectX::XMFLOAT4A forward; // Must be normalized
-		DirectX::XMFLOAT4A up; // Must be normalized
+		FMOD_VECTOR pos;
+		FMOD_VECTOR vel;		// Units per second! == (pos-lastpos / dt)
+		FMOD_VECTOR forward; // Must be normalized
+		FMOD_VECTOR up;		// Must be normalized
 	};
 private:
 	static bool s_inited;
@@ -52,13 +52,18 @@ public:
 
 	static void Release();
 
-	static void setEffectVolume(float vol);
-	static void setAmbientVolume(float vol);
-	static void setMusicVolume(float vol);
+	static void SetEffectVolume(float vol);
+	static void SetAmbientVolume(float vol);
+	static void SetMusicVolume(float vol);
+
+	static void ReleaseGeometry();
+	
+	static int TEMPGETSIZEOFGEOMETRYVECTOR();
 
 	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist);
 
 	static FMOD::Geometry** CreateGeometry();
+	static FMOD::Geometry** CreateCube(float fDirectOcclusion = 1.0f, float fReverbOcclusion = 1.0f);
 
 private:
 	static void _createSystem();

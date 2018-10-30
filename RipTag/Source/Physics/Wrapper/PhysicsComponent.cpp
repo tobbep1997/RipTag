@@ -74,72 +74,42 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 	b3Polyhedron * p;
 	b3ShapeDef* s;
 
-	// This is for FMOD
-	FMOD_VECTOR cubeVertices[8] = {
-		FMOD_VECTOR{B3_ONE, B3_ONE, -B3_ONE},
-		FMOD_VECTOR{-B3_ONE, B3_ONE, -B3_ONE},
-		FMOD_VECTOR{-B3_ONE, -B3_ONE, -B3_ONE},
-		FMOD_VECTOR{B3_ONE, -B3_ONE, -B3_ONE},
-		FMOD_VECTOR{B3_ONE, B3_ONE, B3_ONE},
-		FMOD_VECTOR{-B3_ONE, B3_ONE, B3_ONE},
-		FMOD_VECTOR{-B3_ONE, -B3_ONE, B3_ONE},
-		FMOD_VECTOR{B3_ONE, -B3_ONE, B3_ONE},
-	};
-
-	int ileft[4] = { 1, 2, 6, 5 };
-	int iright[4] = { 4, 7, 3, 0 };
-	int idown[4] = { 3, 7, 6, 2 };
-	int iup[4] = { 0, 1, 5, 4 };
-	int iback[4] = { 4, 5, 6, 7 };
-	int ifront[4] = { 0, 3, 2, 1 };
-
-	FMOD_VECTOR left[4] = { cubeVertices[1], cubeVertices[2], cubeVertices[6], cubeVertices[5] };
-	FMOD_VECTOR right[4] = { cubeVertices[4], cubeVertices[7], cubeVertices[3], cubeVertices[0] };
-	FMOD_VECTOR down[4] = { cubeVertices[3], cubeVertices[7], cubeVertices[6], cubeVertices[2] };
-	FMOD_VECTOR up[4] = { cubeVertices[0], cubeVertices[1], cubeVertices[5], cubeVertices[4] };
-	FMOD_VECTOR back[4] = { cubeVertices[4], cubeVertices[5], cubeVertices[6], cubeVertices[7] };
-	FMOD_VECTOR front[4] = { cubeVertices[0], cubeVertices[3], cubeVertices[2], cubeVertices[1] };
-	// This is for FMOD -- END
-
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		// This is for FMOD
-		FMOD::Geometry * ge = *AudioEngine::CreateGeometry();
-		ge->addPolygon(0, 0, false, 4, left, ileft);
-		ge->addPolygon(0, 0, false, 4, right, iright);
-		ge->addPolygon(0, 0, false, 4, down, idown);
-		ge->addPolygon(0, 0, false, 4, up, iup);
-		ge->addPolygon(0, 0, false, 4, back, iback);
-		ge->addPolygon(0, 0, false, 4, front, ifront);
-
+		int index = -1;
+		FMOD::Geometry * ge = *AudioEngine::CreateCube(1,1);
+		FMOD_RESULT res;
 		float * ss = collisionBoxes.boxes[i].scale;
 		FMOD_VECTOR scale = { ss[0], ss[1], ss[2] };
 
 		// IS THIS CORRECT????
 		float * r = collisionBoxes.boxes[i].rotation;
-		DirectX::XMFLOAT4 q = { r[0], r[1], r[2], r[4] };
+		DirectX::XMFLOAT4 q = { r[0], r[1], r[2], r[3] };
 		DirectX::XMFLOAT3 forward = { 0, 0, 1 };
 		DirectX::XMFLOAT3 up = { 0, 1, 0 };
 		DirectX::XMVECTOR v = DirectX::XMLoadFloat3(&forward);
 		DirectX::XMVECTOR vq = DirectX::XMLoadFloat4(&q);
 		v = DirectX::XMVector3Rotate(v, vq);
-		DirectX::XMStoreFloat3(&forward, v);
+		DirectX::XMStoreFloat3(&forward, DirectX::XMVector3Normalize(v));
 		v = DirectX::XMLoadFloat3(&up);
 		v = DirectX::XMVector3Rotate(v, vq);
-		DirectX::XMStoreFloat3(&up, v);
+		DirectX::XMStoreFloat3(&up, DirectX::XMVector3Normalize(v));
 
 		FMOD_VECTOR rotatedForward = { forward.x, forward.y, forward.z };
 		FMOD_VECTOR rotatedUp = { up.x, up.y, up.z };
 		// IS THIS CORRECT???? -- END
 
-
 		float * tr = collisionBoxes.boxes[i].translation;
 
 		FMOD_VECTOR translation = { tr[0], tr[1], tr[2] };
 
-		ge->setScale(&scale);
-		ge->setRotation(&rotatedForward, &rotatedUp);
-		ge->setPosition(&translation);
+		res = ge->setScale(&scale);
+		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+		//res = ge->setRotation(&rotatedForward, &rotatedUp);
+		//std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+		res = ge->setPosition(&translation);
+		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
 		// This is for FMOD -- END
 
 		

@@ -1,5 +1,5 @@
 #include "Room.h"
-
+#include <AudioEngine.h>
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -59,6 +59,7 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
+		AudioEngine::ReleaseGeometry();
 		for (auto asset : m_staticAssets)
 		{
 			asset->Release(*m_worldPtr);

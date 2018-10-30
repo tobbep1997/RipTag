@@ -57,6 +57,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 
 	AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/AutoLol.ogg");
+	AudioEngine::PlaySoundEffect(0);
 
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
@@ -75,9 +76,39 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+	static double temp = 0;
+	temp += deltaTime;
+	if (temp > 3)
+	{
+		AudioEngine::PlaySoundEffect(0);
+		std::cout << AudioEngine::TEMPGETSIZEOFGEOMETRYVECTOR() << "\n";
+		temp -= 1;
+	}
+	
+	AudioEngine::Listener listener;
+	DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&player->getCamera()->getDirection()));
+	DirectX::XMVECTOR right = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&player->getCamera()->getRight()));
+	DirectX::XMVECTOR up = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(forward, right));
+	DirectX::XMFLOAT4A pos = player->getCamera()->getPosition();
+	b3Vec3 _vel = player->getLiniearVelocity();
+
+	DirectX::XMFLOAT3 _fforward, _fup, _fvel;
+
+	DirectX::XMStoreFloat3(&_fforward, forward);
+	DirectX::XMStoreFloat3(&_fup, up);
+
+	listener.pos = { pos.x, pos.y, pos.z };
+	listener.up = { _fup.x, _fup.y, _fup.z };
+	listener.vel = { _vel.x, _vel.y, _vel.z };
+	listener.forward = { _fforward.x, _fforward.y, _fforward.z };
+	AudioEngine::UpdateListenerAttributes(listener);
+
+
+
+
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
-
+	 
 #if _DEBUG
 	TemporaryLobby();
 #endif

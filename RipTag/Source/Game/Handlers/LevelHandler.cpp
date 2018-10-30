@@ -1,5 +1,6 @@
 #include "LevelHandler.h"
 #include "InputManager/InputHandler.h"
+#include <AudioEngine.h>
 LevelHandler::LevelHandler()
 {
 }
@@ -20,9 +21,12 @@ void LevelHandler::Init(b3World& worldPtr)
 	_LoadPreFabs();
 	_GenerateLevelStruct(2);
 
-	_RoomLoadingManager();
-
-	
+	//_RoomLoadingManager();
+	m_activeRoom = 1;
+	m_rooms.at(1)->loadTextures();
+	m_rooms.at(1)->LoadRoomToMemory();
+	DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+	this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingManager, this, m_activeRoom);
 
 	
@@ -184,7 +188,6 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		m_rooms.at(m_loadingQueue.at(i))->loadTextures();
 
 	future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
-	
 	
 	//m_loadingQueue.clear();
 

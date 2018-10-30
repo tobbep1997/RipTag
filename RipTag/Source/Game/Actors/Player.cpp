@@ -74,6 +74,15 @@ void Player::Update(double deltaTime)
 	m_teleport.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	HUDComponent::HUDUpdate(deltaTime);
+
+	static float temp = 0;
+	temp += deltaTime;
+	if (temp > 1)
+	{
+		temp -= 1;
+		std::cout << getPosition().x << ":" << getPosition().y << ":" << getPosition().z << "\n";
+	}
+
 }
 
 void Player::PhysicsUpdate(double deltaTime)
