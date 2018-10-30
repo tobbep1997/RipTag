@@ -9,18 +9,18 @@ namespace MyLibrary
 #pragma region OriginalMyLibraryStructs
 
 	
-	struct startingPos
+	struct StartingPos
 	{
 		float startingPos[3];
 	};
-	struct gridPoint
+	struct GridPoint
 	{
 		int pathable;
-		startingPos translation;
+		StartingPos translation;
 	};
 	struct GuardStartingPositions {
 		int nrOf;
-		startingPos *startingPositions;
+		StartingPos *startingPositions;
 	};
 	struct pointLight
 	{
@@ -65,7 +65,7 @@ namespace MyLibrary
 	};
 	struct GridStruct
 	{
-		gridPoint * translation;
+		GridPoint * translation;
 		int nrOf;
 	};
 	struct CollisionBox

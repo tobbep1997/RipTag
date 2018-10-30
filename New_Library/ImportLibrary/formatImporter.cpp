@@ -373,9 +373,9 @@ namespace MyLibrary
 	}
 
 
-	startingPos Loadera::readPlayerStartFile(const std::string & fileName, int whichPlayer)
+	StartingPos Loadera::readPlayerStartFile(const std::string & fileName, int whichPlayer)
 	{
-		startingPos startPos;
+		StartingPos startPos;
 		bool fileIsOpen = false;
 
 		
@@ -386,13 +386,13 @@ namespace MyLibrary
 		{
 			fileIsOpen = true; // ya its open
 
-			customPosFile.read((char*)&startPos, sizeof(startingPos)); // what is happening here?!! i just copied this code
+			customPosFile.read((char*)&startPos, sizeof(StartingPos)); // what is happening here?!! i just copied this code
 			
 			//copy thing done
 			customPosFile.close(); // close file
 		}
 		else
-			return startingPos();
+			return StartingPos();
 		return startPos; // done :D
 	}
 	GuardStartingPositions Loadera::readGuardStartFiles(const std::string & fileName)
@@ -413,8 +413,8 @@ namespace MyLibrary
 			
 			customGuardFile.read((char*)&guardPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
 
-			guardPos.startingPositions = new startingPos[guardPos.nrOf];
-			customGuardFile.read((char*)guardPos.startingPositions, sizeof(startingPos) * guardPos.nrOf); // what is happening here?!! i just copied this code
+			guardPos.startingPositions = new StartingPos[guardPos.nrOf];
+			customGuardFile.read((char*)guardPos.startingPositions, sizeof(StartingPos) * guardPos.nrOf); // what is happening here?!! i just copied this code
 
 			
 			//copy thing done
@@ -427,35 +427,24 @@ namespace MyLibrary
 			return GuardStartingPositions();
 		return guardPos; // done :D
 	}
-	GridStruct Loadera::readGridFIle(const std::string & fileName)
+	GridStruct Loadera::readGridFile(const std::string & fileName)
 	{
 		GridStruct gridPos;
-
-		bool fileIsOpen = false;
 		std::string newFileName = "../Assets/";
 		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
-
 		std::ifstream customGridFile(newFileName, std::ifstream::binary);
 
-
-		if (customGridFile.is_open()) // opens file
+		if (customGridFile.is_open())
 		{
-			fileIsOpen = true; // ya its open
+			customGridFile.read((char*)&gridPos.nrOf, sizeof(int));
 
+			gridPos.translation = new GridPoint[gridPos.nrOf];
+			customGridFile.read((char*)gridPos.translation, sizeof(GridPoint) * gridPos.nrOf);
 
-			customGridFile.read((char*)&gridPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
-
-			gridPos.translation = new gridPoint[gridPos.nrOf];
-			customGridFile.read((char*)gridPos.translation, sizeof(gridPoint) * gridPos.nrOf); // what is happening here?!! i just copied this code
-
-			//copy thing done
-
-			customGridFile.close(); // close file
-
-
+			customGridFile.close();
 		}
 		else
 			return GridStruct();
-		return gridPos; // done :D
+		return gridPos;
 	}
 }

@@ -2,10 +2,10 @@
 // For testing purpose only, remove when finished
 #include <iostream>
 
-Grid::Grid(int _width, int _height)
+Grid::Grid(int width, int height)
 {
-	m_width = _width;
-	m_height = _height;
+	m_width = width;
+	m_height = height;
 	
 	for (int i = 0; i < m_height; i++)
 	{
@@ -172,7 +172,7 @@ void Grid::printGrid()
 	}
 }
 
-bool Grid::ready()
+bool Grid::Ready()
 {
 	using namespace std::chrono_literals;
 	auto status = pathfindingFuture.wait_for(0s);

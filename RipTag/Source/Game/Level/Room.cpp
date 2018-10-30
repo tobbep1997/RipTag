@@ -90,8 +90,8 @@ void Room::LoadRoomToMemory()
 		}
 		delete tempLights.lights;
 
-		MyLibrary::startingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
-		MyLibrary::startingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
+		MyLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
+		MyLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
 
 		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1], player1Start.startingPos[2], 1.0f);
 		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1], player2Start.startingPos[2], 1.0f);
@@ -118,16 +118,12 @@ void Room::LoadRoomToMemory()
 		CollisionBoxes = new BaseActor();
 		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
 	
-		m_grid = fileLoader.readGridFIle(this->getAssetFilePath());
+		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
 		m_staticAssets.push_back(temp);
-		 
-
-
 
 		m_roomLoaded = true;
 	
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
-
 	}
 	else
 	{

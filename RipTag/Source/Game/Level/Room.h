@@ -28,7 +28,6 @@ private:
 
 	MyLibrary::GridStruct m_grid;
 
-
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
 

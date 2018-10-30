@@ -65,7 +65,7 @@ private:
 	std::future<std::vector<Node*>> pathfindingFuture;
 
 public:
-	Grid(int _width = 0, int _height = 0);
+	Grid(int width = 0, int height = 0);
 	virtual ~Grid();
 
 	void ThreadPath(Tile src, Tile dest);
@@ -74,7 +74,7 @@ public:
 
 	// Test function
 	void printGrid();
-	bool ready();
+	bool Ready();
 	
 private:
 	// Utility functions

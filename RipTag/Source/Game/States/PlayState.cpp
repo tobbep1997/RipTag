@@ -122,7 +122,7 @@ void PlayState::Draw()
 	m_levelHandler.Draw();
 	
 	player->Draw();
-	model->Draw();
+	//model->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }

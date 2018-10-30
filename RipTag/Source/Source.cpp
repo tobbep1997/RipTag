@@ -35,16 +35,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
 
-	Grid grid = Grid(300, 300);
+	//Grid grid = Grid(300, 300);
 	std::vector<Node*> path;
 	//path = grid.FindPath(Tile(0, 0), Tile(299, 299));
 	bool nP = false;
 	dt.getDeltaTimeInSeconds();
-	grid.ThreadPath(Tile(0, 0), Tile(299, 299));
+	//grid.ThreadPath(Tile(0, 0), Tile(299, 299));
 
 	while (game.isRunning())
 	{
-		if (!nP)
+		/*if (!nP)
 		{
 			if (grid.ready())
 			{
@@ -63,7 +63,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				}
 				nP = true;
 			}
-		}
+		}*/
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
