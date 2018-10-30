@@ -66,7 +66,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 	auto clip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_ANIMATION");
 	auto chillclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_CHILL_ANIMATION");
-    model->getAnimatedModel()->SetPlayingClip(clip.get());
+	auto headclip = Manager::g_animationManager.getAnimation("IDLEDUDE", "IDLEDUDE_HEADTURN_ANIMATION");
+	model->getAnimatedModel()->SetPlayingClip(clip.get());
 	model->getAnimatedModel()->Play();
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("IDLEDUDE"));
 	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(1);
@@ -76,10 +77,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_Velocity.x, &player->m_Velocity.z, -4.0, 4.0, 0.0, 4.0);
 	//std::vector<SM::BlendSpace1D::BlendSpaceClipData> v{ {clip.get(), 0.0f}, {chillclip.get(), 2.0f} };
-	blendState->AddRow(4.0, { {clip.get(), -4.0 }, {chillclip.get(), 0.0 }, {clip.get(), 4.0 } });
+	blendState->AddRow(4.0, { {headclip.get(), -4.0 }, {chillclip.get(), 0.0 }, {headclip.get(), 4.0 } });
 	blendState->AddRow(2.0, { {chillclip.get(), -4.0 }, {chillclip.get(), 0.0 }, {chillclip.get(), 4.0 } });
 	blendState->AddRow(0.0, { {clip.get(), -4.0 }, {clip.get(), 0.0 }, {clip.get(), 4.0 } });
- 	//blendState->AddBlendNodes(v);
+	//blendState->AddBlendNodes(v);
 	stateMachine->SetState("idle_states");
 	stateMachine->SetModel(model->getAnimatedModel());
 

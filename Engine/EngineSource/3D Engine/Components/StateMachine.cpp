@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include "../Model/Meshes/AnimatedModel.h"
+#include <math.h>
 namespace SM
 {
 #pragma region "AnimationState"
@@ -169,7 +170,7 @@ namespace SM
 	{ //#todo check end()
 		using Animation::AnimationClip;
 		using std::tuple;
-
+		
 		auto rowIndices = GetTopAndBottomRows();
 		if (rowIndices.first.has_value())
 		{
@@ -209,7 +210,7 @@ namespace SM
 		{
 			if (rightIt == m_Rows.at(rowIndex).second.begin())
 			{
-				return { rightIt->clip, nullptr, 0.0f };
+				return { rightIt->clip, nullptr, 0.0f }; //use first clip without weight if we're at begin or 
 			}
 			else
 			{
@@ -218,7 +219,7 @@ namespace SM
 				return { leftIt->clip, rightIt->clip, weight };
 			}
 		}
-		else return { nullptr, nullptr, 0.0f };
+		else return { (m_Rows.at(rowIndex).second.end()-1)->clip, nullptr, 0.0f }; //use last clip if we exceed positive limit
 	}
 
 	std::pair<std::optional<size_t>, std::optional<size_t>> BlendSpace2D::GetTopAndBottomRows()
