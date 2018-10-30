@@ -22,6 +22,7 @@ private:
 	AbilityComponent ** m_abilityComponents;
 	const unsigned short int m_nrOfAbilitys = 4;
 	DirectX::XMFLOAT4A m_mostRecentPosition;
+	RakNet::Time m_timeDiff;
 
 public:
 	//PUBLIC MEMBER FUNCTIONS

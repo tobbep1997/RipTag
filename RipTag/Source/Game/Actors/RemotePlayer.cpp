@@ -21,6 +21,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	this->setScale(scale);
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
+	this->m_timeDiff = 0;
 
 	//3.
 	this->networkID = nID;
@@ -128,6 +129,7 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 		//this->setPosition(data->pos);
 		this->m_mostRecentPosition = data->pos;
 		this->setRotation(data->rot);
+		this->m_timeDiff = RakNet::GetTime() - data->timeStamp;
 	}
 }
 
@@ -174,7 +176,7 @@ void RemotePlayer::_lerpPosition(float dt)
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
 
-	newPos = DirectX::XMVectorLerp(curr, next, dt);
+	newPos = DirectX::XMVectorLerp(curr, next, dt * this->m_timeDiff);
 
 	DirectX::XMFLOAT4A _newPos;
 	DirectX::XMStoreFloat4A(&_newPos, newPos);
