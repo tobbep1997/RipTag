@@ -27,6 +27,7 @@ struct KeyPressed
 	bool blink = false;
 	bool possess = false;
 	bool unlockMouse = false;
+	bool pickup = false;
 };
 
 
@@ -55,7 +56,7 @@ private:
 	float m_visability = 0.0f;
 
 	bool m_lockPlayerInput;
-
+	RayCastListener* m_rayListener;
 
 	int mouseX = 0;
 	int mouseY = 0;
@@ -119,5 +120,6 @@ private:
 	void _onPossess();
 	void _onRotate(double deltaTime);
 	void _onJump();
+	void _onPickup();
 	void _cameraPlacement(double deltaTime);
 };

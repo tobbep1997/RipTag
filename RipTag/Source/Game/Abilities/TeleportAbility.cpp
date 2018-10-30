@@ -41,7 +41,7 @@ void TeleportAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
-
+	this->getBody()->SetObjectTag("TELEPORT");
 	setManaCost(START_MANA_COST);
 }
 
@@ -68,7 +68,6 @@ void TeleportAbility::Use()
 		DirectX::XMFLOAT4A position = Transform::getPosition();
 		position.y += 1.0f;
 		((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
-		position = { -999.0f, -999.0f, -999.0f, 1.0f };
 		m_tpState = TeleportAbility::Wait;
 		break;
 	}

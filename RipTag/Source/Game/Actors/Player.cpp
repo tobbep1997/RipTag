@@ -43,6 +43,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_blink.setOwner(this);
 	m_blink.Init();
 
+	m_rayListener = new RayCastListener();
+
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -91,12 +93,15 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
+	delete m_rayListener;
 }
 
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
 	PhysicsComponent::Init(world, bodyType, x, y, z);
+	this->getBody()->SetObjectTag("PLAYER");
+	this->getBody()->AddToFilters("TELEPORT");
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -387,7 +392,6 @@ void Player::_onBlink()
 		if (m_kp.blink == false)
 		{
 			m_blink.Use();
-			//this->Phase(10);
 			m_kp.blink = true;
 		}
 	}
@@ -440,6 +444,26 @@ void Player::_onJump()
 	else
 	{
 		m_kp.jump = false;
+	}
+}
+
+void Player::_onPickup()
+{
+	if (Input::Pickup()) //Phase acts like short range teleport through objects
+	{
+		if (m_kp.pickup == false)
+		{
+			m_rayListener->shotRay(this->getBody(), this->getCamera()->getDirection(), 2);
+			if (m_rayListener->shape->GetBody()->GetObjectTag() == "ITEM")
+			{
+				//do the pickups
+			}
+			m_kp.pickup = true;
+		}
+	}
+	else
+	{
+		m_kp.pickup = false;
 	}
 }
 
