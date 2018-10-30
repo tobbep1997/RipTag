@@ -7,8 +7,13 @@
 
 class DisableAbility : public AbilityComponent, public BaseActor
 {
-private:
-	// CONST VARS
+private: // CONST VARS
+	/*
+	 * This will be the start mana cost. But the mana kan be changed
+	 * This is beacuse abilitycomponent is the one holding mana. and not the component it self
+	 */
+	const int START_MANA_COST = 10;
+	
 	const float TRAVEL_SPEED = 20.0f;
 	const float MAX_CHARGE = 2.0f;
 private:

@@ -70,6 +70,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
+
+
+	m_maxMana = STANDARD_START_MANA;
+	m_currentMana = m_maxMana;
+
 }
 
 Player::~Player()
@@ -101,6 +106,15 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
+
+#if _DEBUG
+	ImGui::Begin("Mana");
+	ImGui::Text("Current mana %d", m_currentMana);
+	ImGui::Text("Max mana %d", m_maxMana);
+	ImGui::End();
+#endif
+
+
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
 	m_possess.Update(deltaTime);
 	m_blink.Update(deltaTime);
@@ -153,6 +167,31 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+bool Player::CheckManaCost(const int& manaCost)
+{
+	if (manaCost <= m_currentMana)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Player::DrainMana(const int& manaCost)
+{
+	if (manaCost <= m_currentMana)
+	{
+		m_currentMana -= manaCost;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void Player::Draw()
@@ -225,8 +264,10 @@ void Player::_handleInput(double deltaTime)
 	_onRotate(deltaTime);
 
 
-	if (Input::UseAbility())
+	if (Input::UseAbility()) 
+	{
 		m_abilityComponents[m_currentAbility]->Use();
+	}
 	
 }
 
@@ -363,8 +404,6 @@ void Player::_onJump()
 		m_kp.jump = false;
 	}
 }
-
-
 
 void Player::_cameraPlacement(double deltaTime)
 {
