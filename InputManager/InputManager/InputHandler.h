@@ -24,6 +24,7 @@ private:
 	InputHandler();
 
 	static BOOL m_showCursor;
+	static bool m_update;
 
 public:
 	~InputHandler();
@@ -49,6 +50,8 @@ public:
 
 	static void setShowCursor(BOOL b);
 	static BOOL getShowCursor();
+
+	static void WindowSetShowCursor();
 	enum Key
 	{
 		Del = 46,

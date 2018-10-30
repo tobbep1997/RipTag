@@ -52,17 +52,22 @@ void RenderingManager::Init(HINSTANCE hInstance)
 
 void RenderingManager::Update()
 {
-	m_wnd.PollEvents();
-	if (DEBUG)
+	while (m_wnd.isOpen())
 	{
-		m_ImGuiManager.ImGuiProcPoll(m_wnd.getWindowProcMsg());
+		InputHandler::WindowSetShowCursor();
+		m_wnd.PollEvents();
+		if (DEBUG)
+		{
+			m_ImGuiManager.ImGuiProcPoll(m_wnd.getWindowProcMsg());
+		}
+	#if _DEBUG
+		if (GetAsyncKeyState(int('P')))
+		{
+			_reloadShaders();
+		}
+	#endif
+
 	}
-#if _DEBUG
-	if (GetAsyncKeyState(int('P')))
-	{
-		_reloadShaders();
-	}
-#endif
 }
 
 void RenderingManager::Clear()
