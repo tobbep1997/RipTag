@@ -7,6 +7,7 @@
 #include "../../../New_Library/ImportLibrary/formatImporter.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "../Actors/Player.h"
+#include "../../New_Library/ImportLibrary/FormatHeader.h"
 class Room
 {
 private:
@@ -25,6 +26,7 @@ private:
 	std::vector<PointLight*> m_pointLights;
 	float m_playerStartPos;
 
+	MyLibrary::GridStruct m_grid;
 
 
 	DirectX::XMFLOAT4 m_player1StartPos;

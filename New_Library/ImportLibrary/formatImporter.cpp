@@ -427,4 +427,35 @@ namespace MyLibrary
 			return GuardStartingPositions();
 		return guardPos; // done :D
 	}
+	GridStruct Loadera::readGridFIle(const std::string & fileName)
+	{
+		GridStruct gridPos;
+
+		bool fileIsOpen = false;
+		std::string newFileName = "../Assets/";
+		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
+
+		std::ifstream customGridFile(newFileName, std::ifstream::binary);
+
+
+		if (customGridFile.is_open()) // opens file
+		{
+			fileIsOpen = true; // ya its open
+
+
+			customGridFile.read((char*)&gridPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
+
+			gridPos.translation = new gridPoint[gridPos.nrOf];
+			customGridFile.read((char*)gridPos.translation, sizeof(gridPoint) * gridPos.nrOf); // what is happening here?!! i just copied this code
+
+			//copy thing done
+
+			customGridFile.close(); // close file
+
+
+		}
+		else
+			return GridStruct();
+		return gridPos; // done :D
+	}
 }
