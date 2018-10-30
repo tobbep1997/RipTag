@@ -7,7 +7,6 @@ namespace RipExtern
 {
 	extern b3World * g_world;
 	extern ContactListener * m_contactListener;
-	extern Enemy * lol;
 }
 
 class XMMATH

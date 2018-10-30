@@ -135,10 +135,6 @@ void Game::_restartGameIf()
 			delete m_gameStack.top();
 			m_gameStack.pop();
 
-
-
-
-
 			m_gameStack.push(new PlayState(m_renderingManager));
 			isPressed = true;
 		}

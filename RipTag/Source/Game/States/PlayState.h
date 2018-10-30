@@ -7,7 +7,6 @@
 #include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
-#include "../Handlers/ObjectHandler.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
@@ -24,22 +23,11 @@ class PlayState : public State
 {
 private:
 	LevelHandler m_levelHandler;
-	ObjectHandler m_objectHandler;
 	ContactListener * m_contactListener;
 
 	Player * player;
 
 	b3World m_world;
-
-
-
-	float x = -1.5f;
-	float y = 2.1f; 
-	float z = -2.1f;
-
-	float xD = 0;
-	float yD = 0;
-	float zD = 0;
 
 	float intensity = 2;
 		

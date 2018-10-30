@@ -60,6 +60,15 @@ private:
 
 	int mouseX = 0;
 	int mouseY = 0;
+
+	//Mana, if you want %. go currentMana
+	float m_currentMana;
+	float m_maxMana;
+
+	const int STANDARD_START_MANA = 100;
+
+	Quad * m_manaBar;
+	
 public:
 	//Magic number
 	static const int g_fullVisability = 2800;
@@ -95,6 +104,13 @@ public:
 	int getPossessState();
 	const float & getVisability() const;
 	const int & getFullVisability() const;
+
+	
+	//This is a way of checking if we can use the ability with out current mana
+	bool CheckManaCost(const int & manaCost);
+
+	bool DrainMana(const int & manaCost);
+	void RefillMana(const int & manaFill);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

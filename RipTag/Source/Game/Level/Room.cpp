@@ -137,15 +137,6 @@ void Room::LoadRoomToMemory()
 
 void Room::Update(float deltaTime)
 {
-	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
-	{
-		if (m_roomGuards.at(i) == RipExtern::lol)
-		{
-			m_roomGuards.erase(m_roomGuards.begin() + i);
-			RipExtern::lol == nullptr;
-		}
-	}
-
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(0.001f);

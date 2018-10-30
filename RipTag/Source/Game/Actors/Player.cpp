@@ -17,6 +17,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
 	visAbl->Init();
+	visAbl->setManaCost(1);
 
 	VisabilityAbility * visAbl2 = new VisabilityAbility();
 	visAbl2->setOwner(this);
@@ -74,6 +75,16 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(quad);
 
 
+	m_maxMana = STANDARD_START_MANA;
+	m_currentMana = m_maxMana;
+
+	m_manaBar = new Quad();
+	m_manaBar->init(DirectX::XMFLOAT2A(0.2f, 0.2f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
+
+
+	HUDComponent::AddQuad(m_manaBar);
 
 }
 
@@ -92,6 +103,14 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 	setUserDataBody(this);
+
+	setEntityType(EntityType::PlayerType);
+	setColor(10, 10, 0, 1);
+
+	setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	setScale(1.0f, 1.0f, 1.0f);
+	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	setTextureTileMult(2, 2);
 }
 
 void Player::BeginPlay()
@@ -109,6 +128,25 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
+
+#if _DEBUG
+	ImGui::Begin("Mana");
+	ImGui::Text("Current mana %d", m_currentMana);
+	ImGui::Text("Max mana %d", m_maxMana);
+	ImGui::End();
+#endif
+
+	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
+
+	if (InputHandler::isKeyPressed('I'))
+	{
+		RefillMana(10);
+	}
+	if (InputHandler::isKeyPressed('J'))
+	{
+		m_maxMana += 10;
+	}
+
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
 	m_possess.Update(deltaTime);
 	m_blink.Update(deltaTime);
@@ -161,6 +199,42 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+bool Player::CheckManaCost(const int& manaCost)
+{
+	if (manaCost <= m_currentMana)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Player::DrainMana(const int& manaCost)
+{
+	if (manaCost <= m_currentMana)
+	{
+		m_currentMana -= manaCost;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void Player::RefillMana(const int& manaFill)
+{
+	m_currentMana += manaFill;
+
+	int rest = m_maxMana - m_currentMana;
+	if (rest < 0)
+	{
+		m_currentMana += rest;
+	}
 }
 
 void Player::Draw()
@@ -233,8 +307,10 @@ void Player::_handleInput(double deltaTime)
 	_onRotate(deltaTime);
 
 
-	if (Input::UseAbility())
+	if (Input::UseAbility()) 
+	{
 		m_abilityComponents[m_currentAbility]->Use();
+	}
 	
 }
 
@@ -390,8 +466,6 @@ void Player::_onPickup()
 		m_kp.pickup = false;
 	}
 }
-
-
 
 void Player::_cameraPlacement(double deltaTime)
 {
