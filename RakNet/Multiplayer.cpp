@@ -5,8 +5,9 @@
 
 namespace Network
 {
-	std::map<std::string, std::function<void()>> Multiplayer::onSendMap;
-	std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> Multiplayer::onReceiveMap;
+	std::map<std::string, std::function<void()>> Multiplayer::LocalPlayerOnSendMap;
+	std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> Multiplayer::RemotePlayerOnReceiveMap;
+	bool Multiplayer::hasGameInstance;
 
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
@@ -24,6 +25,7 @@ namespace Network
 
 		this->SetNetworkID(this->GetNetworkID());
 		this->SetNetworkIDManager(this->networkIDManager);
+		Multiplayer::hasGameInstance = false;
 	}
 
 	void Multiplayer::Destroy()
@@ -43,12 +45,12 @@ namespace Network
 
 	void Multiplayer::addToOnSendFuncMap(std::string key, std::function<void()> func)
 	{
-		onSendMap.insert(std::pair < std::string, std::function<void()>>(key, func));
+		LocalPlayerOnSendMap.insert(std::pair < std::string, std::function<void()>>(key, func));
 	}
 
 	void Multiplayer::addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func)
 	{
-		onReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char, unsigned char *)>>(key, func));
+		RemotePlayerOnReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char, unsigned char *)>>(key, func));
 	}
 
 	void Multiplayer::StartUpServer()
@@ -167,14 +169,14 @@ namespace Network
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			packetsCounter++;
-			std::cout << "--------------------------NEW PACKET--------------------------\n";
-			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
-			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
-			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
-			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
-			//std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
+			/*packetsCounter++;*/
+			//std::cout << "--------------------------NEW PACKET--------------------------\n";
+			//std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
+			//std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
+			//std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
+			//std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
+			////std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
+			//std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
 			this->HandleRakNetMessages(mID);
 			this->HandleGameMessages(mID, packet->data);
@@ -292,8 +294,8 @@ namespace Network
 		{
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
-			mapIterator = onReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
-			if (mapIterator != onReceiveMap.end())
+			mapIterator = RemotePlayerOnReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
+			if (mapIterator != RemotePlayerOnReceiveMap.end())
 				mapIterator->second(0, nullptr);
 			this->Disconnect();
 			break;
@@ -310,9 +312,11 @@ namespace Network
 		if (mID == NETWORKMESSAGES::ID_GAME_START)
 			this->m_isGameRunning = true;
 
-		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = onReceiveMap.find(mID);
-		if (mapIterator != onReceiveMap.end())
-			mapIterator->second(mID, data);
+		if (Multiplayer::hasGameInstance) {
+			std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = RemotePlayerOnReceiveMap.find(mID);
+			if (mapIterator != RemotePlayerOnReceiveMap.end())
+				mapIterator->second(mID, data);
+		}
 	}
 
 	void Multiplayer::_onDisconnect()

@@ -34,11 +34,14 @@ namespace Network
 		void Init();
 		void Destroy();
 		
-		static std::map<std::string, std::function<void()>> onSendMap;
-		static std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> onReceiveMap;
+		static std::map<std::string, std::function<void()>> LocalPlayerOnSendMap;
+		static std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> RemotePlayerOnReceiveMap;
+		static bool hasGameInstance;
 
 		static void addToOnSendFuncMap(std::string key, std::function<void()> func);
 		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
+
+
 
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		

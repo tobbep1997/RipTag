@@ -11,9 +11,15 @@ PlayerManager::PlayerManager(b3World * physWorld)
 PlayerManager::~PlayerManager()
 {
 	if (mRemotePlayer)
+	{
+		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 		delete mRemotePlayer;
+	}
 	if (mLocalPlayer)
+	{
+		Network::Multiplayer::LocalPlayerOnSendMap.clear();
 		delete mLocalPlayer;
+	}
 }
 
 void PlayerManager::RegisterThisInstanceToNetwork()

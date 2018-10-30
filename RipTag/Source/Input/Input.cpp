@@ -466,18 +466,10 @@ void InputMapping::_KeyboardCalls()
 	{
 		if (InputHandler::isKeyPressed(keyIterator->first))
 		{
-			//Input func map is always empty currently, do we really need it in the future? 
-			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
 			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(keyIterator->second);
 
-			//find the function to call with the extracted key
-			inputFuncIterator = functionMap.find(keyIterator->second);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(keyIterator->second);
-			//make sure it is mapped and found
-			if (inputFuncIterator != functionMap.end())
-				inputFuncIterator->second();
-
-			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
 				networkFuncIterator->second();
 
 		}
@@ -492,17 +484,10 @@ void InputMapping::_GamePadCalls()
 	{
 		if (floatMapIterator->second() != 0.0f)
 		{
-			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
 			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(floatMapIterator->first);
 
-			inputFuncIterator = functionMap.find(floatMapIterator->first);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(floatMapIterator->first);
-
-			//make sure it is mapped and found
-			if (inputFuncIterator != functionMap.end())
-				inputFuncIterator->second();
-
-			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
 				networkFuncIterator->second();
 		}
 	}
@@ -512,17 +497,10 @@ void InputMapping::_GamePadCalls()
 	{
 		if (boolMapIterator->second())
 		{
-			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
 			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(boolMapIterator->first);
 
-			inputFuncIterator = functionMap.find(boolMapIterator->first);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(boolMapIterator->first);
-
-			//make sure it is mapped and found
-			if (inputFuncIterator != functionMap.end())
-				inputFuncIterator->second();
-
-			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
 				networkFuncIterator->second();
 		}
 	}
