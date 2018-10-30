@@ -324,8 +324,8 @@ bool Input::isUsingGamepad()
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
 std::map<int, std::string> InputMapping::keyMap;
 std::map<int, std::string> InputMapping::devKeyMap;
-std::map<std::function<float()>, std::string> gamePadFunctionMapFloat;
-std::map<std::function<bool()>, std::string> gamePadFunctionMapBool;
+std::map<std::string, std::function<float()>> InputMapping::gamePadFunctionMapFloat;
+std::map<std::string, std::function<bool()>> InputMapping::gamePadFunctionMapBool;
 
 bool InputMapping::isInitialized = false;
 
@@ -450,11 +450,11 @@ void InputMapping::_LoadGamePadMapping()
 	{
 		//Gamepad bindings are hardcoded and unchangeable by the user
 		//FLOAT FUNCTIONS
-		gamePadFunctionMapFloat.insert(std::pair<std::function<float()>, std::string>(std::bind(&GamePadHandler::GetLeftStickYPosition), "MoveForward"));
-		gamePadFunctionMapFloat.insert(std::pair<std::function<float()>, std::string>(std::bind(&GamePadHandler::GetLeftStickXPosition), "MoveRight"));
+		gamePadFunctionMapFloat.insert(std::pair<std::string, std::function<float()>>("MoveForward", std::bind(&GamePadHandler::GetLeftStickYPosition)));
+		gamePadFunctionMapFloat.insert(std::pair<std::string, std::function<float()>>("MoveRight", std::bind(&GamePadHandler::GetLeftStickXPosition)));
 
 		//BOOL FUNCTION
-		gamePadFunctionMapBool.insert(std::pair<std::function<bool()>, std::string>(std::bind(&GamePadHandler::IsAPressed), "Jump"));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Jump", std::bind(&GamePadHandler::IsAPressed)));
 		
 	}
 }
@@ -487,16 +487,16 @@ void InputMapping::_KeyboardCalls()
 void InputMapping::_GamePadCalls()
 {
 	//check if we have input from gamepad. If true then call the mapped function from the OnSend map and Input map
-	std::map<std::function<float()>, std::string>::iterator floatMapIterator = gamePadFunctionMapFloat.begin();
+	std::map<std::string, std::function<float()>>::iterator floatMapIterator = gamePadFunctionMapFloat.begin();
 	for (floatMapIterator; floatMapIterator != gamePadFunctionMapFloat.end(); floatMapIterator++)
 	{
-		if (floatMapIterator->first() != 0.0f)
+		if (floatMapIterator->second() != 0.0f)
 		{
 			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
 			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
 
-			inputFuncIterator = functionMap.find(floatMapIterator->second);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(floatMapIterator->second);
+			inputFuncIterator = functionMap.find(floatMapIterator->first);
+			networkFuncIterator = Network::Multiplayer::onSendMap.find(floatMapIterator->first);
 
 			//make sure it is mapped and found
 			if (inputFuncIterator != functionMap.end())
@@ -507,16 +507,16 @@ void InputMapping::_GamePadCalls()
 		}
 	}
 	//do the same thing for the bool map
-	std::map<std::function<bool()>, std::string>::iterator boolMapIterator = gamePadFunctionMapBool.begin();
+	std::map<std::string, std::function<bool()>>::iterator boolMapIterator = gamePadFunctionMapBool.begin();
 	for (boolMapIterator; boolMapIterator != gamePadFunctionMapBool.end(); boolMapIterator++)
 	{
-		if (boolMapIterator->first())
+		if (boolMapIterator->second())
 		{
 			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
 			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
 
-			inputFuncIterator = functionMap.find(boolMapIterator->second);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(boolMapIterator->second);
+			inputFuncIterator = functionMap.find(boolMapIterator->first);
+			networkFuncIterator = Network::Multiplayer::onSendMap.find(boolMapIterator->first);
 
 			//make sure it is mapped and found
 			if (inputFuncIterator != functionMap.end())
