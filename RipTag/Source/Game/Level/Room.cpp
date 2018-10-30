@@ -18,7 +18,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::~Room()
 {
-	
+	delete m_grid.translation;
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -118,7 +118,27 @@ void Room::LoadRoomToMemory()
 		CollisionBoxes = new BaseActor();
 		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
 	
+		std::cout << "\n";
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
+		std::cout << "Grid coordinates\n";
+		for (int i = 0; i < 25; i++)
+		{
+			for (int j = 0; j < 25; j++)
+			{
+				std::cout << "x: " << m_grid.translation[j + i * 25].translation.startingPos[0] << " y: "
+					<< m_grid.translation[j + i * 25].translation.startingPos[1] << " z: " <<
+					m_grid.translation[j + i * 25].translation.startingPos[2] << "\n";
+			}
+		}
+		std::cout << "Pathable\n";
+		for (int i = 0; i < 25; i++)
+		{
+			for (int j = 0; j < 25; j++)
+			{
+				std::cout << m_grid.translation[j + i * 25].pathable << " ";
+			}
+			std::cout << std::endl;
+		}
 		m_staticAssets.push_back(temp);
 
 		m_roomLoaded = true;
