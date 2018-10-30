@@ -70,6 +70,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
+
 }
 
 Player::~Player()
@@ -83,7 +84,9 @@ Player::~Player()
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
 	PhysicsComponent::Init(world, bodyType, x, y, z);
+	setObjectTag("Player");
 	setUserDataBody(this);
+
 }
 
 void Player::BeginPlay()

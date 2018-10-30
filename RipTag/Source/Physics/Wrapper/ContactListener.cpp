@@ -24,12 +24,13 @@ void ContactListener::BeginContact(b3Contact* contact)
 }
 void ContactListener::EndContact(b3Contact* contact)
 {
+
 	m_endContacts.push_back(contact);
+
+
 	void* bodyUserDataA = contact->GetShapeA()->GetBody()->GetUserData();
 	void* bodyUserDataB = contact->GetShapeB()->GetBody()->GetUserData();
-
 	
-
 	//static_cast<Entity*>(bodyUserDataA)->handleContact(bodyUserDataA, bodyUserDataB, contact->isTouching())
 	//static_cast<Entity*>(bodyUserDataB)->handleContact(bodyUserDataB, bodyUserDataA, contact->isTouching())
 }

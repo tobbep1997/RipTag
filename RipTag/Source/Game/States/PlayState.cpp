@@ -12,12 +12,13 @@ Enemy * RipExtern::lol;
 #define JAAH TRUE
 #define NEIN FALSE
 
+
+
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
-
 	RipExtern::g_world->SetContactListener(m_contactListener);
 	RipExtern::lol = nullptr;
 	CameraHandler::Instance();
@@ -42,29 +43,41 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	player->setEntityType(EntityType::PlayerType);
-	//player->setPosition(0, 5, 0, 0);
 	player->setColor(10, 10, 0, 1);
 
 	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	player->setScale(1.0f, 1.0f, 1.0f);
 	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	player->setTextureTileMult(2, 2);	
-
-	//enemy->setDir(1, 0, 0);
-	//enemy->getCamera()->setFarPlane(5);
-
+	
 	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
 	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	model->setScale(0.5, 0.5, 0.5);
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
-
-
 	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
-	
+
+	triggerHandler = new TriggerHandler();
+
+	pressureplate = new PressurePlate();
+	pressureplate->Init();
+	pressureplate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	pressureplate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	pressureplate->setPosition(0, -3, 0);
+
+	door = new Door();
+
+	std::vector<Trigger*> t1;
+	std::vector<Triggerble*> t2;
+
+	t1.push_back(pressureplate);
+	t2.push_back(door);
+
+	triggerHandler->AddPair(t1, t2);
+
 	Input::ResetMouse();
 }
 
@@ -76,10 +89,20 @@ PlayState::~PlayState()
 	player->Release(m_world);
 	delete player;
 	delete model;
+	delete triggerHandler;
+	delete pressureplate;
+	delete door;
 }
 
 void PlayState::Update(double deltaTime)
 {
+	pressureplate->Update(deltaTime);
+
+	triggerHandler->Update(deltaTime);
+	m_levelHandler.Update(deltaTime);
+	m_contactListener->ClearContactQueue();
+	m_world.Step(m_step);
+
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
@@ -91,18 +114,15 @@ void PlayState::Update(double deltaTime)
 		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
-
-	player->Update(deltaTime);
-	m_objectHandler.Update();
-	m_levelHandler.Update(deltaTime);
+	
 	
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-	m_contactListener->ClearContactQueue();
-	m_world.Step(m_step);
+	player->Update(deltaTime);
+	m_objectHandler.Update();
 
 	
 	player->PhysicsUpdate(deltaTime);
@@ -123,6 +143,15 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(JAAH);
 	}
+	/*
+	if (i >= 1000)
+	{
+		
+		if (i < 1001)
+			std::cout << " we out " << std::endl;
+	}
+	i++;*/
+
 }
 
 void PlayState::Draw()
@@ -132,7 +161,7 @@ void PlayState::Draw()
 	
 	player->Draw();
 	model->Draw();
-
+	pressureplate->DrawWireFrame();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 

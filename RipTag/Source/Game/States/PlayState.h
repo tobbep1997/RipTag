@@ -17,8 +17,11 @@
 #include <LuaTalker.h>
 #include "../../Physics/Wrapper/ContactListener.h"
 
+#include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"
 
+#include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Objects/Door.h"
 
 class PlayState : public State
 {
@@ -31,7 +34,11 @@ private:
 
 	b3World m_world;
 
+	TriggerHandler * triggerHandler;
+	PressurePlate * pressureplate;
+	Door *			door;
 
+	int i = 0;
 
 	float x = -1.5f;
 	float y = 2.1f; 
@@ -44,11 +51,10 @@ private:
 	float intensity = 2;
 		
 	Drawable * model;
-	//std::future<void> future;
-	//std::thread test;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
+
 
 public:
 	PlayState(RenderingManager * rm);

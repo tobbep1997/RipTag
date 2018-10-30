@@ -227,7 +227,7 @@ protected :
 	// Application specific data (usually a entity).
 	void* m_userData = nullptr;
 
-	std::string m_objectTag;
+	std::string m_objectTag = "NULL";
 
 	// Rigid body data.
 	r32 m_mass, m_invMass;

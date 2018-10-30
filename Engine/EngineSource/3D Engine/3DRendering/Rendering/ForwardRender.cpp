@@ -183,6 +183,8 @@ void ForwardRender::Clear()
 
 	this->m_shadowMap.Clear();
 	DX::g_visibilityComponentQueue.clear();
+
+	DX::g_wireFrameDrawQueue.clear();
 }
 
 void ForwardRender::Release()

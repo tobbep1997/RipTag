@@ -48,6 +48,11 @@
     <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
     <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
     <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -278,5 +283,10 @@
     <ClInclude Include="RipTagExtern\RipExtern.h" />
     <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
+    <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Door.h" />
   </ItemGroup>
 </Project>
