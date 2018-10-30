@@ -7,6 +7,8 @@ private:
 	std::vector<b3Contact*> m_beginContacts;
 	std::vector<b3Contact*> m_endContacts;
 	std::vector<b3Contact*> m_persistingContacts;
+	std::vector<b3Shape*> m_endShapesA;
+	std::vector<b3Shape*> m_endShapesB;
 
 public:
 	ContactListener();
@@ -18,6 +20,8 @@ public:
 	virtual std::vector<b3Contact*> GetBeginContacts();
 	virtual std::vector<b3Contact*> GetEndContacts();
 	virtual std::vector<b3Contact*> GetPersistingContacts();
+	virtual std::vector<b3Shape*> GetEndShapesA();
+	virtual std::vector<b3Shape*> GetEndShapesB();
 
 	void ClearContactQueue();
 };

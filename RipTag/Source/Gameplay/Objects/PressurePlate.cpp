@@ -14,7 +14,7 @@ PressurePlate::~PressurePlate()
 
 void PressurePlate::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 0.1f, 1.0f, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 0.1f, 1.0f, true);
 	setObjectTag("PressurePlate");
 	setUserDataBody(this);
 }
@@ -28,17 +28,16 @@ void PressurePlate::Update(double deltaTime)
 {
 	p_updatePhysics(this);
 	bool b = false;
-	for (auto contact : RipExtern::m_contactListener->GetPersistingContacts())
+	for (int i = 0; i < RipExtern::m_contactListener->GetEndShapesA().size(); i++)
 	{
-		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Player")
+		if (RipExtern::m_contactListener->GetEndShapesA()[i]->GetBody()->GetObjectTag() == "Player")
 		{
-			if (contact->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate")
-			{
-				b = true;
-			}
+			b = RipExtern::m_contactListener->GetEndShapesB()[i]->GetBody()->GetObjectTag() == "PressurePlate";
+		}
+		else if (RipExtern::m_contactListener->GetEndShapesA()[i]->GetBody()->GetObjectTag() == "PressurePlate")
+		{
+			b = RipExtern::m_contactListener->GetEndShapesB()[i]->GetBody()->GetObjectTag() == "Player";
 		}
 	}
 	p_trigger(b);
-	
-
 }

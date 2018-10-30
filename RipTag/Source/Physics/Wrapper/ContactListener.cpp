@@ -25,8 +25,9 @@ void ContactListener::BeginContact(b3Contact* contact)
 void ContactListener::EndContact(b3Contact* contact)
 {
 
-	m_endContacts.push_back(contact);
-
+	//m_endContacts.push_back(contact);
+	m_endShapesA.push_back(contact->GetShapeA());
+	m_endShapesB.push_back(contact->GetShapeB());
 
 	void* bodyUserDataA = contact->GetShapeA()->GetBody()->GetUserData();
 	void* bodyUserDataB = contact->GetShapeB()->GetBody()->GetUserData();
@@ -60,9 +61,21 @@ std::vector<b3Contact*> ContactListener::GetPersistingContacts()
 	return m_persistingContacts;
 }
 
+std::vector<b3Shape*> ContactListener::GetEndShapesA()
+{
+	return m_endShapesA;
+}
+
+std::vector<b3Shape*> ContactListener::GetEndShapesB()
+{
+	return m_endShapesB;
+}
+
 void ContactListener::ClearContactQueue()
 {
 	m_beginContacts.clear();
 	m_endContacts.clear();
 	m_persistingContacts.clear();
+	m_endShapesA.clear();
+	m_endShapesB.clear();
 }

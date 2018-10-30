@@ -84,7 +84,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
-	delete m_contactListener;
 	
 	player->Release(m_world);
 	delete player;
@@ -92,6 +91,7 @@ PlayState::~PlayState()
 	delete triggerHandler;
 	delete pressureplate;
 	delete door;
+	delete m_contactListener;
 }
 
 void PlayState::Update(double deltaTime)
