@@ -23,6 +23,6 @@ public:
 
 	void Update(double deltaTime);
 
-	void AddPair(std::vector<Trigger*> triggers, std::vector<Triggerble *> triggerable);
+	void AddPair(std::vector<Trigger*> & triggers, std::vector<Triggerble *> & triggerable);
 };
 

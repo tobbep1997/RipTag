@@ -23,21 +23,25 @@ void PressurePlate::BeginPlay()
 {
 	
 }
-#include <iostream>
+
 void PressurePlate::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	bool b = false;
-	for (int i = 0; i < RipExtern::m_contactListener->GetEndShapesA().size(); i++)
+
+	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
 	{
-		if (RipExtern::m_contactListener->GetEndShapesA()[i]->GetBody()->GetObjectTag() == "Player")
+		if (con.a->GetBody()->GetObjectTag() == "Player" &&
+			con.b->GetBody()->GetObjectTag() == "PressurePlate")
 		{
-			b = RipExtern::m_contactListener->GetEndShapesB()[i]->GetBody()->GetObjectTag() == "PressurePlate";
-		}
-		else if (RipExtern::m_contactListener->GetEndShapesA()[i]->GetBody()->GetObjectTag() == "PressurePlate")
-		{
-			b = RipExtern::m_contactListener->GetEndShapesB()[i]->GetBody()->GetObjectTag() == "Player";
+			p_trigger(false);
 		}
 	}
-	p_trigger(b);
+	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+	{
+		if (con->GetShapeA()->GetBody()->GetObjectTag() == "Player" &&
+			con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate")
+		{
+			p_trigger(true);
+		}
+	}	
 }

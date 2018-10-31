@@ -69,6 +69,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	pressureplate->setPosition(0, -3, 0);
 
 	door = new Door();
+	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	std::vector<Trigger*> t1;
 	std::vector<Triggerble*> t2;
@@ -89,6 +91,7 @@ PlayState::~PlayState()
 	delete player;
 	delete model;
 	delete triggerHandler;
+	pressureplate->Release(*RipExtern::g_world);
 	delete pressureplate;
 	delete door;
 	delete m_contactListener;
@@ -133,7 +136,6 @@ void PlayState::Update(double deltaTime)
 	}
 
 
-	// Must be last in update
 	if (!player->unlockMouse)
 	{
 		Input::ResetMouse();
@@ -143,14 +145,7 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(JAAH);
 	}
-	/*
-	if (i >= 1000)
-	{
-		
-		if (i < 1001)
-			std::cout << " we out " << std::endl;
-	}
-	i++;*/
+
 
 }
 
@@ -159,6 +154,8 @@ void PlayState::Draw()
 	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	
+	door->Draw();
+
 	player->Draw();
 	model->Draw();
 	pressureplate->DrawWireFrame();

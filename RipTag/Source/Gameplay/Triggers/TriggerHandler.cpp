@@ -29,18 +29,15 @@ TriggerHandler::TriggerHandler()
 TriggerHandler::~TriggerHandler()
 {
 	
-	for (unsigned int i = 0;
-		i < m_triggers.size();
-		i++)
+	for (unsigned int i = 0; i < m_triggers.size(); i++)
 	{
-		
+		delete m_triggers[i];
 	}
 	m_triggers.clear();
 }
 
 void TriggerHandler::Update(double deltaTime)
-{
-	
+{	
 	for (unsigned int i = 0;
 		i < m_triggers.size();
 		i++)
@@ -49,7 +46,7 @@ void TriggerHandler::Update(double deltaTime)
 	}
 }
 
-void TriggerHandler::AddPair(std::vector<Trigger*> triggers, std::vector<Triggerble*> triggerable)
+void TriggerHandler::AddPair(std::vector<Trigger*> & triggers, std::vector<Triggerble*> & triggerable)
 {
 	TriggerPairs * triggerPair = new TriggerPairs();
 	triggerPair->triggers = triggers;

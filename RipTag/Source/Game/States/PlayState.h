@@ -34,11 +34,9 @@ private:
 
 	b3World m_world;
 
-	TriggerHandler * triggerHandler;
-	PressurePlate * pressureplate;
-	Door *			door;
-
-	int i = 0;
+	TriggerHandler *	triggerHandler;
+	PressurePlate *		pressureplate;
+	Door *				door;
 
 	float x = -1.5f;
 	float y = 2.1f; 

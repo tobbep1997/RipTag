@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-Door::Door() : Triggerble()
+Door::Door() : Triggerble() , Drawable()
 {
 }
 
@@ -13,11 +13,10 @@ Door::~Door()
 
 void Door::Triggerd(double deltaTime)
 {
-	std::cout << "Femenist" << std::endl;
+	setPosition(0, 0, 0);
 }
 
 void Door::unTriggerd(double deltaTime)
 {
-	std::cout << "Vanlig person" << std::endl;
-
+	setPosition(0, 2, 0);
 }
