@@ -98,14 +98,21 @@ bool Input::Crouch()
 
 bool Input::Interact()
 {
-	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
-	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	if (isUsingGamepad())
 	{
-		if (InputHandler::isKeyPressed(keyIterator->first))
+		return GamePadHandler::IsXPressed();
+	}
+	else
+	{
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
-			if (keyIterator->second == "Interact")
+			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
-				return true;
+				if (keyIterator->second == "Interact")
+				{
+					return true;
+				}
 			}
 		}
 	}

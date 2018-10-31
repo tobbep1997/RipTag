@@ -43,8 +43,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_blink.setOwner(this);
 	m_blink.Init();
 
-	m_rayListener = new RayCastListener();
-
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -93,7 +91,6 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
-	delete m_rayListener;
 }
 
 
@@ -292,6 +289,7 @@ void Player::_handleInput(double deltaTime)
 	_onJump();
 	_onBlink();
 	_onPossess();
+	_onInteract();
 	_onRotate(deltaTime);
 
 
@@ -463,18 +461,25 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			m_rayListener->shotRay(this->getBody(), this->getCamera()->getDirection(), 2);
-			if (m_rayListener->shape->GetBody()->GetObjectTag() == "ITEM")
+			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
+			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 			{
-				//do the pickups
-			}
-			else if (m_rayListener->shape->GetBody()->GetObjectTag() == "LEVER")
-			{
-				//Pull Levers
-			}
-			else if (m_rayListener->shape->GetBody()->GetObjectTag() == "TORCH")
-			{
-				//Snuff out torches (example)
+				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
+				{
+					if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
+					{
+						//do the pickups
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
+					{
+						//std::cout << "Lever Found!" << std::endl;
+						//Pull Levers
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
+					{
+						//Snuff out torches (example)
+					}
+				}
 			}
 			m_kp.interact = true;
 		}

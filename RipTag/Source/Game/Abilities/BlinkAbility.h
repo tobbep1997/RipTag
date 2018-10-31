@@ -1,6 +1,5 @@
 #pragma once
 #include "AbilityComponent.h"
-#include "../../Physics/Wrapper/RayCastListener.h"
 
 class BlinkAbility : public AbilityComponent
 {
@@ -14,7 +13,6 @@ private:
 		Wait	// Just Blinked
 	};
 	BlinkState	m_bState;
-	RayCastListener *m_rayListener;
 	float cooldown;
 	bool m_useFunctionCalled;
 

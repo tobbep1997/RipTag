@@ -7,7 +7,7 @@
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
-
+RayCastListener * RipExtern::m_rayListener;
 #define JAAH TRUE
 #define NEIN FALSE
 
@@ -19,7 +19,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
 	RipExtern::g_world->SetContactListener(m_contactListener);
-
+	m_rayListener = new RayCastListener();
+	RipExtern::m_rayListener = m_rayListener;
 	CameraHandler::Instance();
 	//auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -59,6 +60,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	pressureplate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	pressureplate->setPosition(0, -3, 0);
 
+	lever = new Lever();
+	lever->Init();
+	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	lever->setPosition(-3, -3, 0);
+
 	door = new Door();
 	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -67,6 +74,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	std::vector<Triggerble*> t2;
 
 	t1.push_back(pressureplate);
+	t1.push_back(lever);
 	t2.push_back(door);
 
 	triggerHandler->AddPair(t1, t2);
@@ -91,17 +99,21 @@ PlayState::~PlayState()
 	pressureplate->Release(*RipExtern::g_world);
 
 	delete pressureplate;
+	lever->Release(*RipExtern::g_world);
+	delete lever;
 	delete door;
 	delete m_contactListener;
+	delete m_rayListener;
 }
 
 void PlayState::Update(double deltaTime)
 {
 	pressureplate->Update(deltaTime);
-
+	lever->Update(deltaTime);
 	triggerHandler->Update(deltaTime);
 	m_levelHandler.Update(deltaTime);
 	m_contactListener->ClearContactQueue();
+	m_rayListener->ClearQueue();
 	m_world.Step(m_step);
 
 	if (InputHandler::getShowCursor() != FALSE)
@@ -158,6 +170,7 @@ void PlayState::Draw()
 	player->Draw();
 	model->Draw();
 	pressureplate->DrawWireFrame();
+	lever->DrawWireFrame();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 

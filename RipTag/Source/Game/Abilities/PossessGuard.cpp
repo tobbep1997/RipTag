@@ -1,19 +1,18 @@
 #include "PossessGuard.h"
 #include "../Actors/Player.h"
 #include "../Handlers/CameraHandler.h"
+#include "../../../RipTagExtern/RipExtern.h"
 
 PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 {
 	m_pState = Possess;
 	m_useFunctionCalled = false;
-	this->m_rayListener = new RayCastListener();
 	setManaCost(MANA_COST_START);
 }
 
 PossessGuard::~PossessGuard()
 {
 	possessTarget = nullptr;
-	delete this->m_rayListener;
 }
 
 void PossessGuard::Init()
@@ -61,12 +60,15 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possess:
 			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				if (this->m_rayListener->shotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE))
+				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, "Enemy");
+
+				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 				{
-					if (this->m_rayListener->shape->GetBody()->GetObjectTag() == "Enemy")
+					if (con.originBody->GetObjectTag() == "PLAYER" &&
+						con.contactShape->GetBody()->GetObjectTag() == "Enemy")
 					{
 						((Player*)p_owner)->DrainMana(getManaCost());
-						this->possessTarget = static_cast<Enemy*>(this->m_rayListener->bodyUserData);
+						this->possessTarget = static_cast<Enemy*>(con.contactShape->GetBody()->GetUserData());
 						this->possessTarget->UnlockEnemyInput();
 						this->possessTarget->setPossessor(pPointer, 20, 1);
 						pPointer->LockPlayerInput();
@@ -74,7 +76,6 @@ void PossessGuard::_logic(double deltaTime)
 						m_pState = PossessGuard::Possessing;
 						cooldown = 0;
 					}
-					this->m_rayListener->clear();
 				}
 			}
 			break;
