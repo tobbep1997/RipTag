@@ -1,5 +1,5 @@
 #include "Room.h"
-
+#include <iostream>
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -122,7 +122,7 @@ void Room::LoadRoomToMemory()
 		m_staticAssets.push_back(temp);
 		 
 
-
+	
 		
 		m_roomLoaded = true;
 	

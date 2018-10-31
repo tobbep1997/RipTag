@@ -41,6 +41,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	player->setTextureTileMult(2, 2);
 
 	player->InitTeleport(m_world);
+	//player->setPosition(0, 10, 0);
 	
 
 	gTemp.setPosition(9, 0.4f, -4.5f);
@@ -141,7 +142,7 @@ void PlayState::Update(double deltaTime)
 
 	
 	}
-
+	DirectX::XMFLOAT4A tempo;
 	
 
 
@@ -180,7 +181,8 @@ void PlayState::Update(double deltaTime)
 	//enemy->Update(deltaTime);
 	//actor->Update(deltaTime);
 	gTemp.Update(deltaTime);
-
+	tempo = player->getPosition();
+	//std::cout << "Pos: " << tempo.x << " " << tempo.y << " " << tempo.z << " " << std::endl;
 	
 
 	m_objectHandler.Update();
@@ -204,6 +206,8 @@ void PlayState::Update(double deltaTime)
 	//----------------------------------
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
+	tempo = player->getPosition();
+	//std::cout << "Pos: " << tempo.x << " " << tempo.y << " " << tempo.z << " " << std::endl;
 }
 
 void PlayState::Draw()

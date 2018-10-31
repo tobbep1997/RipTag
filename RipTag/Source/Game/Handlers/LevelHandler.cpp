@@ -117,7 +117,7 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	{
 		//Create a room
 		//Get a random int
-		int randomRoom = rand() % 3+1;
+		int randomRoom = 2;// rand() % 3+1;
 		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
 
 
@@ -191,12 +191,12 @@ void LevelHandler::_RoomLoadingThreading()
 {
 	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
 	{
-		m_rooms.at(m_loadingQueue.at(i))->LoadRoomToMemory();
+		//m_rooms.at(m_loadingQueue.at(i))->LoadRoomToMemory();
 	}
 	m_loadingQueue.clear();
 	for (unsigned int i = 0; i < m_unloadingQueue.size(); i++)
 	{
-		m_rooms.at(m_unloadingQueue.at(i))->UnloadRoomFromMemory();
+		//m_rooms.at(m_unloadingQueue.at(i))->UnloadRoomFromMemory();
 	}
 	m_unloadingQueue.clear();
 }

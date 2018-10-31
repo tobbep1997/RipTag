@@ -332,6 +332,19 @@ namespace MyLibrary
 				collisionBoxes.boxes[i].rotation[3] = box[i].rotation[3];
 
 				collisionBoxes.boxes[i].typeOfBox = box[i].typeOfBox;
+				std::cout << ":..............................." << std::endl;
+				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[0] << std::endl;
+				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[1] << std::endl;
+				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[2] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[0] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[1] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[2] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[3] << std::endl;
+				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[0] << std::endl;
+				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[1] << std::endl;
+				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[2] << std::endl;
+				std::cout << "Type of box: " << collisionBoxes.boxes[i].typeOfBox << std::endl;
+				std::cout << ":..............................." << std::endl;
 
 			}
 			//copy thing done
@@ -455,8 +468,8 @@ namespace MyLibrary
 				customGridFile.read((char*)&gridPos.gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
 
 
-				std::cout << gridPos.gridPoints[i].pathable << std::endl;
-				std::cout << "translation X: " << gridPos.gridPoints[i].translation[0] << " Y: " << gridPos.gridPoints[i].translation[1] << " Z: " << gridPos.gridPoints[i].translation[2] << std::endl;
+			//	std::cout << gridPos.gridPoints[i].pathable << std::endl;
+				//std::cout << "translation X: " << gridPos.gridPoints[i].translation[0] << " Y: " << gridPos.gridPoints[i].translation[1] << " Z: " << gridPos.gridPoints[i].translation[2] << std::endl;
 
 			}
 
