@@ -413,9 +413,31 @@ void Player::_onRotate(double deltaTime)
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
 		if (deltaX && !Input::PeekRight())
+		{
 			p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
-		if (deltaY)
-			p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+		}
+		if (deltaY) 
+		{
+			if ((p_camera->getDirection().y - deltaY * 5 * deltaTime) < 0.90f)
+			{
+				p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y >= 0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
+			}
+			if ((p_camera->getDirection().y - deltaY * 5 * deltaTime) > -0.90f)
+			{
+				p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y <= -0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
+			}
+			//std::cout << p_camera->getDirection().x << " :" <<p_camera->getDirection().y << " :" << p_camera->getDirection().z << std::endl;
+			
+		}
+		//ImGui::Begin("ro");
 	}
 }
 
