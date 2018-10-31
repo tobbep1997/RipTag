@@ -26,7 +26,8 @@ void DisableAbility::Init()
 
 	PhysicsComponent::setUserDataBody(this);
 	this->getBody()->SetObjectTag("Disable");
-	
+
+	setManaCost(START_MANA_COST);
 }
 
 void DisableAbility::Update(double deltaTime)
@@ -41,7 +42,10 @@ void DisableAbility::Use()
 	switch (m_dState)
 	{
 	case DisableAbility::Throw:
-		m_dState = DisableAbility::Charge;
+		if (((Player*)p_owner)->CheckManaCost(getManaCost()))
+		{
+			m_dState = DisableAbility::Charge;
+		}
 		break;
 	case DisableAbility::Moving:
 		DirectX::XMFLOAT4A position = Transform::getPosition();
@@ -82,6 +86,10 @@ void DisableAbility::_logic(double deltaTime)
 
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getPosition(), direction);
+			//This might be changed in the future
+
+			((Player*)p_owner)->DrainMana(getManaCost());
+
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
 			setPosition(start.x, start.y, start.z);

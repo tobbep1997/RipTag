@@ -47,6 +47,8 @@
     <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
     <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
     <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -276,5 +278,7 @@
     <ClInclude Include="RipTagExtern\RipExtern.h" />
     <ClInclude Include="Source\Game\Handlers\PlayerManager.h" />
     <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
+    <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
+    <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
   </ItemGroup>
 </Project>

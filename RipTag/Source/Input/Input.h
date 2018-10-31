@@ -33,7 +33,7 @@ public:
 	static bool UseAbility();
 	static bool Blink();
 	static bool Possess();
-
+	static bool Pickup();
 	static bool Exit();
 	static bool MouseLock();
 

@@ -6,8 +6,9 @@
 
 class TeleportAbility : public AbilityComponent, public BaseActor , public HUDComponent
 {
-private:
-	// CONST VARS
+private: // CONST VARS
+	const int START_MANA_COST = 10;
+	
 	const float TRAVEL_SPEED = 20.0f;
 	const float MAX_CHARGE = 2.0f;
 	const bool USE_SHADOWS = true;

@@ -12,12 +12,12 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	Manager::g_textureManager.loadTextures("CROSS");
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
-	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 	
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
 	visAbl->Init();
+	visAbl->setManaCost(1);
 
 	VisabilityAbility * visAbl2 = new VisabilityAbility();
 	visAbl2->setOwner(this);
@@ -37,7 +37,13 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityComponents[2] = m_dis;
 	m_abilityComponents[3] = visAbl2;
 
+	m_possess.setOwner(this);
+	m_possess.Init();
 	
+	m_blink.setOwner(this);
+	m_blink.Init();
+
+	m_rayListener = new RayCastListener();
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -67,6 +73,19 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
+
+
+	m_maxMana = STANDARD_START_MANA;
+	m_currentMana = m_maxMana;
+
+	m_manaBar = new Quad();
+	m_manaBar->init(DirectX::XMFLOAT2A(0.2f, 0.2f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
+
+
+	HUDComponent::AddQuad(m_manaBar);
+
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -79,17 +98,27 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 
 Player::~Player()
 {
-	delete this->m_rayListener;
-
-	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)	
-		delete m_abilityComponents[i];	
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
+	delete m_rayListener;
 }
+
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
 	PhysicsComponent::Init(world, bodyType, x, y, z);
+	this->getBody()->SetObjectTag("PLAYER");
+	this->getBody()->AddToFilters("TELEPORT");
 	setUserDataBody(this);
+
+	setEntityType(EntityType::PlayerType);
+	setColor(10, 10, 0, 1);
+
+	setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	setScale(1.0f, 1.0f, 1.0f);
+	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	setTextureTileMult(2, 2);
 }
 
 void Player::BeginPlay()
@@ -107,8 +136,28 @@ void Player::Update(double deltaTime)
 		}
 		
 	}
+
+#if _DEBUG
+	ImGui::Begin("Mana");
+	ImGui::Text("Current mana %d", m_currentMana);
+	ImGui::Text("Max mana %d", m_maxMana);
+	ImGui::End();
+#endif
+
+	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
+
+	if (InputHandler::isKeyPressed('I'))
+	{
+		RefillMana(10);
+	}
+	if (InputHandler::isKeyPressed('J'))
+	{
+		m_maxMana += 10;
+	}
+
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	this->possessGuard(10);
+	m_possess.Update(deltaTime);
+	m_blink.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
@@ -155,61 +204,9 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
-void Player::Phase(float searchLength)
+int Player::getPossessState()
 {
-	this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength);
-	if ((int)this->m_rayListener->userData == 1)
-	{
-		p_setPosition(
-			this->m_rayListener->contactPoint.x + (
-				(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
-				(-this->m_rayListener->normal.x)), 
-			this->getPosition().y,
-			this->m_rayListener->contactPoint.z + (
-				(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
-				(-this->m_rayListener->normal.z))
-			);
-		if (this->m_rayListener->normal.y != 0)
-		{
-			p_setPosition(
-				this->getPosition().x,
-				this->m_rayListener->contactPoint.y + (
-				(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
-					(-this->m_rayListener->normal.y)),
-				this->getPosition().z
-			);
-		}
-	}
-	this->m_rayListener->clear();
-}
-
-void Player::possessGuard(float searchLength)
-{
-	if (InputHandler::isKeyPressed(InputHandler::Del))
-	{
-		if (this->m_rayListener->shotRay(this->getBody(), p_camera->getDirection(), searchLength))
-		{
-			this->possessTarget = static_cast<Enemy*>(this->m_rayListener->shape->GetBody()->GetUserData());
-			if (this->possessTarget != nullptr)
-			{
-				this->possessTarget->UnlockEnemyInput();
-				this->LockPlayerInput();
-				CameraHandler::setActiveCamera(this->possessTarget->getCamera());
-			}
-			this->m_rayListener->clear();
-		}
-	}
-	if (InputHandler::isKeyPressed(InputHandler::F5))
-	{	
-		if (possessTarget != nullptr)
-		{
-			this->possessTarget->LockEnemyInput();
-			this->UnlockPlayerInput();
-			CameraHandler::setActiveCamera(p_camera);
-			possessTarget = nullptr;
-		}
-	}
-	//m_playerInRoomPtr->possessGuard(10);
+	return m_possess.getPossessState();
 }
 	
 const float & Player::getVisability() const
@@ -222,6 +219,42 @@ const int & Player::getFullVisability() const
 	return g_fullVisability;
 }
 
+bool Player::CheckManaCost(const int& manaCost)
+{
+	if (manaCost <= m_currentMana)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Player::DrainMana(const int& manaCost)
+{
+	if (manaCost <= m_currentMana)
+	{
+		m_currentMana -= manaCost;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void Player::RefillMana(const int& manaFill)
+{
+	m_currentMana += manaFill;
+
+	int rest = m_maxMana - m_currentMana;
+	if (rest < 0)
+	{
+		m_currentMana += rest;
+	}
+}
+
 void Player::Draw()
 {
 	m_abilityComponents[m_currentAbility]->Draw();
@@ -232,6 +265,11 @@ void Player::Draw()
 void Player::LockPlayerInput()
 {
 	m_lockPlayerInput = true;
+}
+
+bool Player::IsInputLocked()
+{
+	return m_lockPlayerInput;
 }
 
 void Player::UnlockPlayerInput()
@@ -282,11 +320,14 @@ void Player::_handleInput(double deltaTime)
 	_onCrouch();
 	_onJump();
 	_onBlink();
+	_onPossess();
 	_onRotate(deltaTime);
 
 
-	if (Input::UseAbility())
+	if (Input::UseAbility()) 
+	{
 		m_abilityComponents[m_currentAbility]->Use();
+	}
 	
 }
 
@@ -367,13 +408,30 @@ void Player::_onBlink()
 	{
 		if (m_kp.blink == false)
 		{
-			this->Phase(10);
+			m_blink.Use();
 			m_kp.blink = true;
 		}
 	}
 	else
 	{
 		m_kp.blink = false;
+	}
+}
+
+void Player::_onPossess()
+{
+	if (Input::Possess()) //Phase acts like short range teleport through objects
+	{
+		
+		if (m_kp.possess == false)
+		{
+			m_possess.Use();
+			m_kp.possess = true;
+		}
+	}
+	else
+	{
+		m_kp.possess = false;
 	}
 }
 
@@ -407,7 +465,25 @@ void Player::_onJump()
 		m_kp.jump = false;
 }
 
-
+void Player::_onPickup()
+{
+	if (Input::Pickup()) //Phase acts like short range teleport through objects
+	{
+		if (m_kp.pickup == false)
+		{
+			m_rayListener->shotRay(this->getBody(), this->getCamera()->getDirection(), 2);
+			if (m_rayListener->shape->GetBody()->GetObjectTag() == "ITEM")
+			{
+				//do the pickups
+			}
+			m_kp.pickup = true;
+		}
+	}
+	else
+	{
+		m_kp.pickup = false;
+	}
+}
 
 void Player::_cameraPlacement(double deltaTime)
 {

@@ -11,7 +11,7 @@ Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 
 }
 
-Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
+Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
@@ -165,7 +165,7 @@ void Enemy::_handleInput(double deltaTime)
 {
 	_handleMovement(deltaTime);
 	_handleRotation(deltaTime);
-	
+	_possessed();
 }
 
 void Enemy::_handleMovement(double deltaTime)
@@ -240,4 +240,19 @@ Enemy* Enemy::validate()
 {
 	return this;
 }
+void Enemy::setPossessor(Actor* possessor)
+{
+	m_possessor = possessor;
+}
 
+void Enemy::_possessed()
+{
+	if (m_possessor != nullptr && Input::Possess())
+	{
+		if (static_cast<Player*>(m_possessor)->getPossessState() == 2)
+		{
+			static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+			m_possessor = nullptr;
+		}
+	}
+}

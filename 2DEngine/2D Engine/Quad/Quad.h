@@ -14,6 +14,14 @@ public:
 		DirectX::XMFLOAT2 UV;
 	};
 
+	enum PivotPoint
+	{
+		center,
+		lowerLeft,
+		lowerRight,
+		upperLeft,
+		upperRight
+	};
 
 private:
 	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
@@ -28,7 +36,7 @@ private:
 	};
 
 	buttonState m_buttonState = buttonState::normal;
-
+	PivotPoint m_pivotPoint = PivotPoint::center;
 	Texture ** m_textures;
 
 	DirectX::SpriteFont * m_spriteFont;
@@ -43,6 +51,8 @@ private:
 	bool m_currentState = false;
 
 	bool m_selected = false;
+
+	void _rebuildQuad();
 
 public:
 	Quad();
@@ -82,5 +92,8 @@ public:
 
 	void Select(const bool & b);
 	const bool & isSelected() const;
+
+	void setPivotPoint(PivotPoint pivotPoint);
+
 };
 
