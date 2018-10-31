@@ -123,7 +123,7 @@ void Room::LoadRoomToMemory()
 		 
 
 
-
+		
 		m_roomLoaded = true;
 	
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
