@@ -165,7 +165,7 @@ void Room::Update(float deltaTime)
 	for (auto light : m_pointLights)
 	{
 		
-		light->setIntensity(light->TourchEffect(deltaTime, 0.1f, 1));
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
 	}
 }
 
