@@ -209,7 +209,7 @@ void Room::Release()
 	{
 		delete enemy;
 	}
-	
+	delete m_grid.gridPoints;
 	
 }
 
