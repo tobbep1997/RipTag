@@ -14,6 +14,7 @@ public:
 	// Inherited via AbilityComponent
 	virtual void Init() override;
 	virtual void Update(double deltaTime) override;
+	void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) override;
 	virtual void Use() override;
 	virtual void Draw() override;
 };

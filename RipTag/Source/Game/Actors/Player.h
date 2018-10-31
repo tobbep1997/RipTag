@@ -41,7 +41,8 @@ private:
 private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
-	int m_currentAbility = 0;
+	Ability m_currentAbility = Ability::TELEPORT;
+
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
 
@@ -90,6 +91,7 @@ public:
 
 	//Networking
 	void SendOnUpdateMessage();
+	void SendOnAbilityUsed();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
@@ -118,5 +120,8 @@ private:
 	void _onRotate(double deltaTime);
 	void _onJump();
 	void _onInteract();
+	void _onAbility(double dt);
+
+
 	void _cameraPlacement(double deltaTime);
 };

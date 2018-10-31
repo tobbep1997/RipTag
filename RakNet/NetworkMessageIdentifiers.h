@@ -15,10 +15,14 @@ namespace Network
 
 	enum NETWORKMESSAGES
 	{
+		//GAME EVENTS
 		ID_GAME_START = ID_USER_PACKET_ENUM,
+		//PLAYER EVENTS
 		ID_PLAYER_CREATE = ID_USER_PACKET_ENUM + 1,
 		ID_PLAYER_DISCONNECT = ID_USER_PACKET_ENUM + 2,
-		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3
+		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3,
+		ID_PLAYER_STATE = ID_USER_PACKET_ENUM + 4,
+		ID_PLAYER_ABILITY = ID_USER_PACKET_ENUM + 5
 	};
 
 
@@ -56,14 +60,23 @@ namespace Network
 			: id(DefaultMessageIDTypes::ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), nid(_nid), state(_state), pos(_pos), rot(_rot) {}
 	};
 
-	struct PACKET
+	struct ENTITYSTATEPACKET
 	{
-		union
-		{
-			EVENTPACKET _event;
-			CREATEPACKET _create;
-			ENTITYUPDATEPACKET _update;
-		};
+		unsigned char id;
+		unsigned int state;
+		bool condition;
+		ENTITYSTATEPACKET(unsigned char _id, unsigned int _state, bool _condition) : id(_id), state(_state), condition(_condition) {}
+	};
+
+	struct ENTITYABILITYPACKET
+	{
+		unsigned char id;
+		unsigned int ability;
+		XMFLOAT4A velocity;
+		unsigned int state;
+		ENTITYABILITYPACKET() {}
+		ENTITYABILITYPACKET(unsigned char _id, unsigned int _ability, XMFLOAT4A _vel, unsigned int _state) 
+			: id(_id), ability(_ability), velocity(_vel), state(_state) {}
 	};
 
 #pragma pack(pop)

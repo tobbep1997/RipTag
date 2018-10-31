@@ -30,7 +30,8 @@ public:
 	static float MoveRight();
 	static float PeekRight();
 	static bool Sprinting();
-	static bool UseAbility();
+	static bool OnAbilityPressed();
+	static bool OnAbilityReleased();
 	static bool Blink();
 	static bool Possess();
 	static bool Interact();

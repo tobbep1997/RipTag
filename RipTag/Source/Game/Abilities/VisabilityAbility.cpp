@@ -42,6 +42,10 @@ void VisabilityAbility::Update(double deltaTime)
 		1);
 }
 
+void VisabilityAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
+{
+}
+
 void VisabilityAbility::Use()
 {
 	if (((Player*)p_owner)->CheckManaCost(getManaCost()))

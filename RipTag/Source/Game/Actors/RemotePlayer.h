@@ -20,6 +20,7 @@ private:
 	std::stack<PlayerState> m_stateStack;
 	bool handleTransition = false;
 	AbilityComponent ** m_abilityComponents;
+	Ability m_currentAbility = Ability::TELEPORT;
 	const unsigned short int m_nrOfAbilitys = 4;
 	DirectX::XMFLOAT4A m_mostRecentPosition;
 	RakNet::Time m_timeDiff;
@@ -36,6 +37,7 @@ private:
 
 	//Network message handling
 	void _onNetworkUpdate(Network::ENTITYUPDATEPACKET * data);
+	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 
 	//Local Game logic
 	void _Idle(float dt);

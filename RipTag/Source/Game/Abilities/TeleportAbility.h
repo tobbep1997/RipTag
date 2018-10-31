@@ -22,10 +22,11 @@ private:
 	// ENUM
 	enum TeleportState
 	{
-		Throw,		// Ready to charge
-		Charge,		// Charging
-		Teleport,	// Ready to tp
-		Wait		// Just teleported and can not throw
+		Throwable,		// Ready to charge
+		Charging,		// Charging
+		Teleportable,	// Ready to tp
+		Cooldown,		// Just teleported and can not throw
+		RemoteActive    //this is unique for network and the remote state machine
 	};
 private:
 	TeleportState	m_tpState;
@@ -35,22 +36,35 @@ private:
 	PointLight		m_light;
 
 	Quad * m_bar;
+
+	//for network
+	DirectX::XMFLOAT4A m_lastVelocity;
+
 public:
 	TeleportAbility(void * owner = nullptr);
 	~TeleportAbility();
 
 	void Init() override;
-
-	/* This Function needs to be used before the Update() function */
-	void Use() override;
+	void Use() override { return; }
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
-
+	void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) override;
 
 	void Draw() override;
 
+	unsigned int getState();
+	DirectX::XMFLOAT4A getVelocity();
+
 private:
 	// Private functions
-	void _logic(double deltaTime);
+	void _logicLocal(double deltaTime);
+
+	void _inStateThrowable();
+	void _inStateCharging(double dt);
+	void _inStateTeleportable();
+	void _inStateCooldown(double dt);
+
+	void _logicRemote(double dt);
+
 	void _updateLight();
 };

@@ -16,19 +16,23 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
+	visAbl->setIsLocal(true);
 	visAbl->Init();
 	visAbl->setManaCost(1);
 
 	VisabilityAbility * visAbl2 = new VisabilityAbility();
 	visAbl2->setOwner(this);
+	visAbl2->setIsLocal(true);
 	visAbl2->Init();
 
 	TeleportAbility * m_teleport = new TeleportAbility();
 	m_teleport->setOwner(this);
+	m_teleport->setIsLocal(true);
 	m_teleport->Init();
 
 	DisableAbility * m_dis = new DisableAbility();
 	m_dis->setOwner(this);
+	m_dis->setIsLocal(true);
 	m_dis->Init();
 
 	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
@@ -155,22 +159,22 @@ void Player::Update(double deltaTime)
 	//HUDComponent::HUDUpdate(deltaTime);
 	
 	if (Input::SelectAbility1())	
-		m_currentAbility = 0;		
+		m_currentAbility = Ability::TELEPORT;		
 	else if (Input::SelectAbility2())	
-		m_currentAbility = 1;	
+		m_currentAbility = Ability::VISIBILITY;	
 	else if (Input::SelectAbility3())	
-		m_currentAbility = 2;	
+		m_currentAbility = Ability::DISABLE;	
 	else if (Input::SelectAbility4())
-		m_currentAbility = 3;
+		m_currentAbility = Ability::VIS2;
 	
 	if (GamePadHandler::IsUpDpadPressed())
-		m_currentAbility = 0;
+		m_currentAbility = Ability::TELEPORT;
 	else if (GamePadHandler::IsRightDpadPressed())
-		m_currentAbility = 1;
+		m_currentAbility = Ability::VISIBILITY;
 	else if (GamePadHandler::IsDownDpadPressed())
-		m_currentAbility = 2;
+		m_currentAbility = Ability::DISABLE;
 	else if (GamePadHandler::IsLeftDpadPressed())
-		m_currentAbility = 3;
+		m_currentAbility = Ability::VIS2;
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
@@ -179,16 +183,6 @@ void Player::Update(double deltaTime)
 void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
-
-	//temporary
-	std::string output;
-	output += "X: " + std::to_string(this->getLiniearVelocity().x);
-	output += "\nY: " + std::to_string(this->getLiniearVelocity().y);
-	output += "\nZ: " + std::to_string(this->getLiniearVelocity().z);
-
-	ImGui::Begin("Player Velocity");
-	ImGui::Text(output.c_str());
-	ImGui::End();
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -289,6 +283,24 @@ void Player::SendOnUpdateMessage()
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
+void Player::SendOnAbilityUsed()
+{
+	using namespace Network;
+	ENTITYABILITYPACKET packet;
+
+	switch (this->m_currentAbility)
+	{
+	case Ability::TELEPORT:
+		packet.id = ID_PLAYER_ABILITY;
+		packet.ability = (unsigned int)TELEPORT;
+		packet.velocity = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility])->getVelocity();
+		packet.state = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility])->getState();
+		break;
+	}
+
+	Network::Multiplayer::SendPacket((unsigned char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
+
 void Player::RegisterThisInstanceToNetwork()
 {
 	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnUpdateMessage, this));
@@ -296,6 +308,8 @@ void Player::RegisterThisInstanceToNetwork()
 	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnUpdateMessage, this));
 	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnUpdateMessage, this));
 	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("AbilityPressed", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
 void Player::_handleInput(double deltaTime)
@@ -313,16 +327,10 @@ void Player::_handleInput(double deltaTime)
 	_onMovement();
 	_onCrouch();
 	_onJump();
+	_onAbility(deltaTime);
 	_onBlink();
 	_onPossess();
 	_onRotate(deltaTime);
-
-
-	if (Input::UseAbility()) 
-	{
-		m_abilityComponents[m_currentAbility]->Use();
-	}
-	
 }
 
 void Player::_onMovement()
@@ -454,7 +462,7 @@ void Player::_onJump()
 	}
 
 
-	float epsilon = 0.0002;
+	float epsilon = 0.002;
 	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
 }
@@ -485,6 +493,11 @@ void Player::_onInteract()
 	{
 		m_kp.interact = false;
 	}
+}
+
+void Player::_onAbility(double dt)
+{
+	this->m_abilityComponents[m_currentAbility]->Update(dt);
 }
 
 void Player::_cameraPlacement(double deltaTime)

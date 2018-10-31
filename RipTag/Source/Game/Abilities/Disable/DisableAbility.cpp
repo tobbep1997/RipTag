@@ -36,6 +36,10 @@ void DisableAbility::Update(double deltaTime)
 	_logic(deltaTime);
 }
 
+void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
+{
+}
+
 void DisableAbility::Use()
 {
 	m_useFunctionCalled = true;

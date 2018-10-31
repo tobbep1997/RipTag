@@ -367,6 +367,32 @@ bool GamePadHandler::IsRightShoulderPressed()
 	}
 }
 
+bool GamePadHandler::IsLeftShoulderReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsLeftShoulderPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsLeftShoulderPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+bool GamePadHandler::IsRightShoulderReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsRightShoulderPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsRightShoulderPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
 void GamePadHandler::SetLeftVibration(const float& left)
 {
 	if (m_state.IsConnected())

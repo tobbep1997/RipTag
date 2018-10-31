@@ -25,6 +25,7 @@ public:
 	void _onRemotePlayerCreate(unsigned char id, unsigned char * data);
 	void _onRemotePlayerEvent(unsigned char id, unsigned char * data);
 	void _onRemotePlayerDisconnect(unsigned id, unsigned char * data);
+	void _onRemotePlayerAbility(unsigned id, unsigned char * data);
 
 	void Update(float dt);
 	void PhysicsUpdate();

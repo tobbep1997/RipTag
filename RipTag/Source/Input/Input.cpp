@@ -219,7 +219,7 @@ bool Input::Sprinting()
 	return false;
 }
 
-bool Input::UseAbility()
+bool Input::OnAbilityPressed()
 {
 	if (isUsingGamepad())
 		return GamePadHandler::IsRightShoulderPressed();
@@ -238,6 +238,19 @@ bool Input::UseAbility()
 		}
 	}
 
+	return false;
+}
+
+bool Input::OnAbilityReleased()
+{
+	static bool previousFrame = false;
+	if (Input::OnAbilityPressed())
+		previousFrame = true;
+	if (!Input::OnAbilityPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
 	return false;
 }
 
@@ -481,7 +494,8 @@ void InputMapping::_LoadGamePadMapping()
 
 		//BOOL FUNCTION
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Jump", std::bind(&GamePadHandler::IsAPressed)));
-		
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&GamePadHandler::IsRightShoulderPressed)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&GamePadHandler::IsRightShoulderReleased)));
 	}
 }
 

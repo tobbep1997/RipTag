@@ -24,6 +24,10 @@ void BlinkAbility::Update(double deltaTime)
 	_logic(deltaTime);
 }
 
+void BlinkAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
+{
+}
+
 void BlinkAbility::Use()
 {
 	m_useFunctionCalled = true;

@@ -33,6 +33,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CREATE, std::bind(&PlayerManager::_onRemotePlayerCreate, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerEvent, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_DISCONNECT, std::bind(&PlayerManager::_onRemotePlayerDisconnect, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerAbility, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
@@ -60,6 +61,14 @@ void PlayerManager::_onRemotePlayerDisconnect(unsigned id, unsigned char * data)
 		delete mRemotePlayer;
 		mRemotePlayer = nullptr;
 		hasRemotePlayer = false;
+	}
+}
+
+void PlayerManager::_onRemotePlayerAbility(unsigned id, unsigned char * data)
+{
+	if (mRemotePlayer && hasRemotePlayer)
+	{
+		mRemotePlayer->HandlePacket(id, data);
 	}
 }
 

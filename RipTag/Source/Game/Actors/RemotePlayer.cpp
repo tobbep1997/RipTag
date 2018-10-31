@@ -35,18 +35,22 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//6.
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
+	visAbl->setIsLocal(false);
 	visAbl->Init();
 
 	VisabilityAbility * visAbl2 = new VisabilityAbility();
 	visAbl2->setOwner(this);
+	visAbl2->setIsLocal(false);
 	visAbl2->Init();
 
 	TeleportAbility * m_teleport = new TeleportAbility();
 	m_teleport->setOwner(this);
+	m_teleport->setIsLocal(false);
 	m_teleport->Init();
 
 	DisableAbility * m_dis = new DisableAbility();
 	m_dis->setOwner(this);
+	m_dis->setIsLocal(false);
 	m_dis->Init();
 
 	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
@@ -73,6 +77,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_UPDATE:
 		this->_onNetworkUpdate((Network::ENTITYUPDATEPACKET*)data);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_ABILITY:
+		this->_onNetworkAbility((Network::ENTITYABILITYPACKET*)data);
+		break;
 	}
 }
 
@@ -80,6 +87,7 @@ void RemotePlayer::Update(double dt)
 {
 	//TODO:
 	//1. Handle the state machine (transitions are handled in the called functions)
+	//2. Update the ability compononent
 
 	//1.
 	switch (this->m_stateStack.top())
@@ -104,6 +112,8 @@ void RemotePlayer::Update(double dt)
 		break;
 	}
 
+	//2.
+	m_abilityComponents[m_currentAbility]->Update(dt);
 }
 
 void RemotePlayer::Draw()
@@ -131,6 +141,12 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 		this->setRotation(data->rot);
 		this->m_timeDiff = RakNet::GetTime() - data->timeStamp;
 	}
+}
+
+void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
+{
+	m_currentAbility = (Ability)data->ability;
+	m_abilityComponents[m_currentAbility]->UpdateFromNetwork(data);
 }
 
 void RemotePlayer::_Idle(float dt)
