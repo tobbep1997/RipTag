@@ -76,47 +76,6 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
-		// This is for FMOD
-		int index = -1;
-		FMOD::Geometry * ge = *AudioEngine::CreateCube(1,1);
-		FMOD_RESULT res;
-		float * ss = collisionBoxes.boxes[i].scale;
-		FMOD_VECTOR scale = { ss[0] * 0.5f, ss[1] * 0.5f, ss[2] * 0.5f };
-
-		// IS THIS CORRECT????
-		float * r = collisionBoxes.boxes[i].rotation;
-		DirectX::XMFLOAT4 q = { r[0], r[1], r[2], r[3] };
-		DirectX::XMFLOAT3 forward = { 0, 0, 1 };
-		DirectX::XMFLOAT3 up = { 0, 1, 0 };
-		DirectX::XMVECTOR v = DirectX::XMLoadFloat3(&forward);
-		DirectX::XMVECTOR vq = DirectX::XMLoadFloat4(&q);
-		v = DirectX::XMVector3Rotate(v, vq);
-		DirectX::XMStoreFloat3(&forward, DirectX::XMVector3Normalize(v));
-		v = DirectX::XMLoadFloat3(&up);
-		v = DirectX::XMVector3Rotate(v, vq);
-		DirectX::XMStoreFloat3(&up, DirectX::XMVector3Normalize(v));
-
-		FMOD_VECTOR rotatedForward = { forward.x, forward.y, forward.z };
-		FMOD_VECTOR rotatedUp = { up.x, up.y, up.z };
-		// IS THIS CORRECT???? -- END
-
-		float * tr = collisionBoxes.boxes[i].translation;
-
-		FMOD_VECTOR translation = { tr[0], tr[1], tr[2] };
-
-		res = ge->setScale(&scale);
-		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-		//res = ge->setRotation(&rotatedForward, &rotatedUp);
-		//std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-		res = ge->setPosition(&translation);
-		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-		// This is for FMOD -- END
-
-		
-
-
-		
-
 
 		h = new b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));

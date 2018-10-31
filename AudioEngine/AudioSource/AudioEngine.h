@@ -61,7 +61,9 @@ public:
 
 	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist);
 
-	static bool TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL);
+	static int TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL);
+
+	static std::vector<FMOD::Geometry*> * tmp_getAllGeometry();
 
 	static FMOD::Geometry** CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry** CreateCube(float fDirectOcclusion = 1.0f, float fReverbOcclusion = 1.0f);

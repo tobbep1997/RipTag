@@ -120,10 +120,56 @@ void Room::LoadRoomToMemory()
 		m_staticAssets.push_back(temp);
 		 
 		CollisionBoxes = new BaseActor();
-		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
+		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
+		{
+			FMOD::Geometry * ge = *AudioEngine::CreateCube(1, 1);
+			FMOD_RESULT res;
+			float * ss = boxes.boxes[i].scale;
+			FMOD_VECTOR scale = { ss[0] * 0.5f, ss[1] * 0.5f, ss[2] * 0.5f };
+
+			// IS THIS CORRECT????
+			float * r = boxes.boxes[i].rotation;
+			DirectX::XMFLOAT4 q = { r[0], r[1], r[2], r[3] };
+
+			DirectX::XMMATRIX lasoda = DirectX::XMMatrixRotationRollPitchYaw(1, 0, 0);
 
 
+			// ONLY TEMP!!!
+			DirectX::XMMATRIX * rotmatrix = new DirectX::XMMATRIX(DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&q)));
 
+			DirectX::XMFLOAT4X4 maa;
+			DirectX::XMStoreFloat4x4(&maa, *rotmatrix);
+			//DirectX::XMStoreFloat4x4(&maa, lol);
+
+			DirectX::XMVECTOR vUp = DirectX::XMVectorSet(0, 1, 0, 0);
+			DirectX::XMVECTOR vFo = DirectX::XMVectorSet(0, 0, 1, 0);
+			vUp = DirectX::XMVector3Transform(vUp, *rotmatrix);
+			vFo = DirectX::XMVector3Transform(vFo, *rotmatrix);
+
+			DirectX::XMFLOAT3 xmfo, xmup;
+			DirectX::XMStoreFloat3(&xmfo, vFo);
+			DirectX::XMStoreFloat3(&xmup, vUp);
+
+			ge->setUserData((void*)rotmatrix);
+
+			FMOD_VECTOR up = { xmup.x, xmup.y, xmup.z };
+			FMOD_VECTOR forward = {xmfo.x, xmfo.y, xmfo.z};
+			
+			float * tr = boxes.boxes[i].translation;
+
+			FMOD_VECTOR translation = { tr[0], tr[1], tr[2] };
+			
+			res = ge->setScale(&scale);
+			std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+			res = ge->setRotation(&forward, &up);
+			//std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+			res = ge->setPosition(&translation);
+			std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+			// This is for FMOD -- END
+		}
+
+		CollisionBoxes->Init(*m_worldPtr, boxes);
 		m_roomLoaded = true;
 	
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;

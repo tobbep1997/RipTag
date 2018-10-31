@@ -63,8 +63,76 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	FMOD_VECTOR at = { -29.1406, -2.82f, -15.4373f };
 	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(0, &at);
-	bool lol = AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(at);
+	//bool lol = AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(at);
 
+	auto gemo = AudioEngine::tmp_getAllGeometry();
+
+	for (auto &ge : *gemo)
+	{
+		Drawable * d = new Drawable();
+		StaticMesh * m = new StaticMesh();
+		FMOD_VECTOR pos;
+		FMOD_VECTOR scl;
+		FMOD_VECTOR forw;
+		FMOD_VECTOR up;
+		ge->getPosition(&pos);
+		ge->getScale(&scl);
+		ge->getRotation(&forw, &up);
+		FMOD_VECTOR vertices[36];
+		int counter = 0;
+		for (int pol = 0; pol < 12; pol++)
+		{
+			for (int ver = 0; ver < 3; ver++)
+			{
+				FMOD_RESULT res = ge->getPolygonVertex(pol, ver, &vertices[counter++]);
+				if (res != FMOD_OK)
+				{
+#ifdef _DEBUG
+					std::cout << "AudioEngine error!\nError:" + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+#endif
+				}
+			}
+		}
+		std::vector<StaticVertex> svv;
+		for (int i = 0; i < 36; i++)
+		{
+			StaticVertex sv;
+			sv.pos = { vertices[i].x, vertices[i].y, vertices[i].z, 1.0f };
+			sv.normal = { 1, 1, 1, 0};
+			sv.uvPos = { 0,0 };
+			sv.tangent = { 1,1,1,1 };
+			svv.push_back(sv);
+		}
+		m->setVertices(svv);
+		d->setModel(m);
+		d->setEntityType(EntityType::DefultType);
+		d->setScale(scl.x, scl.y, scl.z, 1.0f);
+		d->setPosition(pos.x, pos.y, pos.z, 1.0f);
+
+		DirectX::XMVECTOR vf = DirectX::XMVectorSet(forw.x, forw.y, forw.z, 0.0f);
+		DirectX::XMVECTOR vu = DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f);
+		DirectX::XMVECTOR vr = DirectX::XMVector3Cross(vu, vf);
+
+		DirectX::XMFLOAT3 xmf, xmu, xmr;
+		DirectX::XMStoreFloat3(&xmf, vf);
+		DirectX::XMStoreFloat3(&xmu, vu);
+		DirectX::XMStoreFloat3(&xmr, vr);
+		//DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixSet(xmr.x, xmr.y, xmr.z, 0, xmu.x, xmu.y, xmu.z, 0, xmf.x, xmf.y, xmf.z, 0, 0, 0, 0, 1);
+		DirectX::XMMATRIX rotMatrix = 
+			DirectX::XMMatrixSet(
+				xmr.x,	xmr.y,	xmr.z,	0,
+				xmu.x,	xmu.y,	xmu.z,	0,
+				xmf.z,	xmf.y,	xmf.z,	0,
+				0,		0,		0,		1);//*/
+
+		DirectX::XMMATRIX * lolRot = nullptr;
+		ge->getUserData((void**)&lolRot);
+
+		d->ForceRotation(*lolRot);
+		tmp_audioBox.push_back(d);
+		delete lolRot;
+	}
+	
 
 	Input::ResetMouse();
 }
@@ -115,12 +183,18 @@ void PlayState::Update(double deltaTime)
 	static float timer = 0;
 	timer += deltaTime;
 
-	if (timer > 1)
+	if (timer > 0.5f)
 	{
 		timer = 0;
 		system("CLS");
 		const AudioEngine::Listener & l = player->getFMODListener();
-		bool lol = AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(l.pos);
+		FMOD_VECTOR point = l.pos;
+		DirectX::XMFLOAT4A d = player->getCamera()->getDirection();
+		point.x += d.x * 2.0f;
+		point.y += d.y * 2.0f;
+		point.z += d.z * 2.0f;
+		int lol = -1;// AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(l.pos);
+		int lol2 = -1;// AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(point);
 		const DirectX::XMFLOAT4A & xmPos = player->getCamera()->getPosition();
 		FMOD_VECTOR at, vel, other;
 		TEEEMPCHANNEL->get3DAttributes(&at, &vel, &other);
@@ -133,6 +207,7 @@ void PlayState::Update(double deltaTime)
 		std::cout << "Listener For: " <<	l.forward.x << ", " << l.forward.y << ", " << l.forward.z << std::endl;
 		std::cout << "Player pos: " << xmPos.x << ", " << xmPos.y << ", " << xmPos.z << std::endl;
 		std::cout << "Player inside mesh: " << lol << std::endl;
+		std::cout << "Player point inside mesh: " << lol2 << std::endl;
 		DirectX::XMVECTOR vAt = DirectX::XMVectorSet(at.x, at.y, at.z, 1.0f);
 		DirectX::XMVECTOR vPpos = DirectX::XMLoadFloat4A(&xmPos);
 		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(vPpos, vAt)));
@@ -169,6 +244,9 @@ void PlayState::Draw()
 	
 	player->Draw();
 	model->Draw();
+
+	for (auto & lol : tmp_audioBox)
+		lol->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }

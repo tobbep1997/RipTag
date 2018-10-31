@@ -114,7 +114,7 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(int i, FMOD_VECTOR * from)
 	{
 		c->set3DAttributes(from, &vel);
 		c->set3DDopplerLevel(5);
-		c->set3DOcclusion(1, 1);
+		//c->set3DOcclusion(1, 1);
 	}
 	c->setPaused(false);
 	return c;
@@ -220,15 +220,18 @@ void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist)
 	s_reverbs.push_back(r);
 }
 
-bool AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL)
+int AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL)
 {
 	int lololol = 0;
 	for (auto & ge : s_geometry)
 	{
 		FMOD_VECTOR pos;
 		FMOD_VECTOR scl;
+		FMOD_VECTOR forw;
+		FMOD_VECTOR up;
 		ge->getPosition(&pos);
 		ge->getScale(&scl);
+		ge->getRotation(&forw, &up);
 		FMOD_VECTOR vertices[24];
 		int counter = 0;
 		for (int pol = 0; pol < 6; pol++)
@@ -261,7 +264,12 @@ bool AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL)
 
 		lololol++;
 	}
-	return 0;
+	return -1;
+}
+
+std::vector<FMOD::Geometry*>* AudioEngine::tmp_getAllGeometry()
+{
+	return &s_geometry;
 }
 
 FMOD::Geometry ** AudioEngine::CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES)
@@ -318,11 +326,56 @@ FMOD::Geometry ** AudioEngine::CreateCube(float fDirectOcclusion, float fReverbO
 		{-1.0f, 1.0f, -1.0f}, {-1.0f, 1.0f, 1.0f}
 	};
 
-	FMOD::Geometry* ReturnValue = nullptr;
-	s_system->createGeometry(6, 24, &ReturnValue);
-	for (int i = 0; i < 6; i++)
+	static const FMOD_VECTOR _sCube2[] =
 	{
-		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, true, 4, &_sCube[i * 4], nullptr);
+		{1, 1, -1},
+		{-1, 1, -1},
+		{-1, -1, -1},
+		{1, -1, -1},
+		{1, 1, 1},
+		{-1, 1, 1},
+		{-1, -1, 1},
+		{1, -1, 1},
+	};	
+
+	static const FMOD_VECTOR sides[] =
+	{
+		// Left
+		_sCube2[1], _sCube2[2], _sCube2[6], _sCube2[6],
+		// Right
+		_sCube2[4], _sCube2[7], _sCube2[3], _sCube2[0],
+		// Down
+		_sCube2[3], _sCube2[7], _sCube2[6], _sCube2[2],
+		// Up
+		_sCube2[0], _sCube2[1], _sCube2[5], _sCube2[4],
+		// Back
+		_sCube2[4], _sCube2[5], _sCube2[6], _sCube2[7],
+		// Front
+		_sCube2[0], _sCube2[3], _sCube2[2], _sCube2[1]
+	};
+
+	static const FMOD_VECTOR sides2[] = 
+	{
+		{1.000000, -1.000000, 1.000000}, {-1.000000, -1.000000, -1.000000},{1.000000, -1.000000, -1.000000},
+		{-1.000000, 1.000000, -1.000000},{1.0, 1.000000, 1.000000},{1.000000, 1.000000, -1.0},
+		{1.000000, 1.000000, -1.0},{1.000000, -1.000000, 1.000000},{1.000000, -1.000000, -1.000000},
+		{1.0, 1.000000, 1.000000},{-1.000000, -1.000000, 1.000000},{1.000000, -1.000000, 1.000000},
+		{-1.000000, -1.000000, 1.000000},{-1.000000, 1.000000, -1.000000},{-1.000000, -1.000000, -1.000000},
+		{1.000000, -1.000000, -1.000000},{-1.000000, 1.000000, -1.000000},{1.000000, 1.000000, -1.0},
+		{1.000000, -1.000000, 1.000000},{-1.000000, -1.000000, 1.000000},{-1.000000, -1.000000, -1.000000},
+		{-1.000000, 1.000000, -1.000000},{-1.000000, 1.000000, 1.000000},{1.0, 1.000000, 1.000000},
+		{1.000000, 1.000000, -1.0},{1.0, 1.000000, 1.000000},{1.000000, -1.000000, 1.000000},
+		{1.0, 1.000000, 1.000000},{-1.000000, 1.000000, 1.000000},{-1.000000, -1.000000, 1.000000},
+		{-1.000000, -1.000000, 1.000000},{-1.000000, 1.000000, 1.000000},{-1.000000, 1.000000, -1.000000},
+		{1.000000, -1.000000, -1.000000},{-1.000000, -1.000000, -1.000000},{-1.000000, 1.000000, -1.000000}
+	};
+
+
+	FMOD::Geometry* ReturnValue = nullptr;
+	s_system->createGeometry(12, 36, &ReturnValue);
+	for (int i = 0; i < 12; i++)
+	{
+		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, true, 3, &sides2[i * 3], nullptr);
 		//FMOD_RESULT res = ReturnValue->addPolygon(0.0, 0.0, true, 4, &sCubeVertices[i * 4], nullptr);
 		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
 	}
