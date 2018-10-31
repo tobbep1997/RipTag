@@ -57,7 +57,7 @@ void TextureManager::loadTextures(const std::string & path)
 		else
 		{
 			//Texture already loaded
-			std::cout << "Texture " << fullPath.c_str() << " Already loaded" << std::endl;
+			std::wcout << "Texture " << fullPath << " Already loaded" << std::endl;
 			delete tempTexture;
 			//return false;
 		}
@@ -92,7 +92,7 @@ bool TextureManager::UnloadTexture(const std::string& path)
 		{
 			delete m_textures[key].at(i);
 			m_textures[key].erase(m_textures[key].begin() + i);
-			std::cout << "Texture mesh " << fullPath.c_str() << " Unloaded" << std::endl;
+			std::wcout << "Texture mesh " << fullPath << " Unloaded" << std::endl;
 			return true;
 		}
 	}

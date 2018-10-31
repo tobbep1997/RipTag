@@ -13,8 +13,16 @@ DirectX::XMINT2 InputHandler::m_windowSize;
 DirectX::XMFLOAT2 InputHandler::m_mouseDelta;
 
 DirectX::XMFLOAT2 InputHandler::m_windowPos;
+DirectX::XMFLOAT2 InputHandler::m_viewportPos;
+DirectX::XMINT2 InputHandler::m_viewportSize;
 
 bool InputHandler::m_windowInFocus;
+
+BOOL InputHandler::m_showCursor;
+bool InputHandler::m_update;
+
+bool InputHandler::m_closeGame;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -79,6 +87,11 @@ DirectX::XMINT2 InputHandler::getWindowSize()
 	return m_windowSize; 
 }
 
+DirectX::XMINT2 InputHandler::getViewportSize()
+{
+	return m_viewportSize;
+}
+
 DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
 {
 	/*DirectX::XMFLOAT2 temp = m_mouseDelta;
@@ -95,6 +108,11 @@ DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
 DirectX::XMFLOAT2 InputHandler::getWindowPos()
 {
 	return m_windowPos;
+}
+
+DirectX::XMFLOAT2 InputHandler::getviewportPos()
+{
+	return m_viewportPos;
 }
 
 bool InputHandler::getWindowFocus()
@@ -114,6 +132,8 @@ InputHandler::InputHandler()
 		m_mouseKeys[i] = false; 
 		m_mouseWasPressed[i] = false; 
 	}
+	m_update = false;
+	m_closeGame = false;
 }
 
 InputHandler::~InputHandler()
@@ -130,4 +150,51 @@ InputHandler * InputHandler::Instance()
 DirectX::XMFLOAT2 InputHandler::getMousePosition()
 {
 	return m_mousePos; 
+}
+
+void InputHandler::setShowCursor(BOOL b)
+{
+	m_showCursor = b;
+	m_update = true;
+	/*if (b) {
+		while (ShowCursor(b) <= 0) {}
+		
+	}
+	else {
+		while (ShowCursor(b) >= 0) {}
+
+	}*/
+}
+
+BOOL InputHandler::getShowCursor()
+{
+	return m_showCursor;
+}
+
+void InputHandler::WindowSetShowCursor()
+{
+	if (m_update)
+	{
+
+		if (m_showCursor) {
+			while (ShowCursor(m_showCursor) <= 0) {}
+
+		}
+		else {
+			while (ShowCursor(m_showCursor) >= 0) {}
+
+		}
+		m_update = false;
+	}
+	
+}
+
+void InputHandler::CloseGame()
+{
+	m_closeGame = true;
+}
+
+bool InputHandler::GetClosedGame()
+{
+	return m_closeGame;  
 }

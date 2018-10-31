@@ -49,7 +49,6 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
-	//float targetPeek = Input::PeekRight();
 
 	XMVECTOR in = XMLoadFloat4A(&m_lastPeek);
 	XMFLOAT4A none{ 0,1,0,0 };
@@ -77,6 +76,35 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 	out = XMVectorAdd(out, sideStep);
 	XMStoreFloat4(&cPos, out);
 	return cPos;
+}
+
+double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const DirectX::XMFLOAT4A & pos)
+{
+	if (startHeight != 0)
+	{
+		if (m_lastHeight != 0 && startHeight != m_lastHeight) //Animation did not finish and inverts step direction
+		{
+			m_crouchAnimSteps = abs(1 - m_crouchAnimSteps);
+		}
+		DirectX::XMFLOAT4A startPos = pos;
+		startPos.y = startPos.y + (startHeight - startPos.y);
+		m_crouchAnimSteps += deltaTime * m_crouchSpeed;
+		if (m_crouchAnimSteps < 1) //Animation ongoing
+		{
+			DirectX::XMStoreFloat4A(&startPos, DirectX::XMVectorLerp(DirectX::XMLoadFloat4A(&startPos), DirectX::XMLoadFloat4A(&pos), m_crouchAnimSteps));
+			m_lastHeight = startHeight;
+		}
+		else //Animation Finished
+		{
+			m_crouchAnimSteps = 0;
+			m_lastHeight = 0;
+			startHeight = 0;
+			DirectX::XMStoreFloat4A(&startPos, DirectX::XMVectorLerp(DirectX::XMLoadFloat4A(&startPos), DirectX::XMLoadFloat4A(&pos), 1));
+		}
+
+		return startPos.y - pos.y;
+	}
+	return 0;
 }
 
 CameraHolder::CameraHolder()

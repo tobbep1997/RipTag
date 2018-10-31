@@ -47,6 +47,8 @@ private:
 	PointLightBuffer m_allLightMatrixValues;
 
 
+	
+
 public:
 	ShadowMap();
 	~ShadowMap();

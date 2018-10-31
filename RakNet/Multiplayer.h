@@ -1,4 +1,9 @@
 #pragma once
+
+
+#ifndef MULTIPLAYER_H
+#define MULTIPLAYER_H
+
 #include <RakPeerInterface.h>
 #include <RakNetStatistics.h>
 #include "NetworkClock.h"
@@ -8,6 +13,8 @@
 #include <iostream>
 
 #include <LuaTalker.h>
+#include <map>
+#include <functional>
 
 
 #define LUA_START_SERVER "StartServer"
@@ -45,6 +52,12 @@ namespace Network
 		void Init();
 		void Destroy();
 		
+		static std::map<std::string, std::function<void()>> onSendMap;
+		static std::map<unsigned char, std::function<void(unsigned char *)>> onReceiveMap;
+
+		static void addToOnSendFuncMap(std::string key, std::function<void()> func);
+		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char *)> func);
+
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
 		void StartUpServer();
@@ -76,7 +89,8 @@ namespace Network
 		int Send_Data(sol::this_state s);
 		static void REGISTER_TO_LUA();
 
-
+		static void SendPacket(const char* message, size_t length, PacketPriority priority);
+		void _send_packet(const char* message, size_t length, PacketPriority priority);
 		//unsafe, find a better way
 		//private constructor to avoid instanciating more than one object
 		//the destructor of the singleton is called when the program exits.
@@ -97,10 +111,11 @@ namespace Network
 		unsigned char GetPacketIdentifier(unsigned char * data);
 		void HandleRakNetMessages(unsigned char mID);
 		void HandleGameMessages(unsigned char mID, unsigned char * data);
-		void SendPacket(const char* message, size_t length, PacketPriority priority);
 
 		//functions to handle RakNet internal messages
 		void _onDisconnect();
 
 	};
 }
+
+#endif

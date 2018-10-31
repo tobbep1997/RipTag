@@ -100,7 +100,7 @@ void Room::LoadRoomToMemory()
 		
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			this->m_roomGuards.push_back(new Enemy(tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
+			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
 		}
 		delete tempGuards.startingPositions;
 		
@@ -133,17 +133,40 @@ void Room::LoadRoomToMemory()
 	{
 		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
 	}
+
+	for (auto light : m_pointLights)
+	{
+
+		light->setColor(255, 102, 0);
+	}
 }
 
 
-void Room::Update()
+void Room::Update(float deltaTime)
 {
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(0.001f);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
+		this->m_roomGuards.at(i)->_IsInSight();
+		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
+		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
+
+	}
+	int endvis = 0;
+	for (int i = 0; i < vis.size(); ++i)
+	{
+		endvis += vis.at(i)[0];
+	}
+	m_playerInRoomPtr->SetCurrentVisability(endvis);
+	
+	vis.clear();
+
+	for (auto light : m_pointLights)
+	{
 		
+		light->setIntensity(light->TourchEffect(deltaTime, 0.1f, 1));
 	}
 }
 
@@ -155,6 +178,7 @@ void Room::Draw()
 	}
 	for (auto light : m_pointLights)
 	{
+		
 		light->QueueLight();
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
@@ -185,7 +209,7 @@ void Room::Release()
 	{
 		delete enemy;
 	}
-	
+	delete m_grid.gridPoints;
 	
 }
 

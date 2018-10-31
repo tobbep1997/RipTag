@@ -29,19 +29,20 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		m_renderingManager->Init(hInstance);
 	}
 
-
-	GamePadHandler::Instance();
+	//Input handler and mapping
+	{
+		GamePadHandler::Instance();
+		InputMapping::Init();
+	}
 	Timer::Instance();
 
 	//Network Start
 	{
 		pNetworkInstance = Network::Multiplayer::GetInstance();
 		pNetworkInstance->Init();
-		Network::Multiplayer::REGISTER_TO_LUA();
-		Network::Packets::REGISTER_TO_LUA();
-		
 	}
-	m_gameStack.push(new PlayState(m_renderingManager));
+
+	m_gameStack.push(new MainMenu(m_renderingManager));
 }
 
 bool Game::isRunning()
@@ -55,6 +56,11 @@ void Game::PollEvents()
 
 }
 
+void Game::PollSingelThread()
+{
+	m_renderingManager->UpdateSingleThread();
+}
+
 void Game::Clear()
 {
 	//TODO Fix clear
@@ -66,9 +72,13 @@ void Game::Update(double deltaTime)
 #if _DEBUG
 	_restartGameIf();
 #endif
+	if (m_gameStack.top()->getNewState() != nullptr)
+		m_gameStack.push(m_gameStack.top()->getNewState());
+
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
+	InputMapping::Call();
 	pNetworkInstance->Update();
 	
 }
@@ -111,9 +121,9 @@ void Game::PopStateLUA()
 	this->m_gameStack.pop();
 }
 
-void Game::REGISTER_TO_LUA(Game & gameInstance)
+void Game::ImGuiPoll()
 {
-
+	m_renderingManager->ImGuiProc();
 }
 
 void Game::_handleStateSwaps()
@@ -122,6 +132,7 @@ void Game::_handleStateSwaps()
 	{
 		delete m_gameStack.top();
 		m_gameStack.pop();
+		m_gameStack.top()->pushNewState(nullptr);
 	}
 }
 
@@ -133,14 +144,6 @@ void Game::_restartGameIf()
 		{
 			delete m_gameStack.top();
 			m_gameStack.pop();
-
-			//Manager::g_meshManager.UnloadStaticMesh("KOMBIN");
-			//Manager::g_meshManager.UnloadStaticMesh("SPHERE");
-
-			//Manager::g_textureManager.UnloadTexture("KOMBIN");
-			//Manager::g_textureManager.UnloadTexture("SPHERE");
-
-
 
 			m_gameStack.push(new PlayState(m_renderingManager));
 			isPressed = true;

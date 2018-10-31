@@ -1,9 +1,9 @@
 #pragma once
-#include "../RakNet/Multiplayer.h"
+//Make sure includes from the network lib are put at the top. This is to avoid 'rereference' error from Windows header
+#include "States/PlayState.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include <stack>
 #include "States/State.h"
-#include "States/PlayState.h"
 #include "EngineSource/3D Engine/Model/Managers/ModelManager.h"
 #include "States/MainMenu.h"
 #include <LuaTalker.h>
@@ -27,6 +27,7 @@ public:
 	//VitalFunctions to make the game work
 	bool isRunning();			//Is game running
 	void PollEvents();			//Window Events
+	void PollSingelThread();
 	void Clear();				//Clear screen
 	void Update(double deltaTime);				//Updates everything, ex: setPosition();
 	void Draw();				//Calls Draw
@@ -35,7 +36,8 @@ public:
 	//LUA EXPOSE
 	void PushStateLUA(State * ptr);
 	void PopStateLUA();
-	static void REGISTER_TO_LUA(Game & gameInstance);
+
+	void ImGuiPoll();
 
 private:
 	void _handleStateSwaps();
