@@ -83,7 +83,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		path.at(i) = nullptr;
 	}*/
 
-	
+	gameLoop.join();
 
 	DX::g_shaderManager.Release();
 	return 0;

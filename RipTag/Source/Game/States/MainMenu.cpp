@@ -75,6 +75,7 @@ void MainMenu::Update(double deltaTime)
 			else if (quitButton->isSelected())
 			{
 				quitButton->setState(2);
+				InputHandler::CloseGame();
 				PostQuitMessage(0);
 			}
 		}
@@ -86,6 +87,7 @@ void MainMenu::Update(double deltaTime)
 
 		if (quitButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 		{
+			InputHandler::CloseGame();
 			PostQuitMessage(0);
 		}
 			

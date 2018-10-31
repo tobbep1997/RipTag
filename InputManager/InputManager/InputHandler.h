@@ -26,6 +26,8 @@ private:
 	static BOOL m_showCursor;
 	static bool m_update;
 
+	static bool m_closeGame;
+
 public:
 	~InputHandler();
 
@@ -52,6 +54,8 @@ public:
 	static BOOL getShowCursor();
 
 	static void WindowSetShowCursor();
+	static void CloseGame();
+	static bool GetClosedGame();
 	enum Key
 	{
 		Del = 46,

@@ -21,6 +21,8 @@ bool InputHandler::m_windowInFocus;
 BOOL InputHandler::m_showCursor;
 bool InputHandler::m_update;
 
+bool InputHandler::m_closeGame;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -131,6 +133,7 @@ InputHandler::InputHandler()
 		m_mouseWasPressed[i] = false; 
 	}
 	m_update = false;
+	m_closeGame = false;
 }
 
 InputHandler::~InputHandler()
@@ -184,4 +187,14 @@ void InputHandler::WindowSetShowCursor()
 		m_update = false;
 	}
 	
+}
+
+void InputHandler::CloseGame()
+{
+	m_closeGame = true;
+}
+
+bool InputHandler::GetClosedGame()
+{
+	return m_closeGame;  
 }
