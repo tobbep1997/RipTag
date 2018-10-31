@@ -56,12 +56,16 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
-	AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/AutoLol.ogg");
-	AudioEngine::PlaySoundEffect(0);
+	AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
-	
+
+	FMOD_VECTOR at = { -29.1406, -2.82f, -15.4373f };
+	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(0, &at);
+	bool lol = AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(at);
+
+
 	Input::ResetMouse();
 }
 
@@ -76,36 +80,6 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	static double temp = 0;
-	temp += deltaTime;
-	if (temp > 3)
-	{
-		AudioEngine::PlaySoundEffect(0);
-		std::cout << AudioEngine::TEMPGETSIZEOFGEOMETRYVECTOR() << "\n";
-		temp -= 1;
-	}
-	
-	AudioEngine::Listener listener;
-	DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&player->getCamera()->getDirection()));
-	DirectX::XMVECTOR right = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&player->getCamera()->getRight()));
-	DirectX::XMVECTOR up = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(forward, right));
-	DirectX::XMFLOAT4A pos = player->getCamera()->getPosition();
-	b3Vec3 _vel = player->getLiniearVelocity();
-
-	DirectX::XMFLOAT3 _fforward, _fup, _fvel;
-
-	DirectX::XMStoreFloat3(&_fforward, forward);
-	DirectX::XMStoreFloat3(&_fup, up);
-
-	listener.pos = { pos.x, pos.y, pos.z };
-	listener.up = { _fup.x, _fup.y, _fup.z };
-	listener.vel = { _vel.x, _vel.y, _vel.z };
-	listener.forward = { _fforward.x, _fforward.y, _fforward.z };
-	AudioEngine::UpdateListenerAttributes(listener);
-
-
-
-
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 	 
@@ -120,7 +94,12 @@ void PlayState::Update(double deltaTime)
 	{
 		Input::ForceActivateGamepad();
 	}
-
+	if (GetAsyncKeyState('F'))
+	{
+		FMOD_VECTOR at, vel, other;
+		TEEEMPCHANNEL->get3DAttributes(&at, &vel, &other);
+		player->setPosition(at.x, at.y, at.z);
+	}
 
 	player->Update(deltaTime);
 
@@ -132,6 +111,37 @@ void PlayState::Update(double deltaTime)
 	m_step.sleeping = false;
 	m_firstRun = false;
 
+
+	static float timer = 0;
+	timer += deltaTime;
+
+	if (timer > 1)
+	{
+		timer = 0;
+		system("CLS");
+		const AudioEngine::Listener & l = player->getFMODListener();
+		bool lol = AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(l.pos);
+		const DirectX::XMFLOAT4A & xmPos = player->getCamera()->getPosition();
+		FMOD_VECTOR at, vel, other;
+		TEEEMPCHANNEL->get3DAttributes(&at, &vel, &other);
+		std::cout << "Sound Pos: " <<		at.x << ", " << at.y << ", " << at.z << std::endl;
+		std::cout << "Sound Vel: " <<		vel.x << ", " << vel.y << ", " << vel.z << std::endl;
+		std::cout << "Sound Other: " <<		other.x << ", " << other.y << ", " << other.z << std::endl;
+		std::cout << "Listener Pos: " <<	l.pos.x << ", " << l.pos.y << ", " << l.pos.z << std::endl;
+		std::cout << "Listener Vel: " <<	l.vel.x << ", " << l.vel.y << ", " << l.vel.z << std::endl;
+		std::cout << "Listener Up: " <<		l.up.x << ", " << l.up.y << ", " << l.up.z << std::endl;
+		std::cout << "Listener For: " <<	l.forward.x << ", " << l.forward.y << ", " << l.forward.z << std::endl;
+		std::cout << "Player pos: " << xmPos.x << ", " << xmPos.y << ", " << xmPos.z << std::endl;
+		std::cout << "Player inside mesh: " << lol << std::endl;
+		DirectX::XMVECTOR vAt = DirectX::XMVectorSet(at.x, at.y, at.z, 1.0f);
+		DirectX::XMVECTOR vPpos = DirectX::XMLoadFloat4A(&xmPos);
+		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(vPpos, vAt)));
+		std::cout << "Length: " << length << std::endl;
+
+	}
+
+
+	AudioEngine::UpdateListenerAttributes(player->getFMODListener());
 	m_world.Step(m_step);
 	player->PhysicsUpdate(deltaTime);
 

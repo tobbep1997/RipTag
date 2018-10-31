@@ -63,25 +63,31 @@ void Player::BeginPlay()
 
 void Player::Update(double deltaTime)
 {
+	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
+	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
+
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
 		{
 			_handleInput(deltaTime);
 		}
-		
 	}
 	m_teleport.Update(deltaTime);
 	_cameraPlacement(deltaTime);
+
+	// MUST BE LAST
+	_updateFMODListener(deltaTime, xmLP);
+
 	HUDComponent::HUDUpdate(deltaTime);
 
-	static float temp = 0;
+	/*static float temp = 0;
 	temp += deltaTime;
 	if (temp > 1)
 	{
 		temp -= 1;
-		std::cout << getPosition().x << ":" << getPosition().y << ":" << getPosition().z << "\n";
-	}
+		std::cout << p_camera->getPosition().x << ":" << p_camera->getPosition().y << ":" << p_camera->getPosition().z << "\n";
+	}*/
 
 }
 
@@ -122,6 +128,11 @@ void Player::Phase(float searchLength)
 		}
 	}
 	this->m_rayListener->clear();
+}
+
+const AudioEngine::Listener & Player::getFMODListener() const
+{
+	return m_FMODlistener;
 }
 
 void Player::Draw()
@@ -351,6 +362,34 @@ void Player::_cameraPlacement(double deltaTime)
 	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
+}
+
+void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos)
+{
+	const DirectX::XMFLOAT4A & xmDir = p_camera->getDirection();
+	const DirectX::XMFLOAT4A & xmPos = p_camera->getPosition();
+	const DirectX::XMFLOAT4A & xmRight = p_camera->getRight();
+	DirectX::XMFLOAT3 xmUp;
+
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat4A(&xmDir);
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat4A(&xmRight);
+	DirectX::XMVECTOR vUp = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vDir, vRight));
+	DirectX::XMStoreFloat3(&xmUp, vUp);
+
+
+	FMOD_VECTOR vel;
+	vel.x = ( xmPos.x - xmLastPos.x ) / deltaTime;
+	vel.y = ( xmPos.y - xmLastPos.y ) / deltaTime;
+	vel.z = ( xmPos.z - xmLastPos.z ) / deltaTime;
+
+	m_FMODlistener.pos = { xmPos.x, xmPos.y, xmPos.z };
+	m_FMODlistener.up = { xmUp.x, xmUp.y, xmUp.z };
+	m_FMODlistener.forward = { xmDir.x, xmDir.y, xmDir.z };
+	m_FMODlistener.vel = vel;
+
+
+
+
 }
 
 

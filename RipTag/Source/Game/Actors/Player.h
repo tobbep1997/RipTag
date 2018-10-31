@@ -8,7 +8,7 @@
 #include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
-
+#include <AudioEngine.h>
 
 namespace FUNCTION_STRINGS
 {
@@ -33,7 +33,7 @@ private:
 	const float MOVE_SPEED = 3.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
-
+	AudioEngine::Listener m_FMODlistener;
 private:
 	TeleportAbility m_teleport;
 	float m_standHeight;
@@ -81,6 +81,7 @@ public:
 
 	void Phase(float searchLength);
 
+	const AudioEngine::Listener & getFMODListener() const; 
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
@@ -92,4 +93,5 @@ private:
 	void _onCheckVisibility();
 	void _onTeleport(double deltaTime);
 	void _cameraPlacement(double deltaTime);
+	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 };

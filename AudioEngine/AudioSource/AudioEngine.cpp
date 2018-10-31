@@ -27,7 +27,6 @@ void AudioEngine::Init()
 		_createSystem();
 		if (s_inited)
 		{
-			s_system->setGeometrySettings(100.0f);
 			_createChannelGroups();
 		}
 	}
@@ -49,12 +48,15 @@ void AudioEngine::UpdateListenerAttributes(const Listener & l)
 	s_system->set3DListenerAttributes(0, &l.pos, &l.vel, &l.forward, &l.up);
 }
 
-int AudioEngine::LoadSoundEffect(const std::string & path)
+int AudioEngine::LoadSoundEffect(const std::string & path, bool loop)
 {
 	int i = -1;
 	FMOD::Sound * sound = nullptr;
 	FMOD_RESULT result;
 	result = s_system->createSound(path.c_str(), FMOD_3D_WORLDRELATIVE, NULL, &sound);
+	sound->set3DMinMaxDistance(5.0f, 10000.0f);
+	if (loop)
+		sound->setMode(FMOD_LOOP_NORMAL);
 	if (result == FMOD_OK)
 	{
 		s_soundEffects.push_back(sound);
@@ -103,14 +105,19 @@ int AudioEngine::LoadMusicSound(const std::string & path, bool loop)
 	return i;
 }
 
-void AudioEngine::PlaySoundEffect(int i)
+FMOD::Channel * AudioEngine::PlaySoundEffect(int i, FMOD_VECTOR * from)
 {
 	FMOD::Channel * c;
-	s_system->playSound(s_soundEffects[i], nullptr, false, &c);
-	FMOD_VECTOR f = { -24.324, 0.83049, -1.01608 };
-	FMOD_VECTOR v = { 0,0,1 };
-	c->set3DAttributes(&f, NULL);
-	//c->set3DSpread(360);
+	s_system->playSound(s_soundEffects[i], nullptr, true, &c);
+	FMOD_VECTOR vel = { 0,0,0 };
+	if (from)
+	{
+		c->set3DAttributes(from, &vel);
+		c->set3DDopplerLevel(5);
+		c->set3DOcclusion(1, 1);
+	}
+	c->setPaused(false);
+	return c;
 }
 
 void AudioEngine::PlayAmbientSound(int i)
@@ -150,27 +157,27 @@ void AudioEngine::Release()
 			p->release();*/
 
 
-		s_soundEffectGroup = nullptr;
-		s_ambientSoundGroup = nullptr;
-		s_musicSoundGroup = nullptr;
-		s_inited = false;
-		s_system = nullptr;
-		s_geometry.clear();
-		s_soundEffects.clear();
-		s_ambientSounds.clear();
-		s_music.clear();
-		s_reverbs.clear();
+s_soundEffectGroup = nullptr;
+s_ambientSoundGroup = nullptr;
+s_musicSoundGroup = nullptr;
+s_inited = false;
+s_system = nullptr;
+s_geometry.clear();
+s_soundEffects.clear();
+s_ambientSounds.clear();
+s_music.clear();
+s_reverbs.clear();
 
-		#ifdef _DEBUG
-		std::cout << "AudioEngine released!\n";
-		#endif
+#ifdef _DEBUG
+std::cout << "AudioEngine released!\n";
+#endif
 	}
 	else
 	{
 
-	#ifdef _DEBUG
-		std::cout << "AudioEngine is already released; U STOOPID!\n";
-	#endif
+#ifdef _DEBUG
+	std::cout << "AudioEngine is already released; U STOOPID!\n";
+#endif
 	}
 
 }
@@ -213,10 +220,54 @@ void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist)
 	s_reverbs.push_back(r);
 }
 
-FMOD::Geometry ** AudioEngine::CreateGeometry()
+bool AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL)
+{
+	int lololol = 0;
+	for (auto & ge : s_geometry)
+	{
+		FMOD_VECTOR pos;
+		FMOD_VECTOR scl;
+		ge->getPosition(&pos);
+		ge->getScale(&scl);
+		FMOD_VECTOR vertices[24];
+		int counter = 0;
+		for (int pol = 0; pol < 6; pol++)
+		{
+			for (int ver = 0; ver < 4; ver++)
+			{
+				FMOD_RESULT res = ge->getPolygonVertex(pol, ver, &vertices[counter++]);
+				if (res != FMOD_OK)
+				{
+#ifdef _DEBUG
+					std::cout << "AudioEngine error!\nError:" + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+#endif
+				}
+			}
+		}
+
+		float ZPaneNeg = vertices[0].z * scl.z + pos.z;
+		float ZPanePos = vertices[4].z * scl.z + pos.z;
+		float XPaneNeg = vertices[8].x * scl.x + pos.x;
+		float XPanePos = vertices[12].x * scl.x + pos.x;
+		float YPaneNeg = vertices[16].y * scl.y + pos.y;
+		float YPanePos = vertices[20].y * scl.y + pos.y;
+
+		if (POINTLOL.x > XPaneNeg && POINTLOL.x < XPanePos &&
+			POINTLOL.y > YPaneNeg && POINTLOL.y < YPanePos &&
+			POINTLOL.z > ZPaneNeg && POINTLOL.z < ZPanePos)
+		{
+			return lololol;
+		}
+
+		lololol++;
+	}
+	return 0;
+}
+
+FMOD::Geometry ** AudioEngine::CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES)
 {
 	FMOD::Geometry * g;
-	FMOD_RESULT r = s_system->createGeometry(12, 36, &g);
+	FMOD_RESULT r = s_system->createGeometry(MAX_POLYGONS, MAX_VERTICES, &g);
 	s_geometry.push_back(g);
 	g->setActive(true);
 	return &s_geometry.at(s_geometry.size() - 1 );
@@ -245,11 +296,34 @@ FMOD::Geometry ** AudioEngine::CreateCube(float fDirectOcclusion, float fReverbO
 		{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, -1.0f},
 		{1.0f, -1.0f, 1.0f}, {-1.0f, -1.0f, 1.0f}
 	};
+	static const FMOD_VECTOR _sCube[] =
+	{
+		// Side -Z
+		{-1.0f, -1.0f, -1.0f}, {-1.0f, 1.0f, -1.0f},
+		{1.0f, 1.0f, -1.0f}, {1.0f, -1.0f, -1.0f},
+		// Side Z
+		{1.0f, 1.0f, 1.0f}, {1.0f, -1.0f, 1.0f},
+		{-1.0f, -1.0f, 1.0f}, {-1.0f, 1.0f, 1.0f},
+		// Side -X
+		{-1.0f, -1.0f, -1.0f}, {-1.0f, -1.0f, 1.0f},
+		{-1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f, -1.0f},
+		// Side X
+		{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, -1.0f},
+		{1.0f, -1.0f, -1.0f}, {1.0f, -1.0f, 1.0f},
+		// Side -Y
+		{-1.0f, -1.0f, -1.0f}, {-1.0f, -1.0f, 1.0f},
+		{1.0f, -1.0f, 1.0f}, {1.0f, -1.0f, -1.0f},
+		// Side Y
+		{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, -1.0f},
+		{-1.0f, 1.0f, -1.0f}, {-1.0f, 1.0f, 1.0f}
+	};
+
 	FMOD::Geometry* ReturnValue = nullptr;
 	s_system->createGeometry(6, 24, &ReturnValue);
 	for (int i = 0; i < 6; i++)
 	{
-		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, true, 4, &sCubeVertices[i * 4], nullptr);
+		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, true, 4, &_sCube[i * 4], nullptr);
+		//FMOD_RESULT res = ReturnValue->addPolygon(0.0, 0.0, true, 4, &sCubeVertices[i * 4], nullptr);
 		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
 	}
 	s_geometry.push_back(ReturnValue);
@@ -259,6 +333,7 @@ FMOD::Geometry ** AudioEngine::CreateCube(float fDirectOcclusion, float fReverbO
 
 void AudioEngine::_createSystem()
 {
+	unsigned int version;
 	FMOD_RESULT result;
 	result = FMOD::System_Create(&s_system);	// Create the Studio System object
 	if (result != FMOD_OK)
@@ -267,6 +342,13 @@ void AudioEngine::_createSystem()
 		std::cout << "AudioEngine error!\nError:" + std::to_string(result) + "\nMessage: " + FMOD_ErrorString(result) + "\n";
 #endif
 		return;
+	}
+
+	result = s_system->getVersion(&version);
+
+	if (version < FMOD_VERSION)
+	{
+		exit(-1);
 	}
 
 	// Initialize FMOD Studio, which will also initialize FMOD Low Level
@@ -280,6 +362,8 @@ void AudioEngine::_createSystem()
 	}
 
 	s_inited = true;
+	s_system->set3DSettings(1.0f, 1.0f, 1.0f);
+	s_system->setGeometrySettings(100.0f);
 #ifdef _DEBUG
 	std::cout << "AudioEngine initialized!\n";
 #endif

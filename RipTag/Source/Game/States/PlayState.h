@@ -47,7 +47,7 @@ private:
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
-
+	FMOD::Channel * TEEEMPCHANNEL;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

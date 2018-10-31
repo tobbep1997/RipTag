@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-
 class AudioEngine
 {
 public:
@@ -38,11 +37,11 @@ public:
 	static void Update();
 	static void UpdateListenerAttributes(const Listener & l);
 
-	static int LoadSoundEffect(const std::string & path);
+	static int LoadSoundEffect(const std::string & path, bool loop = false);
 	static int LoadAmbientSound(const std::string & path, bool loop = true);
 	static int LoadMusicSound(const std::string & path, bool loop = true);
 
-	static void PlaySoundEffect(int i);
+	static FMOD::Channel * PlaySoundEffect(int i, FMOD_VECTOR * from = nullptr);
 	static void PlayAmbientSound(int i);
 	static void PlayMusic(int i);
 
@@ -62,7 +61,9 @@ public:
 
 	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist);
 
-	static FMOD::Geometry** CreateGeometry();
+	static bool TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL);
+
+	static FMOD::Geometry** CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry** CreateCube(float fDirectOcclusion = 1.0f, float fReverbOcclusion = 1.0f);
 
 private:

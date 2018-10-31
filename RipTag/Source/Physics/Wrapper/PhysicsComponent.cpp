@@ -81,7 +81,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		FMOD::Geometry * ge = *AudioEngine::CreateCube(1,1);
 		FMOD_RESULT res;
 		float * ss = collisionBoxes.boxes[i].scale;
-		FMOD_VECTOR scale = { ss[0], ss[1], ss[2] };
+		FMOD_VECTOR scale = { ss[0] * 0.5f, ss[1] * 0.5f, ss[2] * 0.5f };
 
 		// IS THIS CORRECT????
 		float * r = collisionBoxes.boxes[i].rotation;

@@ -22,7 +22,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 	AudioEngine::Init();
-
+	
 	Game game;
 	game.Init(hInstance);
 	std::cout << "hello";
