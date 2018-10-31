@@ -60,9 +60,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
-	delete m_contactListener;
+	
 	
 	player->Release(m_world);
+	delete m_contactListener;
 	delete player;
 	delete model;
 }

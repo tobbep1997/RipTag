@@ -22,6 +22,7 @@ public:
 
 	void Init(HINSTANCE hInstance);
 	void Update();
+	void UpdateSingleThread();
 
 	void Clear();
 	void Flush(Camera & camera);
@@ -35,6 +36,8 @@ public:
 	//Explicit window related function
 	Window& getWindow();
 	ProcMsg getWindowProcMsg();
+
+	void ImGuiProc();
 
 private:
 	void _reloadShaders();

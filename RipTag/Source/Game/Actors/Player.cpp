@@ -129,13 +129,6 @@ void Player::Update(double deltaTime)
 		
 	}
 
-#if _DEBUG
-	ImGui::Begin("Mana");
-	ImGui::Text("Current mana %d", m_currentMana);
-	ImGui::Text("Max mana %d", m_maxMana);
-	ImGui::End();
-#endif
-
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 
 	if (InputHandler::isKeyPressed('I'))

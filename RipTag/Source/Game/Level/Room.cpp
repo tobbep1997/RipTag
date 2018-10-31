@@ -132,6 +132,12 @@ void Room::LoadRoomToMemory()
 	{
 		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
 	}
+
+	for (auto light : m_pointLights)
+	{
+
+		light->setColor(255, 102, 0);
+	}
 }
 
 
@@ -155,6 +161,12 @@ void Room::Update(float deltaTime)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();
+
+	for (auto light : m_pointLights)
+	{
+		
+		light->setIntensity(light->TourchEffect(deltaTime, 0.1f, 1));
+	}
 }
 
 void Room::Draw()
@@ -165,6 +177,7 @@ void Room::Draw()
 	}
 	for (auto light : m_pointLights)
 	{
+		
 		light->QueueLight();
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)

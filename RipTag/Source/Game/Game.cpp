@@ -56,6 +56,11 @@ void Game::PollEvents()
 
 }
 
+void Game::PollSingelThread()
+{
+	m_renderingManager->UpdateSingleThread();
+}
+
 void Game::Clear()
 {
 	//TODO Fix clear
@@ -114,6 +119,11 @@ void Game::PushStateLUA(State * ptr)
 void Game::PopStateLUA()
 {
 	this->m_gameStack.pop();
+}
+
+void Game::ImGuiPoll()
+{
+	m_renderingManager->ImGuiProc();
 }
 
 void Game::_handleStateSwaps()
