@@ -66,7 +66,7 @@ void PlayerManager::_onRemotePlayerDisconnect(unsigned id, unsigned char * data)
 void PlayerManager::Update(float dt)
 {
 	static float accumulatedDT = 0;
-	static const float frequency = 1.0f / 5.f;
+	static const float frequency = 1.0f / 25.f; //one update each 40 ms
 
 	accumulatedDT += dt;
 
