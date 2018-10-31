@@ -4,19 +4,19 @@ class Tile
 {
 private:
 	int m_xCoord, m_yCoord;
-	bool m_blocked;
+	bool m_pathable;
 
 public:
-	Tile(int _x = -1, int _y = -1, bool _blocked = false);
+	Tile(int _x = -1, int _y = -1, bool _pathable = true);
 	virtual ~Tile();
 
 	// Getters
-	bool getBlocked();
+	bool getPathable();
 	int getX();
 	int getY();
 	
 	// Setters
-	void setBlocked(bool _blocked);
+	void setPathable(bool _pathable);
 
 	// Operators
 	bool operator==(Tile & other) const;

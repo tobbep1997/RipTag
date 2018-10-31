@@ -83,6 +83,14 @@ void LevelHandler::Update(float deltaTime)
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 		}
 	}
+	else if (InputHandler::isKeyPressed('H'))
+	{
+		if (pressed == false)
+		{
+			pressed = true;
+			m_rooms.at(m_activeRoom)->getPath();
+		}
+	}
 	else
 	{
 		pressed = false;

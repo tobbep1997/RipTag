@@ -11,7 +11,7 @@ Grid::Grid(int width, int height)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_tileMap.push_back(Tile(j, i));
+			m_nodeMap.push_back(Tile(j, i));
 		}
 	}
 }
@@ -20,15 +20,32 @@ Grid::~Grid()
 {
 }
 
+void Grid::CreateGridWithWorldPosValues(int width, int height, MyLibrary::GridStruct grid)
+{
+	m_nodeMap.clear();
+	m_width = width;
+	m_height = height;
+
+	for (int i = 0; i < m_height; i++)
+	{
+		for (int j = 0; j < m_width; j++)
+		{
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
+				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[0],
+					grid.gridPoints[j + i * m_width].translation[2])));
+		}
+	}
+}
+
 void Grid::ThreadPath(Tile src, Tile dest)
 {
-	pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
+	m_pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
 }
 
 std::vector<Node*> Grid::getPath()
 {
-	path = pathfindingFuture.get();
-	return path;
+	m_path = m_pathfindingFuture.get();
+	return m_path;
 }
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
@@ -39,8 +56,8 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		return std::vector<Node*>();
 	}
 
-	Tile dest = m_tileMap.at(destination.getX() + destination.getY() * m_width);
-	if (dest.getBlocked())
+	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
+	if (!dest.getPathable())
 	{
 		std::cout << "Destination is blocked\n";
 		return std::vector<Node*>();
@@ -54,7 +71,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	std::vector<Node*> earlyExploration;
 
 	Node * earlyExplorationNode = nullptr;
-	Node * current = new Node(source, nullptr, 0.0f, _calcHValue(source, dest));
+	Node * current = new Node(source, NodeWorldPos(), nullptr, 0.0f, _calcHValue(source, dest));
 	openList.push_back(current);
 
 	while (!openList.empty())
@@ -166,7 +183,7 @@ void Grid::printGrid()
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			std::cout << m_tileMap.at(j + i * m_width).getBlocked() << " ";
+			std::cout << m_nodeMap.at(j + i * m_width).tile.getPathable() << " ";
 		}
 		std::cout << "\n";
 	}
@@ -175,7 +192,7 @@ void Grid::printGrid()
 bool Grid::Ready()
 {
 	using namespace std::chrono_literals;
-	auto status = pathfindingFuture.wait_for(0s);
+	auto status = m_pathfindingFuture.wait_for(0s);
 	return status == std::future_status::ready;
 }
 
@@ -186,9 +203,9 @@ void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY
 	Tile nextTile = Tile(currentX + offsetX, currentY + offsetY);
 	int nextTileIndex = nextTile.getX() + nextTile.getY() * m_width;
 
-	if (_isValid(nextTile) && !closedList[nextTileIndex] && !m_tileMap.at(nextTileIndex).getBlocked())
+	if (_isValid(nextTile) && !closedList[nextTileIndex] && m_nodeMap.at(nextTileIndex).tile.getPathable())
 	{
-		Node * newNode = new Node(m_tileMap.at(nextTileIndex), current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
+		Node * newNode = new Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos, current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
 		openList.push_back(newNode);
 	}
 }
@@ -205,5 +222,5 @@ float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = abs(src.getX() - dest.getX());
 	int y = abs(src.getY() - dest.getY());
-	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * std::min(x, y);
+	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
 }

@@ -119,8 +119,8 @@ void Room::LoadRoomToMemory()
 		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
 
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
+		m_pathfindingGrid.CreateGridWithWorldPosValues(25, 25, m_grid);
 		m_staticAssets.push_back(temp);
-
 		m_roomLoaded = true;
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
 	}
@@ -130,9 +130,42 @@ void Room::LoadRoomToMemory()
 	}
 }
 
+void Room::getPath()
+{
+	std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0,0), Tile(24, 13));
+	std::cout << "Printing path..." << std::endl << std::endl;
+	for (int i = 0; i < path.size(); i++)
+	{
+		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
+		std::cout << "World x: " << path.at(i)->worldPos.x << " World y: " << path.at(i)->worldPos.y << std::endl;
+	}
+	std::cout << std::endl << "Path is finished printing..." << std::endl;
+	for (int i = 0; i < path.size(); i++)
+	{
+		delete path.at(i);
+		path.at(i) = nullptr;
+	}
+}
+
 
 void Room::Update(float deltaTime)
 {
+	/*if (m_pathfindingGrid.Ready())
+	{
+		std::vector<Node*> path = m_pathfindingGrid.getPath();
+		std::cout << "Printing path..." << std::endl << std::endl;
+		for (int i = 0; i < path.size(); i++)
+		{
+			std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
+			std::cout << "World x: " << path.at(i)->worldPos.x << " World y: " << path.at(i)->worldPos.y << std::endl;
+		}
+		std::cout << std::endl << "Path is finished printing..." << std::endl;
+		for (int i = 0; i < path.size(); i++)
+		{
+			delete path.at(i);
+			path.at(i) = nullptr;
+		}
+	}*/
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(0.001f);

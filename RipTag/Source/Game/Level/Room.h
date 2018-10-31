@@ -72,6 +72,9 @@ public:
 	//Memory Management
 	void UnloadRoomFromMemory();
 	void LoadRoomToMemory();
+
+	// Test section
+	void getPath();
 private:
 
 	
