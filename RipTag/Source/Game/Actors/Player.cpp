@@ -10,7 +10,7 @@
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
-	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 	
@@ -411,9 +411,31 @@ void Player::_onRotate(double deltaTime)
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
 		if (deltaX && !Input::PeekRight())
+		{
 			p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
-		if (deltaY)
-			p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+		}
+		if (deltaY) 
+		{
+			if ((p_camera->getDirection().y - deltaY * 5 * deltaTime) < 0.90f)
+			{
+				p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y >= 0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
+			}
+			if ((p_camera->getDirection().y - deltaY * 5 * deltaTime) > -0.90f)
+			{
+				p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y <= -0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
+			}
+			//std::cout << p_camera->getDirection().x << " :" <<p_camera->getDirection().y << " :" << p_camera->getDirection().z << std::endl;
+			
+		}
+		//ImGui::Begin("ro");
 	}
 }
 

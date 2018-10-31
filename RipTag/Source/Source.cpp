@@ -94,8 +94,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	std::vector<Node*> path;
 	
 	dt.getDeltaTimeInSeconds();
-	path = grid.FindPath(Tile(0, 0), Tile(299, 299));
-	std::cout << dt.getDeltaTimeInSeconds() << " seconds." << std::endl;
 
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)

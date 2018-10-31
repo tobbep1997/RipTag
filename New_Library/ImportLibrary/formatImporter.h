@@ -29,9 +29,9 @@ namespace MyLibrary
 		CollisionBoxes readMeshCollisionBoxes(const std::string & fileName);
 		PointLights readLightFile(const std::string & roomIndex);
 
-		startingPos readPlayerStartFile(const std::string & fileName, int whichPlayer);
+		StartingPos readPlayerStartFile(const std::string & fileName, int whichPlayer);
 		GuardStartingPositions readGuardStartFiles(const std::string & fileName);
-
+		GridStruct readGridFile(const std::string & fileName);
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);
 		Skeleton loadSkeleton(std::ifstream& file, int32_t boneCount);

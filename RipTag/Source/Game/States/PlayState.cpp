@@ -22,7 +22,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_rayListener = new RayCastListener();
 	RipExtern::m_rayListener = m_rayListener;
 	CameraHandler::Instance();
-	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	//auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
@@ -30,7 +30,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
-	future.get();
+//	future.get();
 	future1.get();
 
 
@@ -92,16 +92,18 @@ PlayState::~PlayState()
 	
 	
 	player->Release(m_world);
-	delete m_contactListener;
-	delete m_rayListener;
+	
 	delete player;
 	delete model;
 	delete triggerHandler;
 	pressureplate->Release(*RipExtern::g_world);
+
 	delete pressureplate;
 	lever->Release(*RipExtern::g_world);
 	delete lever;
 	delete door;
+	delete m_contactListener;
+	delete m_rayListener;
 }
 
 void PlayState::Update(double deltaTime)
