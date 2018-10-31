@@ -119,6 +119,7 @@ void RemotePlayer::Update(double dt)
 void RemotePlayer::Draw()
 {
 	Drawable::Draw();
+	m_abilityComponents[m_currentAbility]->Draw();
 }
 
 void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)

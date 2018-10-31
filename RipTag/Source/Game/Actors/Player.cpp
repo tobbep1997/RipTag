@@ -298,7 +298,7 @@ void Player::SendOnAbilityUsed()
 		break;
 	}
 
-	Network::Multiplayer::SendPacket((unsigned char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void Player::RegisterThisInstanceToNetwork()
