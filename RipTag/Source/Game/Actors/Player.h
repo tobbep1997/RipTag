@@ -101,7 +101,6 @@ public:
 	bool IsInputLocked();
 	void UnlockPlayerInput();
 
-	int getPossessState();
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 

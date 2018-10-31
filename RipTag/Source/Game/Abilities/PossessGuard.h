@@ -9,11 +9,12 @@ private:
 	const float RANGE = 10.0f;
 	const float COOLDOWN_WAIT_MAX = 1.0f;
 	const float COOLDOWN_POSSESSING_MAX = 1.0f;
+	const int MANA_COST_START = 5.0f;
+	const float MANA_COST_TICK_RATE = 1.0f;
 	enum PossessState
 	{
 		Possess,	// Ready to possess
 		Possessing,	// Is possessing
-		Return,     // Ready to return to body
 		Wait		// Just possessed
 	};
 	PossessState	m_pState;
@@ -34,7 +35,6 @@ public:
 	void Use() override;
 
 	void Draw() override;
-	int getPossessState();
 private:
 
 	void _logic(double deltaTime);

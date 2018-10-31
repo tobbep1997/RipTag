@@ -139,7 +139,7 @@ void Room::Update(float deltaTime)
 {
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
-		this->m_roomGuards.at(i)->Update(0.001f);
+		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
 		this->m_roomGuards.at(i)->_IsInSight();

@@ -116,7 +116,7 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			_TempGuardPath(true, deltaTime);
+			_TempGuardPath(true, 0.001f);
 			//_IsInSight();
 		}
 	}
@@ -163,9 +163,9 @@ bool Enemy::GetDisabledState()
 
 void Enemy::_handleInput(double deltaTime)
 {
-	_handleMovement(deltaTime);
-	_handleRotation(deltaTime);
-	_possessed();
+	_handleMovement(0.001f);
+	_handleRotation(0.001f);
+	_possessed(deltaTime);
 }
 
 void Enemy::_handleMovement(double deltaTime)
@@ -240,19 +240,44 @@ Enemy* Enemy::validate()
 {
 	return this;
 }
-void Enemy::setPossessor(Actor* possessor)
+void Enemy::setPossessor(Actor* possessor, float maxDuration, float delay)
 {
 	m_possessor = possessor;
+	m_possessReturnDelay = delay;
+	m_maxPossessDuration = maxDuration;
 }
 
-void Enemy::_possessed()
+void Enemy::removePossessor()
 {
-	if (m_possessor != nullptr && Input::Possess())
+	if (m_possessor != nullptr)
 	{
-		if (static_cast<Player*>(m_possessor)->getPossessState() == 2)
+		static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+		m_possessor = nullptr;
+		m_possessReturnDelay = 0;
+		m_maxPossessDuration = 0;
+	}
+}
+
+void Enemy::_possessed(double deltaTime)
+{
+	if (m_possessor != nullptr)
+	{
+		if (m_possessReturnDelay <= 0)
 		{
-			static_cast<Player*>(m_possessor)->UnlockPlayerInput();
-			m_possessor = nullptr;
+			if (Input::Possess())
+			{
+				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor = nullptr;
+			}
+			else if(m_maxPossessDuration <= 0)
+			{
+				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor = nullptr;
+			}
 		}
+		else
+			m_possessReturnDelay -= deltaTime;
+
+		m_maxPossessDuration -= deltaTime;
 	}
 }
