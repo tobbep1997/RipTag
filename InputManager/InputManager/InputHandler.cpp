@@ -19,6 +19,9 @@ DirectX::XMINT2 InputHandler::m_viewportSize;
 bool InputHandler::m_windowInFocus;
 
 BOOL InputHandler::m_showCursor;
+bool InputHandler::m_update;
+
+bool InputHandler::m_closeGame;
 
 bool InputHandler::isKeyPressed(int keyCode)
 {
@@ -129,6 +132,8 @@ InputHandler::InputHandler()
 		m_mouseKeys[i] = false; 
 		m_mouseWasPressed[i] = false; 
 	}
+	m_update = false;
+	m_closeGame = false;
 }
 
 InputHandler::~InputHandler()
@@ -150,13 +155,46 @@ DirectX::XMFLOAT2 InputHandler::getMousePosition()
 void InputHandler::setShowCursor(BOOL b)
 {
 	m_showCursor = b;
-	if (b)
+	m_update = true;
+	/*if (b) {
 		while (ShowCursor(b) <= 0) {}
-	else
+		
+	}
+	else {
 		while (ShowCursor(b) >= 0) {}
+
+	}*/
 }
 
 BOOL InputHandler::getShowCursor()
 {
 	return m_showCursor;
+}
+
+void InputHandler::WindowSetShowCursor()
+{
+	if (m_update)
+	{
+
+		if (m_showCursor) {
+			while (ShowCursor(m_showCursor) <= 0) {}
+
+		}
+		else {
+			while (ShowCursor(m_showCursor) >= 0) {}
+
+		}
+		m_update = false;
+	}
+	
+}
+
+void InputHandler::CloseGame()
+{
+	m_closeGame = true;
+}
+
+bool InputHandler::GetClosedGame()
+{
+	return m_closeGame;  
 }
