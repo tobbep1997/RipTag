@@ -9,35 +9,80 @@ void CameraHolder::p_initCamera(Camera * camera)
 
 double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState)
 {
-	//std::cout << moveState << std::endl;
 	switch (moveState)
 	{
 	case Walking:
-		if (velocity != 0)
-		{
-			m_walkBob += (velocity * (moveSpeed * deltaTime));					
-			m_offset = m_walkingBobAmp * sin(m_walkingFreq * m_walkBob);
-		}
-		else
-		{
 
+		if (m_currentAmp < m_walkingBobAmp)
+		{
+			m_currentAmp += deltaTime * 0.03; 
 		}
+		else if (m_currentAmp > m_walkingBobAmp)
+		{
+			m_currentAmp -= deltaTime * 0.03; 
+		}
+
+		if (m_currentFreq < m_walkingFreq)
+		{
+			m_currentFreq += deltaTime * 0.03; 
+		}
+		else if (m_currentFreq > m_walkingFreq)
+		{
+			m_currentFreq -= deltaTime * 0.03; 
+		}
+
+		m_walkBob += (velocity * (moveSpeed * deltaTime));
+		m_offset = m_currentAmp * sin(m_currentFreq * m_walkBob);
 
 		break;
 	case Sprinting:
-
 		if (velocity != 0)
 		{
+			if (m_currentAmp < m_sprintingBobAmp)
+			{
+				m_currentAmp += deltaTime * 0.03; 
+			}
+			else if (m_currentAmp > m_sprintingBobAmp)
+			{
+				m_currentAmp -= deltaTime * 0.03; 
+			}
+
+			if (m_currentFreq < m_sprintingFreq)
+			{
+				m_currentFreq += deltaTime * 0.03; 
+			}
+			else if (m_currentFreq > m_sprintingFreq)
+			{
+				m_currentFreq -= deltaTime * 0.03; 
+			}
+
+
 			m_sprintBob += (velocity * (moveSpeed * deltaTime));
-			m_offset = m_sprintingBobAmp * sin(m_sprintingFreq * m_sprintBob);
-		}
-		else
-		{
+			m_offset = m_currentAmp * sin(m_currentFreq * m_sprintBob);
 		}
 		break;
 	case Idle:
-		m_currentAmp += deltaTime; 
-		m_offset = m_stopBobAmp * sin(m_stopBobFreq * m_currentAmp);
+
+		if (m_currentAmp < m_stopBobAmp)
+		{
+			m_currentAmp += deltaTime * 0.03; 
+		}
+		else if (m_currentAmp > m_stopBobAmp)
+		{
+			m_currentAmp -= deltaTime * 0.03; 
+		}
+
+		if (m_currentFreq < m_stopBobFreq)
+		{
+			m_currentFreq += deltaTime * 0.03; 
+		}
+		else if (m_currentFreq > m_stopBobFreq)
+		{
+			m_currentFreq -= deltaTime * 0.03;
+		}
+
+		m_stopBob += deltaTime; 
+		m_offset = m_currentAmp * sin(m_currentFreq * m_stopBob);
 		break;
 	}
 
