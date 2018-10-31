@@ -156,7 +156,7 @@ ProcMsg & Window::getWindowProcMsg()
 
 Window::Window()
 {
-
+	m_isOpen = true;
 }
 
 Window::~Window()
@@ -238,13 +238,20 @@ void Window::PollEvents()
 
 bool Window::isOpen()
 {
+	if (InputHandler::GetClosedGame())
+	{
+		return false;
+	}
+	else
+	{
+		return WM_QUIT != m_Peekmsg.message;
+	}
 	
-	return WM_QUIT != m_Peekmsg.message;
 }
 
 void Window::Close()
 {
-	PostQuitMessage(0);
+	m_isOpen = false;
 }
 
 WindowContext& Window::getWindowContext()
