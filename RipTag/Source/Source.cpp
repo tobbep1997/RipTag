@@ -37,7 +37,32 @@ void GameLoop(Game * game)
 		game->Clear();
 
 		//Pollevents
-		
+
+		//Draw and update
+		game->ImGuiFrameStart();
+		game->Update(deltaTime);
+		game->Draw();
+	}
+}
+
+void SingleGameLoop(Game * game)
+{
+	DeltaTime dt;
+	float deltaTime = 0.0f;
+	float deltaNega = 0;
+	while (game->isRunning())
+	{
+
+		deltaTime = dt.getDeltaTimeInSeconds();
+		if (deltaTime > 1.0f)
+			deltaTime = 1 / 60.0f;
+		game->PollSingelThread();
+
+		//This is to avoid Pollevents from fucking with the game
+		game->Clear();
+
+		//Pollevents
+
 		//Draw and update
 		game->ImGuiFrameStart();
 		game->Update(deltaTime);
@@ -51,15 +76,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
 
-	std::thread gameLoop;
+	
 
 	Game game;
 	game.Init(hInstance);
 	std::cout << "hello";
-	
+
+	/*std::thread gameLoop;
 	gameLoop = std::thread(&GameLoop, &game);
 	game.PollEvents();
 
+	//gameLoop.join();*/
+
+	SingleGameLoop(&game);
 	
 	/*Grid grid = Grid(300, 300);
 	std::vector<Node*> path;
@@ -83,7 +112,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		path.at(i) = nullptr;
 	}*/
 
-	gameLoop.join();
+	
 
 	DX::g_shaderManager.Release();
 	return 0;
