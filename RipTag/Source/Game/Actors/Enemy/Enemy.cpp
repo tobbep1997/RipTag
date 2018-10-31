@@ -17,7 +17,7 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 	m_vc.Init(this->p_camera);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	this->setDir(1, 0, 0);
-	this->getCamera()->setFarPlane(5);
+	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
@@ -29,7 +29,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
 	this->setDir(1, 0, 0);
-	this->getCamera()->setFarPlane(5);
+	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->Init(*world, e_staticBody);
