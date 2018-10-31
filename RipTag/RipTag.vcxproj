@@ -172,6 +172,8 @@
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
+    <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
+    <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
@@ -206,6 +208,7 @@
     <ClCompile Include="Source\Game\Game.cpp" />
     <ClCompile Include="Source\Game\Handlers\CameraHandler.cpp" />
     <ClCompile Include="Source\Game\Handlers\LevelHandler.cpp" />
+    <ClCompile Include="Source\Game\Handlers\ObjectHandler.cpp" />
     <ClCompile Include="Source\Game\Level\Room.cpp" />
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
@@ -217,6 +220,8 @@
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
+    <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
+    <ClInclude Include="Source\Game\Handlers\PlayerManager.h" />
     <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
     <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
@@ -270,6 +275,7 @@
     <ClInclude Include="Source\Game\Game.h" />
     <ClInclude Include="Source\Game\Handlers\CameraHandler.h" />
     <ClInclude Include="Source\Game\Handlers\LevelHandler.h" />
+    <ClInclude Include="Source\Game\Handlers\ObjectHandler.h" />
     <ClInclude Include="Source\Game\Level\Room.h" />
     <ClInclude Include="Source\Game\States\MainMenu.h" />
     <ClInclude Include="Source\Game\States\PlayState.h" />

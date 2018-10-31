@@ -88,6 +88,14 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 }
 
+Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
+{
+	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	p_camera->setPosition(x, y, z);
+	this->m_rayListener = new RayCastListener();
+	m_lockPlayerInput = false;
+}
+
 Player::~Player()
 {
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
@@ -175,9 +183,19 @@ void Player::Update(double deltaTime)
 	HUDComponent::setSelectedQuad(m_currentAbility);
 }
 
-void Player::PhysicsUpdate(double deltaTime)
+void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
+
+	//temporary
+	std::string output;
+	output += "X: " + std::to_string(this->getLiniearVelocity().x);
+	output += "\nY: " + std::to_string(this->getLiniearVelocity().y);
+	output += "\nZ: " + std::to_string(this->getLiniearVelocity().z);
+
+	ImGui::Begin("Player Velocity");
+	ImGui::Text(output.c_str());
+	ImGui::End();
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -264,27 +282,26 @@ void Player::SetCurrentVisability(const float & guard)
 	this->m_visability = guard;
 }
 
-void Player::SendOnJumpMessage()
+void Player::SendOnUpdateMessage()
 {
-	Network::ENTITY_EVENT packet(Network::ID_PLAYER_JUMP, Network::Multiplayer::GetInstance()->GetNetworkID());
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::MEDIUM_PRIORITY);
-}
+	Network::ENTITYUPDATEPACKET packet = Network::ENTITYUPDATEPACKET(
+		Network::ID_PLAYER_UPDATE,
+		Network::Multiplayer::GetInstance()->GetNetworkID(),
+		PlayerState::Idle,
+		this->getPosition(),
+		this->getEulerRotation());
 
-void Player::SendOnMovementMessage()
-{
-	DirectX::XMFLOAT4A pos = this->getPosition();
-	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z);
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
+	
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
-
 
 void Player::RegisterThisInstanceToNetwork()
 {
-	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnJumpMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnMovementMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnMovementMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnMovementMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnUpdateMessage, this));
 }
 
 void Player::_handleInput(double deltaTime)
@@ -441,10 +458,11 @@ void Player::_onJump()
 			m_kp.jump = true;
 		}
 	}
-	else
-	{
+
+
+	float epsilon = 0.0002;
+	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
-	}
 }
 
 void Player::_onPickup()

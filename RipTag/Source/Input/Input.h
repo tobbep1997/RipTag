@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <list>
+#include <sstream>
 
 class Input
 {
@@ -50,12 +51,20 @@ public:
 
 };
 
+
+
+
+
 class InputMapping
 {
 public:
 	static std::map<std::string, std::function<void()>> functionMap;
 	static std::map<int, std::string> keyMap;
 	static std::map<int, std::string> devKeyMap; //This key map is reserved for keybinding for Dev tools
+
+	//Gamepad maps -> the key is the function, the value is the string to use in the Network OnSend map
+	static std::map<std::string, std::function<float()>> gamePadFunctionMapFloat;
+	static std::map<std::string, std::function<bool()>> gamePadFunctionMapBool;
 
 	static void Init();
 	static bool isInitialized;
@@ -67,4 +76,7 @@ public:
 	static void Call();
 private:
 	static void _ReloadKeyMapping();
+	static void _LoadGamePadMapping();
+	static void _KeyboardCalls();
+	static void _GamePadCalls();
 };

@@ -13,6 +13,7 @@ ContactListener * RipExtern::m_contactListener;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
+
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
@@ -30,14 +31,33 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	future.get();
 	future1.get();
-
-
-	player = new Player();
-
-	CameraHandler::setActiveCamera(player->getCamera());
-
-	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->RegisterThisInstanceToNetwork();
+	m_playerManager->CreateLocalPlayer();
+
+	Timer::StopTimer();
+	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
+
+
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+
+
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
+	//player->setPosition(0, 5, 0, 0);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+
+	
+
+
+	//enemy->setDir(1, 0, 0);
+	//enemy->getCamera()->setFarPlane(5);
 
 	model = new Drawable();
 	model->setEntityType(EntityType::PlayerType);
@@ -47,7 +67,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTextureTileMult(50, 50);
 
 	
-	m_levelHandler.setPlayer(player);
+	m_levelHandler.setPlayer(m_playerManager->getLocalPlayer());
 	m_levelHandler.Init(m_world);
 	
 	Input::ResetMouse();
@@ -62,8 +82,11 @@ PlayState::~PlayState()
 	m_levelHandler.Release();
 	delete m_contactListener;
 	
-	player->Release(m_world);
-	delete player;
+	m_playerManager->getLocalPlayer()->Release(m_world);
+	
+	delete m_playerManager;
+
+	//actor->Release(m_world);
 	delete model;
 }
 
@@ -80,16 +103,16 @@ void PlayState::Update(double deltaTime)
 		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
-	player->Update(deltaTime);
+	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
+	m_playerManager->Update(deltaTime);
+	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	
 	
 	m_step.dt = deltaTime;
 	m_contactListener->ClearContactQueue();
 	m_world.Step(m_step);
-
-	
-	player->PhysicsUpdate(deltaTime);
+	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
@@ -98,14 +121,14 @@ void PlayState::Update(double deltaTime)
 
 
 	// Must be last in update
-	if (!player->unlockMouse)
+	if (!m_playerManager->getLocalPlayer()->unlockMouse)
 	{
 		Input::ResetMouse();
-		InputHandler::setShowCursor(NEIN);
+		InputHandler::setShowCursor(false);
 	}
 	else
 	{
-		InputHandler::setShowCursor(JAAH);
+		InputHandler::setShowCursor(true);
 	}
 }
 
@@ -113,10 +136,9 @@ void PlayState::Draw()
 {
 	m_levelHandler.Draw();
 	
-	player->Draw();
-	model->Draw();
-
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+	m_playerManager->Draw();
+		
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
 
 void PlayState::thread(std::string s)
@@ -155,15 +177,25 @@ void PlayState::TemporaryLobby()
 			ptr->EndConnectionAttempt();
 	}
 
-	if (ptr->isRunning() && ptr->isConnected())
+	if (ptr->isRunning() && ptr->isConnected() && !ptr->isGameRunning())
 	{
 		if (ptr->isServer() && !ptr->isGameRunning())
 			if (ImGui::Button("Start Game"))
-			{				//set game running, send a start game message
+			{
+				ptr->setIsGameRunning(true);
+				Network::EVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
 			}
 		ImGui::Text(ptr->GetNetworkInfo().c_str());
 		if (ImGui::Button("Disconnect"))
 			ptr->Disconnect();
 	}
+
+	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
+	{
+		if (ImGui::Button("Spawn on Remote"))
+			m_playerManager->SendOnPlayerCreate();
+	}
+
 	ImGui::End();
 }

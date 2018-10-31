@@ -14,10 +14,6 @@
 #include "../Abilities/Disable/DisableAbility.h"
 
 
-namespace FUNCTION_STRINGS
-{
-	static const char * JUMP = "Jump";
-}
 
 struct KeyPressed
 {
@@ -46,8 +42,9 @@ private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
 	int m_currentAbility = 0;
-	PossessGuard m_possess;
-	BlinkAbility m_blink;
+	Enemy* possessTarget;	
+	PlayerState m_currentState = PlayerState::Idle;
+
 	float m_standHeight;
 	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
@@ -76,6 +73,8 @@ public:
 
 	bool unlockMouse = false;
 	Player();
+	Player(RakNet::NetworkID nID, float x, float y, float z);
+
 	~Player();
 
 	void Init(b3World& world, b3BodyType bodyType, float x, float y, float z);
@@ -83,16 +82,14 @@ public:
 	void BeginPlay();
 	void Update(double deltaTime);
 
-	void PhysicsUpdate(double deltaTime);
+	void PhysicsUpdate();
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void Draw() override;
 
 	//Networking
-	void SendOnJumpMessage();
-	void SendOnMovementMessage();
-
+	void SendOnUpdateMessage();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
