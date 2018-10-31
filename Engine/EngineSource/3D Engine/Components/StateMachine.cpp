@@ -12,6 +12,16 @@ namespace SM
 		: m_Name(name)
 	{}
 
+	AnimationState* AnimationState::EvaluateAll()
+	{
+		for (auto& outState : m_OutStates)
+		{
+			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
+				return { outState.second.state };
+		}
+		return nullptr;
+	}
+
 	AnimationState::~AnimationState()
 	{}
 
@@ -25,12 +35,20 @@ namespace SM
 	}
 
 	std::optional<AnimationState*> AnimationState::EvaluateAllTransitions(std::string key)
-{
-		auto& t = m_OutStates.at(key);
-		if (std::all_of(t.transitions.begin(), t.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
-			return { t.state };
-		else return {};
-		return {};
+	{
+		SM::OutState* t;
+		try
+		{
+			t = &(m_OutStates.at(key));
+		}
+		catch (std::out_of_range oor)
+		{
+			return std::nullopt;
+		}
+
+		if (std::all_of(t->transitions.begin(), t->transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
+			return { t->state };
+		return std::nullopt;
 	}
 
 	std::string AnimationState::GetName()
@@ -48,20 +66,28 @@ namespace SM
 	AnimationStateMachine::~AnimationStateMachine()
 	{
 		for (auto& i : m_States)
-			delete i;
+			delete i.second;
 	}
 
 	SM::BlendSpace1D* AnimationStateMachine::AddBlendSpace1DState(std::string name, float* blendSpaceDriver, float min, float max)
 	{
 		BlendSpace1D* state = new BlendSpace1D(name, blendSpaceDriver, min, max);
-		m_States.push_back(static_cast<AnimationState*>(state));
+		m_States.insert(std::make_pair(name, static_cast<AnimationState*>(state)));
 		return state;
 	}
 
 	SM::BlendSpace2D* AnimationStateMachine::AddBlendSpace2DState(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY)
 	{
 		BlendSpace2D* state = new BlendSpace2D(name, blendSpaceDriverX, blendSpaceDriverY, minX, maxX, minY, maxY);
-		m_States.push_back(static_cast<AnimationState*>(state));
+		m_States.insert(std::make_pair(name, static_cast<AnimationState*>(state)));
+		return state;
+	}
+
+	SM::LoopState* AnimationStateMachine::AddLoopState(std::string name, Animation::AnimationClip* clip)
+	{
+		LoopState* state = new LoopState(name);
+		state->SetClip(clip);
+		m_States.insert(std::make_pair(name, static_cast<AnimationState*>(state)));
 		return state;
 	}
 
@@ -72,16 +98,30 @@ namespace SM
 
 	void AnimationStateMachine::SetState(std::string stateName)
 	{
-		auto it = std::find_if(m_States.begin(), m_States.end(),
-			[&](const auto& p) { return p->GetName() == stateName; });
-		if (it != m_States.end())
-			m_CurrentState = *it;
+		m_CurrentState = m_States.at(stateName);
+	}
+
+	void AnimationStateMachine::SetStateIfAllowed(std::string stateName)
+	{
+		auto stateOpt = m_CurrentState->EvaluateAllTransitions(stateName);
+		if (stateOpt.has_value())
+			m_CurrentState = stateOpt.value();
 	}
 
 	SM::AnimationState& AnimationStateMachine::GetCurrentState()
 	{
 		return *m_CurrentState;
 	}
+
+	void AnimationStateMachine::UpdateCurrentState()
+	{
+		//returns the first state that has all conditions satisfied, if any.
+		AnimationState* state = m_CurrentState->EvaluateAll();
+		if (state)
+			m_CurrentState = state;
+		std::cout << m_CurrentState->GetName() << std::endl;
+	}
+
 #pragma endregion "StateMachine"
 
 #pragma region "StateVisitor"
@@ -108,6 +148,19 @@ namespace SM
 
 		// #todo
 	}
+	void StateVisitor::dispatch(LoopState & state)
+	{
+		if (!m_AnimatedModel)
+			return;
+
+		m_AnimatedModel->UpdateLooping(state.GetClip());
+	}
+
+	void StateVisitor::dispatch(AutoTransitionState& state)
+	{
+
+	}
+
 #pragma endregion "StateVisitor"
 
 #pragma region "BlendSpace1D"
@@ -243,4 +296,55 @@ namespace SM
 		else return std::make_pair(std::nullopt, std::nullopt);
 	}
 #pragma endregion "BlendSpace2D"
+
+#pragma region "AutoTransState"
+	AutoTransitionState::AutoTransitionState(std::string name)
+		: AnimationState(name)
+	{
+	}
+
+	AutoTransitionState::~AutoTransitionState()
+	{
+
+	}
+
+	STATE_TYPE AutoTransitionState::recieveStateVisitor(StateVisitorBase & visitor)
+	{
+		visitor.dispatch(*this);
+		return STATE_TYPE();
+	}
+
+#pragma endregion "AutoTransState"
+
+#pragma region "LoopState"
+	LoopState::LoopState(std::string name) 
+		: AnimationState(name)
+	{
+	}
+
+	LoopState::~LoopState()
+	{
+
+	}
+
+	void LoopState::SetClip(Animation::AnimationClip * clip)
+	{
+		m_Clip = clip;
+	}
+
+	Animation::AnimationClip* LoopState::GetClip()
+	{
+		return m_Clip;
+	}
+
+	STATE_TYPE LoopState::recieveStateVisitor(StateVisitorBase & visitor)
+	{
+		visitor.dispatch(*this);
+		return STATE_TYPE();
+	}
+
+#pragma endregion "LoopState"
+
+
+
 }

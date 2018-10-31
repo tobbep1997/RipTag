@@ -67,24 +67,53 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
 	auto fwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION");
 	auto bwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION");
-	auto lft_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT_ANIMATION");
-	auto rgt_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT_ANIMATION");
+	auto lft_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION");
+	auto rgt_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION");
+	auto jmp_clip = Manager::g_animationManager.getAnimation("STATE", "JUMP_ANIMATION");
 	model->getAnimatedModel()->SetPlayingClip(idle_clip.get());
 	model->getAnimatedModel()->Play();
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
-	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(1);
+	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
 
 	static float hSpeed = 1.50;
 	static float hDir = 78;
-	auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &player->m_currentDirection, &player->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
+	auto blendFwd = stateMachine->AddBlendSpace2DState("loco_fwd", &player->m_currentDirection, &player->m_currentSpeed, -90.0f, 90.f, 0.0f, 3.001f);
+	auto blendBwd = stateMachine->AddBlendSpace2DState("loco_bwd", &player->m_currentDirection, &player->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
+
+	auto& fwdToBwdL = blendFwd->AddOutState(blendBwd);
+	fwdToBwdL.AddTransition(&player->m_currentDirection, -89.9999999f, 89.9999999f, SM::COMPARISON_OUTSIDE_RANGE);
+
+	auto& bwdToFwdL = blendBwd->AddOutState(blendFwd);
+	bwdToFwdL.AddTransition(&player->m_currentDirection, -90.f, 90.f, SM::COMPARISON_INSIDE_RANGE);
+
 	//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
 
-	blendState->AddRow(0.0, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
-	blendState->AddRow(3.1, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
-	//blendState->AddBlendNodes(v);
-	stateMachine->SetState("idle_states");
-	stateMachine->SetModel(model->getAnimatedModel());
+	blendFwd->AddRow(0.0, { { idle_clip.get(), -90.f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f } });
+	blendFwd->AddRow(3.1, { {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f } });
 
+	blendBwd->AddRow(0.0, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
+	blendBwd->AddRow(3.1, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
+	//blendState->AddBlendNodes(v);
+	auto idleState = stateMachine->AddLoopState("idle", idle_clip.get());
+	auto jumpState = stateMachine->AddLoopState("jump", jmp_clip.get());
+
+	auto& idleToJump = idleState->AddOutState(jumpState);
+	auto& locoToJump = blendFwd->AddOutState(jumpState);
+	idleToJump.AddTransition(&player->m_jumpedThisFrame, true, SM::COMPARISON_EQUAL);
+	locoToJump.AddTransition(&player->m_jumpedThisFrame, true, SM::COMPARISON_EQUAL);
+
+	auto& idleToLoco = idleState->AddOutState(blendFwd);
+	idleToLoco.AddTransition(&player->m_currentSpeed, 0.001f, SM::COMPARISON_GREATER_THAN);
+	stateMachine->SetState("loco_fwd");
+	stateMachine->SetModel(model->getAnimatedModel());
+	auto& locoToIdle = blendFwd->AddOutState(idleState);
+	locoToIdle.AddTransition(&player->m_currentSpeed, 0.001f, SM::COMPARISON_LESS_THAN);
+
+	auto& jumpToIdle = jumpState->AddOutState(idleState);
+	auto& jumpToLoco = jumpState->AddOutState(blendFwd);
+	jumpToIdle.AddTransition(&player->m_currentSpeed, 0.01f, SM::COMPARISON_LESS_THAN);
+	jumpToIdle.AddTransition(&player->m_isInAir, false, SM::COMPARISON_EQUAL);
+	jumpToLoco.AddTransition(&player->m_isInAir, false, SM::COMPARISON_EQUAL);
 
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);

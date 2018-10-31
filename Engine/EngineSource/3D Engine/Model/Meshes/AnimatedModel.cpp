@@ -28,6 +28,8 @@ void Animation::AnimatedModel::Update(float deltaTime)
 	m_currentFrameDeltaTime = deltaTime;
 	static SM::StateVisitor visitor(this); // #todoREMOVE
 
+	m_StateMachine->UpdateCurrentState();
+
 	auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(visitor);
 
 	switch (stateType)
@@ -755,6 +757,43 @@ void Animation::AnimatedModel::_computeModelMatricesCombined(SkeletonPose* first
 		auto finalJointPose = _interpolateJointPose(&jointPose1, &jointPose2, clipBlendWeight);
 
 		XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(finalJointPose.m_transformation), parentGlobalMatrix)); // #matrixmultiplication
+	}
+}
+
+void Animation::AnimatedModel::UpdateLooping(Animation::AnimationClip* clip)
+{
+	if (clip != m_currentClip)
+		this->SetPlayingClip(clip, true, false);
+
+	{
+		/// increase local time
+		//done in _computeIndexAndProgression()
+
+		///calc the actual frame index and progression towards the next frame
+		auto indexAndProgression = _computeIndexAndProgression(m_currentFrameDeltaTime, &m_currentTime, m_currentClip->m_frameCount);
+		auto prevIndex = indexAndProgression.first;
+		auto progression = indexAndProgression.second;
+
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (prevIndex >= m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
+		{
+			assert(1 == 0);
+			if (m_isLooping)
+			{
+				m_currentTime = 0.0 + progression;
+
+				prevIndex = std::floorf(m_currentClip->m_framerate / 2 * m_currentTime);
+				progression = std::fmod(m_currentTime, 1.0 / 24.0);
+			}
+			else
+			{
+				m_isPlaying = false;
+			}
+		}
+
+		/// compute skinning matrices
+		if (m_isPlaying)
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
 	}
 }
 

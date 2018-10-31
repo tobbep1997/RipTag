@@ -231,6 +231,8 @@ namespace Animation
 
 		void UpdateCombined(float deltaTime);
 		void _computeModelMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
+	public:
+		void UpdateLooping(Animation::AnimationClip* clip);
 	};
 
 #pragma region AnimationCBufferClass

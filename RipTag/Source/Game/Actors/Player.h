@@ -26,8 +26,12 @@ struct KeyPressed
 
 class Player : public Actor, public CameraHolder, public PhysicsComponent
 {
-private:
+private: //stuff for state machine
 	friend class PlayState;
+	bool m_jumpedThisFrame = false;
+	bool m_isInAir = false;
+	float m_currentSpeed = 0.0f; //[0,1]
+	float m_currentDirection = 0.0; //[-1,1]
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 3.0f;
@@ -39,8 +43,6 @@ private:
 	float m_standHeight;
 	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
-	float m_currentSpeed = 0.0f; //[0,1]
-	float m_currentDirection = 0.0; //[-1,1]
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
 	

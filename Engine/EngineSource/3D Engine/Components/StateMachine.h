@@ -22,7 +22,9 @@ namespace SM
 		COMPARISON_EQUAL,
 		COMPARISON_NOT_EQUAL,
 		COMPARISON_LESS_THAN,
-		COMPARISON_GREATER_THAN
+		COMPARISON_GREATER_THAN,
+		COMPARISON_OUTSIDE_RANGE,
+		COMPARISON_INSIDE_RANGE
 	};
 
 	class TransitionBase
@@ -40,14 +42,21 @@ namespace SM
 	{
 	public:
 		TransitionCondition(T* reference, const T value, const COMPARISON_TYPE type);
+		TransitionCondition(T* reference, const T min, const T max, const COMPARISON_TYPE type);
 		~TransitionCondition() {};
 
 		bool Evaluate() const override;
 	private:
 		T* m_Reference = nullptr;
 		T m_Value = 0;
+		T m_Value2 = 0;
 		COMPARISON_TYPE m_Type;
 	};
+
+	template <typename T>
+	SM::TransitionCondition<T>::TransitionCondition(T* reference, const T min, const T max, const COMPARISON_TYPE type)
+		: m_Reference(reference), m_Value(min), m_Value2(max), m_Type(type)
+	{}
 
 	template <typename T>
 	bool SM::TransitionCondition<T>::Evaluate() const
@@ -65,6 +74,12 @@ namespace SM
 			break;
 		case SM::COMPARISON_GREATER_THAN:
 			return *m_Reference > m_Value;
+			break;
+		case SM::COMPARISON_INSIDE_RANGE:
+			return *m_Reference > m_Value && *m_Reference < m_Value2;
+			break;
+		case SM::COMPARISON_OUTSIDE_RANGE:
+			return *m_Reference < m_Value || *m_Reference > m_Value2;
 			break;
 		default:
 			return false;
@@ -89,12 +104,19 @@ namespace SM
 
 		template <class T>
 		void AddTransition(T* ref, const T value, COMPARISON_TYPE type);
+		template <class T>
+		void AddTransition(T* ref, const T min, const T max, COMPARISON_TYPE type);
 	};
 
 	template <class T>
 	void SM::OutState::AddTransition(T* ref, const T value, COMPARISON_TYPE type)
 	{
 		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, value, type));
+	}
+	template <class T>
+	void SM::OutState::AddTransition(T* ref, const T min, const T max, COMPARISON_TYPE type)
+	{
+		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, min, max, type));
 	}
 #pragma endregion "Transition"
 
@@ -122,6 +144,7 @@ namespace SM
 		AnimationState(const AnimationState& other) = delete;
 		virtual STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
+		AnimationState* EvaluateAll();
 	private:
 		std::string m_Name = "";
 
@@ -130,11 +153,16 @@ namespace SM
 
 	class BlendSpace1D;
 	class BlendSpace2D;
+	class LoopState;
+	class AutoTransitionState;
 	class StateVisitorBase{
 	public:
 		virtual void dispatch(BlendSpace1D& state) = 0;
 		virtual void dispatch(BlendSpace2D& state) = 0;
+		virtual void dispatch(LoopState& state) = 0;
+		virtual void dispatch(AutoTransitionState& state) = 0;
 	};
+
 #pragma endregion "AnimationState"
 
 #pragma region "BlendSpace1D"
@@ -225,6 +253,37 @@ namespace SM
 	};
 #pragma endregion "BlendSpace2D"
 
+#pragma region "LoopState"
+
+	class LoopState : public AnimationState
+	{
+	public:
+		LoopState(std::string name);
+		~LoopState();
+
+		void SetClip(Animation::AnimationClip* clip);
+		Animation::AnimationClip* GetClip();
+		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override;
+	private:
+		Animation::AnimationClip* m_Clip{};
+	};
+
+#pragma endregion "LoopState"
+
+#pragma region "AutoTransState"
+
+	class AutoTransitionState : public AnimationState
+	{
+	public:
+		AutoTransitionState(std::string name);
+		~AutoTransitionState();
+	
+		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override;
+	private:
+	};
+
+#pragma endregion "AutoTransState"
+
 #pragma region "Visitors"
 	class StateVisitor : public StateVisitorBase{
 	public:
@@ -232,6 +291,8 @@ namespace SM
 		{}
 		virtual void dispatch(BlendSpace1D& state) override;
 		virtual void dispatch(BlendSpace2D& state) override;
+		virtual void dispatch(LoopState& state) override;
+		virtual void dispatch(AutoTransitionState& state) override;
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
 	};
@@ -248,13 +309,17 @@ namespace SM
 		//Returns a pointer to the new state.
 		///AnimationState* AddState(std::string name);
 		BlendSpace1D* AddBlendSpace1DState
-		(std::string name, float* blendSpaceDriver, float min, float max);
+			(std::string name, float* blendSpaceDriver, float min, float max);
 		BlendSpace2D* AddBlendSpace2DState
-		(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY);
-		
+			(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY);
+		LoopState* AddLoopState
+			(std::string name, Animation::AnimationClip* clip);
+
 		void SetState(std::string stateName);
+		void SetStateIfAllowed(std::string stateName);
 		void SetModel(Animation::AnimatedModel* model);
 		AnimationState& GetCurrentState();
+		void UpdateCurrentState();
 	private:
 		//The animated model to set the clip to when we enter a state
 		Animation::AnimatedModel* m_AnimatedModel;
@@ -263,7 +328,7 @@ namespace SM
 		AnimationState* m_CurrentState = nullptr;
 
 		//The states of this machine
-		std::vector<AnimationState*> m_States;
+		std::unordered_map<std::string, AnimationState*> m_States;
 	};
 #pragma endregion "StateMachine"
 

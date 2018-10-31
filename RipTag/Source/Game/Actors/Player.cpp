@@ -38,10 +38,18 @@ void Player::Update(double deltaTime)
 {
 	using namespace DirectX;
 
+	//set jumpedThisFrame to false
+	m_jumpedThisFrame = false;
+
 	//calculate walk direction (-1, 1, based on camera) and movement speed
 	{
 		///Speed
 		auto physSpeed = this->getLiniearVelocity();
+		
+		//if y speed is zero, set isInAir to false,
+		if (std::abs(physSpeed.y) < 0.001f)
+			m_isInAir = false;
+
 		float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
 		m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
 
@@ -331,6 +339,8 @@ void Player::_onJump()
 		{
 			addForceToCenter(0, JUMP_POWER, 0);
 			m_kp.jump = true;
+			m_jumpedThisFrame = true;
+			m_isInAir = true;
 		}
 	}
 	else
