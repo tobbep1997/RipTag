@@ -3,19 +3,29 @@
 #include "../../Input/Input.h"
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
+#include "../RipTagExtern/RipExtern.h"
 #include "../Handlers/AnimationHandler.h"
+
+b3World * RipExtern::g_world = nullptr;
+ContactListener * RipExtern::m_contactListener;
+
+#define JAAH TRUE
+#define NEIN FALSE
+
 
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
+	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_world->SetContactListener(m_contactListener);
 
 	CameraHandler::Instance();
-	auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	//auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-
-	Timer::StartTimer();
 
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
@@ -23,39 +33,16 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadDynamicMesh("STATE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
-	future.get();
+//	future.get();
 	future1.get();
+
+
 	player = new Player();
-	Timer::StopTimer();
-	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
-
-
-	//state.AddTransition<float>(&f, 1.0f, SM::COMPARISON_GREATER_THAN);
-	//state.AddTransition<int>(&i, 3, SM::COMPARISON_EQUAL);
-	//bool allSatisfied = state.EvaluateAllTransitions();
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
-
-	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
-	player->setEntityType(EntityType::PlayerType);
-	//player->setPosition(0, 5, 0, 0);
-	player->setColor(10, 10, 0, 1);
-
-	//player->setModel(Manager::g_meshManager.getDynamicMesh("IDLEDUDE"));
-	player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	player->setScale(1.0f, 1.0f, 1.0f);
-	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	player->setTextureTileMult(2, 2);
-
-	player->InitTeleport(m_world);
+	player->Init(m_world, e_dynamicBody, 0.5f,0.5f,0.5f);
 	
-
-
-	//enemy->setDir(1, 0, 0);
-	//enemy->getCamera()->setFarPlane(5);
-
-	//#model creation
 
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
@@ -75,66 +62,61 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
 
-	static float hSpeed = 1.50;
-	static float hDir = 78;
-	auto blendFwd = stateMachine->AddBlendSpace2DState("loco_fwd", &player->m_currentDirection, &player->m_currentSpeed, -90.0f, 90.f, 0.0f, 3.001f);
-	auto blendBwd = stateMachine->AddBlendSpace2DState("loco_bwd", &player->m_currentDirection, &player->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
-
-	auto& fwdToBwdL = blendFwd->AddOutState(blendBwd);
-	fwdToBwdL.AddTransition(&player->m_currentDirection, -89.9999999f, 89.9999999f, SM::COMPARISON_OUTSIDE_RANGE);
-
-	auto& bwdToFwdL = blendBwd->AddOutState(blendFwd);
-	bwdToFwdL.AddTransition(&player->m_currentDirection, -90.f, 90.f, SM::COMPARISON_INSIDE_RANGE);
-
-	//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
-
-	blendFwd->AddRow(0.0, { { idle_clip.get(), -90.f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f } });
-	blendFwd->AddRow(3.1, { {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f } });
-
-	blendBwd->AddRow(0.0, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
-	blendBwd->AddRow(3.1, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
-	//blendState->AddBlendNodes(v);
-	auto idleState = stateMachine->AddLoopState("idle", idle_clip.get());
-	auto jumpState = stateMachine->AddLoopState("jump", jmp_clip.get());
-
-	auto& idleToJump = idleState->AddOutState(jumpState);
-	auto& locoToJump = blendFwd->AddOutState(jumpState);
-	idleToJump.AddTransition(&player->m_jumpedThisFrame, true, SM::COMPARISON_EQUAL);
-	locoToJump.AddTransition(&player->m_jumpedThisFrame, true, SM::COMPARISON_EQUAL);
-
-	auto& idleToLoco = idleState->AddOutState(blendFwd);
-	idleToLoco.AddTransition(&player->m_currentSpeed, 0.001f, SM::COMPARISON_GREATER_THAN);
-	stateMachine->SetState("loco_fwd");
-	stateMachine->SetModel(model->getAnimatedModel());
-	auto& locoToIdle = blendFwd->AddOutState(idleState);
-	locoToIdle.AddTransition(&player->m_currentSpeed, 0.001f, SM::COMPARISON_LESS_THAN);
-
-	auto& jumpToIdle = jumpState->AddOutState(idleState);
-	auto& jumpToLoco = jumpState->AddOutState(blendFwd);
-	jumpToIdle.AddTransition(&player->m_currentSpeed, 0.01f, SM::COMPARISON_LESS_THAN);
-	jumpToIdle.AddTransition(&player->m_isInAir, false, SM::COMPARISON_EQUAL);
-	jumpToLoco.AddTransition(&player->m_isInAir, false, SM::COMPARISON_EQUAL);
-
+	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
-	
+
+	triggerHandler = new TriggerHandler();
+
+	pressureplate = new PressurePlate();
+	pressureplate->Init();
+	pressureplate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	pressureplate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	pressureplate->setPosition(0, -3, 0);
+
+	door = new Door();
+	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
+	std::vector<Trigger*> t1;
+	std::vector<Triggerble*> t2;
+
+	t1.push_back(pressureplate);
+	t2.push_back(door);
+
+	triggerHandler->AddPair(t1, t2);
+
 	Input::ResetMouse();
+
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
 }
 
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
 	
+	
 	player->Release(m_world);
-	player->ReleaseTeleport(m_world);
+	delete m_contactListener;
 	delete player;
-
-	//actor->Release(m_world);
 	delete model;
+	delete triggerHandler;
+	pressureplate->Release(*RipExtern::g_world);
+	delete pressureplate;
+	delete door;
 }
 
 void PlayState::Update(double deltaTime)
 {
+	pressureplate->Update(deltaTime);
+
+	triggerHandler->Update(deltaTime);
+	m_levelHandler.Update(deltaTime);
+	m_contactListener->ClearContactQueue();
+	m_world.Step(m_step);
+
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
@@ -142,34 +124,32 @@ void PlayState::Update(double deltaTime)
 #if _DEBUG
 	TemporaryLobby();
 #endif
-	if (GamePadHandler::IsLeftDpadPressed())
+	if (GamePadHandler::IsSelectPressed())
 	{
-		Input::ForceDeactivateGamepad();
-	}
-	if (GamePadHandler::IsRightDpadPressed())
-	{
-		Input::ForceActivateGamepad();
+		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
 	player->Update(deltaTime);
-	model->getAnimatedModel()->Update(deltaTime);
-	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
+	
 	
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-	m_world.Step(m_step);
+	player->Update(deltaTime);
+	//m_objectHandler.Update();
+
+	
 	player->PhysicsUpdate(deltaTime);
 
-	if (Input::Exit())
+	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		setKillState(true);
 	}
 
-	// Must be last in update
+
 	if (!player->unlockMouse)
 	{
 		Input::ResetMouse();
@@ -179,16 +159,19 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(TRUE);
 	}
+
+
 }
 
 void PlayState::Draw()
 {
-	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	
+	door->Draw();
+
 	player->Draw();
 	model->Draw();
-
+	pressureplate->DrawWireFrame();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 

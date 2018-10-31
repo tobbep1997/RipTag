@@ -18,16 +18,10 @@ void LevelHandler::Init(b3World& worldPtr)
 	m_worldPtr = &worldPtr;
 
 	_LoadPreFabs();
-	_GenerateLevelStruct(2);
+	_GenerateLevelStruct(2, 5);
 
 	_RoomLoadingManager();
 
-	
-	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingManager, this, m_activeRoom);
-
-	
-	//_LoadRoom(1);
-	//testtt.Init(m_worldPtr, );
 }
 
 void LevelHandler::Release()
@@ -58,7 +52,7 @@ void LevelHandler::Update(float deltaTime)
 		}
 	}
 
-	m_rooms.at(m_activeRoom)->Update();
+	m_rooms.at(m_activeRoom)->Update(deltaTime);
 	if (InputHandler::isKeyPressed('N'))
 	{
 		if (pressed == false)
@@ -67,7 +61,7 @@ void LevelHandler::Update(float deltaTime)
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
-			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 		}
 	}
@@ -79,8 +73,16 @@ void LevelHandler::Update(float deltaTime)
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
-			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+		}
+	}
+	else if (InputHandler::isKeyPressed('H'))
+	{
+		if (pressed == false)
+		{
+			pressed = true;
+			m_rooms.at(m_activeRoom)->getPath();
 		}
 	}
 	else
@@ -111,17 +113,14 @@ void LevelHandler::_LoadPreFabs()
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 {
-	srand(seed);
+	srand(time(NULL));
 	//std::vector<int> usedRooms;
 	for (short unsigned int i = 0; i < amountOfRooms; i++)
 	{
 		//Create a room
 		//Get a random int
-		int randomRoom = rand() % 2+1;
+		int randomRoom = rand() % 3+1;
 		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
-
-		//Set the File path for loading and unloading
-		//room->setAssetFilePath(m_prefabRoomFiles.at(randomRoom));
 
 
 		m_rooms.push_back(room);

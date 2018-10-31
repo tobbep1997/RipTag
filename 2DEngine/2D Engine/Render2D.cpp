@@ -21,7 +21,7 @@ void Render2D::Init()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/2DPixel.hlsl");
 
 	HRESULT hr = DXRHC::CreateSamplerState(m_sampler, D3D11_TEXTURE_ADDRESS_WRAP);
-
+	DXRHC::CreateBlendState(m_blendState);
 	m_spriteBatch = new DirectX::SpriteBatch(DX::g_deviceContext);
 }
 
@@ -35,7 +35,7 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/2DPixel.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetSamplers(4, 1, &m_sampler);
-
+	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
 	UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
 	UINT32 offset = 0;
 
@@ -50,6 +50,8 @@ void Render2D::GUIPass()
 	}
 	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
 	{
+		if (DX::g_2DQueue[j]->getString() == "")
+			continue;
 		//Draw quad on fonts
 		m_spriteBatch->Begin();
 
@@ -93,7 +95,7 @@ void Render2D::GUIPass()
 void Render2D::Release()
 {
 	DX::SafeRelease(m_sampler);
-	
+	DX::SafeRelease(m_blendState);
 	delete m_spriteBatch;
 }
 

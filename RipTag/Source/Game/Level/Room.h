@@ -7,6 +7,9 @@
 #include "../../../New_Library/ImportLibrary/formatImporter.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "../Actors/Player.h"
+#include "../../New_Library/ImportLibrary/FormatHeader.h"
+#include "../Pathfinding/Grid.h"
+
 class Room
 {
 private:
@@ -25,8 +28,9 @@ private:
 	std::vector<PointLight*> m_pointLights;
 	float m_playerStartPos;
 
-
-
+	MyLibrary::GridStruct m_grid;
+	Grid m_pathfindingGrid;
+	
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
 
@@ -43,7 +47,7 @@ public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	~Room();
 
-	void Update();
+	void Update(float deltaTime);
 
 	void Draw();
 
@@ -68,6 +72,9 @@ public:
 	//Memory Management
 	void UnloadRoomFromMemory();
 	void LoadRoomToMemory();
+
+	// Test section
+	void getPath();
 private:
 
 	

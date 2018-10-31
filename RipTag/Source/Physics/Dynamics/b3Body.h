@@ -21,7 +21,8 @@
 
 #include "../Common/b3Settings.h"
 #include "../Common/Math/b3Math.h"
-
+#include <vector>
+#include <string>
 class b3World;
 class b3Shape;
 struct b3ShapeDef;
@@ -121,6 +122,12 @@ public :
 	// Set the user data to the body.
 	void SetUserData(void* _userData);
 
+	void SetObjectTag(std::string tag);
+	std::string GetObjectTag();
+
+	void AddToFilters(std::string tag);
+	void RemoveFromFilters(std::string tag);
+	bool FindInFilters(std::string tag);
 	// Set the awake status of the body.
 	void SetAwake(bool flag);
 	
@@ -222,7 +229,10 @@ protected :
 	u32 m_shapeCount;
 
 	// Application specific data (usually a entity).
-	void* m_userData;
+	void* m_userData = nullptr;
+
+	std::string m_objectTag = "NULL";
+	std::vector<std::string> m_objectFilter;
 
 	// Rigid body data.
 	r32 m_mass, m_invMass;
@@ -288,6 +298,43 @@ inline void b3Body::SetType(b3BodyType type) {
 inline void* b3Body::GetUserData() const { return m_userData; }
 
 inline void b3Body::SetUserData(void* userData) { m_userData = userData; }
+
+inline void b3Body::SetObjectTag(std::string tag) { m_objectTag = tag; }
+
+inline std::string b3Body::GetObjectTag() { return m_objectTag; }
+
+inline void b3Body::AddToFilters(std::string tag) { m_objectFilter.push_back(tag); }
+
+inline void b3Body::RemoveFromFilters(std::string tag)
+{
+	if (!m_objectFilter.empty())
+	{
+		for (int i = 0; i < m_objectFilter.size(); i++)
+		{
+			if (m_objectFilter[i].compare(tag) == 0)
+			{
+				m_objectFilter.erase(m_objectFilter.begin() + i);
+				break;
+			}
+		}
+	}
+}
+
+inline bool b3Body::FindInFilters(std::string tag)
+{
+	if (!tag.empty() && !m_objectFilter.empty())
+	{
+		for (int i = 0; i < m_objectFilter.size(); i++)
+		{
+			if (m_objectFilter[i] == tag)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 
 inline const b3Shape* b3Body::GetShapeList() const { return m_shapeList; }
 

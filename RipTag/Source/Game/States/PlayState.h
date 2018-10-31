@@ -7,7 +7,6 @@
 #include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
-#include "../Handlers/ObjectHandler.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
@@ -16,27 +15,33 @@
 
 //lua 
 #include <LuaTalker.h>
+#include "../../Physics/Wrapper/ContactListener.h"
 
+#include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"
 
+#include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Objects/Door.h"
 
 class PlayState : public State
 {
 private:
 	LevelHandler m_levelHandler;
-	ObjectHandler m_objectHandler;
+	ContactListener * m_contactListener;
 
 	Player * player;
 
 	b3World m_world;
 
+	TriggerHandler *	triggerHandler;
+	PressurePlate *		pressureplate;
+	Door *				door;
 	float intensity = 2;
 	Drawable * model;
-	//std::future<void> future;
-	//std::thread test;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
+
 
 public:
 

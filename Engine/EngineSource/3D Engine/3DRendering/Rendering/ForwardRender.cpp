@@ -160,18 +160,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
-	static bool drawFrustum = true;
-	if (InputHandler::isKeyPressed('J'))
-	{
-		drawFrustum = false;
-	}
-	else if (InputHandler::isKeyPressed('K'))
-	{
-		drawFrustum = true;
-	}
 
-	if (drawFrustum)
-		_GuardFrustumDraw();
+	_GuardFrustumDraw();
 	m_2DRender.GUIPass();
 }
 
@@ -193,11 +183,8 @@ void ForwardRender::Clear()
 
 	this->m_shadowMap.Clear();
 	DX::g_visibilityComponentQueue.clear();
-}
 
-void ForwardRender::Present()
-{
-	m_swapChain->Present(0, 0);
+	DX::g_wireFrameDrawQueue.clear();
 }
 
 void ForwardRender::Release()
@@ -271,9 +258,6 @@ void ForwardRender::_GuardFrustumDraw()
 void ForwardRender::_simpleLightCulling(Camera & cam)
 {
 	float culled = 0;
-#if _DEBUG
-	ImGui::Begin("Light Culling");
-#endif
 	//--------------------------------
 	///Early KILL of lights
 	//This is the initial culling, it will cullaway the lights that are too far away
@@ -339,10 +323,7 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 	//TODO::
 	//Check distance and check if behind then FORCE CULL THAT BITCH
 
-#if _DEBUG
-	ImGui::Text("LightsCulled %f", culled);
-	ImGui::End();
-#endif
+
 }
 
 void ForwardRender::_createConstantBuffer()

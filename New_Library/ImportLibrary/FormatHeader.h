@@ -9,13 +9,22 @@ namespace MyLibrary
 #pragma region OriginalMyLibraryStructs
 
 	
-	struct startingPos
+	struct StartingPos
 	{
 		float startingPos[3];
 	};
+	struct GridHeader
+	{
+		int nrOf;
+	};
+	struct GridPointStruct
+	{
+		bool pathable;
+		float translation[3];
+	};
 	struct GuardStartingPositions {
 		int nrOf;
-		startingPos *startingPositions;
+		StartingPos *startingPositions;
 	};
 	struct pointLight
 	{
@@ -56,6 +65,11 @@ namespace MyLibrary
 			std::fill(transform_rotation, transform_rotation + 3, 0.0f);
 			std::fill(transform_scale, transform_scale + 3, 1.0f);
 		};
+	};
+	struct GridStruct
+	{
+		GridPointStruct * gridPoints;
+		int nrOf;
 	};
 	struct CollisionBox
 	{

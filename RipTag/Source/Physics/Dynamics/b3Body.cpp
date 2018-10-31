@@ -203,6 +203,7 @@ void b3Body::DestroyShape(b3Shape* shape) {
 	// Since a shape was removed, the new inertial properties of 
 	// this body needs to be recomputed (mass, inertial, local and world center of mass).
 	ResetMassData();
+	shape = nullptr;
 }
 
 void b3Body::DestroyShapes() {
