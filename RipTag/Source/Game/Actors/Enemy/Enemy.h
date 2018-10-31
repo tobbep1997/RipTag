@@ -28,6 +28,8 @@ private:
 	float m_maxPossessDuration;
 
 	std::vector<Node*> m_path;
+
+	float m_guardSpeed = 1.5;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);

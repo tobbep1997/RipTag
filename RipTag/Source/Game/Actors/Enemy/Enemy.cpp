@@ -316,8 +316,8 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 		float angle = atan2(y, x);
 
-		float dx = cos(angle) * 1 * deltaTime;
-		float dy = sin(angle) * 1 * deltaTime;
+		float dx = cos(angle) * m_guardSpeed * deltaTime;
+		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 		return false;
