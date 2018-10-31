@@ -166,6 +166,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
     <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
@@ -218,6 +219,7 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
     <ClInclude Include="Source\Gameplay\Objects\Door.h" />
     <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
     <ClInclude Include="RipTagExtern\RipExtern.h" />

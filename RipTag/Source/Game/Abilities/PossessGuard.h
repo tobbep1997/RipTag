@@ -1,6 +1,5 @@
 #pragma once
 #include "AbilityComponent.h"
-#include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Actors/Enemy/Enemy.h"
 
 class PossessGuard : public AbilityComponent
@@ -18,7 +17,6 @@ private:
 		Wait		// Just possessed
 	};
 	PossessState	m_pState;
-	RayCastListener *m_rayListener;
 	Enemy* possessTarget;
 	float cooldown;
 	bool m_useFunctionCalled;

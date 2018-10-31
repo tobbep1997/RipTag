@@ -15,11 +15,13 @@
 //lua 
 #include <LuaTalker.h>
 #include "../../Physics/Wrapper/ContactListener.h"
+#include "../../Physics/Wrapper/RayCastListener.h"
 
 #include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"
 
 #include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Objects/Lever.h"
 #include "../../Gameplay/Objects/Door.h"
 
 class PlayState : public State
@@ -27,6 +29,7 @@ class PlayState : public State
 private:
 	LevelHandler m_levelHandler;
 	ContactListener * m_contactListener;
+	RayCastListener * m_rayListener;
 
 	Player * player;
 
@@ -34,6 +37,7 @@ private:
 
 	TriggerHandler *	triggerHandler;
 	PressurePlate *		pressureplate;
+	Lever *				lever;
 	Door *				door;
 	float intensity = 2;
 		
