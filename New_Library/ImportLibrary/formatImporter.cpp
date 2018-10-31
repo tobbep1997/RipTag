@@ -1,5 +1,5 @@
 #include "formatImporter.h"
-
+#include <iostream>
 namespace MyLibrary
 {
 #pragma region ImportHelpers
@@ -441,7 +441,26 @@ namespace MyLibrary
 			gridPos.translation = new GridPoint[gridPos.nrOf];
 			customGridFile.read((char*)gridPos.translation, sizeof(GridPoint) * gridPos.nrOf);
 
-			customGridFile.close();
+			customGridFile.read((char*)&gridPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
+
+			gridPos.gridPoints = new GridPointStruct[gridPos.nrOf];
+
+			
+			
+			for (int i = 0; i < gridPos.nrOf; i++)
+			{
+				customGridFile.read((char*)&gridPos.gridPoints[i].pathable, sizeof(bool)); // what is happening here?!! i just copied this code
+				customGridFile.read((char*)&gridPos.gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
+
+
+				std::cout << gridPos.gridPoints[i].pathable << std::endl;
+				std::cout << "translation X: " << gridPos.gridPoints[i].translation[0] << " Y: " << gridPos.gridPoints[i].translation[1] << " Z: " << gridPos.gridPoints[i].translation[2] << std::endl;
+
+			}
+
+			customGridFile.close(); // close file
+
+
 		}
 		else
 			return GridStruct();

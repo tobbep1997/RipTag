@@ -13,10 +13,14 @@ namespace MyLibrary
 	{
 		float startingPos[3];
 	};
-	struct GridPoint
+	struct GridHeader
 	{
-		int pathable;
-		StartingPos translation;
+		int nrOf;
+	};
+	struct GridPointStruct
+	{
+		bool pathable;
+		float translation[3];
 	};
 	struct GuardStartingPositions {
 		int nrOf;
@@ -65,7 +69,7 @@ namespace MyLibrary
 	};
 	struct GridStruct
 	{
-		GridPoint * translation;
+		GridPointStruct * gridPoints;
 		int nrOf;
 	};
 	struct CollisionBox
