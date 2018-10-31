@@ -51,6 +51,9 @@ public:
 
 	void Draw() override;
 
+	DirectX::XMFLOAT4A getVelocity();
+	unsigned int getState();
+
 private:
 	// Private functions
 	void _logicLocal(double deltaTime);

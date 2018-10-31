@@ -296,6 +296,13 @@ void Player::SendOnAbilityUsed()
 		packet.velocity = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility])->getVelocity();
 		packet.state = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility])->getState();
 		break;
+	case Ability::DISABLE:
+		packet.id = ID_PLAYER_ABILITY;
+		packet.ability = (unsigned int)DISABLE;
+		packet.velocity = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility])->getVelocity();
+		packet.state = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility])->getState();
+		break;
+
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);

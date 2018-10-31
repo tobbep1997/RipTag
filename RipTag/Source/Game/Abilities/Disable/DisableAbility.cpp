@@ -84,6 +84,16 @@ void DisableAbility::Draw()
 	}
 }
 
+DirectX::XMFLOAT4A DisableAbility::getVelocity()
+{
+	return this->m_lastVelocity;
+}
+
+unsigned int DisableAbility::getState()
+{
+	return (unsigned int)this->m_dState;
+}
+
 void DisableAbility::_logicLocal(double deltaTime)
 {
 	switch (m_dState)
