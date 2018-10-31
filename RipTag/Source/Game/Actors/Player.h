@@ -27,7 +27,7 @@ struct KeyPressed
 	bool blink = false;
 	bool possess = false;
 	bool unlockMouse = false;
-	bool pickup = false;
+	bool interact = false;
 };
 
 
@@ -120,6 +120,6 @@ private:
 	void _onPossess();
 	void _onRotate(double deltaTime);
 	void _onJump();
-	void _onPickup();
+	void _onInteract();
 	void _cameraPlacement(double deltaTime);
 };
