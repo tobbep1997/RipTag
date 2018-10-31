@@ -32,7 +32,7 @@ private:
 	TeleportState	m_tpState;
 	float			m_charge;
 	float			m_travelSpeed;
-	bool			m_useFunctionCalled;
+
 	PointLight		m_light;
 
 	Quad * m_bar;
@@ -63,8 +63,6 @@ private:
 	void _inStateCharging(double dt);
 	void _inStateTeleportable();
 	void _inStateCooldown(double dt);
-
-	void _logicRemote(double dt);
 
 	void _updateLight();
 };

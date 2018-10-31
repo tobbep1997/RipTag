@@ -7,7 +7,6 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 	m_tpState = Throwable;
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
-	m_useFunctionCalled = false;
 }
 
 TeleportAbility::~TeleportAbility()
@@ -23,6 +22,7 @@ void TeleportAbility::Init()
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	BaseActor::setGravityScale(0.01f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
+	this->getBody()->SetObjectTag("TELEPORT");
 	m_light.Init(Transform::getPosition(), COLOUR);
 
 	if (USE_SHADOWS)
@@ -41,7 +41,6 @@ void TeleportAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
-	this->getBody()->SetObjectTag("TELEPORT");
 	setManaCost(START_MANA_COST);
 }
 
@@ -54,8 +53,6 @@ void TeleportAbility::Update(double deltaTime)
 	}
 	if (this->isLocal)
 		_logicLocal(deltaTime);
-	else
-		_logicRemote(deltaTime);
 }
 
 void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -194,11 +191,6 @@ void TeleportAbility::_inStateCooldown(double dt)
 		accumulatedTime = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
-}
-
-void TeleportAbility::_logicRemote(double dt)
-{
-
 }
 
 void TeleportAbility::_updateLight()

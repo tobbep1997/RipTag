@@ -3,7 +3,8 @@
 #include <Multiplayer.h>
 #include <map>
 #include <functional>
-#include <string>
+#include <string.h>
+#include <vector>
 #include <list>
 #include <sstream>
 

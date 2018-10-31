@@ -4,8 +4,10 @@
 #include "../AbilityComponent.h"
 #include "../../Actors/BaseActor.h"
 #include "../../../../RipTagExtern/RipExtern.h"
+#include "2D Engine/Quad/Components/HUDComponent.h"
+#include <Multiplayer.h>
 
-class DisableAbility : public AbilityComponent, public BaseActor
+class DisableAbility : public AbilityComponent, public BaseActor, public HUDComponent
 {
 private: // CONST VARS
 	/*
@@ -20,16 +22,20 @@ private:
 	// ENUM
 	enum DisableState
 	{
-		Throw,		// Ready to charge
-		Charge,		// Charging
+		Throwable,		// Ready to charge
+		Charging,		// Charging
 		Moving,
-		Wait		// Just teleported and can not throw
+		RemoteActive,  //for network
+		OnHit
 	};
 private:
 	DisableState	m_dState;
 	float			m_charge;
 	float			m_travelSpeed;
-	bool			m_useFunctionCalled;
+	Quad * m_bar;
+
+	//Network
+	DirectX::XMFLOAT4A m_lastVelocity;
 public:
 	DisableAbility(void * owner = nullptr);
 	~DisableAbility();
@@ -47,6 +53,13 @@ public:
 
 private:
 	// Private functions
-	void _logic(double deltaTime);
+	void _logicLocal(double deltaTime);
+	void _logicRemote(double dt);
 
+	void _inStateThrowable();
+	void _inStateCharging(double dt);
+	void _inStateMoving(double dt);
+	void _inStateRemoteActive(double dt);
+
+	void _sendOnHitNotification();
 };
