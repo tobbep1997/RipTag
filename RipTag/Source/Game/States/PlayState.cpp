@@ -84,13 +84,15 @@ PlayState::~PlayState()
 	
 	
 	player->Release(m_world);
-	delete m_contactListener;
+	
 	delete player;
 	delete model;
 	delete triggerHandler;
 	pressureplate->Release(*RipExtern::g_world);
+
 	delete pressureplate;
 	delete door;
+	delete m_contactListener;
 }
 
 void PlayState::Update(double deltaTime)

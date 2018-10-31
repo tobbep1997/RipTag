@@ -90,6 +90,12 @@ void Room::LoadRoomToMemory()
 		}
 		delete tempLights.lights;
 
+
+		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
+		m_pathfindingGrid.CreateGridWithWorldPosValues(25, 25, m_grid);
+		//
+		m_roomLoaded = true;
+
 		MyLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
 		MyLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
 
@@ -101,10 +107,13 @@ void Room::LoadRoomToMemory()
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
 			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
+			std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
+			this->m_roomGuards.at(i)->SetPathVector(path);
+			this->m_roomGuards.at(i)->setPosition(-10, 0, -10);
 		}
 		delete tempGuards.startingPositions;
 
-
+		//getPath();
 
 
 		StaticAsset * temp = new StaticAsset();
@@ -118,10 +127,7 @@ void Room::LoadRoomToMemory()
 		CollisionBoxes = new BaseActor();
 		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
 
-		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid.CreateGridWithWorldPosValues(25, 25, m_grid);
 		m_staticAssets.push_back(temp);
-		m_roomLoaded = true;
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
 	}
 	else

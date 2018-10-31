@@ -45,6 +45,11 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 Enemy::~Enemy()
 {
 	this->Release(*this->getBody()->GetScene());
+	for (auto path : m_path)
+	{
+		delete path;
+	}
+	m_path.clear();
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -117,7 +122,10 @@ void Enemy::Update(double deltaTime)
 		else
 		{
 			_TempGuardPath(true, 0.001f);
-			//_IsInSight();
+			if (m_path.size() > 0)
+			{
+				_MoveTo(m_path.at(0), deltaTime);
+			}
 		}
 	}
 }
@@ -258,6 +266,17 @@ void Enemy::removePossessor()
 	}
 }
 
+void Enemy::SetPathVector(std::vector<Node*> path)
+{
+	m_path = path;
+}
+
+std::vector<Node*> Enemy::GetPathVector()
+{
+	return m_path;
+}
+
+
 void Enemy::_possessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
@@ -279,5 +298,28 @@ void Enemy::_possessed(double deltaTime)
 			m_possessReturnDelay -= deltaTime;
 
 		m_maxPossessDuration -= deltaTime;
+	}
+}
+
+bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
+{
+	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
+	{
+		delete m_path.at(0);
+		m_path.erase(m_path.begin());
+		return true;
+	}
+	else
+	{
+		float x = nextNode->worldPos.x - getPosition().x;
+		float y = nextNode->worldPos.y - getPosition().z;
+
+		float angle = atan2(y, x);
+
+		float dx = cos(angle) * 1 * deltaTime;
+		float dy = sin(angle) * 1 * deltaTime;
+
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
+		return false;
 	}
 }
