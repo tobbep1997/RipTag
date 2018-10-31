@@ -21,21 +21,44 @@ void _alocConsole() {
 }
 #endif
 
+void GameLoop(Game * game)
+{
+	DeltaTime dt;
+	float deltaTime = 0.0f;
+	float deltaNega = 0;
+	while (game->isRunning())
+	{
+
+		deltaTime = dt.getDeltaTimeInSeconds();
+		if (deltaTime > 1.0f)
+			deltaTime = 1 / 60.0f;
+
+		//This is to avoid Pollevents from fucking with the game
+		game->Clear();
+
+		//Pollevents
+		
+		//Draw and update
+		game->ImGuiFrameStart();
+		game->Update(deltaTime);
+		game->Draw();
+	}
+}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 #if _DEBUG
 	_alocConsole();
 #endif
-	int i = sizeof(Transform);
+
+	std::thread gameLoop;
+
 	Game game;
 	game.Init(hInstance);
 	std::cout << "hello";
-	DeltaTime dt;
-	float deltaTime = 0.0f;
-	float deltaNega = 0;
-
-
+	
+	gameLoop = std::thread(&GameLoop, &game);
+	game.PollEvents();
 
 	
 	/*Grid grid = Grid(300, 300);
@@ -60,27 +83,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		path.at(i) = nullptr;
 	}*/
 
-	while (game.isRunning())
-	{
-
-		deltaTime = dt.getDeltaTimeInSeconds();
-		if (deltaTime > 1.0f)
-			deltaTime = 1 / 60.0f;
-
-		//This is to avoid Pollevents from fucking with the game
-		deltaTime = deltaTime - deltaNega;
-		game.Clear();
-
-		//Pollevents
-		Timer::StartTimer();
-		game.PollEvents();
-		Timer::StopTimer();
-		deltaNega = Timer::GetDurationInSeconds();
-		//Draw and update
-		game.ImGuiFrameStart();
-		game.Update(deltaTime);
-		game.Draw();
-	}
+	gameLoop.join();
 
 	DX::g_shaderManager.Release();
 	return 0;
