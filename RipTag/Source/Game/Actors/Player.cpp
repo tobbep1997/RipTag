@@ -37,11 +37,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityComponents[2] = m_dis;
 	m_abilityComponents[3] = visAbl2;
 
-	m_possess.setOwner(this);
+	/*m_possess.setOwner(this);
 	m_possess.Init();
 	
 	m_blink.setOwner(this);
-	m_blink.Init();
+	m_blink.Init();*/
 
 	m_rayListener = new RayCastListener();
 
@@ -156,8 +156,8 @@ void Player::Update(double deltaTime)
 	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	m_possess.Update(deltaTime);
-	m_blink.Update(deltaTime);
+	/*m_possess.Update(deltaTime);
+	m_blink.Update(deltaTime);*/
 	_cameraPlacement(deltaTime);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
@@ -206,7 +206,8 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 
 int Player::getPossessState()
 {
-	return m_possess.getPossessState();
+	/*return m_possess.getPossessState();*/
+	return 0;
 }
 	
 const float & Player::getVisability() const
@@ -404,35 +405,35 @@ void Player::_onCrouch()
 
 void Player::_onBlink()
 {
-	if (Input::Blink()) //Phase acts like short range teleport through objects
-	{
-		if (m_kp.blink == false)
-		{
-			m_blink.Use();
-			m_kp.blink = true;
-		}
-	}
-	else
-	{
-		m_kp.blink = false;
-	}
+	//if (Input::Blink()) //Phase acts like short range teleport through objects
+	//{
+	//	if (m_kp.blink == false)
+	//	{
+	//		m_blink.Use();
+	//		m_kp.blink = true;
+	//	}
+	//}
+	//else
+	//{
+	//	m_kp.blink = false;
+	//}
 }
 
 void Player::_onPossess()
 {
-	if (Input::Possess()) //Phase acts like short range teleport through objects
-	{
-		
-		if (m_kp.possess == false)
-		{
-			m_possess.Use();
-			m_kp.possess = true;
-		}
-	}
-	else
-	{
-		m_kp.possess = false;
-	}
+	//if (Input::Possess()) //Phase acts like short range teleport through objects
+	//{
+	//	
+	//	if (m_kp.possess == false)
+	//	{
+	//		m_possess.Use();
+	//		m_kp.possess = true;
+	//	}
+	//}
+	//else
+	//{
+	//	m_kp.possess = false;
+	//}
 }
 
 void Player::_onRotate(double deltaTime)

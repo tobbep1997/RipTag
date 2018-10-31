@@ -105,7 +105,6 @@ void PlayState::Update(double deltaTime)
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	m_playerManager->Update(deltaTime);
-	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
 	
 	
