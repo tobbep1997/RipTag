@@ -11,12 +11,13 @@ ContactListener * RipExtern::m_contactListener;
 #define JAAH TRUE
 #define NEIN FALSE
 
+
+
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
-
 	RipExtern::g_world->SetContactListener(m_contactListener);
 
 	CameraHandler::Instance();
@@ -36,7 +37,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
-	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	player->Init(m_world, e_dynamicBody, 0.5f,0.5f,0.5f);
 	
 
 	model = new Drawable();
@@ -49,7 +50,27 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
-	
+
+	triggerHandler = new TriggerHandler();
+
+	pressureplate = new PressurePlate();
+	pressureplate->Init();
+	pressureplate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	pressureplate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	pressureplate->setPosition(0, -3, 0);
+
+	door = new Door();
+	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
+	std::vector<Trigger*> t1;
+	std::vector<Triggerble*> t2;
+
+	t1.push_back(pressureplate);
+	t2.push_back(door);
+
+	triggerHandler->AddPair(t1, t2);
+
 	Input::ResetMouse();
 
 	m_step.velocityIterations = 1;
@@ -66,10 +87,21 @@ PlayState::~PlayState()
 	delete m_contactListener;
 	delete player;
 	delete model;
+	delete triggerHandler;
+	pressureplate->Release(*RipExtern::g_world);
+	delete pressureplate;
+	delete door;
 }
 
 void PlayState::Update(double deltaTime)
 {
+	pressureplate->Update(deltaTime);
+
+	triggerHandler->Update(deltaTime);
+	m_levelHandler.Update(deltaTime);
+	m_contactListener->ClearContactQueue();
+	m_world.Step(m_step);
+
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
@@ -86,8 +118,12 @@ void PlayState::Update(double deltaTime)
 	
 	
 	m_step.dt = deltaTime;
-	m_contactListener->ClearContactQueue();
-	m_world.Step(m_step);
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
+	player->Update(deltaTime);
+	//m_objectHandler.Update();
 
 	
 	player->PhysicsUpdate(deltaTime);
@@ -98,7 +134,6 @@ void PlayState::Update(double deltaTime)
 	}
 
 
-	// Must be last in update
 	if (!player->unlockMouse)
 	{
 		Input::ResetMouse();
@@ -108,15 +143,19 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(JAAH);
 	}
+
+
 }
 
 void PlayState::Draw()
 {
 	m_levelHandler.Draw();
 	
+	door->Draw();
+
 	player->Draw();
 	model->Draw();
-
+	pressureplate->DrawWireFrame();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 

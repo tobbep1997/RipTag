@@ -231,7 +231,7 @@ protected :
 	// Application specific data (usually a entity).
 	void* m_userData = nullptr;
 
-	std::string m_objectTag;
+	std::string m_objectTag = "NULL";
 	std::vector<std::string> m_objectFilter;
 
 	// Rigid body data.

@@ -57,14 +57,14 @@ public:
 	PhysicsComponent();
 	virtual ~PhysicsComponent();
 
-	virtual void Init(b3World & world, b3BodyType bodyType, float x = 1, float y = 1, float z = 1);
+	virtual void Init(b3World & world, b3BodyType bodyType, float x = 1, float y = 1, float z = 1, bool sensor = false);
 	virtual void Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes);
 
 
 	virtual void setBaseBodyDef(b3BodyType bodyType = b3BodyType::e_dynamicBody);
 	virtual void setBodyDef(BodyDefine bodyDefine);
 
-	virtual void setBaseShapeDef();
+	virtual void setBaseShapeDef(bool sensor = false);
 	virtual void CreateBox(float x = 1, float y = 1, float z = 1);
 
 	virtual void CreateBodyAndShape(b3World & world);
@@ -83,6 +83,7 @@ public:
 	virtual void setAwakeState(const bool & awa);
 
 	virtual void setUserDataBody(void * self);
+	virtual void setObjectTag(const char * type);
 
 	virtual b3Body* getBody();
 };
