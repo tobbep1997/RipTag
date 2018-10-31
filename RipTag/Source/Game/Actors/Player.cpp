@@ -137,13 +137,6 @@ void Player::Update(double deltaTime)
 		
 	}
 
-#if _DEBUG
-	ImGui::Begin("Mana");
-	ImGui::Text("Current mana %d", m_currentMana);
-	ImGui::Text("Max mana %d", m_maxMana);
-	ImGui::End();
-#endif
-
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 
 	if (InputHandler::isKeyPressed('I'))
@@ -466,23 +459,31 @@ void Player::_onJump()
 		m_kp.jump = false;
 }
 
-void Player::_onPickup()
+void Player::_onInteract()
 {
-	if (Input::Pickup()) //Phase acts like short range teleport through objects
+	if (Input::Interact()) //Phase acts like short range teleport through objects
 	{
-		if (m_kp.pickup == false)
+		if (m_kp.interact == false)
 		{
 			m_rayListener->shotRay(this->getBody(), this->getCamera()->getDirection(), 2);
 			if (m_rayListener->shape->GetBody()->GetObjectTag() == "ITEM")
 			{
 				//do the pickups
 			}
-			m_kp.pickup = true;
+			else if (m_rayListener->shape->GetBody()->GetObjectTag() == "LEVER")
+			{
+				//Pull Levers
+			}
+			else if (m_rayListener->shape->GetBody()->GetObjectTag() == "TORCH")
+			{
+				//Snuff out torches (example)
+			}
+			m_kp.interact = true;
 		}
 	}
 	else
 	{
-		m_kp.pickup = false;
+		m_kp.interact = false;
 	}
 }
 
