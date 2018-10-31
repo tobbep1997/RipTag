@@ -56,7 +56,7 @@ LRESULT Window::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
 LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	
+	bool GainedFocus = false;
 
 	switch (msg)
 	{
@@ -70,11 +70,10 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	//KEYBOARD INPUT
 	case WM_KEYDOWN:
-		
 		InputHandler::m_keys[wParam] = true; 
 		InputHandler::m_lastPressed = static_cast<int>(wParam);
 		break; 
-	
+
 	case WM_KEYUP:
 		
 		InputHandler::m_keys[wParam] = false;
@@ -122,15 +121,25 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		InputHandler::m_windowInFocus = false;
 		break;
 	case WM_SETFOCUS:
+		if (!InputHandler::m_windowInFocus)
+			GainedFocus = true;
 		InputHandler::m_windowInFocus = true;
 		break;
 	}
 	RECT Rect;
 	GetWindowRect(hwnd, &Rect);
 	MapWindowPoints(HWND_DESKTOP, GetParent(hwnd), (LPPOINT)&Rect, 2);
+	InputHandler::m_windowSize = { (INT) m_windowContext.clientWidth, (INT) m_windowContext.clientHeight };
+	InputHandler::m_windowPos = DirectX::XMFLOAT2((float)Rect.left, (float)Rect.top);
+	InputHandler::m_viewportPos = DirectX::XMFLOAT2((float)Rect.left + (!m_windowContext.fullscreen * 8.f), (float)Rect.top + (!m_windowContext.fullscreen * 31.f));
+	if (GainedFocus)
+	{
+		SetCursorPos(static_cast<int>(InputHandler::m_viewportPos.x + m_windowContext.clientWidth / 2), static_cast<int>(InputHandler::m_viewportPos.y + m_windowContext.clientHeight / 2));
+		InputHandler::m_mousePos.x = m_windowContext.clientWidth / 2.0f;
+		InputHandler::m_mousePos.y = m_windowContext.clientHeight / 2.0f;
+	}
 
-	InputHandler::m_windowPos = DirectX::XMFLOAT2(Rect.left, Rect.top);
-	
+
 	m_procMsg.hwnd = hwnd;
 	m_procMsg.msg = msg;
 	m_procMsg.wParam = wParam;
@@ -147,7 +156,7 @@ ProcMsg & Window::getWindowProcMsg()
 
 Window::Window()
 {
-
+	m_isOpen = true;
 }
 
 Window::~Window()
@@ -179,7 +188,7 @@ bool Window::Init(_In_ WindowContext windowContext)
 	}
 
 	InputHandler::Instance();
-
+	InputHandler::m_viewportSize = { (INT) m_windowContext.clientWidth, (INT) m_windowContext.clientHeight };
 	//Give InputHandler neccesary dimension information 
 	InputHandler::m_windowSize.x = m_windowContext.clientWidth;
 	InputHandler::m_windowSize.y = m_windowContext.clientHeight; 
@@ -196,8 +205,8 @@ bool Window::Init(_In_ WindowContext windowContext)
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		r.right - r.left + +(!m_windowContext.fullscreen * 16),
-		r.bottom - r.top +(!m_windowContext.fullscreen * 39),
+		r.right - r.left + (!m_windowContext.fullscreen * 16),
+		r.bottom - r.top + (!m_windowContext.fullscreen * 39),
 		nullptr,
 		nullptr,
 		m_windowContext.windowInstance,
@@ -220,7 +229,7 @@ bool Window::Init(_In_ WindowContext windowContext)
 
 void Window::PollEvents()
 {
-	if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
+	while (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&m_Peekmsg);
 		DispatchMessage(&m_Peekmsg);
@@ -229,12 +238,20 @@ void Window::PollEvents()
 
 bool Window::isOpen()
 {
-	return WM_QUIT != m_Peekmsg.message;
+	if (InputHandler::GetClosedGame())
+	{
+		return false;
+	}
+	else
+	{
+		return WM_QUIT != m_Peekmsg.message;
+	}
+	
 }
 
 void Window::Close()
 {
-	PostQuitMessage(0);
+	m_isOpen = false;
 }
 
 WindowContext& Window::getWindowContext()

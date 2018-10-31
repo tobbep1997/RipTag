@@ -75,6 +75,26 @@ public:
 		unsigned int slot = 0, 
 		unsigned int numBuffer = 0,
 		ShaderTypes i_shader = ShaderTypes::vertex);
+	static HRESULT CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
+		BOOL antialiasedLineEnable = FALSE,
+		D3D11_CULL_MODE cullMode = D3D11_CULL_NONE,
+		INT depthBias = 0,
+		FLOAT depthBiasClamp = 0.0f,
+		BOOL depthClipEnable = FALSE,
+		D3D11_FILL_MODE fillMode = D3D11_FILL_SOLID,
+		BOOL frontCounterClockwise = FALSE,
+		BOOL multisampleEnable = FALSE,
+		BOOL scissorEnable = FALSE,
+		FLOAT SlopeScaledDepthBias = 0.0f);
+	static HRESULT CreateBlendState(ID3D11BlendState *& blendState,
+		BOOL BlendEnable = true,
+		D3D11_BLEND SrcBlend = D3D11_BLEND_SRC_ALPHA,
+		D3D11_BLEND DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
+		D3D11_BLEND_OP BlendOp = D3D11_BLEND_OP_ADD,
+		D3D11_BLEND SrcBlendAlpha = D3D11_BLEND_ONE,
+		D3D11_BLEND DestBlendAlpha = D3D11_BLEND_ZERO,
+		D3D11_BLEND_OP BlendOpAlpha = D3D11_BLEND_OP_ADD,
+		UINT8 RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL);
 
 };
 

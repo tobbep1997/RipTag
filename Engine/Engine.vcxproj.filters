@@ -13,6 +13,8 @@
     <FxCompile Include="EngineSource\Shader\AnimatedVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\PixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\VertexShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\2DPixel.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\2DVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
@@ -103,5 +105,6 @@
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />
     <None Include="EngineSource\Shader\Shaders\StaticConstantBuffers.hlsli" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

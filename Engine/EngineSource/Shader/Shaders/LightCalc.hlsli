@@ -35,6 +35,7 @@ cbuffer TEXTURE_BUFFER : register(b7)
 
 SamplerComparisonState sampAniPoint : register(s0);
 SamplerState defaultSampler : register(s1);
+SamplerState shadowSampler : register(s2);
 
 Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);
@@ -89,9 +90,6 @@ float4 FresnelReflection(float cosTheta, float4 f0)
 
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 {
-   
-	//float3 albedo = diffuseTexture.Sample(defaultSampler, input.uv).xyz;
-	
     float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 posToLight;
     float distanceToLight;
@@ -127,7 +125,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     //ambient = float4(0.02f, 0.02f, 0.025f, 1.0f) * albedo * ao;
    
     //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * albedo;
-    //float3 fragmentPositionToCamera = cameraPosition.xyz - input.worldPos.xyz;
     float4 finalColor = emptyFloat4;
 
     float shadowMapWidth;
@@ -156,18 +153,21 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 
             float depth = fragmentLightPosition.z;
 
-            if (smTex.x <= 0 || smTex.x >= 1 || depth <= 0.0f || depth > 1.0f)
+            if (smTex.x < 0 || smTex.x > 1 || depth < 0.0f || depth > 1.0f)
                 continue;
 
-            if (smTex.y <= 0 || smTex.y >= 1 || depth <= 0.0f || depth > 1.0f)
+            if (smTex.y < 0 || smTex.y > 1 || depth < 0.0f || depth > 1.0f)
                 continue;
 
             float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
 
-            shadowCoeff += (txShadowArray.Sample(defaultSampler, indexPos).r < depth - 0.01f) ? 0.0f : 1.0f;
+            float epsilon = 0.001f;
+
+            shadowCoeff += (txShadowArray.Sample(shadowSampler, indexPos).r < depth - epsilon) ? 0.0f : 1.0f;
             div += 1.0f;
             break;
         }
+
         finalShadowCoeff = pow(shadowCoeff / div, 512);
         posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);

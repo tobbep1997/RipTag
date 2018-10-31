@@ -38,12 +38,14 @@ private:
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
+
+	std::vector<const int*> vis;
 public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	~Room();
 
-	void Update();
+	void Update(float deltaTime);
 
 	void Draw();
 
