@@ -22,12 +22,6 @@ void LevelHandler::Init(b3World& worldPtr)
 
 	_RoomLoadingManager();
 
-	
-	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingManager, this, m_activeRoom);
-
-	
-	//_LoadRoom(1);
-	//testtt.Init(m_worldPtr, );
 }
 
 void LevelHandler::Release()

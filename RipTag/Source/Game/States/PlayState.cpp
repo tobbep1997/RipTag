@@ -6,14 +6,19 @@
 #include "../RipTagExtern/RipExtern.h"
 
 b3World * RipExtern::g_world = nullptr;
+ContactListener * RipExtern::m_contactListener;
 
 #define JAAH TRUE
 #define NEIN FALSE
 
+
+
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
 	RipExtern::g_world = &m_world;
-	//RipExtern::g_world->SetContactListener()
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_world->SetContactListener(m_contactListener);
 
 	CameraHandler::Instance();
 	//auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
@@ -21,90 +26,114 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-	Timer::StartTimer();
-
-//	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 //	future.get();
 	future1.get();
-	player = new Player();
-	Timer::StopTimer();
-	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
-	
+
+	player = new Player();
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
-
-	player->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
-	player->setEntityType(EntityType::PlayerType);
+	player->Init(m_world, e_dynamicBody, 0.5f,0.5f,0.5f);
 	
-	player->setColor(10, 10, 0, 1);
 
-	//player->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	player->setScale(1.0f, 1.0f, 1.0f);
-	player->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	player->setTextureTileMult(2, 2);	
-
-	//enemy->setDir(1, 0, 0);
-	//enemy->getCamera()->setFarPlane(5);
-
-
+	model = new Drawable();
+	model->setEntityType(EntityType::PlayerType);
+	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	model->setScale(0.5, 0.5, 0.5);
+	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	model->setTextureTileMult(50, 50);
 
 	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
-	
+
+	triggerHandler = new TriggerHandler();
+
+	pressureplate = new PressurePlate();
+	pressureplate->Init();
+	pressureplate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	pressureplate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	pressureplate->setPosition(0, -3, 0);
+
+	door = new Door();
+	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+
+	std::vector<Trigger*> t1;
+	std::vector<Triggerble*> t2;
+
+	t1.push_back(pressureplate);
+	t2.push_back(door);
+
+	triggerHandler->AddPair(t1, t2);
+
 	Input::ResetMouse();
+
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
 }
 
 PlayState::~PlayState()
 {
 	m_levelHandler.Release();
 	
+	
 	player->Release(m_world);
+	delete m_contactListener;
 	delete player;
-	//actor->Release(m_world);
 	delete model;
+	delete triggerHandler;
+	pressureplate->Release(*RipExtern::g_world);
+	delete pressureplate;
+	delete door;
 }
 
 void PlayState::Update(double deltaTime)
 {
+	pressureplate->Update(deltaTime);
+
+	triggerHandler->Update(deltaTime);
+	m_levelHandler.Update(deltaTime);
+	m_contactListener->ClearContactQueue();
+	m_world.Step(m_step);
+
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
 #if _DEBUG
 	TemporaryLobby();
 #endif
-	if (GamePadHandler::IsLeftDpadPressed())
+	if (GamePadHandler::IsSelectPressed())
 	{
-		Input::ForceDeactivateGamepad();
+		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
-	if (GamePadHandler::IsRightDpadPressed())
-	{
-		Input::ForceActivateGamepad();
-	}
-
 
 	player->Update(deltaTime);
-	m_objectHandler.Update();
 	m_levelHandler.Update(deltaTime);
+	
 	
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-	m_world.Step(m_step);
+	player->Update(deltaTime);
+	//m_objectHandler.Update();
+
+	
 	player->PhysicsUpdate(deltaTime);
 
-	if (Input::Exit())
+	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		setKillState(true);
 	}
 
-	// Must be last in update
+
 	if (!player->unlockMouse)
 	{
 		Input::ResetMouse();
@@ -114,16 +143,19 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(JAAH);
 	}
+
+
 }
 
 void PlayState::Draw()
 {
-	m_objectHandler.Draw();
 	m_levelHandler.Draw();
 	
-	player->Draw();
-	//model->Draw();
+	door->Draw();
 
+	player->Draw();
+	model->Draw();
+	pressureplate->DrawWireFrame();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 

@@ -4,36 +4,39 @@
 #include "EngineSource/3D Engine/RenderingManager.h"
 
 
-Enemy::Enemy() : Actor(), CameraHolder()
+Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
 
 }
 
-Enemy::Enemy(float startPosX, float startPosY, float startPosZ)
+Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	this->setDir(1, 0, 0);
-	this->getCamera()->setFarPlane(5);
+	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 
 	srand(time(NULL));
 }
 
-Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ)
+Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	m_vc.Init(this->p_camera);
 	this->setDir(1, 0, 0);
-	this->getCamera()->setFarPlane(5);
+	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->Init(*world, e_staticBody);
-	this->getBody()->SetUserData(this);
+
+	this->getBody()->SetUserData(Enemy::validate());
+	this->getBody()->SetObjectTag("Enemy");
+
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 }
@@ -113,11 +116,10 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			_TempGuardPath(true, deltaTime);
+			_TempGuardPath(true, 0.001f);
 			//_IsInSight();
 		}
 	}
-	
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -161,9 +163,9 @@ bool Enemy::GetDisabledState()
 
 void Enemy::_handleInput(double deltaTime)
 {
-	_handleMovement(deltaTime);
-	_handleRotation(deltaTime);
-	
+	_handleMovement(0.001f);
+	_handleRotation(0.001f);
+	_possessed(deltaTime);
 }
 
 void Enemy::_handleMovement(double deltaTime)
@@ -223,10 +225,10 @@ void Enemy::_IsInSight()
 
 	//int ran = rand() % 100 + 1;
 #if _DEBUG
-	ImGui::Begin("Sight");
+	/*ImGui::Begin("Sight");
 	ImGui::Text("vis: %f", temp);
 	ImGui::Text("FullVis: %f", Player::g_fullVisability);
-	ImGui::End();
+	ImGui::End();*/
 #endif
 	//if (ran < temp) 
 	//{
@@ -234,3 +236,48 @@ void Enemy::_IsInSight()
 	//}
 }
 
+Enemy* Enemy::validate()
+{
+	return this;
+}
+void Enemy::setPossessor(Actor* possessor, float maxDuration, float delay)
+{
+	m_possessor = possessor;
+	m_possessReturnDelay = delay;
+	m_maxPossessDuration = maxDuration;
+}
+
+void Enemy::removePossessor()
+{
+	if (m_possessor != nullptr)
+	{
+		static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+		m_possessor = nullptr;
+		m_possessReturnDelay = 0;
+		m_maxPossessDuration = 0;
+	}
+}
+
+void Enemy::_possessed(double deltaTime)
+{
+	if (m_possessor != nullptr)
+	{
+		if (m_possessReturnDelay <= 0)
+		{
+			if (Input::Possess())
+			{
+				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor = nullptr;
+			}
+			else if(m_maxPossessDuration <= 0)
+			{
+				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor = nullptr;
+			}
+		}
+		else
+			m_possessReturnDelay -= deltaTime;
+
+		m_maxPossessDuration -= deltaTime;
+	}
+}

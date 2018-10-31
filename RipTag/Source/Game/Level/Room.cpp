@@ -71,7 +71,7 @@ void Room::UnloadRoomFromMemory()
 			delete m_pointLights[i];
 		m_staticAssets.clear();
 		m_pointLights.clear();
-		
+
 		m_roomLoaded = false;
 	}
 }
@@ -79,7 +79,7 @@ void Room::UnloadRoomFromMemory()
 void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
-	
+
 	if (m_roomLoaded == false)
 	{
 		MyLibrary::Loadera fileLoader;
@@ -97,24 +97,24 @@ void Room::LoadRoomToMemory()
 		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1], player2Start.startingPos[2], 1.0f);
 
 		MyLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
-		
+
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
 			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
 		}
 		delete tempGuards.startingPositions;
-		
+
 
 
 
 		StaticAsset * temp = new StaticAsset();
-		temp->Init(*m_worldPtr, 1,1,1);
+		temp->Init(*m_worldPtr, 1, 1, 1);
 		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
 		temp->setPosition(0, 0, 0);
 		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
 		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
-		
+
 		CollisionBoxes = new BaseActor();
 		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
 
@@ -128,11 +128,16 @@ void Room::LoadRoomToMemory()
 	{
 		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
 	}
+
+	for (auto light : m_pointLights)
+	{
+		light->setColor(255, 102, 0);
+	}
 }
 
 void Room::getPath()
 {
-	std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0,0), Tile(24, 13));
+	std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)
 	{
@@ -147,28 +152,11 @@ void Room::getPath()
 	}
 }
 
-
 void Room::Update(float deltaTime)
 {
-	/*if (m_pathfindingGrid.Ready())
-	{
-		std::vector<Node*> path = m_pathfindingGrid.getPath();
-		std::cout << "Printing path..." << std::endl << std::endl;
-		for (int i = 0; i < path.size(); i++)
-		{
-			std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-			std::cout << "World x: " << path.at(i)->worldPos.x << " World y: " << path.at(i)->worldPos.y << std::endl;
-		}
-		std::cout << std::endl << "Path is finished printing..." << std::endl;
-		for (int i = 0; i < path.size(); i++)
-		{
-			delete path.at(i);
-			path.at(i) = nullptr;
-		}
-	}*/
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
-		this->m_roomGuards.at(i)->Update(0.001f);
+		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
 		this->m_roomGuards.at(i)->_IsInSight();
@@ -184,6 +172,12 @@ void Room::Update(float deltaTime)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();
+
+	for (auto light : m_pointLights)
+	{
+		
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
+	}
 }
 
 void Room::Draw()
@@ -194,6 +188,7 @@ void Room::Draw()
 	}
 	for (auto light : m_pointLights)
 	{
+		
 		light->QueueLight();
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)

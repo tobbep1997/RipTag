@@ -32,8 +32,6 @@
     <ClCompile Include="Source\Game\Game.cpp" />
     <ClCompile Include="Source\Game\Handlers\CameraHandler.cpp" />
     <ClCompile Include="Source\Game\Handlers\LevelHandler.cpp" />
-    <ClCompile Include="Source\Game\Handlers\ObjectHandler.cpp" />
-    <ClCompile Include="Source\Game\Handlers\PlayerHandler.cpp" />
     <ClCompile Include="Source\Game\Level\Room.cpp" />
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
@@ -43,6 +41,16 @@
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -203,8 +211,6 @@
     <ClInclude Include="Source\Game\Game.h" />
     <ClInclude Include="Source\Game\Handlers\CameraHandler.h" />
     <ClInclude Include="Source\Game\Handlers\LevelHandler.h" />
-    <ClInclude Include="Source\Game\Handlers\ObjectHandler.h" />
-    <ClInclude Include="Source\Game\Handlers\PlayerHandler.h" />
     <ClInclude Include="Source\Game\Level\Room.h" />
     <ClInclude Include="Source\Game\States\MainMenu.h" />
     <ClInclude Include="Source\Game\States\PlayState.h" />
@@ -262,10 +268,21 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
-    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
-    <ClInclude Include="RipTagExtern\RipExtern.h" />
     <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
+    <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
+    <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
+    <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
+    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
+    <ClInclude Include="RipTagExtern\RipExtern.h" />
+    <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
+    <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
+    <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Door.h" />
   </ItemGroup>
 </Project>

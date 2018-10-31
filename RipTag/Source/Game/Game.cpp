@@ -56,6 +56,11 @@ void Game::PollEvents()
 
 }
 
+void Game::PollSingelThread()
+{
+	m_renderingManager->UpdateSingleThread();
+}
+
 void Game::Clear()
 {
 	//TODO Fix clear
@@ -116,6 +121,11 @@ void Game::PopStateLUA()
 	this->m_gameStack.pop();
 }
 
+void Game::ImGuiPoll()
+{
+	m_renderingManager->ImGuiProc();
+}
+
 void Game::_handleStateSwaps()
 {
 	if (m_gameStack.top()->getKillState())
@@ -134,10 +144,6 @@ void Game::_restartGameIf()
 		{
 			delete m_gameStack.top();
 			m_gameStack.pop();
-
-
-
-
 
 			m_gameStack.push(new PlayState(m_renderingManager));
 			isPressed = true;

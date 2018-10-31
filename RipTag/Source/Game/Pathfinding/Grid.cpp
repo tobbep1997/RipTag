@@ -31,8 +31,8 @@ void Grid::CreateGridWithWorldPosValues(int width, int height, MyLibrary::GridSt
 		for (int j = 0; j < m_width; j++)
 		{
 			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
-				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[0],
-					grid.gridPoints[j + i * m_width].translation[2])));
+				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[2],
+					grid.gridPoints[j + i * m_width].translation[0])));
 		}
 	}
 }

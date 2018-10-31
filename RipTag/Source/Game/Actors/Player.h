@@ -5,11 +5,13 @@
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <functional>
 #include "../../Input/Input.h"
-#include "../../Physics/Wrapper/RayCastListener.h"
 #include "../Abilities/TeleportAbility.h"
+#include "../Abilities/PossessGuard.h"
+#include "../Abilities/BlinkAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 #include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
+#include "../Abilities/Disable/DisableAbility.h"
 
 
 namespace FUNCTION_STRINGS
@@ -23,7 +25,9 @@ struct KeyPressed
 	bool crouching = false;
 	bool teleport = false;
 	bool blink = false;
+	bool possess = false;
 	bool unlockMouse = false;
+	bool interact = false;
 };
 
 
@@ -37,13 +41,14 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
-	const unsigned short int m_nrOfAbilitys = 2;
+	const unsigned short int m_nrOfAbilitys = 4;
 private:
+	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
 	int m_currentAbility = 0;
-	Enemy* possessTarget;	
+	PossessGuard m_possess;
+	BlinkAbility m_blink;
 	float m_standHeight;
-	RayCastListener *m_rayListener;
 	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
@@ -51,10 +56,19 @@ private:
 	float m_visability = 0.0f;
 
 	bool m_lockPlayerInput;
-
+	RayCastListener* m_rayListener;
 
 	int mouseX = 0;
 	int mouseY = 0;
+
+	//Mana, if you want %. go currentMana
+	float m_currentMana;
+	float m_maxMana;
+
+	const int STANDARD_START_MANA = 100;
+
+	Quad * m_manaBar;
+	
 public:
 	//Magic number
 	static const int g_fullVisability = 2800;
@@ -63,6 +77,8 @@ public:
 	bool unlockMouse = false;
 	Player();
 	~Player();
+
+	void Init(b3World& world, b3BodyType bodyType, float x, float y, float z);
 
 	void BeginPlay();
 	void Update(double deltaTime);
@@ -82,20 +98,27 @@ public:
 	void SetCurrentVisability(const float & guard);
 
 	void LockPlayerInput();
+	bool IsInputLocked();
 	void UnlockPlayerInput();
 
-	void Phase(float searchLength);
 	const float & getVisability() const;
 	const int & getFullVisability() const;
-	void possessGuard(float searchLength);
-	Enemy* getPossesTarget() { return this->possessTarget; };
+
+	
+	//This is a way of checking if we can use the ability with out current mana
+	bool CheckManaCost(const int & manaCost);
+
+	bool DrainMana(const int & manaCost);
+	void RefillMana(const int & manaFill);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
 	void _onBlink();
+	void _onPossess();
 	void _onRotate(double deltaTime);
 	void _onJump();
+	void _onInteract();
 	void _cameraPlacement(double deltaTime);
 };

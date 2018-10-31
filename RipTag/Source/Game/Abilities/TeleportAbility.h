@@ -1,11 +1,14 @@
 #pragma once
 #include "AbilityComponent.h"
 #include "../Actors/BaseActor.h"
+#include "2D Engine/Quad/Components/HUDComponent.h"
 
-class TeleportAbility : public AbilityComponent, public BaseActor
+
+class TeleportAbility : public AbilityComponent, public BaseActor , public HUDComponent
 {
-private:
-	// CONST VARS
+private: // CONST VARS
+	const int START_MANA_COST = 10;
+	
 	const float TRAVEL_SPEED = 20.0f;
 	const float MAX_CHARGE = 2.0f;
 	const bool USE_SHADOWS = true;
@@ -30,6 +33,8 @@ private:
 	float			m_travelSpeed;
 	bool			m_useFunctionCalled;
 	PointLight		m_light;
+
+	Quad * m_bar;
 public:
 	TeleportAbility(void * owner = nullptr);
 	~TeleportAbility();

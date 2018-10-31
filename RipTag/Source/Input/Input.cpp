@@ -22,6 +22,11 @@ void Input::ForceActivateGamepad()
 	Input::m_deactivate = false;
 }
 
+void Input::SetActivateGamepad(const bool & b)
+{
+	Input::m_deactivate = b;
+}
+
 bool Input::Jump()
 {
 	if (isUsingGamepad())
@@ -85,6 +90,22 @@ bool Input::Crouch()
 				{
 					return true;
 				}
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::Interact()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "Interact")
+			{
+				return true;
 			}
 		}
 	}
@@ -245,7 +266,17 @@ bool Input::Blink()
 
 bool Input::Possess()
 {
-
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "Possess")
+			{
+				return true;
+			}
+		}
+	}
 	return false;
 }
 
@@ -504,6 +535,22 @@ bool Input::SelectAbility3()
 		if (InputHandler::isKeyPressed(keyIterator->first))
 		{
 			if (keyIterator->second == "SelectAbility3")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::SelectAbility4()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility4")
 			{
 				return true;
 			}

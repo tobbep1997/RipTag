@@ -41,17 +41,60 @@ MainMenu::~MainMenu()
 	quitButton->Release();
 	delete quitButton;
 }
-
+#include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
 {
 	if (InputHandler::getShowCursor() != TRUE)
 		InputHandler::setShowCursor(TRUE);
 
-	if (playButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
-		pushNewState(new PlayState(this->p_renderingManager));
+	if (Input::isUsingGamepad())
+	{
+		if (GamePadHandler::IsUpDpadPressed())
+		{
+			playButton->Select(true);
+			playButton->setState(1);
+			quitButton->Select(false);
+			quitButton->setState(0);
+		}
+		else if (GamePadHandler::IsDownDpadPressed())
+		{
+			playButton->Select(false);
+			playButton->setState(0);
 
-	if (quitButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
-		PostQuitMessage(0);
+			quitButton->Select(true);
+			quitButton->setState(1);
+
+		}
+		if (GamePadHandler::IsAPressed())
+		{
+			if (playButton->isSelected())
+			{
+				playButton->setState(2);
+				pushNewState(new PlayState(this->p_renderingManager));
+			}
+			else if (quitButton->isSelected())
+			{
+				quitButton->setState(2);
+				InputHandler::CloseGame();
+				PostQuitMessage(0);
+			}
+		}
+	}
+	else
+	{
+		if (playButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+			pushNewState(new PlayState(this->p_renderingManager));
+
+		if (quitButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+		{
+			InputHandler::CloseGame();
+			PostQuitMessage(0);
+		}
+			
+	}
+
+	
+		
 	
 }
 

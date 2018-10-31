@@ -62,4 +62,7 @@ public:
 	static void SetRightVibration(const float & left);
 	static void SetVibration(const float & left, const float & right);
 	static void SetVibration(const float & left, const float & right, const float & leftTrigger, const float & rightTrigger);
+
+	static bool IsSelectPressed();
+	static bool IsStartPressed();
 };

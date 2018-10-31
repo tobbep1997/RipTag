@@ -7,6 +7,15 @@
 #include "../../3D Engine/Extern.h"
 #include "../FunctionVector.h"
 
+#include <d3d11_4.h>
+#include <dxgi1_6.h>
+
+#pragma comment(lib, "dxgi.lib")
+
+#include <psapi.h>
+
+#include <string>
+
 #define DIV 1048576
 #define WIDTH 7
 
@@ -15,6 +24,15 @@ class ImGuiManager
 private:
 	MEMORYSTATUSEX m_statex;
 	FunctionPush::Vector<ImGuiManager, void> m_ImGuiDrawVector;
+	DWORD m_currentProcessID;
+	HANDLE hProcess;
+	float memoryUsageRam = 0;
+	float memoryUsageVRam = 0;
+
+	HRESULT ret_code;
+	IDXGIFactory* dxgifactory = nullptr;
+	IDXGIAdapter* dxgiAdapter = nullptr;
+	IDXGIAdapter4* dxgiAdapter4 = NULL;
 public:
 	ImGuiManager();
 	~ImGuiManager();
