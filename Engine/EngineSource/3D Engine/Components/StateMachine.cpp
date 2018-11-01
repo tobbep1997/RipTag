@@ -122,7 +122,7 @@ namespace SM
 			m_BlendFromState = m_CurrentState;
 			m_CurrentState = state.first;
 		}
-		std::cout << m_CurrentState->GetName() << std::endl;
+		//std::cout << m_CurrentState->GetName() << std::endl;
 	}
 
 	void AnimationStateMachine::UpdateBlendFactor(float deltaTime)
