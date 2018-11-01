@@ -11,11 +11,12 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//4. Set the correct entity type
 	//5. Push the intial state on the stack
 	//6. Register abilities
+	//7. Register animation state machine
 	
 	//1.
-	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-
+	
 	//2.
 	this->setPosition(pos);
 	this->setScale(scale);
@@ -79,6 +80,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_ABILITY:
 		this->_onNetworkAbility((Network::ENTITYABILITYPACKET*)data);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_ANIMATION:
+		this->_onNetworkAnimation((Network::ENTITYANIMATIONPACKET*)data);
 		break;
 	}
 }
@@ -151,6 +155,15 @@ void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 	m_abilityComponents[m_currentAbility]->UpdateFromNetwork(data);
 }
 
+void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
+{
+	if (this->networkID == data->nid)
+	{
+		this->m_currentDirection = data->direction;
+		this->m_currentSpeed = data->speed;
+	}
+}
+
 void RemotePlayer::_Idle(float dt)
 {
 	//Play the idle animation
@@ -200,4 +213,102 @@ void RemotePlayer::_lerpPosition(float dt)
 	DirectX::XMStoreFloat4A(&_newPos, newPos);
 
 	this->setPosition(_newPos);
+}
+
+void RemotePlayer::_registerAnimationStateMachine()
+{
+	std::vector<SharedAnimation> sharedAnimations;
+	const char * collection = "STATE";
+	int nrOfStates = 2;
+
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_FORWARD_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BACKWARD_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_LEFT2_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_RIGHT2_ANIMATION"));
+
+	this->getAnimatedModel()->SetPlayingClip(sharedAnimations[IDLE].get());
+	this->getAnimatedModel()->Play();
+	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
+
+	std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimatedModel()->InitStateMachine(nrOfStates);
+
+	{
+		//Blend spaces - forward&backward
+		SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
+			"walk_forward", //state name
+			&this->m_currentDirection, //x-axis driver
+			&this->m_currentSpeed, //y-axis driver
+			-90.f, 90.f, //x-axis bounds
+			0.0f, 3.001f //y-axis bounds
+		);
+		SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
+			"walk_backward", //state name
+			&this->m_currentDirection, //x-axis driver
+			&this->m_currentSpeed, //y-axis driver
+			-180.f, 180.f, //x-axis bounds
+			0.0f, 3.001f //y-axis bounds
+		);
+
+		//Add blendspace rows 
+		//forward
+		blend_fwd->AddRow(
+			0.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[IDLE].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[IDLE].get(), 0.f },
+				{ sharedAnimations[IDLE].get(), 90.f }
+			}
+		);
+		blend_fwd->AddRow(
+			3.1f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[LEFT].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[FORWARD].get(), 0.f },
+				{ sharedAnimations[RIGHT].get(), 90.f }
+			}
+		);
+		//
+		blend_bwd->AddRow(
+			0.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[IDLE].get(), -180.f }, //the clip to use and x-placement
+				{ sharedAnimations[IDLE].get(), -90.f },
+				{ sharedAnimations[IDLE].get(), 0.f },
+				{ sharedAnimations[IDLE].get(), 90.f },
+				{ sharedAnimations[IDLE].get(), 180.f }
+			}
+		);
+		blend_bwd->AddRow(
+			0.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
+				{ sharedAnimations[LEFT].get(), -90.f },
+				{ sharedAnimations[FORWARD].get(), 0.f },
+				{ sharedAnimations[RIGHT].get(), 90.f },
+				{ sharedAnimations[BACKWARD].get(), 180.f }
+			}
+		);
+
+		//Adding out state / transitions
+		SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
+		//Add transition condition
+		fwd_bwd_outstate.AddTransition(
+			&this->m_currentDirection, //referenced variable for comparision
+			-90.f, 90.f, //bound range for comparision
+			SM::COMPARISON_OUTSIDE_RANGE //comparision condition
+		);
+
+		SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
+		//Add transition condition
+		bwd_fwd_outstate.AddTransition(
+			&this->m_currentDirection, //referenced variable for comparision
+			-90.f, 90.f, //bound range for comparision
+			SM::COMPARISON_INSIDE_RANGE //comparision condition
+		);
+
+		//set initial state
+		stateMachine->SetState("walk_forward");
+	}
+
 }

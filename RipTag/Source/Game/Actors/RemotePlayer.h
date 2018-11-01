@@ -8,9 +8,19 @@
 #include "../Abilities/VisabilityAbility.h"
 #include "../Abilities/Disable/DisableAbility.h"
 
+//animation
+#include "../Handlers/AnimationHandler.h"
 
 class RemotePlayer : public Actor, public RakNet::NetworkIDObject
 {
+private:
+	enum AnimState {
+		IDLE = 0,
+		FORWARD = 1,
+		BACKWARD = 2,
+		LEFT = 3,
+		RIGHT = 4
+	};
 public:
 	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot);
 	~RemotePlayer();
@@ -25,6 +35,10 @@ private:
 	DirectX::XMFLOAT4A m_mostRecentPosition;
 	RakNet::Time m_timeDiff;
 
+	//ANIMATION
+	float m_currentDirection = 0.0f;
+	float m_currentSpeed = 0.0f;
+
 public:
 	//PUBLIC MEMBER FUNCTIONS
 	void BeginPlay();
@@ -38,6 +52,7 @@ private:
 	//Network message handling
 	void _onNetworkUpdate(Network::ENTITYUPDATEPACKET * data);
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
+	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
 
 	//Local Game logic
 	void _Idle(float dt);
@@ -49,6 +64,6 @@ private:
 
 	void _lerpPosition(float dt);
 
-
+	void _registerAnimationStateMachine();
 };
 

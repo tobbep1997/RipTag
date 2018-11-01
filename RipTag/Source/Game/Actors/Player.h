@@ -101,6 +101,8 @@ public:
 	//Networking
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
+	void SendOnAnimationUpdate(double dt);
+
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
