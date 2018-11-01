@@ -9,81 +9,20 @@ void CameraHolder::p_initCamera(Camera * camera)
 
 double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState)
 {
-	switch (moveState)
+	if (this->p_moveState == Walking)
 	{
-	case Walking:
-
-		if (m_currentAmp < m_walkingBobAmp)
-		{
-			m_currentAmp += deltaTime * 0.03; 
-		}
-		else if (m_currentAmp > m_walkingBobAmp)
-		{
-			m_currentAmp -= deltaTime * 0.03; 
-		}
-
-		if (m_currentFreq < m_walkingFreq)
-		{
-			m_currentFreq += deltaTime * 0.03; 
-		}
-		else if (m_currentFreq > m_walkingFreq)
-		{
-			m_currentFreq -= deltaTime * 0.03; 
-		}
-
-		m_walkBob += (velocity * (moveSpeed * deltaTime));
-		m_offset = m_currentAmp * sin(m_currentFreq * m_walkBob);
-
-		break;
-	case Sprinting:
-		if (velocity != 0)
-		{
-			if (m_currentAmp < m_sprintingBobAmp)
-			{
-				m_currentAmp += deltaTime * 0.03; 
-			}
-			else if (m_currentAmp > m_sprintingBobAmp)
-			{
-				m_currentAmp -= deltaTime * 0.03; 
-			}
-
-			if (m_currentFreq < m_sprintingFreq)
-			{
-				m_currentFreq += deltaTime * 0.03; 
-			}
-			else if (m_currentFreq > m_sprintingFreq)
-			{
-				m_currentFreq -= deltaTime * 0.03; 
-			}
-
-
-			m_sprintBob += (velocity * (moveSpeed * deltaTime));
-			m_offset = m_currentAmp * sin(m_currentFreq * m_sprintBob);
-		}
-		break;
-	case Idle:
-
-		if (m_currentAmp < m_stopBobAmp)
-		{
-			m_currentAmp += deltaTime * 0.03; 
-		}
-		else if (m_currentAmp > m_stopBobAmp)
-		{
-			m_currentAmp -= deltaTime * 0.03; 
-		}
-
-		if (m_currentFreq < m_stopBobFreq)
-		{
-			m_currentFreq += deltaTime * 0.03; 
-		}
-		else if (m_currentFreq > m_stopBobFreq)
-		{
-			m_currentFreq -= deltaTime * 0.03;
-		}
-
-		m_stopBob += deltaTime; 
-		m_offset = m_currentAmp * sin(m_currentFreq * m_stopBob);
-		break;
+		m_moveBob += velocity * (moveSpeed * deltaTime); 
+		m_offset = m_moveAmp * sin(m_moveFreq * m_moveBob); 
+	}
+	else if (this->p_moveState == Sprinting)
+	{
+		m_sprintBob += velocity * (moveSpeed * deltaTime);
+		m_offset = m_sprintAmp * sin(m_sprintFreq * m_sprintBob);
+	}
+	else
+	{
+		m_stopBob += deltaTime * 2.0f; 
+		m_offset = m_stopAmp * sin(m_stopFreq * m_stopBob);
 	}
 
 	return m_offset;

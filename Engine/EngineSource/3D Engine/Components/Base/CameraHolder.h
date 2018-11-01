@@ -6,23 +6,20 @@ class CameraHolder
 {
 private:
 
-	float m_lerpingStep = 0.1f; 
-
-	float m_sprintBob = 0.0f;
-	float m_walkBob = 0.0f;
+	float m_moveBob = 0.0f;
 	float m_stopBob = 0.0f;
-	
-	float m_sprintingFreq = 2.0f;
-	float m_sprintingBobAmp = 0.3f;
+	float m_sprintBob = 0.0f;
 
-	float m_walkingFreq = 3.0f;
-	float m_walkingBobAmp = 0.2f;
+	float m_moveFreq = 1.8f; 
+	float m_moveAmp = 0.01f;
 
-	float m_stopBobFreq = 2.0f;
-	float m_stopBobAmp = 0.15f;
+	float m_stopFreq = 0.7f; 
+	float m_stopAmp = 0.03f;
 
-	float m_currentAmp = m_stopBobAmp;
-	float m_currentFreq = m_stopBobFreq; 
+	float m_sprintFreq = 1.4f; 
+	float m_sprintAmp = 0.04f;
+
+	float m_currentAmp = 0.0f; 
 
 	float m_offset = 0.0f;
 
@@ -55,6 +52,11 @@ public:
 	virtual~CameraHolder();
 
 	Camera * getCamera() const;
+
+	float lerp(float a, float b, float f)
+	{
+		return a + f * (b - a);
+	}
 
 };
 

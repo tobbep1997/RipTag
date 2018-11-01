@@ -204,51 +204,60 @@ void Player::_onMovement()
 
 void Player::_onSprint()
 {
-	if (Input::isUsingGamepad())
+	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 	{
-		m_currClickSprint = Input::Sprinting(); 
-		if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.1)
+		if (Input::isUsingGamepad())
 		{
-			m_toggleSprint = 1; 
-		}
-	
-		if (m_toggleSprint == 1 && Input::MoveForward() > 0.1)
-		{
-			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-			p_moveState = Sprinting; 
+			m_currClickSprint = Input::Sprinting();
+			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.4)
+			{
+				m_toggleSprint = 1;
+			}
+
+			if (m_toggleSprint == 1 && Input::MoveForward() > 0.4)
+			{
+				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+				p_moveState = Sprinting;
+			}
+			else
+			{
+				m_toggleSprint = 0;
+			}
+
+			if (m_toggleSprint == 0)
+			{
+				m_moveSpeed = MOVE_SPEED;
+				p_moveState = Walking;
+			}
+
+			if (Input::MoveForward() == 0)
+			{
+				p_moveState = Idle;
+				m_toggleSprint = 0; 
+			}
+
+			m_prevClickSprint = m_currClickSprint;
 		}
 		else
 		{
-			m_toggleSprint = 0; 
+			if (Input::Sprinting())
+			{
+				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+				p_moveState = Sprinting;
+			}
+			else
+			{
+				m_moveSpeed = MOVE_SPEED;
+				p_moveState = Walking;
+			}
 		}
-		
-		if (m_toggleSprint == 0)
-		{
-			m_moveSpeed = MOVE_SPEED;
-			p_moveState = Walking;
-		}
-
-		if (Input::MoveForward() == 0)
-		{
-			p_moveState = Idle;
-
-		}
-
-		m_prevClickSprint = m_currClickSprint; 
 	}
 	else
 	{
-		if (Input::Sprinting())
-		{
-			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-			p_moveState = Sprinting; 
-		}
-		else
-		{ 
-			m_moveSpeed = MOVE_SPEED;
-			p_moveState = Sprinting; 
-		}
+		m_moveSpeed = 0; 
+		p_moveState = Idle; 
 	}
+	
 }
 
 void Player::_onCrouch()
@@ -295,7 +304,7 @@ void Player::_onCrouch()
 		}
 	}
 
-	if (m_kp.crouching)
+	if (m_kp.crouching && m_toggleSprint != 1)
 	{
 		m_moveSpeed = MOVE_SPEED * 0.5f;
 	}
