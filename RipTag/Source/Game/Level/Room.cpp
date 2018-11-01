@@ -71,7 +71,7 @@ void Room::UnloadRoomFromMemory()
 			delete m_pointLights[i];
 		m_staticAssets.clear();
 		m_pointLights.clear();
-
+		
 		m_roomLoaded = false;
 	}
 }
