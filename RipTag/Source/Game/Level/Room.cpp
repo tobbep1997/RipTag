@@ -92,7 +92,7 @@ void Room::LoadRoomToMemory()
 
 
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid.CreateGridWithWorldPosValues(25, 25, m_grid);
+		m_pathfindingGrid.CreateGridWithWorldPosValues(m_grid.maxX, m_grid.maxY, m_grid);
 		//
 		m_roomLoaded = true;
 
@@ -108,8 +108,8 @@ void Room::LoadRoomToMemory()
 		{
 			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
 
-			std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
-			this->m_roomGuards.at(i)->SetPathVector(path);
+			/*std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
+			this->m_roomGuards.at(i)->SetPathVector(path);*/
 			//this->m_roomGuards.at(i)->setPosition(-10, 0, -10);
 		}
 		delete tempGuards.startingPositions;

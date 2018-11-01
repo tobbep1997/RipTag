@@ -28,11 +28,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	/*Manager::g_meshManager.loadStaticMesh("SPHERE");*/
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
 	Manager::g_meshManager.loadDynamicMesh("STATE");
-	Manager::g_textureManager.loadTextures("SPHERE");
+	/*Manager::g_textureManager.loadTextures("SPHERE");*/
 
 //	future.get();
 	future1.get();
@@ -42,14 +42,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	CameraHandler::setActiveCamera(player->getCamera());
 
-	player->Init(m_world, e_dynamicBody, 0.5f,0.5f,0.5f);
 	
-
+	player->Init(m_world, e_dynamicBody, 0.5f,0.5f,0.5f);
+	//
+	//player->setPosition(0, 100, 0);
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
 	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	model->setScale(0.05, 0.05, 0.05);
-	model->setPosition({ 0.0, -11.0, 0.0, 1.0 });
+	model->setPosition({ 0.0, 200, 0.0, 1.0 });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
@@ -148,7 +149,8 @@ void PlayState::Update(double deltaTime)
 	
 	
 	m_step.dt = deltaTime;
-	m_step.velocityIterations = 1;
+	m_step.velocityIterations = 20;
+	
 	m_step.sleeping = false;
 	m_firstRun = false;
 

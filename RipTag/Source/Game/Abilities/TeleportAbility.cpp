@@ -2,6 +2,7 @@
 #include "../RipTagExtern/RipExtern.h"
 #include "../Actors/Player.h"
 
+
 TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor()
 {
 	m_tpState = Throw;
@@ -17,7 +18,7 @@ TeleportAbility::~TeleportAbility()
 
 void TeleportAbility::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
+	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -66,8 +67,40 @@ void TeleportAbility::Use()
 		break;
 	case TeleportAbility::Teleport:
 		DirectX::XMFLOAT4A position = Transform::getPosition();
+		float velX = getLiniearVelocity().x;
+		float velY = getLiniearVelocity().y;
+		float velZ = getLiniearVelocity().z;
+
+		DirectX::XMFLOAT4A direction = DirectX::XMFLOAT4A(getLiniearVelocity().x, getLiniearVelocity().y, getLiniearVelocity().z, 1);
+		DirectX::XMFLOAT4A direction2 = DirectX::XMFLOAT4A(-getLiniearVelocity().x, -getLiniearVelocity().y, -getLiniearVelocity().z, 1);
+
+		DirectX::XMFLOAT4A position1 = Transform::getPosition();
+		DirectX::XMFLOAT4A position2 = Transform::getPosition();
+		DirectX::XMFLOAT4A position3 = Transform::getPosition();
+		DirectX::XMFLOAT4A position4 = Transform::getPosition();
+		DirectX::XMFLOAT4A position5 = Transform::getPosition();
+		DirectX::XMFLOAT4A position6 = Transform::getPosition();
+		b3Vec3 bc;
+		bc = RipExtern::m_rayListener->ShotRay2(getBody(), direction, 1);
+		std::cout << bc.x << " " << bc.y << " " << bc.z << std::endl;
+
 		position.y += 1.0f;
+
+		position.x += bc.x;
+		position.y += bc.y;
+		position.z += bc.z;
+
+		bc = RipExtern::m_rayListener->ShotRay2(getBody(), direction2, 1);
+		std::cout << bc.x << " " << bc.y << " " << bc.z << std::endl;
+
+		//position.y += 1.0f;
+
+		position.x += bc.x;
+		position.y += bc.y;
+		position.z += bc.z;
+
 		((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
+		((Player*)p_owner)->setLiniearVelocity();
 		m_tpState = TeleportAbility::Wait;
 		break;
 	}

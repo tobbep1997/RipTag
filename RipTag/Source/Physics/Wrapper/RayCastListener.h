@@ -76,7 +76,33 @@ public:
 		//	}
 		//}
 	}
+	virtual b3Vec3 ShotRay2(b3Body* body, DirectX::XMFLOAT4A direction, float length, std::string target = "N/A")
+	{
+		float x = body->GetTransform().translation.x + (length * direction.x);
+		float y = body->GetTransform().translation.y + (length * direction.y);
+		float z = body->GetTransform().translation.z + (length * direction.z);
 
+		rayContacts.push_back(RayContact(body));
+		body->GetScene()->RayCast(this,
+			b3Vec3(body->GetTransform().translation.x, body->GetTransform().translation.y, body->GetTransform().translation.z),
+			b3Vec3(x, y, z));
+		if (rayContacts.back().fraction == 0)
+		{
+			rayContacts.pop_back();
+		}
+		RayContact * rc = nullptr;
+		if (!rayContacts.empty())
+		{
+			rc = &rayContacts.back();
+			rayContacts.pop_back();
+			return rc->normal;
+		}
+		else
+		{
+			return b3Vec3(0, 0, 0);
+		}
+		
+	}
 	virtual std::vector<RayContact> GetContacts()
 	{
 		return this->rayContacts;

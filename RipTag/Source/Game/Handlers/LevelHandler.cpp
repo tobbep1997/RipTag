@@ -21,7 +21,7 @@ void LevelHandler::Init(b3World& worldPtr)
 	_GenerateLevelStruct(2, 5);
 
 	_RoomLoadingManager();
-
+	m_playerPtr->setPosition(m_rooms.at(0)->getPlayer1StartPos().x, m_rooms.at(0)->getPlayer1StartPos().y, m_rooms.at(0)->getPlayer1StartPos().z,1);
 }
 
 void LevelHandler::Release()
@@ -104,6 +104,7 @@ void LevelHandler::Draw()
 void LevelHandler::setPlayer(Player * playerPtr)
 {
 	this->m_playerPtr = playerPtr;
+	
 }
 
 void LevelHandler::_LoadPreFabs()
@@ -119,7 +120,7 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	{
 		//Create a room
 		//Get a random int
-		int randomRoom = 2;// rand() % 3+1;
+		int randomRoom = 5;// rand() % 3+1;
 		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
 
 
