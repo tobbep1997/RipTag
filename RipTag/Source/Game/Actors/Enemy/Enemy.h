@@ -32,16 +32,31 @@ private:
 
 	bool m_disabled = false;
 
-	float m_movementSpeed = 10;
+	float m_moveSpeed = 10;
 	float m_camSensitivity = 5;
 	float m_standHeight;
+	float m_offPutY = 0.4f;
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
+
+	//Possess
 	Actor* m_possessor;
 	float m_possessReturnDelay;
 	float m_maxPossessDuration;
+	
+	//Key Input
+	bool m_currClickCrouch = false;
+	bool m_prevClickCrouch = false;
+	bool m_currClickSprint = false;
+	bool m_prevClickSprint = false;
+	bool m_isSprinting = false;
+
+	int m_toggleCrouch = 0;
+	int m_toggleSprint = 0;
 	KeyPressedEnemy m_kp;
+
+
 
 	std::vector<Node*> m_path;
 
@@ -105,5 +120,7 @@ private:
 	bool _MoveTo(Node * nextNode, double deltaTime);
 
 	void _CheckPlayer(double deltaTime);
+	void _activateCrouch();
+	void _deActivateCrouch();
 };
 
