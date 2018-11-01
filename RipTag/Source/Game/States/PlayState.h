@@ -16,7 +16,6 @@
 //lua 
 #include <LuaTalker.h>
 #include "../../Physics/Wrapper/ContactListener.h"
-#include "../../Physics/Wrapper/RayCastListener.h"
 
 #include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"

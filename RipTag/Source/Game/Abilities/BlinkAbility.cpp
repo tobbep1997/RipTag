@@ -55,7 +55,7 @@ void BlinkAbility::_logic(double deltaTime)
 		case BlinkState::Blink:
 			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, "BLINK_WALL");
+				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, "BLINK_WALL");
 				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 				{
 					if(con.originBody->GetObjectTag() == "PLAYER")

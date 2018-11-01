@@ -54,8 +54,6 @@ private:
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
 
-	RayCastListener * m_rayListener;
-
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -84,7 +82,6 @@ private:
 	float m_maxMana;
 
 	const int STANDARD_START_MANA = 100;
-
 	Quad * m_manaBar;
 	
 public:

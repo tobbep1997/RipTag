@@ -95,7 +95,6 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
-	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 }
 
@@ -627,7 +626,7 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RipExtern::m_rayListener->ShotRay(this->getBody(),this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
+			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
 			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 			{
 				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
@@ -644,9 +643,15 @@ void Player::_onInteract()
 					{
 						//Snuff out torches (example)
 					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "Enemy")
+					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
-
+						//std::cout << "Enemy Found!" << std::endl;
+						//Snuff out torches (example)
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					{
+						//std::cout << "illusory wall ahead" << std::endl;
+						//Snuff out torches (example)
 					}
 				}
 			}
