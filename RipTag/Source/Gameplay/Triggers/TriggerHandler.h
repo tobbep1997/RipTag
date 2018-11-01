@@ -9,6 +9,7 @@
 private:
 	struct TriggerPairs
 	{
+		bool seperate;
 		std::vector<Trigger*> triggers;
 		std::vector<Triggerble*> triggerble;
 	};
@@ -23,6 +24,6 @@ public:
 
 	void Update(double deltaTime);
 
-	void AddPair(std::vector<Trigger*> & triggers, std::vector<Triggerble *> & triggerable);
+	void AddPair(std::vector<Trigger*> & triggers, std::vector<Triggerble *> & triggerable, bool seperate = false);
 };
 

@@ -43,7 +43,7 @@ private:
 	const float MOVE_SPEED = 10.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
-	const float INTERACT_RANGE = 2.0f;
+	const float INTERACT_RANGE = 20.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
 private:

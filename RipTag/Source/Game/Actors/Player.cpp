@@ -561,7 +561,7 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
+			RipExtern::m_rayListener->ShotRay(this->getBody(),this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
 			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 			{
 				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
@@ -572,12 +572,15 @@ void Player::_onInteract()
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						//std::cout << "Lever Found!" << std::endl;
 						//Pull Levers
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
 						//Snuff out torches (example)
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "Enemy")
+					{
+
 					}
 				}
 			}

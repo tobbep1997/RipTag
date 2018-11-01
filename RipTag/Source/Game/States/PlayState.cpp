@@ -58,12 +58,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
-
 	
-
-
-	//enemy->setDir(1, 0, 0);
-	//enemy->getCamera()->setFarPlane(5);
 
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
@@ -115,13 +110,17 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	lever = new Lever();
 	lever->Init();
+	lever->setPosition(-3, -3, 0);
+	std::cout << lever->getPosition().x << " " << lever->getPosition().y << " " << lever->getPosition().z << std::endl;
+
 	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	lever->setPosition(-3, -3, 0);
 
 	door = new Door();
+	door->Init(m_world, e_staticBody, 1, 1, 1);
 	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	
 
 	std::vector<Trigger*> t1;
 	std::vector<Triggerble*> t2;
@@ -130,7 +129,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	t1.push_back(lever);
 	t2.push_back(door);
 
-	triggerHandler->AddPair(t1, t2);
+	triggerHandler->AddPair(t1, t2, true);
 
 	Input::ResetMouse();
 
@@ -161,6 +160,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
