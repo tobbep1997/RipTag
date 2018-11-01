@@ -13,6 +13,9 @@ protected:
 	DirectX::XMFLOAT4A p_scale;
 	DirectX::XMFLOAT4A p_rotation;
 
+
+	DirectX::XMMATRIX p_forcedWorld;
+
 	DirectX::XMFLOAT3X3 p_physicsRotation;
 
 	DirectX::XMFLOAT4X4A p_worldMatrix;
@@ -40,6 +43,8 @@ public:
 
 	virtual void setRotation(const DirectX::XMFLOAT4A & rot);
 	virtual void setRotation(const float & x = 0.0f, const float & y = 0.0f, const float & z = 0.0f, const float & w = 1.0f);
+
+	virtual void ForceWorld(const DirectX::XMMATRIX & world);
 
 	virtual void addRotation(const DirectX::XMFLOAT4A & rot);
 	virtual void addRotation(const float & x, const float & y, const float & z, const float & w = 0.0f);

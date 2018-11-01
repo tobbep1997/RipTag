@@ -82,7 +82,10 @@ void PlayerManager::Update(float dt)
 	if (mRemotePlayer && hasRemotePlayer)
 		mRemotePlayer->Update(dt);
 	if (mLocalPlayer && hasLocalPlayer)
+	{
 		mLocalPlayer->Update(dt);
+		AudioEngine::UpdateListenerAttributes(mLocalPlayer->getFMODListener());
+	}
 	if (hasRemotePlayer && hasLocalPlayer)
 	{
 		if (accumulatedDT >= frequency)

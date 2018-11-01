@@ -1,5 +1,6 @@
 #include "LevelHandler.h"
 #include "InputManager/InputHandler.h"
+#include <AudioEngine.h>
 LevelHandler::LevelHandler()
 {
 }
@@ -22,6 +23,7 @@ void LevelHandler::Init(b3World& worldPtr)
 
 	_RoomLoadingManager();
 
+	m_rooms[m_activeRoom]->SetActive(true);
 }
 
 void LevelHandler::Release()
@@ -57,24 +59,28 @@ void LevelHandler::Update(float deltaTime)
 	{
 		if (pressed == false)
 		{
+			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom--;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
 	{
 		if (pressed == false)
 		{
+			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom++;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 		}
 	}
 	else if (InputHandler::isKeyPressed('H'))
@@ -193,7 +199,6 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	//	m_rooms.at(m_loadingQueue.at(i))->loadTextures();
 
 	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
-	
 	
 	//m_loadingQueue.clear();
 

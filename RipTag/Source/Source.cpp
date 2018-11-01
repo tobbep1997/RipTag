@@ -3,6 +3,7 @@
 #include "EngineSource/Helper/Timer.h"
 #include <LuaTalker.h>
 #include "../RipTag/Source/Game/Pathfinding/Grid.h"
+#include <AudioEngine.h>
 
 #if _DEBUG
 #include <iostream>
@@ -35,6 +36,7 @@ void GameLoop(Game * game)
 		//Draw and update
 		game->ImGuiFrameStart();
 		game->Update(deltaTime);
+		AudioEngine::Update();
 		game->Draw();
 	}
 }
@@ -65,6 +67,7 @@ void SingleGameLoop(Game * game)
 		//Draw and update
 		game->ImGuiFrameStart();
 		game->Update(deltaTime);
+		AudioEngine::Update();
 		game->Draw();
 	}
 }
@@ -74,7 +77,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #if _DEBUG
 	_alocConsole();
 #endif
-
+    AudioEngine::Init();
 	
 
 	Game game;
@@ -112,6 +115,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	
 
 	DX::g_shaderManager.Release();
+	AudioEngine::Release();
 	return 0;
 	
 

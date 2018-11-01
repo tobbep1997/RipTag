@@ -129,6 +129,9 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
+	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
+
 	using namespace DirectX;
 
 	//set jumpedThisFrame to false
@@ -183,7 +186,6 @@ void Player::Update(double deltaTime)
 		{
 			_handleInput(deltaTime);
 		}
-		
 	}
 
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
@@ -201,6 +203,7 @@ void Player::Update(double deltaTime)
 	/*m_possess.Update(deltaTime);
 	m_blink.Update(deltaTime);*/
 	_cameraPlacement(deltaTime);
+	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
 	if (Input::SelectAbility1())	
@@ -256,6 +259,11 @@ bool Player::CheckManaCost(const int& manaCost)
 	{
 		return false;
 	}
+}
+
+const AudioEngine::Listener & Player::getFMODListener() const
+{
+	return m_FMODlistener;
 }
 
 bool Player::DrainMana(const int& manaCost)
@@ -681,6 +689,27 @@ void Player::_cameraPlacement(double deltaTime)
 	p_camera->setPosition(pos);
 }
 
+void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos)
+{
+	const DirectX::XMFLOAT4A & xmDir = p_camera->getDirection();
+	const DirectX::XMFLOAT4A & xmPos = p_camera->getPosition();
+	const DirectX::XMFLOAT4A & xmRight = p_camera->getRight();
+	DirectX::XMFLOAT3 xmUp;
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat4A(&xmDir);
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat4A(&xmRight);
+	DirectX::XMVECTOR vUp = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vDir, vRight));
+	DirectX::XMStoreFloat3(&xmUp, vUp);
+
+	FMOD_VECTOR vel;
+	vel.x = ( xmPos.x - xmLastPos.x ) / deltaTime;
+	vel.y = ( xmPos.y - xmLastPos.y ) / deltaTime;
+	vel.z = ( xmPos.z - xmLastPos.z ) / deltaTime;
+
+	m_FMODlistener.pos = { xmPos.x, xmPos.y, xmPos.z };
+	m_FMODlistener.up = { xmUp.x, xmUp.y, xmUp.z };
+	m_FMODlistener.forward = { xmDir.x, xmDir.y, xmDir.z };
+	m_FMODlistener.vel = vel;
+}
 void Player::_activateCrouch()
 {
 	this->setPosition(this->getPosition().x, this->getPosition().y - m_offPutY, this->getPosition().z);
@@ -696,5 +725,4 @@ void Player::_deActivateCrouch()
 	this->CreateBox(0.5, 0.5, 0.5);
 	m_kp.crouching = false;
 }
-
 

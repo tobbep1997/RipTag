@@ -10,6 +10,7 @@
 #include "../Abilities/PossessGuard.h"
 #include "../Abilities/BlinkAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include <AudioEngine.h>
 #include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
 #include "../Abilities/Disable/DisableAbility.h"
@@ -46,6 +47,7 @@ private:
 	const float INTERACT_RANGE = 2.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
+	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
@@ -120,6 +122,7 @@ public:
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 
+	const AudioEngine::Listener & getFMODListener() const; 
 	
 	//This is a way of checking if we can use the ability with out current mana
 	bool CheckManaCost(const int & manaCost);
@@ -140,6 +143,7 @@ private:
 
 
 	void _cameraPlacement(double deltaTime);
+	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
 };

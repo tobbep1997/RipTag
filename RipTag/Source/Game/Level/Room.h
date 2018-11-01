@@ -11,6 +11,7 @@
 #include "../Pathfinding/Grid.h"
 #include "../../Physics/Wrapper/CollisionBoxes.h"
 
+#include <AudioEngine.h>
 class Room
 {
 private:
@@ -32,8 +33,8 @@ private:
 
 	bool m_roomLoaded = false;
 	std::vector<StaticAsset*> m_staticAssets;
-	
 	std::vector<PointLight*> m_pointLights;
+	std::vector<FMOD::Geometry*> m_audioBoxes;
 	float m_playerStartPos;
 
 	MyLibrary::GridStruct m_grid;
@@ -59,6 +60,8 @@ public:
 	~Room();
 
 	void Update(float deltaTime);
+
+	void SetActive(bool state);
 
 	void Draw();
 

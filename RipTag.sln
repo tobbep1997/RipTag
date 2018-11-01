@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Importer", "New_Library\New
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2DEngine", "2DEngine\2DEngine.vcxproj", "{A891C372-1A47-4B16-B4E9-36E01D2D1378}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioEngine", "AudioEngine\AudioEngine.vcxproj", "{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{A891C372-1A47-4B16-B4E9-36E01D2D1378}.Release|x64.Build.0 = Release|x64
 		{A891C372-1A47-4B16-B4E9-36E01D2D1378}.Release|x86.ActiveCfg = Release|Win32
 		{A891C372-1A47-4B16-B4E9-36E01D2D1378}.Release|x86.Build.0 = Release|Win32
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Debug|x64.ActiveCfg = Debug|x64
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Debug|x64.Build.0 = Debug|x64
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Debug|x86.ActiveCfg = Debug|Win32
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Debug|x86.Build.0 = Debug|Win32
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Release|x64.ActiveCfg = Release|x64
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Release|x64.Build.0 = Release|x64
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Release|x86.ActiveCfg = Release|Win32
+		{35DACBF6-0B6A-43FF-8486-7DCC56827A6D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

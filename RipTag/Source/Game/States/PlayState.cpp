@@ -5,6 +5,7 @@
 #include "ImportLibrary/formatImporter.h"
 #include "../RipTagExtern/RipExtern.h"
 #include "../Handlers/AnimationHandler.h"
+#include <AudioEngine.h>
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
@@ -130,6 +131,16 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	triggerHandler->AddPair(t1, t2, true);
 
+
+	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	FMOD_VECTOR at = { -29.1406, -2.82f, -15.4373f };
+	FMOD_VECTOR at2 = { -11.5999, -2.82f, -0.4889f };
+	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
+	AudioEngine::PlaySoundEffect(name, &at2);
+
+
+	AudioEngine::CreateReverb(at, 10, 25.0f);
+
 	Input::ResetMouse();
 
 	m_step.velocityIterations = 1;
@@ -160,7 +171,6 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
@@ -177,7 +187,6 @@ void PlayState::Update(double deltaTime)
 		m_world.Step(m_step);
 	}
 	
-
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
