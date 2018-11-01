@@ -455,6 +455,8 @@ namespace MyLibrary
 		{
 			fileIsOpen = true; // ya its open
 
+			customGridFile.read((char*)&gridPos.maxX, sizeof(int)); // what is happening here?!! i just copied this code
+			customGridFile.read((char*)&gridPos.maxY, sizeof(int)); // what is happening here?!! i just copied this code
 
 			customGridFile.read((char*)&gridPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
 
@@ -468,7 +470,9 @@ namespace MyLibrary
 				customGridFile.read((char*)&gridPos.gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
 
 
-			//	std::cout << gridPos.gridPoints[i].pathable << std::endl;
+				std::cout << gridPos.maxX << std::endl;
+				std::cout << gridPos.maxY << std::endl;
+				std::cout << gridPos.nrOf << std::endl;
 				//std::cout << "translation X: " << gridPos.gridPoints[i].translation[0] << " Y: " << gridPos.gridPoints[i].translation[1] << " Z: " << gridPos.gridPoints[i].translation[2] << std::endl;
 
 			}

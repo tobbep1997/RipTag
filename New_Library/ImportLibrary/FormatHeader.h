@@ -71,6 +71,8 @@ namespace MyLibrary
 	{
 		GridPointStruct * gridPoints;
 		int nrOf;
+		int maxX;
+		int maxY;
 	};
 	struct CollisionBox
 	{
