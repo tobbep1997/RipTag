@@ -131,9 +131,7 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 		//In any case we always apply position and rotation
 		//this->setPosition(data->pos);
 		this->m_mostRecentPosition = data->pos;
-		DirectX::XMFLOAT4A currentRot = this->getEulerRotation();
-		currentRot.y = data->rot.y;
-		this->setRotation(currentRot);
+		this->setRotation(data->rot);
 		this->m_timeDiff = RakNet::GetTime() - data->timeStamp;
 	}
 }

@@ -4,6 +4,12 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 {
 	using namespace DirectX;
 	XMMATRIX mInv = XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_view));
+	XMVECTOR look = mInv.r[2];
+	look.m128_f32[1] = 0;
+	look = XMVector3Normalize(look);
+	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+	XMVECTOR left = XMVector3Cross(look, up);
+
 	XMVECTOR rot{};
 	XMVECTOR scale{};
 	XMVECTOR translation{};
@@ -11,11 +17,18 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	XMFLOAT4A q;
 	XMStoreFloat4A(&q, rot);
 
-	float eulerYaw = atan2(2.0*(q.x*q.y + q.z*q.w), q.z*q.z - q.w*q.w - q.x*q.x + q.y*q.y);
+	float sinp = 2.0f * (q.w * q.y - q.z * q.y);
+	if (fabs(sinp) >= 1)
+		q.y = copysignf(DirectX::XM_PI / 2.0f, sinp);
+	else
+		q.y = asin(sinp);
+
+
+	//float eulerYaw = atan2(2.0*(q.x*q.y + q.z*q.w), q.z*q.z - q.w*q.w - q.x*q.x + q.y*q.y);
 	//float eulerYaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
 
+
 	q.x = 0.0f;
-	q.y = eulerYaw;
 	q.z = 0.0f;
 	q.w = 0.0f;
 
