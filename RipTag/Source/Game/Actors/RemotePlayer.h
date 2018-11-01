@@ -54,14 +54,6 @@ private:
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
 
-	//Local Game logic
-	void _Idle(float dt);
-	void _Walking(float dt);
-	void _Crouching(float dt);
-	void _Sprinting(float dt);
-	void _Jumping(float dt);
-	void _Falling(float dt);
-
 	void _lerpPosition(float dt);
 
 	void _registerAnimationStateMachine();

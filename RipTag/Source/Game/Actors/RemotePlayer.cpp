@@ -93,34 +93,18 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 void RemotePlayer::Update(double dt)
 {
 	//TODO:
-	//1. Handle the state machine (transitions are handled in the called functions)
+	//1. Update position
 	//2. Update the ability compononent
+	//3. Update animation
 
 	//1.
-	switch (this->m_stateStack.top())
-	{
-	case PlayerState::Idle:
-		this->_Idle(dt);
-		break;
-	case PlayerState::Walking:
-		this->_Walking(dt);
-		break;
-	case PlayerState::Crouching:
-		this->_Crouching(dt);
-		break;
-	case PlayerState::Sprinting:
-		this->_Sprinting(dt);
-		break;
-	case PlayerState::Jumping:
-		this->_Jumping(dt);
-		break;
-	case PlayerState::Falling:
-		this->_Falling(dt);
-		break;
-	}
+	this->_lerpPosition(dt);
 
 	//2.
 	m_abilityComponents[m_currentAbility]->Update(dt);
+
+	//3.
+	this->getAnimatedModel()->Update(dt);
 }
 
 void RemotePlayer::Draw()
@@ -167,41 +151,6 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 	}
 }
 
-void RemotePlayer::_Idle(float dt)
-{
-	//Play the idle animation
-	this->_lerpPosition(dt);
-}
-
-void RemotePlayer::_Walking(float dt)
-{
-	//play the walking animation
-	this->_lerpPosition(dt);
-}
-
-void RemotePlayer::_Crouching(float dt)
-{
-	//play the crouching animation
-	this->_lerpPosition(dt);
-}
-
-void RemotePlayer::_Sprinting(float dt)
-{
-	//play sprinting animation
-	this->_lerpPosition(dt);
-}
-
-void RemotePlayer::_Jumping(float dt)
-{
-	//Play Jumping animation
-	this->_lerpPosition(dt);
-}
-
-void RemotePlayer::_Falling(float dt)
-{
-	//play falling animation
-	this->_lerpPosition(dt);
-}
 
 void RemotePlayer::_lerpPosition(float dt)
 {
