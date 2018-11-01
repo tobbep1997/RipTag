@@ -283,7 +283,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 			}
 		);
 		blend_bwd->AddRow(
-			0.0f, //y placement
+			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
 				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
 				{ sharedAnimations[LEFT].get(), -90.f },
