@@ -312,6 +312,7 @@ void Player::SendOnAbilityUsed()
 		packet.velocity = dis_ptr->getVelocity();
 		packet.state = dis_ptr->getState();
 		break;
+	case Ability::VIS2:
 	case Ability::VISIBILITY:
 		packet.ability = (unsigned int)VISIBILITY;
 		packet.start = vis_ptr->getStart();

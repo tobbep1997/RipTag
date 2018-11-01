@@ -47,6 +47,10 @@ void VisabilityAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 	}
 }
 
+void VisabilityAbility::Use()
+{
+}
+
 void VisabilityAbility::Draw()
 {
 	if (m_vState == Active || m_vState == RemoteActive)
