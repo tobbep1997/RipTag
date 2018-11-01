@@ -11,7 +11,8 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	XMFLOAT4A q;
 	XMStoreFloat4A(&q, rot);
 
-	float eulerYaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+	float eulerYaw = atan2(2.0*(q.x*q.y + q.z*q.w), q.z*q.z - q.w*q.w - q.x*q.x + q.y*q.y);
+	//float eulerYaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
 
 	q.x = 0.0f;
 	q.y = eulerYaw;
