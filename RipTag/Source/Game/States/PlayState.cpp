@@ -173,7 +173,11 @@ void PlayState::Update(double deltaTime)
 	m_levelHandler.Update(deltaTime);
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearQueue();
-	m_world.Step(m_step);
+	if (deltaTime <= 0.65f)
+	{
+		m_world.Step(m_step);
+	}
+	
 
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
