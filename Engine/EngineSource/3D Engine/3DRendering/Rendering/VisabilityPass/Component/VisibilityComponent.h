@@ -170,7 +170,7 @@ public:
 			int i = 0;
 			while (i < 216)
 			{
-				FrustumVertex fv;
+				FrustumVertex fv = {};
 				fv.position = DirectX::XMFLOAT4A(rawData[i], rawData[i + 1], rawData[i + 2], 1.0f);
 				fv.UV = DirectX::XMFLOAT4A(rawData[i + 3], rawData[i + 4], 0, 0);
 				fv.Alpha = DirectX::XMFLOAT4A(rawData[i + 5], 0, 0, 0);

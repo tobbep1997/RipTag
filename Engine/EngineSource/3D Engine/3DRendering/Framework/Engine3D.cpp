@@ -21,6 +21,7 @@ std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
+ 
 
 void DX::SafeRelease(IUnknown * unknown)
 {
@@ -92,6 +93,9 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		DX::g_deviceContext->OMSetRenderTargets(NULL, NULL, NULL);
 		DX::g_deviceContext->Flush();
 
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		pBackBuffer->Release();
+
 		m_swapChain->ResizeBuffers(0, width, hight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
@@ -125,6 +129,8 @@ void Engine3D::Present()
 
 void Engine3D::Release()
 {
+	m_swapChain->SetFullscreenState(false, NULL);
+
 	DX::SafeRelease(DX::g_device);
 	DX::SafeRelease(DX::g_deviceContext);
 	DX::SafeRelease(m_swapChain);

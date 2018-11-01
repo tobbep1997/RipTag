@@ -201,6 +201,16 @@ void b3ContactGraph::UpdateContacts() {
 			continue;
 		}
 
+		bool isFiltered = bodyA->FindInFilters(bodyB->GetObjectTag()) ||
+			bodyB->FindInFilters(bodyA->GetObjectTag());
+		if (isFiltered)
+		{
+			b3Contact* quack = c;
+			c = c->m_next;
+			DestroyContact(quack);
+			continue;
+		}
+
 		bool wasTouching = c->IsTouching();
 		bool isTouching = false;
 		bool isSensorContact = shapeA->IsSensor() || shapeB->IsSensor();

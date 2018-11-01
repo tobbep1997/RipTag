@@ -1,51 +1,78 @@
 #pragma once
 #include "../../Physics/Wrapper/PhysicsComponent.h"
-#include <iostream>
-#pragma warning(disable : 4311)
-#pragma warning(disable : 4302)
+#include <string>
+//#include <iostream>
 class RayCastListener : public b3RayCastListener
 {	
 public:
-	b3Vec3 contactPoint;
-	b3Vec3 normal;
-	r32 fraction = 0;
-	b3Shape* shape;
-	int type = -1;
-
-	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+	struct RayContact
 	{
-		if (fraction != 0)
+		RayContact(b3Body* originBody)
 		{
-			this->shape = shape;
+			this->originBody = originBody;
+		};
+		void _setData(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+		{
+			this->contactShape = contactShape;
 			this->contactPoint = point;
 			this->normal = normal;
 			this->fraction = fraction;
-			this->type = (int)shape->GetUserData();
+		};
+		b3Body* originBody;
+		b3Shape* contactShape;
+		b3Vec3 contactPoint;
+		b3Vec3 normal;
+		r32 fraction = 0;
+		
+	};
+private:
+	std::vector<RayContact> rayContacts;
+
+public:
+	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+	{
+		if (fraction != 0 && !rayContacts.empty())
+		{
+			rayContacts.back()._setData(shape, point, normal, fraction);
+			if (rayContacts.back().contactShape->IsSensor())
+			{
+				rayContacts.push_back(RayContact(rayContacts.back().originBody));
+			}
 		}
 		return fraction;
 	}
 
-	void clear()
+	virtual void ClearQueue()
 	{
-		this->shape = nullptr;
-		this->contactPoint = b3Vec3(0, 0, 0);
-		this->normal = b3Vec3(0, 0, 0);
-		this->fraction = 0;
-		this->type = -1;
+		rayContacts.clear();
 	}
 
-	void shotRay(b3Body* body, DirectX::XMFLOAT4A direction, float length)
+	virtual void ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, std::string target = "N/A")
 	{
 		//b3Vec3 pos;
+		float x = start.x + (length * direction.x);
+		float y = start.y + (length * direction.y);
+		float z = start.z + (length * direction.z);
 
-		float x = body->GetTransform().translation.x + (length * direction.x);
-		float y = body->GetTransform().translation.y + (length * direction.y);
-		float z = body->GetTransform().translation.z + (length * direction.z);
-		//b3Vec3(-1.5,2.1, -2.1)
-		body->GetScene()->RayCast(this,
-			b3Vec3(body->GetTransform().translation.x, body->GetTransform().translation.y, body->GetTransform().translation.z),
-			b3Vec3(x, y, z));
+		rayContacts.push_back(RayContact(body));
+		body->GetScene()->RayCast(this, b3Vec3(start.x, start.y, start.z), b3Vec3(x, y, z));
+
+		if (rayContacts.back().fraction == 0)
+		{
+			rayContacts.pop_back();
+		}
+		else if (target != "N/A" && rayContacts.back().contactShape->GetBody()->GetObjectTag() != target)
+		{
+			rayContacts.pop_back();
+		}
 	}
 
+
+	virtual std::vector<RayContact> GetContacts()
+	{
+		return this->rayContacts;
+	}
+
+	RayCastListener() { }
 	virtual ~RayCastListener() { }
 };

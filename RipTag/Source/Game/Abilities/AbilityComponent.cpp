@@ -15,12 +15,17 @@ void AbilityComponent::setOwner(void * owner)
 	p_owner = owner;
 }
 
-void AbilityComponent::setManaCost(int mana)
+void AbilityComponent::setIsLocal(bool value)
+{
+	isLocal = value;
+}
+
+void AbilityComponent::setManaCost(float mana)
 {
 	m_manaCost = mana;
 }
 
-int AbilityComponent::getManaCost() const
+float AbilityComponent::getManaCost() const
 {
 	return m_manaCost;
 }

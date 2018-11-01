@@ -126,6 +126,7 @@ namespace Shaders
 	template<>
 	inline ID3D11VertexShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
+		//std::wcout << path << std::endl;
 		return this->_loadShader<ID3D11VertexShader>(path, entryPoint, Shaders::ShaderType::Vertex);
 	}
 
@@ -150,6 +151,7 @@ namespace Shaders
 	template<>
 	inline ID3D11PixelShader* ShaderManager::LoadShader(const std::wstring path, const std::string entryPoint)
 	{
+		//std::wcout << path << std::endl;
 		return this->_loadShader<ID3D11PixelShader>(path, entryPoint, Shaders::ShaderType::Pixel);
 	}
 

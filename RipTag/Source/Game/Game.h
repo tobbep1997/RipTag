@@ -27,6 +27,7 @@ public:
 	//VitalFunctions to make the game work
 	bool isRunning();			//Is game running
 	void PollEvents();			//Window Events
+	void PollSingelThread();
 	void Clear();				//Clear screen
 	void Update(double deltaTime);				//Updates everything, ex: setPosition();
 	void Draw();				//Calls Draw
@@ -35,6 +36,8 @@ public:
 	//LUA EXPOSE
 	void PushStateLUA(State * ptr);
 	void PopStateLUA();
+
+	void ImGuiPoll();
 
 private:
 	void _handleStateSwaps();

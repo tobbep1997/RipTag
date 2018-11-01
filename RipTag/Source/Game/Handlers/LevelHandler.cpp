@@ -19,20 +19,11 @@ void LevelHandler::Init(b3World& worldPtr)
 	m_worldPtr = &worldPtr;
 
 	_LoadPreFabs();
-	_GenerateLevelStruct(2);
+	_GenerateLevelStruct(2, 5);
 
-	//_RoomLoadingManager();
-	m_activeRoom = 1;
-	m_rooms.at(1)->loadTextures();
-	m_rooms.at(1)->LoadRoomToMemory();
-	DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
-	this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+	_RoomLoadingManager();
+
 	m_rooms[m_activeRoom]->SetActive(true);
-	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingManager, this, m_activeRoom);
-
-	
-	//_LoadRoom(1);
-	//testtt.Init(m_worldPtr, );
 }
 
 void LevelHandler::Release()
@@ -63,7 +54,7 @@ void LevelHandler::Update(float deltaTime)
 		}
 	}
 
-	m_rooms.at(m_activeRoom)->Update();
+	m_rooms.at(m_activeRoom)->Update(deltaTime);
 	if (InputHandler::isKeyPressed('N'))
 	{
 		if (pressed == false)
@@ -73,7 +64,7 @@ void LevelHandler::Update(float deltaTime)
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
-			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
 		}
@@ -87,9 +78,17 @@ void LevelHandler::Update(float deltaTime)
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
-			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
+		}
+	}
+	else if (InputHandler::isKeyPressed('H'))
+	{
+		if (pressed == false)
+		{
+			pressed = true;
+			m_rooms.at(m_activeRoom)->getPath();
 		}
 	}
 	else
@@ -126,11 +125,8 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	{
 		//Create a room
 		//Get a random int
-		int randomRoom = rand() % 2+1;
+		int randomRoom = rand() % 3+1;
 		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
-
-		//Set the File path for loading and unloading
-		//room->setAssetFilePath(m_prefabRoomFiles.at(randomRoom));
 
 
 		m_rooms.push_back(room);
@@ -150,22 +146,27 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	}
 
 	//Room Unload and Load
-	if ((current - 2) >= 0)
-	{
-		//m_rooms.at(current - 2)->UnloadRoomFromMemory();
+	//if ((current - 2) >= 0)
+	//{
+	//	//m_rooms.at(current - 2)->UnloadRoomFromMemory();
 
-		m_unloadMutex.lock();
-		m_unloadingQueue.push_back(current- 2);
-		m_unloadMutex.unlock();
-	}
+	//	m_unloadMutex.lock();
+	//	m_unloadingQueue.push_back(current- 2);
+	//	m_unloadMutex.unlock();
+	//}
 
 	if ((current - 1) >= 0)
 	{
 		//m_rooms.at(current)->LoadRoomToMemory();
 
-		m_loadMutex.lock();
+		/*m_loadMutex.lock();
 		m_loadingQueue.push_back(current - 1);
-		m_loadMutex.unlock();
+		m_loadMutex.unlock();*/
+		if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
+		{
+			m_rooms.at(current - 1)->UnloadRoomFromMemory();
+		}
+		
 	}
 	
 
@@ -176,23 +177,28 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	{
 		//m_rooms.at(current + 1)->LoadRoomToMemory();
 
-		m_loadMutex.lock();
-		m_loadingQueue.push_back(current + 1);
-		m_loadMutex.unlock();
+		//m_loadMutex.lock();
+		//m_loadingQueue.push_back(current + 1);
+		//m_loadMutex.unlock();
+		if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
+		{
+			m_rooms.at(current + 1)->UnloadRoomFromMemory();
+		}
+		
 	}
 
-	if ((current + 2) < m_rooms.size())
-	{
-		//m_rooms.at(current + 2)->UnloadRoomFromMemory();
+	//if ((current + 2) < m_rooms.size())
+	//{
+	//	//m_rooms.at(current + 2)->UnloadRoomFromMemory();
 
-		m_unloadMutex.lock();
-		m_unloadingQueue.push_back(current + 2);
-		m_unloadMutex.unlock();
-	}
-	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
-		m_rooms.at(m_loadingQueue.at(i))->loadTextures();
+	//	m_unloadMutex.lock();
+	//	m_unloadingQueue.push_back(current + 2);
+	//	m_unloadMutex.unlock();
+	//}
+	//for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
+	//	m_rooms.at(m_loadingQueue.at(i))->loadTextures();
 
-	future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
+	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
 	
 	//m_loadingQueue.clear();
 

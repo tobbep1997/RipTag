@@ -156,7 +156,7 @@ ProcMsg & Window::getWindowProcMsg()
 
 Window::Window()
 {
-
+	m_isOpen = true;
 }
 
 Window::~Window()
@@ -229,29 +229,29 @@ bool Window::Init(_In_ WindowContext windowContext)
 
 void Window::PollEvents()
 {
-	for (unsigned int i = 0; i < 10; ++i)
+	while (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
 	{
-
-		if (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&m_Peekmsg);
-			DispatchMessage(&m_Peekmsg);
-		}
-		else
-		{
-			break;
-		}
+		TranslateMessage(&m_Peekmsg);
+		DispatchMessage(&m_Peekmsg);
 	}
 }
 
 bool Window::isOpen()
 {
-	return WM_QUIT != m_Peekmsg.message;
+	if (InputHandler::GetClosedGame())
+	{
+		return false;
+	}
+	else
+	{
+		return WM_QUIT != m_Peekmsg.message;
+	}
+	
 }
 
 void Window::Close()
 {
-	PostQuitMessage(0);
+	m_isOpen = false;
 }
 
 WindowContext& Window::getWindowContext()

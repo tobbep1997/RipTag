@@ -112,8 +112,6 @@ void ForwardRender::GeometryPass()
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
-		
-		
 	}
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
@@ -183,6 +181,8 @@ void ForwardRender::Clear()
 
 	this->m_shadowMap.Clear();
 	DX::g_visibilityComponentQueue.clear();
+
+	DX::g_wireFrameDrawQueue.clear();
 }
 
 void ForwardRender::Release()
@@ -480,7 +480,9 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", guardFrustumInputDesc, 3);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertexAnimated.hlsl");
 
+	
 }
 
 void ForwardRender::_createShadersInput()

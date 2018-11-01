@@ -7,9 +7,20 @@
 #include "../../../New_Library/ImportLibrary/formatImporter.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "../Actors/Player.h"
+#include "../../New_Library/ImportLibrary/FormatHeader.h"
+#include "../Pathfinding/Grid.h"
+#include "../../Physics/Wrapper/CollisionBoxes.h"
+
 #include <AudioEngine.h>
 class Room
 {
+private:
+	struct prop
+	{
+		BaseActor * baseActor;
+		unsigned int TypeID;
+		unsigned int linkingID;
+	};
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -26,6 +37,9 @@ private:
 	std::vector<FMOD::Geometry*> m_audioBoxes;
 	float m_playerStartPos;
 
+	MyLibrary::GridStruct m_grid;
+	Grid m_pathfindingGrid;
+	
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
 
@@ -35,6 +49,9 @@ private:
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
+	   
+	prop * props;
+
 
 	std::vector<const int*> vis;
 public:
@@ -42,7 +59,7 @@ public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	~Room();
 
-	void Update();
+	void Update(float deltaTime);
 
 	void SetActive(bool state);
 
@@ -69,6 +86,9 @@ public:
 	//Memory Management
 	void UnloadRoomFromMemory();
 	void LoadRoomToMemory();
+
+	// Test section
+	void getPath();
 private:
 
 	
