@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Actors/Player.h"
+#include "../Handlers/PlayerManager.h"
 #include <future>
 #include "State.h"
 
@@ -10,6 +10,7 @@
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
+#include "../../../Engine/EngineSource/3D Engine/Extern.h"
 
 
 //lua 
@@ -31,7 +32,7 @@ private:
 	ContactListener * m_contactListener;
 	RayCastListener * m_rayListener;
 
-	Player * player;
+	PlayerManager * m_playerManager;
 
 	b3World m_world;
 
@@ -40,7 +41,6 @@ private:
 	Lever *				lever;
 	Door *				door;
 	float intensity = 2;
-		
 	Drawable * model;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
@@ -48,6 +48,7 @@ private:
 
 
 public:
+
 	PlayState(RenderingManager * rm);
 	~PlayState();
 

@@ -24,6 +24,10 @@ void PossessGuard::Update(double deltaTime)
 	_logic(deltaTime);
 }
 
+void PossessGuard::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
+{
+}
+
 void PossessGuard::Use()
 {
 	m_useFunctionCalled = true;
@@ -55,7 +59,6 @@ void PossessGuard::_logic(double deltaTime)
 				this->possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				cooldown = 0;
-				((Player*)p_owner)->setActionText("Release Possess");
 			
 			break;
 		case PossessGuard::Possess:
@@ -78,7 +81,6 @@ void PossessGuard::_logic(double deltaTime)
 						CameraHandler::setActiveCamera(this->possessTarget->getCamera());
 						m_pState = PossessGuard::Possessing;
 						cooldown = 0;
-						((Player*)p_owner)->setActionText("Possess");
 					}
 				}
 			}
@@ -96,7 +98,6 @@ void PossessGuard::_logic(double deltaTime)
 				CameraHandler::setActiveCamera(static_cast<Player*>(p_owner)->getCamera());
 				this->possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
-				((Player*)p_owner)->setActionText("Release Possess");
 			}
 			else if (!((Player*)p_owner)->CheckManaCost(getManaCost())) //out of mana
 			{

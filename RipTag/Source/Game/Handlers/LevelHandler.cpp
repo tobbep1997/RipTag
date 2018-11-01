@@ -140,22 +140,23 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	}
 
 	//Room Unload and Load
-	if ((current - 2) >= 0)
-	{
-		//m_rooms.at(current - 2)->UnloadRoomFromMemory();
+	//if ((current - 2) >= 0)
+	//{
+	//	//m_rooms.at(current - 2)->UnloadRoomFromMemory();
 
-		m_unloadMutex.lock();
-		m_unloadingQueue.push_back(current- 2);
-		m_unloadMutex.unlock();
-	}
+	//	m_unloadMutex.lock();
+	//	m_unloadingQueue.push_back(current- 2);
+	//	m_unloadMutex.unlock();
+	//}
 
 	if ((current - 1) >= 0)
 	{
 		//m_rooms.at(current)->LoadRoomToMemory();
 
-		m_loadMutex.lock();
+		/*m_loadMutex.lock();
 		m_loadingQueue.push_back(current - 1);
-		m_loadMutex.unlock();
+		m_loadMutex.unlock();*/
+		//m_rooms.at(current - 1)->UnloadRoomFromMemory();
 	}
 	
 
@@ -166,23 +167,24 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	{
 		//m_rooms.at(current + 1)->LoadRoomToMemory();
 
-		m_loadMutex.lock();
-		m_loadingQueue.push_back(current + 1);
-		m_loadMutex.unlock();
+		//m_loadMutex.lock();
+		//m_loadingQueue.push_back(current + 1);
+		//m_loadMutex.unlock();
+		//m_rooms.at(current + 1)->UnloadRoomFromMemory();
 	}
 
-	if ((current + 2) < m_rooms.size())
-	{
-		//m_rooms.at(current + 2)->UnloadRoomFromMemory();
+	//if ((current + 2) < m_rooms.size())
+	//{
+	//	//m_rooms.at(current + 2)->UnloadRoomFromMemory();
 
-		m_unloadMutex.lock();
-		m_unloadingQueue.push_back(current + 2);
-		m_unloadMutex.unlock();
-	}
-	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
-		m_rooms.at(m_loadingQueue.at(i))->loadTextures();
+	//	m_unloadMutex.lock();
+	//	m_unloadingQueue.push_back(current + 2);
+	//	m_unloadMutex.unlock();
+	//}
+	//for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
+	//	m_rooms.at(m_loadingQueue.at(i))->loadTextures();
 
-	future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
+	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
 	
 	
 	//m_loadingQueue.clear();

@@ -2,7 +2,6 @@
 #include <vector>
 #include "../../../Structs.h"
 #include "ImportLibrary/formatImporter.h"
-#include "AnimatedModel.h"
 
 class DynamicMesh 
 {
@@ -12,10 +11,8 @@ private:
 public:
 	DynamicMesh();
 	~DynamicMesh();
-	Animation::AnimatedModel *m_anim;
 	const DynamicVertex * getRawVertices() const;
 	const std::vector<DynamicVertex> & getVertices() const;
-	Animation::AnimatedModel* getAnimatedModel();
 	void setVertices(std::vector<DynamicVertex>& input);
 
 	void SET_DEFAULT();

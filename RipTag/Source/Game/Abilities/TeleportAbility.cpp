@@ -4,10 +4,9 @@
 
 TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor()
 {
-	m_tpState = Throw;
+	m_tpState = Throwable;
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
-	m_useFunctionCalled = false;
 }
 
 TeleportAbility::~TeleportAbility()
@@ -23,6 +22,7 @@ void TeleportAbility::Init()
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	BaseActor::setGravityScale(0.01f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
+	this->getBody()->SetObjectTag("TELEPORT");
 	m_light.Init(Transform::getPosition(), COLOUR);
 
 	if (USE_SHADOWS)
@@ -41,73 +41,132 @@ void TeleportAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
-	this->getBody()->SetObjectTag("TELEPORT");
 	setManaCost(START_MANA_COST);
 }
 
 void TeleportAbility::Update(double deltaTime)
 {
-	BaseActor::Update(deltaTime);
-	_updateLight();
-	_logic(deltaTime);
+	if (m_tpState == TeleportState::Teleportable ||m_tpState == TeleportState::RemoteActive)
+	{
+		BaseActor::Update(deltaTime);
+		_updateLight();
+	}
+	if (this->isLocal)
+		_logicLocal(deltaTime);
 }
 
-void TeleportAbility::Use()
+void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 {
-
-	m_useFunctionCalled = true;
 	switch (m_tpState)
 	{
-	case TeleportAbility::Throw:
-		if (((Player*)p_owner)->CheckManaCost(getManaCost()))
+	case TeleportState::Throwable:
+		if ((TeleportState)data->state == TeleportState::Teleportable)
 		{
-			m_tpState = TeleportAbility::Charge;
+			DirectX::XMFLOAT4A pos = data->start;
+			//adjust the start position based on the packets delay
+			RakNet::Time delay = RakNet::GetTime() - data->timeStamp;
+			delay *= 0.001; //delay is in ms but we are using seconds
+			
+			pos.x += data->velocity.x * delay;
+			pos.y += data->velocity.y * delay;
+			pos.z += data->velocity.z * delay;
+
+			this->setPosition(pos.x, pos.y, pos.z);
+			this->setLiniearVelocity(data->velocity.x, data->velocity.y, data->velocity.z);
+
+			this->m_tpState = TeleportState::RemoteActive;
 		}
 		break;
-	case TeleportAbility::Teleport:
-		DirectX::XMFLOAT4A position = Transform::getPosition();
-		position.y += 1.0f;
-		((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
-		m_tpState = TeleportAbility::Wait;
-		((Player*)p_owner)->setActionText("Teleport");
+	case TeleportState::RemoteActive:
+		if ((TeleportState)data->state == TeleportState::Cooldown)
+		{
+			this->setPosition(-999.9f, -999.9f, -999.9f);
+			this->setLiniearVelocity(0.0f, 0.0f, 0.0f);
+			this->m_tpState = TeleportState::Throwable;
+		}
 		break;
 	}
 }
 
 void TeleportAbility::Draw()
 {
-	if (m_tpState == TeleportAbility::Teleport)
+	switch (m_tpState)
 	{
+	case TeleportState::Charging:
+		HUDComponent::HUDDraw();
+		break;
+	case TeleportState::Teleportable:
+	case TeleportState::RemoteActive:
 		BaseActor::Draw();
 		m_light.QueueLight();
+		break;
 	}
-	HUDComponent::HUDDraw();
 }
 
-void TeleportAbility::_logic(double deltaTime)
+unsigned int TeleportAbility::getState()
 {
-	m_bar->setScale(0.f, 0.1f);
-	if (m_useFunctionCalled) // the Use() function were called last frame
+	return (unsigned int)m_tpState;
+}
+
+DirectX::XMFLOAT4A TeleportAbility::getVelocity()
+{
+	return this->m_lastVelocity;
+}
+
+DirectX::XMFLOAT4A TeleportAbility::getStart()
+{
+	return this->m_lastStart;
+}
+
+void TeleportAbility::_logicLocal(double deltaTime)
+{
+	switch (m_tpState)
 	{
-		if (m_tpState == TeleportAbility::Charge)
+	case TeleportState::Throwable:
+		this->_inStateThrowable();
+		break;
+	case TeleportState::Charging:
+		this->_inStateCharging(deltaTime);
+		break;
+	case TeleportState::Teleportable:
+		this->_inStateTeleportable();
+		break;
+	case TeleportState::Cooldown:
+		this->_inStateCooldown(deltaTime);
+		break;
+	}
+}
+
+void TeleportAbility::_inStateThrowable()
+{
+	if (isLocal)
+	{
+		if (Input::OnAbilityPressed())
+		{
+			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
+			{
+				m_tpState = TeleportAbility::Charging;
+			}
+		}
+	}
+}
+
+void TeleportAbility::_inStateCharging(double dt)
+{
+	if (isLocal)
+	{
+		if (Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
-				m_charge += deltaTime;
+				m_charge += dt;
 		}
-	}
-	else // the Use() function were not called last frame
-	{
-		switch (m_tpState)
+		if (Input::OnAbilityReleased())
 		{
-		case TeleportAbility::Wait:
-			m_tpState = TeleportAbility::Throw;
-			break;
-		case TeleportAbility::Charge:
-			m_tpState = TeleportAbility::Teleport;
-			
+			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getPosition(), direction);
+			this->m_lastStart = start;
 
 			((Player*)p_owner)->DrainMana(getManaCost());
 
@@ -115,13 +174,38 @@ void TeleportAbility::_logic(double deltaTime)
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
 			setPosition(start.x, start.y, start.z);
 			setLiniearVelocity(direction.x, direction.y, direction.z);
+			this->m_lastVelocity = direction;
 			m_charge = 0.0f;
-			((Player*)p_owner)->setActionText("Throw Stone");
-			break;
 		}
 	}
 
-	m_useFunctionCalled = false;
+}
+
+void TeleportAbility::_inStateTeleportable()
+{
+	if (isLocal)
+	{
+		if (Input::OnAbilityPressed())
+		{
+			DirectX::XMFLOAT4A position = Transform::getPosition();
+			position.y += 1.0f;
+			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
+			m_tpState = TeleportAbility::Cooldown;
+		}
+	}
+
+}
+
+void TeleportAbility::_inStateCooldown(double dt)
+{
+	static double accumulatedTime = 0;
+	static const double cooldownDuration = 1.0 / 2.0; //500 ms
+	accumulatedTime += dt;
+	if (accumulatedTime >= cooldownDuration)
+	{
+		accumulatedTime = 0.0;
+		m_tpState = TeleportState::Throwable;
+	}
 }
 
 void TeleportAbility::_updateLight()

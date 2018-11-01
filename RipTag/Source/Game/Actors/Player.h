@@ -2,6 +2,7 @@
 #include <Multiplayer.h>
 #include "Actor.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
+#include "EngineSource/3D Engine/Components/StateMachine.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <functional>
 #include "../../Input/Input.h"
@@ -14,10 +15,6 @@
 #include "../Abilities/Disable/DisableAbility.h"
 
 
-namespace FUNCTION_STRINGS
-{
-	static const char * JUMP = "Jump";
-}
 
 struct KeyPressed
 {
@@ -35,6 +32,12 @@ struct KeyPressed
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
 {
+private: //stuff for state machine
+	friend class PlayState;
+	bool m_jumpedThisFrame = false;
+	bool m_isInAir = false;
+	float m_currentSpeed = 0.0f; //[0,1]
+	float m_currentDirection = 0.0; //[-1,1]
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 10.0f;
@@ -46,14 +49,18 @@ private:
 private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
-	int m_currentAbility = 0;
-	PossessGuard m_possess;
-	BlinkAbility m_blink;
+	Ability m_currentAbility = Ability::TELEPORT;
+
+	Enemy* possessTarget;	
+	PlayerState m_currentState = PlayerState::Idle;
+
+	RayCastListener * m_rayListener;
+
 	float m_standHeight;
 	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
-
+	
 	float m_visability = 0.0f;
 
 	bool m_lockPlayerInput;
@@ -66,16 +73,17 @@ private:
 	float m_maxMana;
 
 	const int STANDARD_START_MANA = 100;
-	Quad * m_lastAction;
 	Quad * m_manaBar;
 	
 public:
 	//Magic number
-	static const int g_fullVisability = 2800;
+	static const int g_fullVisability = 2300;
 
 
 	bool unlockMouse = false;
 	Player();
+	Player(RakNet::NetworkID nID, float x, float y, float z);
+
 	~Player();
 
 	void Init(b3World& world, b3BodyType bodyType, float x, float y, float z);
@@ -83,16 +91,15 @@ public:
 	void BeginPlay();
 	void Update(double deltaTime);
 
-	void PhysicsUpdate(double deltaTime);
+	void PhysicsUpdate();
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void Draw() override;
 
 	//Networking
-	void SendOnJumpMessage();
-	void SendOnMovementMessage();
-
+	void SendOnUpdateMessage();
+	void SendOnAbilityUsed();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
@@ -110,7 +117,6 @@ public:
 
 	bool DrainMana(const int & manaCost);
 	void RefillMana(const int & manaFill);
-	void setActionText(std::string text);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
@@ -121,5 +127,8 @@ private:
 	void _onRotate(double deltaTime);
 	void _onJump();
 	void _onInteract();
+	void _onAbility(double dt);
+
+
 	void _cameraPlacement(double deltaTime);
 };

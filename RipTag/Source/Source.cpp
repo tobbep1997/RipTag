@@ -1,14 +1,8 @@
-
-
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
 #include "EngineSource/Helper/Timer.h"
 #include <LuaTalker.h>
 #include "../RipTag/Source/Game/Pathfinding/Grid.h"
-
-
-
-
 
 #if _DEBUG
 #include <iostream>
@@ -52,7 +46,6 @@ void SingleGameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
-
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
@@ -60,6 +53,12 @@ void SingleGameLoop(Game * game)
 
 		//This is to avoid Pollevents from fucking with the game
 		game->Clear();
+
+		///-------------------
+
+
+
+		///-------------------
 
 		//Pollevents
 

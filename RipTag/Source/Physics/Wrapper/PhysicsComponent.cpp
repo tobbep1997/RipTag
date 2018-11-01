@@ -9,6 +9,10 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().translation.y,
 		m_body->GetTransform().translation.z);
 
+	// #todoREMOVE
+	auto vel = m_body->GetLinearVelocity();
+	transform->setVelocity(vel);
+
 	b3Mat33 mat = m_body->GetTransform().rotation;
 	transform->setPhysicsRotation(mat);
 	
