@@ -183,6 +183,8 @@
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
+    <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
+    <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
@@ -234,6 +236,8 @@
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
+    <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
+    <ClInclude Include="Source\Game\Handlers\PlayerManager.h" />
     <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
     <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />

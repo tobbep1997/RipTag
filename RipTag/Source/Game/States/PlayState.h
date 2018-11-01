@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Actors/Player.h"
+#include "../Handlers/PlayerManager.h"
 #include <future>
 #include "State.h"
 
@@ -32,7 +32,7 @@ private:
 	ContactListener * m_contactListener;
 	RayCastListener * m_rayListener;
 
-	Player * player;
+	PlayerManager * m_playerManager;
 
 	b3World m_world;
 

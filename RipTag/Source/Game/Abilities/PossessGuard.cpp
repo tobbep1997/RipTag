@@ -24,6 +24,10 @@ void PossessGuard::Update(double deltaTime)
 	_logic(deltaTime);
 }
 
+void PossessGuard::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
+{
+}
+
 void PossessGuard::Use()
 {
 	m_useFunctionCalled = true;

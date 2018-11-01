@@ -58,6 +58,9 @@ public:
 	static bool IsLeftShoulderPressed();
 	static bool IsRightShoulderPressed();
 
+	static bool IsLeftShoulderReleased();
+	static bool IsRightShoulderReleased();
+
 	static void SetLeftVibration(const float & left);
 	static void SetRightVibration(const float & left);
 	static void SetVibration(const float & left, const float & right);

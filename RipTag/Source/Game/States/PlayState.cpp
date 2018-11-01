@@ -16,6 +16,7 @@ RayCastListener * RipExtern::m_rayListener;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
+
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
@@ -36,14 +37,33 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 //	future.get();
 	future1.get();
-
-
-	player = new Player();
-
-	CameraHandler::setActiveCamera(player->getCamera());
-
-	player->Init(m_world, e_dynamicBody, 0.5f,0.5f,0.5f);
 	
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->RegisterThisInstanceToNetwork();
+	m_playerManager->CreateLocalPlayer();
+
+	Timer::StopTimer();
+	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
+
+
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+
+
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
+	//player->setPosition(0, 5, 0, 0);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+
+	
+
+
+	//enemy->setDir(1, 0, 0);
+	//enemy->getCamera()->setFarPlane(5);
 
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
@@ -63,14 +83,14 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
 	{
-		auto blendFwd = stateMachine->AddBlendSpace2DState("loco_fwd", &player->m_currentDirection, &player->m_currentSpeed, -90.0f, 90.f, 0.0f, 3.001f);
-		auto blendBwd = stateMachine->AddBlendSpace2DState("loco_bwd", &player->m_currentDirection, &player->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
+		auto blendFwd = stateMachine->AddBlendSpace2DState("loco_fwd", &m_playerManager->getLocalPlayer()->m_currentDirection, &m_playerManager->getLocalPlayer()->m_currentSpeed, -90.0f, 90.f, 0.0f, 3.001f);
+		auto blendBwd = stateMachine->AddBlendSpace2DState("loco_bwd", &m_playerManager->getLocalPlayer()->m_currentDirection, &m_playerManager->getLocalPlayer()->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
 
 		auto& fwdToBwdL = blendFwd->AddOutState(blendBwd);
-		fwdToBwdL.AddTransition(&player->m_currentDirection, -89.9999999f, 89.9999999f, SM::COMPARISON_OUTSIDE_RANGE);
+		fwdToBwdL.AddTransition(&m_playerManager->getLocalPlayer()->m_currentDirection, -89.9999999f, 89.9999999f, SM::COMPARISON_OUTSIDE_RANGE);
 
 		auto& bwdToFwdL = blendBwd->AddOutState(blendFwd);
-		bwdToFwdL.AddTransition(&player->m_currentDirection, -90.f, 90.f, SM::COMPARISON_INSIDE_RANGE);
+		bwdToFwdL.AddTransition(&m_playerManager->getLocalPlayer()->m_currentDirection, -90.f, 90.f, SM::COMPARISON_INSIDE_RANGE);
 
 		//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
 
@@ -82,7 +102,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 		stateMachine->SetState("loco_fwd");
 	}
 	
-	m_levelHandler.setPlayer(player);
+	m_levelHandler.setPlayer(m_playerManager->getLocalPlayer());
 	m_levelHandler.Init(m_world);
 
 	triggerHandler = new TriggerHandler();
@@ -123,10 +143,12 @@ PlayState::~PlayState()
 {
 	m_levelHandler.Release();
 	
+	m_playerManager->getLocalPlayer()->Release(m_world);
 	
-	player->Release(m_world);
-	
-	delete player;
+	delete m_playerManager;
+
+	//actor->Release(m_world);
+	delete m_contactListener;
 	delete model;
 	delete triggerHandler;
 	pressureplate->Release(*RipExtern::g_world);
@@ -161,7 +183,8 @@ void PlayState::Update(double deltaTime)
 		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
-	player->Update(deltaTime);
+	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
+	m_playerManager->Update(deltaTime);
 	m_levelHandler.Update(deltaTime);
 	model->getAnimatedModel()->Update(deltaTime);
 	
@@ -169,12 +192,9 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
-
-	player->Update(deltaTime);
-	//m_objectHandler.Update();
-
-	
-	player->PhysicsUpdate(deltaTime);
+	m_contactListener->ClearContactQueue();
+	m_world.Step(m_step);
+	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
@@ -182,14 +202,15 @@ void PlayState::Update(double deltaTime)
 	}
 
 
-	if (!player->unlockMouse)
+	// Must be last in update
+	if (!m_playerManager->getLocalPlayer()->unlockMouse)
 	{
 		Input::ResetMouse();
-		InputHandler::setShowCursor(FALSE);
+		InputHandler::setShowCursor(false);
 	}
 	else
 	{
-		InputHandler::setShowCursor(TRUE);
+		InputHandler::setShowCursor(true);
 	}
 
 
@@ -199,9 +220,10 @@ void PlayState::Draw()
 {
 	m_levelHandler.Draw();
 	
+	m_playerManager->Draw();
+		
 	door->Draw();
 
-	player->Draw();
 	model->Draw();
 	pressureplate->DrawWireFrame();
 	lever->DrawWireFrame();
@@ -244,15 +266,25 @@ void PlayState::TemporaryLobby()
 			ptr->EndConnectionAttempt();
 	}
 
-	if (ptr->isRunning() && ptr->isConnected())
+	if (ptr->isRunning() && ptr->isConnected() && !ptr->isGameRunning())
 	{
 		if (ptr->isServer() && !ptr->isGameRunning())
 			if (ImGui::Button("Start Game"))
-			{				//set game running, send a start game message
+			{
+				ptr->setIsGameRunning(true);
+				Network::EVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
 			}
 		ImGui::Text(ptr->GetNetworkInfo().c_str());
 		if (ImGui::Button("Disconnect"))
 			ptr->Disconnect();
 	}
+
+	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
+	{
+		if (ImGui::Button("Spawn on Remote"))
+			m_playerManager->SendOnPlayerCreate();
+	}
+
 	ImGui::End();
 }

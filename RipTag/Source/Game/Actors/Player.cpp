@@ -17,19 +17,23 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	
 	VisabilityAbility * visAbl = new VisabilityAbility();
 	visAbl->setOwner(this);
+	visAbl->setIsLocal(true);
 	visAbl->Init();
 	visAbl->setManaCost(1);
 
 	VisabilityAbility * visAbl2 = new VisabilityAbility();
 	visAbl2->setOwner(this);
+	visAbl2->setIsLocal(true);
 	visAbl2->Init();
 
 	TeleportAbility * m_teleport = new TeleportAbility();
 	m_teleport->setOwner(this);
+	m_teleport->setIsLocal(true);
 	m_teleport->Init();
 
 	DisableAbility * m_dis = new DisableAbility();
 	m_dis->setOwner(this);
+	m_dis->setIsLocal(true);
 	m_dis->Init();
 
 	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
@@ -38,11 +42,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityComponents[2] = m_dis;
 	m_abilityComponents[3] = visAbl2;
 
-	m_possess.setOwner(this);
+	/*m_possess.setOwner(this);
 	m_possess.Init();
 	
 	m_blink.setOwner(this);
-	m_blink.Init();
+	m_blink.Init();*/
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -85,6 +89,14 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	HUDComponent::AddQuad(m_manaBar);
 
+}
+
+Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
+{
+	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	p_camera->setPosition(x, y, z);
+	this->m_rayListener = new RayCastListener();
+	m_lockPlayerInput = false;
 }
 
 Player::~Player()
@@ -187,34 +199,34 @@ void Player::Update(double deltaTime)
 	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	m_possess.Update(deltaTime);
-	m_blink.Update(deltaTime);
+	/*m_possess.Update(deltaTime);
+	m_blink.Update(deltaTime);*/
 	_cameraPlacement(deltaTime);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
 	if (Input::SelectAbility1())	
-		m_currentAbility = 0;		
+		m_currentAbility = Ability::TELEPORT;		
 	else if (Input::SelectAbility2())	
-		m_currentAbility = 1;	
+		m_currentAbility = Ability::VISIBILITY;	
 	else if (Input::SelectAbility3())	
-		m_currentAbility = 2;	
+		m_currentAbility = Ability::DISABLE;	
 	else if (Input::SelectAbility4())
-		m_currentAbility = 3;
+		m_currentAbility = Ability::VIS2;
 	
 	if (GamePadHandler::IsUpDpadPressed())
-		m_currentAbility = 0;
+		m_currentAbility = Ability::TELEPORT;
 	else if (GamePadHandler::IsRightDpadPressed())
-		m_currentAbility = 1;
+		m_currentAbility = Ability::VISIBILITY;
 	else if (GamePadHandler::IsDownDpadPressed())
-		m_currentAbility = 2;
+		m_currentAbility = Ability::DISABLE;
 	else if (GamePadHandler::IsLeftDpadPressed())
-		m_currentAbility = 3;
+		m_currentAbility = Ability::VIS2;
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
 }
 
-void Player::PhysicsUpdate(double deltaTime)
+void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
 }
@@ -273,7 +285,8 @@ void Player::RefillMana(const int& manaFill)
 
 void Player::Draw()
 {
-	m_abilityComponents[m_currentAbility]->Draw();
+	for (int i = 0; i < m_nrOfAbilitys; i++)
+		m_abilityComponents[i]->Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
 }
@@ -298,27 +311,68 @@ void Player::SetCurrentVisability(const float & guard)
 	this->m_visability = guard;
 }
 
-void Player::SendOnJumpMessage()
+void Player::SendOnUpdateMessage()
 {
-	Network::ENTITY_EVENT packet(Network::ID_PLAYER_JUMP, Network::Multiplayer::GetInstance()->GetNetworkID());
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_EVENT), PacketPriority::MEDIUM_PRIORITY);
+	Network::ENTITYUPDATEPACKET packet = Network::ENTITYUPDATEPACKET(
+		Network::ID_PLAYER_UPDATE,
+		Network::Multiplayer::GetInstance()->GetNetworkID(),
+		PlayerState::Idle,
+		this->getPosition(),
+		this->getEulerRotation());
+
+	
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
-void Player::SendOnMovementMessage()
+void Player::SendOnAbilityUsed()
 {
-	DirectX::XMFLOAT4A pos = this->getPosition();
-	Network::ENTITY_MOVE packet(Network::ID_PLAYER_MOVE, Network::Multiplayer::GetInstance()->GetNetworkID(), pos.x, pos.y, pos.z);
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITY_MOVE), PacketPriority::MEDIUM_PRIORITY);
-}
+	using namespace Network;
+	ENTITYABILITYPACKET packet;
 
+	//Same for every ability packet
+	packet.id = ID_TIMESTAMP;
+	packet.timeStamp = RakNet::GetTime();
+	packet.m_id = ID_PLAYER_ABILITY;
+
+	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility]);
+	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility]);
+	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents[m_currentAbility]);
+	//unique based on active ability
+	switch (this->m_currentAbility)
+	{
+	case Ability::TELEPORT:
+		packet.ability = (unsigned int)TELEPORT;
+		packet.start = tp_ptr->getStart();
+		packet.velocity = tp_ptr->getVelocity();
+		packet.state = tp_ptr->getState();
+		break;
+	case Ability::DISABLE:
+		packet.ability = (unsigned int)DISABLE;
+		packet.start = dis_ptr->getStart();
+		packet.velocity = dis_ptr->getVelocity();
+		packet.state = dis_ptr->getState();
+		break;
+	case Ability::VIS2:
+	case Ability::VISIBILITY:
+		packet.ability = (unsigned int)VISIBILITY;
+		packet.start = vis_ptr->getStart();
+		packet.velocity = vis_ptr->getLastColor();
+		packet.state = vis_ptr->getState();
+		break;
+	}
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
 
 void Player::RegisterThisInstanceToNetwork()
 {
-	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnJumpMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnMovementMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnMovementMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnMovementMessage, this));
-	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnMovementMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveRight", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveLeft", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveForward", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnUpdateMessage, this));
+	Network::Multiplayer::addToOnSendFuncMap("AbilityPressed", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
 void Player::_handleInput(double deltaTime)
@@ -336,17 +390,11 @@ void Player::_handleInput(double deltaTime)
 	_onMovement();
 	_onCrouch();
 	_onJump();
+	_onAbility(deltaTime);
 	_onBlink();
 	_onPossess();
 	_onInteract();
 	_onRotate(deltaTime);
-
-
-	if (Input::UseAbility()) 
-	{
-		m_abilityComponents[m_currentAbility]->Use();
-	}
-	
 }
 
 void Player::_onMovement()
@@ -422,35 +470,35 @@ void Player::_onCrouch()
 
 void Player::_onBlink()
 {
-	if (Input::Blink()) //Phase acts like short range teleport through objects
-	{
-		if (m_kp.blink == false)
-		{
-			m_blink.Use();
-			m_kp.blink = true;
-		}
-	}
-	else
-	{
-		m_kp.blink = false;
-	}
+	//if (Input::Blink()) //Phase acts like short range teleport through objects
+	//{
+	//	if (m_kp.blink == false)
+	//	{
+	//		m_blink.Use();
+	//		m_kp.blink = true;
+	//	}
+	//}
+	//else
+	//{
+	//	m_kp.blink = false;
+	//}
 }
 
 void Player::_onPossess()
 {
-	if (Input::Possess()) //Phase acts like short range teleport through objects
-	{
-		
-		if (m_kp.possess == false)
-		{
-			m_possess.Use();
-			m_kp.possess = true;
-		}
-	}
-	else
-	{
-		m_kp.possess = false;
-	}
+	//if (Input::Possess()) //Phase acts like short range teleport through objects
+	//{
+	//	
+	//	if (m_kp.possess == false)
+	//	{
+	//		m_possess.Use();
+	//		m_kp.possess = true;
+	//	}
+	//}
+	//else
+	//{
+	//	m_kp.possess = false;
+	//}
 }
 
 void Player::_onRotate(double deltaTime)
@@ -500,10 +548,11 @@ void Player::_onJump()
 			m_isInAir = true;
 		}
 	}
-	else
-	{
+
+
+	float epsilon = 0.002;
+	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
-	}
 }
 
 void Player::_onInteract()
@@ -539,6 +588,11 @@ void Player::_onInteract()
 	{
 		m_kp.interact = false;
 	}
+}
+
+void Player::_onAbility(double dt)
+{
+	this->m_abilityComponents[m_currentAbility]->Update(dt);
 }
 
 void Player::_cameraPlacement(double deltaTime)

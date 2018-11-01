@@ -28,7 +28,7 @@ public:
 
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
-
+	void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) override;
 	/* This Function needs to be used before the Update() function */
 	void Use() override;
 
