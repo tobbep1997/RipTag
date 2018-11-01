@@ -26,11 +26,10 @@ Animation::AnimatedModel::~AnimatedModel()
 void Animation::AnimatedModel::Update(float deltaTime)
 {
 	m_currentFrameDeltaTime = deltaTime;
-	static SM::StateVisitor visitor(this); // #todoREMOVE
 
 	m_StateMachine->UpdateCurrentState();
 
-	auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(visitor);
+	auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
 
 	switch (stateType)
 	{
@@ -258,6 +257,7 @@ std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::GetStateMa
 std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitStateMachine(size_t numStates)
 {
 	m_StateMachine = std::make_unique<SM::AnimationStateMachine>(numStates);
+	m_Visitor = std::make_unique<SM::StateVisitor>(this);
 	return m_StateMachine;
 }
 

@@ -48,8 +48,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
 	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-	model->setScale(0.05, 0.05, 0.05);
-	model->setPosition({ 0.0, -11.0, 0.0, 1.0 });
+	model->setScale(0.03, 0.03, 0.03);
+	model->setPosition({ 0.0, -4.9, 0.0, 1.0 });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
@@ -62,7 +62,25 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->getAnimatedModel()->Play();
 	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
+	{
+		auto blendFwd = stateMachine->AddBlendSpace2DState("loco_fwd", &player->m_currentDirection, &player->m_currentSpeed, -90.0f, 90.f, 0.0f, 3.001f);
+		auto blendBwd = stateMachine->AddBlendSpace2DState("loco_bwd", &player->m_currentDirection, &player->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
 
+		auto& fwdToBwdL = blendFwd->AddOutState(blendBwd);
+		fwdToBwdL.AddTransition(&player->m_currentDirection, -89.9999999f, 89.9999999f, SM::COMPARISON_OUTSIDE_RANGE);
+
+		auto& bwdToFwdL = blendBwd->AddOutState(blendFwd);
+		bwdToFwdL.AddTransition(&player->m_currentDirection, -90.f, 90.f, SM::COMPARISON_INSIDE_RANGE);
+
+		//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
+
+		blendFwd->AddRow(0.0, { { idle_clip.get(), -90.f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f } });
+		blendFwd->AddRow(3.1, { {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f } });
+
+		blendBwd->AddRow(0.0, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
+		blendBwd->AddRow(3.1, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
+		stateMachine->SetState("loco_fwd");
+	}
 	
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
@@ -145,7 +163,7 @@ void PlayState::Update(double deltaTime)
 
 	player->Update(deltaTime);
 	m_levelHandler.Update(deltaTime);
-	
+	model->getAnimatedModel()->Update(deltaTime);
 	
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 1;
