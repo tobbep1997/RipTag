@@ -59,6 +59,9 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	m_abilityComponents[1] = visAbl;
 	m_abilityComponents[2] = m_dis;
 	m_abilityComponents[3] = visAbl2;
+
+	//7.
+	this->_registerAnimationStateMachine();
 }
 
 
