@@ -144,7 +144,7 @@ namespace SM
 		AnimationState(const AnimationState& other) = delete;
 		virtual STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
-		AnimationState* EvaluateAll();
+		std::pair<AnimationState*, float> EvaluateAll();
 	private:
 		std::string m_Name = "";
 
@@ -299,6 +299,11 @@ namespace SM
 #pragma endregion "Visitors"
 
 #pragma region "StateMachine"
+	enum MACHINE_STATE
+	{
+		STATE_TRANSITION,
+		STATE_IN_STATE
+	};
 	class AnimationStateMachine
 	{
 	public:
@@ -320,15 +325,22 @@ namespace SM
 		void SetModel(Animation::AnimatedModel* model);
 		AnimationState& GetCurrentState();
 		void UpdateCurrentState();
+		void UpdateBlendFactor(float deltaTime);
 	private:
 		//The animated model to set the clip to when we enter a state
 		Animation::AnimatedModel* m_AnimatedModel;
 
-		//The current state
+		//The current state(s)
 		AnimationState* m_CurrentState = nullptr;
+		AnimationState* m_BlendFromState = nullptr;
+		float m_TotalBlendTime = 0.0f;
+		float m_RemainingBlendTime = 0.0f;
 
 		//The states of this machine
 		std::unordered_map<std::string, AnimationState*> m_States;
+
+		//The 'state' of this machine
+		MACHINE_STATE m_MachineState = STATE_IN_STATE;
 	};
 #pragma endregion "StateMachine"
 

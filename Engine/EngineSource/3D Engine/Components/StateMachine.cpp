@@ -12,14 +12,14 @@ namespace SM
 		: m_Name(name)
 	{}
 
-	AnimationState* AnimationState::EvaluateAll()
-	{
+	std::pair<AnimationState*, float> AnimationState::EvaluateAll()
+{
 		for (auto& outState : m_OutStates)
 		{
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
-				return { outState.second.state };
+				return std::make_pair(outState.second.state, 1.0f);
 		}
-		return nullptr;
+		return std::make_pair(nullptr, 1.0f);
 	}
 
 	AnimationState::~AnimationState()
@@ -116,10 +116,18 @@ namespace SM
 	void AnimationStateMachine::UpdateCurrentState()
 	{
 		//returns the first state that has all conditions satisfied, if any.
-		AnimationState* state = m_CurrentState->EvaluateAll();
-		if (state)
-			m_CurrentState = state;
+		auto state = m_CurrentState->EvaluateAll();
+		if (state.first)
+		{
+			m_BlendFromState = m_CurrentState;
+			m_CurrentState = state.first;
+		}
 		std::cout << m_CurrentState->GetName() << std::endl;
+	}
+
+	void AnimationStateMachine::UpdateBlendFactor(float deltaTime)
+	{
+
 	}
 
 #pragma endregion "StateMachine"
