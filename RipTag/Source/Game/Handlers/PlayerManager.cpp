@@ -108,7 +108,7 @@ void PlayerManager::Draw()
 	}
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Draw();
-	
+#if _DEBUG
 	ImGui::Begin("possese");
 	if (hasRemotePlayer)
 	{
@@ -124,6 +124,7 @@ void PlayerManager::Draw()
 		ImGui::Text("Z: %f", mLocalPlayer->getPosition().z);
 	}
 	ImGui::End();
+#endif
 }
 
 void PlayerManager::CreateLocalPlayer()

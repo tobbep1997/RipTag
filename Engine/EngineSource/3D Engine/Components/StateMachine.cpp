@@ -122,7 +122,8 @@ namespace SM
 			m_BlendFromState = m_CurrentState;
 			m_CurrentState = state.first;
 		}
-		std::cout << m_CurrentState->GetName() << std::endl;
+		//Pls there are more people then just you
+		//std::cout << m_CurrentState->GetName() << std::endl;
 	}
 
 	void AnimationStateMachine::UpdateBlendFactor(float deltaTime)
@@ -187,7 +188,7 @@ namespace SM
 		if (it != m_Clips.end())
 		{
 			Current1DStateData data;
-			std::cout << it->location << std::endl;
+			//std::cout << it->location << std::endl;
 			it == m_Clips.begin()
 				? std::make_pair(it->clip, nullptr)
 				: std::make_pair((it - 1)->clip, it->clip);

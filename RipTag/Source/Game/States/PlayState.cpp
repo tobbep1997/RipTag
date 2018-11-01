@@ -42,8 +42,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_playerManager->RegisterThisInstanceToNetwork();
 	m_playerManager->CreateLocalPlayer();
 
-	Timer::StopTimer();
-	std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
+	//Timer::StopTimer();
+	//std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
 
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
@@ -161,6 +161,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+
 	m_step.dt = deltaTime;
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
@@ -189,7 +190,7 @@ void PlayState::Update(double deltaTime)
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	m_playerManager->Update(deltaTime);
 
-	model->getAnimatedModel()->Update(deltaTime);
+	//model->getAnimatedModel()->Update(deltaTime);
 	
 	
 
