@@ -373,7 +373,8 @@ void Player::SendOnAnimationUpdate(double dt)
 			Network::ID_PLAYER_ANIMATION, 
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
 			this->m_currentDirection, 
-			this->m_currentSpeed);
+			this->m_currentSpeed,
+			this->getCamera()->getYRotationEuler());
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
 }

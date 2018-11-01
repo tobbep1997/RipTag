@@ -89,8 +89,9 @@ namespace Network
 		RakNet::NetworkID nid;
 		float direction;
 		float speed;
-		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed)
-			: id(_id), nid(_nid), direction(_dir), speed(_speed) {}
+		DirectX::XMFLOAT4A rot;
+		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, DirectX::XMFLOAT4A _rot)
+			: id(_id), nid(_nid), direction(_dir), speed(_speed), rot(_rot) {}
 	};
 
 #pragma pack(pop)

@@ -148,6 +148,7 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 	{
 		this->m_currentDirection = data->direction;
 		this->m_currentSpeed = data->speed;
+		this->setRotation(data->rot);
 	}
 }
 
