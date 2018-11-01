@@ -189,6 +189,7 @@ namespace Animation
 		float m_currentFrameDeltaTime = 0.0f;
 
 		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
+		std::unique_ptr<SM::StateVisitor> m_Visitor;
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 		
