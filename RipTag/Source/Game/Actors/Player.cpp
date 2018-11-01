@@ -89,6 +89,15 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	HUDComponent::AddQuad(m_manaBar);
 
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
+
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -679,12 +688,51 @@ void Player::_onAbility(double dt)
 
 void Player::_cameraPlacement(double deltaTime)
 {
+	static float lastOffset = 0.0f;
+	static bool hasPlayed = true;
+	static int last = 0;
+
 	float cameraOffset = 1.87f;
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+	
+	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+
+	pos.y += offsetY;
+	
+	if (p_moveState == Walking || p_moveState == Sprinting)
+	{
+		if (!hasPlayed)
+		{
+			if (lastOffset < offsetY)
+			{
+				hasPlayed = true;
+				auto xmPos = getPosition();
+				FMOD_VECTOR at = {xmPos.x, xmPos.y, xmPos.z};
+				int index = -1;
+				while (index == -1 || index == last)
+				{
+					index = rand() % (int)m_sounds.size();
+				}
+				
+				AudioEngine::PlaySoundEffect(m_sounds[index], &at);
+				last = index;
+			}
+		}
+		else
+		{
+			if (lastOffset > offsetY)
+			{
+				hasPlayed = false;
+			}
+		}
+
+		lastOffset = offsetY;
+	}
+
+
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
 }

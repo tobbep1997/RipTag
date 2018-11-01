@@ -370,7 +370,9 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	for (int i = 0; i < 12; i++)
 	{
 		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, false, 3, &worldPosCube[i * 3], nullptr);
+#ifdef _DEBUG
 		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+#endif
 	}
 	
 	return ReturnValue;

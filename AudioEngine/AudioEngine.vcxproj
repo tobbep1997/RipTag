@@ -176,7 +176,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>fmod64_vc.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib;</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
