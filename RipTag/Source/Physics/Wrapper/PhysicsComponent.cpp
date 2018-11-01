@@ -9,6 +9,10 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 		m_body->GetTransform().translation.y,
 		m_body->GetTransform().translation.z);
 
+	// #todoREMOVE
+	auto vel = m_body->GetLinearVelocity();
+	transform->setVelocity(vel);
+
 	b3Mat33 mat = m_body->GetTransform().rotation;
 	transform->setPhysicsRotation(mat);
 	
@@ -51,11 +55,11 @@ PhysicsComponent::~PhysicsComponent()
 	
 }
 
-void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
+void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float y, float z, bool sensor)
 {
 	setBaseBodyDef(bodyType);
 	CreateBox(x, y, z);
-	setBaseShapeDef();
+	setBaseShapeDef(sensor);
 	CreateBodyAndShape(world);
 }
 
@@ -97,12 +101,13 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		s->friction = 0;
 		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
 		m_shapeDefs.push_back(s);
+		
 	}
 
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		b3Body * b = world.CreateBody(*m_bodyDef);
-	
+		
 	
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
 			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
@@ -136,13 +141,14 @@ void PhysicsComponent::setBodyDef(BodyDefine bodyDefine)
 	m_bodyDef->gravityScale = bodyDefine.gravityScale;
 }
 
-void PhysicsComponent::setBaseShapeDef()
+void PhysicsComponent::setBaseShapeDef(bool sensor)
 {
 	//Create a base shape definition
 	m_bodyBoxDef = new b3ShapeDef();
 	m_bodyBoxDef->shape = m_poly;
 	m_bodyBoxDef->density = 1.0f;
 	m_bodyBoxDef->restitution = 0;
+	m_bodyBoxDef->sensor = sensor;
 
 
 	m_bodyBoxDef->density = 1.0f;
@@ -265,4 +271,9 @@ void PhysicsComponent::setAwakeState(const bool& awa)
 void PhysicsComponent::setUserDataBody(void* self)
 {
 	this->m_body->SetUserData(self);
+}
+
+void PhysicsComponent::setObjectTag(const char * type)
+{
+	m_body->SetObjectTag(type);
 }

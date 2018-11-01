@@ -91,6 +91,7 @@ void b3World::DestroyBody(b3Body* b) {
 	// Free memory.
 	b->~b3Body();
 	m_blockAllocator.Free(b, sizeof(b3Body));
+	b = nullptr;
 }
 
 b3Joint* b3World::CreateJoint(const b3JointDef& def) {

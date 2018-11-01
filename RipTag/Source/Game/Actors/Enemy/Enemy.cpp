@@ -45,6 +45,11 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 Enemy::~Enemy()
 {
 	this->Release(*this->getBody()->GetScene());
+	for (auto path : m_path)
+	{
+		delete path;
+	}
+	m_path.clear();
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -116,9 +121,15 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			_TempGuardPath(true, deltaTime);
-			//_IsInSight();
+			_TempGuardPath(true, 0.001f);
+			if (m_path.size() > 0)
+			{
+				_MoveTo(m_path.at(0), deltaTime);
+			}
 		}
+
+		_CheckPlayer(deltaTime);
+
 	}
 }
 
@@ -163,9 +174,9 @@ bool Enemy::GetDisabledState()
 
 void Enemy::_handleInput(double deltaTime)
 {
-	_handleMovement(deltaTime);
-	_handleRotation(deltaTime);
-	_possessed();
+	_handleMovement(0.001f);
+	_handleRotation(0.001f);
+	_possessed(deltaTime);
 }
 
 void Enemy::_handleMovement(double deltaTime)
@@ -240,19 +251,121 @@ Enemy* Enemy::validate()
 {
 	return this;
 }
-void Enemy::setPossessor(Actor* possessor)
+void Enemy::setPossessor(Actor* possessor, float maxDuration, float delay)
 {
 	m_possessor = possessor;
+	m_possessReturnDelay = delay;
+	m_maxPossessDuration = maxDuration;
 }
 
-void Enemy::_possessed()
+void Enemy::removePossessor()
 {
-	if (m_possessor != nullptr && Input::Possess())
+	if (m_possessor != nullptr)
 	{
-		if (static_cast<Player*>(m_possessor)->getPossessState() == 2)
+		static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+		m_possessor = nullptr;
+		m_possessReturnDelay = 0;
+		m_maxPossessDuration = 0;
+	}
+}
+
+void Enemy::SetPathVector(std::vector<Node*> path)
+{
+	m_path = path;
+}
+
+std::vector<Node*> Enemy::GetPathVector()
+{
+	return m_path;
+}
+
+
+void Enemy::_possessed(double deltaTime)
+{
+	if (m_possessor != nullptr)
+	{
+		if (m_possessReturnDelay <= 0)
 		{
-			static_cast<Player*>(m_possessor)->UnlockPlayerInput();
-			m_possessor = nullptr;
+			if (Input::Possess())
+			{
+				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor = nullptr;
+			}
+			else if(m_maxPossessDuration <= 0)
+			{
+				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor = nullptr;
+			}
+		}
+		else
+			m_possessReturnDelay -= deltaTime;
+
+		m_maxPossessDuration -= deltaTime;
+	}
+}
+
+bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
+{
+	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
+	{
+		delete m_path.at(0);
+		m_path.erase(m_path.begin());
+		return true;
+	}
+	else
+	{
+		float x = nextNode->worldPos.x - getPosition().x;
+		float y = nextNode->worldPos.y - getPosition().z;
+
+		float angle = atan2(y, x);
+
+		float dx = cos(angle) * m_guardSpeed * deltaTime;
+		float dy = sin(angle) * m_guardSpeed * deltaTime;
+
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
+		return false;
+	}
+}
+
+void Enemy::_CheckPlayer(double deltaTime)
+{
+	if (m_allowVisability)
+	{
+		float visPres = (float)m_vc.getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+
+
+		if (visPres > 0)
+		{
+			m_visCounter += visPres * deltaTime;
+			if (m_visabilityTimer <= m_visCounter)
+			{
+				//std::cout << "FOUND YOU BITCH" << std::endl;
+			}
+		}
+		else
+		{
+			
+			if (m_visCounter - deltaTime > 0)
+			{
+				m_visCounter -= deltaTime;
+			}
+			else
+			{
+				m_visCounter = 0;
+			}
+		}
+
+	}
+	else
+	{
+		if (m_visCounter - deltaTime > 0)
+		{
+			m_visCounter -= deltaTime;
+		}
+		else
+		{
+			m_visCounter = 0;
 		}
 	}
+
 }

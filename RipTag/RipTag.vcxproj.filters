@@ -37,6 +37,7 @@
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
+    <ClCompile Include="Source\Game\Handlers\AnimationHandler.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
@@ -48,6 +49,12 @@
     <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
     <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
     <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -261,6 +268,7 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
+    <ClInclude Include="Source\Game\Handlers\AnimationHandler.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
     <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />
@@ -274,5 +282,11 @@
     <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
     <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
+    <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Door.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
   </ItemGroup>
 </Project>

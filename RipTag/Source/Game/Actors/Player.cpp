@@ -5,12 +5,13 @@
 #include <algorithm>
 #include <iostream>
 #include <bits.h>
+#include "../../../Engine/EngineSource/Helper/HelperFunctions.h"
 #include "../Handlers/CameraHandler.h"
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
-	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 	
@@ -46,8 +47,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	
 	m_blink.setOwner(this);
 	m_blink.Init();*/
-
-	m_rayListener = new RayCastListener();
 
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -105,7 +104,6 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
-	delete m_rayListener;
 }
 
 
@@ -129,9 +127,57 @@ void Player::BeginPlay()
 {
 
 }
-
+#include <math.h>
 void Player::Update(double deltaTime)
 {
+	using namespace DirectX;
+
+	//set jumpedThisFrame to false
+	m_jumpedThisFrame = false;
+
+	//calculate walk direction (-1, 1, based on camera) and movement speed
+	{
+		///Speed
+		auto physSpeed = this->getLiniearVelocity();
+		
+		//if y speed is zero, set isInAir to false,
+		if (std::abs(physSpeed.y) < 0.001f)
+			m_isInAir = false;
+
+		float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+		m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+
+		///Walk dir
+			//Get camera direction and normalize on X,Z plane
+		auto cameraDir = p_camera->getDirection();
+		XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+		///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+		auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+		auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+		auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+		auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+		///AssertHasLength(XZCameraDir);
+		//AssertHasLength(XZMovement);
+
+			//Get dot product of cam dir and player movement
+		auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+		dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+		m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+		float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+		m_currentDirection *= (inverter > 0.0)
+			? -1.0
+			: 1.0;
+		m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+		///AssertNotNAN(m_currentDirection);
+
+	}
+
+	
+
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
@@ -189,12 +235,6 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 {
 	Transform::setPosition(x, y, z, w);
 	PhysicsComponent::p_setPosition(x, y, z);
-}
-
-int Player::getPossessState()
-{
-	/*return m_possess.getPossessState();*/
-	return 0;
 }
 	
 const float & Player::getVisability() const
@@ -353,6 +393,7 @@ void Player::_handleInput(double deltaTime)
 	_onAbility(deltaTime);
 	_onBlink();
 	_onPossess();
+	_onInteract();
 	_onRotate(deltaTime);
 }
 
@@ -467,9 +508,31 @@ void Player::_onRotate(double deltaTime)
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
 		if (deltaX && !Input::PeekRight())
+		{
 			p_camera->Rotate(0.0f, deltaX * 5 * deltaTime, 0.0f);
-		if (deltaY)
-			p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+		}
+		if (deltaY) 
+		{
+			if ((p_camera->getDirection().y - deltaY * 5 * deltaTime) < 0.90f)
+			{
+				p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y >= 0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
+			}
+			if ((p_camera->getDirection().y - deltaY * 5 * deltaTime) > -0.90f)
+			{
+				p_camera->Rotate(deltaY * 5 * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y <= -0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
+			}
+		
+			
+		}
+		
 	}
 }
 
@@ -481,6 +544,8 @@ void Player::_onJump()
 		{
 			addForceToCenter(0, JUMP_POWER, 0);
 			m_kp.jump = true;
+			m_jumpedThisFrame = true;
+			m_isInAir = true;
 		}
 	}
 
@@ -496,18 +561,25 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			m_rayListener->shotRay(this->getBody(), this->getCamera()->getDirection(), 2);
-			if (m_rayListener->shape->GetBody()->GetObjectTag() == "ITEM")
+			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
+			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 			{
-				//do the pickups
-			}
-			else if (m_rayListener->shape->GetBody()->GetObjectTag() == "LEVER")
-			{
-				//Pull Levers
-			}
-			else if (m_rayListener->shape->GetBody()->GetObjectTag() == "TORCH")
-			{
-				//Snuff out torches (example)
+				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
+				{
+					if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
+					{
+						//do the pickups
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
+					{
+						//std::cout << "Lever Found!" << std::endl;
+						//Pull Levers
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
+					{
+						//Snuff out torches (example)
+					}
+				}
 			}
 			m_kp.interact = true;
 		}

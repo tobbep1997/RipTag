@@ -67,6 +67,12 @@ void Drawable::_setDynamicBuffer()
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
 }
 
+SM::AnimationStateMachine* Drawable::InitStateMachine()
+{
+	m_stateMachine = new SM::AnimationStateMachine(1);
+	return m_stateMachine;
+}
+
 void Drawable::p_createBuffer()
 {
 	switch (p_objectType)
@@ -116,6 +122,10 @@ Drawable::Drawable() : Transform()
 Drawable::~Drawable()
 {
 	DX::SafeRelease(p_vertexBuffer);
+	if (m_anim)
+		delete m_anim;
+	if (m_stateMachine)
+		delete m_stateMachine;
 }
 
 
@@ -205,15 +215,7 @@ void Drawable::setEntityType(EntityType en)
 
 Animation::AnimatedModel* Drawable::getAnimatedModel()
 {
-	if (m_dynamicMesh)
-	{
-		if (m_dynamicMesh->getAnimatedModel())
-		{
-			return m_dynamicMesh->getAnimatedModel();
-		}
-		else return nullptr;
-	}
-	else return nullptr;
+	return m_anim;
 }
 
 void Drawable::setTextureTileMult(float u, float v)
@@ -248,6 +250,7 @@ void Drawable::setModel(DynamicMesh * dynamicMesh)
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(dynamicMesh);
 	p_createBuffer();
+	m_anim = new Animation::AnimatedModel();
 }
 
 void Drawable::setColor(const DirectX::XMFLOAT4A& color)

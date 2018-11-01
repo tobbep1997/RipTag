@@ -1,14 +1,8 @@
-
-
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
 #include "EngineSource/Helper/Timer.h"
 #include <LuaTalker.h>
 #include "../RipTag/Source/Game/Pathfinding/Grid.h"
-
-
-
-
 
 #if _DEBUG
 #include <iostream>
@@ -52,7 +46,6 @@ void SingleGameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
-
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
@@ -60,6 +53,12 @@ void SingleGameLoop(Game * game)
 
 		//This is to avoid Pollevents from fucking with the game
 		game->Clear();
+
+		///-------------------
+
+
+
+		///-------------------
 
 		//Pollevents
 
@@ -94,8 +93,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	std::vector<Node*> path;
 	
 	dt.getDeltaTimeInSeconds();
-	path = grid.FindPath(Tile(0, 0), Tile(299, 299));
-	std::cout << dt.getDeltaTimeInSeconds() << " seconds." << std::endl;
 
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)

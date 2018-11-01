@@ -92,6 +92,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -124,6 +126,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -142,6 +145,7 @@
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -166,6 +170,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
+    <ClCompile Include="Source\Game\Handlers\AnimationHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
     <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
     <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
@@ -215,7 +226,13 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Door.h" />
+    <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
     <ClInclude Include="RipTagExtern\RipExtern.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
@@ -225,6 +242,7 @@
     <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\Assets\StaticAsset.h" />
+    <ClInclude Include="Source\Game\Handlers\AnimationHandler.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
     <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
