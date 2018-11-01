@@ -159,7 +159,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
 
-	_GuardFrustumDraw();
+	//_GuardFrustumDraw();
 	m_2DRender.GUIPass();
 }
 
