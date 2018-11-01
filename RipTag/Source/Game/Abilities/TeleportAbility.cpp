@@ -62,9 +62,18 @@ void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 	case TeleportState::Throwable:
 		if ((TeleportState)data->state == TeleportState::Teleportable)
 		{
-			DirectX::XMFLOAT4A pos = ((Actor*)(p_owner))->getPosition();
+			DirectX::XMFLOAT4A pos = data->start;
+			//adjust the start position based on the packets delay
+			RakNet::Time delay = RakNet::GetTime() - data->timeStamp;
+			delay *= 0.001; //delay is in ms but we are using seconds
+			
+			pos.x += data->velocity.x * delay;
+			pos.y += data->velocity.y * delay;
+			pos.z += data->velocity.z * delay;
+
 			this->setPosition(pos.x, pos.y, pos.z);
 			this->setLiniearVelocity(data->velocity.x, data->velocity.y, data->velocity.z);
+
 			this->m_tpState = TeleportState::RemoteActive;
 		}
 		break;
@@ -102,6 +111,11 @@ unsigned int TeleportAbility::getState()
 DirectX::XMFLOAT4A TeleportAbility::getVelocity()
 {
 	return this->m_lastVelocity;
+}
+
+DirectX::XMFLOAT4A TeleportAbility::getStart()
+{
+	return this->m_lastStart;
 }
 
 void TeleportAbility::_logicLocal(double deltaTime)
@@ -152,6 +166,7 @@ void TeleportAbility::_inStateCharging(double dt)
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getPosition(), direction);
+			this->m_lastStart = start;
 
 			((Player*)p_owner)->DrainMana(getManaCost());
 
@@ -159,7 +174,7 @@ void TeleportAbility::_inStateCharging(double dt)
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
 			setPosition(start.x, start.y, start.z);
 			setLiniearVelocity(direction.x, direction.y, direction.z);
-			m_lastVelocity = direction;
+			this->m_lastVelocity = direction;
 			m_charge = 0.0f;
 		}
 	}

@@ -55,9 +55,19 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 	case DisableState::Throwable:
 		if ((DisableState)data->state == DisableState::Moving)
 		{
-			DirectX::XMFLOAT4A pos = ((Actor*)(p_owner))->getPosition();
+			DirectX::XMFLOAT4A pos = data->start;
+
+			//adjust the start position based on the packets delay
+			delay = RakNet::GetTime() - data->timeStamp;
+			delay *= 0.001; //delay is in ms but we are using seconds
+
+			pos.x += data->velocity.x * delay;
+			pos.y += data->velocity.y * delay;
+			pos.z += data->velocity.z * delay;
+
 			this->setPosition(pos.x, pos.y, pos.z);
 			this->setLiniearVelocity(data->velocity.x, data->velocity.y, data->velocity.z);
+			
 			this->m_dState = DisableState::RemoteActive;
 		}
 		break;
@@ -87,6 +97,11 @@ void DisableAbility::Draw()
 DirectX::XMFLOAT4A DisableAbility::getVelocity()
 {
 	return this->m_lastVelocity;
+}
+
+DirectX::XMFLOAT4A DisableAbility::getStart()
+{
+	return this->m_lastStart;
 }
 
 unsigned int DisableAbility::getState()
@@ -145,6 +160,7 @@ void DisableAbility::_inStateCharging(double dt)
 			m_dState = DisableState::Moving;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getPosition(), direction);
+			this->m_lastStart = start;
 
 			((Player*)p_owner)->DrainMana(getManaCost());
 
@@ -197,7 +213,7 @@ void DisableAbility::_inStateRemoteActive(double dt)
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
 	accumulatedTime += dt;
 
-	if (accumulatedTime >= lifeDuration)
+	if (accumulatedTime >= (lifeDuration - delay))
 	{
 		//nothing has been hit within 5 seconds, -> reset
 		accumulatedTime = 0.0;

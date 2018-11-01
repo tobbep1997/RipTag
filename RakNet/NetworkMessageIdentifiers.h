@@ -71,12 +71,15 @@ namespace Network
 	struct ENTITYABILITYPACKET
 	{
 		unsigned char id;
+		RakNet::Time timeStamp;
+		unsigned char m_id;
 		unsigned int ability;
+		XMFLOAT4A start;
 		XMFLOAT4A velocity;
 		unsigned int state;
 		ENTITYABILITYPACKET() {}
-		ENTITYABILITYPACKET(unsigned char _id, unsigned int _ability, XMFLOAT4A _vel, unsigned int _state) 
-			: id(_id), ability(_ability), velocity(_vel), state(_state) {}
+		ENTITYABILITYPACKET(unsigned char _id, unsigned int _ability, XMFLOAT4A _start, XMFLOAT4A _vel, unsigned int _state) 
+			: id(ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), ability(_ability), start(_start), velocity(_vel), state(_state) {}
 	};
 
 #pragma pack(pop)

@@ -245,7 +245,8 @@ void Player::RefillMana(const int& manaFill)
 
 void Player::Draw()
 {
-	m_abilityComponents[m_currentAbility]->Draw();
+	for (int i = 0; i < m_nrOfAbilitys; i++)
+		m_abilityComponents[i]->Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
 }
@@ -288,21 +289,35 @@ void Player::SendOnAbilityUsed()
 	using namespace Network;
 	ENTITYABILITYPACKET packet;
 
+	//Same for every ability packet
+	packet.id = ID_TIMESTAMP;
+	packet.timeStamp = RakNet::GetTime();
+	packet.m_id = ID_PLAYER_ABILITY;
+
+	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility]);
+	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility]);
+	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents[m_currentAbility]);
+	//unique based on active ability
 	switch (this->m_currentAbility)
 	{
 	case Ability::TELEPORT:
-		packet.id = ID_PLAYER_ABILITY;
 		packet.ability = (unsigned int)TELEPORT;
-		packet.velocity = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility])->getVelocity();
-		packet.state = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility])->getState();
+		packet.start = tp_ptr->getStart();
+		packet.velocity = tp_ptr->getVelocity();
+		packet.state = tp_ptr->getState();
 		break;
 	case Ability::DISABLE:
-		packet.id = ID_PLAYER_ABILITY;
 		packet.ability = (unsigned int)DISABLE;
-		packet.velocity = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility])->getVelocity();
-		packet.state = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility])->getState();
+		packet.start = dis_ptr->getStart();
+		packet.velocity = dis_ptr->getVelocity();
+		packet.state = dis_ptr->getState();
 		break;
-
+	case Ability::VISIBILITY:
+		packet.ability = (unsigned int)VISIBILITY;
+		packet.start = vis_ptr->getStart();
+		packet.velocity = vis_ptr->getLastColor();
+		packet.state = vis_ptr->getState();
+		break;
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);

@@ -35,7 +35,9 @@ private:
 	Quad * m_bar;
 
 	//Network
+	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;
+	RakNet::Time delay;
 public:
 	DisableAbility(void * owner = nullptr);
 	~DisableAbility();
@@ -52,6 +54,7 @@ public:
 	void Draw() override;
 
 	DirectX::XMFLOAT4A getVelocity();
+	DirectX::XMFLOAT4A getStart();
 	unsigned int getState();
 
 private:

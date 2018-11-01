@@ -38,6 +38,7 @@ private:
 	Quad * m_bar;
 
 	//for network
+	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;
 
 public:
@@ -54,6 +55,7 @@ public:
 
 	unsigned int getState();
 	DirectX::XMFLOAT4A getVelocity();
+	DirectX::XMFLOAT4A getStart();
 
 private:
 	// Private functions
