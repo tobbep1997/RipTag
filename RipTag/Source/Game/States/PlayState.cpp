@@ -147,8 +147,6 @@ PlayState::~PlayState()
 	
 	delete m_playerManager;
 
-	//actor->Release(m_world);
-	delete m_contactListener;
 	delete model;
 	delete triggerHandler;
 	pressureplate->Release(*RipExtern::g_world);
