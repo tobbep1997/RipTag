@@ -30,8 +30,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
 
-
-
 	while (game.isRunning())
 	{
 

@@ -11,13 +11,18 @@ void Transform::p_calcWorldMatrix()
 	if (p_physicsRotation._11 == INT16_MIN)
 	{
 		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
-		rotation = rotation * p_forcedRotation;
+		//rotation = rotation * p_forcedRotation;
 	}
 	else
 	{
 		rotation = XMLoadFloat3x3(&p_physicsRotation);
 	}
-	XMMATRIX worldMatrix = XMMatrixTranspose(scaling * rotation * translation);
+	XMMATRIX worldMatrix;
+	if (DirectX::XMMatrixIsIdentity(p_forcedWorld))
+		worldMatrix = XMMatrixTranspose(scaling * rotation * translation);
+	else
+		worldMatrix = p_forcedWorld;
+	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
 
 	if (m_parent)
 		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
@@ -32,7 +37,7 @@ Transform::Transform()
 	p_position = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_rotation = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
-	p_forcedRotation = DirectX::XMMatrixIdentity();
+	p_forcedWorld = DirectX::XMMatrixIdentity();
 	p_physicsRotation._11 = INT16_MIN;
 }
 
@@ -112,9 +117,9 @@ void Transform::setRotation(const float & x, const float & y, const float & z, c
 	this->setRotation(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
-void Transform::ForceRotation(const DirectX::XMMATRIX & rot)
+void Transform::ForceWorld(const DirectX::XMMATRIX & rot)
 {
-	p_forcedRotation = rot;
+	p_forcedWorld = rot;
 	p_calcWorldMatrix();
 }
 

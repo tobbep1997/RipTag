@@ -56,83 +56,19 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 
-	AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 
 	m_levelHandler.setPlayer(player);
 	m_levelHandler.Init(m_world);
 
+	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 	FMOD_VECTOR at = { -29.1406, -2.82f, -15.4373f };
-	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(0, &at);
+	FMOD_VECTOR at2 = { -11.5999, -2.82f, -0.4889f };
+	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
+	AudioEngine::PlaySoundEffect(name, &at2);
+
+
+	AudioEngine::CreateReverb(at, 10, 25.0f);
 	//bool lol = AudioEngine::TEMP_IS_THIS_POINT_INSIDE_MESH(at);
-
-	auto gemo = AudioEngine::tmp_getAllGeometry();
-
-	for (auto &ge : *gemo)
-	{
-		Drawable * d = new Drawable();
-		StaticMesh * m = new StaticMesh();
-		FMOD_VECTOR pos;
-		FMOD_VECTOR scl;
-		FMOD_VECTOR forw;
-		FMOD_VECTOR up;
-		ge->getPosition(&pos);
-		ge->getScale(&scl);
-		ge->getRotation(&forw, &up);
-		FMOD_VECTOR vertices[36];
-		int counter = 0;
-		for (int pol = 0; pol < 12; pol++)
-		{
-			for (int ver = 0; ver < 3; ver++)
-			{
-				FMOD_RESULT res = ge->getPolygonVertex(pol, ver, &vertices[counter++]);
-				if (res != FMOD_OK)
-				{
-#ifdef _DEBUG
-					std::cout << "AudioEngine error!\nError:" + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-#endif
-				}
-			}
-		}
-		std::vector<StaticVertex> svv;
-		for (int i = 0; i < 36; i++)
-		{
-			StaticVertex sv;
-			sv.pos = { vertices[i].x, vertices[i].y, vertices[i].z, 1.0f };
-			sv.normal = { 1, 1, 1, 0};
-			sv.uvPos = { 0,0 };
-			sv.tangent = { 1,1,1,1 };
-			svv.push_back(sv);
-		}
-		m->setVertices(svv);
-		d->setModel(m);
-		d->setEntityType(EntityType::DefultType);
-		d->setScale(scl.x, scl.y, scl.z, 1.0f);
-		d->setPosition(pos.x, pos.y, pos.z, 1.0f);
-
-		DirectX::XMVECTOR vf = DirectX::XMVectorSet(forw.x, forw.y, forw.z, 0.0f);
-		DirectX::XMVECTOR vu = DirectX::XMVectorSet(up.x, up.y, up.z, 0.0f);
-		DirectX::XMVECTOR vr = DirectX::XMVector3Cross(vu, vf);
-
-		DirectX::XMFLOAT3 xmf, xmu, xmr;
-		DirectX::XMStoreFloat3(&xmf, vf);
-		DirectX::XMStoreFloat3(&xmu, vu);
-		DirectX::XMStoreFloat3(&xmr, vr);
-		//DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixSet(xmr.x, xmr.y, xmr.z, 0, xmu.x, xmu.y, xmu.z, 0, xmf.x, xmf.y, xmf.z, 0, 0, 0, 0, 1);
-		DirectX::XMMATRIX rotMatrix = 
-			DirectX::XMMatrixSet(
-				xmr.x,	xmr.y,	xmr.z,	0,
-				xmu.x,	xmu.y,	xmu.z,	0,
-				xmf.z,	xmf.y,	xmf.z,	0,
-				0,		0,		0,		1);//*/
-
-		DirectX::XMMATRIX * lolRot = nullptr;
-		ge->getUserData((void**)&lolRot);
-
-		d->ForceRotation(*lolRot);
-		tmp_audioBox.push_back(d);
-		delete lolRot;
-	}
-	
 
 	Input::ResetMouse();
 }
@@ -244,9 +180,6 @@ void PlayState::Draw()
 	
 	player->Draw();
 	model->Draw();
-
-	for (auto & lol : tmp_audioBox)
-		lol->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }

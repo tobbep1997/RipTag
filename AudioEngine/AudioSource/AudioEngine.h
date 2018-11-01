@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+#include <string>
+
+
 class AudioEngine
 {
 public:
@@ -14,6 +17,18 @@ public:
 		FMOD_VECTOR forward; // Must be normalized
 		FMOD_VECTOR up;		// Must be normalized
 	};
+	enum SoundOwner
+	{
+		Player = 0,
+		Enemy = 1
+	};
+	struct SoundInfo
+	{
+		SoundOwner Owner;
+		FMOD_VECTOR SoundPosition;
+	};
+
+
 private:
 	static bool s_inited;
 
@@ -25,11 +40,11 @@ private:
 
 	static std::vector<FMOD::Reverb3D*> s_reverbs;
 
-	static std::vector<FMOD::Geometry*> s_geometry;
-
 	static FMOD::ChannelGroup* s_soundEffectGroup;
 	static FMOD::ChannelGroup* s_ambientSoundGroup;
 	static FMOD::ChannelGroup* s_musicSoundGroup;
+	static FMOD::ChannelGroup* s_masterGroup;
+
 
 public:
 	static void Init();
@@ -37,36 +52,30 @@ public:
 	static void Update();
 	static void UpdateListenerAttributes(const Listener & l);
 
-	static int LoadSoundEffect(const std::string & path, bool loop = false);
-	static int LoadAmbientSound(const std::string & path, bool loop = true);
-	static int LoadMusicSound(const std::string & path, bool loop = true);
+	static std::string LoadSoundEffect	(const std::string & path, bool loop = false);
+	static std::string LoadAmbientSound	(const std::string & path, bool loop = true);
+	static std::string LoadMusicSound	(const std::string & path, bool loop = true);
+	
+	static void UnLoadSoundEffect	(const std::string & name);
+	static void UnloadAmbiendSound	(const std::string & name);
+	static void UnloadMusicSound	(const std::string & name);
 
-	static FMOD::Channel * PlaySoundEffect(int i, FMOD_VECTOR * from = nullptr);
-	static void PlayAmbientSound(int i);
-	static void PlayMusic(int i);
-
-	static void StopSoundEffect(int i);
-	static void StopAmbientSound(int i);
-	static void StopMusic(int i);
+	static FMOD::Channel * PlaySoundEffect	(const std::string & name, FMOD_VECTOR * from = nullptr);
+	static FMOD::Channel * PlayAmbientSound	(const std::string & name);
+	static FMOD::Channel * PlayMusic		(const std::string & name);
 
 	static void Release();
 
 	static void SetEffectVolume(float vol);
 	static void SetAmbientVolume(float vol);
 	static void SetMusicVolume(float vol);
-
-	static void ReleaseGeometry();
-	
-	static int TEMPGETSIZEOFGEOMETRYVECTOR();
+	static void SetMasterVolume(float vol);
 
 	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist);
 
-	static int TEMP_IS_THIS_POINT_INSIDE_MESH(FMOD_VECTOR POINTLOL);
-
-	static std::vector<FMOD::Geometry*> * tmp_getAllGeometry();
-
-	static FMOD::Geometry** CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
-	static FMOD::Geometry** CreateCube(float fDirectOcclusion = 1.0f, float fReverbOcclusion = 1.0f);
+	static FMOD::Geometry* CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
+	static FMOD::Geometry* CreateCube(float fDirectOcclusion, float fReverbOcclusion,
+		DirectX::XMFLOAT4 pos, DirectX::XMFLOAT4 scl, DirectX::XMFLOAT4 q);
 
 private:
 	static void _createSystem();

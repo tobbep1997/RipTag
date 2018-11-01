@@ -7,6 +7,7 @@
 #include "../../../New_Library/ImportLibrary/formatImporter.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "../Actors/Player.h"
+#include <AudioEngine.h>
 class Room
 {
 private:
@@ -21,11 +22,9 @@ private:
 
 	bool m_roomLoaded = false;
 	std::vector<StaticAsset*> m_staticAssets;
-	
 	std::vector<PointLight*> m_pointLights;
+	std::vector<FMOD::Geometry*> m_audioBoxes;
 	float m_playerStartPos;
-
-
 
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
@@ -44,6 +43,8 @@ public:
 	~Room();
 
 	void Update();
+
+	void SetActive(bool state);
 
 	void Draw();
 

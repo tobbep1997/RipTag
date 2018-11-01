@@ -1,5 +1,4 @@
 #include "Room.h"
-#include <AudioEngine.h>
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -59,7 +58,6 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		AudioEngine::ReleaseGeometry();
 		for (auto asset : m_staticAssets)
 		{
 			asset->Release(*m_worldPtr);
@@ -72,7 +70,9 @@ void Room::UnloadRoomFromMemory()
 			delete m_pointLights[i];
 		m_staticAssets.clear();
 		m_pointLights.clear();
-		
+		for (auto & ab : m_audioBoxes)
+			ab->release();
+		m_audioBoxes.clear();
 		m_roomLoaded = false;
 	}
 }
@@ -123,50 +123,15 @@ void Room::LoadRoomToMemory()
 		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
-			FMOD::Geometry * ge = *AudioEngine::CreateCube(1, 1);
-			FMOD_RESULT res;
-			float * ss = boxes.boxes[i].scale;
-			FMOD_VECTOR scale = { ss[0] * 0.5f, ss[1] * 0.5f, ss[2] * 0.5f };
-
-			// IS THIS CORRECT????
-			float * r = boxes.boxes[i].rotation;
-			DirectX::XMFLOAT4 q = { r[0], r[1], r[2], r[3] };
-
-			DirectX::XMMATRIX lasoda = DirectX::XMMatrixRotationRollPitchYaw(1, 0, 0);
-
-
-			// ONLY TEMP!!!
-			DirectX::XMMATRIX * rotmatrix = new DirectX::XMMATRIX(DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&q)));
-
-			DirectX::XMFLOAT4X4 maa;
-			DirectX::XMStoreFloat4x4(&maa, *rotmatrix);
-			//DirectX::XMStoreFloat4x4(&maa, lol);
-
-			DirectX::XMVECTOR vUp = DirectX::XMVectorSet(0, 1, 0, 0);
-			DirectX::XMVECTOR vFo = DirectX::XMVectorSet(0, 0, 1, 0);
-			vUp = DirectX::XMVector3Transform(vUp, *rotmatrix);
-			vFo = DirectX::XMVector3Transform(vFo, *rotmatrix);
-
-			DirectX::XMFLOAT3 xmfo, xmup;
-			DirectX::XMStoreFloat3(&xmfo, vFo);
-			DirectX::XMStoreFloat3(&xmup, vUp);
-
-			ge->setUserData((void*)rotmatrix);
-
-			FMOD_VECTOR up = { xmup.x, xmup.y, xmup.z };
-			FMOD_VECTOR forward = {xmfo.x, xmfo.y, xmfo.z};
-			
-			float * tr = boxes.boxes[i].translation;
-
-			FMOD_VECTOR translation = { tr[0], tr[1], tr[2] };
-			
-			res = ge->setScale(&scale);
-			std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-			res = ge->setRotation(&forward, &up);
-			//std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-			res = ge->setPosition(&translation);
-			std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
-			// This is for FMOD -- END
+			float * f4Rot = boxes.boxes[i].rotation;
+			float * f3Pos = boxes.boxes[i].translation;
+			float * f3Scl = boxes.boxes[i].scale;
+			DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
+			DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1};
+			DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1};
+			FMOD::Geometry * ge = AudioEngine::CreateCube(0.75, 0.35, xmPos, xmScl, xmQ);
+			ge->setActive(false);
+			m_audioBoxes.push_back(ge);
 		}
 
 		CollisionBoxes->Init(*m_worldPtr, boxes);
@@ -199,6 +164,12 @@ void Room::Update()
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	vis.clear();
+}
+
+void Room::SetActive(bool state)
+{
+	for (auto & ab : m_audioBoxes)
+		ab->setActive(state);
 }
 
 void Room::Draw()
@@ -239,8 +210,8 @@ void Room::Release()
 	{
 		delete enemy;
 	}
-	
-	
+	for (auto ab : m_audioBoxes)
+		ab->release();
 }
 
 void Room::loadTextures()

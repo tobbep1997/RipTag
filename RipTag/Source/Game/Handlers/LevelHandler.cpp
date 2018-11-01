@@ -27,6 +27,7 @@ void LevelHandler::Init(b3World& worldPtr)
 	m_rooms.at(1)->LoadRoomToMemory();
 	DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
 	this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+	m_rooms[m_activeRoom]->SetActive(true);
 	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingManager, this, m_activeRoom);
 
 	
@@ -67,24 +68,28 @@ void LevelHandler::Update(float deltaTime)
 	{
 		if (pressed == false)
 		{
+			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom--;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
 	{
 		if (pressed == false)
 		{
+			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom++;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 		}
 	}
 	else

@@ -48,7 +48,7 @@ private:
 	bool m_firstRun = true;
 	bool unlockMouse = true;
 	FMOD::Channel * TEEEMPCHANNEL;
-	std::vector<Drawable*> tmp_audioBox;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
