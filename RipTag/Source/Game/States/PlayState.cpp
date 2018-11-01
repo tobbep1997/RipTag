@@ -157,7 +157,6 @@ PlayState::~PlayState()
 	lever->Release(*RipExtern::g_world);
 	delete lever;
 	delete door;
-	delete m_contactListener;
 	delete m_rayListener;
 }
 
