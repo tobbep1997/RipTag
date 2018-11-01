@@ -111,7 +111,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	lever = new Lever();
 	lever->Init();
 	lever->setPosition(-3, -3, 0);
-	std::cout << lever->getPosition().x << " " << lever->getPosition().y << " " << lever->getPosition().z << std::endl;
 
 	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
