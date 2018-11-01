@@ -1,38 +1,28 @@
 #include "Camera.h"
+#include <iostream>
+#include <math.h>
+#include <algorithm>
 
 const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 {
 	using namespace DirectX;
-	XMMATRIX mInv = XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_view));
-	XMVECTOR look = mInv.r[2];
-	look.m128_f32[1] = 0;
-	look = XMVector3Normalize(look);
-	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
-	XMVECTOR left = XMVector3Cross(look, up);
 
-	XMVECTOR rot{};
-	XMVECTOR scale{};
-	XMVECTOR translation{};
-	XMMatrixDecompose(&scale, &rot, &translation, mInv);
-	XMFLOAT4A q;
-	XMStoreFloat4A(&q, rot);
+	XMVECTOR XZcameraDirection = XMVector3Normalize(XMVectorSet(m_direction.x, 0.0, m_direction.z, 0.0));
+	XMVECTOR defaultDir = XMVectorSet(0.0, 0.0, 1.0, 0.0);
+	float dot = XMVectorGetX(XMVector3Dot(defaultDir, XZcameraDirection));
 
-	float sinp = 2.0f * (q.w * q.y - q.z * q.y);
-	if (fabs(sinp) >= 1)
-		q.y = copysignf(DirectX::XM_PI / 2.0f, sinp);
-	else
-		q.y = asin(sinp);
+	dot = std::clamp(dot, -0.999999f, 0.999999f);
+	//Convert to degrees
+	float r = XMConvertToDegrees(std::acos(dot));
+	//Negate if necessary
+	float inverter = (XMVectorGetY(XMVector3Cross(defaultDir, XZcameraDirection)));
 
+	r *= (inverter > 0.0)
+		? -1.0
+		: 1.0;
+	r = std::clamp(r, -180.0f, 180.0f);
 
-	//float eulerYaw = atan2(2.0*(q.x*q.y + q.z*q.w), q.z*q.z - q.w*q.w - q.x*q.x + q.y*q.y);
-	//float eulerYaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
-
-
-	q.x = 0.0f;
-	q.z = 0.0f;
-	q.w = 0.0f;
-
-	return q;
+	return {0.0, r, 0.0, 0.0};
 }
 
 void Camera::_calcViewMatrix(bool dir)
