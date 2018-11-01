@@ -209,12 +209,12 @@ void Player::_onSprint()
 		if (Input::isUsingGamepad())
 		{
 			m_currClickSprint = Input::Sprinting();
-			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.4)
+			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.3)
 			{
 				m_toggleSprint = 1;
 			}
 
-			if (m_toggleSprint == 1 && Input::MoveForward() > 0.4)
+			if (m_toggleSprint == 1 && Input::MoveForward() > 0.3)
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
