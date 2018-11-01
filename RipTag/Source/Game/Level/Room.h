@@ -9,9 +9,17 @@
 #include "../Actors/Player.h"
 #include "../../New_Library/ImportLibrary/FormatHeader.h"
 #include "../Pathfinding/Grid.h"
+#include "../../Physics/Wrapper/CollisionBoxes.h"
 
 class Room
 {
+private:
+	struct prop
+	{
+		BaseActor * baseActor;
+		unsigned int TypeID;
+		unsigned int linkingID;
+	};
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -40,6 +48,9 @@ private:
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
+	   
+	prop * props;
+
 
 	std::vector<const int*> vis;
 public:

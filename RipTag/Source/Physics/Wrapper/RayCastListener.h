@@ -68,13 +68,27 @@ public:
 		{
 			rayContacts.pop_back();
 		}
-		//if (!rayContacts.empty())
-		//{
-		//	if (!rayContacts.back().contactShape->GetBody()->GetObjectTag().empty())
-		//	{
-		//		std::cout << rayContacts.back().contactShape->GetBody()->GetObjectTag() << std::endl;
-		//	}
-		//}
+	}
+
+	virtual void ShotRay(b3Body* body, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A direction, float length, std::string target = "N/A")
+	{
+		//b3Vec3 pos;
+		float x = body->GetTransform().translation.x + (length * direction.x);
+		float y = body->GetTransform().translation.y + (length * direction.y);
+		float z = body->GetTransform().translation.z + (length * direction.z);
+
+		rayContacts.push_back(RayContact(body));
+		body->GetScene()->RayCast(this, b3Vec3(pos.x, pos.y, pos.z), b3Vec3(x, y, z));
+
+
+		if (rayContacts.back().fraction == 0)
+		{
+			rayContacts.pop_back();
+		}
+		else if (target != "N/A" && rayContacts.back().contactShape->GetBody()->GetObjectTag() != target)
+		{
+			rayContacts.pop_back();
+		}
 	}
 
 	virtual std::vector<RayContact> GetContacts()
