@@ -1,5 +1,5 @@
 #include "CameraHolder.h"
-
+#include <iostream>
 
 
 void CameraHolder::p_initCamera(Camera * camera)
@@ -7,27 +7,24 @@ void CameraHolder::p_initCamera(Camera * camera)
 	this->p_camera = camera;
 }
 
-double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed)
+double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState)
 {
-	if (velocity != 0)
+	if (this->p_moveState == Walking)
 	{
-		if (m_currentAmp < walkingBobAmp)
-		{
-			m_currentAmp += 0.0003f;
-		}
-		walkBob += (velocity * (moveSpeed * deltaTime));
-		m_offset = walkingBobAmp * sin(freq*walkBob);
+		m_moveBob += velocity * (moveSpeed * deltaTime); 
+		m_offset = m_moveAmp * sin(m_moveFreq * m_moveBob); 
+	}
+	else if (this->p_moveState == Sprinting)
+	{
+		m_sprintBob += velocity * (moveSpeed * deltaTime);
+		m_offset = m_sprintAmp * sin(m_sprintFreq * m_sprintBob);
 	}
 	else
 	{
-		walkBob += 0.009f;
-
-		if (m_currentAmp > stopBobAmp)
-		{
-			m_currentAmp -= 0.0001f;
-		}
-		m_offset = m_currentAmp * sin(stopBobFreq * walkBob);
+		m_stopBob += deltaTime * 2.0f; 
+		m_offset = m_stopAmp * sin(m_stopFreq * m_stopBob);
 	}
+
 	return m_offset;
 }
 

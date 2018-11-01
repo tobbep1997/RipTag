@@ -125,7 +125,7 @@ void PhysicsComponent::setBaseBodyDef(b3BodyType bodyType)
 	m_bodyDef = new b3BodyDef();
 	m_bodyDef->position.Set(0, 0, 0);
 	m_bodyDef->type = bodyType;
-	m_bodyDef->gravityScale = 1;
+	m_bodyDef->gravityScale = 9.82f;
 	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
 	
 }
