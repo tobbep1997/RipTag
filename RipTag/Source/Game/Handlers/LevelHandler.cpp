@@ -13,17 +13,21 @@ LevelHandler::~LevelHandler()
 	}
 }
 
-void LevelHandler::Init(b3World& worldPtr)
+void LevelHandler::Init(b3World& worldPtr, Player * playerPtr)
 {
+	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
 
 	_LoadPreFabs();
-	_GenerateLevelStruct(2, 5);
+	_GenerateLevelStruct(1, 1);
 
 	_RoomLoadingManager();
-
 	m_rooms[m_activeRoom]->SetActive(true);
+
+	this->m_playerPtr->setPosition(m_rooms.at(0)->getPlayer1StartPos().x,
+		m_rooms.at(0)->getPlayer1StartPos().y,
+		m_rooms.at(0)->getPlayer1StartPos().z);
 }
 
 void LevelHandler::Release()
@@ -110,6 +114,8 @@ void LevelHandler::Draw()
 void LevelHandler::setPlayer(Player * playerPtr)
 {
 	this->m_playerPtr = playerPtr;
+
+
 }
 
 void LevelHandler::_LoadPreFabs()
@@ -125,8 +131,8 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	{
 		//Create a room
 		//Get a random int
-		int randomRoom = rand() % 3+1;
-		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
+		int randomRoom = rand() % amountOfRooms;
+		Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
 
 
 		m_rooms.push_back(room);

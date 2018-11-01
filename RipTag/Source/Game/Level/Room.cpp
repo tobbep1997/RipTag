@@ -97,7 +97,7 @@ void Room::LoadRoomToMemory()
 
 
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid.CreateGridWithWorldPosValues(25, 25, m_grid);
+		m_pathfindingGrid.CreateGridWithWorldPosValues(6, 15, m_grid);
 		//
 		m_roomLoaded = true;
 
@@ -156,7 +156,7 @@ void Room::LoadRoomToMemory()
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(255, 102, 0);
+		light->setColor(200, 102, 50);
 	}
 }
 

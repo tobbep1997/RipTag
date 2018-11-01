@@ -110,14 +110,19 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 normal = input.normal.xyz;
     float3 AORoughMet = float3(1, 1, 1); 
 
+    //input.uv.x = 1 - input.uv.x;
+    input.uv.y = 1 - input.uv.y;
+
     if (usingTexture.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
         normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
     }
-
+    //ambient = float4(0, 0, 0, 0);
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
+    //ao = 0;
+    //return albedo;
     float pi = 3.14;
 
 
@@ -195,8 +200,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     finalColor = ambient + lightCal;
 	
     // why do we need this?
-    finalColor = saturate(finalColor);
-    //finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
+    //finalColor = saturate(finalColor);
+    finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
     //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
     finalColor.a = albedo.a;
     return min(finalColor, float4(1, 1, 1, 1));

@@ -54,8 +54,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	
 	
-	m_levelHandler.setPlayer(m_playerManager->getLocalPlayer());
-	m_levelHandler.Init(m_world);
+	m_levelHandler.Init(m_world, m_playerManager->getLocalPlayer());
 
 	triggerHandler = new TriggerHandler();
 
