@@ -272,7 +272,8 @@ void Player::SendOnUpdateMessage()
 		Network::Multiplayer::GetInstance()->GetNetworkID(),
 		PlayerState::Idle,
 		this->getPosition(),
-		this->getEulerRotation());
+		this->getCamera()->getYRotationEuler()
+		);
 
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);

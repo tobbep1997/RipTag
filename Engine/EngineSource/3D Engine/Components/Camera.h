@@ -70,7 +70,7 @@ public:
 
 	const DirectX::XMFLOAT4A & getDirection() const;
 	const DirectX::XMFLOAT4A & getRight() const;
-
+	const DirectX::XMFLOAT4A getYRotationEuler();
 	const DirectX::XMFLOAT4X4A & getView();
 	const DirectX::XMFLOAT4X4A & getProjection() const;
 	const DirectX::XMFLOAT4X4A & getViewProjection();

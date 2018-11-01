@@ -1,5 +1,24 @@
 #include "Camera.h"
 
+const DirectX::XMFLOAT4A Camera::getYRotationEuler()
+{
+	using namespace DirectX;
+	XMMATRIX mInv = XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_view));
+	XMVECTOR rot{};
+	XMMatrixDecompose(nullptr, &rot, nullptr, mInv);
+	XMFLOAT4A q;
+	XMStoreFloat4A(&q, rot);
+
+	float eulerYaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+
+	q.x = 0.0f;
+	q.y = eulerYaw;
+	q.z = 0.0f;
+	q.w = 0.0f;
+
+	return q;
+}
+
 void Camera::_calcViewMatrix(bool dir)
 {
 	DirectX::XMVECTOR pos = DirectX::XMLoadFloat4A(&this->p_position);
