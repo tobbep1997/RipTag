@@ -561,7 +561,7 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
+			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
 			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 			{
 				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
@@ -579,12 +579,14 @@ void Player::_onInteract()
 					{
 						//Snuff out torches (example)
 					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "Enemy")
+					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
+						//std::cout << "Enemy Found!" << std::endl;
 						//Snuff out torches (example)
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
+						//std::cout << "illusory wall ahead" << std::endl;
 						//Snuff out torches (example)
 					}
 				}

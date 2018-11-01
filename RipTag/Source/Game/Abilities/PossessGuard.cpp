@@ -64,12 +64,12 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possess:
 			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, "Enemy");
+				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, "Enemy");
 
 				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 				{
 					if (con.originBody->GetObjectTag() == "PLAYER" &&
-						con.contactShape->GetBody()->GetObjectTag() == "Enemy")
+						con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
 						((Player*)p_owner)->DrainMana(getManaCost());
 						this->possessTarget = static_cast<Enemy*>(con.contactShape->GetBody()->GetUserData());

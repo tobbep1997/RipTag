@@ -35,7 +35,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	PhysicsComponent::Init(*world, e_staticBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
-	this->getBody()->SetObjectTag("Enemy");
+	this->getBody()->SetObjectTag("ENEMY");
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
