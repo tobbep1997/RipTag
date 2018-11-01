@@ -84,6 +84,15 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	HUDComponent::AddQuad(m_manaBar);
 
+	m_lastAction = new Quad();
+	m_lastAction->init(DirectX::XMFLOAT2A(0.5f, 0.9f), DirectX::XMFLOAT2A(0.1f,0.1f));
+	m_lastAction->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_lastAction->setPivotPoint(Quad::PivotPoint::center);
+	m_lastAction->setString("L A");
+	m_lastAction->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lastAction->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	HUDComponent::AddQuad(m_lastAction);
+
 }
 
 Player::~Player()
@@ -222,6 +231,11 @@ void Player::RefillMana(const int& manaFill)
 	}
 }
 
+void Player::setActionText(std::string text)
+{
+	m_lastAction->setString(text);
+}
+
 void Player::Draw()
 {
 	m_abilityComponents[m_currentAbility]->Draw();
@@ -357,6 +371,7 @@ void Player::_onCrouch()
 			this->CreateBox(0.5f, 0.10f, 0.5f);
 			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
 			m_kp.crouching = true;
+			setActionText("Crouch");
 		}
 	}
 	else
@@ -447,6 +462,7 @@ void Player::_onJump()
 		{
 			addForceToCenter(0, JUMP_POWER, 0);
 			m_kp.jump = true;
+			setActionText("Jump");
 		}
 	}
 	else
@@ -472,11 +488,22 @@ void Player::_onInteract()
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
+						setActionText("Lever");
 						//std::cout << "Lever Found!" << std::endl;
 						//Pull Levers
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
+						//Snuff out torches (example)
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "Enemy")
+					{
+						setActionText("Seduced");
+						//Snuff out torches (example)
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					{
+						setActionText("Obs Wall");
 						//Snuff out torches (example)
 					}
 				}

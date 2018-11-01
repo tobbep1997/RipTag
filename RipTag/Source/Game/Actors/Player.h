@@ -40,7 +40,7 @@ private:
 	const float MOVE_SPEED = 10.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
-	const float INTERACT_RANGE = 2.0f;
+	const float INTERACT_RANGE = 10.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
 private:
@@ -66,7 +66,7 @@ private:
 	float m_maxMana;
 
 	const int STANDARD_START_MANA = 100;
-
+	Quad * m_lastAction;
 	Quad * m_manaBar;
 	
 public:
@@ -110,6 +110,7 @@ public:
 
 	bool DrainMana(const int & manaCost);
 	void RefillMana(const int & manaFill);
+	void setActionText(std::string text);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

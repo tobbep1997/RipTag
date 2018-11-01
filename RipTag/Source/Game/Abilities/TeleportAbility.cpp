@@ -69,6 +69,7 @@ void TeleportAbility::Use()
 		position.y += 1.0f;
 		((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 		m_tpState = TeleportAbility::Wait;
+		((Player*)p_owner)->setActionText("Teleport");
 		break;
 	}
 }
@@ -115,6 +116,7 @@ void TeleportAbility::_logic(double deltaTime)
 			setPosition(start.x, start.y, start.z);
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			m_charge = 0.0f;
+			((Player*)p_owner)->setActionText("Throw Stone");
 			break;
 		}
 	}

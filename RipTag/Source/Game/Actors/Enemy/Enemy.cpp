@@ -32,13 +32,16 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->Init(*world, e_staticBody);
+	PhysicsComponent::Init(*world, e_staticBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("Enemy");
-
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
+	setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	setScale(1.0f, 1.0f, 1.0f);
+	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	setTextureTileMult(2, 2);
 }
 
 
@@ -171,16 +174,27 @@ bool Enemy::GetDisabledState()
 
 void Enemy::_handleInput(double deltaTime)
 {
-	_handleMovement(0.001f);
-	_handleRotation(0.001f);
+	if (Input::MouseLock() && !m_kp.unlockMouse)
+	{
+		m_kp.unlockMouse = true;
+		unlockMouse = !unlockMouse;
+	}
+	else if (!Input::MouseLock())
+		m_kp.unlockMouse = false;
+
+	_onSprint();
+	_handleMovement(deltaTime);
+	_handleRotation(deltaTime);
+	_onCrouch();
 	_possessed(deltaTime);
 }
 
 void Enemy::_handleMovement(double deltaTime)
 {
 	using namespace DirectX;
-
 	XMFLOAT4A forward = p_camera->getDirection();
+
+	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
 	//GeT_RiGhT;
@@ -192,31 +206,49 @@ void Enemy::_handleMovement(double deltaTime)
 	vRight = XMVector3Normalize(XMVector3Cross(vUP, vForward));
 	vForward = XMVector3Normalize(XMVector3Cross(vRight, vUP));
 
-
-
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&RIGHT, vRight);
+	float x = 0;
+	float z = 0;
 
-	float x = Input::MoveRight() * (m_movementSpeed * deltaTime) * RIGHT.x;
+	x = Input::MoveRight() * m_movementSpeed  * RIGHT.x;
+	x += Input::MoveForward() * m_movementSpeed * forward.x;
+	z = Input::MoveForward() * m_movementSpeed * forward.z;
+	z += Input::MoveRight() * m_movementSpeed * RIGHT.z;
 
-	x += Input::MoveForward() * (m_movementSpeed * deltaTime) * forward.x;
-	//walkBob += x;
-
-	float z = Input::MoveForward() * (m_movementSpeed * deltaTime) * forward.z;
-
-	z += Input::MoveRight() * (m_movementSpeed * deltaTime) * RIGHT.z;
-
-	x = Transform::getPosition().x + x;
-	z = Transform::getPosition().z + z;
-
-	Transform::setPosition(x, getPosition().y, z);
+	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
 void Enemy::_handleRotation(double deltaTime)
 {
-	p_camera->Rotate((Input::TurnUp()*-1) * 5 * deltaTime, 0.0f, 0.0f);
-
-	p_camera->Rotate(0.0f, Input::TurnRight() * 5 * deltaTime, 0.0f);
+	if (!unlockMouse)
+	{
+		float deltaY = Input::TurnUp();
+		float deltaX = Input::TurnRight();
+		if (deltaX && !Input::PeekRight())
+		{
+			p_camera->Rotate(0.0f, deltaX * m_camSensitivity * deltaTime, 0.0f);
+		}
+		if (deltaY)
+		{
+			if ((p_camera->getDirection().y - deltaY * m_camSensitivity * deltaTime) < 0.90f)
+			{
+				p_camera->Rotate(deltaY * m_camSensitivity * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y >= 0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
+			}
+			if ((p_camera->getDirection().y - deltaY * m_camSensitivity * deltaTime) > -0.90f)
+			{
+				p_camera->Rotate(deltaY * m_camSensitivity * deltaTime, 0.0f, 0.0f);
+			}
+			else if (p_camera->getDirection().y <= -0.90f)
+			{
+				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
+			}
+		}
+	}
 }
 
 void Enemy::_TempGuardPath(bool x, double deltaTime)
@@ -276,7 +308,6 @@ std::vector<Node*> Enemy::GetPathVector()
 	return m_path;
 }
 
-
 void Enemy::_possessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
@@ -287,17 +318,87 @@ void Enemy::_possessed(double deltaTime)
 			{
 				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
 				m_possessor = nullptr;
+				this->CreateBox(1,1,1);
+				if (m_kp.crouching)
+				{
+					this->setPosition(this->getPosition().x, this->getPosition().y + 0.9, this->getPosition().z, 1);
+				}
+				else
+				{
+					this->setPosition(this->getPosition().x, this->getPosition().y + 0.5, this->getPosition().z, 1);
+				}
+				this->getBody()->SetType(e_staticBody);
+				this->getBody()->SetAwake(false);
 			}
 			else if(m_maxPossessDuration <= 0)
 			{
 				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
 				m_possessor = nullptr;
+				this->getBody()->SetType(e_staticBody);
+				this->getBody()->SetAwake(false);
 			}
 		}
 		else
 			m_possessReturnDelay -= deltaTime;
 
 		m_maxPossessDuration -= deltaTime;
+	}
+}
+
+void Enemy::_onJump()
+{
+	if (Input::Jump())
+	{
+		if (m_kp.jump == false)
+		{
+			addForceToCenter(0, JUMP_POWER, 0);
+			m_kp.jump = true;
+		}
+	}
+	else
+	{
+		m_kp.jump = false;
+	}
+}
+
+void Enemy::_onCrouch()
+{
+	if (Input::Crouch())
+	{
+		if (m_kp.crouching == false)
+		{
+			m_standHeight = this->p_camera->getPosition().y;
+			this->CreateBox(0.5f, 0.10f, 0.5f);
+			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+			m_kp.crouching = true;
+		}
+	}
+	else
+	{
+		if (m_kp.crouching)
+		{
+			m_standHeight = this->p_camera->getPosition().y;
+			this->CreateBox(0.5, 0.5, 0.5);
+			this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+			m_kp.crouching = false;
+		}
+	}
+}
+
+void Enemy::_onSprint()
+{
+	if (Input::Sprinting())
+	{
+		m_movementSpeed = MOVE_SPEED * SPRINT_MULT;
+	}
+	else
+	{
+		m_movementSpeed = MOVE_SPEED;
+	}
+
+	if (m_kp.crouching)
+	{
+		m_movementSpeed = MOVE_SPEED * 0.5f;
 	}
 }
 
