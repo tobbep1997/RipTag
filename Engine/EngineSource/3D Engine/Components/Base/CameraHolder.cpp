@@ -21,7 +21,7 @@ double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double mov
 	}
 	else
 	{
-		m_stopBob += deltaTime * 2.0f; 
+		m_stopBob += deltaTime * 1.5f; 
 		m_offset = m_stopAmp * sin(m_stopFreq * m_stopBob);
 	}
 

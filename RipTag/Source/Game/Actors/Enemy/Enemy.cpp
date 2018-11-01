@@ -408,7 +408,7 @@ void Enemy::_onCrouch()
 		}
 	}
 
-	if (m_kp.crouching && m_toggleSprint != 1)
+	if (m_kp.crouching)
 	{
 		m_moveSpeed = MOVE_SPEED * 0.5f;
 	}

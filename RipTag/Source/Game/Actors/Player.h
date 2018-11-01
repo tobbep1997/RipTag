@@ -42,7 +42,7 @@ private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
-	const float JUMP_POWER = 400.0f;
+	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 2.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
