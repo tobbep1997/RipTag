@@ -230,7 +230,6 @@
     <ClCompile Include="EngineSource\3D Engine\Components\Base\Transform.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Components\Temp.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />

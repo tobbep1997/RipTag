@@ -51,7 +51,6 @@
     <ClCompile Include="EngineSource\Window\window.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Components\Temp.cpp" />
     <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
