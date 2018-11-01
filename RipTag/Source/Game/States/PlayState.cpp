@@ -161,6 +161,11 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+	m_step.dt = deltaTime;
+	m_step.velocityIterations = 2;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
 	pressureplate->Update(deltaTime);
 	lever->Update(deltaTime);
 	triggerHandler->Update(deltaTime);
@@ -183,15 +188,11 @@ void PlayState::Update(double deltaTime)
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
 	m_playerManager->Update(deltaTime);
-	m_levelHandler.Update(deltaTime);
+
 	model->getAnimatedModel()->Update(deltaTime);
 	
-	m_step.dt = deltaTime;
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
-	m_firstRun = false;
-	m_contactListener->ClearContactQueue();
-	m_world.Step(m_step);
+	
+
 	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
