@@ -71,7 +71,10 @@ void Room::UnloadRoomFromMemory()
 			delete m_pointLights[i];
 		m_staticAssets.clear();
 		m_pointLights.clear();
-		
+
+		CollisionBoxes->Release(*RipExtern::g_world);
+		delete CollisionBoxes;
+
 		m_roomLoaded = false;
 	}
 }
@@ -79,7 +82,7 @@ void Room::UnloadRoomFromMemory()
 void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
-
+	std::cout << m_assetFilePath << std::endl;
 	if (m_roomLoaded == false)
 	{
 		MyLibrary::Loadera fileLoader;

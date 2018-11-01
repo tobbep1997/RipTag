@@ -156,7 +156,11 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		/*m_loadMutex.lock();
 		m_loadingQueue.push_back(current - 1);
 		m_loadMutex.unlock();*/
-		//m_rooms.at(current - 1)->UnloadRoomFromMemory();
+		if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
+		{
+			m_rooms.at(current - 1)->UnloadRoomFromMemory();
+		}
+		
 	}
 	
 
@@ -170,7 +174,11 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		//m_loadMutex.lock();
 		//m_loadingQueue.push_back(current + 1);
 		//m_loadMutex.unlock();
-		//m_rooms.at(current + 1)->UnloadRoomFromMemory();
+		if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
+		{
+			m_rooms.at(current + 1)->UnloadRoomFromMemory();
+		}
+		
 	}
 
 	//if ((current + 2) < m_rooms.size())
