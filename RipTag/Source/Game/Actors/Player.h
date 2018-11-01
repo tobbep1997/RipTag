@@ -71,7 +71,7 @@ private:
 	
 public:
 	//Magic number
-	static const int g_fullVisability = 2800;
+	static const int g_fullVisability = 2300;
 
 
 	bool unlockMouse = false;

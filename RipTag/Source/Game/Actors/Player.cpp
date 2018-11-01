@@ -432,10 +432,10 @@ void Player::_onRotate(double deltaTime)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
 			}
-			//std::cout << p_camera->getDirection().x << " :" <<p_camera->getDirection().y << " :" << p_camera->getDirection().z << std::endl;
+		
 			
 		}
-		//ImGui::Begin("ro");
+		
 	}
 }
 
