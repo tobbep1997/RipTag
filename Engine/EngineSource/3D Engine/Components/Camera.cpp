@@ -5,7 +5,9 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	using namespace DirectX;
 	XMMATRIX mInv = XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_view));
 	XMVECTOR rot{};
-	XMMatrixDecompose(nullptr, &rot, nullptr, mInv);
+	XMVECTOR scale{};
+	XMVECTOR translation{};
+	XMMatrixDecompose(&scale, &rot, &translation, mInv);
 	XMFLOAT4A q;
 	XMStoreFloat4A(&q, rot);
 
