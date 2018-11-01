@@ -18,7 +18,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::~Room()
 {
-	delete m_grid.gridPoints;
+	
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -71,7 +71,7 @@ void Room::UnloadRoomFromMemory()
 			delete m_pointLights[i];
 		m_staticAssets.clear();
 		m_pointLights.clear();
-
+		delete m_grid.gridPoints;
 		m_roomLoaded = false;
 	}
 }

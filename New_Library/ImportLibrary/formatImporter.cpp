@@ -446,10 +446,10 @@ namespace MyLibrary
 		std::string newFileName = "../Assets/";
 		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
 		std::ifstream customGridFile(newFileName, std::ifstream::binary);
-
+		
 		if (customGridFile.is_open())
 		{
-			fileIsOpen = true; // ya its open
+		
 
 			customGridFile.read((char*)&gridPos.maxX, sizeof(int)); // what is happening here?!! i just copied this code
 			customGridFile.read((char*)&gridPos.maxY, sizeof(int)); // what is happening here?!! i just copied this code
