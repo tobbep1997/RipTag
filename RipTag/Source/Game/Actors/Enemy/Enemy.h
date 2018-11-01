@@ -30,6 +30,9 @@ private:
 	std::vector<Node*> m_path;
 
 	float m_guardSpeed = 1.5;
+
+	float m_visCounter;
+	float m_visabilityTimer = 0.6f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -81,5 +84,7 @@ private:
 	void _possessed(double deltaTime);
 
 	bool _MoveTo(Node * nextNode, double deltaTime);
+
+	void _CheckPlayer(double deltaTime);
 };
 
