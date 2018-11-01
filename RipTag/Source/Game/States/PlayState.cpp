@@ -56,6 +56,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 
