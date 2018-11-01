@@ -1,18 +1,17 @@
 #include "BlinkAbility.h"
 #include "../Actors/Player.h"
-
+#include "../../../RipTagExtern/RipExtern.h"
 
 BlinkAbility::BlinkAbility()
 {
 	m_bState = Blink;
 	m_useFunctionCalled = false;
-	this->m_rayListener = new RayCastListener();
+	setManaCost(MANA_COST);
 }
 
 
 BlinkAbility::~BlinkAbility()
 {
-	delete this->m_rayListener;
 }
 
 void BlinkAbility::Init()
@@ -50,31 +49,40 @@ void BlinkAbility::_logic(double deltaTime)
 				cooldown += deltaTime;
 			break;
 		case BlinkState::Blink:
-			this->m_rayListener->shotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), RANGE);
-			if ((int)this->m_rayListener->bodyUserData == 1)
+			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				pPointer->setPosition(
-					this->m_rayListener->contactPoint.x + (
-					(abs(this->m_rayListener->contactPoint.x - this->m_rayListener->shape->GetBody()->GetTransform().translation.x) * 2) *
-						(-this->m_rayListener->normal.x)),
-					pPointer->getPosition().y,
-					this->m_rayListener->contactPoint.z + (
-					(abs(this->m_rayListener->contactPoint.z - this->m_rayListener->shape->GetBody()->GetTransform().translation.z) * 2) *
-						(-this->m_rayListener->normal.z))
-				);
-				if (this->m_rayListener->normal.y != 0)
+				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, "BLINK_WALL");
+				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 				{
-					pPointer->setPosition(
-						pPointer->getPosition().x,
-						this->m_rayListener->contactPoint.y + (
-						(abs(this->m_rayListener->contactPoint.y - this->m_rayListener->shape->GetBody()->GetTransform().translation.y) * 2) *
-							(-this->m_rayListener->normal.y)),
-						pPointer->getPosition().z
-					);
+					if(con.originBody->GetObjectTag() == "PLAYER")
+					{
+						if(con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+						{
+							pPointer->setPosition(
+								con.contactPoint.x + (
+								(abs(con.contactPoint.x - con.contactShape->GetBody()->GetTransform().translation.x) * 2) *
+									(-con.normal.x)),
+								pPointer->getPosition().y,
+								con.contactPoint.z + (
+								(abs(con.contactPoint.z - con.contactShape->GetBody()->GetTransform().translation.z) * 2) *
+									(-con.normal.z))
+							);
+							if (con.normal.y != 0)
+							{
+								pPointer->setPosition(
+									pPointer->getPosition().x,
+									con.contactPoint.y + (
+									(abs(con.contactPoint.y - con.contactShape->GetBody()->GetTransform().translation.y) * 2) *
+										(-con.normal.y)),
+									pPointer->getPosition().z
+								);
+							}
+							((Player*)p_owner)->DrainMana(getManaCost());
+							m_bState = BlinkState::Wait;
+						}
+					}
 				}
-				m_bState = BlinkState::Wait;
 			}
-			this->m_rayListener->clear();
 			break;
 		}
 	}

@@ -2,6 +2,7 @@
 #include <Multiplayer.h>
 #include "Actor.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
+#include "EngineSource/3D Engine/Components/StateMachine.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include <functional>
 #include "../../Input/Input.h"
@@ -35,11 +36,18 @@ struct KeyPressed
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
 {
+private: //stuff for state machine
+	friend class PlayState;
+	bool m_jumpedThisFrame = false;
+	bool m_isInAir = false;
+	float m_currentSpeed = 0.0f; //[0,1]
+	float m_currentDirection = 0.0; //[-1,1]
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 10.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
+	const float INTERACT_RANGE = 2.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
 private:
@@ -52,11 +60,10 @@ private:
 	float m_moveSpeed = 2.0f;
 	float m_cameraSpeed = 1.0f;
 	KeyPressed m_kp;
-
+	
 	float m_visability = 0.0f;
 
 	bool m_lockPlayerInput;
-	RayCastListener* m_rayListener;
 
 	int mouseX = 0;
 	int mouseY = 0;
@@ -101,7 +108,6 @@ public:
 	bool IsInputLocked();
 	void UnlockPlayerInput();
 
-	int getPossessState();
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 

@@ -5,6 +5,7 @@
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"
+#include "../../Pathfinding/Grid.h"
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
@@ -23,6 +24,12 @@ private:
 	float distance = 0.1f;
 	float m_speed = 0.5f;
 	Actor* m_possessor;
+	float m_possessReturnDelay;
+	float m_maxPossessDuration;
+
+	std::vector<Node*> m_path;
+
+	float m_guardSpeed = 1.5;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -58,7 +65,11 @@ public:
 
 	Enemy * validate();
 
-	void setPossessor(Actor* possessor);
+	void setPossessor(Actor* possessor, float maxDuration, float delay);
+	void removePossessor();
+
+	void SetPathVector(std::vector<Node*>  path);
+	std::vector<Node*> GetPathVector();
 private:
 
 	void _handleInput(double deltaTime);
@@ -67,6 +78,8 @@ private:
 	void _handleRotation(double deltaTime);
 
 	void _TempGuardPath(bool x, double deltaTime);
-	void _possessed();
+	void _possessed(double deltaTime);
+
+	bool _MoveTo(Node * nextNode, double deltaTime);
 };
 

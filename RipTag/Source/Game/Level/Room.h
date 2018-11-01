@@ -8,6 +8,8 @@
 #include "../Actors/Enemy/Enemy.h"
 #include "../Actors/Player.h"
 #include "../../New_Library/ImportLibrary/FormatHeader.h"
+#include "../Pathfinding/Grid.h"
+
 class Room
 {
 private:
@@ -27,8 +29,8 @@ private:
 	float m_playerStartPos;
 
 	MyLibrary::GridStruct m_grid;
-
-
+	Grid m_pathfindingGrid;
+	
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
 
@@ -70,6 +72,9 @@ public:
 	//Memory Management
 	void UnloadRoomFromMemory();
 	void LoadRoomToMemory();
+
+	// Test section
+	void getPath();
 private:
 
 	

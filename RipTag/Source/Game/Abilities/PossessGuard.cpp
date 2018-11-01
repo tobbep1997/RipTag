@@ -1,18 +1,18 @@
 #include "PossessGuard.h"
 #include "../Actors/Player.h"
 #include "../Handlers/CameraHandler.h"
+#include "../../../RipTagExtern/RipExtern.h"
 
 PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 {
 	m_pState = Possess;
 	m_useFunctionCalled = false;
-	this->m_rayListener = new RayCastListener();
+	setManaCost(MANA_COST_START);
 }
 
 PossessGuard::~PossessGuard()
 {
 	possessTarget = nullptr;
-	delete this->m_rayListener;
 }
 
 void PossessGuard::Init()
@@ -33,11 +33,6 @@ void PossessGuard::Draw()
 {
 }
 
-int PossessGuard::getPossessState()
-{
-	return m_pState;
-}
-
 void PossessGuard::_logic(double deltaTime)
 {
 	if (m_useFunctionCalled) // the Use() function were called last frame
@@ -55,38 +50,33 @@ void PossessGuard::_logic(double deltaTime)
 				cooldown += deltaTime;
 			break;
 		case PossessGuard::Possessing:
-			if (cooldown >= COOLDOWN_POSSESSING_MAX)
-			{
-				m_pState = PossessGuard::Return;
-				cooldown = 0;
-			}
-			else
-				cooldown += deltaTime;
-			break;
-		case PossessGuard::Possess:
-
-			if (this->m_rayListener->shotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE))
-			{
-				if (this->m_rayListener->shape->GetBody()->GetObjectTag() == "Enemy")
-				{
-					this->possessTarget = static_cast<Enemy*>(this->m_rayListener->bodyUserData);
-					this->possessTarget->UnlockEnemyInput();
-					this->possessTarget->setPossessor(pPointer);
-					pPointer->LockPlayerInput();
-					CameraHandler::setActiveCamera(this->possessTarget->getCamera());
-					m_pState = PossessGuard::Possessing;
-				}
-				this->m_rayListener->clear();
-			}
-			break;
-		case PossessGuard::Return:
-			if (!static_cast<Player*>(p_owner)->IsInputLocked())
-			{
 				this->possessTarget->LockEnemyInput();
-				//static_cast<Player*>(p_owner)->UnlockPlayerInput();
 				CameraHandler::setActiveCamera(static_cast<Player*>(p_owner)->getCamera());
 				this->possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
+				cooldown = 0;
+			
+			break;
+		case PossessGuard::Possess:
+			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
+			{
+				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, "Enemy");
+
+				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+				{
+					if (con.originBody->GetObjectTag() == "PLAYER" &&
+						con.contactShape->GetBody()->GetObjectTag() == "Enemy")
+					{
+						((Player*)p_owner)->DrainMana(getManaCost());
+						this->possessTarget = static_cast<Enemy*>(con.contactShape->GetBody()->GetUserData());
+						this->possessTarget->UnlockEnemyInput();
+						this->possessTarget->setPossessor(pPointer, 20, 1);
+						pPointer->LockPlayerInput();
+						CameraHandler::setActiveCamera(this->possessTarget->getCamera());
+						m_pState = PossessGuard::Possessing;
+						cooldown = 0;
+					}
+				}
 			}
 			break;
 		}
@@ -96,13 +86,23 @@ void PossessGuard::_logic(double deltaTime)
 		switch (m_pState)
 		{
 		case PossessGuard::Possessing:
-			if (cooldown >= COOLDOWN_POSSESSING_MAX)
+			if (!static_cast<Player*>(p_owner)->IsInputLocked()) //Player is Returning to body
 			{
-				m_pState = PossessGuard::Return;
+				this->possessTarget->LockEnemyInput();
+				CameraHandler::setActiveCamera(static_cast<Player*>(p_owner)->getCamera());
+				this->possessTarget = nullptr;
+				m_pState = PossessGuard::Wait;
+			}
+			else if (!((Player*)p_owner)->CheckManaCost(getManaCost())) //out of mana
+			{
+				this->possessTarget->removePossessor();
+			}
+			else if(cooldown >= MANA_COST_TICK_RATE)
+			{
+				((Player*)p_owner)->DrainMana(getManaCost());
 				cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
+			cooldown +=deltaTime;
 			break;
 		case PossessGuard::Wait:
 			if (cooldown >= COOLDOWN_WAIT_MAX)
@@ -113,15 +113,6 @@ void PossessGuard::_logic(double deltaTime)
 			else
 				cooldown += deltaTime;
 
-			break;
-		case PossessGuard::Return:	
-			if (!static_cast<Player*>(p_owner)->IsInputLocked())
-			{
-				this->possessTarget->LockEnemyInput();
-				CameraHandler::setActiveCamera(static_cast<Player*>(p_owner)->getCamera());
-				this->possessTarget = nullptr;
-				m_pState = PossessGuard::Wait;
-			}
 			break;
 		}
 	

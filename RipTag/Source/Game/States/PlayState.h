@@ -10,35 +10,45 @@
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
+#include "../../../Engine/EngineSource/3D Engine/Extern.h"
 
 
 //lua 
 #include <LuaTalker.h>
 #include "../../Physics/Wrapper/ContactListener.h"
+#include "../../Physics/Wrapper/RayCastListener.h"
 
+#include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"
 
+#include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Objects/Lever.h"
+#include "../../Gameplay/Objects/Door.h"
 
 class PlayState : public State
 {
 private:
 	LevelHandler m_levelHandler;
 	ContactListener * m_contactListener;
+	RayCastListener * m_rayListener;
 
 	Player * player;
 
 	b3World m_world;
 
+	TriggerHandler *	triggerHandler;
+	PressurePlate *		pressureplate;
+	Lever *				lever;
+	Door *				door;
 	float intensity = 2;
-		
 	Drawable * model;
-	//std::future<void> future;
-	//std::thread test;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
 
+
 public:
+
 	PlayState(RenderingManager * rm);
 	~PlayState();
 
