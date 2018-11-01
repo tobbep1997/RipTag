@@ -127,6 +127,9 @@ void Enemy::Update(double deltaTime)
 				_MoveTo(m_path.at(0), deltaTime);
 			}
 		}
+
+		_CheckPlayer(deltaTime);
+
 	}
 }
 
@@ -322,4 +325,47 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 		return false;
 	}
+}
+
+void Enemy::_CheckPlayer(double deltaTime)
+{
+	if (m_allowVisability)
+	{
+		float visPres = (float)m_vc.getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+
+
+		if (visPres > 0)
+		{
+			m_visCounter += visPres * deltaTime;
+			if (m_visabilityTimer <= m_visCounter)
+			{
+				//std::cout << "FOUND YOU BITCH" << std::endl;
+			}
+		}
+		else
+		{
+			
+			if (m_visCounter - deltaTime > 0)
+			{
+				m_visCounter -= deltaTime;
+			}
+			else
+			{
+				m_visCounter = 0;
+			}
+		}
+
+	}
+	else
+	{
+		if (m_visCounter - deltaTime > 0)
+		{
+			m_visCounter -= deltaTime;
+		}
+		else
+		{
+			m_visCounter = 0;
+		}
+	}
+
 }
