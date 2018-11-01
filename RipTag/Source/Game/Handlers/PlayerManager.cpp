@@ -91,6 +91,10 @@ void PlayerManager::Update(float dt)
 			mLocalPlayer->SendOnUpdateMessage();
 		}
 	}
+
+	std::cout << "X: " << mLocalPlayer->getPosition().x << " Y: " << mLocalPlayer->getPosition().y << " Z: " << mLocalPlayer->getPosition().z << std::endl;
+
+
 }
 
 void PlayerManager::PhysicsUpdate()

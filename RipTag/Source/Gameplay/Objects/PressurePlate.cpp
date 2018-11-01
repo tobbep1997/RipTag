@@ -30,7 +30,7 @@ void PressurePlate::Update(double deltaTime)
 
 	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
 	{
-		if (con.a->GetBody()->GetObjectTag() == "PLAYER" &&
+		if ((con.a->GetBody()->GetObjectTag() == "PLAYER" || con.a->GetBody()->GetObjectTag() == "ENEMY") &&
 			con.b->GetBody()->GetObjectTag() == "PressurePlate")
 		{
 			p_trigger(false);
@@ -38,7 +38,7 @@ void PressurePlate::Update(double deltaTime)
 	}
 	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
 	{
-		if (con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" &&
+		if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") &&
 			con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate")
 		{
 			p_trigger(true);

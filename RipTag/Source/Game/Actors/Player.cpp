@@ -637,7 +637,6 @@ void Player::_onInteract()
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						//std::cout << "Lever Found!" << std::endl;
 						//Pull Levers
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")

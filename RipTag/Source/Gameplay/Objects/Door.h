@@ -1,7 +1,7 @@
 #pragma once
 #include "../Triggers/Triggerble.h"
-#include "EngineSource/3D Engine/Components/Base/Drawable.h"
-class Door : public Triggerble, public Drawable
+#include "../../Game/Actors/BaseActor.h"
+class Door : public Triggerble, public BaseActor
 {
 public:
 	Door();

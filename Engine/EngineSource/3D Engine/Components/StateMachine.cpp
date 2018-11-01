@@ -122,7 +122,6 @@ namespace SM
 			m_BlendFromState = m_CurrentState;
 			m_CurrentState = state.first;
 		}
-		//Pls there are more people then just you
 		//std::cout << m_CurrentState->GetName() << std::endl;
 	}
 

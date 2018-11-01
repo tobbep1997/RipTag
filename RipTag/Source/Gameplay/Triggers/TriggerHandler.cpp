@@ -4,11 +4,23 @@
 
 bool TriggerHandler::_triggerd(TriggerPairs * triggers)
 {
-	bool ret = true;
-	for (int i = 0; i < triggers->triggers.size() && ret; i++)	
-		if (!triggers->triggers[i]->Triggerd())
-			ret = false;
-	
+	bool ret;
+	if (triggers->seperate)
+	{
+		ret = false;
+		for (int i = 0; i < triggers->triggers.size() && !ret; i++)
+		{
+			if (triggers->triggers[i]->Triggerd())
+				ret = true;
+		}
+	}
+	else
+	{
+		ret = true;
+		for (int i = 0; i < triggers->triggers.size() && ret; i++)
+			if (!triggers->triggers[i]->Triggerd())
+				ret = false;
+	}	
 	return ret;
 }
 
@@ -46,10 +58,11 @@ void TriggerHandler::Update(double deltaTime)
 	}
 }
 
-void TriggerHandler::AddPair(std::vector<Trigger*> & triggers, std::vector<Triggerble*> & triggerable)
+void TriggerHandler::AddPair(std::vector<Trigger*> & triggers, std::vector<Triggerble*> & triggerable, bool seperate)
 {
 	TriggerPairs * triggerPair = new TriggerPairs();
 	triggerPair->triggers = triggers;
 	triggerPair->triggerble = triggerable;
+	triggerPair->seperate = seperate;
 	m_triggers.push_back(triggerPair);
 }
