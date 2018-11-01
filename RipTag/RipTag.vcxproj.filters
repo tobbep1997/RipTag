@@ -37,6 +37,7 @@
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
+    <ClCompile Include="Source\Game\Handlers\AnimationHandler.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
+    <ClInclude Include="Source\Game\Handlers\AnimationHandler.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
     <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />

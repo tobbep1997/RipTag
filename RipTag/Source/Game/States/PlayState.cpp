@@ -4,6 +4,7 @@
 #include "EngineSource/Helper/Timer.h"
 #include "ImportLibrary/formatImporter.h"
 #include "../RipTagExtern/RipExtern.h"
+#include "../Handlers/AnimationHandler.h"
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
@@ -28,6 +29,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 //	future.get();
@@ -42,11 +46,22 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 
 	model = new Drawable();
-	model->setEntityType(EntityType::PlayerType);
-	model->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	model->setScale(0.5, 0.5, 0.5);
+	model->setEntityType(EntityType::GuarddType);
+	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	model->setScale(0.05, 0.05, 0.05);
+	model->setPosition({ 0.0, -11.0, 0.0, 1.0 });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
+	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
+	auto fwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION");
+	auto bwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION");
+	auto lft_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION");
+	auto rgt_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION");
+	auto jmp_clip = Manager::g_animationManager.getAnimation("STATE", "JUMP_ANIMATION");
+	model->getAnimatedModel()->SetPlayingClip(idle_clip.get());
+	model->getAnimatedModel()->Play();
+	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
+	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
 
 	
 	m_levelHandler.setPlayer(player);
@@ -119,6 +134,7 @@ void PlayState::Update(double deltaTime)
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
+
 #if _DEBUG
 	TemporaryLobby();
 #endif
@@ -151,11 +167,11 @@ void PlayState::Update(double deltaTime)
 	if (!player->unlockMouse)
 	{
 		Input::ResetMouse();
-		InputHandler::setShowCursor(NEIN);
+		InputHandler::setShowCursor(FALSE);
 	}
 	else
 	{
-		InputHandler::setShowCursor(JAAH);
+		InputHandler::setShowCursor(TRUE);
 	}
 
 

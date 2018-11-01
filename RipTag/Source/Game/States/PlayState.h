@@ -10,6 +10,7 @@
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
+#include "../../../Engine/EngineSource/3D Engine/Extern.h"
 
 
 //lua 
@@ -40,7 +41,6 @@ private:
 	Lever *				lever;
 	Door *				door;
 	float intensity = 2;
-		
 	Drawable * model;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
@@ -48,6 +48,7 @@ private:
 
 
 public:
+
 	PlayState(RenderingManager * rm);
 	~PlayState();
 
