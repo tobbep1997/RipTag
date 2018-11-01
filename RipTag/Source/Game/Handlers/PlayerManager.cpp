@@ -137,7 +137,7 @@ void PlayerManager::SendOnPlayerCreate()
 	{
 		DirectX::XMFLOAT4A pos = mLocalPlayer->getPosition();
 		DirectX::XMFLOAT4A scale = DirectX::XMFLOAT4A(0.03f, 0.03f, 0.03f, 1.0f);
-		DirectX::XMFLOAT4A rot = mLocalPlayer->getEulerRotation();
+		DirectX::XMFLOAT4A rot = {0.0, DirectX::XM_PI, 0.0, 0.0};
 
 		Network::CREATEPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CREATE,
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
