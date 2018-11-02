@@ -184,7 +184,7 @@ void DisableAbility::_inStateMoving(double dt)
 	{
 		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
 		{
-			if (contact->GetShapeB()->GetBody()->GetObjectTag() == "Enemy")
+			if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
 			{
 				Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
 				temp->DisableEnemy();
