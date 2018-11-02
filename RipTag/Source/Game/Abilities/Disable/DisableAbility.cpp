@@ -191,7 +191,7 @@ void DisableAbility::_inStateMoving(double dt)
 				m_dState = DisableState::Throwable;
 				this->setPosition(-999.9f, -999.9f, -999.9f);
 				this->_sendOnHitNotification();
-				return;
+				
 			}
 		}
 	}
