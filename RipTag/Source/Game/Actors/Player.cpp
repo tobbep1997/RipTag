@@ -266,7 +266,7 @@ const AudioEngine::Listener & Player::getFMODListener() const
 	return m_FMODlistener;
 }
 
-bool Player::DrainMana(const int& manaCost)
+bool Player::DrainMana(const float& manaCost)
 {
 	if (manaCost <= m_currentMana)
 	{
@@ -279,11 +279,11 @@ bool Player::DrainMana(const int& manaCost)
 	}
 }
 
-void Player::RefillMana(const int& manaFill)
+void Player::RefillMana(const float& manaFill)
 {
 	m_currentMana += manaFill;
 
-	int rest = m_maxMana - m_currentMana;
+	float rest = m_maxMana - m_currentMana;
 	if (rest < 0)
 	{
 		m_currentMana += rest;
@@ -641,23 +641,29 @@ void Player::_onInteract()
 				{
 					if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
 					{
+						*con.consumeState += 1;
 						//do the pickups
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
+						*con.consumeState+=1;
+						std::cout << "Lever Found!" << std::endl;
 						//Pull Levers
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
+						*con.consumeState += 1;
 						//Snuff out torches (example)
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
+						*con.consumeState += 1;
 						//std::cout << "Enemy Found!" << std::endl;
 						//Snuff out torches (example)
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
+						*con.consumeState += 1;
 						//std::cout << "illusory wall ahead" << std::endl;
 						//Snuff out torches (example)
 					}
