@@ -67,7 +67,16 @@ Camera * Enemy::getCamera()
 
 const int * Enemy::getPlayerVisibility() const
 {
-	return m_vc.getVisibilityForPlayers();
+	if (m_allowVisability)
+	{
+		return m_vc.getVisibilityForPlayers();
+	}
+	else
+	{
+		int temp[2] = { 0,0 };
+
+		return temp;
+	}
 }
 
 void Enemy::CullingForVisability(const Transform& player)
@@ -134,8 +143,6 @@ void Enemy::Update(double deltaTime)
 		_CheckPlayer(deltaTime);
 
 	}
-	else
-		setPosition(-999, -999, -999);
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)

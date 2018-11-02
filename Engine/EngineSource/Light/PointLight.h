@@ -54,6 +54,7 @@ public:
 	void setFarPlane(float farPlane);
 	
 	float getDistanceFromCamera(Camera & camera);
+	float getDistanceFromObject(const DirectX::XMFLOAT4A & oPos);
 	const DirectX::XMFLOAT4A & getPosition() const;
 	const DirectX::XMFLOAT4A & getColor() const;
 	const std::vector<Camera *> & getSides() const;

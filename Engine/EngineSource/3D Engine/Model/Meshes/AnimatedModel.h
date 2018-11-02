@@ -109,7 +109,7 @@ namespace Animation
 		uint8_t m_framerate;
 
 		AnimationClip() : m_frameCount(0), m_framerate(24){};
-		AnimationClip(size_t frameCount, size_t jointCount)
+		AnimationClip(uint8_t frameCount, uint8_t jointCount)
 			: m_frameCount(frameCount), m_framerate(24)
 		{
 			m_skeletonPoses = std::make_unique<SkeletonPose[]>(frameCount);

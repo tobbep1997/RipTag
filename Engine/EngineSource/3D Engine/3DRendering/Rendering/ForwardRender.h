@@ -120,6 +120,7 @@ private:
 	void _GuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
+	void _GuardLightCulling();
 
 	void _createConstantBuffer();
 	void _createSamplerState();

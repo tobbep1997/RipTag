@@ -64,6 +64,8 @@ private:
 
 	float m_visCounter;
 	float m_visabilityTimer = 0.6f;
+
+	
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
