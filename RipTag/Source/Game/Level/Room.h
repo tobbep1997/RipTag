@@ -60,6 +60,7 @@ private:
 	TriggerHandler * triggerHandler;
 	std::vector<BaseActor*> baseActors;
 	std::vector<PressurePlate*> triggers;
+	std::vector<Lever*> levers;
 	
 
 	std::vector<const int*> vis;

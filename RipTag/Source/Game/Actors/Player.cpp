@@ -135,6 +135,7 @@ void Player::Update(double deltaTime)
 {
 	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
 	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
+	//std::cout << getPosition().x << " " << getPosition().y << " " << getPosition().z << std::endl;
 
 	using namespace DirectX;
 
@@ -651,7 +652,7 @@ void Player::_onInteract()
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						//Pull Levers
+						std::cout << "hello";
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{

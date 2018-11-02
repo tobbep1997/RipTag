@@ -26,23 +26,34 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	door->Init(*m_worldPtr, e_staticBody);
-	door->setPos(DirectX::XMFLOAT4A(-10.46f, 4.306f, -7.692f,1), DirectX::XMFLOAT4A(-9.46f, 4.306f, -7.692f, 1));
+	door->setPos(DirectX::XMFLOAT4A(-25.46f, 4.306f, -7.692f,1), DirectX::XMFLOAT4A(-9.46f, 4.306f, -7.692f, 1));
 	pressurePlate = new PressurePlate();
-	pressurePlate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	pressurePlate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_textureManager.loadTextures("PRESSUREPLATE");
+	pressurePlate->setScale(2, 1, 2);
+	pressurePlate->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
+	pressurePlate->setTexture(Manager::g_textureManager.getTexture("PRESSUREPLATE"));
 	pressurePlate->Init();
-	pressurePlate->setPos(DirectX::XMFLOAT4A(7.327f, 3.984f, 13.764f, 1), DirectX::XMFLOAT4A(7.327f, 3.8f, 13.764f, 1));
+	pressurePlate->setPos(DirectX::XMFLOAT4A(7.327f, 4.294f, 13.764f, 1), DirectX::XMFLOAT4A(7.327f, 4.2f, 13.764f, 1));
 	
+	lever = new Lever();
+	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	lever->Init();
+	lever->setPosition(5, 10, 5);
 	
 	std::vector<Trigger*> t0;
 	std::vector<Triggerble*> t1;
 	t0.push_back(pressurePlate);
+	t0.push_back(lever);
 	t1.push_back(door);
 
-	triggerHandler->AddPair(t0, t1, false);
+	triggerHandler->AddPair(t0, t1, true);
 	baseActors.push_back(door);
 	baseActors.push_back(pressurePlate);
+	baseActors.push_back(lever);
 	triggers.push_back(pressurePlate);
+	levers.push_back(lever);
 
 }
 Room::~Room()
@@ -255,6 +266,10 @@ void Room::Update(float deltaTime)
 	for (int i = 0; i < triggers.size(); i++)
 	{
 		triggers[i]->Update(deltaTime);
+	}
+	for (int i = 0; i < levers.size(); i++)
+	{
+		levers[i]->Update(deltaTime);
 	}
 }
 

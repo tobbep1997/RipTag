@@ -18,6 +18,7 @@ void Door::Triggerd(double deltaTime)
 
 void Door::unTriggerd(double deltaTime)
 {
+	std::cout << "hello1" << std::endl;
 	setPosition(pos2.x, pos2.y, pos2.z);
 }
 
