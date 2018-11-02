@@ -168,52 +168,6 @@ void Player::Update(double deltaTime)
 
 	using namespace DirectX;
 
-	//set jumpedThisFrame to false
-	m_jumpedThisFrame = false;
-
-	//calculate walk direction (-1, 1, based on camera) and movement speed
-	{
-		///Speed
-		auto physSpeed = this->getLiniearVelocity();
-		
-		//if y speed is zero, set isInAir to false,
-		if (std::abs(physSpeed.y) < 0.001f)
-			m_isInAir = false;
-
-		float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-		m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
-
-		///Walk dir
-			//Get camera direction and normalize on X,Z plane
-		auto cameraDir = p_camera->getDirection();
-		XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
-		///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
-
-		auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
-		auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
-		auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
-		auto XZMovementNormalized = XMVector3Normalize(XZMovement);
-		///AssertHasLength(XZCameraDir);
-		//AssertHasLength(XZMovement);
-
-			//Get dot product of cam dir and player movement
-		auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
-		dot = std::clamp(dot, -0.999999f, 0.999999f);
-			//Convert to degrees
-		m_currentDirection = XMConvertToDegrees(std::acos(dot));
-			//Negate if necessary
-		float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
-
-		m_currentDirection *= (inverter > 0.0)
-			? -1.0
-			: 1.0;
-		m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
-		///AssertNotNAN(m_currentDirection);
-
-	}
-
-	
-
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
@@ -359,7 +313,8 @@ void Player::SendOnUpdateMessage()
 		Network::Multiplayer::GetInstance()->GetNetworkID(),
 		PlayerState::Idle,
 		this->getPosition(),
-		this->getEulerRotation());
+		this->getCamera()->getYRotationEuler()
+		);
 
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
@@ -403,6 +358,66 @@ void Player::SendOnAbilityUsed()
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void Player::SendOnAnimationUpdate(double dt)
+{
+	using namespace DirectX;
+
+	static double accumulatedTime = 0.0;
+	static const double FREQUENCY = 1.0 / 50.0; //20 ms
+	accumulatedTime += dt;
+
+	if (accumulatedTime >= FREQUENCY)
+	{
+		accumulatedTime -= FREQUENCY;
+		
+		{
+			///Speed
+			b3Vec3 physSpeed = this->getLiniearVelocity();
+
+			//if y speed is zero, set isInAir to false,
+			if (std::abs(physSpeed.y) < 0.001f)
+				m_isInAir = false;
+
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			XMFLOAT4A cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			XMVECTOR XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			XMVECTOR XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			XMVECTOR XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			XMVECTOR XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			float dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+			///AssertNotNAN(m_currentDirection);
+		}
+		Network::ENTITYANIMATIONPACKET packet(
+			Network::ID_PLAYER_ANIMATION, 
+			Network::Multiplayer::GetInstance()->GetNetworkID(),
+			this->m_currentDirection, 
+			this->m_currentSpeed,
+			this->getCamera()->getYRotationEuler());
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::RegisterThisInstanceToNetwork()

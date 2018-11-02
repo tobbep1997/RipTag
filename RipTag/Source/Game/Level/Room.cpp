@@ -48,7 +48,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	t0.push_back(lever);
 	t1.push_back(door);
 
-	triggerHandler->AddPair(t0, t1, true);
+	triggerHandler->AddPair(t0, t1, false);
 	baseActors.push_back(door);
 	baseActors.push_back(pressurePlate);
 	baseActors.push_back(lever);
