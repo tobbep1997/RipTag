@@ -35,19 +35,14 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
 				{
-					if (Triggerd())
-					{
-						p_trigger(false);
-					}
-					else
-					{
-						p_trigger(true);
-					}
+					std::cout << "called" << std::endl;
+					p_trigger(!Triggerd());			
 					*con.consumeState +=1;
 				}
 			}
 		}
 	}
+	std::cout << Triggerd() << std::endl;
 }
 
 bool Lever::isEqual(Lever * target)

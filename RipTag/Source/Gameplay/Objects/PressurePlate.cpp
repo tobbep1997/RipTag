@@ -29,20 +29,22 @@ void PressurePlate::Update(double deltaTime)
 
 	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
 	{
-		if ((con.a->GetBody()->GetObjectTag() == "PLAYER" || con.a->GetBody()->GetObjectTag() == "ENEMY") &&
-			con.b->GetBody()->GetObjectTag() == "PressurePlate")
-		{
-			p_trigger(false);
-		}
+		if ((con.a->GetBody()->GetObjectTag() == "PLAYER" || con.a->GetBody()->GetObjectTag() == "ENEMY") ||
+			(con.b->GetBody()->GetObjectTag() == "ENEMY" || con.b->GetBody()->GetObjectTag() == "PLAYER"))
+			if ((con.a->GetBody()->GetObjectTag() == "PressurePlate") || (con.b->GetBody()->GetObjectTag() == "PressurePlate"))
+			{
+				p_trigger(false);
+			}
 	}
 	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
 	{
-		if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") &&
-			con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate")
-		{
+		if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") || 
+			(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
+			if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
+			{
 
-			p_trigger(true);
-		}
+				p_trigger(true);
+			}
 	}	
 
 	if (Triggerd())

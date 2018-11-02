@@ -22,6 +22,7 @@ public:
 		{
 			this->contactShape = contactShape;
 			this->contactPoint = point;
+			
 			this->normal = normal;
 			this->fraction = fraction;
 		};

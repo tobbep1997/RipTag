@@ -159,7 +159,7 @@ void DisableAbility::_inStateCharging(double dt)
 		{
 			m_dState = DisableState::Moving;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
-			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getPosition(), direction);
+			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
 			((Player*)p_owner)->DrainMana(getManaCost());
