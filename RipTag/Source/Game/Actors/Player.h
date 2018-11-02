@@ -90,6 +90,8 @@ private:
 
 	const int STANDARD_START_MANA = 100;
 	Quad * m_manaBar;
+	Quad * m_manaBarBackground;
+	Quad * m_manabarText;
 
 
 	
@@ -118,6 +120,8 @@ public:
 	//Networking
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
+	void SendOnAnimationUpdate(double dt);
+
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);

@@ -26,10 +26,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	RipExtern::m_rayListener = m_rayListener;
 	CameraHandler::Instance();
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-	
+	//Load assets
+	{
+
+	}
 
 	future1.get();
 	
@@ -48,6 +53,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 	

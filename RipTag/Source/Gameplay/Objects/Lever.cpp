@@ -41,6 +41,7 @@ void Lever::Update(double deltaTime)
 			}
 		}
 	}
+	//std::cout << Triggerd() << std::endl;
 }
 
 bool Lever::isEqual(Lever * target)
