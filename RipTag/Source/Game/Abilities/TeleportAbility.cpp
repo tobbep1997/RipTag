@@ -1,6 +1,8 @@
 #include "TeleportAbility.h"
 #include "../RipTagExtern/RipExtern.h"
 #include "../Actors/Player.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
+
 
 TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor()
 {
@@ -16,7 +18,7 @@ TeleportAbility::~TeleportAbility()
 
 void TeleportAbility::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
+	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -66,6 +68,7 @@ void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 			//adjust the start position based on the packets delay
 			RakNet::Time delay = RakNet::GetTime() - data->timeStamp;
 			delay *= 0.001; //delay is in ms but we are using seconds
+
 			
 			pos.x += data->velocity.x * delay;
 			pos.y += data->velocity.y * delay;
@@ -165,10 +168,14 @@ void TeleportAbility::_inStateCharging(double dt)
 		{
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
-			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getPosition(), direction);
+			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
 			((Player*)p_owner)->DrainMana(getManaCost());
+
+
+			/**/
+
 
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
@@ -188,8 +195,52 @@ void TeleportAbility::_inStateTeleportable()
 		if (Input::OnAbilityPressed())
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
+
+			DirectX::XMFLOAT4A dir;
+			dir.x = getLiniearVelocity().x;
+			dir.y = getLiniearVelocity().y;
+			dir.z = getLiniearVelocity().z;
+			dir.w = 1;
+
+			DirectX::XMFLOAT4A dir2;
+			dir2.x = -getLiniearVelocity().x;
+			dir2.y = -getLiniearVelocity().y;
+			dir2.z = -getLiniearVelocity().z;
+			dir2.w = 1;
+
+
+			RayCastListener::RayContact var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 3, true);
+			
+
+			//std::cout << "nor1 " << var.normal.x << " " << var.normal.y << " " << var.normal.z << " " << std::endl;
+			//std::cout << "nor1 " << dir.x << " " << dir.y << " " << dir.z << " " << std::endl;
+			if (var.normal.x == 0 && var.normal.y == 0 && var.normal.z == 0)
+			{
+				RayCastListener::RayContact var2 = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 3, true);
+				position.x += var2.normal.x;
+				position.y += var2.normal.y;
+				position.z += var2.normal.z;
+				//std::cout << "nor2 " << var2.normal.x << " " << var2.normal.y << " " << var2.normal.z << " " << std::endl;
+
+			}
+			else
+			{
+
+				position.x += var.normal.x;
+				position.y += var.normal.y;
+				position.z += var.normal.z;
+			}
+			
+			
+			
+
+			
+
 			position.y += 1.0f;
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
+
+			
+
 			m_tpState = TeleportAbility::Cooldown;
 		}
 	}

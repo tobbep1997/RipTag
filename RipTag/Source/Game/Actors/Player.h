@@ -55,7 +55,8 @@ private:
 
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
-
+	BlinkAbility m_blink;
+	PossessGuard m_possess;
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -85,6 +86,8 @@ private:
 
 	const int STANDARD_START_MANA = 100;
 	Quad * m_manaBar;
+
+
 	
 public:
 	//Magic number
@@ -129,8 +132,8 @@ public:
 	//This is a way of checking if we can use the ability with out current mana
 	bool CheckManaCost(const int & manaCost);
 
-	bool DrainMana(const int & manaCost);
-	void RefillMana(const int & manaFill);
+	bool DrainMana(const float & manaCost);
+	void RefillMana(const float & manaFill);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

@@ -65,8 +65,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	triggerHandler = new TriggerHandler();
 
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR at = { -29.1406, -2.82f, -15.4373f };
-	FMOD_VECTOR at2 = { -11.5999, -2.82f, -0.4889f };
+	FMOD_VECTOR at = { -29.1406f, -2.82f, -15.4373f };
+	FMOD_VECTOR at2 = { -11.5999f, -2.82f, -0.4889f };
 	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
 	AudioEngine::PlaySoundEffect(name, &at2);
 
@@ -104,7 +104,7 @@ void PlayState::Update(double deltaTime)
 	triggerHandler->Update(deltaTime);
 	m_levelHandler.Update(deltaTime);
 	m_contactListener->ClearContactQueue();
-	m_rayListener->ClearQueue();
+	m_rayListener->ClearConsumedContacts();
 	if (deltaTime <= 0.65f)
 	{
 		m_world.Step(m_step);

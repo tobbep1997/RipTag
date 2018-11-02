@@ -23,7 +23,6 @@ void PressurePlate::BeginPlay()
 {
 	
 }
-
 void PressurePlate::Update(double deltaTime)
 {
 	p_updatePhysics(this);
@@ -41,7 +40,20 @@ void PressurePlate::Update(double deltaTime)
 		if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") &&
 			con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate")
 		{
+
 			p_trigger(true);
 		}
 	}	
+
+	if (Triggerd())
+		BaseActor::setPosition(pos2.x, pos2.y, pos2.z);
+	else
+		BaseActor::setPosition(pos1.x, pos1.y, pos1.z);
+
+}
+
+void PressurePlate::setPos(DirectX::XMFLOAT4A trigg, DirectX::XMFLOAT4A unTrigg)
+{
+	pos1 = trigg;
+	pos2 = unTrigg;
 }
