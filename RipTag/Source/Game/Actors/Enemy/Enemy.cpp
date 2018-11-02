@@ -32,7 +32,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	PhysicsComponent::Init(*world, e_staticBody);
+	PhysicsComponent::Init(*world, e_dynamicBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -143,6 +143,7 @@ void Enemy::Update(double deltaTime)
 		_CheckPlayer(deltaTime);
 
 	}
+	getBody()->SetType(e_dynamicBody);
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -209,7 +210,6 @@ void Enemy::_handleMovement(double deltaTime)
 	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
-	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
 	XMVECTOR vUP = XMLoadFloat4(&UP);
