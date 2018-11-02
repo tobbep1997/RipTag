@@ -12,5 +12,6 @@ public:
 	void Init();
 	void BeginPlay() override;
 	void Update(double deltaTime) override;
+	bool isEqual(Lever* target);
 };
 

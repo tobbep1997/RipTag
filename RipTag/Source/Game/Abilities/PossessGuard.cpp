@@ -64,7 +64,7 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possess:
 			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, "Enemy");
+				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, false, "Enemy");
 
 				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 				{
@@ -103,12 +103,7 @@ void PossessGuard::_logic(double deltaTime)
 			{
 				this->possessTarget->removePossessor();
 			}
-			else if(cooldown >= MANA_COST_TICK_RATE)
-			{
-				((Player*)p_owner)->DrainMana(getManaCost());
-				cooldown = 0;
-			}
-			cooldown +=deltaTime;
+			((Player*)p_owner)->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
 		case PossessGuard::Wait:
 			if (cooldown >= COOLDOWN_WAIT_MAX)
