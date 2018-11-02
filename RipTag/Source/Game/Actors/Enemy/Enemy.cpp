@@ -290,9 +290,11 @@ void Enemy::_handleRotation(double deltaTime)
 void Enemy::_TempGuardPath(bool x, double deltaTime)
 {
 	p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
+#ifdef _DEBUG
 	ImGui::Begin("be");
 	ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
 	ImGui::End();
+#endif
 
 	setRotation(p_camera->getYRotationEuler());
 	//PhysicsComponent::p_setPositionRot(getPosition().x, getPosition().y, getPosition().z,p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
