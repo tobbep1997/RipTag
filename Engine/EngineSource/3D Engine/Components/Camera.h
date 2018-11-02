@@ -69,7 +69,7 @@ public:
 	const float & getFOV() const;
 
 	const DirectX::XMFLOAT4A & getDirection() const;
-	const DirectX::XMFLOAT4A & getRight() const;
+	DirectX::XMFLOAT4A getRight() const;
 
 	const DirectX::XMFLOAT4X4A & getView();
 	const DirectX::XMFLOAT4X4A & getProjection() const;

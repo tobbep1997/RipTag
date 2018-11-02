@@ -55,35 +55,34 @@ void BlinkAbility::_logic(double deltaTime)
 		case BlinkState::Blink:
 			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, false, "BLINK_WALL");
-				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+				RayCastListener::RayContact var = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
+			
+				if(var.originBody->GetObjectTag() == "PLAYER")
 				{
-					if(con.originBody->GetObjectTag() == "PLAYER")
+					//std::cout << var.contactPoint.x << " " << var.contactPoint.y << " " << var.contactPoint.z << " " << std::endl;
+					if(var.contactShape != nullptr && var.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
-						if(con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+						pPointer->setPosition(
+							var.contactPoint.x + (
+							(abs(var.contactPoint.x - (var.contactShape->GetBody()->GetTransform().translation.x) * 2) +0.25) *
+								(-var.normal.x)),
+							pPointer->getPosition().y,
+							var.contactPoint.z + (
+							(abs(var.contactPoint.z - (var.contactShape->GetBody()->GetTransform().translation.z) * 2) +0.25) *
+								(-var.normal.z))
+						);
+						if (abs(var.normal.y) > 0.001)
 						{
 							pPointer->setPosition(
-								con.contactPoint.x + (
-								(abs(con.contactPoint.x - con.contactShape->GetBody()->GetTransform().translation.x) * 2) *
-									(-con.normal.x)),
-								pPointer->getPosition().y,
-								con.contactPoint.z + (
-								(abs(con.contactPoint.z - con.contactShape->GetBody()->GetTransform().translation.z) * 2) *
-									(-con.normal.z))
+								pPointer->getPosition().x,
+								var.contactPoint.y + (
+								(abs(var.contactPoint.y - (var.contactShape->GetBody()->GetTransform().translation.y) * 2)) *
+									(-var.normal.y)),
+								pPointer->getPosition().z
 							);
-							if (con.normal.y != 0)
-							{
-								pPointer->setPosition(
-									pPointer->getPosition().x,
-									con.contactPoint.y + (
-									(abs(con.contactPoint.y - con.contactShape->GetBody()->GetTransform().translation.y) * 2) *
-										(-con.normal.y)),
-									pPointer->getPosition().z
-								);
-							}
-							((Player*)p_owner)->DrainMana(getManaCost());
-							m_bState = BlinkState::Wait;
 						}
+						((Player*)p_owner)->DrainMana(getManaCost());
+						m_bState = BlinkState::Wait;
 					}
 				}
 			}

@@ -121,7 +121,7 @@ void AudioEngine::UnLoadSoundEffect(const std::string & name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_soundEffects[k]->getName(c, name.size() + 1);
+		s_soundEffects[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -141,7 +141,7 @@ void AudioEngine::UnloadAmbiendSound(const std::string & name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_ambientSounds[k]->getName(c, name.size() + 1);
+		s_ambientSounds[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -161,7 +161,7 @@ void AudioEngine::UnloadMusicSound(const std::string & name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_music[k]->getName(c, name.size() + 1);
+		s_music[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -181,7 +181,7 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_soundEffects[k]->getName(c, name.size() + 1);
+		s_soundEffects[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -211,7 +211,7 @@ FMOD::Channel * AudioEngine::PlayAmbientSound(const std::string &name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_ambientSounds[k]->getName(c, name.size() + 1);
+		s_ambientSounds[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -232,7 +232,7 @@ FMOD::Channel * AudioEngine::PlayMusic(const std::string &name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_music[k]->getName(c, name.size() + 1);
+		s_music[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -251,28 +251,32 @@ void AudioEngine::Release()
 	if (s_inited)
 	{
 		FMOD_RESULT result;
-		result = s_system->release();
-		if (result != FMOD_OK)
-		{
-			#ifdef _DEBUG
-				std::cout << "AudioEngine error!\nError:" + std::to_string(result) + "\nMessage: " + FMOD_ErrorString(result) + "\n";
-			#endif
-			return;
-		}
 		s_soundEffectGroup->release();
 		s_ambientSoundGroup->release();
 		s_musicSoundGroup->release();
-
+		s_masterGroup->release();
 		s_soundEffectGroup = nullptr;
 		s_ambientSoundGroup = nullptr;
 		s_musicSoundGroup = nullptr;
+		s_masterGroup = nullptr;
 		s_inited = false;
 		s_system = nullptr;
+
+		for (auto & a : s_soundEffects)
+			a->release();
+		for (auto & a : s_ambientSounds)
+			a->release();
+		for (auto & a : s_music)
+			a->release();
+		for (auto & a : s_reverbs)
+			a->release();
 		s_soundEffects.clear();
 		s_ambientSounds.clear();
 		s_music.clear();
 		s_reverbs.clear();
 
+		result = s_system->release();
+		s_system = nullptr;
 		#ifdef _DEBUG
 		std::cout << "AudioEngine released!\n";
 		#endif
@@ -306,11 +310,11 @@ void AudioEngine::SetMasterVolume(float vol)
 	s_masterGroup->setVolume(vol);
 }
 
-void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist)
+void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
 {
 	FMOD::Reverb3D * r;
 	FMOD_RESULT result = s_system->createReverb3D(&r);
-	FMOD_REVERB_PROPERTIES properties = FMOD_PRESET_CAVE;
+	FMOD_REVERB_PROPERTIES properties = settings;
 	r->setProperties(&properties);
 
 	r->set3DAttributes(&pos, mindist, maxdist);
@@ -370,7 +374,9 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	for (int i = 0; i < 12; i++)
 	{
 		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, false, 3, &worldPosCube[i * 3], nullptr);
+#ifdef _DEBUG
 		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+#endif
 	}
 	
 	return ReturnValue;

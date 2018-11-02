@@ -59,13 +59,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	triggerHandler = new TriggerHandler();
 
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR at = { -29.1406f, -2.82f, -15.4373f };
-	FMOD_VECTOR at2 = { -11.5999f, -2.82f, -0.4889f };
-	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
-	AudioEngine::PlaySoundEffect(name, &at2);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291 };
 
-
-	AudioEngine::CreateReverb(at, 10, 25.0f);
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
 
 	Input::ResetMouse();
 

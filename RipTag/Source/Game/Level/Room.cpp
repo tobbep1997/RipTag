@@ -179,7 +179,7 @@ void Room::LoadRoomToMemory()
 		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
 		CollisionBoxes->addCollisionBox(b3Vec3(0.066f, 5.35f, -0.644f), b3Vec3(0.798f, 3.052f, 3.052f), b3Quaternion(0, 0, 0, 0), "BLINK_WALL", false, m_worldPtr);
-		CollisionBoxes->addCollisionBox(b3Vec3(-6.149f, 6.17f, -9.57f), b3Vec3(10.1323f, 4.385f, 1.052f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
+		CollisionBoxes->addCollisionBox(b3Vec3(-5.502f, 6.35f, -9.57f), b3Vec3(9.5f, 4.036f, 0.968f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
 
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{

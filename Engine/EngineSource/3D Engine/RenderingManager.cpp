@@ -33,11 +33,11 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	WindowContext wind;
 	wind.clientWidth = 1280;
 	wind.clientHeight = 720;
-	wind.fullscreen = false;
+	wind.fullscreen = true;
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"RipTag";
 	//Will override the settings above
-	//SettingLoader::LoadWindowSettings(wind);
+	SettingLoader::LoadWindowSettings(wind);
 	m_wnd.Init(wind);
 
 	m_engine.Init(m_wnd.getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);

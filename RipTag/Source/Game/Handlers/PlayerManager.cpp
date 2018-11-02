@@ -84,7 +84,8 @@ void PlayerManager::Update(float dt)
 	if (mLocalPlayer && hasLocalPlayer)
 	{
 		mLocalPlayer->Update(dt);
-		AudioEngine::UpdateListenerAttributes(mLocalPlayer->getFMODListener());
+		const AudioEngine::Listener & pl = mLocalPlayer->getFMODListener();
+		AudioEngine::UpdateListenerAttributes(pl);
 	}
 	if (hasRemotePlayer && hasLocalPlayer)
 	{
@@ -94,6 +95,8 @@ void PlayerManager::Update(float dt)
 			mLocalPlayer->SendOnUpdateMessage();
 		}
 	}
+
+
 
 }
 

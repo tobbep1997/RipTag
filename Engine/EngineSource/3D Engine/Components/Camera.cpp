@@ -185,7 +185,7 @@ const DirectX::XMFLOAT4A & Camera::getDirection() const
 	return this->m_direction;
 }
 
-const DirectX::XMFLOAT4A & Camera::getRight() const
+DirectX::XMFLOAT4A Camera::getRight() const
 {
 	DirectX::XMVECTOR dir, up, right;
 	dir = DirectX::XMLoadFloat4A(&this->m_direction);
