@@ -212,7 +212,7 @@ void TeleportAbility::_inStateTeleportable()
 			RayCastListener::RayContact var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 3, true);
 			
 
-			std::cout << "nor1 " << var.normal.x << " " << var.normal.y << " " << var.normal.z << " " << std::endl;
+			//std::cout << "nor1 " << var.normal.x << " " << var.normal.y << " " << var.normal.z << " " << std::endl;
 			//std::cout << "nor1 " << dir.x << " " << dir.y << " " << dir.z << " " << std::endl;
 			if (var.normal.x == 0 && var.normal.y == 0 && var.normal.z == 0)
 			{
@@ -220,7 +220,7 @@ void TeleportAbility::_inStateTeleportable()
 				position.x += var2.normal.x;
 				position.y += var2.normal.y;
 				position.z += var2.normal.z;
-				std::cout << "nor2 " << var2.normal.x << " " << var2.normal.y << " " << var2.normal.z << " " << std::endl;
+				//std::cout << "nor2 " << var2.normal.x << " " << var2.normal.y << " " << var2.normal.z << " " << std::endl;
 
 			}
 			else
