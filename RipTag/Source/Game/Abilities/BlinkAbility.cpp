@@ -59,16 +59,31 @@ void BlinkAbility::_logic(double deltaTime)
 			
 				if(var.originBody->GetObjectTag() == "PLAYER")
 				{
-					//std::cout << var.contactPoint.x << " " << var.contactPoint.y << " " << var.contactPoint.z << " " << std::endl;
+					//0.465 6.31371 -1.37612
+					//0.066 5.35 - 0.644
+						//- 5.29305 6.38048 - 9.086
+						//- 5.502 6.35 - 9.57
+						//X1 = 0.4
+						//Z2 = 0.484
+
+					std::cout << var.originBody->GetTransform().translation.x << " " <<
+						var.originBody->GetTransform().translation.y << " " <<
+						var.originBody->GetTransform().translation.z << " " << std::endl;
+					/*std::cout << var.contactPoint.x << " " << var.contactPoint.y << " " << var.contactPoint.z << " " << std::endl;
+					std::cout << var.contactShape->GetBody()->GetTransform().translation.x << " " <<
+						var.contactShape->GetBody()->GetTransform().translation.y << " " <<
+						var.contactShape->GetBody()->GetTransform().translation.z << " " << std::endl;*/
+					//-5.32794 4.62135 - 5.70408
+						//- 5.34454 4.62135 - 19.39
 					if(var.contactShape != nullptr && var.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
 						pPointer->setPosition(
 							var.contactPoint.x + (
-							(abs(var.contactPoint.x - (var.contactShape->GetBody()->GetTransform().translation.x) * 2) +0.25) *
+							(fabs(fabs(var.contactPoint.x) - fabs(var.contactShape->GetBody()->GetTransform().translation.x)) *2 + 0.25)*
 								(-var.normal.x)),
 							pPointer->getPosition().y,
 							var.contactPoint.z + (
-							(abs(var.contactPoint.z - (var.contactShape->GetBody()->GetTransform().translation.z) * 2) +0.25) *
+							(fabs(fabs(var.contactPoint.z) - fabs(var.contactShape->GetBody()->GetTransform().translation.z))*2 + 0.25) *
 								(-var.normal.z))
 						);
 						if (fabs(var.normal.y) > 0.001)
@@ -76,11 +91,14 @@ void BlinkAbility::_logic(double deltaTime)
 							pPointer->setPosition(
 								pPointer->getPosition().x,
 								var.contactPoint.y + (
-								(abs(var.contactPoint.y - (var.contactShape->GetBody()->GetTransform().translation.y) * 2)) *
+								(fabs(var.contactPoint.y - (var.contactShape->GetBody()->GetTransform().translation.y) * 2)) *
 									(-var.normal.y)),
 								pPointer->getPosition().z
 							);
 						}
+						std::cout << var.originBody->GetTransform().translation.x << " " <<
+							var.originBody->GetTransform().translation.y << " " <<
+							var.originBody->GetTransform().translation.z << " " << std::endl << std::endl;
 						((Player*)p_owner)->DrainMana(getManaCost());
 						m_bState = BlinkState::Wait;
 					}
