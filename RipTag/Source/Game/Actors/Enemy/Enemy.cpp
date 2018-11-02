@@ -134,8 +134,6 @@ void Enemy::Update(double deltaTime)
 		_CheckPlayer(deltaTime);
 
 	}
-	else
-		setPosition(-999, -999, -999);
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
