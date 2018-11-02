@@ -60,9 +60,10 @@ private:
 	prop * props;
 
 	TriggerHandler * triggerHandler;
-	std::vector<BaseActor*> baseActors;
-	std::vector<PressurePlate*> triggers;
-	std::vector<Lever*> levers;
+	Door * door;
+	Lever * lever;
+	PressurePlate * pressurePlate;
+
 	
 
 	std::vector<const int*> vis;

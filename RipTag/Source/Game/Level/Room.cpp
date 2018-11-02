@@ -18,9 +18,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	setAssetFilePath(filePath);
 	triggerHandler = new TriggerHandler();
 
-	Door * door;
-	Lever * lever;
-	PressurePlate * pressurePlate;
+
 
 	door = new Door();
 	Manager::g_meshManager.loadStaticMesh("DOOR");
@@ -51,11 +49,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	t1.push_back(door);
 
 	triggerHandler->AddPair(t0, t1, false);
-	baseActors.push_back(door);
-	baseActors.push_back(pressurePlate);
-	baseActors.push_back(lever);
-	triggers.push_back(pressurePlate);
-	levers.push_back(lever);
+
 
 	
 
@@ -280,15 +274,9 @@ void Room::Update(float deltaTime)
 		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
 	}
 	triggerHandler->Update(deltaTime);
-	for (int i = 0; i < triggers.size(); i++)
-	{
-		triggers[i]->Update(deltaTime);
-	}
-	for (int i = 0; i < levers.size(); i++)
-	{
-		levers[i]->Update(deltaTime);
-	}
-
+	door->Update(deltaTime);
+	lever->Update(deltaTime);
+	pressurePlate->Update(deltaTime);
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
@@ -327,10 +315,9 @@ void Room::Draw()
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
-	for (int i = 0; i < baseActors.size(); i++)
-	{
-		baseActors.at(i)->Draw();
-	}
+	door->Draw();
+	lever->Draw();
+	pressurePlate->Draw();
 
 	
 	if (m_youLost)
@@ -369,11 +356,12 @@ void Room::Release()
 		ab->release();
 	delete m_grid.gridPoints;
 
-	for (int i = 0; i < baseActors.size(); i++)
-	{
-		baseActors[i]->Release(*m_worldPtr);
-		delete baseActors[i];
-	}
+	door->Release(*m_worldPtr);
+	delete door;
+	lever->Release(*m_worldPtr);
+	delete lever;
+	pressurePlate->Release(*m_worldPtr);
+	delete pressurePlate;
 	delete triggerHandler;
 	
 }
