@@ -236,7 +236,7 @@ void TeleportAbility::_inStateTeleportable()
 
 			
 
-			position.y += 1.0f;
+			//position.y += 1.0f;
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 
 			
