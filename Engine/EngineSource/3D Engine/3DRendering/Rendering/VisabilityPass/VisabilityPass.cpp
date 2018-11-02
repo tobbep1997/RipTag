@@ -72,7 +72,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, Animatio
 		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DEPTH_PRE_PASS_DYNAMIC_VERTEX_SHADER_PATH), nullptr, 0);
 		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 		{
-			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_geometryQueue[i]->getEntityType() != EntityType::ExcludeType)
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::ExcludeType)
 			{
 				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
