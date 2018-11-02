@@ -28,6 +28,7 @@ void BaseActor::Init(b3World & world, const MyLibrary::CollisionBoxes & collisio
 	PhysicsComponent::Init(world, collisionBoxes);
 }
 
+
 void BaseActor::BeginPlay()
 {
 

@@ -88,7 +88,7 @@ private:
 	
 
 	float m_lightCullingDistance = 100;	
-	float m_forceCullingLimit = 8;		
+	float m_forceCullingLimit = 7;		
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
@@ -120,6 +120,7 @@ private:
 	void _GuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
+	void _GuardLightCulling();
 
 	void _createConstantBuffer();
 	void _createSamplerState();

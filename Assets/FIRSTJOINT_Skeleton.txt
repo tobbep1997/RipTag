@@ -1,7 +1,0 @@
-2
-FIRSTJOINT
- Rotation:  1.45321e-30  6.58416  3.55457e-31 Position: -2.88163  -9.24446e-33  -0.186683 Scale: 1  1  1  
-Parent index: FIRSTJOINT
-SECONDJOINT
- Rotation:  0  -0  0 Position 0.437129  0  0.272864 Scale: 1  1  1  
-Parent index: FIRSTJOINT

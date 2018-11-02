@@ -11,8 +11,15 @@
 #include "../Pathfinding/Grid.h"
 #include "../../Physics/Wrapper/CollisionBoxes.h"
 
+#include "../../Gameplay/Objects/Door.h"
+#include "../../Gameplay/Objects/Lever.h"
+#include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Triggers/TriggerHandler.h"
+
 #include <AudioEngine.h>
-class Room
+#include "2D Engine/Quad/Components/HUDComponent.h"
+
+class Room : public HUDComponent
 {
 private:
 	struct prop
@@ -52,8 +59,18 @@ private:
 	   
 	prop * props;
 
+	TriggerHandler * triggerHandler;
+	Door * door;
+	Lever * lever;
+	PressurePlate * pressurePlate;
+
+	
 
 	std::vector<const int*> vis;
+
+	Quad * m_lose;
+
+	bool m_youLost = false;
 public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);

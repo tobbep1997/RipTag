@@ -64,17 +64,17 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possess:
 			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
 			{
-				RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, false, "Enemy");
+				RayCastListener::RayContact contact = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
 
-				for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+				if (contact.contactShape != nullptr)
 				{
-					if (con.originBody->GetObjectTag() == "PLAYER" &&
-						con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
+					if (contact.originBody->GetObjectTag() == "PLAYER" &&
+						contact.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
 						((Player*)p_owner)->DrainMana(getManaCost());
-						this->possessTarget = static_cast<Enemy*>(con.contactShape->GetBody()->GetUserData());
-						con.contactShape->GetBody()->SetType(e_dynamicBody);
-						con.contactShape->GetBody()->SetAwake(true);
+						this->possessTarget = static_cast<Enemy*>(contact.contactShape->GetBody()->GetUserData());
+						contact.contactShape->GetBody()->SetType(e_dynamicBody);
+						contact.contactShape->GetBody()->SetAwake(true);
 						this->possessTarget->UnlockEnemyInput();
 						this->possessTarget->setPossessor(pPointer, 20, 1);
 						pPointer->LockPlayerInput();
@@ -82,7 +82,7 @@ void PossessGuard::_logic(double deltaTime)
 						m_pState = PossessGuard::Possessing;
 						cooldown = 0;
 					}
-				}
+				}		
 			}
 			break;
 		}

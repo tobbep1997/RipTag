@@ -22,7 +22,8 @@ namespace Network
 		ID_PLAYER_DISCONNECT = ID_USER_PACKET_ENUM + 2,
 		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3,
 		ID_PLAYER_STATE = ID_USER_PACKET_ENUM + 4,
-		ID_PLAYER_ABILITY = ID_USER_PACKET_ENUM + 5
+		ID_PLAYER_ABILITY = ID_USER_PACKET_ENUM + 5,
+		ID_PLAYER_ANIMATION = ID_USER_PACKET_ENUM + 6
 	};
 
 
@@ -80,6 +81,17 @@ namespace Network
 		ENTITYABILITYPACKET() {}
 		ENTITYABILITYPACKET(unsigned char _id, unsigned int _ability, XMFLOAT4A _start, XMFLOAT4A _vel, unsigned int _state) 
 			: id(ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), ability(_ability), start(_start), velocity(_vel), state(_state) {}
+	};
+
+	struct ENTITYANIMATIONPACKET
+	{
+		unsigned char id;
+		RakNet::NetworkID nid;
+		float direction;
+		float speed;
+		DirectX::XMFLOAT4A rot;
+		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, DirectX::XMFLOAT4A _rot)
+			: id(_id), nid(_nid), direction(_dir), speed(_speed), rot(_rot) {}
 	};
 
 #pragma pack(pop)

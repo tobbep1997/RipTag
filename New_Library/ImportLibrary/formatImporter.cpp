@@ -332,6 +332,19 @@ namespace MyLibrary
 				collisionBoxes.boxes[i].rotation[3] = box[i].rotation[3];
 
 				collisionBoxes.boxes[i].typeOfBox = box[i].typeOfBox;
+				std::cout << ":..............................." << std::endl;
+				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[0] << std::endl;
+				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[1] << std::endl;
+				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[2] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[0] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[1] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[2] << std::endl;
+				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[3] << std::endl;
+				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[0] << std::endl;
+				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[1] << std::endl;
+				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[2] << std::endl;
+				std::cout << "Type of box: " << collisionBoxes.boxes[i].typeOfBox << std::endl;
+				std::cout << ":..............................." << std::endl;
 
 			}
 			//copy thing done
@@ -433,16 +446,22 @@ namespace MyLibrary
 		std::string newFileName = "../Assets/";
 		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
 		std::ifstream customGridFile(newFileName, std::ifstream::binary);
-
+		
 		if (customGridFile.is_open())
 		{
-			customGridFile.read((char*)&gridPos.nrOf, sizeof(int));
+		
+
+			customGridFile.read((char*)&gridPos.maxX, sizeof(int)); // what is happening here?!! i just copied this code
+			customGridFile.read((char*)&gridPos.maxY, sizeof(int)); // what is happening here?!! i just copied this code
+
+			customGridFile.read((char*)&gridPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
+
 			gridPos.gridPoints = new GridPointStruct[gridPos.nrOf];
 			
 			for (int i = 0; i < gridPos.nrOf; i++)
 			{
-				customGridFile.read((char*)&gridPos.gridPoints[i].pathable, sizeof(bool));
-				customGridFile.read((char*)&gridPos.gridPoints[i].translation, sizeof(float)*3);
+				customGridFile.read((char*)&gridPos.gridPoints[i].pathable, sizeof(bool)); // what is happening here?!! i just copied this code
+				customGridFile.read((char*)&gridPos.gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
 			}
 			customGridFile.close();
 		}

@@ -19,7 +19,7 @@ void Transform::p_calcWorldMatrix()
 	}
 	XMMATRIX worldMatrix;
 	if (DirectX::XMMatrixIsIdentity(p_forcedWorld))
-		worldMatrix = XMMatrixTranspose(scaling * rotation * translation);
+		worldMatrix = XMMatrixTranspose(XMMatrixMultiply(scaling * rotation * translation, m_modelTransform));
 	else
 		worldMatrix = p_forcedWorld;
 	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
@@ -38,6 +38,7 @@ Transform::Transform()
 	p_rotation = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	p_forcedWorld = DirectX::XMMatrixIdentity();
+	m_modelTransform = DirectX::XMMatrixIdentity();
 	p_physicsRotation._11 = INT16_MIN;
 }
 
@@ -115,6 +116,11 @@ void Transform::setRotation(const DirectX::XMFLOAT4A & rot)
 void Transform::setRotation(const float & x, const float & y, const float & z, const float & w)
 {
 	this->setRotation(DirectX::XMFLOAT4A(x, y, z, w));
+}
+
+void Transform::setModelTransform(const DirectX::XMMATRIX& matrix)
+{
+	m_modelTransform = matrix;
 }
 
 void Transform::ForceWorld(const DirectX::XMMATRIX & rot)

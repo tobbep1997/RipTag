@@ -100,6 +100,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		s->density = 1.0f;
 		s->restitution = 0;
 		s->friction = 0;
+		
 		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
 		m_shapeDefs.push_back(s);
 		
@@ -108,7 +109,6 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		b3Body * b = world.CreateBody(*m_bodyDef);
-		
 	
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
 			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
@@ -118,6 +118,49 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
 	}
   }
+
+void PhysicsComponent::addCollisionBox(b3Vec3 pos, b3Vec3 size, b3Quaternion rotation, std::string type, bool sensor, b3World * world)
+{
+
+
+	b3Hull * h;
+	h = new b3Hull();
+	h->SetAsBox(b3Vec3(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f));
+	m_hulls.push_back(h);
+
+
+	b3Polyhedron * p;
+	p = new b3Polyhedron();
+	p->SetHull(h);
+	m_polys.push_back(p);
+
+
+	b3ShapeDef* s;
+	s = new b3ShapeDef();
+	s->shape = p;
+	s->density = 1.0f;
+	s->restitution = 0;
+	s->friction = 0;
+	s->sensor = sensor;
+	m_shapeDefs.push_back(s);
+	
+	/*
+	PLAYER
+	LEVER
+	ENEMY
+	PRESSUREPLATE
+	BLINK_WALL
+	*/
+
+	
+
+	b3Body * b = world->CreateBody(*m_bodyDef);
+	
+	b->SetObjectTag(type);
+	b->SetTransform(pos, rotation);
+	m_bodys.push_back(b);
+	m_shapes.push_back(b->CreateShape(*s));
+}
 
 
 

@@ -25,26 +25,23 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_rayListener = new RayCastListener();
 	RipExtern::m_rayListener = m_rayListener;
 	CameraHandler::Instance();
-	//auto future = std::async(std::launch::async, &PlayState::thread, this, "KOMBIN");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	
-	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-
-	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
 	Manager::g_meshManager.loadDynamicMesh("STATE");
-	Manager::g_textureManager.loadTextures("SPHERE");
+	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-//	future.get();
+	//Load assets
+	{
+
+	}
+
 	future1.get();
 	
 	m_playerManager = new PlayerManager(&this->m_world);
 	m_playerManager->RegisterThisInstanceToNetwork();
 	m_playerManager->CreateLocalPlayer();
 
-	//Timer::StopTimer();
-	//std::cout << "s " << Timer::GetDurationInSeconds() << std::endl;
 
 
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
@@ -52,94 +49,29 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
 	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	//player->setPosition(0, 5, 0, 0);
 	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
 
 	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 	
 
-	model = new Drawable();
-	model->setEntityType(EntityType::GuarddType);
-	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-	model->setScale(0.03f, 0.03f, 0.03f);
-	model->setPosition({ 0.0f, -4.9f, 0.0f, 1.0f });
-	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	model->setTextureTileMult(50, 50);
-	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
-	auto fwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION");
-	auto bwd_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION");
-	auto lft_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION");
-	auto rgt_clip = Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION");
-	auto jmp_clip = Manager::g_animationManager.getAnimation("STATE", "JUMP_ANIMATION");
-	model->getAnimatedModel()->SetPlayingClip(idle_clip.get());
-	model->getAnimatedModel()->Play();
-	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
-	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
-	{
-		auto blendFwd = stateMachine->AddBlendSpace2DState("loco_fwd", &m_playerManager->getLocalPlayer()->m_currentDirection, &m_playerManager->getLocalPlayer()->m_currentSpeed, -90.0f, 90.f, 0.0f, 3.001f);
-		auto blendBwd = stateMachine->AddBlendSpace2DState("loco_bwd", &m_playerManager->getLocalPlayer()->m_currentDirection, &m_playerManager->getLocalPlayer()->m_currentSpeed, -180.0f, 180.0f, 0.0f, 3.001f);
-
-		auto& fwdToBwdL = blendFwd->AddOutState(blendBwd);
-		fwdToBwdL.AddTransition(&m_playerManager->getLocalPlayer()->m_currentDirection, -89.9999999f, 89.9999999f, SM::COMPARISON_OUTSIDE_RANGE);
-
-		auto& bwdToFwdL = blendBwd->AddOutState(blendFwd);
-		bwdToFwdL.AddTransition(&m_playerManager->getLocalPlayer()->m_currentDirection, -90.f, 90.f, SM::COMPARISON_INSIDE_RANGE);
-
-		//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
-
-		blendFwd->AddRow(0.0f, { { idle_clip.get(), -90.f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f } });
-		blendFwd->AddRow(3.1f, { {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f } });
-
-		blendBwd->AddRow(0.0f, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
-		blendBwd->AddRow(3.1f, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
-		stateMachine->SetState("loco_fwd");
-	}
 	
-	m_levelHandler.setPlayer(m_playerManager->getLocalPlayer());
-	m_levelHandler.Init(m_world);
+	
+	m_levelHandler.Init(m_world, m_playerManager->getLocalPlayer());
 
 	triggerHandler = new TriggerHandler();
 
-	pressureplate = new PressurePlate();
-	pressureplate->Init();
-	pressureplate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	pressureplate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	pressureplate->setPosition(0, -3, 0);
-
-	lever = new Lever();
-	lever->Init();
-	lever->setPosition(-3, -3, 0);
-
-	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-
-	door = new Door();
-	door->Init(m_world, e_staticBody, 1, 1, 1);
-	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	
-
-	std::vector<Trigger*> t1;
-	std::vector<Triggerble*> t2;
-
-	t1.push_back(pressureplate);
-	t1.push_back(lever);
-	t2.push_back(door);
-
-	triggerHandler->AddPair(t1, t2, true);
-
-
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR at = { -29.1406f, -2.82f, -15.4373f };
-	FMOD_VECTOR at2 = { -11.5999f, -2.82f, -0.4889f };
-	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
-	AudioEngine::PlaySoundEffect(name, &at2);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2);
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291 };
 
-
-	AudioEngine::CreateReverb(at, 10.0f, 25.0f);
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
 
 	Input::ResetMouse();
 
@@ -156,15 +88,8 @@ PlayState::~PlayState()
 	
 	delete m_playerManager;
 
-	delete model;
 	delete triggerHandler;
-	pressureplate->Release(*RipExtern::g_world);
 
-	delete pressureplate;
-	lever->Release(*RipExtern::g_world);
-	delete lever;
-	door->Release(*RipExtern::g_world);
-	delete door;
 	delete m_contactListener;
 	delete m_rayListener;
 }
@@ -176,8 +101,6 @@ void PlayState::Update(double deltaTime)
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-	pressureplate->Update(deltaTime);
-	lever->Update(deltaTime);
 	triggerHandler->Update(deltaTime);
 	m_levelHandler.Update(deltaTime);
 	m_contactListener->ClearContactQueue();
@@ -234,11 +157,6 @@ void PlayState::Draw()
 	
 	m_playerManager->Draw();
 		
-	door->Draw();
-
-	model->Draw();
-	pressureplate->DrawWireFrame();
-	lever->DrawWireFrame();
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
 }
 

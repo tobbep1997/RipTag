@@ -59,7 +59,8 @@ private:
 
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
-
+	BlinkAbility m_blink;
+	PossessGuard m_possess;
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -89,6 +90,10 @@ private:
 
 	const int STANDARD_START_MANA = 100;
 	Quad * m_manaBar;
+	Quad * m_manaBarBackground;
+	Quad * m_manabarText;
+
+
 	
 public:
 	//Magic number
@@ -115,6 +120,8 @@ public:
 	//Networking
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
+	void SendOnAnimationUpdate(double dt);
+
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
