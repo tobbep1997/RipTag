@@ -71,7 +71,7 @@ void BlinkAbility::_logic(double deltaTime)
 							(abs(var.contactPoint.z - (var.contactShape->GetBody()->GetTransform().translation.z) * 2) +0.25) *
 								(-var.normal.z))
 						);
-						if (abs(var.normal.y) > 0.001)
+						if (fabs(var.normal.y) > 0.001)
 						{
 							pPointer->setPosition(
 								pPointer->getPosition().x,

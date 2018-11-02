@@ -23,12 +23,10 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	PressurePlate * pressurePlate;
 
 	door = new Door();
-	Manager::g_meshManager.loadStaticMesh("DOOR");
-	Manager::g_textureManager.loadTextures("DOOR");
-	door->setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
-	door->setTexture(Manager::g_textureManager.getTexture("DOOR"));
-	door->Init(*m_worldPtr, e_staticBody, .5f ,3, 1.5f);
-	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692f,1), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246, 1));
+	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	door->Init(*m_worldPtr, e_staticBody);
+	door->setPos(DirectX::XMFLOAT4A(-25.46f, 4.306f, -7.692f,1), DirectX::XMFLOAT4A(-9.46f, 4.306f, -7.692f, 1));
 	pressurePlate = new PressurePlate();
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_textureManager.loadTextures("PRESSUREPLATE");
