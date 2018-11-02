@@ -71,6 +71,7 @@ public:
 	const DirectX::XMFLOAT4A & getDirection() const;
 	DirectX::XMFLOAT4A getRight() const;
 
+	const DirectX::XMFLOAT4A getYRotationEuler();
 	const DirectX::XMFLOAT4X4A & getView();
 	const DirectX::XMFLOAT4X4A & getProjection() const;
 	const DirectX::XMFLOAT4X4A & getViewProjection();
@@ -89,4 +90,6 @@ private:
 		Help Functions, this might be added to a static math class if more classes needs this
 	*/
 	DirectX::XMFLOAT4A _add(const DirectX::XMFLOAT4A & a, const DirectX::XMFLOAT4A & b);
+public:
+	DirectX::XMMATRIX ForceRotation(const DirectX::XMFLOAT4X4A& rotMatrix);
 };

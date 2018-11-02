@@ -30,10 +30,11 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnSendFuncMap("RemotePlayerCreate", std::bind(&PlayerManager::SendOnPlayerCreate, this));
 
 	//Receive handling
-	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CREATE, std::bind(&PlayerManager::_onRemotePlayerCreate, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerEvent, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_DISCONNECT, std::bind(&PlayerManager::_onRemotePlayerDisconnect, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerAbility, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CREATE, std::bind(&PlayerManager::_onRemotePlayerCreate, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
@@ -46,7 +47,7 @@ void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data
 	}
 }
 
-void PlayerManager::_onRemotePlayerEvent(unsigned char id, unsigned char * data)
+void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data)
 {
 	if (mRemotePlayer && hasRemotePlayer)
 	{
@@ -54,7 +55,7 @@ void PlayerManager::_onRemotePlayerEvent(unsigned char id, unsigned char * data)
 	}
 }
 
-void PlayerManager::_onRemotePlayerDisconnect(unsigned id, unsigned char * data)
+void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * data)
 {
 	if (mRemotePlayer && hasRemotePlayer)
 	{
@@ -64,13 +65,6 @@ void PlayerManager::_onRemotePlayerDisconnect(unsigned id, unsigned char * data)
 	}
 }
 
-void PlayerManager::_onRemotePlayerAbility(unsigned id, unsigned char * data)
-{
-	if (mRemotePlayer && hasRemotePlayer)
-	{
-		mRemotePlayer->HandlePacket(id, data);
-	}
-}
 
 void PlayerManager::Update(float dt)
 {
@@ -94,6 +88,7 @@ void PlayerManager::Update(float dt)
 			accumulatedDT -= frequency;
 			mLocalPlayer->SendOnUpdateMessage();
 		}
+		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
 
@@ -149,8 +144,8 @@ void PlayerManager::SendOnPlayerCreate()
 	if (mLocalPlayer && hasLocalPlayer)
 	{
 		DirectX::XMFLOAT4A pos = mLocalPlayer->getPosition();
-		DirectX::XMFLOAT4A scale = mLocalPlayer->getScale();
-		DirectX::XMFLOAT4A rot = mLocalPlayer->getEulerRotation();
+		DirectX::XMFLOAT4A scale = DirectX::XMFLOAT4A(0.015f, 0.015f, 0.015f, 1.0f);
+		DirectX::XMFLOAT4A rot = {0.0, DirectX::XM_PI, 0.0, 0.0};
 
 		Network::CREATEPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CREATE,
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
