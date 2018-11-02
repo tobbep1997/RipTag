@@ -33,15 +33,29 @@ void Lever::Update(double deltaTime)
 		{
 			if (con.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (Triggerd())
+				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
 				{
-					p_trigger(false);
-				}
-				else
-				{
-					p_trigger(true);
+					if (Triggerd())
+					{
+						p_trigger(false);
+					}
+					else
+					{
+						p_trigger(true);
+					}
+					*con.consumeState +=1;
 				}
 			}
 		}
 	}
+}
+
+bool Lever::isEqual(Lever * target)
+{
+	if (this->getPosition().x == target->getPosition().x && 
+		this->getPosition().y == target->getPosition().y && 
+		this->getPosition().z == target->getPosition().z)
+		return true;
+
+	return false;
 }

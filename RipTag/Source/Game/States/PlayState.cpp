@@ -98,7 +98,7 @@ void PlayState::Update(double deltaTime)
 	triggerHandler->Update(deltaTime);
 	m_levelHandler.Update(deltaTime);
 	m_contactListener->ClearContactQueue();
-	m_rayListener->ClearQueue();
+	m_rayListener->ClearConsumedContacts();
 	if (deltaTime <= 0.65f)
 	{
 		m_world.Step(m_step);

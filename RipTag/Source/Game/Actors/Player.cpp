@@ -123,6 +123,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 
 	m_blink.Init();
 	m_blink.setOwner(this);
+	m_possess.Init();
+	m_possess.setOwner(this);
 
 }
 
@@ -205,7 +207,7 @@ void Player::Update(double deltaTime)
 	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	/*m_possess.Update(deltaTime);*/
+	m_possess.Update(deltaTime);
 	m_blink.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
@@ -271,7 +273,7 @@ const AudioEngine::Listener & Player::getFMODListener() const
 	return m_FMODlistener;
 }
 
-bool Player::DrainMana(const int& manaCost)
+bool Player::DrainMana(const float& manaCost)
 {
 	if (manaCost <= m_currentMana)
 	{
@@ -284,11 +286,11 @@ bool Player::DrainMana(const int& manaCost)
 	}
 }
 
-void Player::RefillMana(const int& manaFill)
+void Player::RefillMana(const float& manaFill)
 {
 	m_currentMana += manaFill;
 
-	int rest = m_maxMana - m_currentMana;
+	float rest = m_maxMana - m_currentMana;
 	if (rest < 0)
 	{
 		m_currentMana += rest;
@@ -566,19 +568,19 @@ void Player::_onBlink()
 
 void Player::_onPossess()
 {
-	//if (Input::Possess()) //Phase acts like short range teleport through objects
-	//{
-	//	
-	//	if (m_kp.possess == false)
-	//	{
-	//		m_possess.Use();
-	//		m_kp.possess = true;
-	//	}
-	//}
-	//else
-	//{
-	//	m_kp.possess = false;
-	//}
+	if (Input::Possess()) //Phase acts like short range teleport through objects
+	{
+		
+		if (m_kp.possess == false)
+		{
+			m_possess.Use();
+			m_kp.possess = true;
+		}
+	}
+	else
+	{
+		m_kp.possess = false;
+	}
 }
 
 void Player::_onRotate(double deltaTime)
@@ -648,23 +650,27 @@ void Player::_onInteract()
 				{
 					if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
 					{
+						*con.consumeState += 1;
 						//do the pickups
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						std::cout << "hello";
+						//Pull Levers
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
+						*con.consumeState += 1;
 						//Snuff out torches (example)
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
+						*con.consumeState += 1;
 						//std::cout << "Enemy Found!" << std::endl;
 						//Snuff out torches (example)
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
+						*con.consumeState += 1;
 						//std::cout << "illusory wall ahead" << std::endl;
 						//Snuff out torches (example)
 					}
