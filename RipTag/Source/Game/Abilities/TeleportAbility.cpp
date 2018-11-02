@@ -2,6 +2,7 @@
 #include "../RipTagExtern/RipExtern.h"
 #include "../Actors/Player.h"
 
+
 TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor()
 {
 	m_tpState = Throwable;
@@ -16,7 +17,7 @@ TeleportAbility::~TeleportAbility()
 
 void TeleportAbility::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
+	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));

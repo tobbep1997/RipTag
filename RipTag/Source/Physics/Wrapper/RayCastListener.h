@@ -67,7 +67,6 @@ public:
 		}
 	}
 
-
 	virtual std::vector<RayContact> GetContacts()
 	{
 		return this->rayContacts;

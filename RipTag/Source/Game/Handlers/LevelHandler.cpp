@@ -114,6 +114,7 @@ void LevelHandler::Draw()
 void LevelHandler::setPlayer(Player * playerPtr)
 {
 	this->m_playerPtr = playerPtr;
+	
 
 
 }
@@ -214,12 +215,12 @@ void LevelHandler::_RoomLoadingThreading()
 {
 	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
 	{
-		m_rooms.at(m_loadingQueue.at(i))->LoadRoomToMemory();
+		//m_rooms.at(m_loadingQueue.at(i))->LoadRoomToMemory();
 	}
 	m_loadingQueue.clear();
 	for (unsigned int i = 0; i < m_unloadingQueue.size(); i++)
 	{
-		m_rooms.at(m_unloadingQueue.at(i))->UnloadRoomFromMemory();
+		//m_rooms.at(m_unloadingQueue.at(i))->UnloadRoomFromMemory();
 	}
 	m_unloadingQueue.clear();
 }
