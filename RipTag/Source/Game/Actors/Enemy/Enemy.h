@@ -6,7 +6,7 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"
 #include "../../Pathfinding/Grid.h"
-
+#include "2D Engine/Quad/Components/HUDComponent.h"
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
@@ -65,6 +65,8 @@ private:
 	float m_visCounter;
 	float m_visabilityTimer = 0.6f;
 
+	bool m_found = false;
+
 	
 public:
 	Enemy();
@@ -107,6 +109,8 @@ public:
 
 	void SetPathVector(std::vector<Node*>  path);
 	std::vector<Node*> GetPathVector();
+
+	bool getIfLost();
 private:
 
 	void _handleInput(double deltaTime);
