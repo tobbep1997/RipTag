@@ -23,3 +23,5 @@ xcopy /s /y x64\Release\RipTag.exe Runnable\RipTag
 
 if not exist "Runnable\x64\Release" mkdir Runnable\x64\Release
 xcopy /s /y x64\Release Runnable\x64\Release
+
+xcopy /s /y External\FMOD\lib\*.dll Runnable\RipTag\

@@ -722,8 +722,7 @@ void Player::_cameraPlacement(double deltaTime)
 				{
 					index = rand() % (int)m_sounds.size();
 				}
-				
-				AudioEngine::PlaySoundEffect(m_sounds[index], &at);
+				AudioEngine::PlaySoundEffect(m_sounds[index], &at)->setVolume(0.3 + (p_moveState * 0.4));
 				last = index;
 			}
 		}

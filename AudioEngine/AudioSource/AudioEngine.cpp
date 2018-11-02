@@ -310,11 +310,11 @@ void AudioEngine::SetMasterVolume(float vol)
 	s_masterGroup->setVolume(vol);
 }
 
-void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist)
+void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
 {
 	FMOD::Reverb3D * r;
 	FMOD_RESULT result = s_system->createReverb3D(&r);
-	FMOD_REVERB_PROPERTIES properties = FMOD_PRESET_CAVE;
+	FMOD_REVERB_PROPERTIES properties = settings;
 	r->setProperties(&properties);
 
 	r->set3DAttributes(&pos, mindist, maxdist);
