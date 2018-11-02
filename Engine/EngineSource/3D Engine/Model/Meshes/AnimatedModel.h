@@ -4,8 +4,9 @@
 #include <vector>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <unordered_map>
 #include "ImportLibrary/FormatHeader.h"
-
+#include "../../Components/StateMachine.h"
 #define MAXJOINT 128
 #define BLEND_MATCH_TIME (1<<1)
 #define BLEND_FROM_START (1<<2)
@@ -31,6 +32,13 @@ namespace Animation
 		};
 		SRT(const MyLibrary::Transform& transform);
 		SRT(const MyLibrary::DecomposedTransform& transform);
+		SRT(const SRT& other) = default;
+		SRT& operator=(const SRT& other) = default;
+		SRT(SRT&& other) noexcept: 
+			m_rotationQuaternion(std::move(other.m_rotationQuaternion)), 
+			m_scale(std::move(other.m_scale)), 
+			m_translation(std::move(other.m_translation)){};
+
 		bool operator==(const SRT& other);
 	};
 
@@ -40,7 +48,12 @@ namespace Animation
 		DirectX::XMFLOAT4X4A m_inverseBindPose;
 		int16_t parentIndex;
 
-		Joint() {};
+		Joint() : parentIndex(-1)
+		{
+			using namespace DirectX;
+
+			XMStoreFloat4x4A(&m_inverseBindPose, XMMatrixIdentity());
+		};
 	};
 
 	// Struct containing a joint count as a uint8_t and an array as a unique_ptr, in that order
@@ -49,8 +62,13 @@ namespace Animation
 		uint8_t m_jointCount;
 		std::unique_ptr<Joint[]> m_joints;
 
-		Skeleton() {};
+		Skeleton() : m_jointCount(0){};
 		Skeleton(const MyLibrary::Skeleton& skeleton);
+
+		//Move ctor
+		Skeleton(Skeleton&& other) noexcept 
+			: m_joints(std::move(other.m_joints)), 
+		  m_jointCount(std::move(other.m_jointCount)){}
 	};
 
 	// Struct containing rot, trans, scale as an SRT struct
@@ -60,24 +78,45 @@ namespace Animation
 
 		JointPose() {};
 		JointPose(const SRT& srt);
+		JointPose(const JointPose& srt) = default;
+		JointPose& operator=(const JointPose& srt) = default;
+		JointPose(JointPose&& other) = default;
 	};
 
 	// Struct containing an array of JointPose structs as a unique_ptr
 	struct SkeletonPose
 	{
 		std::unique_ptr<JointPose[]> m_jointPoses;
+
+		SkeletonPose() = default;
+		SkeletonPose(size_t jointCount) 
+			: m_jointPoses(std::make_unique<JointPose[]>(jointCount)){}
+		SkeletonPose(SkeletonPose&& other) noexcept 
+			: m_jointPoses(std::move(other.m_jointPoses)){}
+		SkeletonPose& operator=(SkeletonPose&& other) noexcept
+		{
+			m_jointPoses.swap(other.m_jointPoses);
+			return *this; 
+		}
 	};
 
 	// Struct containing all necessary data for an animation for a given skeleton
 	struct AnimationClip
 	{
-		Skeleton* m_skeleton;
+		std::shared_ptr<Skeleton> m_skeleton;
 		uint16_t m_frameCount;
 		std::unique_ptr<SkeletonPose[]> m_skeletonPoses;
 		uint8_t m_framerate;
 
-		AnimationClip() {};
-		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, Skeleton* skeleton);
+		AnimationClip() : m_frameCount(0), m_framerate(24){};
+		AnimationClip(uint8_t frameCount, uint8_t jointCount)
+			: m_frameCount(frameCount), m_framerate(24)
+		{
+			m_skeletonPoses = std::make_unique<SkeletonPose[]>(frameCount);
+			for (int i = 0; i < jointCount; i++)
+				m_skeletonPoses[i] = SkeletonPose(jointCount);
+		};
+		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Animation::Skeleton> skeleton);
 		~AnimationClip();
 	};
 
@@ -89,15 +128,18 @@ namespace Animation
 		float secondCurrentTime = 0.0;
 	};
 #pragma endregion Joint, Skeleton, AnimationClip, ...
-
+	typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
+	typedef std::unordered_map<std::string, SharedAnimation> ClipCollection;
+	typedef std::shared_ptr<ClipCollection> SharedClipCollection;
+	typedef std::shared_ptr<Skeleton> SharedSkeleton;
 #pragma region GlobalAnimationFunctions
 	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
-	Animation::AnimationClip* ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
+	Animation::SharedAnimation ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
-	Animation::AnimationClip* LoadAndCreateAnimation(std::string file, Animation::Skeleton* skeleton);
-	Animation::Skeleton* LoadAndCreateSkeleton(std::string file);
+	Animation::SharedAnimation LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
+	SharedSkeleton LoadAndCreateSkeleton(std::string file);
 	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
 	Animation::JointPose getAdditivePose(JointPose targetPose, JointPose differencePose);
 	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
@@ -105,33 +147,53 @@ namespace Animation
 
 #pragma endregion Conversion stuff, Loaders, ...
 
+	struct SkeletonPosePair
+	{
+		SkeletonPose* first;
+		SkeletonPose* second;
+		float blendFactor;
+	};
+
 	class AnimatedModel
 	{
 	public:
+		enum ANIMATION_TYPE_STATE
+		{
+			STATE_1D_BLEND,
+			STATE_2D_BLEND,
+			STATE_SINGLE_CLIP
+		};
 		AnimatedModel();
 	
 		~AnimatedModel();
 
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
-		void SetPlayingClip(AnimationClip* clip, bool isLooping = true);
+		void UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
+		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
 		void SetLayeredClipWeight(const float& weight);
 		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
-		void SetSkeleton(Skeleton* skeleton);
+		void SetSkeleton(SharedSkeleton skeleton);
 		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
-
 		float GetCurrentTimeInClip();
 		int GetCurrentFrameIndex();
 
+		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
+		std::unique_ptr<SM::AnimationStateMachine>& InitStateMachine(size_t numStates);
+
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 	private:
+		float m_currentFrameDeltaTime = 0.0f;
+
+		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
+		std::unique_ptr<SM::StateVisitor> m_Visitor;
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
-
-		Skeleton* m_skeleton = nullptr;
+		
+		SharedSkeleton m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
 		CombinedClip m_combinedClip;
 		AnimationClip* m_targetClip = nullptr;
@@ -141,23 +203,37 @@ namespace Animation
 		float m_targetClipCurrentTime = 0.0;
 
 		float m_currentTime = 0.0f;
+		float m_currentNormalizedTime = 0.0f;
+
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
 
 		unsigned int m_scrubIndex = 0; // #todo remove
 
+		//-- Helper functions --
+		JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
+		SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
+		SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
+		//----------------------
+
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
+		void _computeSkinningMatrices(SkeletonPose* pose);
 		void _computeSkinningMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _computeSkinningMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
+		void _computeModelMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeModelMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
+		std::pair<uint16_t, float> _computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount);
+
 		void UpdateCombined(float deltaTime);
 		void _computeModelMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
+	public:
+		void UpdateLooping(Animation::AnimationClip* clip);
 	};
 
 #pragma region AnimationCBufferClass

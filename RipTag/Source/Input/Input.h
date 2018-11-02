@@ -3,8 +3,10 @@
 #include <Multiplayer.h>
 #include <map>
 #include <functional>
-#include <string>
+#include <string.h>
+#include <vector>
 #include <list>
+#include <sstream>
 
 class Input
 {
@@ -16,6 +18,7 @@ public:
 
 	static void ForceDeactivateGamepad();
 	static void ForceActivateGamepad();
+	static void SetActivateGamepad(const bool & b);
 
 
 	//Action Mappings
@@ -28,9 +31,11 @@ public:
 	static float MoveRight();
 	static float PeekRight();
 	static bool Sprinting();
-	static bool Teleport();
+	static bool OnAbilityPressed();
+	static bool OnAbilityReleased();
 	static bool Blink();
-
+	static bool Possess();
+	static bool Interact();
 	static bool Exit();
 	static bool MouseLock();
 
@@ -40,7 +45,17 @@ public:
 	static bool isUsingGamepad();
 
 	static void ResetMouse();
+
+	static bool SelectAbility1();
+	static bool SelectAbility2();
+	static bool SelectAbility3();
+	static bool SelectAbility4();
+
 };
+
+
+
+
 
 class InputMapping
 {
@@ -48,6 +63,10 @@ public:
 	static std::map<std::string, std::function<void()>> functionMap;
 	static std::map<int, std::string> keyMap;
 	static std::map<int, std::string> devKeyMap; //This key map is reserved for keybinding for Dev tools
+
+	//Gamepad maps -> the key is the function, the value is the string to use in the Network OnSend map
+	static std::map<std::string, std::function<float()>> gamePadFunctionMapFloat;
+	static std::map<std::string, std::function<bool()>> gamePadFunctionMapBool;
 
 	static void Init();
 	static bool isInitialized;
@@ -59,4 +78,7 @@ public:
 	static void Call();
 private:
 	static void _ReloadKeyMapping();
+	static void _LoadGamePadMapping();
+	static void _KeyboardCalls();
+	static void _GamePadCalls();
 };

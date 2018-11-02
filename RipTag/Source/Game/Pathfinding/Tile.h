@@ -1,0 +1,26 @@
+#pragma once
+
+class Tile
+{
+private:
+	int m_xCoord, m_yCoord;
+	bool m_pathable;
+
+public:
+	Tile(int _x = -1, int _y = -1, bool _pathable = true);
+	virtual ~Tile();
+
+	// Getters
+	bool getPathable();
+	int getX();
+	int getY();
+	
+	// Setters
+	void setPathable(bool _pathable);
+
+	// Operators
+	bool operator==(Tile & other) const;
+
+private:
+
+};

@@ -37,7 +37,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"RipTag";
 	//Will override the settings above
-	//SettingLoader::LoadWindowSettings(wind);
+	SettingLoader::LoadWindowSettings(wind);
 	m_wnd.Init(wind);
 
 	m_engine.Init(m_wnd.getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);
@@ -52,6 +52,27 @@ void RenderingManager::Init(HINSTANCE hInstance)
 
 void RenderingManager::Update()
 {
+	while (m_wnd.isOpen())
+	{
+		InputHandler::WindowSetShowCursor();
+		m_wnd.PollEvents();
+		if (DEBUG)
+		{
+			m_ImGuiManager.ImGuiProcPoll(m_wnd.getWindowProcMsg());
+		}
+	#if _DEBUG
+		if (GetAsyncKeyState(int('P')))
+		{
+			_reloadShaders();
+		}
+	#endif
+
+	}
+}
+
+void RenderingManager::UpdateSingleThread()
+{
+	InputHandler::WindowSetShowCursor();
 	m_wnd.PollEvents();
 	if (DEBUG)
 	{
@@ -113,6 +134,14 @@ Window& RenderingManager::getWindow()
 ProcMsg RenderingManager::getWindowProcMsg()
 {
 	return m_wnd.getWindowProcMsg();
+}
+
+void RenderingManager::ImGuiProc()
+{
+	if (DEBUG)
+	{
+		m_ImGuiManager.ImGuiProcPoll(m_wnd.getWindowProcMsg());
+	}
 }
 
 void RenderingManager::_reloadShaders()

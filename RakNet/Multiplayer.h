@@ -12,36 +12,18 @@
 #include "NetworkMessageIdentifiers.h"
 #include <iostream>
 
-#include <LuaTalker.h>
 #include <map>
 #include <functional>
 
 
-#define LUA_START_SERVER "StartServer"
-#define LUA_START_CLIENT "StartClient"
-#define LUA_END_CONNECTION_ATTEMPT "EndConnectionAttempt"
-#define LUA_DISCONNECT "Disconnect"
-#define LUA_IS_SERVER "IsServer"
-#define LUA_IS_CLIENT "IsClient"
-#define LUA_IS_PEER_RUNNING "IsPeerRunning"
-#define LUA_IS_CONNECTED "IsPeerConnected"
-#define LUA_IS_GAME_RUNNING "IsGameRunningNetwork"
-#define LUA_GET_MY_NID "GetMyNID"
-#define LUA_SET_GAME_RUNNING_NETWORK "SetGameIsRunningNetwork"
-#define LUA_SEND_PACKET "SendPacket"
-
-#define LUA_TABLE_PACKET_PRIORITIES "PACKET"
-
 
 namespace Network
 {
+
 	//Network constants
 	const unsigned short PEER_PORT = 60005;
-
 	const short MAX_CONNECTIONS = 2;
 	const std::string LAN_IP = "255.255.255.255";
-
-	//Other constants
 	const double ADVERTISEMENT_FREQUENCE = 1 / 5.0;
 
 	class Multiplayer : public RakNet::NetworkIDObject
@@ -52,11 +34,13 @@ namespace Network
 		void Init();
 		void Destroy();
 		
-		static std::map<std::string, std::function<void()>> onSendMap;
-		static std::map<unsigned char, std::function<void(unsigned char *)>> onReceiveMap;
+		static std::map<std::string, std::function<void()>> LocalPlayerOnSendMap;
+		static std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> RemotePlayerOnReceiveMap;
 
 		static void addToOnSendFuncMap(std::string key, std::function<void()> func);
-		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char *)> func);
+		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
+
+
 
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
@@ -69,7 +53,6 @@ namespace Network
 		void Disconnect();
 
 		void ReadPackets();
-		void DestroySentPacket(void * msg);
 		void EndConnectionAttempt();
 		void Update();
 		//GETs 
@@ -84,10 +67,6 @@ namespace Network
 		std::string GetNetworkInfo();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
-
-		//LUA
-		int Send_Data(sol::this_state s);
-		static void REGISTER_TO_LUA();
 
 		static void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void _send_packet(const char* message, size_t length, PacketPriority priority);

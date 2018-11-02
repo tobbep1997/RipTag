@@ -32,7 +32,7 @@ public:
 	LevelHandler();
 	~LevelHandler();
 
-	void Init(b3World & worldPtr);
+	void Init(b3World & worldPtr, Player * playerPtr);
 	void Release();
 
 	void Update(float deltaTime);

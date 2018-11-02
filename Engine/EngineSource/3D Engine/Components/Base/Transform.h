@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include "../../../../../RipTag/Source/Physics/Common/Math/b3Mat33.h"
 
+class PlayState;
+
 class Transform
 {
 private:
@@ -11,12 +13,16 @@ protected:
 	DirectX::XMFLOAT4A p_scale;
 	DirectX::XMFLOAT4A p_rotation;
 
+
+	DirectX::XMMATRIX p_forcedWorld;
+	DirectX::XMMATRIX m_modelTransform;
 	DirectX::XMFLOAT3X3 p_physicsRotation;
 
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
 	void p_calcWorldMatrix();
 public:
+	friend PlayState;
 	Transform();
 	virtual ~Transform();
 
@@ -38,6 +44,10 @@ public:
 	virtual void setRotation(const DirectX::XMFLOAT4A & rot);
 	virtual void setRotation(const float & x = 0.0f, const float & y = 0.0f, const float & z = 0.0f, const float & w = 1.0f);
 
+	virtual void setModelTransform(const DirectX::XMMATRIX& matrix);
+
+	virtual void ForceWorld(const DirectX::XMMATRIX & world);
+
 	virtual void addRotation(const DirectX::XMFLOAT4A & rot);
 	virtual void addRotation(const float & x, const float & y, const float & z, const float & w = 0.0f);
 
@@ -50,5 +60,11 @@ public:
 	virtual DirectX::XMFLOAT4X4A getWorldmatrix();
 
 	virtual void setPhysicsRotation(const b3Mat33 & rot);
+
+	// #todoREMOVE
+	void setVelocity(b3Vec3 vel);
+	// #todoREMOVE
+private:
+	b3Vec3 m_Velocity = { 0.0, 0.0, 0.0 };
 };
 

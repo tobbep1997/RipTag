@@ -82,6 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(SolutionDir)x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,6 +92,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -105,13 +108,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Source</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;AudioEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,6 +127,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -141,17 +145,22 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\RakNet\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;AudioEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AudioEngine\AudioEngine.vcxproj">
+      <Project>{35dacbf6-0b6a-43ff-8486-7dcc56827a6d}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{5e822790-44a3-4602-bcd2-54da944cb9c4}</Project>
     </ProjectReference>
@@ -166,10 +175,27 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Game\Actors\Abilities\Teleport.cpp" />
+    <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
+    <ClCompile Include="Source\Game\Handlers\AnimationHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
+    <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
+    <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
+    <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
+    <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
+    <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
     <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3BroadPhase.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3DynamicAABBTree.cpp" />
     <ClCompile Include="Source\Physics\Collision\b3SAT.cpp" />
@@ -199,18 +225,35 @@
     <ClCompile Include="Source\Game\Game.cpp" />
     <ClCompile Include="Source\Game\Handlers\CameraHandler.cpp" />
     <ClCompile Include="Source\Game\Handlers\LevelHandler.cpp" />
-    <ClCompile Include="Source\Game\Handlers\ObjectHandler.cpp" />
-    <ClCompile Include="Source\Game\Handlers\PlayerHandler.cpp" />
     <ClCompile Include="Source\Game\Level\Room.cpp" />
     <ClCompile Include="Source\Game\States\MainMenu.cpp" />
     <ClCompile Include="Source\Game\States\PlayState.cpp" />
     <ClCompile Include="Source\Game\States\State.cpp" />
+    <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Door.h" />
+    <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
+    <ClInclude Include="RipTagExtern\RipExtern.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
+    <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
+    <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
+    <ClInclude Include="Source\Game\Actors\RemotePlayer.h" />
+    <ClInclude Include="Source\Game\Handlers\PlayerManager.h" />
+    <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
+    <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Actors\Assets\StaticAsset.h" />
+    <ClInclude Include="Source\Game\Handlers\AnimationHandler.h" />
     <ClInclude Include="Source\Game\Actors\BaseActor.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\Enemy.h" />
+    <ClInclude Include="Source\Game\Pathfinding\Grid.h" />
+    <ClInclude Include="Source\Game\Pathfinding\Tile.h" />
     <ClInclude Include="Source\Physics\Bounce.h" />
     <ClInclude Include="Source\Physics\Collision\b3AABB.h" />
     <ClInclude Include="Source\Physics\Collision\b3BroadPhase.h" />
@@ -245,6 +288,7 @@
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3RevoluteJoint.h" />
     <ClInclude Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.h" />
     <ClInclude Include="Source\Input\Input.h" />
+    <ClInclude Include="Source\Physics\Wrapper\ContactListener.h" />
     <ClInclude Include="Source\Physics\Wrapper\PhysicsComponent.h" />
     <ClInclude Include="Source\Physics\Wrapper\RayCastListener.h" />
     <ClInclude Include="Source\ThreadPool\SafeQueue.h" />
@@ -255,12 +299,11 @@
     <ClInclude Include="Source\Game\Game.h" />
     <ClInclude Include="Source\Game\Handlers\CameraHandler.h" />
     <ClInclude Include="Source\Game\Handlers\LevelHandler.h" />
-    <ClInclude Include="Source\Game\Handlers\ObjectHandler.h" />
-    <ClInclude Include="Source\Game\Handlers\PlayerHandler.h" />
     <ClInclude Include="Source\Game\Level\Room.h" />
     <ClInclude Include="Source\Game\States\MainMenu.h" />
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
+    <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

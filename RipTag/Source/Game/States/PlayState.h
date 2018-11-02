@@ -1,55 +1,49 @@
 #pragma once
 
-#include "../Actors/Player.h"
+#include "../Handlers/PlayerManager.h"
 #include <future>
 #include "State.h"
 
 #include "../../Physics/Bounce.h"
 #include "../Handlers/CameraHandler.h"
 #include "../Handlers/LevelHandler.h"
-#include "../Handlers/ObjectHandler.h"
 #include "../Actors/BaseActor.h"
 #include "../Actors/Enemy/Enemy.h"
 #include "2D Engine/Quad/Quad.h"
+#include "../../../Engine/EngineSource/3D Engine/Extern.h"
 
 
 //lua 
 #include <LuaTalker.h>
+#include "../../Physics/Wrapper/ContactListener.h"
 
+#include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"
 
+#include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Objects/Lever.h"
+#include "../../Gameplay/Objects/Door.h"
 
 class PlayState : public State
 {
 private:
 	LevelHandler m_levelHandler;
-	ObjectHandler m_objectHandler;
+	ContactListener * m_contactListener;
+	RayCastListener * m_rayListener;
 
-	Player * player;
+	PlayerManager * m_playerManager;
 
 	b3World m_world;
 
-	
-
-
-	float x = -1.5f;
-	float y = 2.1f; 
-	float z = -2.1f;
-
-	float xD = 0;
-	float yD = 0;
-	float zD = 0;
-
-	float intensity = 2;
-		
-	Drawable * model;
-	//std::future<void> future;
-	//std::thread test;
+	TriggerHandler *	triggerHandler;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
+	FMOD::Channel * TEEEMPCHANNEL;
+
 
 public:
+
 	PlayState(RenderingManager * rm);
 	~PlayState();
 

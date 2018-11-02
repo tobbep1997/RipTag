@@ -35,6 +35,8 @@ private:
 
 	ProcMsg m_procMsg;
 
+	bool m_isOpen;
+
 public:
 	Window(); 
 	~Window(); 

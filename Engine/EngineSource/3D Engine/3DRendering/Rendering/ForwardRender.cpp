@@ -112,8 +112,6 @@ void ForwardRender::GeometryPass()
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 		}
-		
-		
 	}
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
@@ -151,6 +149,7 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
+	//_GuardLightCulling();
 	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
 	this->m_shadowMap.ShadowPass(&m_animationBuffer);
@@ -160,18 +159,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
-	static bool drawFrustum = true;
-	if (InputHandler::isKeyPressed('J'))
-	{
-		drawFrustum = false;
-	}
-	else if (InputHandler::isKeyPressed('K'))
-	{
-		drawFrustum = true;
-	}
 
-	if (drawFrustum)
-		_GuardFrustumDraw();
+	//_GuardFrustumDraw();
 	m_2DRender.GUIPass();
 }
 
@@ -193,11 +182,8 @@ void ForwardRender::Clear()
 
 	this->m_shadowMap.Clear();
 	DX::g_visibilityComponentQueue.clear();
-}
 
-void ForwardRender::Present()
-{
-	m_swapChain->Present(0, 0);
+	DX::g_wireFrameDrawQueue.clear();
 }
 
 void ForwardRender::Release()
@@ -271,9 +257,6 @@ void ForwardRender::_GuardFrustumDraw()
 void ForwardRender::_simpleLightCulling(Camera & cam)
 {
 	float culled = 0;
-#if _DEBUG
-	ImGui::Begin("Light Culling");
-#endif
 	//--------------------------------
 	///Early KILL of lights
 	//This is the initial culling, it will cullaway the lights that are too far away
@@ -339,10 +322,80 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 	//TODO::
 	//Check distance and check if behind then FORCE CULL THAT BITCH
 
-#if _DEBUG
-	ImGui::Text("LightsCulled %f", culled);
+
+}
+
+void ForwardRender::_GuardLightCulling()
+{
+	//Get all the guards for this frame
+	std::vector<Drawable*> guards;
+	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); ++i)
+	{
+		if (DX::g_geometryQueue.at(i)->getEntityType() == EntityType::GuarddType)
+		{
+			guards.push_back(DX::g_geometryQueue.at(i));
+		}
+	}
+
+	std::vector<PointLight*> lights;
+	std::vector<int> indexs;
+
+	for (unsigned int i = 0; i < guards.size(); ++i)
+	{
+		float bobbyDickLenght = 1000000;
+		int lightIndex = -1;
+		for (unsigned int j = 0; j < DX::g_lights.size(); ++j)
+		{
+			float lenght = DX::g_lights.at(j)->getDistanceFromObject(guards.at(i)->getPosition());
+			if (lenght < bobbyDickLenght)
+			{
+				bobbyDickLenght = lenght;
+				lightIndex = j;
+			}
+		}
+		if (lightIndex != -1)
+		{
+			lights.push_back(DX::g_lights.at(lightIndex));
+			indexs.push_back(lightIndex);
+		}
+	}
+	//bool Culled = false;
+	//while (Culled == false)
+	//{
+	//	bool ff = false;
+	//	for (unsigned int i = 0; i < DX::g_lights.size(); ++i)
+	//	{
+	//		bool found = false;
+	//		for (unsigned int j = 0; j < lights.size(); ++j)
+	//		{
+	//			if (DX::g_lights.at(i) != lights.at(j))
+	//			{
+	//				found = true;
+	//				DX::g_lights.erase(DX::g_lights.begin() + i);
+	//				//lights.erase(lights.begin() + j);
+	//				break;
+	//			}
+	//		}
+	//		if (found == true)
+	//		{
+	//			ff = true;
+	//			break;
+	//		}
+	//		
+	//	}
+	//	if (ff == false)
+	//	{
+	//		Culled = true;
+	//	}
+	//	
+	//}
+
+	DX::g_lights.clear();
+	DX::g_lights = lights;
+	
+	ImGui::Begin("lgihts");
+	ImGui::Text("Lights, %d", DX::g_lights.size());
 	ImGui::End();
-#endif
 }
 
 void ForwardRender::_createConstantBuffer()
@@ -501,7 +554,9 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", guardFrustumInputDesc, 3);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertexAnimated.hlsl");
 
+	
 }
 
 void ForwardRender::_createShadersInput()

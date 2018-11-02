@@ -9,13 +9,22 @@ namespace MyLibrary
 #pragma region OriginalMyLibraryStructs
 
 	
-	struct startingPos
+	struct StartingPos
 	{
 		float startingPos[3];
 	};
+	struct GridHeader
+	{
+		int nrOf;
+	};
+	struct GridPointStruct
+	{
+		bool pathable;
+		float translation[3];
+	};
 	struct GuardStartingPositions {
 		int nrOf;
-		startingPos *startingPositions;
+		StartingPos *startingPositions;
 	};
 	struct pointLight
 	{
@@ -52,11 +61,17 @@ namespace MyLibrary
 
 		Transform()
 		{
-			ZeroMemory(this, sizeof(Transform));
-			transform_scale[0] = 1.0;
-			transform_scale[1] = 1.0;
-			transform_scale[2] = 1.0;
+			std::fill(transform_position, transform_position + 3, 0.0f);
+			std::fill(transform_rotation, transform_rotation + 3, 0.0f);
+			std::fill(transform_scale, transform_scale + 3, 1.0f);
 		};
+	};
+	struct GridStruct
+	{
+		GridPointStruct * gridPoints;
+		int nrOf;
+		int maxX;
+		int maxY;
 	};
 	struct CollisionBox
 	{
@@ -178,7 +193,7 @@ namespace MyLibrary
 		Vec4(float _x, float _y, float _z, float _w)
 			: x(_x), y(_y), z(_z), w(_w)
 		{};
-		Vec4() {};
+		Vec4() : x(0.0), y(0.0), z(0.0), w(0.0) {};
 	};
 
 	struct DecomposedTransform
@@ -206,7 +221,7 @@ namespace MyLibrary
 		Bone(DecomposedTransform inverseBindPose, DecomposedTransform referenceTransform, int32_t parent)
 			: jointInverseBindPoseTransform(inverseBindPose), jointReferenceTransform(referenceTransform), parentIndex(parent)
 		{}
-		Bone()
+		Bone() : parentIndex(-1)
 		{}
 	};
 

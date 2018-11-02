@@ -22,6 +22,11 @@ void Input::ForceActivateGamepad()
 	Input::m_deactivate = false;
 }
 
+void Input::SetActivateGamepad(const bool & b)
+{
+	Input::m_deactivate = b;
+}
+
 bool Input::Jump()
 {
 	if (isUsingGamepad())
@@ -82,6 +87,29 @@ bool Input::Crouch()
 			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
 				if (keyIterator->second == "Crouch")
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::Interact()
+{
+	if (isUsingGamepad())
+	{
+		return GamePadHandler::IsXPressed();
+	}
+	else
+	{
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "Interact")
 				{
 					return true;
 				}
@@ -198,7 +226,7 @@ bool Input::Sprinting()
 	return false;
 }
 
-bool Input::Teleport()
+bool Input::OnAbilityPressed()
 {
 	if (isUsingGamepad())
 		return GamePadHandler::IsRightShoulderPressed();
@@ -209,7 +237,7 @@ bool Input::Teleport()
 		{
 			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
-				if (keyIterator->second == "Teleport")
+				if (keyIterator->second == "UseAbility")
 				{
 					return true;
 				}
@@ -217,6 +245,19 @@ bool Input::Teleport()
 		}
 	}
 
+	return false;
+}
+
+bool Input::OnAbilityReleased()
+{
+	static bool previousFrame = false;
+	if (Input::OnAbilityPressed())
+		previousFrame = true;
+	if (!Input::OnAbilityPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
 	return false;
 }
 
@@ -237,6 +278,22 @@ bool Input::Blink()
 				{
 					return true;
 				}
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::Possess()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "Possess")
+			{
+				return true;
 			}
 		}
 	}
@@ -309,9 +366,13 @@ bool Input::isUsingGamepad()
 	return GamePadHandler::IsConnected() && m_deactivate == false;
 }
 
+//DEFINITIONS FOR INPUTMAPPING STATICS
 std::map<std::string, std::function<void()>> InputMapping::functionMap;
 std::map<int, std::string> InputMapping::keyMap;
 std::map<int, std::string> InputMapping::devKeyMap;
+std::map<std::string, std::function<float()>> InputMapping::gamePadFunctionMapFloat;
+std::map<std::string, std::function<bool()>> InputMapping::gamePadFunctionMapBool;
+
 bool InputMapping::isInitialized = false;
 
 
@@ -319,6 +380,7 @@ void InputMapping::Init()
 {
 	if (!isInitialized)
 	{
+		InputMapping::_LoadGamePadMapping();
 
 		std::string file = "..\\Configuration\\KeyMapping.ini";
 		const int bufferSize = 1024;
@@ -403,27 +465,8 @@ void InputMapping::Call()
 {
 	//Reload if we pressed the assigned key
 	_ReloadKeyMapping();
-
-	std::map<int, std::string>::iterator keyIterator = keyMap.begin();
-	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
-	{
-		if (InputHandler::isKeyPressed(keyIterator->first))
-		{
-			std::map<std::string, std::function<void()>>::iterator inputFuncIterator;
-			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
-			
-			//find the function to call with the extracted key
-			inputFuncIterator = functionMap.find(keyIterator->second);
-			networkFuncIterator = Network::Multiplayer::onSendMap.find(keyIterator->second);
-				//make sure it is mapped and found
-			if (inputFuncIterator != functionMap.end())
-				inputFuncIterator->second();
-
-			if (networkFuncIterator != Network::Multiplayer::onSendMap.end())
-				networkFuncIterator->second();
-			
-		}
-	}
+	_KeyboardCalls();
+	_GamePadCalls();
 }
 
 void InputMapping::_ReloadKeyMapping()
@@ -447,15 +490,145 @@ void InputMapping::_ReloadKeyMapping()
 	}
 }
 
+void InputMapping::_LoadGamePadMapping()
+{
+	if (gamePadFunctionMapFloat.size() == 0 && gamePadFunctionMapBool.size() == 0)
+	{
+		//Gamepad bindings are hardcoded and unchangeable by the user
+		//FLOAT FUNCTIONS
+		gamePadFunctionMapFloat.insert(std::pair<std::string, std::function<float()>>("MoveForward", std::bind(&GamePadHandler::GetLeftStickYPosition)));
+		gamePadFunctionMapFloat.insert(std::pair<std::string, std::function<float()>>("MoveRight", std::bind(&GamePadHandler::GetLeftStickXPosition)));
+
+		//BOOL FUNCTION
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Jump", std::bind(&GamePadHandler::IsAPressed)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&GamePadHandler::IsRightShoulderPressed)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&GamePadHandler::IsRightShoulderReleased)));
+	}
+}
+
+void InputMapping::_KeyboardCalls()
+{
+	std::map<int, std::string>::iterator keyIterator = keyMap.begin();
+	for (keyIterator; keyIterator != keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(keyIterator->second);
+
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
+				networkFuncIterator->second();
+
+		}
+	}
+}
+
+void InputMapping::_GamePadCalls()
+{
+	//check if we have input from gamepad. If true then call the mapped function from the OnSend map and Input map
+	std::map<std::string, std::function<float()>>::iterator floatMapIterator = gamePadFunctionMapFloat.begin();
+	for (floatMapIterator; floatMapIterator != gamePadFunctionMapFloat.end(); floatMapIterator++)
+	{
+		if (floatMapIterator->second() != 0.0f)
+		{
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(floatMapIterator->first);
+
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
+				networkFuncIterator->second();
+		}
+	}
+	//do the same thing for the bool map
+	std::map<std::string, std::function<bool()>>::iterator boolMapIterator = gamePadFunctionMapBool.begin();
+	for (boolMapIterator; boolMapIterator != gamePadFunctionMapBool.end(); boolMapIterator++)
+	{
+		if (boolMapIterator->second())
+		{
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(boolMapIterator->first);
+
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
+				networkFuncIterator->second();
+		}
+	}
+}
+
 void Input::ResetMouse()
 {
 	if (InputHandler::getWindowFocus())
 	{
-		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
-		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2);
+		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2.0f);
+		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2.0f);
 
 		SetCursorPos(midX, midY);
 	}
 }
+
+bool Input::SelectAbility1()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility1")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::SelectAbility2()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility2")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::SelectAbility3()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility3")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Input::SelectAbility4()
+{
+	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	{
+		if (InputHandler::isKeyPressed(keyIterator->first))
+		{
+			if (keyIterator->second == "SelectAbility4")
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+
 
 //DEFINITIONS FOR INPUTMAPPING STATICS

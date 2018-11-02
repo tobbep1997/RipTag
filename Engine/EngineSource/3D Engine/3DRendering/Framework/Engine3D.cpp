@@ -21,6 +21,7 @@ std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
+ 
 
 void DX::SafeRelease(IUnknown * unknown)
 {
@@ -50,8 +51,8 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_1 };
-	D3D_FEATURE_LEVEL fl_out = D3D_FEATURE_LEVEL_11_1;
+	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_0 };
+	D3D_FEATURE_LEVEL fl_out = D3D_FEATURE_LEVEL_11_0;
 
 	// fill the swap chain description struct
 	scd.BufferCount = 1;                                    // one back buffer
@@ -92,6 +93,9 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		DX::g_deviceContext->OMSetRenderTargets(NULL, NULL, NULL);
 		DX::g_deviceContext->Flush();
 
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		pBackBuffer->Release();
+
 		m_swapChain->ResizeBuffers(0, width, hight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
@@ -120,11 +124,13 @@ void Engine3D::Clear()
 
 void Engine3D::Present()
 {
-	m_swapChain->Present(0, 0);
+	m_swapChain->Present(1, 0);
 }
 
 void Engine3D::Release()
 {
+	m_swapChain->SetFullscreenState(false, NULL);
+
 	DX::SafeRelease(DX::g_device);
 	DX::SafeRelease(DX::g_deviceContext);
 	DX::SafeRelease(m_swapChain);

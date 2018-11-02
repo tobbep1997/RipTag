@@ -92,6 +92,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;%(AdditionalIncludeDirectories);$(SolutionDir)2DEngine</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,6 +113,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)New_Library;%(AdditionalIncludeDirectories);$(SolutionDir)2DEngine</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +135,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)New_Library;%(AdditionalIncludeDirectories);$(SolutionDir)2DEngine</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +159,7 @@
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;%(AdditionalIncludeDirectories);$(SolutionDir)2DEngine</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,6 +177,7 @@
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Transform.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
+    <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.h" />
@@ -217,12 +222,14 @@
     <ClInclude Include="EngineSource\Window\window.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Texture.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\TextureManager.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\StateMachine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\CameraHolder.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\Transform.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />
@@ -238,6 +245,7 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ConformanceMode>
     </ClCompile>
+    <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
     <ClCompile Include="EngineSource\Helper\Threading.cpp" />
     <ClCompile Include="EngineSource\Helper\Timer.cpp" />
     <ClCompile Include="EngineSource\Light\PointLight.cpp" />

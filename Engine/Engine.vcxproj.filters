@@ -50,6 +50,8 @@
     <ClCompile Include="EngineSource\Shader\ShaderManager.cpp" />
     <ClCompile Include="EngineSource\Window\window.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
+    <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -101,6 +103,8 @@
     <ClInclude Include="EngineSource\ShaderCreator.h" />
     <ClInclude Include="EngineSource\Structs.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\StateMachine.h" />
+    <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

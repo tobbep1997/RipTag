@@ -367,6 +367,32 @@ bool GamePadHandler::IsRightShoulderPressed()
 	}
 }
 
+bool GamePadHandler::IsLeftShoulderReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsLeftShoulderPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsLeftShoulderPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+bool GamePadHandler::IsRightShoulderReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsRightShoulderPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsRightShoulderPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
 void GamePadHandler::SetLeftVibration(const float& left)
 {
 	if (m_state.IsConnected())
@@ -405,6 +431,44 @@ void GamePadHandler::SetVibration(const float& left, const float& right, const f
 		m_rightMotorVibration = right;
 		m_leftTriggerMotorVibration = leftTrigger;
 		m_rightTriggerMotorVibration = rightTrigger;
+	}
+}
+
+bool GamePadHandler::IsSelectPressed()
+{
+	if (m_state.IsConnected())
+	{
+		if (m_buttons.view == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool GamePadHandler::IsStartPressed()
+{
+	if (m_state.IsConnected())
+	{
+		if (m_buttons.start == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
 	}
 }
 

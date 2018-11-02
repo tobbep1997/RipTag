@@ -107,7 +107,10 @@ protected :
 };
 
 inline b3Body* b3Shape::GetBody() { 
-	return m_body; 
+	if (m_body != nullptr)
+		return m_body;
+	else
+		return nullptr;
 }
 
 inline const b3Body* b3Shape::GetBody() const { 
