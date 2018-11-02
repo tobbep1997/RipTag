@@ -655,7 +655,7 @@ void Player::_onInteract()
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						//Pull Levers
+						*con.consumeState += 1;
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
