@@ -251,28 +251,32 @@ void AudioEngine::Release()
 	if (s_inited)
 	{
 		FMOD_RESULT result;
-		result = s_system->release();
-		if (result != FMOD_OK)
-		{
-			#ifdef _DEBUG
-				std::cout << "AudioEngine error!\nError:" + std::to_string(result) + "\nMessage: " + FMOD_ErrorString(result) + "\n";
-			#endif
-			return;
-		}
 		s_soundEffectGroup->release();
 		s_ambientSoundGroup->release();
 		s_musicSoundGroup->release();
-
+		s_masterGroup->release();
 		s_soundEffectGroup = nullptr;
 		s_ambientSoundGroup = nullptr;
 		s_musicSoundGroup = nullptr;
+		s_masterGroup = nullptr;
 		s_inited = false;
 		s_system = nullptr;
+
+		for (auto & a : s_soundEffects)
+			a->release();
+		for (auto & a : s_ambientSounds)
+			a->release();
+		for (auto & a : s_music)
+			a->release();
+		for (auto & a : s_reverbs)
+			a->release();
 		s_soundEffects.clear();
 		s_ambientSounds.clear();
 		s_music.clear();
 		s_reverbs.clear();
 
+		result = s_system->release();
+		s_system = nullptr;
 		#ifdef _DEBUG
 		std::cout << "AudioEngine released!\n";
 		#endif
