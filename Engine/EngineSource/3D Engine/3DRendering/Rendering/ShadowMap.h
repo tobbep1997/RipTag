@@ -7,9 +7,13 @@
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 #include "../../Extern.h"
-#include "../../../Shader/ShaderManager.h"
 
-
+namespace Animation
+{
+	class AnimationCBuffer;
+};
+class Drawable;
+class PointLight;
 
 class ShadowMap
 {

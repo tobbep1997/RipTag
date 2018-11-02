@@ -1,5 +1,6 @@
 #include "Room.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
+#include "EngineSource/Light/PointLight.h"
 
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {

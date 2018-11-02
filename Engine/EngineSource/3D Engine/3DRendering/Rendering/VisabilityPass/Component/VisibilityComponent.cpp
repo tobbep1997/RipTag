@@ -1,4 +1,6 @@
 #include "VisibilityComponent.h"
+#include "../../../../Components/Camera.h"
+#include "../../../../Extern.h"
 
 VisibilityComponent::VisibilityComponent()
 {

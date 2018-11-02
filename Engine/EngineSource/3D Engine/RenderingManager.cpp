@@ -3,6 +3,7 @@
 #include "../Debugg//ImGui/imgui.h"
 #include "../Debugg/ImGui/imgui_impl_win32.h"
 #include "../Debugg/ImGui/imgui_impl_dx11.h"
+#include "../Shader/ShaderManager.h"
 
 
 RenderingManager::RenderingManager()

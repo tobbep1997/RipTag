@@ -5,6 +5,7 @@
 #include "../RipTag/Source/Game/Pathfinding/Grid.h"
 #include <AudioEngine.h>
 
+#include "EngineSource/Shader/ShaderManager.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console

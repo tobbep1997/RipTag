@@ -1,5 +1,19 @@
 #pragma once
-#include "../../../../Shader/ShaderManager.h"
+#pragma warning (disable : 4244)
+#include <windows.h>
+#include <d3d11_1.h>
+#include <DirectXMath.h>
+
+
+enum ObjectType;
+enum EntityType;
+class Drawable;
+class VisibilityComponent;
+
+namespace Animation {
+	class AnimationCBuffer;
+};
+
 class VisabilityPass
 {
 private:

@@ -1,11 +1,25 @@
 #pragma once
 #pragma warning (disable : 4267)
 #include <thread>
-#include "ShadowMap.h"
+#include <d3d11_1.h>
+#include <DirectXMath.h>
 #include "VisabilityPass/VisabilityPass.h"
-#include "../../../Shader/ShaderManager.h"
-#include "../../Components/Camera.h"
-#include "2D Engine/Render2D.h"
+
+
+enum ObjectType;
+enum EntityType;
+
+class Drawable;
+class Camera;
+class VisibilityComponent;
+class PointLight;
+class ShadowMap;
+class Render2D;
+
+namespace Animation
+{
+	class AnimationCBuffer;
+};
 
 class ForwardRender
 {
@@ -77,9 +91,9 @@ private:
 	ID3D11Buffer * m_textureBuffer = nullptr;
 	TextureBuffer m_textureValues;
 
-	Animation::AnimationCBuffer m_animationBuffer;
-	ShadowMap m_shadowMap;
-	Render2D m_2DRender;
+	Animation::AnimationCBuffer * m_animationBuffer;
+	ShadowMap * m_shadowMap;
+	Render2D * m_2DRender;
 
 
 	VisabilityPass m_visabilityPass;
@@ -113,7 +127,6 @@ public:
 	void AnimatedGeometryPass();
 	void Flush(Camera & camera);
 	void Clear();
-	void Present();
 
 	void Release();
 private:

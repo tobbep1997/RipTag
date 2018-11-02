@@ -1,10 +1,18 @@
 #include "ForwardRender.h"
+
 #include "../../Extern.h"
 #include "../../../Shader/ShaderManager.h"
 #include "../../RenderingManager.h"
 #include "../Framework/DirectXRenderingHelpClass.h"
 #include "../../../Helper/Timer.h"
 
+#include "../../Components/Base/Drawable.h"
+#include "VisabilityPass/Component/VisibilityComponent.h"
+#include "../../../Light/PointLight.h"
+
+#include "ShadowMap.h"
+#include "../../Components/Camera.h"
+#include "2D Engine/Render2D.h"
 
 ForwardRender::ForwardRender()
 {
@@ -17,12 +25,7 @@ ForwardRender::~ForwardRender()
 {
 }
 
-void ForwardRender::Init(	IDXGISwapChain*				swapChain,
-							ID3D11RenderTargetView*		backBufferRTV,
-							ID3D11DepthStencilView*		depthStencilView,
-							ID3D11Texture2D*			depthBufferTex,
-							ID3D11SamplerState*			samplerState,
-							D3D11_VIEWPORT				viewport)
+void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * backBufferRTV, ID3D11DepthStencilView * depthStencilView, ID3D11Texture2D * depthBufferTex, ID3D11SamplerState * samplerState, D3D11_VIEWPORT viewport)
 {
 	m_swapChain = swapChain;
 	m_backBufferRTV = backBufferRTV;
@@ -30,11 +33,9 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	m_depthBufferTex = depthBufferTex;
 	m_samplerState = samplerState;
 	m_viewport = viewport;
-	
+
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 
-	//DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
-	//DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
@@ -42,12 +43,13 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
 	_createShaders();
-	
+
 	_createConstantBuffer();
 	_createSamplerState();
-	m_shadowMap.Init(128, 128);
+	m_shadowMap = new ShadowMap();
+	m_shadowMap->Init(128, 128);
 	D3D11_BLEND_DESC omDesc;
-	ZeroMemory(&omDesc,	sizeof(D3D11_BLEND_DESC));
+	ZeroMemory(&omDesc, sizeof(D3D11_BLEND_DESC));
 	omDesc.RenderTarget[0].BlendEnable = true;
 	omDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	omDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -58,6 +60,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	HRESULT hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
+	
 	m_visabilityPass.Init();
 
 
@@ -70,7 +73,7 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_wireFrame);
 	DX::g_deviceContext->RSSetState(m_wireFrame);
 
-	
+
 	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
 	wfdesc.FillMode = D3D11_FILL_SOLID;
 	wfdesc.CullMode = D3D11_CULL_NONE;
@@ -78,9 +81,11 @@ void ForwardRender::Init(	IDXGISwapChain*				swapChain,
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_disableBackFace);
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
-	m_animationBuffer.SetAnimationCBuffer();
+	m_animationBuffer = new Animation::AnimationCBuffer();
+	m_animationBuffer->SetAnimationCBuffer();
 
-	m_2DRender.Init();
+	m_2DRender = new Render2D();
+	m_2DRender->Init();
 }
 
 void ForwardRender::GeometryPass()
@@ -150,10 +155,10 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
 	//_GuardLightCulling();
-	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
+	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
-	this->m_shadowMap.ShadowPass(&m_animationBuffer);
-	this->m_shadowMap.SetSamplerAndShaderResources();
+	this->m_shadowMap->ShadowPass(m_animationBuffer);
+	this->m_shadowMap->SetSamplerAndShaderResources();
 	VisabilityPass();
 	_mapCameraBuffer(camera);
 	this->GeometryPass();
@@ -161,7 +166,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->_wireFramePass();
 
 	//_GuardFrustumDraw();
-	m_2DRender.GUIPass();
+	m_2DRender->GUIPass();
 }
 
 void ForwardRender::Clear()
@@ -180,7 +185,7 @@ void ForwardRender::Clear()
 
 	DX::g_visabilityDrawQueue.clear();
 
-	this->m_shadowMap.Clear();
+	this->m_shadowMap->Clear();
 	DX::g_visibilityComponentQueue.clear();
 
 	DX::g_wireFrameDrawQueue.clear();
@@ -203,8 +208,12 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_disableBackFace);
 
 	DX::SafeRelease(m_shadowSampler);
-	m_shadowMap.Release();
-	m_2DRender.Release();
+	m_shadowMap->Release();
+	delete m_shadowMap;
+
+	m_2DRender->Release();
+	delete m_2DRender;
+	delete m_animationBuffer;
 }
 
 void ForwardRender::_GuardFrustumDraw()
@@ -445,8 +454,8 @@ void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 
 	std::vector<DirectX::XMFLOAT4X4A> skinningVector = drawable->getAnimatedModel()->GetSkinningMatrices();
 
-	m_animationBuffer.UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
-	m_animationBuffer.SetToShader();
+	m_animationBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
+	m_animationBuffer->SetToShader();
 }
 
 void ForwardRender::_mapCameraBuffer(Camera & camera)
@@ -498,8 +507,8 @@ void ForwardRender::VisabilityPass()
 	m_visabilityPass.SetViewportAndRenderTarget();
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
-		m_visabilityPass.GuardDepthPrePassFor(guard, &m_animationBuffer);
-		m_visabilityPass.CalculateVisabilityFor(guard, &m_animationBuffer);
+		m_visabilityPass.GuardDepthPrePassFor(guard, m_animationBuffer);
+		m_visabilityPass.CalculateVisabilityFor(guard, m_animationBuffer);
 	}
 	
 

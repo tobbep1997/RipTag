@@ -2,7 +2,7 @@
 #include "../RipTag/Source/Input/Input.h"
 #include "../Player.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
-
+#include "../../Handlers/AnimationHandler.h"
 
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {

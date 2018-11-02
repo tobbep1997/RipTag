@@ -1,5 +1,8 @@
 #include "ShadowMap.h"
 #include "../Framework/DirectXRenderingHelpClass.h"
+#include "../../Components/Base/Drawable.h"
+#include "../../../Light/PointLight.h"
+#include "../../../Shader/ShaderManager.h"
 
 ShadowMap::ShadowMap()
 {
