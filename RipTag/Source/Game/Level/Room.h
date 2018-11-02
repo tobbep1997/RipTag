@@ -11,6 +11,11 @@
 #include "../Pathfinding/Grid.h"
 #include "../../Physics/Wrapper/CollisionBoxes.h"
 
+#include "../../Gameplay/Objects/Door.h"
+#include "../../Gameplay/Objects/Lever.h"
+#include "../../Gameplay/Objects/PressurePlate.h"
+#include "../../Gameplay/Triggers/TriggerHandler.h"
+
 #include <AudioEngine.h>
 class Room
 {
@@ -52,6 +57,10 @@ private:
 	   
 	prop * props;
 
+	TriggerHandler * triggerHandler;
+	std::vector<BaseActor*> baseActors;
+	std::vector<PressurePlate*> triggers;
+	
 
 	std::vector<const int*> vis;
 public:

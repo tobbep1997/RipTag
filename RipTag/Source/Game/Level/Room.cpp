@@ -14,10 +14,38 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
+	triggerHandler = new TriggerHandler();
+
+	Door * door;
+	Lever * lever;
+	PressurePlate * pressurePlate;
+
+	door = new Door();
+	door->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	door->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	door->Init(*m_worldPtr, e_staticBody);
+	door->setPos(DirectX::XMFLOAT4A(-10.46f, 4.306f, -7.692f,1), DirectX::XMFLOAT4A(-9.46f, 4.306f, -7.692f, 1));
+	pressurePlate = new PressurePlate();
+	pressurePlate->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	pressurePlate->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	pressurePlate->Init();
+	pressurePlate->setPos(DirectX::XMFLOAT4A(7.327f, 3.984f, 13.764f, 1), DirectX::XMFLOAT4A(7.327f, 3.8f, 13.764f, 1));
+	
+	
+	std::vector<Trigger*> t0;
+	std::vector<Triggerble*> t1;
+	t0.push_back(pressurePlate);
+	t1.push_back(door);
+
+	triggerHandler->AddPair(t0, t1, false);
+	baseActors.push_back(door);
+	baseActors.push_back(pressurePlate);
+	triggers.push_back(pressurePlate);
+
 }
 Room::~Room()
 {
-	
+
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -79,7 +107,10 @@ void Room::UnloadRoomFromMemory()
 		m_audioBoxes.clear();
 		delete m_grid.gridPoints;
 		m_roomLoaded = false;
+
+
 	}
+
 }
 
 void Room::LoadRoomToMemory()
@@ -134,6 +165,9 @@ void Room::LoadRoomToMemory()
 		CollisionBoxes = new BaseActor();
 		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
+		CollisionBoxes->addCollisionBox(b3Vec3(0.066f, 5.35f, -0.644f), b3Vec3(0.798f, 3.052f, 3.052f), b3Quaternion(0, 0, 0, 0), "BLINK_WALL", false, m_worldPtr);
+		CollisionBoxes->addCollisionBox(b3Vec3(-6.149f, 6.17f, -9.57f), b3Vec3(10.1323f, 4.385f, 1.052f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
+
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
 			float * f4Rot = boxes.boxes[i].rotation;
@@ -142,7 +176,7 @@ void Room::LoadRoomToMemory()
 			DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
 			DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1};
 			DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1};
-			FMOD::Geometry * ge = AudioEngine::CreateCube(0.75, 0.35, xmPos, xmScl, xmQ);
+			FMOD::Geometry * ge = AudioEngine::CreateCube(0.75f, 0.35f, xmPos, xmScl, xmQ);
 			ge->setActive(false);
 			m_audioBoxes.push_back(ge);
 		}
@@ -210,6 +244,11 @@ void Room::Update(float deltaTime)
 		
 		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
 	}
+	triggerHandler->Update(deltaTime);
+	for (int i = 0; i < triggers.size(); i++)
+	{
+		triggers[i]->Update(deltaTime);
+	}
 }
 
 void Room::SetActive(bool state)
@@ -231,6 +270,11 @@ void Room::Draw()
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
+	for (int i = 0; i < baseActors.size(); i++)
+	{
+		baseActors.at(i)->Draw();
+	}
+
 }
 
 void Room::Release()
@@ -260,6 +304,13 @@ void Room::Release()
 	for (auto ab : m_audioBoxes)
 		ab->release();
 	delete m_grid.gridPoints;
+
+	for (int i = 0; i < baseActors.size(); i++)
+	{
+		baseActors[i]->Release(*m_worldPtr);
+		delete baseActors[i];
+	}
+	delete triggerHandler;
 	
 }
 

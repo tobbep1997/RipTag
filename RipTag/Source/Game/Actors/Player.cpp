@@ -120,6 +120,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	setScale(1.0f, 1.0f, 1.0f);
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
+
+	m_blink.Init();
+	m_blink.setOwner(this);
+
 }
 
 void Player::BeginPlay()
@@ -200,8 +204,8 @@ void Player::Update(double deltaTime)
 	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	/*m_possess.Update(deltaTime);
-	m_blink.Update(deltaTime);*/
+	/*m_possess.Update(deltaTime);*/
+	m_blink.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
@@ -296,6 +300,7 @@ void Player::Draw()
 		m_abilityComponents[i]->Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
+
 }
 
 void Player::LockPlayerInput()
@@ -391,6 +396,7 @@ void Player::_handleInput(double deltaTime)
 	}
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
+	
 
 	_onSprint();
 	_onCrouch();
@@ -543,18 +549,18 @@ void Player::_onCrouch()
 
 void Player::_onBlink()
 {
-	//if (Input::Blink()) //Phase acts like short range teleport through objects
-	//{
-	//	if (m_kp.blink == false)
-	//	{
-	//		m_blink.Use();
-	//		m_kp.blink = true;
-	//	}
-	//}
-	//else
-	//{
-	//	m_kp.blink = false;
-	//}
+	if (Input::Blink()) //Phase acts like short range teleport through objects
+	{
+		if (m_kp.blink == false)
+		{
+			m_blink.Use();
+			m_kp.blink = true;
+		}
+	}
+	else
+	{
+		m_kp.blink = false;
+	}
 }
 
 void Player::_onPossess()
@@ -623,7 +629,7 @@ void Player::_onJump()
 	}
 
 
-	float epsilon = 0.002;
+	float epsilon = 0.002f;
 	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
 }

@@ -55,6 +55,7 @@ private:
 
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
+	BlinkAbility m_blink;
 
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
@@ -85,6 +86,8 @@ private:
 
 	const int STANDARD_START_MANA = 100;
 	Quad * m_manaBar;
+
+
 	
 public:
 	//Magic number
