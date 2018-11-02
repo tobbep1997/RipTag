@@ -27,25 +27,13 @@ void Animation::AnimatedModel::Update(float deltaTime)
 {
 	m_currentFrameDeltaTime = deltaTime;
 
-	m_StateMachine->UpdateCurrentState();
-
-	auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
-
-	switch (stateType)
+	if (m_StateMachine)
 	{
-	case SM::LOOPING:
-		break;
-	case SM::BLEND_1D:
-		break;
-	case SM::BLEND_2D:
-		break;
-	default:
-		break;
-	}
-
-	if (stateType == SM::BLEND_2D)
+		m_StateMachine->UpdateCurrentState();
+		auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
 		return;
-
+	}
+	
 	if (m_targetClip)
 	{
 		//UpdateBlend(deltaTime);

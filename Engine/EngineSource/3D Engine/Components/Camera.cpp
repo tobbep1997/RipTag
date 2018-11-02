@@ -254,3 +254,13 @@ DirectX::XMFLOAT4A Camera::_add(const DirectX::XMFLOAT4A & a, const DirectX::XMF
 	DirectX::XMStoreFloat4A(&sum, vSum);
 	return sum;
 }
+
+DirectX::XMMATRIX Camera::ForceRotation(const DirectX::XMFLOAT4X4A& rotMatrix)
+{
+	using namespace DirectX;
+	auto originalPosition = getPosition();
+	auto tMat = XMMatrixTranslation(originalPosition.x, originalPosition.y, originalPosition.z);
+	XMMATRIX newWorld = XMLoadFloat4x4A(&rotMatrix) * tMat;
+	ForceWorld(newWorld);
+	return newWorld;
+}

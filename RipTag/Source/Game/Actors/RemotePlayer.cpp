@@ -179,6 +179,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BACKWARD_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_LEFT2_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_RIGHT2_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BLEFT_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BRIGHT_ANIMATION"));
 
 	this->getAnimatedModel()->SetPlayingClip(sharedAnimations[IDLE].get());
 	this->getAnimatedModel()->Play();
@@ -236,9 +238,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
 				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
-				{ sharedAnimations[LEFT].get(), -90.f },
+				{ sharedAnimations[BACK_LEFT].get(), -90.f },
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[RIGHT].get(), 90.f },
+				{ sharedAnimations[BACK_RIGHT].get(), 90.f },
 				{ sharedAnimations[BACKWARD].get(), 180.f }
 			}
 		);
