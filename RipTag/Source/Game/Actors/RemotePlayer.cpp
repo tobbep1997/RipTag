@@ -67,6 +67,9 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 RemotePlayer::~RemotePlayer()
 {
+	for (int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents[i];
+	delete[] m_abilityComponents;
 }
 
 void RemotePlayer::BeginPlay()
