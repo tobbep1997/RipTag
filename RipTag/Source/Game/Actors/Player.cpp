@@ -11,6 +11,8 @@
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("BLACK");
+
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
@@ -82,12 +84,38 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_currentMana = m_maxMana;
 
 	m_manaBar = new Quad();
-	m_manaBar->init(DirectX::XMFLOAT2A(0.2f, 0.2f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBar->init(DirectX::XMFLOAT2A(0.25f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
 	m_manaBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	
 
+	m_manaBarBackground = new Quad();
+	m_manaBarBackground->init(DirectX::XMFLOAT2A(0.248f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_manaBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_manaBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
+	
+	m_manabarText = new Quad();
+	m_manabarText->init(DirectX::XMFLOAT2A(0.5, 0.034f), DirectX::XMFLOAT2A(0,0));
+	m_manabarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_manabarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_manabarText->setScale(0,0);
+	m_manabarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_manabarText->setString("MANA");
+	m_manabarText->setTextColor({ 75.0/255.0,0,130.0/255.0,1 });
 
 	HUDComponent::AddQuad(m_manaBar);
+	HUDComponent::AddQuad(m_manaBarBackground);
+	HUDComponent::AddQuad(m_manabarText);
+
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
+	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
 
 }
 
@@ -104,7 +132,6 @@ Player::~Player()
 		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
 }
-
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
@@ -141,52 +168,6 @@ void Player::Update(double deltaTime)
 
 	using namespace DirectX;
 
-	//set jumpedThisFrame to false
-	m_jumpedThisFrame = false;
-
-	//calculate walk direction (-1, 1, based on camera) and movement speed
-	{
-		///Speed
-		auto physSpeed = this->getLiniearVelocity();
-		
-		//if y speed is zero, set isInAir to false,
-		if (std::abs(physSpeed.y) < 0.001f)
-			m_isInAir = false;
-
-		float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-		m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
-
-		///Walk dir
-			//Get camera direction and normalize on X,Z plane
-		auto cameraDir = p_camera->getDirection();
-		XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
-		///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
-
-		auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
-		auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
-		auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
-		auto XZMovementNormalized = XMVector3Normalize(XZMovement);
-		///AssertHasLength(XZCameraDir);
-		//AssertHasLength(XZMovement);
-
-			//Get dot product of cam dir and player movement
-		auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
-		dot = std::clamp(dot, -0.999999f, 0.999999f);
-			//Convert to degrees
-		m_currentDirection = XMConvertToDegrees(std::acos(dot));
-			//Negate if necessary
-		float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
-
-		m_currentDirection *= (inverter > 0.0)
-			? -1.0
-			: 1.0;
-		m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
-		///AssertNotNAN(m_currentDirection);
-
-	}
-
-	
-
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
@@ -196,7 +177,6 @@ void Player::Update(double deltaTime)
 	}
 
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
-
 	if (InputHandler::isKeyPressed('I'))
 	{
 		RefillMana(10);
@@ -333,7 +313,8 @@ void Player::SendOnUpdateMessage()
 		Network::Multiplayer::GetInstance()->GetNetworkID(),
 		PlayerState::Idle,
 		this->getPosition(),
-		this->getEulerRotation());
+		this->getCamera()->getYRotationEuler()
+		);
 
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
@@ -377,6 +358,66 @@ void Player::SendOnAbilityUsed()
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void Player::SendOnAnimationUpdate(double dt)
+{
+	using namespace DirectX;
+
+	static double accumulatedTime = 0.0;
+	static const double FREQUENCY = 1.0 / 50.0; //20 ms
+	accumulatedTime += dt;
+
+	if (accumulatedTime >= FREQUENCY)
+	{
+		accumulatedTime -= FREQUENCY;
+		
+		{
+			///Speed
+			b3Vec3 physSpeed = this->getLiniearVelocity();
+
+			//if y speed is zero, set isInAir to false,
+			if (std::abs(physSpeed.y) < 0.001f)
+				m_isInAir = false;
+
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			XMFLOAT4A cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			XMVECTOR XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			XMVECTOR XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			XMVECTOR XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			XMVECTOR XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			float dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+			///AssertNotNAN(m_currentDirection);
+		}
+		Network::ENTITYANIMATIONPACKET packet(
+			Network::ID_PLAYER_ANIMATION, 
+			Network::Multiplayer::GetInstance()->GetNetworkID(),
+			this->m_currentDirection, 
+			this->m_currentSpeed,
+			this->getCamera()->getYRotationEuler());
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::RegisterThisInstanceToNetwork()
@@ -692,12 +733,50 @@ void Player::_onAbility(double dt)
 
 void Player::_cameraPlacement(double deltaTime)
 {
+	static float lastOffset = 0.0f;
+	static bool hasPlayed = true;
+	static int last = 0;
+
 	float cameraOffset = 1.87f;
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+	
+	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+
+	pos.y += offsetY;
+	
+	if (p_moveState == Walking || p_moveState == Sprinting)
+	{
+		if (!hasPlayed)
+		{
+			if (lastOffset < offsetY)
+			{
+				hasPlayed = true;
+				auto xmPos = getPosition();
+				FMOD_VECTOR at = {xmPos.x, xmPos.y, xmPos.z};
+				int index = -1;
+				while (index == -1 || index == last)
+				{
+					index = rand() % (int)m_sounds.size();
+				}
+				AudioEngine::PlaySoundEffect(m_sounds[index], &at)->setVolume(0.3 + (p_moveState * 0.4));
+				last = index;
+			}
+		}
+		else
+		{
+			if (lastOffset > offsetY)
+			{
+				hasPlayed = false;
+			}
+		}
+
+		lastOffset = offsetY;
+	}
+
+
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
 }
@@ -712,6 +791,8 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat4A(&xmRight);
 	DirectX::XMVECTOR vUp = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vDir, vRight));
 	DirectX::XMStoreFloat3(&xmUp, vUp);
+
+	//std::cout << xmPos.x << ", " << xmPos.y << ", " << xmPos.z << std::endl;
 
 	FMOD_VECTOR vel;
 	vel.x = ( xmPos.x - xmLastPos.x ) / deltaTime;

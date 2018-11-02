@@ -17,7 +17,9 @@
 #include "../../Gameplay/Triggers/TriggerHandler.h"
 
 #include <AudioEngine.h>
-class Room
+#include "2D Engine/Quad/Components/HUDComponent.h"
+
+class Room : public HUDComponent
 {
 private:
 	struct prop
@@ -58,12 +60,17 @@ private:
 	prop * props;
 
 	TriggerHandler * triggerHandler;
-	std::vector<BaseActor*> baseActors;
-	std::vector<PressurePlate*> triggers;
-	std::vector<Lever*> levers;
+	Door * door;
+	Lever * lever;
+	PressurePlate * pressurePlate;
+
 	
 
 	std::vector<const int*> vis;
+
+	Quad * m_lose;
+
+	bool m_youLost = false;
 public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);

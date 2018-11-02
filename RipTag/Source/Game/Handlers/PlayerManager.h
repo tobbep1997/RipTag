@@ -23,9 +23,8 @@ public:
 	//This is so  we can handle RemotePlayer events directly on Packet Receive 
 	void RegisterThisInstanceToNetwork();
 	void _onRemotePlayerCreate(unsigned char id, unsigned char * data);
-	void _onRemotePlayerEvent(unsigned char id, unsigned char * data);
-	void _onRemotePlayerDisconnect(unsigned id, unsigned char * data);
-	void _onRemotePlayerAbility(unsigned id, unsigned char * data);
+	void _onRemotePlayerDisconnect(unsigned char id, unsigned char * data);
+	void _onRemotePlayerPacket(unsigned char id, unsigned char * data);
 
 	void Update(float dt);
 	void PhysicsUpdate();

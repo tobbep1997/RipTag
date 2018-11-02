@@ -6,7 +6,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 	this->m_roomIndex = roomIndex;
 	this->m_worldPtr = worldPtr;
 }
-Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr)
+Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr) : HUDComponent()
 {
 	std::string filePath = "RUM";
 	filePath += std::to_string(roomIndex);
@@ -18,17 +18,15 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	setAssetFilePath(filePath);
 	triggerHandler = new TriggerHandler();
 
-	Door * door;
-	Lever * lever;
-	PressurePlate * pressurePlate;
+
 
 	door = new Door();
 	Manager::g_meshManager.loadStaticMesh("DOOR");
 	Manager::g_textureManager.loadTextures("DOOR");
 	door->setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
 	door->setTexture(Manager::g_textureManager.getTexture("DOOR"));
-	door->Init(*m_worldPtr, e_staticBody, .5f ,3, 1.5f);
-	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692f,1), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246, 1));
+	door->Init(*m_worldPtr, e_staticBody, .5f, 3.0f, 1.5f);
+	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692,1), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246f, 1));
 	pressurePlate = new PressurePlate();
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_textureManager.loadTextures("PRESSUREPLATE");
@@ -50,13 +48,24 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	t0.push_back(lever);
 	t1.push_back(door);
 
-	triggerHandler->AddPair(t0, t1, true);
-	baseActors.push_back(door);
-	baseActors.push_back(pressurePlate);
-	baseActors.push_back(lever);
-	triggers.push_back(pressurePlate);
-	levers.push_back(lever);
+	triggerHandler->AddPair(t0, t1, false);
 
+
+	
+
+	m_lose = new Quad();
+	m_lose->init();
+	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setScale(0.5f, 0.25f);
+	
+	m_lose->setString("YOU LOST");
+	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+
+	HUDComponent::AddQuad(m_lose);
 }
 Room::~Room()
 {
@@ -181,7 +190,7 @@ void Room::LoadRoomToMemory()
 		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
 		CollisionBoxes->addCollisionBox(b3Vec3(0.066f, 5.35f, -0.644f), b3Vec3(0.798f, 3.052f, 3.052f), b3Quaternion(0, 0, 0, 0), "BLINK_WALL", false, m_worldPtr);
-		CollisionBoxes->addCollisionBox(b3Vec3(-6.149f, 6.17f, -9.57f), b3Vec3(10.1323f, 4.385f, 1.052f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
+		CollisionBoxes->addCollisionBox(b3Vec3(-5.502f, 6.35f, -9.57f), b3Vec3(9.5f, 4.036f, 0.968f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
 
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
@@ -265,14 +274,26 @@ void Room::Update(float deltaTime)
 		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
 	}
 	triggerHandler->Update(deltaTime);
-	for (int i = 0; i < triggers.size(); i++)
+	door->Update(deltaTime);
+	lever->Update(deltaTime);
+	pressurePlate->Update(deltaTime);
+	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
-		triggers[i]->Update(deltaTime);
+		if (m_roomGuards.at(i)->getIfLost() == true)
+		{
+			m_youLost = true;
+		}
 	}
-	for (int i = 0; i < levers.size(); i++)
+	if (m_youLost)
 	{
-		levers[i]->Update(deltaTime);
+		HUDComponent::HUDUpdate(deltaTime);
 	}
+
+	if (m_playerInRoomPtr->getPosition().y <= -50)
+	{
+		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
+	}
+	
 }
 
 void Room::SetActive(bool state)
@@ -294,10 +315,16 @@ void Room::Draw()
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
-	for (int i = 0; i < baseActors.size(); i++)
+	door->Draw();
+	lever->Draw();
+	pressurePlate->Draw();
+
+	
+	if (m_youLost)
 	{
-		baseActors.at(i)->Draw();
+		HUDComponent::HUDDraw();
 	}
+	
 
 }
 
@@ -329,11 +356,12 @@ void Room::Release()
 		ab->release();
 	delete m_grid.gridPoints;
 
-	for (int i = 0; i < baseActors.size(); i++)
-	{
-		baseActors[i]->Release(*m_worldPtr);
-		delete baseActors[i];
-	}
+	door->Release(*m_worldPtr);
+	delete door;
+	lever->Release(*m_worldPtr);
+	delete lever;
+	pressurePlate->Release(*m_worldPtr);
+	delete pressurePlate;
 	delete triggerHandler;
 	
 }

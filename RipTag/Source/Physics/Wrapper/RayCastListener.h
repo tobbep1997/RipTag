@@ -10,6 +10,10 @@ public:
 		RayContact(b3Body* originBody, bool singleUse = false)
 		{
 			this->originBody = originBody;
+			contactShape = nullptr;
+			contactPoint.SetZero();
+			normal.SetZero();
+			fraction = 0;
 			consumeState = new int(0);
 			if(singleUse)
 			*consumeState = 2;
@@ -18,6 +22,7 @@ public:
 		{
 			this->contactShape = contactShape;
 			this->contactPoint = point;
+			
 			this->normal = normal;
 			this->fraction = fraction;
 		};
@@ -80,6 +85,7 @@ public:
 
 		if (rayContacts.back().fraction == 0 || singleUse)
 		{
+			contact = rayContacts.back();
 			delete rayContacts.back().consumeState;
 			rayContacts.pop_back();
 		}
@@ -88,7 +94,7 @@ public:
 			delete rayContacts.back().consumeState;
 			rayContacts.pop_back();
 		}
-
+		
 		return contact;
 	}
 
@@ -100,7 +106,7 @@ public:
 	RayCastListener() { }
 	virtual ~RayCastListener() 
 	{
-		for (int i = rayContacts.size()-1; i > 0; i--)
+		for (int i = (int)rayContacts.size()-1; i > 0; i--)
 		{
 			delete rayContacts.at(i).consumeState;
 			rayContacts.erase(rayContacts.begin() + i);

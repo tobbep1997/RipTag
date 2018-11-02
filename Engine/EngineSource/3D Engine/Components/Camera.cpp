@@ -1,4 +1,29 @@
 #include "Camera.h"
+#include <iostream>
+#include <math.h>
+#include <algorithm>
+
+const DirectX::XMFLOAT4A Camera::getYRotationEuler()
+{
+	using namespace DirectX;
+
+	XMVECTOR XZcameraDirection = XMVector3Normalize(XMVectorSet(m_direction.x, 0.0, m_direction.z, 0.0));
+	XMVECTOR defaultDir = XMVectorSet(0.0, 0.0, -1.0, 0.0);
+	float dot = XMVectorGetX(XMVector3Dot(defaultDir, XZcameraDirection));
+
+	dot = std::clamp(dot, -0.999999f, 0.999999f);
+	//Convert to degrees
+	float r = std::acos(dot);
+	//Negate if necessary
+	float inverter = (XMVectorGetY(XMVector3Cross(XZcameraDirection, defaultDir)));
+
+	r *= (inverter > 0.0)
+		? -1.0
+		: 1.0;
+	r = std::clamp(r, -XM_PI, XM_PI);
+
+	return {0.0, r, 0.0, 0.0};
+}
 
 void Camera::_calcViewMatrix(bool dir)
 {
@@ -109,13 +134,12 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 	
 	vDir = DirectX::XMLoadFloat4A(&this->m_direction);
 
-	DirectX::XMVECTOR vNewDir = DirectX::XMVector3TransformNormal(vLastDir, mRot);
-	vUp = DirectX::XMLoadFloat4A(&this->m_UP);
-
+	DirectX::XMVECTOR vNewDir = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(vLastDir, mRot));
 
 	DirectX::XMVECTOR vDot = DirectX::XMVector3Dot(vNewDir, vUp);
 	float dot = DirectX::XMVectorGetX(vDot);
-	DirectX::XMStoreFloat4A(&this->m_direction, DirectX::XMVector3Normalize(vNewDir));
+	if (fabs(dot) < 0.90)
+		DirectX::XMStoreFloat4A(&this->m_direction, DirectX::XMVector3Normalize(vNewDir));
 }
 
 void Camera::Rotate(float x, float y, float z, float w)
@@ -185,7 +209,7 @@ const DirectX::XMFLOAT4A & Camera::getDirection() const
 	return this->m_direction;
 }
 
-const DirectX::XMFLOAT4A & Camera::getRight() const
+DirectX::XMFLOAT4A Camera::getRight() const
 {
 	DirectX::XMVECTOR dir, up, right;
 	dir = DirectX::XMLoadFloat4A(&this->m_direction);
@@ -228,4 +252,14 @@ DirectX::XMFLOAT4A Camera::_add(const DirectX::XMFLOAT4A & a, const DirectX::XMF
 	DirectX::XMFLOAT4A sum;
 	DirectX::XMStoreFloat4A(&sum, vSum);
 	return sum;
+}
+
+DirectX::XMMATRIX Camera::ForceRotation(const DirectX::XMFLOAT4X4A& rotMatrix)
+{
+	using namespace DirectX;
+	auto originalPosition = getPosition();
+	auto tMat = XMMatrixTranslation(originalPosition.x, originalPosition.y, originalPosition.z);
+	XMMATRIX newWorld = XMLoadFloat4x4A(&rotMatrix) * tMat;
+	ForceWorld(newWorld);
+	return newWorld;
 }

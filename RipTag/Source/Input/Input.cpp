@@ -557,8 +557,8 @@ void Input::ResetMouse()
 {
 	if (InputHandler::getWindowFocus())
 	{
-		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2);
-		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2);
+		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2.0f);
+		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2.0f);
 
 		SetCursorPos(midX, midY);
 	}

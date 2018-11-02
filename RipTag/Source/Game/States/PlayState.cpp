@@ -26,10 +26,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	RipExtern::m_rayListener = m_rayListener;
 	CameraHandler::Instance();
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
-	
+	//Load assets
+	{
+
+	}
 
 	future1.get();
 	
@@ -48,6 +53,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 	
@@ -59,13 +65,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	triggerHandler = new TriggerHandler();
 
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR at = { -29.1406f, -2.82f, -15.4373f };
-	FMOD_VECTOR at2 = { -11.5999f, -2.82f, -0.4889f };
-	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
-	AudioEngine::PlaySoundEffect(name, &at2);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2);
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291 };
 
-
-	AudioEngine::CreateReverb(at, 10, 25.0f);
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
 
 	Input::ResetMouse();
 

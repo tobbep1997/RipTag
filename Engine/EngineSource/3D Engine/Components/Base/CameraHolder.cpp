@@ -11,17 +11,17 @@ double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double mov
 {
 	if (this->p_moveState == Walking)
 	{
-		m_moveBob += velocity * (moveSpeed * deltaTime); 
+		m_moveBob += (float)(velocity * (moveSpeed * deltaTime)); 
 		m_offset = m_moveAmp * sin(m_moveFreq * m_moveBob); 
 	}
 	else if (this->p_moveState == Sprinting)
 	{
-		m_sprintBob += velocity * (moveSpeed * deltaTime);
+		m_sprintBob += (float)(velocity * (moveSpeed * deltaTime));
 		m_offset = m_sprintAmp * sin(m_sprintFreq * m_sprintBob);
 	}
 	else
 	{
-		m_stopBob += deltaTime * 1.5f; 
+		m_stopBob += (float)deltaTime * 1.5f; 
 		m_offset = m_stopAmp * sin(m_stopFreq * m_stopBob);
 	}
 
@@ -53,7 +53,7 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 
 	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
 	target = XMVector4Transform(target, rot);
-	XMVECTOR out = XMVectorLerp(in, target, min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+	XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	//out = XMVector4Transform(out, rot);
 	XMStoreFloat4A(&m_lastPeek, out);
 	p_camera->setUP(m_lastPeek);
@@ -68,7 +68,7 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 	float MAX_PEEK = 1.0f;
 
 	//XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), MAX_PEEK));
-	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min(deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
+	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min((float)deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	XMStoreFloat4A(&m_lastSideStep, sideStep);
 	out = XMVectorAdd(out, sideStep);
 	XMStoreFloat4(&cPos, out);
@@ -85,7 +85,7 @@ double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const Dir
 		}
 		DirectX::XMFLOAT4A startPos = pos;
 		startPos.y = startPos.y + (startHeight - startPos.y);
-		m_crouchAnimSteps += deltaTime * m_crouchSpeed;
+		m_crouchAnimSteps += (float)deltaTime * m_crouchSpeed;
 		if (m_crouchAnimSteps < 1) //Animation ongoing
 		{
 			DirectX::XMStoreFloat4A(&startPos, DirectX::XMVectorLerp(DirectX::XMLoadFloat4A(&startPos), DirectX::XMLoadFloat4A(&pos), m_crouchAnimSteps));

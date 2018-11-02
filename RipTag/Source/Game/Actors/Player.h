@@ -14,7 +14,7 @@
 #include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
 #include "../Abilities/Disable/DisableAbility.h"
-
+#include <string>
 
 
 struct KeyPressed
@@ -39,6 +39,10 @@ private: //stuff for state machine
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
 	float m_currentDirection = 0.0; //[-1,1]
+
+	std::vector<std::string> m_sounds;
+
+
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 4.0f;
@@ -86,6 +90,8 @@ private:
 
 	const int STANDARD_START_MANA = 100;
 	Quad * m_manaBar;
+	Quad * m_manaBarBackground;
+	Quad * m_manabarText;
 
 
 	
@@ -114,6 +120,8 @@ public:
 	//Networking
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
+	void SendOnAnimationUpdate(double dt);
+
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);

@@ -30,16 +30,20 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	m_vc.Init(this->p_camera);
 	this->setDir(1, 0, 0);
 	this->getCamera()->setFarPlane(20);
-	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
+	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
+	this->getAnimatedModel()->Play();
 	PhysicsComponent::Init(*world, e_staticBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
-	setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	setScale(1.0f, 1.0f, 1.0f);
+	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -1.0, 0.0));
+	setScale(.015f, .015f, .015f);
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
 }
@@ -125,8 +129,27 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
+	if (getAnimatedModel())
+		getAnimatedModel()->Update(deltaTime);
 	if (!m_disabled)
 	{
+		//auto dir = p_camera->getDirection();
+		//DirectX::XMFLOAT4A forward, right, up;
+		//forward = { dir.x, dir.y, dir.z, 0.0};
+		//up = { 0,1,0,0.0 };
+		//DirectX::XMStoreFloat4A(&right, DirectX::XMVector3Cross(XMLoadFloat4A(&forward), XMLoadFloat4A(&up)));
+		//DirectX::XMStoreFloat4A(&forward, DirectX::XMVector3Cross(XMLoadFloat4A(&right), XMLoadFloat4A(&up)));
+
+		//DirectX::XMFLOAT4X4A rotMatrix = 
+		//{
+		//	right.x,	right.y,	right.z,	0,
+		//	0,			1,			0,			0,
+		//	forward.x,	forward.y,	forward.z,	0,
+		//	0,			0,			0,			1
+		//};
+		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
+		//this->ForceWorld(cameraWorld);
+		
 		if (!m_inputLocked)
 		{
 			_handleInput(deltaTime);
@@ -143,6 +166,7 @@ void Enemy::Update(double deltaTime)
 		_CheckPlayer(deltaTime);
 
 	}
+	getBody()->SetType(e_dynamicBody);
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -199,6 +223,7 @@ void Enemy::_handleInput(double deltaTime)
 	_handleRotation(deltaTime);
 	_onCrouch();
 	_possessed(deltaTime);
+	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 }
 
 void Enemy::_handleMovement(double deltaTime)
@@ -209,7 +234,6 @@ void Enemy::_handleMovement(double deltaTime)
 	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
-	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
 	XMVECTOR vUP = XMLoadFloat4(&UP);
@@ -265,7 +289,23 @@ void Enemy::_handleRotation(double deltaTime)
 
 void Enemy::_TempGuardPath(bool x, double deltaTime)
 {
-	p_camera->Rotate(0.0f, .1f * 5 * deltaTime, 0.0f);
+	p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
+
+#ifdef _DEBUG
+	ImGui::Begin("be");
+	ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
+	ImGui::End();
+#endif
+
+	//ImGui::Begin("be");
+	//ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
+	//ImGui::End();
+
+
+	setRotation(p_camera->getYRotationEuler());
+	//PhysicsComponent::p_setPositionRot(getPosition().x, getPosition().y, getPosition().z,p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+	/* p_camera->getYRotationEuler();*/
 }
 
 void Enemy::_IsInSight()
@@ -318,6 +358,11 @@ void Enemy::SetPathVector(std::vector<Node*> path)
 std::vector<Node*> Enemy::GetPathVector()
 {
 	return m_path;
+}
+
+bool Enemy::getIfLost()
+{
+	return m_found;
 }
 
 void Enemy::_possessed(double deltaTime)
@@ -516,6 +561,8 @@ void Enemy::_CheckPlayer(double deltaTime)
 			if (m_visabilityTimer <= m_visCounter)
 			{
 				//std::cout << "FOUND YOU BITCH" << std::endl;
+				//exit(0);
+				m_found = true;
 			}
 		}
 		else
