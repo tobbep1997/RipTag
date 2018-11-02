@@ -6,7 +6,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 	this->m_roomIndex = roomIndex;
 	this->m_worldPtr = worldPtr;
 }
-Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr)
+Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr) : HUDComponent()
 {
 	std::string filePath = "RUM";
 	filePath += std::to_string(roomIndex);
@@ -57,6 +57,21 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	triggers.push_back(pressurePlate);
 	levers.push_back(lever);
 
+	
+
+	m_lose = new Quad();
+	m_lose->init();
+	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setScale(0.5f, 0.25f);
+	
+	m_lose->setString("YOU LOST");
+	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+
+	HUDComponent::AddQuad(m_lose);
 }
 Room::~Room()
 {
@@ -273,6 +288,24 @@ void Room::Update(float deltaTime)
 	{
 		levers[i]->Update(deltaTime);
 	}
+
+	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
+	{
+		if (m_roomGuards.at(i)->getIfLost() == true)
+		{
+			m_youLost = true;
+		}
+	}
+	if (m_youLost)
+	{
+		HUDComponent::HUDUpdate(deltaTime);
+	}
+
+	if (m_playerInRoomPtr->getPosition().y <= -50)
+	{
+		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
+	}
+	
 }
 
 void Room::SetActive(bool state)
@@ -298,6 +331,13 @@ void Room::Draw()
 	{
 		baseActors.at(i)->Draw();
 	}
+
+	
+	if (m_youLost)
+	{
+		HUDComponent::HUDDraw();
+	}
+	
 
 }
 
