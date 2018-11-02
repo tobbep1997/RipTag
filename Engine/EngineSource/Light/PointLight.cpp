@@ -208,7 +208,16 @@ float PointLight::getDistanceFromCamera(Camera& camera)
 	DirectX::XMVECTOR lenght = DirectX::XMVector4Length(vecSubs);
 
 	return DirectX::XMVectorGetX(lenght);
+}
 
+float PointLight::getDistanceFromObject(const DirectX::XMFLOAT4A& oPos)
+{
+	DirectX::XMVECTOR vec1 = DirectX::XMLoadFloat4A(&oPos);
+	DirectX::XMVECTOR vec2 = DirectX::XMLoadFloat4A(&this->m_position);
+	DirectX::XMVECTOR vecSubs = DirectX::XMVectorSubtract(vec1, vec2);
+	DirectX::XMVECTOR lenght = DirectX::XMVector4Length(vecSubs);
+
+	return DirectX::XMVectorGetX(lenght);
 }
 
 void PointLight::_createSides()

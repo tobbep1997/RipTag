@@ -1,5 +1,6 @@
 #include "VisabilityAbility.h"
 #include "../Actors/Player.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 
 
 VisabilityAbility::VisabilityAbility()
@@ -123,8 +124,26 @@ void VisabilityAbility::_inStateActive()
 		m_visSphere->setPosition(po);
 
 		DirectX::XMFLOAT4A color;
-		color.x = color.y = color.z = 2.0f * player->getVisability();
+
+		float x = /*color.x **/ 3.0f * player->getVisability();
+		x = std::clamp(x, (float)1, (float)6);
+		float y = /*color.y **/ 3.0f * player->getVisability();
+		y = std::clamp(y, (float)1, (float)6);
+		float z = /*color.z **/ 3.0f * player->getVisability();
+		z = std::clamp(z, (float)1, (float)6);
+
+		//color.x = color.y = color.z = 2.0f * player->getVisability();
+		color.x = x;
+		color.y = y;
+		color.z = z;
+
 		m_lastColor = color;
+
+		#if _DEBUG
+			ImGui::Begin("vis");
+			ImGui::Text("visa, %f", player->getVisability());
+			ImGui::End();
+		#endif
 
 		m_visSphere->setColor(color.x, color.y, color.z, 1.0f);
 	}

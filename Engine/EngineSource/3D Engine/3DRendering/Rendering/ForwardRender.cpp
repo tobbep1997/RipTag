@@ -149,6 +149,7 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
+	//_GuardLightCulling();
 	this->m_shadowMap.MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
 	this->m_shadowMap.ShadowPass(&m_animationBuffer);
@@ -322,6 +323,79 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 	//Check distance and check if behind then FORCE CULL THAT BITCH
 
 
+}
+
+void ForwardRender::_GuardLightCulling()
+{
+	//Get all the guards for this frame
+	std::vector<Drawable*> guards;
+	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); ++i)
+	{
+		if (DX::g_geometryQueue.at(i)->getEntityType() == EntityType::GuarddType)
+		{
+			guards.push_back(DX::g_geometryQueue.at(i));
+		}
+	}
+
+	std::vector<PointLight*> lights;
+	std::vector<int> indexs;
+
+	for (unsigned int i = 0; i < guards.size(); ++i)
+	{
+		float bobbyDickLenght = 1000000;
+		int lightIndex = -1;
+		for (unsigned int j = 0; j < DX::g_lights.size(); ++j)
+		{
+			float lenght = DX::g_lights.at(j)->getDistanceFromObject(guards.at(i)->getPosition());
+			if (lenght < bobbyDickLenght)
+			{
+				bobbyDickLenght = lenght;
+				lightIndex = j;
+			}
+		}
+		if (lightIndex != -1)
+		{
+			lights.push_back(DX::g_lights.at(lightIndex));
+			indexs.push_back(lightIndex);
+		}
+	}
+	//bool Culled = false;
+	//while (Culled == false)
+	//{
+	//	bool ff = false;
+	//	for (unsigned int i = 0; i < DX::g_lights.size(); ++i)
+	//	{
+	//		bool found = false;
+	//		for (unsigned int j = 0; j < lights.size(); ++j)
+	//		{
+	//			if (DX::g_lights.at(i) != lights.at(j))
+	//			{
+	//				found = true;
+	//				DX::g_lights.erase(DX::g_lights.begin() + i);
+	//				//lights.erase(lights.begin() + j);
+	//				break;
+	//			}
+	//		}
+	//		if (found == true)
+	//		{
+	//			ff = true;
+	//			break;
+	//		}
+	//		
+	//	}
+	//	if (ff == false)
+	//	{
+	//		Culled = true;
+	//	}
+	//	
+	//}
+
+	DX::g_lights.clear();
+	DX::g_lights = lights;
+	
+	ImGui::Begin("lgihts");
+	ImGui::Text("Lights, %d", DX::g_lights.size());
+	ImGui::End();
 }
 
 void ForwardRender::_createConstantBuffer()
