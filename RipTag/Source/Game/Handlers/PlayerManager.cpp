@@ -76,7 +76,10 @@ void PlayerManager::Update(float dt)
 	if (mRemotePlayer && hasRemotePlayer)
 		mRemotePlayer->Update(dt);
 	if (mLocalPlayer && hasLocalPlayer)
+	{
 		mLocalPlayer->Update(dt);
+		AudioEngine::UpdateListenerAttributes(mLocalPlayer->getFMODListener());
+	}
 	if (hasRemotePlayer && hasLocalPlayer)
 	{
 		if (accumulatedDT >= frequency)
@@ -86,6 +89,7 @@ void PlayerManager::Update(float dt)
 		}
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
+
 }
 
 void PlayerManager::PhysicsUpdate()
@@ -103,7 +107,7 @@ void PlayerManager::Draw()
 	}
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Draw();
-	
+#if _DEBUG
 	ImGui::Begin("possese");
 	if (hasRemotePlayer)
 	{
@@ -119,6 +123,7 @@ void PlayerManager::Draw()
 		ImGui::Text("Z: %f", mLocalPlayer->getPosition().z);
 	}
 	ImGui::End();
+#endif
 }
 
 void PlayerManager::CreateLocalPlayer()

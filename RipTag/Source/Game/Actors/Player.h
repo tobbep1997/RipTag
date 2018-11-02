@@ -10,6 +10,7 @@
 #include "../Abilities/PossessGuard.h"
 #include "../Abilities/BlinkAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include <AudioEngine.h>
 #include "../Abilities/VisabilityAbility.h"
 #include "Enemy/Enemy.h"
 #include "../Abilities/Disable/DisableAbility.h"
@@ -40,12 +41,13 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 10.0f;
+	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
-	const float JUMP_POWER = 400.0f;
+	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 2.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
+	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
@@ -54,11 +56,20 @@ private:
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
 
-	RayCastListener * m_rayListener;
-
 	float m_standHeight;
-	float m_moveSpeed = 2.0f;
+	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
+	float m_offPutY = 0.4f; 
+	
+	bool m_currClickCrouch = false; 
+	bool m_prevClickCrouch = false;
+	bool m_currClickSprint = false; 
+	bool m_prevClickSprint = false; 
+	bool m_isSprinting = false; 
+	
+	int m_toggleCrouch = 0; 
+	int m_toggleSprint = 0; 
+
 	KeyPressed m_kp;
 	
 	float m_visability = 0.0f;
@@ -73,7 +84,6 @@ private:
 	float m_maxMana;
 
 	const int STANDARD_START_MANA = 100;
-
 	Quad * m_manaBar;
 	
 public:
@@ -114,6 +124,7 @@ public:
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 
+	const AudioEngine::Listener & getFMODListener() const; 
 	
 	//This is a way of checking if we can use the ability with out current mana
 	bool CheckManaCost(const int & manaCost);
@@ -134,4 +145,7 @@ private:
 
 
 	void _cameraPlacement(double deltaTime);
+	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
+	void _activateCrouch(); 
+	void _deActivateCrouch();
 };

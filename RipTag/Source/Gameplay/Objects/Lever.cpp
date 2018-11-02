@@ -1,6 +1,6 @@
 #include "Lever.h"
 #include "../../../RipTagExtern/RipExtern.h"
-//#include <iostream>
+#include <iostream>
 
 Lever::Lever()
 {
@@ -14,6 +14,7 @@ Lever::~Lever()
 void Lever::Init()
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
+	p_setPosition(getPosition().x, getPosition().y, getPosition().z);
 	setObjectTag("LEVER");
 	setUserDataBody(this);
 }
@@ -35,12 +36,10 @@ void Lever::Update(double deltaTime)
 				if (Triggerd())
 				{
 					p_trigger(false);
-					//std::cout << "Untriggered" << std::endl;
 				}
 				else
 				{
 					p_trigger(true);
-					//std::cout << "Triggered" << std::endl;
 				}
 			}
 		}

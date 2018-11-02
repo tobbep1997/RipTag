@@ -1,5 +1,4 @@
 #include "Room.h"
-
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -72,6 +71,12 @@ void Room::UnloadRoomFromMemory()
 		m_staticAssets.clear();
 		m_pointLights.clear();
 
+		CollisionBoxes->Release(*RipExtern::g_world);
+		delete CollisionBoxes;
+
+		for (auto & ab : m_audioBoxes)
+			ab->release();
+		m_audioBoxes.clear();
 		m_roomLoaded = false;
 	}
 }
@@ -79,7 +84,7 @@ void Room::UnloadRoomFromMemory()
 void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
-
+	std::cout << m_assetFilePath << std::endl;
 	if (m_roomLoaded == false)
 	{
 		MyLibrary::Loadera fileLoader;
@@ -92,7 +97,7 @@ void Room::LoadRoomToMemory()
 
 
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid.CreateGridWithWorldPosValues(25, 25, m_grid);
+		m_pathfindingGrid.CreateGridWithWorldPosValues(6, 15, m_grid);
 		//
 		m_roomLoaded = true;
 
@@ -126,7 +131,20 @@ void Room::LoadRoomToMemory()
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 
 		CollisionBoxes = new BaseActor();
-		CollisionBoxes->Init(*m_worldPtr, Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath()));
+		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+		CollisionBoxes->Init(*m_worldPtr, boxes);
+		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
+		{
+			float * f4Rot = boxes.boxes[i].rotation;
+			float * f3Pos = boxes.boxes[i].translation;
+			float * f3Scl = boxes.boxes[i].scale;
+			DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
+			DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1};
+			DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1};
+			FMOD::Geometry * ge = AudioEngine::CreateCube(0.75, 0.35, xmPos, xmScl, xmQ);
+			ge->setActive(false);
+			m_audioBoxes.push_back(ge);
+		}
 
 		m_staticAssets.push_back(temp);
 		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
@@ -138,7 +156,7 @@ void Room::LoadRoomToMemory()
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(255, 102, 0);
+		light->setColor(200, 102, 50);
 	}
 }
 
@@ -187,6 +205,12 @@ void Room::Update(float deltaTime)
 	}
 }
 
+void Room::SetActive(bool state)
+{
+	for (auto & ab : m_audioBoxes)
+		ab->setActive(state);
+}
+
 void Room::Draw()
 {
 	for (int i = 0; i < m_staticAssets.size(); ++i)
@@ -226,8 +250,8 @@ void Room::Release()
 	{
 		delete enemy;
 	}
-	
-	
+	for (auto ab : m_audioBoxes)
+		ab->release();
 }
 
 void Room::loadTextures()

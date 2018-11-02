@@ -187,7 +187,7 @@ namespace SM
 		if (it != m_Clips.end())
 		{
 			Current1DStateData data;
-			std::cout << it->location << std::endl;
+			//std::cout << it->location << std::endl;
 			it == m_Clips.begin()
 				? std::make_pair(it->clip, nullptr)
 				: std::make_pair((it - 1)->clip, it->clip);

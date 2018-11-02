@@ -1,5 +1,6 @@
 #include "LevelHandler.h"
 #include "InputManager/InputHandler.h"
+#include <AudioEngine.h>
 LevelHandler::LevelHandler()
 {
 }
@@ -12,16 +13,21 @@ LevelHandler::~LevelHandler()
 	}
 }
 
-void LevelHandler::Init(b3World& worldPtr)
+void LevelHandler::Init(b3World& worldPtr, Player * playerPtr)
 {
+	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
 
 	_LoadPreFabs();
-	_GenerateLevelStruct(2, 5);
+	_GenerateLevelStruct(1, 1);
 
 	_RoomLoadingManager();
+	m_rooms[m_activeRoom]->SetActive(true);
 
+	this->m_playerPtr->setPosition(m_rooms.at(0)->getPlayer1StartPos().x,
+		m_rooms.at(0)->getPlayer1StartPos().y,
+		m_rooms.at(0)->getPlayer1StartPos().z);
 }
 
 void LevelHandler::Release()
@@ -57,24 +63,28 @@ void LevelHandler::Update(float deltaTime)
 	{
 		if (pressed == false)
 		{
+			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom--;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
 	{
 		if (pressed == false)
 		{
+			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom++;
 			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 		}
 	}
 	else if (InputHandler::isKeyPressed('H'))
@@ -104,6 +114,8 @@ void LevelHandler::Draw()
 void LevelHandler::setPlayer(Player * playerPtr)
 {
 	this->m_playerPtr = playerPtr;
+
+
 }
 
 void LevelHandler::_LoadPreFabs()
@@ -119,8 +131,8 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	{
 		//Create a room
 		//Get a random int
-		int randomRoom = rand() % 3+1;
-		Room * room = new Room(randomRoom, m_worldPtr, i, m_playerPtr);
+		int randomRoom = rand() % amountOfRooms;
+		Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
 
 
 		m_rooms.push_back(room);
@@ -140,22 +152,27 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	}
 
 	//Room Unload and Load
-	if ((current - 2) >= 0)
-	{
-		//m_rooms.at(current - 2)->UnloadRoomFromMemory();
+	//if ((current - 2) >= 0)
+	//{
+	//	//m_rooms.at(current - 2)->UnloadRoomFromMemory();
 
-		m_unloadMutex.lock();
-		m_unloadingQueue.push_back(current- 2);
-		m_unloadMutex.unlock();
-	}
+	//	m_unloadMutex.lock();
+	//	m_unloadingQueue.push_back(current- 2);
+	//	m_unloadMutex.unlock();
+	//}
 
 	if ((current - 1) >= 0)
 	{
 		//m_rooms.at(current)->LoadRoomToMemory();
 
-		m_loadMutex.lock();
+		/*m_loadMutex.lock();
 		m_loadingQueue.push_back(current - 1);
-		m_loadMutex.unlock();
+		m_loadMutex.unlock();*/
+		if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
+		{
+			m_rooms.at(current - 1)->UnloadRoomFromMemory();
+		}
+		
 	}
 	
 
@@ -166,24 +183,28 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	{
 		//m_rooms.at(current + 1)->LoadRoomToMemory();
 
-		m_loadMutex.lock();
-		m_loadingQueue.push_back(current + 1);
-		m_loadMutex.unlock();
+		//m_loadMutex.lock();
+		//m_loadingQueue.push_back(current + 1);
+		//m_loadMutex.unlock();
+		if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
+		{
+			m_rooms.at(current + 1)->UnloadRoomFromMemory();
+		}
+		
 	}
 
-	if ((current + 2) < m_rooms.size())
-	{
-		//m_rooms.at(current + 2)->UnloadRoomFromMemory();
+	//if ((current + 2) < m_rooms.size())
+	//{
+	//	//m_rooms.at(current + 2)->UnloadRoomFromMemory();
 
-		m_unloadMutex.lock();
-		m_unloadingQueue.push_back(current + 2);
-		m_unloadMutex.unlock();
-	}
-	for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
-		m_rooms.at(m_loadingQueue.at(i))->loadTextures();
+	//	m_unloadMutex.lock();
+	//	m_unloadingQueue.push_back(current + 2);
+	//	m_unloadMutex.unlock();
+	//}
+	//for (unsigned int i = 0; i < m_loadingQueue.size(); i++)
+	//	m_rooms.at(m_loadingQueue.at(i))->loadTextures();
 
-	future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
-	
+	//future = std::async(std::launch::async, &LevelHandler::_RoomLoadingThreading, this);
 	
 	//m_loadingQueue.clear();
 

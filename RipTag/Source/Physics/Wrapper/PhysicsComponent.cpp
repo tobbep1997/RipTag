@@ -2,6 +2,7 @@
 #include <iostream>
 #include "EngineSource/3D Engine/RenderingManager.h"
 #pragma warning (disable : 4312)
+#include <AudioEngine.h>
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
@@ -73,14 +74,14 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 	m_bodyDef->gravityScale = 1;
 	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
 	//-----------------------------------------------------
-		
-
+	   
 	b3Hull * h;
 	b3Polyhedron * p;
 	b3ShapeDef* s;
 
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
+
 		h = new b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_hulls.push_back(h);
@@ -125,7 +126,7 @@ void PhysicsComponent::setBaseBodyDef(b3BodyType bodyType)
 	m_bodyDef = new b3BodyDef();
 	m_bodyDef->position.Set(0, 0, 0);
 	m_bodyDef->type = bodyType;
-	m_bodyDef->gravityScale = 1;
+	m_bodyDef->gravityScale = 9.82f;
 	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
 	
 }

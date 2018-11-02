@@ -95,7 +95,6 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 {
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
-	this->m_rayListener = new RayCastListener();
 	m_lockPlayerInput = false;
 }
 
@@ -130,6 +129,9 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
+	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
+
 	using namespace DirectX;
 
 	if (m_lockPlayerInput == false)
@@ -138,7 +140,6 @@ void Player::Update(double deltaTime)
 		{
 			_handleInput(deltaTime);
 		}
-		
 	}
 
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
@@ -156,6 +157,7 @@ void Player::Update(double deltaTime)
 	/*m_possess.Update(deltaTime);
 	m_blink.Update(deltaTime);*/
 	_cameraPlacement(deltaTime);
+	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
 	if (Input::SelectAbility1())	
@@ -211,6 +213,11 @@ bool Player::CheckManaCost(const int& manaCost)
 	{
 		return false;
 	}
+}
+
+const AudioEngine::Listener & Player::getFMODListener() const
+{
+	return m_FMODlistener;
 }
 
 bool Player::DrainMana(const int& manaCost)
@@ -400,10 +407,9 @@ void Player::_handleInput(double deltaTime)
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
 
-	
 	_onSprint();
-	_onMovement();
 	_onCrouch();
+	_onMovement();
 	_onJump();
 	_onAbility(deltaTime);
 	_onBlink();
@@ -444,42 +450,109 @@ void Player::_onMovement()
 
 void Player::_onSprint()
 {
-	if (Input::Sprinting())
+	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 	{
-		m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+		if (Input::isUsingGamepad())
+		{
+			m_currClickSprint = Input::Sprinting();
+			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
+			{
+				m_toggleSprint = 1;
+			}
+
+			if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
+			{
+				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+				p_moveState = Sprinting;
+			}
+			else
+			{
+				m_toggleSprint = 0;
+			}
+
+			if (m_toggleSprint == 0)
+			{
+				m_moveSpeed = MOVE_SPEED;
+				p_moveState = Walking;
+			}
+
+			if (Input::MoveForward() == 0)
+			{
+				p_moveState = Idle;
+				m_toggleSprint = 0; 
+			}
+
+			m_prevClickSprint = m_currClickSprint;
+		}
+		else
+		{
+			if (Input::Sprinting())
+			{
+				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+				p_moveState = Sprinting;
+			}
+			else
+			{
+				m_moveSpeed = MOVE_SPEED;
+				p_moveState = Walking;
+			}
+		}
+	}	
+	else
+	{
+		m_moveSpeed = 0; 
+		p_moveState = Idle; 
+	}
+	
+}
+
+void Player::_onCrouch()
+{
+	if(Input::isUsingGamepad())
+	{
+		m_currClickCrouch = Input::Crouch();
+		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
+		{
+			_activateCrouch();
+			m_toggleCrouch = 1;
+		}
+		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
+		{
+			_deActivateCrouch();
+			m_toggleCrouch = 0; 
+
+			//Just so we don't end up in an old sprint-mode when deactivating crouch.
+			m_toggleSprint = 0;
+		}
+		m_prevClickCrouch = m_currClickCrouch;
 	}
 	else
 	{
-		m_moveSpeed = MOVE_SPEED;
+		if (Input::Crouch())
+		{
+			if (m_kp.crouching == false)
+			{
+				m_standHeight = this->p_camera->getPosition().y;
+				this->CreateBox(0.5f, 0.10f, 0.5f);
+				this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+				m_kp.crouching = true;
+			}
+		}
+		else
+		{
+			if (m_kp.crouching)
+			{
+				m_standHeight = this->p_camera->getPosition().y;
+				this->CreateBox(0.5, 0.5, 0.5);
+				this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+				m_kp.crouching = false;
+			}
+		}
 	}
 
 	if (m_kp.crouching)
 	{
 		m_moveSpeed = MOVE_SPEED * 0.5f;
-	}
-}
-
-void Player::_onCrouch()
-{
-	if (Input::Crouch())
-	{
-		if (m_kp.crouching == false)
-		{
-			m_standHeight = this->p_camera->getPosition().y;
-			this->CreateBox(0.5f, 0.10f, 0.5f);
-			this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
-			m_kp.crouching = true;
-		}
-	}
-	else
-	{
-		if (m_kp.crouching)
-		{
-			m_standHeight = this->p_camera->getPosition().y;
-			this->CreateBox(0.5, 0.5, 0.5);
-			this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
-			m_kp.crouching = false;
-		}
 	}
 }
 
@@ -576,7 +649,7 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
+			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
 			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
 			{
 				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
@@ -587,11 +660,20 @@ void Player::_onInteract()
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						//std::cout << "Lever Found!" << std::endl;
 						//Pull Levers
 					}
 					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
+						//Snuff out torches (example)
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
+					{
+						//std::cout << "Enemy Found!" << std::endl;
+						//Snuff out torches (example)
+					}
+					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					{
+						//std::cout << "illusory wall ahead" << std::endl;
 						//Snuff out torches (example)
 					}
 				}
@@ -612,14 +694,50 @@ void Player::_onAbility(double dt)
 
 void Player::_cameraPlacement(double deltaTime)
 {
-	float cameraOffset = 1.0f;
+	float cameraOffset = 1.87f;
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed);
+	pos.y += p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
 	p_camera->setPosition(pos);
 }
 
+void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos)
+{
+	const DirectX::XMFLOAT4A & xmDir = p_camera->getDirection();
+	const DirectX::XMFLOAT4A & xmPos = p_camera->getPosition();
+	const DirectX::XMFLOAT4A & xmRight = p_camera->getRight();
+	DirectX::XMFLOAT3 xmUp;
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat4A(&xmDir);
+	DirectX::XMVECTOR vRight = DirectX::XMLoadFloat4A(&xmRight);
+	DirectX::XMVECTOR vUp = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vDir, vRight));
+	DirectX::XMStoreFloat3(&xmUp, vUp);
+
+	FMOD_VECTOR vel;
+	vel.x = ( xmPos.x - xmLastPos.x ) / deltaTime;
+	vel.y = ( xmPos.y - xmLastPos.y ) / deltaTime;
+	vel.z = ( xmPos.z - xmLastPos.z ) / deltaTime;
+
+	m_FMODlistener.pos = { xmPos.x, xmPos.y, xmPos.z };
+	m_FMODlistener.up = { xmUp.x, xmUp.y, xmUp.z };
+	m_FMODlistener.forward = { xmDir.x, xmDir.y, xmDir.z };
+	m_FMODlistener.vel = vel;
+}
+void Player::_activateCrouch()
+{
+	this->setPosition(this->getPosition().x, this->getPosition().y - m_offPutY, this->getPosition().z);
+	m_standHeight = this->p_camera->getPosition().y;
+	this->CreateBox(0.5f, 0.10f, 0.5f);
+	m_kp.crouching = true; 
+}
+
+void Player::_deActivateCrouch()
+{
+	this->setPosition(this->getPosition().x, this->getPosition().y + m_offPutY, this->getPosition().z);
+	m_standHeight = this->p_camera->getPosition().y;
+	this->CreateBox(0.5, 0.5, 0.5);
+	m_kp.crouching = false;
+}
 

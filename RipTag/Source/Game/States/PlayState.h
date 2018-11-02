@@ -16,7 +16,6 @@
 //lua 
 #include <LuaTalker.h>
 #include "../../Physics/Wrapper/ContactListener.h"
-#include "../../Physics/Wrapper/RayCastListener.h"
 
 #include "../../Gameplay/Triggers/TriggerHandler.h"
 #define LUA_PLAYSTATE "PlayState"
@@ -37,14 +36,10 @@ private:
 	b3World m_world;
 
 	TriggerHandler *	triggerHandler;
-	PressurePlate *		pressureplate;
-	Lever *				lever;
-	Door *				door;
-	float intensity = 2;
-	Drawable * model;
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
+	FMOD::Channel * TEEEMPCHANNEL;
 
 
 public:

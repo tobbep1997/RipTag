@@ -9,9 +9,18 @@
 #include "../Actors/Player.h"
 #include "../../New_Library/ImportLibrary/FormatHeader.h"
 #include "../Pathfinding/Grid.h"
+#include "../../Physics/Wrapper/CollisionBoxes.h"
 
+#include <AudioEngine.h>
 class Room
 {
+private:
+	struct prop
+	{
+		BaseActor * baseActor;
+		unsigned int TypeID;
+		unsigned int linkingID;
+	};
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -24,8 +33,8 @@ private:
 
 	bool m_roomLoaded = false;
 	std::vector<StaticAsset*> m_staticAssets;
-	
 	std::vector<PointLight*> m_pointLights;
+	std::vector<FMOD::Geometry*> m_audioBoxes;
 	float m_playerStartPos;
 
 	MyLibrary::GridStruct m_grid;
@@ -40,6 +49,9 @@ private:
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
+	   
+	prop * props;
+
 
 	std::vector<const int*> vis;
 public:
@@ -48,6 +60,8 @@ public:
 	~Room();
 
 	void Update(float deltaTime);
+
+	void SetActive(bool state);
 
 	void Draw();
 
