@@ -56,7 +56,7 @@ private:
 	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
 	BlinkAbility m_blink;
-
+	PossessGuard m_possess;
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;

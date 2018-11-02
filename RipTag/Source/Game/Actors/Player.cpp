@@ -123,6 +123,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 
 	m_blink.Init();
 	m_blink.setOwner(this);
+	m_possess.Init();
+	m_possess.setOwner(this);
 
 }
 
@@ -204,7 +206,7 @@ void Player::Update(double deltaTime)
 	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	/*m_possess.Update(deltaTime);*/
+	m_possess.Update(deltaTime);
 	m_blink.Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
@@ -565,19 +567,19 @@ void Player::_onBlink()
 
 void Player::_onPossess()
 {
-	//if (Input::Possess()) //Phase acts like short range teleport through objects
-	//{
-	//	
-	//	if (m_kp.possess == false)
-	//	{
-	//		m_possess.Use();
-	//		m_kp.possess = true;
-	//	}
-	//}
-	//else
-	//{
-	//	m_kp.possess = false;
-	//}
+	if (Input::Possess()) //Phase acts like short range teleport through objects
+	{
+		
+		if (m_kp.possess == false)
+		{
+			m_possess.Use();
+			m_kp.possess = true;
+		}
+	}
+	else
+	{
+		m_kp.possess = false;
+	}
 }
 
 void Player::_onRotate(double deltaTime)
