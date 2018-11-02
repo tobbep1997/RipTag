@@ -792,6 +792,8 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 	DirectX::XMVECTOR vUp = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vDir, vRight));
 	DirectX::XMStoreFloat3(&xmUp, vUp);
 
+	//std::cout << xmPos.x << ", " << xmPos.y << ", " << xmPos.z << std::endl;
+
 	FMOD_VECTOR vel;
 	vel.x = ( xmPos.x - xmLastPos.x ) / deltaTime;
 	vel.y = ( xmPos.y - xmLastPos.y ) / deltaTime;

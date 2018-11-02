@@ -66,7 +66,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2);
 	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291 };
 
 	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
