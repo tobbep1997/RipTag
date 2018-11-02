@@ -1,4 +1,6 @@
 #include "Room.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
+
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -197,9 +199,14 @@ void Room::Update(float deltaTime)
 
 	}
 	int endvis = 0;
+	
 	for (int i = 0; i < vis.size(); ++i)
 	{
-		endvis += vis.at(i)[0];
+		
+		if (vis.at(i)[0] >= 1)
+		{
+			endvis += vis.at(i)[0];
+		}
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
