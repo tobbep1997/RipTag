@@ -13,10 +13,10 @@ Door::~Door()
 
 void Door::Triggerd(double deltaTime)
 {
-	setPosition(-13.046, -3.832, 5.68698);
+	setPosition(-13.046f, -3.832f, 5.68698f);
 }
 
 void Door::unTriggerd(double deltaTime)
 {
-	setPosition(-10.046, -3.832, 5.68698);
+	setPosition(-10.046f, -3.832f, 5.68698f);
 }

@@ -64,8 +64,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	model = new Drawable();
 	model->setEntityType(EntityType::GuarddType);
 	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-	model->setScale(0.03, 0.03, 0.03);
-	model->setPosition({ 0.0, -4.9, 0.0, 1.0 });
+	model->setScale(0.03f, 0.03f, 0.03f);
+	model->setPosition({ 0.0f, -4.9f, 0.0f, 1.0f });
 	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	model->setTextureTileMult(50, 50);
 	auto idle_clip = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION");
@@ -90,11 +90,11 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 		//auto blendState = stateMachine->AddBlendSpace2DState("idle_states", &hDir, &hSpeed, -180.0, 180.0, 0.0, 3.1);
 
-		blendFwd->AddRow(0.0, { { idle_clip.get(), -90.f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f } });
-		blendFwd->AddRow(3.1, { {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f } });
+		blendFwd->AddRow(0.0f, { { idle_clip.get(), -90.f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f } });
+		blendFwd->AddRow(3.1f, { {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f } });
 
-		blendBwd->AddRow(0.0, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
-		blendBwd->AddRow(3.1, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
+		blendBwd->AddRow(0.0f, { { idle_clip.get(), -180.0f }, { idle_clip.get(), -90.0f }, { idle_clip.get(), 0.0f }, { idle_clip.get(), 90.0f }, { idle_clip.get(), 180.0f } });
+		blendBwd->AddRow(3.1f, { {bwd_clip.get(), -180.0f }, {lft_clip.get(), -90.0f }, {fwd_clip.get(), 0.0f }, {rgt_clip.get(), 90.0f }, {bwd_clip.get(), 180.0f } });
 		stateMachine->SetState("loco_fwd");
 	}
 	
@@ -133,13 +133,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR at = { -29.1406, -2.82f, -15.4373f };
-	FMOD_VECTOR at2 = { -11.5999, -2.82f, -0.4889f };
+	FMOD_VECTOR at = { -29.1406f, -2.82f, -15.4373f };
+	FMOD_VECTOR at2 = { -11.5999f, -2.82f, -0.4889f };
 	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &at);
 	AudioEngine::PlaySoundEffect(name, &at2);
 
 
-	AudioEngine::CreateReverb(at, 10, 25.0f);
+	AudioEngine::CreateReverb(at, 10.0f, 25.0f);
 
 	Input::ResetMouse();
 

@@ -98,6 +98,7 @@ bool AnimationHandler::loadSkeleton(std::string file, std::string key)
 		return false;
 
 	m_skeletonMap.insert(std::make_pair(key, skeleton));
+	return true;
 }
 
 SharedSkeleton AnimationHandler::getSkeleton(std::string key)

@@ -121,7 +121,7 @@ void AudioEngine::UnLoadSoundEffect(const std::string & name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_soundEffects[k]->getName(c, name.size() + 1);
+		s_soundEffects[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -141,7 +141,7 @@ void AudioEngine::UnloadAmbiendSound(const std::string & name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_ambientSounds[k]->getName(c, name.size() + 1);
+		s_ambientSounds[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -161,7 +161,7 @@ void AudioEngine::UnloadMusicSound(const std::string & name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_music[k]->getName(c, name.size() + 1);
+		s_music[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -181,7 +181,7 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_soundEffects[k]->getName(c, name.size() + 1);
+		s_soundEffects[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -211,7 +211,7 @@ FMOD::Channel * AudioEngine::PlayAmbientSound(const std::string &name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_ambientSounds[k]->getName(c, name.size() + 1);
+		s_ambientSounds[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;
@@ -232,7 +232,7 @@ FMOD::Channel * AudioEngine::PlayMusic(const std::string &name)
 	for (int k = 0; k < size && i == -1; k++)
 	{
 		char c[256];
-		s_music[k]->getName(c, name.size() + 1);
+		s_music[k]->getName(c, (int)name.size() + 1);
 		if (!std::strcmp(c, name.c_str()))
 		{
 			i = k;

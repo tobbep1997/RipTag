@@ -632,7 +632,7 @@ void Player::_onJump()
 	}
 
 
-	float epsilon = 0.002;
+	float epsilon = 0.002f;
 	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
 }
