@@ -11,6 +11,8 @@
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("BLACK");
+
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
@@ -82,12 +84,29 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_currentMana = m_maxMana;
 
 	m_manaBar = new Quad();
-	m_manaBar->init(DirectX::XMFLOAT2A(0.2f, 0.2f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBar->init(DirectX::XMFLOAT2A(0.25f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
 	m_manaBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	
 
+	m_manaBarBackground = new Quad();
+	m_manaBarBackground->init(DirectX::XMFLOAT2A(0.248f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_manaBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_manaBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_manaBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
+	
+	m_manabarText = new Quad();
+	m_manabarText->init(DirectX::XMFLOAT2A(0.5, 0.034f), DirectX::XMFLOAT2A(0,0));
+	m_manabarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_manabarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_manabarText->setScale(0,0);
+	m_manabarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_manabarText->setString("MANA");
+	m_manabarText->setTextColor({ 75.0/255.0,0,130.0/255.0,1 });
 
 	HUDComponent::AddQuad(m_manaBar);
+	HUDComponent::AddQuad(m_manaBarBackground);
+	HUDComponent::AddQuad(m_manabarText);
 
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
@@ -113,7 +132,6 @@ Player::~Player()
 		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
 }
-
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
@@ -159,7 +177,6 @@ void Player::Update(double deltaTime)
 	}
 
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
-
 	if (InputHandler::isKeyPressed('I'))
 	{
 		RefillMana(10);
