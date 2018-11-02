@@ -352,6 +352,11 @@ std::vector<Node*> Enemy::GetPathVector()
 	return m_path;
 }
 
+bool Enemy::getIfLost()
+{
+	return m_found;
+}
+
 void Enemy::_possessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
@@ -548,6 +553,8 @@ void Enemy::_CheckPlayer(double deltaTime)
 			if (m_visabilityTimer <= m_visCounter)
 			{
 				//std::cout << "FOUND YOU BITCH" << std::endl;
+				//exit(0);
+				m_found = true;
 			}
 		}
 		else
