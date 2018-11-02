@@ -15,7 +15,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	
 	//1.
 	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
 	
 	//2.
 	this->setPosition(pos);
