@@ -101,7 +101,7 @@ public:
 	RayCastListener() { }
 	virtual ~RayCastListener() 
 	{
-		for (int i = rayContacts.size()-1; i > 0; i--)
+		for (int i = (int)rayContacts.size()-1; i > 0; i--)
 		{
 			delete rayContacts.at(i).consumeState;
 			rayContacts.erase(rayContacts.begin() + i);
