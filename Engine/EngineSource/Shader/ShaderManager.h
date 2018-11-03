@@ -1,6 +1,7 @@
 #pragma once
-#include "Shader.h"
 #include <vector>
+#include "Shader.h"
+
 
 ///<summery>
 /*
@@ -9,7 +10,6 @@ Creates and store shaders.
 ///</summery>
 namespace Shaders
 {
-
 	const uint8_t m_hashSize = 13;
 	class ShaderManager
 	{

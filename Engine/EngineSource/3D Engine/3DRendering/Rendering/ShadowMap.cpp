@@ -1,8 +1,11 @@
 #include "ShadowMap.h"
+
+#include "../../Extern.h"
 #include "../Framework/DirectXRenderingHelpClass.h"
 #include "../../Components/Base/Drawable.h"
 #include "../../../Light/PointLight.h"
 #include "../../../Shader/ShaderManager.h"
+#include "../../Model/Meshes/AnimatedModel.h"
 
 ShadowMap::ShadowMap()
 {

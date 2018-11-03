@@ -1,5 +1,7 @@
 #include "Engine3D.h"
 #include "../../Extern.h"
+#include "../../Model/Managers/MeshManager.h"
+#include "../../Model/Managers/TextureManager.h"
 #include "../Rendering/ForwardRender.h"
 #include "../../Components/Camera.h"
 #include "../../../Shader/ShaderManager.h"

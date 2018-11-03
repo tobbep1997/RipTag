@@ -7,11 +7,16 @@
 
 enum ObjectType;
 enum EntityType;
+
+struct StaticVertex;
+struct DynamicVertex;
+
 class Drawable;
 class VisibilityComponent;
 
 namespace Animation {
 	class AnimationCBuffer;
+	class AnimatedModel;
 };
 
 class VisabilityPass

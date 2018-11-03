@@ -1,7 +1,11 @@
 #include "AnimatedModel.h"
-#include "../../Extern.h"
 #include <iostream>
 #include <algorithm>
+
+#include "../../Extern.h"
+#include "ImportLibrary/FormatHeader.h"
+#include "ImportLibrary/formatImporter.h"
+
 
 float constexpr getNewValueInNewRange(float x, float a, float b, float c, float d)
 {

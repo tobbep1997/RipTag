@@ -8,6 +8,9 @@
 #include "../../../Engine/EngineSource/Helper/HelperFunctions.h"
 #include "../Handlers/CameraHandler.h"
 
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");

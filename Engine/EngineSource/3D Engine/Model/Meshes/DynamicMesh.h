@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "../../../Structs.h"
-#include "ImportLibrary/formatImporter.h"
+
+struct DynamicVertex;
 
 class DynamicMesh 
 {

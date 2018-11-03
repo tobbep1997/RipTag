@@ -9,6 +9,9 @@
 enum ObjectType;
 enum EntityType;
 
+struct StaticVertex;
+struct DynamicVertex;
+
 class Drawable;
 class Camera;
 class VisibilityComponent;

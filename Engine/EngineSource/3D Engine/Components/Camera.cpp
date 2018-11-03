@@ -18,8 +18,8 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	float inverter = (XMVectorGetY(XMVector3Cross(XZcameraDirection, defaultDir)));
 
 	r *= (inverter > 0.0)
-		? -1.0
-		: 1.0;
+		? -1.0f
+		: 1.0f;
 	r = std::clamp(r, -XM_PI, XM_PI);
 
 	return {0.0, r, 0.0, 0.0};

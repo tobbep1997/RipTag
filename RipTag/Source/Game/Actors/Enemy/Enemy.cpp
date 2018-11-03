@@ -1,8 +1,11 @@
 #include "Enemy.h"
-#include "../RipTag/Source/Input/Input.h"
 #include "../Player.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
+#include "../RipTag/Source/Input/Input.h"
 #include "../../Handlers/AnimationHandler.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/Components/Camera.h"
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {

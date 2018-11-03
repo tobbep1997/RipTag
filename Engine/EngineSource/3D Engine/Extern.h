@@ -4,8 +4,8 @@
 #include <DirectXMath.h>
 #include <vector>
 
-#include "Model/Managers/MeshManager.h"
-#include "Model/Managers/TextureManager.h"
+//#include "Model/Managers/MeshManager.h"
+//#include "Model/Managers/TextureManager.h"
 
 
 namespace Shaders
@@ -17,6 +17,8 @@ class Drawable;
 class VisibilityComponent;
 class Quad;
 class PointLight;
+class MeshManager;
+class TextureManager;
 class AnimationHandler;
 
 namespace DX {

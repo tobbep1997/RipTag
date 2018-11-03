@@ -4,6 +4,9 @@
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include "EngineSource/Light/PointLight.h"
 
+#include "EngineSource/3D Engine/Components/Camera.h"
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
 
 TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor(), HUDComponent()

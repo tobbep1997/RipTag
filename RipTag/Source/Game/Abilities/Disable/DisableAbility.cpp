@@ -1,5 +1,9 @@
 #include "DisableAbility.h"
 #include "../../Actors/Player.h"
+#include "EngineSource/3D Engine/Extern.h"
+#include "EngineSource/3D Engine/Components/Camera.h"
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
 
 DisableAbility::DisableAbility(void* owner) : AbilityComponent(owner), BaseActor()

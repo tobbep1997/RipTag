@@ -1,6 +1,7 @@
 #pragma once
-#include "../Camera.h"
+#include <DirectXMath.h>
 
+class Camera;
 //Makes sure to call p_initCamera
 class CameraHolder
 {

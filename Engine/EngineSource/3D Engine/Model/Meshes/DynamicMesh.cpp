@@ -1,4 +1,6 @@
 #include "DynamicMesh.h"
+#include "../../../Structs.h"
+#include "ImportLibrary/formatImporter.h"
 
 
 

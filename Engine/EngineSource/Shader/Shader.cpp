@@ -1,8 +1,5 @@
 #include "Shader.h"
 
-#include "../ShaderCreator.h"
-#include "../3D Engine/Extern.h"
-
 
 namespace Shaders
 {

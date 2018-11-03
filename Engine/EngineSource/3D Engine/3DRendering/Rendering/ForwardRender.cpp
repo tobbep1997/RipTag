@@ -13,6 +13,10 @@
 #include "ShadowMap.h"
 #include "../../Components/Camera.h"
 #include "2D Engine/Render2D.h"
+#include "../../Model/Meshes/AnimatedModel.h"
+#include "../../../Structs.h"
+
+
 
 ForwardRender::ForwardRender()
 {

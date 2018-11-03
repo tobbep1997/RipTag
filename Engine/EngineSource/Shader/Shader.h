@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <d3dcompiler.h>
 #include <debugapi.h>
 #include <comdef.h>
@@ -148,4 +148,4 @@ namespace Shaders
 
 	
 
-}
+};

@@ -1,6 +1,9 @@
 #include "MeshManager.h"
 
 
+#include "../Meshes/StaticMesh.h"
+#include "../Meshes/DynamicMesh.h"
+#include "ImportLibrary/FormatHeader.h"
 
 MeshManager::MeshManager()
 {

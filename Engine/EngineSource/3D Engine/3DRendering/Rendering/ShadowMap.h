@@ -4,9 +4,9 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
+#include <vector>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-#include "../../Extern.h"
 
 namespace Animation
 {
@@ -72,7 +72,6 @@ private:
 	void _createBuffers();
 	void _createRenderTargets(UINT width, UINT height);
 	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
-	//void _mapLightMatrix(PointLight * pointLight, unsigned int i);
 	void _mapObjectBuffer(Drawable * drawable);
 };
 
