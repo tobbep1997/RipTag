@@ -1,7 +1,8 @@
 #pragma once
-#include "..\Actors\Player.h"
-#include "..\Actors\RemotePlayer.h"
 #include "Multiplayer.h"
+
+class Player;
+class RemotePlayer;
 
 class PlayerManager
 {

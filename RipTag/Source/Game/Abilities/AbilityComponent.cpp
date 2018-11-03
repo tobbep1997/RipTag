@@ -1,3 +1,4 @@
+#include "RipTagPCH.h"
 #include "AbilityComponent.h"
 
 AbilityComponent::AbilityComponent(void * owner)

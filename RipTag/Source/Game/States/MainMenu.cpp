@@ -1,7 +1,12 @@
+#include "RipTagPCH.h"
 #include "MainMenu.h"
-#include "PlayState.h"
+
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+#include "EngineSource/3D Engine/Components/Camera.h"
+
+#include "2D Engine/Quad/Quad.h"
+
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {

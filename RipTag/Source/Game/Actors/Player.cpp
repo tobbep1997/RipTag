@@ -1,17 +1,21 @@
+#include "RipTagPCH.h"
 #include "Player.h"
-#include "InputManager/InputHandler.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
 #include <algorithm>
 #include <iostream>
 #include <bits.h>
-#include "../../../Engine/EngineSource/Helper/HelperFunctions.h"
-#include "../Handlers/CameraHandler.h"
 
+#include "InputManager/InputHandler.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-
+#include "EngineSource/3D Engine/Components/Camera.h"
+#include "EngineSource/3D Engine/Components/StateMachine.h"
 #include "2D Engine/Quad/Quad.h"
+
+
+#include "EngineSource/Helper/HelperFunctions.h"
+
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
@@ -49,6 +53,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityComponents[2] = m_dis;
 	m_abilityComponents[3] = visAbl2;
 
+	m_currentAbility = Ability::TELEPORT;
 	/*m_possess.setOwner(this);
 	m_possess.Init();
 	
@@ -136,6 +141,8 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents[i];
 	delete[] m_abilityComponents;
+	delete m_blink;
+	delete m_possess;
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
@@ -153,10 +160,12 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
 
-	m_blink.Init();
-	m_blink.setOwner(this);
-	m_possess.Init();
-	m_possess.setOwner(this);
+	m_blink = new BlinkAbility();
+	m_blink->Init();
+	m_blink->setOwner(this);
+	m_possess = new PossessGuard();
+	m_possess->Init();
+	m_possess->setOwner(this);
 
 }
 
@@ -192,8 +201,8 @@ void Player::Update(double deltaTime)
 	}
 
 	m_abilityComponents[m_currentAbility]->Update(deltaTime);
-	m_possess.Update(deltaTime);
-	m_blink.Update(deltaTime);
+	m_possess->Update(deltaTime);
+	m_blink->Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
@@ -602,7 +611,7 @@ void Player::_onBlink()
 	{
 		if (m_kp.blink == false)
 		{
-			m_blink.Use();
+			m_blink->Use();
 			m_kp.blink = true;
 		}
 	}
@@ -619,7 +628,7 @@ void Player::_onPossess()
 		
 		if (m_kp.possess == false)
 		{
-			m_possess.Use();
+			m_possess->Use();
 			m_kp.possess = true;
 		}
 	}

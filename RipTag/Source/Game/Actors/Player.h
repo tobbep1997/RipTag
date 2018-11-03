@@ -1,21 +1,12 @@
 #pragma once
 #include <Multiplayer.h>
+#include <functional>
+#include <AudioEngine.h>
+#include <string>
 #include "Actor.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
-#include "EngineSource/3D Engine/Components/StateMachine.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
-#include <functional>
-#include "../../Input/Input.h"
-#include "../Abilities/TeleportAbility.h"
-#include "../Abilities/PossessGuard.h"
-#include "../Abilities/BlinkAbility.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
-#include <AudioEngine.h>
-#include "../Abilities/VisabilityAbility.h"
-#include "Enemy/Enemy.h"
-#include "../Abilities/Disable/DisableAbility.h"
-#include <string>
-
 
 struct KeyPressed
 {
@@ -28,7 +19,14 @@ struct KeyPressed
 	bool interact = false;
 };
 
+enum Ability;
+enum PlayerState;
 
+
+class AbilityComponent;
+class Enemy;
+class BlinkAbility;
+class PossessGuard;
 
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
@@ -55,12 +53,12 @@ private:
 private:
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents;	
-	Ability m_currentAbility = Ability::TELEPORT;
+	Ability m_currentAbility;// = Ability::TELEPORT;
 
-	Enemy* possessTarget;	
 	PlayerState m_currentState = PlayerState::Idle;
-	BlinkAbility m_blink;
-	PossessGuard m_possess;
+	Enemy* possessTarget;	
+	BlinkAbility * m_blink;
+	PossessGuard * m_possess;
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;

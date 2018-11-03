@@ -1,6 +1,11 @@
 #pragma once
-#include "../../../Engine/EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 #include <unordered_map>
+
+namespace Animation
+{
+	struct AnimationClip;
+	struct Skeleton;
+};
 
 typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
 typedef std::shared_ptr<Animation::Skeleton> SharedSkeleton;

@@ -1,15 +1,10 @@
 #pragma once
-#include "../../Physics/Wrapper/PhysicsComponent.h"
 #include "Actor.h"
 #include "Multiplayer.h"
 #include <stack>
 
-#include "../Abilities/TeleportAbility.h"
-#include "../Abilities/VisabilityAbility.h"
-#include "../Abilities/Disable/DisableAbility.h"
-
-//animation
-#include "../Handlers/AnimationHandler.h"
+enum Ability;
+class AbilityComponent;
 
 class RemotePlayer : public Actor, public RakNet::NetworkIDObject
 {
@@ -32,7 +27,7 @@ private:
 	std::stack<PlayerState> m_stateStack;
 	bool handleTransition = false;
 	AbilityComponent ** m_abilityComponents;
-	Ability m_currentAbility = Ability::TELEPORT;
+	Ability m_currentAbility;// = Ability::TELEPORT;
 	const unsigned short int m_nrOfAbilitys = 4;
 	DirectX::XMFLOAT4A m_mostRecentPosition;
 	RakNet::Time m_timeDiff;

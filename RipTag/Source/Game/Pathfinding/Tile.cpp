@@ -1,3 +1,4 @@
+#include "RipTagPCH.h"
 #include "Tile.h"
 
 Tile::Tile(int _x, int _y, bool _pathable)

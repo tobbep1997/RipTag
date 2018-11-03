@@ -1,6 +1,8 @@
+#include "RipTagPCH.h"
 #include "Grid.h"
-// For testing purpose only, remove when finished
-#include <iostream>
+
+#include "ImportLibrary/Formatheader.h"
+
 
 Grid::Grid(int width, int height)
 {

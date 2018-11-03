@@ -3,7 +3,6 @@
 #include <vector>
 #include <algorithm>
 #include <future>
-#include "../../New_Library/ImportLibrary/Formatheader.h"
 
 /*
 	gCost = the movement cost to move from the starting point to a
