@@ -1,14 +1,7 @@
 #pragma once
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <DirectXMath.h>
 #include <string>
-
-#include "../../Extern.h"
-#include "../../Model/Meshes/DynamicMesh.h"
-#include "../../Model/Meshes/StaticMesh.h"
-#include "../../Model/Texture.h"
-#include "../../Model/Meshes/AnimatedModel.h"
-#include "../../Components/StateMachine.h"
 
 #include "Transform.h"
 
@@ -17,13 +10,25 @@ enum ObjectType
 	Static,
 	Dynamic
 };
-
 enum EntityType
 {
 	DefultType = 0,
 	PlayerType = 1,
 	GuarddType = 2,
 	ExcludeType = 3
+};
+
+class StaticMesh;
+class DynamicMesh;
+class Texture;
+
+namespace Animation 
+{
+	class AnimatedModel;
+};
+namespace SM
+{
+	class AnimationStateMachine;
 };
 
 class Drawable : public Transform

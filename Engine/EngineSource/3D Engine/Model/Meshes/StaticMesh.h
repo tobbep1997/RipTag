@@ -1,15 +1,19 @@
 #pragma once
 #include <vector>
-#include "../../../Structs.h"
-#include "ImportLibrary/formatImporter.h"
 
+struct StaticVertex;
+
+namespace MyLibrary
+{
+	struct CollisionBoxes;
+};
 
 class StaticMesh
 {
 private:
 	std::string m_meshName;
 	std::vector<StaticVertex> m_staticVertex;
-	MyLibrary::CollisionBoxes m_collisionBox;
+	MyLibrary::CollisionBoxes * m_collisionBox;
 public:
 	StaticMesh();
 	~StaticMesh();

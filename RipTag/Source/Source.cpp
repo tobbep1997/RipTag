@@ -1,10 +1,10 @@
 #include "Game/Game.h"
 #include "Timer/DeltaTime.h"
 #include "EngineSource/Helper/Timer.h"
-#include <LuaTalker.h>
 #include "../RipTag/Source/Game/Pathfinding/Grid.h"
 #include <AudioEngine.h>
 
+#include "EngineSource/Shader/ShaderManager.h"
 #if _DEBUG
 #include <iostream>
 //Allocates memory to the console

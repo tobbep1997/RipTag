@@ -1,3 +1,4 @@
+#include "EnginePCH.h"
 #include "Timer.h"
 std::chrono::steady_clock::time_point Timer::startTime;
 std::chrono::steady_clock::time_point Timer::stopTime;

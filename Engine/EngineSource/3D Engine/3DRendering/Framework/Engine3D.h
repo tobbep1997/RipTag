@@ -5,7 +5,9 @@
 #include <DirectXMath.h>
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-#include "../Rendering/ForwardRender.h"
+
+class ForwardRender;
+class Camera;
 
 class Engine3D
 {
@@ -19,7 +21,7 @@ private:
 	D3D11_VIEWPORT				m_viewport;
 
 
-	ForwardRender				m_forwardRendering;
+	ForwardRender*				m_forwardRendering;
 
 
 	UINT m_sampleCount = 1;

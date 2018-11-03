@@ -21,9 +21,15 @@
     <ClInclude Include="ImportLibrary\FormatHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ImporterPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImportLibrary\formatImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImporterPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

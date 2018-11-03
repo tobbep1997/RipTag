@@ -1,16 +1,17 @@
 #pragma once
-#include "../Window/window.h"
 #include "../Debugg/ImGui/ImGuiManager.h"
-#include "3DRendering/Framework/Engine3D.h"
 
 
+class Window;
+class Engine3D;
+class Camera;
 
 class RenderingManager
 {
 private:
 	bool	DEBUG = false;
-	Window		m_wnd;
-	Engine3D	m_engine;
+	Window*		m_wnd;
+	Engine3D*	m_engine;
 
 	//IMGUI onlt take 1 mb in debug mode
 	ImGuiManager m_ImGuiManager;

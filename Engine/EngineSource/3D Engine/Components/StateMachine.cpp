@@ -1,9 +1,6 @@
+#include "EnginePCH.h"
 #include "StateMachine.h"
-#include <assert.h>
-#include <algorithm>
-#include <iostream>
-#include "../Model/Meshes/AnimatedModel.h"
-#include <math.h>
+
 namespace SM
 {
 #pragma region "AnimationState"

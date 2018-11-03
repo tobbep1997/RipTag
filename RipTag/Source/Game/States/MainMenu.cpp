@@ -1,5 +1,8 @@
 #include "MainMenu.h"
 #include "PlayState.h"
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
 	Manager::g_textureManager.loadTextures("KOMBIN");

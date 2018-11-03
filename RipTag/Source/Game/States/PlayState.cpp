@@ -6,6 +6,8 @@
 #include "../RipTagExtern/RipExtern.h"
 #include "../Handlers/AnimationHandler.h"
 #include <AudioEngine.h>
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
@@ -69,7 +71,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
 	AudioEngine::PlaySoundEffect(name, &caveSoundAt2);
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291 };
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
 	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
 

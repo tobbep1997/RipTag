@@ -1,5 +1,8 @@
+#include "Engine2DPCH.h"
 #include "Quad.h"
+
 #include "EngineSource/3D Engine/Extern.h"
+#include "EngineSource/3D Engine/Model/Texture.h"
 #include "InputManager/InputHandler.h"
 
 void Quad::p_createBuffer()

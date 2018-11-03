@@ -1,7 +1,5 @@
 #pragma once
-//#include "../Engine/EngineSource/3D Engine/Components/Camera.h"
 #include "../Actor.h"
-//#include "../Engine/EngineSource/3D Engine/Model/Model.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"

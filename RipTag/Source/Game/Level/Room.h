@@ -19,6 +19,8 @@
 #include <AudioEngine.h>
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
+class PointLight;
+
 class Room : public HUDComponent
 {
 private:
