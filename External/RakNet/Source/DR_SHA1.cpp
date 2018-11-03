@@ -7,7 +7,7 @@
 */
 
 // If compiling with MFC, you might want to add #include "StdAfx.h"
-
+#pragma warning (disable : 4005)
 #define _CRT_SECURE_NO_WARNINGS
 #include "DR_SHA1.h"
 #include <stdlib.h>

@@ -11,6 +11,8 @@
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
+#include "2D Engine/Quad/Quad.h"
+
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
@@ -105,7 +107,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_manabarText->setScale(0,0);
 	m_manabarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	m_manabarText->setString("MANA");
-	m_manabarText->setTextColor({ 75.0/255.0,0,130.0/255.0,1 });
+	m_manabarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
 
 	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manaBarBackground);

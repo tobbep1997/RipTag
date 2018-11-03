@@ -14,6 +14,7 @@ namespace Animation
 };
 class Drawable;
 class PointLight;
+class Camera;
 
 class ShadowMap
 {

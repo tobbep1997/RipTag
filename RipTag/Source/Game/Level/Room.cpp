@@ -4,6 +4,8 @@
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
+#include "2D Engine/Quad/Quad.h"
+
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -29,7 +31,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	door->setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
 	door->setTexture(Manager::g_textureManager.getTexture("DOOR"));
 	door->Init(*m_worldPtr, e_staticBody, .5f, 3.0f, 1.5f);
-	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692,1), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246f, 1));
+	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692f,1.0f), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246f, 1.0f));
 	pressurePlate = new PressurePlate();
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_textureManager.loadTextures("PRESSUREPLATE");

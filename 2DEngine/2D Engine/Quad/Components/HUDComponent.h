@@ -1,6 +1,7 @@
 #pragma once
-#include "../Quad.h"
 #include <vector>
+
+class Quad;
 
 class HUDComponent
 {

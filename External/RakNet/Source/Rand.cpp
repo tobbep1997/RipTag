@@ -141,6 +141,7 @@ void seedMT( unsigned int seed, unsigned int *state, unsigned int *&next, int &l
 	// even be extra-special desirable if the Mersenne Twister theory says
 	// so-- that's why the only change I made is to restrict to odd seeds.
 	//
+#pragma warning (disable : 5033)
 
 	register unsigned int x = ( seed | 1U ) & 0xFFFFFFFFU, *s = state;
 	register int j;

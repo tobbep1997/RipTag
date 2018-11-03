@@ -1,4 +1,5 @@
 #include "HUDComponent.h"
+#include "../Quad.h"
 
 HUDComponent::HUDComponent()
 {

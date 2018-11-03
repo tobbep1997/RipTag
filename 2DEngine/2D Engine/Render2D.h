@@ -2,9 +2,9 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "EngineSource/3D Engine/3DRendering/Framework/DirectXRenderingHelpClass.h"
-#include "Quad/Quad.h"
 #include "DirectXTK/SpriteBatch.h"
 
+class Quad;
 
 class Render2D
 {

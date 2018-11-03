@@ -6,6 +6,8 @@
 #include "../../../Light/PointLight.h"
 #include "../../../Shader/ShaderManager.h"
 #include "../../Model/Meshes/AnimatedModel.h"
+#include "../../Components/Camera.h"
+#include "../../../Structs.h"
 
 ShadowMap::ShadowMap()
 {
