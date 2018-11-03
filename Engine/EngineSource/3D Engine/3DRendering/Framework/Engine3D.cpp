@@ -1,10 +1,5 @@
+#include "EnginePCH.h"
 #include "Engine3D.h"
-#include "../../Extern.h"
-#include "../../Model/Managers/MeshManager.h"
-#include "../../Model/Managers/TextureManager.h"
-#include "../Rendering/ForwardRender.h"
-#include "../../Components/Camera.h"
-#include "../../../Shader/ShaderManager.h"
 
 ID3D11Device*			DX::g_device;
 ID3D11DeviceContext1*	DX::g_deviceContext;

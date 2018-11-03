@@ -1,7 +1,6 @@
+#include "EnginePCH.h"
 #include "Camera.h"
-#include <iostream>
-#include <math.h>
-#include <algorithm>
+
 
 const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 {

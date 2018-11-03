@@ -4,9 +4,6 @@
 #include <DirectXMath.h>
 #include <vector>
 
-//#include "Model/Managers/MeshManager.h"
-//#include "Model/Managers/TextureManager.h"
-
 
 namespace Shaders
 {

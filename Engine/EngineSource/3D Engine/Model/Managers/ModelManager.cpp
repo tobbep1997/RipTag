@@ -1,8 +1,7 @@
+#include "EnginePCH.h"
 #include "ModelManager.h"
-#include "../Texture.h"
-#include "../Meshes/StaticMesh.h"
-#include "../Meshes/DynamicMesh.h"
-#include "../../Components/Base/Drawable.h"
+
+
 #include "ImportLibrary/formatImporter.h"
 
 

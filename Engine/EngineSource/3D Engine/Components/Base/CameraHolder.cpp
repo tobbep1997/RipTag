@@ -1,5 +1,5 @@
+#include "EnginePCH.h"
 #include "CameraHolder.h"
-#include "../Camera.h"
 
 
 void CameraHolder::p_initCamera(Camera * camera)

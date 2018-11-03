@@ -1,20 +1,9 @@
+#include "EnginePCH.h"
 #include "ForwardRender.h"
 
-#include "../../Extern.h"
-#include "../../../Shader/ShaderManager.h"
-#include "../../RenderingManager.h"
-#include "../Framework/DirectXRenderingHelpClass.h"
-#include "../../../Helper/Timer.h"
-
-#include "../../Components/Base/Drawable.h"
-#include "VisabilityPass/Component/VisibilityComponent.h"
-#include "../../../Light/PointLight.h"
-
-#include "ShadowMap.h"
-#include "../../Components/Camera.h"
 #include "2D Engine/Render2D.h"
-#include "../../Model/Meshes/AnimatedModel.h"
-#include "../../../Structs.h"
+
+
 
 
 

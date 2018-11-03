@@ -1,12 +1,5 @@
+#include "EnginePCH.h"
 #include "Drawable.h"
-
-#include "../../Extern.h"
-#include "../../Model/Texture.h"
-#include "../../Model/Meshes/DynamicMesh.h"
-#include "../../Model/Meshes/StaticMesh.h"
-#include "../../Model/Meshes/AnimatedModel.h"
-#include "../../Components/StateMachine.h"
-#include "../../../Structs.h"
 
 void Drawable::_setStaticBuffer()
 {

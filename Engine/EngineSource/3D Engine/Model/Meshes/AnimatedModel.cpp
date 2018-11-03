@@ -1,8 +1,6 @@
+#include "EnginePCH.h"
 #include "AnimatedModel.h"
-#include <iostream>
-#include <algorithm>
 
-#include "../../Extern.h"
 #include "ImportLibrary/FormatHeader.h"
 #include "ImportLibrary/formatImporter.h"
 

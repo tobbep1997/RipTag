@@ -1,13 +1,7 @@
+#include "EnginePCH.h"
 #include "VisabilityPass.h"
 
-#include "../../../Extern.h"
-#include "../../../../Structs.h"
-#include "../../../Components/Camera.h"
-#include "Component/VisibilityComponent.h"
-#include "../../../../Shader/ShaderManager.h"
-#include "../../../Components/Base/Drawable.h"
-#include "../../../Model/Meshes/AnimatedModel.h"
-#include "../../Framework/DirectXRenderingHelpClass.h"
+
 
 
 VisabilityPass::VisabilityPass()

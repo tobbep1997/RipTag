@@ -1,13 +1,9 @@
+#include "EnginePCH.h"
 #include "RenderingManager.h"
-#include "../SettingsLoader/SettingsLoader.h"
+
 #include "../Debugg//ImGui/imgui.h"
 #include "../Debugg/ImGui/imgui_impl_win32.h"
 #include "../Debugg/ImGui/imgui_impl_dx11.h"
-#include "../Shader/ShaderManager.h"
-
-#include "../Window/window.h"
-#include "3DRendering/Framework/Engine3D.h"
-#include "Components/Camera.h"
 
 RenderingManager::RenderingManager()
 {

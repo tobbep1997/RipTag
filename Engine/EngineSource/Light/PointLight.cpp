@@ -1,6 +1,5 @@
+#include "EnginePCH.h"
 #include "PointLight.h"
-#include "../3D Engine/Extern.h"
-#include "../3D Engine/Components/Camera.h"
 
 
 PointLight::PointLight()

@@ -2,7 +2,6 @@
 #include <vector>
 
 class Quad;
-
 class HUDComponent
 {
 private:

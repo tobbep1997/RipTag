@@ -1,8 +1,5 @@
+#include "EnginePCH.h"
 #include "ShaderManager.h"
-
-#if _DEBUG
-#include <iostream>
-#endif
 
 namespace Shaders
 {

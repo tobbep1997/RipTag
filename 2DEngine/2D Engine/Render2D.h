@@ -6,6 +6,7 @@
 
 class Quad;
 
+
 class Render2D
 {
 private:

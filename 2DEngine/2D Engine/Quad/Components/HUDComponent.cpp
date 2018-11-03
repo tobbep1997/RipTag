@@ -1,5 +1,5 @@
+#include "Engine2DPCH.h"
 #include "HUDComponent.h"
-#include "../Quad.h"
 
 HUDComponent::HUDComponent()
 {

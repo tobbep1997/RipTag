@@ -1,6 +1,5 @@
+#include "EnginePCH.h"
 #include "Texture.h"
-#include "..\WICTextureLoader\WICTextureLoader.h"
-#include "..\Extern.h"
 
 
 Texture::Texture()
