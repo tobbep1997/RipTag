@@ -441,9 +441,9 @@ namespace MyLibrary
 			return GuardStartingPositions();
 		return guardPos; // done :D
 	}
-	GridStruct Loadera::readGridFile(const std::string & fileName)
+	GridStruct * Loadera::readGridFile(const std::string & fileName)
 	{
-		GridStruct gridPos;
+		GridStruct * gridPos = new GridStruct();
 		std::string newFileName = "../Assets/";
 		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
 		std::ifstream customGridFile(newFileName, std::ifstream::binary);
@@ -452,22 +452,22 @@ namespace MyLibrary
 		{
 		
 
-			customGridFile.read((char*)&gridPos.maxX, sizeof(int)); // what is happening here?!! i just copied this code
-			customGridFile.read((char*)&gridPos.maxY, sizeof(int)); // what is happening here?!! i just copied this code
+			customGridFile.read((char*)&gridPos->maxX, sizeof(int)); // what is happening here?!! i just copied this code
+			customGridFile.read((char*)&gridPos->maxY, sizeof(int)); // what is happening here?!! i just copied this code
 
-			customGridFile.read((char*)&gridPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
+			customGridFile.read((char*)&gridPos->nrOf, sizeof(int)); // what is happening here?!! i just copied this code
 
-			gridPos.gridPoints = new GridPointStruct[gridPos.nrOf];
+			gridPos->gridPoints = new GridPointStruct[gridPos->nrOf];
 			
-			for (int i = 0; i < gridPos.nrOf; i++)
+			for (int i = 0; i < gridPos->nrOf; i++)
 			{
-				customGridFile.read((char*)&gridPos.gridPoints[i].pathable, sizeof(bool)); // what is happening here?!! i just copied this code
-				customGridFile.read((char*)&gridPos.gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
+				customGridFile.read((char*)&gridPos->gridPoints[i].pathable, sizeof(bool)); // what is happening here?!! i just copied this code
+				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
 			}
 			customGridFile.close();
 		}
 		else
-			return GridStruct();
+			return new GridStruct();
 		return gridPos;
 	}
 }

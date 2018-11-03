@@ -1,9 +1,11 @@
+#include "RipTagPCH.h"
 #include "RemotePlayer.h"
+
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Components/Camera.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-
 
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
@@ -62,6 +64,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	m_abilityComponents[1] = visAbl;
 	m_abilityComponents[2] = m_dis;
 	m_abilityComponents[3] = visAbl2;
+	m_currentAbility = Ability::TELEPORT;
 
 	//7.
 	this->_registerAnimationStateMachine();

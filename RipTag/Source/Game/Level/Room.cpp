@@ -1,15 +1,24 @@
+#include "RipTagPCH.h"
 #include "Room.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
+
 #include "EngineSource/Light/PointLight.h"
+#include "EngineSource/3D Engine/RenderingManager.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 
+#include "ImportLibrary/FormatHeader.h"
+#include "ImportLibrary/formatImporter.h"
+
 #include "2D Engine/Quad/Quad.h"
+
 
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
 	this->m_worldPtr = worldPtr;
+
+	m_grid = nullptr;
+	m_pathfindingGrid = new Grid();
 }
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr) : HUDComponent()
 {
@@ -71,10 +80,13 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 
 	HUDComponent::AddQuad(m_lose);
+
+	m_grid = nullptr;
+	m_pathfindingGrid = new Grid();
 }
 Room::~Room()
 {
-
+	delete m_pathfindingGrid;
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -134,7 +146,8 @@ void Room::UnloadRoomFromMemory()
 		for (auto & ab : m_audioBoxes)
 			ab->release();
 		m_audioBoxes.clear();
-		delete m_grid.gridPoints;
+		delete m_grid->gridPoints;
+		delete m_grid;
 		m_roomLoaded = false;
 
 
@@ -156,9 +169,11 @@ void Room::LoadRoomToMemory()
 		}
 		delete tempLights.lights;
 
+		if (m_grid)
+			delete m_grid;
 
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid.CreateGridWithWorldPosValues(m_grid.maxX, m_grid.maxY, m_grid);
+		m_pathfindingGrid->CreateGridWithWorldPosValues(m_grid->maxX, m_grid->maxY, *m_grid);
 		//
 		m_roomLoaded = true;
 
@@ -232,7 +247,7 @@ void Room::LoadRoomToMemory()
 
 void Room::getPath()
 {
-	std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
+	std::vector<Node*> path = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(24, 13));
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)
 	{
@@ -359,7 +374,8 @@ void Room::Release()
 	}
 	for (auto ab : m_audioBoxes)
 		ab->release();
-	delete m_grid.gridPoints;
+	delete m_grid->gridPoints;
+	delete m_grid;
 
 	door->Release(*m_worldPtr);
 	delete door;

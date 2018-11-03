@@ -1,5 +1,5 @@
+#include "RipTagPCH.h"
 #include "PressurePlate.h"
-#include "../../../RipTagExtern/RipExtern.h"
 
 
 PressurePlate::PressurePlate() : Trigger(), BaseActor()

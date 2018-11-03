@@ -1,20 +1,24 @@
+#include "RipTagPCH.h"
 #include "PlayState.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
-#include "../../Input/Input.h"
-#include "EngineSource/Helper/Timer.h"
-#include "ImportLibrary/formatImporter.h"
-#include "../RipTagExtern/RipExtern.h"
-#include "../Handlers/AnimationHandler.h"
+
 #include <AudioEngine.h>
+
+
+#include "EngineSource/Helper/Timer.h"
+#include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+
+#include "InputManager/XboxInput/GamePadHandler.h"
+
+#include "ImportLibrary/formatImporter.h"
+#include "2D Engine/Quad/Quad.h"
+
+
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
-#define JAAH TRUE
-#define NEIN FALSE
-
 
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
@@ -61,8 +65,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 
 	
-	
-	m_levelHandler.Init(m_world, m_playerManager->getLocalPlayer());
+	m_levelHandler = new LevelHandler();
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
 
 	triggerHandler = new TriggerHandler();
 
@@ -84,8 +88,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 PlayState::~PlayState()
 {
-	m_levelHandler.Release();
-	
+	m_levelHandler->Release();
+	delete m_levelHandler;
+
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	
 	delete m_playerManager;
@@ -104,7 +109,7 @@ void PlayState::Update(double deltaTime)
 	m_firstRun = false;
 
 	triggerHandler->Update(deltaTime);
-	m_levelHandler.Update(deltaTime);
+	m_levelHandler->Update(deltaTime);
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 	if (deltaTime <= 0.65f)
@@ -155,7 +160,7 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
-	m_levelHandler.Draw();
+	m_levelHandler->Draw();
 	
 	m_playerManager->Draw();
 		

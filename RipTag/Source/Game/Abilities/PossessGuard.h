@@ -1,6 +1,7 @@
 #pragma once
 #include "AbilityComponent.h"
-#include "../Actors/Enemy/Enemy.h"
+
+class Enemy;
 
 class PossessGuard : public AbilityComponent
 {
