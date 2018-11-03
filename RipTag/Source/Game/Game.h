@@ -6,7 +6,6 @@
 #include "States/State.h"
 #include "EngineSource/3D Engine/Model/Managers/ModelManager.h"
 #include "States/MainMenu.h"
-#include <LuaTalker.h>
 
 class Game
 {
@@ -33,9 +32,6 @@ public:
 	void Draw();				//Calls Draw
 	void ImGuiFrameStart();		//ImGuiStart
 	//------------------------------------
-	//LUA EXPOSE
-	void PushStateLUA(State * ptr);
-	void PopStateLUA();
 
 	void ImGuiPoll();
 

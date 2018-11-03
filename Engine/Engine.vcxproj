@@ -441,9 +441,6 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Dummy</EntryPointName>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\lua.redist.5.3.5\build\native\lua.redist.targets" Condition="Exists('..\packages\lua.redist.5.3.5\build\native\lua.redist.targets')" />
