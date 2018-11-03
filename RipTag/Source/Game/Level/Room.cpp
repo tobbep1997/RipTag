@@ -171,7 +171,6 @@ void Room::LoadRoomToMemory()
 
 		if (m_grid)
 			delete m_grid;
-
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
 		m_pathfindingGrid->CreateGridWithWorldPosValues(m_grid->maxX, m_grid->maxY, *m_grid);
 		//
