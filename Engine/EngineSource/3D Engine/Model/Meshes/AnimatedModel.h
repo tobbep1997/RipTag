@@ -13,6 +13,9 @@
 #define ANIMATION_SET_KEEP_OTHER (1<<1)
 #define ANIMATION_SET_CLEAN (1<<2)
 
+#define ANIMATION_FRAMETIME 0.041666666f
+#define ANIMATION_FRAMERATE 24
+
 namespace MyLibrary
 {
 	class Loadera;

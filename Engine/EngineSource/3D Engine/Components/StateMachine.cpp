@@ -117,6 +117,7 @@ namespace SM
 		if (state.first)
 		{
 			m_BlendFromState = m_CurrentState;
+			m_BlendFromState->LockCurrentValues();
 			m_CurrentState = state.first;
 		}
 		//std::cout << m_CurrentState->GetName() << std::endl;
@@ -178,8 +179,14 @@ namespace SM
 	BlendSpace1D::Current1DStateData BlendSpace1D::CalculateCurrentClips()
 	{
 		//#todo check and get weight
+
+		//If we have a locked value, use it; else, use the driver value
+		float currentValue = (m_LockedValue.has_value())
+			? m_LockedValue.value()
+			: *m_Current;
+
 		auto it = std::find_if(m_Clips.begin(), m_Clips.end(),
-			[&](const auto& data) {return data.location >= *m_Current; });
+			[&](const auto& data) {return data.location >= currentValue; });
 
 		if (it != m_Clips.end())
 		{
@@ -197,11 +204,11 @@ namespace SM
 			{
 				data.first = (it-1)->clip;
 				data.second = it->clip;
-				data.weight = (*m_Current - (it - 1)->location) / (it->location - (it - 1)->location);
+				data.weight = (currentValue - (it - 1)->location) / (it->location - (it - 1)->location);
 			}
 			return data;
 		}
-		else if (m_Clips.back().location < *m_Current)
+		else if (m_Clips.back().location < currentValue)
 		{
 			Current1DStateData data;
 			data.first = (m_Clips.rbegin() + 1)->clip;
@@ -211,6 +218,12 @@ namespace SM
 		}
 		else return { nullptr, nullptr, 0.0f};
 	}
+
+	void BlendSpace1D::LockCurrentValues()
+	{
+		m_LockedValue = *m_Current;
+	}
+
 #pragma endregion "BlendSpace1D"
 
 #pragma region "BlendSpace2D"
@@ -257,6 +270,12 @@ namespace SM
 		}
 		else
 			return BlendSpace2D::Current2DStateData();
+	}
+
+	void BlendSpace2D::LockCurrentValues()
+	{
+		m_LockedX = *m_Current_X;
+		m_LockedY = *m_Current_Y;
 	}
 
 	std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> BlendSpace2D::GetLeftAndRightClips(size_t rowIndex)

@@ -140,7 +140,14 @@ namespace SM
 		//Returns true if all transition conditions
 		//for the given out state are met; false otherwise.
 		std::optional<AnimationState*> EvaluateAllTransitions(std::string key);
+
+		//Returns the name of this state
 		std::string GetName();
+
+		//Locks the current X,Y driver values
+		virtual void LockCurrentValues() = 0;
+
+
 		AnimationState(const AnimationState& other) = delete;
 		virtual STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
@@ -149,6 +156,7 @@ namespace SM
 		std::string m_Name = "";
 
 		std::unordered_map<std::string, OutState> m_OutStates;
+
 	};
 
 	class BlendSpace1D;
@@ -196,11 +204,15 @@ namespace SM
 		}
 
 		Current1DStateData CalculateCurrentClips();
+
+		virtual void LockCurrentValues() override;
+
 	private:
 		std::vector<BlendSpaceClipData> m_Clips;
 		float m_Min = 0.0f;
 		float m_Max = 1.0f;
 		float* m_Current = nullptr;
+		std::optional<float> m_LockedValue = std::nullopt;
 	};
 #pragma endregion "BlendSpace1D"
 
@@ -238,6 +250,9 @@ namespace SM
 		}
 
 		Current2DStateData CalculateCurrentClips();
+
+		virtual void LockCurrentValues() override;
+
 	private:
 		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
 		std::pair<std::optional<size_t>, std::optional<size_t>> GetTopAndBottomRows();
@@ -250,6 +265,8 @@ namespace SM
 		float m_Max_Y = 1.0f;
 		float* m_Current_X = nullptr;
 		float* m_Current_Y = nullptr;
+		std::optional<float> m_LockedX = std::nullopt;
+		std::optional<float> m_LockedY = std::nullopt;
 	};
 #pragma endregion "BlendSpace2D"
 
