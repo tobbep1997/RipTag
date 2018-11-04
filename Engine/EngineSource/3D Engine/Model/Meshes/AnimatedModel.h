@@ -181,7 +181,7 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
-		void UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
+		SkeletonPose UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
 		void SetLayeredClipWeight(const float& weight);
@@ -216,7 +216,7 @@ namespace Animation
 
 		float m_currentTime = 0.0f;
 		float m_currentNormalizedTime = 0.0f;
-
+		bool timeAlreadyUpdatedThisFrame = false;
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;

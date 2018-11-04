@@ -9,6 +9,7 @@ namespace Animation
 {
 	struct AnimationClip;
 	class AnimatedModel;
+	struct SkeletonPose;
 }
 #pragma endregion "FwdDec"
 
@@ -35,7 +36,7 @@ namespace SM
 		virtual bool Evaluate() const = 0;
 
 	};
-	typedef std::unique_ptr<TransitionBase> UniqueTransition;
+	using UniqueTransition = std::unique_ptr<TransitionBase>;
 
 	template <typename T>
 	class TransitionCondition : public TransitionBase
@@ -92,8 +93,8 @@ namespace SM
 		: m_Reference(reference), m_Value(value), m_Type(type)
 	{}
 
-	typedef std::vector<std::unique_ptr<TransitionBase>> TransitionVector;
-	typedef std::unordered_map<std::string, TransitionVector> TransitionMap;
+	using TransitionVector = std::vector<std::unique_ptr<TransitionBase>>;
+	using TransitionMap = std::unordered_map<std::string, TransitionVector>;
 	
 	class AnimationState;
 
@@ -149,14 +150,13 @@ namespace SM
 
 
 		AnimationState(const AnimationState& other) = delete;
-		virtual STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) = 0;
+		virtual Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
 		std::pair<AnimationState*, float> EvaluateAll();
 	private:
 		std::string m_Name = "";
 
 		std::unordered_map<std::string, OutState> m_OutStates;
-
 	};
 
 	class BlendSpace1D;
@@ -165,10 +165,10 @@ namespace SM
 	class AutoTransitionState;
 	class StateVisitorBase{
 	public:
-		virtual void dispatch(BlendSpace1D& state) = 0;
-		virtual void dispatch(BlendSpace2D& state) = 0;
-		virtual void dispatch(LoopState& state) = 0;
-		virtual void dispatch(AutoTransitionState& state) = 0;
+		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) = 0;
+		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) = 0;
+		virtual Animation::SkeletonPose dispatch(LoopState& state) = 0;
+		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) = 0;
 	};
 
 #pragma endregion "AnimationState"
@@ -197,11 +197,8 @@ namespace SM
 
 		//Assumes arguments are sorted from lowest to highest
 		void AddBlendNodes(const std::vector<BlendSpaceClipData> nodes);
-		
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override {
-			visitor.dispatch(*this);
-			return BLEND_1D;
-		}
+	
+		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		Current1DStateData CalculateCurrentClips();
 
@@ -244,10 +241,7 @@ namespace SM
 		//Assumes arguments are sorted from lowest to highest
 		void AddRow(float y, std::vector<BlendSpaceClipData2D>&& nodes);
 
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override {
-			visitor.dispatch(static_cast<BlendSpace2D&>(*this));
-			return BLEND_2D;
-		}
+		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		Current2DStateData CalculateCurrentClips();
 
@@ -257,7 +251,7 @@ namespace SM
 		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
 		std::pair<std::optional<size_t>, std::optional<size_t>> GetTopAndBottomRows();
 	private:
-		typedef std::vector<BlendSpaceClipData2D> Row;
+		using Row = std::vector<BlendSpaceClipData2D>;
 		std::vector<std::pair<float, Row>> m_Rows;
 		float m_Min_X = -1.0f;
 		float m_Max_X = 1.0f;
@@ -280,7 +274,8 @@ namespace SM
 
 		void SetClip(Animation::AnimationClip* clip);
 		Animation::AnimationClip* GetClip();
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override;
+		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		virtual void LockCurrentValues() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
 	};
@@ -295,7 +290,7 @@ namespace SM
 		AutoTransitionState(std::string name);
 		~AutoTransitionState();
 	
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override;
+		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
 	private:
 	};
 
@@ -306,13 +301,14 @@ namespace SM
 	public:
 		StateVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
 		{}
-		virtual void dispatch(BlendSpace1D& state) override;
-		virtual void dispatch(BlendSpace2D& state) override;
-		virtual void dispatch(LoopState& state) override;
-		virtual void dispatch(AutoTransitionState& state) override;
+		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) override;
+		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) override;
+		virtual Animation::SkeletonPose dispatch(LoopState& state) override;
+		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) override;
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
 	};
+
 #pragma endregion "Visitors"
 
 #pragma region "StateMachine"
@@ -341,8 +337,9 @@ namespace SM
 		void SetStateIfAllowed(std::string stateName);
 		void SetModel(Animation::AnimatedModel* model);
 		AnimationState& GetCurrentState();
+		AnimationState* GetPreviousState();
 		void UpdateCurrentState();
-		void UpdateBlendFactor(float deltaTime);
+		float UpdateBlendFactor(float deltaTime);
 	private:
 		//The animated model to set the clip to when we enter a state
 		Animation::AnimatedModel* m_AnimatedModel;
@@ -350,6 +347,7 @@ namespace SM
 		//The current state(s)
 		AnimationState* m_CurrentState = nullptr;
 		AnimationState* m_BlendFromState = nullptr;
+
 		float m_TotalBlendTime = 0.0f;
 		float m_RemainingBlendTime = 0.0f;
 
