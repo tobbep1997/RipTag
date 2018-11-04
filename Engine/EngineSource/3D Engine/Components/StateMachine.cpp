@@ -11,12 +11,13 @@ namespace SM
 
 	std::pair<AnimationState*, float> AnimationState::EvaluateAll()
 {
+
 		for (auto& outState : m_OutStates)
 		{
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
-				return std::make_pair(outState.second.state, 1.0f);
+				return std::make_pair(outState.second.state, .3f);
 		}
-		return std::make_pair(nullptr, 1.0f);
+		return std::make_pair(nullptr, .3f);
 	}
 
 	AnimationState::~AnimationState()
@@ -124,7 +125,7 @@ namespace SM
 			m_BlendFromState = m_CurrentState;
 			m_BlendFromState->LockCurrentValues();
 			m_CurrentState = state.first;
-			m_RemainingBlendTime = m_TotalBlendTime = state.second;
+			m_RemainingBlendTime = m_TotalBlendTime = (state.second - m_RemainingBlendTime);
 		}
 	}
 

@@ -35,7 +35,7 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		m_StateMachine->UpdateCurrentState();
 
 		//Blendfactor used to blend between two states.
-		float blendFactor = m_StateMachine->UpdateBlendFactor(deltaTime);
+		float blendFactor = 1.0 - m_StateMachine->UpdateBlendFactor(deltaTime);
 
 		
 		auto finalPoseCurrent = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
@@ -43,8 +43,11 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		
 		if (pPreviousState)
 		{
+			std::cout << "Blending from previous: " << blendFactor << std::endl;
+
 			auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
 			_computeSkinningMatrices(&finalPosePrevious, &finalPoseCurrent, blendFactor);
+			return;
 		}
 
 		_computeSkinningMatrices(&finalPoseCurrent);

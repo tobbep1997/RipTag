@@ -8,7 +8,7 @@
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-
+#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 #include "InputManager/XboxInput/GamePadHandler.h"
 
 #include "ImportLibrary/formatImporter.h"
@@ -63,8 +63,92 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
 	
+	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
+	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	model->setScale({ 0.02, 0.02, 0.02, 1.0 });
+	model->setPosition(4.0, 6.0, 0.0);
 
-	
+	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
+
+	{
+		//Blend spaces - forward&backward
+		SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
+			"walk_forward", //state name
+			&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
+			&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
+			-90.f, 90.f, //x-axis bounds
+			0.0f, 3.001f //y-axis bounds
+		);
+		SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
+			"walk_backward", //state name
+			&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
+			&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
+			-180.f, 180.f, //x-axis bounds
+			0.0f, 3.001f //y-axis bounds
+		);
+
+		//Add blendspace rows 
+		//forward
+		blend_fwd->AddRow(
+			0.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), -90.f }, //the clip to use and x-placement
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), 0.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), 90.f }
+			}
+		);
+		blend_fwd->AddRow(
+			3.1f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION").get(), -90.f }, //the clip to use and x-placement
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION").get(), 90.f }
+			}
+		);
+		//
+		blend_bwd->AddRow(
+			0.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), -180.f }, //the clip to use and x-placement
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), -90.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), 0.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), 90.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get(), 180.f }
+			}
+		);
+		blend_bwd->AddRow(
+			3.1f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), -180.f }, //the clip to use and x-placement
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BLEFT_ANIMATION").get(), -90.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BRIGHT_ANIMATION").get(), 90.f },
+				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), 180.f }
+			}
+		);
+
+		//Adding out state / transitions
+		SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
+		//Add transition condition
+		fwd_bwd_outstate.AddTransition(
+			&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
+			-89.f, 89.f, //bound range for comparision
+			SM::COMPARISON_OUTSIDE_RANGE //comparision condition
+		);
+
+		SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
+		//Add transition condition
+		bwd_fwd_outstate.AddTransition(
+			&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
+			-90.f, 90.f, //bound range for comparision
+			SM::COMPARISON_INSIDE_RANGE //comparision condition
+		);
+
+		stateMachine->SetState("walk_forward");
+		stateMachine->SetModel(model->getAnimatedModel());
+	}
+
 	m_levelHandler = new LevelHandler();
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
 
@@ -110,6 +194,7 @@ void PlayState::Update(double deltaTime)
 
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
+	model->getAnimatedModel()->Update(deltaTime);
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 	if (deltaTime <= 0.65f)
@@ -161,7 +246,7 @@ void PlayState::Update(double deltaTime)
 void PlayState::Draw()
 {
 	m_levelHandler->Draw();
-	
+	model->Draw();
 	m_playerManager->Draw();
 		
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
