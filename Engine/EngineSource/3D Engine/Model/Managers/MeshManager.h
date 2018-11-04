@@ -1,11 +1,17 @@
 #pragma once
 #pragma warning (disable : 4172)
 #include <mutex>
-#include "../Meshes/StaticMesh.h"
-#include "../Meshes/DynamicMesh.h"
+
 
 const uint8_t MESH_HASHTABLE_SIZE = 13;
 
+class StaticMesh;
+class DynamicMesh;
+
+namespace MyLibrary
+{
+	struct CollisionBoxes;
+};
 
 class MeshManager
 {

@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
-#include "../3D Engine/Components/Camera.h"
+#include <DirectXMath.h>
+
+class Camera;
 
 class PointLight 
 {

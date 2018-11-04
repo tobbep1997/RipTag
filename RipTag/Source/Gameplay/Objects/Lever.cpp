@@ -1,6 +1,5 @@
+#include "RipTagPCH.h"
 #include "Lever.h"
-#include "../../../RipTagExtern/RipExtern.h"
-#include <iostream>
 
 Lever::Lever()
 {

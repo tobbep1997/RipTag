@@ -1,5 +1,5 @@
+#include "EnginePCH.h"
 #include "Engine3D.h"
-#include "../../Extern.h"
 
 ID3D11Device*			DX::g_device;
 ID3D11DeviceContext1*	DX::g_deviceContext;
@@ -107,19 +107,20 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
 	}
-	m_forwardRendering.Init(m_swapChain, m_backBufferRTV, m_depthStencilView, m_depthBufferTex, m_samplerState, m_viewport);
+	m_forwardRendering = new ForwardRender();
+	m_forwardRendering->Init(m_swapChain, m_backBufferRTV, m_depthStencilView, m_depthBufferTex, m_samplerState, m_viewport);
 	return hr;
 }
 
 void Engine3D::Flush(Camera & camera)
 {
 	
-	m_forwardRendering.Flush(camera);
+	m_forwardRendering->Flush(camera);
 }
 
 void Engine3D::Clear()
 {
-	this->m_forwardRendering.Clear();
+	this->m_forwardRendering->Clear();
 }
 
 void Engine3D::Present()
@@ -139,7 +140,8 @@ void Engine3D::Release()
 	DX::SafeRelease(m_depthBufferTex);
 	DX::SafeRelease(m_samplerState);	
 
-	m_forwardRendering.Release();
+	m_forwardRendering->Release();
+	delete m_forwardRendering;
 }
 
 void Engine3D::_createDepthSetencil(UINT width, UINT hight)

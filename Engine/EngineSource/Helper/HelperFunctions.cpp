@@ -1,5 +1,6 @@
+#include "EnginePCH.h"
 #include "HelperFunctions.h"
-#include <string>
+
 using namespace DirectX;
 void AssertNotZero(float val)
 {

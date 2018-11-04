@@ -1,5 +1,5 @@
+#include "RipTagPCH.h"
 #include "Door.h"
-#include <iostream>
 
 
 Door::Door() : Triggerble() , BaseActor()

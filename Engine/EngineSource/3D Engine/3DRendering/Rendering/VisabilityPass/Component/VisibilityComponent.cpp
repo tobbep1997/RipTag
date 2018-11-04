@@ -1,3 +1,4 @@
+#include "EnginePCH.h"
 #include "VisibilityComponent.h"
 
 VisibilityComponent::VisibilityComponent()

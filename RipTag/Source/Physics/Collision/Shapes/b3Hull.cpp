@@ -15,11 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3Hull.h"
-#include "..\..\Common\Memory\b3Array.h"
-#include "..\..\Common\Memory\b3ArrayPOD.h"
-#include <map>
+
 
 b3Hull::b3Hull() :
 	vertexCount(0),

@@ -1,20 +1,29 @@
+#include "RipTagPCH.h"
 #include "Enemy.h"
-#include "../RipTag/Source/Input/Input.h"
-#include "../Player.h"
+
+
 #include "EngineSource/3D Engine/RenderingManager.h"
+#include "EngineSource/3D Engine/Components/Camera.h"
+#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+#include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
+#include "2D Engine/Quad/Components/HUDComponent.h"
 
 
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
-	m_vc.Init(this->p_camera);
+	m_vc = new VisibilityComponent();
+	m_vc->Init(this->p_camera);
 
 }
 
 Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
-	m_vc.Init(this->p_camera);
+	m_vc = new VisibilityComponent();
+	m_vc->Init(this->p_camera);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	this->setDir(1, 0, 0);
 	this->getCamera()->setFarPlane(20);
@@ -27,7 +36,8 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
-	m_vc.Init(this->p_camera);
+	m_vc = new VisibilityComponent();
+	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
 	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
@@ -51,6 +61,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 Enemy::~Enemy()
 {
+	delete m_vc;
 	this->Release(*this->getBody()->GetScene());
 	for (auto path : m_path)
 	{
@@ -73,7 +84,7 @@ const int * Enemy::getPlayerVisibility() const
 {
 	if (m_allowVisability)
 	{
-		return m_vc.getVisibilityForPlayers();
+		return m_vc->getVisibilityForPlayers();
 	}
 	else
 	{
@@ -178,7 +189,7 @@ void Enemy::QueueForVisibility()
 {
 	if (true == m_allowVisability)
 	{
-		m_vc.QueueVisibility();
+		m_vc->QueueVisibility();
 	}
 	
 }
@@ -310,7 +321,7 @@ void Enemy::_TempGuardPath(bool x, double deltaTime)
 
 void Enemy::_IsInSight()
 {
-	float temp = (float)m_vc.getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+	float temp = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 	temp *= 100;
 
 	//std::cout << m_vc.getVisibilityForPlayers()[0] << std::endl;
@@ -552,7 +563,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 {
 	if (m_allowVisability)
 	{
-		float visPres = (float)m_vc.getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+		float visPres = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 
 
 		if (visPres > 0)

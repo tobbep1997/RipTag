@@ -1,3 +1,4 @@
+#include "EnginePCH.h"
 #include "DirectXRenderingHelpClass.h"
 #include "../../Extern.h"
 

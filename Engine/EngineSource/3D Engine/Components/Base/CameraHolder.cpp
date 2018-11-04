@@ -1,5 +1,5 @@
+#include "EnginePCH.h"
 #include "CameraHolder.h"
-#include <iostream>
 
 
 void CameraHolder::p_initCamera(Camera * camera)
@@ -35,7 +35,6 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 	XMFLOAT4A forward = p_camera->getDirection();
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
-	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
 	XMVECTOR vUP = XMLoadFloat4(&UP);
@@ -53,8 +52,8 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 
 	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
 	target = XMVector4Transform(target, rot);
-	XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
-	//out = XMVector4Transform(out, rot);
+	XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed + std::abs(targetPeek)), 1.0f));
+
 	XMStoreFloat4A(&m_lastPeek, out);
 	p_camera->setUP(m_lastPeek);
 	XMFLOAT4A cPos = p_camera->getPosition();
@@ -62,12 +61,12 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 
 	vToCam = XMVector4Transform(vToCam, rot);
 	out = vToCam;
-	//out = XMVectorLerp(vToCam, target, min(deltaTime * m_peekSpeed, 1.0f));
+
 	out = XMVectorAdd(DirectX::XMLoadFloat4A(&pos), out);
 
 	float MAX_PEEK = 1.0f;
 
-	//XMVECTOR Step = XMVectorScale(vRight, min(deltaTime * (m_peekSpeed + abs(targetPeek)), MAX_PEEK));
+
 	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min((float)deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	XMStoreFloat4A(&m_lastSideStep, sideStep);
 	out = XMVectorAdd(out, sideStep);

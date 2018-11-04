@@ -1,5 +1,9 @@
 #pragma once
-#include "../../Components/Base/Drawable.h"
+#include <vector>
+class Drawable;
+class Texture;
+class StaticMesh;
+class DynamicMesh;
 
 class ModelManager
 {

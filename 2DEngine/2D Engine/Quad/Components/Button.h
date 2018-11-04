@@ -1,5 +1,7 @@
 #pragma once
-#include "Transform2D.h"
+#include <DirectXMath.h>
+
+class Transform2D;
 class Button 
 {
 private:

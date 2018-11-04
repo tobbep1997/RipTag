@@ -42,9 +42,6 @@
     <ClCompile Include="2D Engine\DirectXTK\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="2D Engine\DirectXTK\pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="2D Engine\DirectXTK\VertexTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +49,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="2D Engine\Quad\Components\HUDComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine2DPCH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,9 +107,6 @@
     <ClInclude Include="2D Engine\DirectXTK\LoaderHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="2D Engine\DirectXTK\pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="2D Engine\DirectXTK\PlatformHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -120,6 +120,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="2D Engine\Quad\Components\HUDComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine2DPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,8 +1,15 @@
+#include "RipTagPCH.h"
 #include "PhysicsComponent.h"
+
 #include <iostream>
+
 #include "EngineSource/3D Engine/RenderingManager.h"
-#pragma warning (disable : 4312)
+#include "EngineSource/3D Engine/Components/Base/Transform.h"
+#include "ImportLibrary/FormatHeader.h"
+
 #include <AudioEngine.h>
+
+#pragma warning (disable : 4312)
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {

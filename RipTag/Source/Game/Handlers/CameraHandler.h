@@ -1,5 +1,4 @@
 #pragma once
-#include "EngineSource/3D Engine/Components/Camera.h"
 //-----------------------
 /*
  * Instructions on how to use
@@ -16,10 +15,12 @@
  * TaDa
  */
 
+class Camera;
+
 class CameraHandler
 {
 private:
-	static Camera m_defultCamera;
+	static Camera * m_defultCamera;
 
 	static Camera * m_activeCamera;
 

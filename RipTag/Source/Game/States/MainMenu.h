@@ -1,7 +1,7 @@
 #pragma once
 #include "State.h"
-#include "2D Engine/Quad/Quad.h"
 
+class Quad;
 
 class MainMenu : public State
 {

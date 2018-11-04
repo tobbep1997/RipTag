@@ -1,5 +1,5 @@
+#include "EnginePCH.h"
 #include "PointLight.h"
-#include "../3D Engine/Extern.h"
 
 
 PointLight::PointLight()
@@ -133,7 +133,7 @@ float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 	auto v2 = DirectX::XMLoadFloat2(&target);
 	DirectX::XMVECTOR vec;
 
-	vec = DirectX::XMVectorLerp(v1, v2, deltaTime * 5);
+	vec = DirectX::XMVectorLerp(v1, v2, (float)deltaTime * 5.0f);
 
 
 	current.x = DirectX::XMVectorGetX(vec);

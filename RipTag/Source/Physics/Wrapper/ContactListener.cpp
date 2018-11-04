@@ -1,6 +1,5 @@
+#include "RipTagPCH.h"
 #include "ContactListener.h"
-#include <iostream>
-#include "../../Game/Actors/Player.h"
 
 
 ContactListener::ContactListener()
