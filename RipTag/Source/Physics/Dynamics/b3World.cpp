@@ -15,15 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3World.h"
-#include "b3Body.h"
-#include "b3Island.h"
-#include "b3WorldListeners.h"
-#include "Contacts\b3Contact.h"
-#include "Joints\b3Joint.h"
-#include "..\Collision\Shapes\b3Shape.h"
-#include "..\Common\b3Draw.h"
+
 
 b3World::b3World() {
 	m_contactGraph.m_blockAllocator = &m_blockAllocator;

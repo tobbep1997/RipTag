@@ -57,6 +57,7 @@
     <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
     <ClCompile Include="RipTagPCH.cpp" />
+    <ClCompile Include="BouncePCH.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -288,5 +289,6 @@
     <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
     <ClInclude Include="RipTagPCH.h" />
+    <ClInclude Include="BouncePCH.h" />
   </ItemGroup>
 </Project>

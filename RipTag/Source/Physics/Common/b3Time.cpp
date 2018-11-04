@@ -15,9 +15,8 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3Time.h"
-#include <Windows.h>
 
 b3Time::b3Time() :
 m_frequency(B3_ONE_SECOND_MICROSECONDS),

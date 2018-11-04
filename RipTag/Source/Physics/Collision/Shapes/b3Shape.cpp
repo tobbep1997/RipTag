@@ -15,9 +15,8 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3Shape.h"
-#include "..\..\Dynamics\b3Body.h"
 
 void b3Shape::SetSensor(bool flag) {
 	if (flag != m_isSensor) {

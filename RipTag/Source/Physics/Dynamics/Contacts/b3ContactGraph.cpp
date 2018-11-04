@@ -15,14 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3ContactGraph.h"
-#include "b3Contact.h"
-#include "..\b3Body.h"
-#include "..\b3WorldListeners.h"
-#include "..\..\Common\Memory\b3BlockAllocator.h"
-#include "..\..\Collision\Shapes\b3Shape.h"
-#include "..\..\Collision\b3SAT.h"
+
 
 b3ContactGraph::b3ContactGraph() {
 	m_blockAllocator = nullptr;

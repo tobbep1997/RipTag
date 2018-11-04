@@ -15,10 +15,8 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3MouseJoint.h"
-#include "..\b3Body.h"
-#include "..\..\Common\b3Time.h"
 
 b3MouseJoint::b3MouseJoint(const b3MouseJointDef* def) {
 	m_bodyA = def->bodyA;

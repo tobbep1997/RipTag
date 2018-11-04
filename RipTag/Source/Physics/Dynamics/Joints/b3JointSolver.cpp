@@ -15,9 +15,8 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3JointSolver.h"
-#include "..\..\Common\b3Time.h"
 
 b3JointSolver::b3JointSolver(const b3JointSolverDef* def) {
 	m_count = def->count;

@@ -15,15 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3Island.h"
-#include "b3Body.h"
-#include "Joints\b3Joint.h"
-#include "Joints\b3JointSolver.h"
-#include "Contacts\b3Contact.h"
-#include "Contacts\b3ContactSolver.h"
-#include "..\Common\Memory\b3StackAllocator.h"
-#include "..\Common\b3Time.h"
+
 
 b3Island::b3Island(const b3IslandDef& def) {
 	allocator = def.allocator;
