@@ -10,11 +10,17 @@
 
 class Input
 {
+private:
 	static bool m_deactivate;
+
+	static int m_mouseSensitivity;
+	static int m_playerFOV;
 
 public:
 	Input();
 	~Input();
+
+	static Input * Instance();
 
 	static void ForceDeactivateGamepad();
 	static void ForceActivateGamepad();
@@ -51,11 +57,19 @@ public:
 	static bool SelectAbility3();
 	static bool SelectAbility4();
 
+	//Player Settings----------------
+
+	static int GetPlayerMouseSensitivity();
+
+	//LoadPlayerSettings from iniFile
+	static void WriteSettingsToFile();
+	static void ReadSettingsFile();
+private:
+	static void _ParseFileInputInt(const std::string & name, int key);
+public:
+
+
 };
-
-
-
-
 
 class InputMapping
 {

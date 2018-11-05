@@ -2,6 +2,8 @@
 #include "Input.h"
 
 bool Input::m_deactivate = false;
+int Input::m_mouseSensitivity = 0;
+int Input::m_playerFOV = 0;
 
 Input::Input()
 {
@@ -9,6 +11,12 @@ Input::Input()
 
 Input::~Input()
 {
+}
+
+Input* Input::Instance()
+{
+	static Input instance;
+	return &instance;
 }
 
 void Input::ForceDeactivateGamepad()
@@ -627,7 +635,73 @@ bool Input::SelectAbility4()
 	return false;
 }
 
+int Input::GetPlayerMouseSensitivity()
+{
+	return m_mouseSensitivity;
+}
 
+void Input::WriteSettingsToFile()
+{
+	std::string file = "..\\Configuration\\PlayerMapping.ini";
+	//Writing the current settings to the file
+
+	//Sensitivity
+	WritePrivateProfileStringA("Player", "Sensitivity", std::to_string(m_mouseSensitivity).c_str(), file.c_str());
+	//FOV
+	WritePrivateProfileStringA("Player", "PlayerFOV", std::to_string(m_playerFOV).c_str(), file.c_str());
+	
+}
+
+void Input::ReadSettingsFile()
+{
+	std::string file = "..\\Configuration\\PlayerMapping.ini";
+	const int bufferSize = 1024;
+	char buffer[bufferSize];
+
+	//Load in Keyboard section
+	if (GetPrivateProfileStringA("Player", NULL, NULL, buffer, bufferSize, file.c_str()))
+	{
+		std::vector<std::string> nameList;
+		std::istringstream nameStream;
+		nameStream.str(std::string(buffer, bufferSize));
+
+		std::string name = "";
+		while (std::getline(nameStream, name, '\0'))
+		{
+			if (name == "")
+				break;
+			nameList.push_back(name);
+		}
+
+		for (size_t i = 0; i < nameList.size(); i++)
+		{
+			int key = -1;
+			key = GetPrivateProfileIntA("Player", nameList[i].c_str(), -1, file.c_str());
+			if (key != -1)
+			{
+				_ParseFileInputInt(nameList[i], key);
+			}
+				
+		}
+		//Clear buffer for reuse
+		ZeroMemory(buffer, bufferSize);
+
+	}
+	else
+		std::cout << GetLastError() << std::endl;
+}
+
+void Input::_ParseFileInputInt(const std::string& name, int key)
+{
+	if (name == "Sensitivity")
+	{
+		m_mouseSensitivity = key;
+	}
+	else if (name == "PlayerFOV")
+	{
+		m_playerFOV = key;
+	}
+}
 
 
 //DEFINITIONS FOR INPUTMAPPING STATICS
