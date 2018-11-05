@@ -5,13 +5,17 @@
 
 StaticMesh::StaticMesh()
 {
+	m_collisionBox = nullptr;
 }
 
 
 StaticMesh::~StaticMesh()
 {
-	delete [] m_collisionBox->boxes;
-	delete m_collisionBox;
+	if (m_collisionBox)
+	{
+		delete[] m_collisionBox->boxes;
+		delete m_collisionBox;
+	}
 }
 
 const StaticVertex * StaticMesh::getRawVertice() const
