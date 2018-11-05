@@ -209,7 +209,6 @@ void TeleportAbility::_inStateTeleportable()
 			dir2.z = -getLiniearVelocity().z;
 			dir2.w = 1;
 
-
 			RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 3, true);
 			//std::cout << "nor1 " << var->normal.x << " " << var->normal.y << " " << var->normal.z << " " << std::endl;
 			//std::cout << "nor1 " << dir.x << " " << dir.y << " " << dir.z << " " << std::endl;
@@ -246,11 +245,6 @@ void TeleportAbility::_inStateTeleportable()
 			//	position.z += var->normal.z;
 			//}
 			
-			
-			
-
-			
-
 			//position.y += 1.0f;
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 

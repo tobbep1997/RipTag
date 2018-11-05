@@ -59,7 +59,7 @@ public:
 private:
 	std::vector<RayContact*> rayContacts;
 	b3Body* m_tempBody;
-	bool m_singleUse = false;
+	bool m_singleUse = true;
 	bool m_rayHit = false;
 
 private:
