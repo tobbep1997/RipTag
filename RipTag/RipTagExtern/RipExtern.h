@@ -1,9 +1,10 @@
 #pragma once
 #include <DirectXMath.h>
-#include "../Source/Physics/Bounce.h"
-#include "../RipTag/Source/Physics/Wrapper/ContactListener.h"
-#include "../RipTag/Source/Physics/Wrapper/RayCastListener.h"
-#include "../RipTag/Source/Game/Actors/Enemy/Enemy.h"
+
+class b3World;
+class ContactListener;
+class RayCastListener;
+
 namespace RipExtern
 {
 	extern b3World * g_world;

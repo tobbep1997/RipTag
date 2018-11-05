@@ -1,7 +1,6 @@
 #include "RipTagPCH.h"
 #include "BlinkAbility.h"
 
-#include "EngineSource/3D Engine/Components/Camera.h"
 
 BlinkAbility::BlinkAbility()
 {

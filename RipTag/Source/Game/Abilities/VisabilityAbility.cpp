@@ -1,12 +1,6 @@
 #include "RipTagPCH.h"
 #include "VisabilityAbility.h"
 
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "EngineSource/3D Engine/Components/Camera.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-#include "EngineSource/3D Engine/Components/Base/Drawable.h"
-
 
 VisabilityAbility::VisabilityAbility()
 {

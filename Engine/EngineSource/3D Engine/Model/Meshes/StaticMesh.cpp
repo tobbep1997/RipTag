@@ -1,7 +1,6 @@
 #include "EnginePCH.h"
 #include "StaticMesh.h"
 
-#include "ImportLibrary/formatImporter.h"
 
 
 StaticMesh::StaticMesh()

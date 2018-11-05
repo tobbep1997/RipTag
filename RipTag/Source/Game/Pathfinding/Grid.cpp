@@ -1,7 +1,6 @@
 #include "RipTagPCH.h"
 #include "Grid.h"
 
-#include "ImportLibrary/Formatheader.h"
 
 
 Grid::Grid(int width, int height)

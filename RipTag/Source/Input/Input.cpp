@@ -1,7 +1,5 @@
 #include "RipTagPCH.h"
 #include "Input.h"
-#include "InputManager/InputHandler.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
 
 bool Input::m_deactivate = false;
 

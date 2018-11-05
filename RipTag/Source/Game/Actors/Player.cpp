@@ -1,20 +1,5 @@
 #include "RipTagPCH.h"
 #include "Player.h"
-#include <algorithm>
-#include <iostream>
-#include <bits.h>
-
-#include "InputManager/InputHandler.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-#include "EngineSource/3D Engine/Components/Camera.h"
-#include "EngineSource/3D Engine/Components/StateMachine.h"
-#include "2D Engine/Quad/Quad.h"
-
-
-#include "EngineSource/Helper/HelperFunctions.h"
 
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()

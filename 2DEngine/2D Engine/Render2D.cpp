@@ -1,9 +1,7 @@
 #include "Engine2DPCH.h"
 #include "Render2D.h"
 
-#include "EngineSource/3D Engine/Extern.h"
-#include "EngineSource/Shader/ShaderManager.h"
-#include "InputManager/InputHandler.h"
+
 
 Render2D::Render2D()
 {

@@ -1,20 +1,6 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
 
-#include <AudioEngine.h>
-
-
-#include "EngineSource/Helper/Timer.h"
-#include "EngineSource/3D Engine/Extern.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-
-#include "InputManager/XboxInput/GamePadHandler.h"
-
-#include "ImportLibrary/formatImporter.h"
-#include "2D Engine/Quad/Quad.h"
-
-
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;

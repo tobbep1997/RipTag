@@ -1,7 +1,6 @@
 #include "RipTagPCH.h"
 #include "CameraHandler.h"
 
-#include "EngineSource/3D Engine/Components/Camera.h"
 
 
 Camera * CameraHandler::m_defultCamera;

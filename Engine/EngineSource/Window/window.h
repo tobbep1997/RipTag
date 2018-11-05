@@ -3,7 +3,6 @@
 
 #include <Windows.h>
 #include <string>
-#include "../InputManager/InputManager/InputHandler.h"
 
 struct WindowContext
 {

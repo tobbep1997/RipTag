@@ -1,7 +1,7 @@
 #include "RipTagPCH.h"
 #include "Enemy.h"
 
-
+#include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include "EngineSource/3D Engine/Components/Camera.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
@@ -301,13 +301,7 @@ void Enemy::_handleRotation(double deltaTime)
 void Enemy::_TempGuardPath(bool x, double deltaTime)
 {
 	p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
-
-#ifdef _DEBUG
-	ImGui::Begin("be");
-	ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
-	ImGui::End();
-#endif
-
+	   
 	//ImGui::Begin("be");
 	//ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
 	//ImGui::End();

@@ -3,7 +3,7 @@
 #include <thread>
 #include <d3d11_1.h>
 #include <DirectXMath.h>
-#include "VisabilityPass/VisabilityPass.h"
+#include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/VisabilityPass.h"
 
 
 enum ObjectType;

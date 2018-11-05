@@ -1,7 +1,6 @@
 #include "EnginePCH.h"
 #include "ForwardRender.h"
 
-#include "2D Engine/Render2D.h"
 
 
 
@@ -53,7 +52,6 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	HRESULT hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
-	
 	m_visabilityPass.Init();
 
 

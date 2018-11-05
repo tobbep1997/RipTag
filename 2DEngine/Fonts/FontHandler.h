@@ -1,5 +1,8 @@
 #pragma once
-#include "../2D Engine/DirectXTK/SpriteFont.h"
+namespace DirectX
+{
+	class SpriteFont;
+}
 class FontHandler
 {
 private:

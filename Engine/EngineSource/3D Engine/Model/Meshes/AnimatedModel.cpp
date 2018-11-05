@@ -1,8 +1,6 @@
 #include "EnginePCH.h"
 #include "AnimatedModel.h"
 
-#include "ImportLibrary/FormatHeader.h"
-#include "ImportLibrary/formatImporter.h"
 
 
 float constexpr getNewValueInNewRange(float x, float a, float b, float c, float d)

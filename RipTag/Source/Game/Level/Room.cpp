@@ -1,17 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
 
-#include "EngineSource/Light/PointLight.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-
-#include "ImportLibrary/FormatHeader.h"
-#include "ImportLibrary/formatImporter.h"
-
-#include "2D Engine/Quad/Quad.h"
-
-
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;

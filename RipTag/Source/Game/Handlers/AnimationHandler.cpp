@@ -1,8 +1,6 @@
 #include "RipTagPCH.h"
 #include "AnimationHandler.h"
 
-#include "EngineSource/3D Engine/Extern.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 
 namespace fs = std::experimental::filesystem;
 #pragma warning(disable : 4996)

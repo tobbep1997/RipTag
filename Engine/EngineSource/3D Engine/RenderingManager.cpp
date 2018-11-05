@@ -1,14 +1,13 @@
 #include "EnginePCH.h"
 #include "RenderingManager.h"
 
-#include "../Debugg//ImGui/imgui.h"
-#include "../Debugg/ImGui/imgui_impl_win32.h"
-#include "../Debugg/ImGui/imgui_impl_dx11.h"
+
 
 RenderingManager::RenderingManager()
 {
 	m_wnd = new Window();
 	m_engine = new Engine3D();
+	m_ImGuiManager = new ImGuiManager();
 }
 
 
@@ -16,6 +15,7 @@ RenderingManager::~RenderingManager()
 {
 	delete m_wnd;
 	delete m_engine;
+	delete m_ImGuiManager;
 }
 
 RenderingManager * RenderingManager::GetInstance()
@@ -46,7 +46,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 
 	if (DEBUG)
 	{
-		m_ImGuiManager.Init(m_wnd->getHandler());
+		m_ImGuiManager->Init(m_wnd->getHandler());
 	}
 	
 	
@@ -60,7 +60,7 @@ void RenderingManager::Update()
 		m_wnd->PollEvents();
 		if (DEBUG)
 		{
-			m_ImGuiManager.ImGuiProcPoll(m_wnd->getWindowProcMsg());
+			m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 		}
 	#if _DEBUG
 		if (GetAsyncKeyState(int('P')))
@@ -78,7 +78,7 @@ void RenderingManager::UpdateSingleThread()
 	m_wnd->PollEvents();
 	if (DEBUG)
 	{
-		m_ImGuiManager.ImGuiProcPoll(m_wnd->getWindowProcMsg());
+		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 	}
 #if _DEBUG
 	if (GetAsyncKeyState(int('P')))
@@ -103,7 +103,7 @@ void RenderingManager::Flush(Camera & camera)
 
 	if(DEBUG)
 	{
-		m_ImGuiManager.Draw();
+		m_ImGuiManager->Draw();
 	}
 
 	m_engine->Present();
@@ -115,7 +115,7 @@ void RenderingManager::Release()
 	m_engine->Release();
 	if (DEBUG)
 	{
-		m_ImGuiManager.Release();
+		m_ImGuiManager->Release();
 	}
 }
 
@@ -124,7 +124,7 @@ void RenderingManager::ImGuiStartFrame()
 	//Starts the new ImGui frame
 	//TODO: This might be changed. This needs to be called before ImGui::begin()
 	if (DEBUG) {
-		m_ImGuiManager.StartFrame();
+		m_ImGuiManager->StartFrame();
 	}
 }
 
@@ -142,7 +142,7 @@ void RenderingManager::ImGuiProc()
 {
 	if (DEBUG)
 	{
-		m_ImGuiManager.ImGuiProcPoll(m_wnd->getWindowProcMsg());
+		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 	}
 }
 

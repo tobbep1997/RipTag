@@ -1,7 +1,6 @@
 #include "RipTagPCH.h"
 #include "PossessGuard.h"
 
-#include "EngineSource/3D Engine/Components/Camera.h"
 
 
 PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
