@@ -14,7 +14,7 @@ private:
 	static bool m_deactivate;
 
 	static int m_mouseSensitivity;
-	static int m_playerFOV;
+	static float m_playerFOV;
 
 public:
 	Input();
@@ -60,6 +60,7 @@ public:
 	//Player Settings----------------
 
 	static int GetPlayerMouseSensitivity();
+	static int GetPlayerFOV();
 
 	//LoadPlayerSettings from iniFile
 	static void WriteSettingsToFile();

@@ -3,7 +3,7 @@
 
 bool Input::m_deactivate = false;
 int Input::m_mouseSensitivity = 0;
-int Input::m_playerFOV = 0;
+float Input::m_playerFOV = 0;
 
 Input::Input()
 {
@@ -638,6 +638,11 @@ bool Input::SelectAbility4()
 int Input::GetPlayerMouseSensitivity()
 {
 	return m_mouseSensitivity;
+}
+
+int Input::GetPlayerFOV()
+{
+	return m_playerFOV;
 }
 
 void Input::WriteSettingsToFile()
