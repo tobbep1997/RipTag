@@ -32,7 +32,7 @@ void Lever::Update(double deltaTime)
 		{
 			if (con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
+				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
 					p_trigger(!Triggerd());			
 					*con->consumeState +=1;
