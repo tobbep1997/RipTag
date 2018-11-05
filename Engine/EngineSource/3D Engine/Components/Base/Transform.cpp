@@ -41,6 +41,7 @@ Transform::Transform()
 	p_forcedWorld = DirectX::XMMatrixIdentity();
 	m_modelTransform = DirectX::XMMatrixIdentity();
 	p_physicsRotation._11 = INT16_MIN;
+	m_parent = nullptr;
 }
 
 
