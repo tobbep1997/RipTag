@@ -25,15 +25,35 @@ Animation::AnimatedModel::~AnimatedModel()
 // Computes the frame we're currently on and computes final skinning matrices for gpu skinning
 void Animation::AnimatedModel::Update(float deltaTime)
 {
+	timeAlreadyUpdatedThisFrame = false;
 	m_currentFrameDeltaTime = deltaTime;
 
 	if (m_StateMachine)
 	{
 		m_StateMachine->UpdateCurrentState();
-		auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
+
+		//Blendfactor used to blend between two states.
+		float blendFactor = 1.0 - m_StateMachine->UpdateBlendFactor(deltaTime);
+
+		
+		auto finalPoseCurrent = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
+		auto pPreviousState = m_StateMachine->GetPreviousState();
+		
+		if (pPreviousState)
+		{
+			std::cout << "Blending from previous: " << blendFactor << std::endl;
+
+			auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
+			_computeSkinningMatrices(&finalPosePrevious, &finalPoseCurrent, blendFactor);
+			return;
+		}
+
+		_computeSkinningMatrices(&finalPoseCurrent);
 		return;
 	}
 	
+
+
 	if (m_targetClip)
 	{
 		//UpdateBlend(deltaTime);
@@ -109,10 +129,10 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 	}
 }
 
-void Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
+Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
 {
 	if (!stateData.firstTop)
-		return;
+		return Animation::SkeletonPose();
 
 	///calc the actual frame index and progression towards the next frame
 	auto indexAndProgression = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_currentNormalizedTime, stateData.firstTop->m_frameCount);
@@ -147,7 +167,7 @@ void Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DSta
 		);
 	}
 
-	_computeSkinningMatrices(&finalPose);
+	return std::move(finalPose);
 }
 
 void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
@@ -646,17 +666,19 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
 }
 
-std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float * currentNormalizedTime, uint16_t frameCount)
-{/*
-	static int cntr = 0;
-	cntr++;
-*/
-	deltaTime /= (frameCount / 24.0);
-	*currentNormalizedTime += deltaTime;
+std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount)
+{
+	if (!timeAlreadyUpdatedThisFrame)
+	{
+		deltaTime /= (frameCount / ANIMATION_FRAMERATE);
+		*currentTime += deltaTime;
+		timeAlreadyUpdatedThisFrame = true;
+	}
+
 	frameCount -= 1;
 
-	float properTime = std::fmod(*currentNormalizedTime, 1.0f);
-	*currentNormalizedTime = properTime;
+	float properTime = std::fmod(*currentTime, 1.0f);
+	*currentTime = properTime;
 	///calc the actual frame index and progression towards the next frame
 	//float actualTime = properTime / (1.0 / 24.0);
 	float prevIndexFloat = (properTime * frameCount) ;

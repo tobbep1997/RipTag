@@ -33,6 +33,7 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent , publ
 {
 private: //stuff for state machine
 	friend class PlayState;
+	friend class Enemy; //#todoREMOVE
 	bool m_jumpedThisFrame = false;
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]

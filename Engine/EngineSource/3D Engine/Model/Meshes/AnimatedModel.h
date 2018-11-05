@@ -13,7 +13,8 @@
 #define ANIMATION_SET_KEEP_OTHER (1<<1)
 #define ANIMATION_SET_CLEAN (1<<2)
 
-namespace ImporterLibrary
+#define ANIMATION_FRAMETIME 0.041666666f
+#define ANIMATION_FRAMERATE 24
 {
 	class CustomFileLoader;
 	struct Transform;
@@ -178,7 +179,7 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
-		void UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
+		SkeletonPose UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
 		void SetLayeredClipWeight(const float& weight);
@@ -213,7 +214,7 @@ namespace Animation
 
 		float m_currentTime = 0.0f;
 		float m_currentNormalizedTime = 0.0f;
-
+		bool timeAlreadyUpdatedThisFrame = false;
 		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;

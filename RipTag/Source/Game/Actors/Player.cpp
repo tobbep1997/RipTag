@@ -161,6 +161,44 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	{
+		using namespace DirectX;
+		//calculate walk direction (-1, 1, based on camera) and movement speed
+		{
+			///Speed
+			auto physSpeed = this->getLiniearVelocity();
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			auto cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+			///AssertNotNAN(m_currentDirection);
+
+		}
+	}
 	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
 	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
 	//std::cout << getPosition().x << " " << getPosition().y << " " << getPosition().z << std::endl;

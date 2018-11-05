@@ -127,6 +127,9 @@ void ForwardRender::AnimatedGeometryPass()
 	{
 		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
+			//todoREMOVE
+			auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
+
 			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
