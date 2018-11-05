@@ -53,7 +53,6 @@
     <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
     <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
     <ClCompile Include="EnginePCH.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\WICTextureLoader\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
