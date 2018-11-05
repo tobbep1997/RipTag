@@ -15,6 +15,7 @@
 
 #define ANIMATION_FRAMETIME 0.041666666f
 #define ANIMATION_FRAMERATE 24
+namespace ImporterLibrary
 {
 	class CustomFileLoader;
 	struct Transform;
