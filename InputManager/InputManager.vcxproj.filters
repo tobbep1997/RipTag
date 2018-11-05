@@ -24,12 +24,18 @@
     <ClInclude Include="InputManager\InputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InputPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager\XboxInput\GamePadHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InputManager\InputHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

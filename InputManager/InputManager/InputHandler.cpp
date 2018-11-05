@@ -1,3 +1,4 @@
+#include "InputPCH.h"
 #include "InputHandler.h"
 
 bool InputHandler::m_keys[256];

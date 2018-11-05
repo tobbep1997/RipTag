@@ -1,3 +1,4 @@
+#include "InputPCH.h"
 #include "GamePadHandler.h"
 
 std::unique_ptr<DirectX::GamePad> GamePadHandler::m_gamePad;
