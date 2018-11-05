@@ -33,8 +33,8 @@ void DynamicMesh::SET_DEFAULT()
 {
 	using namespace DirectX;
 
-	MyLibrary::Loadera meshloader;
-	MyLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile("../Assets/ANIMATEDCUBE.bin");
+	ImporterLibrary::CustomFileLoader meshloader;
+	ImporterLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile("../Assets/ANIMATEDCUBE.bin");
 
 	DynamicVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
@@ -89,8 +89,8 @@ void DynamicMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
 
-	MyLibrary::Loadera meshloader;
-	MyLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile(path);
+	ImporterLibrary::CustomFileLoader meshloader;
+	ImporterLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile(path);
 	DynamicVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{

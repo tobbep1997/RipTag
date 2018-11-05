@@ -24,7 +24,7 @@ void BaseActor::Init(b3World& world, b3BodyType bodyType, const float & x, const
 	PhysicsComponent::Init(world, bodyType, x, y, z);
 }
 
-void BaseActor::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes)
+void BaseActor::Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes)
 {
 	PhysicsComponent::Init(world, collisionBoxes);
 }

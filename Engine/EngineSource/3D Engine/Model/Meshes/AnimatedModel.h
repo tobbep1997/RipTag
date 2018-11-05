@@ -13,9 +13,9 @@
 #define ANIMATION_SET_KEEP_OTHER (1<<1)
 #define ANIMATION_SET_CLEAN (1<<2)
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
-	class Loadera;
+	class CustomFileLoader;
 	struct Transform;
 	struct DecomposedTransform;
 	struct Skeleton;
@@ -39,8 +39,8 @@ namespace Animation
 			DirectX::XMStoreFloat4A(&m_translation, DirectX::XMVectorZero());
 			m_scale = { 1.0, 1.0, 1.0, 1.0 };
 		};
-		SRT(const MyLibrary::Transform& transform);
-		SRT(const MyLibrary::DecomposedTransform& transform);
+		SRT(const ImporterLibrary::Transform& transform);
+		SRT(const ImporterLibrary::DecomposedTransform& transform);
 		SRT(const SRT& other) = default;
 		SRT& operator=(const SRT& other) = default;
 		SRT(SRT&& other) noexcept: 
@@ -72,7 +72,7 @@ namespace Animation
 		std::unique_ptr<Joint[]> m_joints;
 
 		Skeleton() : m_jointCount(0){};
-		Skeleton(const MyLibrary::Skeleton& skeleton);
+		Skeleton(const ImporterLibrary::Skeleton& skeleton);
 
 		//Move ctor
 		Skeleton(Skeleton&& other) noexcept 
@@ -125,7 +125,7 @@ namespace Animation
 			for (int i = 0; i < jointCount; i++)
 				m_skeletonPoses[i] = SkeletonPose(jointCount);
 		};
-		AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Animation::Skeleton> skeleton);
+		AnimationClip(const ImporterLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Animation::Skeleton> skeleton);
 		~AnimationClip();
 	};
 
@@ -142,11 +142,11 @@ namespace Animation
 	typedef std::shared_ptr<ClipCollection> SharedClipCollection;
 	typedef std::shared_ptr<Skeleton> SharedSkeleton;
 #pragma region GlobalAnimationFunctions
-	SRT ConvertTransformToSRT(MyLibrary::Transform transform);
-	Animation::SharedAnimation ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount);
-	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton);
+	SRT ConvertTransformToSRT(ImporterLibrary::Transform transform);
+	Animation::SharedAnimation ConvertToAnimationClip(ImporterLibrary::AnimationFromFile* animation, uint8_t jointCount);
+	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const ImporterLibrary::Skeleton* importedSkeleton);
 	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
-	DirectX::XMMATRIX _createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform);
+	DirectX::XMMATRIX _createMatrixFromSRT(const ImporterLibrary::DecomposedTransform& transform);
 	Animation::SharedAnimation LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
 	SharedSkeleton LoadAndCreateSkeleton(std::string file);
 	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);

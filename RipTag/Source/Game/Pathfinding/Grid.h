@@ -85,7 +85,7 @@ public:
 	Grid(int width = 0, int height = 0);
 	virtual ~Grid();
 
-	void CreateGridWithWorldPosValues(int width, int height, MyLibrary::GridStruct grid);
+	void CreateGridWithWorldPosValues(int width, int height, ImporterLibrary::GridStruct grid);
 	void ThreadPath(Tile src, Tile dest);
 	std::vector<Node*> getPath();
 	std::vector<Node*> FindPath(Tile src, Tile dest);

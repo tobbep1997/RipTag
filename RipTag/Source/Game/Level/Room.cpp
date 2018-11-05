@@ -1,6 +1,30 @@
 #include "RipTagPCH.h"
 #include "Room.h"
 
+void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
+{
+	for (int i = 0; i < propsToPlace.nrOfItems; i++)
+	{
+		switch (propsToPlace.props[i].typeOfProp)
+		{
+		case(1):
+			//../Assets/LEVER
+			//Ladda in leverMesh, sätt till lever class, med boundingBoxTag etc
+			break;
+		case(2):
+			//../Assets/PRSSUREPLATE
+			//ladda in pressurePlate sätt till class, tagga bounding box etc
+			break;
+		case(3):
+			//../Assets/Door
+			//ladda in dörr etc etc 
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
 	this->m_roomIndex = roomIndex;
@@ -150,8 +174,8 @@ void Room::LoadRoomToMemory()
 	std::cout << m_assetFilePath << std::endl;
 	if (m_roomLoaded == false)
 	{
-		MyLibrary::Loadera fileLoader;
-		MyLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
+		ImporterLibrary::CustomFileLoader fileLoader;
+		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
 			this->m_pointLights.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
@@ -165,14 +189,18 @@ void Room::LoadRoomToMemory()
 		//
 		m_roomLoaded = true;
 
-		MyLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
-		MyLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
+		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
+		ImporterLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
 
 		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1], player1Start.startingPos[2], 1.0f);
 		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1], player2Start.startingPos[2], 1.0f);
 
-		MyLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
 
+		ImporterLibrary::PropItemToEngine tempProps = fileLoader.readPropsFile(this->getAssetFilePath());
+		
+		placeRoomProps(tempProps);
+		delete tempProps.props;
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
 			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));

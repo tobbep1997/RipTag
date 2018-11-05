@@ -270,7 +270,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform)
+DirectX::XMMATRIX Animation::_createMatrixFromSRT(const ImporterLibrary::DecomposedTransform& transform)
 {
 	using namespace DirectX;
 
@@ -287,7 +287,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 
 Animation::SharedAnimation Animation::LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton)
 {
-	MyLibrary::Loadera loader;
+	ImporterLibrary::CustomFileLoader loader;
 	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
 
 	return std::make_shared<Animation::AnimationClip>(importedAnimation, skeleton);
@@ -295,7 +295,7 @@ Animation::SharedAnimation Animation::LoadAndCreateAnimation(std::string file, s
 
 std::shared_ptr<Animation::Skeleton> Animation::LoadAndCreateSkeleton(std::string file)
 {
-	MyLibrary::Loadera loader;
+	ImporterLibrary::CustomFileLoader loader;
 	auto importedSkeleton = loader.readSkeletonFile(file);
 	return std::make_shared<Animation::Skeleton>(importedSkeleton);
 }
@@ -553,7 +553,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose1, S
 }
 
 // #convert Transform conversion
-Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
+Animation::SRT Animation::ConvertTransformToSRT(ImporterLibrary::Transform transform)
 {
 	using namespace DirectX;
 	SRT srt = {};
@@ -757,7 +757,7 @@ void Animation::AnimatedModel::UpdateLooping(Animation::AnimationClip* clip)
 	}
 }
 
-Animation::SharedAnimation Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
+Animation::SharedAnimation Animation::ConvertToAnimationClip(ImporterLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
 	uint32_t keyCount = animation->nr_of_keyframes;
 
@@ -782,12 +782,12 @@ Animation::SharedAnimation Animation::ConvertToAnimationClip(MyLibrary::Animatio
 	return clipToReturn;
 }
 
-void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton)
+void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const ImporterLibrary::Skeleton* importedSkeleton)
 {
 	using namespace DirectX;
 
 	std::vector<XMFLOAT4X4A> vec;
-	std::vector <MyLibrary::Transform > vec2;
+	std::vector <ImporterLibrary::Transform > vec2;
 	DirectX::XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(importedSkeleton->joints[0].jointInverseBindPoseTransform));
 
 	for (int i = 1; i < mainSkeleton->m_jointCount; i++)
@@ -813,7 +813,7 @@ void Animation::AnimationCBuffer::SetToShader()
 	DX::g_deviceContext->VSSetConstantBuffers(4, 1, &m_AnimationBuffer);
 }
 
-Animation::SRT::SRT(const MyLibrary::Transform& transform)
+Animation::SRT::SRT(const ImporterLibrary::Transform& transform)
 {
 	using namespace DirectX;
 	
@@ -829,7 +829,7 @@ Animation::SRT::SRT(const MyLibrary::Transform& transform)
 	m_scale = { 1.0, 1.0, 1.0, 1.0f };
 }
 
-Animation::SRT::SRT(const MyLibrary::DecomposedTransform& transform)
+Animation::SRT::SRT(const ImporterLibrary::DecomposedTransform& transform)
 {
 	m_rotationQuaternion.x = transform.rotation.x;
 	m_rotationQuaternion.y = transform.rotation.y;
@@ -864,7 +864,7 @@ bool Animation::SRT::operator==(const SRT& other)
 		);
 }
 
-Animation::Skeleton::Skeleton(const MyLibrary::Skeleton& skeleton)
+Animation::Skeleton::Skeleton(const ImporterLibrary::Skeleton& skeleton)
 {
 	m_jointCount = static_cast<uint8_t>(skeleton.joints.size());
 	m_joints = std::make_unique<Animation::Joint[]>(m_jointCount);
@@ -882,7 +882,7 @@ Animation::JointPose::JointPose(const SRT& srt)
 	m_transformation = srt;
 }
 
-Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Skeleton> skeleton)
+Animation::AnimationClip::AnimationClip(const ImporterLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Skeleton> skeleton)
 {
 	auto keyCount   = animation.nr_of_keyframes;
 	m_skeleton      = skeleton;

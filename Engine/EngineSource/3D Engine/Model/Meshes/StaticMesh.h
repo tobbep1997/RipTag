@@ -3,7 +3,7 @@
 
 struct StaticVertex;
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
 	struct CollisionBoxes;
 };
@@ -13,7 +13,7 @@ class StaticMesh
 private:
 	std::string m_meshName;
 	std::vector<StaticVertex> m_staticVertex;
-	MyLibrary::CollisionBoxes * m_collisionBox;
+	ImporterLibrary::CollisionBoxes * m_collisionBox;
 public:
 	StaticMesh();
 	~StaticMesh();
@@ -22,7 +22,7 @@ public:
 	const std::vector<StaticVertex> & getVertice() const;
 	void setVertices(std::vector<StaticVertex>& input);
 
-	const MyLibrary::CollisionBoxes & getCollisionBoxes() const;
+	const ImporterLibrary::CollisionBoxes & getCollisionBoxes() const;
 
 	void SET_DEFAULT();
 

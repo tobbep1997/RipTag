@@ -14,7 +14,7 @@ struct BodyDefine
 	float gravityScale = 1;
 };
 
-namespace MyLibrary {
+namespace ImporterLibrary {
 	struct CollisionBoxes;
 };
 
@@ -62,7 +62,7 @@ public:
 	virtual ~PhysicsComponent();
 
 	virtual void Init(b3World & world, b3BodyType bodyType, float x = 1, float y = 1, float z = 1, bool sensor = false);
-	virtual void Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes);
+	virtual void Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes);
 
 	virtual void addCollisionBox(b3Vec3 pos, b3Vec3 size, b3Quaternion rotation, std::string type, bool sensor, b3World * world);
 

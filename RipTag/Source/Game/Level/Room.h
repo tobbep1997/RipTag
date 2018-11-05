@@ -4,8 +4,9 @@
 #include <AudioEngine.h>
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-namespace MyLibrary {
+namespace ImporterLibrary {
 	struct GridStruct;
+	struct PropItemToEngine;
 }
 
 class Quad;
@@ -45,7 +46,7 @@ private:
 	std::vector<FMOD::Geometry*> m_audioBoxes;
 	float m_playerStartPos;
 
-	MyLibrary::GridStruct * m_grid;
+	ImporterLibrary::GridStruct * m_grid;
 	Grid * m_pathfindingGrid;
 	
 	DirectX::XMFLOAT4 m_player1StartPos;
@@ -65,7 +66,7 @@ private:
 	Lever * lever;
 	PressurePlate * pressurePlate;
 
-	
+	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 
 	std::vector<const int*> vis;
 
