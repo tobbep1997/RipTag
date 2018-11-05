@@ -47,8 +47,8 @@ void Animation::AnimatedModel::Update(float deltaTime)
 			_computeSkinningMatrices(&finalPosePrevious, &finalPoseCurrent, blendFactor);
 			return;
 		}
-
-		_computeSkinningMatrices(&finalPoseCurrent);
+		if (finalPoseCurrent.m_jointPoses)
+			_computeSkinningMatrices(&finalPoseCurrent);
 		return;
 	}
 	
@@ -666,6 +666,23 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
 }
 
+std::optional<std::pair<uint16_t, float>> Animation::AnimatedModel::_computeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount)
+{
+	*currentTime += deltaTime;
+	frameCount -= 1;
+
+	if (*currentTime >= (frameCount / 24.0f))
+		return std::nullopt;
+
+	///calc the actual frame index and progression towards the next frame
+	float actualTime = *currentTime / (1.0 / 24.0);
+	int prevIndex = (int)(actualTime);
+	float progression = (actualTime)-(float)prevIndex;
+
+	//return values
+	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
+}
+
 std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount)
 {
 	if (!timeAlreadyUpdatedThisFrame)
@@ -756,6 +773,56 @@ void Animation::AnimatedModel::UpdateLooping(Animation::AnimationClip* clip)
 		auto prevIndex = indexAndProgression.first;
 		auto progression = indexAndProgression.second;
 
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (prevIndex >= m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
+		{
+			assert(1 == 0);
+			if (m_isLooping)
+			{
+				m_currentTime = 0.0 + progression;
+
+				prevIndex = std::floorf(m_currentClip->m_framerate / 2 * m_currentTime);
+				progression = std::fmod(m_currentTime, 1.0 / 24.0);
+			}
+			else
+			{
+				m_isPlaying = false;
+			}
+		}
+
+		/// compute skinning matrices
+		if (m_isPlaying)
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
+	}
+}
+
+void Animation::AnimatedModel::UpdateOnce(Animation::AnimationClip* clip)
+{
+	if (clip != m_currentClip)
+		this->SetPlayingClip(clip, false, false);
+
+	if (m_isPlaying)
+	{
+		/// increase local time
+		//done in _computeIndexAndProgression()
+
+		///calc the actual frame index and progression towards the next frame
+		auto indexAndProgression = _computeIndexAndProgressionOnce(m_currentFrameDeltaTime, &m_currentTime, m_currentClip->m_frameCount);
+
+		uint16_t prevIndex = 0;
+		float progression = 0.0f;
+		if (indexAndProgression.has_value())
+		{
+			prevIndex = indexAndProgression.value().first;
+			progression = indexAndProgression.value().second;
+		}
+		else
+		{
+			m_isPlaying = false;
+			prevIndex = m_currentClip->m_frameCount - 1;
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex]);
+			return;
+		}
 		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
 		if (prevIndex >= m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
 		{

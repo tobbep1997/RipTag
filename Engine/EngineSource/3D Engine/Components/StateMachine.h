@@ -163,11 +163,14 @@ namespace SM
 	class BlendSpace2D;
 	class LoopState;
 	class AutoTransitionState;
+	class PlayOnceState;
+
 	class StateVisitorBase{
 	public:
 		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) = 0;
 		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) = 0;
 		virtual Animation::SkeletonPose dispatch(LoopState& state) = 0;
+		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) = 0;
 		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) = 0;
 	};
 
@@ -296,6 +299,24 @@ namespace SM
 
 #pragma endregion "AutoTransState"
 
+#pragma region "PlayOnceState"
+
+	class PlayOnceState : public AnimationState
+	{
+	public:
+		PlayOnceState(std::string name);
+		~PlayOnceState() {}
+
+		void SetClip(Animation::AnimationClip* clip);
+		Animation::AnimationClip* GetClip();
+		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		virtual void LockCurrentValues() override {};
+	private:
+		Animation::AnimationClip* m_Clip{};
+	};
+
+#pragma endregion "PlayOnceState"
+
 #pragma region "Visitors"
 	class StateVisitor : public StateVisitorBase{
 	public:
@@ -304,6 +325,7 @@ namespace SM
 		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) override;
 		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) override;
 		virtual Animation::SkeletonPose dispatch(LoopState& state) override;
+		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) override;
 		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) override;
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
@@ -338,8 +360,9 @@ namespace SM
 		void SetModel(Animation::AnimatedModel* model);
 		AnimationState& GetCurrentState();
 		AnimationState* GetPreviousState();
-		void UpdateCurrentState();
+		bool UpdateCurrentState();
 		float UpdateBlendFactor(float deltaTime);
+		SM::PlayOnceState* AddPlayOnceState(std::string name, Animation::AnimationClip* clip);
 	private:
 		//The animated model to set the clip to when we enter a state
 		Animation::AnimatedModel* m_AnimatedModel;

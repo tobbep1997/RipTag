@@ -89,6 +89,14 @@ namespace SM
 		return state;
 	}
 
+	SM::PlayOnceState* AnimationStateMachine::AddPlayOnceState(std::string name, Animation::AnimationClip* clip)
+	{
+		PlayOnceState* state = new PlayOnceState(name);
+		state->SetClip(clip);
+		m_States.insert(std::make_pair(name, static_cast<AnimationState*>(state)));
+		return state;
+	}
+
 	void AnimationStateMachine::SetModel(Animation::AnimatedModel* model)
 	{
 		m_AnimatedModel = model;
@@ -97,6 +105,8 @@ namespace SM
 	void AnimationStateMachine::SetState(std::string stateName)
 	{
 		m_CurrentState = m_States.at(stateName);
+		if (m_AnimatedModel)
+			m_AnimatedModel->Play();
 	}
 
 	void AnimationStateMachine::SetStateIfAllowed(std::string stateName)
@@ -116,10 +126,13 @@ namespace SM
 		return m_BlendFromState;
 	}
 
-	void AnimationStateMachine::UpdateCurrentState()
-	{
+	bool AnimationStateMachine::UpdateCurrentState()
+{
+		if (!m_CurrentState)
+			return false;
 		//returns the first state that has all conditions satisfied, if any.
 		auto state = m_CurrentState->EvaluateAll();
+
 		if (state.first)
 		{
 			m_BlendFromState = m_CurrentState;
@@ -127,6 +140,7 @@ namespace SM
 			m_CurrentState = state.first;
 			m_RemainingBlendTime = m_TotalBlendTime = (state.second - m_RemainingBlendTime);
 		}
+		return true;
 	}
 
 	float AnimationStateMachine::UpdateBlendFactor(float deltaTime)
@@ -147,6 +161,8 @@ namespace SM
 			return m_RemainingBlendTime / m_TotalBlendTime;
 		}
 	}
+
+
 
 #pragma endregion "StateMachine"
 
@@ -184,6 +200,17 @@ namespace SM
 
 	Animation::SkeletonPose StateVisitor::dispatch(AutoTransitionState& state)
 	{
+		return Animation::SkeletonPose();
+	}
+
+	Animation::SkeletonPose StateVisitor::dispatch(PlayOnceState& state)
+	{
+		if (!m_AnimatedModel)
+			return Animation::SkeletonPose();
+
+		m_AnimatedModel->UpdateOnce(state.GetClip());
+		
+		//#todo
 		return Animation::SkeletonPose();
 	}
 
@@ -369,6 +396,31 @@ namespace SM
 
 #pragma endregion "AutoTransState"
 
+#pragma region "PlayOnceState"
+
+	PlayOnceState::PlayOnceState(std::string name)
+		: AnimationState(name)
+	{
+	}
+
+	void PlayOnceState::SetClip(Animation::AnimationClip* clip)
+	{
+		m_Clip = clip;
+	}
+
+	Animation::AnimationClip * PlayOnceState::GetClip()
+	{
+		return m_Clip;
+	}
+
+	Animation::SkeletonPose PlayOnceState::recieveStateVisitor(StateVisitorBase& visitor)
+	{
+		auto pose = visitor.dispatch(*this);
+		return pose;
+	}
+
+#pragma endregion "PlayOnceState"
+
 #pragma region "LoopState"
 	LoopState::LoopState(std::string name) 
 		: AnimationState(name)
@@ -396,6 +448,8 @@ namespace SM
 	}
 
 #pragma endregion "LoopState"
+
+
 
 
 
