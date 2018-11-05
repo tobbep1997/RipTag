@@ -210,26 +210,39 @@ void TeleportAbility::_inStateTeleportable()
 			dir2.w = 1;
 
 
-			RayCastListener::RayContact var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 3, true);
+			RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 3, true);
 			
 
-			//std::cout << "nor1 " << var.normal.x << " " << var.normal.y << " " << var.normal.z << " " << std::endl;
+			//std::cout << "nor1 " << var->normal.x << " " << var->normal.y << " " << var->normal.z << " " << std::endl;
 			//std::cout << "nor1 " << dir.x << " " << dir.y << " " << dir.z << " " << std::endl;
-			if (var.normal.x == 0 && var.normal.y == 0 && var.normal.z == 0)
+			if (var == nullptr)
 			{
-				RayCastListener::RayContact var2 = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 3, true);
-				position.x += var2.normal.x;
-				position.y += var2.normal.y;
-				position.z += var2.normal.z;
-				//std::cout << "nor2 " << var2.normal.x << " " << var2.normal.y << " " << var2.normal.z << " " << std::endl;
+				position.x += var->normal.x;
+				position.y += var->normal.y;
+				position.z += var->normal.z;
+			}
+			else
+			{
+				RayCastListener::RayContact* var2 = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 3, true);
+				position.x += var2->normal.x;
+				position.y += var2->normal.y;
+				position.z += var2->normal.z;
+			}
+			if (var->normal.x == 0 && var->normal.y == 0 && var->normal.z == 0)
+			{
+				RayCastListener::RayContact* var2 = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 3, true);
+				position.x += var2->normal.x;
+				position.y += var2->normal.y;
+				position.z += var2->normal.z;
+				//std::cout << "nor2 " << var2->normal.x << " " << var2->normal.y << " " << var2->normal.z << " " << std::endl;
 
 			}
 			else
 			{
 
-				position.x += var.normal.x;
-				position.y += var.normal.y;
-				position.z += var.normal.z;
+				position.x += var->normal.x;
+				position.y += var->normal.y;
+				position.z += var->normal.z;
 			}
 			
 			

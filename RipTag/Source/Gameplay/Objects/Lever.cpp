@@ -26,16 +26,16 @@ void Lever::BeginPlay()
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+	for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
 	{
-		if (con.originBody->GetObjectTag() == "PLAYER")
+		if (con->originBody->GetObjectTag() == "PLAYER")
 		{
-			if (con.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+			if (con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
+				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
 				{
 					p_trigger(!Triggerd());			
-					*con.consumeState +=1;
+					*con->consumeState +=1;
 				}
 			}
 		}

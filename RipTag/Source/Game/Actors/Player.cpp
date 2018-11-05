@@ -684,33 +684,33 @@ void Player::_onInteract()
 		if (m_kp.interact == false)
 		{
 			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
-			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+			for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
 			{
-				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
+				if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
 				{
-					if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
+					if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
 					{
-						*con.consumeState += 1;
+						*con->consumeState += 1;
 						//do the pickups
 					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
+					else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
 					{
-						*con.consumeState += 1;
+						*con->consumeState += 1;
 					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
+					else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 					{
-						*con.consumeState += 1;
+						*con->consumeState += 1;
 						//Snuff out torches (example)
 					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
+					else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
-						*con.consumeState += 1;
+						*con->consumeState += 1;
 						//std::cout << "Enemy Found!" << std::endl;
 						//Snuff out torches (example)
 					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
-						*con.consumeState += 1;
+						*con->consumeState += 1;
 						//std::cout << "illusory wall ahead" << std::endl;
 						//Snuff out torches (example)
 					}

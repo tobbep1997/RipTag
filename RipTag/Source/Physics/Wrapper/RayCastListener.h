@@ -18,6 +18,27 @@ public:
 			if(singleUse)
 			*consumeState = 2;
 		};
+		~RayContact()
+		{
+			originBody = nullptr;
+			contactShape = nullptr;
+			delete consumeState;
+			consumeState = nullptr;
+		};
+
+		RayContact(b3Body* originBody, b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction, bool singleUse = true)
+		{
+			this->originBody = originBody;
+
+			this->contactShape = contactShape;
+			this->contactPoint = point;
+			this->normal = normal;
+			this->fraction = fraction;
+
+			consumeState = new int(0);
+			if (singleUse)
+				*consumeState = 2;
+		};
 		void _setData(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 		{
 			this->contactShape = contactShape;
@@ -36,14 +57,16 @@ public:
 		
 	};
 private:
-	std::vector<RayContact> rayContacts;
+	std::vector<RayContact*> rayContacts;
+	b3Body* m_tempBody;
+	bool m_singleUse = false;
 
 public:
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
-		if (fraction != 0 && !rayContacts.empty())
+		if (fraction != 0)
 		{
-			rayContacts.back()._setData(shape, point, normal, fraction);
+			rayContacts.push_back(new RayContact(m_tempBody, shape, point, normal, fraction, m_singleUse));
 			/*if (rayContacts.back().contactShape->IsSensor() && *rayContacts.back().consumeState != 2)
 			{
 				rayContacts.push_back(RayContact(rayContacts.back().originBody));
@@ -63,42 +86,45 @@ public:
 		{
 			for (int i = 0; i < rayContacts.size(); i++)
 			{
-				if (*rayContacts[i].consumeState >= 2)
+				if (*rayContacts[i]->consumeState >= 2)
 				{
-					delete rayContacts.at(i).consumeState;
+					delete rayContacts.at(i)->consumeState;
 					rayContacts.erase(rayContacts.begin() + i);
 				}
 			}
 		}
 	}
 
-	virtual RayContact ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = false, std::string target = "N/A")
+	virtual RayContact* ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = true)
 	{
 		//b3Vec3 pos;
-		RayContact contact(body, singleUse);
+		RayContact* contact = nullptr;
+		this->m_tempBody = body;
+		this->m_singleUse = singleUse;
 		float x = start.x + (length * direction.x);
 		float y = start.y + (length * direction.y);
 		float z = start.z + (length * direction.z);
 
-		rayContacts.push_back(contact);
 		body->GetScene()->RayCast(this, b3Vec3(start.x, start.y, start.z), b3Vec3(x, y, z));
 
-		if (rayContacts.back().fraction == 0 || singleUse)
+		if (!rayContacts.empty())
 		{
-			contact = rayContacts.back();
-			delete rayContacts.back().consumeState;
-			rayContacts.pop_back();
+			if (rayContacts.back()->fraction == 0)
+			{
+				rayContacts.pop_back();
+			}
+			else if (singleUse)
+			{
+				contact = rayContacts.back();
+			}
 		}
-		else if (target != "N/A" && rayContacts.back().contactShape->GetBody()->GetObjectTag() != target)
-		{
-			delete rayContacts.back().consumeState;
-			rayContacts.pop_back();
-		}
-		
+
+		this->m_tempBody = nullptr;
+		this->m_singleUse = true;
 		return contact;
 	}
 
-	virtual std::vector<RayContact> GetContacts()
+	virtual std::vector<RayContact*> GetContacts()
 	{
 		return this->rayContacts;
 	}
@@ -108,7 +134,6 @@ public:
 	{
 		for (int i = (int)rayContacts.size()-1; i > 0; i--)
 		{
-			delete rayContacts.at(i).consumeState;
 			rayContacts.erase(rayContacts.begin() + i);
 		}
 	}
