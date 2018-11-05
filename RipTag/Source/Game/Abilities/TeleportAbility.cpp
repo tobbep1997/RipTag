@@ -22,7 +22,7 @@ void TeleportAbility::Init()
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	BaseActor::setGravityScale(0.01f);
+	BaseActor::setGravityScale(0.60f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 	this->getBody()->SetObjectTag("TELEPORT");
 	m_light = new PointLight();
