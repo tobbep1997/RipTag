@@ -239,12 +239,16 @@ namespace Animation
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
+		std::optional<std::pair<uint16_t, float>> _computeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount);
 		std::pair<uint16_t, float> _computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount);
 
-		void UpdateCombined(float deltaTime);
+
+
 		void _computeModelMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 	public:
+		void UpdateCombined(float deltaTime);
 		void UpdateLooping(Animation::AnimationClip* clip);
+		void UpdateOnce(Animation::AnimationClip* clip);
 	};
 
 #pragma region AnimationCBufferClass

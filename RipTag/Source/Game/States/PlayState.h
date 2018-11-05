@@ -23,7 +23,7 @@ class Drawable; //#todoREMOVE
 class PlayState : public State
 {
 private:
-	std::unique_ptr<Drawable> model = std::make_unique<Drawable>();
+	//std::unique_ptr<Drawable> model = std::make_unique<Drawable>();
 private:
 	LevelHandler * m_levelHandler;
 	ContactListener * m_contactListener;
