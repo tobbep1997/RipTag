@@ -70,6 +70,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
+	
+	
 }
 
 PlayState::~PlayState()
@@ -94,19 +96,35 @@ void PlayState::Update(double deltaTime)
 	m_step.sleeping = false;
 	m_firstRun = false;
 
+	if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}
+
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
+	m_playerManager->Update(deltaTime);
+
+	//model->getAnimatedModel()->Update(deltaTime);
+
+	m_playerManager->PhysicsUpdate();
+
+	
+	
+	
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
-	if (deltaTime <= 0.65f)
-	{
-		m_world.Step(m_step);
-	}
+
+	/*tempDeltaTime = deltaTime;
+	std::lock_guard<std::mutex> lg(testMutex);
+	testCon.notify_all();*/
+	m_physicsThread = std::thread(&PlayState::testtThread, this, deltaTime);
+	
 	
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
-
+	
 #if _DEBUG
 	TemporaryLobby();
 #endif
@@ -116,16 +134,14 @@ void PlayState::Update(double deltaTime)
 	}
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	m_playerManager->Update(deltaTime);
-
-	//model->getAnimatedModel()->Update(deltaTime);
 	
-	
-
-	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
 		setKillState(true);
 	}
 
@@ -151,6 +167,23 @@ void PlayState::Draw()
 	m_playerManager->Draw();
 		
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+}
+
+void PlayState::testtThread(double deltaTime)
+{
+	/*while (true)
+	{
+		std::unique_lock<std::mutex> lock(testMutex);
+		testCon.wait(lock);
+		if (destoryPhysics == true)
+		{
+			return;
+		}*/
+		if (deltaTime <= 0.65f)
+		{
+			m_world.Step(m_step);
+		}
+	//}
 }
 
 void PlayState::thread(std::string s)
