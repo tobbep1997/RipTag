@@ -79,6 +79,8 @@ private:
 
 	bool m_lockPlayerInput;
 
+	float m_objectInfoTime = 0.0f;
+
 	int mouseX = 0;
 	int mouseY = 0;
 
@@ -91,6 +93,7 @@ private:
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
 
+	Quad * m_infoText;
 
 	
 public:
@@ -149,6 +152,7 @@ private:
 	void _onJump();
 	void _onInteract();
 	void _onAbility(double dt);
+	void _objectInfo(double deltaTime);
 
 
 	void _cameraPlacement(double deltaTime);
