@@ -15,9 +15,9 @@ namespace SM
 		for (auto& outState : m_OutStates)
 		{
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
-				return std::make_pair(outState.second.state, .3f);
+				return std::make_pair(outState.second.state, 0.4f);
 		}
-		return std::make_pair(nullptr, .3f);
+		return std::make_pair(nullptr, .0);
 	}
 
 	AnimationState::~AnimationState()
