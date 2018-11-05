@@ -36,6 +36,11 @@ private:
 	bool unlockMouse = true;
 	FMOD::Channel * TEEEMPCHANNEL;
 
+	std::thread m_physicsThread;
+	//std::mutex testMutex;
+	//std::condition_variable testCon;
+	//double tempDeltaTime = 0;
+	//bool destoryPhysics = false;
 
 public:
 
@@ -47,6 +52,8 @@ public:
 	void Draw() override;
 
 private:
+	void testtThread(double deltaTime);
+
 	void thread(std::string s);
 	void TemporaryLobby();
 };
