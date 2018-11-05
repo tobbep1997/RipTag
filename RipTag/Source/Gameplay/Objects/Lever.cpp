@@ -28,27 +28,13 @@ void Lever::Update(double deltaTime)
 	p_updatePhysics(this);
 	for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
 	{
-		if (con->originBody->GetObjectTag() == "PLAYER")
+		if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 		{
-			if (con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+			if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 			{
-				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
-				{
-					p_trigger(!Triggerd());			
-					*con->consumeState +=1;
-				}
+				p_trigger(!Triggerd());			
+				*con->consumeState +=1;
 			}
 		}
 	}
-	//std::cout << Triggerd() << std::endl;
-}
-
-bool Lever::isEqual(Lever * target)
-{
-	if (this->getPosition().x == target->getPosition().x && 
-		this->getPosition().y == target->getPosition().y && 
-		this->getPosition().z == target->getPosition().z)
-		return true;
-
-	return false;
 }

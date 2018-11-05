@@ -690,7 +690,7 @@ void Player::_onJump()
 
 void Player::_onInteract()
 {
-	if (Input::Interact()) //Phase acts like short range teleport through objects
+	if (Input::Interact())
 	{
 		if (m_kp.interact == false)
 		{
@@ -709,6 +709,8 @@ void Player::_onInteract()
 						else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
 						{
 							*con->consumeState += 1;
+							m_infoText->setString("");
+							m_objectInfoTime = 0;
 						}
 						else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 						{
@@ -744,6 +746,7 @@ void Player::_onAbility(double dt)
 	this->m_abilityComponents[m_currentAbility]->Update(dt);
 }
 
+//Sends a ray every second and check if there is relevant data for the object to show on the screen
 void Player::_objectInfo(double deltaTime)
 {
 	if (m_objectInfoTime >= 1)

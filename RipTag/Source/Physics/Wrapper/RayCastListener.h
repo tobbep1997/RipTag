@@ -1,6 +1,5 @@
 #pragma once
 #include "../../Physics/Wrapper/PhysicsComponent.h"
-//#include <string>
 class RayCastListener : public b3RayCastListener
 {	
 public:
@@ -63,7 +62,8 @@ private:
 	bool m_rayHit = false;
 
 private:
-	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+	//Called by the physics engine to inform of the shapes intersecting
+	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction) 
 	{
 		if (fraction != 0)
 		{
@@ -91,13 +91,14 @@ public:
 		rayContacts.clear();
 	}
 
+	//removes contacts that have been accessed once by each object or not used at all
 	virtual void ClearConsumedContacts()
 	{
 		if (!rayContacts.empty())
 		{
 			for (int i = 0; i < rayContacts.size(); i++)
 			{
-				if (*rayContacts[i]->consumeState >= 2 || *rayContacts[i]->consumeState == 0) //fully used or not used at all
+				if (*rayContacts[i]->consumeState >= 2 || *rayContacts[i]->consumeState == 0)
 				{
 					delete rayContacts.at(i);
 					rayContacts.erase(rayContacts.begin() + i);
@@ -106,6 +107,9 @@ public:
 		}
 	}
 
+	/*Prepares the start and end positions of the ray, then calls the physics engine to perform a raycast.
+	If specified, the objects being intersected will stay alive until the object shooting the ray and the object being intersected have accessed the contact once.
+	Contact will be destroyed if no object has accessed the contact*/
 	virtual RayContact* ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = true)
 	{
 		RayContact* contact = nullptr;

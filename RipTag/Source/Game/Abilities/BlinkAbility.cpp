@@ -36,9 +36,10 @@ void BlinkAbility::Draw()
 {
 }
 
+//Shoots a ray, gets the contact point and the normal, puts the player on the opposite side of the wall
 void BlinkAbility::_logic(double deltaTime)
 {
-	if (m_useFunctionCalled) // the Use() function were called last frame
+	if (m_useFunctionCalled) // the Use() function was called last frame
 	{
 		Player* pPointer = static_cast<Player*>(p_owner);
 		switch (m_bState)
