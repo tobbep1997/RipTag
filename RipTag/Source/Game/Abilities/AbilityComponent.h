@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4244)
 #include <NetworkMessageIdentifiers.h>
 
 enum Ability

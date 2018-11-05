@@ -15,10 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
+#include "BouncePCH.h"
 
 #include "b3SAT.h"
-#include "Shapes\b3Polyhedron.h"
-#include "Shapes\b3Hull.h"
 
 /*
 *****************************************************************

@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include "FormatHeader.h"
 #include <string>
 #include <sstream>
+#include "FormatHeader.h"
 
 namespace MyLibrary
 {
@@ -31,7 +31,7 @@ namespace MyLibrary
 
 		StartingPos readPlayerStartFile(const std::string & fileName, int whichPlayer);
 		GuardStartingPositions readGuardStartFiles(const std::string & fileName);
-		GridStruct readGridFile(const std::string & fileName);
+		GridStruct * readGridFile(const std::string & fileName);
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);
 		Skeleton loadSkeleton(std::ifstream& file, int32_t boneCount);

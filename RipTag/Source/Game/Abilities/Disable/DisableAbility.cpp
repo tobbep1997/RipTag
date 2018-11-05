@@ -1,6 +1,5 @@
+#include "RipTagPCH.h"
 #include "DisableAbility.h"
-#include "../../Actors/Player.h"
-
 
 DisableAbility::DisableAbility(void* owner) : AbilityComponent(owner), BaseActor()
 {

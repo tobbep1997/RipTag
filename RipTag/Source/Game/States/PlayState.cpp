@@ -1,18 +1,10 @@
+#include "RipTagPCH.h"
 #include "PlayState.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
-#include "../../Input/Input.h"
-#include "EngineSource/Helper/Timer.h"
-#include "ImportLibrary/formatImporter.h"
-#include "../RipTagExtern/RipExtern.h"
-#include "../Handlers/AnimationHandler.h"
-#include <AudioEngine.h>
+
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
-#define JAAH TRUE
-#define NEIN FALSE
-
 
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
@@ -59,8 +51,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 
 	
-	
-	m_levelHandler.Init(m_world, m_playerManager->getLocalPlayer());
+	m_levelHandler = new LevelHandler();
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
 
 	triggerHandler = new TriggerHandler();
 
@@ -69,7 +61,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
 	AudioEngine::PlaySoundEffect(name, &caveSoundAt2);
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291 };
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
 	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
 
@@ -82,8 +74,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 PlayState::~PlayState()
 {
-	m_levelHandler.Release();
-	
+	m_levelHandler->Release();
+	delete m_levelHandler;
+
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	
 	delete m_playerManager;
@@ -102,7 +95,7 @@ void PlayState::Update(double deltaTime)
 	m_firstRun = false;
 
 	triggerHandler->Update(deltaTime);
-	m_levelHandler.Update(deltaTime);
+	m_levelHandler->Update(deltaTime);
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 	if (deltaTime <= 0.65f)
@@ -153,7 +146,7 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
-	m_levelHandler.Draw();
+	m_levelHandler->Draw();
 	
 	m_playerManager->Draw();
 		

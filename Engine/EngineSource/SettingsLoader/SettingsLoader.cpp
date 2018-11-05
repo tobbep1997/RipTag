@@ -1,7 +1,5 @@
+#include "EnginePCH.h"
 #include "SettingsLoader.h"
-#include <fstream>
-#include <sstream>
-#include <algorithm>
 
 void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 {

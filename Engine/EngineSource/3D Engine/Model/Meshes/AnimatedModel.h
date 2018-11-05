@@ -5,7 +5,6 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <unordered_map>
-#include "ImportLibrary/FormatHeader.h"
 #include "../../Components/StateMachine.h"
 #define MAXJOINT 128
 #define BLEND_MATCH_TIME (1<<1)
@@ -13,6 +12,16 @@
 #define BLEND_MATCH_NORMALIZED_TIME (1<<3)
 #define ANIMATION_SET_KEEP_OTHER (1<<1)
 #define ANIMATION_SET_CLEAN (1<<2)
+
+namespace MyLibrary
+{
+	class Loadera;
+	struct Transform;
+	struct DecomposedTransform;
+	struct Skeleton;
+	struct AnimationFromFileStefan;
+	struct AnimationFromFile;
+};
 
 namespace Animation
 {

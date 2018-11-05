@@ -1,6 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
-#include "../../../../../RipTag/Source/Physics/Common/Math/b3Mat33.h"
+#include "Source/Physics/Common/Math/b3Mat33.h"
+
+
 
 class PlayState;
 

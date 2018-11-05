@@ -1,7 +1,7 @@
+#include "RipTagPCH.h"
 #include "PossessGuard.h"
-#include "../Actors/Player.h"
-#include "../Handlers/CameraHandler.h"
-#include "../../../RipTagExtern/RipExtern.h"
+
+
 
 PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 {

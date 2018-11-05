@@ -1,11 +1,11 @@
 #pragma once
-#include "../Level/Room.h"
 #include <Vector>
-#include "../Actors/BaseActor.h"
 #include <filesystem>
 #include <iostream>
 #include <future>
-#include "../Actors/Player.h"
+
+class Room;
+class Player;
 
 class LevelHandler
 {

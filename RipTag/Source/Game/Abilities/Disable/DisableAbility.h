@@ -1,11 +1,10 @@
 #pragma once
 
-#pragma once
+#include <Multiplayer.h>
+
 #include "../AbilityComponent.h"
 #include "../../Actors/BaseActor.h"
-#include "../../../../RipTagExtern/RipExtern.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
-#include <Multiplayer.h>
 
 class DisableAbility : public AbilityComponent, public BaseActor, public HUDComponent
 {

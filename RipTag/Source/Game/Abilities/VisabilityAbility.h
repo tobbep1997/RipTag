@@ -1,8 +1,7 @@
 #pragma once
 #include "AbilityComponent.h"
-#include "EngineSource/3D Engine/Components/Base/Drawable.h"
 
-
+class Drawable;
 class VisabilityAbility : public AbilityComponent
 {
 private:

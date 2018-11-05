@@ -1,23 +1,24 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../Actors/BaseActor.h"
-#include "../Actors/Assets/StaticAsset.h"
-#include "../../../New_Library/ImportLibrary/FormatHeader.h"
-#include "../../../New_Library/ImportLibrary/formatImporter.h"
-#include "../Actors/Enemy/Enemy.h"
-#include "../Actors/Player.h"
-#include "../../New_Library/ImportLibrary/FormatHeader.h"
-#include "../Pathfinding/Grid.h"
-#include "../../Physics/Wrapper/CollisionBoxes.h"
-
-#include "../../Gameplay/Objects/Door.h"
-#include "../../Gameplay/Objects/Lever.h"
-#include "../../Gameplay/Objects/PressurePlate.h"
-#include "../../Gameplay/Triggers/TriggerHandler.h"
-
 #include <AudioEngine.h>
 #include "2D Engine/Quad/Components/HUDComponent.h"
+
+namespace MyLibrary {
+	struct GridStruct;
+}
+
+class Quad;
+class Grid;
+class Door;
+class Enemy;
+class Lever;
+class Player;
+class BaseActor;
+class PointLight;
+class StaticAsset;
+class PressurePlate;
+class TriggerHandler;
 
 class Room : public HUDComponent
 {
@@ -44,8 +45,8 @@ private:
 	std::vector<FMOD::Geometry*> m_audioBoxes;
 	float m_playerStartPos;
 
-	MyLibrary::GridStruct m_grid;
-	Grid m_pathfindingGrid;
+	MyLibrary::GridStruct * m_grid;
+	Grid * m_pathfindingGrid;
 	
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;

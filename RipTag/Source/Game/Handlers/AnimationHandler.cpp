@@ -1,9 +1,7 @@
+#include "RipTagPCH.h"
 #include "AnimationHandler.h"
-#include <string>
-#include <vector>
-#include <iostream>
-#include <experimental/filesystem>
-#include "../../../Engine/EngineSource/3D Engine/Extern.h"
+
+
 namespace fs = std::experimental::filesystem;
 #pragma warning(disable : 4996)
 AnimationHandler Manager::g_animationManager;

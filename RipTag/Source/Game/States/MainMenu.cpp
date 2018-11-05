@@ -1,5 +1,7 @@
+#include "RipTagPCH.h"
 #include "MainMenu.h"
-#include "PlayState.h"
+
+
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
 	Manager::g_textureManager.loadTextures("KOMBIN");

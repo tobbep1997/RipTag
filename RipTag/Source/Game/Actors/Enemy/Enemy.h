@@ -1,12 +1,13 @@
 #pragma once
-//#include "../Engine/EngineSource/3D Engine/Components/Camera.h"
+
 #include "../Actor.h"
-//#include "../Engine/EngineSource/3D Engine/Model/Model.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
-#include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"
-#include "../../Pathfinding/Grid.h"
-#include "2D Engine/Quad/Components/HUDComponent.h"
+
+struct Node;
+
+class VisibilityComponent;
+class Grid;
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
@@ -25,7 +26,7 @@ private:
 		bool interact = false;
 	};
 
-	VisibilityComponent m_vc;
+	VisibilityComponent * m_vc;
 	bool m_allowVisability = false;
 
 	bool m_inputLocked = true;

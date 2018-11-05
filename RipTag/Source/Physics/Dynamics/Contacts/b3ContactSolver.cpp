@@ -15,13 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3ContactSolver.h"
-#include "b3Contact.h"
-#include "..\..\Collision\Shapes\b3Shape.h"
-#include "..\..\Dynamics\b3Body.h"
-#include "..\..\Common\Memory\b3StackAllocator.h"
-#include "..\..\Common\b3Time.h"
+
 
 b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def) {
 	m_allocator = def->allocator;

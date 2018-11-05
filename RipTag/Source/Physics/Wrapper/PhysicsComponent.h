@@ -1,9 +1,7 @@
 #pragma once
-
-#include "../../Physics/Bounce.h"
-#include "EngineSource/3D Engine/Components/Base/Transform.h"
 #include <vector>
-#include "ImportLibrary/FormatHeader.h"
+#include "../../Physics/Bounce.h"
+
 struct BodyDefine
 {
 	float posX = 0;
@@ -15,6 +13,12 @@ struct BodyDefine
 	bool awake = true;
 	float gravityScale = 1;
 };
+
+namespace MyLibrary {
+	struct CollisionBoxes;
+};
+
+class Transform;
 
 struct CollisionObject
 {

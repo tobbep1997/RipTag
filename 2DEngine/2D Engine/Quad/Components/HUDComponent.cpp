@@ -1,3 +1,4 @@
+#include "Engine2DPCH.h"
 #include "HUDComponent.h"
 
 HUDComponent::HUDComponent()

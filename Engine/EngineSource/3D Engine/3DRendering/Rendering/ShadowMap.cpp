@@ -1,5 +1,6 @@
+#include "EnginePCH.h"
 #include "ShadowMap.h"
-#include "../Framework/DirectXRenderingHelpClass.h"
+
 
 ShadowMap::ShadowMap()
 {

@@ -1,8 +1,5 @@
+#include "RipTagPCH.h"
 #include "Game.h"
-#include "EngineSource/3D Engine/Extern.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
-#include "EngineSource/Helper/Timer.h"
-
 
 Game::Game()
 {
@@ -91,34 +88,6 @@ void Game::Draw()
 void Game::ImGuiFrameStart()
 {
 	m_renderingManager->ImGuiStartFrame();
-}
-
-void Game::PushStateLUA(State * ptr)
-{
-	MainMenu * menuPtr = 0;
-	PlayState * playPtr = 0;
-
-	if (ptr)
-	{
-		menuPtr = dynamic_cast<MainMenu*>(ptr);
-		if (menuPtr)
-		{
-			this->m_gameStack.push(menuPtr);
-			return;
-		}
-		playPtr = dynamic_cast<PlayState*>(ptr);
-		if (playPtr)
-		{
-			this->m_gameStack.push(playPtr);
-			return;
-		}
-		//pause menu and lobby menu to add
-	}
-}
-
-void Game::PopStateLUA()
-{
-	this->m_gameStack.pop();
 }
 
 void Game::ImGuiPoll()

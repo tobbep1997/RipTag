@@ -1,6 +1,6 @@
+#include "RipTagPCH.h"
 #include "BlinkAbility.h"
-#include "../Actors/Player.h"
-#include "../../../RipTagExtern/RipExtern.h"
+
 
 BlinkAbility::BlinkAbility()
 {

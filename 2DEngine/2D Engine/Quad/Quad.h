@@ -1,10 +1,15 @@
 #pragma once
-#include "Components/Transform2D.h"
 #include <d3d11.h>
-#include "EngineSource/3D Engine/Model/Texture.h"
+#include <string>
 #include "Components/Button.h"
-#include "../DirectXTK/SpriteFont.h"
+#include "Components/Transform2D.h"
 
+namespace DirectX
+{
+	class SpriteFont;
+}
+
+class Texture;
 class Quad : public Transform2D , public Button
 {
 public:

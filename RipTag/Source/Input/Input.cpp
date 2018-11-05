@@ -1,6 +1,5 @@
+#include "RipTagPCH.h"
 #include "Input.h"
-#include "InputManager/InputHandler.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
 
 bool Input::m_deactivate = false;
 
@@ -557,8 +556,8 @@ void Input::ResetMouse()
 {
 	if (InputHandler::getWindowFocus())
 	{
-		int midX = InputHandler::getviewportPos().x + (InputHandler::getWindowSize().x / 2.0f);
-		int midY = InputHandler::getviewportPos().y + (InputHandler::getWindowSize().y / 2.0f);
+		int midX = (int)InputHandler::getviewportPos().x + (int)(InputHandler::getWindowSize().x / 2.0f);
+		int midY = (int)InputHandler::getviewportPos().y + (int)(InputHandler::getWindowSize().y / 2.0f);
 
 		SetCursorPos(midX, midY);
 	}

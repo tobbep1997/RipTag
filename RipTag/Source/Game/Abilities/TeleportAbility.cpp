@@ -1,10 +1,9 @@
+#include "RipTagPCH.h"
 #include "TeleportAbility.h"
-#include "../RipTagExtern/RipExtern.h"
-#include "../Actors/Player.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
 
 
-TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor()
+
+TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseActor(), HUDComponent()
 {
 	m_tpState = Throwable;
 	m_charge = 0.0f;
@@ -13,6 +12,7 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 
 TeleportAbility::~TeleportAbility()
 {
+	delete m_light;
 	PhysicsComponent::Release(*RipExtern::g_world);
 }
 
@@ -22,18 +22,19 @@ void TeleportAbility::Init()
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	BaseActor::setGravityScale(0.01f);
+	BaseActor::setGravityScale(0.60f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 	this->getBody()->SetObjectTag("TELEPORT");
-	m_light.Init(Transform::getPosition(), COLOUR);
+	m_light = new PointLight();
+	m_light->Init(Transform::getPosition(), COLOUR);
 
 	if (USE_SHADOWS)
-		m_light.CreateShadowDirection(PointLight::XYZ_ALL);
+		m_light->CreateShadowDirection(PointLight::XYZ_ALL);
 	
-	m_light.setFarPlane(50.0f);
-	m_light.setNearPlane(0.01f);
-	m_light.setIntensity(10.0f);
-	m_light.setDropOff(1.0f);
+	m_light->setFarPlane(50.0f);
+	m_light->setNearPlane(0.01f);
+	m_light->setIntensity(10.0f);
+	m_light->setDropOff(1.0f);
 
 	m_bar = new Quad();
 	Manager::g_textureManager.loadTextures("BAR");
@@ -101,7 +102,7 @@ void TeleportAbility::Draw()
 	case TeleportState::Teleportable:
 	case TeleportState::RemoteActive:
 		BaseActor::Draw();
-		m_light.QueueLight();
+		m_light->QueueLight();
 		break;
 	}
 }
@@ -261,7 +262,5 @@ void TeleportAbility::_inStateCooldown(double dt)
 
 void TeleportAbility::_updateLight()
 {
-	m_light.setPosition(Transform::getPosition());
-	//TODO :: LIGHT EFFECTS
-
+	m_light->setPosition(Transform::getPosition());
 }

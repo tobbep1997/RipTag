@@ -1,6 +1,7 @@
 #pragma once
 #include "AbilityComponent.h"
-#include "../Actors/Enemy/Enemy.h"
+
+class Enemy;
 
 class PossessGuard : public AbilityComponent
 {
@@ -8,7 +9,7 @@ private:
 	const float RANGE = 10.0f;
 	const float COOLDOWN_WAIT_MAX = 1.0f;
 	const float COOLDOWN_POSSESSING_MAX = 1.0f;
-	const int MANA_COST_START = 5.0f;
+	const int MANA_COST_START = 5;
 	const float MANA_COST_DRAIN = 1.0f;
 	enum PossessState
 	{

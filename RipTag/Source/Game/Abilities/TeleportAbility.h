@@ -1,8 +1,9 @@
 #pragma once
+
 #include "AbilityComponent.h"
 #include "../Actors/BaseActor.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
-
+class PointLight;
 
 class TeleportAbility : public AbilityComponent, public BaseActor , public HUDComponent
 {
@@ -33,7 +34,7 @@ private:
 	float			m_charge;
 	float			m_travelSpeed;
 
-	PointLight		m_light;
+	PointLight*		m_light;
 
 	Quad * m_bar;
 

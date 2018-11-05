@@ -4,12 +4,6 @@
 #include <DirectXMath.h>
 #include <vector>
 
-#include "../Light/PointLight.h"
-#include "Components/Base/Drawable.h"
-#include "Model/Managers/MeshManager.h"
-#include "Model/Managers/TextureManager.h"
-#include "../../../RipTag/Source/Game/Handlers/AnimationHandler.h"
-#include "3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 
 namespace Shaders
 {
@@ -19,6 +13,10 @@ namespace Shaders
 class Drawable;
 class VisibilityComponent;
 class Quad;
+class PointLight;
+class MeshManager;
+class TextureManager;
+class AnimationHandler;
 
 namespace DX {
 	extern ID3D11Device*			g_device;

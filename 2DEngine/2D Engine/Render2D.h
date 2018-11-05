@@ -1,9 +1,12 @@
 #pragma once
 #include <d3d11.h>
 #include <DirectXMath.h>
-#include "EngineSource/3D Engine/3DRendering/Framework/DirectXRenderingHelpClass.h"
-#include "Quad/Quad.h"
-#include "DirectXTK/SpriteBatch.h"
+
+namespace DirectX {
+	class SpriteBatch;
+};
+
+class Quad;
 
 
 class Render2D

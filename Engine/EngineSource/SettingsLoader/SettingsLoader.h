@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 #include <Windows.h>
-#include "../Window/window.h"
+
+struct WindowContext;
 
 namespace SettingLoader
 {

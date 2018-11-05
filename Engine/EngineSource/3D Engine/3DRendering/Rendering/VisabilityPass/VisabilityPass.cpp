@@ -1,6 +1,8 @@
+#include "EnginePCH.h"
 #include "VisabilityPass.h"
-#include "../../../Extern.h"
-#include "../../Framework/DirectXRenderingHelpClass.h"
+
+
+
 
 VisabilityPass::VisabilityPass()
 {

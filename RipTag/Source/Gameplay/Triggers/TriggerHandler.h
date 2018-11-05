@@ -1,10 +1,10 @@
 #pragma once
-#include "Trigger.h"
-#include "Triggerble.h"
-
 #include <vector>
 
-; class TriggerHandler
+class Trigger;
+class Triggerble;
+
+class TriggerHandler
 {
 private:
 	struct TriggerPairs

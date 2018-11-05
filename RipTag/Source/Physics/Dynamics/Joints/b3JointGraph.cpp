@@ -15,13 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3JointGraph.h"
-#include "..\b3Body.h"
-#include "..\..\Common\Memory\b3BlockAllocator.h"
-#include "b3MouseJoint.h"
-#include "b3SphericalJoint.h"
-#include "b3RevoluteJoint.h"
+
 
 b3JointGraph::b3JointGraph() {
 	m_blockAllocator = nullptr;

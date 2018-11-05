@@ -1,6 +1,5 @@
+#include "RipTagPCH.h"
 #include "VisabilityAbility.h"
-#include "../Actors/Player.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
 
 
 VisabilityAbility::VisabilityAbility()

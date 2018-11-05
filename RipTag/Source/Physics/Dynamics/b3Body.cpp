@@ -15,12 +15,9 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "BouncePCH.h"
 #include "b3Body.h"
-#include "b3World.h"
-#include "..\Collision\Shapes\b3Polyhedron.h"
-#include "Contacts\b3Contact.h"
-#include "Joints\b3Joint.h"
+
 
 b3Body::b3Body(const b3BodyDef& def, b3World* world) {
 	m_world = world;
