@@ -53,29 +53,13 @@ void BlinkAbility::_logic(double deltaTime)
 				cooldown += deltaTime;
 			break;
 		case BlinkState::Blink:
-			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
+			if (pPointer->CheckManaCost(getManaCost()))
 			{
 				RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
 			
-				if(var->originBody->GetObjectTag() == "PLAYER")
+				if(var != nullptr)
 				{
-					//0.465 6.31371 -1.37612
-					//0.066 5.35 - 0.644
-						//- 5.29305 6.38048 - 9.086
-						//- 5.502 6.35 - 9.57
-						//X1 = 0.4
-						//Z2 = 0.484
-
-					std::cout << var->originBody->GetTransform().translation.x << " " <<
-						var->originBody->GetTransform().translation.y << " " <<
-						var->originBody->GetTransform().translation.z << " " << std::endl;
-					/*std::cout << var->contactPoint.x << " " << var->contactPoint.y << " " << var->contactPoint.z << " " << std::endl;
-					std::cout << var->contactShape->GetBody()->GetTransform().translation.x << " " <<
-						var->contactShape->GetBody()->GetTransform().translation.y << " " <<
-						var->contactShape->GetBody()->GetTransform().translation.z << " " << std::endl;*/
-					//-5.32794 4.62135 - 5.70408
-						//- 5.34454 4.62135 - 19.39
-					if(var->contactShape != nullptr && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
 						pPointer->setPosition(
 							var->contactPoint.x + (
@@ -99,7 +83,7 @@ void BlinkAbility::_logic(double deltaTime)
 						std::cout << var->originBody->GetTransform().translation.x << " " <<
 							var->originBody->GetTransform().translation.y << " " <<
 							var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
-						((Player*)p_owner)->DrainMana(getManaCost());
+						pPointer->DrainMana(getManaCost());
 						m_bState = BlinkState::Wait;
 					}
 				}

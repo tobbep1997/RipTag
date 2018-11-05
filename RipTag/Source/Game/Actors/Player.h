@@ -46,7 +46,7 @@ private:
 	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 900.0f;
-	const float INTERACT_RANGE = 2.0f;
+	const float INTERACT_RANGE = 3.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
 	AudioEngine::Listener m_FMODlistener;
