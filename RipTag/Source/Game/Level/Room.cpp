@@ -18,9 +18,12 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			
 			break;
 		case(2):
-			Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+			Manager::g_meshManager.loadDynamicMesh("PLATE");
 			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
+			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
+			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
 			tempPressurePlate = new PressurePlate(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
+
 			tempPressurePlate->Init(propsToPlace.props[i].transform_position[0],
 				propsToPlace.props[i].transform_position[1],
 				propsToPlace.props[i].transform_position[2],

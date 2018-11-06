@@ -7,8 +7,13 @@ PressurePlate::PressurePlate() : Trigger()
 	
 }
 
-PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "", "")
+PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "activate", "deactivate")
 {
+	auto& stateMachine = getAnimatedModel()->InitStateMachine(2);
+	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
+	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
+	stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
+	getAnimatedModel()->Pause();
 }
 
 
