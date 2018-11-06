@@ -31,9 +31,15 @@ struct PointLightBuffer
 	DirectX::XMINT4 nrOfLights;
 };
 
+struct LightIndex
+{
+	DirectX::XMUINT4 lightPos;
+};
+
 
 private:
-	const unsigned int RENDER_TARGET_VIEW_COUNT = 8 * 6;
+	const unsigned int RENDER_TARGET_VIEW_COUNT = 6;
+	const unsigned int SHADER_RESOURCE_VIEW_COUNT = 8*6;
 
 	D3D11_VIEWPORT				m_shadowViewport;
 	ID3D11SamplerState*			m_shadowSamplerState;
@@ -50,6 +56,9 @@ private:
 
 	ID3D11Buffer * m_allLightMatrixBuffer = nullptr;
 	PointLightBuffer m_allLightMatrixValues;
+
+	ID3D11Buffer * m_lightIndexBuffer = nullptr;
+	LightIndex m_lightIndex;
 
 
 	

@@ -26,6 +26,7 @@ void ShadowMap::Init(UINT width, UINT height)
 
 void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 {
+	this->Clear();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertex.hlsl"), nullptr, 0);
@@ -34,39 +35,59 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);	
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
-	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_shadowDepthStencilView);
 
-	for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
+	for (int i = 0; i < DX::g_lights.size(); i++)
 	{
-		UINT32 vertexSize = sizeof(StaticVertex);
-		UINT32 offset = 0;
-
-		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
-
-		_mapObjectBuffer(DX::g_geometryQueue[j]);
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->getVertexSize(), 0);
-	}
-	if (animBuffer && !DX::g_animatedGeometryQueue.empty())
-	{
-		UINT32 vertexSize = sizeof(DynamicVertex);
-		UINT32 offset = 0;
-		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl"), nullptr, 0);
-		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+		for (int j = 0; j < 6; j++)
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
-
-			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
-
-			//DX::g_animatedGeometryQueue[i]->BindTextures();
-
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
-			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+			//DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
 		}
+		DX::g_deviceContext->UpdateSubresource(m_shadowDepthBufferTex, (i * 6), NULL, DX::g_lights[i]->getTEX(), 0, 0);
+	}
+
+	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
+	{
+		DX::g_lights[i]->Clear();
+
+		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
+		m_lightIndex.lightPos.x = i;
+		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
+
+		for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
+		{
+			UINT32 vertexSize = sizeof(StaticVertex);
+			UINT32 offset = 0;
+
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
+
+			_mapObjectBuffer(DX::g_geometryQueue[j]);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->getVertexSize(), 0);
+		}
+
+
 	}
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+
+
+
+	//if (animBuffer && !DX::g_animatedGeometryQueue.empty())
+	//{
+	//	UINT32 vertexSize = sizeof(DynamicVertex);
+	//	UINT32 offset = 0;
+	//	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
+	//	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl"), nullptr, 0);
+	//	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+	//	{
+	//		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+	//		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+
+	//		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+	//		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
+	//		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+	//	}
+	//}
 }
 
 void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
@@ -85,12 +106,25 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->GSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
+
+	
 }
 
 void ShadowMap::SetSamplerAndShaderResources()
 {
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
-	DX::g_deviceContext->PSSetShaderResources(0, 1, &m_shadowShaderResourceView);	
+	for (int i = 0; i < DX::g_lights.size(); i++)
+	{
+		for (int j = 0; j < 6; j++)
+		{
+			DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
+		}
+			//DX::g_deviceContext->UpdateSubresource(m_shadowDepthBufferTex, (i * 6), NULL, DX::g_lights[i]->getTEX(), 0, 0);
+	}
+	//DX::g_deviceContext->Map()
+	
+
+	DX::g_deviceContext->PSSetShaderResources(0, 1, &m_shadowShaderResourceView);
 }
 
 void ShadowMap::Clear()
@@ -131,9 +165,9 @@ void ShadowMap::_createShadowViewPort(UINT width, UINT height)
 void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 {
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, hight, width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, RENDER_TARGET_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32_TYPELESS);
-	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, RENDER_TARGET_VIEW_COUNT);	
-	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, RENDER_TARGET_VIEW_COUNT, 0, 0, 1);
+	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, hight, width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADER_RESOURCE_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32_TYPELESS);
+	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADER_RESOURCE_VIEW_COUNT);
+	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADER_RESOURCE_VIEW_COUNT, 0, 0, 1);
 	hr = DXRHC::CreateSamplerState(m_shadowSamplerState, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_LESS_EQUAL, 1.0f, 0.f);
 }
 
@@ -142,6 +176,7 @@ void ShadowMap::_createBuffers()
 	HRESULT hr = 0;
 	hr = DXRHC::CreateConstantBuffer(m_objectBuffer, sizeof(ObjectBuffer));	
 	hr = DXRHC::CreateConstantBuffer(m_allLightMatrixBuffer, sizeof(PointLightBuffer));
+	hr = DXRHC::CreateConstantBuffer(m_lightIndexBuffer, sizeof(LightIndex));
 }
 
 void ShadowMap::_createRenderTargets(UINT width, UINT height)

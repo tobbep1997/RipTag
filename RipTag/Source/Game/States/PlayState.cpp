@@ -162,6 +162,16 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
+	for (auto & lights : DX::g_lights)
+	{
+		RayCastListener::RayContact rc = RipExtern::m_rayListener->ShotRay(m_playerManager->getLocalPlayer()->getBody(),
+			lights->getPosition(), 
+			lights->getDir(*m_playerManager->getLocalPlayer()->getBody()),
+			lights->getFarPlane() / cos(lights->getFOV() / 2.0f));
+		
+	}
+
+
 	m_levelHandler->Draw();
 	
 	m_playerManager->Draw();

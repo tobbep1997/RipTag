@@ -81,6 +81,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 void ForwardRender::GeometryPass()
 {
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	if (m_firstRun == true)
 	{
@@ -148,7 +150,9 @@ void ForwardRender::Flush(Camera & camera)
 	//_GuardLightCulling();
 	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
+
 	this->m_shadowMap->ShadowPass(m_animationBuffer);
+
 	this->m_shadowMap->SetSamplerAndShaderResources();
 	_visabilityPass();
 	_mapCameraBuffer(camera);
@@ -175,8 +179,7 @@ void ForwardRender::Clear()
 	DX::g_geometryQueue.clear();
 
 	DX::g_visabilityDrawQueue.clear();
-
-	this->m_shadowMap->Clear();
+	//this->m_shadowMap->Clear();
 	DX::g_visibilityComponentQueue.clear();
 
 	DX::g_wireFrameDrawQueue.clear();

@@ -92,7 +92,7 @@ HRESULT DXRHC::CreateShaderResourceView(ID3D11Resource * resource, ID3D11ShaderR
 	srvDesc.Texture2DArray.MostDetailedMip = texture2DArray_MostDetailMip;
 	srvDesc.Texture2DArray.ArraySize = texture2DArray_ArraySize;
 	srvDesc.Texture2DArray.FirstArraySlice = texture2DArray_FirstArraySlice;
-	
+
 	HRESULT hr = DX::g_device->CreateShaderResourceView(resource, &srvDesc, &srv);
 	if (FAILED(hr))
 		exit(-1);

@@ -162,5 +162,5 @@ private:
 
 	void _wireFramePass();
 
-
+	int run = 0;
 };

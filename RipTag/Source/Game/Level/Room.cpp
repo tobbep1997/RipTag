@@ -215,18 +215,10 @@ void Room::LoadRoomToMemory()
 		}
 
 		m_staticAssets.push_back(temp);
-		 
-
-	
 		
-		m_roomLoaded = true;
-	
-		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
+		m_roomLoaded = true;	
 	}
-	else
-	{
-		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
-	}
+
 
 	for (auto light : m_pointLights)
 	{

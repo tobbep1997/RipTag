@@ -88,6 +88,12 @@ float4 FresnelReflection(float cosTheta, float4 f0)
     return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
 }
 
+float4 OptimizedVisabilityCalculation(VS_OUTPUT input, out float4 ambient)
+{
+    ambient = float4(0, 0, 0, 0);
+    return float4(0, 0, 0, 0);
+}
+
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 {
     float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);

@@ -1,8 +1,11 @@
 #pragma once
 #include <vector>
+#include <d3d11_1.h>
 #include <DirectXMath.h>
 
 class Camera;
+class b3Body;
+class RayCastListener;
 
 class PointLight 
 {
@@ -19,6 +22,7 @@ public:
 	};
 
 private:
+	const unsigned int SHADOW_SIDES = 6U;
 	const float FOV = DirectX::XM_PI * 0.5f;
 	
 	std::vector<Camera *>	m_sides;
@@ -29,6 +33,12 @@ private:
 	float m_nearPlane;
 	float m_farPlane;
 	float m_dropOff, m_intensity, m_pow;
+
+	ID3D11ShaderResourceView *	m_shadowShaderResourceView;
+	ID3D11DepthStencilView*		m_shadowDepthStencilView;
+	ID3D11Texture2D*			m_shadowDepthBufferTex;
+
+	bool m_update = false;
 
 public:
 	PointLight();
@@ -64,15 +74,26 @@ public:
 	const float & getPow() const;
 	const float & getIntensity() const;
 
+	const float & getFarPlane() const;
+	const float & getFOV() const;
 
 	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
 
 	float TourchEffect(double deltaTime, float base, float amplitude);
 
+	ID3D11ShaderResourceView * getSRV() const;
+	ID3D11DepthStencilView * getDSV() const;
+	ID3D11Texture2D * getTEX() const;
+
+	void Clear();
+
+	void RayTrace(b3Body & object, RayCastListener * rcl);
+	DirectX::XMFLOAT4A getDir(b3Body & object) const;
+
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
 	void _updateCameras();
-
+	void _initDirectX(UINT width = 64U, UINT hight = 64U);
 };
 
