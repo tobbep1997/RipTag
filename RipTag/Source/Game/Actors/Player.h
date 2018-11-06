@@ -94,6 +94,10 @@ private:
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
 
+	Quad * m_visBar;
+	Quad * m_visBarBackground;
+	Quad * m_visbarText;
+
 	Quad * m_infoText;
 	Quad * m_tutorialText;
 	std::stack<std::string> m_tutorialMessages;
@@ -103,7 +107,7 @@ private:
 
 public:
 	//Magic number
-	static const int g_fullVisability = 2300;
+	static const int g_fullVisability = 6500;
 
 
 	bool unlockMouse = false;
