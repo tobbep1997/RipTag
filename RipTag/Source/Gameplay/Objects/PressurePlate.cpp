@@ -7,7 +7,7 @@ PressurePlate::PressurePlate() : Trigger()
 	
 }
 
-PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger)
+PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "", "")
 {
 }
 

@@ -5,7 +5,7 @@ Lever::Lever()
 {
 }
 
-Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger) 
+Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "lever_activate", "lever_activate")
 {
 	
 }
@@ -44,13 +44,8 @@ void Lever::Update(double deltaTime)
 					if (this->getTriggerState())
 						this->setTriggerState(false);
 					else
-					{
 						this->setTriggerState(true);
-						//set lever animation here
-						getAnimatedModel()->GetStateMachine()->SetState("lever_activate");
-						getAnimatedModel()->Play();
-
-					}
+						
 					*con.consumeState +=1;
 					//SENDTriggerd here for network
 					this->SendOverNetwork();
@@ -58,8 +53,7 @@ void Lever::Update(double deltaTime)
 			}
 		}
 	}
-	getAnimatedModel()->Update(deltaTime);
-	//std::cout << Triggerd() << std::endl;
+	this->getAnimatedModel()->Update(deltaTime);
 }
 
 bool Lever::isEqual(Lever * target)

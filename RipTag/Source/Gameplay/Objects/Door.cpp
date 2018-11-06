@@ -6,7 +6,7 @@ Door::Door() : Triggerable()
 {
 }
 
-Door::Door(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, linkedID, isTrigger)
+Door::Door(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, linkedID, isTrigger, "", "")
 {
 }
 

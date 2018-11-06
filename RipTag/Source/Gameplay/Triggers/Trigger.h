@@ -9,17 +9,20 @@ private:
 	bool m_isTrigger = false;
 	int m_linkedID;
 	int m_uniqueID;
+	std::string activatedAnimation;
+	std::string deactivatedAnimation;
+
 protected:
 	void p_trigger(const bool & trigger);
 public:
 	Trigger();
-	Trigger(int uniqueId, int linkedID, bool isTrigger);
+	Trigger(int uniqueId, int linkedID, bool isTrigger, std::string activeAnim, std::string deactiveAnim);
 	virtual ~Trigger();
 	int getLinkId() { return this->m_linkedID; };
 	int getUniqueID() { return this->m_uniqueID; };
 	bool getIsTriggerable() { return this->m_isTrigger; };
 	const bool & Triggered() const;
-	void setTriggerState(bool state) { m_triggerState = state; }
+	void setTriggerState(bool state);
 	bool getTriggerState() { return m_triggerState; }
 
 	void BeginPlay() override;
