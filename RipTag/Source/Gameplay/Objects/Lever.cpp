@@ -5,23 +5,26 @@ Lever::Lever()
 {
 }
 
+Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger) 
+{
+	
+}
+
 
 Lever::~Lever()
 {
+	//PhysicsComponent::Release(*RipExtern::g_world);
 }
 
-void Lever::Init()
+void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
-	p_setPosition(getPosition().x, getPosition().y, getPosition().z);
-	setObjectTag("LEVER");
-	setUserDataBody(this);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setObjectTag("LEVER");
+	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("SPAK"));//BYT TILL SPAK
+	BaseActor::setUserDataBody(this);
 }
 
-void Lever::BeginPlay()
-{
-
-}
 
 void Lever::Update(double deltaTime)
 {
@@ -36,6 +39,8 @@ void Lever::Update(double deltaTime)
 				{
 					p_trigger(!Triggerd());			
 					*con.consumeState +=1;
+					//set lever animation here
+					//SENDTriggerd here for network
 				}
 			}
 		}

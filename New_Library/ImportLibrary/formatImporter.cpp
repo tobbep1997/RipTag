@@ -129,7 +129,8 @@ namespace ImporterLibrary
 				customPropFile.read((char*)&toReturn.props[i].transform_position, sizeof(float) * 3);
 				customPropFile.read((char*)&toReturn.props[i].transform_rotation, sizeof(float) * 3);
 				customPropFile.read((char*)&toReturn.props[i].transform_scale, sizeof(float) * 3);
-			
+				int a = toReturn.props[i].typeOfProp;
+				std::cout << a << std::endl;
 
 			}
 			//customPropFile.read((char*)toReturn.props, sizeof(PropItem) * (toReturn.nrOfItems));

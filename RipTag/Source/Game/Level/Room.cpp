@@ -3,26 +3,73 @@
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
+	std::pair<Trigger*, Door> doorLeverPair;
+	Lever * tempLever = nullptr;
+	Door * tempDoor = nullptr;
+	PressurePlate * tempPressurePlate = nullptr;
+	
+	
 	for (int i = 0; i < propsToPlace.nrOfItems; i++)
 	{
+		int a = propsToPlace.props[i].typeOfProp;
 		switch (propsToPlace.props[i].typeOfProp)
 		{
 		case(1):
-			//../Assets/LEVER
-			//Ladda in leverMesh, sätt till lever class, med boundingBoxTag etc
+			
 			break;
 		case(2):
-			//../Assets/PRSSUREPLATE
-			//ladda in pressurePlate sätt till class, tagga bounding box etc
+			Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
+			tempPressurePlate = new PressurePlate(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
+			tempPressurePlate->Init(propsToPlace.props[i].transform_position[0],
+				propsToPlace.props[i].transform_position[1],
+				propsToPlace.props[i].transform_position[2],
+				propsToPlace.props[i].transform_rotation[0],
+				propsToPlace.props[i].transform_rotation[1],
+				propsToPlace.props[i].transform_rotation[2]);
+			triggerHandler->Triggers.push_back(tempPressurePlate);
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			tempPressurePlate = nullptr;
+
 			break;
 		case(3):
-			//../Assets/Door
+			Manager::g_meshManager.loadStaticMesh("DOOR");
+			Manager::g_textureManager.loadTextures("DOOR");
+			tempDoor = new Door(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
+			tempDoor->Init(propsToPlace.props[i].transform_position[0],
+				propsToPlace.props[i].transform_position[1],
+				propsToPlace.props[i].transform_position[2],
+				propsToPlace.props[i].transform_rotation[0],
+				propsToPlace.props[i].transform_rotation[1],
+				propsToPlace.props[i].transform_rotation[2]);
+			triggerHandler->Triggerables.push_back(tempDoor);
+			tempDoor = nullptr;
 			//ladda in dörr etc etc 
+			break;
+		case(4):
+			//Manager::g_meshManager.loadStaticMesh("SPAK");
+			//Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_meshManager.loadDynamicMesh("SPAK");
+			Manager::g_textureManager.loadTextures("SPAK");
+			tempLever = new Lever(i, propsToPlace.props[i].linkedItem,propsToPlace.props[i].isTrigger);
+			tempLever->Init(propsToPlace.props[i].transform_position[0],
+				propsToPlace.props[i].transform_position[1],
+				propsToPlace.props[i].transform_position[2],
+				propsToPlace.props[i].transform_rotation[0],
+				propsToPlace.props[i].transform_rotation[1],
+				propsToPlace.props[i].transform_rotation[2]);
+			triggerHandler->Triggers.push_back(tempLever);
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			tempLever = nullptr;
 			break;
 		default:
 			break;
 		}
 	}
+
+
+	triggerHandler->LoadTriggerPairMap();
+	
 }
 
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
@@ -44,40 +91,6 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
 	triggerHandler = new TriggerHandler();
-
-
-
-	door = new Door();
-	Manager::g_meshManager.loadStaticMesh("DOOR");
-	Manager::g_textureManager.loadTextures("DOOR");
-	door->setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
-	door->setTexture(Manager::g_textureManager.getTexture("DOOR"));
-	door->Init(*m_worldPtr, e_staticBody, .5f, 3.0f, 1.5f);
-	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692f,1.0f), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246f, 1.0f));
-	pressurePlate = new PressurePlate();
-	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
-	Manager::g_textureManager.loadTextures("PRESSUREPLATE");
-	pressurePlate->setScale(2, 1, 2);
-	pressurePlate->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
-	pressurePlate->setTexture(Manager::g_textureManager.getTexture("PRESSUREPLATE"));
-	pressurePlate->Init();
-	pressurePlate->setPos(DirectX::XMFLOAT4A(7.327f, 4.294f, 13.764f, 1), DirectX::XMFLOAT4A(7.327f, 4.2f, 13.764f, 1));
-	
-	lever = new Lever();
-	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	lever->Init();
-	lever->setPosition(5, 10, 5);
-	
-	std::vector<Trigger*> t0;
-	std::vector<Triggerble*> t1;
-	t0.push_back(pressurePlate);
-	t0.push_back(lever);
-	t1.push_back(door);
-
-	triggerHandler->AddPair(t0, t1, false);
-
-
 	
 
 	m_lose = new Quad();
@@ -100,6 +113,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 Room::~Room()
 {
 	delete m_pathfindingGrid;
+
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -223,7 +237,7 @@ void Room::LoadRoomToMemory()
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 
 		CollisionBoxes = new BaseActor();
-		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+		ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
 		CollisionBoxes->addCollisionBox(b3Vec3(0.066f, 5.35f, -0.644f), b3Vec3(0.798f, 3.052f, 3.052f), b3Quaternion(0, 0, 0, 0), "BLINK_WALL", false, m_worldPtr);
 		CollisionBoxes->addCollisionBox(b3Vec3(-5.502f, 6.35f, -9.57f), b3Vec3(9.5f, 4.036f, 0.968f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
@@ -310,9 +324,6 @@ void Room::Update(float deltaTime)
 		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
 	}
 	triggerHandler->Update(deltaTime);
-	door->Update(deltaTime);
-	lever->Update(deltaTime);
-	pressurePlate->Update(deltaTime);
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
@@ -351,9 +362,8 @@ void Room::Draw()
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
-	door->Draw();
-	lever->Draw();
-	pressurePlate->Draw();
+	
+	triggerHandler->Draw();
 
 	
 	if (m_youLost)
@@ -393,12 +403,7 @@ void Room::Release()
 	delete m_grid->gridPoints;
 	delete m_grid;
 
-	door->Release(*m_worldPtr);
-	delete door;
-	lever->Release(*m_worldPtr);
-	delete lever;
-	pressurePlate->Release(*m_worldPtr);
-	delete pressurePlate;
+	triggerHandler->Release();
 	delete triggerHandler;
 	
 }

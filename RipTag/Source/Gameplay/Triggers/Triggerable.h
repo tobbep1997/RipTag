@@ -1,27 +1,28 @@
 #pragma once
 #include "../../Game/Actors/BaseActor.h"
 
-class Trigger : public BaseActor
+class Triggerable : public BaseActor
 {
 private:
-	bool m_triggerd = false;
-	bool m_isTrigger = false;
-	int m_linkedID;
 	int m_uniqueID;
-protected:
-	void p_trigger(const bool & trigger);
+	int m_linkedID;
+	bool m_isTrigger;
 public:
-	Trigger();
-	Trigger(int uniqueId, int linkedID, bool isTrigger);
-	virtual ~Trigger();
+	Triggerable();
+	Triggerable(int uniqueId, int linkedID, bool isTrigger);
+	virtual ~Triggerable();
+
+	//virtual void Triggerd(double deltaTime) = 0;
+	//virtual void unTriggerd(double deltaTime) = 0;
+
 	int getLinkId() { return this->m_linkedID; };
 	int getUniqueID() { return this->m_uniqueID; };
 	bool getIsTriggerable() { return this->m_isTrigger; };
-	const bool & Triggerd() const;
 
 	void BeginPlay() override;
 	void Update(double deltaTime) override;
-
+	
 	void Release();
+
 };
 

@@ -20,16 +20,12 @@ class PointLight;
 class StaticAsset;
 class PressurePlate;
 class TriggerHandler;
-
+class Triggerable;
+class Trigger;
 class Room : public HUDComponent
 {
 private:
-	struct prop
-	{
-		BaseActor * baseActor;
-		unsigned int TypeID;
-		unsigned int linkingID;
-	};
+	
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -59,12 +55,12 @@ private:
 	//Physics
 	b3World * m_worldPtr;
 	   
-	prop * props;
 
 	TriggerHandler * triggerHandler;
-	Door * door;
-	Lever * lever;
-	PressurePlate * pressurePlate;
+
+
+	
+	//std::vector<StaticAsset*> TODO:: FIX
 
 	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 

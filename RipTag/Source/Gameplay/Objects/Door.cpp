@@ -2,7 +2,11 @@
 #include "Door.h"
 
 
-Door::Door() : Triggerble() , BaseActor()
+Door::Door() : Triggerable()
+{
+}
+
+Door::Door(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, linkedID, isTrigger)
 {
 }
 
@@ -11,14 +15,16 @@ Door::~Door()
 {
 }
 
-void Door::Triggerd(double deltaTime)
-{
-	setPosition(pos1.x, pos1.y, pos1.z);
-}
 
-void Door::unTriggerd(double deltaTime)
+void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)//TODO: ADD SCALE
 {
-	setPosition(pos2.x, pos2.y, pos2.z);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.5f, 2.0f, 1.5f, true);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setObjectTag("Door");
+	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
+	
+	
+	BaseActor::setUserDataBody(this);
 }
 
 void Door::setPos(DirectX::XMFLOAT4A pos1, DirectX::XMFLOAT4A pos2)

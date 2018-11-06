@@ -31,7 +31,7 @@
 #include "Source/Game/Handlers/PlayerManager.h"
 
 #include "Source/Gameplay/Triggers/Trigger.h"
-#include "Source/Gameplay/Triggers/Triggerble.h"
+#include "Source/Gameplay/Triggers/Triggerable.h"
 #include "Source/Gameplay/Triggers/TriggerHandler.h"
 #include "Source/Gameplay/Objects/Door.h"
 #include "Source/Gameplay/Objects/Lever.h"

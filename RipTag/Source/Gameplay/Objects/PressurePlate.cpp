@@ -2,27 +2,31 @@
 #include "PressurePlate.h"
 
 
-PressurePlate::PressurePlate() : Trigger(), BaseActor()
+PressurePlate::PressurePlate() : Trigger()
 {
 	
+}
+
+PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger)
+{
 }
 
 
 PressurePlate::~PressurePlate()
 {
+	//PhysicsComponent::Release(*RipExtern::g_world);
 }
 
-void PressurePlate::Init()
+void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
-	setObjectTag("PressurePlate");
-	setUserDataBody(this);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setObjectTag("PressurePlate");
+	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));//BYT TILL SPAK
+
+	BaseActor::setUserDataBody(this);
 }
 
-void PressurePlate::BeginPlay()
-{
-	
-}
 void PressurePlate::Update(double deltaTime)
 {
 	p_updatePhysics(this);
