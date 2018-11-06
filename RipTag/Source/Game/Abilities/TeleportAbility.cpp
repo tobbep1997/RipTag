@@ -167,23 +167,51 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		if (Input::OnAbilityReleased())
 		{
-			m_tpState = TeleportState::Teleportable;
-			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
-			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
-			this->m_lastStart = start;
+			
 
-			((Player*)p_owner)->DrainMana(getManaCost());
+			RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
+			if (var == nullptr)
+			{
+				m_tpState = TeleportState::Teleportable;
+				DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
+				DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
+				this->m_lastStart = start;
+
+				((Player*)p_owner)->DrainMana(getManaCost());
 
 
-			/**/
+				/**/
 
 
-			start.w = 1.0f;
-			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
-			setPosition(start.x, start.y, start.z);
-			setLiniearVelocity(direction.x, direction.y, direction.z);
-			this->m_lastVelocity = direction;
-			m_charge = 0.0f;
+				start.w = 1.0f;
+				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
+				setPosition(start.x, start.y, start.z);
+				setLiniearVelocity(direction.x, direction.y, direction.z);
+				this->m_lastVelocity = direction;
+				m_charge = 0.0f;
+			}
+			else
+			{
+				m_tpState = TeleportState::Teleportable;
+				DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
+				DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
+				this->m_lastStart = start;
+
+				((Player*)p_owner)->DrainMana(getManaCost());
+
+
+				/**/
+
+
+				start.w = 1.0f;
+				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
+				setPosition(start.x, start.y, start.z);
+				setLiniearVelocity(direction.x, direction.y, direction.z);
+				this->m_lastVelocity = direction;
+				m_charge = 0.0f;
+				/*m_charge = 0.0f;
+				m_tpState = TeleportState::Throwable;*/
+			}
 		}
 	}
 
