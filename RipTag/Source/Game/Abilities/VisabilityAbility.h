@@ -19,6 +19,7 @@ private:
 	bool recentPacket = false;
 	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastColor;
+	DirectX::XMFLOAT4A color;
 public:
 	VisabilityAbility();
 	~VisabilityAbility();
