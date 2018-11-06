@@ -51,6 +51,8 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			//Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_meshManager.loadDynamicMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
+			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
 			tempLever = new Lever(i, propsToPlace.props[i].linkedItem,propsToPlace.props[i].isTrigger);
 			tempLever->Init(propsToPlace.props[i].transform_position[0],
 				propsToPlace.props[i].transform_position[1],

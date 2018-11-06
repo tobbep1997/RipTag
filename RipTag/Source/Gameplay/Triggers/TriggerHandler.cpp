@@ -22,7 +22,8 @@ TriggerHandler::~TriggerHandler()
 
 void TriggerHandler::Update(double deltaTime)
 {	
-	
+	for (auto& trigger : Triggers)
+		trigger->Update(deltaTime);
 }
 
 void TriggerHandler::Draw()

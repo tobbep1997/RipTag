@@ -18,10 +18,14 @@ Lever::~Lever()
 
 void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, false);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setObjectTag("LEVER");
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("SPAK"));//BYT TILL SPAK
+	auto& machine = getAnimatedModel()->InitStateMachine(1);
+	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
+	machine->AddPlayOnceState("lever_activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ANIMATION").get());
+	getAnimatedModel()->Pause();
 	BaseActor::setUserDataBody(this);
 }
 
@@ -40,11 +44,14 @@ void Lever::Update(double deltaTime)
 					p_trigger(!Triggerd());			
 					*con.consumeState +=1;
 					//set lever animation here
+					getAnimatedModel()->GetStateMachine()->SetState("lever_activate");
+					getAnimatedModel()->Play();
 					//SENDTriggerd here for network
 				}
 			}
 		}
 	}
+	getAnimatedModel()->Update(deltaTime);
 	//std::cout << Triggerd() << std::endl;
 }
 

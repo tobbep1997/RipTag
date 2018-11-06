@@ -31,6 +31,9 @@ void Animation::AnimatedModel::Update(float deltaTime)
 	timeAlreadyUpdatedThisFrame = false;
 	m_currentFrameDeltaTime = deltaTime;
 
+	if (!m_isPlaying)
+		return;
+
 	if (m_StateMachine)
 	{
 		m_StateMachine->UpdateCurrentState();
