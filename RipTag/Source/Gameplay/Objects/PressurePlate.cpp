@@ -18,12 +18,13 @@ PressurePlate::~PressurePlate()
 	//PhysicsComponent::Release(*RipExtern::g_world);
 }
 
-void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
+void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, false);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("PressurePlate");
-	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("PLATE"));//BYT TILL SPAK
+	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("PLATE"));
 	auto& stateMachine = getAnimatedModel()->InitStateMachine(2);
 	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
 	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());

@@ -29,7 +29,13 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_position[2],
 				propsToPlace.props[i].transform_rotation[0],
 				propsToPlace.props[i].transform_rotation[1],
-				propsToPlace.props[i].transform_rotation[2]);
+				propsToPlace.props[i].transform_rotation[2],
+				propsToPlace.props[i].BBOX_INFO[0],
+				propsToPlace.props[i].BBOX_INFO[1],
+				propsToPlace.props[i].BBOX_INFO[2],
+				propsToPlace.props[i].transform_scale[0],
+				propsToPlace.props[i].transform_scale[1],
+				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggers.push_back(tempPressurePlate);
 			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
 			tempPressurePlate = nullptr;
