@@ -12,11 +12,13 @@ Trigger::Trigger()
 {
 }
 
-Trigger::Trigger(int uniqueId, int linkedID, bool isTrigger)
+Trigger::Trigger(int uniqueId, int linkedID, bool isTrigger, std::string activeAnim, std::string deactiveAnim)
 {
 	this->m_isTrigger = isTrigger;
 	this->m_linkedID = linkedID;
 	this->m_uniqueID = uniqueId;
+	this->activatedAnimation = activeAnim;
+	this->deactivatedAnimation = deactiveAnim;
 
 }
 
@@ -29,12 +31,31 @@ const bool & Trigger::Triggered() const
 	return m_triggerState;
 }
 
+void Trigger::setTriggerState(bool state)
+{
+	if (!m_triggerState && state)
+	{
+		//Play activated state
+		m_triggerState = state;
+		this->getAnimatedModel()->GetStateMachine()->SetState(this->activatedAnimation);
+		this->getAnimatedModel()->Play();
+	}
+	else if (m_triggerState && !state)
+	{
+		//Play Inactivated state
+		m_triggerState = state;
+		this->getAnimatedModel()->GetStateMachine()->SetState(this->deactivatedAnimation);
+		this->getAnimatedModel()->Play();
+	}
+}
+
 void Trigger::BeginPlay()
 {
 }
 
 void Trigger::Update(double deltaTime)
 {
+	
 }
 
 void Trigger::Release()

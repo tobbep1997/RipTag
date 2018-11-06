@@ -31,6 +31,9 @@ void Animation::AnimatedModel::Update(float deltaTime)
 	timeAlreadyUpdatedThisFrame = false;
 	m_currentFrameDeltaTime = deltaTime;
 
+	if (!m_isPlaying)
+		return;
+
 	if (m_StateMachine)
 	{
 		m_StateMachine->UpdateCurrentState();
@@ -38,7 +41,7 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		//Blendfactor used to blend between two states.
 		float blendFactor = 1.0 - m_StateMachine->UpdateBlendFactor(deltaTime);
 
-		
+
 		auto finalPoseCurrent = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
 		auto pPreviousState = m_StateMachine->GetPreviousState();
 		

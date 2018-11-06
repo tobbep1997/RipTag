@@ -18,9 +18,12 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			
 			break;
 		case(2):
-			Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+			Manager::g_meshManager.loadDynamicMesh("PLATE");
 			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
+			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
+			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
 			tempPressurePlate = new PressurePlate(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
+
 			tempPressurePlate->Init(propsToPlace.props[i].transform_position[0],
 				propsToPlace.props[i].transform_position[1],
 				propsToPlace.props[i].transform_position[2],
@@ -51,6 +54,8 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			//Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_meshManager.loadDynamicMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
+			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
 			tempLever = new Lever(i, propsToPlace.props[i].linkedItem,propsToPlace.props[i].isTrigger);
 			tempLever->Init(propsToPlace.props[i].transform_position[0],
 				propsToPlace.props[i].transform_position[1],
@@ -59,7 +64,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_rotation[1],
 				propsToPlace.props[i].transform_rotation[2]);
 			triggerHandler->Triggers.push_back(tempLever);
-			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
 			tempLever = nullptr;
 			break;
 		default:
