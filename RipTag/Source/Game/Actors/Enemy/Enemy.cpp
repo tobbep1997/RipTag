@@ -45,7 +45,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
 	this->getAnimatedModel()->Play();
-	PhysicsComponent::Init(*world, e_staticBody);
+	PhysicsComponent::Init(*world, e_staticBody,1,1,1,false,10);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");

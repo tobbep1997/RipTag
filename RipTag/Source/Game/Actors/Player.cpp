@@ -161,7 +161,7 @@ Player::~Player()
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
-	PhysicsComponent::Init(world, bodyType, x, y, z);
+	PhysicsComponent::Init(world, bodyType, x, y, z, false,0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 	setUserDataBody(this);
@@ -243,6 +243,7 @@ void Player::Update(double deltaTime)
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
+	
 }
 
 void Player::PhysicsUpdate()
@@ -483,6 +484,7 @@ void Player::_handleInput(double deltaTime)
 	_onRotate(deltaTime);
 	//_objectInfo(deltaTime);
 	//_updateTutorial(deltaTime);
+	//p_setRotation(0, 0, 0);
 }
 
 void Player::_onMovement()
@@ -512,7 +514,10 @@ void Player::_onMovement()
 	z = Input::MoveForward() * m_moveSpeed * forward.z;
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
+	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	//addForceToCenter(0, 1.1f, 0);
+
 }
 
 void Player::_onSprint()

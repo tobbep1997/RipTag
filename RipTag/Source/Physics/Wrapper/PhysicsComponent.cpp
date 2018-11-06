@@ -63,15 +63,15 @@ PhysicsComponent::~PhysicsComponent()
 	
 }
 
-void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float y, float z, bool sensor)
+void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float y, float z, bool sensor, float friction)
 {
 	setBaseBodyDef(bodyType);
 	CreateBox(x, y, z);
-	setBaseShapeDef(sensor);
+	setBaseShapeDef(sensor,friction);
 	CreateBodyAndShape(world);
 }
 
-void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes)
+void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes, float friction)
 {
 	singelCollider = false;
 	//setBaseBodyDef---------------------------------------
@@ -106,7 +106,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 		s->shape = p;
 		s->density = 1.0f;
 		s->restitution = 0;
-		s->friction = 0;
+		s->friction = friction;
 		
 		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
 		m_shapeDefs.push_back(s);
@@ -192,7 +192,7 @@ void PhysicsComponent::setBodyDef(BodyDefine bodyDefine)
 	m_bodyDef->gravityScale = bodyDefine.gravityScale;
 }
 
-void PhysicsComponent::setBaseShapeDef(bool sensor)
+void PhysicsComponent::setBaseShapeDef(bool sensor, float friction)
 {
 	//Create a base shape definition
 	m_bodyBoxDef = new b3ShapeDef();
@@ -203,7 +203,7 @@ void PhysicsComponent::setBaseShapeDef(bool sensor)
 
 
 	m_bodyBoxDef->density = 1.0f;
-	m_bodyBoxDef->friction = 1.0f;
+	m_bodyBoxDef->friction = friction;
 	m_bodyBoxDef->restitution = 0;
 
 
@@ -231,11 +231,11 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 		//Create a new Box
 		m_bodyBox = new b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
-
+		
 		//Set the Polyhedron to the new box
 		//Aka connect the box to the wrapper
 		m_poly->SetHull(m_bodyBox);
-
+		
 		//Connect the bodyDef to the shape
 		m_bodyBoxDef->shape = m_poly;
 
@@ -327,4 +327,6 @@ void PhysicsComponent::setUserDataBody(void* self)
 void PhysicsComponent::setObjectTag(const char * type)
 {
 	m_body->SetObjectTag(type);
+	
 }
+
