@@ -36,7 +36,12 @@ namespace ImporterLibrary
 		DecomposedTransform transform;
 
 		transform.translation = (loadVec4(file));
+		transform.translation.z *= -1.0f;
+
 		transform.rotation = (loadVec4(file));
+		transform.rotation.x *= -1.0f;
+		transform.rotation.y *= -1.0f;
+
 		transform.scale = (loadVec4(file));
 
 		return transform;
@@ -238,18 +243,18 @@ namespace ImporterLibrary
 				meshToReturn.mesh_vertices[i] = AnimatedVertexFromFile();
 				meshToReturn.mesh_vertices[i].vertex_position[0] = vertices[i].vertex_position[0];
 				meshToReturn.mesh_vertices[i].vertex_position[1] = vertices[i].vertex_position[1];
-				meshToReturn.mesh_vertices[i].vertex_position[2] = vertices[i].vertex_position[2];
+				meshToReturn.mesh_vertices[i].vertex_position[2] = -vertices[i].vertex_position[2];
 
 				meshToReturn.mesh_vertices[i].vertex_UVCoord[0] = vertices[i].vertex_UVCoord[0];
 				meshToReturn.mesh_vertices[i].vertex_UVCoord[1] = vertices[i].vertex_UVCoord[1];
 
 				meshToReturn.mesh_vertices[i].vertex_normal[0] = vertices[i].vertex_normal[0];
 				meshToReturn.mesh_vertices[i].vertex_normal[1] = vertices[i].vertex_normal[1];
-				meshToReturn.mesh_vertices[i].vertex_normal[2] = vertices[i].vertex_normal[2];
+				meshToReturn.mesh_vertices[i].vertex_normal[2] = -vertices[i].vertex_normal[2];
 
 				meshToReturn.mesh_vertices[i].vertex_tangent[0] = vertices[i].vertex_tangent[0];
 				meshToReturn.mesh_vertices[i].vertex_tangent[1] = vertices[i].vertex_tangent[1];
-				meshToReturn.mesh_vertices[i].vertex_tangent[2] = vertices[i].vertex_tangent[2];
+				meshToReturn.mesh_vertices[i].vertex_tangent[2] =- vertices[i].vertex_tangent[2];
 
 				meshToReturn.mesh_vertices[i].influencing_joint[0] = vertices[i].influencing_joint[0];
 				meshToReturn.mesh_vertices[i].influencing_joint[1] = vertices[i].influencing_joint[1];
@@ -263,8 +268,8 @@ namespace ImporterLibrary
 			}
 
 			// Switch winding order
-			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
-				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);
+			/*for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
+				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);*/
 
 			for (int i = 0; i < MAX_FILENAME; i++)
 			{
