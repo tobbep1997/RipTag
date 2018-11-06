@@ -116,7 +116,7 @@ void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & c
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 		b3Body * b = world.CreateBody(*m_bodyDef);
-	
+		b->SetObjectTag("WORLD");
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
 			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
 		

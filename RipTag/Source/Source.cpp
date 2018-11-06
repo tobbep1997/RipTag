@@ -32,6 +32,7 @@ void GameLoop(Game * game)
 		game->Clear();
 
 		//Pollevents
+		
 
 		//Draw and update
 		game->ImGuiFrameStart();

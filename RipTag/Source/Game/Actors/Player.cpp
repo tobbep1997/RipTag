@@ -725,7 +725,7 @@ void Player::_onRotate(double deltaTime)
 		
 			
 		}
-		
+
 	}
 }
 

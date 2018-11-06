@@ -1,33 +1,35 @@
 #include "StaticConstantBuffers.hlsli"
 
+cbuffer LIGHT_INDEX : register(b13)
+{
+    uint4 LIGHT_POS;    
+    uint4 sides[8];
+};
+
 struct GSOutput
 {
 	float4 pos : SV_POSITION;
 	uint RTIndex : SV_RenderTargetArrayIndex;
 };
 
-// after optimization, change this to 8
-static const uint maxLight = 8;
-
-[maxvertexcount(maxLight * 6 * 3)]
+[maxvertexcount(6 * 3)]
 void main(
 	triangle float4 input[3] : SV_POSITION,
 	inout TriangleStream< GSOutput > output
 )
 {
-    for (int lights = 0; lights < numberOfLights.x; lights++)
+    for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[LIGHT_POS.x].x; targetMatrix++)
     {
-        for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[lights].x; targetMatrix++)
-        {
-            GSOutput element;
-            element.RTIndex = (lights * 6) + targetMatrix;
+        if(sides[targetMatrix].x == 0)
+            continue;
+        GSOutput element;
+        element.RTIndex = targetMatrix;
 
-            for (int vertex = 0; vertex < 3; vertex++)
-            {
-                element.pos = mul(input[vertex], lightViewProjection[lights][targetMatrix]);
-                output.Append(element);
-            }			
-			output.RestartStrip();
-        }
+        for (int vertex = 0; vertex < 3; vertex++)
+        {
+            element.pos = mul(input[vertex], lightViewProjection[LIGHT_POS.x][targetMatrix]);
+            output.Append(element);
+        }			
+		output.RestartStrip();
     }
 }
