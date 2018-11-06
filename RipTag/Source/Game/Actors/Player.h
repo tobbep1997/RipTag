@@ -7,6 +7,7 @@
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include <stack>
 
 struct KeyPressed
 {
@@ -94,6 +95,9 @@ private:
 	Quad * m_manabarText;
 
 	Quad * m_infoText;
+	Quad * m_tutorialText;
+	std::stack<std::string> m_tutorialMessages;
+	float m_tutorialDuration = 0.0f;
 
 	float m_peekRotate;
 
@@ -154,6 +158,7 @@ private:
 	void _onInteract();
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
+	void _updateTutorial(double deltaTime);
 
 
 	void _cameraPlacement(double deltaTime);

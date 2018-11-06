@@ -55,8 +55,67 @@ public:
 		//0 = unused, 1 = used once, 2 = used twice
 		
 	};
+
+	struct Ray
+	{
+	private:
+		std::vector<RayContact*> rayContacts;
+		bool ExistingContacts = true;
+	public:
+		Ray()
+		{
+		};
+		~Ray()
+		{
+			ClearQueue();
+		}
+		void addRayContact(b3Body* originBody, b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction, bool singleUse = true)
+		{
+			rayContacts.push_back(new RayContact(originBody, contactShape, point, normal, fraction, singleUse));
+		};
+
+		virtual void ClearQueue()
+		{
+			for (int i = 0; i < rayContacts.size(); i++)
+			{
+				delete rayContacts.at(i);
+			}
+			rayContacts.clear();
+		}
+
+		virtual void ClearConsumedContacts()
+		{
+			if (!rayContacts.empty())
+			{
+				for (int i = 0; i < rayContacts.size(); i++)
+				{
+					if (*rayContacts[i]->consumeState >= 2 || *rayContacts[i]->consumeState == 0)
+					{
+						delete rayContacts.at(i);
+						rayContacts.erase(rayContacts.begin() + i);
+					}
+				}
+			}
+		}
+
+		std::vector<RayContact*> GetRayContacts()
+		{
+			return this->rayContacts;
+		}
+
+		RayContact* getClosestContact()
+		{
+			return this->rayContacts.back();
+		}
+
+		int getNrOfContacts()
+		{
+			return this->rayContacts.size();
+		}
+	};
 private:
-	std::vector<RayContact*> rayContacts;
+	std::vector<Ray*> rays;
+	//std::vector<RayContact*> rayContacts;
 	b3Body* m_tempBody;
 	bool m_singleUse = true;
 	bool m_rayHit = false;
@@ -67,7 +126,11 @@ private:
 	{
 		if (fraction != 0)
 		{
-			rayContacts.push_back(new RayContact(m_tempBody, shape, point, normal, fraction, m_singleUse));
+			if (m_rayHit == false)
+			{
+				rays.push_back(new Ray());
+			}
+			rays.back()->addRayContact(m_tempBody, shape, point, normal, fraction, m_singleUse);
 			m_rayHit = true;
 		}
 		return fraction;
@@ -84,24 +147,25 @@ public:
 
 	virtual void ClearQueue()
 	{
-		for (int i = 0; i < rayContacts.size(); i++)
+		for (int i = 0; i < rays.size(); i++)
 		{
-			delete rayContacts.at(i);
+			delete rays.at(i);
 		}
-		rayContacts.clear();
+		rays.clear();
 	}
 
 	//removes contacts that have been accessed once by each object or not used at all
 	virtual void ClearConsumedContacts()
 	{
-		if (!rayContacts.empty())
+		if (!rays.empty())
 		{
-			for (int i = 0; i < rayContacts.size(); i++)
+			for (int i = 0; i < rays.size(); i++)
 			{
-				if (*rayContacts[i]->consumeState >= 2 || *rayContacts[i]->consumeState == 0)
+				rays.at(i)->ClearConsumedContacts();
+				if (rays.at(i)->GetRayContacts().empty())
 				{
-					delete rayContacts.at(i);
-					rayContacts.erase(rayContacts.begin() + i);
+					delete rays.at(i);
+					rays.erase(rays.begin() + i);
 				}
 			}
 		}
@@ -110,9 +174,9 @@ public:
 	/*Prepares the start and end positions of the ray, then calls the physics engine to perform a raycast.
 	If specified, the objects being intersected will stay alive until the object shooting the ray and the object being intersected have accessed the contact once.
 	Contact will be destroyed if no object has accessed the contact*/
-	virtual RayContact* ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = true)
+	virtual Ray* ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = true)
 	{
-		RayContact* contact = nullptr;
+		Ray* contact = nullptr;
 		this->m_tempBody = body;
 		this->m_singleUse = singleUse;
 
@@ -124,7 +188,7 @@ public:
 
 		if (m_rayHit)
 		{
-			contact = rayContacts.back();
+			contact = rays.back();
 		}
 
 		this->m_tempBody = nullptr;
@@ -133,9 +197,9 @@ public:
 		return contact;
 	}
 
-	virtual std::vector<RayContact*> GetContacts()
+	virtual std::vector<Ray*> GetRays()
 	{
-		return this->rayContacts;
+		return this->rays;
 	}
 
 };

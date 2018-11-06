@@ -29,29 +29,32 @@ void Lever::BeginPlay()
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
+	for (RayCastListener::Ray* ray : RipExtern::m_rayListener->GetRays())
 	{
-		if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+		for (RayCastListener::RayContact* con : ray->GetRayContacts())
 		{
-			if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
+			if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
+				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
-					auto pos = getPosition();
-					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
-					p_trigger(!Triggerd());
-					if (Triggerd())
+					if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
 					{
-						AudioEngine::PlaySoundEffect(unlock, &fVector);
-						//AudioEngine::PlaySoundEffect(lock, &fVector);
-					}
-					else
-					{
-						//AudioEngine::PlaySoundEffect(unlock, &fVector);
-						AudioEngine::PlaySoundEffect(lock, &fVector);
-					}
+						auto pos = getPosition();
+						FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
+						p_trigger(!Triggerd());
+						if (Triggerd())
+						{
+							AudioEngine::PlaySoundEffect(unlock, &fVector);
+							//AudioEngine::PlaySoundEffect(lock, &fVector);
+						}
+						else
+						{
+							//AudioEngine::PlaySoundEffect(unlock, &fVector);
+							AudioEngine::PlaySoundEffect(lock, &fVector);
+						}
 
-					*con->consumeState +=1;
+						*con->consumeState += 1;
+					}
 				}
 			}
 		}

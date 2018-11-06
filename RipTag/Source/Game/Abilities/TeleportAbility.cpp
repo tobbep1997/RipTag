@@ -168,8 +168,8 @@ void TeleportAbility::_inStateCharging(double dt)
 		if (Input::OnAbilityReleased())
 		{
 
-			RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
-			if (var == nullptr)
+			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
+			if (ray == nullptr)
 			{
 				m_tpState = TeleportState::Teleportable;
 				DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
@@ -227,20 +227,21 @@ void TeleportAbility::_inStateTeleportable()
 			dir2.z = -getLiniearVelocity().z;
 			dir2.w = 1;
 
-			RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 2, true);
-			//std::cout << "nor1 " << var->normal.x << " " << var->normal.y << " " << var->normal.z << " " << std::endl;
-			//std::cout << "nor1 " << dir.x << " " << dir.y << " " << dir.z << " " << std::endl;
-			if (var != nullptr)
+			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 2, true);
+			RayCastListener::RayContact* var;
+			if (ray != nullptr)
 			{
+				var = ray->getClosestContact();
 				position.x += var->normal.x;
 				position.y += var->normal.y;
 				position.z += var->normal.z;
 			}
 			else
 			{
-				var = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 2, true);
-				if (var != nullptr)
+				ray = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 2, true);
+				if (ray != nullptr)
 				{
+					var = ray->getClosestContact();
 					position.x += var->normal.x;
 					position.y += var->normal.y;
 					position.z += var->normal.z;

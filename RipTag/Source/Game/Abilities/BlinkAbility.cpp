@@ -56,10 +56,11 @@ void BlinkAbility::_logic(double deltaTime)
 		case BlinkState::Blink:
 			if (pPointer->CheckManaCost(getManaCost()))
 			{
-				RayCastListener::RayContact* var = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
+				RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
 			
-				if(var != nullptr)
+				if(ray != nullptr)
 				{
+					RayCastListener::RayContact* var = ray->getClosestContact();
 					if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 					{
 						pPointer->setPosition(

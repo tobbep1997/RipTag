@@ -66,10 +66,11 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possess:
 			if (pPointer->CheckManaCost(getManaCost()))
 			{
-				RayCastListener::RayContact* contact = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
+				RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
 
-				if (contact != nullptr)
+				if (ray != nullptr)
 				{
+					RayCastListener::RayContact* contact = ray->getClosestContact();
 					if (contact->originBody->GetObjectTag() == "PLAYER" && contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 					{
 						pPointer->DrainMana(getManaCost());

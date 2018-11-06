@@ -105,14 +105,31 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_manabarText);
 
 	m_infoText = new Quad();
-	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.4f), DirectX::XMFLOAT2A(0, 0));
+	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
 	m_infoText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_infoText->setScale(0, 0);
 	m_infoText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_infoText);
+	m_tutorialMessages.push("");
+	m_tutorialMessages.push("Select your a magical sphere with DPAD LEFT(2) to\nsee how visible for the guard you are.");
+	m_tutorialMessages.push("Select your rock with DPAD DOWN(3) and throw with\nRB(T) on a guard to knock them out.");
+	m_tutorialMessages.push("Select your teleport stone with DPAD UP(1) hold  \nRB(T) to throw further. Press again to teleport.");
+	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit.");
+	m_tutorialMessages.push("Peek to the sides with LT(Q) and RT(E).");
+	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
+	m_tutorialText = new Quad();
+	m_tutorialText->init(DirectX::XMFLOAT2A(0.5, 0.9f), DirectX::XMFLOAT2A(0, 0));
+	m_tutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_tutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_tutorialText->setScale(0, 0);
+	m_tutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
+//	m_tutorialText->setString(m_tutorialMessages.top());
+	HUDComponent::AddQuad(m_tutorialText);
+//	m_tutorialMessages.pop();
 
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
@@ -464,7 +481,8 @@ void Player::_handleInput(double deltaTime)
 	_onPossess();
 	_onInteract();
 	_onRotate(deltaTime);
-	_objectInfo(deltaTime);
+	//_objectInfo(deltaTime);
+	//_updateTutorial(deltaTime);
 }
 
 void Player::_onMovement()
@@ -731,8 +749,8 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
-			for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
+			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
+			for (RayCastListener::RayContact* con : ray->GetRayContacts())
 			{
 				if (*con->consumeState != 2)
 				{
@@ -756,7 +774,7 @@ void Player::_onInteract()
 						}
 						else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 						{
-							//*con->consumeState += 1;
+							
 							//std::cout << "Enemy Found!" << std::endl;
 							//Snuff out torches (example)
 						}
@@ -788,29 +806,31 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_objectInfoTime >= 1)
 	{
-		RayCastListener::RayContact* contact = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
-		if (contact != nullptr)
+		RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+		if (ray != nullptr)
 		{
-			if (contact->contactShape->GetBody()->GetObjectTag() == "NULL")
+			RayCastListener::RayContact* cContact = ray->getClosestContact();
+			if (cContact->contactShape->GetBody()->GetObjectTag() == "NULL")
 			{
 				m_infoText->setString("");
 				//do the pickups
 			}
-			else if (contact->contactShape->GetBody()->GetObjectTag() == "LEVER" && contact->fraction <= 0.3)
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
 			{
-				//m_infoText->setString("Press TAB to pull");				
+				m_infoText->setString("Press X (TAB) to pull");				
 			}
-			else if (contact->contactShape->GetBody()->GetObjectTag() == "TORCH")
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 			{
 				//Snuff out torches (example)
 			}
-			else if (contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 			{
-				//m_infoText->setString("Press R to possess");
+				m_infoText->setString("Select DPAD DOWN (3) and press RT(R) to possess");
 				//Snuff out torches (example)
 			}
-			else if (contact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && contact->fraction <= 0.3)
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3)
 			{
+				m_infoText->setString("Select DPAD UP (1) and press RT(F) to pass");
 				//m_infoText->setString("Illusory wall ahead");
 				//Snuff out torches (example)
 			}
@@ -823,6 +843,20 @@ void Player::_objectInfo(double deltaTime)
 	}
 
 	m_objectInfoTime += deltaTime;
+}
+
+void Player::_updateTutorial(double deltaTime)
+{
+	if (!m_tutorialMessages.empty())
+	{
+		if (m_tutorialDuration >= 5)
+		{
+			m_tutorialDuration = 0;
+			m_tutorialText->setString(m_tutorialMessages.top());
+			m_tutorialMessages.pop();
+		}
+		m_tutorialDuration += deltaTime;
+	}
 }
 
 void Player::_cameraPlacement(double deltaTime)
