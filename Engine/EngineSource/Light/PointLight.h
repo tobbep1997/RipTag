@@ -88,6 +88,10 @@ public:
 	ID3D11DepthStencilView * getDSV() const;
 	ID3D11Texture2D * getTEX() const;
 
+	void EnableSides(ShadowDir dir);
+	void DisableSides(ShadowDir dir);
+	//std::vector<Camera *>* getSides();
+
 	void setUpdate(const bool & update);
 	bool getUpdate() const;
 	void FirstRun();

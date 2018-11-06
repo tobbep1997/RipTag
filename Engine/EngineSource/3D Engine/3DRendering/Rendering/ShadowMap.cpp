@@ -95,7 +95,7 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 		m_allLightMatrixValues.nrOfviewProjection[light] = DirectX::XMINT4(lights->at(light)->getSides().size(),0,0,0);
 		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
-			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides()[i]->getViewProjection();
+			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides().at(i)->getViewProjection();
 		}
 	}
 	
@@ -117,7 +117,9 @@ void ShadowMap::SetSamplerAndShaderResources()
 		DX::g_lights[i]->FirstRun();
 		for (int j = 0; j < 6; j++)
 		{
-			DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
+			//if (DX::g_lights[i]->useSides()[j])
+				DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
+				
 		}
 			//DX::g_deviceContext->UpdateSubresource(m_shadowDepthBufferTex, (i * 6), NULL, DX::g_lights[i]->getTEX(), 0, 0);
 	}

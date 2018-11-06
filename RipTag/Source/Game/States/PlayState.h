@@ -53,7 +53,7 @@ public:
 
 private:
 	void testtThread(double deltaTime);
-
+	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
 };

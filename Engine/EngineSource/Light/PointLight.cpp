@@ -176,6 +176,29 @@ ID3D11Texture2D * PointLight::getTEX() const
 	return m_shadowDepthBufferTex;
 }
 
+void PointLight::EnableSides(ShadowDir dir)
+{
+	if (dir == XYZ_ALL)
+		for (int i = 0; i < 6; i++)
+			m_useSides[i] = true;
+	else
+		m_useSides[dir] = true;
+}
+
+void PointLight::DisableSides(ShadowDir dir)
+{
+	if (dir == XYZ_ALL)
+		for (int i = 0; i < 6; i++)
+			m_useSides[i] = false;
+	else
+		m_useSides[dir] = false;
+}
+
+//std::vector<Camera*>* PointLight::getSides()
+//{
+//	return &m_sides;
+//}
+
 void PointLight::setUpdate(const bool & update)
 {
 	this->m_update = update;
@@ -183,12 +206,12 @@ void PointLight::setUpdate(const bool & update)
 
 bool PointLight::getUpdate() const
 {
-	if (!m_firstRun)
-		return this->m_update;
-	else
+	for (int i = 0; i < 6; i++)
 	{
-		return true;
+		if (m_useSides[i])
+			return true;
 	}
+	return false;
 }
 
 void PointLight::FirstRun()
