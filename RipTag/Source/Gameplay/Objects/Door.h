@@ -12,6 +12,6 @@ public:
 	~Door();
 
 	void Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float scaleX, float scaleY, float scaleZ);
-	void setPos(DirectX::XMFLOAT4A trigg, DirectX::XMFLOAT4A unTrigg);
+	void Update(double deltaTime) override;
 };
 
