@@ -16,10 +16,12 @@ Door::~Door()
 }
 
 
-void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
+void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1, 2, 1, true);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, false);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	//BaseActor::setPosition(xPos, yPos, zPos);
+	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("Door");
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("DOOR"));
 	auto& machine = getAnimatedModel()->InitStateMachine(1);
@@ -34,4 +36,6 @@ void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 void Door::Update(double deltaTime)
 {
 	getAnimatedModel()->Update(deltaTime);
+	if (Triggerable::getState() == true)
+		PhysicsComponent::p_setPosition(200, 200, 200);
 }

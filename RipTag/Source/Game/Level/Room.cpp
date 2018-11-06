@@ -47,7 +47,10 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_rotation[0],
 				propsToPlace.props[i].transform_rotation[1],
 				propsToPlace.props[i].transform_rotation[2],
-				propsToPlace.props[i].transform_scale[0], 
+				propsToPlace.props[i].BBOX_INFO[0],
+				propsToPlace.props[i].BBOX_INFO[1],
+				propsToPlace.props[i].BBOX_INFO[2],
+				propsToPlace.props[i].transform_scale[0],
 				propsToPlace.props[i].transform_scale[1],
 				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempDoor);
@@ -84,7 +87,10 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_rotation[0],
 				propsToPlace.props[i].transform_rotation[1],
 				propsToPlace.props[i].transform_rotation[2],
-				propsToPlace.props[i].transform_scale[0],
+				propsToPlace.props[i].BBOX_INFO[0],
+				propsToPlace.props[i].BBOX_INFO[1],
+				propsToPlace.props[i].BBOX_INFO[2],
+				propsToPlace.props[i].transform_scale[0], 
 				propsToPlace.props[i].transform_scale[1],
 				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempBars);
@@ -267,9 +273,7 @@ void Room::LoadRoomToMemory()
 		CollisionBoxes = new BaseActor();
 		ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
-		//CollisionBoxes->addCollisionBox(b3Vec3(0.066f, 5.35f, -0.644f), b3Vec3(0.798f, 3.052f, 3.052f), b3Quaternion(0, 0, 0, 0), "BLINK_WALL", false, m_worldPtr);
-		//CollisionBoxes->addCollisionBox(b3Vec3(-5.502f, 6.35f, -9.57f), b3Vec3(9.5f, 4.036f, 0.968f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
-
+		
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
 			float * f4Rot = boxes.boxes[i].rotation;

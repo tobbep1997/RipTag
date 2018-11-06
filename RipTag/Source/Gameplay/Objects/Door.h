@@ -11,7 +11,7 @@ public:
 	Door(int uniqueID, int linkedID, bool isTrigger);
 	~Door();
 
-	void Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float scaleX, float scaleY, float scaleZ);
+	void Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ);
 	void Update(double deltaTime) override;
 };
 
