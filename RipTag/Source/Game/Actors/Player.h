@@ -95,7 +95,8 @@ private:
 
 	Quad * m_infoText;
 
-	
+	float m_peekRotate;
+
 public:
 	//Magic number
 	static const int g_fullVisability = 2300;

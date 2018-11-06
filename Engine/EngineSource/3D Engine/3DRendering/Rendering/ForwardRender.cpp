@@ -99,7 +99,7 @@ void ForwardRender::GeometryPass()
 	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_geometryQueue[i]->getHidden() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
@@ -125,7 +125,7 @@ void ForwardRender::AnimatedGeometryPass()
 	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 

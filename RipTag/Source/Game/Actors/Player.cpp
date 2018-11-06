@@ -130,6 +130,7 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
 	m_lockPlayerInput = false;
+
 }
 
 Player::~Player()
@@ -162,6 +163,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_possess = new PossessGuard();
 	m_possess->Init();
 	m_possess->setOwner(this);
+
+	setHidden(true);
 
 }
 
@@ -625,12 +628,14 @@ void Player::_onPossess()
 		
 		if (m_kp.possess == false)
 		{
+			setHidden(false);
 			m_possess->Use();
 			m_kp.possess = true;
 		}
 	}
 	else
 	{
+		setHidden(true);
 		m_kp.possess = false;
 	}
 }
@@ -641,9 +646,40 @@ void Player::_onRotate(double deltaTime)
 	{	
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
-		if (deltaX && !Input::PeekRight())
+		if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+		{
+			
+		}
+		else
+		{
+			if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
+			{
+				if (m_peekRotate > 0)
+				{
+					p_camera->Rotate(0.0f, -0.05f, 0.0f);
+					m_peekRotate -= 0.05;
+				}
+				else
+				{
+					p_camera->Rotate(0.0f, +0.05f, 0.0f);
+					m_peekRotate += 0.05;
+				}
+
+			}
+			else
+			{
+				m_peekRotate = 0;
+			}
+			//m_peekRotate = 0;
+		}
+
+		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) >=-0.5)
 		{
 			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f);
+			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+			{
+				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity() * deltaTime;
+			}
 		}
 		if (deltaY) 
 		{
@@ -666,7 +702,9 @@ void Player::_onRotate(double deltaTime)
 		
 			
 		}
-		
+		ImGui::Begin("tilting");
+		ImGui::Text("Current rot: %f", m_peekRotate);
+		ImGui::End();
 	}
 }
 
@@ -800,7 +838,6 @@ void Player::_cameraPlacement(double deltaTime)
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 
 	pos.y += offsetY;

@@ -100,7 +100,7 @@ void PlayState::Update(double deltaTime)
 	{
 		m_physicsThread.join();
 	}*/
-
+	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
@@ -108,7 +108,7 @@ void PlayState::Update(double deltaTime)
 	//model->getAnimatedModel()->Update(deltaTime);
 
 	m_playerManager->PhysicsUpdate();
-
+	
 	
 	
 	

@@ -87,10 +87,10 @@ float4 FresnelReflection(float cosTheta, float4 f0)
 {
     return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
 }
-
+float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 {
-    float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    
     float4 posToLight;
     float distanceToLight;
     float attenuation;
@@ -123,7 +123,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
     //ao = 0;
     //return albedo;
-    float pi = 3.14;
 
 
     ambient = float4(0.2f, 0.2f, 0.25f, 1.0f) * albedo * ao;
@@ -194,7 +193,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         specular = numerator / max(denominator, 0.001f);
 		
         normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
-        lightCal += finalShadowCoeff * (kD * albedo / pi + specular) * radiance * normDotLight * ((lightDropOff[shadowLight].x - attenuation + 1.0f));
+        lightCal += finalShadowCoeff * (kD * albedo / PI + specular) * radiance * normDotLight * ((lightDropOff[shadowLight].x - attenuation + 1.0f));
     }
     
     finalColor = ambient + lightCal;
