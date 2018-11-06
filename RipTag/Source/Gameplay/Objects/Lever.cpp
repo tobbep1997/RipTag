@@ -1,7 +1,7 @@
 #include "Lever.h"
 #include "../../../RipTagExtern/RipExtern.h"
 #include <iostream>
-
+#include <AudioEngine.h>
 Lever::Lever()
 {
 }
@@ -17,6 +17,8 @@ void Lever::Init()
 	p_setPosition(getPosition().x, getPosition().y, getPosition().z);
 	setObjectTag("LEVER");
 	setUserDataBody(this);
+	lock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
+	unlock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
 }
 
 void Lever::BeginPlay()
@@ -35,7 +37,20 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
 				{
-					p_trigger(!Triggerd());			
+					auto pos = getPosition();
+					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
+					p_trigger(!Triggerd());
+					if (Triggerd())
+					{
+						AudioEngine::PlaySoundEffect(unlock, &fVector);
+						//AudioEngine::PlaySoundEffect(lock, &fVector);
+					}
+					else
+					{
+						//AudioEngine::PlaySoundEffect(unlock, &fVector);
+						AudioEngine::PlaySoundEffect(lock, &fVector);
+					}
+
 					*con.consumeState +=1;
 				}
 			}
