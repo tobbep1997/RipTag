@@ -77,9 +77,6 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	triggerHandler->AddPair(t0, t1, false);
 
-
-	
-
 	m_lose = new Quad();
 	m_lose->init();
 	m_lose->setPosition(0.5f, 0.5f);
@@ -185,8 +182,8 @@ void Room::LoadRoomToMemory()
 		if (m_grid)
 			delete m_grid;
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid->CreateGridWithWorldPosValues(m_grid->maxX, m_grid->maxY, *m_grid);
-		//
+		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
+
 		m_roomLoaded = true;
 
 		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
@@ -263,7 +260,7 @@ void Room::LoadRoomToMemory()
 
 void Room::getPath()
 {
-	std::vector<Node*> path = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(24, 13));
+	/*std::vector<Node*> path = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(24, 13));
 	std::cout << "Printing path..." << std::endl << std::endl;
 	for (int i = 0; i < path.size(); i++)
 	{
@@ -275,7 +272,20 @@ void Room::getPath()
 	{
 		delete path.at(i);
 		path.at(i) = nullptr;
+	}*/
+	Tile t = m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z);
+	if (t.getX() != -1)
+	{
+		for (int i = 0; i < m_roomGuards.size(); i++)
+		{
+			DirectX::XMFLOAT4A pos = m_roomGuards.at(i)->getPosition();
+			Tile tile = m_pathfindingGrid->WorldPosToTile(pos.x, pos.z);
+			m_roomGuards.at(i)->SetAlertVector(m_pathfindingGrid->FindPath(tile,
+				m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z)));
+		}
 	}
+	std::cout << "Px: " << m_playerInRoomPtr->getPosition().x << " Py: " << m_playerInRoomPtr->getPosition().z << std::endl;
+	std::cout << "x: " << t.getX() << " y: " << t.getY() << std::endl;
 }
 
 void Room::Update(float deltaTime)
@@ -346,7 +356,6 @@ void Room::Draw()
 	}
 	for (auto light : m_pointLights)
 	{
-		
 		light->QueueLight();
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
@@ -355,7 +364,6 @@ void Room::Draw()
 	lever->Draw();
 	pressurePlate->Draw();
 
-	
 	if (m_youLost)
 	{
 		HUDComponent::HUDDraw();
