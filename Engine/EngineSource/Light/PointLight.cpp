@@ -18,7 +18,7 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
 	//_createSides();
-	//CreateShadowDirection(PointLight::XYZ_ALL);
+	CreateShadowDirection(PointLight::XYZ_ALL);
 	this->m_dropOff = .5f;
 }
 
