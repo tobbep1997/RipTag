@@ -4,7 +4,7 @@
 class BlinkAbility : public AbilityComponent
 {
 private:
-	const float RANGE = 10.0f;
+	const float RANGE = 3.0f;
 	const float COOLDOWN_WAIT_MAX = 1.0f;
 	const int MANA_COST = 10;
 	enum BlinkState
