@@ -37,10 +37,14 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
 				{
-					p_trigger(!Triggerd());			
+					if (this->getTriggerState())
+						this->setTriggerState(false);
+					else
+						this->setTriggerState(true);
 					*con.consumeState +=1;
 					//set lever animation here
 					//SENDTriggerd here for network
+					this->SendOverNetwork();
 				}
 			}
 		}
