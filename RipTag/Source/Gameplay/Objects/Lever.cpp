@@ -44,11 +44,14 @@ void Lever::Update(double deltaTime)
 					if (this->getTriggerState())
 						this->setTriggerState(false);
 					else
+					{
 						this->setTriggerState(true);
+						//set lever animation here
+						getAnimatedModel()->GetStateMachine()->SetState("lever_activate");
+						getAnimatedModel()->Play();
+
+					}
 					*con.consumeState +=1;
-					//set lever animation here
-					getAnimatedModel()->GetStateMachine()->SetState("lever_activate");
-					getAnimatedModel()->Play();
 					//SENDTriggerd here for network
 					this->SendOverNetwork();
 				}
