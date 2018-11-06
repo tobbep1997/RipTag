@@ -80,7 +80,7 @@ public:
 	//TEMP
 	void setDir(const float & x, const float & y, const float & z);
 	Camera * getCamera();
-	const int* getPlayerVisibility() const;
+	const int * getPlayerVisibility() const;
 	bool unlockMouse = false;
 
 	// Inherited via Actor

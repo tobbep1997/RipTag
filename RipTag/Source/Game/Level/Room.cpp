@@ -96,7 +96,6 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::~Room()
 {
-	delete m_pathfindingGrid;
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -159,10 +158,7 @@ void Room::UnloadRoomFromMemory()
 		delete m_grid->gridPoints;
 		delete m_grid;
 		m_roomLoaded = false;
-
-
 	}
-
 }
 
 void Room::LoadRoomToMemory()
@@ -260,19 +256,6 @@ void Room::LoadRoomToMemory()
 
 void Room::getPath()
 {
-	/*std::vector<Node*> path = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(24, 13));
-	std::cout << "Printing path..." << std::endl << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-		std::cout << "World x: " << path.at(i)->worldPos.x << " World y: " << path.at(i)->worldPos.y << std::endl;
-	}
-	std::cout << std::endl << "Path is finished printing..." << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		delete path.at(i);
-		path.at(i) = nullptr;
-	}*/
 	Tile t = m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z);
 	if (t.getX() != -1)
 	{
@@ -408,7 +391,7 @@ void Room::Release()
 	pressurePlate->Release(*m_worldPtr);
 	delete pressurePlate;
 	delete triggerHandler;
-	
+	delete m_pathfindingGrid;
 }
 
 void Room::loadTextures()

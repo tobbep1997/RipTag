@@ -152,7 +152,7 @@ const Transform* Transform::getTransform()
 }
 
 
-const DirectX::XMFLOAT4A  & Transform::getPosition() const
+const DirectX::XMFLOAT4A & Transform::getPosition() const
 {
 	return this->p_position;
 }

@@ -390,13 +390,9 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 		}
 		m_alertPath = alertPath;
 		if (m_alertPath.size() > 0)
+		{
 			m_alert = true;
-	}
-	else
-	{
-		for (auto alert : alertPath)
-			delete alert;
-		alertPath.clear();
+		}
 	}
 }
 
