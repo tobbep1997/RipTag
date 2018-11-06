@@ -8,6 +8,8 @@ public:
 	Lever();
 	~Lever();
 
+	std::string unlock, lock;
+
 	void Init();
 	void BeginPlay() override;
 	void Update(double deltaTime) override;

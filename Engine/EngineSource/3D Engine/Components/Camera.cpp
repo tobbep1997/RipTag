@@ -134,6 +134,7 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 	vDir = DirectX::XMLoadFloat4A(&this->m_direction);
 
 	DirectX::XMVECTOR vNewDir = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(vLastDir, mRot));
+	vUp = DirectX::XMLoadFloat4A(&m_UP);
 
 	DirectX::XMVECTOR vDot = DirectX::XMVector3Dot(vNewDir, vUp);
 	float dot = DirectX::XMVectorGetX(vDot);
