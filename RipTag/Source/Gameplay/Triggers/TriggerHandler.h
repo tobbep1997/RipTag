@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <Multiplayer.h>
 
 class Trigger;
 class Triggerable;
@@ -32,6 +33,9 @@ public:
 
 	void Release();
 	void LoadTriggerPairMap();
+
+	void HandlePacket(unsigned char id, unsigned char * data);
+	void RegisterThisInstanceToNetwork();
 
 };
 

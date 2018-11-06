@@ -51,7 +51,7 @@ void PressurePlate::Update(double deltaTime)
 			}
 	}	
 
-	if (Triggerd())
+	if (Triggered())
 		BaseActor::setPosition(pos2.x, pos2.y, pos2.z);
 	else
 		BaseActor::setPosition(pos1.x, pos1.y, pos1.z);
