@@ -80,13 +80,14 @@ PlayState::~PlayState()
 	delete m_levelHandler;
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
-	
 	delete m_playerManager;
 
 	delete triggerHandler;
 
 	delete m_contactListener;
 	delete m_rayListener;
+
+	
 }
 
 void PlayState::Update(double deltaTime)

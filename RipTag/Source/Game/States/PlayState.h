@@ -22,15 +22,15 @@ class RenderingManager;
 class PlayState : public State
 {
 private:
-	LevelHandler * m_levelHandler;
-	ContactListener * m_contactListener;
-	RayCastListener * m_rayListener;
+	LevelHandler * m_levelHandler;		//Released
+	ContactListener * m_contactListener;//Released
+	RayCastListener * m_rayListener;	//Released
 
-	PlayerManager * m_playerManager;
+	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
 
-	TriggerHandler *	triggerHandler;
+	TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;

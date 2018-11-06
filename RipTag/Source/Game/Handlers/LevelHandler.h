@@ -14,12 +14,12 @@ private:
 	std::vector<std::string> m_prefabRoomFiles;
 
 	short unsigned int m_activeRoom;
-	std::vector<Room*> m_rooms;
+	std::vector<Room*> m_rooms; //Released
 
 	bool pressed = false; 
 
-	Player * m_playerPtr;
-	b3World * m_worldPtr;
+	Player * m_playerPtr; //Released in playstate
+	b3World * m_worldPtr; //static in playsatet
 
 private:
 	std::vector<int> m_unloadingQueue;

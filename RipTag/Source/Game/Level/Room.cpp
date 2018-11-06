@@ -349,7 +349,7 @@ void Room::Release()
 	}
 	if (CollisionBoxes)
 	{
-		CollisionBoxes->Release(*m_worldPtr);
+		CollisionBoxes->Release(*RipExtern::g_world);
 		delete CollisionBoxes;
 		CollisionBoxes = nullptr;
 	}
@@ -357,13 +357,17 @@ void Room::Release()
 	{
 		delete light;
 	}
+	m_pointLights.clear();
 	for (auto enemy : m_roomGuards)
 	{
 		delete enemy;
 	}
 	for (auto ab : m_audioBoxes)
+	{
 		ab->release();
+	}
 	delete m_grid->gridPoints;
+
 	delete m_grid;
 
 	door->Release(*m_worldPtr);
