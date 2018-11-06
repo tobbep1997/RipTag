@@ -22,6 +22,7 @@ class PressurePlate;
 class TriggerHandler;
 class Triggerable;
 class Trigger;
+class Bars;
 class Room : public HUDComponent
 {
 private:

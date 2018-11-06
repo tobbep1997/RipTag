@@ -7,7 +7,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 	Lever * tempLever = nullptr;
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
-	
+	Bars * tempBars = nullptr;
 	
 	for (int i = 0; i < propsToPlace.nrOfItems; i++)
 	{
@@ -44,7 +44,10 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_position[2],
 				propsToPlace.props[i].transform_rotation[0],
 				propsToPlace.props[i].transform_rotation[1],
-				propsToPlace.props[i].transform_rotation[2]);
+				propsToPlace.props[i].transform_rotation[2],
+				propsToPlace.props[i].transform_scale[0], 
+				propsToPlace.props[i].transform_scale[1],
+				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempDoor);
 			tempDoor = nullptr;
 			//ladda in dörr etc etc 
@@ -66,6 +69,22 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			triggerHandler->Triggers.push_back(tempLever);
 			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
 			tempLever = nullptr;
+			break;
+		case(5):
+			Manager::g_meshManager.loadStaticMesh("BARS");
+			Manager::g_textureManager.loadTextures("BARS");
+			tempBars = new Bars(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
+			tempBars->Init(propsToPlace.props[i].transform_position[0],
+				propsToPlace.props[i].transform_position[1],
+				propsToPlace.props[i].transform_position[2],
+				propsToPlace.props[i].transform_rotation[0],
+				propsToPlace.props[i].transform_rotation[1],
+				propsToPlace.props[i].transform_rotation[2],
+				propsToPlace.props[i].transform_scale[0],
+				propsToPlace.props[i].transform_scale[1],
+				propsToPlace.props[i].transform_scale[2]);
+			triggerHandler->Triggerables.push_back(tempBars);
+			tempDoor = nullptr;
 			break;
 		default:
 			break;

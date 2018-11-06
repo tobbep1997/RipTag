@@ -34,6 +34,7 @@
 #include "Source/Gameplay/Triggers/Triggerable.h"
 #include "Source/Gameplay/Triggers/TriggerHandler.h"
 #include "Source/Gameplay/Objects/Door.h"
+#include "Source/Gameplay/Objects/Bars.h"
 #include "Source/Gameplay/Objects/Lever.h"
 #include "Source/Gameplay/Objects/PressurePlate.h"
 
