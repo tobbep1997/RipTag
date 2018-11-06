@@ -5,7 +5,7 @@ Bars::Bars() : Triggerable()
 {
 
 }
-Bars::Bars(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, linkedID, isTrigger)
+Bars::Bars(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, linkedID, isTrigger, "temp", "tmep")
 {
 }
 
