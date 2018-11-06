@@ -22,6 +22,8 @@ TriggerHandler::~TriggerHandler()
 
 void TriggerHandler::Update(double deltaTime)
 {	
+	for (size_t i = 0; i < Triggers.size(); i++)
+		Triggers[i]->Update(deltaTime);
 
 	for (size_t i = 0; i < Triggerables.size(); i++)
 		Triggerables[i]->Update(deltaTime);
@@ -47,8 +49,6 @@ void TriggerHandler::Update(double deltaTime)
 		}
 		//check the first Triggerable object and see if it is not Active
 	}
-		Triggers[i]->Update(deltaTime);
-	for (size_t i = 0; i < Triggers.size(); i++)
 }
 
 void TriggerHandler::Draw()
