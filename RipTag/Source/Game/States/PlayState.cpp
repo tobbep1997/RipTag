@@ -1,6 +1,6 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
-
+#include <DirectXCollision.h>
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
@@ -201,7 +201,7 @@ void PlayState::testtThread(double deltaTime)
 		}
 	}
 }
-#include <DirectXCollision.h>
+
 void PlayState::_lightCulling()
 {
 	Player * p = m_playerManager->getLocalPlayer();
@@ -212,34 +212,36 @@ void PlayState::_lightCulling()
 	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getView())));
 	DirectX::BoundingFrustum::CreateFromMatrix(PlayerWorldBox, proj);
 	PlayerWorldBox.Transform(PlayerWorldBox, viewInv);
+	const DirectX::XMFLOAT4A & pPos = p->getPosition();
+	DirectX::XMVECTOR vpPos = DirectX::XMLoadFloat4A(&pPos);
 
 	for (auto & light : DX::g_lights)
 	{
 		light->DisableSides(PointLight::ShadowDir::XYZ_ALL);
-		const std::vector<Camera*> & sidesVec = light->getSides();
-		int counter = 0;
-		for (auto & sides : sidesVec)
+
+		const DirectX::XMFLOAT4A & lPos = light->getPosition();
+		DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&lPos), vpPos);
+		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+		if (length < p->getCamera()->getFarPlane())
 		{
-			DirectX::BoundingFrustum WorldBox;
-			DirectX::XMMATRIX sViewInv, sProj;
-			sProj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getProjection()));
-			sViewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getView())));
-			DirectX::BoundingFrustum::CreateFromMatrix(WorldBox, sProj);
-			WorldBox.Transform(WorldBox, sViewInv);
-			if (PlayerWorldBox.Intersects(WorldBox))
-			{				
-				/*RayCastListener::RayContact * rc = RipExtern::m_rayListener->ShotRay(m_playerManager->getLocalPlayer()->getBody(),
-					light->getPosition(),
-					light->getDir(*m_playerManager->getLocalPlayer()->getBody()),
-					light->getFarPlane() / cos(light->getFOV() / 2.0f));
-				if (rc && rc->contactShape->GetBody()->GetObjectTag() == "PLAYER")
-				{*/
+			const std::vector<Camera*> & sidesVec = light->getSides();
+			int counter = 0;
+			for (auto & sides : sidesVec)
+			{
+				DirectX::BoundingFrustum WorldBox;
+				DirectX::XMMATRIX sViewInv, sProj;
+				sProj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getProjection()));
+				sViewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getView())));
+				DirectX::BoundingFrustum::CreateFromMatrix(WorldBox, sProj);
+				WorldBox.Transform(WorldBox, sViewInv);
+				if (PlayerWorldBox.Intersects(WorldBox))
+				{
 					light->EnableSides((PointLight::ShadowDir)counter);
-				//}
-	
+				}
+				counter++;
 			}
-			counter++;
 		}
+		
 	}
 }
 
