@@ -1,20 +1,19 @@
 #include "EnginePCH.h"
 #include "ForwardRender.h"
 
-
-
-
-
-
 ForwardRender::ForwardRender()
 {
 	m_lastVertexPath = L"NULL";
 	m_lastPixelPath = L"NULL";
+
+	m_visabilityPass = new VisabilityPass();
+
 }
 
 
 ForwardRender::~ForwardRender()
 {
+	delete m_visabilityPass;
 }
 
 void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * backBufferRTV, ID3D11DepthStencilView * depthStencilView, ID3D11Texture2D * depthBufferTex, ID3D11SamplerState * samplerState, D3D11_VIEWPORT viewport)
@@ -52,7 +51,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	HRESULT hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
-	m_visabilityPass.Init();
+	
+	m_visabilityPass->Init();
 
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
@@ -150,7 +150,7 @@ void ForwardRender::Flush(Camera & camera)
 	_mapLightInfoNoMatrix();
 	this->m_shadowMap->ShadowPass(m_animationBuffer);
 	this->m_shadowMap->SetSamplerAndShaderResources();
-	VisabilityPass();
+	_visabilityPass();
 	_mapCameraBuffer(camera);
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
@@ -493,13 +493,13 @@ void ForwardRender::_setStaticShaders()
 	}
 }
 
-void ForwardRender::VisabilityPass()
+void ForwardRender::_visabilityPass()
 {
-	m_visabilityPass.SetViewportAndRenderTarget();
+	m_visabilityPass->SetViewportAndRenderTarget();
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
-		m_visabilityPass.GuardDepthPrePassFor(guard, m_animationBuffer);
-		m_visabilityPass.CalculateVisabilityFor(guard, m_animationBuffer);
+		m_visabilityPass->GuardDepthPrePassFor(guard, m_animationBuffer);
+		m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
 	}
 	
 

@@ -134,6 +134,7 @@ void Room::UnloadRoomFromMemory()
 
 		for (auto & ab : m_audioBoxes)
 			ab->release();
+		
 		m_audioBoxes.clear();
 		delete m_grid->gridPoints;
 		delete m_grid;
