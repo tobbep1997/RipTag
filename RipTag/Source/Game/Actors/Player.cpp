@@ -752,7 +752,7 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_objectInfoTime >= 1)
 	{
-		RayCastListener::RayContact* contact = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), Player::INTERACT_RANGE);
+		RayCastListener::RayContact* contact = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
 		if (contact != nullptr)
 		{
 			if (contact->contactShape->GetBody()->GetObjectTag() == "NULL")
@@ -760,9 +760,9 @@ void Player::_objectInfo(double deltaTime)
 				m_infoText->setString("");
 				//do the pickups
 			}
-			else if (contact->contactShape->GetBody()->GetObjectTag() == "LEVER")
+			else if (contact->contactShape->GetBody()->GetObjectTag() == "LEVER" && contact->fraction <= 0.3)
 			{
-				m_infoText->setString("Press TAB to pull");
+				//m_infoText->setString("Press TAB to pull");				
 			}
 			else if (contact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 			{
@@ -770,12 +770,12 @@ void Player::_objectInfo(double deltaTime)
 			}
 			else if (contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 			{
-				//std::cout << "Enemy Found!" << std::endl;
+				//m_infoText->setString("Press R to possess");
 				//Snuff out torches (example)
 			}
-			else if (contact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+			else if (contact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && contact->fraction <= 0.3)
 			{
-				m_infoText->setString("Illusory wall ahead");
+				//m_infoText->setString("Illusory wall ahead");
 				//Snuff out torches (example)
 			}
 		}
