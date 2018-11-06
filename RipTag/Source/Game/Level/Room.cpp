@@ -194,7 +194,6 @@ void Room::LoadRoomToMemory()
 		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
 		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
-		temp->setTextureTileMult(100, 100);
 
 
 		CollisionBoxes = new BaseActor();
