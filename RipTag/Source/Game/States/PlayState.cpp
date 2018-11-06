@@ -226,9 +226,16 @@ void PlayState::_lightCulling()
 			DirectX::BoundingFrustum::CreateFromMatrix(WorldBox, sProj);
 			WorldBox.Transform(WorldBox, sViewInv);
 			if (PlayerWorldBox.Intersects(WorldBox))
-			{
-
-				light->EnableSides((PointLight::ShadowDir)counter);
+			{				
+				RayCastListener::RayContact * rc = RipExtern::m_rayListener->ShotRay(m_playerManager->getLocalPlayer()->getBody(),
+					light->getPosition(),
+					light->getDir(*m_playerManager->getLocalPlayer()->getBody()),
+					light->getFarPlane() / cos(light->getFOV() / 2.0f));
+				if (rc && rc->contactShape->GetBody()->GetObjectTag() == "PLAYER")
+				{
+					light->EnableSides((PointLight::ShadowDir)counter);
+				}
+	
 			}
 			counter++;
 		}
