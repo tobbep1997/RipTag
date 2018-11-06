@@ -29,13 +29,13 @@ void Lever::BeginPlay()
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+	for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
 	{
-		if (con.originBody->GetObjectTag() == "PLAYER")
+		if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 		{
-			if (con.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+			if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 			{
-				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
+				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
 				{
 					auto pos = getPosition();
 					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
@@ -51,20 +51,9 @@ void Lever::Update(double deltaTime)
 						AudioEngine::PlaySoundEffect(lock, &fVector);
 					}
 
-					*con.consumeState +=1;
+					*con->consumeState +=1;
 				}
 			}
 		}
 	}
-	//std::cout << Triggerd() << std::endl;
-}
-
-bool Lever::isEqual(Lever * target)
-{
-	if (this->getPosition().x == target->getPosition().x && 
-		this->getPosition().y == target->getPosition().y && 
-		this->getPosition().z == target->getPosition().z)
-		return true;
-
-	return false;
 }
