@@ -3,7 +3,6 @@
 #include <thread>
 #include <d3d11_1.h>
 #include <DirectXMath.h>
-#include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/VisabilityPass.h"
 
 
 enum ObjectType;
@@ -18,6 +17,8 @@ class VisibilityComponent;
 class PointLight;
 class ShadowMap;
 class Render2D;
+
+class VisabilityPass;
 
 namespace Animation
 {
@@ -99,7 +100,7 @@ private:
 	Render2D * m_2DRender;
 
 
-	VisabilityPass m_visabilityPass;
+	VisabilityPass * m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;
 
 	
@@ -154,7 +155,7 @@ private:
 	void _setStaticShaders();
 
 	//VisabilityPass
-	void VisabilityPass();
+	void _visabilityPass();
 
 	void _createShaders();
 	void _createShadersInput();
