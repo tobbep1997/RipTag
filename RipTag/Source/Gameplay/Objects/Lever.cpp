@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "Lever.h"
 
+#include <AudioEngine.h>
 Lever::Lever()
 {
 }
@@ -16,6 +17,8 @@ void Lever::Init()
 	p_setPosition(getPosition().x, getPosition().y, getPosition().z);
 	setObjectTag("LEVER");
 	setUserDataBody(this);
+	lock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
+	unlock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
 }
 
 void Lever::BeginPlay()
@@ -26,29 +29,31 @@ void Lever::BeginPlay()
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+	for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
 	{
-		if (con.originBody->GetObjectTag() == "PLAYER")
+		if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 		{
-			if (con.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+			if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 			{
-				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
+				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
 				{
-					p_trigger(!Triggerd());			
-					*con.consumeState +=1;
+					auto pos = getPosition();
+					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
+					p_trigger(!Triggerd());
+					if (Triggerd())
+					{
+						AudioEngine::PlaySoundEffect(unlock, &fVector);
+						//AudioEngine::PlaySoundEffect(lock, &fVector);
+					}
+					else
+					{
+						//AudioEngine::PlaySoundEffect(unlock, &fVector);
+						AudioEngine::PlaySoundEffect(lock, &fVector);
+					}
+
+					*con->consumeState +=1;
 				}
 			}
 		}
 	}
-	//std::cout << Triggerd() << std::endl;
-}
-
-bool Lever::isEqual(Lever * target)
-{
-	if (this->getPosition().x == target->getPosition().x && 
-		this->getPosition().y == target->getPosition().y && 
-		this->getPosition().z == target->getPosition().z)
-		return true;
-
-	return false;
 }

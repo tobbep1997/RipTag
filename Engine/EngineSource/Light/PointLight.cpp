@@ -20,6 +20,10 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_pow = 2.0f;
 	//CreateShadowDirection(PointLight::Y_POSITIVE);
 	CreateShadowDirection(PointLight::XYZ_ALL);
+	for (int i = 0; i < 6; i++)
+	{
+		m_useSides[i] = TRUE;
+	}
 	this->m_dropOff = .5f;
 	_initDirectX(128U,128U);
 }
@@ -172,9 +176,35 @@ ID3D11Texture2D * PointLight::getTEX() const
 	return m_shadowDepthBufferTex;
 }
 
+void PointLight::setUpdate(const bool & update)
+{
+	this->m_update = update;
+}
+
+bool PointLight::getUpdate() const
+{
+	if (!m_firstRun)
+		return this->m_update;
+	else
+	{
+		return true;
+	}
+}
+
+void PointLight::FirstRun()
+{
+	m_firstRun = false;
+}
+
 void PointLight::Clear()
 {
-	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	if(m_update)
+		DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+const BOOL * PointLight::useSides() const
+{
+	return m_useSides;
 }
 
 void PointLight::RayTrace(b3Body & object, RayCastListener * rayCastListener)

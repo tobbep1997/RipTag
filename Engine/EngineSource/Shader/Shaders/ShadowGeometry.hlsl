@@ -2,7 +2,8 @@
 
 cbuffer LIGHT_INDEX : register(b13)
 {
-    uint4 LIGHT_POS;
+    uint4 LIGHT_POS;    
+    uint4 sides[8];
 };
 
 struct GSOutput
@@ -19,6 +20,8 @@ void main(
 {
     for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[LIGHT_POS.x].x; targetMatrix++)
     {
+        if(!sides[targetMatrix].x)
+            continue;
         GSOutput element;
         element.RTIndex = targetMatrix;
 

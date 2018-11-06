@@ -35,22 +35,19 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowGeometry.hlsl"), nullptr, 0);	
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
-
-	for (int i = 0; i < DX::g_lights.size(); i++)
-	{
-		for (int j = 0; j < 6; j++)
-		{
-			//DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
-		}
-		DX::g_deviceContext->UpdateSubresource(m_shadowDepthBufferTex, (i * 6), NULL, DX::g_lights[i]->getTEX(), 0, 0);
-	}
-
+	m_runned = 0;
 	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
 	{
+		if (!DX::g_lights[i]->getUpdate())
+			continue;
 		DX::g_lights[i]->Clear();
 
 		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
 		m_lightIndex.lightPos.x = i;
+		for (int i = 0; i < 6; i++)
+		{
+			m_lightIndex.useSides[i].x = (UINT)DX::g_lights[i]->useSides()[i];
+		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
 
 		for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
@@ -92,7 +89,7 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 
 void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 {
-	m_allLightMatrixValues.nrOfLights = DirectX::XMINT4(lights->size(),0,0,0);
+	m_allLightMatrixValues.nrOfLights = DirectX::XMINT4(lights->size(), 0,0,0);
 	for (unsigned int light = 0; light < lights->size(); light++)
 	{
 		m_allLightMatrixValues.nrOfviewProjection[light] = DirectX::XMINT4(lights->at(light)->getSides().size(),0,0,0);
@@ -115,6 +112,9 @@ void ShadowMap::SetSamplerAndShaderResources()
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
 	for (int i = 0; i < DX::g_lights.size(); i++)
 	{
+		if (!DX::g_lights[i]->getUpdate())
+			continue;
+		DX::g_lights[i]->FirstRun();
 		for (int j = 0; j < 6; j++)
 		{
 			DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
@@ -132,7 +132,7 @@ void ShadowMap::Clear()
 	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
 
 	DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
-	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void ShadowMap::Release()
@@ -150,6 +150,7 @@ void ShadowMap::Release()
 
 	DX::SafeRelease(m_renderTargetView);
 	DX::SafeRelease(m_renderTargetsTexture);
+	DX::SafeRelease(m_lightIndexBuffer);
 }
 
 void ShadowMap::_createShadowViewPort(UINT width, UINT height)

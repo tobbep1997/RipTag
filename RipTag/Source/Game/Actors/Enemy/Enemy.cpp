@@ -172,9 +172,10 @@ void Enemy::Update(double deltaTime)
 			{
 				_MoveTo(m_path.at(0), deltaTime);
 			}
+			_CheckPlayer(deltaTime);
 		}
 
-		_CheckPlayer(deltaTime);
+		
 
 	}
 	getBody()->SetType(e_dynamicBody);

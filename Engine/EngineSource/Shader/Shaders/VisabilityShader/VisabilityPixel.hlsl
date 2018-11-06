@@ -13,7 +13,7 @@ void main (VS_OUTPUT input)
     float4 ambient;
     //float4 fragmentColor = OptimizedLightCalculation(input, ambient) - ambient;
     //float4 fragmentColor = OptimizedLightCalculation(input, ambient);
-    float4 fragmentColor = OptimizedVisabilityCalculation(input, ambient);
+    float4 fragmentColor = VERY_TEMP_FUNCTION_PLEASE_DONT_USE(input, ambient);
     float lightLevel = length(fragmentColor.rgb);
 
     InterlockedAdd(OutputMap[int2(0, 0)], (uint) (lightLevel * 100));

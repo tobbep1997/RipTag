@@ -34,6 +34,7 @@ struct PointLightBuffer
 struct LightIndex
 {
 	DirectX::XMUINT4 lightPos;
+	DirectX::XMUINT4 useSides[8];
 };
 
 
@@ -60,7 +61,7 @@ private:
 	ID3D11Buffer * m_lightIndexBuffer = nullptr;
 	LightIndex m_lightIndex;
 
-
+	int m_runned = 0;
 	
 
 public:

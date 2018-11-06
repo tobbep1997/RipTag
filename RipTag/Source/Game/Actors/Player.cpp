@@ -104,6 +104,16 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_manaBarBackground);
 	HUDComponent::AddQuad(m_manabarText);
 
+	m_infoText = new Quad();
+	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.4f), DirectX::XMFLOAT2A(0, 0));
+	m_infoText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_infoText->setScale(0, 0);
+	m_infoText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
+	HUDComponent::AddQuad(m_infoText);
+
+
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
@@ -120,6 +130,7 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
 	m_lockPlayerInput = false;
+
 }
 
 Player::~Player()
@@ -152,6 +163,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_possess = new PossessGuard();
 	m_possess->Init();
 	m_possess->setOwner(this);
+
+	setHidden(true);
 
 }
 
@@ -451,6 +464,7 @@ void Player::_handleInput(double deltaTime)
 	_onPossess();
 	_onInteract();
 	_onRotate(deltaTime);
+	_objectInfo(deltaTime);
 }
 
 void Player::_onMovement()
@@ -614,12 +628,14 @@ void Player::_onPossess()
 		
 		if (m_kp.possess == false)
 		{
+			setHidden(false);
 			m_possess->Use();
 			m_kp.possess = true;
 		}
 	}
 	else
 	{
+		setHidden(true);
 		m_kp.possess = false;
 	}
 }
@@ -630,9 +646,40 @@ void Player::_onRotate(double deltaTime)
 	{	
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
-		if (deltaX && !Input::PeekRight())
+		if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+		{
+			
+		}
+		else
+		{
+			if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
+			{
+				if (m_peekRotate > 0)
+				{
+					p_camera->Rotate(0.0f, -0.05f, 0.0f);
+					m_peekRotate -= 0.05;
+				}
+				else
+				{
+					p_camera->Rotate(0.0f, +0.05f, 0.0f);
+					m_peekRotate += 0.05;
+				}
+
+			}
+			else
+			{
+				m_peekRotate = 0;
+			}
+			//m_peekRotate = 0;
+		}
+
+		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) >=-0.5)
 		{
 			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f);
+			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+			{
+				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity() * deltaTime;
+			}
 		}
 		if (deltaY) 
 		{
@@ -655,7 +702,9 @@ void Player::_onRotate(double deltaTime)
 		
 			
 		}
-		
+		ImGui::Begin("tilting");
+		ImGui::Text("Current rot: %f", m_peekRotate);
+		ImGui::End();
 	}
 }
 
@@ -680,40 +729,45 @@ void Player::_onJump()
 
 void Player::_onInteract()
 {
-	if (Input::Interact()) //Phase acts like short range teleport through objects
+	if (Input::Interact())
 	{
 		if (m_kp.interact == false)
 		{
-			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
-			for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+			RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
+			for (RayCastListener::RayContact* con : RipExtern::m_rayListener->GetContacts())
 			{
-				if (con.originBody->GetObjectTag() == getBody()->GetObjectTag())
+				if (*con->consumeState != 2)
 				{
-					if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
+					if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
 					{
-						*con.consumeState += 1;
-						//do the pickups
-					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
-					{
-						*con.consumeState += 1;
-					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
-					{
-						*con.consumeState += 1;
-						//Snuff out torches (example)
-					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
-					{
-						*con.consumeState += 1;
-						//std::cout << "Enemy Found!" << std::endl;
-						//Snuff out torches (example)
-					}
-					else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
-					{
-						*con.consumeState += 1;
-						//std::cout << "illusory wall ahead" << std::endl;
-						//Snuff out torches (example)
+						if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+						{
+							*con->consumeState += 1;
+							//do the pickups
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+						{
+							*con->consumeState += 1;
+							m_infoText->setString("");
+							m_objectInfoTime = 0;
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+						{
+							*con->consumeState += 1;
+							//Snuff out torches (example)
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+						{
+							//*con->consumeState += 1;
+							//std::cout << "Enemy Found!" << std::endl;
+							//Snuff out torches (example)
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+						{
+							//*con->consumeState += 1;
+							//std::cout << "illusory wall ahead" << std::endl;
+							//Snuff out torches (example)
+						}
 					}
 				}
 			}
@@ -731,6 +785,48 @@ void Player::_onAbility(double dt)
 	this->m_abilityComponents[m_currentAbility]->Update(dt);
 }
 
+//Sends a ray every second and check if there is relevant data for the object to show on the screen
+void Player::_objectInfo(double deltaTime)
+{
+	if (m_objectInfoTime >= 1)
+	{
+		RayCastListener::RayContact* contact = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+		if (contact != nullptr)
+		{
+			if (contact->contactShape->GetBody()->GetObjectTag() == "NULL")
+			{
+				m_infoText->setString("");
+				//do the pickups
+			}
+			else if (contact->contactShape->GetBody()->GetObjectTag() == "LEVER" && contact->fraction <= 0.3)
+			{
+				//m_infoText->setString("Press TAB to pull");				
+			}
+			else if (contact->contactShape->GetBody()->GetObjectTag() == "TORCH")
+			{
+				//Snuff out torches (example)
+			}
+			else if (contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+			{
+				//m_infoText->setString("Press R to possess");
+				//Snuff out torches (example)
+			}
+			else if (contact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && contact->fraction <= 0.3)
+			{
+				//m_infoText->setString("Illusory wall ahead");
+				//Snuff out torches (example)
+			}
+		}
+		else
+		{
+			m_infoText->setString("");
+		}
+		m_objectInfoTime = 0;
+	}
+
+	m_objectInfoTime += deltaTime;
+}
+
 void Player::_cameraPlacement(double deltaTime)
 {
 	static float lastOffset = 0.0f;
@@ -742,7 +838,6 @@ void Player::_cameraPlacement(double deltaTime)
 	pos.y += cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
-	
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 
 	pos.y += offsetY;

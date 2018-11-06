@@ -39,6 +39,9 @@ private:
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
 
 	bool m_update = false;
+	bool m_firstRun = true;
+
+	BOOL m_useSides[6];
 
 public:
 	PointLight();
@@ -85,7 +88,13 @@ public:
 	ID3D11DepthStencilView * getDSV() const;
 	ID3D11Texture2D * getTEX() const;
 
+	void setUpdate(const bool & update);
+	bool getUpdate() const;
+	void FirstRun();
+	
 	void Clear();
+
+	const BOOL * useSides() const;
 
 	void RayTrace(b3Body & object, RayCastListener * rcl);
 	DirectX::XMFLOAT4A getDir(b3Body & object) const;
