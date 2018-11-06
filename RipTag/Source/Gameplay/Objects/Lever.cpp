@@ -5,7 +5,7 @@ Lever::Lever()
 {
 }
 
-Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "lever_activate", "lever_activate")
+Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "activate", "deactivate")
 {
 	
 }
@@ -24,7 +24,8 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("SPAK"));//BYT TILL SPAK
 	auto& machine = getAnimatedModel()->InitStateMachine(1);
 	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
-	machine->AddPlayOnceState("lever_activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ANIMATION").get());
+	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
+	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
 	getAnimatedModel()->Pause();
 	BaseActor::setUserDataBody(this);
 }
