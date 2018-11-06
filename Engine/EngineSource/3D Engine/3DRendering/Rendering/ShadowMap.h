@@ -29,6 +29,8 @@ struct PointLightBuffer
 	DirectX::XMFLOAT4X4A viewProjection[8][6];
 	DirectX::XMINT4 nrOfviewProjection[8];
 	DirectX::XMINT4 nrOfLights;
+	DirectX::XMUINT4 useDir[8][6];
+
 };
 
 struct LightIndex

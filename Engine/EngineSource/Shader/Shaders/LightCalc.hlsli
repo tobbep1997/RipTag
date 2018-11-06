@@ -8,16 +8,17 @@
 // TODO :: Include this
 cbuffer LIGHTS : register(b0)
 {
-    int4 info; // 16
+    int4   info; // 16
     float4 lightDropOff[8]; //128
     float4 lightPosition[8]; // 128
-    float4 lightColor[8]; //128
+    float4 lightColor[8]; //128 
 }
 cbuffer LIGHT_MATRIX : register(b1)
 {
     float4x4 lightViewProjection[8][6]; //3072
     int4 numberOfViewProjection[8]; //32
     int4 numberOfLights; //16
+    uint4 useDir[8][6]; //16
 };
 cbuffer CAMERA_BUFFER : register(b2)
 {
@@ -161,6 +162,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         float shadowCoeff = 1.0f;
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
+            if (useDir[shadowLight][targetMatrix].x == 0)
+                continue;
 			// Translate the world position into the view space of the shadowLight
             float4 fragmentLightPosition = mul(float4(input.worldPos.xyz, 1), lightViewProjection[shadowLight][targetMatrix]);
 			// Get the texture coords of the "object" in the shadow map

@@ -180,7 +180,7 @@ void PlayState::Draw()
 			lights->setUpdate(rc->contactShape->GetBody()->GetObjectTag() == "PLAYER");
 		}
 	}*/
-	//_lightCulling();
+	_lightCulling();
 
 	m_playerManager->Draw();
 		

@@ -96,6 +96,7 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
 			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides().at(i)->getViewProjection();
+			m_allLightMatrixValues.useDir[light][i].x = (UINT)lights->at(light)->useSides()[i];
 		}
 	}
 	
@@ -117,7 +118,7 @@ void ShadowMap::SetSamplerAndShaderResources()
 		DX::g_lights[i]->FirstRun();
 		for (int j = 0; j < 6; j++)
 		{
-			//if (DX::g_lights[i]->useSides()[j])
+			if (DX::g_lights[i]->useSides()[j])
 				DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
 				
 		}

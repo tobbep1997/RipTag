@@ -221,8 +221,7 @@ void PointLight::FirstRun()
 
 void PointLight::Clear()
 {
-	if(m_update)
-		DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 const BOOL * PointLight::useSides() const
