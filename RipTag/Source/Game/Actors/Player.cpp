@@ -702,9 +702,7 @@ void Player::_onRotate(double deltaTime)
 		
 			
 		}
-		ImGui::Begin("tilting");
-		ImGui::Text("Current rot: %f", m_peekRotate);
-		ImGui::End();
+		
 	}
 }
 
