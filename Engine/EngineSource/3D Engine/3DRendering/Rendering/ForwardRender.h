@@ -79,6 +79,7 @@ private:
 	ID3D11Texture2D*			m_depthBufferTex;
 	ID3D11SamplerState*			m_samplerState;
 	ID3D11SamplerState*			m_shadowSampler;
+	ID3D11DepthStencilState*	m_depthStencilState;
 	
 
 	D3D11_VIEWPORT				m_viewport;
@@ -122,12 +123,14 @@ public:
 	void Init(IDXGISwapChain*				swapChain,
 		ID3D11RenderTargetView*		backBufferRTV,
 		ID3D11DepthStencilView*		depthStencilView,
+		ID3D11DepthStencilState*	m_depthStencilState,
 		ID3D11Texture2D*			depthBufferTex,
 		ID3D11SamplerState*			samplerState,
 		D3D11_VIEWPORT				viewport);
 
 
 	void GeometryPass();
+	void PrePass();
 	void AnimatedGeometryPass();
 	void Flush(Camera & camera);
 	void Clear();

@@ -108,7 +108,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		pBackBuffer->Release();
 	}
 	m_forwardRendering = new ForwardRender();
-	m_forwardRendering->Init(m_swapChain, m_backBufferRTV, m_depthStencilView, m_depthBufferTex, m_samplerState, m_viewport);
+	m_forwardRendering->Init(m_swapChain, m_backBufferRTV, m_depthStencilView,m_depthStencilState, m_depthBufferTex, m_samplerState, m_viewport);
 	return hr;
 }
 
@@ -139,7 +139,7 @@ void Engine3D::Release()
 	DX::SafeRelease(m_depthStencilView);
 	DX::SafeRelease(m_depthBufferTex);
 	DX::SafeRelease(m_samplerState);	
-
+	DX::SafeRelease(m_depthStencilState);
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
 }
@@ -160,7 +160,13 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	depthStencilDesc.CPUAccessFlags = 0;
 	depthStencilDesc.MiscFlags = 0;
 
+	D3D11_DEPTH_STENCIL_DESC dpd{};
+	dpd.DepthEnable = TRUE;
+	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dpd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
 	//Create the Depth/Stencil View
+	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
 	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex);
 	hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView);
 }

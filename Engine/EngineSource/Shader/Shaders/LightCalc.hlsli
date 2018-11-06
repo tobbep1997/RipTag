@@ -88,10 +88,22 @@ float4 FresnelReflection(float cosTheta, float4 f0)
     return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
 }
 float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
 float4 VERY_TEMP_FUNCTION_PLEASE_DONT_USE(VS_OUTPUT input, out float4 ambient)
 {
-    ambient = float4(1337, 69, 420, 666);
-    return float4(1, 1, 1, 1);
+    float4 albedo;
+    float3 AORoughMet;
+    if (usingTexture.x)
+    {
+        albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
+        AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
+    }
+ 
+    float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;  
+
+
+    ambient = float4(0.2f, 0.2f, 0.25f, 1.0f) * albedo * ao;
+    return float4(.1, .1, .1, 1);
 }
 
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
@@ -116,7 +128,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 normal = input.normal.xyz;
     float3 AORoughMet = float3(1, 1, 1); 
 
-    //input.uv.x = 1 - input.uv.x;
     input.uv.y = 1 - input.uv.y;
 
     if (usingTexture.x)
@@ -174,7 +185,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
             break;
         }
 
-        finalShadowCoeff = pow(shadowCoeff / div, 512);
+        finalShadowCoeff = pow(shadowCoeff / div, 32);
+                
         posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);
