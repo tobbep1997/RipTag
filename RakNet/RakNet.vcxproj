@@ -440,7 +440,6 @@
     <ClCompile Include="..\External\RakNet\Source\_FindFirst - Copy.cpp" />
     <ClCompile Include="..\External\RakNet\Source\_FindFirst.cpp" />
     <ClCompile Include="Multiplayer.cpp" />
-    <ClCompile Include="NetworkMessageIdentifiers.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

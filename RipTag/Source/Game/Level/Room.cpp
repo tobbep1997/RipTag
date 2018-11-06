@@ -93,7 +93,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
 	triggerHandler = new TriggerHandler();
-	
+	triggerHandler->RegisterThisInstanceToNetwork();
 
 	m_lose = new Quad();
 	m_lose->init();

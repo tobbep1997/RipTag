@@ -6,7 +6,7 @@ class Triggerable : public BaseActor
 private:
 	int m_uniqueID;
 	int m_linkedID;
-	bool m_isTrigger;
+	bool m_isActivated;
 public:
 	Triggerable();
 	Triggerable(int uniqueId, int linkedID, bool isTrigger);
@@ -17,7 +17,8 @@ public:
 
 	int getLinkId() { return this->m_linkedID; };
 	int getUniqueID() { return this->m_uniqueID; };
-	bool getIsTriggerable() { return this->m_isTrigger; };
+	bool getState() { return this->m_isActivated; };
+	void setState(bool state) { m_isActivated = state; }
 
 	void BeginPlay() override;
 	void Update(double deltaTime) override;
