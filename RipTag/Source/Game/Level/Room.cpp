@@ -61,7 +61,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_rotation[1],
 				propsToPlace.props[i].transform_rotation[2]);
 			triggerHandler->Triggers.push_back(tempLever);
-			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
 			tempLever = nullptr;
 			break;
 		default:
