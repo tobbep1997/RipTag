@@ -1,7 +1,10 @@
 #include "EnginePCH.h"
 #include "AnimatedModel.h"
 
-
+float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
 
 float constexpr getNewValueInNewRange(float x, float a, float b, float c, float d)
 {
@@ -41,8 +44,6 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		
 		if (pPreviousState)
 		{
-			std::cout << "Blending from previous: " << blendFactor << std::endl;
-
 			auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
 			_computeSkinningMatrices(&finalPosePrevious, &finalPoseCurrent, blendFactor);
 			return;
@@ -129,35 +130,53 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 	}
 }
 
+float getSpeedScale(size_t firstFrameCount, size_t secondFrameCount, float weight)
+{
+	float scale = static_cast<float>(firstFrameCount) / static_cast<float>(secondFrameCount);
+	scale += lerp(0.0, 1.0 - scale, weight);
+	return scale;
+}
+
 Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
 {
 	if (!stateData.firstTop)
 		return Animation::SkeletonPose();
 
+	float speedScale = 1.0f;
+	std::pair<uint16_t, float> indexAndProgressionBottom{};
+	if (stateData.firstBottom)
+	{
+		speedScale = getSpeedScale(stateData.firstBottom->m_frameCount, stateData.firstTop->m_frameCount, stateData.weightY);		
+		indexAndProgressionBottom = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_currentNormalizedTime, stateData.firstBottom->m_frameCount);
+	}
+
 	///calc the actual frame index and progression towards the next frame
-	auto indexAndProgression = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_currentNormalizedTime, stateData.firstTop->m_frameCount);
-	auto prevIndex = indexAndProgression.first;
-	auto progression = indexAndProgression.second;
+	auto indexAndProgressionTop = _computeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_currentNormalizedTime, stateData.firstTop->m_frameCount);
+
+	auto prevIndexTop = indexAndProgressionTop.first;
+	auto progressionTop = indexAndProgressionTop.second;
+	auto prevIndexBottom = indexAndProgressionBottom.first;
+	auto progressionBottom = indexAndProgressionBottom.second;
 	SkeletonPose finalPose;
 
 
 	if (!stateData.secondTop)
 	{
-		finalPose = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndex], &stateData.firstTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
+		finalPose = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndexTop], &stateData.firstTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
 		_computeSkinningMatrices(&finalPose);
 	}
 	else if (!stateData.firstBottom)
 	{
-		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndex], &stateData.firstTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndex], &stateData.secondTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
+		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndexTop], &stateData.firstTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
+		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndexTop], &stateData.secondTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
 		finalPose = _BlendSkeletonPoses(&firstPoseTop, &secondPoseTop, stateData.weightTop, m_skeleton->m_jointCount);
 	}
 	else
 	{
-		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndex], &stateData.firstTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndex], &stateData.secondTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto firstPoseBottom = _BlendSkeletonPoses(&stateData.firstBottom->m_skeletonPoses[prevIndex], &stateData.firstBottom->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto secondPoseBottom = _BlendSkeletonPoses(&stateData.secondBottom->m_skeletonPoses[prevIndex], &stateData.secondBottom->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
+		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndexTop], &stateData.firstTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
+		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndexTop], &stateData.secondTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
+		auto firstPoseBottom = _BlendSkeletonPoses(&stateData.firstBottom->m_skeletonPoses[prevIndexBottom], &stateData.firstBottom->m_skeletonPoses[prevIndexBottom + 1], progressionBottom, m_skeleton->m_jointCount);
+		auto secondPoseBottom = _BlendSkeletonPoses(&stateData.secondBottom->m_skeletonPoses[prevIndexBottom], &stateData.secondBottom->m_skeletonPoses[prevIndexBottom + 1], progressionBottom, m_skeleton->m_jointCount);
 		finalPose = _BlendSkeletonPoses2D
 		(
 			{ &firstPoseTop, &secondPoseTop, stateData.weightTop },

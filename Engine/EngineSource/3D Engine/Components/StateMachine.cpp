@@ -181,7 +181,7 @@ namespace SM
 			m_AnimatedModel->SetLayeredClipWeight(0.0);
 	}
 	Animation::SkeletonPose StateVisitor::dispatch(BlendSpace2D& state) {
-		auto clips = state.CalculateCurrentClips();
+		BlendSpace2D::Current2DStateData clips = state.CalculateCurrentClips();
 		if (!m_AnimatedModel)
 			return Animation::SkeletonPose();
 

@@ -109,16 +109,21 @@ namespace SM
 		void AddTransition(T* ref, const T min, const T max, COMPARISON_TYPE type);
 	};
 
+	//Add transition with a reference, value to compare with and comparison type
 	template <class T>
 	void SM::OutState::AddTransition(T* ref, const T value, COMPARISON_TYPE type)
 	{
 		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, value, type));
 	}
+
+	//Add transition consisting of two values; comparison type is expected to be
+	//COMPARISON_OUTSIDE_RANGE or COMPARISON_INSIDE_RANGE.
 	template <class T>
 	void SM::OutState::AddTransition(T* ref, const T min, const T max, COMPARISON_TYPE type)
 	{
 		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, min, max, type));
 	}
+
 #pragma endregion "Transition"
 
 #pragma region "AnimationState"
@@ -235,6 +240,7 @@ namespace SM
 			float weightTop = 0.0f;
 			float weightBottom = 0.0f;
 			float weightY = 0.0f;
+
 		};
 
 		BlendSpace2D(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY)
