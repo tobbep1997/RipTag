@@ -9,11 +9,7 @@ PressurePlate::PressurePlate() : Trigger()
 
 PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "activate", "deactivate")
 {
-	auto& stateMachine = getAnimatedModel()->InitStateMachine(2);
-	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
-	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
-	stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
-	getAnimatedModel()->Pause();
+	
 }
 
 
@@ -27,8 +23,12 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setObjectTag("PressurePlate");
-	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));//BYT TILL SPAK
-
+	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("PLATE"));//BYT TILL SPAK
+	auto& stateMachine = getAnimatedModel()->InitStateMachine(2);
+	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
+	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
+	stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
+	getAnimatedModel()->Pause();
 	BaseActor::setUserDataBody(this);
 }
 
