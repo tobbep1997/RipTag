@@ -71,7 +71,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_step.sleeping = false;
 	m_firstRun = false;
 	
-	
+	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
 }
 
 PlayState::~PlayState()
@@ -95,11 +95,11 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-
-	if (m_physicsThread.joinable())
+	
+	/*if (m_physicsThread.joinable())
 	{
 		m_physicsThread.join();
-	}
+	}*/
 
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
@@ -115,10 +115,11 @@ void PlayState::Update(double deltaTime)
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 
-	/*tempDeltaTime = deltaTime;
-	std::lock_guard<std::mutex> lg(testMutex);
-	testCon.notify_all();*/
-	m_physicsThread = std::thread(&PlayState::testtThread, this, deltaTime);
+	/*m_deltaTime = deltaTime;
+	std::lock_guard<std::mutex> lg(m_physicsMutex);*/
+	m_deltaTime = deltaTime;
+	m_physicsCondition.notify_all();
+	
 	
 	
 	if (InputHandler::getShowCursor() != FALSE)
@@ -138,6 +139,10 @@ void PlayState::Update(double deltaTime)
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+		
+
 		if (m_physicsThread.joinable())
 		{
 			m_physicsThread.join();
@@ -171,19 +176,16 @@ void PlayState::Draw()
 
 void PlayState::testtThread(double deltaTime)
 {
-	/*while (true)
+	while (m_destoryPhysicsThread == false)
 	{
-		std::unique_lock<std::mutex> lock(testMutex);
-		testCon.wait(lock);
-		if (destoryPhysics == true)
-		{
-			return;
-		}*/
-		if (deltaTime <= 0.65f)
+		std::unique_lock<std::mutex> lock(m_physicsMutex);
+		m_physicsCondition.wait(lock);
+
+		if (m_deltaTime <= 0.65f)
 		{
 			m_world.Step(m_step);
 		}
-	//}
+	}
 }
 
 void PlayState::thread(std::string s)

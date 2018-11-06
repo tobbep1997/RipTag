@@ -37,10 +37,10 @@ private:
 	FMOD::Channel * TEEEMPCHANNEL;
 
 	std::thread m_physicsThread;
-	//std::mutex testMutex;
-	//std::condition_variable testCon;
-	//double tempDeltaTime = 0;
-	//bool destoryPhysics = false;
+	std::mutex m_physicsMutex;
+	std::condition_variable m_physicsCondition;
+	double m_deltaTime = 0;
+	bool m_destoryPhysicsThread = false;
 
 public:
 
