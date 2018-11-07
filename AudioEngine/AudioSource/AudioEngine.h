@@ -17,18 +17,14 @@ public:
 		FMOD_VECTOR forward; // Must be normalized
 		FMOD_VECTOR up;		// Must be normalized
 	};
-	enum SoundOwner
+	enum SoundType
 	{
-		Player = 0,
-		Enemy = 1
+		NONE = 0,
+		Player,
+		Other
 	};
-	struct SoundInfo
-	{
-		SoundOwner Owner;
-		FMOD_VECTOR SoundPosition;
-	};
-
-
+	static const SoundType PLAYER_SOUND = SoundType::Player;
+	static const SoundType OTHER_SOUND = SoundType::Other;
 private:
 	static bool s_inited;
 
@@ -76,6 +72,8 @@ public:
 	static FMOD::Geometry* CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry* CreateCube(float fDirectOcclusion, float fReverbOcclusion,
 		DirectX::XMFLOAT4 pos, DirectX::XMFLOAT4 scl, DirectX::XMFLOAT4 q);
+
+	static std::vector<FMOD::Channel*> getAllPlayingChannels();
 
 private:
 	static void _createSystem();

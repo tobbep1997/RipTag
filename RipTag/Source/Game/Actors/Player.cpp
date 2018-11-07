@@ -113,6 +113,33 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_manaBarBackground);
 	HUDComponent::AddQuad(m_manabarText);
 
+	m_visBar = new Quad();
+	m_visBar->init(DirectX::XMFLOAT2A(0.85f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_visBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_visBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
+
+
+	m_visBarBackground = new Quad();
+	m_visBarBackground->init(DirectX::XMFLOAT2A(0.848f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
+	m_visBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_visBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_visBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
+
+	m_visbarText = new Quad();
+	m_visbarText->init(DirectX::XMFLOAT2A(0.92, 0.034f), DirectX::XMFLOAT2A(0, 0));
+	m_visbarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_visbarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_visbarText->setScale(0, 0);
+	m_visbarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_visbarText->setString("Vis");
+	m_visbarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
+
+
+	HUDComponent::AddQuad(m_visBar);
+	HUDComponent::AddQuad(m_visBarBackground);
+	HUDComponent::AddQuad(m_visbarText);
+
+
 	m_winBar = new Quad();
 	m_winBar->init();
 	m_winBar->setPosition(1.5f, 1.5f);
@@ -278,6 +305,7 @@ void Player::Update(double deltaTime)
 		}
 	}
 
+	m_visBar->setScale((float)m_visability / (float)g_fullVisability, 0.1f);
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 	if (InputHandler::isKeyPressed('I'))
 	{
@@ -602,11 +630,21 @@ void Player::_onMovement()
 	float x = 0;
 	float z = 0;
 
-	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
 
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+
+	DirectX::XMStoreFloat2(&dir, vDir);
+
+	x = dir.x * m_moveSpeed  * RIGHT.x;
+	x += dir.y * m_moveSpeed * forward.x;
+	z = dir.y * m_moveSpeed * forward.z;
+	z += dir.x * m_moveSpeed * RIGHT.z;
+
+	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -989,7 +1027,16 @@ void Player::_cameraPlacement(double deltaTime)
 				{
 					index = rand() % (int)m_sounds.size();
 				}
-				AudioEngine::PlaySoundEffect(m_sounds[index], &at)->setVolume(0.3 + (p_moveState * 0.4));
+				FMOD::Channel * c = nullptr;
+				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at);
+				b3Vec3 vel = getLiniearVelocity();
+				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
+				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+
+				speed *= 0.1;
+				speed -= 0.2f;
+				c->setVolume(speed);
+				c->setUserData((void*)&AudioEngine::PLAYER_SOUND);
 				last = index;
 			}
 		}

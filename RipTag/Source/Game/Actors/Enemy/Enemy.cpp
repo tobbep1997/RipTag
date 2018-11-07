@@ -269,10 +269,19 @@ void Enemy::_handleMovement(double deltaTime)
 	float x = 0;
 	float z = 0;
 
-	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
+
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+
+	DirectX::XMStoreFloat2(&dir, vDir);
+
+	x = dir.x * m_moveSpeed  * RIGHT.x;
+	x += dir.y * m_moveSpeed * forward.x;
+	z = dir.y * m_moveSpeed * forward.z;
+	z += dir.x * m_moveSpeed * RIGHT.z;
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
