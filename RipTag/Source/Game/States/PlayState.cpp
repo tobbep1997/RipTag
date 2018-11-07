@@ -276,11 +276,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 				{
 					if (playerSounds / allSounds > 0.3f)
 					{
-						std::cout << "Guard " << counter << " Hear You\n";
-						std::cout << "PlayerSound: " << playerSounds << std::endl;
-						std::cout << "All Sounds: " << allSounds << std::endl;
-						std::cout << "Presentage: " << (playerSounds / allSounds) << std::endl;
-						std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+						// TODO :: Update the enemy, it has heard the player.
 					}
 				}
 			}
