@@ -144,7 +144,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	triggerHandler = new TriggerHandler();
 
-	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 	
@@ -177,7 +177,7 @@ PlayState::~PlayState()
 	delete m_contactListener;
 	delete m_rayListener;
 
-	
+	AudioEngine::UnLoadSoundEffect(name);
 }
 
 void PlayState::Update(double deltaTime)

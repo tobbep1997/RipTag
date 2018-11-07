@@ -229,6 +229,8 @@ Player::~Player()
 	delete m_abilityComponents2[0];
 	delete m_abilityComponents2[2];
 	delete[] m_abilityComponents2;
+	for (auto & s : m_sounds)
+		AudioEngine::UnLoadSoundEffect(s);
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)

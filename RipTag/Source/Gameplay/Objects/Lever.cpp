@@ -15,6 +15,8 @@ Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, lin
 Lever::~Lever()
 {
 	//PhysicsComponent::Release(*RipExtern::g_world);
+	AudioEngine::UnLoadSoundEffect(lock);
+	AudioEngine::UnLoadSoundEffect(unlock);
 }
 
 void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
