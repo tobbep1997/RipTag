@@ -619,7 +619,7 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_onMovement();
-	_onJump();
+	//_onJump();
 	_onAbility(deltaTime);
 	_onInteract();
 	_onRotate(deltaTime);
