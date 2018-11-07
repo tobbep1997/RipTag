@@ -152,6 +152,12 @@ void PlayerManager::Draw()
 #endif
 }
 
+void PlayerManager::win()
+{
+	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+		mLocalPlayer->gameIsWon = true;
+}
+
 void PlayerManager::CreateLocalPlayer()
 {
 	if (!mLocalPlayer && !hasLocalPlayer)
