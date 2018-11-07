@@ -12,7 +12,7 @@ namespace ImporterLibrary {
 class Quad;
 class Grid;
 class Door;
-class Enemy;
+class EnemyHandler;
 class Lever;
 class Player;
 class BaseActor;
@@ -23,6 +23,9 @@ class TriggerHandler;
 class Triggerable;
 class Trigger;
 class Bars;
+
+class Enemy;//Ta bort sen
+
 class Room : public HUDComponent
 {
 private:
