@@ -14,7 +14,7 @@ struct BodyDefine
 	float gravityScale = 1;
 };
 
-namespace MyLibrary {
+namespace ImporterLibrary {
 	struct CollisionBoxes;
 };
 

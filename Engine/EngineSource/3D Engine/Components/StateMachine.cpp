@@ -11,12 +11,13 @@ namespace SM
 
 	std::pair<AnimationState*, float> AnimationState::EvaluateAll()
 {
+
 		for (auto& outState : m_OutStates)
 		{
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
-				return std::make_pair(outState.second.state, 1.0f);
+				return std::make_pair(outState.second.state, 0.4f);
 		}
-		return std::make_pair(nullptr, 1.0f);
+		return std::make_pair(nullptr, .0);
 	}
 
 	AnimationState::~AnimationState()
@@ -88,6 +89,14 @@ namespace SM
 		return state;
 	}
 
+	SM::PlayOnceState* AnimationStateMachine::AddPlayOnceState(std::string name, Animation::AnimationClip* clip)
+	{
+		PlayOnceState* state = new PlayOnceState(name);
+		state->SetClip(clip);
+		m_States.insert(std::make_pair(name, static_cast<AnimationState*>(state)));
+		return state;
+	}
+
 	void AnimationStateMachine::SetModel(Animation::AnimatedModel* model)
 	{
 		m_AnimatedModel = model;
@@ -96,6 +105,8 @@ namespace SM
 	void AnimationStateMachine::SetState(std::string stateName)
 	{
 		m_CurrentState = m_States.at(stateName);
+		if (m_AnimatedModel)
+			m_AnimatedModel->Play();
 	}
 
 	void AnimationStateMachine::SetStateIfAllowed(std::string stateName)
@@ -110,32 +121,58 @@ namespace SM
 		return *m_CurrentState;
 	}
 
-	void AnimationStateMachine::UpdateCurrentState()
+	AnimationState * AnimationStateMachine::GetPreviousState()
 	{
+		return m_BlendFromState;
+	}
+
+	bool AnimationStateMachine::UpdateCurrentState()
+{
+		if (!m_CurrentState)
+			return false;
 		//returns the first state that has all conditions satisfied, if any.
 		auto state = m_CurrentState->EvaluateAll();
+
 		if (state.first)
 		{
 			m_BlendFromState = m_CurrentState;
+			m_BlendFromState->LockCurrentValues();
 			m_CurrentState = state.first;
+			m_RemainingBlendTime = m_TotalBlendTime = (state.second - m_RemainingBlendTime);
 		}
-		//std::cout << m_CurrentState->GetName() << std::endl;
+		return true;
 	}
 
-	void AnimationStateMachine::UpdateBlendFactor(float deltaTime)
+	float AnimationStateMachine::UpdateBlendFactor(float deltaTime)
 	{
+		if (!m_BlendFromState)
+			return 0.0;
 
+		m_RemainingBlendTime -= deltaTime;
+		if (m_RemainingBlendTime < 0.0f)
+		{
+			m_RemainingBlendTime = 0.0;
+			m_TotalBlendTime = 0.0;
+			m_BlendFromState = nullptr;
+			return 0.0;
+		}
+		else
+		{
+			return m_RemainingBlendTime / m_TotalBlendTime;
+		}
 	}
+
+
 
 #pragma endregion "StateMachine"
 
 #pragma region "StateVisitor"
 
-	void StateVisitor::dispatch(BlendSpace1D& state){
+	Animation::SkeletonPose StateVisitor::dispatch(BlendSpace1D& state){
 		auto clips = state.CalculateCurrentClips();
 
 		if (!m_AnimatedModel)
-			return;
+			return Animation::SkeletonPose();
 		if (clips.first)
 			m_AnimatedModel->SetPlayingClip(clips.first, true, true);
 		if (clips.second)
@@ -143,27 +180,38 @@ namespace SM
 		else
 			m_AnimatedModel->SetLayeredClipWeight(0.0);
 	}
-	void StateVisitor::dispatch(BlendSpace2D& state) {
-		auto clips = state.CalculateCurrentClips();
+	Animation::SkeletonPose StateVisitor::dispatch(BlendSpace2D& state) {
+		BlendSpace2D::Current2DStateData clips = state.CalculateCurrentClips();
 		if (!m_AnimatedModel)
-			return;
+			return Animation::SkeletonPose();
 
-		m_AnimatedModel->UpdateBlendspace2D(clips);
+		return std::move(m_AnimatedModel->UpdateBlendspace2D(clips));
 
 
 		// #todo
 	}
-	void StateVisitor::dispatch(LoopState & state)
+	Animation::SkeletonPose StateVisitor::dispatch(LoopState & state)
 	{
 		if (!m_AnimatedModel)
-			return;
+			return Animation::SkeletonPose();
 
 		m_AnimatedModel->UpdateLooping(state.GetClip());
 	}
 
-	void StateVisitor::dispatch(AutoTransitionState& state)
+	Animation::SkeletonPose StateVisitor::dispatch(AutoTransitionState& state)
 	{
+		return Animation::SkeletonPose();
+	}
 
+	Animation::SkeletonPose StateVisitor::dispatch(PlayOnceState& state)
+	{
+		if (!m_AnimatedModel)
+			return Animation::SkeletonPose();
+
+		m_AnimatedModel->UpdateOnce(state.GetClip());
+		
+		//#todo
+		return Animation::SkeletonPose();
 	}
 
 #pragma endregion "StateVisitor"
@@ -175,11 +223,22 @@ namespace SM
 		std::copy(nodes.begin(), nodes.end(), std::back_inserter(m_Clips));
 	}
 
+	Animation::SkeletonPose BlendSpace1D::recieveStateVisitor(StateVisitorBase& visitor)
+	{
+		return std::move(visitor.dispatch(*this));
+	}
+
 	BlendSpace1D::Current1DStateData BlendSpace1D::CalculateCurrentClips()
 	{
 		//#todo check and get weight
+
+		//If we have a locked value, use it; else, use the driver value
+		float currentValue = (m_LockedValue.has_value())
+			? m_LockedValue.value()
+			: *m_Current;
+
 		auto it = std::find_if(m_Clips.begin(), m_Clips.end(),
-			[&](const auto& data) {return data.location >= *m_Current; });
+			[&](const auto& data) {return data.location >= currentValue; });
 
 		if (it != m_Clips.end())
 		{
@@ -197,11 +256,11 @@ namespace SM
 			{
 				data.first = (it-1)->clip;
 				data.second = it->clip;
-				data.weight = (*m_Current - (it - 1)->location) / (it->location - (it - 1)->location);
+				data.weight = (currentValue - (it - 1)->location) / (it->location - (it - 1)->location);
 			}
 			return data;
 		}
-		else if (m_Clips.back().location < *m_Current)
+		else if (m_Clips.back().location < currentValue)
 		{
 			Current1DStateData data;
 			data.first = (m_Clips.rbegin() + 1)->clip;
@@ -211,6 +270,12 @@ namespace SM
 		}
 		else return { nullptr, nullptr, 0.0f};
 	}
+
+	void BlendSpace1D::LockCurrentValues()
+	{
+		m_LockedValue = *m_Current;
+	}
+
 #pragma endregion "BlendSpace1D"
 
 #pragma region "BlendSpace2D"
@@ -221,7 +286,12 @@ namespace SM
 		auto it = std::find_if(m_Rows.begin(), m_Rows.end(), [&y](const auto& e) {return e.first == y; });
 		assert(it == m_Rows.end());
 #endif
-		m_Rows.push_back(std::make_pair(y, std::move(nodes)));
+		m_Rows.emplace_back(y, std::move(nodes));
+	}
+
+	Animation::SkeletonPose BlendSpace2D::recieveStateVisitor(StateVisitorBase & visitor)
+	{
+		return std::move(visitor.dispatch(static_cast<BlendSpace2D&>(*this)));
 	}
 
 	BlendSpace2D::Current2DStateData BlendSpace2D::CalculateCurrentClips()
@@ -257,6 +327,12 @@ namespace SM
 		}
 		else
 			return BlendSpace2D::Current2DStateData();
+	}
+
+	void BlendSpace2D::LockCurrentValues()
+	{
+		m_LockedX = *m_Current_X;
+		m_LockedY = *m_Current_Y;
 	}
 
 	std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> BlendSpace2D::GetLeftAndRightClips(size_t rowIndex)
@@ -313,13 +389,37 @@ namespace SM
 
 	}
 
-	STATE_TYPE AutoTransitionState::recieveStateVisitor(StateVisitorBase & visitor)
+	Animation::SkeletonPose AutoTransitionState::recieveStateVisitor(StateVisitorBase & visitor)
 	{
-		visitor.dispatch(*this);
-		return STATE_TYPE();
+		return std::move(visitor.dispatch(*this));
 	}
 
 #pragma endregion "AutoTransState"
+
+#pragma region "PlayOnceState"
+
+	PlayOnceState::PlayOnceState(std::string name)
+		: AnimationState(name)
+	{
+	}
+
+	void PlayOnceState::SetClip(Animation::AnimationClip* clip)
+	{
+		m_Clip = clip;
+	}
+
+	Animation::AnimationClip * PlayOnceState::GetClip()
+	{
+		return m_Clip;
+	}
+
+	Animation::SkeletonPose PlayOnceState::recieveStateVisitor(StateVisitorBase& visitor)
+	{
+		auto pose = visitor.dispatch(*this);
+		return pose;
+	}
+
+#pragma endregion "PlayOnceState"
 
 #pragma region "LoopState"
 	LoopState::LoopState(std::string name) 
@@ -342,13 +442,14 @@ namespace SM
 		return m_Clip;
 	}
 
-	STATE_TYPE LoopState::recieveStateVisitor(StateVisitorBase & visitor)
+	Animation::SkeletonPose LoopState::recieveStateVisitor(StateVisitorBase & visitor)
 	{
-		visitor.dispatch(*this);
-		return STATE_TYPE();
+		return std::move(visitor.dispatch(*this));
 	}
 
 #pragma endregion "LoopState"
+
+
 
 
 

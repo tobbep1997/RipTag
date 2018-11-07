@@ -9,10 +9,12 @@ public:
 	
 	BaseActor();
 	BaseActor(b3World & world, b3BodyType bodyType = b3BodyType::e_dynamicBody);
-	~BaseActor();
+
+
+	virtual ~BaseActor();
 
 	void Init(b3World& world, b3BodyType bodyType, const float & x = 1, const float & y = 1, const float & z = 1);
-	void Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes);
+	void Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes);
 
 	
 

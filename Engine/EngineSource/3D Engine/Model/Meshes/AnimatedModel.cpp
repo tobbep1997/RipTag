@@ -1,7 +1,10 @@
 #include "EnginePCH.h"
 #include "AnimatedModel.h"
 
-
+float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
 
 float constexpr getNewValueInNewRange(float x, float a, float b, float c, float d)
 {
@@ -25,15 +28,36 @@ Animation::AnimatedModel::~AnimatedModel()
 // Computes the frame we're currently on and computes final skinning matrices for gpu skinning
 void Animation::AnimatedModel::Update(float deltaTime)
 {
+	timeAlreadyUpdatedThisFrame = false;
 	m_currentFrameDeltaTime = deltaTime;
+
+	if (!m_isPlaying)
+		return;
 
 	if (m_StateMachine)
 	{
 		m_StateMachine->UpdateCurrentState();
-		auto stateType = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
+
+		//Blendfactor used to blend between two states.
+		float blendFactor = 1.0 - m_StateMachine->UpdateBlendFactor(deltaTime);
+
+
+		auto finalPoseCurrent = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
+		auto pPreviousState = m_StateMachine->GetPreviousState();
+		
+		if (pPreviousState)
+		{
+			auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
+			_computeSkinningMatrices(&finalPosePrevious, &finalPoseCurrent, blendFactor);
+			return;
+		}
+		if (finalPoseCurrent.m_jointPoses)
+			_computeSkinningMatrices(&finalPoseCurrent);
 		return;
 	}
 	
+
+
 	if (m_targetClip)
 	{
 		//UpdateBlend(deltaTime);
@@ -109,35 +133,53 @@ void Animation::AnimatedModel::UpdateBlend(float deltaTime)
 	}
 }
 
-void Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
+float getSpeedScale(size_t firstFrameCount, size_t secondFrameCount, float weight)
+{
+	float scale = static_cast<float>(firstFrameCount) / static_cast<float>(secondFrameCount);
+	scale += lerp(0.0, 1.0 - scale, weight);
+	return scale;
+}
+
+Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
 {
 	if (!stateData.firstTop)
-		return;
+		return Animation::SkeletonPose();
+
+	float speedScale = 1.0f;
+	std::pair<uint16_t, float> indexAndProgressionBottom{};
+	if (stateData.firstBottom)
+	{
+		speedScale = getSpeedScale(stateData.firstBottom->m_frameCount, stateData.firstTop->m_frameCount, stateData.weightY);		
+		indexAndProgressionBottom = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_currentNormalizedTime, stateData.firstBottom->m_frameCount);
+	}
 
 	///calc the actual frame index and progression towards the next frame
-	auto indexAndProgression = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_currentNormalizedTime, stateData.firstTop->m_frameCount);
-	auto prevIndex = indexAndProgression.first;
-	auto progression = indexAndProgression.second;
+	auto indexAndProgressionTop = _computeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_currentNormalizedTime, stateData.firstTop->m_frameCount);
+
+	auto prevIndexTop = indexAndProgressionTop.first;
+	auto progressionTop = indexAndProgressionTop.second;
+	auto prevIndexBottom = indexAndProgressionBottom.first;
+	auto progressionBottom = indexAndProgressionBottom.second;
 	SkeletonPose finalPose;
 
 
 	if (!stateData.secondTop)
 	{
-		finalPose = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndex], &stateData.firstTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
+		finalPose = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndexTop], &stateData.firstTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
 		_computeSkinningMatrices(&finalPose);
 	}
 	else if (!stateData.firstBottom)
 	{
-		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndex], &stateData.firstTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndex], &stateData.secondTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
+		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndexTop], &stateData.firstTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
+		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndexTop], &stateData.secondTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
 		finalPose = _BlendSkeletonPoses(&firstPoseTop, &secondPoseTop, stateData.weightTop, m_skeleton->m_jointCount);
 	}
 	else
 	{
-		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndex], &stateData.firstTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndex], &stateData.secondTop->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto firstPoseBottom = _BlendSkeletonPoses(&stateData.firstBottom->m_skeletonPoses[prevIndex], &stateData.firstBottom->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
-		auto secondPoseBottom = _BlendSkeletonPoses(&stateData.secondBottom->m_skeletonPoses[prevIndex], &stateData.secondBottom->m_skeletonPoses[prevIndex + 1], progression, m_skeleton->m_jointCount);
+		auto firstPoseTop = _BlendSkeletonPoses(&stateData.firstTop->m_skeletonPoses[prevIndexTop], &stateData.firstTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
+		auto secondPoseTop = _BlendSkeletonPoses(&stateData.secondTop->m_skeletonPoses[prevIndexTop], &stateData.secondTop->m_skeletonPoses[prevIndexTop + 1], progressionTop, m_skeleton->m_jointCount);
+		auto firstPoseBottom = _BlendSkeletonPoses(&stateData.firstBottom->m_skeletonPoses[prevIndexBottom], &stateData.firstBottom->m_skeletonPoses[prevIndexBottom + 1], progressionBottom, m_skeleton->m_jointCount);
+		auto secondPoseBottom = _BlendSkeletonPoses(&stateData.secondBottom->m_skeletonPoses[prevIndexBottom], &stateData.secondBottom->m_skeletonPoses[prevIndexBottom + 1], progressionBottom, m_skeleton->m_jointCount);
 		finalPose = _BlendSkeletonPoses2D
 		(
 			{ &firstPoseTop, &secondPoseTop, stateData.weightTop },
@@ -147,7 +189,7 @@ void Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DSta
 		);
 	}
 
-	_computeSkinningMatrices(&finalPose);
+	return std::move(finalPose);
 }
 
 void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
@@ -270,7 +312,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 	return XMMatrixAffineTransformation(XMLoadFloat4A(&fScale), { 0.0, 0.0, 0.0, 1.0 }, XMLoadFloat4A(&fRotation), XMLoadFloat4A(&fTranslation));
 }
 
-DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTransform& transform)
+DirectX::XMMATRIX Animation::_createMatrixFromSRT(const ImporterLibrary::DecomposedTransform& transform)
 {
 	using namespace DirectX;
 
@@ -287,7 +329,7 @@ DirectX::XMMATRIX Animation::_createMatrixFromSRT(const MyLibrary::DecomposedTra
 
 Animation::SharedAnimation Animation::LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton)
 {
-	MyLibrary::Loadera loader;
+	ImporterLibrary::CustomFileLoader loader;
 	auto importedAnimation = loader.readAnimationFile(file, skeleton->m_jointCount);
 
 	return std::make_shared<Animation::AnimationClip>(importedAnimation, skeleton);
@@ -295,7 +337,7 @@ Animation::SharedAnimation Animation::LoadAndCreateAnimation(std::string file, s
 
 std::shared_ptr<Animation::Skeleton> Animation::LoadAndCreateSkeleton(std::string file)
 {
-	MyLibrary::Loadera loader;
+	ImporterLibrary::CustomFileLoader loader;
 	auto importedSkeleton = loader.readSkeletonFile(file);
 	return std::make_shared<Animation::Skeleton>(importedSkeleton);
 }
@@ -553,7 +595,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose1, S
 }
 
 // #convert Transform conversion
-Animation::SRT Animation::ConvertTransformToSRT(MyLibrary::Transform transform)
+Animation::SRT Animation::ConvertTransformToSRT(ImporterLibrary::Transform transform)
 {
 	using namespace DirectX;
 	SRT srt = {};
@@ -646,17 +688,36 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
 }
 
-std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float * currentNormalizedTime, uint16_t frameCount)
-{/*
-	static int cntr = 0;
-	cntr++;
-*/
-	deltaTime /= (frameCount / 24.0);
-	*currentNormalizedTime += deltaTime;
+std::optional<std::pair<uint16_t, float>> Animation::AnimatedModel::_computeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount)
+{
+	*currentTime += deltaTime;
 	frameCount -= 1;
 
-	float properTime = std::fmod(*currentNormalizedTime, 1.0f);
-	*currentNormalizedTime = properTime;
+	if (*currentTime >= (frameCount / 24.0f))
+		return std::nullopt;
+
+	///calc the actual frame index and progression towards the next frame
+	float actualTime = *currentTime / (1.0 / 24.0);
+	int prevIndex = (int)(actualTime);
+	float progression = (actualTime)-(float)prevIndex;
+
+	//return values
+	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
+}
+
+std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount)
+{
+	if (!timeAlreadyUpdatedThisFrame)
+	{
+		deltaTime /= (frameCount / ANIMATION_FRAMERATE);
+		*currentTime += deltaTime;
+		timeAlreadyUpdatedThisFrame = true;
+	}
+
+	frameCount -= 1;
+
+	float properTime = std::fmod(*currentTime, 1.0f);
+	*currentTime = properTime;
 	///calc the actual frame index and progression towards the next frame
 	//float actualTime = properTime / (1.0 / 24.0);
 	float prevIndexFloat = (properTime * frameCount) ;
@@ -757,7 +818,57 @@ void Animation::AnimatedModel::UpdateLooping(Animation::AnimationClip* clip)
 	}
 }
 
-Animation::SharedAnimation Animation::ConvertToAnimationClip(MyLibrary::AnimationFromFile* animation, uint8_t jointCount)
+void Animation::AnimatedModel::UpdateOnce(Animation::AnimationClip* clip)
+{
+	if (clip != m_currentClip)
+		this->SetPlayingClip(clip, false, false);
+
+	if (m_isPlaying)
+	{
+		/// increase local time
+		//done in _computeIndexAndProgression()
+
+		///calc the actual frame index and progression towards the next frame
+		auto indexAndProgression = _computeIndexAndProgressionOnce(m_currentFrameDeltaTime, &m_currentTime, m_currentClip->m_frameCount);
+
+		uint16_t prevIndex = 0;
+		float progression = 0.0f;
+		if (indexAndProgression.has_value())
+		{
+			prevIndex = indexAndProgression.value().first;
+			progression = indexAndProgression.value().second;
+		}
+		else
+		{
+			m_isPlaying = false;
+			prevIndex = m_currentClip->m_frameCount - 1;
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex]);
+			return;
+		}
+		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
+		if (prevIndex >= m_currentClip->m_frameCount - 1) /// -1 because last frame is only used to interpolate towards
+		{
+			assert(1 == 0);
+			if (m_isLooping)
+			{
+				m_currentTime = 0.0 + progression;
+
+				prevIndex = std::floorf(m_currentClip->m_framerate / 2 * m_currentTime);
+				progression = std::fmod(m_currentTime, 1.0 / 24.0);
+			}
+			else
+			{
+				m_isPlaying = false;
+			}
+		}
+
+		/// compute skinning matrices
+		if (m_isPlaying)
+			_computeSkinningMatrices(&m_currentClip->m_skeletonPoses[prevIndex], &m_currentClip->m_skeletonPoses[prevIndex + 1], progression);
+	}
+}
+
+Animation::SharedAnimation Animation::ConvertToAnimationClip(ImporterLibrary::AnimationFromFile* animation, uint8_t jointCount)
 {
 	uint32_t keyCount = animation->nr_of_keyframes;
 
@@ -782,12 +893,12 @@ Animation::SharedAnimation Animation::ConvertToAnimationClip(MyLibrary::Animatio
 	return clipToReturn;
 }
 
-void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const MyLibrary::Skeleton* importedSkeleton)
+void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const ImporterLibrary::Skeleton* importedSkeleton)
 {
 	using namespace DirectX;
 
 	std::vector<XMFLOAT4X4A> vec;
-	std::vector <MyLibrary::Transform > vec2;
+	std::vector <ImporterLibrary::Transform > vec2;
 	DirectX::XMStoreFloat4x4A(&mainSkeleton->m_joints[0].m_inverseBindPose, _createMatrixFromSRT(importedSkeleton->joints[0].jointInverseBindPoseTransform));
 
 	for (int i = 1; i < mainSkeleton->m_jointCount; i++)
@@ -813,7 +924,7 @@ void Animation::AnimationCBuffer::SetToShader()
 	DX::g_deviceContext->VSSetConstantBuffers(4, 1, &m_AnimationBuffer);
 }
 
-Animation::SRT::SRT(const MyLibrary::Transform& transform)
+Animation::SRT::SRT(const ImporterLibrary::Transform& transform)
 {
 	using namespace DirectX;
 	
@@ -829,7 +940,7 @@ Animation::SRT::SRT(const MyLibrary::Transform& transform)
 	m_scale = { 1.0, 1.0, 1.0, 1.0f };
 }
 
-Animation::SRT::SRT(const MyLibrary::DecomposedTransform& transform)
+Animation::SRT::SRT(const ImporterLibrary::DecomposedTransform& transform)
 {
 	m_rotationQuaternion.x = transform.rotation.x;
 	m_rotationQuaternion.y = transform.rotation.y;
@@ -864,7 +975,7 @@ bool Animation::SRT::operator==(const SRT& other)
 		);
 }
 
-Animation::Skeleton::Skeleton(const MyLibrary::Skeleton& skeleton)
+Animation::Skeleton::Skeleton(const ImporterLibrary::Skeleton& skeleton)
 {
 	m_jointCount = static_cast<uint8_t>(skeleton.joints.size());
 	m_joints = std::make_unique<Animation::Joint[]>(m_jointCount);
@@ -882,7 +993,7 @@ Animation::JointPose::JointPose(const SRT& srt)
 	m_transformation = srt;
 }
 
-Animation::AnimationClip::AnimationClip(const MyLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Skeleton> skeleton)
+Animation::AnimationClip::AnimationClip(const ImporterLibrary::AnimationFromFileStefan& animation, std::shared_ptr<Skeleton> skeleton)
 {
 	auto keyCount   = animation.nr_of_keyframes;
 	m_skeleton      = skeleton;

@@ -50,7 +50,6 @@
     <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
     <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
     <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
-    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
     <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
@@ -58,6 +57,8 @@
     <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
     <ClCompile Include="RipTagPCH.cpp" />
     <ClCompile Include="BouncePCH.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerable.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -282,7 +283,6 @@
     <ClInclude Include="Source\Game\Abilities\PossessGuard.h" />
     <ClInclude Include="Source\Game\Abilities\BlinkAbility.h" />
     <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
-    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
     <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
     <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
     <ClInclude Include="Source\Gameplay\Objects\Door.h" />
@@ -290,5 +290,7 @@
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
     <ClInclude Include="RipTagPCH.h" />
     <ClInclude Include="BouncePCH.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerable.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
   </ItemGroup>
 </Project>

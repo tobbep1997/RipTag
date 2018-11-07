@@ -17,6 +17,7 @@ class LevelHandler;
 class ContactListener;
 class RayCastListener;
 class RenderingManager;
+class Drawable; //#todoREMOVE
 
 
 class PlayState : public State

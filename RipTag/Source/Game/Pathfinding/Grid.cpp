@@ -27,7 +27,7 @@ Grid::~Grid()
 	
 }
 
-void Grid::CreateGridWithWorldPosValues(int width, int height, MyLibrary::GridStruct grid)
+void Grid::CreateGridWithWorldPosValues(int width, int height, ImporterLibrary::GridStruct grid)
 {
 	m_nodeMap.clear();
 	m_width = width;
