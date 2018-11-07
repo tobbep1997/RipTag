@@ -39,6 +39,7 @@
 #include "2D Engine/Render2D.h"
 
 //RipTag
+#include "Source/Physics/Bounce.h"
 
 //import
 #include "ImportLibrary/FormatHeader.h"

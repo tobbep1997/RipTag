@@ -29,6 +29,11 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	//Input handler and mapping
 	{
 		GamePadHandler::Instance();
+		Input::Instance();
+		//Reading player settings file
+		Input::ReadSettingsFile();
+		//Input::WriteSettingsToFile();
+		//----------------------------
 		InputMapping::Init();
 	}
 	Timer::Instance();

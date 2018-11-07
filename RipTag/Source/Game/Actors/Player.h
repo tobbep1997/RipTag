@@ -7,6 +7,7 @@
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../Physics/Wrapper/PhysicsComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include <stack>
 
 struct KeyPressed
 {
@@ -47,7 +48,7 @@ private:
 	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 900.0f;
-	const float INTERACT_RANGE = 2.0f;
+	const float INTERACT_RANGE = 3.0f;
 
 	const unsigned short int m_nrOfAbilitys = 4;
 	AudioEngine::Listener m_FMODlistener;
@@ -80,6 +81,8 @@ private:
 
 	bool m_lockPlayerInput;
 
+	float m_objectInfoTime = 0.0f;
+
 	int mouseX = 0;
 	int mouseY = 0;
 
@@ -92,11 +95,22 @@ private:
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
 
+	Quad * m_visBar;
+	Quad * m_visBarBackground;
+	Quad * m_visbarText;
 
-	
+	Quad * m_infoText;
+	Quad * m_abilityTutorialText;
+	Quad * m_tutorialText;
+	std::stack<std::string> m_tutorialMessages;
+	float m_tutorialDuration = 0.0f;
+	bool m_tutorialActive = true;
+
+	float m_peekRotate;
+
 public:
 	//Magic number
-	static const int g_fullVisability = 2300;
+	static const int g_fullVisability = 6500;
 
 
 	bool unlockMouse = false;
@@ -150,6 +164,8 @@ private:
 	void _onJump();
 	void _onInteract();
 	void _onAbility(double dt);
+	void _objectInfo(double deltaTime);
+	void _updateTutorial(double deltaTime);
 
 
 	void _cameraPlacement(double deltaTime);

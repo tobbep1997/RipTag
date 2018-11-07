@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
+#include <DirectXCollision.h>
 
 
 #include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
@@ -159,6 +160,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
+	
+	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
 }
 
 PlayState::~PlayState()
@@ -167,13 +170,14 @@ PlayState::~PlayState()
 	delete m_levelHandler;
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
-	
 	delete m_playerManager;
 
 	delete triggerHandler;
 
 	delete m_contactListener;
 	delete m_rayListener;
+
+	
 }
 
 void PlayState::Update(double deltaTime)
@@ -182,21 +186,38 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-
+	
+	/*if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}*/
+	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
 	model->getAnimatedModel()->Update(deltaTime);
+	m_playerManager->Update(deltaTime);
+
+	//model->getAnimatedModel()->Update(deltaTime);
+
+	m_playerManager->PhysicsUpdate();
+	
+	
+	
+	
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
-	if (deltaTime <= 0.65f)
-	{
-		m_world.Step(m_step);
-	}
+
+	/*m_deltaTime = deltaTime;
+	std::lock_guard<std::mutex> lg(m_physicsMutex);*/
+	m_deltaTime = deltaTime;
+	m_physicsCondition.notify_all();
+	
+	
 	
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
-
+	
 #if _DEBUG
 	TemporaryLobby();
 #endif
@@ -206,16 +227,18 @@ void PlayState::Update(double deltaTime)
 	}
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	m_playerManager->Update(deltaTime);
-
-	//model->getAnimatedModel()->Update(deltaTime);
 	
-	
-
-	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+		
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
 		setKillState(true);
 	}
 
@@ -238,9 +261,80 @@ void PlayState::Draw()
 {
 	m_levelHandler->Draw();
 	model->Draw();
+
+	/*for (auto & lights : DX::g_lights)
+	{
+		RayCastListener::RayContact * rc = RipExtern::m_rayListener->ShotRay(m_playerManager->getLocalPlayer()->getBody(),
+			lights->getPosition(),
+			lights->getDir(*m_playerManager->getLocalPlayer()->getBody()),
+			lights->getFarPlane() / cos(lights->getFOV() / 2.0f));
+		if (rc)
+		{		
+			lights->setUpdate(rc->contactShape->GetBody()->GetObjectTag() == "PLAYER");
+		}
+	}*/
+	_lightCulling();
+
 	m_playerManager->Draw();
 		
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+}
+
+void PlayState::testtThread(double deltaTime)
+{
+	while (m_destoryPhysicsThread == false)
+	{
+		std::unique_lock<std::mutex> lock(m_physicsMutex);
+		m_physicsCondition.wait(lock);
+
+		if (m_deltaTime <= 0.65f)
+		{
+			m_world.Step(m_step);
+		}
+	}
+}
+
+void PlayState::_lightCulling()
+{
+	Player * p = m_playerManager->getLocalPlayer();
+	DirectX::BoundingFrustum PlayerWorldBox;
+	DirectX::XMMATRIX viewInv, proj;
+
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getView())));
+	DirectX::BoundingFrustum::CreateFromMatrix(PlayerWorldBox, proj);
+	PlayerWorldBox.Transform(PlayerWorldBox, viewInv);
+	const DirectX::XMFLOAT4A & pPos = p->getPosition();
+	DirectX::XMVECTOR vpPos = DirectX::XMLoadFloat4A(&pPos);
+
+	for (auto & light : DX::g_lights)
+	{
+		light->DisableSides(PointLight::ShadowDir::XYZ_ALL);
+
+		const DirectX::XMFLOAT4A & lPos = light->getPosition();
+		DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&lPos), vpPos);
+		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+		if (length < p->getCamera()->getFarPlane())
+		{
+			const std::vector<Camera*> & sidesVec = light->getSides();
+			int counter = 0;
+			for (auto & sides : sidesVec)
+			{
+				DirectX::BoundingFrustum WorldBox;
+				DirectX::XMMATRIX sViewInv, sProj;
+				sProj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getProjection()));
+				sViewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getView())));
+				DirectX::BoundingFrustum::CreateFromMatrix(WorldBox, sProj);
+				WorldBox.Transform(WorldBox, sViewInv);
+				if (PlayerWorldBox.Intersects(WorldBox))
+				{
+					light->EnableSides((PointLight::ShadowDir)counter);
+				}
+				counter++;
+			}
+		}
+		
+	}
 }
 
 void PlayState::thread(std::string s)
