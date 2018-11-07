@@ -1050,11 +1050,11 @@ void Player::_deActivateCrouch()
 
 void Player::_hasWon()
 {
-	for (int i = 0; i < RipExtern::m_contactListener->GetPersistingContacts().size(); i++)
+	for (int i = 0; i < RipExtern::m_contactListener->GetBeginContacts().size(); i++)
 	{
-		if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
 		{
-			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
+			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
 			{
 				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
@@ -1063,9 +1063,9 @@ void Player::_hasWon()
 				break;
 			}
 		}
-		else if(RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
+		else if(RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
 		{
-			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
 				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
