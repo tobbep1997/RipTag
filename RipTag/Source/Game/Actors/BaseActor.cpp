@@ -50,8 +50,8 @@ void BaseActor::setPositionRot(const float& x, const float& y, const float& z, c
 	const float& roll)
 {
 	Transform::setPosition(x, y, z);
-	Transform::setRotation(pitch, yaw, roll);
-	PhysicsComponent::p_setPositionRot(x, y, z, pitch, yaw, roll);
+	Transform::setRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
+	PhysicsComponent::p_setPositionRot(x, y, z, pitch, DirectX::XMConvertToRadians(yaw - yaw), roll);
 }
 
 

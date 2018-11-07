@@ -23,7 +23,11 @@ namespace Network
 		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3,
 		ID_PLAYER_STATE = ID_USER_PACKET_ENUM + 4,
 		ID_PLAYER_ABILITY = ID_USER_PACKET_ENUM + 5,
-		ID_PLAYER_ANIMATION = ID_USER_PACKET_ENUM + 6
+		ID_PLAYER_ANIMATION = ID_USER_PACKET_ENUM + 6,
+		// 7-8 is reserved for lobby
+		//GAMEPLAY EVENTS
+		ID_TRIGGER_USED = ID_USER_PACKET_ENUM + 9,
+		ID_PLAYER_WON = ID_USER_PACKET_ENUM +10
 	};
 
 
@@ -94,6 +98,14 @@ namespace Network
 			: id(_id), nid(_nid), direction(_dir), speed(_speed), rot(_rot) {}
 	};
 
+	struct TRIGGEREVENTPACKET
+	{
+		unsigned char id;
+		int uniqueID;
+		bool state;
+		TRIGGEREVENTPACKET(unsigned char _id, int _uID, bool _state)
+			: id(_id), uniqueID(_uID), state(_state) {}
+	};
 #pragma pack(pop)
 	//STRUCTS END
 	

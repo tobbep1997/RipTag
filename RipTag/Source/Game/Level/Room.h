@@ -12,7 +12,7 @@ namespace ImporterLibrary {
 class Quad;
 class Grid;
 class Door;
-class Enemy;
+class EnemyHandler;
 class Lever;
 class Player;
 class BaseActor;
@@ -20,16 +20,16 @@ class PointLight;
 class StaticAsset;
 class PressurePlate;
 class TriggerHandler;
+class Triggerable;
+class Trigger;
+class Bars;
+
+class Enemy;//Ta bort sen
 
 class Room : public HUDComponent
 {
 private:
-	struct prop
-	{
-		BaseActor * baseActor;
-		unsigned int TypeID;
-		unsigned int linkingID;
-	};
+	
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -60,9 +60,10 @@ private:
 	b3World * m_worldPtr;
 
 	TriggerHandler * triggerHandler;
-	Door * door;
-	Lever * lever;
-	PressurePlate * pressurePlate;
+
+
+	
+	//std::vector<StaticAsset*> TODO:: FIX
 
 	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 

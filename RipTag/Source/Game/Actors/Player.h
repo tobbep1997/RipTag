@@ -41,7 +41,7 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 
 	std::vector<std::string> m_sounds;
-
+	
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -54,7 +54,7 @@ private:
 	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
-	AbilityComponent ** m_abilityComponents;	
+	AbilityComponent ** m_abilityComponents1;	
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
@@ -98,6 +98,7 @@ private:
 	Quad * m_visBar;
 	Quad * m_visBarBackground;
 	Quad * m_visbarText;
+	Quad * m_winBar;
 
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
@@ -110,8 +111,8 @@ private:
 
 public:
 	//Magic number
-	static const int g_fullVisability = 6500;
-
+	static const int g_fullVisability = 2300;
+	bool hasWon = false;
 
 	bool unlockMouse = false;
 	Player();
@@ -134,7 +135,7 @@ public:
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
 	void SendOnAnimationUpdate(double dt);
-
+	void SendOnWin();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
@@ -153,6 +154,7 @@ public:
 
 	bool DrainMana(const float & manaCost);
 	void RefillMana(const float & manaFill);
+	void drawWinBar();
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
@@ -172,4 +174,5 @@ private:
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
+	void _hasWon();
 };

@@ -34,11 +34,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_dis->setIsLocal(true);
 	m_dis->Init();
 
-	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
-	m_abilityComponents[0] = m_teleport;
-	m_abilityComponents[1] = visAbl;
-	m_abilityComponents[2] = m_dis;
-	m_abilityComponents[3] = visAbl2;
+	m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
+	m_abilityComponents1[0] = m_teleport;
+	m_abilityComponents1[1] = visAbl;
+	m_abilityComponents1[2] = m_dis;
+	m_abilityComponents1[3] = visAbl2;
 
 	m_currentAbility = Ability::TELEPORT;
 	/*m_possess.setOwner(this);
@@ -46,6 +46,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	
 	m_blink.setOwner(this);
 	m_blink.Init();*/
+	
+
 
 
 
@@ -138,6 +140,19 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_visbarText);
 
 
+	m_winBar = new Quad();
+	m_winBar->init();
+	m_winBar->setPosition(1.5f, 1.5f);
+	m_winBar->setScale(0.5f, 0.25f);
+
+	m_winBar->setString("YOU WIN");
+	m_winBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_winBar->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_winBar->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_winBar->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	HUDComponent::AddQuad(m_winBar);
+
 	m_infoText = new Quad();
 	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
 	m_infoText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
@@ -198,8 +213,8 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 Player::~Player()
 {
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
-		delete m_abilityComponents[i];
-	delete[] m_abilityComponents;
+		delete m_abilityComponents1[i];
+	delete[] m_abilityComponents1;
 	delete m_blink;
 	delete m_possess;
 }
@@ -280,6 +295,8 @@ void Player::Update(double deltaTime)
 
 	using namespace DirectX;
 
+	_hasWon();
+
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
@@ -299,7 +316,7 @@ void Player::Update(double deltaTime)
 		m_maxMana += 10;
 	}
 
-	m_abilityComponents[m_currentAbility]->Update(deltaTime);
+	m_abilityComponents1[m_currentAbility]->Update(deltaTime);
 	m_possess->Update(deltaTime);
 	m_blink->Update(deltaTime);
 	_cameraPlacement(deltaTime);
@@ -409,7 +426,7 @@ void Player::RefillMana(const float& manaFill)
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
-		m_abilityComponents[i]->Draw();
+		m_abilityComponents1[i]->Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
 
@@ -459,9 +476,9 @@ void Player::SendOnAbilityUsed()
 	packet.timeStamp = RakNet::GetTime();
 	packet.m_id = ID_PLAYER_ABILITY;
 
-	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility]);
-	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility]);
-	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents[m_currentAbility]);
+	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
+	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
+	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
 	//unique based on active ability
 	switch (this->m_currentAbility)
 	{
@@ -547,6 +564,13 @@ void Player::SendOnAnimationUpdate(double dt)
 			this->getCamera()->getYRotationEuler());
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
+}
+
+void Player::SendOnWin()
+{
+	Network::EVENTPACKET packet(Network::ID_PLAYER_WON);
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void Player::RegisterThisInstanceToNetwork()
@@ -897,7 +921,7 @@ void Player::_onInteract()
 
 void Player::_onAbility(double dt)
 {
-	this->m_abilityComponents[m_currentAbility]->Update(dt);
+	this->m_abilityComponents1[m_currentAbility]->Update(dt);
 }
 
 //Sends a ray every second and check if there is relevant data for the object to show on the screen
@@ -1050,5 +1074,38 @@ void Player::_deActivateCrouch()
 	m_standHeight = this->p_camera->getPosition().y;
 	this->CreateBox(0.5, 0.5, 0.5);
 	m_kp.crouching = false;
+}
+
+void Player::_hasWon()
+{
+	for (int i = 0; i < RipExtern::m_contactListener->GetPersistingContacts().size(); i++)
+	{
+		if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		{
+			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
+			{
+				hasWon = true;
+				std::cout << "HASWON!" << std::endl;
+				SendOnWin();
+
+				break;
+			}
+		}
+		else if(RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
+		{
+			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+			{
+				hasWon = true;
+				std::cout << "HASWON!" << std::endl;
+				SendOnWin();
+				break;
+			}
+		}
+	}
+}
+
+void Player::drawWinBar()
+{
+	m_winBar->setPosition(0.5f, 0.5f);
 }
 

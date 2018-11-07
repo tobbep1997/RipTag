@@ -120,7 +120,12 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
 			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
 		
-		b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
+		if (collisionBoxes.boxes[i].typeOfBox == 1)
+			b->SetObjectTag("BLINK_WALL");
+
+		if (collisionBoxes.boxes[i].typeOfBox == 2)
+			b->SetObjectTag("WIN_BOX");
+		//b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
 		m_bodys.push_back(b);
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
 	}

@@ -180,6 +180,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="BouncePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -206,7 +208,7 @@
     <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
     <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
-    <ClCompile Include="Source\Gameplay\Triggers\Triggerble.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerable.cpp" />
     <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
     <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
     <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
@@ -517,6 +519,8 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
+    <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />
     <ClInclude Include="RipTagPCH.h" />
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
@@ -525,7 +529,7 @@
     <ClInclude Include="Source\Gameplay\Objects\PressurePlate.h" />
     <ClInclude Include="RipTagExtern\RipExtern.h" />
     <ClInclude Include="Source\Gameplay\Triggers\Trigger.h" />
-    <ClInclude Include="Source\Gameplay\Triggers\Triggerble.h" />
+    <ClInclude Include="Source\Gameplay\Triggers\Triggerable.h" />
     <ClInclude Include="Source\Gameplay\Triggers\TriggerHandler.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
