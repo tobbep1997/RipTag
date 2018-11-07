@@ -36,6 +36,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
@@ -54,6 +55,11 @@ void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data
 	{
 		mRemotePlayer->HandlePacket(id, data);
 	}
+}
+
+void PlayerManager::_onRemotePlayerWonPacket(unsigned char id, unsigned char * data)
+{
+	mRemotePlayer->hasWon = true;
 }
 
 void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * data)
@@ -92,7 +98,10 @@ void PlayerManager::Update(float dt)
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
-
+	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+	{
+		//YOU WON THE GAME! 
+	}
 
 }
 

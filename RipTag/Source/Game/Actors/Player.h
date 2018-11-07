@@ -40,7 +40,7 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 
 	std::vector<std::string> m_sounds;
-	bool m_hasWon = false;
+	
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -97,7 +97,7 @@ private:
 public:
 	//Magic number
 	static const int g_fullVisability = 2300;
-
+	bool hasWon = false;
 
 	bool unlockMouse = false;
 	Player();
@@ -120,7 +120,7 @@ public:
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
 	void SendOnAnimationUpdate(double dt);
-
+	void SendOnWin();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);

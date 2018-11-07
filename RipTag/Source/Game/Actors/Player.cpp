@@ -459,6 +459,13 @@ void Player::SendOnAnimationUpdate(double dt)
 	}
 }
 
+void Player::SendOnWin()
+{
+	Network::EVENTPACKET packet(Network::ID_PLAYER_WON);
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+}
+
 void Player::RegisterThisInstanceToNetwork()
 {
 	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnUpdateMessage, this));
@@ -867,7 +874,7 @@ void Player::_hasWon()
 		{
 			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
 			{
-				m_hasWon = true;
+				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
 				break;
 			}
@@ -876,7 +883,7 @@ void Player::_hasWon()
 		{
 			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
-				m_hasWon = true;
+				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
 
 				break;

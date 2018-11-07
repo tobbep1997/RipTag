@@ -42,7 +42,7 @@ public:
 	void HandlePacket(unsigned char id, unsigned char * data);
 	void Update(double dt);
 	void Draw() override;
-
+	bool hasWon = false;
 private:
 	//PRIVATE FUNCTIONS
 
