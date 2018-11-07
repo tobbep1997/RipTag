@@ -16,6 +16,7 @@ private:
 	DirectX::SpriteBatch *	m_spriteBatch;
 
 	ID3D11BlendState *		m_blendState;
+	ID3D11DepthStencilState*	m_depthStencilState;
 
 public:
 	Render2D();
