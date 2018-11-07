@@ -205,6 +205,8 @@ void Player::Update(double deltaTime)
 
 	using namespace DirectX;
 
+	_hasWon();
+
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
@@ -855,5 +857,31 @@ void Player::_deActivateCrouch()
 	m_standHeight = this->p_camera->getPosition().y;
 	this->CreateBox(0.5, 0.5, 0.5);
 	m_kp.crouching = false;
+}
+
+void Player::_hasWon()
+{
+	for (int i = 0; i < RipExtern::m_contactListener->GetPersistingContacts().size(); i++)
+	{
+		if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		{
+			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
+			{
+				m_hasWon = true;
+				std::cout << "HASWON!" << std::endl;
+				break;
+			}
+		}
+		else if(RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
+		{
+			if (RipExtern::m_contactListener->GetPersistingContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+			{
+				m_hasWon = true;
+				std::cout << "HASWON!" << std::endl;
+
+				break;
+			}
+		}
+	}
 }
 

@@ -12,7 +12,7 @@ Bars::Bars(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, l
 void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, false);
-	BaseActor::setPositionRot(xPos, yPos-3.f, zPos -3.f, pitch, yaw, roll);
+	BaseActor::setPositionRot(xPos, yPos-5.f, zPos -3.f, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("BARS");
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("BARS"));

@@ -40,7 +40,7 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 
 	std::vector<std::string> m_sounds;
-
+	bool m_hasWon = false;
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -156,4 +156,5 @@ private:
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
+	void _hasWon();
 };
