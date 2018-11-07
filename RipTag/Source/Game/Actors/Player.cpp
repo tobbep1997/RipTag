@@ -121,9 +121,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_infoText);
 	m_tutorialMessages.push("");
 	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
-	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit.");
+	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
 	m_tutorialMessages.push("Select your abilities with DPAD(1-4) and use with RB(T)");
-	m_tutorialMessages.push("Peek to the sides with LT(Q) and RT(E).");
+	m_tutorialMessages.push("Peek to the sides with LT(Q) and RT(E)");
 	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
 	m_tutorialText = new Quad();
@@ -133,9 +133,13 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialText->setScale(0, 0);
 	m_tutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	m_tutorialText->setString(m_tutorialMessages.top());
 	HUDComponent::AddQuad(m_tutorialText);
-	m_tutorialMessages.pop();
+	
+	if (m_tutorialActive)
+	{
+		m_tutorialText->setString(m_tutorialMessages.top());
+		m_tutorialMessages.pop();
+	}
 
 	m_abilityTutorialText = new Quad();
 	m_abilityTutorialText->init(DirectX::XMFLOAT2A(0.15, 0.26f), DirectX::XMFLOAT2A(0, 0));
@@ -255,16 +259,19 @@ void Player::Update(double deltaTime)
 		m_currentAbility = Ability::VIS2;
 
 
-	if (m_currentAbility == Ability::TELEPORT)
-		m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
-	else if(m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
-		m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
-	else if(m_currentAbility == Ability::DISABLE)
-		m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
-	else if (m_currentAbility == Ability::BLINK)
-		m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
-	else if (m_currentAbility == Ability::POSSESS)
-		m_abilityTutorialText->setString("Possess:\nControl guards.");
+	if (m_tutorialActive)
+	{
+		if (m_currentAbility == Ability::TELEPORT)
+			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
+		else if (m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
+			m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
+		else if (m_currentAbility == Ability::DISABLE)
+			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
+		else if (m_currentAbility == Ability::BLINK)
+			m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
+		else if (m_currentAbility == Ability::POSSESS)
+			m_abilityTutorialText->setString("Possess:\nControl guards.");
+	}
 
 
 	HUDComponent::ResetStates();
@@ -830,58 +837,64 @@ void Player::_onAbility(double dt)
 //Sends a ray every second and check if there is relevant data for the object to show on the screen
 void Player::_objectInfo(double deltaTime)
 {
-	if (m_objectInfoTime >= 1)
+	if (m_tutorialActive)
 	{
-		RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
-		if (ray != nullptr)
+		if (m_objectInfoTime >= 1)
 		{
-			RayCastListener::RayContact* cContact = ray->getClosestContact();
-			if (cContact->contactShape->GetBody()->GetObjectTag() == "NULL")
+			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+			if (ray != nullptr)
+			{
+				RayCastListener::RayContact* cContact = ray->getClosestContact();
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "NULL")
+				{
+					m_infoText->setString("");
+					//do the pickups
+				}
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
+				{
+					m_infoText->setString("Press X (TAB) to pull");
+				}
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				{
+					//Snuff out torches (example)
+				}
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				{
+					m_infoText->setString("Select DPAD DOWN (3) and press RT(R) to possess");
+					//Snuff out torches (example)
+				}
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3)
+				{
+					m_infoText->setString("Select DPAD UP (1) and press RT(F) to pass");
+					//m_infoText->setString("Illusory wall ahead");
+					//Snuff out torches (example)
+				}
+			}
+			else
 			{
 				m_infoText->setString("");
-				//do the pickups
 			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
-			{
-				m_infoText->setString("Press X (TAB) to pull");				
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
-			{
-				//Snuff out torches (example)
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-			{
-				m_infoText->setString("Select DPAD DOWN (3) and press RT(R) to possess");
-				//Snuff out torches (example)
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3)
-			{
-				m_infoText->setString("Select DPAD UP (1) and press RT(F) to pass");
-				//m_infoText->setString("Illusory wall ahead");
-				//Snuff out torches (example)
-			}
+			m_objectInfoTime = 0;
 		}
-		else
-		{
-			m_infoText->setString("");
-		}
-		m_objectInfoTime = 0;
-	}
 
-	m_objectInfoTime += deltaTime;
+		m_objectInfoTime += deltaTime;
+	}
 }
 
 void Player::_updateTutorial(double deltaTime)
 {
-	if (!m_tutorialMessages.empty())
+	if (m_tutorialActive)
 	{
-		if (m_tutorialDuration >= 5)
+		if (!m_tutorialMessages.empty())
 		{
-			m_tutorialDuration = 0;
-			m_tutorialText->setString(m_tutorialMessages.top());
-			m_tutorialMessages.pop();
+			if (m_tutorialDuration >= 5)
+			{
+				m_tutorialDuration = 0;
+				m_tutorialText->setString(m_tutorialMessages.top());
+				m_tutorialMessages.pop();
+			}
+			m_tutorialDuration += deltaTime;
 		}
-		m_tutorialDuration += deltaTime;
 	}
 }
 

@@ -103,6 +103,7 @@ private:
 	Quad * m_tutorialText;
 	std::stack<std::string> m_tutorialMessages;
 	float m_tutorialDuration = 0.0f;
+	bool m_tutorialActive = true;
 
 	float m_peekRotate;
 
