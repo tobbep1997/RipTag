@@ -188,6 +188,11 @@ void Enemy::Update(double deltaTime)
 		
 
 	}
+	else
+	{
+		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+
+	}
 	getBody()->SetType(e_dynamicBody);
 }
 
