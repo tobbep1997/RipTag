@@ -104,7 +104,7 @@ void MainMenu::Update(double deltaTime)
 
 	
 	cTimer += deltaTime;
-	double radie = (sin(cTimer) + 1) * 0.25;
+	double radie = (sin(10 * cTimer)*sin(cTimer * 0.5) + 1.5)*0.175;
 	c->setRadie(radie);
 	
 }
