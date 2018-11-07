@@ -49,13 +49,16 @@ void PressurePlate::Update(double deltaTime)
 	}
 	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
 	{
-		if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") || 
-			(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
-			if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
-			{
-				this->setTriggerState(true);
-				this->SendOverNetwork();
-			}
+		if (con)
+		{
+			if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") || 
+				(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
+				if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
+				{
+					this->setTriggerState(true);
+					this->SendOverNetwork();
+				}
+		}
 	}
 	//If previous state was true, but the new state is false no one is one the plate locally
 	if (previousState && !this->getTriggerState())
