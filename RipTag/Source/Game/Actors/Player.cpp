@@ -868,43 +868,47 @@ void Player::_onInteract()
 		if (m_kp.interact == false)
 		{
 			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
-			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			if (ray)
 			{
-				if (*con->consumeState != 2)
+				for (RayCastListener::RayContact* con : ray->GetRayContacts())
 				{
-					if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
+					if (*con->consumeState != 2)
 					{
-						if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+						if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
 						{
-							*con->consumeState += 1;
-							//do the pickups
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
-						{
-							*con->consumeState += 1;
-							m_infoText->setString("");
-							m_objectInfoTime = 0;
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
-						{
-							*con->consumeState += 1;
-							//Snuff out torches (example)
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-						{
-							
-							//std::cout << "Enemy Found!" << std::endl;
-							//Snuff out torches (example)
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
-						{
-							//*con->consumeState += 1;
-							//std::cout << "illusory wall ahead" << std::endl;
-							//Snuff out torches (example)
+							if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+							{
+								*con->consumeState += 1;
+								//do the pickups
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+							{
+								*con->consumeState += 1;
+								m_infoText->setString("");
+								m_objectInfoTime = 0;
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+							{
+								*con->consumeState += 1;
+								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+							{
+
+								//std::cout << "Enemy Found!" << std::endl;
+								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+							{
+								//*con->consumeState += 1;
+								//std::cout << "illusory wall ahead" << std::endl;
+								//Snuff out torches (example)
+							}
 						}
 					}
 				}
 			}
+			
 			m_kp.interact = true;
 		}
 	}
