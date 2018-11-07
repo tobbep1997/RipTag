@@ -4,6 +4,7 @@
 
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
+	using namespace DirectX;
 	//TODO:
 	//1. Load the correct mesh and configure it
 	//2. Set the transform
@@ -16,7 +17,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//1.
 	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
-	
+	this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
 	this->setScale(scale);
@@ -222,9 +223,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		blend_fwd->AddRow(
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
-				{ sharedAnimations[LEFT].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[RIGHT].get(), -90.f }, //the clip to use and x-placement
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[RIGHT].get(), 90.f }
+				{ sharedAnimations[LEFT].get(), 90.f }
 			}
 		);
 		//
@@ -242,9 +243,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
 				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
-				{ sharedAnimations[BACK_LEFT].get(), -90.f },
+				{ sharedAnimations[BACK_RIGHT].get(), -90.f },
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[BACK_RIGHT].get(), 90.f },
+				{ sharedAnimations[BACK_LEFT].get(), 90.f },
 				{ sharedAnimations[BACKWARD].get(), 180.f }
 			}
 		);
