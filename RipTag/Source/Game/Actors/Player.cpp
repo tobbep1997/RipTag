@@ -46,18 +46,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	
 	m_blink.setOwner(this);
 	m_blink.Init();*/
-	m_winBar = new Quad();
-	m_winBar->init();
-	m_winBar->setPosition(1.5f, 1.5f);
-	m_winBar->setScale(0.5f, 0.25f);
-
-	m_winBar->setString("YOU WIN");
-	m_winBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_winBar->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_winBar->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
-	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_winBar->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
-	HUDComponent::AddQuad(m_winBar);
+	
 
 
 
@@ -123,6 +112,19 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manaBarBackground);
 	HUDComponent::AddQuad(m_manabarText);
+
+	m_winBar = new Quad();
+	m_winBar->init();
+	m_winBar->setPosition(1.5f, 1.5f);
+	m_winBar->setScale(0.5f, 0.25f);
+
+	m_winBar->setString("YOU WIN");
+	m_winBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_winBar->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_winBar->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_winBar->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	HUDComponent::AddQuad(m_winBar);
 
 	m_infoText = new Quad();
 	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
