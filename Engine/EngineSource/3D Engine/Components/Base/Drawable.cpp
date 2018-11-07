@@ -115,7 +115,7 @@ Drawable::Drawable() : Transform()
 	m_dynamicMesh = nullptr;
 	p_vertexBuffer = nullptr;
 	p_color = DirectX::XMFLOAT4A(1, 1, 1, 1);
-	
+	m_hidden = false;
 }
 
 
@@ -266,6 +266,16 @@ void Drawable::setColor(const float& x, const float& y, const float& z, const fl
 const DirectX::XMFLOAT4A& Drawable::getColor() const
 {
 	return this->p_color;
+}
+
+void Drawable::setHidden(bool hidden)
+{
+	m_hidden = hidden;
+}
+
+bool Drawable::getHidden()
+{
+	return m_hidden;
 }
 
 

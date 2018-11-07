@@ -1,8 +1,7 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
+#include <DirectXCollision.h>
 
-
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
@@ -52,91 +51,91 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	//Do not remove pls <3
 	{
-		model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-		model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
-		model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		model->setScale({ 0.02, 0.02, 0.02, 1.0 });
-		model->setPosition(4.0, 4.3, 0.0);
+	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	//	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
+	//	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//	model->setScale({ 0.02, 0.02, 0.02, 1.0 });
+	//	model->setPosition(4.0, 4.3, 0.0);
 
-		//Number of states as argument, ok if bigger than actual states added
-		auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
+	//	//Number of states as argument, ok if bigger than actual states added
+	//	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
 
-		//Blend spaces - forward&backward
-		SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
-			"walk_forward", //state name
-			&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
-			&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
-			-90.f, 90.f, //x-axis bounds
-			0.0f, 3.001f //y-axis bounds
-		);
-		SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
-			"walk_backward", //state name
-			&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
-			&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
-			-180.f, 180.f, //x-axis bounds
-			0.0f, 3.001f //y-axis bounds
-		);
+	//	//Blend spaces - forward&backward
+	//	SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
+	//		"walk_forward", //state name
+	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
+	//		&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
+	//		-90.f, 90.f, //x-axis bounds
+	//		0.0f, 3.001f //y-axis bounds
+	//	);
+	//	SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
+	//		"walk_backward", //state name
+	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
+	//		&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
+	//		-180.f, 180.f, //x-axis bounds
+	//		0.0f, 3.001f //y-axis bounds
+	//	);
 
-		//Add blendspace rows 
-		//forward
-		blend_fwd->AddRow(
-			0.0f, //y placement
-			{	//uses a vector initializer list for "convinience"
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -90.f }, //the clip to use and x-placement
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 0.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 90.f }
-			}
-		);
-		blend_fwd->AddRow(
-			3.1f, //y placement
-			{	//uses a vector initializer list for "convinience"
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION").get(), -90.f }, //the clip to use and x-placement
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION").get(), 90.f }
-			}
-		);
-		//
-		blend_bwd->AddRow(
-			0.0f, //y placement
-			{	//uses a vector initializer list for "convinience"
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -180.f }, //the clip to use and x-placement
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -90.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 0.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 90.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 180.f }
-			}
-		);
-		blend_bwd->AddRow(
-			3.1f, //y placement
-			{	//uses a vector initializer list for "convinience"
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), -180.f }, //the clip to use and x-placement
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BLEFT_ANIMATION").get(), -90.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BRIGHT_ANIMATION").get(), 90.f },
-				{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), 180.f }
-			}
-		);
+	//	//Add blendspace rows 
+	//	//forward
+	//	blend_fwd->AddRow(
+	//		0.0f, //y placement
+	//		{	//uses a vector initializer list for "convinience"
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -90.f }, //the clip to use and x-placement
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 0.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 90.f }
+	//		}
+	//	);
+	//	blend_fwd->AddRow(
+	//		3.1f, //y placement
+	//		{	//uses a vector initializer list for "convinience"
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION").get(), -90.f }, //the clip to use and x-placement
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION").get(), 90.f }
+	//		}
+	//	);
+	//	//
+	//	blend_bwd->AddRow(
+	//		0.0f, //y placement
+	//		{	//uses a vector initializer list for "convinience"
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -180.f }, //the clip to use and x-placement
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -90.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 0.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 90.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 180.f }
+	//		}
+	//	);
+	//	blend_bwd->AddRow(
+	//		3.1f, //y placement
+	//		{	//uses a vector initializer list for "convinience"
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), -180.f }, //the clip to use and x-placement
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BLEFT_ANIMATION").get(), -90.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BRIGHT_ANIMATION").get(), 90.f },
+	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), 180.f }
+	//		}
+	//	);
 
-		//Adding out state / transitions
-		SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
-		//Add transition condition
-		fwd_bwd_outstate.AddTransition(
-			&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
-			-89.f, 89.f, //bound range for comparision
-			SM::COMPARISON_OUTSIDE_RANGE //comparision condition
-		);
+	//	//Adding out state / transitions
+	//	SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
+	//	//Add transition condition
+	//	fwd_bwd_outstate.AddTransition(
+	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
+	//		-89.f, 89.f, //bound range for comparision
+	//		SM::COMPARISON_OUTSIDE_RANGE //comparision condition
+	//	);
 
-		SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
-		//Add transition condition
-		bwd_fwd_outstate.AddTransition(
-			&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
-			-90.f, 90.f, //bound range for comparision
-			SM::COMPARISON_INSIDE_RANGE //comparision condition
-		);
+	//	SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
+	//	//Add transition condition
+	//	bwd_fwd_outstate.AddTransition(
+	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
+	//		-90.f, 90.f, //bound range for comparision
+	//		SM::COMPARISON_INSIDE_RANGE //comparision condition
+	//	);
 
-		//stateMachine->SetState("walk_forward");
-		stateMachine->SetModel(model->getAnimatedModel());
-		stateMachine->SetState("walk_forward");
+	//	//stateMachine->SetState("walk_forward");
+	//	stateMachine->SetModel(model->getAnimatedModel());
+	//	stateMachine->SetState("walk_forward");
 
 	}
 
@@ -159,6 +158,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
+	
+	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
 }
 
 PlayState::~PlayState()
@@ -167,13 +168,14 @@ PlayState::~PlayState()
 	delete m_levelHandler;
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
-	
 	delete m_playerManager;
 
 	delete triggerHandler;
 
 	delete m_contactListener;
 	delete m_rayListener;
+
+	
 }
 
 void PlayState::Update(double deltaTime)
@@ -182,21 +184,37 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-
+	
+	/*if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}*/
+	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
-	model->getAnimatedModel()->Update(deltaTime);
+	m_playerManager->Update(deltaTime);
+
+	//model->getAnimatedModel()->Update(deltaTime);
+
+	m_playerManager->PhysicsUpdate();
+	
+	
+	
+	
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
-	if (deltaTime <= 0.65f)
-	{
-		m_world.Step(m_step);
-	}
+
+	/*m_deltaTime = deltaTime;
+	std::lock_guard<std::mutex> lg(m_physicsMutex);*/
+	m_deltaTime = deltaTime;
+	m_physicsCondition.notify_all();
+	
+	
 	
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
-
+	
 #if _DEBUG
 	TemporaryLobby();
 #endif
@@ -206,16 +224,18 @@ void PlayState::Update(double deltaTime)
 	}
 
 	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	m_playerManager->Update(deltaTime);
-
-	//model->getAnimatedModel()->Update(deltaTime);
 	
-	
-
-	m_playerManager->PhysicsUpdate();
 
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+		
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
 		setKillState(true);
 	}
 
@@ -237,10 +257,80 @@ void PlayState::Update(double deltaTime)
 void PlayState::Draw()
 {
 	m_levelHandler->Draw();
-	model->Draw();
+
+	/*for (auto & lights : DX::g_lights)
+	{
+		RayCastListener::RayContact * rc = RipExtern::m_rayListener->ShotRay(m_playerManager->getLocalPlayer()->getBody(),
+			lights->getPosition(),
+			lights->getDir(*m_playerManager->getLocalPlayer()->getBody()),
+			lights->getFarPlane() / cos(lights->getFOV() / 2.0f));
+		if (rc)
+		{		
+			lights->setUpdate(rc->contactShape->GetBody()->GetObjectTag() == "PLAYER");
+		}
+	}*/
+	_lightCulling();
+
 	m_playerManager->Draw();
 		
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+}
+
+void PlayState::testtThread(double deltaTime)
+{
+	while (m_destoryPhysicsThread == false)
+	{
+		std::unique_lock<std::mutex> lock(m_physicsMutex);
+		m_physicsCondition.wait(lock);
+
+		if (m_deltaTime <= 0.65f)
+		{
+			m_world.Step(m_step);
+		}
+	}
+}
+
+void PlayState::_lightCulling()
+{
+	Player * p = m_playerManager->getLocalPlayer();
+	DirectX::BoundingFrustum PlayerWorldBox;
+	DirectX::XMMATRIX viewInv, proj;
+
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getView())));
+	DirectX::BoundingFrustum::CreateFromMatrix(PlayerWorldBox, proj);
+	PlayerWorldBox.Transform(PlayerWorldBox, viewInv);
+	const DirectX::XMFLOAT4A & pPos = p->getPosition();
+	DirectX::XMVECTOR vpPos = DirectX::XMLoadFloat4A(&pPos);
+
+	for (auto & light : DX::g_lights)
+	{
+		light->DisableSides(PointLight::ShadowDir::XYZ_ALL);
+
+		const DirectX::XMFLOAT4A & lPos = light->getPosition();
+		DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&lPos), vpPos);
+		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+		if (length < p->getCamera()->getFarPlane())
+		{
+			const std::vector<Camera*> & sidesVec = light->getSides();
+			int counter = 0;
+			for (auto & sides : sidesVec)
+			{
+				DirectX::BoundingFrustum WorldBox;
+				DirectX::XMMATRIX sViewInv, sProj;
+				sProj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getProjection()));
+				sViewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&sides->getView())));
+				DirectX::BoundingFrustum::CreateFromMatrix(WorldBox, sProj);
+				WorldBox.Transform(WorldBox, sViewInv);
+				if (PlayerWorldBox.Intersects(WorldBox))
+				{
+					light->EnableSides((PointLight::ShadowDir)counter);
+				}
+				counter++;
+			}
+		}
+		
+	}
 }
 
 void PlayState::thread(std::string s)

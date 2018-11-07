@@ -214,6 +214,7 @@ void Room::UnloadRoomFromMemory()
 
 		for (auto & ab : m_audioBoxes)
 			ab->release();
+		
 		m_audioBoxes.clear();
 		delete m_grid->gridPoints;
 		delete m_grid;
@@ -278,6 +279,7 @@ void Room::LoadRoomToMemory()
 		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 
+
 		CollisionBoxes = new BaseActor();
 		ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
@@ -296,18 +298,10 @@ void Room::LoadRoomToMemory()
 		}
 
 		m_staticAssets.push_back(temp);
-		 
-
-	
 		
-		m_roomLoaded = true;
-	
-		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
+		m_roomLoaded = true;	
 	}
-	else
-	{
-		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
-	}
+
 
 	for (auto light : m_pointLights)
 	{
@@ -426,7 +420,7 @@ void Room::Release()
 	}
 	if (CollisionBoxes)
 	{
-		CollisionBoxes->Release(*m_worldPtr);
+		CollisionBoxes->Release(*RipExtern::g_world);
 		delete CollisionBoxes;
 		CollisionBoxes = nullptr;
 	}
@@ -434,13 +428,17 @@ void Room::Release()
 	{
 		delete light;
 	}
+	m_pointLights.clear();
 	for (auto enemy : m_roomGuards)
 	{
 		delete enemy;
 	}
 	for (auto ab : m_audioBoxes)
+	{
 		ab->release();
+	}
 	delete m_grid->gridPoints;
+
 	delete m_grid;
 
 	triggerHandler->Release();

@@ -1,13 +1,11 @@
 #pragma once
 #include "../../Physics/Wrapper/PhysicsComponent.h"
-#include <string>
-//#include <iostream>
 class RayCastListener : public b3RayCastListener
 {	
 public:
 	struct RayContact
 	{
-		RayContact(b3Body* originBody, bool singleUse = false)
+		RayContact(b3Body* originBody, bool singleUse = true)
 		{
 			this->originBody = originBody;
 			contactShape = nullptr;
@@ -18,14 +16,36 @@ public:
 			if(singleUse)
 			*consumeState = 2;
 		};
+		RayContact(b3Body* originBody, b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction, bool singleUse = true)
+		{
+			this->originBody = originBody;
+
+			this->contactShape = contactShape;
+			this->contactPoint = point;
+			this->normal = normal;
+			this->fraction = fraction;
+
+			consumeState = new int(0);
+			if (singleUse)
+				*consumeState = 2;
+		};
+
+		~RayContact()
+		{
+			originBody = nullptr;
+			contactShape = nullptr;
+			delete consumeState;
+			consumeState = nullptr;
+		};
+
 		void _setData(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 		{
 			this->contactShape = contactShape;
-			this->contactPoint = point;
-			
+			this->contactPoint = point;	
 			this->normal = normal;
 			this->fraction = fraction;
 		};
+
 		b3Body* originBody;
 		b3Shape* contactShape;
 		b3Vec3 contactPoint;
@@ -35,81 +55,150 @@ public:
 		//0 = unused, 1 = used once, 2 = used twice
 		
 	};
-private:
-	std::vector<RayContact> rayContacts;
 
-public:
-	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+	struct Ray
 	{
-		if (fraction != 0 && !rayContacts.empty())
+	private:
+		std::vector<RayContact*> rayContacts;
+		bool ExistingContacts = true;
+	public:
+		Ray()
 		{
-			rayContacts.back()._setData(shape, point, normal, fraction);
-			/*if (rayContacts.back().contactShape->IsSensor() && *rayContacts.back().consumeState != 2)
+		};
+		~Ray()
+		{
+			ClearQueue();
+		}
+		void addRayContact(b3Body* originBody, b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction, bool singleUse = true)
+		{
+			rayContacts.push_back(new RayContact(originBody, contactShape, point, normal, fraction, singleUse));
+		};
+
+		virtual void ClearQueue()
+		{
+			for (int i = 0; i < rayContacts.size(); i++)
 			{
-				rayContacts.push_back(RayContact(rayContacts.back().originBody));
-			}*/
+				delete rayContacts.at(i);
+			}
+			rayContacts.clear();
+		}
+
+		virtual void ClearConsumedContacts()
+		{
+			if (!rayContacts.empty())
+			{
+				for (int i = 0; i < rayContacts.size(); i++)
+				{
+					if (*rayContacts[i]->consumeState >= 2 || *rayContacts[i]->consumeState == 0)
+					{
+						delete rayContacts.at(i);
+						rayContacts.erase(rayContacts.begin() + i);
+					}
+				}
+			}
+		}
+
+		std::vector<RayContact*> GetRayContacts()
+		{
+			return this->rayContacts;
+		}
+
+		RayContact* getClosestContact()
+		{
+			return this->rayContacts.back();
+		}
+
+		int getNrOfContacts()
+		{
+			return this->rayContacts.size();
+		}
+	};
+private:
+	std::vector<Ray*> rays;
+	b3Body* m_tempBody;
+	bool m_singleUse = true;
+	bool m_rayHit = false;
+
+private:
+	//Called by the physics engine to inform of the shapes intersecting
+	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction) 
+	{
+		if (fraction != 0)
+		{
+			if (m_rayHit == false)
+			{
+				rays.push_back(new Ray());
+			}
+			rays.back()->addRayContact(m_tempBody, shape, point, normal, fraction, m_singleUse);
+			m_rayHit = true;
 		}
 		return fraction;
 	}
 
-	virtual void ClearQueue()
+public:
+	RayCastListener() { }
+
+	virtual ~RayCastListener() 
 	{
-		rayContacts.clear();
+		ClearQueue();
+		m_tempBody = nullptr;
 	}
 
+	virtual void ClearQueue()
+	{
+		for (int i = 0; i < rays.size(); i++)
+		{
+			delete rays.at(i);
+		}
+		rays.clear();
+	}
+
+	//removes contacts that have been accessed once by each object or not used at all
 	virtual void ClearConsumedContacts()
 	{
-		if (!rayContacts.empty())
+		if (!rays.empty())
 		{
-			for (int i = 0; i < rayContacts.size(); i++)
+			for (int i = 0; i < rays.size(); i++)
 			{
-				if (*rayContacts[i].consumeState >= 2)
+				rays.at(i)->ClearConsumedContacts();
+				if (rays.at(i)->GetRayContacts().empty())
 				{
-					delete rayContacts.at(i).consumeState;
-					rayContacts.erase(rayContacts.begin() + i);
+					delete rays.at(i);
+					rays.erase(rays.begin() + i);
 				}
 			}
 		}
 	}
 
-	virtual RayContact ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = false, std::string target = "N/A")
+	/*Prepares the start and end positions of the ray, then calls the physics engine to perform a raycast.
+	If specified, the objects being intersected will stay alive until the object shooting the ray and the object being intersected have accessed the contact once.
+	contact, will be destroyed if no object has accessed the contact*/
+	virtual Ray* ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = true)
 	{
-		//b3Vec3 pos;
-		RayContact contact(body, singleUse);
+		Ray* contact = nullptr;
+		this->m_tempBody = body;
+		this->m_singleUse = singleUse;
+
 		float x = start.x + (length * direction.x);
 		float y = start.y + (length * direction.y);
 		float z = start.z + (length * direction.z);
 
-		rayContacts.push_back(contact);
 		body->GetScene()->RayCast(this, b3Vec3(start.x, start.y, start.z), b3Vec3(x, y, z));
 
-		if (rayContacts.back().fraction == 0 || singleUse)
+		if (m_rayHit)
 		{
-			contact = rayContacts.back();
-			delete rayContacts.back().consumeState;
-			rayContacts.pop_back();
+			contact = rays.back();
 		}
-		else if (target != "N/A" && rayContacts.back().contactShape->GetBody()->GetObjectTag() != target)
-		{
-			delete rayContacts.back().consumeState;
-			rayContacts.pop_back();
-		}
-		
+
+		this->m_tempBody = nullptr;
+		this->m_singleUse = true;
+		this->m_rayHit = false;
 		return contact;
 	}
 
-	virtual std::vector<RayContact> GetContacts()
+	virtual std::vector<Ray*> GetRays()
 	{
-		return this->rayContacts;
+		return this->rays;
 	}
 
-	RayCastListener() { }
-	virtual ~RayCastListener() 
-	{
-		for (int i = (int)rayContacts.size()-1; i > 0; i--)
-		{
-			delete rayContacts.at(i).consumeState;
-			rayContacts.erase(rayContacts.begin() + i);
-		}
-	}
 };
