@@ -200,7 +200,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 	static double timer = 0.0f;
 	timer += deltaTime;
 
-	if (timer > 0.33)
+	if (timer > 0.5)
 	{
 		timer = 0.0f;
 		std::vector<FMOD::Channel*> channels = AudioEngine::getAllPlayingChannels();
