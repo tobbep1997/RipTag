@@ -98,11 +98,12 @@ void PlayerManager::Update(float dt)
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
-	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+	if (mRemotePlayer)
 	{
 		mLocalPlayer->drawWinBar();
 		//YOU WON THE GAME! 
 	}
+	
 
 }
 

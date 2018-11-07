@@ -1056,6 +1056,8 @@ void Player::_hasWon()
 			{
 				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
+				SendOnWin();
+
 				break;
 			}
 		}
@@ -1065,7 +1067,7 @@ void Player::_hasWon()
 			{
 				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
-
+				SendOnWin();
 				break;
 			}
 		}
