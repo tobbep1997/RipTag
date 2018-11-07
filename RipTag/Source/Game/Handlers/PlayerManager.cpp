@@ -103,7 +103,6 @@ void PlayerManager::Update(float dt)
 		if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
 		{
 			//YOU WON THE GAME! 
-			int i = 0;
 		}
 	}
 	

@@ -19,8 +19,9 @@ Door::~Door()
 void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, false);
-	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setPositionRot(xPos, yPos - 1, zPos, pitch, yaw, roll);
 	//BaseActor::setPosition(xPos, yPos, zPos);
+
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("Door");
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("DOOR"));

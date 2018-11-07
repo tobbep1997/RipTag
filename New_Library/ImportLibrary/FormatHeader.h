@@ -72,7 +72,7 @@ namespace ImporterLibrary
 		int linkedItem;
 		bool isTrigger;
 		float transform_position[3];
-		float transform_rotation[3];
+		float transform_rotation[4];
 		float transform_scale[3];
 		float BBOX_INFO[3];
 	};
