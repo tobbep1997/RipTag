@@ -14,7 +14,7 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	//Convert to degrees
 	float r = std::acos(dot);
 	//Negate if necessary
-	float inverter = (XMVectorGetY(XMVector3Cross(XZcameraDirection, defaultDir)));
+	float inverter = (XMVectorGetY(XMVector3Cross(defaultDir, XZcameraDirection)));
 
 	r *= (inverter > 0.0)
 		? -1.0f
