@@ -41,13 +41,13 @@ private:
 	//---------------------------------------------------
 
 	bool m_roomLoaded = false;
-	std::vector<StaticAsset*> m_staticAssets;
-	std::vector<PointLight*> m_pointLights;
-	std::vector<FMOD::Geometry*> m_audioBoxes;
+	std::vector<StaticAsset*> m_staticAssets;	//Released
+	std::vector<PointLight*> m_pointLights;		//Released
+	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
 
-	ImporterLibrary::GridStruct * m_grid;
-	Grid * m_pathfindingGrid;
+	ImporterLibrary::GridStruct * m_grid;	//Released?
+	Grid * m_pathfindingGrid;		//Released
 	
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
@@ -58,7 +58,6 @@ private:
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
-	   
 
 	TriggerHandler * triggerHandler;
 

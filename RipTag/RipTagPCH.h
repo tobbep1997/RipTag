@@ -82,3 +82,18 @@
 //2D
 #include "2D Engine/Quad/Quad.h"
 #include "2D Engine/DirectXTK/SpriteFont.h"
+
+
+//This allows to use new instead of new to create a pointer
+
+/****************************************/
+/*		Microsoft code Pogchamp			*/
+/*		Dont use on Microsoft stuff		*/
+/*		AKA no DirectX					*/
+/****************************************/
+
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#else
+#define new new
+#endif

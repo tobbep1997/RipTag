@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "Lever.h"
 
+#include <AudioEngine.h>
 Lever::Lever()
 {
 }
@@ -25,29 +26,39 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	auto& machine = getAnimatedModel()->InitStateMachine(1);
 	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
-	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
+	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
 	getAnimatedModel()->Pause();
 	BaseActor::setUserDataBody(this);
+	unlock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
+	lock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
 }
 
 
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+	for (RayCastListener::Ray* ray : RipExtern::m_rayListener->GetRays())
 	{
-		if (con.originBody->GetObjectTag() == "PLAYER")
+		for (RayCastListener::RayContact* con : ray->GetRayContacts())
 		{
-			if (con.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+			if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
+				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
+					auto pos = getPosition();
+					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
+
 					if (this->getTriggerState())
+					{
 						this->setTriggerState(false);
+						AudioEngine::PlaySoundEffect(unlock, &fVector);
+					}
 					else
+					{
+						AudioEngine::PlaySoundEffect(lock, &fVector);
 						this->setTriggerState(true);
-						
-					*con.consumeState +=1;
+					}
+					*(con->consumeState) += 1;
 					//SENDTriggerd here for network
 					this->SendOverNetwork();
 				}
@@ -57,12 +68,6 @@ void Lever::Update(double deltaTime)
 	this->getAnimatedModel()->Update(deltaTime);
 }
 
-bool Lever::isEqual(Lever * target)
+void Lever::BeginPlay()
 {
-	if (this->getPosition().x == target->getPosition().x && 
-		this->getPosition().y == target->getPosition().y && 
-		this->getPosition().z == target->getPosition().z)
-		return true;
-
-	return false;
 }

@@ -23,22 +23,25 @@ class Drawable; //#todoREMOVE
 class PlayState : public State
 {
 private:
-	std::unique_ptr<Drawable> model = std::make_unique<Drawable>();
-private:
-	LevelHandler * m_levelHandler;
-	ContactListener * m_contactListener;
-	RayCastListener * m_rayListener;
+	LevelHandler * m_levelHandler;		//Released
+	ContactListener * m_contactListener;//Released
+	RayCastListener * m_rayListener;	//Released
 
-	PlayerManager * m_playerManager;
+	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
 
-	TriggerHandler *	triggerHandler;
+	TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
 	FMOD::Channel * TEEEMPCHANNEL;
 
+	std::thread m_physicsThread;
+	std::mutex m_physicsMutex;
+	std::condition_variable m_physicsCondition;
+	double m_deltaTime = 0;
+	bool m_destoryPhysicsThread = false;
 
 public:
 
@@ -50,6 +53,8 @@ public:
 	void Draw() override;
 
 private:
+	void testtThread(double deltaTime);
+	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
 };

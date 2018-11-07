@@ -2,6 +2,7 @@
 #include "PointLight.h"
 
 
+
 PointLight::PointLight()
 {
 	m_nearPlane = 1.0f;
@@ -17,9 +18,14 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_dropOff = 1.0f;
 	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
-	//_createSides();
-	//CreateShadowDirection(PointLight::XYZ_ALL);
+	//CreateShadowDirection(PointLight::Y_POSITIVE);
+	CreateShadowDirection(PointLight::XYZ_ALL);
+	for (int i = 0; i < 6; i++)
+	{
+		m_useSides[i] = TRUE;
+	}
 	this->m_dropOff = .5f;
+	_initDirectX(128U,128U);
 }
 
 PointLight::~PointLight()
@@ -28,6 +34,9 @@ PointLight::~PointLight()
 	{
 		delete m_sides[i];
 	}
+	DX::SafeRelease(m_shadowShaderResourceView);
+	DX::SafeRelease(m_shadowDepthStencilView);
+	DX::SafeRelease(m_shadowDepthBufferTex);
 }
 
 void PointLight::CreateShadowDirection(ShadowDir direction)
@@ -100,6 +109,16 @@ const float & PointLight::getIntensity() const
 	return this->m_intensity;
 }
 
+const float & PointLight::getFarPlane() const
+{
+	return this->m_farPlane;
+}
+
+const float & PointLight::getFOV() const
+{
+	return this->FOV;
+}
+
 
 
 void PointLight::CreateShadowDirection(const std::vector<ShadowDir> & shadowDir)
@@ -140,6 +159,109 @@ float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 
 	float temp = base + sin(current.x) * amplitude;
 	return temp;
+}
+
+ID3D11ShaderResourceView * PointLight::getSRV() const
+{
+	return m_shadowShaderResourceView;
+}
+
+ID3D11DepthStencilView * PointLight::getDSV() const
+{
+	return m_shadowDepthStencilView;
+}
+
+ID3D11Texture2D * PointLight::getTEX() const
+{
+	return m_shadowDepthBufferTex;
+}
+
+void PointLight::EnableSides(ShadowDir dir)
+{
+	if (dir == XYZ_ALL)
+		for (int i = 0; i < 6; i++)
+			m_useSides[i] = true;
+	else
+		m_useSides[dir] = true;
+}
+
+void PointLight::DisableSides(ShadowDir dir)
+{
+	if (dir == XYZ_ALL)
+		for (int i = 0; i < 6; i++)
+			m_useSides[i] = false;
+	else
+		m_useSides[dir] = false;
+}
+
+//std::vector<Camera*>* PointLight::getSides()
+//{
+//	return &m_sides;
+//}
+
+void PointLight::setUpdate(const bool & update)
+{
+	this->m_update = update;
+}
+
+bool PointLight::getUpdate() const
+{
+	for (int i = 0; i < 6; i++)
+	{
+		if (m_useSides[i])
+			return true;
+	}
+	return false;
+}
+
+void PointLight::FirstRun()
+{
+	m_firstRun = false;
+}
+
+void PointLight::Clear()
+{
+	DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+const BOOL * PointLight::useSides() const
+{
+	return m_useSides;
+}
+
+void PointLight::RayTrace(b3Body & object, RayCastListener * rayCastListener)
+{
+	using namespace DirectX;
+
+	XMFLOAT4A objPos = XMFLOAT4A(	object.GetTransform().translation.x,
+													object.GetTransform().translation.y,
+													object.GetTransform().translation.z, 1);
+
+	XMVECTOR vObjPos = XMLoadFloat4A(&objPos);
+	XMVECTOR vLightPos = XMLoadFloat4A(&getPosition());
+	XMVECTOR vdir = XMVector3Normalize(XMVectorSubtract(vObjPos, vLightPos));
+
+	XMFLOAT4A dir; 
+	XMStoreFloat4A(&dir, vdir);
+	//rayCastListener->ShotRay(&object, getPosition(), dir, m_farPlane / cos(FOV / 2));
+	
+}
+
+DirectX::XMFLOAT4A PointLight::getDir(b3Body & object) const
+{
+	using namespace DirectX;
+
+	XMFLOAT4A objPos = XMFLOAT4A(object.GetTransform().translation.x,
+		object.GetTransform().translation.y,
+		object.GetTransform().translation.z, 1);
+
+	XMVECTOR vObjPos = XMLoadFloat4A(&objPos);
+	XMVECTOR vLightPos = XMLoadFloat4A(&getPosition());
+	XMVECTOR vdir = XMVector3Normalize(XMVectorSubtract(vObjPos, vLightPos));
+
+	XMFLOAT4A dir;
+	XMStoreFloat4A(&dir, vdir);
+	return dir;
 }
 
 
@@ -279,4 +401,13 @@ void PointLight::_updateCameras()
 	{
 		m_sides[i]->setPosition(this->m_position);
 	}
+}
+
+void PointLight::_initDirectX(UINT width, UINT hight)
+{
+	HRESULT hr;
+	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, hight, width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS);
+	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADOW_SIDES);
+	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADOW_SIDES, 0, 0, 1);
+	
 }

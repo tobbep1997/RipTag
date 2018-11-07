@@ -1,23 +1,22 @@
 #include "EnginePCH.h"
 #include "ForwardRender.h"
 
-
-
-
-
-
 ForwardRender::ForwardRender()
 {
 	m_lastVertexPath = L"NULL";
 	m_lastPixelPath = L"NULL";
+
+	m_visabilityPass = new VisabilityPass();
+
 }
 
 
 ForwardRender::~ForwardRender()
 {
+	delete m_visabilityPass;
 }
 
-void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * backBufferRTV, ID3D11DepthStencilView * depthStencilView, ID3D11Texture2D * depthBufferTex, ID3D11SamplerState * samplerState, D3D11_VIEWPORT viewport)
+void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * backBufferRTV, ID3D11DepthStencilView * depthStencilView, ID3D11DepthStencilState* m_depthStencilState, ID3D11Texture2D * depthBufferTex, ID3D11SamplerState * samplerState, D3D11_VIEWPORT viewport)
 {
 	m_swapChain = swapChain;
 	m_backBufferRTV = backBufferRTV;
@@ -25,7 +24,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	m_depthBufferTex = depthBufferTex;
 	m_samplerState = samplerState;
 	m_viewport = viewport;
-
+	this->m_depthStencilState = m_depthStencilState;
 	float c[4] = { 1.0f,0.0f,1.0f,1.0f };
 
 
@@ -52,7 +51,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	HRESULT hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend);
 
-	m_visabilityPass.Init();
+	
+	m_visabilityPass->Init();
 
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
@@ -81,6 +81,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 void ForwardRender::GeometryPass()
 {
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	if (m_firstRun == true)
 	{
@@ -99,7 +101,39 @@ void ForwardRender::GeometryPass()
 	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_geometryQueue[i]->getHidden() != true)
+		{
+			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+			_mapObjectBuffer(DX::g_geometryQueue[i]);
+			DX::g_geometryQueue[i]->BindTextures();
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+		}
+	}
+
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+}
+
+void ForwardRender::PrePass()
+{
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+	   
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
+	//_setStaticShaders();
+	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
+	{
+		if (DX::g_geometryQueue[i]->getHidden() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
@@ -125,7 +159,7 @@ void ForwardRender::AnimatedGeometryPass()
 	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 		{
 			//todoREMOVE
 			auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
@@ -145,20 +179,30 @@ void ForwardRender::AnimatedGeometryPass()
 
 void ForwardRender::Flush(Camera & camera)
 {
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
+	_mapCameraBuffer(camera);
+	this->PrePass();
+
+
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
 	//_GuardLightCulling();
 	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
+
 	this->m_shadowMap->ShadowPass(m_animationBuffer);
+
 	this->m_shadowMap->SetSamplerAndShaderResources();
-	VisabilityPass();
+	_visabilityPass();
 	_mapCameraBuffer(camera);
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
 
+	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
+
+	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//_GuardFrustumDraw();
 	m_2DRender->GUIPass();
 }
@@ -178,8 +222,7 @@ void ForwardRender::Clear()
 	DX::g_geometryQueue.clear();
 
 	DX::g_visabilityDrawQueue.clear();
-
-	this->m_shadowMap->Clear();
+	//this->m_shadowMap->Clear();
 	DX::g_visibilityComponentQueue.clear();
 
 	DX::g_wireFrameDrawQueue.clear();
@@ -496,13 +539,13 @@ void ForwardRender::_setStaticShaders()
 	}
 }
 
-void ForwardRender::VisabilityPass()
+void ForwardRender::_visabilityPass()
 {
-	m_visabilityPass.SetViewportAndRenderTarget();
+	m_visabilityPass->SetViewportAndRenderTarget();
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
-		m_visabilityPass.GuardDepthPrePassFor(guard, m_animationBuffer);
-		m_visabilityPass.CalculateVisabilityFor(guard, m_animationBuffer);
+		m_visabilityPass->GuardDepthPrePassFor(guard, m_animationBuffer);
+		m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
 	}
 	
 

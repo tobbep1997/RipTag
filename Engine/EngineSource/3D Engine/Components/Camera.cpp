@@ -7,7 +7,7 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	using namespace DirectX;
 
 	XMVECTOR XZcameraDirection = XMVector3Normalize(XMVectorSet(m_direction.x, 0.0, m_direction.z, 0.0));
-	XMVECTOR defaultDir = XMVectorSet(0.0, 0.0, -1.0, 0.0);
+	XMVECTOR defaultDir = XMVectorSet(0.0, 0.0, 1.0, 0.0);
 	float dot = XMVectorGetX(XMVector3Dot(defaultDir, XZcameraDirection));
 
 	dot = std::clamp(dot, -0.999999f, 0.999999f);
@@ -134,6 +134,7 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 	vDir = DirectX::XMLoadFloat4A(&this->m_direction);
 
 	DirectX::XMVECTOR vNewDir = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(vLastDir, mRot));
+	vUp = DirectX::XMLoadFloat4A(&m_UP);
 
 	DirectX::XMVECTOR vDot = DirectX::XMVector3Dot(vNewDir, vUp);
 	float dot = DirectX::XMVectorGetX(vDot);

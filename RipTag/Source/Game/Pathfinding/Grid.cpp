@@ -19,6 +19,12 @@ Grid::Grid(int width, int height)
 
 Grid::~Grid()
 {
+	for (auto path : m_path)
+	{
+		delete path;
+	}
+	m_path.clear();
+	
 }
 
 void Grid::CreateGridWithWorldPosValues(int width, int height, ImporterLibrary::GridStruct grid)

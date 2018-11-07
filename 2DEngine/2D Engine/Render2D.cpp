@@ -24,6 +24,14 @@ void Render2D::Init()
 	HRESULT hr = DXRHC::CreateSamplerState(m_sampler, D3D11_TEXTURE_ADDRESS_WRAP);
 	DXRHC::CreateBlendState(m_blendState);
 	m_spriteBatch = new DirectX::SpriteBatch(DX::g_deviceContext);
+
+	D3D11_DEPTH_STENCIL_DESC dpd{};
+	dpd.DepthEnable = TRUE;
+	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dpd.DepthFunc = D3D11_COMPARISON_LESS;
+
+	//Create the Depth/Stencil View
+	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
 }
 
 void Render2D::GUIPass()
@@ -36,6 +44,7 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/2DPixel.hlsl"), nullptr, 0);
 	DX::g_deviceContext->PSSetSamplers(4, 1, &m_sampler);
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
 	UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
 	UINT32 offset = 0;
@@ -97,6 +106,7 @@ void Render2D::Release()
 {
 	DX::SafeRelease(m_sampler);
 	DX::SafeRelease(m_blendState);
+	DX::SafeRelease(m_depthStencilState);
 	delete m_spriteBatch;
 }
 

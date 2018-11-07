@@ -7,7 +7,9 @@ enum Ability
 	TELEPORT = 0,
 	VISIBILITY = 1,
 	DISABLE = 2,
-	VIS2 = 3 //this is a placeholder
+	VIS2 = 3, //this is a placeholder
+	BLINK = 4,
+	POSSESS = 5,
 };
 
 class AbilityComponent
