@@ -41,6 +41,7 @@ public:
 
 	void setPlayer(Player * playerPtr);
 
+	const std::vector<Enemy*>* getEnemies() const;
 private:
 
 	void _LoadPreFabs();

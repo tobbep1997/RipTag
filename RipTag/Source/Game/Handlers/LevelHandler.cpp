@@ -121,6 +121,11 @@ void LevelHandler::setPlayer(Player * playerPtr)
 
 }
 
+const std::vector<Enemy*>* LevelHandler::getEnemies() const
+{
+	return m_rooms[m_activeRoom]->getEnemies();
+}
+
 void LevelHandler::_LoadPreFabs()
 {
 	
