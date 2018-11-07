@@ -124,7 +124,16 @@ void Enemy::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	Transform::setPosition(pos);
 	DirectX::XMFLOAT4A cPos = pos;
-	cPos.y += 1;
+	cPos.y += 1.5f;
+	DirectX::XMFLOAT4A dir = p_camera->getDirection();
+	dir.y = 0.0f;
+	DirectX::XMVECTOR vDir = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir));
+	vDir = DirectX::XMVectorScale(vDir, 0.3f);
+	DirectX::XMStoreFloat4A(&dir, vDir);
+
+	cPos.x += dir.x;
+	cPos.z += dir.z;
+
 	p_camera->setPosition(cPos);
 }
 
