@@ -175,8 +175,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialMessages.push("");
 	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
 	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
-	m_tutorialMessages.push("Select your abilities with DPAD(1-4) and use with RB(T)");
-	m_tutorialMessages.push("Peek to the sides with LT(Q) and RT(E)");
+	m_tutorialMessages.push("Select your abilities with DPAD and use with RB");
+	m_tutorialMessages.push("Peek to the sides with LT and RT");
 	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
 	m_tutorialText = new Quad();
@@ -935,20 +935,20 @@ void Player::_objectInfo(double deltaTime)
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
 				{
-					m_infoText->setString("Press X (TAB) to pull");
+					m_infoText->setString("Press X to pull");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS)
 				{
-					m_infoText->setString("Select DPAD DOWN (3) and press RT(R) to possess");
+					m_infoText->setString("Press RB to possess");
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3)
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3  && m_currentAbility == Ability::BLINK)
 				{
-					m_infoText->setString("Select DPAD UP (1) and press RT(F) to pass");
+					m_infoText->setString("Press RB to pass");
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
