@@ -396,7 +396,7 @@ void Enemy::_possessed(double deltaTime)
 	{
 		if (m_possessReturnDelay <= 0)
 		{
-			if (Input::Possess())
+			if (Input::OnAbilityPressed())
 			{
 				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
 				m_possessor = nullptr;
