@@ -53,7 +53,7 @@ private:
 	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
-	AbilityComponent ** m_abilityComponents;	
+	AbilityComponent ** m_abilityComponents1;	
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;

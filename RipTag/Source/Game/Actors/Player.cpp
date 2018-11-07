@@ -32,11 +32,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_dis->setIsLocal(true);
 	m_dis->Init();
 
-	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
-	m_abilityComponents[0] = m_teleport;
-	m_abilityComponents[1] = visAbl;
-	m_abilityComponents[2] = m_dis;
-	m_abilityComponents[3] = visAbl2;
+	m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
+	m_abilityComponents1[0] = m_teleport;
+	m_abilityComponents1[1] = visAbl;
+	m_abilityComponents1[2] = m_dis;
+	m_abilityComponents1[3] = visAbl2;
 
 	m_currentAbility = Ability::TELEPORT;
 	/*m_possess.setOwner(this);
@@ -124,8 +124,8 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 Player::~Player()
 {
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
-		delete m_abilityComponents[i];
-	delete[] m_abilityComponents;
+		delete m_abilityComponents1[i];
+	delete[] m_abilityComponents1;
 	delete m_blink;
 	delete m_possess;
 }
@@ -223,7 +223,7 @@ void Player::Update(double deltaTime)
 		m_maxMana += 10;
 	}
 
-	m_abilityComponents[m_currentAbility]->Update(deltaTime);
+	m_abilityComponents1[m_currentAbility]->Update(deltaTime);
 	m_possess->Update(deltaTime);
 	m_blink->Update(deltaTime);
 	_cameraPlacement(deltaTime);
@@ -317,7 +317,7 @@ void Player::RefillMana(const float& manaFill)
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
-		m_abilityComponents[i]->Draw();
+		m_abilityComponents1[i]->Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
 
@@ -367,9 +367,9 @@ void Player::SendOnAbilityUsed()
 	packet.timeStamp = RakNet::GetTime();
 	packet.m_id = ID_PLAYER_ABILITY;
 
-	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents[m_currentAbility]);
-	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents[m_currentAbility]);
-	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents[m_currentAbility]);
+	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
+	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
+	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
 	//unique based on active ability
 	switch (this->m_currentAbility)
 	{
@@ -765,7 +765,7 @@ void Player::_onInteract()
 
 void Player::_onAbility(double dt)
 {
-	this->m_abilityComponents[m_currentAbility]->Update(dt);
+	this->m_abilityComponents1[m_currentAbility]->Update(dt);
 }
 
 void Player::_cameraPlacement(double deltaTime)

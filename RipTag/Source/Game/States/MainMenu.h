@@ -9,7 +9,6 @@ private:
 	Quad * playButton;
 	Quad * quitButton;
 
-
 public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
