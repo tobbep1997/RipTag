@@ -92,6 +92,8 @@ private:
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
 
+	Quad * m_winBar;
+
 
 	
 public:
@@ -139,6 +141,7 @@ public:
 
 	bool DrainMana(const float & manaCost);
 	void RefillMana(const float & manaFill);
+	void drawWinBar();
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
