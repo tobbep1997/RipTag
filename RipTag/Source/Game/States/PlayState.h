@@ -35,7 +35,6 @@ private:
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;
-	FMOD::Channel * TEEEMPCHANNEL;
 
 	std::thread m_physicsThread;
 	std::mutex m_physicsMutex;
@@ -44,7 +43,6 @@ private:
 	bool m_destoryPhysicsThread = false;
 
 public:
-
 	PlayState(RenderingManager * rm);
 	~PlayState();
 
@@ -54,6 +52,7 @@ public:
 
 private:
 	void testtThread(double deltaTime);
+	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();

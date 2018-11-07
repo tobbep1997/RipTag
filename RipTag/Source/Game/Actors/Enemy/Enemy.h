@@ -12,7 +12,7 @@ class Grid;
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
-	const float MOVE_SPEED = 10.0f;
+	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
@@ -33,7 +33,7 @@ private:
 
 	bool m_disabled = false;
 
-	float m_moveSpeed = 10;
+	float m_moveSpeed = 2;
 	float m_camSensitivity = 5;
 	float m_standHeight;
 	float m_offPutY = 0.4f;

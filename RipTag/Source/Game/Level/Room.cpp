@@ -190,6 +190,11 @@ DirectX::XMFLOAT4 Room::getPlayer2StartPos()
 	return this->m_player2StartPos;
 }
 
+const std::vector<Enemy*>* Room::getEnemies() const
+{
+	return &m_roomGuards;
+}
+
 void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
