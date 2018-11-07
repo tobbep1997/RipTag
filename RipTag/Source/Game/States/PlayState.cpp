@@ -59,8 +59,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	std::string name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
-	TEEEMPCHANNEL = AudioEngine::PlaySoundEffect(name, &caveSoundAt);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2);
+	
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt)->setUserData((void*)&AudioEngine::OTHER_SOUND);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2)->setUserData((void*)&AudioEngine::OTHER_SOUND);
+	
 	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
 	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
@@ -151,6 +153,10 @@ void PlayState::Update(double deltaTime)
 		setKillState(true);
 	}
 
+	
+	
+	_audioAgainstGuards(deltaTime);
+
 
 	// Must be last in update
 	if (!m_playerManager->getLocalPlayer()->unlockMouse)
@@ -162,25 +168,12 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(true);
 	}
-
-
 }
 
 void PlayState::Draw()
 {
 	m_levelHandler->Draw();
 
-	/*for (auto & lights : DX::g_lights)
-	{
-		RayCastListener::RayContact * rc = RipExtern::m_rayListener->ShotRay(m_playerManager->getLocalPlayer()->getBody(),
-			lights->getPosition(),
-			lights->getDir(*m_playerManager->getLocalPlayer()->getBody()),
-			lights->getFarPlane() / cos(lights->getFOV() / 2.0f));
-		if (rc)
-		{		
-			lights->setUpdate(rc->contactShape->GetBody()->GetObjectTag() == "PLAYER");
-		}
-	}*/
 	_lightCulling();
 
 	m_playerManager->Draw();
@@ -198,6 +191,76 @@ void PlayState::testtThread(double deltaTime)
 		if (m_deltaTime <= 0.65f)
 		{
 			m_world.Step(m_step);
+		}
+	}
+}
+
+void PlayState::_audioAgainstGuards(double deltaTime)
+{
+	static double timer = 0.0f;
+	timer += deltaTime;
+
+	if (timer > 0.33)
+	{
+		timer = 0.0f;
+		std::vector<FMOD::Channel*> channels = AudioEngine::getAllPlayingChannels();
+		const std::vector<Enemy*>* enemies = m_levelHandler->getEnemies();
+
+		for (auto & e : *enemies)
+		{
+			float allSounds = 0.0f;
+			float playerSounds = 0.0f;
+			const DirectX::XMFLOAT4A & ePos = e->getPosition();
+			const DirectX::XMFLOAT4A & pPos = m_playerManager->getLocalPlayer()->getPosition();
+			DirectX::XMVECTOR vEPos = DirectX::XMLoadFloat4A(&ePos);
+			DirectX::XMVECTOR vPPos = DirectX::XMLoadFloat4A(&pPos);
+			DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(vPPos, vEPos);
+			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+			if (length < 20.0f)
+			{
+				for (auto & c : channels)
+				{
+					AudioEngine::SoundType * soundType = nullptr;
+					FMOD_RESULT res = c->getUserData((void**)&soundType);
+					if (res == FMOD_OK)
+					{
+						FMOD_VECTOR soundPos;
+						if (c->get3DAttributes(&soundPos, nullptr) == FMOD_OK)
+						{
+							DirectX::XMVECTOR vSPos = DirectX::XMVectorSet(soundPos.x, soundPos.y, soundPos.z, 1.0f);
+							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vEPos, vSPos);
+							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
+							float volume = 0;
+							c->getVolume(&volume);
+							volume *= 100.0f;
+							float addThis = (volume / lengthSquared) * DirectX::XM_PI;
+
+							switch (*soundType)
+							{
+							case AudioEngine::Player:
+								allSounds += addThis;
+								playerSounds += addThis;
+								break;
+							case AudioEngine::Other:
+								allSounds += addThis;
+								break;
+							}
+						}
+					}
+				}
+
+				if (playerSounds > 0.1)
+				{
+					if (playerSounds / allSounds > 0.25f)
+					{
+						std::cout << "Guard Hear\n";
+						std::cout << "PlayerSound: " << playerSounds << std::endl;
+						std::cout << "All Sounds: " << allSounds << std::endl;
+						std::cout << "Presentage: " << (playerSounds / allSounds) << std::endl;
+						std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+					}
+				}
+			}
 		}
 	}
 }

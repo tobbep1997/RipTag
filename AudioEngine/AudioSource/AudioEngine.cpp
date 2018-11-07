@@ -382,6 +382,30 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	return ReturnValue;
 }
 
+std::vector<FMOD::Channel*> AudioEngine::getAllPlayingChannels()
+{
+	int index = 0;
+	FMOD::Channel * c = nullptr;
+	std::vector<FMOD::Channel*> Channel;
+	while (FMOD_OK == s_soundEffectGroup->getChannel(index++, &c))
+	{
+		bool isPlaying = false;
+		c->isPlaying(&isPlaying);
+		if (isPlaying)
+			Channel.push_back(c);
+	}
+	index = 0;
+	while (FMOD_OK == s_ambientSoundGroup->getChannel(index++, &c))
+	{
+		bool isPlaying = false;
+		c->isPlaying(&isPlaying);
+		if (isPlaying)
+			Channel.push_back(c);
+	}
+
+	return Channel;
+}
+
 void AudioEngine::_createSystem()
 {
 	unsigned int version;
@@ -430,6 +454,9 @@ void AudioEngine::_createChannelGroups()
 	s_ambientSoundGroup->setVolume(1.0f);
 	s_system->createChannelGroup("Music", &s_musicSoundGroup);
 	s_musicSoundGroup->setVolume(1.0f);
+
+
+	
 
 	FMOD_RESULT res = s_masterGroup->addGroup(s_soundEffectGroup);
 	res = s_masterGroup->addGroup(s_ambientSoundGroup);

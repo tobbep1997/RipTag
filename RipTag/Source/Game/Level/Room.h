@@ -98,6 +98,8 @@ public:
 	DirectX::XMFLOAT4 getPlayer1StartPos();
 	DirectX::XMFLOAT4 getPlayer2StartPos();
 
+	const std::vector<Enemy*>* getEnemies() const;
+
 	//---------------------------------------------------
 	//Memory Management
 	void UnloadRoomFromMemory();

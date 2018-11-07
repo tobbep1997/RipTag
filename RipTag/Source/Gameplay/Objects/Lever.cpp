@@ -44,13 +44,11 @@ void Lever::Update(double deltaTime)
 						p_trigger(!Triggerd());
 						if (Triggerd())
 						{
-							AudioEngine::PlaySoundEffect(unlock, &fVector);
-							//AudioEngine::PlaySoundEffect(lock, &fVector);
+							AudioEngine::PlaySoundEffect(unlock, &fVector)->setUserData((void*)&AudioEngine::PLAYER_SOUND);
 						}
 						else
 						{
-							//AudioEngine::PlaySoundEffect(unlock, &fVector);
-							AudioEngine::PlaySoundEffect(lock, &fVector);
+							AudioEngine::PlaySoundEffect(lock, &fVector)->setUserData((void*)&AudioEngine::PLAYER_SOUND);
 						}
 
 						*con->consumeState += 1;

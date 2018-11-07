@@ -75,7 +75,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
 
-
 	m_maxMana = STANDARD_START_MANA;
 	m_currentMana = m_maxMana;
 
@@ -537,15 +536,22 @@ void Player::_onMovement()
 	float x = 0;
 	float z = 0;
 
-	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
+
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+
+	DirectX::XMStoreFloat2(&dir, vDir);
+
+	x = dir.x * m_moveSpeed  * RIGHT.x;
+	x += dir.y * m_moveSpeed * forward.x;
+	z = dir.y * m_moveSpeed * forward.z;
+	z += dir.x * m_moveSpeed * RIGHT.z;
 
 	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
-	//addForceToCenter(0, 1.1f, 0);
-
 }
 
 void Player::_onSprint()
@@ -921,7 +927,16 @@ void Player::_cameraPlacement(double deltaTime)
 				{
 					index = rand() % (int)m_sounds.size();
 				}
-				AudioEngine::PlaySoundEffect(m_sounds[index], &at)->setVolume(0.3 + (p_moveState * 0.4));
+				FMOD::Channel * c = nullptr;
+				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at);
+				b3Vec3 vel = getLiniearVelocity();
+				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
+				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+
+				speed *= 0.1;
+				speed -= 0.2f;
+				c->setVolume(speed);
+				c->setUserData((void*)&AudioEngine::PLAYER_SOUND);
 				last = index;
 			}
 		}
