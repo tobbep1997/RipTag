@@ -46,6 +46,16 @@ void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data
 	{
 		this->mRemotePlayer = new RemotePlayer(packet->nid, packet->pos, packet->scale, packet->rotation);
 		hasRemotePlayer = true;
+		if (Network::Multiplayer::GetInstance()->isServer())
+		{
+			this->mLocalPlayer->SetAbilitySet(1);
+			this->mRemotePlayer->SetAbilitySet(2);
+		}
+		else
+		{
+			this->mLocalPlayer->SetAbilitySet(2);
+			this->mRemotePlayer->SetAbilitySet(1);
+		}
 	}
 }
 

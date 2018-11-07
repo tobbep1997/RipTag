@@ -40,6 +40,9 @@ void PossessGuard::Draw()
 void PossessGuard::_logic(double deltaTime)
 {
 	Player* pPointer = static_cast<Player*>(p_owner);
+	if (Input::OnAbilityReleased())
+		m_useFunctionCalled = true;
+
 	if (m_useFunctionCalled) // the Use() function were called last frame
 	{
 		switch (m_pState)
@@ -61,6 +64,7 @@ void PossessGuard::_logic(double deltaTime)
 				this->possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				cooldown = 0;
+				//m_useFunctionCalled = false;
 			
 			break;
 		case PossessGuard::Possess:
@@ -126,5 +130,4 @@ void PossessGuard::_logic(double deltaTime)
 		}
 	
 	}
-	m_useFunctionCalled = false;
 }

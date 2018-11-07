@@ -8,9 +8,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
-	b3Vec3 pos;
-	b3Vec3 size;
-	b3Quaternion rot;
+	
 	for (int i = 0; i < propsToPlace.nrOfItems; i++)
 	{
 		int a = propsToPlace.props[i].typeOfProp;

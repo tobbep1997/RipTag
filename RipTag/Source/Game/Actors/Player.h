@@ -41,7 +41,7 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 
 	std::vector<std::string> m_sounds;
-	
+
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -54,13 +54,14 @@ private:
 	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
-	AbilityComponent ** m_abilityComponents1;	
+	AbilityComponent ** m_abilityComponents1;
+	AbilityComponent ** m_abilityComponents2;
+	AbilityComponent ** m_activeSet;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
 	Enemy* possessTarget;	
-	BlinkAbility * m_blink;
-	PossessGuard * m_possess;
+
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -111,7 +112,7 @@ private:
 
 public:
 	//Magic number
-	static const int g_fullVisability = 2300;
+	static const int g_fullVisability = 6500;
 	bool hasWon = false;
 
 	bool unlockMouse = false;
@@ -155,13 +156,12 @@ public:
 	bool DrainMana(const float & manaCost);
 	void RefillMana(const float & manaFill);
 	void drawWinBar();
+	void SetAbilitySet(int set);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
-	void _onBlink();
-	void _onPossess();
 	void _onRotate(double deltaTime);
 	void _onJump();
 	void _onInteract();
