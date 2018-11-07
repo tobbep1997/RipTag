@@ -43,7 +43,7 @@ private:
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
 
-	MyLibrary::GridStruct * m_grid;	//Released?
+	ImporterLibrary::GridStruct * m_grid;	//Released?
 	Grid * m_pathfindingGrid;		//Released
 	
 	DirectX::XMFLOAT4 m_player1StartPos;

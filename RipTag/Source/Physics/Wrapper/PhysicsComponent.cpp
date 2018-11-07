@@ -71,7 +71,7 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 	CreateBodyAndShape(world);
 }
 
-void PhysicsComponent::Init(b3World & world, const MyLibrary::CollisionBoxes & collisionBoxes, float friction)
+void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes, float friction)
 {
 	singelCollider = false;
 	//setBaseBodyDef---------------------------------------

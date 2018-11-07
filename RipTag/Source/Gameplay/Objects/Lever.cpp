@@ -26,7 +26,7 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	auto& machine = getAnimatedModel()->InitStateMachine(1);
 	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
-	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
+	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
 	getAnimatedModel()->Pause();
 	BaseActor::setUserDataBody(this);
 	unlock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
@@ -45,26 +45,20 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
-						auto pos = getPosition();
-						FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
-						p_trigger(!Triggerd());
-						if (Triggerd())
-						{
-							AudioEngine::PlaySoundEffect(unlock, &fVector);
-							//AudioEngine::PlaySoundEffect(lock, &fVector);
-						}
-						else
-						{
-							//AudioEngine::PlaySoundEffect(unlock, &fVector);
-							AudioEngine::PlaySoundEffect(lock, &fVector);
-						}
+					auto pos = getPosition();
+					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
 
 					if (this->getTriggerState())
+					{
 						this->setTriggerState(false);
+						AudioEngine::PlaySoundEffect(unlock, &fVector);
+					}
 					else
+					{
+						AudioEngine::PlaySoundEffect(lock, &fVector);
 						this->setTriggerState(true);
-						
-					*con.consumeState +=1;
+					}
+					*(con->consumeState) += 1;
 					//SENDTriggerd here for network
 					this->SendOverNetwork();
 				}
@@ -72,4 +66,8 @@ void Lever::Update(double deltaTime)
 		}
 	}
 	this->getAnimatedModel()->Update(deltaTime);
+}
+
+void Lever::BeginPlay()
+{
 }
