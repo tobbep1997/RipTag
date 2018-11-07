@@ -27,6 +27,8 @@ Fix list
 	- Network
 		- Ja, vakten rörde sig inte för andra spelaren när den hade blivit flyttad med possess guard.
 		
+		
+		
 Upplevde du någon gång under spelet att du inte visste vad du skulle göra?
 Nej (4)
 nej (2)
