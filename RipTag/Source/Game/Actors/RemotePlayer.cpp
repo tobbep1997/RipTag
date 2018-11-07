@@ -133,7 +133,7 @@ void RemotePlayer::Update(double dt)
 	this->_lerpPosition(dt);
 
 	//2.
-	m_abilityComponents1[m_currentAbility]->Update(dt);
+	m_activeSet[m_currentAbility]->Update(dt);
 
 	//3.
 	this->getAnimatedModel()->Update(dt);
@@ -142,7 +142,7 @@ void RemotePlayer::Update(double dt)
 void RemotePlayer::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
-		m_abilityComponents1[i]->Draw();
+		m_activeSet[i]->Draw();
 	Drawable::Draw();
 }
 
