@@ -115,7 +115,6 @@ public:
 	};
 private:
 	std::vector<Ray*> rays;
-	//std::vector<RayContact*> rayContacts;
 	b3Body* m_tempBody;
 	bool m_singleUse = true;
 	bool m_rayHit = false;
@@ -173,7 +172,7 @@ public:
 
 	/*Prepares the start and end positions of the ray, then calls the physics engine to perform a raycast.
 	If specified, the objects being intersected will stay alive until the object shooting the ray and the object being intersected have accessed the contact once.
-	Contact will be destroyed if no object has accessed the contact*/
+	contact, will be destroyed if no object has accessed the contact*/
 	virtual Ray* ShotRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length, bool singleUse = true)
 	{
 		Ray* contact = nullptr;

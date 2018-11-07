@@ -6,9 +6,10 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
 	Manager::g_textureManager.loadTextures("BLACK");
+	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XM_PI * convertion, 16.0f / 9.0f, 0.1f, 50.0f));
+	p_initCamera(new Camera(DirectX::XM_PI * convertion, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 	
@@ -46,6 +47,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_blink.setOwner(this);
 	m_blink.Init();*/
 
+
+
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -75,6 +78,10 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
 	HUDComponent::AddQuad(quad);
 
+	quad = new Quad();
+	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
+	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("VISIBILITYICON"));
+	HUDComponent::AddQuad(quad);
 
 	m_maxMana = STANDARD_START_MANA;
 	m_currentMana = m_maxMana;
@@ -104,46 +111,18 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_manaBarBackground);
 	HUDComponent::AddQuad(m_manabarText);
 
-	m_visBar = new Quad();
-	m_visBar->init(DirectX::XMFLOAT2A(0.85f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_visBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_visBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
-
-	
-	m_visBarBackground = new Quad();
-	m_visBarBackground->init(DirectX::XMFLOAT2A(0.848f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_visBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
-	m_visBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_visBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
-
-	m_visbarText = new Quad();
-	m_visbarText->init(DirectX::XMFLOAT2A(0.92, 0.034f), DirectX::XMFLOAT2A(0, 0));
-	m_visbarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
-	m_visbarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_visbarText->setScale(0, 0);
-	m_visbarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
-	m_visbarText->setString("Vis");
-	m_visbarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
-
-
-	HUDComponent::AddQuad(m_visBar);
-	HUDComponent::AddQuad(m_visBarBackground);
-	HUDComponent::AddQuad(m_visbarText);
-	
-
 	m_infoText = new Quad();
 	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
 	m_infoText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_infoText->setScale(0, 0);
-	m_infoText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_infoText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_infoText);
 	m_tutorialMessages.push("");
-	m_tutorialMessages.push("Select your a magical sphere with DPAD LEFT(2) to\nsee how visible for the guard you are.");
-	m_tutorialMessages.push("Select your rock with DPAD DOWN(3) and throw with\nRB(T) on a guard to knock them out.");
-	m_tutorialMessages.push("Select your teleport stone with DPAD UP(1) hold  \nRB(T) to throw further. Press again to teleport.");
+	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
 	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit.");
+	m_tutorialMessages.push("Select your abilities with DPAD(1-4) and use with RB(T)");
 	m_tutorialMessages.push("Peek to the sides with LT(Q) and RT(E).");
 	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
@@ -152,11 +131,20 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_tutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_tutorialText->setScale(0, 0);
-	m_tutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_tutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-//	m_tutorialText->setString(m_tutorialMessages.top());
+	m_tutorialText->setString(m_tutorialMessages.top());
 	HUDComponent::AddQuad(m_tutorialText);
-//	m_tutorialMessages.pop();
+	m_tutorialMessages.pop();
+
+	m_abilityTutorialText = new Quad();
+	m_abilityTutorialText->init(DirectX::XMFLOAT2A(0.15, 0.26f), DirectX::XMFLOAT2A(0, 0));
+	m_abilityTutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_abilityTutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	m_abilityTutorialText->setScale(0, 0);
+	m_abilityTutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_abilityTutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
+	HUDComponent::AddQuad(m_abilityTutorialText);
 
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
@@ -174,7 +162,6 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
 	m_lockPlayerInput = false;
-
 }
 
 Player::~Player()
@@ -188,7 +175,7 @@ Player::~Player()
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
-	PhysicsComponent::Init(world, bodyType, x, y, z, false,0);
+	PhysicsComponent::Init(world, bodyType, x, y, z, false , 0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 	setUserDataBody(this);
@@ -209,7 +196,6 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_possess->setOwner(this);
 
 	setHidden(true);
-
 }
 
 void Player::BeginPlay()
@@ -234,7 +220,6 @@ void Player::Update(double deltaTime)
 	}
 
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
-	m_visBar->setScale((float)m_visability / (float)g_fullVisability, 0.1f);
 	if (InputHandler::isKeyPressed('I'))
 	{
 		RefillMana(10);
@@ -251,11 +236,11 @@ void Player::Update(double deltaTime)
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
-	if (Input::SelectAbility1())	
+	if (Input::SelectAbility1())
 		m_currentAbility = Ability::TELEPORT;		
-	else if (Input::SelectAbility2())	
+	else if (Input::SelectAbility2())
 		m_currentAbility = Ability::VISIBILITY;	
-	else if (Input::SelectAbility3())	
+	else if (Input::SelectAbility3())
 		m_currentAbility = Ability::DISABLE;	
 	else if (Input::SelectAbility4())
 		m_currentAbility = Ability::VIS2;
@@ -269,9 +254,21 @@ void Player::Update(double deltaTime)
 	else if (GamePadHandler::IsLeftDpadPressed())
 		m_currentAbility = Ability::VIS2;
 
+
+	if (m_currentAbility == Ability::TELEPORT)
+		m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
+	else if(m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
+		m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
+	else if(m_currentAbility == Ability::DISABLE)
+		m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
+	else if (m_currentAbility == Ability::BLINK)
+		m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
+	else if (m_currentAbility == Ability::POSSESS)
+		m_abilityTutorialText->setString("Possess:\nControl guards.");
+
+
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
-	
 }
 
 void Player::PhysicsUpdate()
@@ -510,9 +507,8 @@ void Player::_handleInput(double deltaTime)
 	_onPossess();
 	_onInteract();
 	_onRotate(deltaTime);
-	//_objectInfo(deltaTime);
-	//_updateTutorial(deltaTime);
-	//p_setRotation(0, 0, 0);
+	_objectInfo(deltaTime);
+	_updateTutorial(deltaTime);
 }
 
 void Player::_onMovement()
@@ -542,10 +538,7 @@ void Player::_onMovement()
 	z = Input::MoveForward() * m_moveSpeed * forward.z;
 	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
 
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
-	//addForceToCenter(0, 1.1f, 0);
-
 }
 
 void Player::_onSprint()
@@ -753,7 +746,7 @@ void Player::_onRotate(double deltaTime)
 		
 			
 		}
-
+		
 	}
 }
 
