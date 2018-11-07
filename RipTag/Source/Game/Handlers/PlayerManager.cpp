@@ -98,10 +98,15 @@ void PlayerManager::Update(float dt)
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
-	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+	if (mRemotePlayer)
 	{
-		//YOU WON THE GAME! 
+		if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+		{
+			//YOU WON THE GAME! 
+			int i = 0;
+		}
 	}
+	
 
 }
 
