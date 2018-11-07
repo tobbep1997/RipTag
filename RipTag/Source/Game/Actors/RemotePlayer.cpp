@@ -17,7 +17,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//1.
 	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
-	this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
+	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
 	this->setScale(scale);
