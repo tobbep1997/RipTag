@@ -217,8 +217,8 @@ void PlayState::Update(double deltaTime)
 		InputHandler::setShowCursor(FALSE);	   
 
 	
-#if _DEBUG
 	TemporaryLobby();
+#if _DEBUG
 #endif
 	if (GamePadHandler::IsSelectPressed())
 	{

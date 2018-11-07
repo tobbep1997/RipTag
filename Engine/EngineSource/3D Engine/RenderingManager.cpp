@@ -29,7 +29,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 #if _DEBUG
 	DEBUG = true;
 #else
-	DEBUG = false;
+	DEBUG = true;
 #endif
 
 	WindowContext wind;
