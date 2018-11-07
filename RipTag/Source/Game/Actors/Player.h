@@ -98,6 +98,7 @@ private:
 	Quad * m_visBar;
 	Quad * m_visBarBackground;
 	Quad * m_visbarText;
+	Quad * m_winBar;
 
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
@@ -153,6 +154,7 @@ public:
 
 	bool DrainMana(const float & manaCost);
 	void RefillMana(const float & manaFill);
+	void drawWinBar();
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();

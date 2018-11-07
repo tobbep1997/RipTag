@@ -100,10 +100,8 @@ void PlayerManager::Update(float dt)
 
 	if (mRemotePlayer)
 	{
-		if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
-		{
-			//YOU WON THE GAME! 
-		}
+		mLocalPlayer->drawWinBar();
+		//YOU WON THE GAME! 
 	}
 	
 
