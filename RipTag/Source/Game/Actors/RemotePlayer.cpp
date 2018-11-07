@@ -5,6 +5,7 @@
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
 	using namespace DirectX;
+	this->hasWon = false;
 	//TODO:
 	//1. Load the correct mesh and configure it
 	//2. Set the transform
