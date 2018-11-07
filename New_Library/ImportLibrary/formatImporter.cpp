@@ -486,19 +486,15 @@ namespace ImporterLibrary
 		
 		if (customGridFile.is_open())
 		{
-		
-
-			customGridFile.read((char*)&gridPos->maxX, sizeof(int)); // what is happening here?!! i just copied this code
-			customGridFile.read((char*)&gridPos->maxY, sizeof(int)); // what is happening here?!! i just copied this code
-
-			customGridFile.read((char*)&gridPos->nrOf, sizeof(int)); // what is happening here?!! i just copied this code
-
+			customGridFile.read((char*)&gridPos->maxX, sizeof(int));
+			customGridFile.read((char*)&gridPos->maxY, sizeof(int));
+			customGridFile.read((char*)&gridPos->nrOf, sizeof(int));
 			gridPos->gridPoints = new GridPointStruct[gridPos->nrOf];
 			
 			for (int i = 0; i < gridPos->nrOf; i++)
 			{
-				customGridFile.read((char*)&gridPos->gridPoints[i].pathable, sizeof(bool)); // what is happening here?!! i just copied this code
-				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float)*3); // what is happening here?!! i just copied this code
+				customGridFile.read((char*)&gridPos->gridPoints[i].pathable, sizeof(bool));
+				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float)*3);
 			}
 			customGridFile.close();
 		}

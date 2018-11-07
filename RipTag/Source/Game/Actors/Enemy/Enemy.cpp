@@ -64,13 +64,15 @@ Enemy::~Enemy()
 {
 	delete m_vc;
 	this->Release(*this->getBody()->GetScene());
-	for (auto path : m_path)
+	for (int i = 0; i < m_path.size(); i++)
 	{
-		delete path;
+		delete m_path.at(i);
 	}
 	m_path.clear();
-	for (auto alert : m_alertPath)
-		delete alert;
+	for (int i = 0; i < m_alertPath.size(); i++)
+	{
+		delete m_alertPath.at(i);
+	}
 	m_alertPath.clear();
 }
 

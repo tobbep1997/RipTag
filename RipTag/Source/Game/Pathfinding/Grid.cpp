@@ -44,9 +44,12 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
-				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[2],
-					grid.gridPoints[j + i * m_width].translation[0])));
+			/*m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
+				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[0],
+					grid.gridPoints[j + i * m_width].translation[2])));*/
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
+				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
+					grid.gridPoints[i + j * m_height].translation[2])));
 		}
 	}
 }
@@ -77,7 +80,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	Node * current = new Node(source, NodeWorldPos(), nullptr, 0.0f, _calcHValue(source, dest));
 	openList.push_back(current);
 
-	while (!openList.empty())
+	while (!openList.empty() || earlyExplorationNode != nullptr)
 	{
 		if (earlyExplorationNode != nullptr)
 		{
@@ -265,7 +268,7 @@ int Grid::_worldPosInNodeMap(int begin, int end, int x, int y) const
 		if ((int)m_nodeMap.at(mid).worldPos.y == y)
 		{
 			int indexAdjuster = mid % m_width;
-			return _findXInYRow(mid - (indexAdjuster), mid - indexAdjuster + m_width, x, y);
+			return _findXInYRow(mid - indexAdjuster, mid - indexAdjuster + m_width - 1, x, y);
 		}
 
 		if (y < m_nodeMap.at(mid).worldPos.y)
