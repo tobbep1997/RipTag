@@ -278,3 +278,18 @@ void Quad::setPivotPoint(PivotPoint pivotPoint)
 	this->m_pivotPoint = pivotPoint;
 	this->setPosition(this->getPosition());
 }
+
+DirectX::XMFLOAT4 Quad::getCenter() const
+{
+	return DirectX::XMFLOAT4();
+}
+
+unsigned int Quad::getType() const
+{
+	return 0U;
+}
+
+const float & Quad::getRadie() const
+{
+	return 0.0f;
+}

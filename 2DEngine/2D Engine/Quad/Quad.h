@@ -29,7 +29,7 @@ public:
 	};
 
 private:
-	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
+
 
 	ID3D11Buffer * m_vertexBuffer;
 
@@ -58,10 +58,11 @@ private:
 	bool m_selected = false;
 
 	void _rebuildQuad();
-
+protected:
+	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
 	Quad();
-	~Quad();
+	virtual~Quad();
 
 	void init(DirectX::XMFLOAT2A position = DirectX::XMFLOAT2A(0,0), DirectX::XMFLOAT2A size = DirectX::XMFLOAT2A(1,1));
 	void Draw();
@@ -99,6 +100,10 @@ public:
 	const bool & isSelected() const;
 
 	void setPivotPoint(PivotPoint pivotPoint);
+
+	virtual DirectX::XMFLOAT4 getCenter() const;
+	virtual unsigned int getType() const;
+	virtual const float & getRadie() const;
 
 };
 

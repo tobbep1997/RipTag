@@ -260,6 +260,7 @@
     <ClCompile Include="2D Engine\Quad\Components\Transform2D.cpp" />
     <ClCompile Include="2D Engine\Quad\Quad.cpp" />
     <ClCompile Include="2D Engine\Render2D.cpp" />
+    <ClCompile Include="2D Engine\Circle\Circle.cpp" />
     <ClCompile Include="Engine2DPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -290,6 +291,7 @@
     <ClInclude Include="2D Engine\Quad\Components\Transform2D.h" />
     <ClInclude Include="2D Engine\Quad\Quad.h" />
     <ClInclude Include="2D Engine\Render2D.h" />
+    <ClInclude Include="2D Engine\Circle\Circle.h" />
     <ClInclude Include="Engine2DPCH.h" />
     <ClInclude Include="Fonts\FontHandler.h" />
     <ClInclude Include="2D Engine\Quad\Components\HUDComponent.h" />

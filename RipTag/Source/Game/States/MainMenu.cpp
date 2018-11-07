@@ -33,6 +33,10 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	quitButton->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	quitButton->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	quitButton->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+
+	c = new Circle();
+	c->init(DirectX::XMFLOAT2A(.25, .5), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	c->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
 }
 
 MainMenu::~MainMenu()
@@ -42,6 +46,9 @@ MainMenu::~MainMenu()
 
 	quitButton->Release();
 	delete quitButton;
+
+	c->Release();
+	delete c;
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
@@ -96,7 +103,9 @@ void MainMenu::Update(double deltaTime)
 	}
 
 	
-		
+	cTimer += deltaTime;
+	double radie = (sin(cTimer) + 1) * 0.25;
+	c->setRadie(radie);
 	
 }
 
@@ -107,5 +116,6 @@ void MainMenu::Draw()
 	
 	playButton->Draw();
 	quitButton->Draw();
+	c->Draw();
 	p_renderingManager->Flush(camera);
 }

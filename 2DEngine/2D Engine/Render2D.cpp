@@ -10,6 +10,7 @@ Render2D::Render2D()
 
 Render2D::~Render2D()
 {
+	
 }
 
 void Render2D::Init()
@@ -32,6 +33,9 @@ void Render2D::Init()
 
 	//Create the Depth/Stencil View
 	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
+
+	DXRHC::CreateConstantBuffer(m_HUDTypeBuffer, sizeof(HUDTypeStruct));
+
 }
 
 void Render2D::GUIPass()
@@ -53,6 +57,14 @@ void Render2D::GUIPass()
 	{
 		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
 		Quad * q = DX::g_2DQueue[j];
+		HUDTypeEnum type = (HUDTypeEnum)q->getType();
+
+		m_HUDTypeValues.center.x = q->getCenter().x;
+		m_HUDTypeValues.center.y = q->getCenter().y;
+		m_HUDTypeValues.center.z = q->getRadie();
+		m_HUDTypeValues.type.x = (unsigned int)type;
+
+		DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel);
 		DX::g_2DQueue[j]->MapTexture();
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
@@ -107,6 +119,7 @@ void Render2D::Release()
 	DX::SafeRelease(m_sampler);
 	DX::SafeRelease(m_blendState);
 	DX::SafeRelease(m_depthStencilState);
+	DX::SafeRelease(m_HUDTypeBuffer);
 	delete m_spriteBatch;
 }
 

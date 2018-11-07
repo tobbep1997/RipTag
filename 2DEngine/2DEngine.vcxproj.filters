@@ -57,6 +57,9 @@
     <ClCompile Include="2D Engine\DirectXTK\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="2D Engine\Circle\Circle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2D Engine\Quad\Components\Button.h">
@@ -126,6 +129,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="2D Engine\DirectXTK\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\Circle\Circle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
