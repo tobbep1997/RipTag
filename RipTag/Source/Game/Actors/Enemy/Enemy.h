@@ -57,9 +57,11 @@ private:
 	int m_toggleSprint = 0;
 	KeyPressedEnemy m_kp;
 
-
-
+	bool m_alert = false;
+	int m_currentPathNode = 0;
+	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
+	std::vector<Node*> m_alertPath;
 
 	float m_guardSpeed = 1.5;
 
@@ -78,7 +80,7 @@ public:
 	//TEMP
 	void setDir(const float & x, const float & y, const float & z);
 	Camera * getCamera();
-	const int* getPlayerVisibility() const;
+	const int * getPlayerVisibility() const;
 	bool unlockMouse = false;
 
 	// Inherited via Actor
@@ -110,6 +112,7 @@ public:
 
 	void SetPathVector(std::vector<Node*>  path);
 	std::vector<Node*> GetPathVector();
+	void SetAlertVector(std::vector<Node*> alertPath);
 
 	bool getIfLost();
 private:
@@ -124,7 +127,10 @@ private:
 	void _onCrouch();
 	void _onJump();
 	void _onSprint();
+
 	bool _MoveTo(Node * nextNode, double deltaTime);
+	bool _MoveToAlert(Node * nextNode, double deltaTime);
+	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);
 
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch();

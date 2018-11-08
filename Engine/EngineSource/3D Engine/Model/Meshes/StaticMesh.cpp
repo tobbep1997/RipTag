@@ -5,7 +5,6 @@
 
 StaticMesh::StaticMesh()
 {
-	m_collisionBox = nullptr;
 }
 
 

@@ -10,7 +10,6 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
@@ -46,7 +45,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
 	this->getAnimatedModel()->Play();
-	PhysicsComponent::Init(*world, e_staticBody,1,1,1,false,10);
+	PhysicsComponent::Init(*world, e_staticBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -64,11 +63,16 @@ Enemy::~Enemy()
 {
 	delete m_vc;
 	this->Release(*this->getBody()->GetScene());
-	for (auto path : m_path)
+	for (int i = 0; i < m_path.size(); i++)
 	{
-		delete path;
+		delete m_path.at(i);
 	}
 	m_path.clear();
+	for (int i = 0; i < m_alertPath.size(); i++)
+	{
+		delete m_alertPath.at(i);
+	}
+	m_alertPath.clear();
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -178,15 +182,23 @@ void Enemy::Update(double deltaTime)
 		else
 		{
 			_TempGuardPath(true, 0.001f);
-			if (m_path.size() > 0)
+			if (m_alert)
 			{
-				_MoveTo(m_path.at(0), deltaTime);
+				_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
 			}
-			_CheckPlayer(deltaTime);
+			else if (m_alertPath.size() > 0)
+			{
+				_MoveBackToPatrolRoute(m_alertPath.at(0), deltaTime);
+			}
+			else
+			{
+				if (m_path.size() > 0)
+				{
+					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
+				}
+			}
 		}
-
-		
-
+		_CheckPlayer(deltaTime);
 	}
 	else
 	{
@@ -390,6 +402,23 @@ std::vector<Node*> Enemy::GetPathVector()
 	return m_path;
 }
 
+void Enemy::SetAlertVector(std::vector<Node*> alertPath)
+{
+	if (m_alertPath.size() > 0)
+	{
+		for (int i = 0; i < m_alertPath.size(); i++)
+			delete m_alertPath.at(i);
+		m_alertPath.clear();
+		m_currentAlertPathNode = 0;
+		m_alert = false;
+	}
+	m_alertPath = alertPath;
+	if (m_alertPath.size() > 0)
+	{
+		m_alert = true;
+	}
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;
@@ -559,9 +588,13 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		delete m_path.at(0);
-		m_path.erase(m_path.begin());
-		return true;
+		m_currentPathNode++;
+		if (m_currentPathNode == m_path.size())
+		{
+			std::reverse(m_path.begin(), m_path.end());
+			m_currentPathNode = 0;
+			return true;
+		}
 	}
 	else
 	{
@@ -574,7 +607,57 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
-		return false;
+	}
+	return false;
+}
+
+bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
+{
+	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
+	{
+		m_currentAlertPathNode++;
+		if (m_currentAlertPathNode == m_alertPath.size())
+		{
+			std::reverse(m_alertPath.begin(), m_alertPath.end());
+			m_currentAlertPathNode = 0;
+			m_alert = false;
+			return true;
+		}
+	}
+	else
+	{
+		float x = nextNode->worldPos.x - getPosition().x;
+		float y = nextNode->worldPos.y - getPosition().z;
+
+		float angle = atan2(y, x);
+
+		float dx = cos(angle) * m_guardSpeed * deltaTime;
+		float dy = sin(angle) * m_guardSpeed * deltaTime;
+
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
+	}
+	return false;
+}
+
+void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
+{
+	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
+	{
+		std::cout << "Path size: " << m_alertPath.size() << "\n";
+		delete m_alertPath.at(0);
+		m_alertPath.erase(m_alertPath.begin());
+	}
+	else
+	{
+		float x = nextNode->worldPos.x - getPosition().x;
+		float y = nextNode->worldPos.y - getPosition().z;
+		
+		float angle = atan2(y, x);
+
+		float dx = cos(angle) * m_guardSpeed * deltaTime;
+		float dy = sin(angle) * m_guardSpeed * deltaTime;
+
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
 }
 
