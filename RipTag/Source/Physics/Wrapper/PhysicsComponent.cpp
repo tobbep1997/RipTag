@@ -351,10 +351,23 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
 }
 
-void PhysicsComponent::CreateShape(float x, float y, float z)
+void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ)
 {
-	b3Shape* shape = m_body->CreateShape(*m_bodyBoxDef);
-	shape->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
+	b3Hull* hull = new b3Hull();
+	hull->SetAsBox(b3Vec3(sizeX, sizeY, sizeZ));
+	b3Polyhedron* polyhedron = new b3Polyhedron();
+	polyhedron->SetHull(hull);
+	polyhedron->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
+	//b3Shape* shape = polyhedron;//
+	b3ShapeDef s;
+	s = b3ShapeDef();
+	s.shape = polyhedron;
+	s.density = 1.0f;
+	s.restitution = 0;
+	s.friction = 1;
+	s.sensor = false;
+	m_body->CreateShape(s);
+	m_hulls.push_back(hull);
 }
 
 void PhysicsComponent::setGravityScale(float gravity)

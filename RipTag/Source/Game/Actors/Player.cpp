@@ -239,7 +239,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, y, 0);
+	CreateShape(0, y, 0, x,y,z);
+	CreateShape(0, y, 0, 0.2, 0.2, 0.2);
 	m_standHeight = y*1.8;
 	m_crouchHeight = y*1.1;
 	m_cameraOffset = m_standHeight;
