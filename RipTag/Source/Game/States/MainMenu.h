@@ -9,8 +9,9 @@ private:
 	enum ButtonOrder
 	{
 		Play = 0,
-		Lobby = 1,
-		Quit = 2
+		Lobby,
+		Option,
+		Quit
 	};
 	std::vector<Quad*> m_buttons;
 	unsigned int m_currentButton;

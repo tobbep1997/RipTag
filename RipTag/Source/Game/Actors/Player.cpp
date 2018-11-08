@@ -809,27 +809,27 @@ void Player::_onRotate(double deltaTime)
 			//m_peekRotate = 0;
 		}
 
-		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) >=-0.5)
+		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >=-0.5)
 		{
-			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f);
+			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
 			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
 			{
-				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity() * deltaTime;
+				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
 			}
 		}
 		if (deltaY) 
 		{
-			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity() * deltaTime) < 0.90f)
+			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
 			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f, 0.0f);
+				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y >= 0.90f)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
 			}
-			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity() * deltaTime) > -0.90f)
+			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) > -0.90f)
 			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f, 0.0f);
+				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y <= -0.90f)
 			{

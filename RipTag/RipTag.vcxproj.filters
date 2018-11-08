@@ -60,6 +60,7 @@
     <ClCompile Include="Source\Gameplay\Triggers\Triggerable.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
+    <ClCompile Include="Source\Game\States\OptionState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">

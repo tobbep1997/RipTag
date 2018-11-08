@@ -35,7 +35,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	WindowContext wind;
 	wind.clientWidth = 1280;
 	wind.clientHeight = 720;
-	wind.fullscreen = true;
+	wind.fullscreen = false;
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"RipTag";
 	//Will override the settings above

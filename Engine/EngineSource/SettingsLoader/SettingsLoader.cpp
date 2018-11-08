@@ -3,7 +3,58 @@
 
 void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 {
-	std::ifstream file(path);
+	for (int k = 0; k < 1; k++)
+	{
+		const int bufferSize = 1024;
+		char buffer[bufferSize];
+
+		//Load in Keyboard section
+		if (GetPrivateProfileStringA("Engine", NULL, NULL, buffer, bufferSize, path.c_str()))
+		{
+			std::vector<std::string> nameList;
+			std::istringstream nameStream;
+			nameStream.str(std::string(buffer, bufferSize));
+
+			std::string name = "";
+			while (std::getline(nameStream, name, '\0'))
+			{
+				if (name == "")
+					break;
+				nameList.push_back(name);
+			}
+
+			for (size_t i = 0; i < nameList.size(); i++)
+			{
+				int key = -1;
+				key = GetPrivateProfileIntA("Engine", nameList[i].c_str(), -1, path.c_str());
+				if (key != -1)
+				{
+					if (name == "fullscreen")
+					{
+						wind.fullscreen = key;
+					}
+					else if (name == "width")
+					{
+						wind.clientWidth = (UINT)key;
+					}
+					else if (name == "height")
+					{
+						wind.clientHeight = (UINT)key;
+					}
+				}
+
+			}
+			//Clear buffer for reuse
+			ZeroMemory(buffer, bufferSize);
+
+		}
+		else
+			std::cout << GetLastError() << std::endl;
+	}
+
+
+
+	/*std::ifstream file(path);
 
 	if (file.is_open())
 	{
@@ -52,7 +103,7 @@ void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 	else
 	{
 		OutputDebugString(L"FAILED TO OPEN WINDOW SETTINGS\n");
-	}
+	}*/
 
 }
 
