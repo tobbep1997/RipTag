@@ -118,8 +118,8 @@ void LobbyState::Draw()
 	{
 		for (auto &button : this->m_lobbyButtons)
 			button->Draw();
-		for (auto & listElement : this->m_hostListButtons);
-			//listElement->Draw();
+		for (auto & listElement : this->m_hostListButtons)
+			listElement->Draw();
 	}
 	else
 	{

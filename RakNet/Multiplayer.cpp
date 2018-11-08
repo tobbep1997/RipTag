@@ -305,7 +305,7 @@ namespace Network
 
 	void Multiplayer::HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet)
 	{
-		if (packet->wasGeneratedLocally)
+		if (packet->guid == this->pPeer->GetMyGUID())
 			return;
 		auto it = LobbyOnReceiveMap.find(mID);
 		if (it != LobbyOnReceiveMap.end())
