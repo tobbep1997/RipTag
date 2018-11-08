@@ -11,6 +11,11 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+
+	this->pNetwork = Network::Multiplayer::GetInstance();
+	//INITIAL RANDOM HOST NAME
+	this->m_MyHostName = "Host:" + std::to_string(randomMT());
+	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 }
 
 
@@ -26,6 +31,10 @@ LobbyState::~LobbyState()
 
 void LobbyState::Update(double deltaTime)
 {
+	//Network updates first
+	if (isHosting)
+		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET));
+
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
@@ -41,9 +50,11 @@ void LobbyState::Update(double deltaTime)
 			{
 			case ButtonOrderLobby::Host:
 				isHosting = true;
+				_resetCharSelectButtonStates();
 				break;
 			case ButtonOrderLobby::Join:
 				hasJoined = true;
+				_resetCharSelectButtonStates();
 				break;
 			case ButtonOrderLobby::Return:
 				this->setKillState(true);
@@ -87,7 +98,7 @@ void LobbyState::Update(double deltaTime)
 			case CharacterSelection::Back:
 				isHosting = false;
 				hasJoined = false;
-				m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+				_resetLobbyButtonStates();
 				break;
 			}
 		}
@@ -103,7 +114,7 @@ void LobbyState::Draw()
 	{
 		for (auto &button : this->m_lobbyButtons)
 			button->Draw();
-		for (auto & listElement : this->m_hostList)
+		for (auto & listElement : this->m_hostListButtons)
 			listElement->Draw();
 	}
 	else
@@ -113,6 +124,16 @@ void LobbyState::Draw()
 	}
 
 	p_renderingManager->Flush(camera);
+}
+
+void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
+{
+	switch (id)
+	{
+	case Network::NETWORKMESSAGES::ID_SERVER_ADVERTISE:
+		_onAdvertisePacket(packet);
+		break;
+	}
 }
 
 void LobbyState::_initButtons()
@@ -229,7 +250,7 @@ void LobbyState::_handleGamePadInput()
 
 void LobbyState::_handleKeyboardInput()
 {
-	if (InputHandler::isKeyReleased(InputHandler::Up))
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
 		if (!isHosting && !hasJoined)
 		{
@@ -246,7 +267,7 @@ void LobbyState::_handleKeyboardInput()
 				m_currentButton--;
 		}
 	}
-	else if (InputHandler::isKeyReleased(InputHandler::Down))
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
 	{
 		m_currentButton++;
 		if (!isHosting && !hasJoined)
@@ -257,7 +278,7 @@ void LobbyState::_handleKeyboardInput()
 
 	_updateSelectionStates();
 
-	if (InputHandler::isKeyReleased(InputHandler::Enter))
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
 	{
 		if (!isHosting && !hasJoined)
 		{
@@ -380,4 +401,72 @@ void LobbyState::_updateSelectionStates()
 			}
 		}
 	}
+}
+
+void LobbyState::_resetLobbyButtonStates()
+{
+	for (auto &button : m_lobbyButtons)
+	{
+		button->Select(false);
+		button->setState(ButtonStates::Normal);
+	}
+	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+}
+
+void LobbyState::_resetCharSelectButtonStates()
+{
+	for (auto & button : m_charSelectButtons)
+	{
+		button->Select(false);
+		button->setState(ButtonStates::Normal);
+	}
+	m_currentButton = (unsigned int)CharacterSelection::CharOne;
+}
+
+void LobbyState::_registerThisInstanceToNetwork()
+{
+	using namespace Network;
+	using namespace std::placeholders;
+
+	Multiplayer::addToLobbyOnReceiveMap(NETWORKMESSAGES::ID_SERVER_ADVERTISE, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(NETWORKMESSAGES::ID_CLIENT_JOIN, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+}
+
+void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
+{
+	uint64_t uniqueHostID = packet->guid.g;
+	RakNet::SystemAddress hostAdress = packet->systemAddress;
+	Network::LOBBYEVENTPACKET * data = (Network::LOBBYEVENTPACKET*)packet->data;
+	std::string hostName = std::string(data->string);
+
+	//See if we have this host already added, if not we add it to our list
+	auto it = this->m_hostNameMap.find(uniqueHostID);
+	if (it == m_hostNameMap.end())
+	{
+		m_hostNameMap.insert(std::pair<uint64_t, std::string>(uniqueHostID, hostName));
+		m_hostAdressMap.insert(std::pair<std::string, RakNet::SystemAddress>(hostName, hostAdress));
+		_newHostEntry(hostName);
+	}
+
+}
+
+void LobbyState::_newHostEntry(std::string & hostName)
+{
+	static float startX = 0.7f;
+	static float startY = 0.8f;
+	static float offsetY = 0.1f;
+	static float scaleX = 0.4f;
+	static float scaleY = 0.1f;
+
+	size_t size = m_hostListButtons.size();
+
+	float px = startX;
+	float py = startY - (offsetY * size);
+
+	m_hostListButtons.push_back(Quad::CreateButton(hostName, px, py, scaleX, scaleY));
+	m_hostListButtons[size]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_hostListButtons[size]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_hostListButtons[size]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_hostListButtons[size]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_hostListButtons[size]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 }

@@ -35,9 +35,11 @@ void MainMenu::Update(double deltaTime)
 		switch ((ButtonOrder)m_currentButton)
 		{
 		case ButtonOrder::Play:
+			_resetButtons();
 			this->pushNewState(new PlayState(this->p_renderingManager));
 			break;
 		case ButtonOrder::Lobby:
+			_resetButtons();
 			this->pushNewState(new LobbyState(this->p_renderingManager));
 			//nothing to do here yet
 			break;
@@ -120,14 +122,14 @@ void MainMenu::_handleGamePadInput()
 
 void MainMenu::_handleKeyboardInput()
 {
-	if (InputHandler::isKeyReleased(InputHandler::Up))
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
 		if (m_currentButton == 0)
 			m_currentButton = (unsigned int)ButtonOrder::Quit;
 		else
 			m_currentButton--;
 	}
-	else if (InputHandler::isKeyReleased(InputHandler::Down))
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
 	{
 		m_currentButton++;
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
@@ -135,7 +137,7 @@ void MainMenu::_handleKeyboardInput()
 
 	_updateSelectionStates();
 
-	if (InputHandler::isKeyReleased(InputHandler::Enter))
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
 	{
 		if (m_buttons[m_currentButton]->isSelected())
 			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
@@ -196,4 +198,14 @@ void MainMenu::_updateSelectionStates()
 			}
 		}
 	}
+}
+
+void MainMenu::_resetButtons()
+{
+	for (auto & button : m_buttons)
+	{
+		button->Select(false);
+		button->setState(ButtonStates::Normal);
+	}
+	m_currentButton = (unsigned int)ButtonOrder::Play;
 }

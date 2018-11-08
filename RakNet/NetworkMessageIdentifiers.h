@@ -17,17 +17,20 @@ namespace Network
 	{
 		//GAME EVENTS
 		ID_GAME_START = ID_USER_PACKET_ENUM,
-		//PLAYER EVENTS
+		//PLAYER EVENTS 1-6
 		ID_PLAYER_CREATE = ID_USER_PACKET_ENUM + 1,
 		ID_PLAYER_DISCONNECT = ID_USER_PACKET_ENUM + 2,
 		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3,
 		ID_PLAYER_STATE = ID_USER_PACKET_ENUM + 4,
 		ID_PLAYER_ABILITY = ID_USER_PACKET_ENUM + 5,
 		ID_PLAYER_ANIMATION = ID_USER_PACKET_ENUM + 6,
-		// 7-8 is reserved for lobby
-		//GAMEPLAY EVENTS
-		ID_TRIGGER_USED = ID_USER_PACKET_ENUM + 9,
-		ID_PLAYER_WON = ID_USER_PACKET_ENUM +10
+		// 7-9 is reserved for lobby
+		ID_SERVER_ADVERTISE = ID_USER_PACKET_ENUM + 7,
+		ID_SERVER_DISCONNECT = ID_USER_PACKET_ENUM + 8,
+		ID_CLIENT_JOIN = ID_USER_PACKET_ENUM + 9,
+		//GAMEPLAY EVENTS 10-11
+		ID_TRIGGER_USED = ID_USER_PACKET_ENUM + 10,
+		ID_PLAYER_WON = ID_USER_PACKET_ENUM +11
 	};
 
 
@@ -37,6 +40,20 @@ namespace Network
 	{
 		unsigned char id;
 		EVENTPACKET(unsigned char _id) : id(_id) {}
+	};
+
+	struct LOBBYEVENTPACKET
+	{
+		unsigned char id;
+		char string[64];
+		LOBBYEVENTPACKET(){}
+		LOBBYEVENTPACKET(unsigned char _id, std::string str = "")
+		{
+			id = _id;
+			if (str.size() > 64)
+				str = str.substr(0, 64);
+			strcpy(string, str.c_str());
+		}
 	};
 
 	struct CREATEPACKET

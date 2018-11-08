@@ -37,10 +37,12 @@ namespace Network
 		//---- MAPS ----
 		static std::map<std::string, std::function<void()>> LocalPlayerOnSendMap;
 		static std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> RemotePlayerOnReceiveMap;
+		static std::map<unsigned char, std::function<void(unsigned char, RakNet::Packet*)>> LobbyOnReceiveMap;
 		//--------------
 
 		static void addToOnSendFuncMap(std::string key, std::function<void()> func);
 		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
+		static void addToLobbyOnReceiveMap(unsigned char key, std::function<void(unsigned char, RakNet::Packet*)> func);
 
 
 
@@ -49,7 +51,7 @@ namespace Network
 		void StartUpServer();
 		void StartUpClient();
 
-		void AdvertiseHost();
+		void AdvertiseHost(const char * additionalData = nullptr, size_t length = 0);
 		void SearchLANHost();
 		void SearchLANClient();
 		void Disconnect();
@@ -92,6 +94,7 @@ namespace Network
 		unsigned char GetPacketIdentifier(unsigned char * data);
 		void HandleRakNetMessages(unsigned char mID);
 		void HandleGameMessages(unsigned char mID, unsigned char * data);
+		void HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet);
 
 		//functions to handle RakNet internal messages
 		void _onDisconnect();
