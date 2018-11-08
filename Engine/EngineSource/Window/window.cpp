@@ -70,17 +70,16 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	//KEYBOARD INPUT
 
 	case WM_KEYDOWN:
-		InputHandler::m_keys[wParam] = true; 
+		InputHandler::m_keys[wParam] = true;
 		InputHandler::m_lastPressed = static_cast<int>(wParam);
 		break; 
 
 	case WM_KEYUP:
-		InputHandler::m_keys[wParam] = false;
 		InputHandler::m_keysReleased[wParam] = true;
-		
+		InputHandler::m_keysPressed[wParam] = true;
+		InputHandler::m_keys[wParam] = false;
 		InputHandler::m_lastPressed = -1; 
 		break; 
-
 	//MOUSE INPUT
 
 		//Left MB
@@ -182,6 +181,7 @@ bool Window::Init(_In_ WindowContext windowContext)
 	m_windowContext.wcex.lpszClassName = L"WNDCLASS"; 
 	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION); 
 
+
 	if (!RegisterClassEx(&m_windowContext.wcex))
 	{
 		OutputDebugString(L"FAILED TO CREATE WINDOW CLASS!\n");
@@ -193,6 +193,12 @@ bool Window::Init(_In_ WindowContext windowContext)
 	//Give InputHandler neccesary dimension information 
 	InputHandler::m_windowSize.x = m_windowContext.clientWidth;
 	InputHandler::m_windowSize.y = m_windowContext.clientHeight; 
+	for (int i = 0; i < 256; i++)
+	{
+		InputHandler::m_keys[i]			= false;
+		InputHandler::m_keysReleased[i]	= false;
+		InputHandler::m_keysPressed[i]	= true;
+	}
 
 	
 	RECT r = { 0, 0, m_windowContext.clientWidth, m_windowContext.clientHeight };
