@@ -53,11 +53,11 @@ void Lever::Update(double deltaTime)
 					if (this->getTriggerState())
 					{
 						this->setTriggerState(false);
-						AudioEngine::PlaySoundEffect(unlock, &fVector);
+						AudioEngine::PlaySoundEffect(unlock, &fVector, AudioEngine::Player);
 					}
 					else
 					{
-						AudioEngine::PlaySoundEffect(lock, &fVector);
+						AudioEngine::PlaySoundEffect(lock, &fVector, AudioEngine::Player);
 						this->setTriggerState(true);
 					}
 					*(con->consumeState) += 1;

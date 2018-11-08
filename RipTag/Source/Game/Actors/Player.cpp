@@ -1017,7 +1017,7 @@ void Player::_cameraPlacement(double deltaTime)
 					index = rand() % (int)m_sounds.size();
 				}
 				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at);
+				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1025,7 +1025,6 @@ void Player::_cameraPlacement(double deltaTime)
 				speed *= 0.1;
 				speed -= 0.2f;
 				c->setVolume(speed);
-				c->setUserData((void*)&AudioEngine::PLAYER_SOUND);
 				last = index;
 			}
 		}

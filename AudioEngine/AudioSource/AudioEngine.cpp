@@ -174,7 +174,7 @@ void AudioEngine::UnloadMusicSound(const std::string & name)
 	}
 }
 
-FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTOR * from)
+FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTOR * from, SoundType type)
 {
 	int i = -1;
 	int size = (int)s_soundEffects.size();
@@ -200,6 +200,22 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 		}
 
 		c->setPaused(false);
+
+		switch (type)
+		{
+		case AudioEngine::NONE:
+			c->setUserData((void*)&NONE_SOUND);
+			break;
+		case AudioEngine::Player:
+			c->setUserData((void*)&PLAYER_SOUND);
+			break;
+		case AudioEngine::RemotePlayer:
+			c->setUserData((void*)&REMOTE_SOUND);
+			break;
+		case AudioEngine::Other:
+			c->setUserData((void*)&OTHER_SOUND);
+			break;
+		}
 	}
 	return c;
 }

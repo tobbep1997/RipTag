@@ -148,8 +148,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 	
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt)->setUserData((void*)&AudioEngine::OTHER_SOUND);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2)->setUserData((void*)&AudioEngine::OTHER_SOUND);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
 	
 	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
