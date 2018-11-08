@@ -198,6 +198,11 @@ void Quad::setString(const std::string & string)
 	this->m_string = string;
 }
 
+void Quad::setIsButton(bool isButton)
+{
+	m_isButton = isButton; 
+}
+
 DirectX::SpriteFont & Quad::getSpriteFont() const
 {
 	return *m_spriteFont;
@@ -307,4 +312,9 @@ unsigned int Quad::getType() const
 const float & Quad::getRadie() const
 {
 	return 0.0f;
+}
+
+const bool Quad::getIsButton() const
+{
+	return m_isButton; 
 }

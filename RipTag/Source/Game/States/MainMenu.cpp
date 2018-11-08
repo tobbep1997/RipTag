@@ -1,14 +1,16 @@
 #include "RipTagPCH.h"
+#include "../2DEngine/2D Engine/Quad/Components/HUDComponent.h"
 #include "MainMenu.h"
 
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
+	HUDComponent HUDcomp; 
+
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
-
 
 	playButton = new Quad();
 	playButton->init();
@@ -38,6 +40,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	c->init(DirectX::XMFLOAT2A(.25, .5), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
 	c->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
 
+//<<<<<<< Updated upstream
 	m_textInput = new TextInput();
 	m_textInput->init(DirectX::XMFLOAT2A(0.5f, .75f), DirectX::XMFLOAT2A(2.0f, 0.2f));
 	m_textInput->getQuad()->setTextAlignment(Quad::TextAlignment::leftAligned);
@@ -46,6 +49,9 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	m_textInput->getQuad()->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_textInput->getQuad()->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	m_textInput->getQuad()->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+//=======
+	HUDcomp.InitHUDFromFile("../testHUD.txt"); 
+//>>>>>>> Stashed changes
 }
 
 MainMenu::~MainMenu()

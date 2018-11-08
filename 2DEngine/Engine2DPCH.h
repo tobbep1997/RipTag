@@ -12,6 +12,7 @@
 //Engine
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Texture.h"
+#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/3DRendering/Framework/DirectXRenderingHelpClass.h"
 #include "EngineSource/Shader/ShaderManager.h"
 //Input

@@ -62,6 +62,7 @@ private:
 
 	bool m_preState = false;
 	bool m_currentState = false;
+	bool m_isButton = true; 
 
 	bool m_selected = false;
 
@@ -91,6 +92,8 @@ public:
 	void setFont(DirectX::SpriteFont * font);
 	void setString(const std::string & string);
 
+	void setIsButton(bool isButton); 
+
 	DirectX::SpriteFont & getSpriteFont() const;
 	const std::string & getString() const;
 	void getString(std::string & string);
@@ -116,6 +119,8 @@ public:
 	virtual DirectX::XMFLOAT4 getCenter() const;
 	virtual unsigned int getType() const;
 	virtual const float & getRadie() const;
+
+	virtual const bool getIsButton() const; 
 
 };
 
