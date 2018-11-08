@@ -130,20 +130,21 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 AORoughMet = float3(1, 1, 1); 
 
     input.uv.y = 1 - input.uv.y;
-
+	ambient = float4(0, 0, 0, 0);
     if (usingTexture.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
         normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
     }
+	return float4(normal, 1);
     //ambient = float4(0, 0, 0, 0);
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
     //ao = 0;
     //return albedo;
 
-
     ambient = float4(0.2f, 0.2f, 0.25f, 1.0f) * albedo * ao;
+	//return float4(normal, 1);
     //ambient = float4(0.02f, 0.02f, 0.025f, 1.0f) * albedo * ao;
    
     //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * albedo;
@@ -194,7 +195,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);
         attenuation = (lightDropOff[shadowLight].x / (1.0f + lightDropOff[shadowLight].y * pow(distanceToLight, lightDropOff[shadowLight].z)));
-		
+		//attenuation = 1;
         radiance = lightColor[shadowLight] * attenuation;
 		 
         roughnessDistribution = RoughnessDistribution(normal, halfwayVecor.xyz, roughness);
@@ -220,5 +221,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
     //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
     finalColor.a = albedo.a;
+	//return (input.worldPos);
     return min(finalColor, float4(1, 1, 1, 1));
 }

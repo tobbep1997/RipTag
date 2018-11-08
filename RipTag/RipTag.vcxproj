@@ -180,6 +180,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="BouncePCH.cpp">
@@ -519,6 +520,7 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />
