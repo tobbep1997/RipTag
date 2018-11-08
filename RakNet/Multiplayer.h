@@ -24,7 +24,7 @@ namespace Network
 	const unsigned short PEER_PORT = 60005;
 	const short MAX_CONNECTIONS = 2;
 	const std::string LAN_IP = "255.255.255.255";
-	const double ADVERTISEMENT_FREQUENCE = 1 / 5.0;
+	const double ADVERTISEMENT_FREQUENCE = 1 / 0.5;
 
 	class Multiplayer : public RakNet::NetworkIDObject
 	{

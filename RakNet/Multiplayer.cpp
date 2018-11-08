@@ -167,14 +167,14 @@ namespace Network
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			packetsCounter++;
+			/*packetsCounter++;
 			std::cout << "--------------------------NEW PACKET--------------------------\n";
 			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
 			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
 			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
 			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
 			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
+			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
 			this->HandleRakNetMessages(mID);
 			this->HandleLobbyMessages(mID, packet);
@@ -305,6 +305,8 @@ namespace Network
 
 	void Multiplayer::HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet)
 	{
+		if (packet->wasGeneratedLocally)
+			return;
 		auto it = LobbyOnReceiveMap.find(mID);
 		if (it != LobbyOnReceiveMap.end())
 			it->second(mID, packet);
