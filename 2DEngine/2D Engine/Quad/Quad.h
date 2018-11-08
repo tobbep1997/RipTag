@@ -28,8 +28,14 @@ public:
 		upperRight
 	};
 
+	enum TextAlignment
+	{
+		centerAligned,
+		leftAligned
+	};
+
 private:
-	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
+
 
 	ID3D11Buffer * m_vertexBuffer;
 
@@ -49,6 +55,8 @@ private:
 
 	DirectX::XMFLOAT4A m_textColor;
 
+	TextAlignment m_textAlignment = TextAlignment::centerAligned;
+
 	void p_createBuffer();
 	void p_setStaticQuadVertex();
 
@@ -58,10 +66,11 @@ private:
 	bool m_selected = false;
 
 	void _rebuildQuad();
-
+protected:
+	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
 	Quad();
-	~Quad();
+	virtual~Quad();
 
 	void init(DirectX::XMFLOAT2A position = DirectX::XMFLOAT2A(0,0), DirectX::XMFLOAT2A size = DirectX::XMFLOAT2A(1,1));
 	void Draw();
@@ -84,6 +93,7 @@ public:
 
 	DirectX::SpriteFont & getSpriteFont() const;
 	const std::string & getString() const;
+	void getString(std::string & string);
 
 	void setTextColor(const DirectX::XMFLOAT4A & color);
 	const DirectX::XMFLOAT4A & getTextColor() const;
@@ -99,6 +109,13 @@ public:
 	const bool & isSelected() const;
 
 	void setPivotPoint(PivotPoint pivotPoint);
+
+	void setTextAlignment(TextAlignment alignment);
+	TextAlignment getTextAlignment() const;
+
+	virtual DirectX::XMFLOAT4 getCenter() const;
+	virtual unsigned int getType() const;
+	virtual const float & getRadie() const;
 
 };
 

@@ -81,6 +81,8 @@
 
 //2D
 #include "2D Engine/Quad/Quad.h"
+#include "2D Engine/TextInput/TextInput.h"
+#include "2D Engine/Circle/Circle.h"
 #include "2D Engine/DirectXTK/SpriteFont.h"
 
 
