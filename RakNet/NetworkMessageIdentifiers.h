@@ -45,13 +45,13 @@ namespace Network
 	struct LOBBYEVENTPACKET
 	{
 		unsigned char id;
-		char string[64];
+		char string[32];
 		LOBBYEVENTPACKET(){}
 		LOBBYEVENTPACKET(unsigned char _id, std::string str = "")
 		{
 			id = _id;
-			if (str.size() > 64)
-				str = str.substr(0, 64);
+			if (str.size() > 32)
+				str = str.substr(0, 32);
 			strcpy(string, str.c_str());
 		}
 	};
