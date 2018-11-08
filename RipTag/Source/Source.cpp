@@ -49,6 +49,7 @@ void SingleGameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
+		InputHandler::Reset();
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;

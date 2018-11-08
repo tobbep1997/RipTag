@@ -2,6 +2,7 @@
 #include "InputHandler.h"
 
 bool InputHandler::m_keys[256];
+bool InputHandler::m_keysReleased[256];
 
 bool InputHandler::m_mouseKeys[3];
 bool InputHandler::m_mouseWasPressed[3];
@@ -24,9 +25,22 @@ bool InputHandler::m_update;
 
 bool InputHandler::m_closeGame;
 
+void InputHandler::Reset()
+{
+	for (int i = 0; i < 256; i++)
+	{
+		m_keysReleased[i] = false;
+	}
+}
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
+}
+
+bool InputHandler::isKeyReleased(int keyCode)
+{
+	return m_keysReleased[keyCode];
 }
 
 bool InputHandler::isMLeftPressed(bool repeat)

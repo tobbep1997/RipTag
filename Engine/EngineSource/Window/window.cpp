@@ -68,14 +68,16 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	//KEYBOARD INPUT
+
 	case WM_KEYDOWN:
 		InputHandler::m_keys[wParam] = true; 
 		InputHandler::m_lastPressed = static_cast<int>(wParam);
 		break; 
 
 	case WM_KEYUP:
-		
 		InputHandler::m_keys[wParam] = false;
+		InputHandler::m_keysReleased[wParam] = true;
+		
 		InputHandler::m_lastPressed = -1; 
 		break; 
 
