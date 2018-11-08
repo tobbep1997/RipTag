@@ -38,6 +38,7 @@ void MainMenu::Update(double deltaTime)
 			this->pushNewState(new PlayState(this->p_renderingManager));
 			break;
 		case ButtonOrder::Lobby:
+			this->pushNewState(new LobbyState(this->p_renderingManager));
 			//nothing to do here yet
 			break;
 		case ButtonOrder::Quit:
@@ -105,28 +106,28 @@ void MainMenu::_handleGamePadInput()
 			m_currentButton++;
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
 		}
+		_updateSelectionStates();
+
+		//Check for action input
+		if (GamePadHandler::IsAPressed())
+		{
+			if (m_buttons[m_currentButton]->isSelected())
+				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
 	}
 
-	_updateSelectionStates();
-
-	//Check for action input
-	if (GamePadHandler::IsAPressed())
-	{
-		if (m_buttons[m_currentButton]->isSelected())
-			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
-	}
 }
 
 void MainMenu::_handleKeyboardInput()
 {
-	if (InputHandler::isKeyPressed(InputHandler::Up))
+	if (InputHandler::isKeyReleased(InputHandler::Up))
 	{
 		if (m_currentButton == 0)
 			m_currentButton = (unsigned int)ButtonOrder::Quit;
 		else
 			m_currentButton--;
 	}
-	else if (InputHandler::isKeyPressed(InputHandler::Down))
+	else if (InputHandler::isKeyReleased(InputHandler::Down))
 	{
 		m_currentButton++;
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
@@ -134,7 +135,7 @@ void MainMenu::_handleKeyboardInput()
 
 	_updateSelectionStates();
 
-	if (InputHandler::isKeyPressed(InputHandler::Enter))
+	if (InputHandler::isKeyReleased(InputHandler::Enter))
 	{
 		if (m_buttons[m_currentButton]->isSelected())
 			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
