@@ -1,0 +1,54 @@
+Fix list
+	-Controlls
+		- Hög sens
+		- Keyboard N Mouse
+		- Edit Controll Settings
+		- "You Lost" var ivägen.
+		- Tydligare Controlls
+	- HUD
+		- ALLT
+		- Tydligare Mana
+		- Fixa visibility
+		- Ta bort Visability Sphere??!!
+	- Physik
+		- Ny transform för fysik
+		- Vakten flög iväg när han dog
+
+	- Gameplay
+		- Posses tid
+		- För lätt att sneaka??!!!
+		- Ingen aning när man är Vissibleelele
+		- Göra saker tydligare
+		- Outline på andra spelaren?
+		- Typ trycka två knappar samtidigt!
+		- Vakten blev knockad men sen helt plötsligt var han där igen och såg mig.
+		- Stod "Press RB to pass" men använde bara min ability då.
+		- Jag förlorade men kunde fortsätta spela
+	- Network
+		- Ja, vakten rörde sig inte för andra spelaren när den hade blivit flyttad med possess guard.
+		
+		
+		
+Upplevde du någon gång under spelet att du inte visste vad du skulle göra?
+Nej (4)
+nej (2)
+Första gången jag spelade.
+Ja, från första början till slut.
+Ja. När jag gick igenom sprickan i väggen så visste jag inte vad jag skulle göra på andra sidan.
+Från början till slut
+Det var inte självklart men det ska det inte vara ibland.
+ja men de va pga dåligt samarbete
+nej inte direkt
+Lite otydligt vad som skulle göras i första rummet
+Lite otydligt ibland ja.
+Typ hela tiden.
+Ja, hela tiden
+Jag förstod inte att jag behövde vänta på den andra spelaren för att ta mig vidare
+Ibland
+Nej.
+Kan vara bra att veta hur det går för sin kamrat. 
+Nej inte direkt
+rätt så ofta men det är väl poängen med pussel spel?
+Ja, som att man skulle teleportera sig
+När min kompanjon knockade en vakt under min kontroll så var det lite otydligt.
+i början visste jag inte vart jag skulle :P
