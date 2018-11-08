@@ -39,7 +39,13 @@ void PossessGuard::Draw()
 
 void PossessGuard::_logic(double deltaTime)
 {
+	m_useFunctionCalled = false;
+	if (Input::OnAbilityPressed())
+		this->Use();
 	Player* pPointer = static_cast<Player*>(p_owner);
+	/*if (Input::OnAbilityReleased())
+		m_useFunctionCalled = true;*/
+
 	if (m_useFunctionCalled) // the Use() function were called last frame
 	{
 		switch (m_pState)
@@ -54,6 +60,8 @@ void PossessGuard::_logic(double deltaTime)
 				cooldown += deltaTime;
 			break;
 		case PossessGuard::Possessing:
+			if (!pPointer->IsInputLocked()) //Player is Returning to body
+			{
 				this->possessTarget->LockEnemyInput();
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
@@ -61,7 +69,13 @@ void PossessGuard::_logic(double deltaTime)
 				this->possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				cooldown = 0;
-			
+				//m_useFunctionCalled = false;
+			}
+			else if (!pPointer->CheckManaCost(getManaCost())) //out of mana
+			{
+				this->possessTarget->removePossessor();
+			}
+			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
 		case PossessGuard::Possess:
 			if (pPointer->CheckManaCost(getManaCost()))
@@ -126,5 +140,4 @@ void PossessGuard::_logic(double deltaTime)
 		}
 	
 	}
-	m_useFunctionCalled = false;
 }

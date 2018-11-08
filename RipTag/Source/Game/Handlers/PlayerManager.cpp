@@ -36,6 +36,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
@@ -45,6 +46,16 @@ void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data
 	{
 		this->mRemotePlayer = new RemotePlayer(packet->nid, packet->pos, packet->scale, packet->rotation);
 		hasRemotePlayer = true;
+		if (Network::Multiplayer::GetInstance()->isServer())
+		{
+			this->mLocalPlayer->SetAbilitySet(1);
+			this->mRemotePlayer->SetAbilitySet(2);
+		}
+		else
+		{
+			this->mLocalPlayer->SetAbilitySet(2);
+			this->mRemotePlayer->SetAbilitySet(1);
+		}
 	}
 }
 
@@ -54,6 +65,11 @@ void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data
 	{
 		mRemotePlayer->HandlePacket(id, data);
 	}
+}
+
+void PlayerManager::_onRemotePlayerWonPacket(unsigned char id, unsigned char * data)
+{
+	mRemotePlayer->hasWon = true;
 }
 
 void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * data)
@@ -92,7 +108,13 @@ void PlayerManager::Update(float dt)
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
-
+	if (mRemotePlayer)
+	{
+		if(mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+		mLocalPlayer->drawWinBar();
+		//YOU WON THE GAME! 
+	}
+	
 
 }
 
@@ -130,6 +152,12 @@ void PlayerManager::Draw()
 #endif
 }
 
+void PlayerManager::win()
+{
+	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
+		mLocalPlayer->gameIsWon = true;
+}
+
 void PlayerManager::CreateLocalPlayer()
 {
 	if (!mLocalPlayer && !hasLocalPlayer)
@@ -146,7 +174,7 @@ void PlayerManager::SendOnPlayerCreate()
 	{
 		DirectX::XMFLOAT4A pos = mLocalPlayer->getPosition();
 		DirectX::XMFLOAT4A scale = DirectX::XMFLOAT4A(0.015f, 0.015f, 0.015f, 1.0f);
-		DirectX::XMFLOAT4A rot = {0.0, DirectX::XM_PI, 0.0, 0.0};
+		DirectX::XMFLOAT4A rot = {0.0, 0.0, 0.0, 0.0};
 
 		Network::CREATEPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CREATE,
 			Network::Multiplayer::GetInstance()->GetNetworkID(),

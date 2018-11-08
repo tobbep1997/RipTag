@@ -116,7 +116,7 @@ StaticMesh * MeshManager::getStaticMesh(const std::string & meshName)
 	return nullptr;
 }
 
-const MyLibrary::CollisionBoxes & MeshManager::getCollisionBoxes(const std::string & meshName)
+const ImporterLibrary::CollisionBoxes & MeshManager::getCollisionBoxes(const std::string & meshName)
 {
 	std::string fullPath = this->_getFullPath(meshName);
 	unsigned int key = this->_getKey(fullPath);
@@ -128,7 +128,7 @@ const MyLibrary::CollisionBoxes & MeshManager::getCollisionBoxes(const std::stri
 			return m_staticMesh[key][i]->getCollisionBoxes();
 		}
 	}
-	return MyLibrary::CollisionBoxes();
+	return ImporterLibrary::CollisionBoxes();
 }
 
 

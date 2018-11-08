@@ -4,14 +4,15 @@
 #include <AudioEngine.h>
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-namespace MyLibrary {
+namespace ImporterLibrary {
 	struct GridStruct;
+	struct PropItemToEngine;
 }
 
 class Quad;
 class Grid;
 class Door;
-class Enemy;
+class EnemyHandler;
 class Lever;
 class Player;
 class BaseActor;
@@ -19,16 +20,16 @@ class PointLight;
 class StaticAsset;
 class PressurePlate;
 class TriggerHandler;
+class Triggerable;
+class Trigger;
+class Bars;
+
+class Enemy;//Ta bort sen
 
 class Room : public HUDComponent
 {
 private:
-	struct prop
-	{
-		BaseActor * baseActor;
-		unsigned int TypeID;
-		unsigned int linkingID;
-	};
+	
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -45,7 +46,7 @@ private:
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
 
-	MyLibrary::GridStruct * m_grid;	//Released?
+	ImporterLibrary::GridStruct * m_grid;	//Released?
 	Grid * m_pathfindingGrid;		//Released
 	
 	DirectX::XMFLOAT4 m_player1StartPos;
@@ -59,11 +60,12 @@ private:
 	b3World * m_worldPtr;
 
 	TriggerHandler * triggerHandler;
-	Door * door;
-	Lever * lever;
-	PressurePlate * pressurePlate;
+
 
 	
+	//std::vector<StaticAsset*> TODO:: FIX
+
+	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 
 	std::vector<const int*> vis;
 

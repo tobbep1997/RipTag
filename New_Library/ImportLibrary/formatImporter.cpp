@@ -1,10 +1,10 @@
 #include "ImporterPCH.h"
 #include "formatImporter.h"
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
 #pragma region ImportHelpers
-	Vec4 Loadera::loadVec4(std::ifstream& file)
+	Vec4 CustomFileLoader::loadVec4(std::ifstream& file)
 	{
 		if (!file.is_open())
 			return Vec4();
@@ -16,7 +16,7 @@ namespace MyLibrary
 	}
 
 	// Reads a 32-bit int
-	int32_t Loadera::loadInt32(std::ifstream& file)
+	int32_t CustomFileLoader::loadInt32(std::ifstream& file)
 	{
 		if (!file.is_open())
 			return 0;
@@ -28,7 +28,7 @@ namespace MyLibrary
 
 	// Reads a DecomposedTransform
 	// (containing 3xVec4 (T, R, S))
-	DecomposedTransform Loadera::loadTransform(std::ifstream& file)
+	DecomposedTransform CustomFileLoader::loadTransform(std::ifstream& file)
 	{
 		if (!file.is_open())
 			return DecomposedTransform();
@@ -36,7 +36,12 @@ namespace MyLibrary
 		DecomposedTransform transform;
 
 		transform.translation = (loadVec4(file));
+		transform.translation.z *= -1.0f;
+
 		transform.rotation = (loadVec4(file));
+		transform.rotation.x *= -1.0f;
+		transform.rotation.y *= -1.0f;
+
 		transform.scale = (loadVec4(file));
 
 		return transform;
@@ -44,7 +49,7 @@ namespace MyLibrary
 
 	// Reads a Bone 
 	// (containing 2xDecomposedTransform and one 32-bit wide int)
-	Bone Loadera::loadBone(std::ifstream& file)
+	Bone CustomFileLoader::loadBone(std::ifstream& file)
 	{
 		if (!file.is_open())
 			return Bone();
@@ -59,7 +64,7 @@ namespace MyLibrary
 
 	// Reads a Skeleton
 	// (Containing boneCount x Bone)
-	Skeleton Loadera::loadSkeleton(std::ifstream& file, int32_t boneCount)
+	Skeleton CustomFileLoader::loadSkeleton(std::ifstream& file, int32_t boneCount)
 	{
 		if (!file.is_open())
 			return Skeleton();
@@ -75,7 +80,7 @@ namespace MyLibrary
 	// Reads a Skeleton
 	// (Containing boneCount x Bone)
 	// No bonecount is supplied; we assume we read that data first (one 32-bit wide int)
-	Skeleton Loadera::loadSkeleton(std::ifstream& file)
+	Skeleton CustomFileLoader::loadSkeleton(std::ifstream& file)
 	{
 		if (!file.is_open())
 			return Skeleton();
@@ -92,16 +97,54 @@ namespace MyLibrary
 	}
 #pragma endregion ImportHelpers
 
-	Loadera::Loadera()
+	CustomFileLoader::CustomFileLoader()
 	{
 
 	}
 
-	Loadera::~Loadera()
+	CustomFileLoader::~CustomFileLoader()
 	{
 	}
+	PropItemToEngine CustomFileLoader::readPropsFile(const std::string & fileName)
+	{
+		std::string newFileName = "../Assets/";
+		newFileName.append(fileName + "FOLDER/" + fileName + "_PROPS.bin");
 
-	MeshFromFile Loadera::readMeshFile(std::string fileName)
+		PropItemToEngine toReturn;
+		propsHeader header;
+		bool fileIsOpen = false;
+
+		std::ifstream customPropFile(newFileName, std::ifstream::binary);
+
+		if (customPropFile.is_open())
+		{
+			customPropFile.read((char*)&header.nrOfItems, sizeof(int));
+			toReturn.nrOfItems = header.nrOfItems;
+			toReturn.props = new PropItem[toReturn.nrOfItems];
+
+			//CollisionBox* box = new CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i nee
+			//customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox));
+
+			for (int i = 0; i < header.nrOfItems; i++)
+			{
+				customPropFile.read((char*)&toReturn.props[i].typeOfProp, sizeof(int));
+				customPropFile.read((char*)&toReturn.props[i].linkedItem, sizeof(int));
+				customPropFile.read((char*)&toReturn.props[i].isTrigger, sizeof(bool));
+														 
+				customPropFile.read((char*)&toReturn.props[i].transform_position, sizeof(float) * 3);
+				customPropFile.read((char*)&toReturn.props[i].transform_rotation, sizeof(float) * 3);
+				customPropFile.read((char*)&toReturn.props[i].transform_scale, sizeof(float) * 3);
+				customPropFile.read((char*)&toReturn.props[i].BBOX_INFO, sizeof(float) * 3);
+				
+				
+
+			}
+			//customPropFile.read((char*)toReturn.props, sizeof(PropItem) * (toReturn.nrOfItems));
+		}
+		customPropFile.close();
+		return toReturn;
+	}
+	MeshFromFile CustomFileLoader::readMeshFile(std::string fileName)
 	{
 		//reads the custom mesh file and stores all the data
 
@@ -167,7 +210,7 @@ namespace MyLibrary
 		return meshToReturn;
 	}
 
-	AnimatedMeshFromFile MyLibrary::Loadera::readAnimatedMeshFile(std::string fileName)
+	AnimatedMeshFromFile ImporterLibrary::CustomFileLoader::readAnimatedMeshFile(std::string fileName)
 	{
 		//reads the custom mesh file and stores all the data
 
@@ -200,18 +243,18 @@ namespace MyLibrary
 				meshToReturn.mesh_vertices[i] = AnimatedVertexFromFile();
 				meshToReturn.mesh_vertices[i].vertex_position[0] = vertices[i].vertex_position[0];
 				meshToReturn.mesh_vertices[i].vertex_position[1] = vertices[i].vertex_position[1];
-				meshToReturn.mesh_vertices[i].vertex_position[2] = vertices[i].vertex_position[2];
+				meshToReturn.mesh_vertices[i].vertex_position[2] = -vertices[i].vertex_position[2];
 
 				meshToReturn.mesh_vertices[i].vertex_UVCoord[0] = vertices[i].vertex_UVCoord[0];
 				meshToReturn.mesh_vertices[i].vertex_UVCoord[1] = vertices[i].vertex_UVCoord[1];
 
 				meshToReturn.mesh_vertices[i].vertex_normal[0] = vertices[i].vertex_normal[0];
 				meshToReturn.mesh_vertices[i].vertex_normal[1] = vertices[i].vertex_normal[1];
-				meshToReturn.mesh_vertices[i].vertex_normal[2] = vertices[i].vertex_normal[2];
+				meshToReturn.mesh_vertices[i].vertex_normal[2] = -vertices[i].vertex_normal[2];
 
 				meshToReturn.mesh_vertices[i].vertex_tangent[0] = vertices[i].vertex_tangent[0];
 				meshToReturn.mesh_vertices[i].vertex_tangent[1] = vertices[i].vertex_tangent[1];
-				meshToReturn.mesh_vertices[i].vertex_tangent[2] = vertices[i].vertex_tangent[2];
+				meshToReturn.mesh_vertices[i].vertex_tangent[2] =- vertices[i].vertex_tangent[2];
 
 				meshToReturn.mesh_vertices[i].influencing_joint[0] = vertices[i].influencing_joint[0];
 				meshToReturn.mesh_vertices[i].influencing_joint[1] = vertices[i].influencing_joint[1];
@@ -225,8 +268,8 @@ namespace MyLibrary
 			}
 
 			// Switch winding order
-			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
-				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);
+			/*for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i += 3)
+				std::swap(meshToReturn.mesh_vertices[i + 1], meshToReturn.mesh_vertices[i + 2]);*/
 
 			for (int i = 0; i < MAX_FILENAME; i++)
 			{
@@ -240,7 +283,7 @@ namespace MyLibrary
 		return meshToReturn;
 	}
 
-	Skeleton Loadera::readSkeletonFile(std::string fileName)
+	Skeleton CustomFileLoader::readSkeletonFile(std::string fileName)
 	{
 		//read the skeleton file
 
@@ -260,7 +303,7 @@ namespace MyLibrary
 		return skeleton_to_return;
 	}
 
-	MyLibrary::AnimationFromFileStefan Loadera::readAnimationFile(std::string fileName, uint16_t jointCount)
+	ImporterLibrary::AnimationFromFileStefan CustomFileLoader::readAnimationFile(std::string fileName, uint16_t jointCount)
 	{
 		std::ifstream customAnimationFile(fileName, std::ifstream::binary);
 		assert(customAnimationFile.is_open());
@@ -293,7 +336,7 @@ namespace MyLibrary
 
 		return animation_to_return;
 	}
-	CollisionBoxes Loadera::readMeshCollisionBoxes(const std::string & fileName)
+	CollisionBoxes CustomFileLoader::readMeshCollisionBoxes(const std::string & fileName)
 	{
 		CollisionBoxes collisionBoxes;
 
@@ -333,19 +376,19 @@ namespace MyLibrary
 				collisionBoxes.boxes[i].rotation[3] = box[i].rotation[3];
 
 				collisionBoxes.boxes[i].typeOfBox = box[i].typeOfBox;
-				std::cout << ":..............................." << std::endl;
-				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[0] << std::endl;
-				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[1] << std::endl;
-				std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[2] << std::endl;
-				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[0] << std::endl;
-				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[1] << std::endl;
-				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[2] << std::endl;
-				std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[3] << std::endl;
-				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[0] << std::endl;
-				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[1] << std::endl;
-				std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[2] << std::endl;
-				std::cout << "Type of box: " << collisionBoxes.boxes[i].typeOfBox << std::endl;
-				std::cout << ":..............................." << std::endl;
+				//std::cout << ":..............................." << std::endl;
+				//std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[0] << std::endl;
+				//std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[1] << std::endl;
+				//std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[2] << std::endl;
+				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[0] << std::endl;
+				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[1] << std::endl;
+				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[2] << std::endl;
+				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[3] << std::endl;
+				//std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[0] << std::endl;
+				//std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[1] << std::endl;
+				//std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[2] << std::endl;
+				//std::cout << "Type of box: " << collisionBoxes.boxes[i].typeOfBox << std::endl;
+				//std::cout << ":..............................." << std::endl;
 
 			}
 			//copy thing done
@@ -358,7 +401,7 @@ namespace MyLibrary
 			return CollisionBoxes();
 		return collisionBoxes; // done :D
 	}
-	PointLights Loadera::readLightFile(const std::string & fileName)
+	PointLights CustomFileLoader::readLightFile(const std::string & fileName)
 	{
 		PointLights pointLights;
 		bool fileIsOpen = false;
@@ -387,7 +430,7 @@ namespace MyLibrary
 	}
 
 
-	StartingPos Loadera::readPlayerStartFile(const std::string & fileName, int whichPlayer)
+	StartingPos CustomFileLoader::readPlayerStartFile(const std::string & fileName, int whichPlayer)
 	{
 		StartingPos startPos;
 		bool fileIsOpen = false;
@@ -409,7 +452,7 @@ namespace MyLibrary
 			return StartingPos();
 		return startPos; // done :D
 	}
-	GuardStartingPositions Loadera::readGuardStartFiles(const std::string & fileName)
+	GuardStartingPositions CustomFileLoader::readGuardStartFiles(const std::string & fileName)
 	{
 		GuardStartingPositions guardPos;
 
@@ -441,7 +484,7 @@ namespace MyLibrary
 			return GuardStartingPositions();
 		return guardPos; // done :D
 	}
-	GridStruct * Loadera::readGridFile(const std::string & fileName)
+	GridStruct * CustomFileLoader::readGridFile(const std::string & fileName)
 	{
 		GridStruct * gridPos = new GridStruct();
 		std::string newFileName = "../Assets/";

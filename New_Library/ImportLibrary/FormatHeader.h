@@ -4,9 +4,9 @@
 #include <fstream>
 #define MAX_FILENAME 100
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
-#pragma region OriginalMyLibraryStructs
+#pragma region OriginalImporterLibraryStructs
 
 	
 	struct StartingPos
@@ -65,6 +65,26 @@ namespace MyLibrary
 			std::fill(transform_rotation, transform_rotation + 3, 0.0f);
 			std::fill(transform_scale, transform_scale + 3, 1.0f);
 		};
+	};
+	struct PropItem
+	{
+		int typeOfProp;
+		int linkedItem;
+		bool isTrigger;
+		float transform_position[3];
+		float transform_rotation[3];
+		float transform_scale[3];
+		float BBOX_INFO[3];
+	};
+	struct propsHeader
+	{
+		int nrOfItems;
+	};
+	struct PropItemToEngine
+	{
+		int nrOfItems;
+		PropItem * props;
+		
 	};
 	struct GridStruct
 	{
@@ -184,7 +204,7 @@ namespace MyLibrary
 		unsigned int nr_of_keyframes;
 		std::unique_ptr<Transform[]> keyframe_transformations;
 	};
-#pragma endregion OriginalMyLibraryStructs
+#pragma endregion OriginalImporterLibraryStructs
 #pragma region HelperStructs
 	struct Vec4
 	{

@@ -8,8 +8,9 @@ enum Ability
 	VISIBILITY = 1,
 	DISABLE = 2,
 	VIS2 = 3, //this is a placeholder
-	BLINK = 4,
-	POSSESS = 5,
+	BLINK = 0,
+	POSSESS = 2,
+	NONE = 999
 };
 
 class AbilityComponent

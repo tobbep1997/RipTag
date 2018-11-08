@@ -4,7 +4,7 @@
 #include <sstream>
 #include "FormatHeader.h"
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
 	template <typename T> std::string to_string(const T& n)
 	{
@@ -13,16 +13,16 @@ namespace MyLibrary
 		return stream.str();
 	}
 
-	class Loadera
+	class CustomFileLoader
 	{
 	public:
-		Loadera();
-		~Loadera();
+		CustomFileLoader();
+		~CustomFileLoader();
 
 		MeshFromFile readMeshFile(std::string fileName);
 		AnimatedMeshFromFile readAnimatedMeshFile(std::string fileName);
 		//SkeletonFromFile readSkeletonFile(std::string fileName);
-		MyLibrary::Skeleton readSkeletonFile(std::string fileName);
+		ImporterLibrary::Skeleton readSkeletonFile(std::string fileName);
 		//AnimationFromFile readAnimationFile(std::string fileName, uint16_t jointCount);
 		AnimationFromFileStefan readAnimationFile(std::string fileName, uint16_t jointCount);
 
@@ -32,6 +32,7 @@ namespace MyLibrary
 		StartingPos readPlayerStartFile(const std::string & fileName, int whichPlayer);
 		GuardStartingPositions readGuardStartFiles(const std::string & fileName);
 		GridStruct * readGridFile(const std::string & fileName);
+		PropItemToEngine readPropsFile(const std::string & fileName);
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);
 		Skeleton loadSkeleton(std::ifstream& file, int32_t boneCount);

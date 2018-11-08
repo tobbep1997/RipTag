@@ -6,25 +6,35 @@ Lever::Lever()
 {
 }
 
+Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "activate", "deactivate")
+{
+	
+}
+
 
 Lever::~Lever()
 {
+	//PhysicsComponent::Release(*RipExtern::g_world);
+	AudioEngine::UnLoadSoundEffect(lock);
+	AudioEngine::UnLoadSoundEffect(unlock);
 }
 
-void Lever::Init()
+void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
-	p_setPosition(getPosition().x, getPosition().y, getPosition().z);
-	setObjectTag("LEVER");
-	setUserDataBody(this);
-	lock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, false);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setObjectTag("LEVER");
+	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("SPAK"));//BYT TILL SPAK
+	auto& machine = getAnimatedModel()->InitStateMachine(1);
+	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
+	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
+	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
+	getAnimatedModel()->Pause();
+	BaseActor::setUserDataBody(this);
 	unlock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
+	lock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
 }
 
-void Lever::BeginPlay()
-{
-
-}
 
 void Lever::Update(double deltaTime)
 {
@@ -37,24 +47,29 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
-					if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
-					{
-						auto pos = getPosition();
-						FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
-						p_trigger(!Triggerd());
-						if (Triggerd())
-						{
-							AudioEngine::PlaySoundEffect(unlock, &fVector)->setUserData((void*)&AudioEngine::PLAYER_SOUND);
-						}
-						else
-						{
-							AudioEngine::PlaySoundEffect(lock, &fVector)->setUserData((void*)&AudioEngine::PLAYER_SOUND);
-						}
+					auto pos = getPosition();
+					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
 
-						*con->consumeState += 1;
+					if (this->getTriggerState())
+					{
+						this->setTriggerState(false);
+						AudioEngine::PlaySoundEffect(unlock, &fVector);
 					}
+					else
+					{
+						AudioEngine::PlaySoundEffect(lock, &fVector);
+						this->setTriggerState(true);
+					}
+					*(con->consumeState) += 1;
+					//SENDTriggerd here for network
+					this->SendOverNetwork();
 				}
 			}
 		}
 	}
+	this->getAnimatedModel()->Update(deltaTime);
+}
+
+void Lever::BeginPlay()
+{
 }

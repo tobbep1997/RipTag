@@ -2,7 +2,11 @@
 #include "Door.h"
 
 
-Door::Door() : Triggerble() , BaseActor()
+Door::Door() : Triggerable()
+{
+}
+
+Door::Door(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, linkedID, isTrigger, "activate", "activate")
 {
 }
 
@@ -11,19 +15,28 @@ Door::~Door()
 {
 }
 
-void Door::Triggerd(double deltaTime)
+
+void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
 {
-	setPosition(pos1.x, pos1.y, pos1.z);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, false);
+	BaseActor::setPositionRot(xPos, yPos - 1, zPos, pitch, yaw, roll);
+	//BaseActor::setPosition(xPos, yPos, zPos);
+
+	BaseActor::setScale(scaleX, scaleY, scaleZ);
+	BaseActor::setObjectTag("Door");
+	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("DOOR"));
+	auto& machine = getAnimatedModel()->InitStateMachine(1);
+	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
+	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("DOOR", "DOOR_ANIMATION").get());
+	getAnimatedModel()->Pause();
+
+	BaseActor::setUserDataBody(this);
 }
 
-void Door::unTriggerd(double deltaTime)
-{
-	setPosition(pos2.x, pos2.y, pos2.z);
-}
 
-void Door::setPos(DirectX::XMFLOAT4A pos1, DirectX::XMFLOAT4A pos2)
+void Door::Update(double deltaTime)
 {
-	this->pos1 = pos1;
-	
-	this->pos2 = pos2;
+	getAnimatedModel()->Update(deltaTime);
+	if (Triggerable::getState() == true)
+		PhysicsComponent::p_setPosition(200, 200, 200);
 }

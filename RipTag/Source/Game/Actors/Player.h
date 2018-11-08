@@ -34,6 +34,7 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent , publ
 {
 private: //stuff for state machine
 	friend class PlayState;
+	friend class Enemy; //#todoREMOVE
 	bool m_jumpedThisFrame = false;
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
@@ -53,13 +54,14 @@ private:
 	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
-	AbilityComponent ** m_abilityComponents;	
+	AbilityComponent ** m_abilityComponents1;
+	AbilityComponent ** m_abilityComponents2;
+	AbilityComponent ** m_activeSet;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
 	Enemy* possessTarget;	
-	BlinkAbility * m_blink;
-	PossessGuard * m_possess;
+
 	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -97,6 +99,7 @@ private:
 	Quad * m_visBar;
 	Quad * m_visBarBackground;
 	Quad * m_visbarText;
+	Quad * m_winBar;
 
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
@@ -110,8 +113,8 @@ private:
 public:
 	//Magic number
 	static const int g_fullVisability = 6500;
-
-
+	bool hasWon = false;
+	bool gameIsWon = false;
 	bool unlockMouse = false;
 	Player();
 	Player(RakNet::NetworkID nID, float x, float y, float z);
@@ -133,7 +136,7 @@ public:
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
 	void SendOnAnimationUpdate(double dt);
-
+	void SendOnWin();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
@@ -152,13 +155,13 @@ public:
 
 	bool DrainMana(const float & manaCost);
 	void RefillMana(const float & manaFill);
+	void drawWinBar();
+	void SetAbilitySet(int set);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
-	void _onBlink();
-	void _onPossess();
 	void _onRotate(double deltaTime);
 	void _onJump();
 	void _onInteract();
@@ -171,4 +174,5 @@ private:
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
+	void _hasWon();
 };

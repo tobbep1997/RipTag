@@ -17,6 +17,7 @@ class LevelHandler;
 class ContactListener;
 class RayCastListener;
 class RenderingManager;
+class Drawable; //#todoREMOVE
 
 
 class PlayState : public State
@@ -25,7 +26,7 @@ private:
 	LevelHandler * m_levelHandler;		//Released
 	ContactListener * m_contactListener;//Released
 	RayCastListener * m_rayListener;	//Released
-
+	std::string name;
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;

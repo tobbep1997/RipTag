@@ -26,11 +26,12 @@ public:
 	void _onRemotePlayerCreate(unsigned char id, unsigned char * data);
 	void _onRemotePlayerDisconnect(unsigned char id, unsigned char * data);
 	void _onRemotePlayerPacket(unsigned char id, unsigned char * data);
+	void _onRemotePlayerWonPacket(unsigned char id, unsigned char *data);
 
 	void Update(float dt);
 	void PhysicsUpdate();
 	void Draw();
-
+	void win();
 	//Local player handling
 	void CreateLocalPlayer();
 	void SendOnPlayerCreate();

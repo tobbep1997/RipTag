@@ -34,7 +34,7 @@ void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 	m_staticVertex = input;
 }
 
-const MyLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const
+const ImporterLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const
 {
 	return *m_collisionBox;
 }
@@ -43,8 +43,8 @@ void StaticMesh::SET_DEFAULT()
 {
 	using namespace DirectX;
 
-	MyLibrary::Loadera meshloader;
-	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
+	ImporterLibrary::CustomFileLoader meshloader;
+	ImporterLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
 
 	StaticVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
@@ -88,8 +88,8 @@ void StaticMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
 
-	MyLibrary::Loadera meshloader;
-	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
+	ImporterLibrary::CustomFileLoader meshloader;
+	ImporterLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
 
 	StaticVertex tempvertex;
 	//m_meshName = newMesh.mesh_meshID;
@@ -122,7 +122,7 @@ void StaticMesh::LoadMesh(const std::string & path)
 
 void StaticMesh::LoadCollision(const std::string & path)
 {
-	MyLibrary::Loadera meshloader;
-	m_collisionBox = new MyLibrary::CollisionBoxes();
+	ImporterLibrary::CustomFileLoader meshloader;
+	m_collisionBox = new ImporterLibrary::CollisionBoxes();
 	*m_collisionBox = meshloader.readMeshCollisionBoxes(path);
 }
