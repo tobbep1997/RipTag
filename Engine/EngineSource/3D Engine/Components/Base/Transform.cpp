@@ -9,6 +9,7 @@ void Transform::p_calcWorldMatrix()
 	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
 	XMMATRIX scaling = XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
 	XMMATRIX rotation;
+	rotation = DirectX::XMMatrixIdentity();
 	if (p_physicsRotation._11 == INT16_MIN)
 	{
 		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
@@ -40,7 +41,9 @@ Transform::Transform()
 	p_scale = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	p_forcedWorld = DirectX::XMMatrixIdentity();
 	m_modelTransform = DirectX::XMMatrixIdentity();
+	
 	p_physicsRotation._11 = INT16_MIN;
+
 	m_parent = nullptr;
 }
 

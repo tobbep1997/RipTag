@@ -23,6 +23,9 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadDynamicMesh("STATE");
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_textureManager.loadTextures("SPHERE");
+
 	//Load assets
 	{
 
@@ -162,6 +165,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_firstRun = false;
 	
 	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+
+	temp = new BaseActor();
+	temp->Init(m_world, e_staticBody,3,1,3);
+	temp->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
+	temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	
 }
 
 PlayState::~PlayState()
@@ -171,6 +180,9 @@ PlayState::~PlayState()
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
+
+	temp->Release(m_world);
+	delete temp;
 
 	delete triggerHandler;
 
@@ -191,6 +203,25 @@ void PlayState::Update(double deltaTime)
 	{
 		m_physicsThread.join();
 	}*/
+
+	//5.5,5,-4.5
+
+	ImGui::Begin("Player Setting");
+	ImGui::SliderFloat("PositionX", &posX, -20.0f, 20.f);
+	ImGui::SliderFloat("PositionY", &posY, -20.0f, 20.f);
+	ImGui::SliderFloat("PositionZ", &posZ, -20.0f, 20.f);
+
+	ImGui::SliderFloat("DirX", &xD, -180.0f, 180.f);
+	ImGui::SliderFloat("DirY", &yD, -180.0f, 180.f);
+	ImGui::SliderFloat("DirZ", &zD, -180.0f, 180.f);
+	if (ImGui::Button("test"))
+	{
+		
+	}
+	
+	ImGui::End();
+
+	temp->setPositionRot(posX, posY, posZ, xD, yD, zD);
 	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
@@ -256,6 +287,7 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(true);
 	}
+	temp->Update(deltaTime);
 }
 
 void PlayState::Draw()
@@ -265,8 +297,11 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-		
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+
+	temp->Draw();
+
+
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
 
 void PlayState::testtThread(double deltaTime)
