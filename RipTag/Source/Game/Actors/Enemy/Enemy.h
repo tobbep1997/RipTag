@@ -9,6 +9,15 @@ struct Node;
 class VisibilityComponent;
 class Grid;
 
+enum EnemyState
+{
+	Alert,
+	Investigating,
+	Patrolling,
+	Possessed,
+	Stunned
+};
+
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
 private:
@@ -63,6 +72,8 @@ private:
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
 
+	EnemyState m_state = Patrolling;
+
 	float m_guardSpeed = 1.5;
 
 	float m_visCounter;
@@ -113,6 +124,9 @@ public:
 	void SetPathVector(std::vector<Node*>  path);
 	std::vector<Node*> GetPathVector();
 	void SetAlertVector(std::vector<Node*> alertPath);
+
+	EnemyState getEnemyState() const;
+	void setEnemeyState(EnemyState state);
 
 	bool getIfLost();
 private:

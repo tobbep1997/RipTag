@@ -419,6 +419,16 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 	}
 }
 
+EnemyState Enemy::getEnemyState() const
+{
+	return m_state;
+}
+
+void Enemy::setEnemeyState(EnemyState state)
+{
+	m_state = state;
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;
