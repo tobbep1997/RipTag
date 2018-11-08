@@ -14,7 +14,7 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	m_nearPlane = 1.0f;
 	m_farPlane = 20.0f;
 	this->m_position = DirectX::XMFLOAT4A(translation[0], translation[1], translation[2], 1);
-	this->m_color = DirectX::XMFLOAT4A(color[0], color[1], color[2], 1.0);
+	this->setColor(color[0], color[1], color[2]);
 	this->m_dropOff = 1.1f;
 	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
@@ -288,7 +288,7 @@ void PointLight::setColor(const DirectX::XMFLOAT4A & color)
 
 void PointLight::setColor(float x, float y, float z, float w)
 {
-	this->setColor(DirectX::XMFLOAT4A(x, y, z, w));
+	this->setColor(DirectX::XMFLOAT4A(x / 256.0f, y / 256.0f, z / 256.0f, 1.0f));
 }
 
 void PointLight::setIntensity(float intencsity)

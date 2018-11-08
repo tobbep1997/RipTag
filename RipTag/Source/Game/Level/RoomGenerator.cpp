@@ -30,8 +30,9 @@ void RoomGenerator::_makeFloor()
 	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 	asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
 	asset->setTextureTileMult(25, 25);
-	asset->setPosition(0, 0, 0);
-	asset->setScale(abs(m_roomDepth*2), 1.f, abs(m_roomWidth*2));
+	asset->setPosition(0, -abs(m_roomDepth * 2) / 2, 0);
+	
+	asset->setScale(abs(m_roomDepth*2), abs(m_roomDepth * 2), abs(m_roomDepth * 2));
 	asset->Init(*m_worldPtr, m_roomDepth, 1.f, m_roomWidth);
 	m_generated_assetVector.push_back(asset);
 }
@@ -68,8 +69,10 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 5, 0, 1));
 
 	_makeFloor();
-	_generateLights(0, 3, 0, 200, 102, 50, 10);
-	
+
+	_generateLights(-0, 3, -0, 50, 60, 70, 10);
+	//_generateLights(-10, 3, 10, 50, 60, 70, 100);
+
 	
 
 

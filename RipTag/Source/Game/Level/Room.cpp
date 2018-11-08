@@ -336,7 +336,7 @@ void Room::LoadRoomToMemory()
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(200, 102, 50);
+		light->setColor(200.0f, 102.0f, 50.0f);
 	}
 }
 
@@ -385,8 +385,9 @@ void Room::Update(float deltaTime)
 
 	for (auto light : m_pointLights)
 	{
-		
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 0.5f));
 	}
 	triggerHandler->Update(deltaTime);
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)

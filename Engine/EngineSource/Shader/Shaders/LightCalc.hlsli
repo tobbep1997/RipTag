@@ -131,19 +131,24 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 
     input.uv.y = 1 - input.uv.y;
 	ambient = float4(0, 0, 0, 0);
-    if (usingTexture.x)
+	
+	if (usingTexture.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
-        normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
+        //normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
+		normal = normalize((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz - 1.0f));
+		normal = normalize(mul(normal, input.TBN));
+		normal = normalize(input.normal.xyz + normal);
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
     }
-	return float4(normal, 1);
+	//return float4(normal, 1);// = input.normal.xyz;
+	//normal = float3(0, 1, 0);
     //ambient = float4(0, 0, 0, 0);
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
     //ao = 0;
     //return albedo;
 
-    ambient = float4(0.2f, 0.2f, 0.25f, 1.0f) * albedo * ao;
+    ambient = float4(0.09f, 0.09f, 0.09f, 1.0f) * albedo * ao;
 	//return float4(normal, 1);
     //ambient = float4(0.02f, 0.02f, 0.025f, 1.0f) * albedo * ao;
    
@@ -194,7 +199,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);
-        attenuation = (lightDropOff[shadowLight].x / (1.0f + lightDropOff[shadowLight].y * pow(distanceToLight, lightDropOff[shadowLight].z)));
+        attenuation = ((lightDropOff[shadowLight].x ) / (1.0f + lightDropOff[shadowLight].y * pow(distanceToLight, lightDropOff[shadowLight].z)));
 		//attenuation = 1;
         radiance = lightColor[shadowLight] * attenuation;
 		 
