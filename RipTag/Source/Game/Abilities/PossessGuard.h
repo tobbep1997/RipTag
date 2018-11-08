@@ -7,8 +7,8 @@ class PossessGuard : public AbilityComponent
 {
 private:
 	const float RANGE = 10.0f;
-	const float COOLDOWN_WAIT_MAX = 1.0f;
-	const float COOLDOWN_POSSESSING_MAX = 1.0f;
+	const float COOLDOWN_WAIT_MAX = 10.0f;
+	const float COOLDOWN_POSSESSING_MAX = 10.0f;
 	const int MANA_COST_START = 5;
 	const float MANA_COST_DRAIN = 1.0f;
 	enum PossessState
@@ -18,9 +18,10 @@ private:
 		Wait		// Just possessed
 	};
 	PossessState	m_pState;
-	Enemy* possessTarget;
-	float cooldown;
-	bool m_useFunctionCalled;
+	Enemy*			m_possessTarget;
+	float			m_cooldown;
+	float			m_duration;
+	bool			m_useFunctionCalled;
 public:
 	PossessGuard(void * owner = nullptr);
 	~PossessGuard();

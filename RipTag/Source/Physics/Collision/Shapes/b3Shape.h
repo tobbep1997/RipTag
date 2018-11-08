@@ -70,6 +70,7 @@ public :
 	// Manipulating a shape transform during the simulation may cause non-physical behaviours.
 	const b3Transform& GetTransform() const;
 	void SetTransform(const b3Vec3& position, const b3Vec3& axis, r32 radians);
+	void SetTransform(const b3Vec3& position, const b3Quaternion& quartinion);
 
 	b3Body* GetBody();
 	const b3Body* GetBody() const;
@@ -125,6 +126,16 @@ inline void b3Shape::SetTransform(const b3Vec3& position, const b3Vec3& axis, r3
 	b3Quaternion q;
 	q.Set(axis, radians);
 	q.ToRotationMatrix(m_local.rotation);
+	m_local.translation = position;
+}
+inline void b3Shape::SetTransform(const b3Vec3& position, const b3Quaternion& quartinion) {
+	b3Quaternion quar;
+	quar.a = quartinion.a;
+	quar.b = quartinion.b;
+	quar.c = quartinion.c;
+	quar.d = quartinion.d;
+	quar.ToRotationMatrix(m_local.rotation);
+
 	m_local.translation = position;
 }
 

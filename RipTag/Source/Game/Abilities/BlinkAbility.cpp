@@ -45,13 +45,12 @@ void BlinkAbility::_logic(double deltaTime)
 		switch (m_bState)
 		{
 		case BlinkState::Wait:
-			if (cooldown >= COOLDOWN_WAIT_MAX)
+			m_cooldown += deltaTime;
+			if (m_cooldown >= COOLDOWN_WAIT_MAX)
 			{
 				m_bState = BlinkState::Blink;
-				cooldown = 0;
+				m_cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
 			break;
 		case BlinkState::Blink:
 			if (pPointer->CheckManaCost(getManaCost()))
@@ -94,22 +93,15 @@ void BlinkAbility::_logic(double deltaTime)
 		}
 	}
 	else
-	{
-		switch (m_bState)
+	{	
+		if(m_bState == BlinkState::Wait)
 		{
-		case BlinkState::Blink:
-
-			break;
-		case BlinkState::Wait:
-			if (cooldown >= COOLDOWN_WAIT_MAX)
+			m_cooldown += deltaTime;
+			if (m_cooldown >= COOLDOWN_WAIT_MAX)
 			{
 				m_bState = BlinkState::Blink;
-				cooldown = 0;
+				m_cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
-			break;
 		}
-
 	}
 }

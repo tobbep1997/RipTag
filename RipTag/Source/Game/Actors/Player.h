@@ -62,11 +62,11 @@ private:
 	PlayerState m_currentState = PlayerState::Idle;
 	Enemy* possessTarget;	
 
-	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
-	
+	float m_cameraOffset;
+
 	bool m_currClickCrouch = false; 
 	bool m_prevClickCrouch = false;
 	bool m_currClickSprint = false; 
@@ -108,7 +108,10 @@ private:
 	float m_tutorialDuration = 0.0f;
 	bool m_tutorialActive = true;
 
+	float m_standHeight;
+	float m_crouchHeight;
 	float m_peekRotate;
+	float m_crouchAnimStartPos;
 
 public:
 	//Magic number

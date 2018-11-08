@@ -258,12 +258,12 @@ void TeleportAbility::_inStateTeleportable()
 
 void TeleportAbility::_inStateCooldown(double dt)
 {
-	static double accumulatedTime = 0;
-	static const double cooldownDuration = 1.0 / 2.0; //500 ms
-	accumulatedTime += dt;
-	if (accumulatedTime >= cooldownDuration)
+	//static double accumulatedTime = 0;
+	//static const double cooldownDuration = 1.0 / 2.0; //500 ms
+	m_cooldown += dt;
+	if (m_cooldown >= COOLDOWN_WAIT_MAX)
 	{
-		accumulatedTime = 0.0;
+		m_cooldown = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
 }

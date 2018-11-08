@@ -45,10 +45,15 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
 	this->getAnimatedModel()->Play();
-	PhysicsComponent::Init(*world, e_staticBody);
+	PhysicsComponent::Init(*world, e_staticBody,1,0.9,1);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
+	CreateShape(0, 0.9, 0);
+	m_standHeight = 0.9 * 1.8;
+	m_crouchHeight = 0.9 * 1.1;
+	m_cameraOffset = m_standHeight;
+
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
@@ -124,26 +129,9 @@ void Enemy::CullingForVisability(const Transform& player)
 		
 }
 
-void Enemy::setPosition(const DirectX::XMFLOAT4A & pos)
-{
-	Transform::setPosition(pos);
-	DirectX::XMFLOAT4A cPos = pos;
-	cPos.y += 1.5f;
-	DirectX::XMFLOAT4A dir = p_camera->getDirection();
-	dir.y = 0.0f;
-	DirectX::XMVECTOR vDir = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir));
-	vDir = DirectX::XMVectorScale(vDir, 0.3f);
-	DirectX::XMStoreFloat4A(&dir, vDir);
-
-	cPos.x += dir.x;
-	cPos.z += dir.z;
-
-	p_camera->setPosition(cPos);
-}
-
 void Enemy::setPosition(const float & x, const float & y, const float & z, const float & w)
 {
-	this->Enemy::setPosition(DirectX::XMFLOAT4A(x, y, z, w));
+	Transform::setPosition(DirectX::XMFLOAT4A(x, y, z, w));
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
@@ -198,6 +186,9 @@ void Enemy::Update(double deltaTime)
 				}
 			}
 		}
+
+		_cameraPlacement(deltaTime);
+
 		_CheckPlayer(deltaTime);
 	}
 	else
@@ -377,8 +368,7 @@ Enemy* Enemy::validate()
 void Enemy::setPossessor(Actor* possessor, float maxDuration, float delay)
 {
 	m_possessor = possessor;
-	m_possessReturnDelay = delay;
-	m_maxPossessDuration = maxDuration;
+	m_possessReturnDelay = 1;
 }
 
 void Enemy::removePossessor()
@@ -386,9 +376,10 @@ void Enemy::removePossessor()
 	if (m_possessor != nullptr)
 	{
 		static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+		this->getBody()->SetType(e_staticBody);
+		this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
-		m_maxPossessDuration = 0;
 	}
 }
 
@@ -434,30 +425,13 @@ void Enemy::_possessed(double deltaTime)
 			{
 				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
 				m_possessor = nullptr;
-				this->CreateBox(1,1,1);
-				if (m_kp.crouching)
-				{
-					this->setPosition(this->getPosition().x, this->getPosition().y + 0.9, this->getPosition().z, 1);
-				}
-				else
-				{
-					this->setPosition(this->getPosition().x, this->getPosition().y + 0.5, this->getPosition().z, 1);
-				}
-				this->getBody()->SetType(e_staticBody);
-				this->getBody()->SetAwake(false);
-			}
-			else if(m_maxPossessDuration <= 0)
-			{
-				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
-				m_possessor = nullptr;
+				//this->CreateBox(1,1,1);
 				this->getBody()->SetType(e_staticBody);
 				this->getBody()->SetAwake(false);
 			}
 		}
 		else
 			m_possessReturnDelay -= deltaTime;
-
-		m_maxPossessDuration -= deltaTime;
 	}
 }
 
@@ -503,9 +477,9 @@ void Enemy::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
-				m_standHeight = this->p_camera->getPosition().y;
-				this->CreateBox(0.5f, 0.10f, 0.5f);
-				this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+				m_crouchAnimStartPos = this->p_camera->getPosition().y;
+				m_cameraOffset = m_crouchHeight;
+				this->getBody()->GetShapeList()[0].SetSensor(true);
 				m_kp.crouching = true;
 			}
 		}
@@ -513,9 +487,9 @@ void Enemy::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
-				m_standHeight = this->p_camera->getPosition().y;
-				this->CreateBox(0.5, 0.5, 0.5);
-				this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+				m_crouchAnimStartPos = this->p_camera->getPosition().y;
+				m_cameraOffset = m_standHeight;
+				this->getBody()->GetShapeList()[0].SetSensor(false);
 				m_kp.crouching = false;
 			}
 		}
@@ -582,6 +556,20 @@ void Enemy::_onSprint()
 		m_moveSpeed = 0;
 		p_moveState = Idle;
 	}
+}
+
+void Enemy::_cameraPlacement(double deltaTime)
+{
+	DirectX::XMFLOAT4A pos = getPosition();
+	pos.y += m_cameraOffset;
+	p_camera->setPosition(pos);
+	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+
+	pos.y += offsetY;
+
+	pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
+	p_camera->setPosition(pos);
 }
 
 bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
@@ -708,17 +696,17 @@ void Enemy::_CheckPlayer(double deltaTime)
 
 void Enemy::_activateCrouch()
 {
-	this->setPosition(this->getPosition().x, this->getPosition().y - m_offPutY, this->getPosition().z);
-	m_standHeight = this->p_camera->getPosition().y;
-	this->CreateBox(0.5f, 0.10f, 0.5f);
+	m_crouchAnimStartPos = this->p_camera->getPosition().y;
+	m_cameraOffset = m_crouchHeight;
+	this->getBody()->GetShapeList()[0].SetSensor(true);
 	m_kp.crouching = true;
 }
 
 void Enemy::_deActivateCrouch()
 {
-	this->setPosition(this->getPosition().x, this->getPosition().y + m_offPutY, this->getPosition().z);
-	m_standHeight = this->p_camera->getPosition().y;
-	this->CreateBox(0.5, 0.5, 0.5);
+	m_crouchAnimStartPos = this->p_camera->getPosition().y;
+	m_cameraOffset = m_standHeight;
+	this->getBody()->GetShapeList()[0].SetSensor(false);
 	m_kp.crouching = false;
 }
 
