@@ -294,5 +294,6 @@
     <ClInclude Include="Source\Gameplay\Triggers\Triggerable.h" />
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
+    <ClInclude Include="Source\Game\States\OptionState.h" />
   </ItemGroup>
 </Project>

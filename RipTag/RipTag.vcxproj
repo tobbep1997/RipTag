@@ -523,6 +523,7 @@
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />
     <ClInclude Include="RipTagPCH.h" />
+    <ClInclude Include="Source\Game\States\OptionState.h" />
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
     <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
     <ClInclude Include="Source\Gameplay\Objects\Door.h" />
