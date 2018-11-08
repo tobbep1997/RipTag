@@ -13,6 +13,7 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 
 	this->pNetwork = Network::Multiplayer::GetInstance();
+	this->pNetwork->StartUpPeer();
 	//INITIAL RANDOM HOST NAME
 	this->m_MyHostName = "Host:" + std::to_string(randomMT());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
@@ -27,6 +28,7 @@ LobbyState::~LobbyState()
 	for (auto & button : this->m_charSelectButtons)
 		delete button;
 	this->m_charSelectButtons.clear();
+	this->pNetwork->ShutdownPeer();
 }
 
 void LobbyState::Update(double deltaTime)

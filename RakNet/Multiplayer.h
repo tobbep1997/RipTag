@@ -48,8 +48,9 @@ namespace Network
 
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
-		void StartUpServer();
-		void StartUpClient();
+		void SetupServer();
+		void StartUpPeer();
+		void ShutdownPeer();
 
 		void AdvertiseHost(const char * additionalData = nullptr, size_t length = 0);
 		void SearchLANHost();

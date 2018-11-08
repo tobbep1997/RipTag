@@ -57,37 +57,31 @@ namespace Network
 		LobbyOnReceiveMap.insert(std::pair <unsigned char, std::function<void(unsigned char, RakNet::Packet*)>>(key, func));
 	}
 
-	void Multiplayer::StartUpServer()
+	void Multiplayer::SetupServer()
+	{
+		if(m_isRunning)
+			this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
+	}
+
+	void Multiplayer::StartUpPeer()
 	{
 		RakNet::StartupResult result;
-		
-		m_isServer = true;
-		m_isClient = false;
 		m_isRunning = true;
-
 		//specify the port(s) to listen on
 		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
 		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
 			m_isRunning = false;
 		}
-
-		this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
+		else
+			this->pPeer->SetMaximumIncomingConnections(0);
 	}
 
-	void Multiplayer::StartUpClient()
+	void Multiplayer::ShutdownPeer()
 	{
-		RakNet::StartupResult result;
-
-		m_isServer = false;
-		m_isClient = true;
-		m_isRunning = true;
-
-		//a client doesn't need to listen on a specific port - auto assigned
-		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
-
-		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
+		if (m_isRunning)
 		{
+			this->pPeer->Shutdown(1);
 			m_isRunning = false;
 		}
 	}
@@ -173,14 +167,14 @@ namespace Network
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			/*packetsCounter++;*/
-			//std::cout << "--------------------------NEW PACKET--------------------------\n";
-			//std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
-			//std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
-			//std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
-			//std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
-			////std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			//std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
+			packetsCounter++;
+			std::cout << "--------------------------NEW PACKET--------------------------\n";
+			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
+			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
+			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
+			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
+			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
+			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
 			this->HandleRakNetMessages(mID);
 			this->HandleLobbyMessages(mID, packet);

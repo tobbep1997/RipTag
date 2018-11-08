@@ -430,11 +430,11 @@ void PlayState::TemporaryLobby()
 	{
 		if (ImGui::Button("Start Server"))
 		{
-			ptr->StartUpServer();
+			ptr->SetupServer();
 		}
 		else if (ImGui::Button("Start Client"))
 		{
-			ptr->StartUpClient();
+			//ptr->StartUpClient();
 		}
 	}
 
