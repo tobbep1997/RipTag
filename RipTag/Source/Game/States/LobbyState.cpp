@@ -132,7 +132,7 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 {
 	switch (id)
 	{
-	case DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM:
+	case Network::ID_SERVER_ADVERTISE:
 		_onAdvertisePacket(packet);
 		break;
 	}
@@ -430,7 +430,7 @@ void LobbyState::_registerThisInstanceToNetwork()
 	using namespace Network;
 	using namespace std::placeholders;
 
-	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(NETWORKMESSAGES::ID_SERVER_ADVERTISE, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(NETWORKMESSAGES::ID_CLIENT_JOIN, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
