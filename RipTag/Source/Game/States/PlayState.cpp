@@ -39,7 +39,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 
 
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.9f,0.5f);
 	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
 	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
 

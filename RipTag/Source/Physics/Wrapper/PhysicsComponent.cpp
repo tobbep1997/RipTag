@@ -256,6 +256,12 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
 }
 
+void PhysicsComponent::CreateShape(float x, float y, float z)
+{
+	b3Shape* shape = m_body->CreateShape(*m_bodyBoxDef);
+	shape->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
+}
+
 void PhysicsComponent::setGravityScale(float gravity)
 {
 	m_body->SetGravityScale(gravity);
