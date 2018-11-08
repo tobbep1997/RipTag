@@ -12,45 +12,56 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	p_initCamera(new Camera(DirectX::XM_PI * convertion, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
-	
-	VisabilityAbility * visAbl = new VisabilityAbility();
-	visAbl->setOwner(this);
-	visAbl->setIsLocal(true);
-	visAbl->Init();
-	visAbl->setManaCost(1);
+	//Ability stuff
+	{
+		VisabilityAbility * visAbl = new VisabilityAbility();
+		visAbl->setOwner(this);
+		visAbl->setIsLocal(true);
+		visAbl->Init();
+		visAbl->setManaCost(1);
 
-	VisabilityAbility * visAbl2 = new VisabilityAbility();
-	visAbl2->setOwner(this);
-	visAbl2->setIsLocal(true);
-	visAbl2->Init();
+		VisabilityAbility * visAbl2 = new VisabilityAbility();
+		visAbl2->setOwner(this);
+		visAbl2->setIsLocal(true);
+		visAbl2->Init();
 
-	TeleportAbility * m_teleport = new TeleportAbility();
-	m_teleport->setOwner(this);
-	m_teleport->setIsLocal(true);
-	m_teleport->Init();
+		TeleportAbility * m_teleport = new TeleportAbility();
+		m_teleport->setOwner(this);
+		m_teleport->setIsLocal(true);
+		m_teleport->Init();
 
-	DisableAbility * m_dis = new DisableAbility();
-	m_dis->setOwner(this);
-	m_dis->setIsLocal(true);
-	m_dis->Init();
+		DisableAbility * m_dis = new DisableAbility();
+		m_dis->setOwner(this);
+		m_dis->setIsLocal(true);
+		m_dis->Init();
 
-	m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
-	m_abilityComponents1[0] = m_teleport;
-	m_abilityComponents1[1] = visAbl;
-	m_abilityComponents1[2] = m_dis;
-	m_abilityComponents1[3] = visAbl2;
+		BlinkAbility * m_blink = new BlinkAbility();
+		m_blink->setOwner(this);
+		m_blink->setIsLocal(true);
+		m_blink->Init();
 
-	m_currentAbility = Ability::TELEPORT;
-	/*m_possess.setOwner(this);
-	m_possess.Init();
-	
-	m_blink.setOwner(this);
-	m_blink.Init();*/
-	
+		PossessGuard * m_possess = new PossessGuard();
+		m_possess->setOwner(this);
+		m_possess->setIsLocal(true);
+		m_possess->Init();
 
+		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
+		m_abilityComponents1[0] = m_teleport;
+		m_abilityComponents1[1] = visAbl;
+		m_abilityComponents1[2] = m_dis;
+		m_abilityComponents1[3] = visAbl2;
 
+		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
+		m_abilityComponents2[0] = m_blink;
+		m_abilityComponents2[1] = visAbl;
+		m_abilityComponents2[2] = m_possess;
+		m_abilityComponents2[3] = visAbl2;
 
+		m_currentAbility = (Ability)0;
 
+		//By default always this set
+		m_activeSet = m_abilityComponents2;
+	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -164,8 +175,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialMessages.push("");
 	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
 	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
-	m_tutorialMessages.push("Select your abilities with DPAD(1-4) and use with RB(T)");
-	m_tutorialMessages.push("Peek to the sides with LT(Q) and RT(E)");
+	m_tutorialMessages.push("Select your abilities with DPAD and use with RB");
+	m_tutorialMessages.push("Peek to the sides with LT and RT");
 	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
 	m_tutorialText = new Quad();
@@ -215,8 +226,11 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
-	delete m_blink;
-	delete m_possess;
+	delete m_abilityComponents2[0];
+	delete m_abilityComponents2[2];
+	delete[] m_abilityComponents2;
+	for (auto & s : m_sounds)
+		AudioEngine::UnLoadSoundEffect(s);
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
@@ -233,13 +247,6 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	setScale(1.0f, 1.0f, 1.0f);
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
-
-	m_blink = new BlinkAbility();
-	m_blink->Init();
-	m_blink->setOwner(this);
-	m_possess = new PossessGuard();
-	m_possess->Init();
-	m_possess->setOwner(this);
 
 	setHidden(true);
 }
@@ -296,7 +303,6 @@ void Player::Update(double deltaTime)
 	using namespace DirectX;
 
 	_hasWon();
-
 	if (m_lockPlayerInput == false)
 	{
 		if (InputHandler::getWindowFocus())
@@ -316,43 +322,42 @@ void Player::Update(double deltaTime)
 		m_maxMana += 10;
 	}
 
-	m_abilityComponents1[m_currentAbility]->Update(deltaTime);
-	m_possess->Update(deltaTime);
-	m_blink->Update(deltaTime);
+	m_activeSet[m_currentAbility]->Update(deltaTime);
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
 	if (Input::SelectAbility1())
-		m_currentAbility = Ability::TELEPORT;		
+		m_currentAbility = (Ability)0;
 	else if (Input::SelectAbility2())
-		m_currentAbility = Ability::VISIBILITY;	
+		m_currentAbility = (Ability)1;
 	else if (Input::SelectAbility3())
-		m_currentAbility = Ability::DISABLE;	
+		m_currentAbility = (Ability)2;
 	else if (Input::SelectAbility4())
-		m_currentAbility = Ability::VIS2;
+		m_currentAbility = (Ability)3;
 	
 	if (GamePadHandler::IsUpDpadPressed())
-		m_currentAbility = Ability::TELEPORT;
+		m_currentAbility = (Ability)0;
 	else if (GamePadHandler::IsRightDpadPressed())
-		m_currentAbility = Ability::VISIBILITY;
+		m_currentAbility = (Ability)1;
 	else if (GamePadHandler::IsDownDpadPressed())
-		m_currentAbility = Ability::DISABLE;
+		m_currentAbility = (Ability)2;
 	else if (GamePadHandler::IsLeftDpadPressed())
-		m_currentAbility = Ability::VIS2;
+		m_currentAbility = (Ability)3;
 
 
 	if (m_tutorialActive)
 	{
-		if (m_currentAbility == Ability::TELEPORT)
+		bool isServer = Network::Multiplayer::GetInstance()->isServer();
+		if (m_currentAbility == Ability::TELEPORT && isServer)
 			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
 		else if (m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
 			m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
-		else if (m_currentAbility == Ability::DISABLE)
+		else if (m_currentAbility == Ability::DISABLE && isServer)
 			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
-		else if (m_currentAbility == Ability::BLINK)
+		else if (m_currentAbility == Ability::BLINK && !isServer)
 			m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
-		else if (m_currentAbility == Ability::POSSESS)
+		else if (m_currentAbility == Ability::POSSESS && !isServer)
 			m_abilityTutorialText->setString("Possess:\nControl guards.");
 	}
 
@@ -423,10 +428,18 @@ void Player::RefillMana(const float& manaFill)
 	}
 }
 
+void Player::SetAbilitySet(int set)
+{
+	if (set == 1)
+		m_activeSet = m_abilityComponents1;
+	else if (set == 2)
+		m_activeSet = m_abilityComponents2;
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
-		m_abilityComponents1[i]->Draw();
+		m_activeSet[i]->Draw();
 	Drawable::Draw();
 	HUDComponent::HUDDraw();
 
@@ -471,10 +484,12 @@ void Player::SendOnAbilityUsed()
 	using namespace Network;
 	ENTITYABILITYPACKET packet;
 
+	bool isServer = Multiplayer::GetInstance()->isServer();
 	//Same for every ability packet
 	packet.id = ID_TIMESTAMP;
 	packet.timeStamp = RakNet::GetTime();
 	packet.m_id = ID_PLAYER_ABILITY;
+	packet.ability = (unsigned int)NONE;
 
 	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
 	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
@@ -483,16 +498,22 @@ void Player::SendOnAbilityUsed()
 	switch (this->m_currentAbility)
 	{
 	case Ability::TELEPORT:
-		packet.ability = (unsigned int)TELEPORT;
-		packet.start = tp_ptr->getStart();
-		packet.velocity = tp_ptr->getVelocity();
-		packet.state = tp_ptr->getState();
+		if (isServer)
+		{
+			packet.ability = (unsigned int)TELEPORT;
+			packet.start = tp_ptr->getStart();
+			packet.velocity = tp_ptr->getVelocity();
+			packet.state = tp_ptr->getState();
+		}
 		break;
 	case Ability::DISABLE:
-		packet.ability = (unsigned int)DISABLE;
-		packet.start = dis_ptr->getStart();
-		packet.velocity = dis_ptr->getVelocity();
-		packet.state = dis_ptr->getState();
+		if (isServer)
+		{
+			packet.ability = (unsigned int)DISABLE;
+			packet.start = dis_ptr->getStart();
+			packet.velocity = dis_ptr->getVelocity();
+			packet.state = dis_ptr->getState();
+		}
 		break;
 	case Ability::VIS2:
 	case Ability::VISIBILITY:
@@ -598,10 +619,8 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_onMovement();
-	_onJump();
+	//_onJump();
 	_onAbility(deltaTime);
-	_onBlink();
-	_onPossess();
 	_onInteract();
 	_onRotate(deltaTime);
 	_objectInfo(deltaTime);
@@ -630,11 +649,21 @@ void Player::_onMovement()
 	float x = 0;
 	float z = 0;
 
-	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
 
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+
+	DirectX::XMStoreFloat2(&dir, vDir);
+
+	x = dir.x * m_moveSpeed  * RIGHT.x;
+	x += dir.y * m_moveSpeed * forward.x;
+	z = dir.y * m_moveSpeed * forward.z;
+	z += dir.x * m_moveSpeed * RIGHT.z;
+
+	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -746,40 +775,6 @@ void Player::_onCrouch()
 	}
 }
 
-void Player::_onBlink()
-{
-	if (Input::Blink()) //Phase acts like short range teleport through objects
-	{
-		if (m_kp.blink == false)
-		{
-			m_blink->Use();
-			m_kp.blink = true;
-		}
-	}
-	else
-	{
-		m_kp.blink = false;
-	}
-}
-
-void Player::_onPossess()
-{
-	if (Input::Possess()) //Phase acts like short range teleport through objects
-	{
-		
-		if (m_kp.possess == false)
-		{
-			setHidden(false);
-			m_possess->Use();
-			m_kp.possess = true;
-		}
-	}
-	else
-	{
-		setHidden(true);
-		m_kp.possess = false;
-	}
-}
 
 void Player::_onRotate(double deltaTime)
 {
@@ -873,43 +868,47 @@ void Player::_onInteract()
 		if (m_kp.interact == false)
 		{
 			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
-			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			if (ray)
 			{
-				if (*con->consumeState != 2)
+				for (RayCastListener::RayContact* con : ray->GetRayContacts())
 				{
-					if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
+					if (*con->consumeState != 2)
 					{
-						if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+						if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
 						{
-							*con->consumeState += 1;
-							//do the pickups
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
-						{
-							*con->consumeState += 1;
-							m_infoText->setString("");
-							m_objectInfoTime = 0;
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
-						{
-							*con->consumeState += 1;
-							//Snuff out torches (example)
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-						{
-							
-							//std::cout << "Enemy Found!" << std::endl;
-							//Snuff out torches (example)
-						}
-						else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
-						{
-							//*con->consumeState += 1;
-							//std::cout << "illusory wall ahead" << std::endl;
-							//Snuff out torches (example)
+							if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+							{
+								*con->consumeState += 1;
+								//do the pickups
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+							{
+								*con->consumeState += 1;
+								m_infoText->setString("");
+								m_objectInfoTime = 0;
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+							{
+								*con->consumeState += 1;
+								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+							{
+
+								//std::cout << "Enemy Found!" << std::endl;
+								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+							{
+								//*con->consumeState += 1;
+								//std::cout << "illusory wall ahead" << std::endl;
+								//Snuff out torches (example)
+							}
 						}
 					}
 				}
 			}
+			
 			m_kp.interact = true;
 		}
 	}
@@ -921,7 +920,7 @@ void Player::_onInteract()
 
 void Player::_onAbility(double dt)
 {
-	this->m_abilityComponents1[m_currentAbility]->Update(dt);
+	this->m_activeSet[m_currentAbility]->Update(dt);
 }
 
 //Sends a ray every second and check if there is relevant data for the object to show on the screen
@@ -942,20 +941,20 @@ void Player::_objectInfo(double deltaTime)
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
 				{
-					m_infoText->setString("Press X (TAB) to pull");
+					m_infoText->setString("Press X to pull");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS)
 				{
-					m_infoText->setString("Select DPAD DOWN (3) and press RT(R) to possess");
+					m_infoText->setString("Press RB to possess");
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3)
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3  && m_currentAbility == Ability::BLINK)
 				{
-					m_infoText->setString("Select DPAD UP (1) and press RT(F) to pass");
+					m_infoText->setString("Press RB to pass");
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
@@ -1017,7 +1016,15 @@ void Player::_cameraPlacement(double deltaTime)
 				{
 					index = rand() % (int)m_sounds.size();
 				}
-				AudioEngine::PlaySoundEffect(m_sounds[index], &at)->setVolume(0.3 + (p_moveState * 0.4));
+				FMOD::Channel * c = nullptr;
+				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at, AudioEngine::Player);
+				b3Vec3 vel = getLiniearVelocity();
+				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
+				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+
+				speed *= 0.1;
+				speed -= 0.2f;
+				c->setVolume(speed);
 				last = index;
 			}
 		}
@@ -1087,11 +1094,11 @@ void Player::_hasWon()
 				hasWon = true;
 				std::cout << "HASWON!" << std::endl;
 				SendOnWin();
-
+				
 				break;
 			}
 		}
-		else if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
+		else if(RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
 		{
 			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
@@ -1102,6 +1109,8 @@ void Player::_hasWon()
 			}
 		}
 	}
+	if (gameIsWon == true)
+		drawWinBar();
 }
 
 void Player::drawWinBar()

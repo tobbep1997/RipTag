@@ -31,7 +31,7 @@ public:
 	void Update(float dt);
 	void PhysicsUpdate();
 	void Draw();
-
+	void win();
 	//Local player handling
 	void CreateLocalPlayer();
 	void SendOnPlayerCreate();

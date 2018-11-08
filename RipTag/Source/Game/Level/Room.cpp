@@ -8,9 +8,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
-	b3Vec3 pos;
-	b3Vec3 size;
-	b3Quaternion rot;
+	
 	for (int i = 0; i < propsToPlace.nrOfItems; i++)
 	{
 		int a = propsToPlace.props[i].typeOfProp;
@@ -188,6 +186,11 @@ DirectX::XMFLOAT4 Room::getPlayer1StartPos()
 DirectX::XMFLOAT4 Room::getPlayer2StartPos()
 {
 	return this->m_player2StartPos;
+}
+
+const std::vector<Enemy*>* Room::getEnemies() const
+{
+	return &m_roomGuards;
 }
 
 void Room::UnloadRoomFromMemory()

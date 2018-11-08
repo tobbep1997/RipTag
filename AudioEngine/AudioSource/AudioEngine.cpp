@@ -174,7 +174,7 @@ void AudioEngine::UnloadMusicSound(const std::string & name)
 	}
 }
 
-FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTOR * from)
+FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTOR * from, SoundType type)
 {
 	int i = -1;
 	int size = (int)s_soundEffects.size();
@@ -200,6 +200,22 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 		}
 
 		c->setPaused(false);
+
+		switch (type)
+		{
+		case AudioEngine::NONE:
+			c->setUserData((void*)&NONE_SOUND);
+			break;
+		case AudioEngine::Player:
+			c->setUserData((void*)&PLAYER_SOUND);
+			break;
+		case AudioEngine::RemotePlayer:
+			c->setUserData((void*)&REMOTE_SOUND);
+			break;
+		case AudioEngine::Other:
+			c->setUserData((void*)&OTHER_SOUND);
+			break;
+		}
 	}
 	return c;
 }
@@ -382,6 +398,30 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	return ReturnValue;
 }
 
+std::vector<FMOD::Channel*> AudioEngine::getAllPlayingChannels()
+{
+	int index = 0;
+	FMOD::Channel * c = nullptr;
+	std::vector<FMOD::Channel*> Channel;
+	while (FMOD_OK == s_soundEffectGroup->getChannel(index++, &c))
+	{
+		bool isPlaying = false;
+		c->isPlaying(&isPlaying);
+		if (isPlaying)
+			Channel.push_back(c);
+	}
+	index = 0;
+	while (FMOD_OK == s_ambientSoundGroup->getChannel(index++, &c))
+	{
+		bool isPlaying = false;
+		c->isPlaying(&isPlaying);
+		if (isPlaying)
+			Channel.push_back(c);
+	}
+
+	return Channel;
+}
+
 void AudioEngine::_createSystem()
 {
 	unsigned int version;
@@ -430,6 +470,9 @@ void AudioEngine::_createChannelGroups()
 	s_ambientSoundGroup->setVolume(1.0f);
 	s_system->createChannelGroup("Music", &s_musicSoundGroup);
 	s_musicSoundGroup->setVolume(1.0f);
+
+
+	
 
 	FMOD_RESULT res = s_masterGroup->addGroup(s_soundEffectGroup);
 	res = s_masterGroup->addGroup(s_ambientSoundGroup);

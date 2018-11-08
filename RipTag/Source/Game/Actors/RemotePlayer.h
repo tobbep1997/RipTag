@@ -26,7 +26,9 @@ private:
 	//PRIVATE MEMBERS
 	std::stack<PlayerState> m_stateStack;
 	bool handleTransition = false;
-	AbilityComponent ** m_abilityComponents;
+	AbilityComponent ** m_abilityComponents1;
+	AbilityComponent ** m_abilityComponents2;
+	AbilityComponent ** m_activeSet;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 	const unsigned short int m_nrOfAbilitys = 4;
 	DirectX::XMFLOAT4A m_mostRecentPosition;
@@ -43,6 +45,7 @@ public:
 	void Update(double dt);
 	void Draw() override;
 	bool hasWon = false;
+	void SetAbilitySet(int);
 private:
 	//PRIVATE FUNCTIONS
 

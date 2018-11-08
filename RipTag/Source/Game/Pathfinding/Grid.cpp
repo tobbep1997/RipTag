@@ -42,9 +42,6 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			/*m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
-				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[0],
-					grid.gridPoints[j + i * m_width].translation[2])));*/
 			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
 				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
 					grid.gridPoints[i + j * m_height].translation[2])));

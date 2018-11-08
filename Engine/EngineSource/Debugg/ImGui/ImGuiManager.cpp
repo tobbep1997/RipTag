@@ -117,7 +117,7 @@ void ImGuiManager::_MemoryManager()
 	m_statex.dwLength = sizeof(m_statex);
 
 	GlobalMemoryStatusEx(&m_statex);
-
+#if _DEBUG
 	ImGui::Begin("Memory Manager");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 	ImGui::Text("RAM");
@@ -126,7 +126,7 @@ void ImGuiManager::_MemoryManager()
 	ImGui::Text(("There are %*I64d free Mbytes of physical memory.\n"), WIDTH, m_statex.ullAvailPhys / DIV);  // Display some text (you can use a format strings too)
 	ImGui::Text("Real Ram Memory: %f", memoryUsageRam);  // Display some text (you can use a format strings too)
 	ImGui::Text("Real VRam Memory: %f", memoryUsageVRam);  // Display some text (you can use a format strings too)
-																											//ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-
 	ImGui::End();
+#endif																								//ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+
 }

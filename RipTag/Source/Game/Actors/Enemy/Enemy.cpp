@@ -128,7 +128,16 @@ void Enemy::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	Transform::setPosition(pos);
 	DirectX::XMFLOAT4A cPos = pos;
-	cPos.y += 1;
+	cPos.y += 1.5f;
+	DirectX::XMFLOAT4A dir = p_camera->getDirection();
+	dir.y = 0.0f;
+	DirectX::XMVECTOR vDir = DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&dir));
+	vDir = DirectX::XMVectorScale(vDir, 0.3f);
+	DirectX::XMStoreFloat4A(&dir, vDir);
+
+	cPos.x += dir.x;
+	cPos.z += dir.z;
+
 	p_camera->setPosition(cPos);
 }
 
@@ -190,6 +199,11 @@ void Enemy::Update(double deltaTime)
 			}
 		}
 		_CheckPlayer(deltaTime);
+	}
+	else
+	{
+		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+
 	}
 	getBody()->SetType(e_dynamicBody);
 }
@@ -272,10 +286,19 @@ void Enemy::_handleMovement(double deltaTime)
 	float x = 0;
 	float z = 0;
 
-	x = Input::MoveRight() * m_moveSpeed  * RIGHT.x;
-	x += Input::MoveForward() * m_moveSpeed * forward.x;
-	z = Input::MoveForward() * m_moveSpeed * forward.z;
-	z += Input::MoveRight() * m_moveSpeed * RIGHT.z;
+	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
+
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+
+	DirectX::XMStoreFloat2(&dir, vDir);
+
+	x = dir.x * m_moveSpeed  * RIGHT.x;
+	x += dir.y * m_moveSpeed * forward.x;
+	z = dir.y * m_moveSpeed * forward.z;
+	z += dir.x * m_moveSpeed * RIGHT.z;
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
@@ -407,7 +430,7 @@ void Enemy::_possessed(double deltaTime)
 	{
 		if (m_possessReturnDelay <= 0)
 		{
-			if (Input::Possess())
+			if (Input::OnAbilityPressed())
 			{
 				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
 				m_possessor = nullptr;

@@ -17,19 +17,18 @@ public:
 		FMOD_VECTOR forward; // Must be normalized
 		FMOD_VECTOR up;		// Must be normalized
 	};
-	enum SoundOwner
+	enum SoundType
 	{
-		Player = 0,
-		Enemy = 1
+		NONE = 0,
+		Player,
+		RemotePlayer,
+		Other
 	};
-	struct SoundInfo
-	{
-		SoundOwner Owner;
-		FMOD_VECTOR SoundPosition;
-	};
-
-
 private:
+	static const SoundType NONE_SOUND = SoundType::NONE;
+	static const SoundType PLAYER_SOUND = SoundType::Player;
+	static const SoundType REMOTE_SOUND = SoundType::RemotePlayer;
+	static const SoundType OTHER_SOUND = SoundType::Other;
 	static bool s_inited;
 
 	static FMOD::System * s_system;
@@ -60,7 +59,7 @@ public:
 	static void UnloadAmbiendSound	(const std::string & name);
 	static void UnloadMusicSound	(const std::string & name);
 
-	static FMOD::Channel * PlaySoundEffect	(const std::string & name, FMOD_VECTOR * from = nullptr);
+	static FMOD::Channel * PlaySoundEffect	(const std::string & name, FMOD_VECTOR * from = nullptr, SoundType type = NONE);
 	static FMOD::Channel * PlayAmbientSound	(const std::string & name);
 	static FMOD::Channel * PlayMusic		(const std::string & name);
 
@@ -76,6 +75,8 @@ public:
 	static FMOD::Geometry* CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry* CreateCube(float fDirectOcclusion, float fReverbOcclusion,
 		DirectX::XMFLOAT4 pos, DirectX::XMFLOAT4 scl, DirectX::XMFLOAT4 q);
+
+	static std::vector<FMOD::Channel*> getAllPlayingChannels();
 
 private:
 	static void _createSystem();

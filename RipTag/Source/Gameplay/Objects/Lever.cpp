@@ -15,6 +15,8 @@ Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, lin
 Lever::~Lever()
 {
 	//PhysicsComponent::Release(*RipExtern::g_world);
+	AudioEngine::UnLoadSoundEffect(lock);
+	AudioEngine::UnLoadSoundEffect(unlock);
 }
 
 void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
@@ -51,11 +53,11 @@ void Lever::Update(double deltaTime)
 					if (this->getTriggerState())
 					{
 						this->setTriggerState(false);
-						AudioEngine::PlaySoundEffect(unlock, &fVector);
+						AudioEngine::PlaySoundEffect(unlock, &fVector, AudioEngine::Player);
 					}
 					else
 					{
-						AudioEngine::PlaySoundEffect(lock, &fVector);
+						AudioEngine::PlaySoundEffect(lock, &fVector, AudioEngine::Player);
 						this->setTriggerState(true);
 					}
 					*(con->consumeState) += 1;
