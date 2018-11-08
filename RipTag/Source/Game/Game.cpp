@@ -82,7 +82,8 @@ void Game::Update(double deltaTime)
 	m_gameStack.top()->Update(deltaTime);
 	InputMapping::Call();
 	pNetworkInstance->Update();
-	
+
+	InputHandler::getRawInput();
 }
 
 void Game::Draw()
@@ -112,7 +113,7 @@ void Game::_handleStateSwaps()
 
 void Game::_restartGameIf()
 {
-	if (InputHandler::isKeyPressed('B'))
+	/*if (InputHandler::isKeyPressed('B'))
 	{
 		if (isPressed == false)
 		{
@@ -126,5 +127,5 @@ void Game::_restartGameIf()
 	else
 	{
 		isPressed = false;
-	}
+	}*/
 }

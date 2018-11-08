@@ -208,6 +208,11 @@ const std::string & Quad::getString() const
 	return m_string;
 }
 
+void Quad::getString(std::string & string)
+{
+	string = this->m_string;
+}
+
 void Quad::setTextColor(const DirectX::XMFLOAT4A & color)
 {
 	this->m_textColor = color;
@@ -277,6 +282,16 @@ void Quad::setPivotPoint(PivotPoint pivotPoint)
 {
 	this->m_pivotPoint = pivotPoint;
 	this->setPosition(this->getPosition());
+}
+
+void Quad::setTextAlignment(Quad::TextAlignment alignment)
+{
+	this->m_textAlignment = alignment;
+}
+
+Quad::TextAlignment Quad::getTextAlignment() const
+{
+	return m_textAlignment;
 }
 
 DirectX::XMFLOAT4 Quad::getCenter() const

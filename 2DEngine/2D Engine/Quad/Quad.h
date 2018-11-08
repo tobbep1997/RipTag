@@ -28,6 +28,12 @@ public:
 		upperRight
 	};
 
+	enum TextAlignment
+	{
+		centerAligned,
+		leftAligned
+	};
+
 private:
 
 
@@ -48,6 +54,8 @@ private:
 	std::string m_string = "";
 
 	DirectX::XMFLOAT4A m_textColor;
+
+	TextAlignment m_textAlignment = TextAlignment::centerAligned;
 
 	void p_createBuffer();
 	void p_setStaticQuadVertex();
@@ -85,6 +93,7 @@ public:
 
 	DirectX::SpriteFont & getSpriteFont() const;
 	const std::string & getString() const;
+	void getString(std::string & string);
 
 	void setTextColor(const DirectX::XMFLOAT4A & color);
 	const DirectX::XMFLOAT4A & getTextColor() const;
@@ -100,6 +109,9 @@ public:
 	const bool & isSelected() const;
 
 	void setPivotPoint(PivotPoint pivotPoint);
+
+	void setTextAlignment(TextAlignment alignment);
+	TextAlignment getTextAlignment() const;
 
 	virtual DirectX::XMFLOAT4 getCenter() const;
 	virtual unsigned int getType() const;
