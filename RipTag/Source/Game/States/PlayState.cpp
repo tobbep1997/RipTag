@@ -167,11 +167,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
 
-	temp = new BaseActor();
-	temp->Init(m_world, e_staticBody,3,1,3);
-	temp->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
-	temp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	
 }
 
 PlayState::~PlayState()
@@ -182,8 +177,6 @@ PlayState::~PlayState()
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
 
-	temp->Release(m_world);
-	delete temp;
 
 	delete triggerHandler;
 
@@ -207,7 +200,7 @@ void PlayState::Update(double deltaTime)
 
 	//5.5,5,-4.5
 
-	ImGui::Begin("Player Setting");
+	/*ImGui::Begin("Player Setting");
 	ImGui::SliderFloat("PositionX", &posX, -20.0f, 20.f);
 	ImGui::SliderFloat("PositionY", &posY, -20.0f, 20.f);
 	ImGui::SliderFloat("PositionZ", &posZ, -20.0f, 20.f);
@@ -220,9 +213,8 @@ void PlayState::Update(double deltaTime)
 		
 	}
 	
-	ImGui::End();
+	ImGui::End();*/
 
-	temp->setPositionRot(posX, posY, posZ, xD, yD, zD);
 	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
@@ -288,7 +280,7 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(true);
 	}
-	temp->Update(deltaTime);
+
 }
 
 void PlayState::Draw()
@@ -298,9 +290,6 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-
-	temp->Draw();
-
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }

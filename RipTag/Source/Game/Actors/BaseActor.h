@@ -21,8 +21,6 @@ public:
 	void BeginPlay() override;
 	void Update(double deltaTime) override;
 
-	void InitPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
-
 	void setPosition(const float & x, const float & y, const float & z);
 	void setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
 	void setRotation(const float & pitch, const float & yaw, const float & roll);

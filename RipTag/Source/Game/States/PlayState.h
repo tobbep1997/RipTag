@@ -43,16 +43,6 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
-	BaseActor * temp;
-
-	float posX = 5.5f;
-	float posY = 5.0f;
-	float posZ = -4.5f;
-
-	float xD = 0;
-	float yD = 0;
-	float zD = 0;
-
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
