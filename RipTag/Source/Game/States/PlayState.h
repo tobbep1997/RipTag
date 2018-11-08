@@ -4,6 +4,7 @@
 #include "State.h"
 
 #include "Source/Physics/Bounce.h"
+#include "Source/Game/Actors/BaseActor.h"
 
 namespace FMOD
 {
