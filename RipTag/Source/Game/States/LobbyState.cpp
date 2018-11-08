@@ -15,7 +15,7 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 	this->pNetwork = Network::Multiplayer::GetInstance();
 	this->pNetwork->StartUpPeer();
 	//INITIAL RANDOM HOST NAME
-	this->m_MyHostName = "Host"; /*+ std::to_string(randomMT());*/
+	this->m_MyHostName = "Host" + std::to_string(randomMT());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 
 	this->_registerThisInstanceToNetwork();
