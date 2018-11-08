@@ -102,7 +102,7 @@ void ForwardRender::GeometryPass()
 	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getHidden() != true)
+		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
@@ -134,7 +134,7 @@ void ForwardRender::PrePass()
 	//_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getHidden() != true)
+		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
@@ -160,7 +160,7 @@ void ForwardRender::AnimatedGeometryPass()
 	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
+		if (DX::g_animatedGeometryQueue[i]->getHidden() != true )
 		{
 			//todoREMOVE
 			auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
@@ -567,7 +567,7 @@ void ForwardRender::_OutliningPass(Camera & cam)
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
-	_setStaticShaders();
+	//_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		if (DX::g_geometryQueue[i]->getOutline() == true)
