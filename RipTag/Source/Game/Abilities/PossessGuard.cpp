@@ -12,7 +12,7 @@ PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 
 PossessGuard::~PossessGuard()
 {
-	possessTarget = nullptr;
+	m_possessTarget = nullptr;
 }
 
 void PossessGuard::Init()
@@ -51,30 +51,33 @@ void PossessGuard::_logic(double deltaTime)
 		switch (m_pState)
 		{
 		case PossessGuard::Wait:
-			if (cooldown >= COOLDOWN_WAIT_MAX)
+			m_cooldown += deltaTime;
+			if (m_cooldown >= COOLDOWN_WAIT_MAX)
 			{
 				m_pState = PossessGuard::Possess;
-				cooldown = 0;
+				m_cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
 			break;
 		case PossessGuard::Possessing:
 			if (!pPointer->IsInputLocked()) //Player is Returning to body
 			{
-				this->possessTarget->LockEnemyInput();
+				this->m_possessTarget->LockEnemyInput();
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
-				this->possessTarget = nullptr;
+				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
-				cooldown = 0;
+				m_cooldown = 0;
 				//m_useFunctionCalled = false;
 			}
-			else if (!pPointer->CheckManaCost(getManaCost())) //out of mana
+			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
 			{
-				this->possessTarget->removePossessor();
+				this->m_possessTarget->removePossessor();
+				m_duration = 0;
 			}
+			else
+				m_duration += deltaTime;
+
 			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
 		case PossessGuard::Possess:
@@ -92,15 +95,15 @@ void PossessGuard::_logic(double deltaTime)
 						pPointer->getBody()->SetAwake(false);
 						pPointer->LockPlayerInput();
 
-						this->possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+						this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
 						contact->contactShape->GetBody()->SetType(e_dynamicBody);
 						contact->contactShape->GetBody()->SetAwake(true);
-						this->possessTarget->UnlockEnemyInput();
-						this->possessTarget->setPossessor(pPointer, 20, 1);
+						this->m_possessTarget->UnlockEnemyInput();
+						this->m_possessTarget->setPossessor(pPointer, 20, 1);
 
-						CameraHandler::setActiveCamera(this->possessTarget->getCamera());
+						CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
 						m_pState = PossessGuard::Possessing;
-						cooldown = 0;
+						m_cooldown = 0;
 					}
 				}		
 			}
@@ -114,27 +117,31 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possessing:
 			if (!pPointer->IsInputLocked()) //Player is Returning to body
 			{
-				this->possessTarget->LockEnemyInput();
+				this->m_possessTarget->LockEnemyInput();
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
-				this->possessTarget = nullptr;
+				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
+				m_cooldown = 0;
+				//m_useFunctionCalled = false;
 			}
-			else if (!pPointer->CheckManaCost(getManaCost())) //out of mana
+			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
 			{
-				this->possessTarget->removePossessor();
+				this->m_possessTarget->removePossessor();
+				m_duration = 0;
 			}
+			else
+				m_duration += deltaTime;
 			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
 		case PossessGuard::Wait:
-			if (cooldown >= COOLDOWN_WAIT_MAX)
+			m_cooldown += deltaTime;
+			if (m_cooldown >= COOLDOWN_WAIT_MAX)
 			{
 				m_pState = PossessGuard::Possess;
-				cooldown = 0;
+				m_cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
 
 			break;
 		}
