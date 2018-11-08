@@ -146,17 +146,17 @@ void Quad::Release()
 
 void Quad::setPressedTexture(Texture * texture)
 {
-	this->m_textures[buttonState::presesd] = texture;
+	this->m_textures[ButtonStates::Pressed] = texture;
 }
 
 void Quad::setHoverTexture(Texture * texture)
 {
-	this->m_textures[buttonState::hover] = texture;
+	this->m_textures[ButtonStates::Hover] = texture;
 }
 
 void Quad::setUnpressedTexture(Texture * texture)
 {
-	this->m_textures[buttonState::normal] = texture;
+	this->m_textures[ButtonStates::Normal] = texture;
 }
 
 void Quad::MapTexture()
@@ -230,17 +230,17 @@ const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 	{
 		if (InputHandler::isMLeftPressed(true))
 		{
-			m_buttonState = buttonState::presesd;
+			m_buttonState = ButtonStates::Pressed;
 		}
 		else
-			m_buttonState = buttonState::hover;
+			m_buttonState = ButtonStates::Hover;
 	}
 	else
-		m_buttonState = buttonState::normal;
+		m_buttonState = ButtonStates::Normal;
 
 	
 
-	if (m_buttonState == buttonState::presesd)
+	if (m_buttonState == ButtonStates::Pressed)
 		m_currentState = true;
 	else
 		m_currentState = false;
@@ -251,7 +251,7 @@ const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
 {
 	bool b = !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
 	if (m_selected)
-		m_buttonState = buttonState::hover;
+		m_buttonState = ButtonStates::Hover;
 	return b;
 }
 
@@ -260,7 +260,7 @@ const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
 //2 == Pressed
 void Quad::setState(const unsigned int & bs)
 {
-	this->m_buttonState = (buttonState)bs;
+	this->m_buttonState = (ButtonStates)bs;
 }
 
 void Quad::Select(const bool & b)
@@ -277,4 +277,13 @@ void Quad::setPivotPoint(PivotPoint pivotPoint)
 {
 	this->m_pivotPoint = pivotPoint;
 	this->setPosition(this->getPosition());
+}
+
+Quad * Quad::CreateButton(std::string string, float px, float py, float sx, float sy)
+{
+	Quad * ptr = nullptr;
+	ptr = new Quad();
+	ptr->init({ px, py }, { sx, sy });
+	ptr->setString(string);
+	return ptr;
 }

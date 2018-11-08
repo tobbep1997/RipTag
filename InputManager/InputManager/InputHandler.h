@@ -77,7 +77,8 @@ public:
 		Alt = 0x12,
 		Esc = 0x1B,
 		Backspace = 0x08,
-		Return = 0x0D
+		Return = 0x0D,
+		Enter = 0x0D
 	};
 
 

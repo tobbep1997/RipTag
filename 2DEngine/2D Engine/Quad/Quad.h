@@ -9,6 +9,14 @@ namespace DirectX
 	class SpriteFont;
 }
 
+
+enum ButtonStates
+{
+	Normal,
+	Hover,
+	Pressed
+};
+
 class Texture;
 class Quad : public Transform2D , public Button
 {
@@ -33,14 +41,8 @@ private:
 
 	ID3D11Buffer * m_vertexBuffer;
 
-	enum buttonState
-	{
-		normal,
-		hover,
-		presesd
-	};
 
-	buttonState m_buttonState = buttonState::normal;
+	ButtonStates m_buttonState = ButtonStates::Normal;
 	PivotPoint m_pivotPoint = PivotPoint::center;
 	Texture ** m_textures;
 
@@ -84,6 +86,7 @@ public:
 
 	DirectX::SpriteFont & getSpriteFont() const;
 	const std::string & getString() const;
+	unsigned int getState(){ return (unsigned int)this->m_buttonState; }
 
 	void setTextColor(const DirectX::XMFLOAT4A & color);
 	const DirectX::XMFLOAT4A & getTextColor() const;
@@ -99,6 +102,9 @@ public:
 	const bool & isSelected() const;
 
 	void setPivotPoint(PivotPoint pivotPoint);
-
+	
+	//Quick function to create a button, returns a Quad pointer.
+	//The button has not set any textures, text color and font yet
+	static Quad* CreateButton(std::string string, float px, float py, float sx, float sy);
 };
 
