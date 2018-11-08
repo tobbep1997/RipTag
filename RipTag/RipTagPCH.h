@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma warning (disable : 4215 4267 4305)
 #include <AudioEngine.h>
 #include <Multiplayer.h>
 
@@ -84,6 +84,7 @@
 #include "2D Engine/TextInput/TextInput.h"
 #include "2D Engine/Circle/Circle.h"
 #include "2D Engine/DirectXTK/SpriteFont.h"
+#include "Fonts/FontHandler.h"
 
 
 //This allows to use new instead of new to create a pointer

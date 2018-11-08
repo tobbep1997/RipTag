@@ -122,7 +122,6 @@ Quad::Quad() : Transform2D(), Button(this)
 
 Quad::~Quad()
 {
-	delete m_spriteFont; // this is temp
 	delete[] quadVertex;
 	delete[] m_textures;
 }

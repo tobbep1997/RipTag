@@ -116,7 +116,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_manabarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_manabarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_manabarText->setScale(0,0);
-	m_manabarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	
+	m_manabarText->setFont(FontHandler::getFont("consolas32"));
 	m_manabarText->setString("MANA");
 	m_manabarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
 
@@ -141,7 +142,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_visbarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_visbarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_visbarText->setScale(0, 0);
-	m_visbarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_visbarText->setFont(FontHandler::getFont("consolas32"));
 	m_visbarText->setString("Vis");
 	m_visbarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
 
@@ -161,7 +162,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_winBar->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_winBar->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_winBar->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_winBar->setFont(FontHandler::getFont("consolas32"));
 	HUDComponent::AddQuad(m_winBar);
 
 	m_infoText = new Quad();
@@ -169,7 +170,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_infoText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_infoText->setScale(0, 0);
-	m_infoText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_infoText->setFont(FontHandler::getFont("consolas16"));
 	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_infoText);
 	m_tutorialMessages.push("");
@@ -184,7 +185,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_tutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_tutorialText->setScale(0, 0);
-	m_tutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_tutorialText->setFont(FontHandler::getFont("consolas16"));
 	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_tutorialText);
 	
@@ -199,7 +200,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityTutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
 	m_abilityTutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_abilityTutorialText->setScale(0, 0);
-	m_abilityTutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_abilityTutorialText->setFont(FontHandler::getFont("consolas16"));
 	m_abilityTutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_abilityTutorialText);
 

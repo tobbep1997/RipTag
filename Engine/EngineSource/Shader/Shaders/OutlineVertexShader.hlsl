@@ -25,7 +25,7 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
 
-    VS_OUTPUT output;
+    VS_OUTPUT output =(VS_OUTPUT)0;
     input.pos.w = 1.0f;
 
     output.pos = mul(input.pos, mul(worldMatrix, viewProjection));

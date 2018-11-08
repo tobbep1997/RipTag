@@ -94,6 +94,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	SingleGameLoop(&game);
 
 	DX::g_shaderManager.Release();
+	FontHandler::Release();
 	AudioEngine::Release();
 	return 0;
 	

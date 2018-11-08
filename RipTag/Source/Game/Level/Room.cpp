@@ -143,7 +143,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
 
 	HUDComponent::AddQuad(m_lose);
 

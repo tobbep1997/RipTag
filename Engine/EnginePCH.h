@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4715)
 #include <iostream>
 #include <math.h>
 #include <algorithm>

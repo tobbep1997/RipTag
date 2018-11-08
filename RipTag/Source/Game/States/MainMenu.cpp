@@ -11,6 +11,10 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
+	FontHandler::loadFont("consolas32");
+	FontHandler::loadFont("consolas16");
+
+
 
 	playButton = new Quad();
 	playButton->init();
@@ -22,7 +26,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	playButton->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	playButton->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	playButton->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	playButton->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	playButton->setFont(FontHandler::getFont("consolas32"));
 
 	quitButton = new Quad();
 	quitButton->init();
@@ -34,11 +38,12 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	quitButton->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	quitButton->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	quitButton->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	quitButton->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	quitButton->setFont(FontHandler::getFont("consolas32"));
 
 	c = new Circle();
 	c->init(DirectX::XMFLOAT2A(.25, .5), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
 	c->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
+
 
 //<<<<<<< Updated upstream
 	m_textInput = new TextInput();
@@ -47,7 +52,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	m_textInput->getQuad()->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_textInput->getQuad()->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_textInput->getQuad()->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
-	m_textInput->getQuad()->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_textInput->getQuad()->setFont(FontHandler::getFont("consolas32"));
 	m_textInput->getQuad()->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 //=======
 	HUDcomp.InitHUDFromFile("../testHUD.txt"); 

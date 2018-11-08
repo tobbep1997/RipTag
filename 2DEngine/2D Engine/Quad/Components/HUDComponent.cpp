@@ -129,9 +129,8 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 					collector += ".spritefont";
 					path.append(collector);
 
-					//const wchar_t* cFontName = std::wstring(path.begin(), path.end()).data;
-
-					DirectX::SpriteFont* spriteFont = new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont");
+					FontHandler::loadFont("consolas16");
+					DirectX::SpriteFont* spriteFont = FontHandler::getFont("consolas16");
 
 					currQuad->setFont(spriteFont);
 				}

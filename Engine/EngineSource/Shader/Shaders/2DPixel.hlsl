@@ -1,3 +1,4 @@
+#pragma warning (disable : 3081)
 SamplerState defaultSampler : register(s4);
 Texture2D diffuseTexture : register(t1);
 
