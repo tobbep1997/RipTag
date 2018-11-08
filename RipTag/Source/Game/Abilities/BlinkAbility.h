@@ -13,8 +13,8 @@ private:
 		Wait	// Just Blinked
 	};
 	BlinkState	m_bState;
-	float cooldown;
-	bool m_useFunctionCalled;
+	float		m_cooldown;
+	bool		m_useFunctionCalled;
 
 public:
 	BlinkAbility();
