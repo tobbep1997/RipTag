@@ -145,10 +145,16 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
+
+
+	void _mapObjectOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
+	void _mapObjectInsideOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
+
 	void _mapCameraBuffer(Camera & camera);
 	void _mapSkinningBuffer(Drawable * drawable);
 	void _mapLightInfoNoMatrix();
 
+	void _OutliningPass(Camera & cam);
 
 
 	//For visability

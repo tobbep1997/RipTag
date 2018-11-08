@@ -73,6 +73,16 @@ SM::AnimationStateMachine* Drawable::InitStateMachine()
 	return m_stateMachine;
 }
 
+void Drawable::setOutline(bool outline)
+{
+	m_outline = outline;
+}
+
+bool Drawable::getOutline()
+{
+	return m_outline;
+}
+
 void Drawable::p_createBuffer()
 {
 	switch (p_objectType)
