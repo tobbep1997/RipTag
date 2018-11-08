@@ -10,7 +10,6 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
@@ -46,7 +45,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
 	this->getAnimatedModel()->Play();
-	PhysicsComponent::Init(*world, e_staticBody,1,1,1,false,10);
+	PhysicsComponent::Init(*world, e_staticBody);
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -382,19 +381,18 @@ std::vector<Node*> Enemy::GetPathVector()
 
 void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 {
-	if (!m_alert)
+	if (m_alertPath.size() > 0)
 	{
-		if (m_alertPath.size() > 0)
-		{
-			for (auto alert : m_alertPath)
-				delete alert;
-			m_alertPath.clear();
-		}
-		m_alertPath = alertPath;
-		if (m_alertPath.size() > 0)
-		{
-			m_alert = true;
-		}
+		for (int i = 0; i < m_alertPath.size(); i++)
+			delete m_alertPath.at(i);
+		m_alertPath.clear();
+		m_currentAlertPathNode = 0;
+		m_alert = false;
+	}
+	m_alertPath = alertPath;
+	if (m_alertPath.size() > 0)
+	{
+		m_alert = true;
 	}
 }
 
@@ -622,7 +620,7 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		std::cout << "Path size: " << m_alertPath.size() << std::endl;
+		std::cout << "Path size: " << m_alertPath.size() << "\n";
 		delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}
@@ -630,7 +628,7 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 	{
 		float x = nextNode->worldPos.x - getPosition().x;
 		float y = nextNode->worldPos.y - getPosition().z;
-
+		
 		float angle = atan2(y, x);
 
 		float dx = cos(angle) * m_guardSpeed * deltaTime;

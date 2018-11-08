@@ -1,8 +1,6 @@
 #include "RipTagPCH.h"
 #include "Grid.h"
 
-
-
 Grid::Grid(int width, int height)
 {
 	m_width = width;
@@ -19,11 +17,6 @@ Grid::Grid(int width, int height)
 
 Grid::~Grid()
 {
-	/*for (auto path : m_path)
-	{
-		delete path;
-	}
-	m_path.clear();*/
 }
 
 Tile Grid::WorldPosToTile(float x, float y)
@@ -49,6 +42,9 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
+			/*m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
+				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[0],
+					grid.gridPoints[j + i * m_width].translation[2])));*/
 			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
 				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
 					grid.gridPoints[i + j * m_height].translation[2])));
@@ -241,7 +237,8 @@ void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY
 
 	if (_isValid(nextTile) && !closedList[nextTileIndex] && m_nodeMap.at(nextTileIndex).tile.getPathable())
 	{
-		Node * newNode = new Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos, current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
+		Node * newNode = new Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos,
+			current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
 		openList.push_back(newNode);
 	}
 }
