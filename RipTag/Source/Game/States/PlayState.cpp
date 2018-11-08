@@ -24,6 +24,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
 	Manager::g_textureManager.loadTextures("SPHERE");
 
 	//Load assets

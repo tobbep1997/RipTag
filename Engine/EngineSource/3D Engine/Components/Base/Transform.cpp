@@ -62,7 +62,6 @@ const Transform & Transform::getParent() const
 	return *this->m_parent;
 }
 
-
 void Transform::setPosition(const DirectX::XMFLOAT4A & pos)
 {
 	this->p_position = pos;
@@ -174,6 +173,7 @@ const DirectX::XMFLOAT4A & Transform::getEulerRotation() const
 DirectX::XMFLOAT4X4A Transform::getWorldmatrix()
 {
 	this->p_calcWorldMatrix();
+
 	return this->p_worldMatrix;
 }
 
