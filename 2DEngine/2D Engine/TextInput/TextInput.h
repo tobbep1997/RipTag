@@ -4,7 +4,7 @@ class Quad;
 class TextInput
 {
 	Quad * m_inputQuad;
-
+	bool m_selected;
 public:
 	TextInput();
 	~TextInput();

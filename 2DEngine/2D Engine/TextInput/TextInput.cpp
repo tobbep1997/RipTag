@@ -25,7 +25,24 @@ void TextInput::Update(const char * arr)
 	std::vector<unsigned int> rawInput = InputHandler::getRawInput();
 	std::string output = m_inputQuad->getString();
 
-	for (int i = 0; i < rawInput.size(); i++)
+	if (m_inputQuad->Inside(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+	{
+		if (InputHandler::isMLeftPressed(false))
+		{
+			m_selected = true;
+			m_inputQuad->setState(2);
+		}
+	}
+	else
+	{
+		if (InputHandler::isMLeftPressed(false))
+		{
+			m_selected = false;
+			m_inputQuad->setState(0);
+		}
+	}
+
+	for (int i = 0; i < rawInput.size() && m_selected; i++)
 	{
 		std::cout << rawInput[i] << std::endl;
 		const char * c = "";
@@ -37,6 +54,11 @@ void TextInput::Update(const char * arr)
 			output = output.substr(0, output.size() - 1);
 		else if (rawInput[i] == 0xBE) // .
 			c = ".";
+		else if (rawInput[i] == 0xD)
+		{
+			m_inputQuad->setState(0);
+			m_selected = false;
+		}
 		if (c != "")
 			output.append(c);
 	}

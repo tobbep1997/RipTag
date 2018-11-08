@@ -42,6 +42,8 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	m_textInput->init(DirectX::XMFLOAT2A(0.5f, .75f), DirectX::XMFLOAT2A(2.0f, 0.2f));
 	m_textInput->getQuad()->setTextAlignment(Quad::TextAlignment::leftAligned);
 	m_textInput->getQuad()->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_textInput->getQuad()->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_textInput->getQuad()->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_textInput->getQuad()->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	m_textInput->getQuad()->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 }
