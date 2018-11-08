@@ -34,8 +34,8 @@ private:
 	bool m_disabled = false;
 
 	float m_moveSpeed = 2;
+	float m_cameraOffset;
 	float m_camSensitivity = 5;
-	float m_standHeight;
 	float m_offPutY = 0.4f;
 	float m_walk = 0;
 	bool forward = true;
@@ -44,7 +44,6 @@ private:
 	//Possess
 	Actor* m_possessor;
 	float m_possessReturnDelay;
-	float m_maxPossessDuration;
 	
 	//Key Input
 	bool m_currClickCrouch = false;
@@ -57,9 +56,15 @@ private:
 	int m_toggleSprint = 0;
 	KeyPressedEnemy m_kp;
 
+	float m_standHeight;
+	float m_crouchHeight;
+	float m_crouchAnimStartPos;
 
-
+	bool m_alert = false;
+	int m_currentPathNode = 0;
+	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
+	std::vector<Node*> m_alertPath;
 
 	float m_guardSpeed = 1.5;
 
@@ -78,14 +83,13 @@ public:
 	//TEMP
 	void setDir(const float & x, const float & y, const float & z);
 	Camera * getCamera();
-	const int* getPlayerVisibility() const;
+	const int * getPlayerVisibility() const;
 	bool unlockMouse = false;
 
 	// Inherited via Actor
 
 	void CullingForVisability(const Transform & player);
 
-	virtual void setPosition(const DirectX::XMFLOAT4A & pos) override;
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
@@ -110,6 +114,7 @@ public:
 
 	void SetPathVector(std::vector<Node*>  path);
 	std::vector<Node*> GetPathVector();
+	void SetAlertVector(std::vector<Node*> alertPath);
 
 	bool getIfLost();
 private:
@@ -124,7 +129,10 @@ private:
 	void _onCrouch();
 	void _onJump();
 	void _onSprint();
+	void _cameraPlacement(double deltaTime);
 	bool _MoveTo(Node * nextNode, double deltaTime);
+	bool _MoveToAlert(Node * nextNode, double deltaTime);
+	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);
 
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch();

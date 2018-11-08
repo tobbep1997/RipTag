@@ -77,6 +77,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 	m_2DRender = new Render2D();
 	m_2DRender->Init();
+
 }
 
 void ForwardRender::GeometryPass()
@@ -101,7 +102,7 @@ void ForwardRender::GeometryPass()
 	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getHidden() != true)
+		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
@@ -133,7 +134,7 @@ void ForwardRender::PrePass()
 	//_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getHidden() != true)
+		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
@@ -159,7 +160,7 @@ void ForwardRender::AnimatedGeometryPass()
 	_setAnimatedShaders();
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
+		if (DX::g_animatedGeometryQueue[i]->getHidden() != true )
 		{
 			//todoREMOVE
 			auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
@@ -199,6 +200,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
+	this->_OutliningPass(camera);
 
 	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -480,6 +482,40 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
 }
 
+void ForwardRender::_mapObjectOutlineBuffer(Drawable* drawable, const DirectX::XMFLOAT4A & pos)
+{
+	m_objectValues.worldMatrix = drawable->getWorldMatrixForOutline(pos);
+	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+
+
+
+	m_textureValues.textureTileMult.x = drawable->getTextureTileMult().x;
+	m_textureValues.textureTileMult.y = drawable->getTextureTileMult().y;
+
+	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
+
+	m_textureValues.color = DirectX::XMFLOAT4A(2000,0,0,1);
+
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
+}
+
+void ForwardRender::_mapObjectInsideOutlineBuffer(Drawable* drawable, const DirectX::XMFLOAT4A& pos)
+{
+	m_objectValues.worldMatrix = drawable->getWorldMatrixForInsideOutline(pos);
+	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+
+
+
+	m_textureValues.textureTileMult.x = drawable->getTextureTileMult().x;
+	m_textureValues.textureTileMult.y = drawable->getTextureTileMult().y;
+
+	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
+
+	m_textureValues.color = drawable->getColor();
+
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
+}
+
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 {
 	//if (!m_animationBuffer)
@@ -520,6 +556,46 @@ void ForwardRender::_mapLightInfoNoMatrix()
 	}
 
 	DXRHC::MapBuffer(m_lightBuffer, &m_lightValues, sizeof(LightBuffer), 0, 1, ShaderTypes::pixel);
+}
+
+void ForwardRender::_OutliningPass(Camera & cam)
+{
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
+
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
+	//_setStaticShaders();
+	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
+	{
+		if (DX::g_geometryQueue[i]->getOutline() == true)
+		{
+			{
+				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
+				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
+				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+				_mapObjectOutlineBuffer(DX::g_geometryQueue[i], cam.getPosition());
+				DX::g_geometryQueue[i]->BindTextures();
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+			}
+			{
+				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
+				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
+				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+				_mapObjectInsideOutlineBuffer(DX::g_geometryQueue[i],cam.getPosition());
+				DX::g_geometryQueue[i]->BindTextures();
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+			}
+			
+		}
+	}
+
 }
 
 void ForwardRender::_setStaticShaders()
@@ -599,6 +675,7 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl");
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", guardFrustumInputDesc, 3);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertexAnimated.hlsl");
 

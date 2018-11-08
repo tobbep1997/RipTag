@@ -60,7 +60,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		m_currentAbility = (Ability)0;
 
 		//By default always this set
-		m_activeSet = m_abilityComponents2;
+		m_activeSet = m_abilityComponents1;
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -238,6 +238,12 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	PhysicsComponent::Init(world, bodyType, x, y, z, false , 0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
+
+	CreateShape(0, y, 0);
+	m_standHeight = y*1.8;
+	m_crouchHeight = y*1.1;
+	m_cameraOffset = m_standHeight;
+
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -619,7 +625,7 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_onMovement();
-	//_onJump();
+	_onJump();
 	_onAbility(deltaTime);
 	_onInteract();
 	_onRotate(deltaTime);
@@ -751,9 +757,10 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
-				m_standHeight = this->p_camera->getPosition().y;
-				this->CreateBox(0.5f, 0.10f, 0.5f);
-				this->setPosition(this->getPosition().x, this->getPosition().y - 0.4, this->getPosition().z, 1);
+				m_crouchAnimStartPos = this->p_camera->getPosition().y;
+				m_cameraOffset = m_crouchHeight;
+				this->getBody()->GetShapeList()[0].SetSensor(true);
+				
 				m_kp.crouching = true;
 			}
 		}
@@ -761,9 +768,10 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
-				m_standHeight = this->p_camera->getPosition().y;
-				this->CreateBox(0.5, 0.5, 0.5);
-				this->setPosition(this->getPosition().x, this->getPosition().y + 0.4, this->getPosition().z, 1);
+				m_crouchAnimStartPos = this->p_camera->getPosition().y;
+				m_cameraOffset = m_standHeight;
+				this->getBody()->GetShapeList()[0].SetSensor(false);
+				
 				m_kp.crouching = false;
 			}
 		}
@@ -992,10 +1000,9 @@ void Player::_cameraPlacement(double deltaTime)
 	static float lastOffset = 0.0f;
 	static bool hasPlayed = true;
 	static int last = 0;
-
-	float cameraOffset = 1.87f;
+	
 	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += cameraOffset;
+	pos.y += m_cameraOffset;
 	p_camera->setPosition(pos);
 	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
@@ -1017,7 +1024,7 @@ void Player::_cameraPlacement(double deltaTime)
 					index = rand() % (int)m_sounds.size();
 				}
 				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at);
+				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1025,7 +1032,6 @@ void Player::_cameraPlacement(double deltaTime)
 				speed *= 0.1;
 				speed -= 0.2f;
 				c->setVolume(speed);
-				c->setUserData((void*)&AudioEngine::PLAYER_SOUND);
 				last = index;
 			}
 		}
@@ -1041,7 +1047,7 @@ void Player::_cameraPlacement(double deltaTime)
 	}
 
 
-	pos.y += p_Crouching(deltaTime, this->m_standHeight, p_camera->getPosition());
+	pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
 	p_camera->setPosition(pos);
 }
 
@@ -1070,17 +1076,19 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 }
 void Player::_activateCrouch()
 {
-	this->setPosition(this->getPosition().x, this->getPosition().y - m_offPutY, this->getPosition().z);
-	m_standHeight = this->p_camera->getPosition().y;
-	this->CreateBox(0.5f, 0.10f, 0.5f);
-	m_kp.crouching = true; 
+	m_crouchAnimStartPos = this->p_camera->getPosition().y;
+	m_cameraOffset = m_crouchHeight;
+	this->getBody()->GetShapeList()[0].SetSensor(true);
+
+	m_kp.crouching = true;
 }
 
 void Player::_deActivateCrouch()
 {
-	this->setPosition(this->getPosition().x, this->getPosition().y + m_offPutY, this->getPosition().z);
-	m_standHeight = this->p_camera->getPosition().y;
-	this->CreateBox(0.5, 0.5, 0.5);
+	m_crouchAnimStartPos = this->p_camera->getPosition().y;
+	m_cameraOffset = m_standHeight;
+	this->getBody()->GetShapeList()[0].SetSensor(false);
+
 	m_kp.crouching = false;
 }
 

@@ -23,6 +23,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadDynamicMesh("STATE");
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
+	Manager::g_textureManager.loadTextures("SPHERE");
+
 	//Load assets
 	{
 
@@ -39,7 +43,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 
 
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.9f,0.5f);
 	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
 	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
 
@@ -148,8 +152,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 	
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt)->setUserData((void*)&AudioEngine::OTHER_SOUND);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2)->setUserData((void*)&AudioEngine::OTHER_SOUND);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
 	
 	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
@@ -162,6 +166,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_firstRun = false;
 	
 	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+
 }
 
 PlayState::~PlayState()
@@ -171,6 +176,7 @@ PlayState::~PlayState()
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
+
 
 	delete triggerHandler;
 
@@ -191,6 +197,24 @@ void PlayState::Update(double deltaTime)
 	{
 		m_physicsThread.join();
 	}*/
+
+	//5.5,5,-4.5
+
+	/*ImGui::Begin("Player Setting");
+	ImGui::SliderFloat("PositionX", &posX, -20.0f, 20.f);
+	ImGui::SliderFloat("PositionY", &posY, -20.0f, 20.f);
+	ImGui::SliderFloat("PositionZ", &posZ, -20.0f, 20.f);
+
+	ImGui::SliderFloat("DirX", &xD, -180.0f, 180.f);
+	ImGui::SliderFloat("DirY", &yD, -180.0f, 180.f);
+	ImGui::SliderFloat("DirZ", &zD, -180.0f, 180.f);
+	if (ImGui::Button("test"))
+	{
+		
+	}
+	
+	ImGui::End();*/
+
 	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
@@ -256,6 +280,7 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(true);
 	}
+
 }
 
 void PlayState::Draw()
@@ -265,8 +290,8 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-		
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
 
 void PlayState::testtThread(double deltaTime)

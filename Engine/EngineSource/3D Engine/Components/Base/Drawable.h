@@ -40,6 +40,7 @@ private:
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
 	bool m_hidden;
+	bool m_outline;
 public:
 	SM::AnimationStateMachine* InitStateMachine();
 	SM::AnimationStateMachine* m_stateMachine = nullptr;
@@ -112,6 +113,9 @@ public:
 
 	virtual void setHidden(bool hidden);
 	virtual bool getHidden();
+
+	virtual void setOutline(bool outline);
+	virtual bool getOutline();
 
 private:
 	virtual void _setStaticBuffer();

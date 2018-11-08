@@ -21,11 +21,14 @@ public:
 	{
 		NONE = 0,
 		Player,
+		RemotePlayer,
 		Other
 	};
-	static const SoundType PLAYER_SOUND = SoundType::Player;
-	static const SoundType OTHER_SOUND = SoundType::Other;
 private:
+	static const SoundType NONE_SOUND = SoundType::NONE;
+	static const SoundType PLAYER_SOUND = SoundType::Player;
+	static const SoundType REMOTE_SOUND = SoundType::RemotePlayer;
+	static const SoundType OTHER_SOUND = SoundType::Other;
 	static bool s_inited;
 
 	static FMOD::System * s_system;
@@ -56,7 +59,7 @@ public:
 	static void UnloadAmbiendSound	(const std::string & name);
 	static void UnloadMusicSound	(const std::string & name);
 
-	static FMOD::Channel * PlaySoundEffect	(const std::string & name, FMOD_VECTOR * from = nullptr);
+	static FMOD::Channel * PlaySoundEffect	(const std::string & name, FMOD_VECTOR * from = nullptr, SoundType type = NONE);
 	static FMOD::Channel * PlayAmbientSound	(const std::string & name);
 	static FMOD::Channel * PlayMusic		(const std::string & name);
 

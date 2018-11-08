@@ -23,6 +23,8 @@ protected:
 	DirectX::XMFLOAT4X4A p_worldMatrix;
 
 	void p_calcWorldMatrix();
+	void p_calcWorldMatrixForOutline(const float & lenght);
+	void p_calcWorldMatrixForInsideOutline(const float & lenght);
 public:
 	friend PlayState;
 	Transform();
@@ -60,8 +62,12 @@ public:
 	virtual const DirectX::XMFLOAT4A & getEulerRotation() const;
 
 	virtual DirectX::XMFLOAT4X4A getWorldmatrix();
+	virtual DirectX::XMFLOAT4X4A getWorldMatrixForOutline(const DirectX::XMFLOAT4A & pos);
+	virtual DirectX::XMFLOAT4X4A getWorldMatrixForInsideOutline(const DirectX::XMFLOAT4A & pos);
 
 	virtual void setPhysicsRotation(const b3Mat33 & rot);
+
+	virtual float getLenghtToObject(const DirectX::XMFLOAT4A & pos);
 
 	// #todoREMOVE
 	void setVelocity(b3Vec3 vel);

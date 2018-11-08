@@ -6,6 +6,7 @@ class Door : public Triggerable
 private:
 	DirectX::XMFLOAT4A pos1;
 	DirectX::XMFLOAT4A pos2;
+
 public:
 	Door();
 	Door(int uniqueID, int linkedID, bool isTrigger);
