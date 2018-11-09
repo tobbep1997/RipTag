@@ -19,6 +19,8 @@ public:
 	virtual void setScale(const float & width, const float & height);
 	virtual void setScale(const DirectX::XMFLOAT2A & size);
 
+	virtual DirectX::XMFLOAT2 getScale() const;
+
 	virtual const DirectX::XMFLOAT2A & getSize() const;
 	virtual const DirectX::XMFLOAT4X4A & getWorldMatrix();
 

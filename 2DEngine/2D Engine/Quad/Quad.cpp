@@ -122,7 +122,6 @@ Quad::Quad() : Transform2D(), Button(this)
 
 Quad::~Quad()
 {
-	delete m_spriteFont; // this is temp
 	delete[] quadVertex;
 	delete[] m_textures;
 }
@@ -196,6 +195,11 @@ void Quad::setFont(DirectX::SpriteFont * font)
 void Quad::setString(const std::string & string)
 {
 	this->m_string = string;
+}
+
+void Quad::setIsButton(bool isButton)
+{
+	m_isButton = isButton; 
 }
 
 DirectX::SpriteFont & Quad::getSpriteFont() const
@@ -307,4 +311,14 @@ unsigned int Quad::getType() const
 const float & Quad::getRadie() const
 {
 	return 0.0f;
+}
+
+const float & Quad::getInnerRadie() const
+{
+	return 0.0f;
+}
+
+const bool Quad::getIsButton() const
+{
+	return m_isButton; 
 }

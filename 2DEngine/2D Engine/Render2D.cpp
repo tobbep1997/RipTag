@@ -65,6 +65,7 @@ void Render2D::GUIPass()
 		m_HUDTypeValues.center.x = q->getCenter().x;
 		m_HUDTypeValues.center.y = q->getCenter().y;
 		m_HUDTypeValues.center.z = q->getRadie();
+		m_HUDTypeValues.center.w = q->getInnerRadie();
 		m_HUDTypeValues.type.x = (unsigned int)type;
 
 		DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel);
@@ -109,9 +110,6 @@ void Render2D::GUIPass()
 		}
 
 		origin = DirectX::XMVectorScale(origin, 0.5f);
-
-		//pos = DirectX::XMLoadFloat2A(
-		//	&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * InputHandler::getViewportSize().x, (1.0f - DX::g_2DQueue[j]->getPosition().y) * InputHandler::getViewportSize().y));
 
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 

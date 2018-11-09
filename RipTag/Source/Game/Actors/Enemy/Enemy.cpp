@@ -141,7 +141,7 @@ DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, 
 {
 	using namespace DirectX;
 
-	if (m_allowVisability == true)
+	if (m_visCounter > 0)
 	{
 		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
 		XMVECTOR enemyPos = XMLoadFloat4A(&getPosition());
@@ -154,7 +154,7 @@ DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, 
 		XMStoreFloat2(&dir, vdir);
 		return dir;
 	}
-	
+	return XMFLOAT2(0, 0);
 }
 
 void Enemy::setPosition(const float & x, const float & y, const float & z, const float & w)
@@ -443,6 +443,16 @@ bool Enemy::getIfLost()
 	return m_found;
 }
 
+float Enemy::getTotalVisablilty() const
+{
+	return m_visCounter / m_visabilityTimer;
+}
+
+float Enemy::getMaxVisability() const
+{
+	return m_visCounter;
+}
+
 void Enemy::_possessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
@@ -688,9 +698,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 		{
 			m_visCounter += visPres * deltaTime;
 			if (m_visabilityTimer <= m_visCounter)
-			{
-				//std::cout << "FOUND YOU BITCH" << std::endl;
-				//exit(0);
+			{	
 				m_found = true;
 			}
 		}

@@ -202,10 +202,9 @@ void ForwardRender::Flush(Camera & camera)
 	this->_wireFramePass();
 	this->_OutliningPass(camera);
 
-	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
 
-	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//_GuardFrustumDraw();
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 }
 
