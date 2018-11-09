@@ -493,8 +493,6 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 			}
 		}
 	}
-	XMVECTOR vHUDPos = XMLoadFloat2(&m_HUDcircle->getPosition());
-	XMVECTOR vRelativ;
 	XMFLOAT2A finalPos = m_HUDcircle->getPosition();
 
 	m_currentEnemysVisable = 0;
