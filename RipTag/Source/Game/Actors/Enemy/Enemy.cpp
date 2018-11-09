@@ -141,7 +141,7 @@ DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, 
 {
 	using namespace DirectX;
 
-	if (m_allowVisability == true)
+	if (m_visCounter > 0)
 	{
 		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
 		XMVECTOR enemyPos = XMLoadFloat4A(&getPosition());
@@ -154,7 +154,7 @@ DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, 
 		XMStoreFloat2(&dir, vdir);
 		return dir;
 	}
-	
+	return XMFLOAT2(0, 0);
 }
 
 void Enemy::setPosition(const float & x, const float & y, const float & z, const float & w)

@@ -198,14 +198,12 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_HUDcircle->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_HUDcircle->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 
+	Manager::g_textureManager.loadTextures("FML");
 	m_HUDcircleFiller = new Circle();
 	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
 	m_HUDcircleFiller->setInnerRadie(-1.0f);
-	m_HUDcircleFiller->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_HUDcircleFiller->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_HUDcircleFiller->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_HUDcircleFiller->setUnpressedTexture(Manager::g_textureManager.getTexture("FML"));
 	
-
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
 		Circle * c = new Circle();
@@ -463,11 +461,16 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	maxVis = 0;
 	for (int i = 0; i < enemys.size(); i++)
 	{
-		relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
-		if (enemys[i]->getTotalVisablilty() > totVis)
+	
+		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
+		if (pos.x > 0 || pos.y > 0)
 		{
-			totVis = enemys[i]->getTotalVisablilty();
-			maxVis = enemys[i]->getMaxVisability();
+			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
+			if (enemys[i]->getTotalVisablilty() > totVis)
+			{
+				totVis = enemys[i]->getTotalVisablilty();
+				maxVis = enemys[i]->getMaxVisability();
+			}
 		}
 	}
 	XMVECTOR vHUDPos = XMLoadFloat2(&m_HUDcircle->getPosition());
