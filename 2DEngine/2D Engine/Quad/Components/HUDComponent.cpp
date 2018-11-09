@@ -206,6 +206,14 @@ void HUDComponent::AddQuad(Quad *& quad, unsigned int keyCode)
 	m_quads.push_back(qo);
 }
 
+Quad * HUDComponent::GetQuad(const unsigned short int & i)
+{
+	if (i < m_quads.size())
+		return m_quads[i]->quad;
+	else
+		throw "u stoopid";
+}
+
 void HUDComponent::ResetStates()
 {
 	for (unsigned int i = 0; i < m_quads.size(); i++)

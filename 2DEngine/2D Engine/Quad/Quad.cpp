@@ -322,3 +322,23 @@ const bool Quad::getIsButton() const
 {
 	return m_isButton; 
 }
+
+float Quad::getU() const
+{
+	return this->uScale;
+}
+
+float Quad::getV() const
+{
+	return this->vScale;
+}
+
+void Quad::setU(const float & u)
+{
+	this->uScale = u;
+}
+
+void Quad::setV(const float & v)
+{
+	this->vScale = v;
+}

@@ -66,6 +66,9 @@ private:
 
 	bool m_selected = false;
 
+	float uScale = 1.0f;
+	float vScale = 1.0f;
+
 	void _rebuildQuad();
 protected:
 	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
@@ -123,5 +126,10 @@ public:
 
 	virtual const bool getIsButton() const; 
 
+	float getU() const;
+	float getV() const;
+	void setU(const float & u);
+	void setV(const float & v);
+	
 };
 

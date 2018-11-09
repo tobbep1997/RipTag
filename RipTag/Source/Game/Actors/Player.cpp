@@ -191,7 +191,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 
 	m_HUDcircle = new Circle();
-	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
+	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
 	m_HUDcircle->setRadie(.5f);
 	m_HUDcircle->setInnerRadie(.45f);
 	m_HUDcircle->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
@@ -200,7 +200,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	Manager::g_textureManager.loadTextures("FML");
 	m_HUDcircleFiller = new Circle();
-	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
 	m_HUDcircleFiller->setInnerRadie(-1.0f);
 	m_HUDcircleFiller->setUnpressedTexture(Manager::g_textureManager.getTexture("FML"));
 	
@@ -340,6 +340,15 @@ void Player::Update(double deltaTime)
 	}
 
 	m_activeSet[m_currentAbility]->Update(deltaTime);
+	
+	for (int i = 0; i < 4; i++)
+	{
+		if (i != m_currentAbility)
+		{
+			m_activeSet[i]->updateCooldown(deltaTime);
+		}
+	}
+
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
@@ -381,6 +390,17 @@ void Player::Update(double deltaTime)
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
+	for (int i = 0; i < 4; i++)
+	{
+		Quad * current =HUDComponent::GetQuad(i);
+		if (m_activeSet[i]->getPercentage() <= 0.0f)
+		{
+			current->setV(1);
+		}
+		else
+			current->setV(m_activeSet[i]->getPercentage());
+	}
+
 }
 
 void Player::PhysicsUpdate()
@@ -490,7 +510,10 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
+	{
+		
 		m_activeSet[i]->Draw();
+	}
 	Drawable::Draw();
 
 	HUDComponent::HUDDraw();

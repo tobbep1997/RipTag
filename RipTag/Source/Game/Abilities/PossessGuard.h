@@ -7,7 +7,6 @@ class PossessGuard : public AbilityComponent
 {
 private:
 	const float RANGE = 10.0f;
-	const float COOLDOWN_WAIT_MAX = 10.0f;
 	const float COOLDOWN_POSSESSING_MAX = 10.0f;
 	const int MANA_COST_START = 5;
 	const float MANA_COST_DRAIN = 1.0f;
@@ -19,7 +18,6 @@ private:
 	};
 	PossessState	m_pState;
 	Enemy*			m_possessTarget;
-	float			m_cooldown;
 	float			m_duration;
 	bool			m_useFunctionCalled;
 public:

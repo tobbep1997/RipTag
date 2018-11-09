@@ -26,6 +26,7 @@ public:
 	void InitHUDFromFile(std::string fileName); 
 
 	virtual void AddQuad(Quad *& quad, unsigned int keyCode = 0x0);
+	virtual Quad * GetQuad(const unsigned short int & i);
 
 	virtual void ResetStates();
 	virtual void setSelectedQuad(const unsigned short int & i);

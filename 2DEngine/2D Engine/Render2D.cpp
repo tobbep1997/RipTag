@@ -61,12 +61,24 @@ void Render2D::GUIPass()
 		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
 		Quad * q = DX::g_2DQueue[j];
 		HUDTypeEnum type = (HUDTypeEnum)q->getType();
-
-		m_HUDTypeValues.center.x = q->getCenter().x;
-		m_HUDTypeValues.center.y = q->getCenter().y;
-		m_HUDTypeValues.center.z = q->getRadie();
-		m_HUDTypeValues.center.w = q->getInnerRadie();
 		m_HUDTypeValues.type.x = (unsigned int)type;
+
+		switch (type)
+		{
+		case Render2D::QuadType:
+			m_HUDTypeValues.center.x = q->getU();
+			m_HUDTypeValues.center.y = q->getV();
+			break;
+		case Render2D::CircleType:
+			m_HUDTypeValues.center.x = q->getCenter().x;
+			m_HUDTypeValues.center.y = q->getCenter().y;
+			m_HUDTypeValues.center.z = q->getRadie();
+			m_HUDTypeValues.center.w = q->getInnerRadie();
+			break;
+		default:
+			break;
+		}
+		
 
 		DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel);
 		DX::g_2DQueue[j]->MapTexture();

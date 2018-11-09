@@ -212,11 +212,11 @@ void DisableAbility::_inStateMoving(double dt)
 
 void DisableAbility::_inStateCooldown(double dt)
 {
-	m_cooldown += dt;
-	if (m_cooldown >= COOLDOWN_WAIT_MAX)
+	p_cooldown += dt;
+	if (p_cooldown >= p_cooldownMax)
 	{
+		p_cooldown = 0;
 		m_dState = DisableState::Throwable;
-		m_cooldown = 0;
 	}
 }
 

@@ -51,11 +51,11 @@ void PossessGuard::_logic(double deltaTime)
 		switch (m_pState)
 		{
 		case PossessGuard::Wait:
-			m_cooldown += deltaTime;
-			if (m_cooldown >= COOLDOWN_WAIT_MAX)
+			p_cooldown += deltaTime;
+			if (p_cooldown >= p_cooldownMax)
 			{
 				m_pState = PossessGuard::Possess;
-				m_cooldown = 0;
+				p_cooldown = 0;
 			}
 			break;
 		case PossessGuard::Possessing:
@@ -67,7 +67,7 @@ void PossessGuard::_logic(double deltaTime)
 				CameraHandler::setActiveCamera(pPointer->getCamera());
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
-				m_cooldown = 0;
+				p_cooldown = 0;
 				//m_useFunctionCalled = false;
 			}
 			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
@@ -103,7 +103,7 @@ void PossessGuard::_logic(double deltaTime)
 
 						CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
 						m_pState = PossessGuard::Possessing;
-						m_cooldown = 0;
+						p_cooldown = 0;
 					}
 				}		
 			}
@@ -123,7 +123,7 @@ void PossessGuard::_logic(double deltaTime)
 				CameraHandler::setActiveCamera(pPointer->getCamera());
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
-				m_cooldown = 0;
+				p_cooldown = 0;
 				//m_useFunctionCalled = false;
 			}
 			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
@@ -136,11 +136,11 @@ void PossessGuard::_logic(double deltaTime)
 			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
 		case PossessGuard::Wait:
-			m_cooldown += deltaTime;
-			if (m_cooldown >= COOLDOWN_WAIT_MAX)
+			p_cooldown += deltaTime;
+			if (p_cooldown >= p_cooldownMax)
 			{
 				m_pState = PossessGuard::Possess;
-				m_cooldown = 0;
+				p_cooldown = 0;
 			}
 
 			break;
