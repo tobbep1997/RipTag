@@ -84,12 +84,13 @@ void EnemyHandler::_investigating(Enemy * guard, int playerVisibility)
 {
 	if (guard->GetAlertPathSize() > 0)
 	{
-		DirectX::XMFLOAT4A playerPos = m_player->getPosition();
-		Node * pathDestination = guard->GetAlertDestination();
-		if (playerVisibility > 1700)
+		if (playerVisibility > SIGHT_LEVEL)
 		{
-			if (abs(pathDestination->worldPos.x - playerPos.x) > 5 ||
-				abs(pathDestination->worldPos.y - playerPos.z) > 5)
+			DirectX::XMFLOAT4A playerPos = m_player->getPosition();
+			Node * pathDestination = guard->GetAlertDestination();
+
+			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
+				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = guard->getPosition();
 				Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
@@ -117,8 +118,9 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		{
 			DirectX::XMFLOAT3 soundPos = guard->getSoundLocation().soundPos;
 			Node * pathDestination = guard->GetAlertDestination();
-			if (abs(pathDestination->worldPos.x - soundPos.x) > 2 ||
-				abs(pathDestination->worldPos.y - soundPos.z) > 2)
+
+			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
+				abs(pathDestination->worldPos.y - soundPos.z) > 2.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = guard->getPosition();
 				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);

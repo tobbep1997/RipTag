@@ -178,6 +178,11 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	return std::vector<Node*>();
 }
 
+std::vector<Node*> Grid::InvestigateAreaPath(Tile src)
+{
+	return std::vector<Node*>();
+}
+
 /*void Grid::ThreadPath(Tile src, Tile dest)
 {
 	m_pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);

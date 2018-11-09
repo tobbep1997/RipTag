@@ -16,7 +16,6 @@ enum EnemyState
 	Patrolling
 };
 
-
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
 public:
@@ -40,13 +39,10 @@ private:
 		bool interact = false;
 	};
 
-	SoundLocation m_sl;
-
 	VisibilityComponent * m_vc;
 	bool m_allowVisability = false;
 
 	bool m_inputLocked = true;
-
 	bool m_disabled = false;
 
 	float m_moveSpeed = 2;
@@ -56,6 +52,7 @@ private:
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
+	float m_guardSpeed = 1.5;
 
 	//Possess
 	Actor* m_possessor;
@@ -80,12 +77,10 @@ private:
 	std::vector<Node*> m_alertPath;
 
 	EnemyState m_state = Patrolling;
-
-	float m_guardSpeed = 1.5;
+	SoundLocation m_sl;
 
 	float m_visCounter;
 	float m_visabilityTimer = 0.6f;
-
 	bool m_found = false;
 
 	

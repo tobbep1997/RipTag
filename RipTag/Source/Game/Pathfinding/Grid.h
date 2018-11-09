@@ -88,6 +88,7 @@ public:
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	std::vector<Node*> FindPath(Tile src, Tile dest);
+	std::vector<Node*> InvestigateAreaPath(Tile src);
 
 	//void ThreadPath(Tile src, Tile dest);
 	//std::vector<Node*> getPath();
