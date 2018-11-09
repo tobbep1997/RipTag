@@ -9,8 +9,22 @@ struct Node;
 class VisibilityComponent;
 class Grid;
 
+enum EnemyState
+{
+	Investigating_Sight,
+	Investigating_Sound,
+	Patrolling
+};
+
+
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
+public:
+	struct SoundLocation
+	{
+		float percentage;
+		DirectX::XMFLOAT3 soundPos;
+	};
 private:
 	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
@@ -25,6 +39,8 @@ private:
 		bool unlockMouse = false;
 		bool interact = false;
 	};
+
+	SoundLocation m_sl;
 
 	VisibilityComponent * m_vc;
 	bool m_allowVisability = false;
@@ -65,6 +81,8 @@ private:
 	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
+
+	EnemyState m_state = Patrolling;
 
 	float m_guardSpeed = 1.5;
 
@@ -113,8 +131,17 @@ public:
 	void removePossessor();
 
 	void SetPathVector(std::vector<Node*>  path);
-	std::vector<Node*> GetPathVector();
+	Node * GetCurrentPathNode() const;
+
 	void SetAlertVector(std::vector<Node*> alertPath);
+	size_t GetAlertPathSize() const;
+	Node * GetAlertDestination() const;
+
+	EnemyState getEnemyState() const;
+	void setEnemeyState(EnemyState state);
+
+	void setSoundLocation(const SoundLocation & sl);
+	const SoundLocation & getSoundLocation() const;
 
 	bool getIfLost();
 private:

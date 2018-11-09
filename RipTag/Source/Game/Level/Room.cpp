@@ -315,6 +315,8 @@ void Room::LoadRoomToMemory()
 
 		m_roomGuards.at(1)->SetPathVector(fullPath);
 
+		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
+
 		//getPath();
 
 
@@ -349,6 +351,7 @@ void Room::LoadRoomToMemory()
 		m_roomLoaded = true;	
 	}
 
+	m_enemyHandler.Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
 	for (auto light : m_pointLights)
 	{
@@ -375,15 +378,13 @@ void Room::getPath()
 
 void Room::Update(float deltaTime)
 {
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
+	/*for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
-		this->m_roomGuards.at(i)->_IsInSight();
 		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
-
 	}
 	int endvis = 0;
 	
@@ -397,7 +398,8 @@ void Room::Update(float deltaTime)
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
-	vis.clear();
+	vis.clear();*/
+	m_enemyHandler.Update(deltaTime);
 
 	for (auto light : m_pointLights)
 	{
@@ -406,6 +408,8 @@ void Room::Update(float deltaTime)
 		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 0.5f));
 	}
 	triggerHandler->Update(deltaTime);
+
+	// Move to level handler (?)
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
@@ -413,10 +417,10 @@ void Room::Update(float deltaTime)
 			m_youLost = true;
 		}
 	}
-	if (m_youLost)
+	/*if (m_youLost)
 	{
 		HUDComponent::HUDUpdate(deltaTime);
-	}
+	}*/
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{
