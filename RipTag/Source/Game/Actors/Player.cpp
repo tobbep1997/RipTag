@@ -124,32 +124,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::AddQuad(m_manaBarBackground);
 	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manabarText);
+	   	 
 
-	m_visBar = new Quad();
-	m_visBar->init(DirectX::XMFLOAT2A(0.85f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_visBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_visBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
-
-
-	m_visBarBackground = new Quad();
-	m_visBarBackground->init(DirectX::XMFLOAT2A(0.848f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_visBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
-	m_visBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_visBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
-
-	m_visbarText = new Quad();
-	m_visbarText->init(DirectX::XMFLOAT2A(0.92, 0.034f), DirectX::XMFLOAT2A(0, 0));
-	m_visbarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
-	m_visbarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_visbarText->setScale(0, 0);
-	m_visbarText->setFont(FontHandler::getFont("consolas32"));
-	m_visbarText->setString("Vis");
-	m_visbarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
-
-
-	HUDComponent::AddQuad(m_visBarBackground);
-	HUDComponent::AddQuad(m_visBar);
-	HUDComponent::AddQuad(m_visbarText);
 
 
 	m_winBar = new Quad();
@@ -218,7 +194,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
 	m_HUDcircle->setRadie(.5f);
 	m_HUDcircle->setInnerRadie(.45f);
-	m_HUDcircle->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_HUDcircle->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_HUDcircle->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_HUDcircle->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 
@@ -229,6 +205,15 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_HUDcircleFiller->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_HUDcircleFiller->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	
+
+	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
+	{
+		Circle * c = new Circle();
+		c->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(.25f / 16.0f, .25f / 9.0f));
+		c->setRadie(.5f);
+		c->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+		m_enemyCircles.push_back(c);
+	}
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -252,6 +237,12 @@ Player::~Player()
 	delete m_HUDcircle;
 	m_HUDcircleFiller->Release();
 	delete m_HUDcircleFiller;
+
+	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
+	{
+		m_enemyCircles[i]->Release();
+		delete m_enemyCircles[i];
+	}
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
@@ -338,8 +329,7 @@ void Player::Update(double deltaTime)
 		}
 	}
 
-	m_visBar->setScale((float)m_visability / (float)g_fullVisability, 0.1f);
-	m_HUDcircleFiller->setRadie(((float)m_visability / (float)g_fullVisability));
+	m_HUDcircleFiller->setRadie((totVis)*.5f);
 
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 	if (InputHandler::isKeyPressed('I'))
@@ -465,6 +455,35 @@ void Player::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents2;
 }
 
+void Player::setEnemyPositions(std::vector<Enemy*> enemys)
+{
+	using namespace DirectX;
+	std::vector<DirectX::XMFLOAT2> relativEnemyPostions;
+	totVis = 0;
+	maxVis = 0;
+	for (int i = 0; i < enemys.size(); i++)
+	{
+		relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
+		if (enemys[i]->getTotalVisablilty() > totVis)
+		{
+			totVis = enemys[i]->getTotalVisablilty();
+			maxVis = enemys[i]->getMaxVisability();
+		}
+	}
+	XMVECTOR vHUDPos = XMLoadFloat2(&m_HUDcircle->getPosition());
+	XMVECTOR vRelativ;
+	XMFLOAT2A finalPos = m_HUDcircle->getPosition();
+
+	m_currentEnemysVisable = 0;
+	for (int i = 0; i < relativEnemyPostions.size() && i < MAX_ENEMY_CIRCLES; i++)
+	{
+		m_currentEnemysVisable++;
+
+		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x /4.0f) ),
+			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
+	}
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
@@ -474,6 +493,10 @@ void Player::Draw()
 	HUDComponent::HUDDraw();
 	m_HUDcircleFiller->Draw();
 	m_HUDcircle->Draw();
+	for (unsigned short i = 0; i < m_currentEnemysVisable; i++)
+	{
+		m_enemyCircles[i]->Draw();
+	}
 }
 
 void Player::LockPlayerInput()

@@ -69,7 +69,7 @@ private:
 	float m_guardSpeed = 1.5;
 
 	float m_visCounter;
-	float m_visabilityTimer = 0.6f;
+	float m_visabilityTimer = 1.6f;
 
 	bool m_found = false;
 
@@ -120,6 +120,9 @@ public:
 	void SetAlertVector(std::vector<Node*> alertPath);
 
 	bool getIfLost();
+
+	float getTotalVisablilty() const;
+	float getMaxVisability() const;
 private:
 
 	void _handleInput(double deltaTime);

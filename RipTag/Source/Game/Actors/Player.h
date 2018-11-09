@@ -41,8 +41,7 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 
 	std::vector<std::string> m_sounds;
-	Circle * m_HUDcircle;
-	Circle * m_HUDcircleFiller;
+
 	
 
 private:
@@ -97,10 +96,7 @@ private:
 	Quad * m_manaBar;
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
-
-	Quad * m_visBar;
-	Quad * m_visBarBackground;
-	Quad * m_visbarText;
+	
 	Quad * m_winBar;
 
 	Quad * m_infoText;
@@ -114,6 +110,15 @@ private:
 	float m_crouchHeight;
 	float m_peekRotate;
 	float m_crouchAnimStartPos;
+
+	Circle * m_HUDcircle;
+	Circle * m_HUDcircleFiller;
+
+	const unsigned short MAX_ENEMY_CIRCLES = 10;
+	std::vector<Circle*> m_enemyCircles;
+	float totVis = 0;
+	float maxVis = 0;
+	unsigned short m_currentEnemysVisable = 0;
 
 public:
 	//Magic number
@@ -162,6 +167,8 @@ public:
 	void RefillMana(const float & manaFill);
 	void drawWinBar();
 	void SetAbilitySet(int set);
+
+	void setEnemyPositions(std::vector<Enemy *> enemys);
 private:
 	void _handleInput(double deltaTime);
 	void _onMovement();
