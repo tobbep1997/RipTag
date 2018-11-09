@@ -116,6 +116,11 @@ private:
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
 
+	ID3D11Texture2D * m_outlineDepthBufferTex;
+	ID3D11DepthStencilView * m_outlineDepthStencil;
+	ID3D11ShaderResourceView * m_outlineShaderRes;
+	ID3D11DepthStencilState * depthoutState;
+	
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -130,7 +135,7 @@ public:
 
 
 	void GeometryPass();
-	void PrePass();
+	void PrePass(Camera & camera);
 	void AnimatedGeometryPass();
 	void Flush(Camera & camera);
 	void Clear();
@@ -155,7 +160,7 @@ private:
 	void _mapLightInfoNoMatrix();
 
 	void _OutliningPass(Camera & cam);
-
+	void _OutlineDepthCreate();
 
 	//For visability
 

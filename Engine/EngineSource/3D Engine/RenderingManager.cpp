@@ -173,8 +173,8 @@ void RenderingManager::Reset()
 
 void RenderingManager::_reloadShaders()
 {
-	std::cout << "Shader reloading is disabled" << std::endl;
-	bool f = false;
+	//std::cout << "Shader reloading is disabled" << std::endl;
+	bool f = true;
 	if (f)
 		DX::g_shaderManager.ReloadAllShaders();
 }

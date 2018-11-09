@@ -38,6 +38,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 	_createConstantBuffer();
 	_createSamplerState();
+
+	_OutlineDepthCreate();
 	m_shadowMap = new ShadowMap();
 	m_shadowMap->Init(128, 128);
 	D3D11_BLEND_DESC omDesc;
@@ -111,7 +113,7 @@ void ForwardRender::GeometryPass()
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
-void ForwardRender::PrePass()
+void ForwardRender::PrePass(Camera & camera)
 {
 	if (m_firstRun == true)
 	{
@@ -130,20 +132,37 @@ void ForwardRender::PrePass()
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
-	   
+	DX::g_deviceContext->ClearDepthStencilView(m_outlineDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
 	//_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
+		if (DX::g_geometryQueue[i]->getHidden() != true)
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+			if (DX::g_geometryQueue[i]->getOutline() == true)
+			{
+				DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_outlineDepthStencil);
 
-			_mapObjectBuffer(DX::g_geometryQueue[i]);
-			DX::g_geometryQueue[i]->BindTextures();
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+				_mapObjectInsideOutlineBuffer(DX::g_geometryQueue[i], camera.getPosition());
+				DX::g_geometryQueue[i]->BindTextures();
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+
+				DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+			}
+			else
+			{
+				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+				_mapObjectBuffer(DX::g_geometryQueue[i]);
+				DX::g_geometryQueue[i]->BindTextures();
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+			}
+			
 		}
 	}
 
@@ -184,7 +203,7 @@ void ForwardRender::Flush(Camera & camera)
 {
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	_mapCameraBuffer(camera);
-	this->PrePass();
+	this->PrePass(camera);
 
 
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
@@ -248,6 +267,11 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_disableBackFace);
 
 	DX::SafeRelease(m_shadowSampler);
+
+	DX::SafeRelease(m_outlineDepthBufferTex);
+	DX::SafeRelease(m_outlineDepthStencil);
+	DX::SafeRelease(m_outlineShaderRes);
+	DX::SafeRelease(depthoutState);
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
@@ -565,15 +589,17 @@ void ForwardRender::_OutliningPass(Camera & cam)
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
-
+	DX::g_deviceContext->OMSetDepthStencilState(depthoutState, 0);
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
-	//_setStaticShaders();
+	_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		if (DX::g_geometryQueue[i]->getOutline() == true)
 		{
 			{
+				DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
+
 				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
 				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
 				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
@@ -583,20 +609,33 @@ void ForwardRender::_OutliningPass(Camera & cam)
 				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
 			}
-			{
-				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
-				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
-				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
-				_mapObjectInsideOutlineBuffer(DX::g_geometryQueue[i],cam.getPosition());
-				DX::g_geometryQueue[i]->BindTextures();
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
-			}
 			
 		}
 	}
 
+}
+
+void ForwardRender::_OutlineDepthCreate()
+{
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	m_depthBufferTex->GetDesc(&depthStencilDesc);
+	HRESULT hr;
+	hr = DXRHC::CreateTexture2D(m_outlineDepthBufferTex, depthStencilDesc.Height, depthStencilDesc.Width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32_TYPELESS);
+	hr = DXRHC::CreateDepthStencilView(m_outlineDepthBufferTex, m_outlineDepthStencil, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2D, 0, 1);
+	hr = DXRHC::CreateShaderResourceView(m_outlineDepthBufferTex, m_outlineShaderRes, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2D, 1, 0, 0, 1);
+
+	D3D11_DEPTH_STENCIL_DESC dpd{};
+	dpd.DepthEnable = TRUE;
+	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dpd.DepthFunc = D3D11_COMPARISON_LESS;
+
+	//Create the Depth/Stencil View
+	DX::g_device->CreateDepthStencilState(&dpd, &depthoutState);
+//
+//;
+//	
+//	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_outlineDepthBufferTex);
+//	hr = DX::g_device->CreateDepthStencilView(m_outlineDepthBufferTex, NULL, &m_outlineDepthStencil);
 }
 
 void ForwardRender::_setStaticShaders()
