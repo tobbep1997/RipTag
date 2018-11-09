@@ -61,6 +61,10 @@ class ForwardRender
 		DirectX::XMFLOAT4A	color;
 	};
 
+	struct OutLineBuffer
+	{
+		DirectX::XMFLOAT4A outLineColor;
+	};
 private:
 
 	struct sortStruct
@@ -120,6 +124,9 @@ private:
 	ID3D11DepthStencilView * m_outlineDepthStencil;
 	ID3D11ShaderResourceView * m_outlineShaderRes;
 	ID3D11DepthStencilState * depthoutState;
+
+	ID3D11Buffer * m_outlineBuffer;
+	OutLineBuffer m_outLineValues;
 	
 public:
 	ForwardRender();

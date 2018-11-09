@@ -272,6 +272,8 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_outlineDepthStencil);
 	DX::SafeRelease(m_outlineShaderRes);
 	DX::SafeRelease(depthoutState);
+
+	DX::SafeRelease(m_outlineBuffer);
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
@@ -479,6 +481,8 @@ void ForwardRender::_createConstantBuffer()
 	hr = DXRHC::CreateConstantBuffer(this->m_lightBuffer, sizeof(LightBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_GuardBuffer, sizeof(GuardBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
+
+	hr = DXRHC::CreateConstantBuffer(this->m_outlineBuffer, sizeof(OutLineBuffer));
 }
 
 void ForwardRender::_createSamplerState()
@@ -598,7 +602,10 @@ void ForwardRender::_OutliningPass(Camera & cam)
 		if (DX::g_geometryQueue[i]->getOutline() == true)
 		{
 			{
+				m_outLineValues.outLineColor = DX::g_geometryQueue[i]->getOutlineColor();
 				DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
+
+				DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
 
 				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
 				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);

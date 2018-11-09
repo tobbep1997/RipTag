@@ -1,6 +1,10 @@
 #include "LightCalc.hlsli"
 Texture2D depth : register(t10);
 
+cbuffer LIGHTS : register(b8)
+{
+    float4 outlineColor;
+}
 struct VS_OUTP
 {
     float4 pos : SV_POSITION;
@@ -22,5 +26,5 @@ float4 main(VS_OUTP input) : SV_TARGET
         discard;
     }
    
-    return float4(1, 0, 0, 1);
+    return outlineColor;
 }

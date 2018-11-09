@@ -22,7 +22,10 @@ void TeleportAbility::Init()
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//OUTLINGING
 	Drawable::setOutline(true);
+	Drawable::setOutlineColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
+
 	BaseActor::setGravityScale(0.60f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 	this->getBody()->SetObjectTag("TELEPORT");
