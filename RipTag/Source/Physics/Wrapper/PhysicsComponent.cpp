@@ -206,6 +206,7 @@ void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const
 
 PhysicsComponent::PhysicsComponent()
 {
+
 }
 
 PhysicsComponent::~PhysicsComponent()
