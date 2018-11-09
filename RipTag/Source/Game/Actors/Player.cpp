@@ -12,8 +12,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
-	HUDComponent::InitHUDFromFile("../testHUD.txt");
-
 	//Ability stuff
 	{
 		VisabilityAbility * visAbl = new VisabilityAbility();
