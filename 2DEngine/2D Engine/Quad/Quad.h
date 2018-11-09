@@ -33,17 +33,28 @@ public:
 		lowerLeft,
 		lowerRight,
 		upperLeft,
-		upperRight
+		upperRight,
+		upperCenter,
+		lowerCenter,
+		centerLeft,
+		centerRight
 	};
 
 	enum TextAlignment
 	{
 		centerAligned,
-		leftAligned
+		leftAligned,
+		rightAligned
 	};
 
 private:
-
+	enum Vertex_Positions
+	{
+		Lower_Left = 0,
+		Upper_Left,
+		Lower_Right,
+		Upper_Right
+	};
 
 	ID3D11Buffer * m_vertexBuffer;
 
@@ -132,6 +143,9 @@ public:
 	virtual const float & getInnerRadie() const;
 
 	virtual const bool getIsButton() const; 
+
+	DirectX::XMFLOAT4 getReferencePosAndSize() const;
+
 
 	float getU() const;
 	float getV() const;

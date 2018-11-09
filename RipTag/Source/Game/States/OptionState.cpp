@@ -42,7 +42,7 @@ void OptionState::Update(double deltaTime)
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
-	if (!_handleMouseInput());
+	if (!_handleMouseInput())
 	{
 		_handleGamePadInput(deltaTime);
 		_handleKeyboardInput(deltaTime);

@@ -20,6 +20,7 @@ private:
 	Enemy*			m_possessTarget;
 	float			m_duration;
 	bool			m_useFunctionCalled;
+	Quad *			m_possessHud;
 public:
 	PossessGuard(void * owner = nullptr);
 	~PossessGuard();

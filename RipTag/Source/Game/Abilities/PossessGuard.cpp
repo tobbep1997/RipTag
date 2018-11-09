@@ -8,11 +8,21 @@ PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 	m_pState = Possess;
 	m_useFunctionCalled = false;
 	setManaCost(MANA_COST_START);
+	m_possessHud = new Quad();
+	m_possessHud->init({ 0.5f, 1.0f }, { 0.4, 0.2 });
+	m_possessHud->setPivotPoint(Quad::PivotPoint::upperCenter);
+	m_possessHud->setFont(FontHandler::getFont("consolas32"));
+	m_possessHud->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_possessHud->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_possessHud->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_possessHud->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 }
 
 PossessGuard::~PossessGuard()
 {
 	m_possessTarget = nullptr;
+	m_possessHud->Release();
+	delete m_possessHud;
 }
 
 void PossessGuard::Init()
@@ -35,6 +45,8 @@ void PossessGuard::Use()
 
 void PossessGuard::Draw()
 {
+	if (PossessGuard::Possessing == m_pState)
+		m_possessHud->Draw();
 }
 
 void PossessGuard::_logic(double deltaTime)
@@ -76,7 +88,12 @@ void PossessGuard::_logic(double deltaTime)
 				m_duration = 0;
 			}
 			else
-				m_duration += deltaTime;
+			{
+				float p = ((COOLDOWN_POSSESSING_MAX - m_duration) / COOLDOWN_POSSESSING_MAX);
+				m_possessHud->setScale(0.4f * p, 0.2);
+				std::string str = std::to_string(p * COOLDOWN_POSSESSING_MAX);
+				m_possessHud->setString(str.substr(0, 4));
+			}
 
 			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
@@ -104,6 +121,7 @@ void PossessGuard::_logic(double deltaTime)
 						CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
 						m_pState = PossessGuard::Possessing;
 						p_cooldown = 0;
+						//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
 					}
 				}		
 			}
@@ -132,7 +150,13 @@ void PossessGuard::_logic(double deltaTime)
 				m_duration = 0;
 			}
 			else
+			{
 				m_duration += deltaTime;
+				float p = ((COOLDOWN_POSSESSING_MAX - m_duration) / COOLDOWN_POSSESSING_MAX);
+				m_possessHud->setScale(0.4f * p , 0.2);
+				std::string str = std::to_string(p * COOLDOWN_POSSESSING_MAX);
+				m_possessHud->setString(str.substr(0, 4));
+			}
 			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
 			break;
 		case PossessGuard::Wait:

@@ -86,6 +86,7 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
 
+
 	//lobby button
 	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.6f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
