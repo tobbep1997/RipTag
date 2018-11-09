@@ -390,7 +390,12 @@ void Room::Update(float deltaTime)
 	}
 	if (m_youLost)
 	{
+#if _DEBUG
+		PlayState::setYouLost(false);
+#else
 		PlayState::setYouLost(true);
+#endif
+
 		HUDComponent::HUDUpdate(deltaTime);
 	}
 
