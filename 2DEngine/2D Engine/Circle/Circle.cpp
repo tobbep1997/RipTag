@@ -15,7 +15,6 @@ Circle::Circle()
 {
 }
 
-
 Circle::~Circle()
 {
 }

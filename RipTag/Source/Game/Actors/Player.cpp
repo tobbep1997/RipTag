@@ -1,7 +1,6 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 
-
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
@@ -12,6 +11,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	p_initCamera(new Camera(DirectX::XM_PI * convertion, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
+
+	//HUDComponent::InitHUDFromFile("../testHUD.txt");
+
 	//Ability stuff
 	{
 		VisabilityAbility * visAbl = new VisabilityAbility();
@@ -212,7 +214,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
-
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()

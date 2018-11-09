@@ -247,8 +247,6 @@ const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 	else
 		m_buttonState = buttonState::normal;
 
-	
-
 	if (m_buttonState == buttonState::presesd)
 		m_currentState = true;
 	else
