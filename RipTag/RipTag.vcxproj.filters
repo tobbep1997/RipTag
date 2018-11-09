@@ -61,6 +61,7 @@
     <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
     <ClCompile Include="Source\Game\States\OptionState.cpp" />
+    <ClCompile Include="Source\Game\States\LobbyState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -296,5 +297,6 @@
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
     <ClInclude Include="Source\Game\States\OptionState.h" />
+    <ClInclude Include="Source\Game\States\LobbyState.h" />
   </ItemGroup>
 </Project>

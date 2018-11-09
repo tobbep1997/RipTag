@@ -38,9 +38,12 @@ void MainMenu::Update(double deltaTime)
 		switch ((ButtonOrder)m_currentButton)
 		{
 		case ButtonOrder::Play:
+			_resetButtons();
 			this->pushNewState(new PlayState(this->p_renderingManager));
 			break;
 		case ButtonOrder::Lobby:
+			_resetButtons();
+			this->pushNewState(new LobbyState(this->p_renderingManager));
 			//nothing to do here yet
 			break;
 		case ButtonOrder::Option:
@@ -102,58 +105,6 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Quit]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 }
 
-void MainMenu::_handleGamePadInput()
-{
-	if (Input::isUsingGamepad())
-	{
-		if (GamePadHandler::IsUpDpadPressed())
-		{
-			if (m_currentButton == 0)
-				m_currentButton = (unsigned int)ButtonOrder::Quit;
-			else
-				m_currentButton--;
-		}
-		else if (GamePadHandler::IsDownDpadPressed())
-		{
-			m_currentButton++;
-			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
-		}
-	}
-
-	_updateSelectionStates();
-
-	//Check for action input
-	if (GamePadHandler::IsAPressed())
-	{
-		if (m_buttons[m_currentButton]->isSelected())
-			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
-	}
-}
-
-void MainMenu::_handleKeyboardInput()
-{
-	if (InputHandler::isKeyPressed(InputHandler::Up))
-	{
-		if (m_currentButton == 0)
-			m_currentButton = (unsigned int)ButtonOrder::Quit;
-		else
-			m_currentButton--;
-	}
-	else if (InputHandler::isKeyPressed(InputHandler::Down))
-	{
-		m_currentButton++;
-		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
-	}
-
-	_updateSelectionStates();
-
-	if (InputHandler::isKeyPressed(InputHandler::Enter))
-	{
-		if (m_buttons[m_currentButton]->isSelected())
-			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
-	}
-}
-
 void MainMenu::_handleMouseInput()
 {
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
@@ -187,6 +138,58 @@ void MainMenu::_handleMouseInput()
 	}
 }
 
+void MainMenu::_handleGamePadInput()
+{
+	if (Input::isUsingGamepad())
+	{
+		if (GamePadHandler::IsUpDpadPressed())
+		{
+			if (m_currentButton == 0)
+				m_currentButton = (unsigned int)ButtonOrder::Quit;
+			else
+				m_currentButton--;
+		}
+		else if (GamePadHandler::IsDownDpadPressed())
+		{
+			m_currentButton++;
+			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+		}
+		_updateSelectionStates();
+
+		//Check for action input
+		if (GamePadHandler::IsAPressed())
+		{
+			if (m_buttons[m_currentButton]->isSelected())
+				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
+
+}
+
+void MainMenu::_handleKeyboardInput()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrder::Quit;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+	}
+
+	_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_buttons[m_currentButton]->isSelected())
+			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
 void MainMenu::_updateSelectionStates()
 {
 	//update the selection states
@@ -208,4 +211,14 @@ void MainMenu::_updateSelectionStates()
 			}
 		}
 	}
+}
+
+void MainMenu::_resetButtons()
+{
+	for (auto & button : m_buttons)
+	{
+		button->Select(false);
+		button->setState(ButtonStates::Normal);
+	}
+	m_currentButton = (unsigned int)ButtonOrder::Play;
 }

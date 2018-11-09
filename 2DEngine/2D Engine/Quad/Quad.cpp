@@ -191,6 +191,7 @@ void Quad::setScale(const DirectX::XMFLOAT2A & size)
 void Quad::setFont(DirectX::SpriteFont * font)
 {
 	this->m_spriteFont = font;
+	this->m_spriteFont->SetDefaultCharacter('X');
 }
 
 void Quad::setString(const std::string & string)

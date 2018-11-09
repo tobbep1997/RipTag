@@ -30,4 +30,5 @@ private:
 	void _handleKeyboardInput();
 	void _handleMouseInput();
 	void _updateSelectionStates();
+	void _resetButtons();
 };
