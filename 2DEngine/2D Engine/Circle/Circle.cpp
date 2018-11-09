@@ -13,6 +13,7 @@ DirectX::XMFLOAT4 GetCenter(const DirectX::XMFLOAT2 & sum, const unsigned int si
 
 Circle::Circle()
 {
+
 }
 
 Circle::~Circle()

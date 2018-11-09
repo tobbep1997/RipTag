@@ -39,7 +39,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	quitButton->setFont(FontHandler::getFont("consolas32"));
 
 	c = new Circle();
-	c->init(DirectX::XMFLOAT2A(.25, .5), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	c->init(DirectX::XMFLOAT2A(.25, .5),DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
 	c->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
 
 	m_textInput = new TextInput();

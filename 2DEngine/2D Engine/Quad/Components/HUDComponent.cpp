@@ -26,7 +26,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 
 	if (inputStream.is_open())
 	{
-		std::string keyWords[] = {"p","s","pp","b","text","f","c","texture" };
+		std::string keyWords[] = {"i","pp","b","text","f","c","texture" };
 		std::string collector = "";
 		unsigned int type = 0; 
 
@@ -50,56 +50,43 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 
 			std::getline(inputStream, collector);
 
-			//Position
+			//Init
 			if (collector == keyWords[0])
 			{
 				float posX;
 				float posY;
+				float sizeX; 
+				float sizeY; 
+				int midPoint; 
 
 				std::getline(inputStream, collector);
 
-				sepIndex = collector.find(',');
+				sepIndex = collector.find_first_of(',');
 				posX = std::stof(collector.substr(1, sepIndex - 1));
 				posY = std::stof(collector.substr(sepIndex + 1));
 
-				if (type == 1)
-				{
-					std::cout << "Yup" << std::endl; 
-				}
-				currQuad->setPosition(posX, posY);
-			}
-
-			std::getline(inputStream, collector);
-
-			//Size
-			if (collector == keyWords[1] && type == 0)
-			{
-				float sizeX;
-				float sizeY;
-
-				std::getline(inputStream, collector);
-
-				sepIndex = collector.find(",");
-				sizeX = std::stof(collector.substr(1, sepIndex - 1));
+				midPoint = collector.find(';'); 
+				sepIndex = collector.find_last_of(',');
+				sizeX = std::stof(collector.substr(midPoint + 1, sepIndex - 1)); 
 				sizeY = std::stof(collector.substr(sepIndex + 1));
 
-				currQuad->setScale(sizeX, sizeY);
-			}
-			else if (collector == keyWords[1] && type == 1)
-			{
-				float radius; 
+				if(type == 0)
+				currQuad->init(DirectX::XMFLOAT2A(posX, posY), DirectX::XMFLOAT2A(sizeX / 16.0f, sizeY / 9.0f));
+				else
+				{
+					float radius; 
+					sepIndex = collector.find_last_of(';');
+					radius = std::stof(collector.substr(sepIndex + 1)); 
 
-				inputStream >> radius; 
-				inputStream.ignore(); 
-
-				dynamic_cast<Circle*>(currQuad)->setRadie(radius); 
-				currQuad->setScale(DirectX::XMFLOAT2A(1.0f, 1.0f)); 
+					currQuad->init(DirectX::XMFLOAT2A(posX, posY), DirectX::XMFLOAT2A(sizeX / 16.0f, sizeY / 9.0f));
+					dynamic_cast<Circle*>(currQuad)->setRadie(radius); 
+				}
 			}
 
 			std::getline(inputStream, collector);
 
 			//PivotPoint 
-			if (collector == keyWords[2])
+			if (collector == keyWords[1])
 			{
 				int pivotPointType;
 
@@ -114,7 +101,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 			std::getline(inputStream, collector);
 
 			//Butt or no Butt Bitch
-			if (collector == keyWords[3])
+			if (collector == keyWords[2])
 			{
 				int button;
 				inputStream >> button;
@@ -126,7 +113,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 			std::getline(inputStream, collector);
 
 			//Text
-			if (collector == keyWords[4])
+			if (collector == keyWords[3])
 			{
 				std::getline(inputStream, collector);
 				currQuad->setString(collector);
@@ -135,7 +122,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 			std::getline(inputStream, collector);
 
 			//Font 
-			if (collector == keyWords[5])
+			if (collector == keyWords[4])
 			{
 				inputStream >> collector;
 				inputStream.ignore();
@@ -148,7 +135,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 			std::getline(inputStream, collector);
 
 			//TextColor
-			if (collector == keyWords[6])
+			if (collector == keyWords[5])
 			{
 				int rPos, gPos, bPos, aPos;
 				float r, g, b, a;
@@ -172,7 +159,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 			std::getline(inputStream, collector);
 
 			//Texture
-			if (collector == keyWords[7])
+			if (collector == keyWords[6])
 			{
 				int pressPos, unPressPos, hoverPos;
 
