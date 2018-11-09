@@ -5,8 +5,6 @@
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	HUDComponent HUDcomp; 
-
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");

@@ -1,7 +1,6 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 
-
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
@@ -12,6 +11,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
+
 	//Ability stuff
 	{
 		VisabilityAbility * visAbl = new VisabilityAbility();
