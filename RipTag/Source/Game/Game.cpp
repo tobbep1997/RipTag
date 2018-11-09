@@ -19,7 +19,6 @@ Game::~Game()
 
 void Game::Init(_In_ HINSTANCE hInstance)
 {
-	
 	//Rendering Manager Start
 	{
 		m_renderingManager = RenderingManager::GetInstance();
@@ -108,6 +107,16 @@ void Game::_handleStateSwaps()
 		delete m_gameStack.top();
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
+	}
+
+	if (m_gameStack.top()->getBackToMenu())
+	{
+		while (m_gameStack.size() > 1)
+		{
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
 	}
 }
 

@@ -7,6 +7,7 @@ State::State(RenderingManager * rm)
 {
 	p_renderingManager = rm;
 	m_killState = false;
+	m_backToMenu = false;
 }
 
 State::~State()
@@ -33,4 +34,14 @@ bool State::getKillState()
 void State::setKillState(const bool killState)
 {
 	m_killState = killState;
+}
+
+void State::BackToMenu()
+{
+	m_backToMenu = true;
+}
+
+bool State::getBackToMenu()
+{
+	return m_backToMenu;
 }

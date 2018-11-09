@@ -2,14 +2,16 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 
+
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
 
+bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
+	m_youlost = false;
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
@@ -29,7 +31,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	//Load assets
 	{
-
+		//:c *queue sad music*
 	}
 
 	future1.get();
@@ -167,6 +169,12 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	
 	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
 
+	//tempp = new BaseActor();
+	//tempp->Init(m_world, e_staticBody);
+	//tempp->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
+	//tempp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//tempp->setPosition(5.5f, 5, -5);
+	//rot = DirectX::XMFLOAT4A(0, 0, 0, 1);
 }
 
 PlayState::~PlayState()
@@ -199,21 +207,12 @@ void PlayState::Update(double deltaTime)
 	}*/
 
 	//5.5,5,-4.5
-
-	/*ImGui::Begin("Player Setting");
-	ImGui::SliderFloat("PositionX", &posX, -20.0f, 20.f);
-	ImGui::SliderFloat("PositionY", &posY, -20.0f, 20.f);
-	ImGui::SliderFloat("PositionZ", &posZ, -20.0f, 20.f);
-
-	ImGui::SliderFloat("DirX", &xD, -180.0f, 180.f);
-	ImGui::SliderFloat("DirY", &yD, -180.0f, 180.f);
-	ImGui::SliderFloat("DirZ", &zD, -180.0f, 180.f);
-	if (ImGui::Button("test"))
-	{
-		
-	}
+	//DirectX::XMFLOAT4A pos = tempp->getPosition();
 	
-	ImGui::End();*/
+
+	//tempp->ImGuiTransform(pos, rot,10,10);
+	//tempp->setPosition(pos.x,pos.y,pos.z);
+	//tempp->addRotation(rot.x, rot.y, rot.z);
 
 	
 	triggerHandler->Update(deltaTime);
@@ -262,7 +261,22 @@ void PlayState::Update(double deltaTime)
 		{
 			m_physicsThread.join();
 		}
-		setKillState(true);
+		//setKillState(true);
+		BackToMenu();
+	}
+
+	if (m_youlost)
+	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
+		pushNewState(new LoseState(p_renderingManager));
+		//BackToMenu();
 	}
 
 	
@@ -290,8 +304,14 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
+	//tempp->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+}
+
+void PlayState::setYouLost(const bool& youLost)
+{
+	m_youlost = youLost;
 }
 
 void PlayState::testtThread(double deltaTime)
@@ -455,11 +475,11 @@ void PlayState::TemporaryLobby()
 	{
 		if (ImGui::Button("Start Server"))
 		{
-			ptr->StartUpServer();
+			ptr->SetupServer();
 		}
 		else if (ImGui::Button("Start Client"))
 		{
-			ptr->StartUpClient();
+			//ptr->StartUpClient();
 		}
 	}
 

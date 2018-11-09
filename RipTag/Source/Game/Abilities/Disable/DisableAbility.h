@@ -14,7 +14,6 @@ private: // CONST VARS
 	 * This is beacuse abilitycomponent is the one holding mana. and not the component it self
 	 */
 	const int START_MANA_COST = 10;
-	const float COOLDOWN_WAIT_MAX = 10.0f;
 	const float TRAVEL_SPEED = 20.0f;
 	const float MAX_CHARGE = 2.0f;
 private:
@@ -32,7 +31,6 @@ private:
 	DisableState	m_dState;
 	float			m_charge;
 	float			m_travelSpeed;
-	float			m_cooldown;
 	Quad * m_bar;
 
 	//Network

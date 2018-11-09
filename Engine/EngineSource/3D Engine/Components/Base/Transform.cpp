@@ -1,6 +1,22 @@
 #include "EnginePCH.h"
 #include "Transform.h"
 
+float constexpr getNewValueInNewRange(float value, float rangeMin, float rangeMax, float newRangeMin, float newRangeMax)
+{
+	if (value > newRangeMax)
+	{
+		return newRangeMax;
+	}
+	else
+	{
+		return ((value - rangeMin) * ((newRangeMax - newRangeMin) / (rangeMax - rangeMin))) + newRangeMin;
+	}
+}
+
+float constexpr valueInRange(float value, float min, float max)
+{
+	return ((value - min) / (max - min));
+}
 
 
 void Transform::p_calcWorldMatrix()
@@ -32,6 +48,82 @@ void Transform::p_calcWorldMatrix()
 	
 	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);
 
+}
+
+void Transform::p_calcWorldMatrixForOutline(const float & lenght)
+{
+	using namespace DirectX;
+
+	float scaleBy = getNewValueInNewRange(lenght, 1.0f, 30.0f, 1.3f, 3.3f);
+
+	//valueInRange(lenght, 1.3f, 2.1f);
+	
+	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
+	XMMATRIX scaling;
+	
+	scaling = XMMatrixScaling(this->p_scale.x * scaleBy, this->p_scale.y * scaleBy, this->p_scale.z * scaleBy);
+	
+	
+	XMMATRIX rotation;
+	rotation = DirectX::XMMatrixIdentity();
+	if (p_physicsRotation._11 == INT16_MIN)
+	{
+		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
+		//rotation = rotation * p_forcedRotation;
+	}
+	else
+	{
+		rotation = XMLoadFloat3x3(&p_physicsRotation);
+	}
+	XMMATRIX worldMatrix;
+	if (DirectX::XMMatrixIsIdentity(p_forcedWorld))
+		worldMatrix = XMMatrixTranspose(XMMatrixMultiply(scaling * rotation * translation, m_modelTransform));
+	else
+		worldMatrix = p_forcedWorld;
+	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
+
+	if (m_parent)
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+
+
+	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);
+}
+
+void Transform::p_calcWorldMatrixForInsideOutline(const float& lenght)
+{
+	using namespace DirectX;
+
+	float scaleBy = getNewValueInNewRange(lenght, 1.0f, 30.0f, 1.0f, 2.5f);
+
+	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
+	XMMATRIX scaling;
+
+	scaling = XMMatrixScaling(this->p_scale.x * scaleBy, this->p_scale.y * scaleBy, this->p_scale.z * scaleBy);
+
+
+	XMMATRIX rotation;
+	rotation = DirectX::XMMatrixIdentity();
+	if (p_physicsRotation._11 == INT16_MIN)
+	{
+		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
+		//rotation = rotation * p_forcedRotation;
+	}
+	else
+	{
+		rotation = XMLoadFloat3x3(&p_physicsRotation);
+	}
+	XMMATRIX worldMatrix;
+	if (DirectX::XMMatrixIsIdentity(p_forcedWorld))
+		worldMatrix = XMMatrixTranspose(XMMatrixMultiply(scaling * rotation * translation, m_modelTransform));
+	else
+		worldMatrix = p_forcedWorld;
+	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
+
+	if (m_parent)
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+
+
+	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);
 }
 
 Transform::Transform()
@@ -177,6 +269,24 @@ DirectX::XMFLOAT4X4A Transform::getWorldmatrix()
 	return this->p_worldMatrix;
 }
 
+DirectX::XMFLOAT4X4A Transform::getWorldMatrixForOutline(const DirectX::XMFLOAT4A & pos)
+{
+	float lenght = getLenghtToObject(pos);
+
+	this->p_calcWorldMatrixForOutline(lenght);
+
+	return this->p_worldMatrix;
+}
+
+DirectX::XMFLOAT4X4A Transform::getWorldMatrixForInsideOutline(const DirectX::XMFLOAT4A& pos)
+{
+	float lenght = getLenghtToObject(pos);
+
+	this->p_calcWorldMatrixForInsideOutline(lenght);
+
+	return this->p_worldMatrix;
+}
+
 void Transform::setPhysicsRotation(const b3Mat33 & rot)
 {
 	p_physicsRotation._11 = rot.x.x;
@@ -190,6 +300,16 @@ void Transform::setPhysicsRotation(const b3Mat33 & rot)
 	p_physicsRotation._31 = rot.z.x;
 	p_physicsRotation._32 = rot.z.y;
 	p_physicsRotation._33 = rot.z.z;
+}
+
+float Transform::getLenghtToObject(const DirectX::XMFLOAT4A& pos)
+{
+	DirectX::XMVECTOR vec1 = DirectX::XMLoadFloat4A(&pos);
+	DirectX::XMVECTOR vec2 = DirectX::XMLoadFloat4A(&this->p_position);
+	DirectX::XMVECTOR vecSubs = DirectX::XMVectorSubtract(vec1, vec2);
+	DirectX::XMVECTOR lenght = DirectX::XMVector4Length(vecSubs);
+
+	return DirectX::XMVectorGetX(lenght);
 }
 
 // #todoREMOVE

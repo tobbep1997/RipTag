@@ -5,7 +5,6 @@ class BlinkAbility : public AbilityComponent
 {
 private:
 	const float RANGE = 3.0f;
-	const float COOLDOWN_WAIT_MAX = 1.0f;
 	const int MANA_COST = 10;
 	enum BlinkState
 	{
@@ -13,7 +12,6 @@ private:
 		Wait	// Just Blinked
 	};
 	BlinkState	m_bState;
-	float		m_cooldown;
 	bool		m_useFunctionCalled;
 
 public:

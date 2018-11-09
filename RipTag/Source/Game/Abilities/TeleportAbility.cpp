@@ -22,6 +22,10 @@ void TeleportAbility::Init()
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//OUTLINGING
+	Drawable::setOutline(true);
+	Drawable::setOutlineColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
+
 	BaseActor::setGravityScale(0.60f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 	this->getBody()->SetObjectTag("TELEPORT");
@@ -260,10 +264,10 @@ void TeleportAbility::_inStateCooldown(double dt)
 {
 	//static double accumulatedTime = 0;
 	//static const double cooldownDuration = 1.0 / 2.0; //500 ms
-	m_cooldown += dt;
-	if (m_cooldown >= COOLDOWN_WAIT_MAX)
+	p_cooldown += dt;
+	if (p_cooldown >= p_cooldownMax)
 	{
-		m_cooldown = 0.0;
+		p_cooldown = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
 }

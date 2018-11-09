@@ -42,6 +42,7 @@ private: //stuff for state machine
 
 	std::vector<std::string> m_sounds;
 
+	
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -94,10 +95,7 @@ private:
 	Quad * m_manaBar;
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
-
-	Quad * m_visBar;
-	Quad * m_visBarBackground;
-	Quad * m_visbarText;
+	
 	Quad * m_winBar;
 
 	Quad * m_infoText;
@@ -116,6 +114,15 @@ private:
 	float m_peektimer = 0;
 	int peakDir = 0;
 	int LastPeakDir = 0;
+
+	Circle * m_HUDcircle;
+	Circle * m_HUDcircleFiller;
+
+	const unsigned short MAX_ENEMY_CIRCLES = 10;
+	std::vector<Circle*> m_enemyCircles;
+	float totVis = 0;
+	float maxVis = 0;
+	unsigned short m_currentEnemysVisable = 0;
 
 	float m_peakMax = 0;
 	float m_peakMin = 0;
@@ -166,6 +173,8 @@ public:
 	void RefillMana(const float & manaFill);
 	void drawWinBar();
 	void SetAbilitySet(int set);
+
+	void setEnemyPositions(std::vector<Enemy *> enemys);
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

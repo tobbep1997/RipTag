@@ -15,6 +15,9 @@ enum Ability
 
 class AbilityComponent
 {
+protected: // CD
+	float p_cooldownMax= 5.0f;
+	float p_cooldown = 0;
 private:
 	float m_manaCost;
 protected:
@@ -36,4 +39,11 @@ public:
 	virtual void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) = 0;
 	virtual void Use() = 0;
 	virtual void Draw() = 0;
+
+	virtual void setMaxCooldown(const float & maxTime);
+	virtual float getMaxCooldWon() const;
+
+	virtual float getPercentage() const;
+
+	virtual void updateCooldown(double deltaTime);
 };

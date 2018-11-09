@@ -13,8 +13,8 @@ DirectX::XMFLOAT4 GetCenter(const DirectX::XMFLOAT2 & sum, const unsigned int si
 
 Circle::Circle()
 {
-}
 
+}
 
 Circle::~Circle()
 {
@@ -24,6 +24,12 @@ bool Circle::setRadie(const float & radie)
 {
 	this->m_radie = radie >= .5f ? .5f : radie;
 	return !(radie >= .5f);
+}
+
+bool Circle::setInnerRadie(const float & innerRadie)
+{
+	this->m_innerRadie = innerRadie <= 0.0f ? 0.0f : innerRadie;
+	return !(innerRadie <= 0.0f);
 }
 
 unsigned int Circle::getType() const
@@ -39,4 +45,9 @@ DirectX::XMFLOAT4 Circle::getCenter() const
 const float & Circle::getRadie() const
 {
 	return m_radie;
+}
+
+const float & Circle::getInnerRadie() const
+{
+	return m_innerRadie;
 }

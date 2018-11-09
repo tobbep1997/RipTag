@@ -69,11 +69,15 @@ private:
 	float m_guardSpeed = 1.5;
 
 	float m_visCounter;
-	float m_visabilityTimer = 0.6f;
+	float m_visabilityTimer = 1.6f;
 
 	bool m_found = false;
 
-	
+	float m_knockOutTimer = 0;
+	float m_knockOutMaxTime = 2;
+
+	float enemyX = 0;
+	float enemyY = 0;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -89,6 +93,8 @@ public:
 	// Inherited via Actor
 
 	void CullingForVisability(const Transform & player);
+
+	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
 
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
@@ -117,6 +123,9 @@ public:
 	void SetAlertVector(std::vector<Node*> alertPath);
 
 	bool getIfLost();
+
+	float getTotalVisablilty() const;
+	float getMaxVisability() const;
 private:
 
 	void _handleInput(double deltaTime);
