@@ -15,6 +15,12 @@ private:
 		ToggleFullscreen,
 		Return
 	};
+	enum LastInputUsed
+	{
+		Mouse,
+		Gamepad,
+		Keyboard
+	};
 
 	const DirectX::XMINT2 MIN_MAX_FOV = {45, 135};
 	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = {1, 11};
@@ -46,6 +52,8 @@ private:
 	short m_currentButton;
 	bool m_buttonPressed;
 	bool m_drawMustRestart;
+	bool m_mouseMoved;
+	LastInputUsed m_liu;
 public:
 	OptionState(RenderingManager * rm = nullptr);
 	~OptionState();
@@ -55,9 +63,9 @@ public:
 private:
 	void _slide();
 	void _initButtons();
-	void _handleGamePadInput();
-	void _handleKeyboardInput();
-	void _handleMouseInput();
+	void _handleGamePadInput(double dt);
+	void _handleKeyboardInput(double dt);
+	bool _handleMouseInput();
 	void _updateSelectionStates();
 	void _WriteSettingsToFile();
 	void _ReadSettingsFromFile();

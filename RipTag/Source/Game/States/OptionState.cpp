@@ -12,7 +12,9 @@ OptionState::OptionState(RenderingManager * rm) : State(rm)
 	m_fullscreen = false;
 	m_buttonPressed = false;
 	m_drawMustRestart = false;
+	m_mouseMoved = false;
 	m_currentButton = -1;
+	m_liu = Mouse;
 	_ReadSettingsFromFile();
 	_initButtons();
 }
@@ -40,9 +42,11 @@ void OptionState::Update(double deltaTime)
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
-	_handleMouseInput();
-	_handleGamePadInput();
-	_handleKeyboardInput();
+	if (!_handleMouseInput());
+	{
+		_handleGamePadInput(deltaTime);
+		_handleKeyboardInput(deltaTime);
+	}
 
 	if (m_currentButton != -1)
 		if (m_sliderPressed || m_buttonPressed)
@@ -50,19 +54,96 @@ void OptionState::Update(double deltaTime)
 			switch ((ButtonOrder)m_currentButton)
 			{
 			case SliderFov:
-				_slide();
-				m_fov = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_FOV.x;
-				m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
+				if (m_liu == Mouse)
+				{
+					_slide();
+					m_fov = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_FOV.x;
+				}
+				else
+				{
+					switch (m_liu)
+					{
+					case OptionState::Gamepad:
+
+						break;
+					case OptionState::Keyboard:
+						if (InputHandler::wasKeyPressed(InputHandler::Right))
+							m_fov++;
+						if (InputHandler::wasKeyPressed(InputHandler::Left))
+							m_fov--;
+
+						if (m_fov < MIN_MAX_FOV.x)
+							m_fov = MIN_MAX_FOV.x;
+						if (m_fov > MIN_MAX_FOV.y)
+							m_fov = MIN_MAX_FOV.y;
+						break;
+					}
+
+					float pos = (((float)m_fov - (float)MIN_MAX_FOV.x) * (0.7 - 0.3)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + 0.3;
+					m_buttons[ButtonOrder::SliderFov]->setPosition(pos, m_buttons[ButtonOrder::SliderFov]->getPosition().y);
+				}
+					m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
 				break;
 			case SliderSensitivityX:
-				_slide();
-				m_sens.x = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
+				if (m_liu == Mouse)
+				{
+					_slide();
+					m_sens.x = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
+				}
+				else
+				{
+					switch (m_liu)
+					{
+					case OptionState::Gamepad:
+
+						break;
+					case OptionState::Keyboard:
+						if (InputHandler::wasKeyPressed(InputHandler::Right))
+							m_sens.x++;
+						if (InputHandler::wasKeyPressed(InputHandler::Left))
+							m_sens.x--;
+
+						if (m_sens.x < MIN_MAX_SENSITIVITY.x)
+							m_sens.x = MIN_MAX_SENSITIVITY.x;
+						if (m_sens.x > MIN_MAX_SENSITIVITY.y)
+							m_sens.x = MIN_MAX_SENSITIVITY.y;
+						break;
+					}
+					float pos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
+					m_buttons[ButtonOrder::SliderSensitivityX]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityX]->getPosition().y);
+				}
 				m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 				break;
 			case SliderSensitivityY:
-				_slide();
-				m_sens.y = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
-				m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
+				if (m_liu == Mouse)
+				{
+					_slide();
+					m_sens.y = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
+				}
+				else
+				{
+					switch (m_liu)
+					{
+					case OptionState::Gamepad:
+						
+						break;
+					case OptionState::Keyboard:
+						if (InputHandler::wasKeyPressed(InputHandler::Right))
+							m_sens.y++;
+						if (InputHandler::wasKeyPressed(InputHandler::Left))
+							m_sens.y--;
+
+						if (m_sens.y < MIN_MAX_SENSITIVITY.x)
+							m_sens.y = MIN_MAX_SENSITIVITY.x;
+						if (m_sens.y > MIN_MAX_SENSITIVITY.y)
+							m_sens.y = MIN_MAX_SENSITIVITY.y;
+						break;
+					}
+
+					float pos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
+					m_buttons[ButtonOrder::SliderSensitivityY]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityY]->getPosition().y);
+				}
+					m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 				break;
 				case ToggleResolution:
 					if (m_buttonPressed)
@@ -131,7 +212,7 @@ void OptionState::_slide()
 	m_buttons[m_currentButton]->setPosition(mp.x / InputHandler::getViewportSize().x, pos.y);
 	if (m_buttons[m_currentButton]->getPosition().x < 0.3f)
 		m_buttons[m_currentButton]->setPosition(0.3f, pos.y);
-	else if(m_buttons[m_currentButton]->getPosition().x > 0.7f)
+	else if (m_buttons[m_currentButton]->getPosition().x > 0.7f)
 		m_buttons[m_currentButton]->setPosition(0.7f, pos.y);
 }
 
@@ -223,52 +304,165 @@ void OptionState::_initButtons()
 	m_restart->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 }
 
-void OptionState::_handleGamePadInput()
+void OptionState::_handleGamePadInput(double dt)
 {
-}
+	static bool pressedLastFrame = false;
+	static double timer = 0.0f;
+	timer += dt;
 
-void OptionState::_handleKeyboardInput()
-{
-}
-
-void OptionState::_handleMouseInput()
-{
-	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
-	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
-
-	mousePos.x /= windowSize.x;
-	mousePos.y /= windowSize.y;
-	m_buttonPressed = false;
-
-	if (!InputHandler::isMLeftPressed(true))
-		m_sliderPressed = false;
-
-	for (size_t i = 0; i < m_buttons.size() && !m_sliderPressed; i++)
+	int dir = 0;
+	if (Input::isUsingGamepad())
 	{
-		//set this button to current and on hover state
-		if (m_buttons[i]->isReleased(mousePos))
+		if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f))
 		{
-			m_buttonPressed = true;
-			break;
+			m_liu = Gamepad;
+			dir = -1;
+			timer = 0.0;
 		}
-		else if (m_buttons[i]->isPressed(mousePos))
+		else if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f))
 		{
-			m_currentButton = i;
-			OptionState::ButtonOrder type = (OptionState::ButtonOrder)i;
-			if (type == SliderFov || type == SliderSensitivityX || type == SliderSensitivityY)
+			m_liu = Gamepad;
+			dir = 1;
+			timer = 0.0;
+		}
+
+		m_currentButton += dir;
+		
+		if (m_currentButton < 0)
+			m_currentButton = (short)Return;
+		else if (m_currentButton > (short)Return)
+			m_currentButton = 0;
+
+		if (m_liu == Gamepad)
+			_updateSelectionStates();
+
+		if (GamePadHandler::IsAPressed())
+		{
+			m_liu = Gamepad;
+			if (m_buttons[m_currentButton]->isSelected())
+				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
+	}
+}
+
+void OptionState::_handleKeyboardInput(double dt)
+{
+	static bool pressedLastFrame = false;
+	static double timer = 0.0f;
+	timer += dt;
+
+	int dir = 0;
+	if ((!pressedLastFrame || timer > 0.5) && (InputHandler::isKeyPressed(InputHandler::Up)))
+	{
+		m_liu = Keyboard;
+		dir = -1;
+		timer = 0.0;
+		m_sliderPressed = false;
+	}
+	else if ((!pressedLastFrame || timer > 0.5) && (InputHandler::isKeyPressed(InputHandler::Down)))
+	{
+		m_liu = Keyboard;
+		dir = 1;
+		timer = 0.0;
+		m_sliderPressed = false;
+	}
+
+	m_currentButton += dir;
+
+	if (m_currentButton < 0)
+		m_currentButton = (short)Return;
+	else if (m_currentButton > (short)Return)
+		m_currentButton = 0;
+
+	if (m_liu == Keyboard)
+		_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Return))
+	{
+		m_liu = Keyboard;
+		if (m_buttons[m_currentButton]->isSelected())
+		{
+			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+			m_buttonPressed = true;
+			if (m_currentButton == SliderFov || m_currentButton == SliderSensitivityX || m_currentButton == SliderSensitivityY)
 			{
 				m_sliderPressed = true;
-				m_buttons[i]->Select(true);
 			}
-			break;
 		}
-		else
-			m_buttons[i]->Select(false);
 	}
+	pressedLastFrame = InputHandler::isKeyPressed(InputHandler::Up) || InputHandler::isKeyPressed(InputHandler::Down);
+}
+
+bool OptionState::_handleMouseInput()
+{
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+	m_mouseMoved = false;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9)
+	{
+		m_mouseMoved = true;
+		m_liu = Mouse;
+	}
+	s_mouseLastFrame = mousePos;
+
+	if (m_liu == Mouse)
+	{
+		mousePos.x /= windowSize.x;
+		mousePos.y /= windowSize.y;
+		m_buttonPressed = false;
+
+		if (!InputHandler::isMLeftPressed(true))
+			m_sliderPressed = false;
+
+		for (size_t i = 0; i < m_buttons.size() && !m_sliderPressed; i++)
+		{
+			//set this button to current and on hover state
+			if (m_buttons[i]->isReleased(mousePos))
+			{
+				m_buttonPressed = true;
+				break;
+			}
+			else if (m_buttons[i]->isPressed(mousePos))
+			{
+				m_currentButton = i;
+				OptionState::ButtonOrder type = (OptionState::ButtonOrder)i;
+				if (type == SliderFov || type == SliderSensitivityX || type == SliderSensitivityY)
+				{
+					m_sliderPressed = true;
+					m_buttons[i]->Select(true);
+				}
+				break;
+			}
+			else
+				m_buttons[i]->Select(false);
+		}
+	}
+	return m_mouseMoved;
 }
 
 void OptionState::_updateSelectionStates()
 {
+	m_buttonPressed = false;
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		if (i != m_currentButton)
+		{
+			m_buttons[i]->Select(false);
+			m_buttons[i]->setState(ButtonStates::Normal);
+		}
+		else
+		{
+			if (!m_buttons[i]->isSelected()
+				&& (m_buttons[i]->getState() != (unsigned int)ButtonStates::Pressed)
+				)
+			{
+				m_buttons[i]->Select(true);
+				m_buttons[i]->setState(ButtonStates::Hover);
+			}
+		}
+	}
 }
 
 void OptionState::_WriteSettingsToFile()
