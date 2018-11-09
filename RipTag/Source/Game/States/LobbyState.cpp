@@ -25,10 +25,16 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 LobbyState::~LobbyState()
 {
 	for (auto &button : this->m_lobbyButtons)
+	{
+		button->Release();
 		delete button;
+	}
 	this->m_lobbyButtons.clear();
 	for (auto & button : this->m_charSelectButtons)
+	{
+		button->Release();
 		delete button;
+	}
 	this->m_charSelectButtons.clear();
 	this->pNetwork->ShutdownPeer();
 }

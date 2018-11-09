@@ -19,7 +19,6 @@ Game::~Game()
 
 void Game::Init(_In_ HINSTANCE hInstance)
 {
-	
 	//Rendering Manager Start
 	{
 		m_renderingManager = RenderingManager::GetInstance();

@@ -140,6 +140,7 @@ void Engine3D::Release()
 	DX::SafeRelease(m_depthBufferTex);
 	DX::SafeRelease(m_samplerState);	
 	DX::SafeRelease(m_depthStencilState);
+	
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
 }

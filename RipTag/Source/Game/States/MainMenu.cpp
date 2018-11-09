@@ -16,7 +16,10 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 MainMenu::~MainMenu()
 {
 	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		m_buttons[i]->Release();
 		delete m_buttons[i];
+	}
 	m_buttons.clear();
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
@@ -43,6 +46,9 @@ void MainMenu::Update(double deltaTime)
 			this->pushNewState(new LobbyState(this->p_renderingManager));
 			//nothing to do here yet
 			break;
+		case ButtonOrder::Option:
+			this->pushNewState(new OptionState(this->p_renderingManager));
+			break;
 		case ButtonOrder::Quit:
 			InputHandler::CloseGame();
 			PostQuitMessage(0);
@@ -68,7 +74,7 @@ void MainMenu::Draw()
 void MainMenu::_initButtons()
 {
 	//play button
-	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.75f, 0.5f, 0.25f));
+	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.80f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->m_buttons[ButtonOrder::Play]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	this->m_buttons[ButtonOrder::Play]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
@@ -76,20 +82,60 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Play]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 
 	//lobby button
-	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.5f, 0.5f, 0.25f));
+	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.6f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	this->m_buttons[ButtonOrder::Lobby]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Lobby]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 
+	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.4f, 0.5f, 0.25f));
+	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	this->m_buttons[ButtonOrder::Option]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	this->m_buttons[ButtonOrder::Option]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Option]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Option]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+
 	//Quit button
-	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.25f, 0.5f, 0.25f));
+	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.20f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->m_buttons[ButtonOrder::Quit]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	this->m_buttons[ButtonOrder::Quit]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	this->m_buttons[ButtonOrder::Quit]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Quit]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+}
+
+void MainMenu::_handleMouseInput()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		if (m_buttons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_buttons[i]->Select(true);
+			m_buttons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_buttons[i]->isReleased(mousePos))
+				m_buttons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_buttons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_buttons[j]->Select(false);
+					m_buttons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
 }
 
 void MainMenu::_handleGamePadInput()
@@ -141,39 +187,6 @@ void MainMenu::_handleKeyboardInput()
 	{
 		if (m_buttons[m_currentButton]->isSelected())
 			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
-	}
-}
-
-void MainMenu::_handleMouseInput()
-{
-	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
-	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
-
-	mousePos.x /= windowSize.x;
-	mousePos.y /= windowSize.y;
-
-	for (size_t i = 0; i < m_buttons.size(); i++)
-	{
-		if (m_buttons[i]->Inside(mousePos))
-		{
-			//set this button to current and on hover state
-			m_currentButton = i;
-			m_buttons[i]->Select(true);
-			m_buttons[i]->setState(ButtonStates::Hover);
-			//check if we released this button
-			if (m_buttons[i]->isReleased(mousePos))
-				m_buttons[i]->setState(ButtonStates::Pressed);
-			//set all the other buttons to
-			for (size_t j = 0; j < m_buttons.size(); j++)
-			{
-				if (i != j)
-				{
-					m_buttons[j]->Select(false);
-					m_buttons[j]->setState(ButtonStates::Normal);
-				}
-			}
-			break;
-		}
 	}
 }
 
