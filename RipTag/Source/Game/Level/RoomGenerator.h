@@ -3,7 +3,7 @@
 class Room;
 class Grid;
 class PointLight;
-
+class EnemyHandler;
 class RoomGenerator
 {
 private:
@@ -12,16 +12,26 @@ private:
 	float m_roomDepth;
 	float m_height = 10;
 	int m_nrOfWalls;
+	int m_nrOfEnemies = 5;
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
+	std::vector<Enemy*> m_generatedRoomEnemies;
+
 	b3World * m_worldPtr;
 	BaseActor * asset;
+
+	EnemyHandler * m_generatedRoomEnemyHandler;
+
 
 	void _generateGrid();
 	void _makeFloor();
 	void _makeWalls();
+	void _placeProps();
+	void _createEnemies();
 	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);
 
+	int returnRandomInGridWidth();
+	int returnRandomInGridDepth();
 public:
 	RoomGenerator();
 	~RoomGenerator();

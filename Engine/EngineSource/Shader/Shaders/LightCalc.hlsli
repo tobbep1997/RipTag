@@ -227,5 +227,5 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
     finalColor.a = albedo.a;
 	//return (input.worldPos);
-    return min(finalColor, float4(1, 1, 1, 1) + (float4(input.worldPos)*0.3));
+    return min(finalColor, float4(1, 1, 1, 1));
 }

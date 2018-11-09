@@ -17,14 +17,10 @@ void RoomGenerator::_generateGrid()
 	srand(time(NULL));
 
 	m_nrOfWalls = 4; // MAke random
-	m_roomDepth = rand() % (100 - 35 + 1) + 35;
-	m_roomWidth = rand() % (100 - 35 + 1) + 35;
-	m_roomDepth = -m_roomDepth;
-	m_roomWidth = -m_roomWidth;
-	m_generatedGrid = new Grid(m_roomDepth, m_roomWidth, abs(m_roomWidth * 2), abs(m_roomDepth * 2));
-
-	m_roomDepth = abs(m_roomDepth);
-	m_roomWidth = abs(m_roomWidth);
+	m_roomDepth = rand() % (35 - 25 + 1) + 25;
+	m_roomWidth = rand() % (35 - 25 + 1) + 25;
+	m_generatedGrid = new Grid(-m_roomDepth, -m_roomWidth, m_roomWidth * 2, m_roomDepth * 2);
+	
 }
 
 void RoomGenerator::_makeFloor()
@@ -95,6 +91,62 @@ void RoomGenerator::_makeWalls()
 	}
 }
 
+void RoomGenerator::_placeProps()
+{
+	
+	Manager::g_meshManager.loadStaticMesh("WAREHOUSE");
+	Manager::g_textureManager.loadTextures("WAREHOUSE");
+	//1 x 2 x 3
+	for (int a = -m_roomDepth +1; a < m_roomDepth -1; a+= 3)
+	{
+		int lol = returnRandomInGridDepth();
+		int lol2 = returnRandomInGridDepth();
+		for (int y = 1; y < 5; y += 2)
+		{
+			for (int i = lol - 18; i < lol + 18; i += 3)
+			{
+				asset = new BaseActor();
+				asset->Init(*m_worldPtr, e_staticBody, 0.5, y, 1.5);
+
+				asset->setModel(Manager::g_meshManager.getStaticMesh("WAREHOUSE"));
+				asset->setTexture(Manager::g_textureManager.getTexture("WAREHOUSE"));
+
+				asset->setPosition(a, y, i);
+
+				//asset->setScale(m_roomWidth * 2, m_height, 1);
+				m_generated_assetVector.push_back(asset);
+			}
+		}
+	}
+	
+	
+
+
+
+
+}
+
+void RoomGenerator::_createEnemies()
+{
+	Enemy * enemy;
+	
+	Manager::g_meshManager.loadDynamicMesh("STATE");
+	Manager::g_textureManager.loadTextures("SPHERE");
+
+	for (int i = 0; i < m_nrOfEnemies; i++)
+	{
+		int x = returnRandomInGridWidth();
+		int z = returnRandomInGridDepth();
+		enemy = new Enemy(m_worldPtr, x, 15 , z);
+		DirectX::XMFLOAT4A pos = enemy->getPosition();
+		Tile finPos = Tile(int(returnRandomInGridWidth()), int(returnRandomInGridDepth()));
+		Tile enemyPos = m_generatedGrid->WorldPosToTile(pos.x, pos.z);
+		enemy->SetPathVector(this->m_generatedGrid->FindPath(enemyPos, finPos));
+		m_generatedRoomEnemies.push_back(enemy);
+	}
+
+}
+
 void RoomGenerator::_generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity)
 {
 	float lightPos[3];
@@ -110,8 +162,23 @@ void RoomGenerator::_generateLights(float xPos, float yPos, float zPos, float co
 	m_generated_pointLightVector.push_back(tempLight);
 }
 
+int RoomGenerator::returnRandomInGridWidth()
+{
+	float randomNr = (float)rand() / RAND_MAX;
+	return (-m_roomWidth + randomNr * (m_roomWidth -(-m_roomWidth)));
+}
+
+int RoomGenerator::returnRandomInGridDepth()
+{
+	float randomNr = (float)rand() / RAND_MAX;
+	return (-m_roomDepth + randomNr * (m_roomDepth - (-m_roomDepth)));
+}
+
+
+
 Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Player *  playerPtr)
 {
+	
 	this->m_worldPtr = worldPtr;
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
 	Manager::g_textureManager.loadTextures("FLOOR");
@@ -133,23 +200,25 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	Room * returnableRoom;
 	_generateGrid();
-
+	//std::vector<Enemy*> enemies, Player * player, Grid * grid
+	_placeProps();
 	returnableRoom = new Room(worldPtr, arrayIndex, playerPtr);
 	returnableRoom->setGrid(this->m_generatedGrid);
 	
-	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 5, 0, 1));
-	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 5, 0, 1));
+	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 6, 0, 1));
+	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 6, 0, 1));
 
 	_makeFloor();
 	_makeWalls();
-	_generateLights(0, 2, 0, 50, 60, 70, 10);
-	//_generateLights(-10, 3, 10, 50, 60, 70, 100);
+//	_createEnemies();
+	_generateLights(0, 2, 0, 50, 60, 70, 10);	
 
-	
+	m_generatedRoomEnemyHandler = new EnemyHandler;
+	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-
-
+	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
 	returnableRoom->setLightvector(m_generated_pointLightVector);
+	returnableRoom->setRoomGuards(m_generatedRoomEnemies);
 	return returnableRoom;
 }

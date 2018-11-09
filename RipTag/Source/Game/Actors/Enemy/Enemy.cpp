@@ -621,7 +621,7 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 	}
 	else
 	{
-		float x = nextNode->worldPos.x - getPosition().x;
+		/*float x = nextNode->worldPos.x - getPosition().x;
 		float y = nextNode->worldPos.y - getPosition().z;
 
 		float angle = atan2(y, x);
@@ -629,7 +629,13 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
-		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);*/
+	//DirectX::XMFLOAT4A a = DirectX::XMFLOAT4A(nextNode->worldPos.x, 0, nextNode->worldPos.y, 1.0f);
+	//DirectX::XMFLOAT4A b = DirectX::XMFLOAT4A(m_path.at(m_currentPathNode)->worldPos.x, 0, m_path.at(m_currentPathNode)->worldPos.y,  1.0f);
+//FREDRIK FIXAR PÅ MÅNDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);
+	//DirectX::XMVECTOR current = DirectX::XMLoadFloat4A(&b);
+	//DirectX::XMVECTOR moveVector = DirectX::XMVectorSubtract(current, direction);
+	//this->setLiniearVelocity(DirectX::XMVectorGetX(moveVector), this->getLiniearVelocity().y, DirectX::XMVectorGetZ(moveVector));
 	}
 	return false;
 }

@@ -350,8 +350,8 @@ void Room::LoadRoomToMemory()
 		
 		m_roomLoaded = true;	
 	}
-
-	m_enemyHandler.Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
+	m_enemyHandler = new EnemyHandler();
+	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
 	for (auto light : m_pointLights)
 	{
@@ -399,7 +399,7 @@ void Room::Update(float deltaTime)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();*/
-	m_enemyHandler.Update(deltaTime);
+	m_enemyHandler->Update(deltaTime);
 
 	for (auto light : m_pointLights)
 	{
@@ -497,6 +497,7 @@ void Room::Release()
 
 	triggerHandler->Release();
 	delete triggerHandler;
+	delete m_enemyHandler;
 	delete m_pathfindingGrid;
 }
 

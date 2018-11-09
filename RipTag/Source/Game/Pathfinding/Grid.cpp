@@ -17,7 +17,8 @@ Grid::Grid(int width, int height)
 
 Grid::Grid(float xVal, float yVal, int width, int depth)
 {
-	
+	m_width = width;
+	m_height = depth;
 	float tempXval = xVal;
 	for (int i = 0; i < depth; i++)
 	{
@@ -181,7 +182,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, closedList);
 
 		std::sort(earlyExploration.begin(), earlyExploration.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
-		if (earlyExploration.at(0)->fCost <= current->fCost)
+		if (earlyExploration.size() != 0 && earlyExploration.at(0)->fCost <= current->fCost)
 		{
 			earlyExplorationNode = earlyExploration.at(0);
 			earlyExploration.erase(earlyExploration.begin());

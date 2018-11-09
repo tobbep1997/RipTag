@@ -593,12 +593,7 @@ void Player::SendOnAnimationUpdate(double dt)
 	}
 }
 
-void Player::SendOnWin()
-{
-	Network::EVENTPACKET packet(Network::ID_PLAYER_WON);
 
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-}
 
 void Player::RegisterThisInstanceToNetwork()
 {
@@ -1090,6 +1085,13 @@ void Player::_deActivateCrouch()
 	this->getBody()->GetShapeList()[0].SetSensor(false);
 
 	m_kp.crouching = false;
+}
+
+void Player::SendOnWin()
+{
+	Network::EVENTPACKET packet(Network::ID_PLAYER_WON);
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void Player::_hasWon()
