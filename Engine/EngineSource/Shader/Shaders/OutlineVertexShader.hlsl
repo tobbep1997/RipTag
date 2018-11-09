@@ -27,10 +27,12 @@ VS_OUTPUT main(VS_INPUT input)
 
     VS_OUTPUT output =(VS_OUTPUT)0;
     input.pos.w = 1.0f;
-
+    
     output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
- 
-
+    output.worldPos = float4(0, 0, 0, 0);
+    output.normal = float4(0, 0, 0, 0);
+    output.TBN = (float3x3) 0;
+    output.uv = float2(0, 0);
 
     return output;
 }
