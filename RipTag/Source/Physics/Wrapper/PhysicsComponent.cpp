@@ -147,6 +147,61 @@ void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const
 	//m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
 }
 
+void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const float& roll)
+{
+	b3Quaternion qu = m_body->GetQuaternion();
+	DirectX::XMVECTOR vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
+
+	//add == mulitypyy
+
+	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, 0, 0);
+
+	t = DirectX::XMQuaternionMultiply(vec, t);
+
+
+
+	float xx = DirectX::XMVectorGetX(t);
+	float yy = DirectX::XMVectorGetY(t);
+	float zz = DirectX::XMVectorGetZ(t);
+	float ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
+
+	qu = m_body->GetQuaternion();
+	vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
+
+	//add == mulitypyy
+
+	t = DirectX::XMQuaternionRotationRollPitchYaw(0, yaw, 0);
+
+	t = DirectX::XMQuaternionMultiply(vec, t);
+
+
+
+	xx = DirectX::XMVectorGetX(t);
+	yy = DirectX::XMVectorGetY(t);
+	zz = DirectX::XMVectorGetZ(t);
+	ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
+
+	//STOP
+	qu = m_body->GetQuaternion();
+	vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
+
+	//add == mulitypyy
+
+	t = DirectX::XMQuaternionRotationRollPitchYaw(0, 0, roll);
+
+	t = DirectX::XMQuaternionMultiply(vec, t);
+
+
+
+	xx = DirectX::XMVectorGetX(t);
+	yy = DirectX::XMVectorGetY(t);
+	zz = DirectX::XMVectorGetZ(t);
+	ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
+	
+}
 
 
 PhysicsComponent::PhysicsComponent()

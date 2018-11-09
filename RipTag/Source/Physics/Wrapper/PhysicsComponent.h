@@ -58,7 +58,7 @@ protected:
 	virtual void p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
 	virtual void p_setRotation(const float & pitch, const float & yaw, const float & roll);
 
-	//virtual void p_addRotation();
+	virtual void p_addRotation(const float & pitch, const float & yaw, const float & roll);
 	
 public:
 	PhysicsComponent();

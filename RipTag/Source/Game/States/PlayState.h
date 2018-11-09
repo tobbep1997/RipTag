@@ -43,6 +43,9 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
+	//BaseActor * tempp;
+	//DirectX::XMFLOAT4A rot;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
