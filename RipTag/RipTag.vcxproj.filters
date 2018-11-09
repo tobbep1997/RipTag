@@ -60,6 +60,7 @@
     <ClCompile Include="Source\Gameplay\Triggers\Triggerable.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
+    <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -294,5 +295,6 @@
     <ClInclude Include="Source\Gameplay\Triggers\Triggerable.h" />
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
+    <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
   </ItemGroup>
 </Project>

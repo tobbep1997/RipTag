@@ -150,6 +150,34 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_grid = nullptr;
 	m_pathfindingGrid = new Grid();
 }
+Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
+{
+	//GeneratedRoom
+	this->m_roomIndex = -1;
+	this->m_playerInRoomPtr = playerPtr;
+	this->m_arrayIndex = arrayIndex;
+	this->m_worldPtr = worldPtr;
+
+	triggerHandler = new TriggerHandler();
+	triggerHandler->RegisterThisInstanceToNetwork();
+
+	m_lose = new Quad();
+	m_lose->init();
+	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setScale(0.5f, 0.25f);
+
+	m_lose->setString("YOU LOST");
+	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+
+	HUDComponent::AddQuad(m_lose);
+
+	m_grid = nullptr;
+
+}
 Room::~Room()
 {
 }
@@ -159,7 +187,7 @@ void Room::setRoomIndex(const short unsigned int roomIndex)
 	this->m_roomIndex = roomIndex;
 }
 
-unsigned short int Room::getRoomIndex()
+short int Room::getRoomIndex()
 {
 	return this->m_roomIndex;
 }
@@ -324,7 +352,7 @@ void Room::LoadRoomToMemory()
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(200, 102, 50);
+		light->setColor(200.0f, 102.0f, 50.0f);
 	}
 }
 
@@ -373,8 +401,9 @@ void Room::Update(float deltaTime)
 
 	for (auto light : m_pointLights)
 	{
-		
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 0.5f));
 	}
 	triggerHandler->Update(deltaTime);
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
@@ -454,9 +483,13 @@ void Room::Release()
 	{
 		ab->release();
 	}
-	delete m_grid->gridPoints;
+	if (m_grid)
+	{
+		delete m_grid->gridPoints;
 
-	delete m_grid;
+		delete m_grid;
+	}
+	
 
 	triggerHandler->Release();
 	delete triggerHandler;
