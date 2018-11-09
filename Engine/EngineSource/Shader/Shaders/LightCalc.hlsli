@@ -59,7 +59,7 @@ float RoughnessDistribution(float3 N, float3 H, float roughness)
     float nDotH_2 = nDotH * nDotH;
 
     float denom = (nDotH_2 * (r4 - 1.0f) + 1.0f);
-    denom = 3.14f * denom * denom;
+    denom = 3.141592f * denom * denom;
 
     return r4 / max(denom, 0.001f);
 }
@@ -81,12 +81,12 @@ float OvershadowOcclusion(float3 normal, float3 view, float3 light, float roughn
     float occlusionView = Occlusion(normDotView, roughness);
     float occlusionLight = Occlusion(normDotLight, roughness);
 
-    return occlusionView * occlusionLight;
+    return occlusionView * occlusionLight; 
 }
 
 float4 FresnelReflection(float cosTheta, float4 f0)
 {
-    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
+    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 5.f);
 }
 float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -130,8 +130,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 AORoughMet = float3(1, 1, 1); 
 
     input.uv.y = 1 - input.uv.y;
-	ambient = float4(0, 0, 0, 0);
-	
+	ambient = float4(1, 1, 1, 1);
+
 	if (usingTexture.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
@@ -148,7 +148,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     //ao = 0;
     //return albedo;
 
-    ambient = float4(0.09f, 0.09f, 0.09f, 1.0f) * albedo * ao;
+    ambient = ambient * albedo * ao;
 	//return float4(normal, 1);
     //ambient = float4(0.02f, 0.02f, 0.025f, 1.0f) * albedo * ao;
    
@@ -223,9 +223,9 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 	
     // why do we need this?
     //finalColor = saturate(finalColor);
-    finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
+    //finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
     //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
     finalColor.a = albedo.a;
 	//return (input.worldPos);
-    return min(finalColor, float4(1, 1, 1, 1));
+    return min(finalColor, float4(1, 1, 1, 1) + (float4(input.worldPos)*0.3));
 }

@@ -21,7 +21,7 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 	float tempXval = xVal;
 	for (int i = 0; i < depth; i++)
 	{
-		yVal += 1;
+		
 		xVal = tempXval;
 		for (size_t j = 0; j < width; j++)
 		{
@@ -30,6 +30,7 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 					yVal)));//kanske rätt//Det är rätt//Kanske inte är rätt. //Rätt, 100%Garanti/Fredrik
 			xVal += 1;
 		}
+		yVal += 1;
 	}
 
 

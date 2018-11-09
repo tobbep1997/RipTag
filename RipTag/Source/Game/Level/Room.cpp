@@ -318,8 +318,8 @@ void Room::LoadRoomToMemory()
 		//getPath();
 
 
-		StaticAsset * temp = new StaticAsset();
-		temp->Init(*m_worldPtr, 1, 1, 1);
+		BaseActor * temp = new BaseActor();
+		temp->Init(*m_worldPtr, e_staticBody, 1, 1, 1);
 		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
 		temp->setPosition(0, 0, 0);
 		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
@@ -352,7 +352,7 @@ void Room::LoadRoomToMemory()
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(200.0f, 102.0f, 50.0f);
+		light->setColor(90, 112.0f, 130.0f);
 	}
 }
 

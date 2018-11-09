@@ -214,7 +214,10 @@ void PlayState::Update(double deltaTime)
 	}
 	
 	ImGui::End();*/
-
+	while (m_threadAllow == false)
+	{
+		//int i = 0;
+	}
 	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
@@ -300,11 +303,12 @@ void PlayState::testtThread(double deltaTime)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
-
+		m_threadAllow = false;
 		if (m_deltaTime <= 0.65f)
 		{
 			m_world.Step(m_step);
 		}
+		m_threadAllow = true;
 	}
 }
 

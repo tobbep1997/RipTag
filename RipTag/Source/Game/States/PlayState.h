@@ -43,6 +43,8 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
+	bool m_threadAllow = true;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();

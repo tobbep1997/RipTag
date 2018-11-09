@@ -149,7 +149,7 @@ void RenderingManager::ImGuiProc()
 void RenderingManager::_reloadShaders()
 {
 	std::cout << "Shader reloading is disabled" << std::endl;
-	bool f = false;
+	bool f = true;
 	if (f)
 		DX::g_shaderManager.ReloadAllShaders();
 }

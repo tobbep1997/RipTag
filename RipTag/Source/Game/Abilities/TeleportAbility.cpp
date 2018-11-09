@@ -35,7 +35,7 @@ void TeleportAbility::Init()
 	m_light->setFarPlane(50.0f);
 	m_light->setNearPlane(0.01f);
 	m_light->setIntensity(10.0f);
-	m_light->setDropOff(1.0f);
+	m_light->setDropOff(1.f); // set to 1
 
 	m_bar = new Quad();
 	Manager::g_textureManager.loadTextures("BAR");

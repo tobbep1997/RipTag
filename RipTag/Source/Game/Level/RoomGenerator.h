@@ -10,13 +10,16 @@ private:
 	Grid * m_generatedGrid;
 	float m_roomWidth;
 	float m_roomDepth;
-	std::vector<StaticAsset*> m_generated_assetVector;
+	float m_height = 10;
+	int m_nrOfWalls;
+	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	b3World * m_worldPtr;
-	StaticAsset * asset;
+	BaseActor * asset;
 
 	void _generateGrid();
 	void _makeFloor();
+	void _makeWalls();
 	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);
 
 public:

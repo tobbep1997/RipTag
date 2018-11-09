@@ -22,10 +22,12 @@ float constexpr valueInRange(float value, float min, float max)
 void Transform::p_calcWorldMatrix()
 {
 	using namespace DirectX;
-	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
-	XMMATRIX scaling = XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
-	XMMATRIX rotation;
-	rotation = DirectX::XMMatrixIdentity();
+	XMMATRIX translation = DirectX::XMMatrixIdentity();
+	XMMATRIX scaling = DirectX::XMMatrixIdentity();
+	XMMATRIX rotation = DirectX::XMMatrixIdentity();
+	translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
+	scaling = XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
+
 	if (p_physicsRotation._11 == INT16_MIN)
 	{
 		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
