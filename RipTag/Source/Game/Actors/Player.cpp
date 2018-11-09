@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "Player.h"
+#include <algorithm>
 
 
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
@@ -239,12 +240,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, y, 0, x,y,z);
-	CreateShape(0, y, 0, 0.2, 0.2, 0.2);
-	m_standHeight = y*1.8;
+	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
+	CreateShape(0, (y*1.5)+0.1, 0, 0.2, 0.2, 0.2, "HEAD");
+	m_standHeight = (y*1.5) + 0.1;
 	m_crouchHeight = y*1.1;
-	m_cameraOffset = m_standHeight;
-
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -352,6 +351,7 @@ void Player::Update(double deltaTime)
 	else if (GamePadHandler::IsLeftDpadPressed())
 		m_currentAbility = (Ability)3;
 
+	_collision();
 
 	if (m_tutorialActive)
 	{
@@ -612,6 +612,30 @@ void Player::RegisterThisInstanceToNetwork()
 	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
+void Player::_collision()
+{
+	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
+	{
+		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
+				if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+				{
+					m_allowPeak = true;
+				}
+	}
+	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+	{
+		if (con)
+		{
+			if (con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+					if (con->GetShapeA()->GetObjectTag() == "HEAD" || con->GetShapeB()->GetObjectTag() == "HEAD")
+					{
+						m_allowPeak = false;
+						m_peektimer = 0.5f;
+					}
+		}
+	}
+}
+
 void Player::_handleInput(double deltaTime)
 {
 	if (Input::MouseLock() && !m_kp.unlockMouse)
@@ -629,6 +653,7 @@ void Player::_handleInput(double deltaTime)
 	_onJump();
 	_onAbility(deltaTime);
 	_onInteract();
+	_onPeak();
 	_onRotate(deltaTime);
 	_objectInfo(deltaTime);
 	_updateTutorial(deltaTime);
@@ -758,9 +783,9 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
-				m_crouchAnimStartPos = this->p_camera->getPosition().y;
-				m_cameraOffset = m_crouchHeight;
-				this->getBody()->GetShapeList()[0].SetSensor(true);
+				m_crouchAnimStartPos = this->getBody()->GetShapeList()->GetTransform().translation.y;
+				m_crouchAnimEndPos = m_crouchHeight;
+				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 				
 				m_kp.crouching = true;
 			}
@@ -769,9 +794,9 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
-				m_crouchAnimStartPos = this->p_camera->getPosition().y;
-				m_cameraOffset = m_standHeight;
-				this->getBody()->GetShapeList()[0].SetSensor(false);
+				m_crouchAnimStartPos = this->getBody()->GetShapeList()->GetTransform().translation.y;
+				m_crouchAnimEndPos =  m_standHeight;
+				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 				
 				m_kp.crouching = false;
 			}
@@ -868,6 +893,37 @@ void Player::_onJump()
 	float epsilon = 0.002f;
 	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
 		m_kp.jump = false;
+}
+
+void Player::_onPeak()
+{
+	if (m_allowPeak)
+	{
+		if (Input::PeekRight() != 0)
+		{
+			if (Input::PeekRight() > 0)
+			{
+				peakDir = 1;
+				LastPeakDir = peakDir;
+				m_peakMax = Input::PeekRight();
+				m_peakMin = 0;
+			}
+			else if (Input::PeekRight() < 0)
+			{
+				peakDir = -1;
+				LastPeakDir = peakDir;
+				m_peakMax = 0;
+				m_peakMin = Input::PeekRight();
+			}
+		}
+		else
+		{
+			if (fabs(m_peektimer) <= 1)
+			{
+				peakDir = -LastPeakDir;
+			}
+		}
+	}
 }
 
 void Player::_onInteract()
@@ -998,18 +1054,103 @@ void Player::_updateTutorial(double deltaTime)
 
 void Player::_cameraPlacement(double deltaTime)
 {
-	static float lastOffset = 0.0f;
+	//Head Movement
+	this->getBody()->GetShapeList()->GetObjectTag();
+	b3Vec3 headPosLocal = this->getBody()->GetShapeList()->GetTransform().translation;
+
+	p_CameraTilting(deltaTime, Input::PeekRight());
+	
+	m_peektimer += peakDir * (float)deltaTime*m_peekSpeed;
+	m_peektimer = std::clamp(m_peektimer, m_peakMin, m_peakMax);
+
+	// Extract the vector part of the quaternion
+	b3Vec3 u(getBody()->GetQuaternion().a, getBody()->GetQuaternion().b, getBody()->GetQuaternion().c);
+	// Extract the scalar part of the quaternion
+	float s = getBody()->GetQuaternion().d;
+	// Do the math
+	
+	b3Vec3 peekOffsetLeft;
+	peekOffsetLeft.x = -1;
+	peekOffsetLeft.y = 1;
+	peekOffsetLeft.z = 0;
+
+	b3Vec3 peekOffsetRight;
+	peekOffsetRight.x = 1;
+	peekOffsetRight.y = 1;
+	peekOffsetRight.z = 0;
+
+	b3Vec3 primeLeft = 2.0f * b3Dot(u, peekOffsetLeft) * u
+		+ (s*s - b3Dot(u, u)) * peekOffsetLeft
+		+ 2.0f * s * b3Cross(u, peekOffsetLeft);
+
+	b3Vec3 primeRight = 2.0f * b3Dot(u, peekOffsetRight) * u
+		+ (s*s - b3Dot(u, u)) * peekOffsetRight
+		+ 2.0f * s * b3Cross(u, peekOffsetRight);
+
+	headPosLocal = _slerp(primeRight, primeLeft, (m_peektimer+1)*0.5);
+
+
+
+	b3Vec3 headPosWorld = headPosLocal;
+	headPosWorld.x += this->getBody()->GetTransform().translation.x;
+	headPosWorld.y += this->getBody()->GetTransform().translation.y;
+	headPosWorld.z += this->getBody()->GetTransform().translation.z;
+	
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1);
+	
+
+
+	//pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, pos);
+
+	if (m_crouchAnimStartPos != 0)
+	{
+		float a = this->getBody()->GetTransform().translation.y + m_crouchAnimStartPos;
+		float b = this->getBody()->GetTransform().translation.y + m_crouchAnimEndPos;
+		float result = 0;
+		
+		if (m_lastHeight != 0 && m_crouchAnimStartPos != m_lastHeight) //Animation did not finish
+		{
+			m_crouchAnimSteps = abs(1 - m_crouchAnimSteps); //Inverts step direction
+		}
+		
+		m_crouchAnimSteps += (float)deltaTime * m_crouchSpeed;
+		if (m_crouchAnimSteps < 1) //Animation ongoing
+		{
+			result = lerp(a, b, m_crouchAnimSteps);
+			m_lastHeight = m_crouchAnimStartPos;
+		}
+		else //Animation Finished
+		{
+			//m_crouchAnimSteps = 0;
+			//m_lastHeight = 0;
+			//m_crouchAnimStartPos = 0;
+			//m_crouchAnimEndPos = 0;
+			m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
+
+			result = b;
+		}
+		pos.y += (result - pos.y);
+	}
+
+	headPosWorld.x = pos.x;
+	headPosWorld.y = pos.y;
+	headPosWorld.z = pos.z;
+	
+	headPosLocal.x = headPosWorld.x - this->getBody()->GetTransform().translation.x;
+	headPosLocal.y = headPosWorld.y - this->getBody()->GetTransform().translation.y;
+	headPosLocal.z = headPosWorld.z - this->getBody()->GetTransform().translation.z;
+
+	this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
+
+	//Camera movement only!
+	/*static float lastOffset = 0.0f;
 	static bool hasPlayed = true;
 	static int last = 0;
-	
-	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += m_cameraOffset;
-	p_camera->setPosition(pos);
-	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 
 	pos.y += offsetY;
-	
+
 	if (p_moveState == Walking || p_moveState == Sprinting)
 	{
 		if (!hasPlayed)
@@ -1018,7 +1159,7 @@ void Player::_cameraPlacement(double deltaTime)
 			{
 				hasPlayed = true;
 				auto xmPos = getPosition();
-				FMOD_VECTOR at = {xmPos.x, xmPos.y, xmPos.z};
+				FMOD_VECTOR at = { xmPos.x, xmPos.y, xmPos.z };
 				int index = -1;
 				while (index == -1 || index == last)
 				{
@@ -1045,11 +1186,9 @@ void Player::_cameraPlacement(double deltaTime)
 		}
 
 		lastOffset = offsetY;
-	}
-
-
-	pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
+	}*/
 	p_camera->setPosition(pos);
+	
 }
 
 void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos)
@@ -1077,18 +1216,18 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 }
 void Player::_activateCrouch()
 {
-	m_crouchAnimStartPos = this->p_camera->getPosition().y;
-	m_cameraOffset = m_crouchHeight;
-	this->getBody()->GetShapeList()[0].SetSensor(true);
+	m_crouchAnimStartPos = this->getBody()->GetShapeList()->GetTransform().translation.y;
+	m_crouchAnimEndPos = m_crouchHeight;
+	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 
 	m_kp.crouching = true;
 }
 
 void Player::_deActivateCrouch()
 {
-	m_crouchAnimStartPos = this->p_camera->getPosition().y;
-	m_cameraOffset = m_standHeight;
-	this->getBody()->GetShapeList()[0].SetSensor(false);
+	m_crouchAnimStartPos = this->getBody()->GetShapeList()->GetTransform().translation.y;
+	m_crouchAnimEndPos = m_standHeight;
+	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 
 	m_kp.crouching = false;
 }
@@ -1121,6 +1260,40 @@ void Player::_hasWon()
 	}
 	if (gameIsWon == true)
 		drawWinBar();
+}
+
+b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
+{
+	// Dot product - the cosine of the angle between 2 vectors.
+	float dot = b3Dot(start, end);
+	// Clamp it to be in the range of Acos()
+	// This may be unnecessary, but floating point
+	// precision can be a fickle mistress.
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	// Acos(dot) returns the angle between start and end,
+	// And multiplying that by percent returns the angle between
+	// start and the final result.
+	float theta = std::acosf(dot)*percent;
+	//float theta = mathf.Acos(dot)*percent;
+	b3Vec3 tempStart = start;
+	tempStart.x *= dot;
+	tempStart.y *= dot;
+	tempStart.z *= dot;
+	b3Vec3 relativeVec = end - tempStart;
+	b3Normalize(relativeVec);   // Orthonormal basis
+	// The final result.
+	tempStart = start;
+	tempStart.x *= std::cos(theta);
+	tempStart.y *= std::cos(theta);
+	tempStart.z *= std::cos(theta);
+
+	b3Vec3 tempRelativeVec = relativeVec;
+	tempRelativeVec.x *= std::sin(theta);
+	tempRelativeVec.y *= std::sin(theta);
+	tempRelativeVec.z *= std::sin(theta);
+
+
+	return (tempStart + tempRelativeVec);
 }
 
 void Player::drawWinBar()

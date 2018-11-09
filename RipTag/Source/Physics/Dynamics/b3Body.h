@@ -338,6 +338,8 @@ inline bool b3Body::FindInFilters(std::string tag)
 
 inline b3Shape* b3Body::GetShapeList() const { return m_shapeList; }
 
+inline const u32 b3Body::GetShapeCount() const { return m_shapeCount;}
+
 inline void b3Body::SetTransform(const b3Vec3& position, const b3Vec3& axis, r32 radians) {
 	m_worldCenter = position;
 	m_orientation.Set(axis, radians);

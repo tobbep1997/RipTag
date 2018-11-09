@@ -65,7 +65,6 @@ private:
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
-	float m_cameraOffset;
 
 	bool m_currClickCrouch = false; 
 	bool m_prevClickCrouch = false;
@@ -112,7 +111,14 @@ private:
 	float m_crouchHeight;
 	float m_peekRotate;
 	float m_crouchAnimStartPos;
+	float m_crouchAnimEndPos;
+	bool  m_allowPeak = true;
+	float m_peektimer = 0;
+	int peakDir = 0;
+	int LastPeakDir = 0;
 
+	float m_peakMax = 0;
+	float m_peakMin = 0;
 public:
 	//Magic number
 	static const int g_fullVisability = 6500;
@@ -161,21 +167,23 @@ public:
 	void drawWinBar();
 	void SetAbilitySet(int set);
 private:
+	void _collision();
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);
 	void _onJump();
+	void _onPeak();
 	void _onInteract();
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
 	void _updateTutorial(double deltaTime);
-
 
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
 	void _hasWon();
+	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
 };

@@ -132,12 +132,12 @@ inline void b3Shape::SetTransform(const b3Vec3& position, const b3Vec3& axis, r3
 	q.ToRotationMatrix(m_local.rotation);
 	m_local.translation = position;
 }
-inline void b3Shape::SetTransform(const b3Vec3& position, const b3Quaternion& quartinion) {
+inline void b3Shape::SetTransform(const b3Vec3& position, const b3Quaternion& quaternion) {
 	b3Quaternion quar;
-	quar.a = quartinion.a;
-	quar.b = quartinion.b;
-	quar.c = quartinion.c;
-	quar.d = quartinion.d;
+	quar.a = quaternion.a;
+	quar.b = quaternion.b;
+	quar.c = quaternion.c;
+	quar.d = quaternion.d;
 	quar.ToRotationMatrix(m_local.rotation);
 
 	m_local.translation = position;
