@@ -38,79 +38,57 @@ void Quad::p_setStaticQuadVertex()
 
 void Quad::_rebuildQuad()
 {
+	static int counter = 0;
 	switch (m_pivotPoint)
 	{
 	case Quad::center:
-		quadVertex[0].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x / 2.0f);
-		quadVertex[0].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y / 2.0f);
-
-		quadVertex[1].position.x = quadVertex[0].position.x;
-		quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
-
-		quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[2].position.y = quadVertex[0].position.y;
-
-		quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x / 2.0f);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y / 2.0f);
 		break;
 	case Quad::lowerLeft:
-		quadVertex[0].position.x = ((Transform2D::getPosition().x * 2) - 1);
-		quadVertex[0].position.y = ((Transform2D::getPosition().y * 2) - 1);
-
-		quadVertex[1].position.x = quadVertex[0].position.x;
-		quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
-
-		quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[2].position.y = quadVertex[0].position.y;
-
-		quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1);
 		break;
 	case Quad::lowerRight:
-		quadVertex[0].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x / 2.0f);
-		quadVertex[0].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y / 2.0f);
-
-		quadVertex[1].position.x = quadVertex[0].position.x;
-		quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
-
-		quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[2].position.y = quadVertex[0].position.y;
-
-		quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1);
 		break;
 	case Quad::upperLeft:
-		quadVertex[0].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x / 2.0f);
-		quadVertex[0].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y / 2.0f);
-
-		quadVertex[1].position.x = quadVertex[0].position.x;
-		quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
-
-		quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[2].position.y = quadVertex[0].position.y;
-
-		quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1) - this->getSize().y;
 		break;
 	case Quad::upperRight:
-		quadVertex[0].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x / 2.0f);
-		quadVertex[0].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y / 2.0f);
-
-		quadVertex[1].position.x = quadVertex[0].position.x;
-		quadVertex[1].position.y = quadVertex[0].position.y + this->getSize().y;
-
-		quadVertex[2].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[2].position.y = quadVertex[0].position.y;
-
-		quadVertex[3].position.x = quadVertex[0].position.x + this->getSize().x;
-		quadVertex[3].position.y = quadVertex[0].position.y + this->getSize().y;
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y);
 		break;
-	default:
+	case Quad::upperCenter:
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x * 0.5f);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y);
+		break;
+	case Quad::lowerCenter:
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x * 0.5f);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1);
+		break;
+	case Quad::centerLeft:
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y) * 0.5f;
+		break;
+	case Quad::centerRight:
+		quadVertex[Lower_Left].position.x = ((Transform2D::getPosition().x * 2) - 1) - (this->getSize().x);
+		quadVertex[Lower_Left].position.y = ((Transform2D::getPosition().y * 2) - 1) - (this->getSize().y) * 0.5f;
 		break;
 	}
+	quadVertex[Upper_Left].position.x = quadVertex[0].position.x;
+	quadVertex[Upper_Left].position.y = quadVertex[0].position.y + this->getSize().y;
 
+	quadVertex[Lower_Right].position.x = quadVertex[0].position.x + this->getSize().x;
+	quadVertex[Lower_Right].position.y = quadVertex[0].position.y;
+
+	quadVertex[Upper_Right].position.x = quadVertex[0].position.x + this->getSize().x;
+	quadVertex[Upper_Right].position.y = quadVertex[0].position.y + this->getSize().y;
 	
-
+	//std::cout << this << ":\n\tLowerLeftPos: " << quadVertex[Lower_Left].position.x << ":" << quadVertex[Lower_Left].position.y << std::endl;
+	//std::cout << "Size: " << this->getSize().x << ":" << this->getSize().y << std::endl << std::endl;
 	
 }
 
@@ -331,6 +309,16 @@ const float & Quad::getInnerRadie() const
 const bool Quad::getIsButton() const
 {
 	return m_isButton; 
+}
+
+DirectX::XMFLOAT4 Quad::getReferencePosAndSize() const
+{
+	DirectX::XMFLOAT4 posAndSize;
+	posAndSize.x = quadVertex[Lower_Left].position.x;
+	posAndSize.y = quadVertex[Lower_Left].position.y;
+	posAndSize.z = getSize().x;
+	posAndSize.w = getSize().y;
+	return posAndSize;
 }
 
 float Quad::getU() const

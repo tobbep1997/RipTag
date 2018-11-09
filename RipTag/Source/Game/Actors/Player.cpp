@@ -60,7 +60,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		m_currentAbility = (Ability)0;
 
 		//By default always this set
-		m_activeSet = m_abilityComponents1;
+		m_activeSet = m_abilityComponents2;
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));

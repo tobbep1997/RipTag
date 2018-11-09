@@ -97,38 +97,55 @@ void Render2D::GUIPass()
 			DX::g_2DQueue[j]->getString().begin(),
 			DX::g_2DQueue[j]->getString().end());
 
-		DirectX::XMVECTOR origin;
+		auto posAndSize = DX::g_2DQueue[j]->getReferencePosAndSize();
 
-		DirectX::XMVECTOR pos;
+		DirectX::XMFLOAT2 referencePos = { posAndSize.x, posAndSize.y };
+		DirectX::XMFLOAT2 size = { posAndSize.z * 0.25f, posAndSize.w * 0.25f};
+
+		referencePos.x = 0.5f * referencePos.x + 0.5f;
+		referencePos.y = -0.5f * referencePos.y + 0.5f;
+
+		DirectX::XMVECTOR origin;
+		DirectX::XMFLOAT2 pos;
+		DirectX::XMVECTOR vpos;
 		switch (DX::g_2DQueue[j]->getTextAlignment())
 		{
 		case Quad::TextAlignment::centerAligned:
 
 			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(wstring.data());
-			pos = DirectX::XMLoadFloat2A(
-				&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * InputHandler::getViewportSize().x,
-								   (1.0f - DX::g_2DQueue[j]->getPosition().y) * InputHandler::getViewportSize().y));
+			pos = DirectX::XMFLOAT2A(
+				(referencePos.x + size.x)  * InputHandler::getViewportSize().x,
+				((referencePos.y - size.y)) * InputHandler::getViewportSize().y
+			);
 			break;
 		case Quad::TextAlignment::leftAligned:
 
-			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(L"");
-			pos = DirectX::XMLoadFloat2A(
-				&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x - (DX::g_2DQueue[j]->getSize().x / 4.0f)) * InputHandler::getViewportSize().x,
-								   (1.0f - DX::g_2DQueue[j]->getPosition().y - (DX::g_2DQueue[j]->getSize().y / 6.0f)) * InputHandler::getViewportSize().y));
-
+			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(wstring.data());
+			origin = DirectX::XMVectorSetX(origin, 0.0f);
+			pos = DirectX::XMFLOAT2A(
+				referencePos.x * InputHandler::getViewportSize().x,
+				((referencePos.y - size.y)) * InputHandler::getViewportSize().y
+			);
 			break;
-		default:
+		case Quad::TextAlignment::rightAligned:
+
+			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(wstring.data());
+			origin = DirectX::XMVectorSetX(origin, DirectX::XMVectorGetX(origin) * 2.0f);
+			pos = DirectX::XMFLOAT2A(
+				(referencePos.x + size.x * 2.0f) * InputHandler::getViewportSize().x,
+				((referencePos.y - size.y)) * InputHandler::getViewportSize().y
+			);
 			break;
 		}
 
 		origin = DirectX::XMVectorScale(origin, 0.5f);
-
+		vpos = DirectX::XMLoadFloat2(&pos);
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 
 		DX::g_2DQueue[j]->getSpriteFont().DrawString(
 			m_spriteBatch,
 			wstring.data(),
-			pos,
+			vpos,
 			color,
 			0.0f,
 			origin
