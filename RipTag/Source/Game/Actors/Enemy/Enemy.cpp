@@ -111,22 +111,51 @@ void Enemy::CullingForVisability(const Transform& player)
 		DirectX::XMVECTOR enemyToPlayer = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&player.getPosition()), DirectX::XMLoadFloat4A(&getPosition()));
 
 		float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
+		//float d2 = DirectX::XMVectorGetY(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
 		float lenght = DirectX::XMVectorGetX(DirectX::XMVector3Length(enemyToPlayer));
 
 		if (d > p_camera->getFOV() / 3.14f && lenght <= (p_camera->getFarPlane() / d) + 3)
 		{
 			m_allowVisability = true;
+			/*enemyX = d;
+			enemyY = d2;*/
+			
 		}
 		else
 		{
 			m_allowVisability = false;
+			enemyX = 0;
+			enemyY = 0;
 		}
 	}
 	else
 	{
 		m_allowVisability = false;
+		enemyX = 0;
+		enemyY = 0;
 	}
 		
+}
+
+DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Camera& playerCma)
+{
+	using namespace DirectX;
+	
+	XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
+	XMVECTOR enemyPos = XMLoadFloat4A(&getPosition());
+
+	XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
+	XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
+	vdir = XMLoadFloat2(&dir);
+	vdir = XMVector2Normalize(vdir);
+
+	XMStoreFloat2(&dir, vdir);
+	return dir;
+	if (true)
+	{
+
+	}
+	
 }
 
 void Enemy::setPosition(const float & x, const float & y, const float & z, const float & w)
