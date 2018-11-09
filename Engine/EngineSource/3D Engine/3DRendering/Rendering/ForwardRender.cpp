@@ -265,6 +265,11 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_disableBackFace);
 
 	DX::SafeRelease(m_shadowSampler);
+
+	DX::SafeRelease(m_outlineDepthBufferTex);
+	DX::SafeRelease(m_outlineDepthStencil);
+	DX::SafeRelease(m_outlineShaderRes);
+	DX::SafeRelease(depthoutState);
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
