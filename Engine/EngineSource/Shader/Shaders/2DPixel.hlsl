@@ -24,7 +24,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	}
 	else if (type.x == 1)
 	{
-		if (length(float2(0.5f,0.5f) - input.UV) <= center.z)
+        if (length(float2(0.5f, 0.5f) - input.UV) <= center.z && length(float2(0.5f, 0.5f) - input.UV) >= center.w)
 			return diffuseTexture.Sample(defaultSampler, input.UV);
 		else
 			return (0, 0, 0, 0);

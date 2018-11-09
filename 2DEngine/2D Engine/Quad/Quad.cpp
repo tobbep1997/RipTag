@@ -313,6 +313,11 @@ const float & Quad::getRadie() const
 	return 0.0f;
 }
 
+const float & Quad::getInnerRadie() const
+{
+	return 0.0f;
+}
+
 const bool Quad::getIsButton() const
 {
 	return m_isButton; 

@@ -119,6 +119,7 @@ public:
 	virtual DirectX::XMFLOAT4 getCenter() const;
 	virtual unsigned int getType() const;
 	virtual const float & getRadie() const;
+	virtual const float & getInnerRadie() const;
 
 	virtual const bool getIsButton() const; 
 

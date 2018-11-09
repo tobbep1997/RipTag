@@ -121,8 +121,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_manabarText->setString("MANA");
 	m_manabarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
 
-	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manaBarBackground);
+	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manabarText);
 
 	m_visBar = new Quad();
@@ -147,8 +147,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_visbarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
 
 
-	HUDComponent::AddQuad(m_visBar);
 	HUDComponent::AddQuad(m_visBarBackground);
+	HUDComponent::AddQuad(m_visBar);
 	HUDComponent::AddQuad(m_visbarText);
 
 
@@ -213,6 +213,22 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
 
+
+	m_HUDcircle = new Circle();
+	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
+	m_HUDcircle->setRadie(.5f);
+	m_HUDcircle->setInnerRadie(.45f);
+	m_HUDcircle->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_HUDcircle->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_HUDcircle->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+
+	m_HUDcircleFiller = new Circle();
+	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	m_HUDcircleFiller->setInnerRadie(-1.0f);
+	m_HUDcircleFiller->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_HUDcircleFiller->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_HUDcircleFiller->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -232,6 +248,10 @@ Player::~Player()
 	delete[] m_abilityComponents2;
 	for (auto & s : m_sounds)
 		AudioEngine::UnLoadSoundEffect(s);
+	m_HUDcircle->Release();
+	delete m_HUDcircle;
+	m_HUDcircleFiller->Release();
+	delete m_HUDcircleFiller;
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
@@ -319,6 +339,8 @@ void Player::Update(double deltaTime)
 	}
 
 	m_visBar->setScale((float)m_visability / (float)g_fullVisability, 0.1f);
+	m_HUDcircleFiller->setRadie(((float)m_visability / (float)g_fullVisability));
+
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 	if (InputHandler::isKeyPressed('I'))
 	{
@@ -448,8 +470,10 @@ void Player::Draw()
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 		m_activeSet[i]->Draw();
 	Drawable::Draw();
-	HUDComponent::HUDDraw();
 
+	HUDComponent::HUDDraw();
+	m_HUDcircleFiller->Draw();
+	m_HUDcircle->Draw();
 }
 
 void Player::LockPlayerInput()
