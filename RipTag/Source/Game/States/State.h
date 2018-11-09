@@ -5,6 +5,7 @@ class State
 {
 private:
 	bool m_killState;
+	bool m_backToMenu;
 	State * m_newState = nullptr;
 protected:
 	RenderingManager * p_renderingManager;
@@ -26,4 +27,7 @@ public:
 	//This is the functions used to kill a state
 	bool getKillState();	//Gets the curreent killState
 	void setKillState(const bool killState = true);
+
+	void BackToMenu();
+	bool getBackToMenu();
 };

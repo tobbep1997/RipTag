@@ -2,14 +2,16 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 
+
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
 
+bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
+	m_youlost = false;
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
@@ -29,7 +31,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	//Load assets
 	{
-
+		//:c *queue sad music*
 	}
 
 	future1.get();
@@ -259,7 +261,22 @@ void PlayState::Update(double deltaTime)
 		{
 			m_physicsThread.join();
 		}
-		setKillState(true);
+		//setKillState(true);
+		BackToMenu();
+	}
+
+	if (m_youlost)
+	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
+		pushNewState(new LoseState(p_renderingManager));
+		//BackToMenu();
 	}
 
 	
@@ -290,6 +307,11 @@ void PlayState::Draw()
 	//tempp->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+}
+
+void PlayState::setYouLost(const bool& youLost)
+{
+	m_youlost = youLost;
 }
 
 void PlayState::testtThread(double deltaTime)

@@ -385,10 +385,12 @@ void Room::Update(float deltaTime)
 		if (m_roomGuards.at(i)->getIfLost() == true)
 		{
 			m_youLost = true;
+			break;
 		}
 	}
 	if (m_youLost)
 	{
+		PlayState::setYouLost(true);
 		HUDComponent::HUDUpdate(deltaTime);
 	}
 

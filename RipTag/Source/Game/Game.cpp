@@ -108,6 +108,16 @@ void Game::_handleStateSwaps()
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
 	}
+
+	if (m_gameStack.top()->getBackToMenu())
+	{
+		while (m_gameStack.size() > 1)
+		{
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+	}
 }
 
 void Game::_restartGameIf()
