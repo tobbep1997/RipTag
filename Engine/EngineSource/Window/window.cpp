@@ -166,27 +166,36 @@ Window::~Window()
 bool Window::Init(_In_ WindowContext windowContext)
 {
 	m_windowContext = windowContext;
+	static bool firstRun = true;
+	if (!firstRun)
+	{
+		DestroyWindow(m_wHandler);
+		BOOL lol = UnregisterClass(L"WNDCLASS", windowContext.windowInstance);
+		int i = 0;
+	}
 
-	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX)); 
-	m_windowContext.wcex.cbClsExtra = 0; 
-	m_windowContext.wcex.cbWndExtra = 0; 
-	m_windowContext.wcex.cbSize = sizeof(WNDCLASSEX); 
+	
+	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX));
+	m_windowContext.wcex.cbClsExtra = 0;
+	m_windowContext.wcex.cbWndExtra = 0;
+	m_windowContext.wcex.cbSize = sizeof(WNDCLASSEX);
 	m_windowContext.wcex.style = CS_HREDRAW | CS_VREDRAW;
 	m_windowContext.wcex.hInstance = m_windowContext.windowInstance; //Member in window instead? (windowInstance)
 	m_windowContext.wcex.lpfnWndProc = StaticWndProc;
-	m_windowContext.wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION); 
-	m_windowContext.wcex.hCursor = LoadCursor(NULL, IDC_ARROW); 
+	m_windowContext.wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	m_windowContext.wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	m_windowContext.wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 	m_windowContext.wcex.lpszMenuName = NULL;
-	m_windowContext.wcex.lpszClassName = L"WNDCLASS"; 
-	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION); 
+	m_windowContext.wcex.lpszClassName = L"WNDCLASS";
+	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
 
 	if (!RegisterClassEx(&m_windowContext.wcex))
 	{
 		OutputDebugString(L"FAILED TO CREATE WINDOW CLASS!\n");
-		return false; 
+		return false;
 	}
+	
 
 	InputHandler::Instance();
 	InputHandler::m_viewportSize = { (INT) m_windowContext.clientWidth, (INT) m_windowContext.clientHeight };
@@ -226,7 +235,7 @@ bool Window::Init(_In_ WindowContext windowContext)
 	}
 
 	ShowWindow(m_wHandler, 10);
-
+	firstRun = false;
 	return true;
 }
 

@@ -3,54 +3,51 @@
 
 void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 {
-	for (int k = 0; k < 1; k++)
+	const int bufferSize = 1024;
+	char buffer[bufferSize];
+
+	//Load in Keyboard section
+	if (GetPrivateProfileStringA("Engine", NULL, NULL, buffer, bufferSize, path.c_str()))
 	{
-		const int bufferSize = 1024;
-		char buffer[bufferSize];
+		std::vector<std::string> nameList;
+		std::istringstream nameStream;
+		nameStream.str(std::string(buffer, bufferSize));
 
-		//Load in Keyboard section
-		if (GetPrivateProfileStringA("Engine", NULL, NULL, buffer, bufferSize, path.c_str()))
+		std::string name = "";
+		while (std::getline(nameStream, name, '\0'))
 		{
-			std::vector<std::string> nameList;
-			std::istringstream nameStream;
-			nameStream.str(std::string(buffer, bufferSize));
+			if (name == "")
+				break;
+			nameList.push_back(name);
+		}
 
-			std::string name = "";
-			while (std::getline(nameStream, name, '\0'))
+		for (size_t i = 0; i < nameList.size(); i++)
+		{
+			int key = -1;
+			key = GetPrivateProfileIntA("Engine", nameList[i].c_str(), -1, path.c_str());
+			if (key != -1)
 			{
-				if (name == "")
-					break;
-				nameList.push_back(name);
-			}
-
-			for (size_t i = 0; i < nameList.size(); i++)
-			{
-				int key = -1;
-				key = GetPrivateProfileIntA("Engine", nameList[i].c_str(), -1, path.c_str());
-				if (key != -1)
+				if (nameList[i] == "fullscreen")
 				{
-					if (name == "fullscreen")
-					{
-						wind.fullscreen = key;
-					}
-					else if (name == "width")
-					{
-						wind.clientWidth = (UINT)key;
-					}
-					else if (name == "height")
-					{
-						wind.clientHeight = (UINT)key;
-					}
+					wind.fullscreen = key;
 				}
-
+				else if (nameList[i] == "width")
+				{
+					wind.clientWidth = (UINT)key;
+				}
+				else if (nameList[i] == "height")
+				{
+					wind.clientHeight = (UINT)key;
+				}
 			}
-			//Clear buffer for reuse
-			ZeroMemory(buffer, bufferSize);
 
 		}
-		else
-			std::cout << GetLastError() << std::endl;
+		//Clear buffer for reuse
+		ZeroMemory(buffer, bufferSize);
+
 	}
+	else
+		std::cout << GetLastError() << std::endl;
 
 
 

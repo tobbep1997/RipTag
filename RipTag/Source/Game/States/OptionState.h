@@ -17,7 +17,7 @@ private:
 	};
 
 	const DirectX::XMINT2 MIN_MAX_FOV = {45, 135};
-	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = {1, 10};
+	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = {1, 11};
 	const std::string SWAP_RESOLUTION[3] = {
 		"Res: 1280 x 720",
 		"Res: 1920 x 1080",
@@ -36,14 +36,16 @@ private:
 
 	std::vector<Quad* > m_buttons;
 	std::vector<Quad* > m_text;
+	Quad * m_restart;
 	int m_fov;
-	DirectX::XMFLOAT2 m_sens;
+	DirectX::XMINT2 m_sens;
 	unsigned short m_resSelection;
 	unsigned short m_graphicsSelection;
 	bool m_sliderPressed;
 	bool m_fullscreen;
 	short m_currentButton;
 	bool m_buttonPressed;
+	bool m_drawMustRestart;
 public:
 	OptionState(RenderingManager * rm = nullptr);
 	~OptionState();

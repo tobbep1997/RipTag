@@ -11,6 +11,7 @@ OptionState::OptionState(RenderingManager * rm) : State(rm)
 	m_sliderPressed = false;
 	m_fullscreen = false;
 	m_buttonPressed = false;
+	m_drawMustRestart = false;
 	m_currentButton = -1;
 	_ReadSettingsFromFile();
 	_initButtons();
@@ -18,6 +19,20 @@ OptionState::OptionState(RenderingManager * rm) : State(rm)
 
 OptionState::~OptionState()
 {
+	for (auto & t : m_text)
+	{
+		t->Release();
+		delete t;
+	}
+	m_text.clear();
+	for (auto & b : m_buttons)
+	{
+		b->Release();
+		delete b;
+	}
+	m_buttons.clear();
+	m_restart->Release();
+	delete m_restart;
 }
 
 void OptionState::Update(double deltaTime)
@@ -42,12 +57,12 @@ void OptionState::Update(double deltaTime)
 			case SliderSensitivityX:
 				_slide();
 				m_sens.x = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
-				m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x).substr(0, 4));
+				m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 				break;
 			case SliderSensitivityY:
 				_slide();
 				m_sens.y = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
-				m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y).substr(0, 4));
+				m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 				break;
 				case ToggleResolution:
 					if (m_buttonPressed)
@@ -56,6 +71,7 @@ void OptionState::Update(double deltaTime)
 						if (m_resSelection > 2)
 							m_resSelection = 0;
 						m_buttons[m_currentButton]->setString(SWAP_RESOLUTION[m_resSelection]);
+						m_drawMustRestart = true;
 					}
 					break;
 				case ToggleGraphics:
@@ -65,6 +81,7 @@ void OptionState::Update(double deltaTime)
 						if (m_graphicsSelection > 2)
 							m_graphicsSelection = 0;
 						m_buttons[m_currentButton]->setString(SWAP_GRAPHICS[m_graphicsSelection]);
+						m_drawMustRestart = true;
 					}
 					break;
 				case ToggleFullscreen:
@@ -76,11 +93,14 @@ void OptionState::Update(double deltaTime)
 						if (!m_fullscreen)
 							f = "off";
 						m_buttons[m_currentButton]->setString("Fullscreen: " + f);
+						m_drawMustRestart = true;
 					}
 					break;
 				}
 				case Return:
 					_WriteSettingsToFile();
+					p_renderingManager->Reset();
+					Input::ReadSettingsFile();
 					this->setKillState(true);
 					break;
 			}
@@ -96,13 +116,17 @@ void OptionState::Draw()
 		t->Draw();
 	for (auto & b : m_buttons)
 		b->Draw();
-
+	if (m_drawMustRestart)
+		m_restart->Draw();
 	p_renderingManager->Flush(camera);
 }
 
 void OptionState::_slide()
 {
 	DirectX::XMFLOAT2 mp = InputHandler::getMousePosition();
+	mp.x /= InputHandler::getWindowSize().x;
+	mp.x *= InputHandler::getViewportSize().x;
+
 	DirectX::XMFLOAT2A pos = m_buttons[m_currentButton]->getPosition();
 	m_buttons[m_currentButton]->setPosition(mp.x / InputHandler::getViewportSize().x, pos.y);
 	if (m_buttons[m_currentButton]->getPosition().x < 0.3f)
@@ -121,7 +145,7 @@ void OptionState::_initButtons()
 	m_text[ButtonOrder::SliderFov]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 	m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
 
-	float xPos = ((m_fov - MIN_MAX_FOV.x) * (0.7 - 0.3)) / (MIN_MAX_FOV.y - MIN_MAX_FOV.x) + 0.3;
+	float xPos = ((((float)m_fov - (float)MIN_MAX_FOV.x) * (0.7 - 0.3)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + 0.3);
 	 
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.88f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderFov]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
@@ -135,9 +159,9 @@ void OptionState::_initButtons()
 	m_text[ButtonOrder::SliderSensitivityX]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_text[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderSensitivityX]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
-	m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x).substr(0, 4));
+	m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 
-	xPos = ((m_sens.x - MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / (MIN_MAX_SENSITIVITY.y - MIN_MAX_SENSITIVITY.x) + 0.3;
+	xPos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.74f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderSensitivityX]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_buttons[ButtonOrder::SliderSensitivityX]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
@@ -150,9 +174,9 @@ void OptionState::_initButtons()
 	m_text[ButtonOrder::SliderSensitivityY]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_text[ButtonOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderSensitivityY]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
-	m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y).substr(0, 4));
+	m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 
-	xPos = ((m_sens.y - MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / (MIN_MAX_SENSITIVITY.y - MIN_MAX_SENSITIVITY.x) + 0.3;
+	xPos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.60f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderSensitivityY]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_buttons[ButtonOrder::SliderSensitivityY]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
@@ -184,12 +208,19 @@ void OptionState::_initButtons()
 	m_buttons[ButtonOrder::ToggleFullscreen]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::ToggleFullscreen]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 
-	m_buttons.push_back(Quad::CreateButton("Return;", 0.5f, 0.20f, 0.70f, 0.17f));
+	m_buttons.push_back(Quad::CreateButton("Save and return", 0.5f, 0.20f, 0.70f, 0.17f));
 	m_buttons[ButtonOrder::Return]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	m_buttons[ButtonOrder::Return]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 	m_buttons[ButtonOrder::Return]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 	m_buttons[ButtonOrder::Return]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::Return]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+
+	m_restart = Quad::CreateButton("You must restart the game to apply some of the changes made", 0.5f, 0.1f, 1.2f, 0.17f);
+	m_restart->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_restart->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	m_restart->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_restart->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_restart->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 }
 
 void OptionState::_handleGamePadInput()
@@ -248,7 +279,7 @@ void OptionState::_WriteSettingsToFile()
 	WritePrivateProfileStringA("Player", "YAXIS", std::to_string(m_sens.y).c_str(), file.c_str());
 	WritePrivateProfileStringA("Player", "PlayerFOV", std::to_string(m_fov).c_str(), file.c_str());
 
-	file = "defultEngineSettings.ini";
+	file = "../Configuration/defultEngineSettings.ini";
 	WritePrivateProfileStringA("Engine", "fullscreen", std::to_string(m_fullscreen).c_str(), file.c_str());
 	WritePrivateProfileStringA("Engine", "width", std::to_string(RES[m_resSelection].x).c_str(), file.c_str());
 	WritePrivateProfileStringA("Engine", "height", std::to_string(RES[m_resSelection].y).c_str(), file.c_str());
@@ -257,7 +288,7 @@ void OptionState::_WriteSettingsToFile()
 
 void OptionState::_ReadSettingsFromFile()
 {
-	std::string file[2] = { "../Configuration/PlayerMapping.ini", "defultEngineSettings.ini"};
+	std::string file[2] = { "../Configuration/PlayerMapping.ini", "../Configuration/defultEngineSettings.ini"};
 	std::string names[2] = { "Player", "Engine" };
 	for (int k = 0; k < 2; k++)
 	{
@@ -320,10 +351,10 @@ void OptionState::_ParseFileInputInt(const std::string & name, int key)
 	else if (name == "height")
 	{
 		if (key == 720)
-			m_graphicsSelection = 0;
+			m_resSelection = 0;
 		else if (key == 1080)
-			m_graphicsSelection = 1;
+			m_resSelection = 1;
 		else
-			m_graphicsSelection = 2;
+			m_resSelection = 2;
 	}
 }

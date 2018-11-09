@@ -16,7 +16,10 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 MainMenu::~MainMenu()
 {
 	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		m_buttons[i]->Release();
 		delete m_buttons[i];
+	}
 	m_buttons.clear();
 }
 #include "InputManager/XboxInput/GamePadHandler.h"

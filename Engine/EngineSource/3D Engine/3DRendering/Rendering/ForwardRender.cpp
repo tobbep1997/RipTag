@@ -32,8 +32,9 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
-
+	
 	_createShaders();
+
 
 	_createConstantBuffer();
 	_createSamplerState();
@@ -84,13 +85,7 @@ void ForwardRender::GeometryPass()
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
-	if (m_firstRun == true)
-	{
-		m_shaderThreads[0].join();
-		//m_shaderThreads[1].join();
-		m_shaderThreads[2].join();
-		m_firstRun = false;
-	}
+	
 	
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
@@ -117,6 +112,13 @@ void ForwardRender::GeometryPass()
 
 void ForwardRender::PrePass()
 {
+	if (m_firstRun == true)
+	{
+		m_shaderThreads[0].join();
+		//m_shaderThreads[1].join();
+		m_shaderThreads[2].join();
+		m_firstRun = false;
+	}
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);

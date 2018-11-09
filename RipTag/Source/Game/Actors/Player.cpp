@@ -7,9 +7,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	Manager::g_textureManager.loadTextures("CROSS");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
-	float convertion = (float)Input::GetPlayerFOV() / 100;
+	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XM_PI * convertion, 16.0f / 9.0f, 0.1f, 110.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 	//Ability stuff
