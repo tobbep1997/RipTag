@@ -73,6 +73,9 @@ private:
 
 	bool m_found = false;
 
+	float m_knockOutTimer = 0;
+	float m_knockOutMaxTime = 2;
+
 	float enemyX = 0;
 	float enemyY = 0;
 public:

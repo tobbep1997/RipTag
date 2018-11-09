@@ -221,6 +221,12 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
+		m_knockOutTimer += deltaTime;
+		if (m_knockOutMaxTime <= m_knockOutTimer)
+		{
+			m_disabled = false;
+		}
+
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
