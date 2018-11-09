@@ -140,20 +140,19 @@ void Enemy::CullingForVisability(const Transform& player)
 DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Camera& playerCma)
 {
 	using namespace DirectX;
-	
-	XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
-	XMVECTOR enemyPos = XMLoadFloat4A(&getPosition());
 
-	XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
-	XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
-	vdir = XMLoadFloat2(&dir);
-	vdir = XMVector2Normalize(vdir);
-
-	XMStoreFloat2(&dir, vdir);
-	return dir;
-	if (true)
+	if (m_allowVisability == true)
 	{
+		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
+		XMVECTOR enemyPos = XMLoadFloat4A(&getPosition());
 
+		XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
+		XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
+		vdir = XMLoadFloat2(&dir);
+		vdir = XMVector2Normalize(vdir);
+
+		XMStoreFloat2(&dir, vdir);
+		return dir;
 	}
 	
 }
