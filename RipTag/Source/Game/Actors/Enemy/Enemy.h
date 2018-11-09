@@ -11,13 +11,20 @@ class Grid;
 
 enum EnemyState
 {
-	Alert,
-	Investigating,
+	Investigating_Sight,
+	Investigating_Sound,
 	Patrolling
 };
 
+
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
+public:
+	struct SoundLocation
+	{
+		float percentage;
+		DirectX::XMFLOAT3 soundPos;
+	};
 private:
 	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
@@ -32,6 +39,8 @@ private:
 		bool unlockMouse = false;
 		bool interact = false;
 	};
+
+	SoundLocation m_sl;
 
 	VisibilityComponent * m_vc;
 	bool m_allowVisability = false;
@@ -128,6 +137,9 @@ public:
 
 	EnemyState getEnemyState() const;
 	void setEnemeyState(EnemyState state);
+
+	void setSoundLocation(const SoundLocation & sl);
+	const SoundLocation & getSoundLocation() const;
 
 	bool getIfLost();
 private:

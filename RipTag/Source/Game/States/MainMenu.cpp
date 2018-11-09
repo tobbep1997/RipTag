@@ -109,3 +109,4 @@ void MainMenu::Draw()
 	quitButton->Draw();
 	p_renderingManager->Flush(camera);
 }
+ 

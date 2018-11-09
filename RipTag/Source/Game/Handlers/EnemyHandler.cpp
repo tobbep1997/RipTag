@@ -34,11 +34,11 @@ void EnemyHandler::Update(float deltaTime)
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
 		{
-		case Alert:
-			_alert(currentGuard);
+		case Investigating_Sight:
+			_investigating(currentGuard, tempVisibility);
 			break;
-		case Investigating:
-			_investigating(currentGuard, playerVisibility);
+		case Investigating_Sound:
+			_investigateSound(currentGuard);
 			break;
 		case Patrolling:
 			_patrolling(currentGuard, tempVisibility);
@@ -56,15 +56,28 @@ int EnemyHandler::_getPlayerVisibility(Enemy * guard)
 	return guard->getPlayerVisibility()[0];
 }
 
-void EnemyHandler::_alert(Enemy * guard)
+void EnemyHandler::_alert(Enemy * guard, bool followSound)
 {
-	DirectX::XMFLOAT4A playerPos = m_player->getPosition();
-	DirectX::XMFLOAT4A guardPos = guard->getPosition();
-	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
-	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+	if (!followSound)
+	{
+		DirectX::XMFLOAT4A playerPos = m_player->getPosition();
+		DirectX::XMFLOAT4A guardPos = guard->getPosition();
+		Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
+		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
-	guard->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-	guard->setEnemeyState(Investigating);
+		guard->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+		guard->setEnemeyState(Investigating_Sight);
+	}
+	else
+	{
+		DirectX::XMFLOAT3 soundPos = guard->getSoundLocation().soundPos;
+		DirectX::XMFLOAT4A guardPos = guard->getPosition();
+		Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+
+		guard->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
+		guard->setEnemeyState(Investigating_Sound);
+	}
 }
 
 void EnemyHandler::_investigating(Enemy * guard, int playerVisibility)
@@ -96,8 +109,39 @@ void EnemyHandler::_investigating(Enemy * guard, int playerVisibility)
 	}
 }
 
+void EnemyHandler::_investigateSound(Enemy * guard)
+{
+	if (guard->GetAlertPathSize() > 0)
+	{
+		if (guard->getSoundLocation().percentage > SOUND_LEVEL)
+		{
+			DirectX::XMFLOAT3 soundPos = guard->getSoundLocation().soundPos;
+			Node * pathDestination = guard->GetAlertDestination();
+			if (abs(pathDestination->worldPos.x - soundPos.x) > 2 ||
+				abs(pathDestination->worldPos.y - soundPos.z) > 2)
+			{
+				DirectX::XMFLOAT4A guardPos = guard->getPosition();
+				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+				Tile guardTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+
+				guard->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+			}
+		}
+	}
+	else
+	{
+		DirectX::XMFLOAT4A guardPos = guard->getPosition();
+		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+
+		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
+		guard->setEnemeyState(Patrolling);
+	}
+}
+
 void EnemyHandler::_patrolling(Enemy * guard, int playerVisibility)
 {
-	if (playerVisibility > 1700)
-		guard->setEnemeyState(Alert);
+	if (false && playerVisibility > SIGHT_LEVEL)
+		_alert(guard);
+	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
+		_alert(guard, true);
 }

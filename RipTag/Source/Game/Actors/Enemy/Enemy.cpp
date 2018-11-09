@@ -444,6 +444,16 @@ void Enemy::setEnemeyState(EnemyState state)
 	m_state = state;
 }
 
+void Enemy::setSoundLocation(const SoundLocation & sl)
+{
+	m_sl = sl;
+}
+
+const Enemy::SoundLocation & Enemy::getSoundLocation() const
+{
+	return m_sl;
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;

@@ -287,6 +287,8 @@ void Room::LoadRoomToMemory()
 
 		m_roomGuards.at(1)->SetPathVector(fullPath);
 
+		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
+
 		//getPath();
 
 
