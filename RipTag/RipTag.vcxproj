@@ -180,6 +180,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\States\LobbyState.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="BouncePCH.cpp">
@@ -202,6 +203,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Game\States\OptionState.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
     <ClCompile Include="Source\Game\Handlers\AnimationHandler.cpp" />
@@ -519,10 +521,12 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\States\LobbyState.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />
     <ClInclude Include="RipTagPCH.h" />
+    <ClInclude Include="Source\Game\States\OptionState.h" />
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
     <ClInclude Include="Source\Gameplay\Objects\Lever.h" />
     <ClInclude Include="Source\Gameplay\Objects\Door.h" />

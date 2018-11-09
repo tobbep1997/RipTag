@@ -7,9 +7,15 @@ class TextInput;
 class MainMenu : public State
 {
 private:
-	Quad * playButton;
-	Quad * quitButton;
-	TextInput * m_textInput;
+	enum ButtonOrder
+	{
+		Play = 0,
+		Lobby,
+		Option,
+		Quit
+	};
+	std::vector<Quad*> m_buttons;
+	unsigned int m_currentButton;
 
 
 	Circle * c;
@@ -21,4 +27,12 @@ public:
 	void Update(double deltaTime) override;
 
 	void Draw() override;
+
+private:
+	void _initButtons();
+	void _handleGamePadInput();
+	void _handleKeyboardInput();
+	void _handleMouseInput();
+	void _updateSelectionStates();
+	void _resetButtons();
 };
