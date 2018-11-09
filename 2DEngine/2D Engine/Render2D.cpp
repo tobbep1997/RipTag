@@ -50,6 +50,9 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->PSSetSamplers(4, 1, &m_sampler);
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
+
+	
+
 	UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
 	UINT32 offset = 0;
 

@@ -73,7 +73,8 @@ private:
 
 	bool m_found = false;
 
-	
+	float enemyX = 0;
+	float enemyY = 0;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -89,6 +90,8 @@ public:
 	// Inherited via Actor
 
 	void CullingForVisability(const Transform & player);
+
+	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
 
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
