@@ -13,9 +13,7 @@ enum EnemyState
 {
 	Alert,
 	Investigating,
-	Patrolling,
-	Possessed,
-	Stunned
+	Patrolling
 };
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
@@ -122,8 +120,11 @@ public:
 	void removePossessor();
 
 	void SetPathVector(std::vector<Node*>  path);
-	std::vector<Node*> GetPathVector();
+	Node * GetCurrentPathNode() const;
+
 	void SetAlertVector(std::vector<Node*> alertPath);
+	size_t GetAlertPathSize() const;
+	Node * GetAlertDestination() const;
 
 	EnemyState getEnemyState() const;
 	void setEnemeyState(EnemyState state);

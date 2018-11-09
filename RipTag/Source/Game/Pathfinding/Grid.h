@@ -96,7 +96,6 @@ public:
 	// Test function
 	void printGrid();
 	void printWorldPos();
-	std::vector<Node> getNM();
 
 private:
 	// Utility functions

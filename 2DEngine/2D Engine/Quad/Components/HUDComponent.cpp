@@ -42,7 +42,6 @@ void HUDComponent::setSelectedQuad(const unsigned short int & i)
 
 void HUDComponent::HUDUpdate(double deltaTime)
 {
-	auto lol = 2;	
 }
 
 void HUDComponent::HUDDraw()

@@ -220,11 +220,6 @@ void Grid::printWorldPos()
 	}
 }
 
-std::vector<Node> Grid::getNM()
-{
-	return m_nodeMap;
-}
-
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList, bool * closedList)
 {
 	int currentX = current->tile.getX();
