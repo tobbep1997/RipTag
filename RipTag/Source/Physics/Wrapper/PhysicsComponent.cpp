@@ -409,15 +409,15 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 
 void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, std::string objectTag)
 {
-	b3Hull* hull = DBG_NEW b3Hull();
+	b3Hull* hull = new b3Hull();
 	hull->SetAsBox(b3Vec3(sizeX, sizeY, sizeZ));
-	b3Polyhedron* polyhedron = DBG_NEW b3Polyhedron();
+	b3Polyhedron* polyhedron = new b3Polyhedron();
 	polyhedron->SetHull(hull);
 	//polyhedron->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
 	polyhedron->SetObjectTag(objectTag);
 	//b3Shape* shape = polyhedron;//
 	b3ShapeDef* s;
-	s = DBG_NEW b3ShapeDef();
+	s = new b3ShapeDef();
 	s->shape = polyhedron;
 	s->density = 1.0f;
 	s->restitution = 0;

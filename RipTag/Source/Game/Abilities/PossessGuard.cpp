@@ -9,7 +9,7 @@ PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 	m_useFunctionCalled = false;
 	setManaCost(MANA_COST_START);
 	m_possessHud = new Quad();
-	m_possessHud->init({ 0.5f, 1.0f }, { 0.4, 0.2 });
+	m_possessHud->init({ 0.5f, 1.0f }, { 0.4f, 0.2f });
 	m_possessHud->setPivotPoint(Quad::PivotPoint::upperCenter);
 	m_possessHud->setFont(FontHandler::getFont("consolas32"));
 	m_possessHud->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
