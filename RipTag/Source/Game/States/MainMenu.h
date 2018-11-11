@@ -35,4 +35,8 @@ private:
 	void _handleMouseInput();
 	void _updateSelectionStates();
 	void _resetButtons();
+
+	// Inherited via State
+	virtual void Load() override;
+	virtual void unLoad() override;
 };

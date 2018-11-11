@@ -45,15 +45,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 
 
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.9f,0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
-
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+	
 	
 	//Do not remove pls <3
 	{
@@ -145,8 +137,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	}
 
-	m_levelHandler = new LevelHandler();
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
 
 	triggerHandler = new TriggerHandler();
 
@@ -160,6 +151,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
 	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
+
+	
 
 	Input::ResetMouse();
 
@@ -518,4 +511,37 @@ void PlayState::TemporaryLobby()
 	}
 
 	ImGui::End();
+}
+
+void PlayState::unLoad()
+{
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	std::cout << "PlayState unLoad" << std::endl;
+
+}
+
+void PlayState::Load()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+
+	m_levelHandler = new LevelHandler();
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	std::cout << "PlayState Load" << std::endl;
 }

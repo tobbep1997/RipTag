@@ -17,5 +17,9 @@ public:
 	void Update(double deltaTime);
 
 	void Draw() override;
+
+	// Inherited via State
+	virtual void Load() override;
+	virtual void unLoad() override;
 };
 

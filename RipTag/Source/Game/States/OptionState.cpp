@@ -552,3 +552,13 @@ void OptionState::_ParseFileInputInt(const std::string & name, int key)
 			m_resSelection = 2;
 	}
 }
+
+void OptionState::Load()
+{
+	std::cout << "OptionState Load" << std::endl;
+}
+
+void OptionState::unLoad()
+{
+	std::cout << "OptionState unLoad" << std::endl;
+}

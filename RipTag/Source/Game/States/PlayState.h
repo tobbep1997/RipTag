@@ -63,5 +63,9 @@ private:
 	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
+
+	// Inherited via State
+	virtual void unLoad();
+	virtual void Load();
 };
 

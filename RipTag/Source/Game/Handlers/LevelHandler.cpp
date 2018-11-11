@@ -52,11 +52,9 @@ void LevelHandler::Update(float deltaTime)
 	{
 		auto status = future.wait_for(0s);
 		if (status == std::future_status::ready) {
-			std::cout << "Thread finished" << std::endl;
 			future.get();
 		}
 		else {
-			//std::cout << "Thread still running" << std::endl;
 		}
 	}
 
@@ -67,7 +65,6 @@ void LevelHandler::Update(float deltaTime)
 		{
 			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom--;
-			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
@@ -81,7 +78,6 @@ void LevelHandler::Update(float deltaTime)
 		{
 			m_rooms[m_activeRoom]->SetActive(false);
 			m_activeRoom++;
-			std::cout << m_activeRoom << std::endl;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();

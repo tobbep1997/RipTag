@@ -1173,7 +1173,6 @@ void Player::_hasWon()
 			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
 			{
 				hasWon = true;
-				std::cout << "HASWON!" << std::endl;
 				SendOnWin();
 				
 				break;
@@ -1184,7 +1183,6 @@ void Player::_hasWon()
 			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
 				hasWon = true;
-				std::cout << "HASWON!" << std::endl;
 				SendOnWin();
 				break;
 			}

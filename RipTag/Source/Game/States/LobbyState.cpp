@@ -480,3 +480,13 @@ void LobbyState::_newHostEntry(std::string & hostName)
 	m_hostListButtons[size]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_hostListButtons[size]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 }
+
+void LobbyState::Load()
+{
+	std::cout << "Lobby Load" << std::endl;
+}
+
+void LobbyState::unLoad()
+{
+	std::cout << "Lobby unLoad" << std::endl;
+}

@@ -84,13 +84,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Game game;
 	game.Init(hInstance);
-	std::cout << "hello";
-
-	/*std::thread gameLoop;
-	gameLoop = std::thread(&GameLoop, &game);
-	game.PollEvents();
-
-	//gameLoop.join();*/
 
 	SingleGameLoop(&game);
 

@@ -34,7 +34,6 @@ void LoseState::Update(double deltaTime)
 {
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
-	std::cout << "you lost" << std::endl;
 	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
 		BackToMenu();
@@ -50,4 +49,14 @@ void LoseState::Draw()
 	m_backToMenu->Draw();
 
 	p_renderingManager->Flush(camera);
+}
+
+void LoseState::Load()
+{
+	std::cout << "Loose Load" << std::endl;
+}
+
+void LoseState::unLoad()
+{
+	std::cout << "Loose unLoad" << std::endl;
 }

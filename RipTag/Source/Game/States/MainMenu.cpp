@@ -5,25 +5,13 @@
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
-	FontHandler::loadFont("consolas32");
-	FontHandler::loadFont("consolas16");
 
-	_initButtons();
-	m_currentButton = (unsigned int)ButtonOrder::Play;
+
 }
 
 MainMenu::~MainMenu()
 {
-	for (size_t i = 0; i < m_buttons.size(); i++)
-	{
-		m_buttons[i]->Release();
-		delete m_buttons[i];
-	}
-	m_buttons.clear();
+
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
@@ -225,4 +213,34 @@ void MainMenu::_resetButtons()
 		button->setState(ButtonStates::Normal);
 	}
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+}
+
+void MainMenu::Load()
+{
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	FontHandler::loadFont("consolas32");
+	FontHandler::loadFont("consolas16");
+	_initButtons();
+	m_currentButton = (unsigned int)ButtonOrder::Play;
+
+	std::cout << "MainMenu Load" << std::endl;
+}
+
+void MainMenu::unLoad()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		m_buttons[i]->Release();
+		delete m_buttons[i];
+	}
+	m_buttons.clear();
+	std::cout << "MainMenu unLoad" << std::endl;
 }

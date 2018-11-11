@@ -15,6 +15,9 @@ public:
 	State(RenderingManager * rm = nullptr);
 	virtual ~State();
 
+	virtual void Load() = 0;
+	virtual void unLoad() = 0;
+
 	virtual void Update(double deltaTime) = 0;
 
 	virtual void Draw() = 0;
