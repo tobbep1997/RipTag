@@ -178,6 +178,7 @@
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
+    <ClInclude Include="ConsoleColor.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.h" />

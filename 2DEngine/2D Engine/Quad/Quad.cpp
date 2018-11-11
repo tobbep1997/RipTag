@@ -140,6 +140,9 @@ void Quad::MapTexture()
 	{
 		Manager::g_textureManager.getTexture(this->m_textures[m_buttonState])->Bind(1);
 	}
+	else
+		std::cout << red << "Can't Find Texture: " << this->m_textures[m_buttonState] << std::endl;
+	std::cout << white;
 }
 
 void Quad::setPosition(const float & x, const float & y)

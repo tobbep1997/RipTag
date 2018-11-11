@@ -555,10 +555,18 @@ void OptionState::_ParseFileInputInt(const std::string & name, int key)
 
 void OptionState::Load()
 {
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
 	std::cout << "OptionState Load" << std::endl;
 }
 
 void OptionState::unLoad()
 {
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadAllTexture();
+
 	std::cout << "OptionState unLoad" << std::endl;
 }

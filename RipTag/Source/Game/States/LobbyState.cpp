@@ -497,5 +497,6 @@ void LobbyState::unLoad()
 	Manager::g_textureManager.UnloadTexture("SPHERE");
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
 	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadAllTexture();
 	std::cout << "Lobby unLoad" << std::endl;
 }

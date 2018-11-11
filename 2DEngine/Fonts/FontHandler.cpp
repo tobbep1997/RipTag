@@ -44,18 +44,19 @@ void FontHandler::loadFont(const std::string & name)
 			SpriteStruct * spriteStruct = new SpriteStruct(fullPath,
 				new DirectX::SpriteFont(DX::g_device, fullPath.data()));
 			m_spriteTable[key].push_back(spriteStruct);
-			std::cout << name << " Loaded in to memory" << std::endl;
+			std::cout << green << name << " Loaded in to memory" << std::endl;
 		}
 		catch (std::exception e)
 		{
 			if (std::string(e.what()) == "BinaryReader")
-				std::cout << "Did not find file" << std::endl;
+				std::cout << red << "Did not find font: " << name << std::endl;
 		}
 	}
 	else
 	{
-		std::cout << "Font Already loaded" << std::endl;
+		std::cout << yellow << "Font Already loaded" << std::endl;
 	}
+	std::cout << white;
 }
 
 DirectX::SpriteFont * FontHandler::getFont(const std::string & name)
@@ -67,6 +68,8 @@ DirectX::SpriteFont * FontHandler::getFont(const std::string & name)
 		if (fullPath == m_spriteTable[key][i]->fullPath)		
 			return m_spriteTable[key][i]->spriteFont;	
 	
+	std::cout << red << "Did not find SpriteFont" << std::endl;
+	std::cout << white;
 	throw "Did not find SpriteFont";
 }
 

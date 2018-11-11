@@ -19,6 +19,9 @@ public:
 	Texture* getTexture(const std::string & path);
 
 	bool UnloadTexture(const std::string & path);
+	bool UnloadAllTexture();
+
+	const unsigned int getLoadedTextures() const;
 private:
 	unsigned int _getKey(const std::wstring & path);
 	std::wstring _getFullPath(const std::string & name);

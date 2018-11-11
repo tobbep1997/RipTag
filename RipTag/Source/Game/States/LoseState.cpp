@@ -58,5 +58,7 @@ void LoseState::Load()
 
 void LoseState::unLoad()
 {
+	Manager::g_textureManager.UnloadAllTexture();
+
 	std::cout << "Loose unLoad" << std::endl;
 }

@@ -5,13 +5,12 @@
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-
-
+	
 }
 
 MainMenu::~MainMenu()
 {
-	unLoad();
+	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
@@ -48,7 +47,6 @@ void MainMenu::Update(double deltaTime)
 	}
 	
 		
-	
 }
 
 void MainMenu::Draw()
@@ -217,12 +215,13 @@ void MainMenu::_resetButtons()
 
 void MainMenu::Load()
 {
-	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
+	FontHandler::loadFont("Tänker köra på Victor med min Saab");
+	FontHandler::loadFont("Men Victor kommer nog vara okej...");
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 
@@ -242,5 +241,7 @@ void MainMenu::unLoad()
 		delete m_buttons[i];
 	}
 	m_buttons.clear();
+	Manager::g_textureManager.UnloadAllTexture();
+
 	std::cout << "MainMenu unLoad" << std::endl;
 }
