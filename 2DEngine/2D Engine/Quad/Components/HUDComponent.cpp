@@ -180,9 +180,9 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 				Manager::g_textureManager.loadTextures(textureNames[1].c_str());
 				Manager::g_textureManager.loadTextures(textureNames[2].c_str());
 
-				currQuad->setPressedTexture(Manager::g_textureManager.getTexture(textureNames[0].c_str()));
-				currQuad->setUnpressedTexture(Manager::g_textureManager.getTexture(textureNames[1].c_str()));
-				currQuad->setHoverTexture(Manager::g_textureManager.getTexture(textureNames[2].c_str()));
+				currQuad->setPressedTexture(textureNames[0].c_str());
+				currQuad->setUnpressedTexture(textureNames[1].c_str());
+				currQuad->setHoverTexture(textureNames[2].c_str());
 			}
 			AddQuad(currQuad);
 		}

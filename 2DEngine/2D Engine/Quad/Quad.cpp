@@ -94,14 +94,12 @@ void Quad::_rebuildQuad()
 
 Quad::Quad() : Transform2D(), Button(this)
 {
-	m_textures = new Texture*[3];
 }
 
 
 Quad::~Quad()
 {
 	delete[] quadVertex;
-	delete[] m_textures;
 }
 
 void Quad::init(DirectX::XMFLOAT2A position, DirectX::XMFLOAT2A size)
@@ -121,24 +119,27 @@ void Quad::Release()
 	DX::SafeRelease(m_vertexBuffer);
 }
 
-void Quad::setPressedTexture(Texture * texture)
+void Quad::setPressedTexture(const std::string &  texture)
 {
 	this->m_textures[ButtonStates::Pressed] = texture;
 }
 
-void Quad::setHoverTexture(Texture * texture)
+void Quad::setHoverTexture(const std::string & texture)
 {
 	this->m_textures[ButtonStates::Hover] = texture;
 }
 
-void Quad::setUnpressedTexture(Texture * texture)
+void Quad::setUnpressedTexture(const std::string & texture)
 {
 	this->m_textures[ButtonStates::Normal] = texture;
 }
 
 void Quad::MapTexture()
 {
-	this->m_textures[m_buttonState]->Bind(1);
+	if (Manager::g_textureManager.getTexture(this->m_textures[m_buttonState]))
+	{
+		Manager::g_textureManager.getTexture(this->m_textures[m_buttonState])->Bind(1);
+	}
 }
 
 void Quad::setPosition(const float & x, const float & y)

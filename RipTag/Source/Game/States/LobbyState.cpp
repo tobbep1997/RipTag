@@ -152,23 +152,23 @@ void LobbyState::_initButtons()
 	{
 		//Host button
 		this->m_lobbyButtons.push_back(Quad::CreateButton("Host", 0.2f, 0.55f, 0.3f, 0.25f));
-		this->m_lobbyButtons[ButtonOrderLobby::Host]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_lobbyButtons[ButtonOrderLobby::Host]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_lobbyButtons[ButtonOrderLobby::Host]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_lobbyButtons[ButtonOrderLobby::Host]->setUnpressedTexture("SPHERE");
+		this->m_lobbyButtons[ButtonOrderLobby::Host]->setPressedTexture("DAB");
+		this->m_lobbyButtons[ButtonOrderLobby::Host]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Join button
 		this->m_lobbyButtons.push_back(Quad::CreateButton("Join", 0.2f, 0.35f, 0.3f, 0.25f));
-		this->m_lobbyButtons[ButtonOrderLobby::Join]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_lobbyButtons[ButtonOrderLobby::Join]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_lobbyButtons[ButtonOrderLobby::Join]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_lobbyButtons[ButtonOrderLobby::Join]->setUnpressedTexture("SPHERE");
+		this->m_lobbyButtons[ButtonOrderLobby::Join]->setPressedTexture("DAB");
+		this->m_lobbyButtons[ButtonOrderLobby::Join]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Return button
 		this->m_lobbyButtons.push_back(Quad::CreateButton("Return", 0.2f, 0.10f, 0.3f, 0.25f));
-		this->m_lobbyButtons[ButtonOrderLobby::Return]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_lobbyButtons[ButtonOrderLobby::Return]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_lobbyButtons[ButtonOrderLobby::Return]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_lobbyButtons[ButtonOrderLobby::Return]->setUnpressedTexture("SPHERE");
+		this->m_lobbyButtons[ButtonOrderLobby::Return]->setPressedTexture("DAB");
+		this->m_lobbyButtons[ButtonOrderLobby::Return]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	}
@@ -176,30 +176,30 @@ void LobbyState::_initButtons()
 	{
 		//Character One
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Lejf", 0.3f, 0.55f, 0.3f, 0.25f));
-		this->m_charSelectButtons[CharacterSelection::CharOne]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_charSelectButtons[CharacterSelection::CharOne]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_charSelectButtons[CharacterSelection::CharOne]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_charSelectButtons[CharacterSelection::CharOne]->setUnpressedTexture("SPHERE");
+		this->m_charSelectButtons[CharacterSelection::CharOne]->setPressedTexture("DAB");
+		this->m_charSelectButtons[CharacterSelection::CharOne]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::CharOne]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_charSelectButtons[CharacterSelection::CharOne]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Character Two
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Billy", 0.7f, 0.55f, 0.3f, 0.25f));
-		this->m_charSelectButtons[CharacterSelection::CharTwo]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_charSelectButtons[CharacterSelection::CharTwo]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_charSelectButtons[CharacterSelection::CharTwo]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_charSelectButtons[CharacterSelection::CharTwo]->setUnpressedTexture("SPHERE");
+		this->m_charSelectButtons[CharacterSelection::CharTwo]->setPressedTexture("DAB");
+		this->m_charSelectButtons[CharacterSelection::CharTwo]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Ready
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Ready", 0.5f, 0.25f, 0.3f, 0.25f));
-		this->m_charSelectButtons[CharacterSelection::Ready]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_charSelectButtons[CharacterSelection::Ready]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_charSelectButtons[CharacterSelection::Ready]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_charSelectButtons[CharacterSelection::Ready]->setUnpressedTexture("SPHERE");
+		this->m_charSelectButtons[CharacterSelection::Ready]->setPressedTexture("DAB");
+		this->m_charSelectButtons[CharacterSelection::Ready]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_charSelectButtons[CharacterSelection::Ready]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Return
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.85f, 0.25f, 0.3f, 0.25f));
-		this->m_charSelectButtons[CharacterSelection::Back]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-		this->m_charSelectButtons[CharacterSelection::Back]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_charSelectButtons[CharacterSelection::Back]->setUnpressedTexture("SPHERE");
+		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture("DAB");
+		this->m_charSelectButtons[CharacterSelection::Back]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::Back]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_charSelectButtons[CharacterSelection::Back]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	}
@@ -474,9 +474,9 @@ void LobbyState::_newHostEntry(std::string & hostName)
 	float py = startY - (offsetY * size);
 
 	m_hostListButtons.push_back(Quad::CreateButton(hostName, px, py, scaleX, scaleY));
-	m_hostListButtons[size]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_hostListButtons[size]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_hostListButtons[size]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_hostListButtons[size]->setUnpressedTexture(("SPHERE"));
+	m_hostListButtons[size]->setPressedTexture(("DAB"));
+	m_hostListButtons[size]->setHoverTexture(("PIRASRUM"));
 	m_hostListButtons[size]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_hostListButtons[size]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
 }

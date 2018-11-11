@@ -66,33 +66,33 @@ void MainMenu::_initButtons()
 {
 	//play button
 	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.80f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Play]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Play]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Play]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Play]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
 
 
 	//lobby button
 	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.6f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Lobby]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Lobby]->setFont(FontHandler::getFont("consolas32"));
 
 	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.4f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Option]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Option]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Option]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Option]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Option]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Option]->setFont(FontHandler::getFont("consolas32"));
 
 	//Quit button
 	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.20f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Quit]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Quit]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Quit]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Quit]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Quit]->setFont(FontHandler::getFont("consolas32"));
 }

@@ -515,20 +515,20 @@ void PlayState::TemporaryLobby()
 
 void PlayState::unLoad()
 {
-	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
 	std::cout << "PlayState unLoad" << std::endl;
 
 }
 
 void PlayState::Load()
 {
-	Manager::g_textureManager.UnloadTexture("KOMBIN");
-	Manager::g_textureManager.UnloadTexture("SPHERE");
-	Manager::g_textureManager.UnloadTexture("PIRASRUM");
-	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
 
 	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
 	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);

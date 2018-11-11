@@ -5,17 +5,17 @@
 LoseState::LoseState(RenderingManager * rm) : State(rm)
 {
 	this->m_youLost = Quad::CreateButton("You lost", 0.5f, 0.5f, 0.5f, 0.25f);
-	this->m_youLost->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_youLost->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_youLost->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_youLost->setUnpressedTexture("SPHERE");
+	this->m_youLost->setPressedTexture("DAB");
+	this->m_youLost->setHoverTexture("PIRASRUM");
 	this->m_youLost->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_youLost->setFont(FontHandler::getFont("consolas32"));
 
 
 	this->m_backToMenu = Quad::CreateButton("Play Game", 0.5f, 0.25f, 0.5f, 0.25f);
-	this->m_backToMenu->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_backToMenu->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_backToMenu->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_backToMenu->setUnpressedTexture("SPHERE");
+	this->m_backToMenu->setPressedTexture("DAB");
+	this->m_backToMenu->setHoverTexture("PIRASRUM");
 	this->m_backToMenu->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_backToMenu->setFont(FontHandler::getFont("consolas16"));
 	this->m_backToMenu->setString("Back To\nMenu");
