@@ -4,21 +4,9 @@
 
 LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 {
-	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
 
-	_initButtons();
-	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 
-	this->pNetwork = Network::Multiplayer::GetInstance();
-	this->pNetwork->StartUpPeer();
-	//INITIAL RANDOM HOST NAME
-	this->m_MyHostName = "Host" + std::to_string(randomMT());
-	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
-
-	this->_registerThisInstanceToNetwork();
+	
 }
 
 
@@ -156,21 +144,22 @@ void LobbyState::_initButtons()
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setPressedTexture("DAB");
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_lobbyButtons[ButtonOrderLobby::Host]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		
+		this->m_lobbyButtons[ButtonOrderLobby::Host]->setFont(FontHandler::getFont("consolas32"));
 		//Join button
 		this->m_lobbyButtons.push_back(Quad::CreateButton("Join", 0.2f, 0.35f, 0.3f, 0.25f));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setUnpressedTexture("SPHERE");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setPressedTexture("DAB");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_lobbyButtons[ButtonOrderLobby::Join]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		this->m_lobbyButtons[ButtonOrderLobby::Join]->setFont(FontHandler::getFont("consolas32"));
 		//Return button
 		this->m_lobbyButtons.push_back(Quad::CreateButton("Return", 0.2f, 0.10f, 0.3f, 0.25f));
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setUnpressedTexture("SPHERE");
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setPressedTexture("DAB");
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_lobbyButtons[ButtonOrderLobby::Return]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		this->m_lobbyButtons[ButtonOrderLobby::Return]->setFont(FontHandler::getFont("consolas32"));
 	}
 	//Character selection buttons
 	{
@@ -180,28 +169,28 @@ void LobbyState::_initButtons()
 		this->m_charSelectButtons[CharacterSelection::CharOne]->setPressedTexture("DAB");
 		this->m_charSelectButtons[CharacterSelection::CharOne]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::CharOne]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_charSelectButtons[CharacterSelection::CharOne]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		this->m_charSelectButtons[CharacterSelection::CharOne]->setFont(FontHandler::getFont("consolas32"));
 		//Character Two
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Billy", 0.7f, 0.55f, 0.3f, 0.25f));
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setUnpressedTexture("SPHERE");
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setPressedTexture("DAB");
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_charSelectButtons[CharacterSelection::CharTwo]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		this->m_charSelectButtons[CharacterSelection::CharTwo]->setFont(FontHandler::getFont("consolas32"));
 		//Ready
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Ready", 0.5f, 0.25f, 0.3f, 0.25f));
 		this->m_charSelectButtons[CharacterSelection::Ready]->setUnpressedTexture("SPHERE");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setPressedTexture("DAB");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_charSelectButtons[CharacterSelection::Ready]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		this->m_charSelectButtons[CharacterSelection::Ready]->setFont(FontHandler::getFont("consolas32"));
 		//Return
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.85f, 0.25f, 0.3f, 0.25f));
 		this->m_charSelectButtons[CharacterSelection::Back]->setUnpressedTexture("SPHERE");
 		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture("DAB");
 		this->m_charSelectButtons[CharacterSelection::Back]->setHoverTexture("PIRASRUM");
 		this->m_charSelectButtons[CharacterSelection::Back]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_charSelectButtons[CharacterSelection::Back]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		this->m_charSelectButtons[CharacterSelection::Back]->setFont(FontHandler::getFont("consolas32"));
 	}
 
 }
@@ -483,10 +472,30 @@ void LobbyState::_newHostEntry(std::string & hostName)
 
 void LobbyState::Load()
 {
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+
+	_initButtons();
+	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+
+	this->pNetwork = Network::Multiplayer::GetInstance();
+	this->pNetwork->StartUpPeer();
+	//INITIAL RANDOM HOST NAME
+	this->m_MyHostName = "Host" + std::to_string(randomMT());
+	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
+
+	this->_registerThisInstanceToNetwork();
+
 	std::cout << "Lobby Load" << std::endl;
 }
 
 void LobbyState::unLoad()
 {
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
 	std::cout << "Lobby unLoad" << std::endl;
 }

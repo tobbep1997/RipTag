@@ -11,7 +11,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 
 MainMenu::~MainMenu()
 {
-
+	unLoad();
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
