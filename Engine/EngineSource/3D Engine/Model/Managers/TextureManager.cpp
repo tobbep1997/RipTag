@@ -49,13 +49,15 @@ void TextureManager::loadTextures(const std::string & path)
 			tempTexture->setName(fullPath);
 			
 			tempTexture->Load(fullPath.c_str());
-
+			
 			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
 			m_textureMutex.unlock();
 		}
 		else
 		{
+			std::cout << yellow << path << " Texture Already loaded" << std::endl;
+			std::cout << white;
 			delete tempTexture;	
 		}
 	}

@@ -220,8 +220,9 @@ void MainMenu::Load()
 	Manager::g_textureManager.loadTextures("DAB");
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
-	FontHandler::loadFont("Tänker köra på Victor med min Saab");
-	FontHandler::loadFont("Men Victor kommer nog vara okej...");
+
+
+
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 
