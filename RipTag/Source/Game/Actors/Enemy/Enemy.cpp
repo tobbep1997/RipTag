@@ -408,9 +408,6 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 {
 	if (m_alertPath.size() > 0)
 	{
-		// Add backtracking functionality for guards (?)
-		// Else they might path through walls
-		// Keep the traversed alert path and just add the new one
 		for (int i = 0; i < m_alertPath.size(); i++)
 			delete m_alertPath.at(i);
 		m_alertPath.clear();
