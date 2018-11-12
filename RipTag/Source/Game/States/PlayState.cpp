@@ -324,7 +324,6 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 				}
 
 				sl.percentage = playerSounds / allSounds;
-				//std::cout << sl.percentage << std::endl;
 				e->setSoundLocation(sl);
 			}
 			counter++;

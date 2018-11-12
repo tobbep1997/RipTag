@@ -491,6 +491,11 @@ float Enemy::getMaxVisability() const
 	return m_visCounter;
 }
 
+float Enemy::getVisCounter() const
+{
+	return m_visCounter;
+}
+
 void Enemy::_possessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
