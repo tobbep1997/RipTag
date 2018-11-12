@@ -221,12 +221,30 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
-		m_knockOutTimer += deltaTime;
-		if (m_knockOutMaxTime <= m_knockOutTimer)
+		switch (m_knockOutType)
 		{
-			m_disabled = false;
-		}
 
+		case Possessed:
+			if (m_released)
+			{
+				m_possesionRecoverTimer += deltaTime;
+				if (m_possesionRecoverTimer >= m_possessionRecoverMax)
+				{
+					m_disabled = false;
+					m_released = false; 
+					m_possesionRecoverTimer = 0; 
+				}
+			}
+			break; 
+		case Stoned:
+			
+			m_knockOutTimer += deltaTime;
+			if (m_knockOutMaxTime <= m_knockOutTimer)
+			{
+				m_disabled = false;
+			}
+			break; 
+		}
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
@@ -414,7 +432,14 @@ void Enemy::removePossessor()
 		this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
+		m_released = true; 
+		m_disabled = true;  
 	}
+}
+
+void Enemy::setKnockOutType(KnockOutType knockOutType)
+{
+	m_knockOutType = knockOutType; 
 }
 
 void Enemy::SetPathVector(std::vector<Node*> path)
@@ -444,9 +469,19 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 	}
 }
 
+void Enemy::setReleased(bool released)
+{
+	m_released = released; 
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;
+}
+
+const Enemy::KnockOutType Enemy::getKnockOutType() const
+{
+	return m_knockOutType; 
 }
 
 float Enemy::getTotalVisablilty() const
