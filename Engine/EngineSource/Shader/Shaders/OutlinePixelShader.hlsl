@@ -21,10 +21,10 @@ float4 main(VS_OUTP input) : SV_TARGET
     depth.GetDimensions(w, h);
     float3 fragmentLightPosition = input.pos.xyz / float3(w, h, 1.0f);
     float2 smTex = float2(fragmentLightPosition.x, fragmentLightPosition.y);
-    if ((depth.Sample(defaultSampler, smTex).r - fragmentLightPosition.z)  < 0.002f)
-    {
-        discard;
-    }
+    //if ((depth.Sample(defaultSampler, smTex).r - fragmentLightPosition.z)  < 0.002f)
+    //{
+    //    discard;
+    //}
    
     return outlineColor;
 }

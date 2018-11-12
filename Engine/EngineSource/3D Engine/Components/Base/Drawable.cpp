@@ -137,6 +137,7 @@ Drawable::Drawable() : Transform()
 	p_color = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	m_hidden = false;
 	m_outLineColor = DirectX::XMFLOAT4A(1, 1, 1, 1);
+	m_outline = false;
 }
 
 

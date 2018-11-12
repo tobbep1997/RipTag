@@ -29,3 +29,4 @@ public:
 
 	void ImGuiTransform(DirectX::XMFLOAT4A & pos, DirectX::XMFLOAT4A & rotation, const float & posMove = 10, const float & rot = 180);
 };
+

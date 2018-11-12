@@ -10,42 +10,11 @@ RayCastListener * RipExtern::m_rayListener;
 bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
-{	
-	m_youlost = false;
-	RipExtern::g_world = &m_world;
-	m_contactListener = new ContactListener();
-	RipExtern::m_contactListener = m_contactListener;
-	RipExtern::g_world->SetContactListener(m_contactListener);
-	m_rayListener = new RayCastListener();
-	RipExtern::m_rayListener = m_rayListener;
-	CameraHandler::Instance();
-	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
-	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_meshManager.loadDynamicMesh("STATE");
-	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-
-	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
-	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
-
-	//Load assets
-	{
-		//:c *queue sad music*
-	}
-
-	future1.get();
-	
-	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->RegisterThisInstanceToNetwork();
-	m_playerManager->CreateLocalPlayer();
-
-
-
-	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
-
-
-	
-	
+{		
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 	//Do not remove pls <3
 	{
 	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
@@ -135,31 +104,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//	stateMachine->SetState("walk_forward");
 
 	}
-
-
-
-	triggerHandler = new TriggerHandler();
-
-	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
-	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
-	
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
-	
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
-
-	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
-
-	
-
-	Input::ResetMouse();
-
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
-	m_firstRun = false;
-	
-	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 }
 
 PlayState::~PlayState()
@@ -508,6 +456,36 @@ void PlayState::Load()
 	Manager::g_textureManager.loadTextures("FML");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("BLACK");
+	Manager::g_textureManager.loadTextures("BAR");
+
+
+	m_youlost = false;
+	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_world->SetContactListener(m_contactListener);
+	m_rayListener = new RayCastListener();
+	RipExtern::m_rayListener = m_rayListener;
+	CameraHandler::Instance();
+	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
+	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
+
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
+
+	//Load assets
+	{
+		//:c *queue sad music*
+	}
+
+	future1.get();
+
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->RegisterThisInstanceToNetwork();
+	m_playerManager->CreateLocalPlayer();
 
 	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
 	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
@@ -521,6 +499,33 @@ void PlayState::Load()
 
 	m_levelHandler = new LevelHandler();
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	triggerHandler = new TriggerHandler();
+
+	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
+
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
+
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
+
+	
+
+
+
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+
+	Input::ResetMouse();
+
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
+	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
 
 	std::cout << "PlayState Load" << std::endl;
 }
