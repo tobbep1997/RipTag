@@ -129,8 +129,8 @@ public:
 		D3D11_VIEWPORT				viewport);
 
 
-	void GeometryPass();
-	void PrePass();
+	void GeometryPass(Camera & camera);
+	void PrePass(Camera & camera);
 	void AnimatedGeometryPass();
 	void Flush(Camera & camera);
 	void Clear();

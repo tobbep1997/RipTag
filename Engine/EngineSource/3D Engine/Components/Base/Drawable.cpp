@@ -106,6 +106,15 @@ void Drawable::p_setMesh(DynamicMesh * dynamicMesh)
 	this->m_dynamicMesh = dynamicMesh;
 }
 
+void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & center, const DirectX::XMFLOAT3 & extens)
+{
+	if (m_bb)
+		delete m_bb;
+	m_bb = nullptr;
+	this->m_bb = new DirectX::BoundingBox(center, extens);
+	this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
+}
+
 void Drawable::setTexture(Texture * texture)
 {
 	this->p_texture = texture;
@@ -288,6 +297,9 @@ bool Drawable::getHidden()
 	return m_hidden;
 }
 
-
+DirectX::BoundingBox * Drawable::getBoundingBox()
+{
+	return this->m_bb;
+}
 
 

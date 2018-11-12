@@ -117,6 +117,7 @@ void RoomGenerator::_placeProps()
 		{
 			asset = new BaseActor();
 			asset->Init(*m_worldPtr, modCollisionBoxes);
+			//p_createbbox
 			asset->setPosition(i, 2.5, j);
 			asset->setModel(Manager::g_meshManager.getStaticMesh("MOD1"));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
@@ -142,7 +143,9 @@ void RoomGenerator::_placeProps()
 	//			asset->setModel(Manager::g_meshManager.getStaticMesh("WAREHOUSE"));
 	//			asset->setTexture(Manager::g_textureManager.getTexture("WAREHOUSE"));
 
-	//			asset->setPosition(a, y, i);
+			//	asset->setPosition(a, y, i);
+				//asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(0.5 * 2, 0.5 * 2, 1.5 * 2));
+				
 
 	//			//asset->setScale(m_roomWidth * 2, m_height, 1);
 	//			m_generated_assetVector.push_back(asset);

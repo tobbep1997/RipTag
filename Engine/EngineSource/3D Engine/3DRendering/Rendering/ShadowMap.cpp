@@ -36,6 +36,8 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	m_runned = 0;
+
+	DirectX::BoundingSphere bs;
 	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
 	{
 		if (!DX::g_lights[i]->getUpdate())
@@ -50,10 +52,24 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
 
+		bs = DirectX::BoundingSphere(DirectX::XMFLOAT3(DX::g_lights[i]->getPosition().x, DX::g_lights[i]->getPosition().y, DX::g_lights[i]->getPosition().z), DX::g_lights[i]->getSides().at(0)->getFarPlane() / 2.0f);
+		DirectX::XMMATRIX world = DirectX::XMMatrixTranslation(DX::g_lights[i]->getPosition().x, DX::g_lights[i]->getPosition().y, DX::g_lights[i]->getPosition().z);
+		bs.Transform(bs, world);
+
+		
+
 		for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
 		{
 			UINT32 vertexSize = sizeof(StaticVertex);
 			UINT32 offset = 0;
+
+			if (DX::g_geometryQueue[i]->getBoundingBox())
+			{
+				DirectX::BoundingBox * bb = DX::g_geometryQueue[i]->getBoundingBox();
+				bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[i]->getWorldmatrix()));
+				if (!bs.Intersects(*bb))
+					continue;
+			}
 
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
 
