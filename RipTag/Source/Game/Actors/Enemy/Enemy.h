@@ -24,6 +24,14 @@ public:
 		float percentage;
 		DirectX::XMFLOAT3 soundPos;
 	};
+
+public:
+	enum KnockOutType
+	{
+		Stoned,
+		Possessed
+	};
+
 private:
 	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
@@ -39,11 +47,16 @@ private:
 		bool interact = false;
 	};
 
+	KnockOutType m_knockOutType; 
+
 	VisibilityComponent * m_vc;
 	bool m_allowVisability = false;
 
 	bool m_inputLocked = true;
 	bool m_disabled = false;
+	bool m_released = false; 
+
+	bool m_justReleased = false; 
 
 	float m_moveSpeed = 2;
 	float m_cameraOffset;
@@ -88,6 +101,8 @@ private:
 	bool m_found = false;
 
 	float m_knockOutTimer = 0;
+	float m_possesionRecoverTimer = 0; 
+	float m_possessionRecoverMax = 5; 
 	float m_knockOutMaxTime = 2;
 
 	float enemyX = 0;
@@ -135,10 +150,14 @@ public:
 	void setPossessor(Actor* possessor, float maxDuration, float delay);
 	void removePossessor();
 
+	//0 is Stoned, 1 is exit-possess cooldown
+	void setKnockOutType(KnockOutType knockOutType);
+
 	void SetPathVector(std::vector<Node*>  path);
 	Node * GetCurrentPathNode() const;
 
 	void SetAlertVector(std::vector<Node*> alertPath);
+	void setReleased(bool released); 
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;
 
@@ -149,6 +168,7 @@ public:
 	const SoundLocation & getSoundLocation() const;
 
 	bool getIfLost();
+	const KnockOutType getKnockOutType() const; 
 
 	float getTotalVisablilty() const;
 	float getMaxVisability() const;
