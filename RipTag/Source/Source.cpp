@@ -5,8 +5,8 @@
 
 #include "EngineSource/Shader/ShaderManager.h"
 
-#if _DEBUG
 //Allocates memory to the console
+#if _DEBUG
 void _alocConsole() {
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -23,7 +23,7 @@ void GameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
-
+		InputHandler::Reset();
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
@@ -49,6 +49,8 @@ void SingleGameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
+		InputHandler::Reset();
+	
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
@@ -56,7 +58,6 @@ void SingleGameLoop(Game * game)
 
 		//This is to avoid Pollevents from fucking with the game
 		game->Clear();
-
 		///-------------------
 
 
@@ -94,6 +95,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	SingleGameLoop(&game);
 
 	DX::g_shaderManager.Release();
+	FontHandler::Release();
 	AudioEngine::Release();
 	return 0;
 	

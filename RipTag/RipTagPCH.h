@@ -1,5 +1,6 @@
 #pragma once
-
+//MULLE MECKA
+#pragma warning (disable : 4215 4267 4305)
 #include <AudioEngine.h>
 #include <Multiplayer.h>
 
@@ -12,9 +13,13 @@
 
 #include "RipTagExtern/RipExtern.h"
 
+//States
 #include "Source/Game/States/State.h"
 #include "Source/Game/States/MainMenu.h"
 #include "Source/Game/States/PlayState.h"
+#include "Source/Game/States/OptionState.h"
+#include "Source/Game/States/LobbyState.h"
+#include "Source/Game/States/LoseState.h"
 
 #include "Source/Input/Input.h"
 #include "Source/Game/Level/Room.h"
@@ -81,7 +86,10 @@
 
 //2D
 #include "2D Engine/Quad/Quad.h"
+#include "2D Engine/Circle/Circle.h"
+#include "2D Engine/TextInput/TextInput.h"
 #include "2D Engine/DirectXTK/SpriteFont.h"
+#include "Fonts/FontHandler.h"
 
 
 //This allows to use new instead of new to create a pointer

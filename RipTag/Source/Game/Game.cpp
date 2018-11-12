@@ -19,7 +19,6 @@ Game::~Game()
 
 void Game::Init(_In_ HINSTANCE hInstance)
 {
-	
 	//Rendering Manager Start
 	{
 		m_renderingManager = RenderingManager::GetInstance();
@@ -82,7 +81,8 @@ void Game::Update(double deltaTime)
 	m_gameStack.top()->Update(deltaTime);
 	InputMapping::Call();
 	pNetworkInstance->Update();
-	
+
+	InputHandler::getRawInput();
 }
 
 void Game::Draw()
@@ -108,11 +108,21 @@ void Game::_handleStateSwaps()
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
 	}
+
+	if (m_gameStack.top()->getBackToMenu())
+	{
+		while (m_gameStack.size() > 1)
+		{
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+	}
 }
 
 void Game::_restartGameIf()
 {
-	if (InputHandler::isKeyPressed('B'))
+	/*if (InputHandler::isKeyPressed('B'))
 	{
 		if (isPressed == false)
 		{
@@ -126,5 +136,5 @@ void Game::_restartGameIf()
 	else
 	{
 		isPressed = false;
-	}
+	}*/
 }

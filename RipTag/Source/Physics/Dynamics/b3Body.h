@@ -88,7 +88,7 @@ public :
 	void DestroyShapes();
 
 	// Get the shapes associated with the body.
-	const b3Shape* GetShapeList() const;
+	b3Shape* GetShapeList() const;
 
 	// Get the total shapes associated with the body.
 	const u32 GetShapeCount() const;
@@ -336,7 +336,7 @@ inline bool b3Body::FindInFilters(std::string tag)
 }
 
 
-inline const b3Shape* b3Body::GetShapeList() const { return m_shapeList; }
+inline b3Shape* b3Body::GetShapeList() const { return m_shapeList; }
 
 inline void b3Body::SetTransform(const b3Vec3& position, const b3Vec3& axis, r32 radians) {
 	m_worldCenter = position;

@@ -57,6 +57,9 @@ protected:
 	virtual void p_setPosition(const float & x, const float & y, const float & z);
 	virtual void p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
 	virtual void p_setRotation(const float & pitch, const float & yaw, const float & roll);
+
+	virtual void p_addRotation(const float & pitch, const float & yaw, const float & roll);
+	
 public:
 	PhysicsComponent();
 	virtual ~PhysicsComponent();
@@ -73,6 +76,8 @@ public:
 	virtual void CreateBox(float x = 1, float y = 1, float z = 1);
 
 	virtual void CreateBodyAndShape(b3World & world);
+
+	virtual void CreateShape(float x = 1, float y = 1, float z = 1);
 
 	virtual void setGravityScale(float gravity);
 

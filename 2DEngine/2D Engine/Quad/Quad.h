@@ -9,6 +9,14 @@ namespace DirectX
 	class SpriteFont;
 }
 
+
+enum ButtonStates
+{
+	Normal,
+	Hover,
+	Pressed
+};
+
 class Texture;
 class Quad : public Transform2D , public Button
 {
@@ -25,22 +33,33 @@ public:
 		lowerLeft,
 		lowerRight,
 		upperLeft,
-		upperRight
+		upperRight,
+		upperCenter,
+		lowerCenter,
+		centerLeft,
+		centerRight
+	};
+
+	enum TextAlignment
+	{
+		centerAligned,
+		leftAligned,
+		rightAligned
 	};
 
 private:
-	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
+	enum Vertex_Positions
+	{
+		Lower_Left = 0,
+		Upper_Left,
+		Lower_Right,
+		Upper_Right
+	};
 
 	ID3D11Buffer * m_vertexBuffer;
 
-	enum buttonState
-	{
-		normal,
-		hover,
-		presesd
-	};
 
-	buttonState m_buttonState = buttonState::normal;
+	ButtonStates m_buttonState = ButtonStates::Normal;
 	PivotPoint m_pivotPoint = PivotPoint::center;
 	Texture ** m_textures;
 
@@ -49,19 +68,26 @@ private:
 
 	DirectX::XMFLOAT4A m_textColor;
 
+	TextAlignment m_textAlignment = TextAlignment::centerAligned;
+
 	void p_createBuffer();
 	void p_setStaticQuadVertex();
 
 	bool m_preState = false;
 	bool m_currentState = false;
+	bool m_isButton = true; 
 
 	bool m_selected = false;
 
-	void _rebuildQuad();
+	float uScale = 1.0f;
+	float vScale = 1.0f;
 
+	void _rebuildQuad();
+protected:
+	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
 	Quad();
-	~Quad();
+	virtual~Quad();
 
 	void init(DirectX::XMFLOAT2A position = DirectX::XMFLOAT2A(0,0), DirectX::XMFLOAT2A size = DirectX::XMFLOAT2A(1,1));
 	void Draw();
@@ -82,8 +108,12 @@ public:
 	void setFont(DirectX::SpriteFont * font);
 	void setString(const std::string & string);
 
+	void setIsButton(bool isButton); 
+
 	DirectX::SpriteFont & getSpriteFont() const;
 	const std::string & getString() const;
+	unsigned int getState(){ return (unsigned int)this->m_buttonState; }
+	void getString(std::string & string);
 
 	void setTextColor(const DirectX::XMFLOAT4A & color);
 	const DirectX::XMFLOAT4A & getTextColor() const;
@@ -99,6 +129,28 @@ public:
 	const bool & isSelected() const;
 
 	void setPivotPoint(PivotPoint pivotPoint);
+	
+	//Quick function to create a button, returns a Quad pointer.
+	//The button has not set any textures, text color and font yet
+	static Quad* CreateButton(std::string string, float px, float py, float sx, float sy);
 
+	void setTextAlignment(TextAlignment alignment);
+	TextAlignment getTextAlignment() const;
+
+	virtual DirectX::XMFLOAT4 getCenter() const;
+	virtual unsigned int getType() const;
+	virtual const float & getRadie() const;
+	virtual const float & getInnerRadie() const;
+
+	virtual const bool getIsButton() const; 
+
+	DirectX::XMFLOAT4 getReferencePosAndSize() const;
+
+
+	float getU() const;
+	float getV() const;
+	void setU(const float & u);
+	void setV(const float & v);
+	
 };
 

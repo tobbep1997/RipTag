@@ -37,6 +37,11 @@ void Transform2D::setScale(const DirectX::XMFLOAT2A & size)
 	this->m_size = size;
 }
 
+DirectX::XMFLOAT2 Transform2D::getScale() const
+{
+	return m_size;
+}
+
 const DirectX::XMFLOAT2A & Transform2D::getSize() const
 {
 	return this->m_size;

@@ -2,7 +2,7 @@
 #include "Input.h"
 
 bool Input::m_deactivate = false;
-int Input::m_mouseSensitivity = 0;
+DirectX::XMFLOAT2 Input::m_mouseSensitivity = {0,0};
 float Input::m_playerFOV = 0;
 
 Input::Input()
@@ -635,7 +635,7 @@ bool Input::SelectAbility4()
 	return false;
 }
 
-int Input::GetPlayerMouseSensitivity()
+const DirectX::XMFLOAT2 & Input::GetPlayerMouseSensitivity()
 {
 	return m_mouseSensitivity;
 }
@@ -643,18 +643,6 @@ int Input::GetPlayerMouseSensitivity()
 int Input::GetPlayerFOV()
 {
 	return m_playerFOV;
-}
-
-void Input::WriteSettingsToFile()
-{
-	std::string file = "..\\Configuration\\PlayerMapping.ini";
-	//Writing the current settings to the file
-
-	//Sensitivity
-	WritePrivateProfileStringA("Player", "Sensitivity", std::to_string(m_mouseSensitivity).c_str(), file.c_str());
-	//FOV
-	WritePrivateProfileStringA("Player", "PlayerFOV", std::to_string(m_playerFOV).c_str(), file.c_str());
-	
 }
 
 void Input::ReadSettingsFile()
@@ -698,9 +686,13 @@ void Input::ReadSettingsFile()
 
 void Input::_ParseFileInputInt(const std::string& name, int key)
 {
-	if (name == "Sensitivity")
+	if (name == "XAXIS")
 	{
-		m_mouseSensitivity = key;
+		m_mouseSensitivity.x = key;
+	}
+	else if (name == "YAXIS")
+	{
+		m_mouseSensitivity.y = key;
 	}
 	else if (name == "PlayerFOV")
 	{

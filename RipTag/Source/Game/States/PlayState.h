@@ -4,6 +4,7 @@
 #include "State.h"
 
 #include "Source/Physics/Bounce.h"
+#include "Source/Game/Actors/BaseActor.h"
 
 namespace FMOD
 {
@@ -42,6 +43,10 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
+	static bool m_youlost;
+	//BaseActor * tempp;
+	//DirectX::XMFLOAT4A rot;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -49,6 +54,8 @@ public:
 	void Update(double deltaTime) override;
 
 	void Draw() override;
+
+	static void setYouLost(const bool & youLost);
 
 private:
 	void testtThread(double deltaTime);

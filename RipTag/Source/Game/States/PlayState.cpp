@@ -2,14 +2,16 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 
+
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
 
+bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
 {	
-
+	m_youlost = false;
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
 	RipExtern::m_contactListener = m_contactListener;
@@ -23,9 +25,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	Manager::g_meshManager.loadDynamicMesh("STATE");
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
+	Manager::g_textureManager.loadTextures("SPHERE");
+
 	//Load assets
 	{
-
+		//:c *queue sad music*
 	}
 
 	future1.get();
@@ -39,7 +45,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 
 
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.5f,0.5f);
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.9f,0.5f);
 	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
 	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
 
@@ -162,6 +168,13 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_firstRun = false;
 	
 	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+
+	//tempp = new BaseActor();
+	//tempp->Init(m_world, e_staticBody);
+	//tempp->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
+	//tempp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//tempp->setPosition(5.5f, 5, -5);
+	//rot = DirectX::XMFLOAT4A(0, 0, 0, 1);
 }
 
 PlayState::~PlayState()
@@ -171,6 +184,7 @@ PlayState::~PlayState()
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
+
 
 	delete triggerHandler;
 
@@ -191,6 +205,15 @@ void PlayState::Update(double deltaTime)
 	{
 		m_physicsThread.join();
 	}*/
+
+	//5.5,5,-4.5
+	//DirectX::XMFLOAT4A pos = tempp->getPosition();
+	
+
+	//tempp->ImGuiTransform(pos, rot,10,10);
+	//tempp->setPosition(pos.x,pos.y,pos.z);
+	//tempp->addRotation(rot.x, rot.y, rot.z);
+
 	
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
@@ -238,7 +261,22 @@ void PlayState::Update(double deltaTime)
 		{
 			m_physicsThread.join();
 		}
-		setKillState(true);
+		//setKillState(true);
+		BackToMenu();
+	}
+
+	if (m_youlost)
+	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
+		pushNewState(new LoseState(p_renderingManager));
+		//BackToMenu();
 	}
 
 	
@@ -256,6 +294,7 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(true);
 	}
+
 }
 
 void PlayState::Draw()
@@ -265,8 +304,14 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-		
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+	//tempp->Draw();
+
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+}
+
+void PlayState::setYouLost(const bool& youLost)
+{
+	m_youlost = youLost;
 }
 
 void PlayState::testtThread(double deltaTime)
@@ -434,11 +479,11 @@ void PlayState::TemporaryLobby()
 	{
 		if (ImGui::Button("Start Server"))
 		{
-			ptr->StartUpServer();
+			ptr->SetupServer();
 		}
 		else if (ImGui::Button("Start Client"))
 		{
-			ptr->StartUpClient();
+			//ptr->StartUpClient();
 		}
 	}
 
