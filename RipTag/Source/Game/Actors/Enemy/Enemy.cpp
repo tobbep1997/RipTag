@@ -214,6 +214,8 @@ void Enemy::Update(double deltaTime)
 
 				std::cout << "HOLD OP THE PARTNER" << std::endl;
 
+				//TODO: Fix when ray is corrected
+
 				float lenght;
 				RayCastListener::Ray * r = RipExtern::m_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 					direction.x,
