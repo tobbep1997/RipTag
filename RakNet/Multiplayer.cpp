@@ -242,9 +242,13 @@ namespace Network
 
 	void Multiplayer::HandleRakNetMessages(unsigned char mID)
 	{
+		int breaker = 0;
 		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator;
 		switch (mID)
 		{
+		case DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION:
+			breaker = 1;
+			break;
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
 			mapIterator = RemotePlayerOnReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
