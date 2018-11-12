@@ -654,6 +654,7 @@ void LobbyState::_registerThisInstanceToNetwork()
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
@@ -719,7 +720,7 @@ void LobbyState::_onServerDenied(RakNet::Packet * data)
 {
 	m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Normal);
 
-	selectedHostInfo = "Connection request denied from host\n";
+	selectedHostInfo = "Server is full\n";
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
