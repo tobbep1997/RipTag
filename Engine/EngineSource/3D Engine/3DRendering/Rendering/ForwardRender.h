@@ -120,16 +120,12 @@ private:
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
 
-	ID3D11Texture2D * m_outlineDepthBufferTex;
-	ID3D11DepthStencilView * m_outlineDepthStencil;
-	ID3D11ShaderResourceView * m_outlineShaderRes;
-	ID3D11DepthStencilState * depthoutState;
-
 	ID3D11Buffer * m_outlineBuffer;
 	OutLineBuffer m_outLineValues;
 
 	ID3D11DepthStencilState * m_write0State;
 	ID3D11DepthStencilState * m_write1State;
+	ID3D11DepthStencilState * m_OutlineState;
 	
 public:
 	ForwardRender();
