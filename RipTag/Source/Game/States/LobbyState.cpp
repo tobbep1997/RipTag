@@ -165,9 +165,18 @@ void LobbyState::Update(double deltaTime)
 				break;
 			case CharacterSelection::Back:
 				if (isHosting)
+				{
+					m_clientIP = RakNet::SystemAddress("0.0.0.0");
+					hasClient = false;
 					pNetwork->CloseServer(m_clientIP);
+				}
 				if (hasJoined)
+				{
+					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 					pNetwork->Disconnect(selectedHost);
+				}
+				isRemoteReady = false;
+				isReady = false;
 				isHosting = false;
 				hasJoined = false;
 				_resetLobbyButtonStates();
@@ -707,6 +716,7 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 		_flushServerList();
 		selectedHostInfo = "Lost connection to host\n";
+		this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 	}
 	else if (isHosting)
 	{
