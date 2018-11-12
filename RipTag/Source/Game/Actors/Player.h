@@ -67,7 +67,6 @@ private:
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
-	float m_cameraOffset;
 
 	bool m_currClickCrouch = false; 
 	bool m_prevClickCrouch = false;
@@ -107,10 +106,19 @@ private:
 	float m_tutorialDuration = 0.0f;
 	bool m_tutorialActive = true;
 
+	//Crouch
 	float m_standHeight;
 	float m_crouchHeight;
+	int crouchDir = 0;
+	//Peek
+	int peekDir = 0;
+	int LastPeekDir = 0;
 	float m_peekRotate;
-	float m_crouchAnimStartPos;
+	float m_peekRangeA = 0;
+	float m_peekRangeB = 0;
+	float m_peektimer = 0;
+	bool  m_allowPeek = true;
+	bool m_recentHeadCollision = false;
 
 	Circle * m_HUDcircle;
 	Circle * m_HUDcircleFiller;
@@ -120,7 +128,6 @@ private:
 	float totVis = 0;
 	float maxVis = 0;
 	unsigned short m_currentEnemysVisable = 0;
-
 public:
 	//Magic number
 	static const int g_fullVisability = 6500;
@@ -173,21 +180,23 @@ public:
 
 	TeleportAbility * getTeleportAbility();
 private:
+	void _collision();
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);
 	void _onJump();
+	void _onPeak(double deltaTime);
 	void _onInteract();
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
 	void _updateTutorial(double deltaTime);
-
 
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
 	void _hasWon();
+	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
 };
