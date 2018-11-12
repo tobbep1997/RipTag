@@ -29,7 +29,7 @@ void RoomGenerator::_makeFloor()
 	asset->Init(*m_worldPtr, e_staticBody, m_roomWidth, 0.5, m_roomDepth);
 	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 	asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
-	asset->setTextureTileMult(abs(m_roomDepth), abs(m_roomWidth));
+	asset->setTextureTileMult(m_roomWidth, m_roomDepth);
 	asset->setPosition(0, 0, 0);
 	
 	asset->setScale(abs(m_roomWidth*2), 1, abs(m_roomDepth* 2));
@@ -222,14 +222,14 @@ void RoomGenerator::_generateLights(float xPos, float yPos, float zPos, float co
 int RoomGenerator::returnRandomInGridWidth()
 {
 	float randomNr = (float)rand() / RAND_MAX;
-	return (rand() % (int)m_roomWidth +1) - m_roomWidth;
+	return (rand() % (int)m_roomWidth +1) - m_roomWidth +1;
 	return (-m_roomWidth + 1 + randomNr * (m_roomWidth - 1 -(-m_roomWidth + 1)));
 }
 
 int RoomGenerator::returnRandomInGridDepth()
 {
 	float randomNr = (float)rand() / RAND_MAX;
-	return (rand() % (int)m_roomDepth +1) - m_roomDepth;
+	return (rand() % (int)m_roomDepth +1) - m_roomDepth +1;
 	return (-m_roomDepth +1 + randomNr * (m_roomDepth - 1 - (-m_roomDepth + 1)));
 }
 
