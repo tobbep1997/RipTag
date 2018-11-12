@@ -167,14 +167,14 @@ void LobbyState::Update(double deltaTime)
 			case CharacterSelection::Back:
 				if (isHosting)
 				{
-					m_clientIP = RakNet::SystemAddress("0.0.0.0");
-					hasClient = false;
 					pNetwork->CloseServer(m_clientIP);
+					hasClient = false;
+					m_clientIP = RakNet::SystemAddress("0.0.0.0");
 				}
 				if (hasJoined)
 				{
-					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 					pNetwork->Disconnect(selectedHost);
+					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 				}
 				isRemoteReady = false;
 				isReady = false;
