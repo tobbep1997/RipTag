@@ -170,6 +170,7 @@ private:
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
 	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);
+	void _RotateGuard(float x, float y, float angle, float deltaTime);
 
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch();
