@@ -352,7 +352,6 @@ void Room::Update(float deltaTime)
 		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
-		this->m_roomGuards.at(i)->GetDirectionToPlayer(m_playerInRoomPtr->getPosition(), *m_playerInRoomPtr->getCamera());
 		this->m_roomGuards.at(i)->_IsInSight();
 		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
