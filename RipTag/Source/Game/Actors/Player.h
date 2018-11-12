@@ -28,6 +28,7 @@ class AbilityComponent;
 class Enemy;
 class BlinkAbility;
 class PossessGuard;
+class TeleportAbility;
 
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
@@ -176,6 +177,8 @@ public:
 	void SetAbilitySet(int set);
 
 	void setEnemyPositions(std::vector<Enemy *> enemys);
+
+	TeleportAbility * getTeleportAbility();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

@@ -81,9 +81,9 @@ void BlinkAbility::_logic(double deltaTime)
 								pPointer->getPosition().z
 							);
 						}
-						std::cout << var->originBody->GetTransform().translation.x << " " <<
-							var->originBody->GetTransform().translation.y << " " <<
-							var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
+						//std::cout << var->originBody->GetTransform().translation.x << " " <<
+						//	var->originBody->GetTransform().translation.y << " " <<
+						//	var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
 						pPointer->DrainMana(getManaCost());
 						m_bState = BlinkState::Wait;
 					}

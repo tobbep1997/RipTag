@@ -10,51 +10,11 @@ RayCastListener * RipExtern::m_rayListener;
 bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
-{	
-	m_youlost = false;
-	RipExtern::g_world = &m_world;
-	m_contactListener = new ContactListener();
-	RipExtern::m_contactListener = m_contactListener;
-	RipExtern::g_world->SetContactListener(m_contactListener);
-	m_rayListener = new RayCastListener();
-	RipExtern::m_rayListener = m_rayListener;
-	CameraHandler::Instance();
-	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
-	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_meshManager.loadDynamicMesh("STATE");
-	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-
-	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
-	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
-	Manager::g_textureManager.loadTextures("SPHERE");
-
-	//Load assets
-	{
-		//:c *queue sad music*
-	}
-
-	future1.get();
-	
-	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->RegisterThisInstanceToNetwork();
-	m_playerManager->CreateLocalPlayer();
-
-
-
-	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
-
-
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.9f,0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
-
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
-	
+{		
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 	//Do not remove pls <3
 	{
 	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
@@ -144,37 +104,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//	stateMachine->SetState("walk_forward");
 
 	}
-
-	m_levelHandler = new LevelHandler();
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
-
-	triggerHandler = new TriggerHandler();
-
-	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
-	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
-	
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
-	
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
-
-	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
-
-	Input::ResetMouse();
-
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
-	m_firstRun = false;
-	
-	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
-
-	//tempp = new BaseActor();
-	//tempp->Init(m_world, e_staticBody);
-	//tempp->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
-	//tempp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	//tempp->setPosition(5.5f, 5, -5);
-	//rot = DirectX::XMFLOAT4A(0, 0, 0, 1);
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 }
 
 PlayState::~PlayState()
@@ -200,26 +133,11 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-	
-	/*if (m_physicsThread.joinable())
-	{
-		m_physicsThread.join();
-	}*/
-
-	//5.5,5,-4.5
-	//DirectX::XMFLOAT4A pos = tempp->getPosition();
-	
-
-	//tempp->ImGuiTransform(pos, rot,10,10);
-	//tempp->setPosition(pos.x,pos.y,pos.z);
-	//tempp->addRotation(rot.x, rot.y, rot.z);
-
-	
+			
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
 
-	//model->getAnimatedModel()->Update(deltaTime);
 
 	m_playerManager->PhysicsUpdate();
 	
@@ -229,8 +147,6 @@ void PlayState::Update(double deltaTime)
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 
-	/*m_deltaTime = deltaTime;
-	std::lock_guard<std::mutex> lg(m_physicsMutex);*/
 	m_deltaTime = deltaTime;
 	m_physicsCondition.notify_all();
 	
@@ -248,9 +164,6 @@ void PlayState::Update(double deltaTime)
 		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
-	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	
-
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		m_destoryPhysicsThread = true;
@@ -261,7 +174,6 @@ void PlayState::Update(double deltaTime)
 		{
 			m_physicsThread.join();
 		}
-		//setKillState(true);
 		BackToMenu();
 	}
 
@@ -276,7 +188,6 @@ void PlayState::Update(double deltaTime)
 			m_physicsThread.join();
 		}
 		pushNewState(new LoseState(p_renderingManager));
-		//BackToMenu();
 	}
 
 	
@@ -304,7 +215,6 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-	//tempp->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -349,6 +259,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			DirectX::XMVECTOR vPPos = DirectX::XMLoadFloat4A(&pPos);
 			DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(vPPos, vEPos);
 			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+			Enemy::SoundLocation sl;
+			sl.percentage = 0.0f;
 			if (length < 20.0f)
 			{
 				for (auto & c : channels)
@@ -396,6 +308,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							case AudioEngine::Player:
 								allSounds += addThis;
 								playerSounds += addThis;
+								if (playerSounds > sl.percentage)
+								{
+									sl.soundPos.x = soundPos.x;
+									sl.soundPos.y = soundPos.y;
+									sl.soundPos.z = soundPos.z;
+								}
 								break;
 							case AudioEngine::Other:
 								allSounds += addThis;
@@ -405,13 +323,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					}
 				}
 
-				if (playerSounds > 0.1)
-				{
-					if (playerSounds / allSounds > 0.3f)
-					{
-						// TODO :: Update the enemy, it has heard the player.
-					}
-				}
+				sl.percentage = playerSounds / allSounds;
+				e->setSoundLocation(sl);
 			}
 			counter++;
 		}
@@ -518,4 +431,101 @@ void PlayState::TemporaryLobby()
 	}
 
 	ImGui::End();
+}
+
+void PlayState::unLoad()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadAllTexture();
+	Manager::g_meshManager.UnloadAllMeshes();
+
+	std::cout << "PlayState unLoad" << std::endl;
+
+}
+
+void PlayState::Load()
+{
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("FML");
+	Manager::g_textureManager.loadTextures("VISIBILITYICON");
+	Manager::g_textureManager.loadTextures("BLACK");
+	Manager::g_textureManager.loadTextures("BAR");
+
+
+	m_youlost = false;
+	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_world->SetContactListener(m_contactListener);
+	m_rayListener = new RayCastListener();
+	RipExtern::m_rayListener = m_rayListener;
+	CameraHandler::Instance();
+	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
+	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
+
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
+
+	//Load assets
+	{
+		//:c *queue sad music*
+	}
+
+	future1.get();
+
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->RegisterThisInstanceToNetwork();
+	m_playerManager->CreateLocalPlayer();
+
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+
+	m_levelHandler = new LevelHandler();
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	triggerHandler = new TriggerHandler();
+
+	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
+
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
+
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
+
+	
+
+
+
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+
+	Input::ResetMouse();
+
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
+	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+
+	std::cout << "PlayState Load" << std::endl;
 }

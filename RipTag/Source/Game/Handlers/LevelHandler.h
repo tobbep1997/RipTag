@@ -1,15 +1,16 @@
 #pragma once
-#include <Vector>
 #include <filesystem>
 #include <iostream>
 #include <future>
-
+#include "../Level/RoomGenerator.h"
 class Room;
 class Player;
-
+class RoomGenerator;
 class LevelHandler
 {
 private:
+	RoomGenerator m_roomGenerator;
+
 	const std::string m_roomString;
 	std::vector<std::string> m_prefabRoomFiles;
 

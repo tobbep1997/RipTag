@@ -80,17 +80,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
     AudioEngine::Init();
-	
+	srand(time(0));
+
 
 	Game game;
 	game.Init(hInstance);
-	std::cout << "hello";
-
-	/*std::thread gameLoop;
-	gameLoop = std::thread(&GameLoop, &game);
-	game.PollEvents();
-
-	//gameLoop.join();*/
 
 	SingleGameLoop(&game);
 

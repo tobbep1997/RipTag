@@ -70,4 +70,8 @@ private:
 	void _WriteSettingsToFile();
 	void _ReadSettingsFromFile();
 	void _ParseFileInputInt(const std::string & str, int key);
+
+	// Inherited via State
+	virtual void Load() override;
+	virtual void unLoad() override;
 };

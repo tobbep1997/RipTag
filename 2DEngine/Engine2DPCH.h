@@ -16,6 +16,7 @@
 #include "Fonts/FontHandler.h"
 
 //Engine
+#include "ConsoleColor.h"
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Texture.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
