@@ -146,14 +146,14 @@ void RoomGenerator::_FindWinnableAndGuardPaths()
 	int playerStartPos = returnRandomInGridWidth();
 	int playerWinsAt = returnRandomInGridWidth();
 
-	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(playerStartPos, 6, -m_roomDepth + 1, 1));
-	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(playerStartPos + 2, 6, -m_roomDepth + 1, 1));
+	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(playerStartPos, 6, 1 - m_roomDepth, 1));
+	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(playerStartPos + 2, 6, 1 - m_roomDepth, 1));
 
 
 	Tile currentTile;
 	Tile pathToTile; 
 	std::vector<Node*> nodes;
-	currentTile = m_generatedGrid->WorldPosToTile(playerStartPos, -m_roomDepth + 1);
+	currentTile = m_generatedGrid->WorldPosToTile(playerStartPos, 1 - m_roomDepth);
 	for (int i = 0; i < 10; i++)
 	{
 		for (int y = 0; y < 10; y++)
@@ -201,7 +201,10 @@ void RoomGenerator::_FindWinnableAndGuardPaths()
 
 
 	for (int i = 0; i < nodes.size(); i++)
+	{
 		nodes[i]->tile.setPathable(false);
+		delete nodes.at(i);
+	}
 }
 
 void RoomGenerator::_generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity)
@@ -222,21 +225,25 @@ void RoomGenerator::_generateLights(float xPos, float yPos, float zPos, float co
 int RoomGenerator::returnRandomInGridWidth()
 {
 	float randomNr = (float)rand() / RAND_MAX;
-	return (rand() % (int)m_roomWidth +1) - m_roomWidth;
-	return (-m_roomWidth + 1 + randomNr * (m_roomWidth - 1 -(-m_roomWidth + 1)));
+	float min = 1 - m_roomWidth;
+	float max = m_roomWidth - 1;
+	//return (rand() % (int)m_roomWidth +1) - m_roomWidth;
+	return (min + randomNr * (max - (min)));
 }
 
 int RoomGenerator::returnRandomInGridDepth()
 {
 	float randomNr = (float)rand() / RAND_MAX;
-	return (rand() % (int)m_roomDepth +1) - m_roomDepth;
-	return (-m_roomDepth +1 + randomNr * (m_roomDepth - 1 - (-m_roomDepth + 1)));
+	float min = 1 - m_roomDepth;
+	float max = m_roomDepth - 1;
+	//return (rand() % (int)m_roomDepth +1) - m_roomDepth;
+	return (min + randomNr * (max - (min)));
 }
 
 int RoomGenerator::returnRandomBetween(int min, int max)
 {
 	float randomNr = (float)rand() / RAND_MAX;
-	return (-min + randomNr * (max - (-max)));
+	return (min + randomNr * (max - (min)));
 }
 
 
