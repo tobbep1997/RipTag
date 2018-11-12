@@ -182,6 +182,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
     <ClCompile Include="Source\Game\States\LoseState.cpp" />
     <ClCompile Include="Source\Game\States\LobbyState.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
@@ -526,6 +527,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Game\States\LoseState.h" />
     <ClInclude Include="Source\Game\States\LobbyState.h" />
+    <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />

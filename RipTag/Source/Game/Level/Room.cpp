@@ -150,6 +150,34 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_grid = nullptr;
 	m_pathfindingGrid = new Grid();
 }
+Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
+{
+	//GeneratedRoom
+	this->m_roomIndex = -1;
+	this->m_playerInRoomPtr = playerPtr;
+	this->m_arrayIndex = arrayIndex;
+	this->m_worldPtr = worldPtr;
+
+	triggerHandler = new TriggerHandler();
+	triggerHandler->RegisterThisInstanceToNetwork();
+
+	m_lose = new Quad();
+	m_lose->init();
+	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setScale(0.5f, 0.25f);
+
+	m_lose->setString("YOU LOST");
+	m_lose->setUnpressedTexture("SPHERE");
+	m_lose->setPressedTexture("DAB");
+	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
+
+	HUDComponent::AddQuad(m_lose);
+
+	m_grid = nullptr;
+
+}
 Room::~Room()
 {
 }
@@ -159,7 +187,7 @@ void Room::setRoomIndex(const short unsigned int roomIndex)
 	this->m_roomIndex = roomIndex;
 }
 
-unsigned short int Room::getRoomIndex()
+short int Room::getRoomIndex()
 {
 	return this->m_roomIndex;
 }
@@ -286,6 +314,8 @@ void Room::LoadRoomToMemory()
 
 		m_roomGuards.at(1)->SetPathVector(fullPath);
 
+		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
+
 		//getPath();
 
 
@@ -320,10 +350,11 @@ void Room::LoadRoomToMemory()
 		m_roomLoaded = true;	
 	}
 
+	m_enemyHandler.Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(200, 102, 50);
+		light->setColor(200.0f, 102.0f, 50.0f);
 	}
 }
 
@@ -344,20 +375,18 @@ void Room::getPath()
 
 void Room::Update(float deltaTime)
 {
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
+	/*for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
-		this->m_roomGuards.at(i)->GetDirectionToPlayer(m_playerInRoomPtr->getPosition(), *m_playerInRoomPtr->getCamera());
 		this->m_roomGuards.at(i)->_IsInSight();
 		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
-
 	}
 	int endvis = 0;
 	
-	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+	
 
 	for (int i = 0; i < vis.size(); ++i)
 	{
@@ -369,14 +398,19 @@ void Room::Update(float deltaTime)
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
-	vis.clear();
+	vis.clear();*/
+	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+	m_enemyHandler.Update(deltaTime);
 
 	for (auto light : m_pointLights)
 	{
-		
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 0.5f));
 	}
 	triggerHandler->Update(deltaTime);
+
+	// Move to level handler (?)
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
@@ -385,7 +419,7 @@ void Room::Update(float deltaTime)
 			break;
 		}
 	}
-	if (m_youLost)
+	/*if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
@@ -394,7 +428,7 @@ void Room::Update(float deltaTime)
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
-	}
+	}*/
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{
@@ -461,9 +495,13 @@ void Room::Release()
 	{
 		ab->release();
 	}
-	delete m_grid->gridPoints;
+	if (m_grid)
+	{
+		delete m_grid->gridPoints;
 
-	delete m_grid;
+		delete m_grid;
+	}
+	
 
 	triggerHandler->Release();
 	delete triggerHandler;

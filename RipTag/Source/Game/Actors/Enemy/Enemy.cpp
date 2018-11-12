@@ -200,7 +200,8 @@ void Enemy::Update(double deltaTime)
 			_TempGuardPath(true, 0.001f);
 			if (m_alert)
 			{
-				_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
+				//_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
+				_MoveToAlert(m_alertPath.at(0), deltaTime);
 			}
 			else if (m_alertPath.size() > 0)
 			{
@@ -243,13 +244,13 @@ void Enemy::Update(double deltaTime)
 			{
 				m_disabled = false;
 				m_knockOutTimer = 0;
-				std::cout << "Hello" << std::endl; 
 			}
 			break; 
 		}
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
+	// Why every frame (?)
 	getBody()->SetType(e_dynamicBody);
 }
 
@@ -449,9 +450,9 @@ void Enemy::SetPathVector(std::vector<Node*> path)
 	m_path = path;
 }
 
-std::vector<Node*> Enemy::GetPathVector()
+Node * Enemy::GetCurrentPathNode() const
 {
-	return m_path;
+	return m_path.at(m_currentPathNode);
 }
 
 void Enemy::SetAlertVector(std::vector<Node*> alertPath)
@@ -469,6 +470,36 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 	{
 		m_alert = true;
 	}
+}
+
+size_t Enemy::GetAlertPathSize() const
+{
+	return m_alertPath.size();
+}
+
+Node * Enemy::GetAlertDestination() const
+{
+	return m_alertPath.at(m_alertPath.size() - 1);
+}
+
+EnemyState Enemy::getEnemyState() const
+{
+	return m_state;
+}
+
+void Enemy::setEnemeyState(EnemyState state)
+{
+	m_state = state;
+}
+
+void Enemy::setSoundLocation(const SoundLocation & sl)
+{
+	m_sl = sl;
+}
+
+const Enemy::SoundLocation & Enemy::getSoundLocation() const
+{
+	return m_sl;
 }
 
 void Enemy::setReleased(bool released)
@@ -492,6 +523,11 @@ float Enemy::getTotalVisablilty() const
 }
 
 float Enemy::getMaxVisability() const
+{
+	return m_visCounter;
+}
+
+float Enemy::getVisCounter() const
 {
 	return m_visCounter;
 }
@@ -684,14 +720,19 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		m_currentAlertPathNode++;
+		/*m_currentAlertPathNode++;
 		if (m_currentAlertPathNode == m_alertPath.size())
 		{
 			std::reverse(m_alertPath.begin(), m_alertPath.end());
 			m_currentAlertPathNode = 0;
 			m_alert = false;
 			return true;
-		}
+		}*/
+		delete nextNode;
+		m_alertPath.erase(m_alertPath.begin());
+
+		if (m_alertPath.size() == 0)
+			m_alert = false;
 	}
 	else
 	{
@@ -712,7 +753,8 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		delete m_alertPath.at(0);
+		delete nextNode;
+		//delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}
 	else

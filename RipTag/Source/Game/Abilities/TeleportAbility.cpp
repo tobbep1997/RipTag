@@ -8,6 +8,7 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 	m_tpState = Throwable;
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
+	Drawable::p_entityType = EntityType::PlayerType;
 }
 
 TeleportAbility::~TeleportAbility()

@@ -9,8 +9,21 @@ struct Node;
 class VisibilityComponent;
 class Grid;
 
+enum EnemyState
+{
+	Investigating_Sight,
+	Investigating_Sound,
+	Patrolling
+};
+
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 {
+public:
+	struct SoundLocation
+	{
+		float percentage;
+		DirectX::XMFLOAT3 soundPos;
+	};
 
 public:
 	enum KnockOutType
@@ -40,7 +53,6 @@ private:
 	bool m_allowVisability = false;
 
 	bool m_inputLocked = true;
-
 	bool m_disabled = false;
 	bool m_released = false; 
 
@@ -53,6 +65,7 @@ private:
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
+	float m_guardSpeed = 1.5;
 
 	//Possess
 	Actor* m_possessor;
@@ -79,7 +92,8 @@ private:
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
 
-	float m_guardSpeed = 1.5;
+	EnemyState m_state = Patrolling;
+	SoundLocation m_sl;
 
 	float m_visCounter;
 	float m_visabilityTimer = 1.6f;
@@ -137,15 +151,25 @@ public:
 	void setKnockOutType(KnockOutType knockOutType);
 
 	void SetPathVector(std::vector<Node*>  path);
-	std::vector<Node*> GetPathVector();
+	Node * GetCurrentPathNode() const;
+
 	void SetAlertVector(std::vector<Node*> alertPath);
 	void setReleased(bool released); 
+	size_t GetAlertPathSize() const;
+	Node * GetAlertDestination() const;
+
+	EnemyState getEnemyState() const;
+	void setEnemeyState(EnemyState state);
+
+	void setSoundLocation(const SoundLocation & sl);
+	const SoundLocation & getSoundLocation() const;
 
 	bool getIfLost();
 	const KnockOutType getKnockOutType() const; 
 
 	float getTotalVisablilty() const;
 	float getMaxVisability() const;
+	float getVisCounter() const;
 private:
 
 	void _handleInput(double deltaTime);
