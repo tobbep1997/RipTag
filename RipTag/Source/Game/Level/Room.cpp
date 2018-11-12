@@ -286,11 +286,9 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
-
-			/*std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
-			this->m_roomGuards.at(i)->SetPathVector(path);*/
-			//this->m_roomGuards.at(i)->setPosition(-10, 0, -10);
+			Enemy * e = new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;
 

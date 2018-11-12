@@ -92,6 +92,9 @@ private:
 
 	float enemyX = 0;
 	float enemyY = 0;
+
+	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
+	DirectX::BoundingFrustum * m_boundingFrustum;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -150,6 +153,7 @@ public:
 	float getTotalVisablilty() const;
 	float getMaxVisability() const;
 	float getVisCounter() const;
+	void addTeleportAbility(const TeleportAbility & teleportAbility);
 private:
 
 	void _handleInput(double deltaTime);
