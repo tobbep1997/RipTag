@@ -763,13 +763,9 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
-		p_camera->setDirection(x, p_camera->getDirection().y, y);
-		DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
-		float camY = DirectX::XMConvertToRadians(cameraRotationY.y);
+		
+		_RotateGuard(x, y, angle, deltaTime);
 
-		p_camera->Rotate(0, angle * deltaTime, 0);
-
-		p_setRotation(0, cameraRotationY.y, 0);
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
 	return false;
@@ -779,14 +775,6 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		/*m_currentAlertPathNode++;
-		if (m_currentAlertPathNode == m_alertPath.size())
-		{
-			std::reverse(m_alertPath.begin(), m_alertPath.end());
-			m_currentAlertPathNode = 0;
-			m_alert = false;
-			return true;
-		}*/
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
 
@@ -803,6 +791,8 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
+		_RotateGuard(x, y, angle, deltaTime);
+
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
 	return false;
@@ -813,7 +803,6 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
 		delete nextNode;
-		//delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}
 	else
@@ -826,8 +815,18 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
+		_RotateGuard(x, y, angle, deltaTime);
+
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
+}
+
+void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
+{
+	p_camera->setDirection(x, p_camera->getDirection().y, y);
+	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
+	p_camera->Rotate(0, angle * deltaTime, 0);
+	p_setRotation(0, cameraRotationY.y, 0);
 }
 
 void Enemy::_CheckPlayer(double deltaTime)
