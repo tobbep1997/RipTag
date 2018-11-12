@@ -70,5 +70,11 @@ private:
 	void _onClientJoinPacket(RakNet::Packet * data);
 	void _newHostEntry(std::string& hostName);
 
+
+	// Inherited via State
+	virtual void Load() override;
+
+	virtual void unLoad() override;
+
 };
 

@@ -61,7 +61,7 @@ private:
 
 	ButtonStates m_buttonState = ButtonStates::Normal;
 	PivotPoint m_pivotPoint = PivotPoint::center;
-	Texture ** m_textures;
+	std::string m_textures[3];
 
 	DirectX::SpriteFont * m_spriteFont;
 	std::string m_string = "";
@@ -94,9 +94,9 @@ public:
 	
 	void Release();
 
-	void setPressedTexture(Texture * texture);
-	void setHoverTexture(Texture * texture);
-	void setUnpressedTexture(Texture * texture);
+	void setPressedTexture(const std::string & texture);
+	void setHoverTexture(const std::string & texture);
+	void setUnpressedTexture(const std::string & texture);
 	void MapTexture();
 	
 	void setPosition(const float & x, const float & y) override;

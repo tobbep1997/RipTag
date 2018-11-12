@@ -109,6 +109,7 @@
     <ClInclude Include="EngineSource\3D Engine\Components\StateMachine.h" />
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="EnginePCH.h" />
+    <ClInclude Include="ConsoleColor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

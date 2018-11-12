@@ -60,14 +60,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!_isValid(destination))
 	{
-		std::cout << "Destination is invalid\n";
 		return std::vector<Node*>();
 	}
 
 	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	if (!dest.getPathable())
 	{
-		std::cout << "Destination is blocked\n";
 		return std::vector<Node*>();
 	}
 
