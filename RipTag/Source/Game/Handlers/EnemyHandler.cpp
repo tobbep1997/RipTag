@@ -19,6 +19,8 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 
 void EnemyHandler::Update(float deltaTime)
 {
+	static float timer = 0.0f;
+	timer += deltaTime;
 	int playerVisibility = 0;
 	
 	for (int i = 0; i < m_guards.size(); i++)
@@ -35,13 +37,15 @@ void EnemyHandler::Update(float deltaTime)
 		switch (state)
 		{
 		case Investigating_Sight:
-			_investigating(currentGuard, tempVisibility);
+			if (timer > 0.5f)
+				_investigating(currentGuard);
 			break;
 		case Investigating_Sound:
-			_investigateSound(currentGuard);
+			if (timer > 0.5f)
+				_investigateSound(currentGuard);
 			break;
 		case Patrolling:
-			_patrolling(currentGuard, tempVisibility);
+			_patrolling(currentGuard);
 			break;
 		}
 	}
@@ -80,11 +84,11 @@ void EnemyHandler::_alert(Enemy * guard, bool followSound)
 	}
 }
 
-void EnemyHandler::_investigating(Enemy * guard, int playerVisibility)
+void EnemyHandler::_investigating(Enemy * guard)
 {
 	if (guard->GetAlertPathSize() > 0)
 	{
-		if (playerVisibility > SIGHT_LEVEL)
+		if (guard->getVisCounter() >= ALERT_TIME_LIMIT)
 		{
 			DirectX::XMFLOAT4A playerPos = m_player->getPosition();
 			Node * pathDestination = guard->GetAlertDestination();
@@ -140,9 +144,9 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 	}
 }
 
-void EnemyHandler::_patrolling(Enemy * guard, int playerVisibility)
+void EnemyHandler::_patrolling(Enemy * guard)
 {
-	if (playerVisibility > SIGHT_LEVEL)
+	if (guard->getVisCounter() >= ALERT_TIME_LIMIT)
 		_alert(guard);
 	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
 		_alert(guard, true);

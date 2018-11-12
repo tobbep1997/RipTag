@@ -149,6 +149,7 @@ public:
 
 	float getTotalVisablilty() const;
 	float getMaxVisability() const;
+	float getVisCounter() const;
 private:
 
 	void _handleInput(double deltaTime);
