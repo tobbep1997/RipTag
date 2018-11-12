@@ -242,6 +242,8 @@ void Enemy::Update(double deltaTime)
 			if (m_knockOutMaxTime <= m_knockOutTimer)
 			{
 				m_disabled = false;
+				m_knockOutTimer = 0;
+				std::cout << "Hello" << std::endl; 
 			}
 			break; 
 		}

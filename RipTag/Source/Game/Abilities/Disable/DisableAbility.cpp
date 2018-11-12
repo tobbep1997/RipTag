@@ -191,7 +191,7 @@ void DisableAbility::_inStateMoving(double dt)
 			{
 				Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
 				temp->DisableEnemy();
-				//temp->setKnockOutType(temp->Stoned); 
+				temp->setKnockOutType(temp->Stoned); 
 				m_dState = DisableState::Cooldown;
 				this->setPosition(-999.9f, -999.9f, -999.9f);
 				this->_sendOnHitNotification();
