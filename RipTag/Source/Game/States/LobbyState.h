@@ -95,6 +95,8 @@ private:
 	void _onFailedPacket(RakNet::Packet * data);
 	void _onSucceedPacket(RakNet::Packet * data);
 	void _onDisconnectPacket(RakNet::Packet * data);
+	void _onServerDenied(RakNet::Packet * data);
+
 
 	void _newHostEntry(std::string& hostName);
 

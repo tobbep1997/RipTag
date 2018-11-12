@@ -87,6 +87,7 @@ void LobbyState::Update(double deltaTime)
 			switch ((ButtonOrderLobby)m_currentButton)
 			{
 			case ButtonOrderLobby::Host:
+				pNetwork->SetupServer();
 				isHosting = true;
 				_resetCharSelectButtonStates();
 				break;
@@ -211,8 +212,12 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 		break;
 	case DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED:
 		_onFailedPacket(packet);
+		break;
 	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 		_onDisconnectPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
+		_onServerDenied(packet);
 		break;
 	}
 }
@@ -644,6 +649,7 @@ void LobbyState::_registerThisInstanceToNetwork()
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
@@ -703,6 +709,13 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		hasClient = false;
 		isRemoteReady = false;
 	}
+}
+
+void LobbyState::_onServerDenied(RakNet::Packet * data)
+{
+	m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Normal);
+
+	selectedHostInfo = "Connection request denied from host\n";
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
