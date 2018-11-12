@@ -100,64 +100,18 @@ namespace Network
 			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), PEER_PORT, additionalData, length);
 	}
 
-	void Multiplayer::SearchLANHost()
+	bool Multiplayer::ConnectTo(RakNet::SystemAddress ip)
 	{
-		static bool connectionAttempt = false;
-
-		RakNet::Packet * packet;
-		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive())
-		{
-			//look for the advertise message
-			if (packet->data[0] == DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM && !packet->wasGeneratedLocally)
-			{
-				//save the server IP and send a connection request
-				this->m_rIP = packet->systemAddress;
-				if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(this->m_rIP.ToString(), this->m_rIP.GetPort(), nullptr, 0))
-					connectionAttempt = true;
-			}
-			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED && !packet->wasGeneratedLocally && connectionAttempt)
-			{
-				this->m_rIP = packet->systemAddress;
-				this->m_isConnected = true;
-				connectionAttempt = false;
-				//we are now connected we can exit the loop immidietly
-				pPeer->DeallocatePacket(packet);
-				pPeer->SetOccasionalPing(true);
-				return;
-			}
-			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED)
-			{
-				//we should also log the failed connection attempt
-				connectionAttempt = false;
-			}
-		}
-	}
-
-	void Multiplayer::SearchLANClient()
-	{
-
-		RakNet::Packet * packet;
-		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive())
-		{
-			if (packet->data[0] == DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION && !packet->wasGeneratedLocally)
-			{
-				m_rIP = packet->systemAddress;
-				this->pPeer->Connect(m_rIP.ToString(), m_rIP.GetPort(), nullptr, 0);
-				m_isConnected = true;
-				pPeer->DeallocatePacket(packet);
-				pPeer->SetOccasionalPing(true);
-				return;
-			}
-		}
+		if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(ip.ToString(), ip.GetPort(), nullptr, 0))
+			return true;
+		else
+			return false;
 	}
 
 	void Multiplayer::Disconnect()
 	{
-		if (m_isConnected)
-		{
-			pPeer->CloseConnection(m_rIP, true);
-			m_isConnected = m_isClient = m_isServer = m_isRunning = m_isGameRunning = false;
-		}
+		pPeer->CloseConnection(m_rIP, true);
+		m_isConnected = m_isClient = m_isServer = m_isRunning = m_isGameRunning = false;
 	}
 
 	void Multiplayer::ReadPackets()
@@ -250,6 +204,13 @@ namespace Network
 		toReturn = "Connected to: " + std::string(m_rIP.ToString());
 		toReturn += "\nAverage Ping: " + std::to_string(this->pPeer->GetAveragePing(this->m_rIP));
 		return toReturn;
+	}
+
+	RakNet::SystemAddress Multiplayer::GetMySysAdress()
+	{
+		if (this->m_isRunning)
+			return this->pPeer->GetMyBoundAddress();
+		return RakNet::SystemAddress();
 	}
 
 

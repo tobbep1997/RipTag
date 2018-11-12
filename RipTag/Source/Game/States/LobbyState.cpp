@@ -16,6 +16,7 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 
 	this->pNetwork = Network::Multiplayer::GetInstance();
 	this->pNetwork->StartUpPeer();
+	this->m_MySysAdress = pNetwork->GetMySysAdress();
 	//INITIAL RANDOM HOST NAME
 	srand(time(0));
 	this->m_MyHostName = "Host:" + std::to_string(rand());
@@ -60,11 +61,7 @@ LobbyState::~LobbyState()
 void LobbyState::Update(double deltaTime)
 {
 	//update the content for the info window
-	std::string content = "";
-	content += "Your Host name: " + this->m_MyHostName + "\n";
-	content += selectedHostInfo + "\n";
-	if (this->m_infoWindow)
-		this->m_infoWindow->setString(content);
+	this->_updateInfoString();
 	//Network updates first
 	if (isHosting)
 		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET) + 1);
@@ -94,8 +91,13 @@ void LobbyState::Update(double deltaTime)
 				_resetCharSelectButtonStates();
 				break;
 			case ButtonOrderLobby::Join:
-				hasJoined = true;
-				_resetCharSelectButtonStates();
+				if (strcmp(this->selectedHost.ToString(false), "UNASSIGNED_SYSTEM_ADDRESS") == 0)
+				{
+					m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Hover);
+					break;
+				}
+				else if (!pNetwork->ConnectTo(this->selectedHost))
+					m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Hover);
 				break;
 			case ButtonOrderLobby::Refresh:
 				_flushServerList();
@@ -117,6 +119,7 @@ void LobbyState::Update(double deltaTime)
 			{
 				this->selectedHost = it->second;
 				this->selectedHostInfo = "Selected Host: " + hostName;
+				this->m_ServerName = hostName;
 			}
 			else
 			{
@@ -180,14 +183,15 @@ void LobbyState::Draw()
 			button->Draw();
 		for (auto & listElement : this->m_hostListButtons)
 			listElement->Draw();
-		if (this->m_infoWindow)
-			this->m_infoWindow->Draw();
 	}
 	else
 	{
 		for (auto &button : this->m_charSelectButtons)
 			button->Draw();
 	}
+
+	if (this->m_infoWindow)
+		this->m_infoWindow->Draw();
 
 	p_renderingManager->Flush(camera);
 }
@@ -198,6 +202,17 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 	{
 	case DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM:
 		_onAdvertisePacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION:
+		_onClientJoinPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED:
+		_onSucceedPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED:
+		_onFailedPacket(packet);
+	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
+		_onDisconnectPacket(packet);
 		break;
 	}
 }
@@ -486,6 +501,7 @@ void LobbyState::_resetCharSelectButtonStates()
 
 void LobbyState::_flushServerList()
 {
+	this->selectedHostInfo = "Selected Host: None";
 	this->m_hostNameMap.clear();
 	this->m_hostAdressMap.clear();
 	for (auto & button : this->m_hostListButtons)
@@ -495,6 +511,31 @@ void LobbyState::_flushServerList()
 	}
 	this->m_hostListButtons.clear();
 
+}
+
+void LobbyState::_updateInfoString()
+{
+	std::string content = "";
+	if (!isHosting && !hasJoined)
+	{
+		content += "Your Host name: " + this->m_MyHostName + "\n";
+		content += selectedHostInfo + "\n";
+	}
+	else if (isHosting)
+	{
+		content += "Your Host name: " + this->m_MyHostName + "\n";
+		if (hasClient)
+			content += "Connected to client: " + std::string(m_clientIP.ToString(false)) + "\n";
+		else
+			content += "No client connected\n";
+	}
+	else if (hasJoined)
+	{
+		content += "Your Host name: " + this->m_MyHostName + "\n";
+		content += "Connected to server: " + this->m_ServerName + "\n";
+	}
+	if (this->m_infoWindow)
+		this->m_infoWindow->setString(content);
 }
 
 void LobbyState::_gamePadMainLobby()
@@ -515,6 +556,8 @@ void LobbyState::_gamePadMainLobby()
 	{
 		if (m_hostListButtons.size() > 0)
 		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
 			inServerList = true;
 			m_currentButton = 0;
 		}
@@ -574,6 +617,9 @@ void LobbyState::_gamePadServerList()
 	}
 	else if (GamePadHandler::IsLeftDpadPressed())
 	{
+		m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
+		m_hostListButtons[m_currentButton]->Select(false);
+
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 		inServerList = false;
 	}
@@ -595,7 +641,9 @@ void LobbyState::_registerThisInstanceToNetwork()
 	using namespace std::placeholders;
 
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM, std::bind(&LobbyState::HandlePacket, this, _1, _2));
-	Multiplayer::addToLobbyOnReceiveMap(NETWORKMESSAGES::ID_CLIENT_JOIN, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
@@ -614,6 +662,44 @@ void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 		_newHostEntry(hostName);
 	}
 
+}
+
+void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
+{
+	hasClient = true;
+	m_clientIP = data->systemAddress;
+}
+
+void LobbyState::_onFailedPacket(RakNet::Packet * data)
+{
+	m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Normal);
+
+	selectedHostInfo = "Failed to connect to host\n";
+}
+
+void LobbyState::_onSucceedPacket(RakNet::Packet * data)
+{
+	this->selectedHost = data->systemAddress;
+	hasJoined = true;
+	_resetCharSelectButtonStates();
+}
+
+void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
+{
+	//this means we are the client -> the server has shutdown -> go back to main lobby
+	if (hasJoined)
+	{
+		hasJoined = false;
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+		_flushServerList();
+		selectedHostInfo = "Lost connection to host\n";
+	}
+	else if (isHosting)
+	{
+		m_clientIP = RakNet::SystemAddress("0.0.0.0");
+		hasClient = false;
+		isRemoteReady = false;
+	}
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)

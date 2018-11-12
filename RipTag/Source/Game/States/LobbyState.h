@@ -32,14 +32,18 @@ private:
 	bool inServerList = false;
 
 	bool isHosting = false;
+	bool hasClient = false;
 	bool hasJoined = false;
 	bool hasCharSelected = false;
 	unsigned int selectedChar = 0;
 
 	//Network
 	Network::Multiplayer * pNetwork;
+	RakNet::SystemAddress m_clientIP = RakNet::SystemAddress("0.0.0.0");
+	RakNet::SystemAddress m_MySysAdress = RakNet::SystemAddress("0.0.0.0");
 
 	std::string m_MyHostName;
+	std::string m_ServerName = "";
 	//This packet is created when we create a Server and host it
 	Network::LOBBYEVENTPACKET m_adPacket;
 
@@ -71,6 +75,7 @@ private:
 	void _resetLobbyButtonStates();
 	void _resetCharSelectButtonStates();
 	void _flushServerList();
+	void _updateInfoString();
 
 	//Seperate input handling for cleaner code
 	void _gamePadMainLobby();
@@ -87,6 +92,10 @@ private:
 	void _registerThisInstanceToNetwork();
 	void _onAdvertisePacket(RakNet::Packet * data);
 	void _onClientJoinPacket(RakNet::Packet * data);
+	void _onFailedPacket(RakNet::Packet * data);
+	void _onSucceedPacket(RakNet::Packet * data);
+	void _onDisconnectPacket(RakNet::Packet * data);
+
 	void _newHostEntry(std::string& hostName);
 
 };

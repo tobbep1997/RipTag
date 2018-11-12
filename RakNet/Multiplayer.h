@@ -53,8 +53,8 @@ namespace Network
 		void ShutdownPeer();
 
 		void AdvertiseHost(const char * additionalData = nullptr, size_t length = 0);
-		void SearchLANHost();
-		void SearchLANClient();
+		bool ConnectTo(RakNet::SystemAddress ip);
+
 		void Disconnect();
 
 		void ReadPackets();
@@ -70,6 +70,7 @@ namespace Network
 		std::string GetNetworkStatistics();
 		std::string GetNID();
 		std::string GetNetworkInfo();
+		RakNet::SystemAddress GetMySysAdress();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 
