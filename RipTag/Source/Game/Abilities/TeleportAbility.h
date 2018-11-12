@@ -40,6 +40,8 @@ private:
 	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;
 
+	DirectX::BoundingSphere * m_boundingSphere;
+
 public:
 	TeleportAbility(void * owner = nullptr);
 	~TeleportAbility();
@@ -55,6 +57,8 @@ public:
 	unsigned int getState();
 	DirectX::XMFLOAT4A getVelocity();
 	DirectX::XMFLOAT4A getStart();
+
+	DirectX::BoundingSphere * GetBoundingSphere() const;
 
 private:
 	// Private functions

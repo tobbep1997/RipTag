@@ -505,6 +505,12 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	}
 }
 
+TeleportAbility * Player::getTeleportAbility()
+{
+	TeleportAbility* tp = (TeleportAbility *)m_abilityComponents1[0];
+	return tp;
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)

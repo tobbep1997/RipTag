@@ -15,7 +15,7 @@ Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
-
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
 }
 
 Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
@@ -28,13 +28,14 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+	
 	srand(time(NULL));
 }
 
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
-	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	this->p_initCamera(new Camera(DirectX::XM_PI * 0.1f, 16.0f / 9.0f, 0.1f, 1.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
@@ -61,6 +62,8 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	setScale(.015f, .015f, .015f);
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+
 }
 
 
@@ -78,6 +81,7 @@ Enemy::~Enemy()
 		delete m_alertPath.at(i);
 	}
 	m_alertPath.clear();
+	delete m_boundingFrustum;
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -123,14 +127,14 @@ void Enemy::CullingForVisability(const Transform& player)
 		}
 		else
 		{
-			m_allowVisability = false;
+			m_allowVisability = true;
 			enemyX = 0;
 			enemyY = 0;
 		}
 	}
 	else
 	{
-		m_allowVisability = false;
+		m_allowVisability = true;
 		enemyX = 0;
 		enemyY = 0;
 	}
@@ -190,7 +194,49 @@ void Enemy::Update(double deltaTime)
 		//};
 		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
 		//this->ForceWorld(cameraWorld);
-		
+		DirectX::XMMATRIX viewInv, proj;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
+
+
+		DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
+		m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
+
+		for (size_t i = 0; i < m_teleportBoundingSphere.size(); i++)
+		{
+			
+			if (m_boundingFrustum->Intersects(*m_teleportBoundingSphere[i]))
+			{
+				DirectX::XMFLOAT4 direction = getDirection(getPosition(), DirectX::XMFLOAT4A(m_teleportBoundingSphere[i]->Center.x,
+					m_teleportBoundingSphere[i]->Center.y,
+					m_teleportBoundingSphere[i]->Center.z,
+					0.0f));
+
+				std::cout << "HOLD OP THE PARTNER" << std::endl;
+
+				float lenght;
+				RayCastListener::Ray * r = RipExtern::m_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+					direction.x,
+					direction.y,
+					direction.z,
+					direction.w),
+					getLenght(getPosition(), DirectX::XMFLOAT4A(
+						direction.x,
+						direction.y,
+						direction.z,
+						direction.w)));
+				if (r)
+				{
+					std::cout << "-------------------------------------------------" << std::endl;
+					for (int i = 0; i < r->getNrOfContacts(); i++)
+					{						
+						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
+					}
+				}
+			}
+			
+		}
+
 		if (!m_inputLocked)
 		{
 			_handleInput(deltaTime);
@@ -489,6 +535,11 @@ float Enemy::getTotalVisablilty() const
 float Enemy::getMaxVisability() const
 {
 	return m_visCounter;
+}
+
+void Enemy::addTeleportAbility(const TeleportAbility & teleportAbility)
+{
+	m_teleportBoundingSphere.push_back(teleportAbility.GetBoundingSphere());
 }
 
 float Enemy::getVisCounter() const
