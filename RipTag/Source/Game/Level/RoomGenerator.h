@@ -16,7 +16,7 @@ private:
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;
-
+	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
 
@@ -28,10 +28,12 @@ private:
 	void _makeWalls();
 	void _placeProps();
 	void _createEnemies();
+	void _FindWinnableAndGuardPaths();
 	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);
 
 	int returnRandomInGridWidth();
 	int returnRandomInGridDepth();
+	int returnRandomBetween(int min, int max);
 public:
 	RoomGenerator();
 	~RoomGenerator();

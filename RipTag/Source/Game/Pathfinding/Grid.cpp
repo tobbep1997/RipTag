@@ -20,11 +20,10 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 	m_width = width;
 	m_height = depth;
 	float tempXval = xVal;
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < width; i++)
 	{
-		
 		xVal = tempXval;
-		for (size_t j = 0; j < width; j++)
+		for (size_t j = 0; j < depth; j++)
 		{
 			m_nodeMap.push_back(Node(Tile(j, i),
 				NodeWorldPos(xVal,
