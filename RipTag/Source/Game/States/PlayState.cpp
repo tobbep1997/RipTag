@@ -311,6 +311,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			DirectX::XMVECTOR vPPos = DirectX::XMLoadFloat4A(&pPos);
 			DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(vPPos, vEPos);
 			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+			Enemy::SoundLocation sl;
+			sl.percentage = 0.0f;
 			if (length < 20.0f)
 			{
 				for (auto & c : channels)
@@ -358,6 +360,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							case AudioEngine::Player:
 								allSounds += addThis;
 								playerSounds += addThis;
+								if (playerSounds > sl.percentage)
+								{
+									sl.soundPos.x = soundPos.x;
+									sl.soundPos.y = soundPos.y;
+									sl.soundPos.z = soundPos.z;
+								}
 								break;
 							case AudioEngine::Other:
 								allSounds += addThis;
@@ -367,13 +375,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					}
 				}
 
-				if (playerSounds > 0.1)
-				{
-					if (playerSounds / allSounds > 0.3f)
-					{
-						// TODO :: Update the enemy, it has heard the player.
-					}
-				}
+				sl.percentage = playerSounds / allSounds;
+				std::cout << sl.percentage << std::endl;
+				e->setSoundLocation(sl);
 			}
 			counter++;
 		}

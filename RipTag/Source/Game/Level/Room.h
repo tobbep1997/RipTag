@@ -3,6 +3,7 @@
 #include <vector>
 #include <AudioEngine.h>
 #include "2D Engine/Quad/Components/HUDComponent.h"
+#include "../Handlers/EnemyHandler.h"
 
 namespace ImporterLibrary {
 	struct GridStruct;
@@ -12,7 +13,6 @@ namespace ImporterLibrary {
 class Quad;
 class Grid;
 class Door;
-class EnemyHandler;
 class Lever;
 class Player;
 class BaseActor;
@@ -55,6 +55,7 @@ private:
 	BaseActor * CollisionBoxes;
 	Player * m_playerInRoomPtr;
 	std::vector<Enemy*> m_roomGuards;
+	EnemyHandler m_enemyHandler;
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
@@ -67,11 +68,10 @@ private:
 
 	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 
-	std::vector<const int*> vis;
-
+	//std::vector<const int*> vis;
 	Quad * m_lose;
-
 	bool m_youLost = false;
+
 public:
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);

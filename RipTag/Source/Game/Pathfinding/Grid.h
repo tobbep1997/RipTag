@@ -77,8 +77,8 @@ private:
 	std::vector<Node> m_nodeMap;
 	int m_width, m_height;
 
-	//std::vector<Node*> m_path;
-	//std::future<std::vector<Node*>> m_pathfindingFuture;
+	std::vector<Node*> m_path;
+	std::future<std::vector<Node*>> m_pathfindingFuture;
 
 public:
 	Grid(int width = 0, int height = 0);
@@ -88,15 +88,11 @@ public:
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	std::vector<Node*> FindPath(Tile src, Tile dest);
+	std::vector<Node*> InvestigateAreaPath(Tile src);
 
-	//void ThreadPath(Tile src, Tile dest);
-	//std::vector<Node*> getPath();
-	//bool Ready();
-
-	// Test function
-	void printGrid();
-	void printWorldPos();
-	std::vector<Node> getNM();
+	void ThreadPath(Tile src, Tile dest);
+	std::vector<Node*> GetPathFromThread();
+	bool IsPathReady();
 
 private:
 	// Utility functions
