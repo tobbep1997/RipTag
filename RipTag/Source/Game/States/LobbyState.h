@@ -6,6 +6,8 @@ class LobbyState :
 	public State
 {
 private:
+	const double FLUSH_FREQUENCY = 1.0; //unit is in seconds
+
 	enum ButtonOrderLobby
 	{
 		Host = 0,
@@ -62,6 +64,7 @@ private:
 	void _updateSelectionStates();
 	void _resetLobbyButtonStates();
 	void _resetCharSelectButtonStates();
+	void _flushServerList();
 
 
 	//Network

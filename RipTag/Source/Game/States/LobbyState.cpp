@@ -33,20 +33,41 @@ LobbyState::~LobbyState()
 		delete button;
 	}
 	this->m_lobbyButtons.clear();
+
 	for (auto & button : this->m_charSelectButtons)
 	{
 		button->Release();
 		delete button;
 	}
 	this->m_charSelectButtons.clear();
+
+	for (auto & button : this->m_hostListButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_hostListButtons.clear();
+
+
 	this->pNetwork->ShutdownPeer();
 }
 
 void LobbyState::Update(double deltaTime)
 {
+	static double accumulatedTime = 0.0;
+	if (!isHosting && !hasJoined)
+	{
+		accumulatedTime += deltaTime;
+		if (accumulatedTime >= FLUSH_FREQUENCY)
+		{
+			this->_flushServerList();
+			accumulatedTime -= FLUSH_FREQUENCY;
+		}
+	}
+
 	//Network updates first
 	if (isHosting)
-		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET));
+		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET) + 1);
 
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
@@ -436,6 +457,19 @@ void LobbyState::_resetCharSelectButtonStates()
 	m_currentButton = (unsigned int)CharacterSelection::CharOne;
 }
 
+void LobbyState::_flushServerList()
+{
+	this->m_hostNameMap.clear();
+	this->m_hostAdressMap.clear();
+	for (auto & button : this->m_hostListButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_hostListButtons.clear();
+
+}
+
 void LobbyState::_registerThisInstanceToNetwork()
 {
 	using namespace Network;
@@ -467,7 +501,7 @@ void LobbyState::_newHostEntry(std::string & hostName)
 {
 	static float startX = 0.7f;
 	static float startY = 0.8f;
-	static float offsetY = 0.1f;
+	static float offsetY = 0.05f;
 	static float scaleX = 0.4f;
 	static float scaleY = 0.1f;
 
