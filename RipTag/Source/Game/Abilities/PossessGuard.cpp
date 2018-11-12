@@ -12,9 +12,9 @@ PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 	m_possessHud->init({ 0.5f, 1.0f }, { 0.4, 0.2 });
 	m_possessHud->setPivotPoint(Quad::PivotPoint::upperCenter);
 	m_possessHud->setFont(FontHandler::getFont("consolas32"));
-	m_possessHud->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_possessHud->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_possessHud->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_possessHud->setUnpressedTexture("SPHERE");
+	m_possessHud->setPressedTexture("DAB");
+	m_possessHud->setHoverTexture("PIRASRUM");
 	m_possessHud->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 }
 

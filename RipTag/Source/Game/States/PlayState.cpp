@@ -27,7 +27,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
-	Manager::g_textureManager.loadTextures("SPHERE");
 
 	//Load assets
 	{
@@ -45,15 +44,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 
 
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody,0.5f,0.9f,0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
-
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+	
 	
 	//Do not remove pls <3
 	{
@@ -145,8 +136,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	}
 
-	m_levelHandler = new LevelHandler();
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
 
 	triggerHandler = new TriggerHandler();
 
@@ -161,6 +151,8 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
 
+	
+
 	Input::ResetMouse();
 
 	m_step.velocityIterations = 1;
@@ -168,13 +160,6 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	m_firstRun = false;
 	
 	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
-
-	//tempp = new BaseActor();
-	//tempp->Init(m_world, e_staticBody);
-	//tempp->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
-	//tempp->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	//tempp->setPosition(5.5f, 5, -5);
-	//rot = DirectX::XMFLOAT4A(0, 0, 0, 1);
 }
 
 PlayState::~PlayState()
@@ -200,26 +185,11 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-	
-	/*if (m_physicsThread.joinable())
-	{
-		m_physicsThread.join();
-	}*/
-
-	//5.5,5,-4.5
-	//DirectX::XMFLOAT4A pos = tempp->getPosition();
-	
-
-	//tempp->ImGuiTransform(pos, rot,10,10);
-	//tempp->setPosition(pos.x,pos.y,pos.z);
-	//tempp->addRotation(rot.x, rot.y, rot.z);
-
-	
+			
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
 
-	//model->getAnimatedModel()->Update(deltaTime);
 
 	m_playerManager->PhysicsUpdate();
 	
@@ -229,8 +199,6 @@ void PlayState::Update(double deltaTime)
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 
-	/*m_deltaTime = deltaTime;
-	std::lock_guard<std::mutex> lg(m_physicsMutex);*/
 	m_deltaTime = deltaTime;
 	m_physicsCondition.notify_all();
 	
@@ -248,9 +216,6 @@ void PlayState::Update(double deltaTime)
 		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
-	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	
-
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		m_destoryPhysicsThread = true;
@@ -261,7 +226,6 @@ void PlayState::Update(double deltaTime)
 		{
 			m_physicsThread.join();
 		}
-		//setKillState(true);
 		BackToMenu();
 	}
 
@@ -276,7 +240,6 @@ void PlayState::Update(double deltaTime)
 			m_physicsThread.join();
 		}
 		pushNewState(new LoseState(p_renderingManager));
-		//BackToMenu();
 	}
 
 	
@@ -304,7 +267,6 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-	//tempp->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -518,4 +480,44 @@ void PlayState::TemporaryLobby()
 	}
 
 	ImGui::End();
+}
+
+void PlayState::unLoad()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadAllTexture();
+	Manager::g_meshManager.UnloadAllMeshes();
+
+	std::cout << "PlayState unLoad" << std::endl;
+
+}
+
+void PlayState::Load()
+{
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("FML");
+	Manager::g_textureManager.loadTextures("VISIBILITYICON");
+	Manager::g_textureManager.loadTextures("BLACK");
+
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+
+	m_levelHandler = new LevelHandler();
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	std::cout << "PlayState Load" << std::endl;
 }

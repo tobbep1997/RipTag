@@ -675,7 +675,6 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		std::cout << "Path size: " << m_alertPath.size() << "\n";
 		delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}

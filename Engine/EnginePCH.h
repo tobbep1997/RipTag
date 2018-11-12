@@ -10,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "ConsoleColor.h"
+
 #include "EngineSource/Structs.h"
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Texture.h"

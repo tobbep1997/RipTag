@@ -69,6 +69,7 @@
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 
+#include "ConsoleColor.h"
 
 #include "EngineSource/Helper/Timer.h"
 #include "EngineSource/Helper/HelperFunctions.h"

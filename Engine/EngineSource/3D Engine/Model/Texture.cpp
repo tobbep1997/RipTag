@@ -25,14 +25,46 @@ HRESULT Texture::Load(const wchar_t * file)
 	ORMname.append(L"_ORM.png");
 	normalName.append(L"_NORMAL.png");
 
+
+
+
 	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), nullptr, &m_SRV[0]);
+	if (FAILED(hr))
+	{ 
+		std::string p = std::string(albedoName.begin(), albedoName.end());
+		size_t t = p.find_last_of(L'/');
+		p = p.substr(t + 1);
+		std::cout << red << p << " Failed to Load" << std::endl;
+		std::cout << white;
+		return hr;
+	}
+	
 	hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, normalName.c_str(), nullptr, &m_SRV[1]);
+	if (FAILED(hr))
+	{
+		std::string p = std::string(normalName.begin(), normalName.end());
+		size_t t = p.find_last_of(L'/');
+		p = p.substr(t + 1);
+		std::cout << red << p << " Failed to Load" << std::endl;
+		std::cout << white;
+		return hr;
+	}
+
 	hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, ORMname.c_str(), nullptr, &m_SRV[2]);
+	if (FAILED(hr))
+	{
+		std::string p = std::string(ORMname.begin(), ORMname.end());
+		size_t t = p.find_last_of(L'/');
+		p = p.substr(t + 1);
+		std::cout << red << p << " Failed to Load" << std::endl;
+		std::cout << white;
+		return hr;
+	}
 
 	//HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, albedoName.c_str(), nullptr, &m_SRV[0]);
 	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, normalName.c_str(), nullptr, &m_SRV[1]);
 	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, ORMname.c_str(), nullptr, &m_SRV[2]);
-
+	HRESULT;
 	return hr;
 }
 
