@@ -127,6 +127,9 @@ private:
 
 	ID3D11Buffer * m_outlineBuffer;
 	OutLineBuffer m_outLineValues;
+
+	ID3D11DepthStencilState * m_write0State;
+	ID3D11DepthStencilState * m_write1State;
 	
 public:
 	ForwardRender();

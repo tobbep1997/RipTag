@@ -643,6 +643,53 @@ void ForwardRender::_OutlineDepthCreate()
 //	
 //	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_outlineDepthBufferTex);
 //	hr = DX::g_device->CreateDepthStencilView(m_outlineDepthBufferTex, NULL, &m_outlineDepthStencil);
+
+	D3D11_DEPTH_STENCIL_DESC depth{};
+	depth.DepthEnable = TRUE;
+	depth.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depth.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	depth.StencilEnable = FALSE;
+
+	depth.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	depth.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	depth.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depth.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	depth.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR_SAT;
+	depth.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR_SAT;
+
+	depth.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR_SAT;
+	depth.BackFace.StencilPassOp = D3D11_STENCIL_OP_INCR_SAT;
+	
+	depth.FrontFace.StencilFailOp = D3D11_STENCIL_OP_INCR_SAT;
+	depth.BackFace.StencilFailOp = D3D11_STENCIL_OP_INCR_SAT;
+
+	DX::g_device->CreateDepthStencilState(&depth, &m_write1State);
+
+	D3D11_DEPTH_STENCIL_DESC depth2{};
+	depth2.DepthEnable = TRUE;
+	depth2.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depth2.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	depth2.StencilEnable = FALSE;
+		 
+	depth2.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	depth2.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	depth2.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depth2.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		 
+	depth2.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR_SAT;
+	depth2.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR_SAT;
+		 
+	depth2.FrontFace.StencilPassOp = D3D11_STENCIL_OP_DECR_SAT;
+	depth2.BackFace.StencilPassOp = D3D11_STENCIL_OP_DECR_SAT;
+		 
+	depth2.FrontFace.StencilFailOp = D3D11_STENCIL_OP_DECR_SAT;
+	depth2.BackFace.StencilFailOp = D3D11_STENCIL_OP_DECR_SAT;
+
+	DX::g_device->CreateDepthStencilState(&depth2, &m_write0State);
+
+
+
 }
 
 void ForwardRender::_setStaticShaders()
