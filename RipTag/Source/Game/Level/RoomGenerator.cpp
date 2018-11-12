@@ -17,8 +17,8 @@ void RoomGenerator::_generateGrid()
 	srand(time(NULL));
 
 	m_nrOfWalls = 4; // MAke random
-	m_roomDepth = rand() % (70 - 25 + 1) + 25;
-	m_roomWidth = rand() % (70 - 25 + 1) + 25;
+	m_roomDepth = 50+2;
+	m_roomWidth = 35+2;
 	m_generatedGrid = new Grid(-m_roomWidth, -m_roomDepth, m_roomWidth * 2, m_roomDepth * 2);
 	
 }
@@ -94,30 +94,62 @@ void RoomGenerator::_makeWalls()
 void RoomGenerator::_placeProps()
 {
 	
-	Manager::g_meshManager.loadStaticMesh("WAREHOUSE");
-	Manager::g_textureManager.loadTextures("WAREHOUSE");
-	//1 x 2 x 3
-	for (int a = -m_roomDepth +1; a < m_roomDepth -1; a+= 3)
+	int toBeARandomNumberInTheFuture = 1;
+
+	ImporterLibrary::CustomFileLoader loader;
+
+
+	Manager::g_meshManager.loadStaticMesh("MOD1");
+	returnableRoom->CollisionBoxes = new BaseActor();
+	ImporterLibrary::CollisionBoxes  modCollisionBoxes;
+	modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/MOD1FOLDER/MOD1_BBOX.bin");
+	
+	ImporterLibrary::PointLights lights = loader.readLightFile("MOD1");
+	for (int i = 0; i < lights.nrOf; i++)
 	{
-		int lol = returnRandomInGridDepth();
-		int lol2 = returnRandomInGridDepth();
-		for (int y = 1; y < 5; y += 2)
+		_generateLights(lights.lights[i].translate[0], lights.lights[i].translate[1], lights.lights[i].translate[2], lights.lights[i].color[0],
+			lights.lights[i].color[1], lights.lights[i].color[2], lights.lights[i].intensity);
+	}
+
+	for (int i = -m_roomWidth + 10; i < m_roomWidth - 10; i += 15)
+	{
+		for (int j = -m_roomDepth + 10; j < m_roomDepth - 10; j += 20)
 		{
-			for (int i = lol - 18; i < lol + 18; i += 3)
-			{
-				asset = new BaseActor();
-				asset->Init(*m_worldPtr, e_staticBody, 0.5, y, 1.5);
-
-				asset->setModel(Manager::g_meshManager.getStaticMesh("WAREHOUSE"));
-				asset->setTexture(Manager::g_textureManager.getTexture("WAREHOUSE"));
-
-				asset->setPosition(a, y, i);
-
-				//asset->setScale(m_roomWidth * 2, m_height, 1);
-				m_generated_assetVector.push_back(asset);
-			}
+			asset = new BaseActor();
+			asset->Init(*m_worldPtr, modCollisionBoxes);
+			asset->setPosition(i, 2.5, j);
+			asset->setModel(Manager::g_meshManager.getStaticMesh("MOD1"));
+			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
+			asset->setTextureTileMult(5, 5);
+			asset->setScale(1, 1, 1);
+			m_generated_assetVector.push_back(asset);
 		}
 	}
+	//Manager::g_meshManager.loadStaticMesh("WAREHOUSE");
+	//Manager::g_textureManager.loadTextures("WAREHOUSE");
+	////1 x 2 x 3
+	//for (int a = -m_roomDepth +1; a < m_roomDepth -1; a+= 3)
+	//{
+	//	int lol = returnRandomInGridDepth();
+	//	int lol2 = returnRandomInGridDepth();
+	//	for (int y = 1; y < 5; y += 2)
+	//	{
+	//		for (int i = lol - 18; i < lol + 18; i += 3)
+	//		{
+	//			asset = new BaseActor();
+	//			asset->Init(*m_worldPtr, e_staticBody, 0.5, y, 1.5);
+
+	//			asset->setModel(Manager::g_meshManager.getStaticMesh("WAREHOUSE"));
+	//			asset->setTexture(Manager::g_textureManager.getTexture("WAREHOUSE"));
+
+	//			asset->setPosition(a, y, i);
+
+	//			//asset->setScale(m_roomWidth * 2, m_height, 1);
+	//			m_generated_assetVector.push_back(asset);
+	//		}
+	//	}
+	//}
+
 }
 
 void RoomGenerator::_createEnemies()
@@ -151,53 +183,44 @@ void RoomGenerator::_FindWinnableAndGuardPaths()
 
 
 	Tile currentTile;
-	Tile pathToTile; 
+	Tile pathToTile;
 	std::vector<Node*> nodes;
 	currentTile = m_generatedGrid->WorldPosToTile(playerStartPos, 1 - m_roomDepth);
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		for (int y = 0; y < 10; y++)
+		for (int y = 0; y < 3; y++)
 		{
-
-			if(y == 9 && i == 9)
+			if (y == 1 && i == 6)
 				pathToTile = m_generatedGrid->WorldPosToTile(playerWinsAt, m_roomDepth);
 			else
 				pathToTile = m_generatedGrid->WorldPosToTile(returnRandomInGridWidth(), returnRandomInGridDepth());
-			
+
 			std::vector<Node*> tempPath = m_generatedGrid->FindPath(currentTile, pathToTile);
-			
+
 			nodes.insert(std::end(nodes), std::begin(tempPath), std::end(tempPath));
 			currentTile = pathToTile;
-			
+		}
+	}
+	currentTile = m_generatedGrid->WorldPosToTile(playerStartPos, 1 - m_roomDepth);
+	for (int i = 0; i < 3; i++)
+	{
+		for (int y = 0; y < 3; y++)
+		{
+
+			if (y == 1 && i == 6)
+				pathToTile = m_generatedGrid->WorldPosToTile(playerWinsAt, m_roomDepth);
+			else
+				pathToTile = m_generatedGrid->WorldPosToTile(returnRandomInGridWidth(), returnRandomInGridDepth());
+
+			std::vector<Node*> tempPath = m_generatedGrid->FindPath(currentTile, pathToTile);
+
+			nodes.insert(std::end(nodes), std::begin(tempPath), std::end(tempPath));
+			currentTile = pathToTile;
+
 		}
 	}
 	for (int i = 0; i < nodes.size(); i++)
 		nodes[i]->tile.setPathable(false);
-	
-	int startLol = -m_roomWidth;
-	int otherStartLol = -m_roomDepth;
-
-	for (size_t i = 0; i < m_roomWidth; i++)
-	{
-		startLol = -m_roomWidth;
-		for (size_t j = 0; j < m_roomDepth; j++)
-		{
-			if (m_generatedGrid->WorldPosToTile(i, j).getPathable() == true)
-				continue;
-			else
-			{
-				asset = new BaseActor();
-				asset->Init(*m_worldPtr, e_staticBody, 1, 1, 1);
-				asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-				asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
-				asset->setPosition(startLol, 2,	otherStartLol);
-
-				m_generated_assetVector.push_back(asset);
-			}
-			startLol += 1;
-		}
-		otherStartLol += 1;
-	}
 
 
 	for (int i = 0; i < nodes.size(); i++)
@@ -256,34 +279,32 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	Manager::g_textureManager.loadTextures("FLOOR");
 	Manager::g_meshManager.loadStaticMesh("WALL");
 	Manager::g_textureManager.loadTextures("WALL");
-	// TEMPKUB F�R TESTANDE
-	asset = new BaseActor();
-	asset->Init(*m_worldPtr, e_staticBody, 1, 1.f, 1);
-	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-	asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
-	asset->setTextureTileMult(m_roomDepth, m_roomWidth);
-	asset->setPosition(0, 2, 0);
-	
-	asset->setScale(2, 1, 2);
-	m_generated_assetVector.push_back(asset);
+
 	
 
 
 
 	
 	//std::vector<Enemy*> enemies, Player * player, Grid * grid
-	_placeProps();
 	returnableRoom = new Room(worldPtr, arrayIndex, playerPtr);
 	_generateGrid();
-	_FindWinnableAndGuardPaths();
+	//_FindWinnableAndGuardPaths();
 	returnableRoom->setGrid(this->m_generatedGrid);
+	_placeProps();
 	
-	
+
+	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
+	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
 	_makeFloor();
 	_makeWalls();
 //	_createEnemies();
-	_generateLights(0, 2, 0, 50, 60, 70, 10);	
+	
+	for (int i = 0; i < 12; i++)
+	{
+		_generateLights(i*5, 4, i*5, 50, 60, 70, 10);	
+
+	}
 	m_generatedRoomEnemyHandler = new EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 

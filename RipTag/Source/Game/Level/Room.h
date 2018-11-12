@@ -52,7 +52,7 @@ private:
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
 
-	BaseActor * CollisionBoxes;
+	
 	Player * m_playerInRoomPtr;
 	std::vector<Enemy*> m_roomGuards;
 	EnemyHandler * m_enemyHandler;
@@ -73,6 +73,7 @@ private:
 	bool m_youLost = false;
 
 public:
+	BaseActor * CollisionBoxes;
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	Room(b3World * worldPtr, int arrayIndex, Player * playerPtr);

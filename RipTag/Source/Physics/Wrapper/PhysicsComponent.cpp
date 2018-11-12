@@ -28,7 +28,15 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
-	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
+	if (this->singelCollider)
+		m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
+	else
+	{
+		for (int i = 0; i < m_bodys.size(); i++)
+		{
+			m_bodys[i]->SetTransform(b3Vec3(m_bodys[i]->GetTransform().translation.x + x, m_bodys[i]->GetTransform().translation.y + y, m_bodys[i]->GetTransform().translation.z + z), m_bodys[i]->GetQuaternion());
+		}
+	}
 }
 
 void PhysicsComponent::p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll)
