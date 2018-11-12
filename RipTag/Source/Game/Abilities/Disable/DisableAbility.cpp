@@ -29,7 +29,7 @@ void DisableAbility::Init()
 	Manager::g_textureManager.loadTextures("BAR");
 	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	Texture * texture = Manager::g_textureManager.getTexture("BAR");
-	m_bar->setUnpressedTexture(texture);
+	m_bar->setUnpressedTexture("BAR");
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 
 	HUDComponent::AddQuad(m_bar);
@@ -212,11 +212,11 @@ void DisableAbility::_inStateMoving(double dt)
 
 void DisableAbility::_inStateCooldown(double dt)
 {
-	m_cooldown += dt;
-	if (m_cooldown >= COOLDOWN_WAIT_MAX)
+	p_cooldown += dt;
+	if (p_cooldown >= p_cooldownMax)
 	{
+		p_cooldown = 0;
 		m_dState = DisableState::Throwable;
-		m_cooldown = 0;
 	}
 }
 

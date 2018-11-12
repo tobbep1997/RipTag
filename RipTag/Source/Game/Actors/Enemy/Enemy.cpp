@@ -111,22 +111,50 @@ void Enemy::CullingForVisability(const Transform& player)
 		DirectX::XMVECTOR enemyToPlayer = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&player.getPosition()), DirectX::XMLoadFloat4A(&getPosition()));
 
 		float d = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
+		//float d2 = DirectX::XMVectorGetY(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&p_camera->getDirection())), DirectX::XMVector3Normalize(enemyToPlayer)));
 		float lenght = DirectX::XMVectorGetX(DirectX::XMVector3Length(enemyToPlayer));
 
 		if (d > p_camera->getFOV() / 3.14f && lenght <= (p_camera->getFarPlane() / d) + 3)
 		{
 			m_allowVisability = true;
+			/*enemyX = d;
+			enemyY = d2;*/
+			
 		}
 		else
 		{
 			m_allowVisability = false;
+			enemyX = 0;
+			enemyY = 0;
 		}
 	}
 	else
 	{
 		m_allowVisability = false;
+		enemyX = 0;
+		enemyY = 0;
 	}
 		
+}
+
+DirectX::XMFLOAT2 Enemy::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Camera& playerCma)
+{
+	using namespace DirectX;
+
+	if (m_visCounter > 0)
+	{
+		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
+		XMVECTOR enemyPos = XMLoadFloat4A(&getPosition());
+
+		XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
+		XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
+		vdir = XMLoadFloat2(&dir);
+		vdir = XMVector2Normalize(vdir);
+
+		XMStoreFloat2(&dir, vdir);
+		return dir;
+	}
+	return XMFLOAT2(0, 0);
 }
 
 void Enemy::setPosition(const float & x, const float & y, const float & z, const float & w)
@@ -172,7 +200,8 @@ void Enemy::Update(double deltaTime)
 			_TempGuardPath(true, 0.001f);
 			if (m_alert)
 			{
-				_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
+				//_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
+				_MoveToAlert(m_alertPath.at(0), deltaTime);
 			}
 			else if (m_alertPath.size() > 0)
 			{
@@ -193,9 +222,16 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
-		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+		m_knockOutTimer += deltaTime;
+		if (m_knockOutMaxTime <= m_knockOutTimer)
+		{
+			m_disabled = false;
+		}
 
+		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+		m_visCounter = 0;
 	}
+	// Why every frame (?)
 	getBody()->SetType(e_dynamicBody);
 }
 
@@ -388,9 +424,9 @@ void Enemy::SetPathVector(std::vector<Node*> path)
 	m_path = path;
 }
 
-std::vector<Node*> Enemy::GetPathVector()
+Node * Enemy::GetCurrentPathNode() const
 {
-	return m_path;
+	return m_path.at(m_currentPathNode);
 }
 
 void Enemy::SetAlertVector(std::vector<Node*> alertPath)
@@ -410,9 +446,54 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 	}
 }
 
+size_t Enemy::GetAlertPathSize() const
+{
+	return m_alertPath.size();
+}
+
+Node * Enemy::GetAlertDestination() const
+{
+	return m_alertPath.at(m_alertPath.size() - 1);
+}
+
+EnemyState Enemy::getEnemyState() const
+{
+	return m_state;
+}
+
+void Enemy::setEnemeyState(EnemyState state)
+{
+	m_state = state;
+}
+
+void Enemy::setSoundLocation(const SoundLocation & sl)
+{
+	m_sl = sl;
+}
+
+const Enemy::SoundLocation & Enemy::getSoundLocation() const
+{
+	return m_sl;
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;
+}
+
+float Enemy::getTotalVisablilty() const
+{
+	return m_visCounter / m_visabilityTimer;
+}
+
+float Enemy::getMaxVisability() const
+{
+	return m_visCounter;
+}
+
+float Enemy::getVisCounter() const
+{
+	return m_visCounter;
 }
 
 void Enemy::_possessed(double deltaTime)
@@ -603,14 +684,19 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		m_currentAlertPathNode++;
+		/*m_currentAlertPathNode++;
 		if (m_currentAlertPathNode == m_alertPath.size())
 		{
 			std::reverse(m_alertPath.begin(), m_alertPath.end());
 			m_currentAlertPathNode = 0;
 			m_alert = false;
 			return true;
-		}
+		}*/
+		delete nextNode;
+		m_alertPath.erase(m_alertPath.begin());
+
+		if (m_alertPath.size() == 0)
+			m_alert = false;
 	}
 	else
 	{
@@ -631,8 +717,8 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		std::cout << "Path size: " << m_alertPath.size() << "\n";
-		delete m_alertPath.at(0);
+		delete nextNode;
+		//delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}
 	else
@@ -660,9 +746,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 		{
 			m_visCounter += visPres * deltaTime;
 			if (m_visabilityTimer <= m_visCounter)
-			{
-				//std::cout << "FOUND YOU BITCH" << std::endl;
-				//exit(0);
+			{	
 				m_found = true;
 			}
 		}

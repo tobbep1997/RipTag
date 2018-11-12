@@ -1,3 +1,10 @@
+#ifdef _DEBUG
+#ifndef DBG_NEW
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#define new DBG_NEW
+#endif
+#endif  // _DEBUG
+
 #include "RipTagPCH.h"
 #include "Grid.h"
 
@@ -73,14 +80,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!_isValid(destination))
 	{
-		std::cout << "Destination is invalid\n";
 		return std::vector<Node*>();
 	}
 
 	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	if (!dest.getPathable())
 	{
-		std::cout << "Destination is blocked\n";
 		return std::vector<Node*>();
 	}
 
@@ -111,7 +116,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 		if (current->tile == dest)
 		{
-			// Do complete path stuff
+			// Create complete path
 			std::vector<Node*> path;
 
 			// Creates the new path and deletes the pointers that are used to create the path
@@ -180,10 +185,15 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, closedList);
 
 		std::sort(earlyExploration.begin(), earlyExploration.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
-		if (earlyExploration.at(0)->fCost <= current->fCost)
+		if (earlyExploration.size() > 0 && earlyExploration.at(0)->fCost <= current->fCost)
 		{
 			earlyExplorationNode = earlyExploration.at(0);
 			earlyExploration.erase(earlyExploration.begin());
+		}
+		else
+		{
+			// Might be needed to avoid mem leaks if it doesn't lead to any new paths.
+			delete current;
 		}
 		openList.insert(std::end(openList), std::begin(earlyExploration), std::end(earlyExploration));
 		earlyExploration.clear();
@@ -198,51 +208,27 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	return std::vector<Node*>();
 }
 
-/*void Grid::ThreadPath(Tile src, Tile dest)
+std::vector<Node*> Grid::InvestigateAreaPath(Tile src)
+{
+	return std::vector<Node*>();
+}
+
+void Grid::ThreadPath(Tile src, Tile dest)
 {
 	m_pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
 }
 
-std::vector<Node*> Grid::getPath()
+std::vector<Node*> Grid::GetPathFromThread()
 {
 	m_path = m_pathfindingFuture.get();
 	return m_path;
-}*/
+}
 
-/*bool Grid::Ready()
+bool Grid::IsPathReady()
 {
 	using namespace std::chrono_literals;
 	auto status = m_pathfindingFuture.wait_for(0s);
 	return status == std::future_status::ready;
-}*/
-
-void Grid::printGrid()
-{
-	for (int i = 0; i < m_height; i++)
-	{
-		for (int j = 0; j < m_width; j++)
-		{
-			std::cout << m_nodeMap.at(j + i * m_width).tile.getPathable() << " ";
-		}
-		std::cout << "\n";
-	}
-}
-
-void Grid::printWorldPos()
-{
-	for (int i = 0; i < m_height; i++)
-	{
-		for (int j = 0; j < m_width; j++)
-		{
-			std::cout << "x: " << m_nodeMap.at(j + i * m_width).worldPos.x << " y: " << m_nodeMap.at(j + i * m_width).worldPos.y << std::endl;
-		}
-		std::cout << "\n";
-	}
-}
-
-std::vector<Node> Grid::getNM()
-{
-	return m_nodeMap;
 }
 
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList, bool * closedList)

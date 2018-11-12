@@ -1,17 +1,17 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 
-
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
-	float convertion = (float)Input::GetPlayerFOV() / 100;
+	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XM_PI * convertion, 16.0f / 9.0f, 0.1f, 110.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 110.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
+
 	//Ability stuff
 	{
 		VisabilityAbility * visAbl = new VisabilityAbility();
@@ -64,36 +64,36 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	quad->setUnpressedTexture("SPHERE");
+	quad->setPressedTexture("DAB");
 	HUDComponent::AddQuad(quad, 49);
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	quad->setUnpressedTexture("SPHERE");
+	quad->setPressedTexture("DAB");
 	HUDComponent::AddQuad(quad, 50);
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.05f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	quad->setUnpressedTexture("SPHERE");
+	quad->setPressedTexture("DAB");
 	HUDComponent::AddQuad(quad, 50);
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	quad->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+	quad->setUnpressedTexture("SPHERE");
+	quad->setPressedTexture("DAB");
 	HUDComponent::AddQuad(quad, 50);
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("CROSS"));
+	quad->setUnpressedTexture("CROSS");
 	HUDComponent::AddQuad(quad);
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture(Manager::g_textureManager.getTexture("VISIBILITYICON"));
+	quad->setUnpressedTexture("VISIBILITYICON");
 	HUDComponent::AddQuad(quad);
 
 	m_maxMana = STANDARD_START_MANA;
@@ -101,54 +101,31 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	m_manaBar = new Quad();
 	m_manaBar->init(DirectX::XMFLOAT2A(0.25f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_manaBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_manaBar->setUnpressedTexture("SPHERE");
 	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	
 
 	m_manaBarBackground = new Quad();
 	m_manaBarBackground->init(DirectX::XMFLOAT2A(0.248f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_manaBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_manaBarBackground->setUnpressedTexture("BLACK");
 	m_manaBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_manaBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
 	
 	m_manabarText = new Quad();
 	m_manabarText->init(DirectX::XMFLOAT2A(0.5, 0.034f), DirectX::XMFLOAT2A(0,0));
-	m_manabarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_manabarText->setUnpressedTexture("BLACK");
 	m_manabarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_manabarText->setScale(0,0);
-	m_manabarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	
+	m_manabarText->setFont(FontHandler::getFont("consolas32"));
 	m_manabarText->setString("MANA");
 	m_manabarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
 
-	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manaBarBackground);
+	HUDComponent::AddQuad(m_manaBar);
 	HUDComponent::AddQuad(m_manabarText);
+	   	 
 
-	m_visBar = new Quad();
-	m_visBar->init(DirectX::XMFLOAT2A(0.85f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_visBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_visBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
-
-
-	m_visBarBackground = new Quad();
-	m_visBarBackground->init(DirectX::XMFLOAT2A(0.848f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_visBarBackground->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
-	m_visBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_visBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
-
-	m_visbarText = new Quad();
-	m_visbarText->init(DirectX::XMFLOAT2A(0.92, 0.034f), DirectX::XMFLOAT2A(0, 0));
-	m_visbarText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
-	m_visbarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_visbarText->setScale(0, 0);
-	m_visbarText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
-	m_visbarText->setString("Vis");
-	m_visbarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
-
-
-	HUDComponent::AddQuad(m_visBar);
-	HUDComponent::AddQuad(m_visBarBackground);
-	HUDComponent::AddQuad(m_visbarText);
 
 
 	m_winBar = new Quad();
@@ -157,19 +134,19 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_winBar->setScale(0.5f, 0.25f);
 
 	m_winBar->setString("YOU WIN");
-	m_winBar->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_winBar->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_winBar->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_winBar->setUnpressedTexture("SPHERE");
+	m_winBar->setPressedTexture("DAB");
+	m_winBar->setHoverTexture("PIRASRUM");
 	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_winBar->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_winBar->setFont(FontHandler::getFont("consolas32"));
 	HUDComponent::AddQuad(m_winBar);
 
 	m_infoText = new Quad();
 	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
-	m_infoText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_infoText->setUnpressedTexture("BLACK");
 	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_infoText->setScale(0, 0);
-	m_infoText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_infoText->setFont(FontHandler::getFont("consolas16"));
 	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_infoText);
 	m_tutorialMessages.push("");
@@ -181,10 +158,10 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	m_tutorialText = new Quad();
 	m_tutorialText->init(DirectX::XMFLOAT2A(0.5, 0.9f), DirectX::XMFLOAT2A(0, 0));
-	m_tutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_tutorialText->setUnpressedTexture("BLACK");
 	m_tutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_tutorialText->setScale(0, 0);
-	m_tutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_tutorialText->setFont(FontHandler::getFont("consolas16"));
 	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_tutorialText);
 	
@@ -196,10 +173,10 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	m_abilityTutorialText = new Quad();
 	m_abilityTutorialText->init(DirectX::XMFLOAT2A(0.15, 0.26f), DirectX::XMFLOAT2A(0, 0));
-	m_abilityTutorialText->setUnpressedTexture(Manager::g_textureManager.getTexture("BLACK"));
+	m_abilityTutorialText->setUnpressedTexture("BLACK");
 	m_abilityTutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
 	m_abilityTutorialText->setScale(0, 0);
-	m_abilityTutorialText->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_abilityTutorialText->setFont(FontHandler::getFont("consolas16"));
 	m_abilityTutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_abilityTutorialText);
 
@@ -212,6 +189,29 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
 	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
 
+
+	m_HUDcircle = new Circle();
+	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
+	m_HUDcircle->setRadie(.5f);
+	m_HUDcircle->setInnerRadie(.45f);
+	m_HUDcircle->setUnpressedTexture("DAB");
+	m_HUDcircle->setPressedTexture("DAB");
+	m_HUDcircle->setHoverTexture("PIRASRUM");
+
+	Manager::g_textureManager.loadTextures("FML");
+	m_HUDcircleFiller = new Circle();
+	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	m_HUDcircleFiller->setInnerRadie(-1.0f);
+	m_HUDcircleFiller->setUnpressedTexture("FML");
+	
+	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
+	{
+		Circle * c = new Circle();
+		c->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(.25f / 16.0f, .25f / 9.0f));
+		c->setRadie(.5f);
+		c->setUnpressedTexture("SPHERE");
+		m_enemyCircles.push_back(c);
+	}
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -231,6 +231,16 @@ Player::~Player()
 	delete[] m_abilityComponents2;
 	for (auto & s : m_sounds)
 		AudioEngine::UnLoadSoundEffect(s);
+	m_HUDcircle->Release();
+	delete m_HUDcircle;
+	m_HUDcircleFiller->Release();
+	delete m_HUDcircleFiller;
+
+	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
+	{
+		m_enemyCircles[i]->Release();
+		delete m_enemyCircles[i];
+	}
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
@@ -317,7 +327,8 @@ void Player::Update(double deltaTime)
 		}
 	}
 
-	m_visBar->setScale((float)m_visability / (float)g_fullVisability, 0.1f);
+	m_HUDcircleFiller->setRadie((totVis)*.5f);
+
 	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
 	if (InputHandler::isKeyPressed('I'))
 	{
@@ -329,6 +340,15 @@ void Player::Update(double deltaTime)
 	}
 
 	m_activeSet[m_currentAbility]->Update(deltaTime);
+	
+	for (int i = 0; i < 4; i++)
+	{
+		if (i != m_currentAbility)
+		{
+			m_activeSet[i]->updateCooldown(deltaTime);
+		}
+	}
+
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
@@ -370,6 +390,17 @@ void Player::Update(double deltaTime)
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
+	for (int i = 0; i < 4; i++)
+	{
+		Quad * current =HUDComponent::GetQuad(i);
+		if (m_activeSet[i]->getPercentage() <= 0.0f)
+		{
+			current->setV(1);
+		}
+		else
+			current->setV(m_activeSet[i]->getPercentage());
+	}
+
 }
 
 void Player::PhysicsUpdate()
@@ -442,13 +473,54 @@ void Player::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents2;
 }
 
+void Player::setEnemyPositions(std::vector<Enemy*> enemys)
+{
+	using namespace DirectX;
+	std::vector<DirectX::XMFLOAT2> relativEnemyPostions;
+	totVis = 0;
+	maxVis = 0;
+	for (int i = 0; i < enemys.size(); i++)
+	{
+	
+		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
+		if (pos.x > 0 || pos.y > 0)
+		{
+			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
+			if (enemys[i]->getTotalVisablilty() > totVis)
+			{
+				totVis = enemys[i]->getTotalVisablilty();
+				maxVis = enemys[i]->getMaxVisability();
+			}
+		}
+	}
+	XMFLOAT2A finalPos = m_HUDcircle->getPosition();
+
+	m_currentEnemysVisable = 0;
+	for (int i = 0; i < relativEnemyPostions.size() && i < MAX_ENEMY_CIRCLES; i++)
+	{
+		m_currentEnemysVisable++;
+
+		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x /4.0f) ),
+			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
+	}
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
+	{
+		
 		m_activeSet[i]->Draw();
+	}
 	Drawable::Draw();
-	HUDComponent::HUDDraw();
 
+	HUDComponent::HUDDraw();
+	m_HUDcircleFiller->Draw();
+	m_HUDcircle->Draw();
+	for (unsigned short i = 0; i < m_currentEnemysVisable; i++)
+	{
+		m_enemyCircles[i]->Draw();
+	}
 }
 
 void Player::LockPlayerInput()
@@ -817,27 +889,27 @@ void Player::_onRotate(double deltaTime)
 			//m_peekRotate = 0;
 		}
 
-		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity() * deltaTime) >=-0.5)
+		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >=-0.5)
 		{
-			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f);
+			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
 			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
 			{
-				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity() * deltaTime;
+				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
 			}
 		}
 		if (deltaY) 
 		{
-			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity() * deltaTime) < 0.90f)
+			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
 			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f, 0.0f);
+				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y >= 0.90f)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
 			}
-			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity() * deltaTime) > -0.90f)
+			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) > -0.90f)
 			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity() * deltaTime, 0.0f, 0.0f);
+				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y <= -0.90f)
 			{
@@ -1101,7 +1173,6 @@ void Player::_hasWon()
 			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
 			{
 				hasWon = true;
-				std::cout << "HASWON!" << std::endl;
 				SendOnWin();
 				
 				break;
@@ -1112,7 +1183,6 @@ void Player::_hasWon()
 			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
 				hasWon = true;
-				std::cout << "HASWON!" << std::endl;
 				SendOnWin();
 				break;
 			}

@@ -63,7 +63,22 @@ void BaseActor::setRotation(const float& pitch, const float& yaw, const float& r
 
 void BaseActor::addRotation(const float& pitch, const float& yaw, const float& roll)
 {
+	Transform::addRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
+	PhysicsComponent::p_addRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
+}
 
+void BaseActor::ImGuiTransform(DirectX::XMFLOAT4A& pos, DirectX::XMFLOAT4A & rotation, const float& posMove, const float& rot)
+{
+	ImGui::Begin("Cube");
+	ImGui::SliderFloat("PositionX", &pos.x, -posMove, posMove);
+	ImGui::SliderFloat("PositionY", &pos.y, -posMove, posMove);
+	ImGui::SliderFloat("PositionZ", &pos.z, -posMove, posMove);
+
+	ImGui::SliderFloat("DirX", &rotation.x, -rot, rot);
+	ImGui::SliderFloat("DirY", &rotation.y, -rot, rot);
+	ImGui::SliderFloat("DirZ", &rotation.z, -rot, rot);
+
+	ImGui::End();
 }
 
 

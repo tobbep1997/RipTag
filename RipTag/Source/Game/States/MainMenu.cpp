@@ -1,135 +1,246 @@
 #include "RipTagPCH.h"
+#include "../2DEngine/2D Engine/Quad/Components/HUDComponent.h"
 #include "MainMenu.h"
 
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
-
-
-	playButton = new Quad();
-	playButton->init();
-	playButton->setPosition(0.5f, 0.5f);
-	playButton->setScale(0.5f, 0.25f);
-
-	playButton->setString("Play Game");
-	playButton->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	playButton->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	playButton->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
-	playButton->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	playButton->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
-
-	quitButton = new Quad();
-	quitButton->init();
-	quitButton->setPosition(0.5f, 0.25f);
-	quitButton->setScale(0.4f, 0.2f);
-
-	quitButton->setString("Quit Game");
-	quitButton->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	quitButton->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	quitButton->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
-	quitButton->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	quitButton->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
-
-	c = new Circle();
-	c->init(DirectX::XMFLOAT2A(.25, .5), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
-	c->setUnpressedTexture(Manager::g_textureManager.getTexture("DAB"));
-
-	m_textInput = new TextInput();
-	m_textInput->init(DirectX::XMFLOAT2A(0.5f, .75f), DirectX::XMFLOAT2A(2.0f, 0.2f));
-	m_textInput->getQuad()->setTextAlignment(Quad::TextAlignment::leftAligned);
-	m_textInput->getQuad()->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_textInput->getQuad()->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_textInput->getQuad()->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
-	m_textInput->getQuad()->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
-	m_textInput->getQuad()->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	
 }
 
 MainMenu::~MainMenu()
 {
-	playButton->Release();
-	delete playButton;
-
-	quitButton->Release();
-	delete quitButton;
-
-	c->Release();
-	delete c;
-
-	m_textInput->getQuad()->Release();
-	delete m_textInput;
+	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
 {
-	if (InputHandler::getShowCursor() != TRUE)
+	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
-	if (Input::isUsingGamepad())
+	_handleMouseInput();
+	_handleGamePadInput();
+	_handleKeyboardInput();
+
+	//Check if we have the current button pressed, if so determine which one and do the thing
+	if (m_buttons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 	{
-		if (GamePadHandler::IsUpDpadPressed())
+		switch ((ButtonOrder)m_currentButton)
 		{
-			playButton->Select(true);
-			playButton->setState(1);
-			quitButton->Select(false);
-			quitButton->setState(0);
-		}
-		else if (GamePadHandler::IsDownDpadPressed())
-		{
-			playButton->Select(false);
-			playButton->setState(0);
-
-			quitButton->Select(true);
-			quitButton->setState(1);
-
-		}
-		if (GamePadHandler::IsAPressed())
-		{
-			if (playButton->isSelected())
-			{
-				playButton->setState(2);
-				pushNewState(new PlayState(this->p_renderingManager));
-			}
-			else if (quitButton->isSelected())
-			{
-				quitButton->setState(2);
-				InputHandler::CloseGame();
-				PostQuitMessage(0);
-			}
-		}
-	}
-	else
-	{
-		if (playButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
-			pushNewState(new PlayState(this->p_renderingManager));
-
-		if (quitButton->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
-		{
+		case ButtonOrder::Play:
+			_resetButtons();
+			this->pushNewState(new PlayState(this->p_renderingManager));
+			break;
+		case ButtonOrder::Lobby:
+			_resetButtons();
+			this->pushNewState(new LobbyState(this->p_renderingManager));
+			//nothing to do here yet
+			break;
+		case ButtonOrder::Option:
+			this->pushNewState(new OptionState(this->p_renderingManager));
+			break;
+		case ButtonOrder::Quit:
 			InputHandler::CloseGame();
 			PostQuitMessage(0);
+			break;
 		}
-			
 	}
-
 	
-	cTimer += deltaTime;
-	double radie = (sin(10 * cTimer)*sin(cTimer * 0.5) + 1.5)*0.175;
-	c->setRadie(radie);
-	
-	m_textInput->Update("");
+		
 }
 
 void MainMenu::Draw()
 {
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
+
+	for (size_t i = 0; i < m_buttons.size(); i++)
+		m_buttons[i]->Draw();
 	
-	playButton->Draw();
-	quitButton->Draw();
-	c->Draw();
-	m_textInput->Draw();
 	p_renderingManager->Flush(camera);
+}
+
+void MainMenu::_initButtons()
+{
+	//play button
+	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.80f, 0.5f, 0.25f));
+	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Play]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Play]->setHoverTexture("PIRASRUM");
+	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
+
+
+	//lobby button
+	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.6f, 0.5f, 0.25f));
+	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture("PIRASRUM");
+	this->m_buttons[ButtonOrder::Lobby]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Lobby]->setFont(FontHandler::getFont("consolas32"));
+
+	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.4f, 0.5f, 0.25f));
+	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Option]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Option]->setHoverTexture("PIRASRUM");
+	this->m_buttons[ButtonOrder::Option]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Option]->setFont(FontHandler::getFont("consolas32"));
+
+	//Quit button
+	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.20f, 0.5f, 0.25f));
+	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Quit]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("PIRASRUM");
+	this->m_buttons[ButtonOrder::Quit]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Quit]->setFont(FontHandler::getFont("consolas32"));
+}
+
+void MainMenu::_handleMouseInput()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		if (m_buttons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_buttons[i]->Select(true);
+			m_buttons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_buttons[i]->isReleased(mousePos))
+				m_buttons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_buttons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_buttons[j]->Select(false);
+					m_buttons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+}
+
+void MainMenu::_handleGamePadInput()
+{
+	if (Input::isUsingGamepad())
+	{
+		if (GamePadHandler::IsUpDpadPressed())
+		{
+			if (m_currentButton == 0)
+				m_currentButton = (unsigned int)ButtonOrder::Quit;
+			else
+				m_currentButton--;
+		}
+		else if (GamePadHandler::IsDownDpadPressed())
+		{
+			m_currentButton++;
+			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+		}
+		_updateSelectionStates();
+
+		//Check for action input
+		if (GamePadHandler::IsAPressed())
+		{
+			if (m_buttons[m_currentButton]->isSelected())
+				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
+
+}
+
+void MainMenu::_handleKeyboardInput()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrder::Quit;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+	}
+
+	_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_buttons[m_currentButton]->isSelected())
+			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void MainMenu::_updateSelectionStates()
+{
+	//update the selection states
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		if (i != m_currentButton)
+		{
+			m_buttons[i]->Select(false);
+			m_buttons[i]->setState(ButtonStates::Normal);
+		}
+		else
+		{
+			if (!m_buttons[i]->isSelected()
+				&& (m_buttons[i]->getState() != (unsigned int)ButtonStates::Pressed)
+				)
+			{
+				m_buttons[i]->Select(true);
+				m_buttons[i]->setState(ButtonStates::Hover);
+			}
+		}
+	}
+}
+
+void MainMenu::_resetButtons()
+{
+	for (auto & button : m_buttons)
+	{
+		button->Select(false);
+		button->setState(ButtonStates::Normal);
+	}
+	m_currentButton = (unsigned int)ButtonOrder::Play;
+}
+
+void MainMenu::Load()
+{
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	FontHandler::loadFont("consolas32");
+	FontHandler::loadFont("consolas16");
+	   
+	_initButtons();
+	m_currentButton = (unsigned int)ButtonOrder::Play;
+
+	std::cout << "MainMenu Load" << std::endl;
+}
+
+void MainMenu::unLoad()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadAllTexture();
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		m_buttons[i]->Release();
+		delete m_buttons[i];
+	}
+	m_buttons.clear();
+	Manager::g_textureManager.UnloadAllTexture();
+
+	std::cout << "MainMenu unLoad" << std::endl;
 }

@@ -43,6 +43,10 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
+	static bool m_youlost;
+	//BaseActor * tempp;
+	//DirectX::XMFLOAT4A rot;
+
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -51,11 +55,17 @@ public:
 
 	void Draw() override;
 
+	static void setYouLost(const bool & youLost);
+
 private:
 	void testtThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
+
+	// Inherited via State
+	virtual void unLoad();
+	virtual void Load();
 };
 
