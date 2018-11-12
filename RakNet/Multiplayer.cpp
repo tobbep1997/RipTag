@@ -31,7 +31,6 @@ namespace Network
 	{
 		if (this->pPeer)
 		{
-			this->Disconnect();
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
 			this->pPeer = 0;
 		}
@@ -173,8 +172,8 @@ namespace Network
 
 	void Multiplayer::EndConnectionAttempt()
 	{
-		if (m_isConnected)
-			this->Disconnect();
+		if (m_isConnected);
+			
 		else
 		{
 			this->pPeer->Shutdown(1);
@@ -271,7 +270,7 @@ namespace Network
 			mapIterator = RemotePlayerOnReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
 			if (mapIterator != RemotePlayerOnReceiveMap.end())
 				mapIterator->second(0, nullptr);
-			this->Disconnect();
+			//this->Disconnect();
 			break;
 		case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
 			// Print message: Server is full

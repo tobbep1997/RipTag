@@ -462,8 +462,8 @@ void PlayState::TemporaryLobby()
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
 			}
 		ImGui::Text(ptr->GetNetworkInfo().c_str());
-		if (ImGui::Button("Disconnect"))
-			ptr->Disconnect();
+		if (ImGui::Button("Disconnect"));
+			//ptr->Disconnect();
 	}
 
 	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
