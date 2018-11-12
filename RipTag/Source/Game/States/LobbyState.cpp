@@ -170,6 +170,7 @@ void LobbyState::Update(double deltaTime)
 					pNetwork->CloseServer(m_clientIP);
 					hasClient = false;
 					m_clientIP = RakNet::SystemAddress("0.0.0.0");
+					this->selectedHostInfo = "Selected Host: None\n";
 				}
 				if (hasJoined)
 				{
