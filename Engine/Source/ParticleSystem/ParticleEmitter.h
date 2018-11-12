@@ -32,7 +32,6 @@ private:
 	std::vector<Particle*> m_Particles;
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_cBuffer;
-	D3D11_MAPPED_SUBRESOURCE m_MappedSubresource;
 	Vertex* m_VertexData;
 	Particle * m_newParticle;
 	UINT32 m_StrideSize;
@@ -50,7 +49,7 @@ private:
 	DirectX::XMVECTOR m_fakeUp = { 0.0f, 1.0f, 0.0f };
 
 	void _createConstantBuffer();
-	void _particleCalculation();
+	void _particleVertexCalculation();
 
 public:
 	ParticleEmitter();
@@ -60,11 +59,11 @@ public:
 	void InitializeBuffer();
 	void SetBuffer();
 	void Draw();
-	std::vector<Vertex> *vertex;
 	DirectX::XMFLOAT3 RandomOffset(DirectX::XMFLOAT3 basePos, int offset);
 	DirectX::XMFLOAT3 Float3scale(DirectX::XMFLOAT3 basePos, float scale);
 	DirectX::XMFLOAT3 Float3add(DirectX::XMFLOAT3 basePos, DirectX::XMFLOAT3 basePos2);
 	int nrOfEmittedParticles;
+	std::vector<Vertex*> vertex;
 	int nrOfVertex;
 
 };

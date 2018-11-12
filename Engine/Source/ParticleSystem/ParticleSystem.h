@@ -14,8 +14,10 @@ public:
 	ParticleSystem();
 	~ParticleSystem();
 
+	int nrOfEmitters;
+
 	std::vector<ParticleEmitter*> m_ParticleEmitter;
-	ParticleEmitter *p = new ParticleEmitter;
+	void Draw();
 
 	void Reset();
 };

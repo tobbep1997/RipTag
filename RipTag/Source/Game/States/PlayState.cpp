@@ -221,6 +221,8 @@ void PlayState::Update(double deltaTime)
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
 
+	m_particleEmitter->Update(deltaTime);
+
 	//model->getAnimatedModel()->Update(deltaTime);
 
 	m_playerManager->PhysicsUpdate();
@@ -291,6 +293,8 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
+
+	m_particleEmitter->Draw();
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }

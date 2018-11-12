@@ -33,7 +33,7 @@ private:
 
 	b3World m_world;
 
-	ParticleEmitter * m_particleEmitter;
+	ParticleEmitter * m_particleEmitter = new ParticleEmitter;
 	TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
 	bool m_firstRun = true;

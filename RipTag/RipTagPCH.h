@@ -12,6 +12,11 @@
 
 #include "RipTagExtern/RipExtern.h"
 
+#include "Source/ParticleSystem/Particle.h"
+#include "Source/ParticleSystem/ParticleEmitter.h"
+#include "Source/ParticleSystem/ParticleManager.h"
+#include "Source/ParticleSystem/ParticleSystem.h"
+
 #include "Source/Game/States/State.h"
 #include "Source/Game/States/MainMenu.h"
 #include "Source/Game/States/PlayState.h"

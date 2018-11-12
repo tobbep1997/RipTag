@@ -12,6 +12,8 @@ ParticleEmitter::ParticleEmitter()
 	m_MinParticle = 10;
 	nrOfEmittedParticles = 200;
 	m_SpawnPosition = DirectX::XMFLOAT3(1, 1, 1);
+
+	InitializeBuffer();
 }
 
 ParticleEmitter::~ParticleEmitter()
@@ -21,9 +23,9 @@ ParticleEmitter::~ParticleEmitter()
 		delete particles;
 	}
 
-	for (int i = 0; m_Particles.size() > i; i++)
+	for (int i = 0; vertex.size() > i; i++)
 	{
-		delete m_Particles[i];
+		delete vertex[i];
 	}
 }
 
@@ -76,11 +78,11 @@ void ParticleEmitter::Update(float timeDelata)
 			m_Particles.push_back(m_newParticle);
 		}
 
-		_particleCalculation();
+		_particleVertexCalculation();
 	}
 }
 
-void ParticleEmitter::_particleCalculation()
+void ParticleEmitter::_particleVertexCalculation()
 {
 	m_toCam = DirectX::XMVECTOR{ 1,0,0 }; //DirectX::XMVECTOR{ -camDir.x, -camDir.y, -camDir.z };
 
@@ -105,6 +107,11 @@ void ParticleEmitter::_particleCalculation()
 
 		DirectX::XMMATRIX rotationMatrix;
 		rotationMatrix = DirectX::XMMatrixRotationAxis(m_forward, m_Particles[i]->rotation);
+		int temp = 
+		while (int j = 0; )
+		{
+			delete m_Particles[temp];
+		}
 
 		Vertex upLeftVertex;
 		Vertex upRightVertex;
@@ -136,12 +143,13 @@ void ParticleEmitter::_particleCalculation()
 		downLeftVertex.pos = DirectX::XMFLOAT4A(-2, -2, 0, 0);
 		downRightVertex.pos = DirectX::XMFLOAT4A(2, -2, 0, 0);
 
-		vertex->push_back(downLeftVertex);
-		vertex->push_back(upLeftVertex);
-		vertex->push_back(downRightVertex);
-		vertex->push_back(downRightVertex);
-		vertex->push_back(upLeftVertex);
-		vertex->push_back(upRightVertex);
+
+		vertex.push_back(&downLeftVertex);
+		vertex.push_back(&upLeftVertex);
+		vertex.push_back(&downRightVertex);
+		vertex.push_back(&downRightVertex);
+		vertex.push_back(&upLeftVertex);
+		vertex.push_back(&upRightVertex);
 	}
 }
 
@@ -185,27 +193,29 @@ void ParticleEmitter::InitializeBuffer()
 
 void ParticleEmitter::SetBuffer()
 {
-	DX::g_deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_MappedSubresource);
+	D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+	DX::g_deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 
-	m_VertexData = (Vertex*)m_MappedSubresource.pData;
-	int particleSize = m_Particles.size();
+	m_VertexData = (Vertex*)mappedSubresource.pData;
+	int particleSize = vertex.size();
+
 	for (int i = 0; i < particleSize; i++)
 	{
-		memcpy(m_VertexData, (void*)m_Particles[i], sizeof(Vertex));
+		memcpy(m_VertexData, (void*)vertex[i], sizeof(Vertex));
 	}
 
 	DX::g_deviceContext->Unmap(m_vertexBuffer, 0);
 	m_StrideSize = sizeof(Vertex);
 	DX::g_deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_StrideSize, &m_Offset);
+
 }
 
 void ParticleEmitter::Draw()
 {
-	int nrOfVerts = vertex->size();
+	int nrOfVerts = vertex.size();
+
 	if (nrOfVerts == 0)
 		return;
-
-	SetBuffer();
 
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl"));
@@ -217,20 +227,8 @@ void ParticleEmitter::Draw()
 	DX::g_deviceContext->RSSetViewports(1, &m_ParticleViewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_ParticleDepthStencilView);
 
-
-	//------------------------------------------------------------------------------------------
-	DX::g_deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_MappedSubresource);
-	m_VertexData = (Vertex*)m_MappedSubresource.pData;
-	int particleSize = m_Particles.size();
-	for (int i = 0; i < particleSize; i++)
-	{
-		memcpy(m_VertexData, (void*)m_Particles[i], sizeof(Vertex));
-	}
-	DX::g_deviceContext->Unmap(m_vertexBuffer, 0);
-	m_StrideSize = sizeof(Vertex);
-	DX::g_deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_StrideSize, &m_Offset);
-	//------------------------------------------------------------------------------------------
-
+	SetBuffer();
+	
 	DX::g_deviceContext->Draw(nrOfVerts, 0);
 }
 
