@@ -9,6 +9,11 @@
 #include <fstream>
 #include <sstream>
 
+#include "Source/ParticleSystem/Particle.h"
+#include "Source/ParticleSystem/ParticleEmitter.h"
+#include "Source/ParticleSystem/ParticleManager.h"
+#include "Source/ParticleSystem/ParticleSystem.h"
+
 #include "EngineSource/Structs.h"
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Texture.h"

@@ -19,6 +19,7 @@ class ContactListener;
 class RayCastListener;
 class RenderingManager;
 class Drawable; //#todoREMOVE
+class ParticleEmitter;
 
 
 class PlayState : public State
@@ -32,6 +33,7 @@ private:
 
 	b3World m_world;
 
+	ParticleEmitter * m_particleEmitter;
 	TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
 	bool m_firstRun = true;
