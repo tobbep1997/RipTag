@@ -224,14 +224,15 @@ namespace Network
 
 	RakNet::SystemAddress Multiplayer::GetMySysAdress()
 	{
-		if (this->m_isRunning)
+		if (this->pPeer->IsActive())
 			return this->pPeer->GetMyBoundAddress();
 		return RakNet::SystemAddress();
 	}
 
 	RakNet::RakNetGUID Multiplayer::GetMyGUID()
 	{
-		if (m_isRunning)
+		
+		if (this->pPeer->IsActive())
 			return this->pPeer->GetMyGUID();
 		return RakNet::RakNetGUID();
 	}
