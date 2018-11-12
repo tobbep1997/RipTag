@@ -35,7 +35,7 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
-	this->p_initCamera(new Camera(DirectX::XM_PI * 0.1f, 16.0f / 9.0f, 0.1f, 1.0f));
+	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
@@ -127,14 +127,14 @@ void Enemy::CullingForVisability(const Transform& player)
 		}
 		else
 		{
-			m_allowVisability = true;
+			m_allowVisability = false;
 			enemyX = 0;
 			enemyY = 0;
 		}
 	}
 	else
 	{
-		m_allowVisability = true;
+		m_allowVisability = false;
 		enemyX = 0;
 		enemyY = 0;
 	}
