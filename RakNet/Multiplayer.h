@@ -49,13 +49,15 @@ namespace Network
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
 		void SetupServer();
+		void CloseServer(RakNet::SystemAddress ip);
+
 		void StartUpPeer();
 		void ShutdownPeer();
 
 		void AdvertiseHost(const char * additionalData = nullptr, size_t length = 0);
 		bool ConnectTo(RakNet::SystemAddress ip);
 
-		void Disconnect();
+		void Disconnect(RakNet::SystemAddress);
 
 		void ReadPackets();
 		void EndConnectionAttempt();

@@ -63,6 +63,18 @@ namespace Network
 			this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
 	}
 
+	void Multiplayer::CloseServer(RakNet::SystemAddress ip)
+	{
+		if (strcmp(ip.ToString(), "UNASSIGNED_SYSTEM_ADDRESS") == 0)
+			return;
+		if (m_isRunning)
+		{
+			this->pPeer->CloseConnection(ip, true, (unsigned char)'\000', PacketPriority::IMMEDIATE_PRIORITY);
+			this->pPeer->SetMaximumIncomingConnections(0);
+			return;
+		}
+	}
+
 	void Multiplayer::StartUpPeer()
 	{
 		RakNet::StartupResult result;
@@ -108,10 +120,13 @@ namespace Network
 			return false;
 	}
 
-	void Multiplayer::Disconnect()
+	void Multiplayer::Disconnect(RakNet::SystemAddress ip)
 	{
-		pPeer->CloseConnection(m_rIP, true);
-		m_isConnected = m_isClient = m_isServer = m_isRunning = m_isGameRunning = false;
+		if (strcmp(ip.ToString(), "UNASSIGNED_SYSTEM_ADDRESS") == 0)
+			return;
+
+		if (m_isRunning)
+			pPeer->CloseConnection(ip, true, (unsigned char)'\000', PacketPriority::IMMEDIATE_PRIORITY);
 	}
 
 	void Multiplayer::ReadPackets()

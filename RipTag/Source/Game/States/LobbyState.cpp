@@ -164,6 +164,10 @@ void LobbyState::Update(double deltaTime)
 				//ready
 				break;
 			case CharacterSelection::Back:
+				if (isHosting)
+					pNetwork->CloseServer(m_clientIP);
+				if (hasJoined)
+					pNetwork->Disconnect(selectedHost);
 				isHosting = false;
 				hasJoined = false;
 				_resetLobbyButtonStates();
