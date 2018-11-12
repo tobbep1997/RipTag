@@ -63,7 +63,7 @@ void LobbyState::Update(double deltaTime)
 	//update the content for the info window
 	this->_updateInfoString();
 	//Network updates first
-	if (isHosting)
+	if (isHosting && !hasClient)
 		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET) + 1);
 
 	if (!InputHandler::getShowCursor())
