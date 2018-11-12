@@ -2,7 +2,7 @@
 #include <d3d11_1.h>
 #include <DirectXMath.h>
 #include <string>
-
+#include <DirectXCollision.h>
 #include "Transform.h"
 
 enum ObjectType
@@ -51,6 +51,7 @@ protected:
 	ObjectType p_objectType;
 	EntityType p_entityType;
 
+	DirectX::BoundingBox * m_bb = nullptr;
 	ID3D11Buffer * p_vertexBuffer;
 
 	std::wstring p_vertexPath;
@@ -63,10 +64,10 @@ protected:
 	//Setting the mesh for the object
 	virtual void p_setMesh(StaticMesh * staticMesh);
 	virtual void p_setMesh(DynamicMesh * dynamicMesh);
-
-	//Texture stuff
+	
 
 public:
+	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & center, const DirectX::XMFLOAT3 & extens);
 	
 
 	Drawable();
@@ -116,6 +117,8 @@ public:
 
 	virtual void setOutline(bool outline);
 	virtual bool getOutline();
+
+	virtual DirectX::BoundingBox * getBoundingBox();
 
 private:
 	virtual void _setStaticBuffer();

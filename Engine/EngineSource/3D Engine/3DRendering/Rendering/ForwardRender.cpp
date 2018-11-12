@@ -80,7 +80,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 }
 
-void ForwardRender::GeometryPass()
+void ForwardRender::GeometryPass(Camera & camera)
 {
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -100,11 +100,29 @@ void ForwardRender::GeometryPass()
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
 	_setStaticShaders();
+	
+	DirectX::BoundingFrustum cameraFrustrum;
+	DirectX::XMMATRIX viewInv, proj, invInvView;
+
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
+	invInvView = DirectX::XMLoadFloat4x4A(&camera.getView());
+	DirectX::BoundingFrustum::CreateFromMatrix(cameraFrustrum, proj);
+	cameraFrustrum.Transform(cameraFrustrum, viewInv);
+
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+
+			if (DX::g_geometryQueue[i]->getBoundingBox())
+			{
+				DirectX::BoundingBox * bb = DX::g_geometryQueue[i]->getBoundingBox();
+				bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[i]->getWorldmatrix()));
+				if (!cameraFrustrum.Intersects(*DX::g_geometryQueue[i]->getBoundingBox()))
+					continue;
+			}
 
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
 			DX::g_geometryQueue[i]->BindTextures();
@@ -116,7 +134,7 @@ void ForwardRender::GeometryPass()
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
-void ForwardRender::PrePass()
+void ForwardRender::PrePass(Camera & camera)
 {
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
@@ -132,10 +150,29 @@ void ForwardRender::PrePass()
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
 	//_setStaticShaders();
+
+	DirectX::XMMATRIX viewInv, proj, invInvView;
+
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
+	invInvView = DirectX::XMLoadFloat4x4A(&camera.getView());
+
+	DirectX::BoundingFrustum cameraFrustrum = DirectX::BoundingFrustum(proj);
+	DirectX::BoundingFrustum::CreateFromMatrix(cameraFrustrum, proj);
+	cameraFrustrum.Transform(cameraFrustrum, viewInv);
+
+
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->getOutline() != true)
 		{
+			if (DX::g_geometryQueue[i]->getBoundingBox())
+			{
+				DirectX::BoundingBox * bb = DX::g_geometryQueue[i]->getBoundingBox();
+				bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[i]->getWorldmatrix()));
+				if (!cameraFrustrum.Intersects(*DX::g_geometryQueue[i]->getBoundingBox()))
+					continue;
+			}
 			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_geometryQueue[i]);
@@ -182,7 +219,9 @@ void ForwardRender::Flush(Camera & camera)
 {
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	_mapCameraBuffer(camera);
-	this->PrePass();
+
+
+	this->PrePass(camera);
 
 
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
@@ -197,7 +236,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap->SetSamplerAndShaderResources();
 	_visabilityPass();
 	_mapCameraBuffer(camera);
-	this->GeometryPass();
+	this->GeometryPass(camera);
 	this->AnimatedGeometryPass();
 	this->_wireFramePass();
 	this->_OutliningPass(camera);

@@ -112,6 +112,8 @@ void RoomGenerator::_placeProps()
 				asset->setTexture(Manager::g_textureManager.getTexture("WAREHOUSE"));
 
 				asset->setPosition(a, y, i);
+				asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(0.5 * 2, 0.5 * 2, 1.5 * 2));
+				
 
 				//asset->setScale(m_roomWidth * 2, m_height, 1);
 				m_generated_assetVector.push_back(asset);
@@ -272,11 +274,11 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	
 	//std::vector<Enemy*> enemies, Player * player, Grid * grid
-	_placeProps();
 	returnableRoom = new Room(worldPtr, arrayIndex, playerPtr);
 	_generateGrid();
 	_FindWinnableAndGuardPaths();
 	returnableRoom->setGrid(this->m_generatedGrid);
+	_placeProps();
 	
 	
 
