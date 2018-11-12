@@ -83,6 +83,11 @@ void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * 
 }
 
 
+void PlayerManager::Init(b3World * physWorld)
+{
+	this->mWorld = physWorld;
+}
+
 void PlayerManager::Update(float dt)
 {
 	static float accumulatedDT = 0;
@@ -158,14 +163,39 @@ void PlayerManager::win()
 		mLocalPlayer->gameIsWon = true;
 }
 
+void PlayerManager::OnGameStart(bool coop)
+{
+	if (mLocalPlayer && coop)
+		mLocalPlayer->RegisterThisInstanceToNetwork();
+	if (mRemotePlayer && coop)
+		this->RegisterThisInstanceToNetwork();
+}
+
 void PlayerManager::CreateLocalPlayer()
 {
 	if (!mLocalPlayer && !hasLocalPlayer)
 	{
 		mLocalPlayer = new Player();
 		hasLocalPlayer = true;
-		mLocalPlayer->RegisterThisInstanceToNetwork();
+		//mLocalPlayer->RegisterThisInstanceToNetwork();
 	}
+}
+
+void PlayerManager::CreateRemotePlayer()
+{
+	if (!hasRemotePlayer)
+	{
+		this->mRemotePlayer = new RemotePlayer(0, { 0, 0, 0, 0 }, { 0,0,0,0 }, { 0,0,0,0 });
+		hasRemotePlayer = true;
+	}
+}
+
+void PlayerManager::DestroyRemotePlayer()
+{
+	if (mRemotePlayer)
+		delete mRemotePlayer;
+	mRemotePlayer = nullptr;
+	hasRemotePlayer = false;
 }
 
 void PlayerManager::SendOnPlayerCreate()

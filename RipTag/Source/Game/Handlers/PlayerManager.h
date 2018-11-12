@@ -8,7 +8,13 @@ class PlayerManager
 {
 public:
 	PlayerManager(b3World * physWorld);
+	PlayerManager(){}
 	~PlayerManager();
+	enum PlayerType
+	{
+		One = 1,
+		Two = 2
+	};
 private:
 	//our physics world
 	b3World * mWorld = 0;
@@ -18,6 +24,7 @@ private:
 	RemotePlayer * mRemotePlayer = 0;
 	bool hasLocalPlayer = false;
 	bool hasRemotePlayer = false;
+	int player_type = 0;
 
 public:
 	//We need to register the PlayerManager instance to our Network Function Map 
@@ -28,13 +35,23 @@ public:
 	void _onRemotePlayerPacket(unsigned char id, unsigned char * data);
 	void _onRemotePlayerWonPacket(unsigned char id, unsigned char *data);
 
+	void Init(b3World * physWorld);
 	void Update(float dt);
 	void PhysicsUpdate();
 	void Draw();
 	void win();
+	void OnGameStart(bool coop);
 	//Local player handling
 	void CreateLocalPlayer();
+	//call this function when a client connects to you
+	void CreateRemotePlayer();
+	//call this function if you had a client connected but he left
+	void DestroyRemotePlayer();
 	void SendOnPlayerCreate();
 	Player * getLocalPlayer();
+
+	//use this function to set the type from char selection 
+	void setPlayerType(int type) { player_type = type; }
+	int getPlayerType() { return player_type; }
 };
 

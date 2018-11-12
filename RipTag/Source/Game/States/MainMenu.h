@@ -15,6 +15,7 @@ private:
 	};
 	std::vector<Quad*> m_buttons;
 	unsigned int m_currentButton;
+	Quad * m_background = nullptr;
 
 public:
 	MainMenu(RenderingManager * rm);

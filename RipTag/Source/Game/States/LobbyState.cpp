@@ -138,27 +138,27 @@ void LobbyState::Update(double deltaTime)
 			switch ((CharacterSelection)m_currentButton)
 			{
 			case CharacterSelection::CharOne:
-				if (hasCharSelected)
+				if (hasCharSelected && selectedChar == 1)
 				{
 					hasCharSelected = false;
 					selectedChar = 0;
 				}
-				else
+				else if (!hasCharSelected && selectedChar == 0)
 				{
 					hasCharSelected = true;
 					selectedChar = 1;
 				}
 				break;
 			case CharacterSelection::CharTwo:
-				if (hasCharSelected)
+				if (hasCharSelected && selectedChar == 2)
 				{
 					hasCharSelected = false;
-					selectedChar = 0;
+					selectedChar = 0;	
 				}
-				else
+				else if (!hasCharSelected && selectedChar == 0)
 				{
 					hasCharSelected = true;
-					selectedChar = 2;
+					selectedChar = 2;					
 				}
 				break;
 			case CharacterSelection::Ready:
@@ -176,6 +176,7 @@ void LobbyState::Update(double deltaTime)
 				{
 					pNetwork->Disconnect(selectedHost);
 					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+					this->selectedHostInfo = "Selected Host: None\n";
 				}
 				isRemoteReady = false;
 				isReady = false;
@@ -327,6 +328,13 @@ void LobbyState::_handleGamePadInput()
 
 void LobbyState::_handleKeyboardInput()
 {
+	if (!isHosting && !hasJoined && !inServerList)
+		this->_keyboardMainLobby();
+	if (!isHosting && !hasJoined && inServerList)
+		this->_keyboardServerList();
+	if (isHosting || hasJoined)
+		this->_keyboardCharSelection();
+
 	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
 		if (!isHosting && !hasJoined)
@@ -372,64 +380,12 @@ void LobbyState::_handleKeyboardInput()
 
 void LobbyState::_handleMouseInput()
 {
-	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
-	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
-
-	mousePos.x /= windowSize.x;
-	mousePos.y /= windowSize.y;
-
 	if (!isHosting && !hasJoined)
-	{
-		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
-		{
-			if (m_lobbyButtons[i]->Inside(mousePos))
-			{
-				//set this button to current and on hover state
-				m_currentButton = i;
-				m_lobbyButtons[i]->Select(true);
-				m_lobbyButtons[i]->setState(ButtonStates::Hover);
-				//check if we released this button
-				if (m_lobbyButtons[i]->isReleased(mousePos))
-					m_lobbyButtons[i]->setState(ButtonStates::Pressed);
-				//set all the other buttons to
-				for (size_t j = 0; j < m_lobbyButtons.size(); j++)
-				{
-					if (i != j)
-					{
-						m_lobbyButtons[j]->Select(false);
-						m_lobbyButtons[j]->setState(ButtonStates::Normal);
-					}
-				}
-				break;
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < m_charSelectButtons.size(); i++)
-		{
-			if (m_charSelectButtons[i]->Inside(mousePos))
-			{
-				//set this button to current and on hover state
-				m_currentButton = i;
-				m_charSelectButtons[i]->Select(true);
-				m_charSelectButtons[i]->setState(ButtonStates::Hover);
-				//check if we released this button
-				if (m_charSelectButtons[i]->isReleased(mousePos))
-					m_charSelectButtons[i]->setState(ButtonStates::Pressed);
-				//set all the other buttons to
-				for (size_t j = 0; j < m_charSelectButtons.size(); j++)
-				{
-					if (i != j)
-					{
-						m_charSelectButtons[j]->Select(false);
-						m_charSelectButtons[j]->setState(ButtonStates::Normal);
-					}
-				}
-				break;
-			}
-		}
-	}
+		_mouseMainLobby();
+	if (!isHosting && !hasJoined && (m_hostListButtons.size() > 0))
+		_mouseServerList();
+	if (isHosting || hasJoined)
+		_mouseCharSelection();
 }
 
 void LobbyState::_updateSelectionStates()
@@ -548,11 +504,35 @@ void LobbyState::_updateInfoString()
 			content += "Connected to client: " + std::string(m_clientIP.ToString(false)) + "\n";
 		else
 			content += "No client connected\n";
+		switch (selectedChar)
+		{
+		case 0:
+			content += "No character selected\n";
+			break;
+		case 1:
+			content += "Selected Character: Lejf\n";
+			break;
+		case 2:
+			content += "Selected Character: Billy\n";
+			break;
+		}
 	}
 	else if (hasJoined)
 	{
 		content += "Your Host name: " + this->m_MyHostName + "\n";
 		content += "Connected to server: " + this->m_ServerName + "\n";
+		switch (selectedChar)
+		{
+		case 0:
+			content += "No character selected\n";
+			break;
+		case 1:
+			content += "Selected Character: Lejf\n";
+			break;
+		case 2:
+			content += "Selected Character: Billy\n";
+			break;
+		}
 	}
 	if (this->m_infoWindow)
 		this->m_infoWindow->setString(content);
@@ -651,6 +631,210 @@ void LobbyState::_gamePadServerList()
 		if (m_hostListButtons[m_currentButton]->isSelected())
 		{
 			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
+}
+
+void LobbyState::_keyboardMainLobby()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Right))
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
+			inServerList = true;
+			m_currentButton = 0;
+		}
+	}
+
+	_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_lobbyButtons[m_currentButton]->isSelected())
+			this->m_lobbyButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_keyboardCharSelection()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)CharacterSelection::Back;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
+	}
+
+	_updateSelectionStates();
+
+	//Check for action input
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_charSelectButtons[m_currentButton]->isSelected())
+			this->m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_keyboardServerList()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = this->m_hostListButtons.size() - 1;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % this->m_hostListButtons.size();
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Left))
+	{
+		m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
+		m_hostListButtons[m_currentButton]->Select(false);
+
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+		inServerList = false;
+	}
+
+	_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_hostListButtons[m_currentButton]->isSelected())
+		{
+			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
+}
+
+void LobbyState::_mouseMainLobby()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_lobbyButtons.size(); i++)
+	{
+		if (m_lobbyButtons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_lobbyButtons[i]->Select(true);
+			m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_lobbyButtons[i]->isReleased(mousePos))
+				m_lobbyButtons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_lobbyButtons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_lobbyButtons[j]->Select(false);
+					m_lobbyButtons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+}
+
+void LobbyState::_mouseCharSelection()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_charSelectButtons.size(); i++)
+	{
+		if (m_charSelectButtons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_charSelectButtons[i]->Select(true);
+			m_charSelectButtons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_charSelectButtons[i]->isReleased(mousePos))
+				m_charSelectButtons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_charSelectButtons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_charSelectButtons[j]->Select(false);
+					m_charSelectButtons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+
+}
+
+void LobbyState::_mouseServerList()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_hostListButtons.size(); i++)
+	{
+		if (m_hostListButtons[i]->Inside(mousePos))
+		{
+			m_hostListButtons[i]->Select(true);
+			m_hostListButtons[i]->setState(ButtonStates::Hover);
+			if (m_hostListButtons[i]->isReleased(mousePos))
+			{
+				std::string hostName = m_hostListButtons[i]->getString();
+				auto it = m_hostAdressMap.find(hostName);
+				if (it != m_hostAdressMap.end())
+				{
+					this->selectedHost = it->second;
+					this->selectedHostInfo = "Selected Host: " + hostName;
+					this->m_ServerName = hostName;
+				}
+				else
+				{
+					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+					this->selectedHostInfo = "Selected Host: None";
+				}
+				m_hostListButtons[i]->setState(ButtonStates::Pressed);
+			}
+			for (size_t j = 0; j < m_hostListButtons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_hostListButtons[j]->Select(false);
+					m_hostListButtons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
 		}
 	}
 }
