@@ -139,11 +139,11 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_lose->setScale(0.5f, 0.25f);
 	
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setUnpressedTexture("SPHERE");
+	m_lose->setPressedTexture("DAB");
+	m_lose->setHoverTexture("PIRASRUM");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
 
 	HUDComponent::AddQuad(m_lose);
 
@@ -226,7 +226,6 @@ void Room::UnloadRoomFromMemory()
 void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
-	std::cout << m_assetFilePath << std::endl;
 	if (m_roomLoaded == false)
 	{
 		ImporterLibrary::CustomFileLoader fileLoader;
@@ -344,8 +343,6 @@ void Room::getPath()
 				m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z)));
 		}
 	}
-	std::cout << "Px: " << m_playerInRoomPtr->getPosition().x << " Py: " << m_playerInRoomPtr->getPosition().z << std::endl;
-	std::cout << "x: " << t.getX() << " y: " << t.getY() << std::endl;
 }
 
 void Room::Update(float deltaTime)
@@ -355,11 +352,15 @@ void Room::Update(float deltaTime)
 		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
 		this->m_roomGuards.at(i)->QueueForVisibility();
+		this->m_roomGuards.at(i)->GetDirectionToPlayer(m_playerInRoomPtr->getPosition(), *m_playerInRoomPtr->getCamera());
+		this->m_roomGuards.at(i)->_IsInSight();
 		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
 	}
 	int endvis = 0;
 	
+	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+
 	for (int i = 0; i < vis.size(); ++i)
 	{
 		
@@ -386,10 +387,17 @@ void Room::Update(float deltaTime)
 		if (m_roomGuards.at(i)->getIfLost() == true)
 		{
 			m_youLost = true;
+			break;
 		}
 	}
 	/*if (m_youLost)
 	{
+#if _DEBUG
+		PlayState::setYouLost(false);
+#else
+		PlayState::setYouLost(true);
+#endif
+
 		HUDComponent::HUDUpdate(deltaTime);
 	}*/
 

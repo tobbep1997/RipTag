@@ -46,8 +46,8 @@ private:
 	bool m_disabled = false;
 
 	float m_moveSpeed = 2;
+	float m_cameraOffset;
 	float m_camSensitivity = 5;
-	float m_standHeight;
 	float m_offPutY = 0.4f;
 	float m_walk = 0;
 	bool forward = true;
@@ -57,7 +57,6 @@ private:
 	//Possess
 	Actor* m_possessor;
 	float m_possessReturnDelay;
-	float m_maxPossessDuration;
 	
 	//Key Input
 	bool m_currClickCrouch = false;
@@ -70,6 +69,10 @@ private:
 	int m_toggleSprint = 0;
 	KeyPressedEnemy m_kp;
 
+	float m_standHeight;
+	float m_crouchHeight;
+	float m_crouchAnimStartPos;
+
 	bool m_alert = false;
 	int m_currentPathNode = 0;
 	int m_currentAlertPathNode = 0;
@@ -80,10 +83,15 @@ private:
 	SoundLocation m_sl;
 
 	float m_visCounter;
-	float m_visabilityTimer = 0.6f;
+	float m_visabilityTimer = 1.6f;
+
 	bool m_found = false;
 
-	
+	float m_knockOutTimer = 0;
+	float m_knockOutMaxTime = 2;
+
+	float enemyX = 0;
+	float enemyY = 0;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -100,7 +108,8 @@ public:
 
 	void CullingForVisability(const Transform & player);
 
-	virtual void setPosition(const DirectX::XMFLOAT4A & pos) override;
+	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
+
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
@@ -137,6 +146,9 @@ public:
 	const SoundLocation & getSoundLocation() const;
 
 	bool getIfLost();
+
+	float getTotalVisablilty() const;
+	float getMaxVisability() const;
 private:
 
 	void _handleInput(double deltaTime);
@@ -149,7 +161,7 @@ private:
 	void _onCrouch();
 	void _onJump();
 	void _onSprint();
-
+	void _cameraPlacement(double deltaTime);
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
 	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);

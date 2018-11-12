@@ -2,6 +2,8 @@
 #include "InputHandler.h"
 
 bool InputHandler::m_keys[256];
+bool InputHandler::m_keysReleased[256];
+bool InputHandler::m_keysPressed[256];
 
 bool InputHandler::m_mouseKeys[3];
 bool InputHandler::m_mouseWasPressed[3];
@@ -24,9 +26,37 @@ bool InputHandler::m_update;
 
 bool InputHandler::m_closeGame;
 
+void InputHandler::Reset()
+{
+	for (int i = 0; i < 256; i++)
+	{
+		m_keysReleased[i] = false;
+	}
+}
+
+std::vector<unsigned int> InputHandler::m_rawInput;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
+}
+
+bool InputHandler::isKeyReleased(int keyCode)
+{
+	return m_keysReleased[keyCode];
+}
+
+bool InputHandler::wasKeyPressed(int keyCode)
+{
+	bool value = false;
+	if (m_keysPressed[keyCode] && m_keys[keyCode])
+	{
+		value = true;
+		m_keysPressed[keyCode] = false;
+	}
+
+
+	return value;
 }
 
 bool InputHandler::isMLeftPressed(bool repeat)
@@ -198,4 +228,11 @@ void InputHandler::CloseGame()
 bool InputHandler::GetClosedGame()
 {
 	return m_closeGame;  
+}
+
+std::vector<unsigned int> InputHandler::getRawInput()
+{
+	std::vector<unsigned int> returnValue = std::vector<unsigned int>(m_rawInput);
+	m_rawInput.clear();
+	return returnValue;
 }

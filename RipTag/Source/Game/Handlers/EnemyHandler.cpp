@@ -142,7 +142,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 
 void EnemyHandler::_patrolling(Enemy * guard, int playerVisibility)
 {
-	if (false && playerVisibility > SIGHT_LEVEL)
+	if (playerVisibility > SIGHT_LEVEL)
 		_alert(guard);
 	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
 		_alert(guard, true);

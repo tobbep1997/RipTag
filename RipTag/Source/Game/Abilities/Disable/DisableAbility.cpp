@@ -29,7 +29,7 @@ void DisableAbility::Init()
 	Manager::g_textureManager.loadTextures("BAR");
 	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	Texture * texture = Manager::g_textureManager.getTexture("BAR");
-	m_bar->setUnpressedTexture(texture);
+	m_bar->setUnpressedTexture("BAR");
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 
 	HUDComponent::AddQuad(m_bar);
@@ -112,6 +112,7 @@ void DisableAbility::_logicLocal(double deltaTime)
 {
 	switch (m_dState)
 	{
+
 	case DisableState::Throwable:
 		this->_inStateThrowable();
 		break;
@@ -120,6 +121,9 @@ void DisableAbility::_logicLocal(double deltaTime)
 		break;
 	case DisableState::Moving:
 		this->_inStateMoving(deltaTime);
+		break;
+	case DisableState::Cooldown:
+		this->_inStateCooldown(deltaTime);
 		break;
 	}
 }
@@ -187,7 +191,7 @@ void DisableAbility::_inStateMoving(double dt)
 			{
 				Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
 				temp->DisableEnemy();
-				m_dState = DisableState::Throwable;
+				m_dState = DisableState::Cooldown;
 				this->setPosition(-999.9f, -999.9f, -999.9f);
 				this->_sendOnHitNotification();
 				
@@ -199,11 +203,21 @@ void DisableAbility::_inStateMoving(double dt)
 	{
 		//nothing has been hit within 5 seconds, -> reset
 		accumulatedTime = 0.0;
-		m_dState = DisableAbility::Throwable;
+		m_dState = DisableState::Throwable;
 		this->setPosition(-999.9f, -999.9f, -999.9f);
 		return;
 	}
 
+}
+
+void DisableAbility::_inStateCooldown(double dt)
+{
+	p_cooldown += dt;
+	if (p_cooldown >= p_cooldownMax)
+	{
+		p_cooldown = 0;
+		m_dState = DisableState::Throwable;
+	}
 }
 
 void DisableAbility::_inStateRemoteActive(double dt)
@@ -216,7 +230,7 @@ void DisableAbility::_inStateRemoteActive(double dt)
 	{
 		//nothing has been hit within 5 seconds, -> reset
 		accumulatedTime = 0.0;
-		m_dState = DisableAbility::Throwable;
+		m_dState = DisableState::Throwable;
 		this->setPosition(-999.9f, -999.9f, -999.9f);
 		return;
 	}

@@ -23,7 +23,11 @@ TriggerHandler::~TriggerHandler()
 void TriggerHandler::Update(double deltaTime)
 {	
 	for (size_t i = 0; i < Triggers.size(); i++)
+	{
 		Triggers[i]->Update(deltaTime);
+		
+	}
+		
 
 	for (size_t i = 0; i < Triggerables.size(); i++)
 		Triggerables[i]->Update(deltaTime);

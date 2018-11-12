@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 4715)
 #include <iostream>
 #include <math.h>
 #include <algorithm>
@@ -8,6 +9,8 @@
 #include <thread>
 #include <fstream>
 #include <sstream>
+
+#include "ConsoleColor.h"
 
 #include "EngineSource/Structs.h"
 #include "EngineSource/3D Engine/Extern.h"

@@ -30,3 +30,24 @@ float AbilityComponent::getManaCost() const
 {
 	return m_manaCost;
 }
+
+void AbilityComponent::setMaxCooldown(const float & maxTime)
+{
+	this->p_cooldownMax = maxTime;
+}
+
+float AbilityComponent::getMaxCooldWon() const
+{
+	return this->p_cooldownMax;
+}
+
+float AbilityComponent::getPercentage() const
+{
+	return p_cooldown / p_cooldownMax;
+}
+
+void AbilityComponent::updateCooldown(double deltaTime)
+{
+	if (p_cooldown > 0)
+		p_cooldown += deltaTime;
+}
