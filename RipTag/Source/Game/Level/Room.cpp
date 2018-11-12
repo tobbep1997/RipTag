@@ -359,7 +359,7 @@ void Room::Update(float deltaTime)
 	}
 	int endvis = 0;
 	
-	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+	
 
 	for (int i = 0; i < vis.size(); ++i)
 	{
@@ -372,6 +372,7 @@ void Room::Update(float deltaTime)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();*/
+	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler.Update(deltaTime);
 
 	for (auto light : m_pointLights)
