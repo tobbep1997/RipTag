@@ -1081,16 +1081,12 @@ void Player::_objectInfo(double deltaTime)
 	{
 		if (m_objectInfoTime >= 1)
 		{
+			m_infoText->setString("");
 			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* cContact = ray->getClosestContact();
-				if (cContact->contactShape->GetBody()->GetObjectTag() == "NULL")
-				{
-					m_infoText->setString("");
-					//do the pickups
-				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
 				{
 					m_infoText->setString("Press X to pull");
 				}
@@ -1109,10 +1105,6 @@ void Player::_objectInfo(double deltaTime)
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
-			}
-			else
-			{
-				m_infoText->setString("");
 			}
 			m_objectInfoTime = 0;
 		}
