@@ -407,8 +407,7 @@ void Player::PhysicsUpdate()
 	p_updatePhysics(this);
 	_collision();
 	//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
-	PhysicsComponent::p_setRotation(0, p_camera->getYRotationEuler().y, 0);
-
+	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y , 0);
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -1159,26 +1158,15 @@ void Player::_cameraPlacement(double deltaTime)
 	b3Vec3 peekOffsetLeft;
 	b3Vec3 peekOffsetRight;
 
-	peekOffsetLeft.x = upperBodyLocal.x - 1;
+	peekOffsetLeft.x = (upperBodyLocal.x - 1) * p_camera->getDirection().z;
 	peekOffsetLeft.y = upperBodyLocal.y;
-	peekOffsetLeft.z = upperBodyLocal.z;
+	peekOffsetLeft.z = (upperBodyLocal.z + 1)* p_camera->getDirection().x;
 
-	peekOffsetRight.x = upperBodyLocal.x + 1;
+	peekOffsetRight.x = (upperBodyLocal.x + 1) * p_camera->getDirection().z;
 	peekOffsetRight.y = upperBodyLocal.y;
-	peekOffsetRight.z = upperBodyLocal.z;
+	peekOffsetRight.z = (upperBodyLocal.z - 1) * p_camera->getDirection().x;
 
-	b3Vec3 u(getBody()->GetQuaternion().a, getBody()->GetQuaternion().b, getBody()->GetQuaternion().c);
-	float s = getBody()->GetQuaternion().d;
-
-	b3Vec3 primeLeft = 2.0f * b3Dot(u, peekOffsetLeft) * u
-		+ (s*s - b3Dot(u, u)) * peekOffsetLeft
-		+ 2.0f * s * b3Cross(u, peekOffsetLeft);
-
-	b3Vec3 primeRight = 2.0f * b3Dot(u, peekOffsetRight) * u
-		+ (s*s - b3Dot(u, u)) * peekOffsetRight
-		+ 2.0f * s * b3Cross(u, peekOffsetRight);
-
-	headPosLocal += _slerp(primeRight, primeLeft, (m_peektimer+1)*0.5) - headPosLocal;
+	headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5) - headPosLocal;
 
 	//-------------------------------------------Crouch-------------------------------------------// 
 
@@ -1190,10 +1178,6 @@ void Player::_cameraPlacement(double deltaTime)
 	{
 		crouchDir = 0;
 	}
-
-	
-		
-	this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
 
 	//--------------------------------------Camera movement---------------------------------------// 
 	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
@@ -1249,6 +1233,7 @@ void Player::_cameraPlacement(double deltaTime)
 		lastOffset = offsetY;
 	}
 
+	this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
 	p_camera->setPosition(pos);
 }
 
