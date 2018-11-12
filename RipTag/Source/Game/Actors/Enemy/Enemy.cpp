@@ -212,7 +212,7 @@ void Enemy::Update(double deltaTime)
 					m_teleportBoundingSphere[i]->Center.z,
 					0.0f));
 
-				std::cout << "HOLD OP THE PARTNER" << std::endl;
+				//std::cout << "HOLD OP THE PARTNER" << std::endl;
 
 				//TODO: Fix when ray is corrected
 
@@ -229,11 +229,11 @@ void Enemy::Update(double deltaTime)
 						direction.w)));
 				if (r)
 				{
-					std::cout << "-------------------------------------------------" << std::endl;
+					/*std::cout << "-------------------------------------------------" << std::endl;
 					for (int i = 0; i < r->getNrOfContacts(); i++)
 					{						
 						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
-					}
+					}*/
 				}
 			}
 			
