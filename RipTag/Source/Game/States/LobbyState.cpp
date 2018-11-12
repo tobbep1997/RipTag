@@ -1,5 +1,7 @@
 #include "RipTagPCH.h"
 #include "LobbyState.h"
+#include <time.h>
+#include <cstdlib>
 
 
 LobbyState::LobbyState(RenderingManager * rm) : State(rm)
@@ -15,7 +17,8 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 	this->pNetwork = Network::Multiplayer::GetInstance();
 	this->pNetwork->StartUpPeer();
 	//INITIAL RANDOM HOST NAME
-	this->m_MyHostName = "Host" + std::to_string(randomMT());
+	srand(time(0));
+	this->m_MyHostName = "Host" + std::to_string(rand());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 
 	this->_registerThisInstanceToNetwork();
