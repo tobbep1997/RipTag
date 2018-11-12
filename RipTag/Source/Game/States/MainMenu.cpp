@@ -220,9 +220,7 @@ void MainMenu::Load()
 	Manager::g_textureManager.loadTextures("DAB");
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
-
-
-
+	   
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 
@@ -235,7 +233,7 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadTexture("SPHERE");
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
 	Manager::g_textureManager.UnloadTexture("DAB");
-
+	Manager::g_textureManager.UnloadAllTexture();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
 		m_buttons[i]->Release();
