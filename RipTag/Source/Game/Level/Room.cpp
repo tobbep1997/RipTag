@@ -167,11 +167,11 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	m_lose->setScale(0.5f, 0.25f);
 
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setUnpressedTexture("SPHERE");
+	m_lose->setPressedTexture("DAB");
+	m_lose->setHoverTexture("PIRASRUM");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
 
 	HUDComponent::AddQuad(m_lose);
 
