@@ -102,7 +102,7 @@ namespace Network
 
 	bool Multiplayer::ConnectTo(RakNet::SystemAddress ip)
 	{
-		if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(ip.ToString(), ip.GetPort(), nullptr, 0))
+		if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(ip.ToString(), PEER_PORT, nullptr, 0))
 			return true;
 		else
 			return false;
@@ -130,6 +130,8 @@ namespace Network
 			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
 			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
+			if (mID != DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM)
+				std::cout << "MessageID: " + std::to_string(mID) << std::endl;
 			this->HandleRakNetMessages(mID);
 			this->HandleLobbyMessages(mID, packet);
 			this->HandleGameMessages(mID, packet->data);
