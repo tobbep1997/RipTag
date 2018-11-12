@@ -18,7 +18,7 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 	this->pNetwork->StartUpPeer();
 	//INITIAL RANDOM HOST NAME
 	srand(time(0));
-	this->m_MyHostName = "Host" + std::to_string(rand());
+	this->m_MyHostName = "Host:" + std::to_string(rand());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 
 	this->_registerThisInstanceToNetwork();
@@ -48,23 +48,23 @@ LobbyState::~LobbyState()
 	}
 	this->m_hostListButtons.clear();
 
+	if (this->m_infoWindow)
+	{
+		this->m_infoWindow->Release();
+		delete this->m_infoWindow;
+	}
 
 	this->pNetwork->ShutdownPeer();
 }
 
 void LobbyState::Update(double deltaTime)
 {
-	static double accumulatedTime = 0.0;
-	if (!isHosting && !hasJoined)
-	{
-		accumulatedTime += deltaTime;
-		if (accumulatedTime >= FLUSH_FREQUENCY)
-		{
-			this->_flushServerList();
-			accumulatedTime -= FLUSH_FREQUENCY;
-		}
-	}
-
+	//update the content for the info window
+	std::string content = "";
+	content += "Your Host name: " + this->m_MyHostName + "\n";
+	content += selectedHostInfo + "\n";
+	if (this->m_infoWindow)
+		this->m_infoWindow->setString(content);
 	//Network updates first
 	if (isHosting)
 		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET) + 1);
@@ -72,11 +72,18 @@ void LobbyState::Update(double deltaTime)
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
+	//in case after a flush no more servers are found and we are in the server list we have to reset to the default button so we dont get out of range errors
+	if (inServerList && m_hostListButtons.size() == 0)
+	{
+		inServerList = false;
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+	}
+
 	_handleMouseInput();
 	_handleGamePadInput();
 	_handleKeyboardInput();
 
-	if (!isHosting && !hasJoined)
+	if (!isHosting && !hasJoined && !inServerList)
 	{
 		if (m_lobbyButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
@@ -90,10 +97,33 @@ void LobbyState::Update(double deltaTime)
 				hasJoined = true;
 				_resetCharSelectButtonStates();
 				break;
+			case ButtonOrderLobby::Refresh:
+				_flushServerList();
+				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Hover);
+				break;
 			case ButtonOrderLobby::Return:
 				this->setKillState(true);
 				break;
 			}
+		}
+	}
+	else if (!isHosting && !hasJoined && inServerList)
+	{
+		if (m_hostListButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
+		{
+			std::string hostName = m_hostListButtons[m_currentButton]->getString();
+			auto it = m_hostAdressMap.find(hostName);
+			if (it != m_hostAdressMap.end())
+			{
+				this->selectedHost = it->second;
+				this->selectedHostInfo = "Selected Host: " + hostName;
+			}
+			else
+			{
+				this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+				this->selectedHostInfo = "Selected Host: None";
+			}
+			m_hostListButtons[m_currentButton]->setState(ButtonStates::Hover);
 		}
 	}
 	else
@@ -150,6 +180,8 @@ void LobbyState::Draw()
 			button->Draw();
 		for (auto & listElement : this->m_hostListButtons)
 			listElement->Draw();
+		if (this->m_infoWindow)
+			this->m_infoWindow->Draw();
 	}
 	else
 	{
@@ -175,21 +207,28 @@ void LobbyState::_initButtons()
 	//Lobby buttons
 	{
 		//Host button
-		this->m_lobbyButtons.push_back(Quad::CreateButton("Host", 0.2f, 0.55f, 0.3f, 0.25f));
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Host", 0.2f, 0.50f, 0.5f, 0.15f));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Join button
-		this->m_lobbyButtons.push_back(Quad::CreateButton("Join", 0.2f, 0.35f, 0.3f, 0.25f));
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Join", 0.2f, 0.40f, 0.5f, 0.15f));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+		//Refresh button
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Refresh", 0.2f, 0.30f, 0.5f, 0.15f));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 		//Return button
-		this->m_lobbyButtons.push_back(Quad::CreateButton("Return", 0.2f, 0.10f, 0.3f, 0.25f));
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Return", 0.2f, 0.10f, 0.5f, 0.15f));
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
@@ -227,59 +266,28 @@ void LobbyState::_initButtons()
 		this->m_charSelectButtons[CharacterSelection::Back]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_charSelectButtons[CharacterSelection::Back]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
 	}
-
+	//Info window
+	{
+		this->m_infoWindow = Quad::CreateButton("", 0.25f, 0.8f, 0.7f, 0.3f);
+		this->m_infoWindow->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+		this->m_infoWindow->setPressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
+		this->m_infoWindow->setHoverTexture(Manager::g_textureManager.getTexture("SPHERE"));
+		this->m_infoWindow->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_infoWindow->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	}
 }
 
 void LobbyState::_handleGamePadInput()
 {
 	if (Input::isUsingGamepad())
 	{
-		if (GamePadHandler::IsUpDpadPressed())
-		{
-			if (!isHosting && !hasJoined)
-			{
-				if (m_currentButton == 0)
-					m_currentButton = (unsigned int)ButtonOrderLobby::Return;
-				else
-					m_currentButton--;
-			}
-			else
-			{
-				if (m_currentButton == 0)
-					m_currentButton = (unsigned int)CharacterSelection::Back;
-				else
-					m_currentButton--;
-			}
-		}
-		else if (GamePadHandler::IsDownDpadPressed())
-		{
-			m_currentButton++;
-			if (!isHosting && !hasJoined)
-				m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
-			else
-				m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
-		}
-
-		_updateSelectionStates();
-
-		//Check for action input
-		if (GamePadHandler::IsAPressed())
-		{
-			if (!isHosting && !hasJoined)
-			{
-				if (m_lobbyButtons[m_currentButton]->isSelected())
-					this->m_lobbyButtons[m_currentButton]->setState(ButtonStates::Pressed);
-			}
-			else
-			{
-				if (m_charSelectButtons[m_currentButton]->isSelected())
-					this->m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
-			}
-		}
-
+		if (!isHosting && !hasJoined && !inServerList)
+			this->_gamePadMainLobby();
+		if (!isHosting && !hasJoined && inServerList)
+			this->_gamePadServerList();
+		if (isHosting || hasJoined)
+			this->_gamePadCharSelection();
 	}
-
-	
 }
 
 void LobbyState::_handleKeyboardInput()
@@ -392,7 +400,7 @@ void LobbyState::_handleMouseInput()
 void LobbyState::_updateSelectionStates()
 {
 	//update the selection states
-	if (!isHosting && !hasJoined)
+	if (!isHosting && !hasJoined && !inServerList)
 	{
 		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
 		{
@@ -413,6 +421,25 @@ void LobbyState::_updateSelectionStates()
 			}
 		}
 
+	}
+	else if (!isHosting && !hasJoined && inServerList)
+	{
+		for (size_t i = 0; i < m_hostListButtons.size(); i++)
+		{
+			if (i != m_currentButton)
+			{
+				m_hostListButtons[i]->Select(false);
+				m_hostListButtons[i]->setState(ButtonStates::Normal);
+			}
+			else
+			{
+				if (!m_hostListButtons[i]->isSelected() && (m_hostListButtons[i]->getState() != (unsigned int)ButtonStates::Pressed))
+				{
+					m_hostListButtons[i]->Select(true);
+					m_hostListButtons[i]->setState(ButtonStates::Hover);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -468,6 +495,98 @@ void LobbyState::_flushServerList()
 	}
 	this->m_hostListButtons.clear();
 
+}
+
+void LobbyState::_gamePadMainLobby()
+{
+	if (GamePadHandler::IsUpDpadPressed())
+	{	
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+	}
+	else if (GamePadHandler::IsDownDpadPressed())
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+	}
+	else if (GamePadHandler::IsRightDpadPressed())
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			inServerList = true;
+			m_currentButton = 0;
+		}
+	}
+
+	_updateSelectionStates();
+
+	//Check for action input
+	if (GamePadHandler::IsAPressed())
+	{
+		if (m_lobbyButtons[m_currentButton]->isSelected())
+			this->m_lobbyButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_gamePadCharSelection()
+{
+	if (GamePadHandler::IsUpDpadPressed())
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)CharacterSelection::Back;
+		else
+			m_currentButton--;
+	}
+	else if (GamePadHandler::IsDownDpadPressed())
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
+	}
+
+	_updateSelectionStates();
+
+	//Check for action input
+	if (GamePadHandler::IsAPressed())
+	{		
+		if (m_charSelectButtons[m_currentButton]->isSelected())
+			this->m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_gamePadServerList()
+{
+	//this is just in case after a flush we are outside of our range, we simply reset to the first
+	
+
+	if (GamePadHandler::IsUpDpadPressed())
+	{
+		if (m_currentButton == 0)
+			m_currentButton = this->m_hostListButtons.size() - 1;
+		else
+			m_currentButton--;
+	}
+	else if (GamePadHandler::IsDownDpadPressed())
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % this->m_hostListButtons.size();
+	}
+	else if (GamePadHandler::IsLeftDpadPressed())
+	{
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+		inServerList = false;
+	}
+
+	_updateSelectionStates();
+
+	if (GamePadHandler::IsAPressed())
+	{
+		if (m_hostListButtons[m_currentButton]->isSelected())
+		{
+			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
 }
 
 void LobbyState::_registerThisInstanceToNetwork()

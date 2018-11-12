@@ -12,7 +12,8 @@ private:
 	{
 		Host = 0,
 		Join = 1,
-		Return = 2,
+		Refresh = 2,
+		Return = 3,
 	};
 	enum CharacterSelection
 	{
@@ -21,10 +22,14 @@ private:
 		Ready = 2,
 		Back = 3
 	};
+
+	Quad* m_infoWindow = nullptr;
 	std::vector<Quad*> m_lobbyButtons;
 	std::vector<Quad*> m_charSelectButtons;
 	std::vector<Quad*> m_hostListButtons;
 	unsigned int m_currentButton;
+
+	bool inServerList = false;
 
 	bool isHosting = false;
 	bool hasJoined = false;
@@ -41,7 +46,8 @@ private:
 	bool isReady = false;
 	bool isRemoteReady = false;
 
-	RakNet::SystemAddress selectedHost;
+	RakNet::SystemAddress selectedHost = RakNet::SystemAddress("0.0.0.0");
+	std::string selectedHostInfo = "";
 
 	std::map<uint64_t, std::string> m_hostNameMap;
 	std::map<std::string, RakNet::SystemAddress> m_hostAdressMap;
@@ -66,6 +72,16 @@ private:
 	void _resetCharSelectButtonStates();
 	void _flushServerList();
 
+	//Seperate input handling for cleaner code
+	void _gamePadMainLobby();
+	void _gamePadCharSelection();
+	void _gamePadServerList();
+	void _keyboardMainLobby();
+	void _keyboardCharSelection();
+	void _keyboardServerList();
+	void _mouseMainLobby();
+	void _mouseCharSelection();
+	void _mouseServerList();
 
 	//Network
 	void _registerThisInstanceToNetwork();
