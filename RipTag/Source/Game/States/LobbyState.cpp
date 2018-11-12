@@ -15,6 +15,7 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 
 	this->pNetwork = Network::Multiplayer::GetInstance();
+	this->pNetwork->Init();
 	this->pNetwork->StartUpPeer();
 	this->m_MySysAdress = pNetwork->GetMySysAdress();
 	//INITIAL RANDOM HOST NAME
