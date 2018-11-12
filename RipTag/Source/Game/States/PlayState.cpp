@@ -10,14 +10,11 @@ RayCastListener * RipExtern::m_rayListener;
 bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm) : State(rm)
-{	
-
-	
-
-
-
-	
-	
+{		
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 	//Do not remove pls <3
 	{
 	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
@@ -107,10 +104,10 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//	stateMachine->SetState("walk_forward");
 
 	}
-
-
-
-	
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 }
 
 PlayState::~PlayState()
