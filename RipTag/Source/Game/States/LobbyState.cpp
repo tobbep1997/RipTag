@@ -648,6 +648,9 @@ void LobbyState::_registerThisInstanceToNetwork()
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 {
+	if (packet->guid == pNetwork->GetMyGUID())
+		return;
+
 	uint64_t uniqueHostID = packet->guid.g;
 	RakNet::SystemAddress hostAdress = packet->systemAddress;
 	Network::LOBBYEVENTPACKET * data = (Network::LOBBYEVENTPACKET*)packet->data;

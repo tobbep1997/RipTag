@@ -213,6 +213,13 @@ namespace Network
 		return RakNet::SystemAddress();
 	}
 
+	RakNet::RakNetGUID Multiplayer::GetMyGUID()
+	{
+		if (m_isRunning)
+			return this->pPeer->GetMyGUID();
+		return RakNet::RakNetGUID();
+	}
+
 
 	Multiplayer::Multiplayer()
 	{
@@ -266,8 +273,6 @@ namespace Network
 
 	void Multiplayer::HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet)
 	{
-		if (packet->guid == this->pPeer->GetMyGUID())
-			return;
 		auto it = LobbyOnReceiveMap.find(mID);
 		if (it != LobbyOnReceiveMap.end())
 			it->second(mID, packet);

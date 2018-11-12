@@ -71,6 +71,7 @@ namespace Network
 		std::string GetNID();
 		std::string GetNetworkInfo();
 		RakNet::SystemAddress GetMySysAdress();
+		RakNet::RakNetGUID GetMyGUID();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 
