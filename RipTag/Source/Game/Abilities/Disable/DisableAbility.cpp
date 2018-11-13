@@ -138,7 +138,7 @@ void DisableAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
 		{
 			
 			m_dState = DisableAbility::Charging;
@@ -151,7 +151,7 @@ void DisableAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)

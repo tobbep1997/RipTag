@@ -63,7 +63,7 @@ private:
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
-	Enemy* possessTarget;	
+	Enemy* possessTarget;
 
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -167,6 +167,7 @@ public:
 
 	void setEnemyPositions(std::vector<Enemy *> enemys);
 
+	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
 private:
 	void _collision();

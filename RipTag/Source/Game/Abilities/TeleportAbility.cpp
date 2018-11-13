@@ -157,7 +157,7 @@ void TeleportAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			
 			m_tpState = TeleportAbility::Charging;
@@ -170,7 +170,7 @@ void TeleportAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
@@ -222,7 +222,7 @@ void TeleportAbility::_inStateTeleportable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
 
