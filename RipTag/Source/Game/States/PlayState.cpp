@@ -619,6 +619,8 @@ void PlayState::Load()
 	}
 
 	triggerHandler = new TriggerHandler();
+	if (isCoop)
+		triggerHandler->RegisterThisInstanceToNetwork();
 
 	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
