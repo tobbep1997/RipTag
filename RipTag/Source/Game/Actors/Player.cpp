@@ -339,16 +339,15 @@ void Player::Update(double deltaTime)
 
 	if (m_tutorialActive)
 	{
-		bool isServer = Network::Multiplayer::GetInstance()->isServer();
-		if (m_currentAbility == Ability::TELEPORT && isServer)
+		if (m_currentAbility == Ability::TELEPORT && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
 		else if (m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
 			m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
-		else if (m_currentAbility == Ability::DISABLE && isServer)
+		else if (m_currentAbility == Ability::DISABLE && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
-		else if (m_currentAbility == Ability::BLINK && !isServer)
+		else if (m_currentAbility == Ability::BLINK && m_activeSetID == 2)
 			m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
-		else if (m_currentAbility == Ability::POSSESS && !isServer)
+		else if (m_currentAbility == Ability::POSSESS && m_activeSetID == 2)
 			m_abilityTutorialText->setString("Possess:\nControl guards.");
 	}
 
@@ -403,6 +402,8 @@ void Player::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
 		m_activeSet = m_abilityComponents2;
+
+	m_activeSetID = set;
 }
 
 void Player::setEnemyPositions(std::vector<Enemy*> enemys)
