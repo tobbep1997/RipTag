@@ -622,7 +622,7 @@ void PlayState::Load()
 	future1.get();
 
 	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->RegisterThisInstanceToNetwork();
+	m_playerManager->OnGameStart(false);
 	m_playerManager->CreateLocalPlayer();
 
 	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
