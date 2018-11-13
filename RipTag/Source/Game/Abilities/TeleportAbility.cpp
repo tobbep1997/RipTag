@@ -8,12 +8,13 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 	m_tpState = Throwable;
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
-	Drawable::p_entityType = EntityType::PlayerType;
+	m_boundingSphere = DBG_NEW DirectX::BoundingSphere(DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z), .1f);
 }
 
 TeleportAbility::~TeleportAbility()
 {
 	delete m_light;
+	delete m_boundingSphere;
 	PhysicsComponent::Release(*RipExtern::g_world);
 }
 
@@ -60,6 +61,8 @@ void TeleportAbility::Update(double deltaTime)
 	}
 	if (this->isLocal)
 		_logicLocal(deltaTime);
+	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
+
 }
 
 void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -124,6 +127,11 @@ DirectX::XMFLOAT4A TeleportAbility::getVelocity()
 DirectX::XMFLOAT4A TeleportAbility::getStart()
 {
 	return this->m_lastStart;
+}
+
+DirectX::BoundingSphere * TeleportAbility::GetBoundingSphere() const
+{
+	return m_boundingSphere;
 }
 
 void TeleportAbility::_logicLocal(double deltaTime)

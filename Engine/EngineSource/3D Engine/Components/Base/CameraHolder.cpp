@@ -28,13 +28,13 @@ double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double mov
 	return m_offset;
 }
 
-DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetPeek, const DirectX::XMFLOAT4A & pos)
+DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetPeek)
 {
 	using namespace DirectX;
 
 	XMFLOAT4A forward = p_camera->getDirection();
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
-	XMFLOAT4 RIGHT;
+	XMFLOAT4A RIGHT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
 	XMVECTOR vUP = XMLoadFloat4(&UP);
@@ -52,12 +52,13 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 
 	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
 	target = XMVector4Transform(target, rot);
-	XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed + std::abs(targetPeek)), 1.0f));
+	//XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed*2 + std::abs(targetPeek)), 1.0f));
 
-	XMStoreFloat4A(&m_lastPeek, out);
+	XMStoreFloat4A(&m_lastPeek, target);
 	p_camera->setUP(m_lastPeek);
-	XMFLOAT4A cPos = p_camera->getPosition();
-	XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&pos));
+
+	//XMFLOAT4A cPos = p_camera->getPosition(); 
+	/*XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&pos));
 
 	vToCam = XMVector4Transform(vToCam, rot);
 	out = vToCam;
@@ -70,8 +71,8 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min((float)deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	XMStoreFloat4A(&m_lastSideStep, sideStep);
 	out = XMVectorAdd(out, sideStep);
-	XMStoreFloat4(&cPos, out);
-	return cPos;
+	XMStoreFloat4(&cPos, out);*/
+	return RIGHT;
 }
 
 double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const DirectX::XMFLOAT4A & pos)
@@ -111,6 +112,16 @@ CameraHolder::CameraHolder()
 CameraHolder::~CameraHolder()
 {
 	delete this->p_camera;
+}
+
+DirectX::XMFLOAT4A CameraHolder::getLastPeek() const
+{
+	return m_lastPeek;
+}
+
+void CameraHolder::setLastPeek(DirectX::XMFLOAT4A peek)
+{
+	m_lastPeek = peek;
 }
 
 Camera * CameraHolder::getCamera() const

@@ -78,7 +78,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
-	if (!_isValid(destination))
+	if (!_isValid(destination) || !_isValid(source))
 	{
 		return std::vector<Node*>();
 	}

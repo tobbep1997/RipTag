@@ -15,7 +15,8 @@ Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
-
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+	//setOutline(true);
 }
 
 Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
@@ -28,13 +29,15 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+	
 	srand(time(NULL));
+	//setOutline(true);
 }
 
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
-	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
@@ -61,6 +64,9 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	setScale(.015f, .015f, .015f);
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+
+	//setOutline(true);
 }
 
 
@@ -78,6 +84,7 @@ Enemy::~Enemy()
 		delete m_alertPath.at(i);
 	}
 	m_alertPath.clear();
+	delete m_boundingFrustum;
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -190,7 +197,51 @@ void Enemy::Update(double deltaTime)
 		//};
 		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
 		//this->ForceWorld(cameraWorld);
-		
+		DirectX::XMMATRIX viewInv, proj;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
+
+
+		DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
+		m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
+
+		for (size_t i = 0; i < m_teleportBoundingSphere.size(); i++)
+		{
+			
+			if (m_boundingFrustum->Intersects(*m_teleportBoundingSphere[i]))
+			{
+				DirectX::XMFLOAT4 direction = getDirection(getPosition(), DirectX::XMFLOAT4A(m_teleportBoundingSphere[i]->Center.x,
+					m_teleportBoundingSphere[i]->Center.y,
+					m_teleportBoundingSphere[i]->Center.z,
+					0.0f));
+
+				//std::cout << "HOLD OP THE PARTNER" << std::endl;
+
+				//TODO: Fix when ray is corrected
+
+				float lenght;
+				RayCastListener::Ray * r = RipExtern::m_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+					direction.x,
+					direction.y,
+					direction.z,
+					direction.w),
+					getLenght(getPosition(), DirectX::XMFLOAT4A(
+						direction.x,
+						direction.y,
+						direction.z,
+						direction.w)));
+				if (r)
+				{
+					/*std::cout << "-------------------------------------------------" << std::endl;
+					for (int i = 0; i < r->getNrOfContacts(); i++)
+					{						
+						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
+					}*/
+				}
+			}
+			
+		}
+
 		if (!m_inputLocked)
 		{
 			_handleInput(deltaTime);
@@ -222,12 +273,31 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
-		m_knockOutTimer += deltaTime;
-		if (m_knockOutMaxTime <= m_knockOutTimer)
+		switch (m_knockOutType)
 		{
-			m_disabled = false;
-		}
 
+		case Possessed:
+			if (m_released)
+			{
+				m_possesionRecoverTimer += deltaTime;
+				if (m_possesionRecoverTimer >= m_possessionRecoverMax)
+				{
+					m_disabled = false;
+					m_released = false; 
+					m_possesionRecoverTimer = 0; 
+				}
+			}
+			break; 
+		case Stoned:
+			
+			m_knockOutTimer += deltaTime;
+			if (m_knockOutMaxTime <= m_knockOutTimer)
+			{
+				m_disabled = false;
+				m_knockOutTimer = 0;
+			}
+			break; 
+		}
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
@@ -364,16 +434,16 @@ void Enemy::_handleRotation(double deltaTime)
 
 void Enemy::_TempGuardPath(bool x, double deltaTime)
 {
-	p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
+	//p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
 	   
 	//ImGui::Begin("be");
 	//ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
 	//ImGui::End();
 
 
-	setRotation(p_camera->getYRotationEuler());
+	//setRotation(p_camera->getYRotationEuler());
 	//PhysicsComponent::p_setPositionRot(getPosition().x, getPosition().y, getPosition().z,p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
-	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+	//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 	/* p_camera->getYRotationEuler();*/
 }
 
@@ -416,7 +486,14 @@ void Enemy::removePossessor()
 		this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
+		m_released = true; 
+		m_disabled = true;  
 	}
+}
+
+void Enemy::setKnockOutType(KnockOutType knockOutType)
+{
+	m_knockOutType = knockOutType; 
 }
 
 void Enemy::SetPathVector(std::vector<Node*> path)
@@ -476,9 +553,19 @@ const Enemy::SoundLocation & Enemy::getSoundLocation() const
 	return m_sl;
 }
 
+void Enemy::setReleased(bool released)
+{
+	m_released = released; 
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;
+}
+
+const Enemy::KnockOutType Enemy::getKnockOutType() const
+{
+	return m_knockOutType; 
 }
 
 float Enemy::getTotalVisablilty() const
@@ -489,6 +576,11 @@ float Enemy::getTotalVisablilty() const
 float Enemy::getMaxVisability() const
 {
 	return m_visCounter;
+}
+
+void Enemy::addTeleportAbility(const TeleportAbility & teleportAbility)
+{
+	m_teleportBoundingSphere.push_back(teleportAbility.GetBoundingSphere());
 }
 
 float Enemy::getVisCounter() const
@@ -644,7 +736,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += m_cameraOffset;
 	p_camera->setPosition(pos);
-	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	//pos = p_CameraTilting(deltaTime, Input::PeekRight());
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 
 	pos.y += offsetY;
@@ -674,6 +766,8 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
+		
+		_RotateGuard(x, y, angle, deltaTime);
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
@@ -684,14 +778,6 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		/*m_currentAlertPathNode++;
-		if (m_currentAlertPathNode == m_alertPath.size())
-		{
-			std::reverse(m_alertPath.begin(), m_alertPath.end());
-			m_currentAlertPathNode = 0;
-			m_alert = false;
-			return true;
-		}*/
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
 
@@ -708,6 +794,8 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
+		_RotateGuard(x, y, angle, deltaTime);
+
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
 	return false;
@@ -718,7 +806,6 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
 		delete nextNode;
-		//delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}
 	else
@@ -731,8 +818,18 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
+		_RotateGuard(x, y, angle, deltaTime);
+
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
+}
+
+void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
+{
+	p_camera->setDirection(x, p_camera->getDirection().y, y);
+	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
+	p_camera->Rotate(0, angle * deltaTime, 0);
+	p_setRotation(0, cameraRotationY.y, 0);
 }
 
 void Enemy::_CheckPlayer(double deltaTime)

@@ -60,7 +60,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		m_currentAbility = (Ability)0;
 
 		//By default always this set
-		m_activeSet = m_abilityComponents1;
+		m_activeSet = m_abilityComponents2;
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -249,11 +249,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, y, 0);
-	m_standHeight = y*1.8;
+	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
+	CreateShape(0, (y*1.5)+0.1, 0, 0.3, 0.3, 0.3, "HEAD");
+	m_standHeight = (y*1.5) + 0.1;
 	m_crouchHeight = y*1.1;
-	m_cameraOffset = m_standHeight;
-
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -406,6 +405,9 @@ void Player::Update(double deltaTime)
 void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
+	_collision();
+	//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y , 0);
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -503,6 +505,12 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x /4.0f) ),
 			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
 	}
+}
+
+TeleportAbility * Player::getTeleportAbility()
+{
+	TeleportAbility* tp = (TeleportAbility *)m_abilityComponents1[0];
+	return tp;
 }
 
 void Player::Draw()
@@ -683,6 +691,33 @@ void Player::RegisterThisInstanceToNetwork()
 	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
+void Player::_collision()
+{
+	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
+	{
+		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
+				if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+				{
+					m_allowPeek = true;
+					m_recentHeadCollision = true;
+				}
+	}
+	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+	{
+		if (con)
+		{
+			if (con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+					if (con->GetShapeA()->GetObjectTag() == "HEAD" || con->GetShapeB()->GetObjectTag() == "HEAD")
+					{
+						m_allowPeek = false;
+						peekDir = -LastPeekDir;
+						m_peekRangeA = m_peektimer;
+						m_peekRangeB = 0;
+					}
+		}
+	}
+}
+
 void Player::_handleInput(double deltaTime)
 {
 	if (Input::MouseLock() && !m_kp.unlockMouse)
@@ -700,6 +735,7 @@ void Player::_handleInput(double deltaTime)
 	_onJump();
 	_onAbility(deltaTime);
 	_onInteract();
+	_onPeak(deltaTime);
 	_onRotate(deltaTime);
 	_objectInfo(deltaTime);
 	_updateTutorial(deltaTime);
@@ -829,9 +865,8 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
-				m_crouchAnimStartPos = this->p_camera->getPosition().y;
-				m_cameraOffset = m_crouchHeight;
-				this->getBody()->GetShapeList()[0].SetSensor(true);
+				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
+				crouchDir = 1;
 				
 				m_kp.crouching = true;
 			}
@@ -840,9 +875,8 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
-				m_crouchAnimStartPos = this->p_camera->getPosition().y;
-				m_cameraOffset = m_standHeight;
-				this->getBody()->GetShapeList()[0].SetSensor(false);
+				crouchDir = -1;
+				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 				
 				m_kp.crouching = false;
 			}
@@ -941,6 +975,43 @@ void Player::_onJump()
 		m_kp.jump = false;
 }
 
+void Player::_onPeak(double deltaTime)
+{
+	if (Input::PeekRight() != 0) //Cap max peak range based on key input
+	{
+		if (m_allowPeek)
+		{
+			if (m_recentHeadCollision)
+			{
+				peekDir = LastPeekDir;
+				m_peekRangeA = m_peektimer;
+				m_peekRangeB = 0;
+			}
+			else
+			{
+				m_peekRangeA = Input::PeekRight();
+				m_peekRangeB = -Input::PeekRight();
+
+				if (Input::PeekRight() > 0) //Left Side
+					peekDir = 1;
+				if (Input::PeekRight() < 0) //Right Side
+					peekDir = -1;
+
+				LastPeekDir = peekDir;
+			}
+		}
+		
+	}
+	else //Return to default pos
+	{
+		m_recentHeadCollision = false;
+		peekDir = -LastPeekDir;
+		m_peekRangeA = m_peektimer;
+		m_peekRangeB = 0;
+	}
+
+}
+
 void Player::_onInteract()
 {
 	if (Input::Interact())
@@ -1010,16 +1081,12 @@ void Player::_objectInfo(double deltaTime)
 	{
 		if (m_objectInfoTime >= 1)
 		{
+			m_infoText->setString("");
 			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* cContact = ray->getClosestContact();
-				if (cContact->contactShape->GetBody()->GetObjectTag() == "NULL")
-				{
-					m_infoText->setString("");
-					//do the pickups
-				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
 				{
 					m_infoText->setString("Press X to pull");
 				}
@@ -1038,10 +1105,6 @@ void Player::_objectInfo(double deltaTime)
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
-			}
-			else
-			{
-				m_infoText->setString("");
 			}
 			m_objectInfoTime = 0;
 		}
@@ -1069,18 +1132,62 @@ void Player::_updateTutorial(double deltaTime)
 
 void Player::_cameraPlacement(double deltaTime)
 {
+	//Head Movement
+	b3Vec3 upperBodyLocal = this->getBody()->GetShapeList()->GetNext()->GetTransform().translation;
+	b3Vec3 headPosLocal = this->getBody()->GetShapeList()->GetTransform().translation;
+
+
+	//-------------------------------------------Peeking--------------------------------------------// 
+
+	m_peektimer += peekDir * (float)deltaTime *m_peekSpeed;
+
+	if (m_peekRangeB > m_peekRangeA)
+		m_peektimer = std::clamp(m_peektimer, m_peekRangeA, m_peekRangeB);
+	else
+		m_peektimer = std::clamp(m_peektimer, m_peekRangeB, m_peekRangeA);
+	
+	//Offsets to the sides to slerp between
+	b3Vec3 peekOffsetLeft;
+	b3Vec3 peekOffsetRight;
+
+	peekOffsetLeft.x = (upperBodyLocal.x - 1) * p_camera->getDirection().z;
+	peekOffsetLeft.y = upperBodyLocal.y;
+	peekOffsetLeft.z = (upperBodyLocal.z + 1)* p_camera->getDirection().x;
+
+	peekOffsetRight.x = (upperBodyLocal.x + 1) * p_camera->getDirection().z;
+	peekOffsetRight.y = upperBodyLocal.y;
+	peekOffsetRight.z = (upperBodyLocal.z - 1) * p_camera->getDirection().x;
+
+	headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5) - headPosLocal;
+
+	//-------------------------------------------Crouch-------------------------------------------// 
+
+	m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
+	m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
+	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - m_standHeight;
+
+	if (m_crouchAnimSteps == 1 || m_crouchAnimSteps == 0) //Animation Finished
+	{
+		crouchDir = 0;
+	}
+
+	//--------------------------------------Camera movement---------------------------------------// 
+	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1);
+	p_camera->setPosition(pos);
+	//Camera Tilt
+	p_CameraTilting(deltaTime, m_peektimer);
+
 	static float lastOffset = 0.0f;
 	static bool hasPlayed = true;
 	static int last = 0;
-	
-	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += m_cameraOffset;
-	p_camera->setPosition(pos);
-	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+
+	//Head Bobbing
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 
 	pos.y += offsetY;
-	
+
+	//Footsteps
 	if (p_moveState == Walking || p_moveState == Sprinting)
 	{
 		if (!hasPlayed)
@@ -1089,7 +1196,7 @@ void Player::_cameraPlacement(double deltaTime)
 			{
 				hasPlayed = true;
 				auto xmPos = getPosition();
-				FMOD_VECTOR at = {xmPos.x, xmPos.y, xmPos.z};
+				FMOD_VECTOR at = { xmPos.x, xmPos.y, xmPos.z };
 				int index = -1;
 				while (index == -1 || index == last)
 				{
@@ -1118,8 +1225,7 @@ void Player::_cameraPlacement(double deltaTime)
 		lastOffset = offsetY;
 	}
 
-
-	pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
+	this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
 	p_camera->setPosition(pos);
 }
 
@@ -1148,19 +1254,15 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 }
 void Player::_activateCrouch()
 {
-	m_crouchAnimStartPos = this->p_camera->getPosition().y;
-	m_cameraOffset = m_crouchHeight;
-	this->getBody()->GetShapeList()[0].SetSensor(true);
-
+	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
+	crouchDir = 1;
 	m_kp.crouching = true;
 }
 
 void Player::_deActivateCrouch()
 {
-	m_crouchAnimStartPos = this->p_camera->getPosition().y;
-	m_cameraOffset = m_standHeight;
-	this->getBody()->GetShapeList()[0].SetSensor(false);
-
+	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
+	crouchDir = -1;
 	m_kp.crouching = false;
 }
 
@@ -1190,6 +1292,40 @@ void Player::_hasWon()
 	}
 	if (gameIsWon == true)
 		drawWinBar();
+}
+
+b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
+{
+	// Dot product - the cosine of the angle between 2 vectors.
+	float dot = b3Dot(start, end);
+	// Clamp it to be in the range of Acos()
+	// This may be unnecessary, but floating point
+	// precision can be a fickle mistress.
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	// Acos(dot) returns the angle between start and end,
+	// And multiplying that by percent returns the angle between
+	// start and the final result.
+	float theta = std::acosf(dot)*percent;
+	//float theta = mathf.Acos(dot)*percent;
+	b3Vec3 tempStart = start;
+	tempStart.x *= dot;
+	tempStart.y *= dot;
+	tempStart.z *= dot;
+	b3Vec3 relativeVec = end - tempStart;
+	b3Normalize(relativeVec);   // Orthonormal basis
+	// The final result.
+	tempStart = start;
+	tempStart.x *= std::cos(theta);
+	tempStart.y *= std::cos(theta);
+	tempStart.z *= std::cos(theta);
+
+	b3Vec3 tempRelativeVec = relativeVec;
+	tempRelativeVec.x *= std::sin(theta);
+	tempRelativeVec.y *= std::sin(theta);
+	tempRelativeVec.z *= std::sin(theta);
+
+
+	return (tempStart + tempRelativeVec);
 }
 
 void Player::drawWinBar()

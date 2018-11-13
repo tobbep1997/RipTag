@@ -9,7 +9,7 @@ PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 	m_useFunctionCalled = false;
 	setManaCost(MANA_COST_START);
 	m_possessHud = new Quad();
-	m_possessHud->init({ 0.5f, 1.0f }, { 0.4, 0.2 });
+	m_possessHud->init({ 0.5f, 1.0f }, { 0.4f, 0.2f });
 	m_possessHud->setPivotPoint(Quad::PivotPoint::upperCenter);
 	m_possessHud->setFont(FontHandler::getFont("consolas32"));
 	m_possessHud->setUnpressedTexture("SPHERE");
@@ -77,9 +77,12 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
+				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
+				this->m_possessTarget->DisableEnemy();
+				this->m_possessTarget->setReleased(true); 
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
-				p_cooldown = 0;
+				p_cooldown = 0; 
 				//m_useFunctionCalled = false;
 			}
 			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
@@ -117,6 +120,7 @@ void PossessGuard::_logic(double deltaTime)
 						contact->contactShape->GetBody()->SetAwake(true);
 						this->m_possessTarget->UnlockEnemyInput();
 						this->m_possessTarget->setPossessor(pPointer, 20, 1);
+						this->m_possessTarget->setReleased(false); 
 
 						CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
 						m_pState = PossessGuard::Possessing;

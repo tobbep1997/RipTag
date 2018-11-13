@@ -77,7 +77,7 @@ public:
 
 	virtual void CreateBodyAndShape(b3World & world);
 
-	virtual void CreateShape(float x = 1, float y = 1, float z = 1);
+	virtual void CreateShape(float x = 1, float y = 1, float z = 1, float sizeX = 1, float sizeY = 1, float sizeZ = 1, std::string objectTag = "NULL");
 
 	virtual void setGravityScale(float gravity);
 
