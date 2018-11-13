@@ -896,6 +896,8 @@ void LobbyState::_registerThisInstanceToNetwork()
 	using namespace Network;
 	using namespace std::placeholders;
 
+	if (Multiplayer::LobbyOnReceiveMap.size() > 0)
+		Multiplayer::LobbyOnReceiveMap.clear();
 	//RakNet
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
