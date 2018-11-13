@@ -216,6 +216,8 @@ void PlayState::Draw()
 
 	m_playerManager->Draw();
 
+	//DrawWorldCollisionboxes();
+	
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
 
@@ -431,6 +433,139 @@ void PlayState::TemporaryLobby()
 	}
 
 	ImGui::End();
+}
+
+#include "EngineSource\Structs.h"
+#include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
+
+void PlayState::DrawWorldCollisionboxes()
+{
+	static const DirectX::XMFLOAT4A _SXMcube[] =
+	{
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
+	};
+	static std::vector<Drawable*> _drawables;
+	static std::vector<StaticVertex> _vertices;
+	static StaticMesh _sm;
+
+
+	static bool _loaded = false;
+
+	if (!_loaded)
+	{
+		for (int i = 0; i < 36; i++)
+		{
+			StaticVertex v;
+			v.pos = _SXMcube[i];
+			_vertices.push_back(v);
+		}
+		_sm.setVertices(_vertices);
+		
+		
+		_loaded = true;
+		const b3Body * b = m_world.getBodyList();
+
+		while (b != nullptr)
+		{
+			if (b->GetObjectTag() != "TELEPORT")
+			{
+				b3Shape * s = b->GetShapeList();
+				auto b3BodyRot = b->GetTransform().rotation;
+				while (s != nullptr)
+				{
+					Drawable * d = new Drawable;
+					d->setModel(&_sm);
+					DirectX::XMFLOAT4A shapePos = {
+						s->GetTransform().translation.x + b->GetTransform().translation.x,
+						s->GetTransform().translation.y + b->GetTransform().translation.y,
+						s->GetTransform().translation.z + b->GetTransform().translation.z,
+					1.0f
+					};
+					auto b3ShapeRot = s->GetTransform().rotation;
+					DirectX::XMFLOAT3X3 shapeRot;
+					shapeRot._11 = b3BodyRot.x.x;
+					shapeRot._12 = b3BodyRot.x.y;
+					shapeRot._13 = b3BodyRot.x.z;
+					shapeRot._21 = b3BodyRot.y.x;
+					shapeRot._22 = b3BodyRot.y.y;
+					shapeRot._23 = b3BodyRot.y.z;
+					shapeRot._31 = b3BodyRot.z.x;
+					shapeRot._32 = b3BodyRot.z.y;
+					shapeRot._33 = b3BodyRot.z.z;
+
+					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+					DirectX::XMMATRIX world = scl * rot * trans;
+					d->ForceWorld(DirectX::XMMatrixTranspose(world));
+					_drawables.push_back(d);
+					s = s->GetNext();
+				}
+			}
+			b = b->GetNext();
+		}
+	}
+	else
+	{
+		int counter = 0;
+		const b3Body * b = m_world.getBodyList();
+		while (b != nullptr)
+		{
+			if (b->GetObjectTag() != "TELEPORT")
+			{
+				b3Shape * s = b->GetShapeList();
+				auto b3BodyRot = b->GetTransform().rotation;
+				while (s != nullptr)
+				{
+					DirectX::XMFLOAT4A shapePos = {
+						s->GetTransform().translation.x + b->GetTransform().translation.x,
+						s->GetTransform().translation.y + b->GetTransform().translation.y,
+						s->GetTransform().translation.z + b->GetTransform().translation.z,
+					1.0f
+					};
+					auto b3ShapeRot = s->GetTransform().rotation;
+					DirectX::XMFLOAT3X3 shapeRot;
+					shapeRot._11 = b3BodyRot.x.x;
+					shapeRot._12 = b3BodyRot.x.y;
+					shapeRot._13 = b3BodyRot.x.z;
+					shapeRot._21 = b3BodyRot.y.x;
+					shapeRot._22 = b3BodyRot.y.y;
+					shapeRot._23 = b3BodyRot.y.z;
+					shapeRot._31 = b3BodyRot.z.x;
+					shapeRot._32 = b3BodyRot.z.y;
+					shapeRot._33 = b3BodyRot.z.z;
+
+					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+					DirectX::XMMATRIX world = scl * rot * trans;
+					_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
+					s = s->GetNext();
+			}
+			
+			}
+			b = b->GetNext();
+		}
+	}
+
+
+	for (auto & d : _drawables)
+		d->DrawWireFrame();
 }
 
 void PlayState::unLoad()

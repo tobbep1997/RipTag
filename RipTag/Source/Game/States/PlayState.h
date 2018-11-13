@@ -63,6 +63,7 @@ private:
 	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
+	void DrawWorldCollisionboxes();
 
 	// Inherited via State
 	virtual void unLoad();

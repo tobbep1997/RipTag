@@ -230,13 +230,13 @@ void ForwardRender::Flush(Camera & camera)
 	_mapCameraBuffer(camera);
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
-	this->_wireFramePass();
 	this->_OutliningPass(camera);
 
 
 	//_GuardFrustumDraw();
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
+	this->_wireFramePass();
 }
 
 void ForwardRender::Clear()
@@ -828,6 +828,7 @@ void ForwardRender::_wireFramePass()
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
 	_setStaticShaders();
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/wireFramePixel.hlsl"), nullptr, 0);
 	for (unsigned int i = 0; i < DX::g_wireFrameDrawQueue.size(); i++)
 	{
 		ID3D11Buffer * vertexBuffer = DX::g_wireFrameDrawQueue[i]->getBuffer();
@@ -839,7 +840,7 @@ void ForwardRender::_wireFramePass()
 
 	}
 
-	DX::g_deviceContext->RSSetState(m_standardRast);
+	//DX::g_deviceContext->RSSetState(m_standardRast);
 }
 
 

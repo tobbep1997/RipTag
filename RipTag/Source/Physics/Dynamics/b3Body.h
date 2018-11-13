@@ -123,7 +123,7 @@ public :
 	void SetUserData(void* _userData);
 
 	void SetObjectTag(std::string tag);
-	std::string GetObjectTag();
+	std::string GetObjectTag() const;
 
 	void AddToFilters(std::string tag);
 	void RemoveFromFilters(std::string tag);
@@ -301,7 +301,7 @@ inline void b3Body::SetUserData(void* userData) { m_userData = userData; }
 
 inline void b3Body::SetObjectTag(std::string tag) { m_objectTag = tag; }
 
-inline std::string b3Body::GetObjectTag() { return m_objectTag; }
+inline std::string b3Body::GetObjectTag() const { return m_objectTag; }
 
 inline void b3Body::AddToFilters(std::string tag) { m_objectFilter.push_back(tag); }
 
