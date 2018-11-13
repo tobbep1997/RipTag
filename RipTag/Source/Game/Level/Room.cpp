@@ -460,6 +460,11 @@ void Room::Draw()
 	{
 		HUDComponent::HUDDraw();
 	}
+
+	for (auto guard : m_roomGuards)
+	{
+		guard->DrawGuardPath();
+	}
 	
 
 }
