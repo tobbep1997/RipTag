@@ -220,23 +220,23 @@ namespace SM
 
 	Animation::SkeletonPose LayerVisitor::dispatch(BlendSpace1D& state) 
 	{
-
+		return Animation::SkeletonPose();
 	}
 	Animation::SkeletonPose LayerVisitor::dispatch(BlendSpace2D& state) 
 	{
-
+		return Animation::SkeletonPose();
 	}
 	Animation::SkeletonPose LayerVisitor::dispatch(LoopState & state)
 	{
-
+		return Animation::SkeletonPose();
 	}
 	Animation::SkeletonPose LayerVisitor::dispatch(AutoTransitionState& state)
 	{
-
+		return Animation::SkeletonPose();
 	}
 	Animation::SkeletonPose LayerVisitor::dispatch(PlayOnceState& state)
 	{
-
+		return Animation::SkeletonPose();
 	}
 
 #pragma endregion "LayerVisitor"
