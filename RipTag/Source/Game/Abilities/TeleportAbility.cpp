@@ -49,7 +49,7 @@ void TeleportAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
-	setManaCost(START_MANA_COST);
+	
 }
 
 void TeleportAbility::Update(double deltaTime)
@@ -159,10 +159,9 @@ void TeleportAbility::_inStateThrowable()
 	{
 		if (Input::OnAbilityPressed())
 		{
-			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-			{
-				m_tpState = TeleportAbility::Charging;
-			}
+			
+			m_tpState = TeleportAbility::Charging;
+			
 		}
 	}
 }
@@ -188,7 +187,7 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-				((Player*)p_owner)->DrainMana(getManaCost());
+				
 
 				start.w = 1.0f;
 				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
@@ -204,7 +203,7 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-				((Player*)p_owner)->DrainMana(getManaCost());
+				
 
 
 				start.w = 1.0f;

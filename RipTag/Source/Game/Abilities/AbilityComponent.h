@@ -18,8 +18,7 @@ class AbilityComponent
 protected: // CD
 	float p_cooldownMax= 5.0f;
 	float p_cooldown = 0;
-private:
-	float m_manaCost;
+
 protected:
 	void * p_owner;
 	bool isLocal;
@@ -30,9 +29,6 @@ public:
 
 	virtual void setOwner(void * owner);
 	virtual void setIsLocal(bool value);
-
-	virtual void setManaCost(float mana);
-	virtual float getManaCost() const;
 
 	virtual void Init() = 0;
 	virtual void Update(double deltaTime) = 0;

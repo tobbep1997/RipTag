@@ -104,11 +104,10 @@ void VisabilityAbility::_inStateInactive()
 {
 	if (Input::OnAbilityPressed())
 	{
-		if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-		{
-			((Player*)p_owner)->DrainMana(getManaCost());
-			m_vState = Active;
-		}
+		
+			
+		m_vState = Active;
+		
 	}
 	else
 		m_vState = Inactive;
