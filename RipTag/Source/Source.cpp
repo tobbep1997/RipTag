@@ -77,7 +77,7 @@ void SingleGameLoop(Game * game)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 #if _DEBUG
-	//_alocConsole();
+	_alocConsole();
 #endif
     AudioEngine::Init();
 	srand(time(0));

@@ -23,10 +23,9 @@ public:
 
 	void setPosition(const float & x, const float & y, const float & z, const bool & setPhysics = true);
 	void setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
-	void setRotation(const float & pitch, const float & yaw, const float & roll);
+	void setRotation(const float & pitch, const float & yaw, const float & roll, const bool & setPhysics = true);
 
 	void addRotation(const float & pitch, const float & yaw, const float & roll);
-
 	void ImGuiTransform(DirectX::XMFLOAT4A & pos, DirectX::XMFLOAT4A & rotation, const float & posMove = 10, const float & rot = 180);
 };
 
