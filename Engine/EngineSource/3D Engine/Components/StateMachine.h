@@ -337,6 +337,19 @@ namespace SM
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
 	};
 
+	class LayerVisitor : public StateVisitorBase {
+	public:
+		LayerVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
+		{}
+		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) override;
+		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) override;
+		virtual Animation::SkeletonPose dispatch(LoopState& state) override;
+		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) override;
+		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) override;
+	private:
+		Animation::AnimatedModel* m_AnimatedModel = nullptr;
+	};
+
 #pragma endregion "Visitors"
 
 #pragma region "StateMachine"

@@ -216,6 +216,31 @@ namespace SM
 
 #pragma endregion "StateVisitor"
 
+#pragma region "LayerVisitor"
+
+	Animation::SkeletonPose LayerVisitor::dispatch(BlendSpace1D& state) 
+	{
+
+	}
+	Animation::SkeletonPose LayerVisitor::dispatch(BlendSpace2D& state) 
+	{
+
+	}
+	Animation::SkeletonPose LayerVisitor::dispatch(LoopState & state)
+	{
+
+	}
+	Animation::SkeletonPose LayerVisitor::dispatch(AutoTransitionState& state)
+	{
+
+	}
+	Animation::SkeletonPose LayerVisitor::dispatch(PlayOnceState& state)
+	{
+
+	}
+
+#pragma endregion "LayerVisitor"
+
 #pragma region "BlendSpace1D"
 
 	void BlendSpace1D::AddBlendNodes(const std::vector<BlendSpaceClipData> nodes)
@@ -448,9 +473,5 @@ namespace SM
 	}
 
 #pragma endregion "LoopState"
-
-
-
-
 
 }
