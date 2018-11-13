@@ -16,6 +16,7 @@ Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+	//setOutline(true);
 }
 
 Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
@@ -31,6 +32,7 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
 	
 	srand(time(NULL));
+	//setOutline(true);
 }
 
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
@@ -64,6 +66,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	setTextureTileMult(2, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
 
+	//setOutline(true);
 }
 
 
