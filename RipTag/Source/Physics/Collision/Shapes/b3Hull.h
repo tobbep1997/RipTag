@@ -98,6 +98,8 @@ struct b3Hull {
 	b3Face* faces;
 	b3Plane* facesPlanes; 
 
+	b3Vec3 rawScale;
+
 	u32 edgeCount;
 	b3HalfEdge* edges;
 };
