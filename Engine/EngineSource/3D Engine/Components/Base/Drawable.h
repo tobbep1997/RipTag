@@ -41,6 +41,7 @@ private:
 
 	bool m_hidden;
 	bool m_outline;
+	bool m_transparant;
 	DirectX::XMFLOAT4A m_outLineColor;
 public:
 	SM::AnimationStateMachine* InitStateMachine();
@@ -120,6 +121,9 @@ public:
 
 	virtual void setOutlineColor(const DirectX::XMFLOAT4A & color);
 	virtual DirectX::XMFLOAT4A getOutlineColor();
+
+	virtual void SetTransparant(const bool & bo);
+	virtual bool GetTransparant();
 
 private:
 	virtual void _setStaticBuffer();

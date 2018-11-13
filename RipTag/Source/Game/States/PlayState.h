@@ -65,7 +65,7 @@ private:
 	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
-	void DrawWorldCollisionboxes();
+	void DrawWorldCollisionboxes(const std::string & type = "");
 
 	// Inherited via State
 	virtual void unLoad();

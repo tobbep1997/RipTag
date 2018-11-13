@@ -45,7 +45,6 @@
     <ClCompile Include="EngineSource\Debugg\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="EngineSource\Debugg\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="EngineSource\Debugg\ImGui\ImGuiManager.cpp" />
-    <ClCompile Include="EngineSource\Helper\Threading.cpp" />
     <ClCompile Include="EngineSource\Helper\Timer.cpp" />
     <ClCompile Include="EngineSource\Light\PointLight.cpp" />
     <ClCompile Include="EngineSource\SettingsLoader\SettingsLoader.cpp" />
@@ -97,7 +96,6 @@
     <ClInclude Include="EngineSource\Debugg\FunctionQueue.h" />
     <ClInclude Include="EngineSource\Debugg\FunctionStack.h" />
     <ClInclude Include="EngineSource\Debugg\FunctionVector.h" />
-    <ClInclude Include="EngineSource\Helper\Threading.h" />
     <ClInclude Include="EngineSource\Helper\Timer.h" />
     <ClInclude Include="EngineSource\Light\PointLight.h" />
     <ClInclude Include="EngineSource\SettingsLoader\SettingsLoader.h" />

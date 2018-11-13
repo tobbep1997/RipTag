@@ -88,15 +88,7 @@ private:
 	int mouseX = 0;
 	int mouseY = 0;
 
-	//Mana, if you want %. go currentMana
-	float m_currentMana;
-	float m_maxMana;
 
-	const int STANDARD_START_MANA = 100;
-	Quad * m_manaBar;
-	Quad * m_manaBarBackground;
-	Quad * m_manabarText;
-	
 	Quad * m_winBar;
 
 	Quad * m_infoText;
@@ -130,7 +122,7 @@ private:
 	unsigned short m_currentEnemysVisable = 0;
 public:
 	//Magic number
-	static const int g_fullVisability = 6500;
+	static const int g_fullVisability = 4500;
 	bool hasWon = false;
 	bool gameIsWon = false;
 	bool unlockMouse = false;
@@ -169,10 +161,6 @@ public:
 	const AudioEngine::Listener & getFMODListener() const; 
 	
 	//This is a way of checking if we can use the ability with out current mana
-	bool CheckManaCost(const int & manaCost);
-
-	bool DrainMana(const float & manaCost);
-	void RefillMana(const float & manaFill);
 	void drawWinBar();
 	void SetAbilitySet(int set);
 
@@ -186,7 +174,7 @@ private:
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);
-	void _onJump();
+	//void _onJump();
 	void _onPeak(double deltaTime);
 	void _onInteract();
 	void _onAbility(double dt);

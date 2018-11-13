@@ -131,6 +131,7 @@ void PointLight::CreateShadowDirection(const std::vector<ShadowDir> & shadowDir)
 
 float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 {
+	//srand(NULL);
 	static double time = 0.0f;
 	static DirectX::XMFLOAT2 current(0.0, 0.0);
 	static DirectX::XMFLOAT2 target(1.0, 1.0);

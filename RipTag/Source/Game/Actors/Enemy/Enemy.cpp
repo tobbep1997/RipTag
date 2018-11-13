@@ -85,6 +85,12 @@ Enemy::~Enemy()
 	}
 	m_alertPath.clear();
 	delete m_boundingFrustum;
+
+	for (auto drawable : m_pathNodes)
+	{
+		delete drawable;
+	}
+	m_pathNodes.clear();
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -179,6 +185,9 @@ void Enemy::Update(double deltaTime)
 {
 	if (getAnimatedModel())
 		getAnimatedModel()->Update(deltaTime);
+	
+	m_sinWaver += deltaTime;
+
 	if (!m_disabled)
 	{
 		//auto dir = p_camera->getDirection();
@@ -262,6 +271,44 @@ void Enemy::Update(double deltaTime)
 			{
 				if (m_path.size() > 0)
 				{
+					if (m_pathNodes.size() == 0)
+					{
+						Manager::g_textureManager.loadTextures("FOOT");
+						Manager::g_meshManager.loadStaticMesh("FOOT");
+						for (unsigned int i = 0; i < m_path.size(); ++i)
+						{
+							
+							Drawable * temp = new Drawable();
+							temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
+							temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
+							temp->setScale({ 0.2, 0.2, 0.2, 1.0 });
+							temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
+
+							if (i + 1 < m_path.size())
+							{
+								temp->setRotation(0, _getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i+1)->worldPos.x, m_path.at(i+1)->worldPos.y }),0);
+							}
+							
+
+							temp->SetTransparant(true);
+							m_pathNodes.push_back(temp);
+						}
+						
+					}
+					/*float posY = 0.04 * sin(1 * DirectX::XM_PI*m_sinWaver*0.5f) + 4.4f;
+					for (auto path : m_pathNodes)
+					{
+						path->setPosition(path->getPosition().x, posY , path->getPosition().z);
+					}*/
+					if (m_nodeFootPrintsEnabled == true)
+					{
+						if (m_currentPathNode != 0)
+						{
+							Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
+							temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
+						}
+					}
+					
 					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
 				}
 			}
@@ -583,6 +630,40 @@ void Enemy::addTeleportAbility(const TeleportAbility & teleportAbility)
 	m_teleportBoundingSphere.push_back(teleportAbility.GetBoundingSphere());
 }
 
+void Enemy::DrawGuardPath()
+{
+	if (m_nodeFootPrintsEnabled)
+	{
+		int counter = 0;
+		if (m_currentPathNode != 0)
+		{
+			m_pathNodes.at(m_currentPathNode - 1)->Draw();
+		}
+
+		for (unsigned int i = m_currentPathNode; i < m_pathNodes.size(); ++i)
+		{
+			m_pathNodes.at(i)->Draw();
+			counter++;
+			if (counter >= m_maxDrawOutNode)
+			{
+				break;
+			}
+		}
+	}
+}
+
+void Enemy::EnableGuardPathPrint()
+{
+	m_nodeFootPrintsEnabled = true;
+}
+
+void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
+{
+	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&getPosition()), DirectX::XMLoadFloat4A(&playerPos));
+	vec = DirectX::XMVector3LengthEst(vec);
+	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+}
+
 float Enemy::getVisCounter() const
 {
 	return m_visCounter;
@@ -753,6 +834,14 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		if (m_currentPathNode == m_path.size())
 		{
 			std::reverse(m_path.begin(), m_path.end());
+			std::reverse(m_pathNodes.begin(), m_pathNodes.end());
+
+			for (auto node : m_pathNodes)
+			{
+				node->setPosition(node->getPosition().x, m_startYPos, node->getPosition().z);
+			}
+
+			m_isReversed = RipExtern::BoolReverser(m_isReversed);
 			m_currentPathNode = 0;
 			return true;
 		}
@@ -838,6 +927,10 @@ void Enemy::_CheckPlayer(double deltaTime)
 	{
 		float visPres = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 
+		if (m_lenghtToPlayer < m_lengthToPlayerSpan)
+		{
+			visPres *= 1.5;
+		}
 
 		if (visPres > 0)
 		{
@@ -889,5 +982,32 @@ void Enemy::_deActivateCrouch()
 	m_cameraOffset = m_standHeight;
 	this->getBody()->GetShapeList()[0].SetSensor(false);
 	m_kp.crouching = false;
+}
+
+float Enemy::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
+{
+	if (first.x > last.x)
+	{
+		//Up
+		return 90;
+	}
+	else if (first.x < last.x)
+	{
+		//Down
+		return 90;
+	}
+	else if (first.y > last.y)
+	{
+		//Up
+		return 0;
+	}
+	else if (first.y < last.y)
+	{
+		//left
+		return 0;
+
+	}
+
+	return 0;
 }
 
