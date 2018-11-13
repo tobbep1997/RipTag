@@ -91,6 +91,7 @@ private:
 	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
+	bool m_isReversed = false;
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
@@ -110,6 +111,12 @@ private:
 
 	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
 	DirectX::BoundingFrustum * m_boundingFrustum;
+
+	const int m_maxDrawOutNode = 10;
+	std::vector<Drawable*> m_pathNodes;
+	float m_sinWaver = 0;
+
+	const float m_startYPos = 4.5f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -174,6 +181,8 @@ public:
 	float getMaxVisability() const;
 	float getVisCounter() const;
 	void addTeleportAbility(const TeleportAbility & teleportAbility);
+
+	void DrawGuardPath();
 private:
 
 	void _handleInput(double deltaTime);
@@ -195,5 +204,7 @@ private:
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch();
 	void _deActivateCrouch();
+
+	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 };
 

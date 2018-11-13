@@ -138,7 +138,7 @@ void ForwardRender::PrePass(Camera & camera)
 	//_setStaticShaders();
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
-		if (DX::g_geometryQueue[i]->getHidden() != true)
+		if (DX::g_geometryQueue[i]->getHidden() != true && DX::g_geometryQueue[i]->GetTransparant() != true)
 		{
 			if (DX::g_geometryQueue[i]->getOutline() == true)
 			{
