@@ -13,7 +13,7 @@ class Input
 private:
 	static bool m_deactivate;
 
-	static int m_mouseSensitivity;
+	static DirectX::XMFLOAT2 m_mouseSensitivity;
 	static float m_playerFOV;
 
 public:
@@ -59,7 +59,7 @@ public:
 
 	//Player Settings----------------
 
-	static int GetPlayerMouseSensitivity();
+	static const DirectX::XMFLOAT2 & GetPlayerMouseSensitivity();
 	static int GetPlayerFOV();
 
 	//LoadPlayerSettings from iniFile

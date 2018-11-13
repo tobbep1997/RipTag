@@ -238,6 +238,8 @@ void b3Hull::SetAsBox(const b3Vec3& scale) {
 		cubeVertices[i].z *= scale.z;
 	}
 
+	rawScale = scale;
+
 	b3HullDef hullDef;
 	hullDef.vertexCount = 8;
 	hullDef.vertices = &cubeVertices[0];

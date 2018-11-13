@@ -108,6 +108,7 @@ namespace Shaders
 				delete m_shadersHashTable[i][j];
 			}
 		}
+		m_shadersHashTable->clear();
 	}
 
 	unsigned int ShaderManager::_getKey(std::wstring path)

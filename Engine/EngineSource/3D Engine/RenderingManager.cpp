@@ -31,11 +31,11 @@ void RenderingManager::Init(HINSTANCE hInstance)
 #else
 	DEBUG = true;
 #endif
-
+	m_hInstance = hInstance;
 	WindowContext wind;
 	wind.clientWidth = 1280;
 	wind.clientHeight = 720;
-	wind.fullscreen = true;
+	wind.fullscreen = false;
 	wind.windowInstance = hInstance;
 	wind.windowTitle = L"RipTag";
 	//Will override the settings above
@@ -146,9 +146,33 @@ void RenderingManager::ImGuiProc()
 	}
 }
 
+void RenderingManager::Reset()
+{
+	// TODO :: Reload window and engine
+
+	//WindowContext wind;
+	//wind.clientWidth = 1280;
+	//wind.clientHeight = 720;
+	//wind.fullscreen = false;
+	//wind.windowInstance = m_hInstance;
+	//wind.windowTitle = L"RipTag";
+	////Will override the settings above
+	//SettingLoader::LoadWindowSettings(wind);
+
+	//m_engine->Release();
+	//m_wnd->Init(wind);
+	//m_engine->Init(m_wnd->getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);
+	//_reloadShaders();
+
+	//if (DEBUG)
+	//{
+	//	m_ImGuiManager->Release();
+	//	m_ImGuiManager->Init(m_wnd->getHandler());
+	//}
+}
+
 void RenderingManager::_reloadShaders()
 {
-	std::cout << "Shader reloading is disabled" << std::endl;
 	bool f = true;
 	if (f)
 		DX::g_shaderManager.ReloadAllShaders();

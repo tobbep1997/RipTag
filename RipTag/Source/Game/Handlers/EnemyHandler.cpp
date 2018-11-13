@@ -19,6 +19,8 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 
 void EnemyHandler::Update(float deltaTime)
 {
+	static float timer = 0.0f;
+	timer += deltaTime;
 	int playerVisibility = 0;
 	
 	for (int i = 0; i < m_guards.size(); i++)
@@ -35,13 +37,15 @@ void EnemyHandler::Update(float deltaTime)
 		switch (state)
 		{
 		case Investigating_Sight:
-			_investigating(currentGuard, tempVisibility);
+			if (timer > 0.5f)
+				_investigating(currentGuard);
 			break;
 		case Investigating_Sound:
-			_investigateSound(currentGuard);
+			if (timer > 0.5f)
+				_investigateSound(currentGuard);
 			break;
 		case Patrolling:
-			_patrolling(currentGuard, tempVisibility);
+			_patrolling(currentGuard);
 			break;
 		}
 	}
@@ -80,16 +84,17 @@ void EnemyHandler::_alert(Enemy * guard, bool followSound)
 	}
 }
 
-void EnemyHandler::_investigating(Enemy * guard, int playerVisibility)
+void EnemyHandler::_investigating(Enemy * guard)
 {
 	if (guard->GetAlertPathSize() > 0)
 	{
-		DirectX::XMFLOAT4A playerPos = m_player->getPosition();
-		Node * pathDestination = guard->GetAlertDestination();
-		if (playerVisibility > 1700)
+		if (guard->getVisCounter() >= ALERT_TIME_LIMIT)
 		{
-			if (abs(pathDestination->worldPos.x - playerPos.x) > 5 ||
-				abs(pathDestination->worldPos.y - playerPos.z) > 5)
+			DirectX::XMFLOAT4A playerPos = m_player->getPosition();
+			Node * pathDestination = guard->GetAlertDestination();
+
+			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
+				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = guard->getPosition();
 				Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
@@ -117,8 +122,9 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		{
 			DirectX::XMFLOAT3 soundPos = guard->getSoundLocation().soundPos;
 			Node * pathDestination = guard->GetAlertDestination();
-			if (abs(pathDestination->worldPos.x - soundPos.x) > 2 ||
-				abs(pathDestination->worldPos.y - soundPos.z) > 2)
+
+			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
+				abs(pathDestination->worldPos.y - soundPos.z) > 2.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = guard->getPosition();
 				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
@@ -138,9 +144,9 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 	}
 }
 
-void EnemyHandler::_patrolling(Enemy * guard, int playerVisibility)
+void EnemyHandler::_patrolling(Enemy * guard)
 {
-	if (false && playerVisibility > SIGHT_LEVEL)
+	if (guard->getVisCounter() >= ALERT_TIME_LIMIT)
 		_alert(guard);
 	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
 		_alert(guard, true);

@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-//#include "../Actors/Enemy/Enemy.h"
 
 class Enemy;
 class Player;
@@ -11,6 +10,7 @@ class EnemyHandler
 private:
 	const float SOUND_LEVEL = 0.33f;
 	const int SIGHT_LEVEL = 1700;
+	const float ALERT_TIME_LIMIT = 0.8f;
 
 private:
 	std::vector<Enemy*> m_guards;
@@ -29,8 +29,8 @@ public:
 private:
 	int _getPlayerVisibility(Enemy * guard);
 	void _alert(Enemy * guard, bool followSound = false);
-	void _investigating(Enemy * guard, int playerVisibility);
+	void _investigating(Enemy * guard);
 	void _investigateSound(Enemy * guard);
-	void _patrolling(Enemy * guard, int playerVisibility);
+	void _patrolling(Enemy * guard);
 
 };

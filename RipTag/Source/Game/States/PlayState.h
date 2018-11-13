@@ -43,8 +43,7 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
-	bool m_threadAllow = true;
-
+	static bool m_youlost;
 public:
 	PlayState(RenderingManager * rm);
 	~PlayState();
@@ -53,11 +52,18 @@ public:
 
 	void Draw() override;
 
+	static void setYouLost(const bool & youLost);
+
 private:
 	void testtThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);
 	void TemporaryLobby();
+	void DrawWorldCollisionboxes();
+
+	// Inherited via State
+	virtual void unLoad();
+	virtual void Load();
 };
 

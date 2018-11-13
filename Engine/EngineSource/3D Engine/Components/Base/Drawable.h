@@ -41,6 +41,7 @@ private:
 
 	bool m_hidden;
 	bool m_outline;
+	DirectX::XMFLOAT4A m_outLineColor;
 public:
 	SM::AnimationStateMachine* InitStateMachine();
 	SM::AnimationStateMachine* m_stateMachine = nullptr;
@@ -118,8 +119,9 @@ public:
 	virtual void setOutline(bool outline);
 	virtual bool getOutline();
 
+	virtual void setOutlineColor(const DirectX::XMFLOAT4A & color);
+	virtual DirectX::XMFLOAT4A getOutlineColor();
 	virtual DirectX::BoundingBox * getBoundingBox();
-
 private:
 	virtual void _setStaticBuffer();
 	virtual void _setDynamicBuffer();

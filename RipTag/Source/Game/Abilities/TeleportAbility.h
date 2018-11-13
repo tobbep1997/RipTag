@@ -9,7 +9,6 @@ class TeleportAbility : public AbilityComponent, public BaseActor , public HUDCo
 {
 private: // CONST VARS
 	const int START_MANA_COST = 10;
-	const float COOLDOWN_WAIT_MAX = 5.0f;
 	const float TRAVEL_SPEED = 20.0f;
 	const float MAX_CHARGE = 2.0f;
 	const bool USE_SHADOWS = true;
@@ -33,7 +32,6 @@ private:
 	TeleportState	m_tpState;
 	float			m_charge;
 	float			m_travelSpeed;
-	float			m_cooldown;
 	PointLight*		m_light;
 
 	Quad * m_bar;
@@ -41,6 +39,8 @@ private:
 	//for network
 	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;
+
+	DirectX::BoundingSphere * m_boundingSphere;
 
 public:
 	TeleportAbility(void * owner = nullptr);
@@ -57,6 +57,8 @@ public:
 	unsigned int getState();
 	DirectX::XMFLOAT4A getVelocity();
 	DirectX::XMFLOAT4A getStart();
+
+	DirectX::BoundingSphere * GetBoundingSphere() const;
 
 private:
 	// Private functions

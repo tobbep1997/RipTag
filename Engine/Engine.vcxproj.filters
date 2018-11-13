@@ -17,6 +17,7 @@
     <FxCompile Include="EngineSource\Shader\Shaders\2DVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlineVertexShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\wireFramePixel.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="EngineSource\3D Engine\Components\StateMachine.h" />
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="EnginePCH.h" />
+    <ClInclude Include="ConsoleColor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

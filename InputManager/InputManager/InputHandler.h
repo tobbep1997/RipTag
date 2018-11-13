@@ -10,6 +10,9 @@ class InputHandler
 private:
 
 	static bool m_keys[256];
+	static bool m_keysReleased[256];
+	static bool m_keysPressed[256];
+	
 	static bool m_mouseKeys[3];
 	static bool m_mouseWasPressed[3]; 
 	static DirectX::XMFLOAT2 m_mousePos; 
@@ -35,11 +38,19 @@ private:
 public:
 	~InputHandler();
 
+	static void Reset();
+
 	//A singelton, only one instance
 	static InputHandler * Instance(); 
 
 	static DirectX::XMFLOAT2 getMousePosition(); 
+	// This will spam through frames
 	static bool isKeyPressed(int keyCode);
+	// This is true one frame after the key is released
+	static bool isKeyReleased(int keyCode);
+	/* This is is one frame if the key were pressed,
+	the key needs to be released for this to become true again. */
+	static bool wasKeyPressed(int keyCode);
 	static bool isMLeftPressed(bool repeat); 
 	static bool isMMiddlePressed(); 
 	static bool isMRightPressed(); 
@@ -81,7 +92,8 @@ public:
 		Alt = 0x12,
 		Esc = 0x1B,
 		Backspace = 0x08,
-		Return = 0x0D
+		Return = 0x0D,
+		Enter = 0x0D
 	};
 	static std::vector<unsigned int> getRawInput();
 
