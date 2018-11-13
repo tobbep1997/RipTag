@@ -143,7 +143,8 @@ namespace Network
 	{
 		unsigned char id;
 		int seed;
-		GAMESTARTEDPACKET(unsigned char _id, int _seed) : id(_id), seed(_seed) {}
+		RakNet::NetworkID remoteID;
+		GAMESTARTEDPACKET(unsigned char _id, int _seed, RakNet::NetworkID nid) : id(_id), seed(_seed), remoteID(nid) {}
 	};
 #pragma pack(pop)
 	//STRUCTS END

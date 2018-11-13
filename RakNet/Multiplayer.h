@@ -15,11 +15,12 @@
 #include <map>
 #include <functional>
 
-struct OnStartGame
+struct CoopData
 {
 	int seed;
 	int localPlayerCharacter;
 	int remotePlayerCharacter;
+	RakNet::NetworkID remoteID;
 };
 
 namespace Network

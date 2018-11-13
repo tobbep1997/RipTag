@@ -7,7 +7,6 @@
 LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 {
 
-
 }
 
 
@@ -176,10 +175,11 @@ void LobbyState::Update(double deltaTime)
 						_sendGameStartedPacket();
 						//create the proper struct/tuple containing all necessary info
 						//for the PlayState constructor, then push it on the state stack
-						OnStartGame * data = new OnStartGame();
+						CoopData * data = new CoopData();
 						data->seed = pNetwork->GetSeed();
 						data->localPlayerCharacter = selectedChar;
 						data->remotePlayerCharacter = remoteSelectedChar;
+						data->remoteID = this->m_remoteNID;
 
 						isReady = false;
 						isRemoteReady = false;
@@ -1055,10 +1055,11 @@ void LobbyState::_onReadyPacket(RakNet::Packet * data)
 void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 {
 	Network::GAMESTARTEDPACKET * packet = (Network::GAMESTARTEDPACKET*)data->data;
-	OnStartGame * ptr = new OnStartGame();
+	CoopData * ptr = new CoopData();
 	ptr->seed = packet->seed;
 	ptr->localPlayerCharacter = selectedChar;
 	ptr->remotePlayerCharacter = remoteSelectedChar;
+	ptr->remoteID = packet->remoteID;
 	isReady = false;
 	isRemoteReady = false;
 	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
@@ -1110,7 +1111,7 @@ void LobbyState::_sendReadyPacket()
 
 void LobbyState::_sendGameStartedPacket()
 {
-	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed());
+	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed(), pNetwork->GetNetworkID());
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::GAMESTARTEDPACKET), PacketPriority::IMMEDIATE_PRIORITY);
 }

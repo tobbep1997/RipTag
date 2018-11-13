@@ -40,15 +40,16 @@ public:
 	void PhysicsUpdate();
 	void Draw();
 	void win();
-	void OnGameStart(bool coop);
+	void isCoop(bool coop);
 	//Local player handling
-	void CreateLocalPlayer();
+	void CreateLocalPlayer(DirectX::XMFLOAT4A pos = { 0.f, 0.f, 0.f, 0.f });
 	//call this function when a client connects to you
-	void CreateRemotePlayer();
+	void CreateRemotePlayer(DirectX::XMFLOAT4A pos, RakNet::NetworkID nid);
 	//call this function if you had a client connected but he left
 	void DestroyRemotePlayer();
 	void SendOnPlayerCreate();
 	Player * getLocalPlayer();
+	RemotePlayer * getRemotePlayer();
 
 	//use this function to set the type from char selection 
 	void setPlayerType(int type) { player_type = type; }

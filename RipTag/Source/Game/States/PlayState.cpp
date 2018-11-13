@@ -13,7 +13,10 @@ PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
 	//we dont care about this yet
 	if (coopData)
-		delete coopData;
+	{
+		isCoop = true;
+		pCoopData = (CoopData*)coopData;
+	}
 	//DO NOT USE, USE Load Function
 	//DO NOT USE, USE Load Function
 	//DO NOT USE, USE Load Function
@@ -596,6 +599,9 @@ void PlayState::Load()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
 
+	//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
+	Network::Multiplayer::LocalPlayerOnSendMap.clear();
+	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
 	m_youlost = false;
 	RipExtern::g_world = &m_world;
@@ -622,21 +628,41 @@ void PlayState::Load()
 	future1.get();
 
 	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->OnGameStart(false);
 	m_playerManager->CreateLocalPlayer();
-
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
-
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
-
+	
 	m_levelHandler = new LevelHandler();
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	if (isCoop)
+	{
+		this->m_seed = pCoopData->seed;
+		auto startingPositions = m_levelHandler->getStartingPositions();
+		DirectX::XMFLOAT4 posOne = std::get<0>(startingPositions);
+		DirectX::XMFLOAT4 posTwo = std::get<1>(startingPositions);
+		switch (pCoopData->localPlayerCharacter)
+		{
+		case 1:
+			m_playerManager->getLocalPlayer()->setPosition(posOne.x, posOne.y, posOne.z, posOne.w);
+			m_playerManager->getLocalPlayer()->SetAbilitySet(1);
+			m_playerManager->CreateRemotePlayer({ posTwo.x, posTwo.y, posTwo.z, posTwo.w }, pCoopData->remoteID);
+			m_playerManager->getRemotePlayer()->SetAbilitySet(2);
+			break;
+		case 2:
+			m_playerManager->getLocalPlayer()->setPosition(posTwo.x, posTwo.y, posTwo.z, posTwo.w);
+			m_playerManager->getLocalPlayer()->SetAbilitySet(2);
+			m_playerManager->CreateRemotePlayer({ posOne.x, posOne.y, posOne.z, posOne.w }, pCoopData->remoteID);
+			m_playerManager->getRemotePlayer()->SetAbilitySet(1);
+			break;
+		}
+		m_playerManager->isCoop(true);
+		//free up memory when we are done with this data
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
+	else
+	{
+		m_playerManager->isCoop(false);
+	}
 
 	triggerHandler = new TriggerHandler();
 

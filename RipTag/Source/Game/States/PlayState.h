@@ -46,7 +46,9 @@ private:
 	static bool m_youlost;
 	//BaseActor * tempp;
 	//DirectX::XMFLOAT4A rot;
-
+	bool isCoop = false;
+	CoopData * pCoopData = nullptr;
+	int m_seed = 0;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();
