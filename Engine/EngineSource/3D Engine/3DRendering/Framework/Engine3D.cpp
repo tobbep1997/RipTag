@@ -112,10 +112,10 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	return hr;
 }
 
-void Engine3D::Flush(Camera & camera)
+void Engine3D::Flush(Camera & camera, ParticleEmitter * lol)
 {
 	
-	m_forwardRendering->Flush(camera);
+	m_forwardRendering->Flush(camera, lol);
 }
 
 void Engine3D::Clear()

@@ -7,7 +7,7 @@ struct VS_OUTPUT
 	float2 uv : UV;
 };
 
-float4 main(VS_OUTPUT input) : SV_TARGET
+float4 main(VS_OUTPUT input) : SV_TARGET1
 {
 	return float4(0.5f, 0.5f, 0.5f, 0);
 }

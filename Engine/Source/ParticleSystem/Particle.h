@@ -14,15 +14,15 @@ public:
 
 	void Reset();
 
-	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3{0,0,0};
-	DirectX::XMFLOAT3 velocity = DirectX::XMFLOAT3{ 0,0,0 };
+	DirectX::XMVECTOR position = DirectX::XMVECTOR{0, 0, 0};
+	DirectX::XMVECTOR velocity = DirectX::XMVECTOR{ 0,1,0 };
 	DirectX::XMFLOAT4 color = DirectX::XMFLOAT4{ 0.5f,0.5f,0.5f,0};
 	float rotation = 1;
 	float size = 1;
 	float endSize = 1;
 	float speed = 1;
 	float age = 0;
-	float lifeTime = 1;
+	float lifeTime = 0.1f;
 	float acceleration = 0.1f;
 
 

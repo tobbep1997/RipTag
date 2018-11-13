@@ -93,10 +93,10 @@ void RenderingManager::Clear()
 	this->m_engine->Clear();
 }
 
-void RenderingManager::Flush(Camera & camera)
+void RenderingManager::Flush(Camera & camera, ParticleEmitter * lol)
 {
 	//Draws Everything in the queue
-	m_engine->Flush(camera);
+	m_engine->Flush(camera, lol);
 	
 	
 

@@ -178,12 +178,11 @@ void ForwardRender::AnimatedGeometryPass()
 	}
 }
 
-void ForwardRender::Flush(Camera & camera)
+void ForwardRender::Flush(Camera & camera, ParticleEmitter * lol)
 {
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	_mapCameraBuffer(camera);
 	this->PrePass();
-
 
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
@@ -199,14 +198,23 @@ void ForwardRender::Flush(Camera & camera)
 	_mapCameraBuffer(camera);
 	this->GeometryPass();
 	this->AnimatedGeometryPass();
+
+
+
 	this->_wireFramePass();
 	this->_OutliningPass(camera);
 
+
+
+
 	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
 
+	if (lol)
+		lol->Draw();
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//_GuardFrustumDraw();
 	m_2DRender->GUIPass();
+
 }
 
 void ForwardRender::Clear()

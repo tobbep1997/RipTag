@@ -15,7 +15,7 @@ struct VS_OUTPUT
 	float2 uv : UV;
 };
 
-VS_OUTPUT main(VS_INPUT input)
+VS_OUTPUT main(VS_INPUT input) 
 {
 	VS_OUTPUT output;
 

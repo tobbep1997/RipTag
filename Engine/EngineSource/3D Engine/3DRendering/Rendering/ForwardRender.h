@@ -132,7 +132,7 @@ public:
 	void GeometryPass();
 	void PrePass();
 	void AnimatedGeometryPass();
-	void Flush(Camera & camera);
+	void Flush(Camera & camera, ParticleEmitter * lol = nullptr);
 	void Clear();
 
 	void Release();

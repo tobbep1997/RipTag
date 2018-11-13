@@ -180,7 +180,7 @@ PlayState::~PlayState()
 
 
 	delete triggerHandler;
-
+	delete m_particleEmitter;
 	delete m_contactListener;
 	delete m_rayListener;
 
@@ -293,10 +293,11 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
+	//m_particleEmitter->Draw();
 
-	m_particleEmitter->Draw();
 
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera(), m_particleEmitter);
+
 }
 
 void PlayState::testtThread(double deltaTime)

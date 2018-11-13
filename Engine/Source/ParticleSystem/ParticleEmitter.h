@@ -28,19 +28,20 @@ private:
 	float timeDelata = 0.02f;
 	float m_partialParticle;
 	bool m_EmitterActiv;
-	DirectX::XMFLOAT3 m_SpawnPosition;
+	DirectX::XMVECTOR m_SpawnPosition = DirectX::XMVECTOR{ 4.297f, 5, -1.682f };
 	std::vector<Particle*> m_Particles;
-	ID3D11Buffer* m_vertexBuffer;
-	ID3D11Buffer* m_cBuffer;
+	ID3D11Buffer* m_vertexBuffer = nullptr;
+	ID3D11Buffer* m_cBuffer = nullptr;
 	Vertex* m_VertexData;
 	Particle * m_newParticle;
 	UINT32 m_StrideSize;
 	UINT32 m_Offset = 0;
 
 	D3D11_VIEWPORT m_ParticleViewport;
-	ID3D11ShaderResourceView* m_ParticleSRV;
-	ID3D11DepthStencilView*	m_ParticleDepthStencilView;
-	ID3D11RenderTargetView*	m_renderTargetView;
+	ID3D11ShaderResourceView* m_ParticleSRV = nullptr;
+	ID3D11DepthStencilView*	m_ParticleDepthStencilView = nullptr;
+	ID3D11RenderTargetView*	m_renderTargetView = nullptr;
+	ID3D11Resource* m_resource = nullptr;
 
 	DirectX::XMVECTOR m_up;
 	DirectX::XMVECTOR m_right;
@@ -48,13 +49,13 @@ private:
 	DirectX::XMVECTOR m_forward;
 	DirectX::XMVECTOR m_fakeUp = { 0.0f, 1.0f, 0.0f };
 
-	void _createConstantBuffer();
 	void _particleVertexCalculation();
+	void _depthRenderTarget();
+
 
 public:
 	ParticleEmitter();
 	~ParticleEmitter();
-	void Reset();
 	void Update(float timeDelata);
 	void InitializeBuffer();
 	void SetBuffer();
@@ -63,7 +64,7 @@ public:
 	DirectX::XMFLOAT3 Float3scale(DirectX::XMFLOAT3 basePos, float scale);
 	DirectX::XMFLOAT3 Float3add(DirectX::XMFLOAT3 basePos, DirectX::XMFLOAT3 basePos2);
 	int nrOfEmittedParticles;
-	std::vector<Vertex*> vertex;
+	std::vector<Vertex> vertex;
 	int nrOfVertex;
 
 };

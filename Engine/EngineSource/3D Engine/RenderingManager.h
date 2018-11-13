@@ -28,7 +28,7 @@ public:
 	void UpdateSingleThread();
 
 	void Clear();
-	void Flush(Camera & camera);
+	void Flush(Camera & camera, ParticleEmitter * lol = nullptr);
 
 	void Release();
 
