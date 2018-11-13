@@ -5,6 +5,7 @@
 
 #include "Source/Physics/Bounce.h"
 #include "Source/Game/Actors/BaseActor.h"
+#include "Source/Game/Item/Map.h"
 
 namespace FMOD
 {
@@ -46,6 +47,7 @@ private:
 	static bool m_youlost;
 	//BaseActor * tempp;
 	//DirectX::XMFLOAT4A rot;
+	Map m_map;
 
 public:
 	PlayState(RenderingManager * rm);
@@ -58,7 +60,7 @@ public:
 	static void setYouLost(const bool & youLost);
 
 private:
-	void testtThread(double deltaTime);
+	void _PhyscisThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);

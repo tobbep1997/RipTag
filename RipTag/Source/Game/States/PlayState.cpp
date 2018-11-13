@@ -141,7 +141,7 @@ void PlayState::Update(double deltaTime)
 
 	m_playerManager->PhysicsUpdate();
 	
-	
+	m_map.Update(deltaTime);
 	
 	
 	m_contactListener->ClearContactQueue();
@@ -215,7 +215,7 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-
+	m_map.Draw();
 	//DrawWorldCollisionboxes();
 	
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
@@ -226,7 +226,7 @@ void PlayState::setYouLost(const bool& youLost)
 	m_youlost = youLost;
 }
 
-void PlayState::testtThread(double deltaTime)
+void PlayState::_PhyscisThread(double deltaTime)
 {
 	while (m_destoryPhysicsThread == false)
 	{
@@ -669,7 +669,9 @@ void PlayState::Load()
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+	m_map.Init();
+
+	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 
 	std::cout << "PlayState Load" << std::endl;
 }
