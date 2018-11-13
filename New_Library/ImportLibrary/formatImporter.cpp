@@ -339,7 +339,8 @@ namespace ImporterLibrary
 	CollisionBoxes CustomFileLoader::readMeshCollisionBoxes(const std::string & fileName)
 	{
 		CollisionBoxes collisionBoxes;
-
+		std::string newFileName = "../Assets/";
+		newFileName.append(fileName + "FOLDER/" + fileName + "_BBOX.bin");
 		bool fileIsOpen = false;
 
 		std::ifstream customBoxFile(fileName, std::ifstream::binary);

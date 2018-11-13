@@ -51,12 +51,17 @@ private:
 	std::vector<b3ShapeDef*> m_shapeDefs;
 	std::vector <b3Body*>	m_bodys;
 	std::vector <b3Shape *> m_shapes;
+	std::vector <b3Vec3> m_scales;
 
 protected:
 	virtual void p_updatePhysics(Transform * transform);
 	virtual void p_setPosition(const float & x, const float & y, const float & z);
 	virtual void p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
 	virtual void p_setRotation(const float & pitch, const float & yaw, const float & roll);
+	/*
+	This is broken dont use please
+	*/
+	virtual void p_setScale(Transform * broken);
 
 	//virtual void p_addRotation();
 	

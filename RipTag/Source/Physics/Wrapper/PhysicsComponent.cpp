@@ -156,9 +156,37 @@ void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const
 }
 
 
+void PhysicsComponent::p_setScale(Transform * transform)
+{
+	using namespace DirectX;
+	XMMATRIX worldMatrix = XMMatrixTranspose(XMLoadFloat4x4A(&transform->getWorldmatrix()));
+	XMVECTOR position;
+	XMVECTOR scale;
+	XMFLOAT3 pos;
+	XMFLOAT3 scl;
+	if (!this->singelCollider)
+	{
+		for (int i = 0; i < m_bodys.size(); i++)
+		{
+			position = XMLoadFloat3(&XMFLOAT3(m_bodys[i]->GetTransform().translation.x, m_bodys[i]->GetTransform().translation.y, m_bodys[i]->GetTransform().translation.z));
+			scale = XMLoadFloat3(&XMFLOAT3(m_scales[i].x, m_scales[i].y, m_scales[i].z));
+
+			XMVector3Transform(position, worldMatrix);
+			XMVector3Transform(scale, worldMatrix);
+
+			XMStoreFloat3(&pos, position);
+			XMStoreFloat3(&scl, scale);
+			
+			m_bodys[i]->SetTransform(b3Vec3(pos.x, pos.y, pos.z), m_bodys[i]->GetQuaternion());
+		}
+	}
+}
+
+
 
 PhysicsComponent::PhysicsComponent()
 {
+	m_bodyDef = nullptr;
 }
 
 PhysicsComponent::~PhysicsComponent()
@@ -194,6 +222,7 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 
 		h = new b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+		m_scales.push_back(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_hulls.push_back(h);
 
 		//-----------------------------------------------------
@@ -382,8 +411,9 @@ void PhysicsComponent::addForceToCenter(float x, float y, float z)
 
 void PhysicsComponent::Release(b3World& world)
 {
-	delete m_bodyDef;
-	if (singelCollider)
+	if (m_bodyDef)
+		delete m_bodyDef;
+	if (singelCollider && m_bodyDef)
 	{
 		m_body->DestroyShape(m_shape);
 		delete m_poly;

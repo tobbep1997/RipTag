@@ -40,10 +40,11 @@ void BaseActor::Update(double deltaTime)
 	p_updatePhysics(this);
 }
 
-void BaseActor::setPosition(const float& x, const float& y, const float& z)
+void BaseActor::setPosition(const float& x, const float& y, const float& z, const bool & setPhysics)
 {
 	Transform::setPosition(x, y, z);
-	PhysicsComponent::p_setPosition(x, y, z);
+	if (setPhysics)
+		PhysicsComponent::p_setPosition(x, y, z);
 }
 
 void BaseActor::setPositionRot(const float& x, const float& y, const float& z, const float& pitch, const float& yaw,
@@ -65,6 +66,8 @@ void BaseActor::addRotation(const float& pitch, const float& yaw, const float& r
 {
 
 }
+
+
 
 
 
