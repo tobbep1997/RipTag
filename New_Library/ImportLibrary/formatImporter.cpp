@@ -355,10 +355,10 @@ namespace ImporterLibrary
 
 			collisionBoxes.nrOfBoxes = header.nrOfBoxes; // get the number of boxes
 
-			CollisionBox* box = new CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i need an array
+			CollisionBox* box = DBG_NEW CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i need an array
 			customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox)); // got litraly no fucking clue whats going on here please send help
 
-			collisionBoxes.boxes = new CollisionBox[collisionBoxes.nrOfBoxes]; // why can't i use the first array
+			collisionBoxes.boxes = DBG_NEW CollisionBox[collisionBoxes.nrOfBoxes]; // why can't i use the first array
 
 			for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 			{
@@ -419,7 +419,7 @@ namespace ImporterLibrary
 
 			customLightFile.read((char*)&nrOf, sizeof(int)); // what is happening here?!! i just copied this code
 			pointLights.nrOf = nrOf;
-			pointLights.lights = new pointLight[nrOf];
+			pointLights.lights = DBG_NEW pointLight[nrOf];
 			customLightFile.read((char*)pointLights.lights, pointLights.nrOf * sizeof(pointLight)); // got litraly no fucking clue whats going on here please send help
 
 			//copy thing done
