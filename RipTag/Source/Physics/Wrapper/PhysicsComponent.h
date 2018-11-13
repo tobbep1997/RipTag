@@ -54,10 +54,7 @@ private:
 
 protected:
 	virtual void p_updatePhysics(Transform * transform);
-	/// UBER TEMP
-public:
 	virtual void p_setPosition(const float & x, const float & y, const float & z);
-protected:
 	virtual void p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
 	virtual void p_setRotation(const float & pitch, const float & yaw, const float & roll);
 
