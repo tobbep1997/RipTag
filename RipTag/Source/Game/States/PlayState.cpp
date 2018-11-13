@@ -162,7 +162,6 @@ void PlayState::Update(double deltaTime)
 		InputHandler::setShowCursor(FALSE);	   
 
 	
-	TemporaryLobby();
 #if _DEBUG
 #endif
 	if (GamePadHandler::IsSelectPressed())
@@ -386,60 +385,6 @@ void PlayState::_lightCulling()
 void PlayState::thread(std::string s)
 {
 	Manager::g_meshManager.loadStaticMesh(s);
-}
-
-void PlayState::TemporaryLobby()
-{
-	Network::Multiplayer * ptr = Network::Multiplayer::GetInstance();
-
-	ImGui::Begin("Network Lobby");
-	if (!ptr->isConnected() && !ptr->isRunning())
-	{
-		if (ImGui::Button("Start Server"))
-		{
-			ptr->SetupServer();
-		}
-		else if (ImGui::Button("Start Client"))
-		{
-			//ptr->StartUpClient();
-		}
-	}
-
-	if (ptr->isRunning() && ptr->isServer() && !ptr->isConnected())
-	{
-		ImGui::Text("Server running... Awaiting Connections...");
-		if (ImGui::Button("Cancel"))
-			ptr->EndConnectionAttempt();
-	}
-
-	if (ptr->isRunning() && ptr->isClient() && !ptr->isConnected())
-	{
-		ImGui::Text("Client running... Searching for Host...");
-		if (ImGui::Button("Cancel"))
-			ptr->EndConnectionAttempt();
-	}
-
-	if (ptr->isRunning() && ptr->isConnected() && !ptr->isGameRunning())
-	{
-		if (ptr->isServer() && !ptr->isGameRunning())
-			if (ImGui::Button("Start Game"))
-			{
-				ptr->setIsGameRunning(true);
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START, 0);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
-			}
-		ImGui::Text(ptr->GetNetworkInfo().c_str());
-		if (ImGui::Button("Disconnect"));
-			//ptr->Disconnect();
-	}
-
-	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
-	{
-		if (ImGui::Button("Spawn on Remote"))
-			m_playerManager->SendOnPlayerCreate();
-	}
-
-	ImGui::End();
 }
 
 #include "EngineSource\Structs.h"

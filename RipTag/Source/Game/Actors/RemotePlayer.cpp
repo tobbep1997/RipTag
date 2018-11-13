@@ -39,33 +39,33 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	{
 		VisabilityAbility * visAbl = new VisabilityAbility();
 		visAbl->setOwner(this);
-		visAbl->setIsLocal(true);
+		visAbl->setIsLocal(false);
 		visAbl->Init();
 		
 
 		VisabilityAbility * visAbl2 = new VisabilityAbility();
 		visAbl2->setOwner(this);
-		visAbl2->setIsLocal(true);
+		visAbl2->setIsLocal(false);
 		visAbl2->Init();
 
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
-		m_teleport->setIsLocal(true);
+		m_teleport->setIsLocal(false);
 		m_teleport->Init();
 
 		DisableAbility * m_dis = new DisableAbility();
 		m_dis->setOwner(this);
-		m_dis->setIsLocal(true);
+		m_dis->setIsLocal(false);
 		m_dis->Init();
 
 		BlinkAbility * m_blink = new BlinkAbility();
 		m_blink->setOwner(this);
-		m_blink->setIsLocal(true);
+		m_blink->setIsLocal(false);
 		m_blink->Init();
 
 		PossessGuard * m_possess = new PossessGuard();
 		m_possess->setOwner(this);
-		m_possess->setIsLocal(true);
+		m_possess->setIsLocal(false);
 		m_possess->Init();
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];

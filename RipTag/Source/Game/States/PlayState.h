@@ -64,7 +64,6 @@ private:
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);
-	void TemporaryLobby();
 	void DrawWorldCollisionboxes(const std::string & type = "");
 
 	// Inherited via State
