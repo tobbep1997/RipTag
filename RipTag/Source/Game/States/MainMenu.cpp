@@ -5,7 +5,6 @@
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	
 }
 
 MainMenu::~MainMenu()
@@ -29,8 +28,10 @@ void MainMenu::Update(double deltaTime)
 		{
 		case ButtonOrder::Play:
 			_resetButtons();
-			this->pushNewState(new PlayState(this->p_renderingManager));
-			break;
+			m_loadingScreen.removeGUI(m_buttons);
+			m_loadingScreen.draw();
+			this->pushNewState(new PlayState(this->p_renderingManager)); 
+			break; 
 		case ButtonOrder::Lobby:
 			_resetButtons();
 			this->pushNewState(new LobbyState(this->p_renderingManager));
@@ -218,11 +219,13 @@ void MainMenu::Load()
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.loadTextures("LOADING"); 
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	   
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+
 
 	std::cout << "MainMenu Load" << std::endl;
 }
@@ -233,6 +236,7 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadTexture("SPHERE");
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
 	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadTexture("LOADING"); 
 	Manager::g_textureManager.UnloadAllTexture();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
