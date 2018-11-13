@@ -1,12 +1,14 @@
 #pragma once
 #include "State.h"
-
+#include "../Loading Screen/LoadingScreen.h"
 class Quad;
 class Circle;
 class TextInput;
 class MainMenu : public State
 {
 private:
+
+	LoadingScreen m_loadingScreen;
 	enum ButtonOrder
 	{
 		Play = 0,
@@ -17,6 +19,7 @@ private:
 	std::vector<Quad*> m_buttons;
 	unsigned int m_currentButton;
 
+	bool m_playstatePressed = false;
 
 	Circle * c;
 	long float cTimer;
