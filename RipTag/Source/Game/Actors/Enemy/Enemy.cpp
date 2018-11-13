@@ -300,10 +300,13 @@ void Enemy::Update(double deltaTime)
 					{
 						path->setPosition(path->getPosition().x, posY , path->getPosition().z);
 					}*/
-					if (m_currentPathNode != 0)
+					if (m_nodeFootPrintsEnabled == true)
 					{
-						Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
-						temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
+						if (m_currentPathNode != 0)
+						{
+							Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
+							temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
+						}
 					}
 					
 					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
@@ -629,26 +632,29 @@ void Enemy::addTeleportAbility(const TeleportAbility & teleportAbility)
 
 void Enemy::DrawGuardPath()
 {
-	int counter = 0;
-	if (m_currentPathNode != 0)
+	if (m_nodeFootPrintsEnabled)
 	{
-		m_pathNodes.at(m_currentPathNode - 1)->Draw();
-	}
-	//std::cout << m_currentPathNode << std::endl;
-	
-	for (unsigned int i = m_currentPathNode; i < m_pathNodes.size(); ++i)
-	{
-		m_pathNodes.at(i)->Draw();
-		counter++;
-		if (counter >= m_maxDrawOutNode)
+		int counter = 0;
+		if (m_currentPathNode != 0)
 		{
-			break;
+			m_pathNodes.at(m_currentPathNode - 1)->Draw();
+		}
+
+		for (unsigned int i = m_currentPathNode; i < m_pathNodes.size(); ++i)
+		{
+			m_pathNodes.at(i)->Draw();
+			counter++;
+			if (counter >= m_maxDrawOutNode)
+			{
+				break;
+			}
 		}
 	}
-	/*for (auto drawable : m_pathNodes)
-	{
-		drawable->Draw();
-	}*/
+}
+
+void Enemy::EnableGuardPathPrint()
+{
+	m_nodeFootPrintsEnabled = true;
 }
 
 float Enemy::getVisCounter() const

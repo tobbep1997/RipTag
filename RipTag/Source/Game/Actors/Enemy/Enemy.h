@@ -116,6 +116,8 @@ private:
 	std::vector<Drawable*> m_pathNodes;
 	float m_sinWaver = 0;
 
+	bool m_nodeFootPrintsEnabled = false;
+
 	const float m_startYPos = 4.5f;
 public:
 	Enemy();
@@ -183,6 +185,7 @@ public:
 	void addTeleportAbility(const TeleportAbility & teleportAbility);
 
 	void DrawGuardPath();
+	void EnableGuardPathPrint();
 private:
 
 	void _handleInput(double deltaTime);
