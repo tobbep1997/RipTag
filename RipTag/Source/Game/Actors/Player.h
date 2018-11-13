@@ -31,7 +31,7 @@ class PossessGuard;
 class TeleportAbility;
 
 //This value has to be changed to match the players 
-class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
+class Player : public Actor, public CameraHolder, public PhysicsComponent, public HUDComponent
 {
 private: //stuff for state machine
 	friend class PlayState;
@@ -43,7 +43,7 @@ private: //stuff for state machine
 
 	std::vector<std::string> m_sounds;
 
-	
+
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -59,6 +59,7 @@ private:
 	AbilityComponent ** m_abilityComponents1;
 	AbilityComponent ** m_abilityComponents2;
 	AbilityComponent ** m_activeSet;
+	unsigned int m_activeSetID = 1;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
