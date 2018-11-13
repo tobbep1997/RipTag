@@ -133,6 +133,18 @@ void LobbyState::Update(double deltaTime)
 	}
 	else
 	{
+		if (hasCharSelected && hasRemoteCharSelected && !isReady)
+		{
+			m_charSelectButtons[Ready]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else if (hasCharSelected && hasRemoteCharSelected && isReady)
+		{
+			m_charSelectButtons[Ready]->setTextColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+		}
+		else
+			m_charSelectButtons[Ready]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+
+
 		if (m_charSelectButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
 			switch ((CharacterSelection)m_currentButton)
@@ -168,7 +180,14 @@ void LobbyState::Update(double deltaTime)
 				this->_sendCharacterSelectionPacket();
 				break;
 			case CharacterSelection::Ready:
-				//ready
+				if (hasCharSelected && hasRemoteCharSelected)
+				{
+					if (isReady)
+						isReady = false;
+					else
+						isReady = true;
+					_sendReadyPacket();
+				}
 				break;
 			case CharacterSelection::Back:
 				if (isHosting)
@@ -1036,6 +1055,16 @@ void LobbyState::_sendCharacterSelectionPacket()
 			packet.role = Role::Client;
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::CHARACTERSELECTIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
+}
+
+void LobbyState::_sendReadyPacket()
+{
+	if (hasClient || hasJoined)
+	{
+		Network::COMMONEVENTPACKET packet(this->isReady, 0);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	}
+
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
