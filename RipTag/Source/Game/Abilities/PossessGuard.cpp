@@ -31,7 +31,8 @@ void PossessGuard::Init()
 
 void PossessGuard::Update(double deltaTime)
 {
-	_logic(deltaTime);
+	if (this->isLocal)
+		_logic(deltaTime);
 }
 
 void PossessGuard::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)

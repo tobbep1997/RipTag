@@ -606,7 +606,7 @@ void Player::SendOnAnimationUpdate(double dt)
 
 void Player::SendOnWin()
 {
-	Network::EVENTPACKET packet(Network::ID_PLAYER_WON);
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
