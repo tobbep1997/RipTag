@@ -197,6 +197,9 @@ void LobbyState::Update(double deltaTime)
 						data->localPlayerCharacter = selectedChar;
 						data->remotePlayerCharacter = remoteSelectedChar;
 
+						isReady = false;
+						isRemoteReady = false;
+
 						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
 					}
 				}
@@ -1068,6 +1071,8 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	ptr->seed = packet->seed;
 	ptr->localPlayerCharacter = selectedChar;
 	ptr->remotePlayerCharacter = remoteSelectedChar;
+	isReady = false;
+	isRemoteReady = false;
 	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
 }
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
