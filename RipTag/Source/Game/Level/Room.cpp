@@ -61,7 +61,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempDoor);
 			tempDoor = nullptr;
-			//ladda in dörr etc etc 
+			//ladda in dï¿½rr etc etc 
 			break;
 		case(4):
 			//Manager::g_meshManager.loadStaticMesh("SPAK");
@@ -139,21 +139,47 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_lose->setScale(0.5f, 0.25f);
 	
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setUnpressedTexture("SPHERE");
+	m_lose->setPressedTexture("DAB");
+	m_lose->setHoverTexture("PIRASRUM");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
 
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
 	m_pathfindingGrid = new Grid();
 }
+Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
+{
+	//GeneratedRoom
+	this->m_roomIndex = -1;
+	this->m_playerInRoomPtr = playerPtr;
+	this->m_arrayIndex = arrayIndex;
+	this->m_worldPtr = worldPtr;
+
+	triggerHandler = new TriggerHandler();
+	triggerHandler->RegisterThisInstanceToNetwork();
+
+	m_lose = new Quad();
+	m_lose->init();
+	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setScale(0.5f, 0.25f);
+
+	m_lose->setString("YOU LOST");
+	m_lose->setUnpressedTexture("SPHERE");
+	m_lose->setPressedTexture("DAB");
+	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
+
+	HUDComponent::AddQuad(m_lose);
+
+	m_grid = nullptr;
+
+}
 Room::~Room()
 {
-	delete m_pathfindingGrid;
-
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -161,7 +187,7 @@ void Room::setRoomIndex(const short unsigned int roomIndex)
 	this->m_roomIndex = roomIndex;
 }
 
-unsigned short int Room::getRoomIndex()
+short int Room::getRoomIndex()
 {
 	return this->m_roomIndex;
 }
@@ -222,16 +248,12 @@ void Room::UnloadRoomFromMemory()
 		delete m_grid->gridPoints;
 		delete m_grid;
 		m_roomLoaded = false;
-
-
 	}
-
 }
 
 void Room::LoadRoomToMemory()
 {
 	//TODO:: add all the assets to whatever
-	std::cout << m_assetFilePath << std::endl;
 	if (m_roomLoaded == false)
 	{
 		ImporterLibrary::CustomFileLoader fileLoader;
@@ -245,8 +267,8 @@ void Room::LoadRoomToMemory()
 		if (m_grid)
 			delete m_grid;
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid->CreateGridWithWorldPosValues(m_grid->maxX, m_grid->maxY, *m_grid);
-		//
+		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
+
 		m_roomLoaded = true;
 
 		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
@@ -261,15 +283,36 @@ void Room::LoadRoomToMemory()
 		
 		placeRoomProps(tempProps);
 		delete tempProps.props;
+
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
-
-			/*std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
-			this->m_roomGuards.at(i)->SetPathVector(path);*/
-			//this->m_roomGuards.at(i)->setPosition(-10, 0, -10);
+			Enemy * e = new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;
+
+		/*
+			Test paths for guard on bottom floor
+		*/
+		// 0, 0 -> 5, 0
+		std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
+		// 5, 0 -> 5, 10
+		std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		partOfPath.clear();
+		// 5, 10 -> 0, 10
+		partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(0, 10));
+		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		partOfPath.clear();
+		// 0, 10 -> 0, 0
+		partOfPath = m_pathfindingGrid->FindPath(Tile(0, 10), Tile(0, 0));
+		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		partOfPath.clear();
+
+		m_roomGuards.at(1)->SetPathVector(fullPath);
+
+		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
 
 		//getPath();
 
@@ -305,33 +348,32 @@ void Room::LoadRoomToMemory()
 		m_roomLoaded = true;	
 	}
 
+	m_enemyHandler.Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(200, 102, 50);
+		light->setColor(200.0f, 102.0f, 50.0f);
 	}
 }
 
 void Room::getPath()
 {
-	std::vector<Node*> path = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(24, 13));
-	std::cout << "Printing path..." << std::endl << std::endl;
-	for (int i = 0; i < path.size(); i++)
+	Tile t = m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z);
+	if (t.getX() != -1)
 	{
-		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-		std::cout << "World x: " << path.at(i)->worldPos.x << " World y: " << path.at(i)->worldPos.y << std::endl;
-	}
-	std::cout << std::endl << "Path is finished printing..." << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		delete path.at(i);
-		path.at(i) = nullptr;
+		for (int i = 0; i < m_roomGuards.size(); i++)
+		{
+			DirectX::XMFLOAT4A pos = m_roomGuards.at(i)->getPosition();
+			Tile tile = m_pathfindingGrid->WorldPosToTile(pos.x, pos.z);
+			m_roomGuards.at(i)->SetAlertVector(m_pathfindingGrid->FindPath(tile,
+				m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z)));
+		}
 	}
 }
 
 void Room::Update(float deltaTime)
 {
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
+	/*for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
 		this->m_roomGuards.at(i)->Update(deltaTime);
 		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
@@ -339,10 +381,11 @@ void Room::Update(float deltaTime)
 		this->m_roomGuards.at(i)->_IsInSight();
 		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
 		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
-
 	}
 	int endvis = 0;
 	
+	
+
 	for (int i = 0; i < vis.size(); ++i)
 	{
 		
@@ -353,25 +396,37 @@ void Room::Update(float deltaTime)
 	}
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
-	vis.clear();
+	vis.clear();*/
+	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+	m_enemyHandler.Update(deltaTime);
 
 	for (auto light : m_pointLights)
 	{
-		
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 0.5f));
 	}
 	triggerHandler->Update(deltaTime);
+
+	// Move to level handler (?)
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
 		{
 			m_youLost = true;
+			break;
 		}
 	}
-	if (m_youLost)
+	/*if (m_youLost)
 	{
+#if _DEBUG
+		PlayState::setYouLost(false);
+#else
+		PlayState::setYouLost(true);
+#endif
+
 		HUDComponent::HUDUpdate(deltaTime);
-	}
+	}*/
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{
@@ -394,7 +449,6 @@ void Room::Draw()
 	}
 	for (auto light : m_pointLights)
 	{
-		
 		light->QueueLight();
 	}
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
@@ -402,7 +456,6 @@ void Room::Draw()
 	
 	triggerHandler->Draw();
 
-	
 	if (m_youLost)
 	{
 		HUDComponent::HUDDraw();
@@ -440,13 +493,17 @@ void Room::Release()
 	{
 		ab->release();
 	}
-	delete m_grid->gridPoints;
+	if (m_grid)
+	{
+		delete m_grid->gridPoints;
 
-	delete m_grid;
+		delete m_grid;
+	}
+	
 
 	triggerHandler->Release();
 	delete triggerHandler;
-	
+	delete m_pathfindingGrid;
 }
 
 void Room::loadTextures()

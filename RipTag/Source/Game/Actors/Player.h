@@ -28,6 +28,7 @@ class AbilityComponent;
 class Enemy;
 class BlinkAbility;
 class PossessGuard;
+class TeleportAbility;
 
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
@@ -42,6 +43,7 @@ private: //stuff for state machine
 
 	std::vector<std::string> m_sounds;
 
+	
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -62,11 +64,10 @@ private:
 	PlayerState m_currentState = PlayerState::Idle;
 	Enemy* possessTarget;	
 
-	float m_standHeight;
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
-	
+
 	bool m_currClickCrouch = false; 
 	bool m_prevClickCrouch = false;
 	bool m_currClickSprint = false; 
@@ -95,10 +96,7 @@ private:
 	Quad * m_manaBar;
 	Quad * m_manaBarBackground;
 	Quad * m_manabarText;
-
-	Quad * m_visBar;
-	Quad * m_visBarBackground;
-	Quad * m_visbarText;
+	
 	Quad * m_winBar;
 
 	Quad * m_infoText;
@@ -108,8 +106,28 @@ private:
 	float m_tutorialDuration = 0.0f;
 	bool m_tutorialActive = true;
 
+	//Crouch
+	float m_standHeight;
+	float m_crouchHeight;
+	int crouchDir = 0;
+	//Peek
+	int peekDir = 0;
+	int LastPeekDir = 0;
 	float m_peekRotate;
+	float m_peekRangeA = 0;
+	float m_peekRangeB = 0;
+	float m_peektimer = 0;
+	bool  m_allowPeek = true;
+	bool m_recentHeadCollision = false;
 
+	Circle * m_HUDcircle;
+	Circle * m_HUDcircleFiller;
+
+	const unsigned short MAX_ENEMY_CIRCLES = 10;
+	std::vector<Circle*> m_enemyCircles;
+	float totVis = 0;
+	float maxVis = 0;
+	unsigned short m_currentEnemysVisable = 0;
 public:
 	//Magic number
 	static const int g_fullVisability = 6500;
@@ -157,22 +175,28 @@ public:
 	void RefillMana(const float & manaFill);
 	void drawWinBar();
 	void SetAbilitySet(int set);
+
+	void setEnemyPositions(std::vector<Enemy *> enemys);
+
+	TeleportAbility * getTeleportAbility();
 private:
+	void _collision();
 	void _handleInput(double deltaTime);
 	void _onMovement();
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);
 	void _onJump();
+	void _onPeak(double deltaTime);
 	void _onInteract();
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
 	void _updateTutorial(double deltaTime);
-
 
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 
 	void _deActivateCrouch();
 	void _hasWon();
+	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
 };

@@ -44,6 +44,7 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	}
 
 	m_gameStack.push(new MainMenu(m_renderingManager));
+	m_gameStack.top()->Load();
 }
 
 bool Game::isRunning()
@@ -73,15 +74,14 @@ void Game::Update(double deltaTime)
 #if _DEBUG
 	_restartGameIf();
 #endif
-	if (m_gameStack.top()->getNewState() != nullptr)
-		m_gameStack.push(m_gameStack.top()->getNewState());
 
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
 	InputMapping::Call();
 	pNetworkInstance->Update();
-	
+
+	InputHandler::getRawInput();
 }
 
 void Game::Draw()
@@ -101,17 +101,38 @@ void Game::ImGuiPoll()
 
 void Game::_handleStateSwaps()
 {
+	if (m_gameStack.top()->getNewState() != nullptr)
+	{
+		m_gameStack.top()->unLoad();
+		m_gameStack.push(m_gameStack.top()->getNewState());
+		m_gameStack.top()->Load();
+	}
+
 	if (m_gameStack.top()->getKillState())
 	{
+		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
+		m_gameStack.top()->Load();
+	}
+
+	if (m_gameStack.top()->getBackToMenu())
+	{
+		while (m_gameStack.size() > 1)
+		{
+			m_gameStack.top()->unLoad();
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+		m_gameStack.top()->Load();
 	}
 }
 
 void Game::_restartGameIf()
 {
-	if (InputHandler::isKeyPressed('B'))
+	/*if (InputHandler::isKeyPressed('B'))
 	{
 		if (isPressed == false)
 		{
@@ -125,5 +146,5 @@ void Game::_restartGameIf()
 	else
 	{
 		isPressed = false;
-	}
+	}*/
 }

@@ -191,6 +191,12 @@ void Camera::setFarPlane(float farPlane)
 	_calcProjectionMatrix();
 }
 
+void Camera::setFOV(float fov)
+{
+	this->m_fov = fov;
+	_calcProjectionMatrix();
+}
+
 const float & Camera::getFarPlane() const
 {
 	return this->m_farPlane;

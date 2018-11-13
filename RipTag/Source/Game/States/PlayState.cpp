@@ -2,56 +2,22 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 
+
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
 
+bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
-	//check if we started the game from lobby, if coopData != nullptr, we did so
+	//we dont care about this yet
 	if (coopData)
 		delete coopData;
-
-	RipExtern::g_world = &m_world;
-	m_contactListener = new ContactListener();
-	RipExtern::m_contactListener = m_contactListener;
-	RipExtern::g_world->SetContactListener(m_contactListener);
-	m_rayListener = new RayCastListener();
-	RipExtern::m_rayListener = m_rayListener;
-	CameraHandler::Instance();
-	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
-	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_meshManager.loadDynamicMesh("STATE");
-	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-
-	//Load assets
-	{
-
-	}
-
-	future1.get();
-	
-	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->RegisterThisInstanceToNetwork();
-	m_playerManager->CreateLocalPlayer();
-
-
-
-	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
-
-
-	m_playerManager->getLocalPlayer()->Init(*RipExtern::g_world, e_dynamicBody,0.5f,0.5f,0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
-
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
-	
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 	//Do not remove pls <3
 	{
 	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
@@ -141,30 +107,10 @@ PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 	//	stateMachine->SetState("walk_forward");
 
 	}
-
-	m_levelHandler = new LevelHandler();
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
-
-	triggerHandler = new TriggerHandler();
-
-	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
-	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
-	
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
-	
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
-
-	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
-
-	Input::ResetMouse();
-
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
-	m_firstRun = false;
-	
-	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 }
 
 PlayState::~PlayState()
@@ -174,6 +120,7 @@ PlayState::~PlayState()
 
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
+
 
 	delete triggerHandler;
 
@@ -189,17 +136,11 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-	
-	/*if (m_physicsThread.joinable())
-	{
-		m_physicsThread.join();
-	}*/
-	
+			
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
 
-	//model->getAnimatedModel()->Update(deltaTime);
 
 	m_playerManager->PhysicsUpdate();
 	
@@ -209,8 +150,6 @@ void PlayState::Update(double deltaTime)
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 
-	/*m_deltaTime = deltaTime;
-	std::lock_guard<std::mutex> lg(m_physicsMutex);*/
 	m_deltaTime = deltaTime;
 	m_physicsCondition.notify_all();
 	
@@ -228,9 +167,6 @@ void PlayState::Update(double deltaTime)
 		Input::SetActivateGamepad(Input::isUsingGamepad());
 	}
 
-	//player->SetCurrentVisability((e2Vis[0] / 5000.0f) + (e1Visp[0] / 5000));
-	
-
 	if (Input::Exit() || GamePadHandler::IsStartPressed())
 	{
 		m_destoryPhysicsThread = true;
@@ -241,7 +177,20 @@ void PlayState::Update(double deltaTime)
 		{
 			m_physicsThread.join();
 		}
-		setKillState(true);
+		BackToMenu();
+	}
+
+	if (m_youlost)
+	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
+		pushNewState(new LoseState(p_renderingManager));
 	}
 
 	
@@ -259,6 +208,7 @@ void PlayState::Update(double deltaTime)
 	{
 		InputHandler::setShowCursor(true);
 	}
+
 }
 
 void PlayState::Draw()
@@ -268,8 +218,15 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-		
-	p_renderingManager->Flush(*CameraHandler::getActiveCamera());	
+
+	//DrawWorldCollisionboxes();
+	
+	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+}
+
+void PlayState::setYouLost(const bool& youLost)
+{
+	m_youlost = youLost;
 }
 
 void PlayState::testtThread(double deltaTime)
@@ -307,6 +264,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			DirectX::XMVECTOR vPPos = DirectX::XMLoadFloat4A(&pPos);
 			DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(vPPos, vEPos);
 			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
+			Enemy::SoundLocation sl;
+			sl.percentage = 0.0f;
 			if (length < 20.0f)
 			{
 				for (auto & c : channels)
@@ -354,6 +313,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							case AudioEngine::Player:
 								allSounds += addThis;
 								playerSounds += addThis;
+								if (playerSounds > sl.percentage)
+								{
+									sl.soundPos.x = soundPos.x;
+									sl.soundPos.y = soundPos.y;
+									sl.soundPos.z = soundPos.z;
+								}
 								break;
 							case AudioEngine::Other:
 								allSounds += addThis;
@@ -363,13 +328,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					}
 				}
 
-				if (playerSounds > 0.1)
-				{
-					if (playerSounds / allSounds > 0.3f)
-					{
-						// TODO :: Update the enemy, it has heard the player.
-					}
-				}
+				sl.percentage = playerSounds / allSounds;
+				e->setSoundLocation(sl);
 			}
 			counter++;
 		}
@@ -476,4 +436,234 @@ void PlayState::TemporaryLobby()
 	}
 
 	ImGui::End();
+}
+
+#include "EngineSource\Structs.h"
+#include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
+
+void PlayState::DrawWorldCollisionboxes()
+{
+	static const DirectX::XMFLOAT4A _SXMcube[] =
+	{
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
+	};
+	static std::vector<Drawable*> _drawables;
+	static std::vector<StaticVertex> _vertices;
+	static StaticMesh _sm;
+
+
+	static bool _loaded = false;
+
+	if (!_loaded)
+	{
+		for (int i = 0; i < 36; i++)
+		{
+			StaticVertex v;
+			v.pos = _SXMcube[i];
+			_vertices.push_back(v);
+		}
+		_sm.setVertices(_vertices);
+		
+		
+		_loaded = true;
+		const b3Body * b = m_world.getBodyList();
+
+		while (b != nullptr)
+		{
+			if (b->GetObjectTag() != "TELEPORT")
+			{
+				b3Shape * s = b->GetShapeList();
+				auto b3BodyRot = b->GetTransform().rotation;
+				while (s != nullptr)
+				{
+					Drawable * d = new Drawable;
+					d->setModel(&_sm);
+					DirectX::XMFLOAT4A shapePos = {
+						s->GetTransform().translation.x + b->GetTransform().translation.x,
+						s->GetTransform().translation.y + b->GetTransform().translation.y,
+						s->GetTransform().translation.z + b->GetTransform().translation.z,
+					1.0f
+					};
+					auto b3ShapeRot = s->GetTransform().rotation;
+					DirectX::XMFLOAT3X3 shapeRot;
+					shapeRot._11 = b3BodyRot.x.x;
+					shapeRot._12 = b3BodyRot.x.y;
+					shapeRot._13 = b3BodyRot.x.z;
+					shapeRot._21 = b3BodyRot.y.x;
+					shapeRot._22 = b3BodyRot.y.y;
+					shapeRot._23 = b3BodyRot.y.z;
+					shapeRot._31 = b3BodyRot.z.x;
+					shapeRot._32 = b3BodyRot.z.y;
+					shapeRot._33 = b3BodyRot.z.z;
+
+					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+					DirectX::XMMATRIX world = scl * rot * trans;
+					d->ForceWorld(DirectX::XMMatrixTranspose(world));
+					_drawables.push_back(d);
+					s = s->GetNext();
+				}
+			}
+			b = b->GetNext();
+		}
+	}
+	else
+	{
+		int counter = 0;
+		const b3Body * b = m_world.getBodyList();
+		while (b != nullptr)
+		{
+			if (b->GetObjectTag() != "TELEPORT")
+			{
+				b3Shape * s = b->GetShapeList();
+				auto b3BodyRot = b->GetTransform().rotation;
+				while (s != nullptr)
+				{
+					DirectX::XMFLOAT4A shapePos = {
+						s->GetTransform().translation.x + b->GetTransform().translation.x,
+						s->GetTransform().translation.y + b->GetTransform().translation.y,
+						s->GetTransform().translation.z + b->GetTransform().translation.z,
+					1.0f
+					};
+					auto b3ShapeRot = s->GetTransform().rotation;
+					DirectX::XMFLOAT3X3 shapeRot;
+					shapeRot._11 = b3BodyRot.x.x;
+					shapeRot._12 = b3BodyRot.x.y;
+					shapeRot._13 = b3BodyRot.x.z;
+					shapeRot._21 = b3BodyRot.y.x;
+					shapeRot._22 = b3BodyRot.y.y;
+					shapeRot._23 = b3BodyRot.y.z;
+					shapeRot._31 = b3BodyRot.z.x;
+					shapeRot._32 = b3BodyRot.z.y;
+					shapeRot._33 = b3BodyRot.z.z;
+
+					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+					DirectX::XMMATRIX world = scl * rot * trans;
+					_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
+					s = s->GetNext();
+			}
+			
+			}
+			b = b->GetNext();
+		}
+	}
+
+
+	for (auto & d : _drawables)
+		d->DrawWireFrame();
+}
+
+void PlayState::unLoad()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadAllTexture();
+	Manager::g_meshManager.UnloadAllMeshes();
+
+	std::cout << "PlayState unLoad" << std::endl;
+
+}
+
+void PlayState::Load()
+{
+	Manager::g_textureManager.loadTextures("KOMBIN");
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("FML");
+	Manager::g_textureManager.loadTextures("VISIBILITYICON");
+	Manager::g_textureManager.loadTextures("BLACK");
+	Manager::g_textureManager.loadTextures("BAR");
+
+
+	m_youlost = false;
+	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_world->SetContactListener(m_contactListener);
+	m_rayListener = new RayCastListener();
+	RipExtern::m_rayListener = m_rayListener;
+	CameraHandler::Instance();
+	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
+	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
+
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
+
+	//Load assets
+	{
+		//:c *queue sad music*
+	}
+
+	future1.get();
+
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->RegisterThisInstanceToNetwork();
+	m_playerManager->CreateLocalPlayer();
+
+	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
+	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
+	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+
+	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
+	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
+	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+
+	m_levelHandler = new LevelHandler();
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	triggerHandler = new TriggerHandler();
+
+	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
+
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
+
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
+
+	
+
+
+
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+
+	Input::ResetMouse();
+
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
+	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+
+	std::cout << "PlayState Load" << std::endl;
 }

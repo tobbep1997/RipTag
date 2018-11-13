@@ -74,7 +74,6 @@ struct Node
 class Grid
 {
 private:
-	//std::vector<Tile> m_tileMap;
 	std::vector<Node> m_nodeMap;
 	int m_width, m_height;
 
@@ -83,16 +82,18 @@ private:
 
 public:
 	Grid(int width = 0, int height = 0);
+	Grid(float xVal, float yVal, int width, int depth);
 	virtual ~Grid();
 
-	void CreateGridWithWorldPosValues(int width, int height, ImporterLibrary::GridStruct grid);
-	void ThreadPath(Tile src, Tile dest);
-	std::vector<Node*> getPath();
-	std::vector<Node*> FindPath(Tile src, Tile dest);
+	Tile WorldPosToTile(float x, float y);
 
-	// Test function
-	void printGrid();
-	bool Ready();
+	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
+	std::vector<Node*> FindPath(Tile src, Tile dest);
+	std::vector<Node*> InvestigateAreaPath(Tile src);
+
+	void ThreadPath(Tile src, Tile dest);
+	std::vector<Node*> GetPathFromThread();
+	bool IsPathReady();
 
 private:
 	// Utility functions
@@ -100,5 +101,6 @@ private:
 			std::vector<Node*> & openList, bool * closedList);
 	bool _isValid(Tile tile) const;
 	float _calcHValue(Tile src, Tile dest) const;
-
+	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
+	int _findXInYRow(int begin, int end, int x, int y) const;
 };

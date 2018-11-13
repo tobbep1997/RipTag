@@ -1,5 +1,6 @@
 #pragma once
-
+//MULLE MECKA
+#pragma warning (disable : 4215 4267 4305)
 #include <AudioEngine.h>
 #include <Multiplayer.h>
 
@@ -12,11 +13,15 @@
 
 #include "RipTagExtern/RipExtern.h"
 
+#include <DirectXCollision.h>
+
+//States
 #include "Source/Game/States/State.h"
 #include "Source/Game/States/MainMenu.h"
 #include "Source/Game/States/PlayState.h"
 #include "Source/Game/States/OptionState.h"
 #include "Source/Game/States/LobbyState.h"
+#include "Source/Game/States/LoseState.h"
 
 #include "Source/Input/Input.h"
 #include "Source/Game/Level/Room.h"
@@ -66,6 +71,7 @@
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 
+#include "ConsoleColor.h"
 
 #include "EngineSource/Helper/Timer.h"
 #include "EngineSource/Helper/HelperFunctions.h"
@@ -83,7 +89,10 @@
 
 //2D
 #include "2D Engine/Quad/Quad.h"
+#include "2D Engine/Circle/Circle.h"
+#include "2D Engine/TextInput/TextInput.h"
 #include "2D Engine/DirectXTK/SpriteFont.h"
+#include "Fonts/FontHandler.h"
 
 
 //This allows to use new instead of new to create a pointer
@@ -97,5 +106,59 @@
 #ifdef _DEBUG
 #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #else
-#define new new
+#define DBG_NEW new
 #endif
+
+static void printVector(const DirectX::XMFLOAT4 & vec)
+{
+	std::cout << "X: " << vec.x << "\tY: " << vec.y << "\tZ: " << vec.z << "\tW: " << vec.w << std::endl;
+}
+
+static void printVector(const DirectX::XMFLOAT4A & f)
+{
+	printVector(DirectX::XMFLOAT4(f.x, f.y, f.z, f.w));
+}
+static void printVector(const DirectX::XMFLOAT3 & f)
+{
+	printVector(DirectX::XMFLOAT4(f.x, f.y, f.z, 0));
+}
+
+static DirectX::XMFLOAT4 getDirection(const DirectX::XMFLOAT4 & iFrom, const DirectX::XMFLOAT4 & iToo)
+{
+	using namespace DirectX;
+
+	XMVECTOR f = XMLoadFloat4(&iFrom);
+	XMVECTOR t = XMLoadFloat4(&iToo);
+
+	XMVECTOR vDir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(t, f));
+	XMFLOAT4 dir; XMStoreFloat4(&dir, vDir);
+	return dir;
+}
+static DirectX::XMFLOAT4 getDirection(const DirectX::XMFLOAT4A & iFrom, const DirectX::XMFLOAT4A & iToo)
+{
+	return getDirection(DirectX::XMFLOAT4(iFrom.x, iFrom.y, iFrom.z, iFrom.w), DirectX::XMFLOAT4(iToo.x, iToo.y, iToo.z, iToo.w));
+}
+
+
+static float getLenght(const DirectX::XMFLOAT4 & vec)
+{
+	using namespace DirectX;
+
+	XMVECTOR f = XMLoadFloat4(&vec);
+
+	XMVECTOR vDir = DirectX::XMVector4Length(f);
+	XMFLOAT4 dir; XMStoreFloat4(&dir, vDir);
+	return dir.x;
+}
+
+static float getLenght(const DirectX::XMFLOAT4 & vec, const DirectX::XMFLOAT4 & vec2)
+{
+	using namespace DirectX;
+
+	XMVECTOR v1 = XMLoadFloat4(&vec);
+	XMVECTOR v2 = XMLoadFloat4(&vec2);
+
+	XMVECTOR vDir = DirectX::XMVector4Length(DirectX::XMVectorSubtract(v1, v2));
+	XMFLOAT4 dir; XMStoreFloat4(&dir, vDir);
+	return dir.x;
+}

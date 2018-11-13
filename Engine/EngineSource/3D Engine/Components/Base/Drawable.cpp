@@ -73,6 +73,26 @@ SM::AnimationStateMachine* Drawable::InitStateMachine()
 	return m_stateMachine;
 }
 
+void Drawable::setOutline(bool outline)
+{
+	m_outline = outline;
+}
+
+bool Drawable::getOutline()
+{
+	return m_outline;
+}
+
+void Drawable::setOutlineColor(const DirectX::XMFLOAT4A& color)
+{
+	m_outLineColor = color;
+}
+
+DirectX::XMFLOAT4A Drawable::getOutlineColor()
+{
+	return m_outLineColor;
+}
+
 void Drawable::p_createBuffer()
 {
 	switch (p_objectType)
@@ -116,6 +136,8 @@ Drawable::Drawable() : Transform()
 	p_vertexBuffer = nullptr;
 	p_color = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	m_hidden = false;
+	m_outLineColor = DirectX::XMFLOAT4A(1, 1, 1, 1);
+	m_outline = false;
 }
 
 

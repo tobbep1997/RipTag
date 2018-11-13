@@ -116,5 +116,11 @@ private:
 
 	void _newHostEntry(std::string& hostName);
 
+
+	// Inherited via State
+	virtual void Load() override;
+
+	virtual void unLoad() override;
+
 };
 

@@ -1,11 +1,14 @@
 #pragma once
 #include "State.h"
-
+#include "../Loading Screen/LoadingScreen.h"
 class Quad;
-
+class Circle;
+class TextInput;
 class MainMenu : public State
 {
 private:
+
+	LoadingScreen m_loadingScreen;
 	enum ButtonOrder
 	{
 		Play = 0,
@@ -17,6 +20,10 @@ private:
 	unsigned int m_currentButton;
 	Quad * m_background = nullptr;
 
+	bool m_playstatePressed = false;
+
+	Circle * c;
+	long float cTimer;
 public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
@@ -32,4 +39,8 @@ private:
 	void _handleMouseInput();
 	void _updateSelectionStates();
 	void _resetButtons();
+
+	// Inherited via State
+	virtual void Load() override;
+	virtual void unLoad() override;
 };

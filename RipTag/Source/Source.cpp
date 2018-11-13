@@ -80,43 +80,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
     AudioEngine::Init();
-	
+	srand(time(0));
+
 
 	Game game;
 	game.Init(hInstance);
-	std::cout << "hello";
-
-	/*std::thread gameLoop;
-	gameLoop = std::thread(&GameLoop, &game);
-	game.PollEvents();
-
-	//gameLoop.join();*/
 
 	SingleGameLoop(&game);
-	
-	/*Grid grid = Grid(300, 300);
-	std::vector<Node*> path;
-	
-	dt.getDeltaTimeInSeconds();
-
-	std::cout << "Printing path..." << std::endl << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-	}
-	std::cout << std::endl << "Path is finished printing..." << std::endl;
-
-	system("pause");
-
-	for (int i = 0; i < path.size(); i++)
-	{
-		delete path.at(i);
-		path.at(i) = nullptr;
-	}*/
-
-	
 
 	DX::g_shaderManager.Release();
+	FontHandler::Release();
 	AudioEngine::Release();
 	return 0;
 	

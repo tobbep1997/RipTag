@@ -64,6 +64,8 @@ public:
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 
+	void setFOV(float fov);
+
 	const float & getFarPlane() const;
 	const float & getNearPlane() const;
 	const float & getFOV() const;

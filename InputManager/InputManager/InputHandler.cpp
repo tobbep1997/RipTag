@@ -34,6 +34,8 @@ void InputHandler::Reset()
 	}
 }
 
+std::vector<unsigned int> InputHandler::m_rawInput;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
@@ -226,4 +228,11 @@ void InputHandler::CloseGame()
 bool InputHandler::GetClosedGame()
 {
 	return m_closeGame;  
+}
+
+std::vector<unsigned int> InputHandler::getRawInput()
+{
+	std::vector<unsigned int> returnValue = std::vector<unsigned int>(m_rawInput);
+	m_rawInput.clear();
+	return returnValue;
 }

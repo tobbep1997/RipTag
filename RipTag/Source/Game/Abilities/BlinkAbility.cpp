@@ -45,13 +45,12 @@ void BlinkAbility::_logic(double deltaTime)
 		switch (m_bState)
 		{
 		case BlinkState::Wait:
-			if (cooldown >= COOLDOWN_WAIT_MAX)
+			p_cooldown += deltaTime;
+			if (p_cooldown >= p_cooldownMax)
 			{
 				m_bState = BlinkState::Blink;
-				cooldown = 0;
+				p_cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
 			break;
 		case BlinkState::Blink:
 			if (pPointer->CheckManaCost(getManaCost()))
@@ -60,33 +59,35 @@ void BlinkAbility::_logic(double deltaTime)
 			
 				if(ray != nullptr)
 				{
-					RayCastListener::RayContact* var = ray->getClosestContact();
-					if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					for (RayCastListener::RayContact* var : ray->GetRayContacts())
 					{
-						pPointer->setPosition(
-							var->contactPoint.x + (
-							(fabs(fabs(var->contactPoint.x) - fabs(var->contactShape->GetBody()->GetTransform().translation.x)) *2 + 0.25)*
-								(-var->normal.x)),
-							pPointer->getPosition().y,
-							var->contactPoint.z + (
-							(fabs(fabs(var->contactPoint.z) - fabs(var->contactShape->GetBody()->GetTransform().translation.z))*2 + 0.25) *
-								(-var->normal.z))
-						);
-						if (fabs(var->normal.y) > 0.001)
+						if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 						{
 							pPointer->setPosition(
-								pPointer->getPosition().x,
-								var->contactPoint.y + (
-								(fabs(var->contactPoint.y - (var->contactShape->GetBody()->GetTransform().translation.y) * 2)) *
-									(-var->normal.y)),
-								pPointer->getPosition().z
+								var->contactPoint.x + (
+								(fabs(fabs(var->contactPoint.x) - fabs(var->contactShape->GetBody()->GetTransform().translation.x)) *2 + 0.25)*
+									(-var->normal.x)),
+								pPointer->getPosition().y,
+								var->contactPoint.z + (
+								(fabs(fabs(var->contactPoint.z) - fabs(var->contactShape->GetBody()->GetTransform().translation.z))*2 + 0.25) *
+									(-var->normal.z))
 							);
+							if (fabs(var->normal.y) > 0.001)
+							{
+								pPointer->setPosition(
+									pPointer->getPosition().x,
+									var->contactPoint.y + (
+									(fabs(var->contactPoint.y - (var->contactShape->GetBody()->GetTransform().translation.y) * 2)) *
+										(-var->normal.y)),
+									pPointer->getPosition().z
+								);
+							}
+							//std::cout << var->originBody->GetTransform().translation.x << " " <<
+							//	var->originBody->GetTransform().translation.y << " " <<
+							//	var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
+							pPointer->DrainMana(getManaCost());
+							m_bState = BlinkState::Wait;
 						}
-						std::cout << var->originBody->GetTransform().translation.x << " " <<
-							var->originBody->GetTransform().translation.y << " " <<
-							var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
-						pPointer->DrainMana(getManaCost());
-						m_bState = BlinkState::Wait;
 					}
 				}
 			}
@@ -94,22 +95,15 @@ void BlinkAbility::_logic(double deltaTime)
 		}
 	}
 	else
-	{
-		switch (m_bState)
+	{	
+		if(m_bState == BlinkState::Wait)
 		{
-		case BlinkState::Blink:
-
-			break;
-		case BlinkState::Wait:
-			if (cooldown >= COOLDOWN_WAIT_MAX)
+			p_cooldown += deltaTime;
+			if (p_cooldown >= p_cooldownMax)
 			{
 				m_bState = BlinkState::Blink;
-				cooldown = 0;
+				p_cooldown = 0;
 			}
-			else
-				cooldown += deltaTime;
-			break;
 		}
-
 	}
 }

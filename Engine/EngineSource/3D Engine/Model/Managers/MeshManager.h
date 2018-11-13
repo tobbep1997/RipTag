@@ -36,7 +36,8 @@ public:
 
 	bool UnloadStaticMesh(const std::string & meshName);
 	bool UnloadDynamicMesh(const std::string & meshName);
-
+	void UnloadAllMeshes();
+	const unsigned int getAllLoadedMeshes() const;
 private:
 
 	unsigned int _getKey(const std::string & meshName);

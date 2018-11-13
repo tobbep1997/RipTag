@@ -61,6 +61,10 @@ class ForwardRender
 		DirectX::XMFLOAT4A	color;
 	};
 
+	struct OutLineBuffer
+	{
+		DirectX::XMFLOAT4A outLineColor;
+	};
 private:
 
 	struct sortStruct
@@ -116,6 +120,13 @@ private:
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
 
+	ID3D11Buffer * m_outlineBuffer;
+	OutLineBuffer m_outLineValues;
+
+	ID3D11DepthStencilState * m_write0State;
+	ID3D11DepthStencilState * m_write1State;
+	ID3D11DepthStencilState * m_OutlineState;
+	
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -130,8 +141,8 @@ public:
 
 
 	void GeometryPass();
-	void PrePass();
-	void AnimatedGeometryPass();
+	void PrePass(Camera & camera);
+	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();
 
@@ -145,11 +156,17 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
+
+
+	void _mapObjectOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
+	void _mapObjectInsideOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
+
 	void _mapCameraBuffer(Camera & camera);
 	void _mapSkinningBuffer(Drawable * drawable);
 	void _mapLightInfoNoMatrix();
 
-
+	void _OutliningPass(Camera & cam);
+	void _OutlineDepthCreate();
 
 	//For visability
 

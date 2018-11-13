@@ -1,26 +1,15 @@
 #include "RipTagPCH.h"
+#include "../2DEngine/2D Engine/Quad/Components/HUDComponent.h"
 #include "MainMenu.h"
 
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	Manager::g_textureManager.loadTextures("KOMBIN");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
-
-	_initButtons();
-	m_currentButton = (unsigned int)ButtonOrder::Play;
 }
 
 MainMenu::~MainMenu()
 {
-	for (size_t i = 0; i < m_buttons.size(); i++)
-	{
-		m_buttons[i]->Release();
-		delete m_buttons[i];
-	}
-	m_buttons.clear();
+	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
@@ -39,8 +28,10 @@ void MainMenu::Update(double deltaTime)
 		{
 		case ButtonOrder::Play:
 			_resetButtons();
-			this->pushNewState(new PlayState(this->p_renderingManager));
-			break;
+			m_loadingScreen.removeGUI(m_buttons);
+			m_loadingScreen.draw();
+			this->pushNewState(new PlayState(this->p_renderingManager)); 
+			break; 
 		case ButtonOrder::Lobby:
 			_resetButtons();
 			this->pushNewState(new LobbyState(this->p_renderingManager));
@@ -57,7 +48,6 @@ void MainMenu::Update(double deltaTime)
 	}
 	
 		
-	
 }
 
 void MainMenu::Draw()
@@ -75,34 +65,35 @@ void MainMenu::_initButtons()
 {
 	//play button
 	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.80f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Play]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Play]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Play]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Play]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	this->m_buttons[ButtonOrder::Play]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
+
 
 	//lobby button
 	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.6f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Lobby]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	this->m_buttons[ButtonOrder::Lobby]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	this->m_buttons[ButtonOrder::Lobby]->setFont(FontHandler::getFont("consolas32"));
 
 	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.4f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Option]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Option]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Option]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Option]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Option]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	this->m_buttons[ButtonOrder::Option]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	this->m_buttons[ButtonOrder::Option]->setFont(FontHandler::getFont("consolas32"));
 
 	//Quit button
 	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.20f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->m_buttons[ButtonOrder::Quit]->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	this->m_buttons[ButtonOrder::Quit]->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture("SPHERE");
+	this->m_buttons[ButtonOrder::Quit]->setPressedTexture("DAB");
+	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Quit]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	this->m_buttons[ButtonOrder::Quit]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	this->m_buttons[ButtonOrder::Quit]->setFont(FontHandler::getFont("consolas32"));
 }
 
 void MainMenu::_handleMouseInput()
@@ -221,4 +212,39 @@ void MainMenu::_resetButtons()
 		button->setState(ButtonStates::Normal);
 	}
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+}
+
+void MainMenu::Load()
+{
+	Manager::g_textureManager.loadTextures("SPHERE");
+	Manager::g_textureManager.loadTextures("PIRASRUM");
+	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.loadTextures("LOADING"); 
+	FontHandler::loadFont("consolas32");
+	FontHandler::loadFont("consolas16");
+	   
+	_initButtons();
+	m_currentButton = (unsigned int)ButtonOrder::Play;
+
+
+	std::cout << "MainMenu Load" << std::endl;
+}
+
+void MainMenu::unLoad()
+{
+	Manager::g_textureManager.UnloadTexture("KOMBIN");
+	Manager::g_textureManager.UnloadTexture("SPHERE");
+	Manager::g_textureManager.UnloadTexture("PIRASRUM");
+	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.UnloadTexture("LOADING"); 
+	Manager::g_textureManager.UnloadAllTexture();
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+		m_buttons[i]->Release();
+		delete m_buttons[i];
+	}
+	m_buttons.clear();
+	Manager::g_textureManager.UnloadAllTexture();
+
+	std::cout << "MainMenu unLoad" << std::endl;
 }

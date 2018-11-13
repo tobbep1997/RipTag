@@ -1,7 +1,12 @@
+#ifdef _DEBUG
+#ifndef DBG_NEW
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#define new DBG_NEW
+#endif
+#endif  // _DEBUG
+
 #include "RipTagPCH.h"
 #include "Grid.h"
-
-
 
 Grid::Grid(int width, int height)
 {
@@ -17,56 +22,70 @@ Grid::Grid(int width, int height)
 	}
 }
 
-Grid::~Grid()
+Grid::Grid(float xVal, float yVal, int width, int depth)
 {
-	for (auto path : m_path)
-	{
-		delete path;
-	}
-	m_path.clear();
 	
+	float tempXval = xVal;
+	for (int i = 0; i < depth; i++)
+	{
+		yVal += 1;
+		xVal = tempXval;
+		for (size_t j = 0; j < width; j++)
+		{
+			m_nodeMap.push_back(Node(Tile(j, i),
+				NodeWorldPos(xVal,
+					yVal)));//kanske rätt//Det är rätt//Kanske inte är rätt. //Rätt, 100%Garanti/Fredrik
+			xVal += 1;
+		}
+	}
+
+
 }
 
-void Grid::CreateGridWithWorldPosValues(int width, int height, ImporterLibrary::GridStruct grid)
+Grid::~Grid()
+{
+}
+
+Tile Grid::WorldPosToTile(float x, float y)
+{
+	int approximateWorldPosX = (int)x;
+	int approximateWorldPosY = (int)y;
+	int index = _worldPosInNodeMap(0, m_height * m_width - 1, approximateWorldPosX, approximateWorldPosY);
+
+	if (index == -1)
+		return Tile();
+
+	return m_nodeMap.at(index).tile;
+}
+
+void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
 	m_nodeMap.clear();
-	m_width = width;
-	m_height = height;
+	m_width = grid.maxX;
+	//m_height = grid.maxY;
+	m_height = 11;
 
 	for (int i = 0; i < m_height; i++)
 	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[j + i * m_width].pathable),
-				NodeWorldPos(grid.gridPoints[j + i * m_width].translation[2],
-					grid.gridPoints[j + i * m_width].translation[0])));
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
+				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
+					grid.gridPoints[i + j * m_height].translation[2])));
 		}
 	}
 }
 
-void Grid::ThreadPath(Tile src, Tile dest)
-{
-	m_pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
-}
-
-std::vector<Node*> Grid::getPath()
-{
-	m_path = m_pathfindingFuture.get();
-	return m_path;
-}
-
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
-	if (!_isValid(destination))
+	if (!_isValid(destination) || !_isValid(source))
 	{
-		std::cout << "Destination is invalid\n";
 		return std::vector<Node*>();
 	}
 
 	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	if (!dest.getPathable())
 	{
-		std::cout << "Destination is blocked\n";
 		return std::vector<Node*>();
 	}
 
@@ -81,7 +100,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	Node * current = new Node(source, NodeWorldPos(), nullptr, 0.0f, _calcHValue(source, dest));
 	openList.push_back(current);
 
-	while (!openList.empty())
+	while (!openList.empty() || earlyExplorationNode != nullptr)
 	{
 		if (earlyExplorationNode != nullptr)
 		{
@@ -97,7 +116,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 		if (current->tile == dest)
 		{
-			// Do complete path stuff
+			// Create complete path
 			std::vector<Node*> path;
 
 			// Creates the new path and deletes the pointers that are used to create the path
@@ -166,10 +185,15 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, closedList);
 
 		std::sort(earlyExploration.begin(), earlyExploration.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
-		if (earlyExploration.at(0)->fCost <= current->fCost)
+		if (earlyExploration.size() > 0 && earlyExploration.at(0)->fCost <= current->fCost)
 		{
 			earlyExplorationNode = earlyExploration.at(0);
 			earlyExploration.erase(earlyExploration.begin());
+		}
+		else
+		{
+			// Might be needed to avoid mem leaks if it doesn't lead to any new paths.
+			delete current;
 		}
 		openList.insert(std::end(openList), std::begin(earlyExploration), std::end(earlyExploration));
 		earlyExploration.clear();
@@ -184,19 +208,23 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	return std::vector<Node*>();
 }
 
-void Grid::printGrid()
+std::vector<Node*> Grid::InvestigateAreaPath(Tile src)
 {
-	for (int i = 0; i < m_height; i++)
-	{
-		for (int j = 0; j < m_width; j++)
-		{
-			std::cout << m_nodeMap.at(j + i * m_width).tile.getPathable() << " ";
-		}
-		std::cout << "\n";
-	}
+	return std::vector<Node*>();
 }
 
-bool Grid::Ready()
+void Grid::ThreadPath(Tile src, Tile dest)
+{
+	m_pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
+}
+
+std::vector<Node*> Grid::GetPathFromThread()
+{
+	m_path = m_pathfindingFuture.get();
+	return m_path;
+}
+
+bool Grid::IsPathReady()
 {
 	using namespace std::chrono_literals;
 	auto status = m_pathfindingFuture.wait_for(0s);
@@ -212,7 +240,8 @@ void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY
 
 	if (_isValid(nextTile) && !closedList[nextTileIndex] && m_nodeMap.at(nextTileIndex).tile.getPathable())
 	{
-		Node * newNode = new Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos, current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
+		Node * newNode = new Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos,
+			current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
 		openList.push_back(newNode);
 	}
 }
@@ -230,4 +259,41 @@ float Grid::_calcHValue(Tile src, Tile dest) const
 	int x = abs(src.getX() - dest.getX());
 	int y = abs(src.getY() - dest.getY());
 	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
+}
+
+int Grid::_worldPosInNodeMap(int begin, int end, int x, int y) const
+{
+	if (begin <= end)
+	{
+		int mid = begin + (end - begin) / 2;
+
+		if ((int)m_nodeMap.at(mid).worldPos.y == y)
+		{
+			int indexAdjuster = mid % m_width;
+			return _findXInYRow(mid - indexAdjuster, mid - indexAdjuster + m_width - 1, x, y);
+		}
+
+		if (y < m_nodeMap.at(mid).worldPos.y)
+			return _worldPosInNodeMap(begin, mid - 1, x, y);
+
+		return _worldPosInNodeMap(mid + 1, end, x, y);
+	}
+	return -1;
+}
+
+int Grid::_findXInYRow(int begin, int end, int x, int y) const
+{
+	if (begin <= end)
+	{
+		int mid = begin + (end - begin) / 2;
+
+		if ((int)m_nodeMap.at(mid).worldPos.x == x)
+			return mid;
+
+		if (x < m_nodeMap.at(mid).worldPos.x)
+			return _findXInYRow(begin, mid - 1, x, y);
+
+		return _findXInYRow(mid + 1, end, x, y);
+	}
+	return -1;
 }

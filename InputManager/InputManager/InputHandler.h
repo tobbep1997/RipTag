@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include "EngineSource/Window/window.h"
 
+#include <vector>
+
 class InputHandler
 {
 	friend class Window; 
@@ -30,6 +32,8 @@ private:
 	static bool m_update;
 
 	static bool m_closeGame;
+
+	static std::vector<unsigned int> m_rawInput;
 
 public:
 	~InputHandler();
@@ -91,6 +95,6 @@ public:
 		Return = 0x0D,
 		Enter = 0x0D
 	};
-
+	static std::vector<unsigned int> getRawInput();
 
 };

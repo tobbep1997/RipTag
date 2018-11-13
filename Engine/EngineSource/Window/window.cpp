@@ -72,6 +72,7 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		InputHandler::m_keys[wParam] = true;
 		InputHandler::m_lastPressed = static_cast<int>(wParam);
+		InputHandler::m_rawInput.push_back(static_cast<unsigned int>(wParam));
 		break; 
 
 	case WM_KEYUP:

@@ -10,6 +10,7 @@ Render2D::Render2D()
 
 Render2D::~Render2D()
 {
+	
 }
 
 void Render2D::Init()
@@ -32,6 +33,9 @@ void Render2D::Init()
 
 	//Create the Depth/Stencil View
 	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
+
+	DXRHC::CreateConstantBuffer(m_HUDTypeBuffer, sizeof(HUDTypeStruct));
+
 }
 
 void Render2D::GUIPass()
@@ -46,6 +50,9 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->PSSetSamplers(4, 1, &m_sampler);
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
+
+	
+
 	UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
 	UINT32 offset = 0;
 
@@ -53,6 +60,27 @@ void Render2D::GUIPass()
 	{
 		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
 		Quad * q = DX::g_2DQueue[j];
+		HUDTypeEnum type = (HUDTypeEnum)q->getType();
+		m_HUDTypeValues.type.x = (unsigned int)type;
+
+		switch (type)
+		{
+		case Render2D::QuadType:
+			m_HUDTypeValues.center.x = q->getU();
+			m_HUDTypeValues.center.y = q->getV();
+			break;
+		case Render2D::CircleType:
+			m_HUDTypeValues.center.x = q->getCenter().x;
+			m_HUDTypeValues.center.y = q->getCenter().y;
+			m_HUDTypeValues.center.z = q->getRadie();
+			m_HUDTypeValues.center.w = q->getInnerRadie();
+			break;
+		default:
+			break;
+		}
+		
+
+		DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel);
 		DX::g_2DQueue[j]->MapTexture();
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
@@ -62,33 +90,62 @@ void Render2D::GUIPass()
 	{
 		if (DX::g_2DQueue[j]->getString() == "")
 			continue;
-		//Draw quad on fonts
+		//Draw font on quad
 		m_spriteBatch->Begin();
-
-		DirectX::XMVECTOR origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(
-			std::wstring(DX::g_2DQueue[j]->getString().begin(),
-				DX::g_2DQueue[j]->getString().end()).data());
-		origin = DirectX::XMVectorScale(origin, 0.5f);
-
-
 
 		std::wstring wstring = std::wstring(
 			DX::g_2DQueue[j]->getString().begin(),
 			DX::g_2DQueue[j]->getString().end());
 
-		DirectX::XMVECTOR pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A((DX::g_2DQueue[j]->getPosition().x * InputHandler::getWindowSize().x) + ((DX::g_2DQueue[j]->getSize().x / 2.0f) * InputHandler::getWindowSize().x),
-			((1.0f - DX::g_2DQueue[j]->getPosition().y) * InputHandler::getWindowSize().y - ((DX::g_2DQueue[j]->getSize().y / 2.0f) * InputHandler::getWindowSize().y))));
+		auto posAndSize = DX::g_2DQueue[j]->getReferencePosAndSize();
 
-		pos = DirectX::XMLoadFloat2A(
-			&DirectX::XMFLOAT2A(DX::g_2DQueue[j]->getPosition().x * InputHandler::getViewportSize().x, (1.0f - DX::g_2DQueue[j]->getPosition().y) * InputHandler::getViewportSize().y));
+		DirectX::XMFLOAT2 referencePos = { posAndSize.x, posAndSize.y };
+		DirectX::XMFLOAT2 size = { posAndSize.z * 0.25f, posAndSize.w * 0.25f};
 
+		referencePos.x = 0.5f * referencePos.x + 0.5f;
+		referencePos.y = -0.5f * referencePos.y + 0.5f;
+
+		DirectX::XMVECTOR origin;
+		DirectX::XMFLOAT2 pos;
+		DirectX::XMVECTOR vpos;
+		switch (DX::g_2DQueue[j]->getTextAlignment())
+		{
+		case Quad::TextAlignment::centerAligned:
+
+			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(wstring.data());
+			pos = DirectX::XMFLOAT2A(
+				(referencePos.x + size.x)  * InputHandler::getViewportSize().x,
+				((referencePos.y - size.y)) * InputHandler::getViewportSize().y
+			);
+			break;
+		case Quad::TextAlignment::leftAligned:
+
+			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(wstring.data());
+			origin = DirectX::XMVectorSetX(origin, 0.0f);
+			pos = DirectX::XMFLOAT2A(
+				referencePos.x * InputHandler::getViewportSize().x,
+				((referencePos.y - size.y)) * InputHandler::getViewportSize().y
+			);
+			break;
+		case Quad::TextAlignment::rightAligned:
+
+			origin = DX::g_2DQueue[j]->getSpriteFont().MeasureString(wstring.data());
+			origin = DirectX::XMVectorSetX(origin, DirectX::XMVectorGetX(origin) * 2.0f);
+			pos = DirectX::XMFLOAT2A(
+				(referencePos.x + size.x * 2.0f) * InputHandler::getViewportSize().x,
+				((referencePos.y - size.y)) * InputHandler::getViewportSize().y
+			);
+			break;
+		}
+
+		origin = DirectX::XMVectorScale(origin, 0.5f);
+		vpos = DirectX::XMLoadFloat2(&pos);
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 
 		DX::g_2DQueue[j]->getSpriteFont().DrawString(
 			m_spriteBatch,
 			wstring.data(),
-			pos,
+			vpos,
 			color,
 			0.0f,
 			origin
@@ -107,6 +164,7 @@ void Render2D::Release()
 	DX::SafeRelease(m_sampler);
 	DX::SafeRelease(m_blendState);
 	DX::SafeRelease(m_depthStencilState);
+	DX::SafeRelease(m_HUDTypeBuffer);
 	delete m_spriteBatch;
 }
 
