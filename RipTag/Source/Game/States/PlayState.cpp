@@ -458,7 +458,7 @@ void PlayState::TemporaryLobby()
 			if (ImGui::Button("Start Game"))
 			{
 				ptr->setIsGameRunning(true);
-				Network::EVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START);
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START, 0);
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
 			}
 		ImGui::Text(ptr->GetNetworkInfo().c_str());

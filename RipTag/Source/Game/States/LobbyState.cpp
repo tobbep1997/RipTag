@@ -142,24 +142,30 @@ void LobbyState::Update(double deltaTime)
 				{
 					hasCharSelected = false;
 					selectedChar = 0;
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 				}
-				else if (!hasCharSelected && selectedChar == 0)
+				else if (!hasCharSelected && selectedChar == 0 && remoteSelectedChar != 1)
 				{
 					hasCharSelected = true;
 					selectedChar = 1;
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 				}
+				this->_sendCharacterSelectionPacket();
 				break;
 			case CharacterSelection::CharTwo:
 				if (hasCharSelected && selectedChar == 2)
 				{
 					hasCharSelected = false;
 					selectedChar = 0;	
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 				}
-				else if (!hasCharSelected && selectedChar == 0)
+				else if (!hasCharSelected && selectedChar == 0 && remoteSelectedChar != 2)
 				{
 					hasCharSelected = true;
 					selectedChar = 2;					
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 				}
+				this->_sendCharacterSelectionPacket();
 				break;
 			case CharacterSelection::Ready:
 				//ready
@@ -178,11 +184,19 @@ void LobbyState::Update(double deltaTime)
 					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 					this->selectedHostInfo = "Selected Host: None\n";
 				}
+				hasCharSelected = false;
+				selectedChar = 0;
+				hasRemoteCharSelected = false;
+				remoteSelectedChar = 0;
+
+				m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+				m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
 				isRemoteReady = false;
 				isReady = false;
 				isHosting = false;
 				hasJoined = false;
-				_resetLobbyButtonStates();
+				this->_resetLobbyButtonStates();
 				break;
 			}
 		}
@@ -234,6 +248,21 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 		break;
 	case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
 		_onServerDenied(packet);
+		break;
+	case Network::ID_CHAR_SELECTED:
+		_onCharacterSelectionPacket(packet);
+		break;
+	case Network::ID_READY_PRESSED:
+		_onReadyPacket(packet);
+		break;
+	case Network::ID_REQUEST_NID:
+		_onRequestPacket(packet);
+		break;
+	case Network::ID_REPLY_NID:
+		_onReplyPacket(packet);
+		break;
+	case Network::ID_GAME_STARTED:
+		_onGameStartedPacket(packet);
 		break;
 	}
 }
@@ -844,12 +873,19 @@ void LobbyState::_registerThisInstanceToNetwork()
 	using namespace Network;
 	using namespace std::placeholders;
 
+	//RakNet
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	//User specific
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_CHAR_SELECTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_READY_PRESSED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REQUEST_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REPLY_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_GAME_STARTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
@@ -877,6 +913,9 @@ void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 {
 	hasClient = true;
 	m_clientIP = data->systemAddress;
+	//send a request to retrive the NetworkID of the remote machine
+	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void LobbyState::_onFailedPacket(RakNet::Packet * data)
@@ -891,6 +930,9 @@ void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 	this->selectedHost = data->systemAddress;
 	hasJoined = true;
 	_resetCharSelectButtonStates();
+	//send a request to retrive the NetworkID of the remote machine
+	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
@@ -903,12 +945,14 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		_flushServerList();
 		selectedHostInfo = "Lost connection to host\n";
 		this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+		this->m_remoteNID = 0;
 	}
 	else if (isHosting)
 	{
 		m_clientIP = RakNet::SystemAddress("0.0.0.0");
 		hasClient = false;
 		isRemoteReady = false;
+		this->m_remoteNID = 0;
 	}
 }
 
@@ -917,6 +961,81 @@ void LobbyState::_onServerDenied(RakNet::Packet * data)
 	m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Normal);
 
 	selectedHostInfo = "Server is full\n";
+}
+
+void LobbyState::_onCharacterSelectionPacket(RakNet::Packet * data)
+{
+	Network::CHARACTERSELECTIONPACKET * packet = (Network::CHARACTERSELECTIONPACKET*)data->data;
+	switch (packet->selectedChar)
+	{
+	case 0:
+		hasRemoteCharSelected = false;
+		remoteSelectedChar = 0;
+		if (this->selectedChar == 0)
+		{
+			m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else if (this->selectedChar == 1)
+		{
+			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else
+			m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		break;
+	case 1:
+		if (packet->selectedChar != this->selectedChar)
+		{
+			hasRemoteCharSelected = true;
+			remoteSelectedChar = 1;
+			m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+		}
+		break;
+	case 2:
+		if (packet->selectedChar != this->selectedChar)
+		{
+			hasRemoteCharSelected = true;
+			hasRemoteCharSelected = 2;
+			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+		}
+	}
+}
+
+void LobbyState::_onReadyPacket(RakNet::Packet * data)
+{
+
+}
+	
+void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
+{
+		
+}
+void LobbyState::_onRequestPacket(RakNet::Packet * data)
+{
+	//Reply with our NID
+	Network::COMMONEVENTPACKET packet(Network::ID_REPLY_NID, pNetwork->GetNetworkID());
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void LobbyState::_onReplyPacket(RakNet::Packet * data)
+{
+	Network::COMMONEVENTPACKET * packet = (Network::COMMONEVENTPACKET*)data->data;
+	this->m_remoteNID = packet->nid;
+}
+
+void LobbyState::_sendCharacterSelectionPacket()
+{
+	if (hasClient || hasJoined)
+	{
+		Network::CHARACTERSELECTIONPACKET packet;
+		packet.id = Network::ID_CHAR_SELECTED;
+		packet.selectedChar = this->selectedChar;
+		if (isHosting)
+			packet.role = Role::Server;
+		else
+			packet.role = Role::Client;
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::CHARACTERSELECTIONPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
