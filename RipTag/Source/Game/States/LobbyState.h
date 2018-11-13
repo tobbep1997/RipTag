@@ -108,7 +108,7 @@ private:
 	void _onCharacterSelectionPacket(RakNet::Packet * data);
 	void _onReadyPacket(RakNet::Packet * data);
 	void _onGameStartedPacket(RakNet::Packet * data);
-	void _onRequestPacket(RakNet::Packet * data);
+	void _onRequestPacket(unsigned char id, RakNet::Packet * data);
 	void _onReplyPacket(RakNet::Packet * data);
 	void _sendCharacterSelectionPacket();
 	void _sendReadyPacket();

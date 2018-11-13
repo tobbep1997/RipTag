@@ -275,7 +275,8 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 		_onReadyPacket(packet);
 		break;
 	case Network::ID_REQUEST_NID:
-		_onRequestPacket(packet);
+	case Network::ID_REQUEST_SELECTED_CHAR:
+		_onRequestPacket(id, packet);
 		break;
 	case Network::ID_REPLY_NID:
 		_onReplyPacket(packet);
@@ -935,6 +936,10 @@ void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	//send a request to retrive the Character selection
+	Network::COMMONEVENTPACKET packet2(Network::ID_REQUEST_SELECTED_CHAR, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet2, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+
 }
 
 void LobbyState::_onFailedPacket(RakNet::Packet * data)
@@ -952,6 +957,9 @@ void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	//send a request to retrive the Character selection
+	Network::COMMONEVENTPACKET packet2(Network::ID_REQUEST_SELECTED_CHAR, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet2, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
@@ -1027,7 +1035,7 @@ void LobbyState::_onCharacterSelectionPacket(RakNet::Packet * data)
 		if (packet->selectedChar != this->selectedChar)
 		{
 			hasRemoteCharSelected = true;
-			hasRemoteCharSelected = 2;
+			remoteSelectedChar = 2;
 			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 		}
 	}
@@ -1042,11 +1050,18 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 {
 		
 }
-void LobbyState::_onRequestPacket(RakNet::Packet * data)
+void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
 {
-	//Reply with our NID
-	Network::COMMONEVENTPACKET packet(Network::ID_REPLY_NID, pNetwork->GetNetworkID());
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	if (id == Network::ID_REQUEST_NID)
+	{
+		//Reply with our NID
+		Network::COMMONEVENTPACKET packet(Network::ID_REPLY_NID, pNetwork->GetNetworkID());
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	}
+	else if (id == Network::ID_REQUEST_SELECTED_CHAR)
+	{
+		_sendCharacterSelectionPacket();
+	}
 }
 
 void LobbyState::_onReplyPacket(RakNet::Packet * data)
