@@ -130,7 +130,7 @@ private:
 	unsigned short m_currentEnemysVisable = 0;
 public:
 	//Magic number
-	static const int g_fullVisability = 6500;
+	static const int g_fullVisability = 4500;
 	bool hasWon = false;
 	bool gameIsWon = false;
 	bool unlockMouse = false;

@@ -119,6 +119,12 @@ private:
 	bool m_nodeFootPrintsEnabled = false;
 
 	const float m_startYPos = 4.5f;
+
+	/*	Okey, do the lenght to the player is what it sounds like. Length span is just how close the player sould be. before the if state ment activates
+	 *	So This is in _CheckPlayer, this will activate a multiply for the visPress 
+	 */
+	float m_lenghtToPlayer = 1000000000;
+	float m_lengthToPlayerSpan = 8;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -186,6 +192,8 @@ public:
 
 	void DrawGuardPath();
 	void EnableGuardPathPrint();
+
+	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 private:
 
 	void _handleInput(double deltaTime);

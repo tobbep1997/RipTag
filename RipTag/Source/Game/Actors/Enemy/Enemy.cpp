@@ -185,7 +185,7 @@ void Enemy::Update(double deltaTime)
 {
 	if (getAnimatedModel())
 		getAnimatedModel()->Update(deltaTime);
-
+	
 	m_sinWaver += deltaTime;
 
 	if (!m_disabled)
@@ -657,6 +657,13 @@ void Enemy::EnableGuardPathPrint()
 	m_nodeFootPrintsEnabled = true;
 }
 
+void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
+{
+	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&getPosition()), DirectX::XMLoadFloat4A(&playerPos));
+	vec = DirectX::XMVector3LengthEst(vec);
+	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+}
+
 float Enemy::getVisCounter() const
 {
 	return m_visCounter;
@@ -920,6 +927,10 @@ void Enemy::_CheckPlayer(double deltaTime)
 	{
 		float visPres = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 
+		if (m_lenghtToPlayer < m_lengthToPlayerSpan)
+		{
+			visPres += 2000 / (float)Player::g_fullVisability;
+		}
 
 		if (visPres > 0)
 		{
