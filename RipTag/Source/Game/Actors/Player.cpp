@@ -662,7 +662,7 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_onMovement();
-	_onJump();
+	//_onJump();
 	_onAbility(deltaTime);
 	_onInteract();
 	_onPeak(deltaTime);
@@ -886,24 +886,6 @@ void Player::_onRotate(double deltaTime)
 	}
 }
 
-void Player::_onJump()
-{
-	if (Input::Jump())
-	{
-		if (m_kp.jump == false)
-		{
-			addForceToCenter(0, JUMP_POWER, 0);
-			m_kp.jump = true;
-			m_jumpedThisFrame = true;
-			m_isInAir = true;
-		}
-	}
-
-
-	float epsilon = 0.002f;
-	if (this->getLiniearVelocity().y < epsilon && this->getLiniearVelocity().y > -epsilon)
-		m_kp.jump = false;
-}
 
 void Player::_onPeak(double deltaTime)
 {

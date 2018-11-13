@@ -929,7 +929,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 
 		if (m_lenghtToPlayer < m_lengthToPlayerSpan)
 		{
-			visPres += 2000 / (float)Player::g_fullVisability;
+			visPres *= 1.5;
 		}
 
 		if (visPres > 0)

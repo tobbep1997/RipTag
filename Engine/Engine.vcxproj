@@ -191,7 +191,6 @@
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\pch.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\PlatformHelpers.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\WICTextureLoader.h" />
-    <ClInclude Include="EngineSource\Helper\Threading.h" />
     <ClInclude Include="EngineSource\Light\PointLight.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Camera.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.h" />
@@ -272,7 +271,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
-    <ClCompile Include="EngineSource\Helper\Threading.cpp" />
     <ClCompile Include="EngineSource\Helper\Timer.cpp" />
     <ClCompile Include="EngineSource\Light\PointLight.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Camera.cpp" />

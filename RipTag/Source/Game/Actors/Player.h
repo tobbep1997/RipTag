@@ -174,7 +174,7 @@ private:
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);
-	void _onJump();
+	//void _onJump();
 	void _onPeak(double deltaTime);
 	void _onInteract();
 	void _onAbility(double dt);
