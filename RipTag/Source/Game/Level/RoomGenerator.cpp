@@ -17,8 +17,8 @@ void RoomGenerator::_generateGrid()
 	srand(time(NULL));
 
 	m_nrOfWalls = 4; // MAke random
-	m_roomDepth = 45+2;
-	m_roomWidth = 40+2;
+	m_roomDepth = (20 * m_roomGridDepth) / 2.0f;
+	m_roomWidth = (15 * m_roomGridWidth) / 2.0f;
 	m_generatedGrid = new Grid(-m_roomWidth, -m_roomDepth, m_roomWidth * 2, m_roomDepth * 2);
 	
 }
@@ -38,14 +38,15 @@ void RoomGenerator::_makeFloor()
 
 void RoomGenerator::_makeWalls()
 {
-
-	
+	int m_roomDepth = this->m_roomDepth;
+	int	m_roomWidth = this->m_roomWidth + 1;
 	for (int i = 0; i < m_nrOfWalls; i++)
 	{
 		switch (i)
 		{
 		case(0):
 			asset = new BaseActor();
+			asset->setTextureTileMult(100, 10);
 			asset->Init(*m_worldPtr, e_staticBody, 1, m_height / 2, m_roomDepth);
 			asset->setModel(Manager::g_meshManager.getStaticMesh("WALL"));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
@@ -56,6 +57,8 @@ void RoomGenerator::_makeWalls()
 			break;
 		case(1):
 			asset = new BaseActor();
+			asset->setTextureTileMult(100, 10);
+
 			asset->Init(*m_worldPtr, e_staticBody, 1, m_height / 2, m_roomDepth);
 			asset->setModel(Manager::g_meshManager.getStaticMesh("WALL"));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
@@ -67,6 +70,7 @@ void RoomGenerator::_makeWalls()
 			break;
 		case(2):
 			asset = new BaseActor();
+			asset->setTextureTileMult(100, 10);
 			asset->Init(*m_worldPtr, e_staticBody, m_roomWidth, m_height / 2, 1);
 			asset->setModel(Manager::g_meshManager.getStaticMesh("WALL"));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
@@ -77,6 +81,7 @@ void RoomGenerator::_makeWalls()
 			break;
 		case(3):
 			asset = new BaseActor();
+			asset->setTextureTileMult(100, 10);
 			asset->Init(*m_worldPtr, e_staticBody, m_roomWidth, m_height / 2, 1);
 			asset->setModel(Manager::g_meshManager.getStaticMesh("WALL"));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
@@ -100,9 +105,9 @@ void RoomGenerator::_placeProps()
 
 
 	Manager::g_meshManager.loadStaticMesh("MOD2");
+	Manager::g_meshManager.loadStaticMesh("MOD3");
 	returnableRoom->CollisionBoxes = new BaseActor();
 	ImporterLibrary::CollisionBoxes  modCollisionBoxes;
-	modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/MOD2FOLDER/MOD2_BBOX.bin");
 	
 	ImporterLibrary::PointLights lights = loader.readLightFile("MOD2");
 	for (int i = 0; i < lights.nrOf; i++)
@@ -111,13 +116,35 @@ void RoomGenerator::_placeProps()
 			lights.lights[i].color[1], lights.lights[i].color[2], lights.lights[i].intensity);
 	}
 	using namespace DirectX;
-	for (float i = -m_roomWidth + 7.5f; i < m_roomWidth - 7.5f; i += 15.f )
+	
+	int ix = 0, jy = 0;
+	int is = rand() % (m_roomGridWidth -1), js = rand() % (m_roomGridDepth - 1);
+	int r = 2;
+	for (float i = -m_roomWidth + 7.5f; i <= m_roomWidth - 7.5f; i += 15.f )
 	{
-		for (float j = -m_roomDepth + 10.f; j < m_roomDepth - 10.f; j += 20.f )
+		ix++;
+		for (float j = -m_roomDepth + 10.f; j <= m_roomDepth - 10.f; j += 20.f )
 		{
+			jy++;
+			if (ix == is && jy == js)
+				r = 3;
+			else
+				r = 2;
+			if (ix == is && jy == js + 1)
+				continue;
+			modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/MOD" + std::to_string(r) +"FOLDER/MOD" + std::to_string(r) +"_BBOX.bin");
+
 			asset = new BaseActor();
-			asset->setPosition(i, 2.5, j, false);
+			if (r == 3)
+				asset->setPosition(i + 5, 2.5, j, false);
+			else
+				asset->setPosition(i, 2.5, j, false);
 			asset->setScale(1, 1, 1);
+
+
+
+
+#pragma region lol
 
 			XMMATRIX worldMatrix = (XMLoadFloat4x4A(&asset->getWorldmatrix()));
 			XMVECTOR world;
@@ -131,6 +158,9 @@ void RoomGenerator::_placeProps()
 				rot = XMLoadFloat4(&XMFLOAT4(modCollisionBoxes.boxes[k].rotation));
 				world = XMVector3Transform(world, worldMatrix);
 				scale = XMVector3Transform(scale, worldMatrix);
+				//XMMATRIX mq = XMMatrixRotationQuaternion(rot);
+				
+
 
 				modCollisionBoxes.boxes[k].translation[0] = XMVectorGetX(world);
 				modCollisionBoxes.boxes[k].translation[1] = XMVectorGetY(world);
@@ -140,16 +170,26 @@ void RoomGenerator::_placeProps()
 				modCollisionBoxes.boxes[k].scale[1] = XMVectorGetY(scale);
 				modCollisionBoxes.boxes[k].scale[2] = XMVectorGetZ(scale);
 
+				/*modCollisionBoxes.boxes[k].rotation[0] = XMVectorGetX(scale);
+				modCollisionBoxes.boxes[k].rotation[1] = XMVectorGetY(scale);
+				modCollisionBoxes.boxes[k].rotation[2] = XMVectorGetZ(scale);
+				modCollisionBoxes.boxes[k].rotation[3] = XMVectorGetW(scale);*/
+
 			}
 
 			asset->Init(*m_worldPtr, modCollisionBoxes);
-			asset->setPosition(i, 2.5, j, true);
+			if (r == 3)
+				asset->setPosition(i, 2.5, j + 10.f);
+			else
+				asset->setPosition(i, 2.5, j);
 			//p_createbbox
 			asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(7.5f, 2.5f, 10.0f));
-			asset->setModel(Manager::g_meshManager.getStaticMesh("MOD2"));
+			asset->setModel(Manager::g_meshManager.getStaticMesh("MOD" + std::to_string(r)));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
 			asset->setTextureTileMult(5, 5);
 			m_generated_assetVector.push_back(asset);
+
+#pragma endregion
 		}
 	}
 
