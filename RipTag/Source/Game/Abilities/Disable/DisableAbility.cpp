@@ -33,7 +33,7 @@ void DisableAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 
 	HUDComponent::AddQuad(m_bar);
-	setManaCost(START_MANA_COST);
+	
 }
 
 void DisableAbility::Update(double deltaTime)
@@ -140,10 +140,9 @@ void DisableAbility::_inStateThrowable()
 	{
 		if (Input::OnAbilityPressed())
 		{
-			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-			{
-				m_dState = DisableAbility::Charging;
-			}
+			
+			m_dState = DisableAbility::Charging;
+			
 		}
 	}
 }
@@ -165,7 +164,7 @@ void DisableAbility::_inStateCharging(double dt)
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
-			((Player*)p_owner)->DrainMana(getManaCost());
+			
 
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);

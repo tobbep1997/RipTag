@@ -41,7 +41,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 		visAbl->setOwner(this);
 		visAbl->setIsLocal(true);
 		visAbl->Init();
-		visAbl->setManaCost(1);
+		
 
 		VisabilityAbility * visAbl2 = new VisabilityAbility();
 		visAbl2->setOwner(this);

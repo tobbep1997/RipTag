@@ -18,7 +18,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		visAbl->setOwner(this);
 		visAbl->setIsLocal(true);
 		visAbl->Init();
-		visAbl->setManaCost(1);
+		
 
 		VisabilityAbility * visAbl2 = new VisabilityAbility();
 		visAbl2->setOwner(this);
@@ -96,34 +96,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->setUnpressedTexture("VISIBILITYICON");
 	HUDComponent::AddQuad(quad);
 
-	m_maxMana = STANDARD_START_MANA;
-	m_currentMana = m_maxMana;
 
-	m_manaBar = new Quad();
-	m_manaBar->init(DirectX::XMFLOAT2A(0.25f, 0.01f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_manaBar->setUnpressedTexture("SPHERE");
-	m_manaBar->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	
 
-	m_manaBarBackground = new Quad();
-	m_manaBarBackground->init(DirectX::XMFLOAT2A(0.248f, 0.0f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f / 9.0f));
-	m_manaBarBackground->setUnpressedTexture("BLACK");
-	m_manaBarBackground->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_manaBarBackground->setScale(((float)m_currentMana + 1.0f) / (float)m_maxMana, 0.13f);
-	
-	m_manabarText = new Quad();
-	m_manabarText->init(DirectX::XMFLOAT2A(0.5, 0.034f), DirectX::XMFLOAT2A(0,0));
-	m_manabarText->setUnpressedTexture("BLACK");
-	m_manabarText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_manabarText->setScale(0,0);
-	
-	m_manabarText->setFont(FontHandler::getFont("consolas32"));
-	m_manabarText->setString("MANA");
-	m_manabarText->setTextColor({ 75.0f / 255.0f,0.0f,130.0f / 255.0f,1.0f });
-
-	HUDComponent::AddQuad(m_manaBarBackground);
-	HUDComponent::AddQuad(m_manaBar);
-	HUDComponent::AddQuad(m_manabarText);
 	   	 
 
 
@@ -328,15 +302,7 @@ void Player::Update(double deltaTime)
 
 	m_HUDcircleFiller->setRadie((totVis)*.5f);
 
-	m_manaBar->setScale((float)m_currentMana / (float)m_maxMana, 0.1f);
-	if (InputHandler::isKeyPressed('I'))
-	{
-		RefillMana(10);
-	}
-	if (InputHandler::isKeyPressed('J'))
-	{
-		m_maxMana += 10;
-	}
+	
 
 	m_activeSet[m_currentAbility]->Update(deltaTime);
 	
@@ -426,45 +392,9 @@ const int & Player::getFullVisability() const
 	return g_fullVisability;
 }
 
-bool Player::CheckManaCost(const int& manaCost)
-{
-	if (manaCost <= m_currentMana)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 const AudioEngine::Listener & Player::getFMODListener() const
 {
 	return m_FMODlistener;
-}
-
-bool Player::DrainMana(const float& manaCost)
-{
-	if (manaCost <= m_currentMana)
-	{
-		m_currentMana -= manaCost;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void Player::RefillMana(const float& manaFill)
-{
-	m_currentMana += manaFill;
-
-	float rest = m_maxMana - m_currentMana;
-	if (rest < 0)
-	{
-		m_currentMana += rest;
-	}
 }
 
 void Player::SetAbilitySet(int set)
