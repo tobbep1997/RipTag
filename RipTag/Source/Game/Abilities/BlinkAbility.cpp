@@ -20,7 +20,8 @@ void BlinkAbility::Init()
 
 void BlinkAbility::Update(double deltaTime)
 {
-	_logic(deltaTime);
+	if (this->isLocal)
+		_logic(deltaTime);
 }
 
 void BlinkAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)

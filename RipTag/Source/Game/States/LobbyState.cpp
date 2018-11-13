@@ -1,12 +1,12 @@
 #include "RipTagPCH.h"
 #include "LobbyState.h"
+#include <time.h>
+#include <cstdlib>
 
 
 LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 {
 
-
-	
 }
 
 
@@ -18,41 +18,75 @@ LobbyState::~LobbyState()
 		delete button;
 	}
 	this->m_lobbyButtons.clear();
+
 	for (auto & button : this->m_charSelectButtons)
 	{
 		button->Release();
 		delete button;
 	}
 	this->m_charSelectButtons.clear();
+
+	for (auto & button : this->m_hostListButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_hostListButtons.clear();
+
+	if (this->m_infoWindow)
+	{
+		this->m_infoWindow->Release();
+		delete this->m_infoWindow;
+	}
+
 	this->pNetwork->ShutdownPeer();
 }
 
 void LobbyState::Update(double deltaTime)
 {
+	//update the content for the info window
+	this->_updateInfoString();
 	//Network updates first
-	if (isHosting)
-		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET));
+	if (isHosting && !hasClient)
+		pNetwork->AdvertiseHost((const char*)&this->m_adPacket, sizeof(Network::LOBBYEVENTPACKET) + 1);
 
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
+
+	//in case after a flush no more servers are found and we are in the server list we have to reset to the default button so we dont get out of range errors
+	if (inServerList && m_hostListButtons.size() == 0)
+	{
+		inServerList = false;
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+	}
 
 	_handleMouseInput();
 	_handleGamePadInput();
 	_handleKeyboardInput();
 
-	if (!isHosting && !hasJoined)
+	if (!isHosting && !hasJoined && !inServerList)
 	{
 		if (m_lobbyButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
 			switch ((ButtonOrderLobby)m_currentButton)
 			{
 			case ButtonOrderLobby::Host:
+				pNetwork->SetupServer();
 				isHosting = true;
 				_resetCharSelectButtonStates();
 				break;
 			case ButtonOrderLobby::Join:
-				hasJoined = true;
-				_resetCharSelectButtonStates();
+				if (strcmp(this->selectedHost.ToString(false), "UNASSIGNED_SYSTEM_ADDRESS") == 0)
+				{
+					m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Hover);
+					break;
+				}
+				else if (!pNetwork->ConnectTo(this->selectedHost))
+					m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Hover);
+				break;
+			case ButtonOrderLobby::Refresh:
+				_flushServerList();
+				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Hover);
 				break;
 			case ButtonOrderLobby::Return:
 				this->setKillState(true);
@@ -60,43 +94,127 @@ void LobbyState::Update(double deltaTime)
 			}
 		}
 	}
+	else if (!isHosting && !hasJoined && inServerList)
+	{
+		if (m_hostListButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
+		{
+			std::string hostName = m_hostListButtons[m_currentButton]->getString();
+			auto it = m_hostAdressMap.find(hostName);
+			if (it != m_hostAdressMap.end())
+			{
+				this->selectedHost = it->second;
+				this->selectedHostInfo = "Selected Host: " + hostName;
+				this->m_ServerName = hostName;
+			}
+			else
+			{
+				this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+				this->selectedHostInfo = "Selected Host: None";
+			}
+			m_hostListButtons[m_currentButton]->setState(ButtonStates::Hover);
+		}
+	}
 	else
 	{
+		if (hasCharSelected && hasRemoteCharSelected && !isReady)
+		{
+			m_charSelectButtons[Ready]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else if (hasCharSelected && hasRemoteCharSelected && isReady)
+		{
+			m_charSelectButtons[Ready]->setTextColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+		}
+		else
+			m_charSelectButtons[Ready]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+
+
 		if (m_charSelectButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
 			switch ((CharacterSelection)m_currentButton)
 			{
 			case CharacterSelection::CharOne:
-				if (hasCharSelected)
+				if (hasCharSelected && selectedChar == 1)
 				{
 					hasCharSelected = false;
 					selectedChar = 0;
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 				}
-				else
+				else if (!hasCharSelected && selectedChar == 0 && remoteSelectedChar != 1)
 				{
 					hasCharSelected = true;
 					selectedChar = 1;
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 				}
+				this->_sendCharacterSelectionPacket();
 				break;
 			case CharacterSelection::CharTwo:
-				if (hasCharSelected)
+				if (hasCharSelected && selectedChar == 2)
 				{
 					hasCharSelected = false;
-					selectedChar = 0;
+					selectedChar = 0;	
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 				}
-				else
+				else if (!hasCharSelected && selectedChar == 0 && remoteSelectedChar != 2)
 				{
 					hasCharSelected = true;
-					selectedChar = 2;
+					selectedChar = 2;					
+					m_charSelectButtons[m_currentButton]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 				}
+				this->_sendCharacterSelectionPacket();
 				break;
 			case CharacterSelection::Ready:
-				//ready
+				if (hasCharSelected && hasRemoteCharSelected)
+				{
+					if (isReady)
+						isReady = false;
+					else
+						isReady = true;
+					_sendReadyPacket();
+					if (isHosting && isReady && isRemoteReady)
+					{
+						_sendGameStartedPacket();
+						//create the proper struct/tuple containing all necessary info
+						//for the PlayState constructor, then push it on the state stack
+						CoopData * data = new CoopData();
+						data->seed = pNetwork->GetSeed();
+						data->localPlayerCharacter = selectedChar;
+						data->remotePlayerCharacter = remoteSelectedChar;
+						data->remoteID = this->m_remoteNID;
+
+						isReady = false;
+						isRemoteReady = false;
+
+						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
+					}
+				}
 				break;
 			case CharacterSelection::Back:
+				if (isHosting)
+				{
+					pNetwork->CloseServer(m_clientIP);
+					hasClient = false;
+					m_clientIP = RakNet::SystemAddress("0.0.0.0");
+					this->selectedHostInfo = "Selected Host: None\n";
+				}
+				if (hasJoined)
+				{
+					pNetwork->Disconnect(selectedHost);
+					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+					this->selectedHostInfo = "Selected Host: None\n";
+				}
+				hasCharSelected = false;
+				selectedChar = 0;
+				hasRemoteCharSelected = false;
+				remoteSelectedChar = 0;
+
+				m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+				m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
+				isRemoteReady = false;
+				isReady = false;
 				isHosting = false;
 				hasJoined = false;
-				_resetLobbyButtonStates();
+				this->_resetLobbyButtonStates();
 				break;
 			}
 		}
@@ -121,6 +239,9 @@ void LobbyState::Draw()
 			button->Draw();
 	}
 
+	if (this->m_infoWindow)
+		this->m_infoWindow->Draw();
+
 	p_renderingManager->Flush(camera);
 }
 
@@ -131,6 +252,39 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 	case DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM:
 		_onAdvertisePacket(packet);
 		break;
+	case DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION:
+		_onClientJoinPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED:
+		_onSucceedPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED:
+		_onFailedPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
+		_onDisconnectPacket(packet);
+		break;
+	case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
+		_onServerDenied(packet);
+		break;
+	case Network::ID_CHAR_SELECTED:
+		_onCharacterSelectionPacket(packet);
+		break;
+	case Network::ID_READY_PRESSED:
+		_onReadyPacket(packet);
+		break;
+	case Network::ID_REQUEST_NID:
+		_onRequestPacket(id, packet);
+		break;
+	case Network::ID_REQUEST_SELECTED_CHAR:
+		_onRequestPacket(id, packet);
+		break;
+	case Network::ID_REPLY_NID:
+		_onReplyPacket(packet);
+		break;
+	case Network::ID_GAME_STARTED:
+		_onGameStartedPacket(packet);
+		break;
 	}
 }
 
@@ -138,8 +292,9 @@ void LobbyState::_initButtons()
 {
 	//Lobby buttons
 	{
+		
 		//Host button
-		this->m_lobbyButtons.push_back(Quad::CreateButton("Host", 0.2f, 0.55f, 0.3f, 0.25f));
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Host", 0.2f, 0.50f, 0.5f, 0.15f));
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setUnpressedTexture("SPHERE");
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setPressedTexture("DAB");
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setHoverTexture("PIRASRUM");
@@ -147,14 +302,21 @@ void LobbyState::_initButtons()
 		
 		this->m_lobbyButtons[ButtonOrderLobby::Host]->setFont(FontHandler::getFont("consolas32"));
 		//Join button
-		this->m_lobbyButtons.push_back(Quad::CreateButton("Join", 0.2f, 0.35f, 0.3f, 0.25f));
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Join", 0.2f, 0.40f, 0.5f, 0.15f));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setUnpressedTexture("SPHERE");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setPressedTexture("DAB");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setHoverTexture("PIRASRUM");
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_lobbyButtons[ButtonOrderLobby::Join]->setFont(FontHandler::getFont("consolas32"));
+		//Refresh button
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Refresh", 0.2f, 0.30f, 0.5f, 0.15f));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setUnpressedTexture("SPHERE");
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setPressedTexture("DAB");
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setHoverTexture("PIRASRUM");
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_lobbyButtons[ButtonOrderLobby::Refresh]->setFont(FontHandler::getFont("consolas32"));
 		//Return button
-		this->m_lobbyButtons.push_back(Quad::CreateButton("Return", 0.2f, 0.10f, 0.3f, 0.25f));
+		this->m_lobbyButtons.push_back(Quad::CreateButton("Return", 0.2f, 0.10f, 0.5f, 0.15f));
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setUnpressedTexture("SPHERE");
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setPressedTexture("DAB");
 		this->m_lobbyButtons[ButtonOrderLobby::Return]->setHoverTexture("PIRASRUM");
@@ -192,63 +354,39 @@ void LobbyState::_initButtons()
 		this->m_charSelectButtons[CharacterSelection::Back]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_charSelectButtons[CharacterSelection::Back]->setFont(FontHandler::getFont("consolas32"));
 	}
-
+	//Info window
+	{
+		this->m_infoWindow = Quad::CreateButton("", 0.25f, 0.8f, 0.7f, 0.3f);
+		this->m_infoWindow->setUnpressedTexture("SPHERE");
+		this->m_infoWindow->setPressedTexture("SPHERE");
+		this->m_infoWindow->setHoverTexture("SPHERE");
+		this->m_infoWindow->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_infoWindow->setFont(FontHandler::getFont("consolas16"));
+	}
 }
 
 void LobbyState::_handleGamePadInput()
 {
 	if (Input::isUsingGamepad())
 	{
-		if (GamePadHandler::IsUpDpadPressed())
-		{
-			if (!isHosting && !hasJoined)
-			{
-				if (m_currentButton == 0)
-					m_currentButton = (unsigned int)ButtonOrderLobby::Return;
-				else
-					m_currentButton--;
-			}
-			else
-			{
-				if (m_currentButton == 0)
-					m_currentButton = (unsigned int)CharacterSelection::Back;
-				else
-					m_currentButton--;
-			}
-		}
-		else if (GamePadHandler::IsDownDpadPressed())
-		{
-			m_currentButton++;
-			if (!isHosting && !hasJoined)
-				m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
-			else
-				m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
-		}
-
-		_updateSelectionStates();
-
-		//Check for action input
-		if (GamePadHandler::IsAPressed())
-		{
-			if (!isHosting && !hasJoined)
-			{
-				if (m_lobbyButtons[m_currentButton]->isSelected())
-					this->m_lobbyButtons[m_currentButton]->setState(ButtonStates::Pressed);
-			}
-			else
-			{
-				if (m_charSelectButtons[m_currentButton]->isSelected())
-					this->m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
-			}
-		}
-
+		if (!isHosting && !hasJoined && !inServerList)
+			this->_gamePadMainLobby();
+		if (!isHosting && !hasJoined && inServerList)
+			this->_gamePadServerList();
+		if (isHosting || hasJoined)
+			this->_gamePadCharSelection();
 	}
-
-	
 }
 
 void LobbyState::_handleKeyboardInput()
 {
+	if (!isHosting && !hasJoined && !inServerList)
+		this->_keyboardMainLobby();
+	if (!isHosting && !hasJoined && inServerList)
+		this->_keyboardServerList();
+	if (isHosting || hasJoined)
+		this->_keyboardCharSelection();
+
 	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
 		if (!isHosting && !hasJoined)
@@ -294,70 +432,18 @@ void LobbyState::_handleKeyboardInput()
 
 void LobbyState::_handleMouseInput()
 {
-	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
-	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
-
-	mousePos.x /= windowSize.x;
-	mousePos.y /= windowSize.y;
-
 	if (!isHosting && !hasJoined)
-	{
-		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
-		{
-			if (m_lobbyButtons[i]->Inside(mousePos))
-			{
-				//set this button to current and on hover state
-				m_currentButton = i;
-				m_lobbyButtons[i]->Select(true);
-				m_lobbyButtons[i]->setState(ButtonStates::Hover);
-				//check if we released this button
-				if (m_lobbyButtons[i]->isReleased(mousePos))
-					m_lobbyButtons[i]->setState(ButtonStates::Pressed);
-				//set all the other buttons to
-				for (size_t j = 0; j < m_lobbyButtons.size(); j++)
-				{
-					if (i != j)
-					{
-						m_lobbyButtons[j]->Select(false);
-						m_lobbyButtons[j]->setState(ButtonStates::Normal);
-					}
-				}
-				break;
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < m_charSelectButtons.size(); i++)
-		{
-			if (m_charSelectButtons[i]->Inside(mousePos))
-			{
-				//set this button to current and on hover state
-				m_currentButton = i;
-				m_charSelectButtons[i]->Select(true);
-				m_charSelectButtons[i]->setState(ButtonStates::Hover);
-				//check if we released this button
-				if (m_charSelectButtons[i]->isReleased(mousePos))
-					m_charSelectButtons[i]->setState(ButtonStates::Pressed);
-				//set all the other buttons to
-				for (size_t j = 0; j < m_charSelectButtons.size(); j++)
-				{
-					if (i != j)
-					{
-						m_charSelectButtons[j]->Select(false);
-						m_charSelectButtons[j]->setState(ButtonStates::Normal);
-					}
-				}
-				break;
-			}
-		}
-	}
+		_mouseMainLobby();
+	if (!isHosting && !hasJoined && (m_hostListButtons.size() > 0))
+		_mouseServerList();
+	if (isHosting || hasJoined)
+		_mouseCharSelection();
 }
 
 void LobbyState::_updateSelectionStates()
 {
 	//update the selection states
-	if (!isHosting && !hasJoined)
+	if (!isHosting && !hasJoined && !inServerList)
 	{
 		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
 		{
@@ -378,6 +464,25 @@ void LobbyState::_updateSelectionStates()
 			}
 		}
 
+	}
+	else if (!isHosting && !hasJoined && inServerList)
+	{
+		for (size_t i = 0; i < m_hostListButtons.size(); i++)
+		{
+			if (i != m_currentButton)
+			{
+				m_hostListButtons[i]->Select(false);
+				m_hostListButtons[i]->setState(ButtonStates::Normal);
+			}
+			else
+			{
+				if (!m_hostListButtons[i]->isSelected() && (m_hostListButtons[i]->getState() != (unsigned int)ButtonStates::Pressed))
+				{
+					m_hostListButtons[i]->Select(true);
+					m_hostListButtons[i]->setState(ButtonStates::Hover);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -422,17 +527,397 @@ void LobbyState::_resetCharSelectButtonStates()
 	m_currentButton = (unsigned int)CharacterSelection::CharOne;
 }
 
+void LobbyState::_flushServerList()
+{
+	this->selectedHostInfo = "Selected Host: None";
+	this->m_hostNameMap.clear();
+	this->m_hostAdressMap.clear();
+	for (auto & button : this->m_hostListButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_hostListButtons.clear();
+
+}
+
+void LobbyState::_updateInfoString()
+{
+	std::string content = "";
+	if (!isHosting && !hasJoined)
+	{
+		content += "Your Host name: " + this->m_MyHostName + "\n";
+		content += selectedHostInfo + "\n";
+	}
+	else if (isHosting)
+	{
+		content += "Your Host name: " + this->m_MyHostName + "\n";
+		if (hasClient)
+			content += "Connected to client: " + std::string(m_clientIP.ToString(false)) + "\n";
+		else
+			content += "No client connected\n";
+		switch (selectedChar)
+		{
+		case 0:
+			content += "No character selected\n";
+			break;
+		case 1:
+			content += "Selected Character: Lejf\n";
+			break;
+		case 2:
+			content += "Selected Character: Billy\n";
+			break;
+		}
+	}
+	else if (hasJoined)
+	{
+		content += "Your Host name: " + this->m_MyHostName + "\n";
+		content += "Connected to server: " + this->m_ServerName + "\n";
+		switch (selectedChar)
+		{
+		case 0:
+			content += "No character selected\n";
+			break;
+		case 1:
+			content += "Selected Character: Lejf\n";
+			break;
+		case 2:
+			content += "Selected Character: Billy\n";
+			break;
+		}
+	}
+	if (this->m_infoWindow)
+		this->m_infoWindow->setString(content);
+}
+
+void LobbyState::_gamePadMainLobby()
+{
+	if (GamePadHandler::IsUpDpadPressed())
+	{	
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+	}
+	else if (GamePadHandler::IsDownDpadPressed())
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+	}
+	else if (GamePadHandler::IsRightDpadPressed())
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
+			inServerList = true;
+			m_currentButton = 0;
+		}
+	}
+
+	_updateSelectionStates();
+
+	//Check for action input
+	if (GamePadHandler::IsAPressed())
+	{
+		if (m_lobbyButtons[m_currentButton]->isSelected())
+			this->m_lobbyButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_gamePadCharSelection()
+{
+	if (GamePadHandler::IsUpDpadPressed())
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)CharacterSelection::Back;
+		else
+			m_currentButton--;
+	}
+	else if (GamePadHandler::IsDownDpadPressed())
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
+	}
+
+	_updateSelectionStates();
+
+	//Check for action input
+	if (GamePadHandler::IsAPressed())
+	{		
+		if (m_charSelectButtons[m_currentButton]->isSelected())
+			this->m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_gamePadServerList()
+{
+	//this is just in case after a flush we are outside of our range, we simply reset to the first
+	
+
+	if (GamePadHandler::IsUpDpadPressed())
+	{
+		if (m_currentButton == 0)
+			m_currentButton = this->m_hostListButtons.size() - 1;
+		else
+			m_currentButton--;
+	}
+	else if (GamePadHandler::IsDownDpadPressed())
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % this->m_hostListButtons.size();
+	}
+	else if (GamePadHandler::IsLeftDpadPressed())
+	{
+		m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
+		m_hostListButtons[m_currentButton]->Select(false);
+
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+		inServerList = false;
+	}
+
+	_updateSelectionStates();
+
+	if (GamePadHandler::IsAPressed())
+	{
+		if (m_hostListButtons[m_currentButton]->isSelected())
+		{
+			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
+}
+
+void LobbyState::_keyboardMainLobby()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Right))
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
+			inServerList = true;
+			m_currentButton = 0;
+		}
+	}
+
+	_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_lobbyButtons[m_currentButton]->isSelected())
+			this->m_lobbyButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_keyboardCharSelection()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)CharacterSelection::Back;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
+	}
+
+	_updateSelectionStates();
+
+	//Check for action input
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_charSelectButtons[m_currentButton]->isSelected())
+			this->m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+	}
+}
+
+void LobbyState::_keyboardServerList()
+{
+	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	{
+		if (m_currentButton == 0)
+			m_currentButton = this->m_hostListButtons.size() - 1;
+		else
+			m_currentButton--;
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % this->m_hostListButtons.size();
+	}
+	else if (InputHandler::wasKeyPressed(InputHandler::Left))
+	{
+		m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
+		m_hostListButtons[m_currentButton]->Select(false);
+
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+		inServerList = false;
+	}
+
+	_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Enter))
+	{
+		if (m_hostListButtons[m_currentButton]->isSelected())
+		{
+			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+	}
+}
+
+void LobbyState::_mouseMainLobby()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_lobbyButtons.size(); i++)
+	{
+		if (m_lobbyButtons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_lobbyButtons[i]->Select(true);
+			m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_lobbyButtons[i]->isReleased(mousePos))
+				m_lobbyButtons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_lobbyButtons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_lobbyButtons[j]->Select(false);
+					m_lobbyButtons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+}
+
+void LobbyState::_mouseCharSelection()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_charSelectButtons.size(); i++)
+	{
+		if (m_charSelectButtons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_charSelectButtons[i]->Select(true);
+			m_charSelectButtons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_charSelectButtons[i]->isReleased(mousePos))
+				m_charSelectButtons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_charSelectButtons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_charSelectButtons[j]->Select(false);
+					m_charSelectButtons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+
+}
+
+void LobbyState::_mouseServerList()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+	for (size_t i = 0; i < m_hostListButtons.size(); i++)
+	{
+		if (m_hostListButtons[i]->Inside(mousePos))
+		{
+			m_hostListButtons[i]->Select(true);
+			m_hostListButtons[i]->setState(ButtonStates::Hover);
+			if (m_hostListButtons[i]->isReleased(mousePos))
+			{
+				std::string hostName = m_hostListButtons[i]->getString();
+				auto it = m_hostAdressMap.find(hostName);
+				if (it != m_hostAdressMap.end())
+				{
+					this->selectedHost = it->second;
+					this->selectedHostInfo = "Selected Host: " + hostName;
+					this->m_ServerName = hostName;
+				}
+				else
+				{
+					this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+					this->selectedHostInfo = "Selected Host: None";
+				}
+				m_hostListButtons[i]->setState(ButtonStates::Pressed);
+			}
+			for (size_t j = 0; j < m_hostListButtons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_hostListButtons[j]->Select(false);
+					m_hostListButtons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+}
+
 void LobbyState::_registerThisInstanceToNetwork()
 {
 	using namespace Network;
 	using namespace std::placeholders;
 
+	if (Multiplayer::LobbyOnReceiveMap.size() > 0)
+		Multiplayer::LobbyOnReceiveMap.clear();
+	//RakNet
 	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM, std::bind(&LobbyState::HandlePacket, this, _1, _2));
-	Multiplayer::addToLobbyOnReceiveMap(NETWORKMESSAGES::ID_CLIENT_JOIN, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	//User specific
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_CHAR_SELECTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_READY_PRESSED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REQUEST_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REPLY_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_GAME_STARTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 {
+	if (packet->guid == pNetwork->GetMyGUID())
+		return;
+
 	uint64_t uniqueHostID = packet->guid.g;
 	RakNet::SystemAddress hostAdress = packet->systemAddress;
 	Network::LOBBYEVENTPACKET * data = (Network::LOBBYEVENTPACKET*)packet->data;
@@ -449,11 +934,193 @@ void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 
 }
 
+void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
+{
+	hasClient = true;
+	m_clientIP = data->systemAddress;
+	//send a request to retrive the NetworkID of the remote machine
+	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	//send a message of the current state of the Character selection
+	_sendCharacterSelectionPacket();
+}
+
+void LobbyState::_onFailedPacket(RakNet::Packet * data)
+{
+	m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Normal);
+
+	selectedHostInfo = "Failed to connect to host\n";
+}
+
+void LobbyState::_onSucceedPacket(RakNet::Packet * data)
+{
+	this->selectedHost = data->systemAddress;
+	hasJoined = true;
+	_resetCharSelectButtonStates();
+	//send a request to retrive the NetworkID of the remote machine
+	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	//send a request to retrive the Character selection
+	Network::COMMONEVENTPACKET packet2(Network::ID_REQUEST_SELECTED_CHAR, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet2, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
+{
+	//this means we are the client -> the server has shutdown -> go back to main lobby
+	if (hasJoined)
+	{
+		hasJoined = false;
+		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+		_flushServerList();
+		selectedHostInfo = "Lost connection to host\n";
+		this->selectedHost = RakNet::SystemAddress("0.0.0.0");
+		this->m_remoteNID = 0;
+
+		hasCharSelected = false;
+		selectedChar = 0;
+		hasRemoteCharSelected = false;
+		remoteSelectedChar = 0;
+
+		m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	}
+	else if (isHosting)
+	{
+		m_clientIP = RakNet::SystemAddress("0.0.0.0");
+		hasClient = false;
+		isRemoteReady = false;
+		this->m_remoteNID = 0;
+
+		if (hasRemoteCharSelected)
+			m_charSelectButtons[remoteSelectedChar - 1]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		hasRemoteCharSelected = false;
+		remoteSelectedChar = 0;
+	}
+}
+
+void LobbyState::_onServerDenied(RakNet::Packet * data)
+{
+	m_lobbyButtons[(unsigned int)ButtonOrderLobby::Join]->setState(ButtonStates::Normal);
+
+	selectedHostInfo = "Server is full\n";
+}
+
+void LobbyState::_onCharacterSelectionPacket(RakNet::Packet * data)
+{
+	Network::CHARACTERSELECTIONPACKET * packet = (Network::CHARACTERSELECTIONPACKET*)data->data;
+	switch (packet->selectedChar)
+	{
+	case 0:
+		hasRemoteCharSelected = false;
+		remoteSelectedChar = 0;
+		if (this->selectedChar == 0)
+		{
+			m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else if (this->selectedChar == 1)
+		{
+			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else
+			m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		break;
+	case 1:
+		if (packet->selectedChar != this->selectedChar)
+		{
+			hasRemoteCharSelected = true;
+			remoteSelectedChar = 1;
+			m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+		}
+		break;
+	case 2:
+		if (packet->selectedChar != this->selectedChar)
+		{
+			hasRemoteCharSelected = true;
+			remoteSelectedChar = 2;
+			m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+		}
+	}
+}
+
+void LobbyState::_onReadyPacket(RakNet::Packet * data)
+{
+	if (isRemoteReady)
+		isRemoteReady = false;
+	else
+		isRemoteReady = true;
+}
+	
+void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
+{
+	Network::GAMESTARTEDPACKET * packet = (Network::GAMESTARTEDPACKET*)data->data;
+	CoopData * ptr = new CoopData();
+	ptr->seed = packet->seed;
+	ptr->localPlayerCharacter = selectedChar;
+	ptr->remotePlayerCharacter = remoteSelectedChar;
+	ptr->remoteID = packet->remoteID;
+	isReady = false;
+	isRemoteReady = false;
+	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
+}
+void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
+{
+	if (id == Network::ID_REQUEST_NID)
+	{
+		//Reply with our NID
+		Network::COMMONEVENTPACKET packet(Network::ID_REPLY_NID, pNetwork->GetNetworkID());
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	}
+	else if (id == Network::ID_REQUEST_SELECTED_CHAR)
+	{
+		_sendCharacterSelectionPacket();
+	}
+}
+
+void LobbyState::_onReplyPacket(RakNet::Packet * data)
+{
+	Network::COMMONEVENTPACKET * packet = (Network::COMMONEVENTPACKET*)data->data;
+	this->m_remoteNID = packet->nid;
+}
+
+void LobbyState::_sendCharacterSelectionPacket()
+{
+	if (hasClient || hasJoined)
+	{
+		Network::CHARACTERSELECTIONPACKET packet;
+		packet.id = Network::ID_CHAR_SELECTED;
+		packet.selectedChar = this->selectedChar;
+		if (isHosting)
+			packet.role = Role::Server;
+		else
+			packet.role = Role::Client;
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::CHARACTERSELECTIONPACKET), PacketPriority::LOW_PRIORITY);
+	}
+}
+
+void LobbyState::_sendReadyPacket()
+{
+	if (hasClient || hasJoined)
+	{
+		Network::COMMONEVENTPACKET packet(Network::ID_READY_PRESSED, 0);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+	}
+
+}
+
+void LobbyState::_sendGameStartedPacket()
+{
+	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed(), pNetwork->GetNetworkID());
+	
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::GAMESTARTEDPACKET), PacketPriority::IMMEDIATE_PRIORITY);
+}
+
 void LobbyState::_newHostEntry(std::string & hostName)
 {
 	static float startX = 0.7f;
 	static float startY = 0.8f;
-	static float offsetY = 0.1f;
+	static float offsetY = 0.05f;
 	static float scaleX = 0.4f;
 	static float scaleY = 0.1f;
 
@@ -467,7 +1134,7 @@ void LobbyState::_newHostEntry(std::string & hostName)
 	m_hostListButtons[size]->setPressedTexture(("DAB"));
 	m_hostListButtons[size]->setHoverTexture(("PIRASRUM"));
 	m_hostListButtons[size]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_hostListButtons[size]->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas16.spritefont"));
+	m_hostListButtons[size]->setFont(FontHandler::getFont("consolas16"));
 }
 
 void LobbyState::Load()
@@ -481,9 +1148,12 @@ void LobbyState::Load()
 	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 
 	this->pNetwork = Network::Multiplayer::GetInstance();
+	this->pNetwork->Init();
 	this->pNetwork->StartUpPeer();
+	this->m_MySysAdress = pNetwork->GetMySysAdress();
 	//INITIAL RANDOM HOST NAME
-	this->m_MyHostName = "Host" + std::to_string(randomMT());
+	srand(time(0));
+	this->m_MyHostName = "Host:" + std::to_string(rand());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 
 	this->_registerThisInstanceToNetwork();
