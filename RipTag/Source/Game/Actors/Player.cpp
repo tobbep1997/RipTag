@@ -501,7 +501,6 @@ void Player::SendOnAbilityUsed()
 	using namespace Network;
 	ENTITYABILITYPACKET packet;
 
-	bool isServer = Multiplayer::GetInstance()->isServer();
 	//Same for every ability packet
 	packet.id = ID_TIMESTAMP;
 	packet.timeStamp = RakNet::GetTime();
@@ -515,7 +514,7 @@ void Player::SendOnAbilityUsed()
 	switch (this->m_currentAbility)
 	{
 	case Ability::TELEPORT:
-		if (isServer)
+		if (m_activeSetID ==  1)
 		{
 			packet.ability = (unsigned int)TELEPORT;
 			packet.start = tp_ptr->getStart();
@@ -524,7 +523,7 @@ void Player::SendOnAbilityUsed()
 		}
 		break;
 	case Ability::DISABLE:
-		if (isServer)
+		if (m_activeSetID == 1)
 		{
 			packet.ability = (unsigned int)DISABLE;
 			packet.start = dis_ptr->getStart();
