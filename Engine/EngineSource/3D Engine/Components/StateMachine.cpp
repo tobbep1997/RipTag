@@ -186,9 +186,6 @@ namespace SM
 			return Animation::SkeletonPose();
 
 		return std::move(m_AnimatedModel->UpdateBlendspace2D(clips));
-
-
-		// #todo
 	}
 	Animation::SkeletonPose StateVisitor::dispatch(LoopState & state)
 	{
@@ -220,6 +217,7 @@ namespace SM
 
 	Animation::SkeletonPose LayerVisitor::dispatch(BlendSpace1D& state) 
 	{
+		
 		return Animation::SkeletonPose();
 	}
 	Animation::SkeletonPose LayerVisitor::dispatch(BlendSpace2D& state) 
@@ -258,7 +256,7 @@ namespace SM
 		//#todo check and get weight
 
 		//If we have a locked value, use it; else, use the driver value
-		float currentValue = (m_LockedValue.has_value())
+		const float currentValue = (m_LockedValue.has_value())
 			? m_LockedValue.value()
 			: *m_Current;
 

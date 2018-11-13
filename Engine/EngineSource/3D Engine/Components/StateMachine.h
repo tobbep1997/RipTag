@@ -219,6 +219,32 @@ namespace SM
 		float* m_Current = nullptr;
 		std::optional<float> m_LockedValue = std::nullopt;
 	};
+
+	class BlendSpace1DAdditive : public AnimationState
+	{
+	public:
+		struct BlendSpaceLayerData
+		{
+			Animation::AnimationClip* clip;
+			float location;
+
+			float weight;
+			float currentTime;
+		};
+		BlendSpace1DAdditive(std::string name, float* blendSpaceDriver, float min, float max)
+			: m_Current(blendSpaceDriver), m_Min(min), m_Max(max), AnimationState(name)
+		{}
+
+
+	private:
+		std::vector<BlendSpaceLayerData> m_Layers;
+		float m_Min = 0.0f;
+		float m_Max = 1.0f;
+		float* m_Current = nullptr;
+		//std::optional<float> m_LockedValue = std::nullopt;
+	};
+
+
 #pragma endregion "BlendSpace1D"
 
 #pragma region "BlendSpace2D"
