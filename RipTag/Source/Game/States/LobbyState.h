@@ -112,6 +112,7 @@ private:
 	void _onReplyPacket(RakNet::Packet * data);
 	void _sendCharacterSelectionPacket();
 	void _sendReadyPacket();
+	void _sendGameStartedPacket();
 
 	void _newHostEntry(std::string& hostName);
 

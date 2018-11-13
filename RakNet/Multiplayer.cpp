@@ -56,6 +56,12 @@ namespace Network
 		LobbyOnReceiveMap.insert(std::pair <unsigned char, std::function<void(unsigned char, RakNet::Packet*)>>(key, func));
 	}
 
+	int Multiplayer::GenerateSeed()
+	{
+		this->m_seed = (int)time(0);
+		return m_seed;
+	}
+
 	void Multiplayer::SetupServer()
 	{
 		if(m_isRunning)

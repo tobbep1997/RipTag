@@ -138,6 +138,13 @@ namespace Network
 		//either server or client
 		int role;
 	};
+
+	struct GAMESTARTEDPACKET
+	{
+		unsigned char id;
+		int seed;
+		GAMESTARTEDPACKET(unsigned char _id, int _seed) : id(_id), seed(_seed) {}
+	};
 #pragma pack(pop)
 	//STRUCTS END
 	

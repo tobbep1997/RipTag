@@ -7,8 +7,11 @@ ContactListener * RipExtern::m_contactListener;
 RayCastListener * RipExtern::m_rayListener;
 
 
-PlayState::PlayState(RenderingManager * rm) : State(rm)
+PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
+	//check if we started the game from lobby, if coopData != nullptr, we did so
+	if (coopData)
+		delete coopData;
 
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();

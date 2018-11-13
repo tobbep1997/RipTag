@@ -187,6 +187,18 @@ void LobbyState::Update(double deltaTime)
 					else
 						isReady = true;
 					_sendReadyPacket();
+					if (isHosting && isReady && isRemoteReady)
+					{
+						_sendGameStartedPacket();
+						//create the proper struct/tuple containing all necessary info
+						//for the PlayState constructor, then push it on the state stack
+						OnStartGame * data = new OnStartGame();
+						data->seed = pNetwork->GetSeed();
+						data->localPlayerCharacter = selectedChar;
+						data->remotePlayerCharacter = remoteSelectedChar;
+
+						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
+					}
 				}
 				break;
 			case CharacterSelection::Back:
@@ -275,6 +287,8 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 		_onReadyPacket(packet);
 		break;
 	case Network::ID_REQUEST_NID:
+		_onRequestPacket(id, packet);
+		break;
 	case Network::ID_REQUEST_SELECTED_CHAR:
 		_onRequestPacket(id, packet);
 		break;
@@ -1041,12 +1055,20 @@ void LobbyState::_onCharacterSelectionPacket(RakNet::Packet * data)
 
 void LobbyState::_onReadyPacket(RakNet::Packet * data)
 {
-
+	if (isRemoteReady)
+		isRemoteReady = false;
+	else
+		isRemoteReady = true;
 }
 	
 void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 {
-		
+	Network::GAMESTARTEDPACKET * packet = (Network::GAMESTARTEDPACKET*)data->data;
+	OnStartGame * ptr = new OnStartGame();
+	ptr->seed = packet->seed;
+	ptr->localPlayerCharacter = selectedChar;
+	ptr->remotePlayerCharacter = remoteSelectedChar;
+	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
 }
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
 {
@@ -1087,10 +1109,17 @@ void LobbyState::_sendReadyPacket()
 {
 	if (hasClient || hasJoined)
 	{
-		Network::COMMONEVENTPACKET packet(this->isReady, 0);
+		Network::COMMONEVENTPACKET packet(Network::ID_READY_PRESSED, 0);
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
 	}
 
+}
+
+void LobbyState::_sendGameStartedPacket()
+{
+	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed());
+	
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::GAMESTARTEDPACKET), PacketPriority::IMMEDIATE_PRIORITY);
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)

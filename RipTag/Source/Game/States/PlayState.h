@@ -43,7 +43,7 @@ private:
 	bool m_destoryPhysicsThread = false;
 
 public:
-	PlayState(RenderingManager * rm);
+	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();
 
 	void Update(double deltaTime) override;

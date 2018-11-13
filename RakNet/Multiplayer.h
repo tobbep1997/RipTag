@@ -15,7 +15,12 @@
 #include <map>
 #include <functional>
 
-
+struct OnStartGame
+{
+	int seed;
+	int localPlayerCharacter;
+	int remotePlayerCharacter;
+};
 
 namespace Network
 {
@@ -44,7 +49,8 @@ namespace Network
 		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
 		static void addToLobbyOnReceiveMap(unsigned char key, std::function<void(unsigned char, RakNet::Packet*)> func);
 
-
+		int GenerateSeed();
+		int GetSeed() { return m_seed; }
 
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
@@ -92,6 +98,8 @@ namespace Network
 		bool m_isRunning = false;
 		bool m_isConnected = false;
 		bool m_isGameRunning = false;
+
+		int m_seed = 0;
 
 		RakNet::RakPeerInterface * pPeer = 0;
 		RakNet::SystemAddress m_rIP;
