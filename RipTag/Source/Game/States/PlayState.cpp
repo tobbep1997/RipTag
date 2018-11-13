@@ -281,8 +281,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMFLOAT4A soundDirNormalized;
 							DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 							
-							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							float occ = 1.0f;
+							/*
+							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							if (ray)
 							{
 								for (auto & c : ray->GetRayContacts())
@@ -297,7 +298,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 										occ *= 0.50f;
 									}
 								}
-							}
+							}*/
 
 							float volume = 0;
 							c->getVolume(&volume);
@@ -438,7 +439,7 @@ void PlayState::TemporaryLobby()
 #include "EngineSource\Structs.h"
 #include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
 
-void PlayState::DrawWorldCollisionboxes()
+void PlayState::DrawWorldCollisionboxes(const std::string & type)
 {
 	static const DirectX::XMFLOAT4A _SXMcube[] =
 	{
@@ -480,39 +481,43 @@ void PlayState::DrawWorldCollisionboxes()
 		{
 			if (b->GetObjectTag() != "TELEPORT")
 			{
-				b3Shape * s = b->GetShapeList();
-				auto b3BodyRot = b->GetTransform().rotation;
-				while (s != nullptr)
+				if (type == "" || b->GetObjectTag() == type)
 				{
-					Drawable * d = new Drawable;
-					d->setModel(&_sm);
-					DirectX::XMFLOAT4A shapePos = {
-						s->GetTransform().translation.x + b->GetTransform().translation.x,
-						s->GetTransform().translation.y + b->GetTransform().translation.y,
-						s->GetTransform().translation.z + b->GetTransform().translation.z,
-					1.0f
-					};
-					auto b3ShapeRot = s->GetTransform().rotation;
-					DirectX::XMFLOAT3X3 shapeRot;
-					shapeRot._11 = b3BodyRot.x.x;
-					shapeRot._12 = b3BodyRot.x.y;
-					shapeRot._13 = b3BodyRot.x.z;
-					shapeRot._21 = b3BodyRot.y.x;
-					shapeRot._22 = b3BodyRot.y.y;
-					shapeRot._23 = b3BodyRot.y.z;
-					shapeRot._31 = b3BodyRot.z.x;
-					shapeRot._32 = b3BodyRot.z.y;
-					shapeRot._33 = b3BodyRot.z.z;
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
+					{
+						Drawable * d = new Drawable;
+						d->setModel(&_sm);
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
 
-					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
-					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
-					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
-					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
 
-					DirectX::XMMATRIX world = scl * rot * trans;
-					d->ForceWorld(DirectX::XMMatrixTranspose(world));
-					_drawables.push_back(d);
-					s = s->GetNext();
+						DirectX::XMMATRIX world = scl * rot * trans;
+						d->ForceWorld(DirectX::XMMatrixTranspose(world));
+						_drawables.push_back(d);
+
+						s = s->GetNext();
+					}
 				}
 			}
 			b = b->GetNext();
@@ -526,37 +531,41 @@ void PlayState::DrawWorldCollisionboxes()
 		{
 			if (b->GetObjectTag() != "TELEPORT")
 			{
-				b3Shape * s = b->GetShapeList();
-				auto b3BodyRot = b->GetTransform().rotation;
-				while (s != nullptr)
+				if (type == "" || b->GetObjectTag() == type)
 				{
-					DirectX::XMFLOAT4A shapePos = {
-						s->GetTransform().translation.x + b->GetTransform().translation.x,
-						s->GetTransform().translation.y + b->GetTransform().translation.y,
-						s->GetTransform().translation.z + b->GetTransform().translation.z,
-					1.0f
-					};
-					auto b3ShapeRot = s->GetTransform().rotation;
-					DirectX::XMFLOAT3X3 shapeRot;
-					shapeRot._11 = b3BodyRot.x.x;
-					shapeRot._12 = b3BodyRot.x.y;
-					shapeRot._13 = b3BodyRot.x.z;
-					shapeRot._21 = b3BodyRot.y.x;
-					shapeRot._22 = b3BodyRot.y.y;
-					shapeRot._23 = b3BodyRot.y.z;
-					shapeRot._31 = b3BodyRot.z.x;
-					shapeRot._32 = b3BodyRot.z.y;
-					shapeRot._33 = b3BodyRot.z.z;
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
+					{
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
 
-					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
-					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
-					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
-					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
 
-					DirectX::XMMATRIX world = scl * rot * trans;
-					_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
-					s = s->GetNext();
-			}
+						DirectX::XMMATRIX world = scl * rot * trans;
+						_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
+						
+						s = s->GetNext();
+					}
+				}
 			
 			}
 			b = b->GetNext();

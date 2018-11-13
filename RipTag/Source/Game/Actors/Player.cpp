@@ -250,7 +250,7 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
-	CreateShape(0, (y*1.5)+0.1, 0, 0.3, 0.3, 0.3, "HEAD");
+	CreateShape(0, (y*1.5)+0.1, 0, 0.5, 0.5, 0.1, "HEAD");
 	m_standHeight = (y*1.5) + 0.1;
 	m_crouchHeight = y*1.1;
 	setUserDataBody(this);
@@ -1079,7 +1079,7 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_tutorialActive)
 	{
-		if (m_objectInfoTime >= 1)
+		if (m_objectInfoTime >= 0.5f)
 		{
 			m_infoText->setString("");
 			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
@@ -1173,7 +1173,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	//--------------------------------------Camera movement---------------------------------------// 
 	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1);
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
 	p_camera->setPosition(pos);
 	//Camera Tilt
 	p_CameraTilting(deltaTime, m_peektimer);

@@ -55,7 +55,8 @@ void BlinkAbility::_logic(double deltaTime)
 		case BlinkState::Blink:
 			if (pPointer->CheckManaCost(getManaCost()))
 			{
-				RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
+				RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE * 0.5f, true);
+				
 			
 				if(ray != nullptr)
 				{
