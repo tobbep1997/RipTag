@@ -965,6 +965,14 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		selectedHostInfo = "Lost connection to host\n";
 		this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 		this->m_remoteNID = 0;
+
+		hasCharSelected = false;
+		selectedChar = 0;
+		hasRemoteCharSelected = false;
+		remoteSelectedChar = 0;
+
+		m_charSelectButtons[CharOne]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		m_charSelectButtons[CharTwo]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 	else if (isHosting)
 	{
@@ -972,6 +980,11 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		hasClient = false;
 		isRemoteReady = false;
 		this->m_remoteNID = 0;
+
+		if (hasRemoteCharSelected)
+			m_charSelectButtons[remoteSelectedChar - 1]->setTextColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		hasRemoteCharSelected = false;
+		remoteSelectedChar = 0;
 	}
 }
 
