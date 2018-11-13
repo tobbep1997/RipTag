@@ -142,7 +142,7 @@ public:
 
 	void GeometryPass();
 	void PrePass(Camera & camera);
-	void AnimatedGeometryPass();
+	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();
 
