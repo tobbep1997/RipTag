@@ -8,12 +8,14 @@ ParticleEmitter::ParticleEmitter()
 	m_EmitterLife = 1000;
 	m_fakeUp;
 	m_Rotation = 10;
-	m_MaxParticle = 100;
+	m_MaxParticle = 1000;
 	m_MinParticle = 10;
-	nrOfEmittedParticles = 200;
+	nrOfEmittedParticles = 2000;
 	m_SpawnPosition = DirectX::XMVECTOR{0,0,0};
 
+
 	InitializeBuffer();
+	srand(time(0));
 }
 
 ParticleEmitter::~ParticleEmitter()
@@ -31,9 +33,8 @@ ParticleEmitter::~ParticleEmitter()
 
 }
 
-void ParticleEmitter::Update(float timeDelata)
+void ParticleEmitter::Update(float timeDelata, Camera * camera)
 {
-	srand(time(0));
 	if (m_EmitterLife == 0)
 		m_EmitterCurrentLife = 0;
 	else if (m_EmitterCurrentLife > m_EmitterLife)
@@ -62,7 +63,7 @@ void ParticleEmitter::Update(float timeDelata)
 		{
 			nrOfParticlesToEmit += particleToLast;
 		}
-
+		DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixTranslation(5, 5, 5);
 		for (int i = 0; i < nrOfParticlesToEmit; i++)
 		{
 			if (m_Particles.size() >= m_MaxParticle)
@@ -70,26 +71,25 @@ void ParticleEmitter::Update(float timeDelata)
 
 			m_newParticle = new Particle();
 
-			m_newParticle->position = m_SpawnPosition;//RandomOffset(m_SpawnPosition, m_SpawnOffset);
+			m_newParticle->position =  DirectX::XMVectorAdd(m_SpawnPosition, DirectX::XMLoadFloat4(&DirectX::XMFLOAT4(0.f*i,-.510,-1.0*i,1)));//RandomOffset(m_SpawnPosition, m_SpawnOffset);
 			m_newParticle->rotation = m_Rotation;// +(rand() % m_RotationOffset * 1 + (m_RotationOffset *-1));
 			m_Particles.push_back(m_newParticle);
 		}
 
-		_particleVertexCalculation();
+		_particleVertexCalculation(camera);
 	}
 }
 
-void ParticleEmitter::_particleVertexCalculation()
+void ParticleEmitter::_particleVertexCalculation(Camera * camera)
 {
-	m_toCam = DirectX::XMVECTOR{ 1,0,0 }; //Cam dir here plz
-	m_right = DirectX::XMVector3Cross(m_toCam, m_fakeUp);
-	m_up = DirectX::XMVectorAbs(DirectX::XMVector3Cross(m_toCam, m_right));
-	m_forward = DirectX::XMVector3Cross(m_up, m_right);
 
-	DirectX::XMMATRIX rotationMatrix;
 
 	for (int i = 0; i < m_Particles.size(); i++)
 	{
+
+
+		DirectX::XMMATRIX rotationMatrix;
+
 		float life = m_Particles[i]->age;
 
 		if (life > m_Particles[i]->lifeTime)
@@ -102,14 +102,18 @@ void ParticleEmitter::_particleVertexCalculation()
 		m_Particles[i]->age += timeDelata;
 
 		//m_Particles[i]->velocity = DirectX::XMVectorScale(m_Particles[i]->velocity, (m_Particles[i]->speed * timeDelata));
-		m_Particles[i]->position = DirectX::XMVECTOR{ 4.297f, 5, -1.682f };;//DirectX::XMVectorMultiply(m_Particles[i]->position, m_Particles[i]->velocity);
+		//m_Particles[i]->position = DirectX::XMVECTOR{ 4.297f, 5, -1.682f };;//DirectX::XMVectorMultiply(m_Particles[i]->position, m_Particles[i]->velocity);
+		DirectX::XMVECTOR cameraPos = DirectX::XMLoadFloat4A(&camera->getPosition());
+		m_toCam = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(m_Particles[i]->position, cameraPos));
+		m_right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_toCam, m_fakeUp));
+		m_up = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_toCam, m_right));
+		m_forward = m_toCam; //DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_up, m_right));
 		rotationMatrix = DirectX::XMMatrixRotationAxis(m_forward, m_Particles[i]->rotation);
 		
 		Vertex upLeftVertex;
 		Vertex upRightVertex;
 		Vertex downLeftVertex;
 		Vertex downRightVertex;
-
 
 
 		DirectX::XMStoreFloat4A(&upLeftVertex.pos, DirectX::XMVectorAdd(DirectX::XMVectorSubtract(m_Particles[i]->position, m_right), m_up));
@@ -132,11 +136,10 @@ void ParticleEmitter::_particleVertexCalculation()
 		downRightVertex.tangent = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMStoreFloat4A(&downRightVertex.normal, m_forward);
 
-
-		downLeftVertex.pos = DirectX::XMFLOAT4A(-5, -5, 0, 0);
-		upLeftVertex.pos = DirectX::XMFLOAT4A(-5, 5, 0, 0);
-		upRightVertex.pos = DirectX::XMFLOAT4A(5, 5, 0, 0);
-		downRightVertex.pos = DirectX::XMFLOAT4A(5,-5,0,0);
+		downLeftVertex.pos.w = 1.0f;
+		upLeftVertex.pos.w = 1.0f;
+		upRightVertex.pos.w = 1.0f;
+		downRightVertex.pos.w = 1.0f;
 
 		vertex.push_back(downLeftVertex);
 		vertex.push_back(upLeftVertex);
@@ -269,6 +272,26 @@ DirectX::XMFLOAT3 ParticleEmitter::Float3add(DirectX::XMFLOAT3 basePos, DirectX:
 	basePos.z += basePos2.z;
 
 	return basePos;
+}
+
+void ParticleEmitter::Queue()
+{
+	DX::g_emitters.push_back(this);
+}
+
+void ParticleEmitter::setPosition(const float & x, const float & y, const float & z, const float & w)
+{
+	m_SpawnPosition = DirectX::XMVECTOR{ x,y,z,w };
+}
+
+DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
+{
+	using namespace DirectX;
+	XMFLOAT4 pos; XMStoreFloat4(&pos, m_SpawnPosition);
+	
+	XMMATRIX matrix = XMMatrixTranspose(XMMatrixTranslation(pos.x, pos.y, pos.z));
+	XMStoreFloat4x4A(&m_worldMatrix, matrix);
+	return m_worldMatrix;
 }
 
 

@@ -204,13 +204,23 @@ void ForwardRender::Flush(Camera & camera, ParticleEmitter * lol)
 	this->_wireFramePass();
 	this->_OutliningPass(camera);
 
+	DirectX::XMMATRIX translate = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 0));
+	DirectX::XMMATRIX scaling = DirectX::XMMatrixScaling(1, 1, 1);
+	DirectX::XMFLOAT4X4A world; DirectX::XMStoreFloat4x4A(&world, translate);
 
 
+	//DX::g_deviceContext->RSSetState(m_wireFrame);
+	_mapCameraBuffer(camera);
+	for (auto & lol : DX::g_emitters)
+	{
+
+		m_objectValues.worldMatrix = lol->getWorldMatrix();
+		DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+		lol->Draw();
+	}
 
 	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
-
-	if (lol)
-		lol->Draw();
+	DX::g_deviceContext->RSSetState(m_standardRast);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	//_GuardFrustumDraw();
 	m_2DRender->GUIPass();

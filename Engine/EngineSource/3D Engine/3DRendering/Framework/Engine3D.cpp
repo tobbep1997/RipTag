@@ -19,6 +19,8 @@ std::vector<Quad*> DX::g_2DQueue;
 
 std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
+std::vector<ParticleEmitter*> DX::g_emitters;
+
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
  

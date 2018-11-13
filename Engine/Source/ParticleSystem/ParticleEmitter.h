@@ -7,6 +7,8 @@
 #include "Particle.h"
 #include <math.h>
 
+class Camera;
+
 struct Vertex
 {
 	DirectX::XMFLOAT4A pos;
@@ -28,7 +30,7 @@ private:
 	float timeDelata = 0.02f;
 	float m_partialParticle;
 	bool m_EmitterActiv;
-	DirectX::XMVECTOR m_SpawnPosition = DirectX::XMVECTOR{ 4.297f, 5, -1.682f };
+	DirectX::XMVECTOR m_SpawnPosition = DirectX::XMVECTOR{ 4.297f, 5, -1.682f, 1.0f/*Oof*/ };
 	std::vector<Particle*> m_Particles;
 	ID3D11Buffer* m_vertexBuffer = nullptr;
 	ID3D11Buffer* m_cBuffer = nullptr;
@@ -49,14 +51,18 @@ private:
 	DirectX::XMVECTOR m_forward;
 	DirectX::XMVECTOR m_fakeUp = { 0.0f, 1.0f, 0.0f };
 
-	void _particleVertexCalculation();
+	void _particleVertexCalculation(Camera * camera);
 	void _depthRenderTarget();
+
+
+	DirectX::XMFLOAT4X4A m_worldMatrix;
+
 
 
 public:
 	ParticleEmitter();
 	~ParticleEmitter();
-	void Update(float timeDelata);
+	void Update(float timeDelata, Camera * camera);
 	void InitializeBuffer();
 	void SetBuffer();
 	void Draw();
@@ -66,6 +72,12 @@ public:
 	int nrOfEmittedParticles;
 	std::vector<Vertex> vertex;
 	int nrOfVertex;
+
+	void Queue();
+
+	void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f);
+
+	DirectX::XMFLOAT4X4A getWorldMatrix();
 
 };
 

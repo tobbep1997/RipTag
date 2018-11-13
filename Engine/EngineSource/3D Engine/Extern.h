@@ -17,6 +17,7 @@ class PointLight;
 class MeshManager;
 class TextureManager;
 class AnimationHandler;
+class ParticleEmitter;
 
 namespace DX {
 	extern ID3D11Device*			g_device;
@@ -34,6 +35,7 @@ namespace DX {
 
 	extern std::vector<Quad*> g_2DQueue;
 
+	extern std::vector<ParticleEmitter*> g_emitters;
 }
 namespace Manager
 {

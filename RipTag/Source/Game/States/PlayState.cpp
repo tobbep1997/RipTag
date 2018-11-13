@@ -221,7 +221,8 @@ void PlayState::Update(double deltaTime)
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
 
-	m_particleEmitter->Update(deltaTime);
+	m_particleEmitter->setPosition(5, 5, 0);
+	m_particleEmitter->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 
 	//model->getAnimatedModel()->Update(deltaTime);
 
@@ -293,7 +294,7 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-	//m_particleEmitter->Draw();
+	m_particleEmitter->Queue();
 
 
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera(), m_particleEmitter);
