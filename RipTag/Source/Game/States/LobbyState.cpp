@@ -936,10 +936,8 @@ void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
-	//send a request to retrive the Character selection
-	Network::COMMONEVENTPACKET packet2(Network::ID_REQUEST_SELECTED_CHAR, 0);
-	Network::Multiplayer::SendPacket((const char*)&packet2, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
-
+	//send a message of the current state of the Character selection
+	_sendCharacterSelectionPacket();
 }
 
 void LobbyState::_onFailedPacket(RakNet::Packet * data)
