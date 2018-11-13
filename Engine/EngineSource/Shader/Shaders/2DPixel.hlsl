@@ -6,7 +6,6 @@ cbuffer HUD_TYPE : register (b0)
 {
 	float4 center;
 	uint4 type;
-	
 };
 
 struct VS_OUTPUT
