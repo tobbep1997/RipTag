@@ -118,7 +118,8 @@ void RemotePlayer::Update(double dt)
 	this->_lerpPosition(dt);
 
 	//2.
-	m_activeSet[m_currentAbility]->Update(dt);
+	for (size_t i = 0; i < m_nrOfAbilitys; i++)
+		m_activeSet[i]->Update(dt);
 
 	//3.
 	this->getAnimatedModel()->Update(dt);
