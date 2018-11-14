@@ -314,6 +314,30 @@ bool Input::OnAbility2Released()
 	return false;
 }
 
+bool Input::OnCancelAbility()
+{
+	bool result = false;
+	if (isUsingGamepad())
+		result = GamePadHandler::IsBPressed();
+
+	if (!result)
+	{
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "CancelAbility")
+				{
+					result = true;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
 bool Input::Exit()
 {
 	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();

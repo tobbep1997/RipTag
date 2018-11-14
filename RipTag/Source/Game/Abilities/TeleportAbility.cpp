@@ -157,11 +157,15 @@ void TeleportAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
+		if (!m_canceled && ((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			
 			m_tpState = TeleportAbility::Charging;
 			
+		}
+		if (Input::OnAbilityReleased())
+		{
+			m_canceled = false;
 		}
 	}
 }
@@ -176,14 +180,14 @@ void TeleportAbility::_inStateCharging(double dt)
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
-		if (((Player *)p_owner)->getCurrentAbility() != Ability::TELEPORT)
+		if (Input::OnCancelAbility())
 		{
 			m_charge = 0.0;
 			m_tpState = TeleportState::Throwable;
+			m_canceled = true;
 		}
 		if (Input::OnAbilityReleased())
 		{
-
 			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
 			if (ray == nullptr)
 			{
@@ -227,6 +231,10 @@ void TeleportAbility::_inStateTeleportable()
 {
 	if (isLocal)
 	{
+		if (Input::OnCancelAbility())
+		{
+			m_tpState = TeleportAbility::Cooldown;
+		}
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
