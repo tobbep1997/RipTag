@@ -491,6 +491,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
+	Manager::g_textureManager.loadTextures("STATE");
 }
 
 void PlayState::_loadPhysics()
