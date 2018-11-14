@@ -262,15 +262,18 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			_TempGuardPath(true, 0.001f);
+			
 			if (m_alert)
 			{
 				//_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
 				_MoveToAlert(m_alertPath.at(0), deltaTime);
 			}
-			else if (m_alertPath.size() > 0)
+			else if (m_alertPath.size() > 0 )
 			{
-				_MoveBackToPatrolRoute(m_alertPath.at(0), deltaTime);
+				if (m_state != High_Alert)
+				{
+					_MoveBackToPatrolRoute(m_alertPath.at(0), deltaTime);
+				}
 			}
 			else
 			{
@@ -313,8 +316,10 @@ void Enemy::Update(double deltaTime)
 							temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
 						}
 					}
-					
-					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
+					if (m_state != High_Alert)
+					{
+						_MoveTo(m_path.at(m_currentPathNode), deltaTime);
+					}
 				}
 			}
 		}
@@ -674,6 +679,21 @@ void Enemy::SetPlayerPointer(Player* player)
 	m_PlayerPtr = player;
 }
 
+void Enemy::AddHighAlertTimer(double deltaTime)
+{
+	m_HighAlertTime += deltaTime;
+}
+
+float Enemy::GetHighAlertTimer() const
+{
+	return m_HighAlertTime;
+}
+
+void Enemy::SetHightAlertTimer(const float& time)
+{
+	m_HighAlertTime = time;
+}
+
 float Enemy::getVisCounter() const
 {
 	return m_visCounter;
@@ -881,7 +901,10 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 		m_alertPath.erase(m_alertPath.begin());
 
 		if (m_alertPath.size() == 0)
+		{
+			this->setEnemeyState(High_Alert);
 			m_alert = false;
+		}
 	}
 	else
 	{

@@ -69,7 +69,7 @@ Texture * TextureManager::getTexture(const std::string & path)
 	std::wstring fullPath = this->_getFullPath(path);
 	unsigned int key = this->_getKey(fullPath);
 
-
+	
 	for (unsigned int i = 0; i < m_textures[key].size(); i++)
 	{
 		if (m_textures[key][i]->getName() == fullPath)

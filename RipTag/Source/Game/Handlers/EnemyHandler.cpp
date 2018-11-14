@@ -38,14 +38,18 @@ void EnemyHandler::Update(float deltaTime)
 		switch (state)
 		{
 		case Investigating_Sight:
-			if (timer > 0.5f)
+			if (timer > 0.3f)
 				_investigating(currentGuard);
 			break;
 		case Investigating_Sound:
-			if (timer > 0.5f)
+			if (timer > 0.3f)
 				_investigateSound(currentGuard);
 			break;
+		case High_Alert:
+			_highAlert(currentGuard, deltaTime);
+			break;
 		case Patrolling:
+			timer = 0;
 			_patrolling(currentGuard);
 			break;
 		}
@@ -63,6 +67,8 @@ int EnemyHandler::_getPlayerVisibility(Enemy * guard)
 
 void EnemyHandler::_alert(Enemy * guard, bool followSound)
 {
+
+
 	if (!followSound)
 	{
 		DirectX::XMFLOAT4A playerPos = m_player->getPosition();
@@ -151,4 +157,16 @@ void EnemyHandler::_patrolling(Enemy * guard)
 		_alert(guard);
 	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
 		_alert(guard, true);
+}
+
+void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
+{
+	guard->AddHighAlertTimer(dt);
+	std::cout << yellow << "HighAlert" << white << std::endl;
+	if (guard->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
+	{
+		guard->SetHightAlertTimer(0);
+		guard->setEnemeyState(Patrolling);
+		std::cout << red << "highAlertEnded" << white << std::endl;
+	}
 }

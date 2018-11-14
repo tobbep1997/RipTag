@@ -13,6 +13,7 @@ enum EnemyState
 {
 	Investigating_Sight,
 	Investigating_Sound,
+	High_Alert,
 	Patrolling
 };
 
@@ -127,6 +128,8 @@ private:
 	float m_lengthToPlayerSpan = 8;
 
 	Player * m_PlayerPtr;
+
+	float m_HighAlertTime = 0;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -198,6 +201,10 @@ public:
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+
+	void AddHighAlertTimer(double deltaTime);
+	float GetHighAlertTimer() const;
+	void SetHightAlertTimer(const float & time);
 private:
 
 	void _handleInput(double deltaTime);

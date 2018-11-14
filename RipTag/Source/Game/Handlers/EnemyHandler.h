@@ -11,6 +11,7 @@ private:
 	const float SOUND_LEVEL = 0.33f;
 	const int SIGHT_LEVEL = 1700;
 	const float ALERT_TIME_LIMIT = 0.8f;
+	const float HIGH_ALERT_LIMIT = 3.0f;
 
 private:
 	std::vector<Enemy*> m_guards;
@@ -32,5 +33,7 @@ private:
 	void _investigating(Enemy * guard);
 	void _investigateSound(Enemy * guard);
 	void _patrolling(Enemy * guard);
+
+	void _highAlert(Enemy * guard, const double & dt);
 
 };
