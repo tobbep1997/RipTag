@@ -126,7 +126,7 @@ void RoomGenerator::_placeProps()
 	int ix = -1;
 	int r = rand() % 2;
 
-	//LÄCKER MINNE MELLAN
+	//Lï¿½CKER MINNE MELLAN
 	for (float i = -m_roomWidth + 7.5f; i <= m_roomWidth - 7.5f; i += 15.f)
 	{
 		int jy = -1;
