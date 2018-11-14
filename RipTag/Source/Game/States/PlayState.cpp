@@ -221,7 +221,7 @@ void PlayState::Update(double deltaTime)
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
 
-	m_particleEmitter->setPosition(5, 5, 0);
+	m_particleEmitter->setPosition(6, 10, 0);
 	m_particleEmitter->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 
 	//model->getAnimatedModel()->Update(deltaTime);

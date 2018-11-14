@@ -26,9 +26,9 @@ VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
 
-    output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
+	output.pos = mul(input.pos, viewProjection);
     output.worldPos = mul(input.pos, worldMatrix); // mul(input.pos, worldMatrix);
-	output.normal = input.normal;// normalize(mul(input.normal, worldMatrix));
+	output.normal = mul(input.normal, worldMatrix);// normalize(mul(input.normal, worldMatrix));
 	output.tangent = input.tangent;// mul(input.tangent, worldMatrix);
 	output.uv = input.uv;
 
