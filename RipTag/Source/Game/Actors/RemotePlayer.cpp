@@ -37,7 +37,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//6.
 	//Ability stuff
 	{
-		VisabilityAbility * visAbl = new VisabilityAbility();
+		/*VisabilityAbility * visAbl = new VisabilityAbility();
 		visAbl->setOwner(this);
 		visAbl->setIsLocal(false);
 		visAbl->Init();
@@ -46,7 +46,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 		VisabilityAbility * visAbl2 = new VisabilityAbility();
 		visAbl2->setOwner(this);
 		visAbl2->setIsLocal(false);
-		visAbl2->Init();
+		visAbl2->Init();*/
 
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
@@ -70,15 +70,15 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents1[0] = m_teleport;
-		m_abilityComponents1[1] = visAbl;
+		//m_abilityComponents1[1] = visAbl;
 		m_abilityComponents1[2] = m_dis;
-		m_abilityComponents1[3] = visAbl2;
+		//m_abilityComponents1[3] = visAbl2;
 
 		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents2[0] = m_blink;
-		m_abilityComponents2[1] = visAbl;
+		//m_abilityComponents2[1] = visAbl;
 		m_abilityComponents2[2] = m_possess;
-		m_abilityComponents2[3] = visAbl2;
+		//m_abilityComponents2[3] = visAbl2;
 
 		m_currentAbility = (Ability)0;
 

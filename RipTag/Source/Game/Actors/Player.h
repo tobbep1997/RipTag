@@ -47,7 +47,7 @@ private:
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
 
-	const unsigned short int m_nrOfAbilitys = 4;
+	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;

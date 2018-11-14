@@ -53,7 +53,7 @@ void PossessGuard::Draw()
 void PossessGuard::_logic(double deltaTime)
 {
 	m_useFunctionCalled = false;
-	if (((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbilityPressed())
+	if (((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbility2Pressed())
 		this->Use();
 	Player* pPointer = static_cast<Player*>(p_owner);
 	/*if (Input::OnAbilityReleased())
