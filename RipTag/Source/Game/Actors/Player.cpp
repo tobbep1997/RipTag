@@ -61,6 +61,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
+
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -95,12 +96,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
 	quad->setUnpressedTexture("VISIBILITYICON");
 	HUDComponent::AddQuad(quad);
-
-
-
-	   	 
-
-
 
 	m_winBar = new Quad();
 	m_winBar->init();
@@ -154,16 +149,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityTutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
 	HUDComponent::AddQuad(m_abilityTutorialText);
 
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
-
-
 	m_HUDcircle = new Circle();
 	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
 	m_HUDcircle->setRadie(.5f);
@@ -203,8 +188,6 @@ Player::~Player()
 	delete m_abilityComponents2[0];
 	delete m_abilityComponents2[2];
 	delete[] m_abilityComponents2;
-	for (auto & s : m_sounds)
-		AudioEngine::UnLoadSoundEffect(s);
 	m_HUDcircle->Release();
 	delete m_HUDcircle;
 	m_HUDcircleFiller->Release();
@@ -304,10 +287,12 @@ void Player::Update(double deltaTime)
 
 	
 
-	m_activeSet[m_currentAbility]->Update(deltaTime);
+	//m_activeSet[m_currentAbility]->Update(deltaTime);
 	
 	for (int i = 0; i < 4; i++)
 	{
+		m_activeSet[i]->Update(deltaTime);
+
 		if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
@@ -339,16 +324,15 @@ void Player::Update(double deltaTime)
 
 	if (m_tutorialActive)
 	{
-		bool isServer = Network::Multiplayer::GetInstance()->isServer();
-		if (m_currentAbility == Ability::TELEPORT && isServer)
+		if (m_currentAbility == Ability::TELEPORT && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
 		else if (m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
 			m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
-		else if (m_currentAbility == Ability::DISABLE && isServer)
+		else if (m_currentAbility == Ability::DISABLE && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
-		else if (m_currentAbility == Ability::BLINK && !isServer)
+		else if (m_currentAbility == Ability::BLINK && m_activeSetID == 2)
 			m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
-		else if (m_currentAbility == Ability::POSSESS && !isServer)
+		else if (m_currentAbility == Ability::POSSESS && m_activeSetID == 2)
 			m_abilityTutorialText->setString("Possess:\nControl guards.");
 	}
 
@@ -403,6 +387,8 @@ void Player::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
 		m_activeSet = m_abilityComponents2;
+
+	m_activeSetID = set;
 }
 
 void Player::setEnemyPositions(std::vector<Enemy*> enemys)
@@ -437,10 +423,25 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	}
 }
 
+const Ability Player::getCurrentAbility() const
+{
+	return m_currentAbility;
+}
+
 TeleportAbility * Player::getTeleportAbility()
 {
 	TeleportAbility* tp = (TeleportAbility *)m_abilityComponents1[0];
 	return tp;
+}
+
+unsigned int Player::getNrOfRocks()
+{
+	return m_rockCounter;
+}
+
+bool Player::GetMapPicked()
+{
+	return m_MapPicked;
 }
 
 void Player::Draw()
@@ -500,7 +501,6 @@ void Player::SendOnAbilityUsed()
 	using namespace Network;
 	ENTITYABILITYPACKET packet;
 
-	bool isServer = Multiplayer::GetInstance()->isServer();
 	//Same for every ability packet
 	packet.id = ID_TIMESTAMP;
 	packet.timeStamp = RakNet::GetTime();
@@ -514,7 +514,7 @@ void Player::SendOnAbilityUsed()
 	switch (this->m_currentAbility)
 	{
 	case Ability::TELEPORT:
-		if (isServer)
+		if (m_activeSetID ==  1)
 		{
 			packet.ability = (unsigned int)TELEPORT;
 			packet.start = tp_ptr->getStart();
@@ -523,7 +523,7 @@ void Player::SendOnAbilityUsed()
 		}
 		break;
 	case Ability::DISABLE:
-		if (isServer)
+		if (m_activeSetID == 1)
 		{
 			packet.ability = (unsigned int)DISABLE;
 			packet.start = dis_ptr->getStart();
@@ -605,7 +605,7 @@ void Player::SendOnAnimationUpdate(double dt)
 
 void Player::SendOnWin()
 {
-	Network::EVENTPACKET packet(Network::ID_PLAYER_WON);
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
@@ -623,7 +623,7 @@ void Player::RegisterThisInstanceToNetwork()
 
 void Player::_collision()
 {
-	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
+	for (ContactListener::S_EndContact con : RipExtern::g_contactListener->GetEndContacts())
 	{
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
 				if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
@@ -632,7 +632,7 @@ void Player::_collision()
 					m_recentHeadCollision = true;
 				}
 	}
-	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (con)
 		{
@@ -930,7 +930,7 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
 			if (ray)
 			{
 				for (RayCastListener::RayContact* con : ray->GetRayContacts())
@@ -967,6 +967,22 @@ void Player::_onInteract()
 								//std::cout << "illusory wall ahead" << std::endl;
 								//Snuff out torches (example)
 							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
+							{
+								Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
+								if (m_rockCounter < MAXROCKS)
+								{
+									rock->DeleteRock();
+									m_rockCounter++;
+								}
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
+							{
+								Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
+								autoLol->DeleteMap();
+								m_MapPicked = true;
+								//std::cout << "MAP" << std::endl;
+							}
 						}
 					}
 				}
@@ -994,26 +1010,33 @@ void Player::_objectInfo(double deltaTime)
 		if (m_objectInfoTime >= 0.5f)
 		{
 			m_infoText->setString("");
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* cContact = ray->getClosestContact();
-				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
+				RayCastListener::RayContact* cContact2 = cContact;
+				float interactFractionRange = Player::INTERACT_RANGE / 10;
+				if(ray->getNrOfContacts() >= 2)
+					cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+
+				if ((cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" || cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER"))
 				{
-					m_infoText->setString("Press X to pull");
+					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+						m_infoText->setString("Press X to pull");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS)
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
 				{
 					m_infoText->setString("Press RB to possess");
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3  && m_currentAbility == Ability::BLINK)
+				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
 				{
-					m_infoText->setString("Press RB to pass");
+					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+						m_infoText->setString("Press RB to pass");
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
@@ -1112,10 +1135,10 @@ void Player::_cameraPlacement(double deltaTime)
 				int index = -1;
 				while (index == -1 || index == last)
 				{
-					index = rand() % (int)m_sounds.size();
+					index = rand() % (int)RipSounds::g_stepsStone.size();
 				}
 				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at, AudioEngine::Player);
+				c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1180,11 +1203,11 @@ void Player::_deActivateCrouch()
 
 void Player::_hasWon()
 {
-	for (int i = 0; i < RipExtern::m_contactListener->GetBeginContacts().size(); i++)
+	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
 	{
-		if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
 		{
-			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
+			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
 			{
 				hasWon = true;
 				SendOnWin();
@@ -1192,9 +1215,9 @@ void Player::_hasWon()
 				break;
 			}
 		}
-		else if(RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
+		else if(RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
 		{
-			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
 				hasWon = true;
 				SendOnWin();

@@ -138,7 +138,7 @@ void DisableAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
 		{
 			
 			m_dState = DisableAbility::Charging;
@@ -151,7 +151,7 @@ void DisableAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
@@ -173,6 +173,11 @@ void DisableAbility::_inStateCharging(double dt)
 			m_lastVelocity = direction;
 			m_charge = 0.0f;
 		}
+		else if (((Player *)p_owner)->getCurrentAbility() != Ability::DISABLE)
+		{
+			m_charge = 0.0f;
+			m_dState = DisableState::Throwable;
+		}
 	}
 }
 
@@ -182,7 +187,7 @@ void DisableAbility::_inStateMoving(double dt)
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
 	accumulatedTime += dt;
 
-	for (auto contact : RipExtern::m_contactListener->GetBeginContacts())
+	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
 		{

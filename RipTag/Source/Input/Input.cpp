@@ -36,11 +36,12 @@ void Input::SetActivateGamepad(const bool & b)
 
 bool Input::Jump()
 {
+	bool result = false;
+
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsAPressed();
-	}
-	else
+		result = GamePadHandler::IsAPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -49,21 +50,22 @@ bool Input::Jump()
 			{
 				if (keyIterator->second == "Jump")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	
+	return result;
 }
 
 bool Input::CheckVisability()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsLeftShoulderPressed();
-	}
-	else
+		result = GamePadHandler::IsLeftShoulderPressed();
+
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -72,21 +74,21 @@ bool Input::CheckVisability()
 			{
 				if (keyIterator->second == "Visibility")
 				{
-					return true;
+					result =  true;
 				}
 			}
 		}
 	}
-	return false;
+	return result;
 }
 
 bool Input::Crouch()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsRightStickPressed();
-	}
-	else
+		result = GamePadHandler::IsRightStickPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -95,21 +97,22 @@ bool Input::Crouch()
 			{
 				if (keyIterator->second == "Crouch")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	
+	return result;
 }
 
 bool Input::Interact()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsXPressed();
-	}
-	else
+		result = GamePadHandler::IsXPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -118,21 +121,22 @@ bool Input::Interact()
 			{
 				if (keyIterator->second == "Interact")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	
+	return result;
 }
 
 float Input::MoveForward()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::GetLeftStickYPosition();
-	}
-	else
+		result = GamePadHandler::GetLeftStickYPosition();
+	
+	if (result == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -141,25 +145,26 @@ float Input::MoveForward()
 			{
 				if (keyIterator->second == "MoveForward")
 				{
-					return 1;
+					result = 1;
 				}
 				else if (keyIterator->second == "MoveBackward")
 				{
-					return -1;
+					result = -1;
 				}
 			}
 		}
 	}
-	return 0;
+	
+	return result;
 }
 
 float Input::MoveRight()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::GetLeftStickXPosition();
-	}
-	else
+		result = GamePadHandler::GetLeftStickXPosition();
+
+	if (result == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -168,29 +173,25 @@ float Input::MoveRight()
 			{
 				if (keyIterator->second == "MoveRight")
 				{
-					return 1;
+					result = 1;
 				}
 				else if (keyIterator->second == "MoveLeft")
 				{
-					return -1;
+					result = -1;
 				}
 			}
 		}
 	}
-	return 0;
+	return result;
 }
 
 float Input::PeekRight()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		float delta = 0.0f;
+		result = GamePadHandler::LeftTrigger() - GamePadHandler::RightTrigger();
 
-		delta = GamePadHandler::LeftTrigger() - GamePadHandler::RightTrigger();
-
-		return delta;
-	}
-	else
+	if (result == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -199,23 +200,25 @@ float Input::PeekRight()
 			{
 				if (keyIterator->second == "PeekRight")
 				{
-					return -1;
+					result = -1;
 				}
 				else if (keyIterator->second == "PeekLeft")
 				{
-					return 1;
+					result = 1;
 				}
 			}
 		}
 	}
-	return 0;
+	return result;
 }
 
 bool Input::Sprinting()
 {
+	bool result = false;
 	if (isUsingGamepad())
-		return GamePadHandler::IsLeftStickPressed();
-	else
+		result = GamePadHandler::IsLeftStickPressed();
+
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -224,20 +227,22 @@ bool Input::Sprinting()
 			{
 				if (keyIterator->second == "Sprint")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
 	
-	return false;
+	return result;
 }
 
 bool Input::OnAbilityPressed()
 {
+	bool result = false;
 	if (isUsingGamepad())
-		return GamePadHandler::IsRightShoulderPressed();
-	else
+		result = GamePadHandler::IsRightShoulderPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -246,13 +251,13 @@ bool Input::OnAbilityPressed()
 			{
 				if (keyIterator->second == "UseAbility")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
 
-	return false;
+	return result;
 }
 
 bool Input::OnAbilityReleased()
@@ -270,11 +275,11 @@ bool Input::OnAbilityReleased()
 
 bool Input::Blink()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsYPressed();
-	}
-	else
+		result = GamePadHandler::IsYPressed();
+
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -283,12 +288,12 @@ bool Input::Blink()
 			{
 				if (keyIterator->second == "Blink")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	return result;
 }
 
 bool Input::Possess()
@@ -341,31 +346,29 @@ bool Input::MouseLock()
 
 float Input::TurnUp()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return -1.0f * GamePadHandler::GetRightStickYPosition();
-	}
-	else
+		result = -1.0f * GamePadHandler::GetRightStickYPosition();
+	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-		return -1.0f * (((InputHandler::getWindowSize().y / 2)) - poss.y) / 40.0f;
+		result = -1.0f * (((InputHandler::getWindowSize().y / 2)) - poss.y) / 40.0f;
 	}
-	return 0;
+	return result;
 }
 
 float Input::TurnRight()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::GetRightStickXPosition();
-	}
-	else
+		result = GamePadHandler::GetRightStickXPosition();
+
+	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-		return -1.0f * (((InputHandler::getWindowSize().x / 2.0f)) - poss.x) / 40.0f;
-		
+		result = -1.0f * (((InputHandler::getWindowSize().x / 2.0f)) - poss.x) / 40.0f;
 	}
-	return 0;
+	return result;
 }
 
 bool Input::isUsingGamepad()

@@ -15,14 +15,20 @@
 #include <map>
 #include <functional>
 
-
+struct CoopData
+{
+	int seed;
+	int localPlayerCharacter;
+	int remotePlayerCharacter;
+	RakNet::NetworkID remoteID;
+};
 
 namespace Network
 {
 
 	//Network constants
 	const unsigned short PEER_PORT = 60005;
-	const short MAX_CONNECTIONS = 2;
+	const short MAX_CONNECTIONS = 1;
 	const std::string LAN_IP = "255.255.255.255";
 	const double ADVERTISEMENT_FREQUENCE = 1 / 0.5;
 
@@ -44,18 +50,21 @@ namespace Network
 		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
 		static void addToLobbyOnReceiveMap(unsigned char key, std::function<void(unsigned char, RakNet::Packet*)> func);
 
-
+		int GenerateSeed();
+		int GetSeed() { return m_seed; }
 
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
 		void SetupServer();
+		void CloseServer(RakNet::SystemAddress ip);
+
 		void StartUpPeer();
 		void ShutdownPeer();
 
 		void AdvertiseHost(const char * additionalData = nullptr, size_t length = 0);
-		void SearchLANHost();
-		void SearchLANClient();
-		void Disconnect();
+		bool ConnectTo(RakNet::SystemAddress ip);
+
+		void Disconnect(RakNet::SystemAddress);
 
 		void ReadPackets();
 		void EndConnectionAttempt();
@@ -67,9 +76,13 @@ namespace Network
 		bool isConnected() { return m_isConnected; }
 		bool isGameRunning() { return m_isGameRunning; }
 
+		void setIsConnected(bool b) { this->m_isConnected = b; }
+
 		std::string GetNetworkStatistics();
 		std::string GetNID();
 		std::string GetNetworkInfo();
+		RakNet::SystemAddress GetMySysAdress();
+		RakNet::RakNetGUID GetMyGUID();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 
@@ -88,6 +101,8 @@ namespace Network
 		bool m_isRunning = false;
 		bool m_isConnected = false;
 		bool m_isGameRunning = false;
+
+		int m_seed = 0;
 
 		RakNet::RakPeerInterface * pPeer = 0;
 		RakNet::SystemAddress m_rIP;

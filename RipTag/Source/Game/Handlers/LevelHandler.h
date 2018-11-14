@@ -43,6 +43,10 @@ public:
 	void setPlayer(Player * playerPtr);
 
 	const std::vector<Enemy*>* getEnemies() const;
+
+	TriggerHandler * getTriggerHandler();
+
+	std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> getStartingPositions();
 private:
 
 	void _LoadPreFabs();

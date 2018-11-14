@@ -261,6 +261,8 @@ void Room::LoadRoomToMemory()
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
 			this->m_pointLights.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
+			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
+			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
 		delete tempLights.lights;
 
@@ -288,6 +290,7 @@ void Room::LoadRoomToMemory()
 		{
 			Enemy * e = new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+			e->SetPlayerPointer(m_playerInRoomPtr);
 			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;

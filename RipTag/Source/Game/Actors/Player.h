@@ -31,7 +31,7 @@ class PossessGuard;
 class TeleportAbility;
 
 //This value has to be changed to match the players 
-class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
+class Player : public Actor, public CameraHolder, public PhysicsComponent, public HUDComponent
 {
 private: //stuff for state machine
 	friend class PlayState;
@@ -40,11 +40,6 @@ private: //stuff for state machine
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
 	float m_currentDirection = 0.0; //[-1,1]
-
-	std::vector<std::string> m_sounds;
-
-	
-
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 4.0f;
@@ -59,10 +54,11 @@ private:
 	AbilityComponent ** m_abilityComponents1;
 	AbilityComponent ** m_abilityComponents2;
 	AbilityComponent ** m_activeSet;
+	unsigned int m_activeSetID = 1;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
-	Enemy* possessTarget;	
+	Enemy* possessTarget;
 
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -120,6 +116,10 @@ private:
 	float totVis = 0;
 	float maxVis = 0;
 	unsigned short m_currentEnemysVisable = 0;
+
+	bool m_MapPicked = false;
+	unsigned int m_rockCounter = 0;
+	const unsigned int MAXROCKS = 5;
 public:
 	//Magic number
 	static const int g_fullVisability = 4500;
@@ -166,7 +166,10 @@ public:
 
 	void setEnemyPositions(std::vector<Enemy *> enemys);
 
+	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
+	unsigned int getNrOfRocks();
+	bool GetMapPicked();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

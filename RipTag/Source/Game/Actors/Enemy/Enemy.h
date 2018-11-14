@@ -37,7 +37,15 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 
+
 private:
+	struct AudioVars
+	{
+		double timer = 0.0;
+		float lastCurve = 0.0f;
+		int lastIndex = 0;
+		bool hasPlayed = false;
+	};
 	struct KeyPressedEnemy
 	{
 		bool jump = false;
@@ -46,7 +54,7 @@ private:
 		bool unlockMouse = false;
 		bool interact = false;
 	};
-
+	AudioVars m_av;
 	KnockOutType m_knockOutType; 
 
 	VisibilityComponent * m_vc;
@@ -125,6 +133,8 @@ private:
 	 */
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
+
+	Player * m_PlayerPtr;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -194,6 +204,8 @@ public:
 	void EnableGuardPathPrint();
 
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+
+	void SetPlayerPointer(Player * player);
 private:
 
 	void _handleInput(double deltaTime);
@@ -217,5 +229,7 @@ private:
 	void _deActivateCrouch();
 
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
+
+	void _playFootsteps(double deltaTime);
 };
 

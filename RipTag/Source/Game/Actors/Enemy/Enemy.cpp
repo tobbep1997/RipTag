@@ -188,6 +188,11 @@ void Enemy::Update(double deltaTime)
 	
 	m_sinWaver += deltaTime;
 
+	if (m_PlayerPtr->GetMapPicked())
+	{
+		m_nodeFootPrintsEnabled = true;
+	}
+
 	if (!m_disabled)
 	{
 		//auto dir = p_camera->getDirection();
@@ -229,7 +234,7 @@ void Enemy::Update(double deltaTime)
 				//TODO: Fix when ray is corrected
 
 				float lenght;
-				RayCastListener::Ray * r = RipExtern::m_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 					direction.x,
 					direction.y,
 					direction.z,
@@ -664,6 +669,11 @@ void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
 	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
 }
 
+void Enemy::SetPlayerPointer(Player* player)
+{
+	m_PlayerPtr = player;
+}
+
 float Enemy::getVisCounter() const
 {
 	return m_visCounter;
@@ -828,6 +838,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 
 bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 {
+	_playFootsteps(deltaTime);
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
 		m_currentPathNode++;
@@ -865,6 +876,7 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 {
+	_playFootsteps(deltaTime);
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
 		delete nextNode;
@@ -892,6 +904,7 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 
 void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 {
+	_playFootsteps(deltaTime);
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
 		delete nextNode;
@@ -1009,5 +1022,31 @@ float Enemy::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 las
 	}
 
 	return 0;
+}
+
+void Enemy::_playFootsteps(double deltaTime)
+{
+	m_av.timer += deltaTime * m_moveSpeed; // This should be deltaTime * movementspeed
+
+	if (m_av.timer > DirectX::XM_PI)
+		m_av.timer = 0.0f;
+
+	float curve = sin(m_av.timer);
+
+	if ((!m_av.hasPlayed && curve > m_av.lastCurve) || (m_av.hasPlayed && curve < m_av.lastCurve))
+	{
+		int index = -1;
+		while (index == -1 || index == m_av.lastIndex)
+		{
+			index = rand() % (int)RipSounds::g_stepsStone.size();
+		}
+		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
+		
+		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
+		m_av.lastIndex = index;
+		m_av.hasPlayed = !m_av.hasPlayed;
+	}
+
+	m_av.lastCurve = curve;
 }
 

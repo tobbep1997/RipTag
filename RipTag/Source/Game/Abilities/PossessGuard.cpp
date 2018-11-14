@@ -31,7 +31,8 @@ void PossessGuard::Init()
 
 void PossessGuard::Update(double deltaTime)
 {
-	_logic(deltaTime);
+	if (this->isLocal)
+		_logic(deltaTime);
 }
 
 void PossessGuard::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -52,7 +53,7 @@ void PossessGuard::Draw()
 void PossessGuard::_logic(double deltaTime)
 {
 	m_useFunctionCalled = false;
-	if (Input::OnAbilityPressed())
+	if (((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbilityPressed())
 		this->Use();
 	Player* pPointer = static_cast<Player*>(p_owner);
 	/*if (Input::OnAbilityReleased())
@@ -102,7 +103,7 @@ void PossessGuard::_logic(double deltaTime)
 			break;
 		case PossessGuard::Possess:
 			
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
 
 			if (ray != nullptr)
 			{
