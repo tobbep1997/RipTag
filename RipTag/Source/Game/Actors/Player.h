@@ -40,11 +40,6 @@ private: //stuff for state machine
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
 	float m_currentDirection = 0.0; //[-1,1]
-
-	std::vector<std::string> m_sounds;
-
-
-
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
 	const float MOVE_SPEED = 10.0f;

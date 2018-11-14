@@ -3,117 +3,31 @@
 #include <DirectXCollision.h>
 
 
+std::vector<std::string> RipSounds::g_stepsStone;
+std::string				 RipSounds::g_leverActivate;
+std::string				 RipSounds::g_leverDeactivate;
+std::string				 RipSounds::g_pressurePlateActivate;
+std::string				 RipSounds::g_pressurePlateDeactivate;
+std::string				 RipSounds::g_torch;
+std::string				 RipSounds::g_windAndDrip;
+std::string				 RipSounds::g_phase;
+
 b3World * RipExtern::g_world = nullptr;
-ContactListener * RipExtern::m_contactListener;
-RayCastListener * RipExtern::m_rayListener;
+ContactListener * RipExtern::g_contactListener;
+RayCastListener * RipExtern::g_rayListener;
 
 bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
+	//USE LOAD NOT THIS
 	//we dont care about this yet
 	if (coopData)
 	{
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	//DO NOT USE, USE Load Function
-	//DO NOT USE, USE Load Function
-	//DO NOT USE, USE Load Function
-	//DO NOT USE, USE Load Function
-	//Do not remove pls <3
-	{
-	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
-	//	model->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
-	//	model->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	//	model->setScale({ 0.02, 0.02, 0.02, 1.0 });
-	//	model->setPosition(4.0, 4.3, 0.0);
-
-	//	//Number of states as argument, ok if bigger than actual states added
-	//	auto& stateMachine = model->getAnimatedModel()->InitStateMachine(2);
-
-	//	//Blend spaces - forward&backward
-	//	SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
-	//		"walk_forward", //state name
-	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
-	//		&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
-	//		-90.f, 90.f, //x-axis bounds
-	//		0.0f, 3.001f //y-axis bounds
-	//	);
-	//	SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
-	//		"walk_backward", //state name
-	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //x-axis driver
-	//		&m_playerManager->getLocalPlayer()->m_currentSpeed, //y-axis driver
-	//		-180.f, 180.f, //x-axis bounds
-	//		0.0f, 3.001f //y-axis bounds
-	//	);
-
-	//	//Add blendspace rows 
-	//	//forward
-	//	blend_fwd->AddRow(
-	//		0.0f, //y placement
-	//		{	//uses a vector initializer list for "convinience"
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -90.f }, //the clip to use and x-placement
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 0.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 90.f }
-	//		}
-	//	);
-	//	blend_fwd->AddRow(
-	//		3.1f, //y placement
-	//		{	//uses a vector initializer list for "convinience"
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_LEFT2_ANIMATION").get(), -90.f }, //the clip to use and x-placement
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_RIGHT2_ANIMATION").get(), 90.f }
-	//		}
-	//	);
-	//	//
-	//	blend_bwd->AddRow(
-	//		0.0f, //y placement
-	//		{	//uses a vector initializer list for "convinience"
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -180.f }, //the clip to use and x-placement
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), -90.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 0.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 90.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "IDLE_LONG_ANIMATION").get(), 180.f }
-	//		}
-	//	);
-	//	blend_bwd->AddRow(
-	//		3.1f, //y placement
-	//		{	//uses a vector initializer list for "convinience"
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), -180.f }, //the clip to use and x-placement
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BLEFT_ANIMATION").get(), -90.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get(), 0.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BRIGHT_ANIMATION").get(), 90.f },
-	//			{ Manager::g_animationManager.getAnimation("STATE", "WALK_BACKWARD_ANIMATION").get(), 180.f }
-	//		}
-	//	);
-
-	//	//Adding out state / transitions
-	//	SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
-	//	//Add transition condition
-	//	fwd_bwd_outstate.AddTransition(
-	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
-	//		-89.f, 89.f, //bound range for comparision
-	//		SM::COMPARISON_OUTSIDE_RANGE //comparision condition
-	//	);
-
-	//	SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
-	//	//Add transition condition
-	//	bwd_fwd_outstate.AddTransition(
-	//		&m_playerManager->getLocalPlayer()->m_currentDirection, //referenced variable for comparision
-	//		-90.f, 90.f, //bound range for comparision
-	//		SM::COMPARISON_INSIDE_RANGE //comparision condition
-	//	);
-
-	//	//stateMachine->SetState("walk_forward");
-	//	stateMachine->SetModel(model->getAnimatedModel());
-	//	stateMachine->SetState("walk_forward");
-
-	}
-	//DO NOT USE, USE Load Function
-	//DO NOT USE, USE Load Function
-	//DO NOT USE, USE Load Function
-	//DO NOT USE, USE Load Function
+	
 }
 
 PlayState::~PlayState()
@@ -126,12 +40,11 @@ PlayState::~PlayState()
 	delete m_playerManager;
 
 
-	delete triggerHandler;
+	//delete triggerHandler;
 
 	delete m_contactListener;
 	delete m_rayListener;
 
-	AudioEngine::UnLoadSoundEffect(name);
 }
 
 void PlayState::Update(double deltaTime)
@@ -161,9 +74,6 @@ void PlayState::Update(double deltaTime)
 	if (InputHandler::getShowCursor() != FALSE)
 		InputHandler::setShowCursor(FALSE);	   
 
-	
-#if _DEBUG
-#endif
 	if (GamePadHandler::IsSelectPressed())
 	{
 		Input::SetActivateGamepad(Input::isUsingGamepad());
@@ -220,8 +130,10 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
+
+#ifdef _DEBUG
 	//DrawWorldCollisionboxes();
-	
+#endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
 
@@ -287,8 +199,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 							
 							float occ = 1.0f;
-							/*
-							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+							
+							RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							if (ray)
 							{
 								for (auto & c : ray->GetRayContacts())
@@ -303,7 +215,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 										occ *= 0.50f;
 									}
 								}
-							}*/
+							}
 
 							float volume = 0;
 							c->getVolume(&volume);
@@ -387,6 +299,7 @@ void PlayState::thread(std::string s)
 	Manager::g_meshManager.loadStaticMesh(s);
 }
 
+#ifdef _DEBUG
 #include "EngineSource\Structs.h"
 #include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
 
@@ -527,9 +440,12 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	for (auto & d : _drawables)
 		d->DrawWireFrame();
 }
+#endif
 
 void PlayState::unLoad()
 {
+	std::cout << "PlayState unLoad" << std::endl;
+
 	Manager::g_textureManager.UnloadTexture("KOMBIN");
 	Manager::g_textureManager.UnloadTexture("SPHERE");
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
@@ -537,11 +453,43 @@ void PlayState::unLoad()
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_meshManager.UnloadAllMeshes();
 
-	std::cout << "PlayState unLoad" << std::endl;
-
+	for (auto & s : RipSounds::g_stepsStone)
+		AudioEngine::UnLoadSoundEffect(s);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_windAndDrip);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_leverActivate);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_leverDeactivate);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateActivate);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 }
 
 void PlayState::Load()
+{
+	std::cout << "PlayState Load" << std::endl;
+
+	//Initially Clear network maps
+	if (isCoop)
+	{
+		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
+		Network::Multiplayer::LocalPlayerOnSendMap.clear();
+		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+	}
+
+	m_youlost = false;
+	Input::ResetMouse();
+	CameraHandler::Instance();
+	
+	_loadSound();
+	_loadTextures();
+	_loadPhysics();
+	_loadMeshes();
+	_loadPlayers();
+	_loadNetwork();
+
+	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
+}
+
+void PlayState::_loadTextures()
 {
 	Manager::g_textureManager.loadTextures("KOMBIN");
 	Manager::g_textureManager.loadTextures("SPHERE");
@@ -552,40 +500,49 @@ void PlayState::Load()
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
+	Manager::g_textureManager.loadTextures("STATE");
+}
 
-	//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
-	Network::Multiplayer::LocalPlayerOnSendMap.clear();
-	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
-
-	m_youlost = false;
+void PlayState::_loadPhysics()
+{
 	RipExtern::g_world = &m_world;
 	m_contactListener = new ContactListener();
-	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_contactListener = m_contactListener;
 	RipExtern::g_world->SetContactListener(m_contactListener);
 	m_rayListener = new RayCastListener();
-	RipExtern::m_rayListener = m_rayListener;
-	CameraHandler::Instance();
+	RipExtern::g_rayListener = m_rayListener;
+	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
+	// triggerHandler = new TriggerHandler();
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+}
+
+void PlayState::_loadMeshes()
+{
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
 	Manager::g_meshManager.loadDynamicMesh("STATE");
-	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
+
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
-
-	//Load assets
-	{
-		//:c *queue sad music*
-	}
-
 	future1.get();
+}
 
+void PlayState::_loadPlayers()
+{
 	m_playerManager = new PlayerManager(&this->m_world);
 	m_playerManager->CreateLocalPlayer();
-	
+
 	m_levelHandler = new LevelHandler();
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+}
+
+void PlayState::_loadNetwork()
+{
 
 	if (isCoop)
 	{
@@ -618,34 +575,40 @@ void PlayState::Load()
 		m_playerManager->isCoop(false);
 	}
 
-	triggerHandler = new TriggerHandler();
-	if (isCoop)
-		triggerHandler->RegisterThisInstanceToNetwork();
+	triggerHandler = m_levelHandler->getTriggerHandler();
 
-	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	/*triggerHandler->LoadTriggerPairMap();
+
+	if (isCoop)
+		triggerHandler->RegisterThisInstanceToNetwork();*/
+
+}
+
+void PlayState::_loadSound()
+{
+	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", 5.0f, 10000.0f, true);
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
+	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
+	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
+	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
+	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
+	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
+	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
+
+
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
 	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
 
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &caveSoundAt2, AudioEngine::Other);
 
 	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
 
-	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
-
-	
-
-
-
-	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
-
-	Input::ResetMouse();
-
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
-	m_firstRun = false;
-
-	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
-
-	std::cout << "PlayState Load" << std::endl;
+	AudioEngine::CreateReverb(reverbAt, 30.0f, 50.0f);
 }

@@ -5,6 +5,8 @@
 #include <vector>
 
 
+class StaticMesh;
+
 namespace Shaders
 {
 	class ShaderManager;
@@ -17,6 +19,8 @@ class PointLight;
 class MeshManager;
 class TextureManager;
 class AnimationHandler;
+
+
 
 namespace DX {
 	extern ID3D11Device*			g_device;
@@ -33,6 +37,30 @@ namespace DX {
 	extern std::vector<VisibilityComponent*> g_visibilityComponentQueue;
 
 	extern std::vector<Quad*> g_2DQueue;
+
+
+	namespace INSTANCING
+	{
+		struct OBJECT
+		{
+			DirectX::XMFLOAT4X4A worldMatrix;
+		};
+		struct GROUP
+		{
+			std::vector<OBJECT> attribs;
+			StaticMesh* staticMesh;
+			std::string textureName;
+		};
+		struct GROUP_INDEXED
+		{
+			std::vector<OBJECT> attribs;
+			Drawable* drawable;
+			std::vector<long> index;
+		};
+		extern std::vector<GROUP> g_instanceGroups;
+		extern void submitToInstance(Drawable* drawable, std::vector<GROUP>& queue);
+
+	}
 
 }
 namespace Manager

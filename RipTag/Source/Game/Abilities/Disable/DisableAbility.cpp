@@ -187,7 +187,7 @@ void DisableAbility::_inStateMoving(double dt)
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
 	accumulatedTime += dt;
 
-	for (auto contact : RipExtern::m_contactListener->GetBeginContacts())
+	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
 		{

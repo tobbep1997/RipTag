@@ -101,6 +101,7 @@ public:
 
 	//returns AnimatedModel ptr if valid
 	Animation::AnimatedModel* getAnimatedModel();
+	StaticMesh* getStaticMesh();
 
 	virtual void setTextureTileMult(float u, float v);
 	const DirectX::XMFLOAT2A & getTextureTileMult () const;
@@ -126,6 +127,8 @@ public:
 
 	virtual void SetTransparant(const bool & bo);
 	virtual bool GetTransparant();
+
+	std::string getTextureName() const;
 
 private:
 	virtual void _setStaticBuffer();

@@ -121,6 +121,12 @@ const std::vector<Enemy*>* LevelHandler::getEnemies() const
 	return m_rooms[m_activeRoom]->getEnemies();
 }
 
+TriggerHandler * LevelHandler::getTriggerHandler()
+{
+	return m_rooms[m_activeRoom]->getTriggerHandler();
+}
+
+
 std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
 {
 	return std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4>(this->m_rooms[0]->getPlayer1StartPos(), this->m_rooms[0]->getPlayer2StartPos());

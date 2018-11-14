@@ -21,6 +21,39 @@ std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
+
+std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceGroups;
+void DX::INSTANCING::submitToInstance(Drawable* drawable, std::vector<DX::INSTANCING::GROUP>& queue)
+{
+	using namespace DirectX;
+	using namespace DX::INSTANCING;
+	/*
+	 * Copyright chefen (c) 2018
+	 */
+	auto exisitingEntry = std::find_if(queue.begin(), queue.end(), [&](const GROUP& item) {
+		return drawable->getStaticMesh() == item.staticMesh && drawable->getTextureName() == item.textureName;
+	});
+
+	OBJECT attribute;
+	
+	attribute.worldMatrix = drawable->getWorldmatrix();
+	
+
+	if (exisitingEntry == queue.end())
+	{
+		GROUP newGroup;
+
+		newGroup.attribs.push_back(attribute);
+		newGroup.staticMesh = drawable->getStaticMesh();
+		newGroup.textureName = drawable->getTextureName();
+		queue.push_back(newGroup);
+	}
+	else
+	{
+		exisitingEntry->attribs.push_back(attribute);
+	}
+
+}
  
 
 void DX::SafeRelease(IUnknown * unknown)

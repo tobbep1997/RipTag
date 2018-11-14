@@ -19,7 +19,7 @@ private:
 	std::vector<Quad*> m_buttons;
 	unsigned int m_currentButton;
 	Quad * m_background = nullptr;
-
+	FMOD::Channel * m_music;
 	bool m_playstatePressed = false;
 
 	Circle * c;
@@ -31,6 +31,8 @@ public:
 	void Update(double deltaTime) override;
 
 	void Draw() override;
+
+	void StopMusic();
 
 private:
 	void _initButtons();

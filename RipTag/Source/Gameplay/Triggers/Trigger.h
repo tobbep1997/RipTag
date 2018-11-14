@@ -22,7 +22,7 @@ public:
 	int getUniqueID() { return this->m_uniqueID; };
 	bool getIsTriggerable() { return this->m_isTrigger; };
 	const bool & Triggered() const;
-	void setTriggerState(bool state);
+	void setTriggerState(bool state, bool isLocal = true);
 	bool getTriggerState() { return m_triggerState; }
 
 	void BeginPlay() override;
@@ -31,5 +31,7 @@ public:
 	void Release();
 
 	void SendOverNetwork();
+private:
+	virtual void _playSound(AudioEngine::SoundType st = AudioEngine::Player) = 0;
 };
 

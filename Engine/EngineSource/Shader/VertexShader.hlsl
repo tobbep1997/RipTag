@@ -1,9 +1,5 @@
 #include "Shaders/StaticConstantBuffers.hlsli"
 
-cbuffer OBJECT_BUFFER : register(b3)
-{
-	float4x4 worldMatrix;
-};
 
 struct VS_INPUT
 {
@@ -11,6 +7,7 @@ struct VS_INPUT
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float2 uv : UV;
+    float4x4 worldMatrix : WORLD;
 };
 
 struct VS_OUTPUT
@@ -28,10 +25,10 @@ VS_OUTPUT main(VS_INPUT input)
 	VS_OUTPUT output;
     input.pos.w = 1.0f;
 
-	output.pos = mul(input.pos, mul(worldMatrix, viewProjection));
-    output.worldPos = mul(input.pos, worldMatrix);
-    output.normal = normalize(mul(input.normal, worldMatrix));
-    float3 tangent = normalize(mul(input.tangent, worldMatrix).xyz);
+    output.pos = mul(input.pos, mul(input.worldMatrix, viewProjection));
+    output.worldPos = mul(input.pos, input.worldMatrix);
+    output.normal = normalize(mul(input.normal, input.worldMatrix));
+    float3 tangent = normalize(mul(input.tangent, input.worldMatrix).xyz);
 	tangent = normalize(tangent - dot(tangent, output.normal.xyz)*output.normal.xyz).xyz;
 	float3 bitangent = cross(output.normal.xyz, tangent);
 	float3x3 TBN = float3x3(tangent, bitangent, output.normal.xyz);

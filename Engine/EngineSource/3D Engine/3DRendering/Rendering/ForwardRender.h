@@ -148,6 +148,8 @@ public:
 
 	void Release();
 private:
+
+
 	void _GuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);

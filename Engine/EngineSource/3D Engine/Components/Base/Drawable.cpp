@@ -103,6 +103,11 @@ bool Drawable::GetTransparant()
 	return m_transparant;
 }
 
+std::string Drawable::getTextureName() const
+{
+	return std::string(this->p_texture->getName().begin(), this->p_texture->getName().end());
+}
+
 
 void Drawable::p_createBuffer()
 {
@@ -182,6 +187,7 @@ void Drawable::Draw()
 		case Static:
 			if(m_staticMesh)
 				DX::g_geometryQueue.push_back(this);
+				DX::INSTANCING::submitToInstance(this, DX::INSTANCING::g_instanceGroups);
 			break;
 		case Dynamic:
 			if (m_dynamicMesh)
@@ -240,7 +246,10 @@ UINT Drawable::getVertexSize()
 
 ID3D11Buffer * Drawable::getBuffer()
 {
-	return p_vertexBuffer;
+	if (m_dynamicMesh)
+		return p_vertexBuffer;
+	else
+		return m_staticMesh->getBuffer();
 }
 
 ObjectType Drawable::getObjectType()
@@ -261,6 +270,11 @@ void Drawable::setEntityType(EntityType en)
 Animation::AnimatedModel* Drawable::getAnimatedModel()
 {
 	return m_anim;
+}
+
+StaticMesh* Drawable::getStaticMesh()
+{
+	return this->m_staticMesh;
 }
 
 void Drawable::setTextureTileMult(float u, float v)
@@ -285,7 +299,6 @@ void Drawable::setModel(StaticMesh * staticMesh)
 	setVertexShader(L"../Engine/EngineSource/Shader/VertexShader.hlsl");
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(staticMesh);
-	p_createBuffer();
 }
 
 void Drawable::setModel(DynamicMesh * dynamicMesh)
