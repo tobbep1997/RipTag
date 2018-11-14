@@ -182,6 +182,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Item\Rock.cpp" />
     <ClCompile Include="Source\Game\Item\Map.cpp" />
     <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
     <ClCompile Include="Source\Game\Loading Screen\LoadingScreen.cpp" />
@@ -527,6 +528,7 @@
     <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Item\Rock.h" />
     <ClInclude Include="Source\Game\Item\Map.h" />
     <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
     <ClInclude Include="Source\Game\States\LoseState.h" />
