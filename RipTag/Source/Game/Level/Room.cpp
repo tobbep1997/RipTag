@@ -118,7 +118,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 	this->m_worldPtr = worldPtr;
 
 	m_grid = nullptr;
-	m_pathfindingGrid = new Grid();
+	m_pathfindingGrid = DBG_NEW Grid();
 }
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr) : HUDComponent()
 {
@@ -286,7 +286,7 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			Enemy * e = new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			this->m_roomGuards.push_back(e);
 		}
@@ -317,7 +317,7 @@ void Room::LoadRoomToMemory()
 		//getPath();
 
 
-		BaseActor * temp = new BaseActor();
+		BaseActor * temp = DBG_NEW BaseActor();
 		temp->Init(*m_worldPtr, e_staticBody, 1, 1, 1);
 		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
 		temp->setPosition(0, 0, 0);
@@ -326,7 +326,7 @@ void Room::LoadRoomToMemory()
 		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 
 
-		CollisionBoxes = new BaseActor();
+		CollisionBoxes = DBG_NEW BaseActor();
 		ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
 		
@@ -347,7 +347,7 @@ void Room::LoadRoomToMemory()
 		
 		m_roomLoaded = true;	
 	}
-	m_enemyHandler = new EnemyHandler();
+	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
 	for (auto light : m_pointLights)

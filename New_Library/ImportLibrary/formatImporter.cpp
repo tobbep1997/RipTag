@@ -120,7 +120,7 @@ namespace ImporterLibrary
 		{
 			customPropFile.read((char*)&header.nrOfItems, sizeof(int));
 			toReturn.nrOfItems = header.nrOfItems;
-			toReturn.props = new PropItem[toReturn.nrOfItems];
+			toReturn.props = DBG_NEW PropItem[toReturn.nrOfItems];
 
 			//CollisionBox* box = new CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i nee
 			//customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox));
@@ -167,10 +167,10 @@ namespace ImporterLibrary
 
 			meshToReturn.mesh_nrOfVertices = meshname.mesh_nrOfVertices;
 
-			Vertex* vertices = new Vertex[meshname.mesh_nrOfVertices];
+			Vertex* vertices = DBG_NEW Vertex[meshname.mesh_nrOfVertices];
 			customMeshFile.read((char*)vertices, meshname.mesh_nrOfVertices * sizeof(Vertex));
 
-			meshToReturn.mesh_vertices = new VertexFromFile[meshname.mesh_nrOfVertices];
+			meshToReturn.mesh_vertices = DBG_NEW VertexFromFile[meshname.mesh_nrOfVertices];
 
 			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
@@ -233,10 +233,10 @@ namespace ImporterLibrary
 
 			meshToReturn.mesh_nrOfVertices = meshname.mesh_nrOfVertices;
 
-			AnimatedVertex* vertices = new AnimatedVertex[meshname.mesh_nrOfVertices];
+			AnimatedVertex* vertices = DBG_NEW AnimatedVertex[meshname.mesh_nrOfVertices];
 			customMeshFile.read((char*)vertices, meshname.mesh_nrOfVertices * sizeof(AnimatedVertex));
 
-			meshToReturn.mesh_vertices = new AnimatedVertexFromFile[meshname.mesh_nrOfVertices];
+			meshToReturn.mesh_vertices = DBG_NEW AnimatedVertexFromFile[meshname.mesh_nrOfVertices];
 	
 			for (unsigned int i = 0; i < meshname.mesh_nrOfVertices; i++)
 			{
@@ -315,7 +315,7 @@ namespace ImporterLibrary
 			uint32_t numberOfKeys = loadInt32(customAnimationFile);
 			animation_to_return.nr_of_keyframes = numberOfKeys;
 
-			DecomposedTransform* keyframes = new DecomposedTransform[numberOfKeys * jointCount];
+			DecomposedTransform* keyframes = DBG_NEW DecomposedTransform[numberOfKeys * jointCount];
 
 			//Init keyframes
 			for (unsigned int i = 0; i < animation_to_return.nr_of_keyframes * jointCount; i++)
@@ -456,7 +456,7 @@ namespace ImporterLibrary
 			
 			customGuardFile.read((char*)&guardPos.nrOf, sizeof(int)); // what is happening here?!! i just copied this code
 
-			guardPos.startingPositions = new StartingPos[guardPos.nrOf];
+			guardPos.startingPositions = DBG_NEW StartingPos[guardPos.nrOf];
 			customGuardFile.read((char*)guardPos.startingPositions, sizeof(StartingPos) * guardPos.nrOf); // what is happening here?!! i just copied this code
 
 			
@@ -472,7 +472,7 @@ namespace ImporterLibrary
 	}
 	GridStruct * CustomFileLoader::readGridFile(const std::string & fileName)
 	{
-		GridStruct * gridPos = new GridStruct();
+		GridStruct * gridPos = DBG_NEW GridStruct();
 		std::string newFileName = "../Assets/";
 		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
 		std::ifstream customGridFile(newFileName, std::ifstream::binary);
@@ -482,7 +482,7 @@ namespace ImporterLibrary
 			customGridFile.read((char*)&gridPos->maxX, sizeof(int));
 			customGridFile.read((char*)&gridPos->maxY, sizeof(int));
 			customGridFile.read((char*)&gridPos->nrOf, sizeof(int));
-			gridPos->gridPoints = new GridPointStruct[gridPos->nrOf];
+			gridPos->gridPoints = DBG_NEW GridPointStruct[gridPos->nrOf];
 			
 			for (int i = 0; i < gridPos->nrOf; i++)
 			{
@@ -492,7 +492,7 @@ namespace ImporterLibrary
 			customGridFile.close();
 		}
 		else
-			return new GridStruct();
+			return DBG_NEW GridStruct();
 		return gridPos;
 	}
 }
