@@ -163,10 +163,14 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 
 void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 {
-	if ((Ability)data->ability != Ability::NONE)
+	if ((Ability)data->ability != Ability::NONE && !data->isCommonUpadate)
 	{
 		m_currentAbility = (Ability)data->ability;
 		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
+	}
+	else if (data->isCommonUpadate)
+	{
+		m_abilityComponents1[data->ability]->UpdateFromNetwork(data);
 	}
 }
 

@@ -145,6 +145,7 @@ public:
 	//Networking
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
+	void SendAbilityUpdates();
 	void SendOnAnimationUpdate(double dt);
 	void SendOnWin();
 	void RegisterThisInstanceToNetwork();

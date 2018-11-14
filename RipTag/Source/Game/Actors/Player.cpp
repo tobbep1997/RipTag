@@ -473,7 +473,9 @@ void Player::SendOnAbilityUsed()
 	packet.timeStamp = RakNet::GetTime();
 	packet.m_id = ID_PLAYER_ABILITY;
 	packet.ability = (unsigned int)NONE;
+	packet.isCommonUpadate = false;
 
+	
 	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
 	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
 	//VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
@@ -501,6 +503,39 @@ void Player::SendOnAbilityUsed()
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void Player::SendAbilityUpdates()
+{
+	using namespace Network;
+	ENTITYABILITYPACKET packet;
+
+	//Same for every ability packet
+	packet.id = ID_TIMESTAMP;
+	packet.timeStamp = RakNet::GetTime();
+	packet.m_id = ID_PLAYER_ABILITY;
+	packet.ability = (unsigned int)NONE;
+	packet.isCommonUpadate = true;
+
+	if (m_activeSetID == 1)
+	{
+		TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[Ability::TELEPORT]);
+		DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE]);
+
+		packet.ability = (unsigned int)TELEPORT;
+		packet.start = tp_ptr->getStart();
+		packet.velocity = tp_ptr->getVelocity();
+		packet.state = tp_ptr->getState();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+
+		packet.ability = (unsigned int)DISABLE;
+		packet.start = dis_ptr->getStart();
+		packet.velocity = dis_ptr->getVelocity();
+		packet.state = dis_ptr->getState();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::SendOnAnimationUpdate(double dt)
