@@ -38,12 +38,21 @@ void EnemyHandler::Update(float deltaTime)
 		switch (state)
 		{
 		case Investigating_Sight:
-			if (timer > 0.5f)
+			if (timer > 0.3f)
+			{
+				timer = 0.0f;
 				_investigating(currentGuard);
+			}
 			break;
 		case Investigating_Sound:
-			if (timer > 0.5f)
+			if (timer > 0.3f)
+			{
+				timer = 0.0f;
 				_investigateSound(currentGuard);
+			}
+			break;
+		case High_Alert:
+			_highAlert(currentGuard, deltaTime);
 			break;
 		case Patrolling:
 			_patrolling(currentGuard);
@@ -111,7 +120,7 @@ void EnemyHandler::_investigating(Enemy * guard)
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		guard->setEnemeyState(Patrolling);
+		guard->setEnemeyState(High_Alert);
 	}
 }
 
@@ -141,7 +150,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		guard->setEnemeyState(Patrolling);
+		guard->setEnemeyState(High_Alert);
 	}
 }
 
@@ -151,4 +160,16 @@ void EnemyHandler::_patrolling(Enemy * guard)
 		_alert(guard);
 	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
 		_alert(guard, true);
+}
+
+void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
+{
+	guard->AddHighAlertTimer(dt);
+	std::cout << yellow << "HighAlert" << white << std::endl;
+	if (guard->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
+	{
+		guard->SetHightAlertTimer(0.f);
+		guard->setEnemeyState(Patrolling);
+		std::cout << red << "highAlertEnded" << white << std::endl;
+	}
 }

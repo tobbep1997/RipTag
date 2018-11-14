@@ -122,7 +122,7 @@ private:
 	const unsigned int MAXROCKS = 5;
 public:
 	//Magic number
-	static const int g_fullVisability = 4500;
+	static const int g_fullVisability = 1300;
 	bool hasWon = false;
 	bool gameIsWon = false;
 	bool unlockMouse = false;

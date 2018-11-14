@@ -13,6 +13,7 @@ enum EnemyState
 {
 	Investigating_Sight,
 	Investigating_Sound,
+	High_Alert,
 	Patrolling
 };
 
@@ -94,12 +95,9 @@ private:
 	float m_crouchHeight;
 	float m_crouchAnimStartPos;
 
-	bool m_alert = false;
 	int m_currentPathNode = 0;
-	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
-	bool m_isReversed = false;
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
@@ -120,6 +118,7 @@ private:
 	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
 	DirectX::BoundingFrustum * m_boundingFrustum;
 
+	bool m_isReversed = false;
 	const int m_maxDrawOutNode = 10;
 	std::vector<Drawable*> m_pathNodes;
 	float m_sinWaver = 0;
@@ -135,6 +134,8 @@ private:
 	float m_lengthToPlayerSpan = 8;
 
 	Player * m_PlayerPtr;
+
+	float m_HighAlertTime = 0.f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -180,8 +181,8 @@ public:
 
 	void SetPathVector(std::vector<Node*>  path);
 	Node * GetCurrentPathNode() const;
-
 	void SetAlertVector(std::vector<Node*> alertPath);
+
 	void setReleased(bool released); 
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;
@@ -206,6 +207,10 @@ public:
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+
+	void AddHighAlertTimer(double deltaTime);
+	float GetHighAlertTimer() const;
+	void SetHightAlertTimer(const float & time);
 private:
 
 	void _handleInput(double deltaTime);
@@ -221,7 +226,6 @@ private:
 	void _cameraPlacement(double deltaTime);
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
-	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);
 	void _RotateGuard(float x, float y, float angle, float deltaTime);
 
 	void _CheckPlayer(double deltaTime);

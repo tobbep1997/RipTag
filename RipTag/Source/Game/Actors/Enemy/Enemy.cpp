@@ -215,7 +215,6 @@ void Enemy::Update(double deltaTime)
 		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
 
-
 		DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
 		m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
 
@@ -262,15 +261,12 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			_TempGuardPath(true, 0.001f);
-			if (m_alert)
+			if (m_alertPath.size() > 0 )
 			{
-				//_MoveToAlert(m_alertPath.at(m_currentAlertPathNode), deltaTime);
-				_MoveToAlert(m_alertPath.at(0), deltaTime);
-			}
-			else if (m_alertPath.size() > 0)
-			{
-				_MoveBackToPatrolRoute(m_alertPath.at(0), deltaTime);
+				if (m_state != High_Alert)
+				{
+					_MoveToAlert(m_alertPath.at(0), deltaTime);
+				}
 			}
 			else
 			{
@@ -313,7 +309,6 @@ void Enemy::Update(double deltaTime)
 							temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
 						}
 					}
-					
 					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
 				}
 			}
@@ -353,7 +348,6 @@ void Enemy::Update(double deltaTime)
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
-	// Why every frame (?)
 	getBody()->SetType(e_dynamicBody);
 }
 
@@ -523,6 +517,7 @@ Enemy* Enemy::validate()
 {
 	return this;
 }
+
 void Enemy::setPossessor(Actor* possessor, float maxDuration, float delay)
 {
 	m_possessor = possessor;
@@ -565,14 +560,8 @@ void Enemy::SetAlertVector(std::vector<Node*> alertPath)
 		for (int i = 0; i < m_alertPath.size(); i++)
 			delete m_alertPath.at(i);
 		m_alertPath.clear();
-		m_currentAlertPathNode = 0;
-		m_alert = false;
 	}
 	m_alertPath = alertPath;
-	if (m_alertPath.size() > 0)
-	{
-		m_alert = true;
-	}
 }
 
 size_t Enemy::GetAlertPathSize() const
@@ -672,6 +661,21 @@ void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
 void Enemy::SetPlayerPointer(Player* player)
 {
 	m_PlayerPtr = player;
+}
+
+void Enemy::AddHighAlertTimer(double deltaTime)
+{
+	m_HighAlertTime += deltaTime;
+}
+
+float Enemy::GetHighAlertTimer() const
+{
+	return m_HighAlertTime;
+}
+
+void Enemy::SetHightAlertTimer(const float& time)
+{
+	m_HighAlertTime = time;
 }
 
 float Enemy::getVisCounter() const
@@ -881,9 +885,6 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 	{
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
-
-		if (m_alertPath.size() == 0)
-			m_alert = false;
 	}
 	else
 	{
@@ -902,7 +903,7 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 	return false;
 }
 
-void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
+/*void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 {
 	_playFootsteps(deltaTime);
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
@@ -924,7 +925,7 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
-}
+}*/
 
 void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
 {
