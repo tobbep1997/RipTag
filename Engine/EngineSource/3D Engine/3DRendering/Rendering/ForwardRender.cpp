@@ -99,7 +99,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
-	_drawInstanced(&camera, true);
+	DrawInstanced(&camera, true);
 	//UINT32 vertexSize = sizeof(StaticVertex);
 	//UINT32 offset = 0;
 	//
@@ -159,7 +159,7 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	
-	_drawInstanced(&camera, false);
+	DrawInstanced(&camera, false);
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
@@ -226,24 +226,22 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
-	//_mapCameraBuffer(camera);
 	this->PrePass(camera);
 
 
 
 
-	//_simpleLightCulling(camera);
+	_simpleLightCulling(camera);
 
-	/*this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
-
-	this->m_shadowMap->ShadowPass(m_animationBuffer);
-
+	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
+	this->m_shadowMap->ShadowPass(this);
 	this->m_shadowMap->SetSamplerAndShaderResources();
-	_visabilityPass();
-	_mapCameraBuffer(camera);*/
+
+
+	//_visabilityPass();
 	this->GeometryPass(camera);
-	this->AnimatedGeometryPass(camera);
+	//this->AnimatedGeometryPass(camera);
 	//this->_OutliningPass(camera);
 
 
@@ -308,11 +306,11 @@ void ForwardRender::Release()
 	delete m_animationBuffer;
 }
 
-void ForwardRender::_drawInstanced(Camera* camera, const bool& bindTextures)
+void ForwardRender::DrawInstanced(Camera* camera, const bool& bindTextures)
 {
 	using namespace DX::INSTANCING;
-
-	_mapCameraBuffer(*camera);
+	if (camera)
+		_mapCameraBuffer(*camera);
 
 
 	size_t instanceGroupSize = g_instanceGroups.size();
@@ -896,10 +894,15 @@ void ForwardRender::_createShadersInput()
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		//World matrix
 		{ "WORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		{ "WORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		{ "WORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{ "WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 }
+		{ "WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		//Attributes
+		{ "COLOR" , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 64, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "UVMULT", 0, DXGI_FORMAT_R32G32_FLOAT, 1,	80, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "INFO" , 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, 88, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 	};
 	D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -916,7 +919,7 @@ void ForwardRender::_createShadersInput()
 	};
 
 
-	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl", "main", inputDesc, 8);
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl", "main", inputDesc, 11);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
 

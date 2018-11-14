@@ -37,6 +37,9 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable, std::vector<DX::INSTAN
 	OBJECT attribute;
 	
 	attribute.worldMatrix = drawable->getWorldmatrix();
+	attribute.objectColor = drawable->getColor();
+	attribute.textureTileMult = drawable->getTextureTileMult();
+	attribute.usingTexture.x = drawable->isTextureAssigned();
 	
 
 	if (exisitingEntry == queue.end())

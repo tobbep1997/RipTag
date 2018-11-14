@@ -41,9 +41,13 @@ namespace DX {
 
 	namespace INSTANCING
 	{
+		
 		struct OBJECT
 		{
 			DirectX::XMFLOAT4X4A worldMatrix;
+			DirectX::XMFLOAT4A objectColor;
+			DirectX::XMFLOAT2A textureTileMult;
+			DirectX::XMINT4 usingTexture;
 		};
 		struct GROUP
 		{

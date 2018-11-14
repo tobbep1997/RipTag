@@ -24,7 +24,7 @@ void ShadowMap::Init(UINT width, UINT height)
 
 
 
-void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
+void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 {
 	this->Clear();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -37,7 +37,7 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	m_runned = 0;
 
-	DirectX::BoundingSphere bs;
+	//DirectX::BoundingSphere bs;
 	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
 	{
 		if (!DX::g_lights[i]->getUpdate())
@@ -51,56 +51,9 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
 		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
-
-		bs = DirectX::BoundingSphere(DirectX::XMFLOAT3(DX::g_lights[i]->getPosition().x, DX::g_lights[i]->getPosition().y, DX::g_lights[i]->getPosition().z), DX::g_lights[i]->getSides().at(0)->getFarPlane() / 2.0f);
-		DirectX::XMMATRIX world = DirectX::XMMatrixTranslation(DX::g_lights[i]->getPosition().x, DX::g_lights[i]->getPosition().y, DX::g_lights[i]->getPosition().z);
-		bs.Transform(bs, world);
-
-		
-
-		for (unsigned int j = 0; j < DX::g_geometryQueue.size(); j++)
-		{
-			UINT32 vertexSize = sizeof(StaticVertex);
-			UINT32 offset = 0;
-
-			if (DX::g_geometryQueue[j]->getBoundingBox())
-			{
-				DirectX::BoundingBox * bb = DX::g_geometryQueue[j]->getBoundingBox();
-				bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[j]->getWorldmatrix()));
-				if (!bs.Intersects(*bb))
-					continue;
-			}
-
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[j]->getBuffer();
-
-			_mapObjectBuffer(DX::g_geometryQueue[j]);
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_geometryQueue[j]->getVertexSize(), 0);
-		}
-
-
+		renderingManager->DrawInstanced(nullptr);
 	}
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
-
-
-
-	//if (animBuffer && !DX::g_animatedGeometryQueue.empty())
-	//{
-	//	UINT32 vertexSize = sizeof(DynamicVertex);
-	//	UINT32 offset = 0;
-	//	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
-	//	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl"), nullptr, 0);
-	//	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
-	//	{
-	//		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
-
-	//		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
-
-	//		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-	//		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
-	//		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-	//	}
-	//}
 }
 
 void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
@@ -138,10 +91,7 @@ void ShadowMap::SetSamplerAndShaderResources()
 				DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
 				
 		}
-			//DX::g_deviceContext->UpdateSubresource(m_shadowDepthBufferTex, (i * 6), NULL, DX::g_lights[i]->getTEX(), 0, 0);
-	}
-	//DX::g_deviceContext->Map()
-	
+	}	
 
 	DX::g_deviceContext->PSSetShaderResources(0, 1, &m_shadowShaderResourceView);
 }

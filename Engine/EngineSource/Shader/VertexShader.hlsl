@@ -7,7 +7,12 @@ struct VS_INPUT
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float2 uv : UV;
+
     float4x4 worldMatrix : WORLD;
+
+	float4 color : COLOR;
+	float2 uvMult :UVMULT;
+	int4 info : INFO;
 };
 
 struct VS_OUTPUT
@@ -17,6 +22,9 @@ struct VS_OUTPUT
 	float4 normal : NORMAL;
     float3x3 TBN : TBN;
     float2 uv : UV;
+
+	float4 color : COLOR;
+	int4 info : INFO;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -34,6 +42,9 @@ VS_OUTPUT main(VS_INPUT input)
 	float3x3 TBN = float3x3(tangent, bitangent, output.normal.xyz);
 	output.TBN = TBN;
 
-    output.uv = input.uv;
+	output.color = input.color;
+	output.info = input.info;
+
+    output.uv = input.uv * input.uvMult;
 	return output;
 }
