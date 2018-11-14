@@ -411,7 +411,6 @@ void Room::Update(float deltaTime)
 	}
 	triggerHandler->Update(deltaTime);
 
-	// Move to level handler (?)
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
@@ -435,7 +434,6 @@ void Room::Update(float deltaTime)
 	{
 		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
 	}
-	
 }
 
 void Room::SetActive(bool state)
