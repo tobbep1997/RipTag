@@ -103,7 +103,7 @@ bool Input::Crouch()
 		}
 	}
 	
-	return false;
+	return result;
 }
 
 bool Input::Interact()
