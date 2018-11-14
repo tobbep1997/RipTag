@@ -443,6 +443,11 @@ TeleportAbility * Player::getTeleportAbility()
 	return tp;
 }
 
+bool Player::GetMapPicked()
+{
+	return m_MapPicked;
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
@@ -966,6 +971,13 @@ void Player::_onInteract()
 								//*con->consumeState += 1;
 								//std::cout << "illusory wall ahead" << std::endl;
 								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
+							{
+								Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
+								autoLol->DeleteMap();
+								m_MapPicked = true;
+								//std::cout << "MAP" << std::endl;
 							}
 						}
 					}

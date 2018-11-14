@@ -112,6 +112,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 PlayState::~PlayState()
 {
+
 	m_levelHandler->Release();
 	delete m_levelHandler;
 
@@ -141,7 +142,6 @@ void PlayState::Update(double deltaTime)
 
 	m_playerManager->PhysicsUpdate();
 	
-	m_map.Update(deltaTime);
 	
 	
 	m_contactListener->ClearContactQueue();
@@ -215,7 +215,6 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-	m_map.Draw();
 	//DrawWorldCollisionboxes();
 	
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
@@ -668,8 +667,6 @@ void PlayState::Load()
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
-
-	m_map.Init();
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 

@@ -7,6 +7,8 @@ private:
 
 	DirectX::XMFLOAT4A tempPos;
 	DirectX::XMFLOAT4A tempRot;
+
+	bool m_deleteMap = false;
 public:
 	Map();
 	~Map();
@@ -15,6 +17,10 @@ public:
 	void Update(double deltaTime);
 
 	void Draw();
+
+	void Release();
+
+	bool DeleteMap();
 
 };
 
