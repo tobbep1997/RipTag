@@ -503,7 +503,7 @@ void PlayState::_loadPhysics()
 	m_rayListener = new RayCastListener();
 	RipExtern::g_rayListener = m_rayListener;
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-	triggerHandler = new TriggerHandler();
+	// triggerHandler = new TriggerHandler();
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
@@ -569,10 +569,12 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(false);
 	}
 
-	triggerHandler->LoadTriggerPairMap();
+	triggerHandler = m_levelHandler->getTriggerHandler();
+
+	/*triggerHandler->LoadTriggerPairMap();
 
 	if (isCoop)
-		triggerHandler->RegisterThisInstanceToNetwork();
+		triggerHandler->RegisterThisInstanceToNetwork();*/
 
 }
 
