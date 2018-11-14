@@ -10,6 +10,9 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
+//#todoREMOVE
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
+
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
@@ -45,9 +48,35 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
+	//#todoREMOVE
+	{
+		auto idleAnim = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get();
+		auto& machine = getAnimatedModel()->InitStateMachine(1);
+		auto state = machine->AddBlendSpace2DState("idle_state", &AnimationDebugHelper::foo, &AnimationDebugHelper::bar, 0.0, 1.0, 0.0, 1.0);
+		state->AddRow(0.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		state->AddRow(1.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		machine->SetState("idle_state");
+		//this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
 
-	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
-	this->getAnimatedModel()->Play();
+		auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
+		auto lState = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &AnimationDebugHelper::foo, 0.0, 1.0);
+		std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
+		SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
+		up.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_UP_ANIMATION").get();
+		up.location = 1.0f;
+		up.weight = 1.0f;
+		SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
+		down.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_DOWN_ANIMATION").get();
+		down.location = 0.0f;
+		down.weight = 1.0f;
+
+		layerData.push_back(down);
+		layerData.push_back(up);
+
+		lState->AddBlendNodes(layerData);
+		layerMachine->SetState("pitch_state");
+		this->getAnimatedModel()->Play();
+	}
 	PhysicsComponent::Init(*world, e_staticBody,1,0.9,1);
 
 	this->getBody()->SetUserData(Enemy::validate());

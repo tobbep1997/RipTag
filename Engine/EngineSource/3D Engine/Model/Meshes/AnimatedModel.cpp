@@ -603,7 +603,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose * pose)
 		layerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
 
 	if (layerPose.has_value())
-		XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(getAdditivePose(pose->m_jointPoses[0].m_transformation, layerPose.value().m_jointPoses[0]).m_transformation));
+		XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(getAdditivePose(pose->m_jointPoses[0].m_transformation, layerPose.value().m_jointPoses[0].m_transformation).m_transformation));
 	else
 		XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
 

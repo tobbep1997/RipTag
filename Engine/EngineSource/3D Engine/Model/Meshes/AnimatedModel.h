@@ -36,11 +36,13 @@ namespace Animation
 		DirectX::XMFLOAT4A m_translation;
 		DirectX::XMFLOAT4A m_scale;
 
-		SRT() 
+		SRT()
+			: m_rotationQuaternion{0.0, 0.0, 0.0, 0.0}, m_translation{0.0, 0.0, 0.0, 0.0}, m_scale{1.0, 1.0, 1.0, 0.0}
 		{
-			DirectX::XMStoreFloat4A(&m_rotationQuaternion, DirectX::XMVectorZero());
-			DirectX::XMStoreFloat4A(&m_translation, DirectX::XMVectorZero());
-			m_scale = { 1.0, 1.0, 1.0, 1.0 };
+			//auto zeroVector = DirectX::XMVectorZero();
+			//DirectX::XMStoreFloat4A(&m_rotationQuaternion, DirectX::XMVectorZero());
+			//DirectX::XMStoreFloat4A(&m_translation, DirectX::XMVectorZero());
+			//m_scale = { 1.0, 1.0, 1.0, 1.0 };
 		};
 		SRT(const ImporterLibrary::Transform& transform);
 		SRT(const ImporterLibrary::DecomposedTransform& transform);
@@ -267,9 +269,9 @@ namespace Animation
 		newPose.m_jointPoses = std::make_unique<JointPose[]>(jointCount);
 		
 		for (int i = 0; i < jointCount; i++)
-			newPose.m_jointPoses[i] = referencePose.m_jointPoses[i];
+			newPose.m_jointPoses[i].m_transformation = referencePose.m_jointPoses[i].m_transformation;
 
-		return newPose;
+		return std::move(newPose);
 	}
 	//
 

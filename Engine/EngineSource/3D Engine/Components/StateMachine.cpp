@@ -226,18 +226,17 @@ namespace SM
 	{
 		assert(m_AnimatedModel && "LayerVisitor missing animated model");
 		//#todo all layers
-		Animation::SkeletonPose pose;
 
 		auto clips = state.CalculateCurrent(m_AnimatedModel->GetCachedDeltaTime());
+		float b = clips.weight;
 
 		if (clips.second)
-			m_AnimatedModel->_BlendSkeletonPoses(&clips.first->m_skeletonPoses[0], &clips.second->m_skeletonPoses[0], clips.weight, clips.first->m_skeleton->m_jointCount);
+			return m_AnimatedModel->_BlendSkeletonPoses(&clips.first->m_skeletonPoses[0], &clips.second->m_skeletonPoses[0], clips.weight, clips.first->m_skeleton->m_jointCount);
 		else if (clips.first)
 			return Animation::MakeSkeletonPose(clips.first->m_skeletonPoses[0], clips.first->m_skeleton->m_jointCount);
 		else
 			return std::nullopt;
 
-		return pose;
 	}
 
 #pragma endregion "LayerVisitor"

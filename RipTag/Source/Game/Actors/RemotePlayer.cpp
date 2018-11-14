@@ -140,12 +140,6 @@ void RemotePlayer::Update(double dt)
 	//3.
 	this->getAnimatedModel()->Update(dt);
 
-	//#todoREMOVE
-	ImGui::Begin("LayerTest");
-
-	ImGui::SliderFloat("layer driver", &AnimationDebugHelper::foo, 0.0, 1.0);
-
-	ImGui::End();
 
 }
 

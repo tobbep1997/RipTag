@@ -1,6 +1,6 @@
 #include "RipTagPCH.h"
 #include "Game.h"
-
+#include "../../Engine/EngineSource/Helper/AnimationDebugHelper.h" //#todoREMOVE
 Game::Game()
 {
 	
@@ -71,6 +71,15 @@ void Game::Clear()
 
 void Game::Update(double deltaTime)
 {
+	//#todoREMOVE
+	{
+		ImGui::Begin("LayerTest");
+
+		ImGui::SliderFloat("layer driver", &AnimationDebugHelper::foo, 0.0, 1.0);
+
+		ImGui::End();
+	}
+
 #if _DEBUG
 	_restartGameIf();
 #endif
