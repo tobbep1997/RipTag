@@ -63,10 +63,10 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 			UINT32 vertexSize = sizeof(StaticVertex);
 			UINT32 offset = 0;
 
-			if (DX::g_geometryQueue[i]->getBoundingBox())
+			if (DX::g_geometryQueue[j]->getBoundingBox())
 			{
-				DirectX::BoundingBox * bb = DX::g_geometryQueue[i]->getBoundingBox();
-				bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[i]->getWorldmatrix()));
+				DirectX::BoundingBox * bb = DX::g_geometryQueue[j]->getBoundingBox();
+				bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[j]->getWorldmatrix()));
 				if (!bs.Intersects(*bb))
 					continue;
 			}
