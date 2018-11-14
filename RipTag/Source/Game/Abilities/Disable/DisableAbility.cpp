@@ -138,7 +138,7 @@ void DisableAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
 		{
 			
 			m_dState = DisableAbility::Charging;
@@ -151,13 +151,13 @@ void DisableAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
-		if (Input::OnAbilityReleased())
+		if (Input::OnAbility2Released())
 		{
 			m_dState = DisableState::Moving;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
@@ -186,7 +186,7 @@ void DisableAbility::_inStateMoving(double dt)
 	static double accumulatedTime = 0;
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
 	accumulatedTime += dt;
-
+	p_cooldown = accumulatedTime;
 	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
@@ -198,6 +198,8 @@ void DisableAbility::_inStateMoving(double dt)
 				temp->setKnockOutType(temp->Stoned); 
 				m_dState = DisableState::Cooldown;
 				this->setPosition(-999.9f, -999.9f, -999.9f);
+				p_cooldown = 0.0;
+				accumulatedTime = 0.0;
 				this->_sendOnHitNotification();
 			}
 		}
@@ -207,6 +209,7 @@ void DisableAbility::_inStateMoving(double dt)
 	{
 		//nothing has been hit within 5 seconds, -> reset
 		accumulatedTime = 0.0;
+		p_cooldown = 0.0;
 		m_dState = DisableState::Throwable;
 		this->setPosition(-999.9f, -999.9f, -999.9f);
 		return;
