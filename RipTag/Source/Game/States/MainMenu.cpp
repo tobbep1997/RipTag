@@ -249,11 +249,15 @@ void MainMenu::Load()
 	if (!isPlaying)
 		m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
+
+	
+
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
 	Manager::g_textureManager.loadTextures("LOADING"); 
 	Manager::g_textureManager.loadTextures("MAINMENUBG");
+	this->LoadAllGuiElements();
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	_initButtons();
@@ -285,4 +289,29 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadAllTexture();
 
 	std::cout << "MainMenu unLoad" << std::endl;
+}
+
+void MainMenu::LoadAllGuiElements()
+{
+	//Loop through GUI folder and inspect the files extensions
+	std::string path = "../Assets/GUIFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
+				if (extension == L".png" || extension == L".jpg")
+					Manager::g_textureManager.loadSingleTexture(stem, file.generic_wstring());
+			}
+		}
+
+
+		std::cout << p.path().generic_string() << std::endl;
+	}
+		
 }

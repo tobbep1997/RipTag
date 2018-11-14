@@ -81,11 +81,47 @@ Texture * TextureManager::getTexture(const std::string & path)
 	{
 		std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
 	}
-	throw std::exception("NOT TEXTURE FOUND");
+	throw std::exception("TEXTURE NOT FOUND");
 }
 
-void TextureManager::loadRawTexture(const std::string & path)
+Texture * TextureManager::getSingleTextureByName(const std::wstring & name)
 {
+	unsigned int key = this->_getKey(name);
+	if (m_textures[key][0]->getName() == name)
+		return m_textures[key][0];
+	else
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			std::cout << red << std::string(name.begin(), name.end()) << " NOT FOUND" << std::endl;
+		}
+		throw std::exception("TEXTURE NOT FOUND");
+	}
+		
+	return nullptr;
+}
+
+void TextureManager::loadSingleTexture(const std::wstring name, const std::wstring & full_path)
+{
+	Texture * tempTexture = new Texture();
+	unsigned int key = this->_getKey(name);
+
+	if (m_textures[key].size() == 0)
+	{
+		tempTexture->setName(name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_textures[key].push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
+	else
+	{
+		std::cout << yellow << std::string(name.begin(), name.end()) << " Texture Already loaded" << std::endl;
+		std::cout << white;
+		delete tempTexture;
+	}
 }
 
 bool TextureManager::UnloadTexture(const std::string& path)

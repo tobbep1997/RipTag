@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "Game.h"
+#include <filesystem>
 
 Game::Game()
 {
