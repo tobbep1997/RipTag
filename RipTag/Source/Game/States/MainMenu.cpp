@@ -28,6 +28,9 @@ void MainMenu::Update(double deltaTime)
 		{
 		case ButtonOrder::Play:
 			_resetButtons();
+			m_background->Release();
+			delete m_background;
+			m_background = nullptr;
 			m_loadingScreen.removeGUI(m_buttons);
 			m_loadingScreen.draw();
 			this->pushNewState(new PlayState(this->p_renderingManager)); 
@@ -55,9 +58,10 @@ void MainMenu::Draw()
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
 
+	if(m_background)
+	m_background->Draw();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 		m_buttons[i]->Draw();
-	
 	p_renderingManager->Flush(camera);
 }
 
@@ -94,6 +98,16 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("PIRASRUM");
 	this->m_buttons[ButtonOrder::Quit]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Quit]->setFont(FontHandler::getFont("consolas32"));
+
+	this->m_background = new Quad();
+	this->m_background->init();
+	this->m_background->setPivotPoint(Quad::PivotPoint::center);
+	this->m_background->setPosition(0.5f, 0.5f);
+	this->m_background->setScale(2.0f, 2.0f);
+	this->m_background->setUnpressedTexture("MAINMENU");
+	this->m_background->setPressedTexture("MAINMENU");
+	this->m_background->setHoverTexture("MAINMENU");
+
 }
 
 void MainMenu::_handleMouseInput()
@@ -220,6 +234,7 @@ void MainMenu::Load()
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
 	Manager::g_textureManager.loadTextures("LOADING"); 
+	Manager::g_textureManager.loadTextures("MAINMENU");
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	   
@@ -237,6 +252,7 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
 	Manager::g_textureManager.UnloadTexture("DAB");
 	Manager::g_textureManager.UnloadTexture("LOADING"); 
+	Manager::g_textureManager.UnloadTexture("MAINMENU");
 	Manager::g_textureManager.UnloadAllTexture();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
@@ -244,6 +260,12 @@ void MainMenu::unLoad()
 		delete m_buttons[i];
 	}
 	m_buttons.clear();
+	if (m_background)
+	{
+		m_background->Release();
+		delete m_background;
+		m_background = nullptr;
+	}
 	Manager::g_textureManager.UnloadAllTexture();
 
 	std::cout << "MainMenu unLoad" << std::endl;
