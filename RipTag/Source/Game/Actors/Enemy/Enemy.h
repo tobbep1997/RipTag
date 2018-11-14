@@ -87,12 +87,11 @@ private:
 	float m_crouchHeight;
 	float m_crouchAnimStartPos;
 
-	bool m_alert = false;
+	//bool m_alert = false;
 	int m_currentPathNode = 0;
-	int m_currentAlertPathNode = 0;
+	//int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
-	bool m_isReversed = false;
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
@@ -113,6 +112,7 @@ private:
 	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
 	DirectX::BoundingFrustum * m_boundingFrustum;
 
+	bool m_isReversed = false;
 	const int m_maxDrawOutNode = 10;
 	std::vector<Drawable*> m_pathNodes;
 	float m_sinWaver = 0;
@@ -129,7 +129,7 @@ private:
 
 	Player * m_PlayerPtr;
 
-	float m_HighAlertTime = 0;
+	float m_HighAlertTime = 0.f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -175,8 +175,8 @@ public:
 
 	void SetPathVector(std::vector<Node*>  path);
 	Node * GetCurrentPathNode() const;
+	void SetAlertVector(std::vector<Node*> alertPath, bool alert = true);
 
-	void SetAlertVector(std::vector<Node*> alertPath);
 	void setReleased(bool released); 
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;

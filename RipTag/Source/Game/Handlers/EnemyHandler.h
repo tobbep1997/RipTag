@@ -33,7 +33,6 @@ private:
 	void _investigating(Enemy * guard);
 	void _investigateSound(Enemy * guard);
 	void _patrolling(Enemy * guard);
-
 	void _highAlert(Enemy * guard, const double & dt);
 
 };
