@@ -71,6 +71,14 @@ void MainMenu::Draw()
 	p_renderingManager->Flush(camera);
 }
 
+void MainMenu::StopMusic()
+{
+	bool isPlaying = false;
+	m_music->isPlaying(&isPlaying);
+	if (!isPlaying)
+		m_music->stop();
+}
+
 void MainMenu::_initButtons()
 {
 	//play button

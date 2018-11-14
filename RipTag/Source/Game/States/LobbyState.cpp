@@ -238,6 +238,7 @@ void LobbyState::Update(double deltaTime)
 						isRemoteReady = false;
 
 						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
+						
 					}
 				}
 				break;

@@ -45,7 +45,10 @@ void PressurePlate::Update(double deltaTime)
 			if ((con.a->GetBody()->GetObjectTag() == "PressurePlate") || (con.b->GetBody()->GetObjectTag() == "PressurePlate"))
 			{
 				if (this->getTriggerState())
+				{
 					this->setTriggerState(false);
+					this->SendOverNetwork();
+				}
 			}
 	}
 	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
