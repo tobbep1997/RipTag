@@ -157,6 +157,8 @@ Drawable::~Drawable()
 		delete m_anim;
 	if (m_stateMachine)
 		delete m_stateMachine;
+	if (m_bb)
+		delete m_bb;
 }
 
 

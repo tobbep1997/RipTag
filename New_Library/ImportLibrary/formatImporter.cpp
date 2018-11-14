@@ -348,17 +348,17 @@ namespace ImporterLibrary
 
 		if (customBoxFile.is_open()) // opens file
 		{
-			fileIsOpen = true; // ya its open
+			fileIsOpen = true;
 
-			CollisionHeader header; // okey i guess i need an error
-			customBoxFile.read((char*)&header, sizeof(CollisionHeader)); // what is happening here?!! i just copied this code
+			CollisionHeader header;
+			customBoxFile.read((char*)&header, sizeof(CollisionHeader));
 
-			collisionBoxes.nrOfBoxes = header.nrOfBoxes; // get the number of boxes
+			collisionBoxes.nrOfBoxes = header.nrOfBoxes; 
 
-			CollisionBox* box = DBG_NEW CollisionBox[collisionBoxes.nrOfBoxes]; // i guess i need an array
-			customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox)); // got litraly no fucking clue whats going on here please send help
+			CollisionBox* box = DBG_NEW CollisionBox[collisionBoxes.nrOfBoxes];
+			customBoxFile.read((char*)box, collisionBoxes.nrOfBoxes * sizeof(CollisionBox));
 
-			collisionBoxes.boxes = DBG_NEW CollisionBox[collisionBoxes.nrOfBoxes]; // why can't i use the first array
+			collisionBoxes.boxes = DBG_NEW CollisionBox[collisionBoxes.nrOfBoxes]; 
 
 			for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 			{
@@ -377,25 +377,10 @@ namespace ImporterLibrary
 				collisionBoxes.boxes[i].rotation[3] = box[i].rotation[3];
 
 				collisionBoxes.boxes[i].typeOfBox = box[i].typeOfBox;
-				//std::cout << ":..............................." << std::endl;
-				//std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[0] << std::endl;
-				//std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[1] << std::endl;
-				//std::cout << "BoX T:" << collisionBoxes.boxes[i].translation[2] << std::endl;
-				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[0] << std::endl;
-				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[1] << std::endl;
-				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[2] << std::endl;
-				//std::cout << "BoX R:" << collisionBoxes.boxes[i].rotation[3] << std::endl;
-				//std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[0] << std::endl;
-				//std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[1] << std::endl;
-				//std::cout << "BoX S:" << collisionBoxes.boxes[i].scale[2] << std::endl;
-				//std::cout << "Type of box: " << collisionBoxes.boxes[i].typeOfBox << std::endl;
-				//std::cout << ":..............................." << std::endl;
-
 			}
-			//copy thing done
 
-			customBoxFile.close(); // close file
-			delete[] box; // gotta keep ya memmory happy
+			customBoxFile.close();
+			delete[] box;
 
 		}
 		else
