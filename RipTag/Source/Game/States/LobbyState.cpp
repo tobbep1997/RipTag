@@ -992,6 +992,7 @@ void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 
 void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 {
+	pNetwork->setIsConnected(true);
 	hasClient = true;
 	m_clientIP = data->systemAddress;
 	//send a request to retrive the NetworkID of the remote machine
@@ -1010,6 +1011,7 @@ void LobbyState::_onFailedPacket(RakNet::Packet * data)
 
 void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 {
+	pNetwork->setIsConnected(true);
 	this->selectedHost = data->systemAddress;
 	hasJoined = true;
 	_resetCharSelectButtonStates();
@@ -1053,6 +1055,7 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		hasRemoteCharSelected = false;
 		remoteSelectedChar = 0;
 	}
+	pNetwork->setIsConnected(false);
 }
 
 void LobbyState::_onServerDenied(RakNet::Packet * data)
