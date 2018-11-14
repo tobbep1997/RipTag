@@ -175,6 +175,8 @@ void RandomRoomGrid::_connectRooms()
 	for (int i = 0; i < oddRooms.size(); i++)
 	{
 		_createRoomConnection(oddRooms.at(i).startIndex, oddRooms.at(i).endIndex);
+		rooms[oddRooms.at(i).startIndex].type = oddRooms.at(i).type;
+		rooms[oddRooms.at(i).endIndex].type = oddRooms.at(i).type;
 	}
 
 	for (int i = 0; i < depth; i++)
@@ -240,7 +242,7 @@ void RandomRoomGrid::_connectRooms()
 	}
 }
 
-void RandomRoomGrid::_generateDoors(bool validDirections[4], int doorCount, int roomIndex, int directionIndex[4])
+void RandomRoomGrid::_generateDoors(bool * validDirections, int doorCount, int roomIndex, int * directionIndex)
 {
 	int placeDoor = rand() % 2;
 	if (validDirections[0])
@@ -298,7 +300,7 @@ void RandomRoomGrid::_generateDoors(bool validDirections[4], int doorCount, int 
 	}
 }
 
-void RandomRoomGrid::_forcePath(bool visited[GRID_SIZE])
+void RandomRoomGrid::_forcePath(bool * visited)
 {
 	for (int i = 0; i < depth; i++)
 	{
@@ -351,7 +353,7 @@ void RandomRoomGrid::_forcePath(bool visited[GRID_SIZE])
 
 void RandomRoomGrid::_checkConnections()
 {
-	bool visited[GRID_SIZE];
+	bool * visited = new bool[GRID_SIZE];
 	memset(visited, false, GRID_SIZE);
 
 	_followConnection(visited, 0);
@@ -363,9 +365,11 @@ void RandomRoomGrid::_checkConnections()
 			std::cout << " " << visited[j + i * width] << " ";
 		std::cout << "\n\n";
 	}
+
+	delete visited;
 }
 
-void RandomRoomGrid::_followConnection(bool visited[GRID_SIZE], int roomIndex)
+void RandomRoomGrid::_followConnection(bool * visited, int roomIndex)
 {
 	visited[roomIndex] = true;
 
