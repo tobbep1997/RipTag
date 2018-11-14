@@ -11,6 +11,7 @@ private:
 	std::mutex m_textureMutex;
 
 	std::vector<Texture*> m_textures[TEXTURE_HASHTABLE_SIZE];
+	//std::vector<Texture*> m_GuiTextures[TEXTURE_HASHTABLE_SIZE];
 	
 public:
 	TextureManager();
