@@ -66,6 +66,7 @@
     <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
     <ClCompile Include="Source\Game\Loading Screen\LoadingScreen.cpp" />
     <ClCompile Include="Source\Game\Item\Map.cpp" />
+    <ClCompile Include="Source\Game\Item\Rock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -306,5 +307,6 @@
     <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
     <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
     <ClInclude Include="Source\Game\Item\Map.h" />
+    <ClInclude Include="Source\Game\Item\Rock.h" />
   </ItemGroup>
 </Project>

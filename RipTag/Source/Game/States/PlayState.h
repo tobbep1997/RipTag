@@ -6,6 +6,7 @@
 #include "Source/Physics/Bounce.h"
 #include "Source/Game/Actors/BaseActor.h"
 #include "Source/Game/Item/Map.h"
+#include "Source/Game/Item/Rock.h"
 
 namespace FMOD
 {

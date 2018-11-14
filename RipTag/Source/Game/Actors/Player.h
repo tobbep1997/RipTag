@@ -123,6 +123,8 @@ private:
 	unsigned short m_currentEnemysVisable = 0;
 
 	bool m_MapPicked = false;
+	unsigned int m_rockCounter = 0;
+	const unsigned int MAXROCKS = 5;
 public:
 	//Magic number
 	static const int g_fullVisability = 4500;
@@ -171,7 +173,7 @@ public:
 
 	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
-
+	unsigned int getNrOfRocks();
 	bool GetMapPicked();
 private:
 	void _collision();

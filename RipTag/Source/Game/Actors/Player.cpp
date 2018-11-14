@@ -452,6 +452,11 @@ TeleportAbility * Player::getTeleportAbility()
 	return tp;
 }
 
+unsigned int Player::getNrOfRocks()
+{
+	return m_rockCounter;
+}
+
 bool Player::GetMapPicked()
 {
 	return m_MapPicked;
@@ -979,6 +984,15 @@ void Player::_onInteract()
 								//*con->consumeState += 1;
 								//std::cout << "illusory wall ahead" << std::endl;
 								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
+							{
+								Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
+								if (m_rockCounter < MAXROCKS)
+								{
+									rock->DeleteRock();
+									m_rockCounter++;
+								}
 							}
 							else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
 							{
