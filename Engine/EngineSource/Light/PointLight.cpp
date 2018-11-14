@@ -7,7 +7,7 @@ PointLight::PointLight()
 {
 	m_nearPlane = 1.0f;
 	m_farPlane = 50.0f;
-	
+	_initDirectX(128U, 128U);
 }
 PointLight::PointLight(float * translation, float * color, float intensity)
 {
@@ -263,6 +263,16 @@ DirectX::XMFLOAT4A PointLight::getDir(b3Body & object) const
 	XMFLOAT4A dir;
 	XMStoreFloat4A(&dir, vdir);
 	return dir;
+}
+
+void PointLight::setDistanceToCamera(const float& distance)
+{
+	this->m_cullingDistanceToCamera = distance;
+}
+
+float PointLight::getDistanceToCamera() const
+{
+	return m_cullingDistanceToCamera;
 }
 
 

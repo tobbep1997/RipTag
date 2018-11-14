@@ -247,6 +247,7 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
+
 	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
 	_mapLightInfoNoMatrix();
 
@@ -382,23 +383,17 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 		}
 	}
 	//-----------------------------------
-
 	//Start Extream light kill
 	int needToRemove = DX::g_lights.size() - m_forceCullingLimit;
 
 	if (DX::g_lights.size() > m_forceCullingLimit)
 	{
-		std::vector<sortStruct> lightRemoval;
 		//-----------------------------
 		///Calculating the distance of the lights
 		//The SortStruct can be removed but not know
-		//TODO::remove sortStruct
 		for (size_t i = 0; i < DX::g_lights.size(); i++)
 		{
-			sortStruct temp;
-			temp.distance = DX::g_lights.at(i)->getDistanceFromCamera(cam);
-			temp.lightBelong = i;
-			lightRemoval.push_back(temp);
+			DX::g_lights[i]->setDistanceToCamera(DX::g_lights.at(i)->getDistanceFromCamera(cam));
 		}
 		//
 		//------------------------------
@@ -408,14 +403,14 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 		while (false == sorted)
 		{
 			sorted = true;
-			for (int i = 0; i < lightRemoval.size() - 1; ++i)
+			for (int i = 0; i < DX::g_lights.size() - 1; ++i)
 			{
-				if (lightRemoval.at(i).distance > lightRemoval.at(i + 1).distance)
+				if (DX::g_lights[i]->getDistanceToCamera() > DX::g_lights[i + 1]->getDistanceToCamera())
 				{
 					sorted = false;
-					sortStruct swap = lightRemoval.at(i);
-					lightRemoval.at(i) = lightRemoval.at(i + 1);
-					lightRemoval.at(i + 1) = swap;
+					PointLight * swap = DX::g_lights[i];
+					DX::g_lights.at(i) = DX::g_lights.at(i + 1);
+					DX::g_lights.at(i + 1) = swap;
 
 				}
 			}
@@ -428,6 +423,7 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 			DX::g_lights.pop_back();
 			culled++;
 		}
+		
 		//--------------------------------
 	}
 	
