@@ -150,6 +150,8 @@ namespace Network
 			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
 			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
+			if (mID == 164)
+				int i = 0;
 			this->HandleRakNetMessages(mID);
 			this->HandleLobbyMessages(mID, packet);
 			this->HandleGameMessages(mID, packet->data);

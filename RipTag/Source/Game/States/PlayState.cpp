@@ -40,7 +40,7 @@ PlayState::~PlayState()
 	delete m_playerManager;
 
 
-	delete triggerHandler;
+	//delete triggerHandler;
 
 	delete m_contactListener;
 	delete m_rayListener;
@@ -466,6 +466,14 @@ void PlayState::Load()
 {
 	std::cout << "PlayState Load" << std::endl;
 
+	//Initially Clear network maps
+	if (isCoop)
+	{
+		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
+		Network::Multiplayer::LocalPlayerOnSendMap.clear();
+		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+	}
+
 	m_youlost = false;
 	Input::ResetMouse();
 	CameraHandler::Instance();
@@ -491,6 +499,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
+	Manager::g_textureManager.loadTextures("STATE");
 }
 
 void PlayState::_loadPhysics()
@@ -502,7 +511,7 @@ void PlayState::_loadPhysics()
 	m_rayListener = new RayCastListener();
 	RipExtern::g_rayListener = m_rayListener;
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-	triggerHandler = new TriggerHandler();
+	// triggerHandler = new TriggerHandler();
 	m_step.velocityIterations = 1;
 	m_step.sleeping = false;
 	m_firstRun = false;
@@ -533,9 +542,6 @@ void PlayState::_loadPlayers()
 
 void PlayState::_loadNetwork()
 {
-	//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
-	Network::Multiplayer::LocalPlayerOnSendMap.clear();
-	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
 	if (isCoop)
 	{
@@ -568,8 +574,13 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(false);
 	}
 
+	triggerHandler = m_levelHandler->getTriggerHandler();
+
+	/*triggerHandler->LoadTriggerPairMap();
+
 	if (isCoop)
-		triggerHandler->RegisterThisInstanceToNetwork();
+		triggerHandler->RegisterThisInstanceToNetwork();*/
+
 }
 
 void PlayState::_loadSound()

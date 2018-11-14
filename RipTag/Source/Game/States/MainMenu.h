@@ -32,6 +32,8 @@ public:
 
 	void Draw() override;
 
+	void StopMusic();
+
 private:
 	void _initButtons();
 	void _handleGamePadInput();

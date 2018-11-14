@@ -38,7 +38,11 @@ LobbyState::~LobbyState()
 		this->m_infoWindow->Release();
 		delete this->m_infoWindow;
 	}
-
+	if (this->m_background)
+	{
+		this->m_background->Release();
+		delete this->m_background;
+	}
 	this->pNetwork->ShutdownPeer();
 }
 
@@ -238,6 +242,7 @@ void LobbyState::Update(double deltaTime)
 						isRemoteReady = false;
 
 						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
+						
 					}
 				}
 				break;
@@ -279,6 +284,8 @@ void LobbyState::Draw()
 {
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
+	if (this->m_background)
+		this->m_background->Draw();
 
 	if (!this->isHosting && !this->hasJoined)
 	{
@@ -416,6 +423,18 @@ void LobbyState::_initButtons()
 		this->m_infoWindow->setHoverTexture("SPHERE");
 		this->m_infoWindow->setTextColor(DefaultColor);
 		this->m_infoWindow->setFont(FontHandler::getFont("consolas16"));
+	}
+
+	//Background Window
+	{
+		this->m_background = new Quad();
+		this->m_background->init();
+		this->m_background->setPivotPoint(Quad::PivotPoint::center);
+		this->m_background->setPosition(0.5f, 0.5f);
+		this->m_background->setScale(2.0f, 2.0f);
+		this->m_background->setUnpressedTexture("LOBBYBG");
+		this->m_background->setPressedTexture("LOBBYBG");
+		this->m_background->setHoverTexture("LOBBYBG");
 	}
 }
 
@@ -992,6 +1011,7 @@ void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 
 void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 {
+	pNetwork->setIsConnected(true);
 	hasClient = true;
 	m_clientIP = data->systemAddress;
 	//send a request to retrive the NetworkID of the remote machine
@@ -1010,6 +1030,7 @@ void LobbyState::_onFailedPacket(RakNet::Packet * data)
 
 void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 {
+	pNetwork->setIsConnected(true);
 	this->selectedHost = data->systemAddress;
 	hasJoined = true;
 	_resetCharSelectButtonStates();
@@ -1053,6 +1074,7 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		hasRemoteCharSelected = false;
 		remoteSelectedChar = 0;
 	}
+	pNetwork->setIsConnected(false);
 }
 
 void LobbyState::_onServerDenied(RakNet::Packet * data)
@@ -1199,6 +1221,8 @@ void LobbyState::Load()
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
+	Manager::g_textureManager.loadTextures("LOBBYBG");
+	Manager::g_textureManager.loadTextures("CHARACTERSELECTIONBG");
 
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
@@ -1223,6 +1247,8 @@ void LobbyState::unLoad()
 	Manager::g_textureManager.UnloadTexture("SPHERE");
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
 	Manager::g_textureManager.UnloadTexture("DAB");
+	Manager::g_textureManager.loadTextures("LOBBYBG");
+	Manager::g_textureManager.UnloadTexture("CHARACTERSELECTIONBG");
 	Manager::g_textureManager.UnloadAllTexture();
 	std::cout << "Lobby unLoad" << std::endl;
 }
