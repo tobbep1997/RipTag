@@ -7,7 +7,10 @@ class LobbyState :
 {
 private:
 	const double FLUSH_FREQUENCY = 1.0; //unit is in seconds
-
+	const DirectX::XMFLOAT4A DefaultColor = { 1.0f, 1.0f, 1.0f, 1.0f }; //Sharp/Full White
+	const DirectX::XMFLOAT4A ActivatedColor = { 0.0f, 0.6f, 0.1f, 1.0f }; //Warmer/softer green
+	const DirectX::XMFLOAT4A InactivatedColor = { 0.7f, 0.2f, 0.0f, 1.0f }; //Warmer/softer red
+	
 	enum ButtonOrderLobby
 	{
 		Host = 0,
@@ -52,7 +55,7 @@ private:
 	RakNet::NetworkID m_remoteNID = 0;
 
 	std::string m_MyHostName;
-	std::string m_ServerName = "";
+	std::string m_ServerName = "None";
 	//This packet is created when we create a Server and host it
 	Network::LOBBYEVENTPACKET m_adPacket;
 

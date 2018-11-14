@@ -96,7 +96,7 @@ namespace Network
 
 	void Multiplayer::ShutdownPeer()
 	{
-		if (m_isRunning)
+		if (this->pPeer && m_isRunning)
 		{
 			this->pPeer->Shutdown(1);
 			m_isRunning = false;
