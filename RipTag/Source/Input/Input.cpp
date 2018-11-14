@@ -106,6 +106,7 @@ bool Input::Crouch()
 	return result;
 }
 
+
 bool Input::Interact()
 {
 	bool result = false;
@@ -307,6 +308,43 @@ bool Input::OnAbility2Released()
 	if (Input::OnAbility2Pressed())
 		previousFrame = true;
 	if (!Input::OnAbility2Pressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+bool Input::OnCancelAbilityPressed()
+{
+	bool result = false;
+	if (isUsingGamepad())
+		result = GamePadHandler::IsBPressed();
+
+	if (!result)
+	{
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+		{
+			if (InputHandler::isKeyPressed(keyIterator->first))
+			{
+				if (keyIterator->second == "CancelAbility")
+				{
+					result = true;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+bool Input::OnCancelAbilityReleased()
+{
+	static bool previousFrame = false;
+	if (Input::OnCancelAbilityPressed())
+		previousFrame = true;
+	if (!Input::OnCancelAbilityPressed() && previousFrame)
 	{
 		previousFrame = false;
 		return true;

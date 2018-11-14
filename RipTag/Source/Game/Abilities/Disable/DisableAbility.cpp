@@ -138,11 +138,15 @@ void DisableAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
+		if (!m_canceled && ((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
 		{
 			
 			m_dState = DisableAbility::Charging;
 			
+		}
+		if (Input::OnAbility2Released())
+		{
+			m_canceled = false;
 		}
 	}
 }
@@ -156,6 +160,12 @@ void DisableAbility::_inStateCharging(double dt)
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
+		}
+		if (Input::OnCancelAbilityPressed())
+		{
+			m_charge = 0.0;
+			m_dState = DisableState::Throwable;
+			m_canceled = true;
 		}
 		if (Input::OnAbility2Released())
 		{

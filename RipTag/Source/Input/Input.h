@@ -41,6 +41,8 @@ public:
 	static bool OnAbilityReleased();
 	static bool OnAbility2Pressed();
 	static bool OnAbility2Released();
+	static bool OnCancelAbilityPressed();
+	static bool OnCancelAbilityReleased();
 	static bool Interact();
 	static bool Exit();
 	static bool MouseLock();
