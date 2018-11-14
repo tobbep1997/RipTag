@@ -1,6 +1,8 @@
 #include "RipTagPCH.h"
 #include "RemotePlayer.h"
 
+//#todoREMOVE
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
 
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
@@ -137,6 +139,14 @@ void RemotePlayer::Update(double dt)
 
 	//3.
 	this->getAnimatedModel()->Update(dt);
+
+	//#todoREMOVE
+	ImGui::Begin("LayerTest");
+
+	ImGui::SliderFloat("layer driver", &AnimationDebugHelper::foo, 0.0, 1.0);
+
+	ImGui::End();
+
 }
 
 void RemotePlayer::Draw()
@@ -309,4 +319,24 @@ void RemotePlayer::_registerAnimationStateMachine()
 		stateMachine->SetState("walk_forward");
 	}
 
+	//#todoREMOVE
+	auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
+	auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &AnimationDebugHelper::foo, 0.0f, 1.0f);
+	
+	std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
+	SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
+	up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
+	up.location = 1.0f;
+	up.weight = 1.0f;
+	SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
+	down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
+	down.location = 0.0f;
+	down.weight = 1.0f;
+
+	layerData.push_back(down);
+	layerData.push_back(up);
+
+	state->AddBlendNodes(layerData);
+
+	layerMachine->SetState("pitch_state");
 }

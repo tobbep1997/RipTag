@@ -475,6 +475,11 @@ namespace SM
 
 #pragma endregion "LoopState"
 
+	void BlendSpace1DAdditive::AddBlendNodes(const std::vector<BlendSpaceLayerData> nodes)
+	{
+		std::copy(nodes.begin(), nodes.end(), std::back_inserter(m_Layers));
+	}
+
 	void BlendSpace1DAdditive::LockCurrentValues()
 	{
 

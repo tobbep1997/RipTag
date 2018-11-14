@@ -238,6 +238,7 @@ namespace SM
 			: m_Current(blendSpaceDriver), m_Min(min), m_Max(max), AnimationState(name)
 		{}
 		
+		void AddBlendNodes(const std::vector<BlendSpaceLayerData> nodes);
 		virtual void LockCurrentValues() override;
 
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
