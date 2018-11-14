@@ -2,13 +2,18 @@
 #include "../2DEngine/2D Engine/Quad/Components/HUDComponent.h"
 #include "MainMenu.h"
 
+std::string RipSounds::g_music1;
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
+	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
+	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
+	m_music->setVolume(0.3f);
 }
 
 MainMenu::~MainMenu()
 {
+	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
 	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
@@ -33,7 +38,8 @@ void MainMenu::Update(double deltaTime)
 			m_background = nullptr;
 			m_loadingScreen.removeGUI(m_buttons);
 			m_loadingScreen.draw();
-			this->pushNewState(new PlayState(this->p_renderingManager)); 
+			this->pushNewState(new PlayState(this->p_renderingManager));
+			m_music->stop();
 			break; 
 		case ButtonOrder::Lobby:
 			_resetButtons();
@@ -63,6 +69,14 @@ void MainMenu::Draw()
 	for (size_t i = 0; i < m_buttons.size(); i++)
 		m_buttons[i]->Draw();
 	p_renderingManager->Flush(camera);
+}
+
+void MainMenu::StopMusic()
+{
+	bool isPlaying = false;
+	m_music->isPlaying(&isPlaying);
+	if (!isPlaying)
+		m_music->stop();
 }
 
 void MainMenu::_initButtons()
@@ -230,6 +244,11 @@ void MainMenu::_resetButtons()
 
 void MainMenu::Load()
 {
+	bool isPlaying = false;
+	m_music->isPlaying(&isPlaying);
+	if (!isPlaying)
+		m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
+	m_music->setVolume(0.3f);
 	Manager::g_textureManager.loadTextures("SPHERE");
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
@@ -237,11 +256,8 @@ void MainMenu::Load()
 	Manager::g_textureManager.loadTextures("MAINMENUBG");
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
-	   
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
-
-
 	std::cout << "MainMenu Load" << std::endl;
 }
 

@@ -22,6 +22,7 @@ public:
 		NONE = 0,
 		Player,
 		RemotePlayer,
+		Enemy,
 		Other
 	};
 private:
@@ -29,6 +30,7 @@ private:
 	static const SoundType PLAYER_SOUND = SoundType::Player;
 	static const SoundType REMOTE_SOUND = SoundType::RemotePlayer;
 	static const SoundType OTHER_SOUND = SoundType::Other;
+	static const SoundType ENEMY_SOUND = SoundType::Enemy;
 	static bool s_inited;
 
 	static FMOD::System * s_system;
@@ -51,9 +53,9 @@ public:
 	static void Update();
 	static void UpdateListenerAttributes(const Listener & l);
 
-	static std::string LoadSoundEffect	(const std::string & path, bool loop = false);
-	static std::string LoadAmbientSound	(const std::string & path, bool loop = true);
-	static std::string LoadMusicSound	(const std::string & path, bool loop = true);
+	static std::string LoadSoundEffect	(const std::string & path, float minDist = 5.0f, float maxDist = 10000.0f, bool loop = false);
+	static std::string LoadAmbientSound	(const std::string & path, bool loop = false);
+	static std::string LoadMusicSound	(const std::string & path, bool loop = false);
 	
 	static void UnLoadSoundEffect	(const std::string & name);
 	static void UnloadAmbiendSound	(const std::string & name);
@@ -75,7 +77,6 @@ public:
 	static FMOD::Geometry* CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry* CreateCube(float fDirectOcclusion, float fReverbOcclusion,
 		DirectX::XMFLOAT4 pos, DirectX::XMFLOAT4 scl, DirectX::XMFLOAT4 q);
-
 	static std::vector<FMOD::Channel*> getAllPlayingChannels();
 
 private:
