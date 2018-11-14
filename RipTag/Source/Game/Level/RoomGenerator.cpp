@@ -216,7 +216,7 @@ void RoomGenerator::_placeProps()
 			asset->Init(*m_worldPtr, modCollisionBoxes);
 		
 			//PROPS
-			ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile("MOD" + std::to_string(r));
+			/*ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile("MOD" + std::to_string(r));
 			for (int i = 0; i < tempProps.nrOfItems; i++)
 			{
 				XMFLOAT3 propPos = XMFLOAT3(tempProps.props[i].transform_position);
@@ -251,12 +251,11 @@ void RoomGenerator::_placeProps()
 				tempProps.props[i].scale[1] = XMVectorGetY(decomposeScaling);
 				tempProps.props[i].scale[2] = XMVectorGetZ(decomposeScaling);
 
-			}
+			}*/
 
 			asset->Init(*m_worldPtr, modCollisionBoxes);
-			}
 
-			delete tempProps.props;
+			//delete tempProps.props;
 
 			if (r == 3)
 			{
