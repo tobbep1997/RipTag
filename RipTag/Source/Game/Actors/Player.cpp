@@ -14,16 +14,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	//Ability stuff
 	{
-		VisabilityAbility * visAbl = new VisabilityAbility();
-		visAbl->setOwner(this);
-		visAbl->setIsLocal(true);
-		visAbl->Init();
-		
-
-		VisabilityAbility * visAbl2 = new VisabilityAbility();
-		visAbl2->setOwner(this);
-		visAbl2->setIsLocal(true);
-		visAbl2->Init();
 
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
@@ -47,15 +37,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents1[0] = m_teleport;
-		m_abilityComponents1[1] = visAbl;
-		m_abilityComponents1[2] = m_dis;
-		m_abilityComponents1[3] = visAbl2;
+		m_abilityComponents1[1] = m_dis;
 
 		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents2[0] = m_blink;
-		m_abilityComponents2[1] = visAbl;
-		m_abilityComponents2[2] = m_possess;
-		m_abilityComponents2[3] = visAbl2;
+		m_abilityComponents2[1] = m_possess;
 
 		m_currentAbility = (Ability)0;
 
@@ -185,8 +171,8 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
-	delete m_abilityComponents2[0];
-	delete m_abilityComponents2[2];
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
 	m_HUDcircle->Release();
 	delete m_HUDcircle;
@@ -289,45 +275,26 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 	
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
 		m_activeSet[i]->Update(deltaTime);
 
-		if (i != m_currentAbility)
+		/*if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
-		}
+		}*/
 	}
 
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
-	if (Input::SelectAbility1())
-		m_currentAbility = (Ability)0;
-	else if (Input::SelectAbility2())
-		m_currentAbility = (Ability)1;
-	else if (Input::SelectAbility3())
-		m_currentAbility = (Ability)2;
-	else if (Input::SelectAbility4())
-		m_currentAbility = (Ability)3;
-	
-	if (GamePadHandler::IsUpDpadPressed())
-		m_currentAbility = (Ability)0;
-	else if (GamePadHandler::IsRightDpadPressed())
-		m_currentAbility = (Ability)1;
-	else if (GamePadHandler::IsDownDpadPressed())
-		m_currentAbility = (Ability)2;
-	else if (GamePadHandler::IsLeftDpadPressed())
-		m_currentAbility = (Ability)3;
 
 
 	if (m_tutorialActive)
 	{
 		if (m_currentAbility == Ability::TELEPORT && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
-		else if (m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
-			m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
 		else if (m_currentAbility == Ability::DISABLE && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
 		else if (m_currentAbility == Ability::BLINK && m_activeSetID == 2)
@@ -339,7 +306,7 @@ void Player::Update(double deltaTime)
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
 		Quad * current =HUDComponent::GetQuad(i);
 		if (m_activeSet[i]->getPercentage() <= 0.0f)
@@ -506,10 +473,12 @@ void Player::SendOnAbilityUsed()
 	packet.timeStamp = RakNet::GetTime();
 	packet.m_id = ID_PLAYER_ABILITY;
 	packet.ability = (unsigned int)NONE;
+	packet.isCommonUpadate = false;
 
+	
 	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
 	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
-	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
+	//VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
 	//unique based on active ability
 	switch (this->m_currentAbility)
 	{
@@ -531,16 +500,42 @@ void Player::SendOnAbilityUsed()
 			packet.state = dis_ptr->getState();
 		}
 		break;
-	case Ability::VIS2:
-	case Ability::VISIBILITY:
-		packet.ability = (unsigned int)VISIBILITY;
-		packet.start = vis_ptr->getStart();
-		packet.velocity = vis_ptr->getLastColor();
-		packet.state = vis_ptr->getState();
-		break;
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void Player::SendAbilityUpdates()
+{
+	using namespace Network;
+	ENTITYABILITYPACKET packet;
+
+	//Same for every ability packet
+	packet.id = ID_TIMESTAMP;
+	packet.timeStamp = RakNet::GetTime();
+	packet.m_id = ID_PLAYER_ABILITY;
+	packet.ability = (unsigned int)NONE;
+	packet.isCommonUpadate = true;
+
+	if (m_activeSetID == 1)
+	{
+		TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[Ability::TELEPORT]);
+		DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE]);
+
+		packet.ability = (unsigned int)TELEPORT;
+		packet.start = tp_ptr->getStart();
+		packet.velocity = tp_ptr->getVelocity();
+		packet.state = tp_ptr->getState();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+
+		packet.ability = (unsigned int)DISABLE;
+		packet.start = dis_ptr->getStart();
+		packet.velocity = dis_ptr->getVelocity();
+		packet.state = dis_ptr->getState();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::SendOnAnimationUpdate(double dt)
@@ -619,6 +614,8 @@ void Player::RegisterThisInstanceToNetwork()
 	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnUpdateMessage, this));
 	Network::Multiplayer::addToOnSendFuncMap("AbilityPressed", std::bind(&Player::SendOnAbilityUsed, this));
 	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("Ability2Pressed", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("Ability2Released", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
 void Player::_collision()
@@ -657,13 +654,18 @@ void Player::_handleInput(double deltaTime)
 	}
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
-	
+
+
+	if (Input::OnAbilityPressed() && !Input::OnAbility2Pressed())
+		m_currentAbility = (Ability)0;
+	else if (Input::OnAbility2Pressed() && !Input::OnAbilityPressed())
+		m_currentAbility = (Ability)1;
 
 	_onSprint();
 	_onCrouch();
 	_onMovement();
 	//_onJump();
-	_onAbility(deltaTime);
+	//_onAbility(deltaTime);
 	_onInteract();
 	_onPeak(deltaTime);
 	_onRotate(deltaTime);

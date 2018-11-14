@@ -78,7 +78,7 @@ bool InputHandler::isMLeftPressed(bool repeat)
 	return result; 
 }
 
-bool InputHandler::isMLeftPressed()
+bool InputHandler::isMouseLeftPressed()
 {
 	return m_mouseKeys[0];
 }
@@ -86,12 +86,12 @@ bool InputHandler::isMLeftPressed()
 bool InputHandler::isMLeftReleased()
 {
 	static bool lastFrame = false;
-	if (InputHandler::isMLeftPressed())
+	if (InputHandler::isMouseLeftPressed())
 	{
 		lastFrame = true;
 		return false;
 	}
-	else if (!InputHandler::isMLeftPressed() && lastFrame)
+	else if (!InputHandler::isMouseLeftPressed() && lastFrame)
 	{
 		lastFrame = true;
 		return true;

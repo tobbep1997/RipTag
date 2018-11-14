@@ -126,9 +126,9 @@ void LobbyState::Update(double deltaTime)
 				m_hostListButtons[i]->setTextColor(DefaultColor);
 		}
 
-		if (m_hostListButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
+		if (m_hostListButtons[m_currentButtonServerList]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
-			std::string hostName = m_hostListButtons[m_currentButton]->getString();
+			std::string hostName = m_hostListButtons[m_currentButtonServerList]->getString();
 			auto it = m_hostAdressMap.find(hostName);
 			if (it != m_hostAdressMap.end())
 			{
@@ -150,7 +150,7 @@ void LobbyState::Update(double deltaTime)
 				this->selectedHost = RakNet::SystemAddress("0.0.0.0");
 				this->selectedHostInfo = "Selected Host: None";
 			}
-			m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_hostListButtons[m_currentButtonServerList]->setState(ButtonStates::Normal);
 		}
 	}
 	else
@@ -478,21 +478,6 @@ void LobbyState::_updateSelectionStates()
 	{
 		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
 		{
-			//check if we have the move on a different button
-			if (m_lobbyButtons[i]->isSelected() && i != m_currentButton)
-			{
-				m_lobbyButtons[m_currentButton]->Select(false);
-				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
-				m_currentButton = i;
-				m_lobbyButtons[i]->setState(ButtonStates::Hover);
-			}
-			else if (!m_lobbyButtons[i]->isSelected() && i == m_currentButton)
-			{
-				m_lobbyButtons[m_currentButton]->Select(true);
-				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Hover);
-			}
-			
-			
 			if (i != m_currentButton && !m_lobbyButtons[i]->isSelected())
 			{
 				m_lobbyButtons[i]->Select(false);
@@ -515,7 +500,7 @@ void LobbyState::_updateSelectionStates()
 	{
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
-			if (i != m_currentButton && !m_hostListButtons[i]->isSelected())
+			if (i != m_currentButtonServerList && !m_hostListButtons[i]->isSelected())
 			{
 				m_hostListButtons[i]->Select(false);
 				m_hostListButtons[i]->setState(ButtonStates::Normal);
@@ -658,7 +643,7 @@ void LobbyState::_gamePadMainLobby()
 			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
 			m_lobbyButtons[m_currentButton]->Select(false);
 			inServerList = true;
-			m_currentButton = 0;
+			m_currentButtonServerList = 0;
 		}
 	}
 
@@ -674,17 +659,41 @@ void LobbyState::_gamePadMainLobby()
 
 void LobbyState::_gamePadCharSelection()
 {
-	if (GamePadHandler::IsUpDpadPressed())
+	if (GamePadHandler::IsDownDpadPressed() || GamePadHandler::IsUpDpadPressed())
 	{
-		if (m_currentButton == 0)
-			m_currentButton = (unsigned int)CharacterSelection::Back;
-		else
-			m_currentButton--;
+		switch (m_currentButton)
+		{
+		case CharacterSelection::CharOne:
+			m_currentButton = CharacterSelection::Ready;
+			break;
+		case CharacterSelection::CharTwo:
+			m_currentButton = CharacterSelection::Back;
+			break;
+		case CharacterSelection::Ready:
+			m_currentButton = CharacterSelection::CharOne;
+			break;
+		case CharacterSelection::Back:
+			m_currentButton = CharacterSelection::CharTwo;
+			break;
+		}
 	}
-	else if (GamePadHandler::IsDownDpadPressed())
+	else if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::IsLeftDpadPressed())
 	{
-		m_currentButton++;
-		m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
+		switch (m_currentButton)
+		{
+		case CharacterSelection::CharOne:
+			m_currentButton = CharacterSelection::CharTwo;
+			break;
+		case CharacterSelection::CharTwo:
+			m_currentButton = CharacterSelection::CharOne;
+			break;
+		case CharacterSelection::Ready:
+			m_currentButton = CharacterSelection::Back;
+			break;
+		case CharacterSelection::Back:
+			m_currentButton = CharacterSelection::Ready;
+			break;
+		}
 	}
 
 	_updateSelectionStates();
@@ -704,20 +713,20 @@ void LobbyState::_gamePadServerList()
 
 	if (GamePadHandler::IsUpDpadPressed())
 	{
-		if (m_currentButton == 0)
-			m_currentButton = this->m_hostListButtons.size() - 1;
+		if (m_currentButtonServerList == 0)
+			m_currentButtonServerList = this->m_hostListButtons.size() - 1;
 		else
-			m_currentButton--;
+			m_currentButtonServerList--;
 	}
 	else if (GamePadHandler::IsDownDpadPressed())
 	{
-		m_currentButton++;
-		m_currentButton = m_currentButton % this->m_hostListButtons.size();
+		m_currentButtonServerList++;
+		m_currentButtonServerList = m_currentButtonServerList % this->m_hostListButtons.size();
 	}
 	else if (GamePadHandler::IsLeftDpadPressed())
 	{
-		m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
-		m_hostListButtons[m_currentButton]->Select(false);
+		m_hostListButtons[m_currentButtonServerList]->setState(ButtonStates::Normal);
+		m_hostListButtons[m_currentButtonServerList]->Select(false);
 
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 		inServerList = false;
@@ -727,9 +736,9 @@ void LobbyState::_gamePadServerList()
 
 	if (GamePadHandler::IsAPressed())
 	{
-		if (m_hostListButtons[m_currentButton]->isSelected())
+		if (m_hostListButtons[m_currentButtonServerList]->isSelected())
 		{
-			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+			this->m_hostListButtons[m_currentButtonServerList]->setState(ButtonStates::Pressed);
 		}
 	}
 }
@@ -755,7 +764,7 @@ void LobbyState::_keyboardMainLobby()
 			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
 			m_lobbyButtons[m_currentButton]->Select(false);
 			inServerList = true;
-			m_currentButton = 0;
+			m_currentButtonServerList = 0;
 		}
 	}
 
@@ -770,17 +779,41 @@ void LobbyState::_keyboardMainLobby()
 
 void LobbyState::_keyboardCharSelection()
 {
-	if (InputHandler::wasKeyPressed(InputHandler::Up))
+	if (InputHandler::wasKeyPressed(InputHandler::Up) || InputHandler::wasKeyPressed(InputHandler::Down))
 	{
-		if (m_currentButton == 0)
-			m_currentButton = (unsigned int)CharacterSelection::Back;
-		else
-			m_currentButton--;
+		switch (m_currentButton)
+		{
+			case CharacterSelection::CharOne:
+				m_currentButton = CharacterSelection::Ready;
+				break;
+			case CharacterSelection::CharTwo:
+				m_currentButton = CharacterSelection::Back;
+				break;
+			case CharacterSelection::Ready:
+				m_currentButton = CharacterSelection::CharOne;
+				break;
+			case CharacterSelection::Back:
+				m_currentButton = CharacterSelection::CharTwo;
+				break;
+		}
 	}
-	else if (InputHandler::wasKeyPressed(InputHandler::Down))
+	else if (InputHandler::wasKeyPressed(InputHandler::Right) || InputHandler::wasKeyPressed(InputHandler::Left))
 	{
-		m_currentButton++;
-		m_currentButton = m_currentButton % ((unsigned int)CharacterSelection::Back + 1);
+		switch (m_currentButton)
+		{
+		case CharacterSelection::CharOne:
+			m_currentButton = CharacterSelection::CharTwo;
+			break;
+		case CharacterSelection::CharTwo:
+			m_currentButton = CharacterSelection::CharOne;
+			break;
+		case CharacterSelection::Ready:
+			m_currentButton = CharacterSelection::Back;
+			break;
+		case CharacterSelection::Back:
+			m_currentButton = CharacterSelection::Ready;
+			break;
+		}
 	}
 
 	_updateSelectionStates();
@@ -797,20 +830,20 @@ void LobbyState::_keyboardServerList()
 {
 	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
-		if (m_currentButton == 0)
-			m_currentButton = this->m_hostListButtons.size() - 1;
+		if (m_currentButtonServerList == 0)
+			m_currentButtonServerList = this->m_hostListButtons.size() - 1;
 		else
-			m_currentButton--;
+			m_currentButtonServerList--;
 	}
 	else if (InputHandler::wasKeyPressed(InputHandler::Down))
 	{
-		m_currentButton++;
-		m_currentButton = m_currentButton % this->m_hostListButtons.size();
+		m_currentButtonServerList++;
+		m_currentButtonServerList = m_currentButtonServerList % this->m_hostListButtons.size();
 	}
 	else if (InputHandler::wasKeyPressed(InputHandler::Left))
 	{
-		m_hostListButtons[m_currentButton]->setState(ButtonStates::Normal);
-		m_hostListButtons[m_currentButton]->Select(false);
+		m_hostListButtons[m_currentButtonServerList]->setState(ButtonStates::Normal);
+		m_hostListButtons[m_currentButtonServerList]->Select(false);
 
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 		inServerList = false;
@@ -820,9 +853,9 @@ void LobbyState::_keyboardServerList()
 
 	if (InputHandler::wasKeyPressed(InputHandler::Enter))
 	{
-		if (m_hostListButtons[m_currentButton]->isSelected())
+		if (m_hostListButtons[m_currentButtonServerList]->isSelected())
 		{
-			this->m_hostListButtons[m_currentButton]->setState(ButtonStates::Pressed);
+			this->m_hostListButtons[m_currentButtonServerList]->setState(ButtonStates::Pressed);
 		}
 	}
 }
@@ -839,6 +872,12 @@ void LobbyState::_mouseMainLobby()
 	{
 		if (m_lobbyButtons[i]->Inside(mousePos))
 		{
+			if (i != m_currentButton)
+			{
+				m_lobbyButtons[m_currentButton]->Select(false);
+				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+				m_currentButton = i;
+			}
 			//set this button to current and on hover state
 			m_lobbyButtons[i]->Select(true);
 			m_lobbyButtons[i]->setState(ButtonStates::Hover);
@@ -997,7 +1036,9 @@ void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 	RakNet::SystemAddress hostAdress = packet->systemAddress;
 	Network::LOBBYEVENTPACKET * data = (Network::LOBBYEVENTPACKET*)packet->data;
 	std::string hostName = std::string(data->string);
-
+	//Data is shifted by 1 byte because of RakNet, just remove the first byte of the string to fix this
+	hostName.erase(0, 1);
+	
 	//See if we have this host already added, if not we add it to our list
 	auto it = this->m_hostNameMap.find(uniqueHostID);
 	if (it == m_hostNameMap.end())
