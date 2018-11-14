@@ -108,9 +108,7 @@ float4 VERY_TEMP_FUNCTION_PLEASE_DONT_USE(VS_OUTPUT input, out float4 ambient)
 }
 
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
-{
-    
-	
+{	
     float4 posToLight;
     float distanceToLight;
     float attenuation;

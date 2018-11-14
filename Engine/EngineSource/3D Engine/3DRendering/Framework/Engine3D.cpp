@@ -146,8 +146,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 }
 
 void Engine3D::Flush(Camera & camera)
-{
-	
+{	
 	m_forwardRendering->Flush(camera);
 }
 

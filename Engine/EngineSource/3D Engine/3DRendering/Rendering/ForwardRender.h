@@ -149,6 +149,7 @@ public:
 	void Release();
 private:
 
+	void _drawInstanced(Camera * camera, const bool & bindTextures = true);
 
 	void _GuardFrustumDraw();
 
