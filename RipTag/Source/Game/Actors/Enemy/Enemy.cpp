@@ -1033,8 +1033,6 @@ void Enemy::_playFootsteps(double deltaTime)
 		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
 		
 		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
-		static int counter = 0;
-		std::cout << "Play: " << counter++ << std::endl;
 		m_av.lastIndex = index;
 		m_av.hasPlayed = !m_av.hasPlayed;
 	}

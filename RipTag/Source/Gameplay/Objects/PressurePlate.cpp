@@ -44,7 +44,8 @@ void PressurePlate::Update(double deltaTime)
 			(con.b->GetBody()->GetObjectTag() == "ENEMY" || con.b->GetBody()->GetObjectTag() == "PLAYER"))
 			if ((con.a->GetBody()->GetObjectTag() == "PressurePlate") || (con.b->GetBody()->GetObjectTag() == "PressurePlate"))
 			{
-				this->setTriggerState(false);
+				if (this->getTriggerState())
+					this->setTriggerState(false);
 			}
 	}
 	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
@@ -55,8 +56,11 @@ void PressurePlate::Update(double deltaTime)
 				(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
 				if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
 				{
-					this->setTriggerState(true);
-					this->SendOverNetwork();
+					if (!this->getTriggerState())
+					{
+						this->setTriggerState(true);
+						this->SendOverNetwork();
+					}
 				}
 		}
 	}
@@ -65,6 +69,15 @@ void PressurePlate::Update(double deltaTime)
 		this->SendOverNetwork();
 
 	this->getAnimatedModel()->Update(deltaTime);
+}
+
+void PressurePlate::_playSound(AudioEngine::SoundType st)
+{
+	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
+	if (!this->getTriggerState())
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateDeactivate, &at, st);
+	else
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateActivate, &at, st);
 }
 
 

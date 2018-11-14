@@ -101,7 +101,8 @@ void TriggerHandler::LoadTriggerPairMap()
 void TriggerHandler::HandlePacket(unsigned char id, unsigned char * data)
 {
 	Network::TRIGGEREVENTPACKET * _data = (Network::TRIGGEREVENTPACKET*)data;
-	netWorkTriggers.at(_data->uniqueID)->setTriggerState(_data->state);
+	netWorkTriggers.at(_data->uniqueID)->setTriggerState(_data->state, false);
+	
 }
 
 void TriggerHandler::RegisterThisInstanceToNetwork()

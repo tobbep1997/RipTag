@@ -49,11 +49,9 @@ void Lever::Update(double deltaTime)
 					if (this->getTriggerState())
 					{
 						this->setTriggerState(false);
-						AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &fVector, AudioEngine::Player);
 					}
 					else
 					{
-						AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &fVector, AudioEngine::Player);
 						this->setTriggerState(true);
 					}
 					*(con->consumeState) += 1;
@@ -68,4 +66,13 @@ void Lever::Update(double deltaTime)
 
 void Lever::BeginPlay()
 {
+}
+
+void Lever::_playSound(AudioEngine::SoundType st)
+{
+	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
+	if (this->getTriggerState())
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &at, st);
+	else
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &at, st);
 }
