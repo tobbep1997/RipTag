@@ -47,7 +47,7 @@ void AudioEngine::UpdateListenerAttributes(const Listener & l)
 	s_system->set3DListenerAttributes(0, &l.pos, &l.vel, &l.forward, &l.up);
 }
 
-std::string AudioEngine::LoadSoundEffect(const std::string & path, bool loop)
+std::string AudioEngine::LoadSoundEffect(const std::string & path, float minDist, float maxDist, bool loop)
 {
 	FMOD::Sound * sound = nullptr;
 	FMOD_RESULT result;
@@ -61,7 +61,7 @@ std::string AudioEngine::LoadSoundEffect(const std::string & path, bool loop)
 		sound->getName(name, 256);
 		sName = std::string(name);
 
-		sound->set3DMinMaxDistance(5.0f, 10000.0f);
+		sound->set3DMinMaxDistance(minDist, maxDist);
 		if (loop)
 			sound->setMode(FMOD_LOOP_NORMAL);
 		s_soundEffects.push_back(sound);
@@ -193,10 +193,12 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 	if (i != -1)
 	{
 		FMOD_RESULT res = s_system->playSound(s_soundEffects[i], s_soundEffectGroup, true, &c);
+		
 		if (from)
 		{
 			res = c->set3DAttributes(from, NULL);
-			res = c->set3DDopplerLevel(5);
+			res = c->set3DDopplerLevel(3);
+			
 		}
 
 		c->setPaused(false);
@@ -211,6 +213,9 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 			break;
 		case AudioEngine::RemotePlayer:
 			c->setUserData((void*)&REMOTE_SOUND);
+			break;
+		case AudioEngine::Enemy:
+			c->setUserData((void*)&ENEMY_SOUND);
 			break;
 		case AudioEngine::Other:
 			c->setUserData((void*)&OTHER_SOUND);

@@ -176,10 +176,15 @@ void TeleportAbility::_inStateCharging(double dt)
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
+		if (((Player *)p_owner)->getCurrentAbility() != Ability::TELEPORT)
+		{
+			m_charge = 0.0;
+			m_tpState = TeleportState::Throwable;
+		}
 		if (Input::OnAbilityReleased())
 		{
 
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
 			if (ray == nullptr)
 			{
 				m_tpState = TeleportState::Teleportable;
@@ -238,7 +243,7 @@ void TeleportAbility::_inStateTeleportable()
 			dir2.z = -getLiniearVelocity().z;
 			dir2.w = 1;
 
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 2, true);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getPosition(), dir, 2, true);
 			RayCastListener::RayContact* var;
 			if (ray != nullptr)
 			{
@@ -249,7 +254,7 @@ void TeleportAbility::_inStateTeleportable()
 			}
 			else
 			{
-				ray = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 2, true);
+				ray = RipExtern::g_rayListener->ShotRay(getBody(), getPosition(), dir2, 2, true);
 				if (ray != nullptr)
 				{
 					var = ray->getClosestContact();
