@@ -5,6 +5,7 @@
 
 #include "Source/Physics/Bounce.h"
 #include "Source/Game/Actors/BaseActor.h"
+#include "Source/Game/Item/Map.h"
 
 namespace FMOD
 {
@@ -60,7 +61,7 @@ public:
 	static void setYouLost(const bool & youLost);
 
 private:
-	void testtThread(double deltaTime);
+	void _PhyscisThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);

@@ -125,6 +125,8 @@ private:
 	 */
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
+
+	Player * m_PlayerPtr;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -194,6 +196,8 @@ public:
 	void EnableGuardPathPrint();
 
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+
+	void SetPlayerPointer(Player * player);
 private:
 
 	void _handleInput(double deltaTime);
