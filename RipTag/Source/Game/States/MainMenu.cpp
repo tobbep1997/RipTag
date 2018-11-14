@@ -68,7 +68,7 @@ void MainMenu::Draw()
 void MainMenu::_initButtons()
 {
 	//play button
-	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.80f, 0.5f, 0.25f));
+	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.815f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("SPHERE");
 	this->m_buttons[ButtonOrder::Play]->setPressedTexture("DAB");
 	this->m_buttons[ButtonOrder::Play]->setHoverTexture("PIRASRUM");
@@ -84,7 +84,7 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Lobby]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Lobby]->setFont(FontHandler::getFont("consolas32"));
 
-	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.4f, 0.5f, 0.25f));
+	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.38f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture("SPHERE");
 	this->m_buttons[ButtonOrder::Option]->setPressedTexture("DAB");
 	this->m_buttons[ButtonOrder::Option]->setHoverTexture("PIRASRUM");
@@ -92,7 +92,7 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Option]->setFont(FontHandler::getFont("consolas32"));
 
 	//Quit button
-	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.20f, 0.5f, 0.25f));
+	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.17f, 0.5f, 0.25f));
 	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture("SPHERE");
 	this->m_buttons[ButtonOrder::Quit]->setPressedTexture("DAB");
 	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("PIRASRUM");
@@ -104,9 +104,9 @@ void MainMenu::_initButtons()
 	this->m_background->setPivotPoint(Quad::PivotPoint::center);
 	this->m_background->setPosition(0.5f, 0.5f);
 	this->m_background->setScale(2.0f, 2.0f);
-	this->m_background->setUnpressedTexture("MAINMENU");
-	this->m_background->setPressedTexture("MAINMENU");
-	this->m_background->setHoverTexture("MAINMENU");
+	this->m_background->setUnpressedTexture("MAINMENUBG");
+	this->m_background->setPressedTexture("MAINMENUBG");
+	this->m_background->setHoverTexture("MAINMENUBG");
 
 }
 
@@ -234,7 +234,7 @@ void MainMenu::Load()
 	Manager::g_textureManager.loadTextures("PIRASRUM");
 	Manager::g_textureManager.loadTextures("DAB");
 	Manager::g_textureManager.loadTextures("LOADING"); 
-	Manager::g_textureManager.loadTextures("MAINMENU");
+	Manager::g_textureManager.loadTextures("MAINMENUBG");
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	   
@@ -252,7 +252,7 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadTexture("PIRASRUM");
 	Manager::g_textureManager.UnloadTexture("DAB");
 	Manager::g_textureManager.UnloadTexture("LOADING"); 
-	Manager::g_textureManager.UnloadTexture("MAINMENU");
+	Manager::g_textureManager.UnloadTexture("MAINMENUBG");
 	Manager::g_textureManager.UnloadAllTexture();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
