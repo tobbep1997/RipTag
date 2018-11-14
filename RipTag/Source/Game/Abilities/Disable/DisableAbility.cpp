@@ -161,7 +161,7 @@ void DisableAbility::_inStateCharging(double dt)
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
-		if (Input::OnCancelAbility())
+		if (Input::OnCancelAbilityPressed())
 		{
 			m_charge = 0.0;
 			m_dState = DisableState::Throwable;

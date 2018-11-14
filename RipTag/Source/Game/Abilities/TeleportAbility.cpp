@@ -180,7 +180,7 @@ void TeleportAbility::_inStateCharging(double dt)
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
-		if (Input::OnCancelAbility())
+		if (Input::OnCancelAbilityPressed())
 		{
 			m_charge = 0.0;
 			m_tpState = TeleportState::Throwable;
@@ -231,7 +231,7 @@ void TeleportAbility::_inStateTeleportable()
 {
 	if (isLocal)
 	{
-		if (Input::OnCancelAbility())
+		if (Input::OnCancelAbilityPressed())
 		{
 			m_tpState = TeleportAbility::Cooldown;
 		}

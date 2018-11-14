@@ -1021,10 +1021,13 @@ void Player::_objectInfo(double deltaTime)
 				if(ray->getNrOfContacts() >= 2)
 					cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-				if ((cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" || cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER"))
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
 				{
-					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-						m_infoText->setString("Press X to pull");
+					m_infoText->setString("Press X to pull");
+				}
+				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+				{
+					m_infoText->setString("Press X to pull");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{

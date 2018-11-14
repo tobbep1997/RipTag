@@ -106,6 +106,7 @@ bool Input::Crouch()
 	return result;
 }
 
+
 bool Input::Interact()
 {
 	bool result = false;
@@ -314,7 +315,7 @@ bool Input::OnAbility2Released()
 	return false;
 }
 
-bool Input::OnCancelAbility()
+bool Input::OnCancelAbilityPressed()
 {
 	bool result = false;
 	if (isUsingGamepad())
@@ -336,6 +337,19 @@ bool Input::OnCancelAbility()
 	}
 
 	return result;
+}
+
+bool Input::OnCancelAbilityReleased()
+{
+	static bool previousFrame = false;
+	if (Input::OnCancelAbilityPressed())
+		previousFrame = true;
+	if (!Input::OnCancelAbilityPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
 }
 
 bool Input::Exit()
