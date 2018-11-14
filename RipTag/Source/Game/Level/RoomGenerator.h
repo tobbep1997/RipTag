@@ -1,5 +1,5 @@
 #pragma once
-
+#include "RandomRoomGrid.h"//TODO move to pch //maybe/Fredrik
 class Room;
 class Grid;
 class PointLight;
@@ -23,8 +23,9 @@ private:
 	BaseActor * asset;
 
 	EnemyHandler * m_generatedRoomEnemyHandler;
+	void dbgFuncSpawnAboveMap();
 
-
+	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
 	void _makeFloor();
 	void _makeWalls();

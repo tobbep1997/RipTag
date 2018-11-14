@@ -134,7 +134,7 @@ void LevelHandler::_LoadPreFabs()
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 {
 	srand(seed);
-	std::vector<int> usedRooms;
+	//std::vector<int> usedRooms;
 	                               //Byt i < 1 till amountOfRooms
 	//for (short unsigned int i = 0; i < 1; i++)
 	//{

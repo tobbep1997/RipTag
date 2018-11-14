@@ -34,7 +34,7 @@ void PhysicsComponent::p_setPosition(const  float& x, const float& y, const floa
 	{
 		for (int i = 0; i < m_bodys.size(); i++)
 		{
-			m_bodys[i]->SetTransform(b3Vec3(m_bodys[i]->GetTransform().translation.x + x, m_bodys[i]->GetTransform().translation.y + y, m_bodys[i]->GetTransform().translation.z + z), m_bodys[i]->GetQuaternion());
+			m_bodys[i]->SetTransform(b3Vec3(m_bodys[i]->GetTransform().translation.x +x , m_bodys[i]->GetTransform().translation.y + y, m_bodys[i]->GetTransform().translation.z + z), m_bodys[i]->GetQuaternion()); // REMoved + x, y, z
 		}
 	}
 }

@@ -220,7 +220,7 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-	//DrawWorldCollisionboxes();
+//	DrawWorldCollisionboxes();
 	
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }

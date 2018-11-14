@@ -482,8 +482,8 @@ void Room::Release()
 	}
 	if (CollisionBoxes)
 	{
-		CollisionBoxes->Release(*RipExtern::g_world);
-		delete CollisionBoxes;
+		//CollisionBoxes->Release(*RipExtern::g_world);
+		//delete CollisionBoxes;
 		CollisionBoxes = nullptr;
 	}
 	for (auto light : m_pointLights)
