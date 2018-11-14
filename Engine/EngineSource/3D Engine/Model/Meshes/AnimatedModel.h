@@ -25,6 +25,7 @@ namespace ImporterLibrary
 	struct AnimationFromFile;
 };
 
+
 namespace Animation
 {
 #pragma region AnimatedModelClassStructs
@@ -193,14 +194,20 @@ namespace Animation
 		int GetCurrentFrameIndex();
 
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
+		std::unique_ptr<SM::AnimationStateMachine>& GetLayerStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& InitStateMachine(size_t numStates);
+		std::unique_ptr<SM::AnimationStateMachine>& InitLayerStateMachine(size_t numStates);
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
+		float GetCachedDeltaTime();
 	private:
 		float m_currentFrameDeltaTime = 0.0f;
 
 		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
+		std::unique_ptr<SM::AnimationStateMachine> m_LayerStateMachine;
 		std::unique_ptr<SM::StateVisitor> m_Visitor;
+		std::unique_ptr<SM::LayerVisitor> m_LayerVisitor;
+
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 		
@@ -223,9 +230,11 @@ namespace Animation
 		unsigned int m_scrubIndex = 0; // #todo remove
 
 		//-- Helper functions --
+	public:
 		JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
 		SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
 		SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
+	private:
 		//----------------------
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
@@ -250,6 +259,19 @@ namespace Animation
 		void UpdateLooping(Animation::AnimationClip* clip);
 		void UpdateOnce(Animation::AnimationClip* clip);
 	};
+
+	//Stuff
+	inline SkeletonPose MakeSkeletonPose(const SkeletonPose& referencePose, uint16_t jointCount)
+	{
+		SkeletonPose newPose;
+		newPose.m_jointPoses = std::make_unique<JointPose[]>(jointCount);
+		
+		for (int i = 0; i < jointCount; i++)
+			newPose.m_jointPoses[i] = referencePose.m_jointPoses[i];
+
+		return newPose;
+	}
+	//
 
 #pragma region AnimationCBufferClass
 	class AnimationCBuffer
