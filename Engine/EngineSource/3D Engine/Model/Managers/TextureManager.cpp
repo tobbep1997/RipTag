@@ -77,7 +77,11 @@ Texture * TextureManager::getTexture(const std::string & path)
 			return m_textures[key][i];
 		}
 	}
-	return nullptr;
+	for (int i = 0; i < 8; i++)
+	{
+		std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
+	}
+	throw std::exception("NOT TEXTURE FOUND");
 }
 
 void TextureManager::loadRawTexture(const std::string & path)
