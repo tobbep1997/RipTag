@@ -176,6 +176,11 @@ void TeleportAbility::_inStateCharging(double dt)
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
+		if (((Player *)p_owner)->getCurrentAbility() != Ability::TELEPORT)
+		{
+			m_charge = 0.0;
+			m_tpState = TeleportState::Throwable;
+		}
 		if (Input::OnAbilityReleased())
 		{
 

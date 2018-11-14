@@ -1006,22 +1006,29 @@ void Player::_objectInfo(double deltaTime)
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* cContact = ray->getClosestContact();
-				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= 0.3)
+				RayCastListener::RayContact* cContact2 = cContact;
+				float interactFractionRange = Player::INTERACT_RANGE / 10;
+				if(ray->getNrOfContacts() >= 2)
+					cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+
+				if ((cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" || cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER"))
 				{
-					m_infoText->setString("Press X to pull");
+					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+						m_infoText->setString("Press X to pull");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS)
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
 				{
 					m_infoText->setString("Press RB to possess");
 					//Snuff out torches (example)
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= 0.3  && m_currentAbility == Ability::BLINK)
+				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
 				{
-					m_infoText->setString("Press RB to pass");
+					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+						m_infoText->setString("Press RB to pass");
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
