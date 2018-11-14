@@ -126,6 +126,11 @@ std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositi
 	return std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4>(this->m_rooms[0]->getPlayer1StartPos(), this->m_rooms[0]->getPlayer2StartPos());
 }
 
+std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
+{
+	return std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4>(this->m_rooms[0]->getPlayer1StartPos(), this->m_rooms[0]->getPlayer2StartPos());
+}
+
 void LevelHandler::_LoadPreFabs()
 {
 	
