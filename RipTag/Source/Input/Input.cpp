@@ -240,7 +240,7 @@ bool Input::OnAbilityPressed()
 {
 	bool result = false;
 	if (isUsingGamepad())
-		result = GamePadHandler::IsLeftShoulderPressed();
+		result = GamePadHandler::IsRightShoulderPressed();
 	
 	if (!result)
 		result = InputHandler::isMLeftPressed();
@@ -279,7 +279,7 @@ bool Input::OnAbility2Pressed()
 {
 	bool result = false;
 	if (isUsingGamepad())
-		result = GamePadHandler::IsRightShoulderPressed();
+		result = GamePadHandler::IsLeftShoulderPressed();
 
 	if (!result)
 		result = InputHandler::isMRightPressed();
