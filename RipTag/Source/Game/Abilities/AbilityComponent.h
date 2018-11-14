@@ -15,8 +15,10 @@ enum Ability
 
 class AbilityComponent
 {
-private:
-	float m_manaCost;
+protected: // CD
+	float p_cooldownMax= 5.0f;
+	float p_cooldown = 0;
+
 protected:
 	void * p_owner;
 	bool isLocal;
@@ -28,12 +30,16 @@ public:
 	virtual void setOwner(void * owner);
 	virtual void setIsLocal(bool value);
 
-	virtual void setManaCost(float mana);
-	virtual float getManaCost() const;
-
 	virtual void Init() = 0;
 	virtual void Update(double deltaTime) = 0;
 	virtual void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) = 0;
 	virtual void Use() = 0;
 	virtual void Draw() = 0;
+
+	virtual void setMaxCooldown(const float & maxTime);
+	virtual float getMaxCooldWon() const;
+
+	virtual float getPercentage() const;
+
+	virtual void updateCooldown(double deltaTime);
 };

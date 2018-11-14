@@ -60,6 +60,13 @@
     <ClCompile Include="Source\Gameplay\Triggers\Triggerable.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
+    <ClCompile Include="Source\Game\States\OptionState.cpp" />
+    <ClCompile Include="Source\Game\States\LobbyState.cpp" />
+    <ClCompile Include="Source\Game\States\LoseState.cpp" />
+    <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
+    <ClCompile Include="Source\Game\Loading Screen\LoadingScreen.cpp" />
+    <ClCompile Include="Source\Game\Item\Map.cpp" />
+    <ClCompile Include="Source\Game\Item\Rock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -294,5 +301,12 @@
     <ClInclude Include="Source\Gameplay\Triggers\Triggerable.h" />
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
+    <ClInclude Include="Source\Game\States\OptionState.h" />
+    <ClInclude Include="Source\Game\States\LobbyState.h" />
+    <ClInclude Include="Source\Game\States\LoseState.h" />
+    <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
+    <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
+    <ClInclude Include="Source\Game\Item\Map.h" />
+    <ClInclude Include="Source\Game\Item\Rock.h" />
   </ItemGroup>
 </Project>

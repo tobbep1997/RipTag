@@ -8,11 +8,13 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 	m_tpState = Throwable;
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
+	m_boundingSphere = DBG_NEW DirectX::BoundingSphere(DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z), .1f);
 }
 
 TeleportAbility::~TeleportAbility()
 {
 	delete m_light;
+	delete m_boundingSphere;
 	PhysicsComponent::Release(*RipExtern::g_world);
 }
 
@@ -22,7 +24,10 @@ void TeleportAbility::Init()
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	//OUTLINGING
 	Drawable::setOutline(true);
+	Drawable::setOutlineColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
+
 	BaseActor::setGravityScale(0.60f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 	this->getBody()->SetObjectTag("TELEPORT");
@@ -40,12 +45,11 @@ void TeleportAbility::Init()
 	m_bar = new Quad();
 	Manager::g_textureManager.loadTextures("BAR");
 	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	Texture * texture = Manager::g_textureManager.getTexture("BAR");
-	m_bar->setUnpressedTexture(texture);
+	m_bar->setUnpressedTexture("BAR");
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
-	setManaCost(START_MANA_COST);
+	
 }
 
 void TeleportAbility::Update(double deltaTime)
@@ -57,6 +61,8 @@ void TeleportAbility::Update(double deltaTime)
 	}
 	if (this->isLocal)
 		_logicLocal(deltaTime);
+	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
+
 }
 
 void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -123,6 +129,11 @@ DirectX::XMFLOAT4A TeleportAbility::getStart()
 	return this->m_lastStart;
 }
 
+DirectX::BoundingSphere * TeleportAbility::GetBoundingSphere() const
+{
+	return m_boundingSphere;
+}
+
 void TeleportAbility::_logicLocal(double deltaTime)
 {
 	switch (m_tpState)
@@ -146,12 +157,11 @@ void TeleportAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
-			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-			{
-				m_tpState = TeleportAbility::Charging;
-			}
+			
+			m_tpState = TeleportAbility::Charging;
+			
 		}
 	}
 }
@@ -160,16 +170,21 @@ void TeleportAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
+		if (((Player *)p_owner)->getCurrentAbility() != Ability::TELEPORT)
+		{
+			m_charge = 0.0;
+			m_tpState = TeleportState::Throwable;
+		}
 		if (Input::OnAbilityReleased())
 		{
 
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
 			if (ray == nullptr)
 			{
 				m_tpState = TeleportState::Teleportable;
@@ -177,7 +192,7 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-				((Player*)p_owner)->DrainMana(getManaCost());
+				
 
 				start.w = 1.0f;
 				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
@@ -193,7 +208,7 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-				((Player*)p_owner)->DrainMana(getManaCost());
+				
 
 
 				start.w = 1.0f;
@@ -212,7 +227,7 @@ void TeleportAbility::_inStateTeleportable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
 
@@ -228,7 +243,7 @@ void TeleportAbility::_inStateTeleportable()
 			dir2.z = -getLiniearVelocity().z;
 			dir2.w = 1;
 
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir, 2, true);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getPosition(), dir, 2, true);
 			RayCastListener::RayContact* var;
 			if (ray != nullptr)
 			{
@@ -239,7 +254,7 @@ void TeleportAbility::_inStateTeleportable()
 			}
 			else
 			{
-				ray = RipExtern::m_rayListener->ShotRay(getBody(), getPosition(), dir2, 2, true);
+				ray = RipExtern::g_rayListener->ShotRay(getBody(), getPosition(), dir2, 2, true);
 				if (ray != nullptr)
 				{
 					var = ray->getClosestContact();
@@ -261,10 +276,10 @@ void TeleportAbility::_inStateCooldown(double dt)
 {
 	//static double accumulatedTime = 0;
 	//static const double cooldownDuration = 1.0 / 2.0; //500 ms
-	m_cooldown += dt;
-	if (m_cooldown >= COOLDOWN_WAIT_MAX)
+	p_cooldown += dt;
+	if (p_cooldown >= p_cooldownMax)
 	{
-		m_cooldown = 0.0;
+		p_cooldown = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
 }

@@ -3,7 +3,6 @@
 
 AbilityComponent::AbilityComponent(void * owner)
 {
-	m_manaCost = 0;
 	p_owner = owner;
 }
 
@@ -21,12 +20,24 @@ void AbilityComponent::setIsLocal(bool value)
 	isLocal = value;
 }
 
-void AbilityComponent::setManaCost(float mana)
+
+void AbilityComponent::setMaxCooldown(const float & maxTime)
 {
-	m_manaCost = mana;
+	this->p_cooldownMax = maxTime;
 }
 
-float AbilityComponent::getManaCost() const
+float AbilityComponent::getMaxCooldWon() const
 {
-	return m_manaCost;
+	return this->p_cooldownMax;
+}
+
+float AbilityComponent::getPercentage() const
+{
+	return p_cooldown / p_cooldownMax;
+}
+
+void AbilityComponent::updateCooldown(double deltaTime)
+{
+	if (p_cooldown > 0)
+		p_cooldown += deltaTime;
 }

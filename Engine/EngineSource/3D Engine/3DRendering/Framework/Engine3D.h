@@ -32,7 +32,7 @@ public:
 
 	HRESULT Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0);
 
-	void Flush(Camera & camera, ParticleEmitter * lol);
+	void Flush(Camera & camera);
 	void Clear();
 	void Present();
 	

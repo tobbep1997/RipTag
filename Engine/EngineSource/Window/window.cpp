@@ -68,18 +68,19 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	//KEYBOARD INPUT
+
 	case WM_KEYDOWN:
-		InputHandler::m_keys[wParam] = true; 
+		InputHandler::m_keys[wParam] = true;
 		InputHandler::m_lastPressed = static_cast<int>(wParam);
 		InputHandler::m_rawInput.push_back(static_cast<unsigned int>(wParam));
 		break; 
 
 	case WM_KEYUP:
-		
+		InputHandler::m_keysReleased[wParam] = true;
+		InputHandler::m_keysPressed[wParam] = true;
 		InputHandler::m_keys[wParam] = false;
 		InputHandler::m_lastPressed = -1; 
 		break; 
-
 	//MOUSE INPUT
 
 		//Left MB
@@ -166,32 +167,48 @@ Window::~Window()
 bool Window::Init(_In_ WindowContext windowContext)
 {
 	m_windowContext = windowContext;
+	static bool firstRun = true;
+	if (!firstRun)
+	{
+		DestroyWindow(m_wHandler);
+		BOOL lol = UnregisterClass(L"WNDCLASS", windowContext.windowInstance);
+		int i = 0;
+	}
 
-	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX)); 
-	m_windowContext.wcex.cbClsExtra = 0; 
-	m_windowContext.wcex.cbWndExtra = 0; 
-	m_windowContext.wcex.cbSize = sizeof(WNDCLASSEX); 
+	
+	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX));
+	m_windowContext.wcex.cbClsExtra = 0;
+	m_windowContext.wcex.cbWndExtra = 0;
+	m_windowContext.wcex.cbSize = sizeof(WNDCLASSEX);
 	m_windowContext.wcex.style = CS_HREDRAW | CS_VREDRAW;
 	m_windowContext.wcex.hInstance = m_windowContext.windowInstance; //Member in window instead? (windowInstance)
 	m_windowContext.wcex.lpfnWndProc = StaticWndProc;
-	m_windowContext.wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION); 
-	m_windowContext.wcex.hCursor = LoadCursor(NULL, IDC_ARROW); 
+	m_windowContext.wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	m_windowContext.wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	m_windowContext.wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 	m_windowContext.wcex.lpszMenuName = NULL;
-	m_windowContext.wcex.lpszClassName = L"WNDCLASS"; 
-	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION); 
+	m_windowContext.wcex.lpszClassName = L"WNDCLASS";
+	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+
 
 	if (!RegisterClassEx(&m_windowContext.wcex))
 	{
 		OutputDebugString(L"FAILED TO CREATE WINDOW CLASS!\n");
-		return false; 
+		return false;
 	}
+	
 
 	InputHandler::Instance();
 	InputHandler::m_viewportSize = { (INT) m_windowContext.clientWidth, (INT) m_windowContext.clientHeight };
 	//Give InputHandler neccesary dimension information 
 	InputHandler::m_windowSize.x = m_windowContext.clientWidth;
 	InputHandler::m_windowSize.y = m_windowContext.clientHeight; 
+	for (int i = 0; i < 256; i++)
+	{
+		InputHandler::m_keys[i]			= false;
+		InputHandler::m_keysReleased[i]	= false;
+		InputHandler::m_keysPressed[i]	= true;
+	}
 
 	
 	RECT r = { 0, 0, m_windowContext.clientWidth, m_windowContext.clientHeight };
@@ -219,7 +236,7 @@ bool Window::Init(_In_ WindowContext windowContext)
 	}
 
 	ShowWindow(m_wHandler, 10);
-
+	firstRun = false;
 	return true;
 }
 

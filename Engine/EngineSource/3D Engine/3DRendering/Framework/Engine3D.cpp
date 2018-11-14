@@ -114,10 +114,10 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	return hr;
 }
 
-void Engine3D::Flush(Camera & camera, ParticleEmitter * lol)
+void Engine3D::Flush(Camera & camera)
 {
 	
-	m_forwardRendering->Flush(camera, lol);
+	m_forwardRendering->Flush(camera);
 }
 
 void Engine3D::Clear()
@@ -142,6 +142,7 @@ void Engine3D::Release()
 	DX::SafeRelease(m_depthBufferTex);
 	DX::SafeRelease(m_samplerState);	
 	DX::SafeRelease(m_depthStencilState);
+	
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
 }

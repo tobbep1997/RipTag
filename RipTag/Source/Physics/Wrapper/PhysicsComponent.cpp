@@ -147,10 +147,66 @@ void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const
 	//m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
 }
 
+void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const float& roll)
+{
+	b3Quaternion qu = m_body->GetQuaternion();
+	DirectX::XMVECTOR vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
+
+	//add == mulitypyy
+
+	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, 0, 0);
+
+	t = DirectX::XMQuaternionMultiply(vec, t);
+
+
+
+	float xx = DirectX::XMVectorGetX(t);
+	float yy = DirectX::XMVectorGetY(t);
+	float zz = DirectX::XMVectorGetZ(t);
+	float ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
+
+	qu = m_body->GetQuaternion();
+	vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
+
+	//add == mulitypyy
+
+	t = DirectX::XMQuaternionRotationRollPitchYaw(0, yaw, 0);
+
+	t = DirectX::XMQuaternionMultiply(vec, t);
+
+
+
+	xx = DirectX::XMVectorGetX(t);
+	yy = DirectX::XMVectorGetY(t);
+	zz = DirectX::XMVectorGetZ(t);
+	ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
+
+	//STOP
+	qu = m_body->GetQuaternion();
+	vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
+
+	//add == mulitypyy
+
+	t = DirectX::XMQuaternionRotationRollPitchYaw(0, 0, roll);
+
+	t = DirectX::XMQuaternionMultiply(vec, t);
+
+
+
+	xx = DirectX::XMVectorGetX(t);
+	yy = DirectX::XMVectorGetY(t);
+	zz = DirectX::XMVectorGetZ(t);
+	ww = DirectX::XMVectorGetW(t);
+	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
+	
+}
 
 
 PhysicsComponent::PhysicsComponent()
 {
+
 }
 
 PhysicsComponent::~PhysicsComponent()
@@ -351,10 +407,30 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
 }
 
-void PhysicsComponent::CreateShape(float x, float y, float z)
+void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, std::string objectTag)
 {
-	b3Shape* shape = m_body->CreateShape(*m_bodyBoxDef);
-	shape->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
+	b3Hull* hull = new b3Hull();
+	hull->SetAsBox(b3Vec3(sizeX, sizeY, sizeZ));
+	b3Polyhedron* polyhedron = new b3Polyhedron();
+	polyhedron->SetHull(hull);
+	//polyhedron->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
+	polyhedron->SetObjectTag(objectTag);
+	//b3Shape* shape = polyhedron;//
+	b3ShapeDef* s;
+	s = new b3ShapeDef();
+	s->shape = polyhedron;
+	s->density = 1.0f;
+	s->restitution = 0;
+	s->friction = 1;
+	s->sensor = false;
+	b3Transform pos;
+	pos.SetIdentity();
+	pos.translation = b3Vec3(x, y, z);
+	s->local = pos;
+	m_body->CreateShape(*s);
+	m_shapeDefs.push_back(s);
+	m_hulls.push_back(hull);
+	delete polyhedron;
 }
 
 void PhysicsComponent::setGravityScale(float gravity)

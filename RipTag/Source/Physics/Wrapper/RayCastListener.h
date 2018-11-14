@@ -1,5 +1,6 @@
 #pragma once
 #include "../../Physics/Wrapper/PhysicsComponent.h"
+#include "EngineSource\Helper\Timer.h"
 class RayCastListener : public b3RayCastListener
 {	
 public:
@@ -184,6 +185,7 @@ public:
 		float z = start.z + (length * direction.z);
 
 		body->GetScene()->RayCast(this, b3Vec3(start.x, start.y, start.z), b3Vec3(x, y, z));
+		
 
 		if (m_rayHit)
 		{

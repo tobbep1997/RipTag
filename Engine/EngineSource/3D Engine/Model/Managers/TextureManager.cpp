@@ -49,13 +49,15 @@ void TextureManager::loadTextures(const std::string & path)
 			tempTexture->setName(fullPath);
 			
 			tempTexture->Load(fullPath.c_str());
-
+			
 			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
 			m_textureMutex.unlock();
 		}
 		else
 		{
+			std::cout << yellow << path << " Texture Already loaded" << std::endl;
+			std::cout << white;
 			delete tempTexture;	
 		}
 	}
@@ -75,7 +77,15 @@ Texture * TextureManager::getTexture(const std::string & path)
 			return m_textures[key][i];
 		}
 	}
-	return nullptr;
+	for (int i = 0; i < 8; i++)
+	{
+		std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
+	}
+	throw std::exception("NOT TEXTURE FOUND");
+}
+
+void TextureManager::loadRawTexture(const std::string & path)
+{
 }
 
 bool TextureManager::UnloadTexture(const std::string& path)
@@ -93,6 +103,33 @@ bool TextureManager::UnloadTexture(const std::string& path)
 		}
 	}
 	return false;
+}
+
+bool TextureManager::UnloadAllTexture()
+{
+	for (unsigned int i = 0; i < TEXTURE_HASHTABLE_SIZE; i++)
+	{
+		for (unsigned int j = 0; j < m_textures[i].size(); j++)
+		{
+			delete m_textures[i][j];
+		}
+		m_textures[i].clear();
+	}
+
+	return true;
+}
+
+const unsigned int TextureManager::getLoadedTextures() const
+{
+	unsigned int count = 0;
+	for (unsigned int i = 0; i < TEXTURE_HASHTABLE_SIZE; i++)
+	{
+		for (unsigned int j = 0; j < m_textures[i].size(); j++)
+		{
+			count++;
+		}		
+	}
+	return count;
 }
 
 unsigned int TextureManager::_getKey(const std::wstring & path)

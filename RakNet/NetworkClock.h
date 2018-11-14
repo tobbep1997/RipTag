@@ -50,7 +50,7 @@ namespace Network
 			if (this->m_isRunning)
 			{
 				this->m_current = std::chrono::steady_clock::now();
-				std::chrono::duration<double> duration = std::chrono::duration_cast<std::chrono::duration<double>>(this->m_current - this->m_start);
+				std::chrono::duration<double, std::milli> duration = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(this->m_current - this->m_start);
 				return (duration.count() + this->m_value);
 			}
 			else

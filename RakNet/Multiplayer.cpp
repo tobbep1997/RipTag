@@ -7,6 +7,7 @@ namespace Network
 {
 	std::map<std::string, std::function<void()>> Multiplayer::LocalPlayerOnSendMap;
 	std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> Multiplayer::RemotePlayerOnReceiveMap;
+	std::map<unsigned char, std::function<void(unsigned char, RakNet::Packet*)>> Multiplayer::LobbyOnReceiveMap;
 
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
@@ -30,7 +31,6 @@ namespace Network
 	{
 		if (this->pPeer)
 		{
-			this->Disconnect();
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
 			this->pPeer = 0;
 		}
@@ -51,42 +51,59 @@ namespace Network
 		RemotePlayerOnReceiveMap.insert(std::pair < unsigned char, std::function<void(unsigned char, unsigned char *)>>(key, func));
 	}
 
-	void Multiplayer::StartUpServer()
+	void Multiplayer::addToLobbyOnReceiveMap(unsigned char key, std::function<void(unsigned char, RakNet::Packet*)> func)
+	{
+		LobbyOnReceiveMap.insert(std::pair <unsigned char, std::function<void(unsigned char, RakNet::Packet*)>>(key, func));
+	}
+
+	int Multiplayer::GenerateSeed()
+	{
+		this->m_seed = (int)time(0);
+		return m_seed;
+	}
+
+	void Multiplayer::SetupServer()
+	{
+		if(m_isRunning)
+			this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
+	}
+
+	void Multiplayer::CloseServer(RakNet::SystemAddress ip)
+	{
+		if (strcmp(ip.ToString(), "UNASSIGNED_SYSTEM_ADDRESS") == 0)
+			return;
+		if (m_isRunning)
+		{
+			this->pPeer->CloseConnection(ip, true, (unsigned char)'\000', PacketPriority::IMMEDIATE_PRIORITY);
+			this->pPeer->SetMaximumIncomingConnections(0);
+			return;
+		}
+	}
+
+	void Multiplayer::StartUpPeer()
 	{
 		RakNet::StartupResult result;
-		
-		m_isServer = true;
-		m_isClient = false;
 		m_isRunning = true;
-
 		//specify the port(s) to listen on
 		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
 		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
 			m_isRunning = false;
 		}
-
-		this->pPeer->SetMaximumIncomingConnections(MAX_CONNECTIONS);
+		else
+			this->pPeer->SetMaximumIncomingConnections(0);
 	}
 
-	void Multiplayer::StartUpClient()
+	void Multiplayer::ShutdownPeer()
 	{
-		RakNet::StartupResult result;
-
-		m_isServer = false;
-		m_isClient = true;
-		m_isRunning = true;
-
-		//a client doesn't need to listen on a specific port - auto assigned
-		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
-
-		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
+		if (this->pPeer && m_isRunning)
 		{
+			this->pPeer->Shutdown(1);
 			m_isRunning = false;
 		}
 	}
 
-	void Multiplayer::AdvertiseHost()
+	void Multiplayer::AdvertiseHost(const char * additionalData, size_t length)
 	{
 		static ChronoClock localClock;
 		if (localClock.isRunning() == false)
@@ -97,67 +114,24 @@ namespace Network
 		double elapsedTime = localClock.getElapsedTime();
 
 		if (elapsedTime >= ADVERTISEMENT_FREQUENCE)
-			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), PEER_PORT, nullptr, 0);
+			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), PEER_PORT, additionalData, length);
 	}
 
-	void Multiplayer::SearchLANHost()
+	bool Multiplayer::ConnectTo(RakNet::SystemAddress ip)
 	{
-		static bool connectionAttempt = false;
-
-		RakNet::Packet * packet;
-		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive())
-		{
-			//look for the advertise message
-			if (packet->data[0] == DefaultMessageIDTypes::ID_ADVERTISE_SYSTEM && !packet->wasGeneratedLocally)
-			{
-				//save the server IP and send a connection request
-				this->m_rIP = packet->systemAddress;
-				if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(this->m_rIP.ToString(), this->m_rIP.GetPort(), nullptr, 0))
-					connectionAttempt = true;
-			}
-			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED && !packet->wasGeneratedLocally && connectionAttempt)
-			{
-				this->m_rIP = packet->systemAddress;
-				this->m_isConnected = true;
-				connectionAttempt = false;
-				//we are now connected we can exit the loop immidietly
-				pPeer->DeallocatePacket(packet);
-				pPeer->SetOccasionalPing(true);
-				return;
-			}
-			else if (packet->data[0] == DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED)
-			{
-				//we should also log the failed connection attempt
-				connectionAttempt = false;
-			}
-		}
+		if (RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED == this->pPeer->Connect(ip.ToString(), PEER_PORT, nullptr, 0))
+			return true;
+		else
+			return false;
 	}
 
-	void Multiplayer::SearchLANClient()
+	void Multiplayer::Disconnect(RakNet::SystemAddress ip)
 	{
+		if (strcmp(ip.ToString(), "UNASSIGNED_SYSTEM_ADDRESS") == 0)
+			return;
 
-		RakNet::Packet * packet;
-		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive())
-		{
-			if (packet->data[0] == DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION && !packet->wasGeneratedLocally)
-			{
-				m_rIP = packet->systemAddress;
-				this->pPeer->Connect(m_rIP.ToString(), m_rIP.GetPort(), nullptr, 0);
-				m_isConnected = true;
-				pPeer->DeallocatePacket(packet);
-				pPeer->SetOccasionalPing(true);
-				return;
-			}
-		}
-	}
-
-	void Multiplayer::Disconnect()
-	{
-		if (m_isConnected)
-		{
-			pPeer->CloseConnection(m_rIP, true);
-			m_isConnected = m_isClient = m_isServer = m_isRunning = m_isGameRunning = false;
-		}
+		if (m_isRunning)
+			pPeer->CloseConnection(ip, true, (unsigned char)'\000', PacketPriority::IMMEDIATE_PRIORITY);
 	}
 
 	void Multiplayer::ReadPackets()
@@ -167,16 +141,17 @@ namespace Network
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			/*packetsCounter++;*/
-			//std::cout << "--------------------------NEW PACKET--------------------------\n";
-			//std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
-			//std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
-			//std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
-			//std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
-			////std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			//std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;
+			/*packetsCounter++;
+			std::cout << "--------------------------NEW PACKET--------------------------\n";
+			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
+			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
+			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
+			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
+			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
+			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
 			this->HandleRakNetMessages(mID);
+			this->HandleLobbyMessages(mID, packet);
 			this->HandleGameMessages(mID, packet->data);
 			
 		}
@@ -201,8 +176,8 @@ namespace Network
 
 	void Multiplayer::EndConnectionAttempt()
 	{
-		if (m_isConnected)
-			this->Disconnect();
+		if (m_isConnected);
+			
 		else
 		{
 			this->pPeer->Shutdown(1);
@@ -212,22 +187,8 @@ namespace Network
 
 	void Multiplayer::Update()
 	{
-		if (m_isRunning)
-		{
-			if (m_isServer && !m_isConnected)
-			{
-				this->AdvertiseHost();
-				this->SearchLANClient();
-			}
-			else if (m_isClient && !m_isConnected)
-			{
-				this->SearchLANHost();
-			}
-			else if (m_isConnected)
-			{
-				this->ReadPackets();
-			}
-		}
+		if (m_isRunning)	
+			this->ReadPackets();
 	}
 
 
@@ -265,6 +226,21 @@ namespace Network
 		return toReturn;
 	}
 
+	RakNet::SystemAddress Multiplayer::GetMySysAdress()
+	{
+		if (this->pPeer->IsActive())
+			return this->pPeer->GetMyBoundAddress();
+		return RakNet::SystemAddress();
+	}
+
+	RakNet::RakNetGUID Multiplayer::GetMyGUID()
+	{
+		
+		if (this->pPeer->IsActive())
+			return this->pPeer->GetMyGUID();
+		return RakNet::RakNetGUID();
+	}
+
 
 	Multiplayer::Multiplayer()
 	{
@@ -287,15 +263,19 @@ namespace Network
 
 	void Multiplayer::HandleRakNetMessages(unsigned char mID)
 	{
+		int breaker = 0;
 		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator;
 		switch (mID)
 		{
+		case DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION:
+			breaker = 1;
+			break;
 		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
 			mapIterator = RemotePlayerOnReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
 			if (mapIterator != RemotePlayerOnReceiveMap.end())
 				mapIterator->second(0, nullptr);
-			this->Disconnect();
+			//this->Disconnect();
 			break;
 		case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
 			// Print message: Server is full
@@ -314,6 +294,13 @@ namespace Network
 		if (mapIterator != RemotePlayerOnReceiveMap.end())
 			mapIterator->second(mID, data);
 
+	}
+
+	void Multiplayer::HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet)
+	{
+		auto it = LobbyOnReceiveMap.find(mID);
+		if (it != LobbyOnReceiveMap.end())
+			it->second(mID, packet);
 	}
 
 	void Multiplayer::_onDisconnect()

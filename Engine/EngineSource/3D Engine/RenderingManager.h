@@ -14,7 +14,7 @@ private:
 	bool	DEBUG = false;
 	Window*		m_wnd;
 	Engine3D*	m_engine;
-
+	HINSTANCE m_hInstance;
 	//IMGUI onlt take 1 mb in debug mode
 	ImGuiManager * m_ImGuiManager;
 public:
@@ -28,7 +28,7 @@ public:
 	void UpdateSingleThread();
 
 	void Clear();
-	void Flush(Camera & camera, ParticleEmitter * lol = nullptr);
+	void Flush(Camera & camera);
 
 	void Release();
 
@@ -41,6 +41,8 @@ public:
 	ProcMsg getWindowProcMsg();
 
 	void ImGuiProc();
+
+	void Reset();
 
 private:
 	void _reloadShaders();

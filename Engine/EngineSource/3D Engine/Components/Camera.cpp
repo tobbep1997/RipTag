@@ -139,7 +139,10 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 	DirectX::XMVECTOR vDot = DirectX::XMVector3Dot(vNewDir, vUp);
 	float dot = DirectX::XMVectorGetX(vDot);
 	if (fabs(dot) < 0.90)
+	{
 		DirectX::XMStoreFloat4A(&this->m_direction, DirectX::XMVector3Normalize(vNewDir));
+		m_direction.w = 0.0f;
+	}
 }
 
 void Camera::Rotate(float x, float y, float z, float w)

@@ -5,6 +5,8 @@
 
 #include "Source/Physics/Bounce.h"
 #include "Source/Game/Actors/BaseActor.h"
+#include "Source/Game/Item/Map.h"
+#include "Source/Game/Item/Rock.h"
 
 namespace FMOD
 {
@@ -28,7 +30,6 @@ private:
 	LevelHandler * m_levelHandler;		//Released
 	ContactListener * m_contactListener;//Released
 	RayCastListener * m_rayListener;	//Released
-	std::string name;
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
@@ -45,19 +46,40 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
+	static bool m_youlost;
+	//BaseActor * tempp;
+	//DirectX::XMFLOAT4A rot;
+	bool isCoop = false;
+	CoopData * pCoopData = nullptr;
+	int m_seed = 0;
 public:
-	PlayState(RenderingManager * rm);
+	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();
 
 	void Update(double deltaTime) override;
 
 	void Draw() override;
 
+	static void setYouLost(const bool & youLost);
+
 private:
-	void testtThread(double deltaTime);
+	void _PhyscisThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
 	void thread(std::string s);
-	void TemporaryLobby();
+	void DrawWorldCollisionboxes(const std::string & type = "");
+	// Inherited via State
+	virtual void unLoad();
+	virtual void Load();
+
+	// LOAD functions
+	void _loadTextures();
+	void _loadPhysics();
+	void _loadMeshes();
+	void _loadPlayers();
+	void _loadNetwork();
+	void _loadSound();
+	// Unload functions
+
 };
 

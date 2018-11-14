@@ -185,6 +185,40 @@ bool MeshManager::UnloadDynamicMesh(const std::string& meshName)
 	return false;
 }
 
+void MeshManager::UnloadAllMeshes()
+{
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
+	{
+		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)
+		{
+			delete m_dynamicMesh[i][j];
+		}
+		m_dynamicMesh[i].clear();
+	}
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
+	{
+		for (unsigned int j = 0; j < m_staticMesh[i].size(); j++)
+		{
+			delete m_staticMesh[i][j];
+		}
+		m_staticMesh[i].clear();
+	}
+
+}
+
+const unsigned int MeshManager::getAllLoadedMeshes() const
+{
+	unsigned int count = 0;
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)	
+		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)		
+			count++;
+
+	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)	
+		for (unsigned int j = 0; j < m_staticMesh[i].size(); j++)		
+			count++;
+	return count;
+}
+
 unsigned int MeshManager::_getKey(const std::string & meshName)
 {
 	unsigned int sum = 0;

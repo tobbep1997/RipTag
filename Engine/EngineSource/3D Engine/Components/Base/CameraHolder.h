@@ -38,7 +38,7 @@ protected:
 
 	DirectX::XMFLOAT4A m_lastPeek = { 0,0,0,0 };
 	DirectX::XMFLOAT4A m_lastSideStep = { 0,0,0,0 };
-	float m_peekSpeed = 10.0f;
+	float m_peekSpeed = 5.0f;
 
 	float m_crouchAnimSteps = 0.0f;
 	float m_crouchSpeed = 5.0f;
@@ -46,12 +46,13 @@ protected:
 
 	void p_initCamera(Camera * camera);
 	double p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState);
-	DirectX::XMFLOAT4A p_CameraTilting(double deltaTime, float targetPeek, const DirectX::XMFLOAT4A & pos );
+	DirectX::XMFLOAT4A p_CameraTilting(double deltaTime, float targetPeek);
 	double p_Crouching(double deltaTime, float& startHeight, const DirectX::XMFLOAT4A & pos);
 public:
 	CameraHolder();
 	virtual~CameraHolder();
-
+	DirectX::XMFLOAT4A getLastPeek()const ;
+	void setLastPeek(DirectX::XMFLOAT4A peek);
 	Camera * getCamera() const;
 
 	float lerp(float a, float b, float f)
