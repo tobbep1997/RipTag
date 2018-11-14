@@ -91,6 +91,7 @@ private:
 	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
+	bool m_isReversed = false;
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
@@ -110,6 +111,22 @@ private:
 
 	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
 	DirectX::BoundingFrustum * m_boundingFrustum;
+
+	const int m_maxDrawOutNode = 10;
+	std::vector<Drawable*> m_pathNodes;
+	float m_sinWaver = 0;
+
+	bool m_nodeFootPrintsEnabled = false;
+
+	const float m_startYPos = 4.5f;
+
+	/*	Okey, do the lenght to the player is what it sounds like. Length span is just how close the player sould be. before the if state ment activates
+	 *	So This is in _CheckPlayer, this will activate a multiply for the visPress 
+	 */
+	float m_lenghtToPlayer = 1000000000;
+	float m_lengthToPlayerSpan = 8;
+
+	Player * m_PlayerPtr;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -174,6 +191,13 @@ public:
 	float getMaxVisability() const;
 	float getVisCounter() const;
 	void addTeleportAbility(const TeleportAbility & teleportAbility);
+
+	void DrawGuardPath();
+	void EnableGuardPathPrint();
+
+	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+
+	void SetPlayerPointer(Player * player);
 private:
 
 	void _handleInput(double deltaTime);
@@ -195,5 +219,7 @@ private:
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch();
 	void _deActivateCrouch();
+
+	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 };
 

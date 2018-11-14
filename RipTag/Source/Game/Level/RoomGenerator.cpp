@@ -220,13 +220,13 @@ void RoomGenerator::_placeProps()
 			if (r == 3)
 			{
 				asset->setPosition(i + (7.5f * iskip), 2.5, j + (10.0f * jskip), true);
-			//	asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling) / 2, DirectX::XMVectorGetY(decomposeScaling) / 2, DirectX::XMVectorGetZ(decomposeScaling) / 2));
+				asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling) * 2, DirectX::XMVectorGetY(decomposeScaling) * 2, DirectX::XMVectorGetZ(decomposeScaling) * 2));
 
 			}
 			else
 			{
 				asset->setPosition(i, 2.5, j);
-			//	asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling)/2, DirectX::XMVectorGetY(decomposeScaling) / 2, DirectX::XMVectorGetZ(decomposeScaling) / 2));
+				asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling)*2, DirectX::XMVectorGetY(decomposeScaling) * 2, DirectX::XMVectorGetZ(decomposeScaling) * 2));
 			}
 			asset->setModel(Manager::g_meshManager.getStaticMesh("MOD" + std::to_string(r)));
 			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
@@ -271,14 +271,14 @@ void RoomGenerator::_placeProps()
 				{
 					asset->setPosition(i + (7.5f * iskip) + tempProps.props[k].transform_position[0], 2.5 +tempProps.props[k].transform_position[1], j + (10.0f * jskip) + tempProps.props[k].transform_position[2], true);
 					asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
-					//asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
+					asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
 
 				}
 				else
 				{
 					asset->setPosition(i + tempProps.props[k].transform_position[0], 2.5 + tempProps.props[k].transform_position[1], j + tempProps.props[k].transform_position[2], true);
 					asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
-					//asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
+					asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
 				}
 				switch (tempProps.props[k].typeOfProp)
 				{

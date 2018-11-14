@@ -31,7 +31,7 @@ class PossessGuard;
 class TeleportAbility;
 
 //This value has to be changed to match the players 
-class Player : public Actor, public CameraHolder, public PhysicsComponent , public HUDComponent
+class Player : public Actor, public CameraHolder, public PhysicsComponent, public HUDComponent
 {
 private: //stuff for state machine
 	friend class PlayState;
@@ -43,7 +43,7 @@ private: //stuff for state machine
 
 	std::vector<std::string> m_sounds;
 
-	
+
 
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -59,10 +59,11 @@ private:
 	AbilityComponent ** m_abilityComponents1;
 	AbilityComponent ** m_abilityComponents2;
 	AbilityComponent ** m_activeSet;
+	unsigned int m_activeSetID = 1;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
 	PlayerState m_currentState = PlayerState::Idle;
-	Enemy* possessTarget;	
+	Enemy* possessTarget;
 
 	float m_moveSpeed = 4.0f;
 	float m_cameraSpeed = 1.0f;
@@ -88,15 +89,7 @@ private:
 	int mouseX = 0;
 	int mouseY = 0;
 
-	//Mana, if you want %. go currentMana
-	float m_currentMana;
-	float m_maxMana;
 
-	const int STANDARD_START_MANA = 100;
-	Quad * m_manaBar;
-	Quad * m_manaBarBackground;
-	Quad * m_manabarText;
-	
 	Quad * m_winBar;
 
 	Quad * m_infoText;
@@ -128,9 +121,13 @@ private:
 	float totVis = 0;
 	float maxVis = 0;
 	unsigned short m_currentEnemysVisable = 0;
+
+	bool m_MapPicked = false;
+	unsigned int m_rockCounter = 0;
+	const unsigned int MAXROCKS = 5;
 public:
 	//Magic number
-	static const int g_fullVisability = 6500;
+	static const int g_fullVisability = 4500;
 	bool hasWon = false;
 	bool gameIsWon = false;
 	bool unlockMouse = false;
@@ -169,16 +166,15 @@ public:
 	const AudioEngine::Listener & getFMODListener() const; 
 	
 	//This is a way of checking if we can use the ability with out current mana
-	bool CheckManaCost(const int & manaCost);
-
-	bool DrainMana(const float & manaCost);
-	void RefillMana(const float & manaFill);
 	void drawWinBar();
 	void SetAbilitySet(int set);
 
 	void setEnemyPositions(std::vector<Enemy *> enemys);
 
+	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
+	unsigned int getNrOfRocks();
+	bool GetMapPicked();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);
@@ -186,7 +182,7 @@ private:
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);
-	void _onJump();
+	//void _onJump();
 	void _onPeak(double deltaTime);
 	void _onInteract();
 	void _onAbility(double dt);

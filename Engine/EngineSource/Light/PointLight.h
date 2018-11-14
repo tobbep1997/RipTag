@@ -43,6 +43,8 @@ private:
 
 	BOOL m_useSides[6];
 
+	float m_cullingDistanceToCamera = -0.0f;
+
 public:
 	PointLight();
 	PointLight(float * translation, float * color, float intensity);
@@ -102,6 +104,9 @@ public:
 
 	void RayTrace(b3Body & object, RayCastListener * rcl);
 	DirectX::XMFLOAT4A getDir(b3Body & object) const;
+
+	void	setDistanceToCamera(const float & distance);
+	float	getDistanceToCamera() const;
 
 private:
 	void _createSides();

@@ -288,6 +288,7 @@ void Room::LoadRoomToMemory()
 		{
 			Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+			e->SetPlayerPointer(m_playerInRoomPtr);
 			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;
@@ -404,7 +405,7 @@ void Room::Update(float deltaTime)
 	{
 		light->setDropOff(2.0425345f);
 		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 0.5f));
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
 	}
 	triggerHandler->Update(deltaTime);
 
@@ -459,6 +460,11 @@ void Room::Draw()
 	if (m_youLost)
 	{
 		HUDComponent::HUDDraw();
+	}
+
+	for (auto guard : m_roomGuards)
+	{
+		guard->DrawGuardPath();
 	}
 	
 

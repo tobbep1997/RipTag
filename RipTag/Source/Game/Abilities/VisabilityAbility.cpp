@@ -102,13 +102,11 @@ void VisabilityAbility::_remoteUpdate(double dt)
 
 void VisabilityAbility::_inStateInactive()
 {
-	if (Input::OnAbilityPressed())
+	if ((((Player *)p_owner)->getCurrentAbility() == Ability::VISIBILITY || ((Player *)p_owner)->getCurrentAbility() == Ability::VIS2)
+		&& Input::OnAbilityPressed())
 	{
-		if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-		{
-			((Player*)p_owner)->DrainMana(getManaCost());
-			m_vState = Active;
-		}
+		m_vState = Active;
+		
 	}
 	else
 		m_vState = Inactive;

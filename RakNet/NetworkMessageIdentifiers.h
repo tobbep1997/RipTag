@@ -17,29 +17,36 @@ namespace Network
 	{
 		//GAME EVENTS
 		ID_GAME_START = ID_USER_PACKET_ENUM,
-		//PLAYER EVENTS 1-6
+		//PLAYER EVENTS 1-19
 		ID_PLAYER_CREATE = ID_USER_PACKET_ENUM + 1,
 		ID_PLAYER_DISCONNECT = ID_USER_PACKET_ENUM + 2,
 		ID_PLAYER_UPDATE = ID_USER_PACKET_ENUM + 3,
 		ID_PLAYER_STATE = ID_USER_PACKET_ENUM + 4,
 		ID_PLAYER_ABILITY = ID_USER_PACKET_ENUM + 5,
 		ID_PLAYER_ANIMATION = ID_USER_PACKET_ENUM + 6,
-		// 7-9 is reserved for lobby
-		ID_SERVER_ADVERTISE = ID_USER_PACKET_ENUM + 7,
-		ID_SERVER_DISCONNECT = ID_USER_PACKET_ENUM + 8,
-		ID_CLIENT_JOIN = ID_USER_PACKET_ENUM + 9,
-		//GAMEPLAY EVENTS 10-11
-		ID_TRIGGER_USED = ID_USER_PACKET_ENUM + 10,
-		ID_PLAYER_WON = ID_USER_PACKET_ENUM +11
+		// 20-29 is reserved for lobby
+		ID_SERVER_ADVERTISE = ID_USER_PACKET_ENUM + 20,
+		ID_CHAR_SELECTED = ID_USER_PACKET_ENUM + 21,
+		ID_READY_PRESSED = ID_USER_PACKET_ENUM + 22,
+		ID_REQUEST_NID = ID_USER_PACKET_ENUM + 23,
+		ID_REPLY_NID = ID_USER_PACKET_ENUM + 24,
+		ID_REQUEST_SELECTED_CHAR = ID_USER_PACKET_ENUM + 25,
+
+		//this packet is sent by the server, contains a random seed
+		ID_GAME_STARTED = ID_USER_PACKET_ENUM + 29,
+		//GAMEPLAY EVENTS 30-49
+		ID_TRIGGER_USED = ID_USER_PACKET_ENUM + 30,
+		ID_PLAYER_WON = ID_USER_PACKET_ENUM + 31
 	};
 
 
 //STRUCTS BEGIN
 #pragma pack(push, 1)
-	struct EVENTPACKET
+	struct COMMONEVENTPACKET
 	{
 		unsigned char id;
-		EVENTPACKET(unsigned char _id) : id(_id) {}
+		RakNet::NetworkID nid;
+		COMMONEVENTPACKET(unsigned char _id, RakNet::NetworkID _nid) : id(_id), nid(_nid) {}
 	};
 
 	struct LOBBYEVENTPACKET
@@ -122,6 +129,22 @@ namespace Network
 		bool state;
 		TRIGGEREVENTPACKET(unsigned char _id, int _uID, bool _state)
 			: id(_id), uniqueID(_uID), state(_state) {}
+	};
+
+	struct CHARACTERSELECTIONPACKET
+	{
+		unsigned char id;
+		int selectedChar;
+		//either server or client
+		int role;
+	};
+
+	struct GAMESTARTEDPACKET
+	{
+		unsigned char id;
+		int seed;
+		RakNet::NetworkID remoteID;
+		GAMESTARTEDPACKET(unsigned char _id, int _seed, RakNet::NetworkID nid) : id(_id), seed(_seed), remoteID(nid) {}
 	};
 #pragma pack(pop)
 	//STRUCTS END

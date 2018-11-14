@@ -93,6 +93,17 @@ DirectX::XMFLOAT4A Drawable::getOutlineColor()
 	return m_outLineColor;
 }
 
+void Drawable::SetTransparant(const bool& bo)
+{
+	m_transparant = bo;
+}
+
+bool Drawable::GetTransparant()
+{
+	return m_transparant;
+}
+
+
 void Drawable::p_createBuffer()
 {
 	switch (p_objectType)
@@ -147,6 +158,7 @@ Drawable::Drawable() : Transform()
 	m_hidden = false;
 	m_outLineColor = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	m_outline = false;
+	m_transparant = false;
 }
 
 

@@ -33,7 +33,7 @@ void DisableAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 
 	HUDComponent::AddQuad(m_bar);
-	setManaCost(START_MANA_COST);
+	
 }
 
 void DisableAbility::Update(double deltaTime)
@@ -138,12 +138,11 @@ void DisableAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
 		{
-			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-			{
-				m_dState = DisableAbility::Charging;
-			}
+			
+			m_dState = DisableAbility::Charging;
+			
 		}
 	}
 }
@@ -152,7 +151,7 @@ void DisableAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
@@ -165,7 +164,7 @@ void DisableAbility::_inStateCharging(double dt)
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
-			((Player*)p_owner)->DrainMana(getManaCost());
+			
 
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
@@ -173,6 +172,11 @@ void DisableAbility::_inStateCharging(double dt)
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			m_lastVelocity = direction;
 			m_charge = 0.0f;
+		}
+		else if (((Player *)p_owner)->getCurrentAbility() != Ability::DISABLE)
+		{
+			m_charge = 0.0f;
+			m_dState = DisableState::Throwable;
 		}
 	}
 }

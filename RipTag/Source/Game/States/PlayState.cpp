@@ -9,8 +9,14 @@ RayCastListener * RipExtern::m_rayListener;
 
 bool PlayState::m_youlost = false;
 
-PlayState::PlayState(RenderingManager * rm) : State(rm)
-{		
+PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
+{	
+	//we dont care about this yet
+	if (coopData)
+	{
+		isCoop = true;
+		pCoopData = (CoopData*)coopData;
+	}
 	//DO NOT USE, USE Load Function
 	//DO NOT USE, USE Load Function
 	//DO NOT USE, USE Load Function
@@ -112,6 +118,7 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 
 PlayState::~PlayState()
 {
+
 	m_levelHandler->Release();
 	delete m_levelHandler;
 
@@ -143,7 +150,6 @@ void PlayState::Update(double deltaTime)
 	
 	
 	
-	
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 
@@ -156,7 +162,6 @@ void PlayState::Update(double deltaTime)
 		InputHandler::setShowCursor(FALSE);	   
 
 	
-	TemporaryLobby();
 #if _DEBUG
 #endif
 	if (GamePadHandler::IsSelectPressed())
@@ -215,7 +220,6 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-
 	//DrawWorldCollisionboxes();
 	
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
@@ -226,7 +230,7 @@ void PlayState::setYouLost(const bool& youLost)
 	m_youlost = youLost;
 }
 
-void PlayState::testtThread(double deltaTime)
+void PlayState::_PhyscisThread(double deltaTime)
 {
 	while (m_destoryPhysicsThread == false)
 	{
@@ -282,8 +286,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMFLOAT4A soundDirNormalized;
 							DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 							
-							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							float occ = 1.0f;
+							/*
+							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							if (ray)
 							{
 								for (auto & c : ray->GetRayContacts())
@@ -298,7 +303,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 										occ *= 0.50f;
 									}
 								}
-							}
+							}*/
 
 							float volume = 0;
 							c->getVolume(&volume);
@@ -382,64 +387,10 @@ void PlayState::thread(std::string s)
 	Manager::g_meshManager.loadStaticMesh(s);
 }
 
-void PlayState::TemporaryLobby()
-{
-	Network::Multiplayer * ptr = Network::Multiplayer::GetInstance();
-
-	ImGui::Begin("Network Lobby");
-	if (!ptr->isConnected() && !ptr->isRunning())
-	{
-		if (ImGui::Button("Start Server"))
-		{
-			ptr->SetupServer();
-		}
-		else if (ImGui::Button("Start Client"))
-		{
-			//ptr->StartUpClient();
-		}
-	}
-
-	if (ptr->isRunning() && ptr->isServer() && !ptr->isConnected())
-	{
-		ImGui::Text("Server running... Awaiting Connections...");
-		if (ImGui::Button("Cancel"))
-			ptr->EndConnectionAttempt();
-	}
-
-	if (ptr->isRunning() && ptr->isClient() && !ptr->isConnected())
-	{
-		ImGui::Text("Client running... Searching for Host...");
-		if (ImGui::Button("Cancel"))
-			ptr->EndConnectionAttempt();
-	}
-
-	if (ptr->isRunning() && ptr->isConnected() && !ptr->isGameRunning())
-	{
-		if (ptr->isServer() && !ptr->isGameRunning())
-			if (ImGui::Button("Start Game"))
-			{
-				ptr->setIsGameRunning(true);
-				Network::EVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
-			}
-		ImGui::Text(ptr->GetNetworkInfo().c_str());
-		if (ImGui::Button("Disconnect"))
-			ptr->Disconnect();
-	}
-
-	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
-	{
-		if (ImGui::Button("Spawn on Remote"))
-			m_playerManager->SendOnPlayerCreate();
-	}
-
-	ImGui::End();
-}
-
 #include "EngineSource\Structs.h"
 #include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
 
-void PlayState::DrawWorldCollisionboxes()
+void PlayState::DrawWorldCollisionboxes(const std::string & type)
 {
 	static const DirectX::XMFLOAT4A _SXMcube[] =
 	{
@@ -481,39 +432,43 @@ void PlayState::DrawWorldCollisionboxes()
 		{
 			if (b->GetObjectTag() != "TELEPORT")
 			{
-				b3Shape * s = b->GetShapeList();
-				auto b3BodyRot = b->GetTransform().rotation;
-				while (s != nullptr)
+				if (type == "" || b->GetObjectTag() == type)
 				{
-					Drawable * d = new Drawable;
-					d->setModel(&_sm);
-					DirectX::XMFLOAT4A shapePos = {
-						s->GetTransform().translation.x + b->GetTransform().translation.x,
-						s->GetTransform().translation.y + b->GetTransform().translation.y,
-						s->GetTransform().translation.z + b->GetTransform().translation.z,
-					1.0f
-					};
-					auto b3ShapeRot = s->GetTransform().rotation;
-					DirectX::XMFLOAT3X3 shapeRot;
-					shapeRot._11 = b3BodyRot.x.x;
-					shapeRot._12 = b3BodyRot.x.y;
-					shapeRot._13 = b3BodyRot.x.z;
-					shapeRot._21 = b3BodyRot.y.x;
-					shapeRot._22 = b3BodyRot.y.y;
-					shapeRot._23 = b3BodyRot.y.z;
-					shapeRot._31 = b3BodyRot.z.x;
-					shapeRot._32 = b3BodyRot.z.y;
-					shapeRot._33 = b3BodyRot.z.z;
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
+					{
+						Drawable * d = new Drawable;
+						d->setModel(&_sm);
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
 
-					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
-					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
-					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
-					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
 
-					DirectX::XMMATRIX world = scl * rot * trans;
-					d->ForceWorld(DirectX::XMMatrixTranspose(world));
-					_drawables.push_back(d);
-					s = s->GetNext();
+						DirectX::XMMATRIX world = scl * rot * trans;
+						d->ForceWorld(DirectX::XMMatrixTranspose(world));
+						_drawables.push_back(d);
+
+						s = s->GetNext();
+					}
 				}
 			}
 			b = b->GetNext();
@@ -527,37 +482,41 @@ void PlayState::DrawWorldCollisionboxes()
 		{
 			if (b->GetObjectTag() != "TELEPORT")
 			{
-				b3Shape * s = b->GetShapeList();
-				auto b3BodyRot = b->GetTransform().rotation;
-				while (s != nullptr)
+				if (type == "" || b->GetObjectTag() == type)
 				{
-					DirectX::XMFLOAT4A shapePos = {
-						s->GetTransform().translation.x + b->GetTransform().translation.x,
-						s->GetTransform().translation.y + b->GetTransform().translation.y,
-						s->GetTransform().translation.z + b->GetTransform().translation.z,
-					1.0f
-					};
-					auto b3ShapeRot = s->GetTransform().rotation;
-					DirectX::XMFLOAT3X3 shapeRot;
-					shapeRot._11 = b3BodyRot.x.x;
-					shapeRot._12 = b3BodyRot.x.y;
-					shapeRot._13 = b3BodyRot.x.z;
-					shapeRot._21 = b3BodyRot.y.x;
-					shapeRot._22 = b3BodyRot.y.y;
-					shapeRot._23 = b3BodyRot.y.z;
-					shapeRot._31 = b3BodyRot.z.x;
-					shapeRot._32 = b3BodyRot.z.y;
-					shapeRot._33 = b3BodyRot.z.z;
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
+					{
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
 
-					DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
-					const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
-					DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
-					DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
 
-					DirectX::XMMATRIX world = scl * rot * trans;
-					_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
-					s = s->GetNext();
-			}
+						DirectX::XMMATRIX world = scl * rot * trans;
+						_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
+						
+						s = s->GetNext();
+					}
+				}
 			
 			}
 			b = b->GetNext();
@@ -594,6 +553,9 @@ void PlayState::Load()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
 
+	//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
+	Network::Multiplayer::LocalPlayerOnSendMap.clear();
+	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
 	m_youlost = false;
 	RipExtern::g_world = &m_world;
@@ -620,23 +582,45 @@ void PlayState::Load()
 	future1.get();
 
 	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->RegisterThisInstanceToNetwork();
 	m_playerManager->CreateLocalPlayer();
-
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
-
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
-
+	
 	m_levelHandler = new LevelHandler();
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
 
+	if (isCoop)
+	{
+		this->m_seed = pCoopData->seed;
+		auto startingPositions = m_levelHandler->getStartingPositions();
+		DirectX::XMFLOAT4 posOne = std::get<0>(startingPositions);
+		DirectX::XMFLOAT4 posTwo = std::get<1>(startingPositions);
+		switch (pCoopData->localPlayerCharacter)
+		{
+		case 1:
+			m_playerManager->getLocalPlayer()->setPosition(posOne.x, posOne.y, posOne.z, posOne.w);
+			m_playerManager->getLocalPlayer()->SetAbilitySet(1);
+			m_playerManager->CreateRemotePlayer({ posTwo.x, posTwo.y, posTwo.z, posTwo.w }, pCoopData->remoteID);
+			m_playerManager->getRemotePlayer()->SetAbilitySet(2);
+			break;
+		case 2:
+			m_playerManager->getLocalPlayer()->setPosition(posTwo.x, posTwo.y, posTwo.z, posTwo.w);
+			m_playerManager->getLocalPlayer()->SetAbilitySet(2);
+			m_playerManager->CreateRemotePlayer({ posOne.x, posOne.y, posOne.z, posOne.w }, pCoopData->remoteID);
+			m_playerManager->getRemotePlayer()->SetAbilitySet(1);
+			break;
+		}
+		m_playerManager->isCoop(true);
+		//free up memory when we are done with this data
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
+	else
+	{
+		m_playerManager->isCoop(false);
+	}
+
 	triggerHandler = new TriggerHandler();
+	if (isCoop)
+		triggerHandler->RegisterThisInstanceToNetwork();
 
 	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
@@ -661,7 +645,7 @@ void PlayState::Load()
 	m_step.sleeping = false;
 	m_firstRun = false;
 
-	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 
 	std::cout << "PlayState Load" << std::endl;
 }

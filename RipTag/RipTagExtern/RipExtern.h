@@ -10,6 +10,18 @@ namespace RipExtern
 	extern b3World * g_world;
 	extern ContactListener * m_contactListener;
 	extern RayCastListener * m_rayListener;
+
+	static bool BoolReverser(const bool & first)
+	{
+		if (first)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	};
 }
 
 class XMMATH
