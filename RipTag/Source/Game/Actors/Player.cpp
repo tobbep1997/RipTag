@@ -61,6 +61,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
+
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -304,10 +305,12 @@ void Player::Update(double deltaTime)
 
 	
 
-	m_activeSet[m_currentAbility]->Update(deltaTime);
+	//m_activeSet[m_currentAbility]->Update(deltaTime);
 	
 	for (int i = 0; i < 4; i++)
 	{
+		m_activeSet[i]->Update(deltaTime);
+
 		if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
@@ -436,6 +439,11 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x /4.0f) ),
 			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
 	}
+}
+
+const Ability Player::getCurrentAbility() const
+{
+	return m_currentAbility;
 }
 
 TeleportAbility * Player::getTeleportAbility()
