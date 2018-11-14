@@ -14,7 +14,6 @@ struct RoomLocations
 
 	RoomLocations() {};
 	RoomLocations(RoomType _type, int start, int end) { type = _type; startIndex = start; endIndex = end; };
-	~RoomLocations() {};
 };
 
 class RandomRoomGrid
@@ -45,9 +44,9 @@ public:
 private:
 	void _connectRooms();
 	// Send in valid directions in the order North -> East -> South -> West
-	void _generateDoors(bool validDirections[4], int doorCount, int roomIndex, int directionIndex[4]);
-	void _forcePath(bool visited[GRID_SIZE]);
+	void _generateDoors(bool * validDirections, int doorCount, int roomIndex, int * directionIndex);
+	void _forcePath(bool * visited);
 	void _checkConnections();
-	void _followConnection(bool visited[GRID_SIZE], int roomIndex);
+	void _followConnection(bool * visited, int roomIndex);
 	void _createRoomConnection(int start, int end);
 };
