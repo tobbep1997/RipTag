@@ -243,7 +243,7 @@ bool Input::OnAbilityPressed()
 		result = GamePadHandler::IsRightShoulderPressed();
 	
 	if (!result)
-		result = InputHandler::isMLeftPressed();
+		result = InputHandler::isMouseLeftPressed();
 	/*if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
@@ -518,13 +518,17 @@ void InputMapping::_LoadGamePadMapping()
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Jump", std::bind(&GamePadHandler::IsAPressed)));
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&GamePadHandler::IsRightShoulderPressed)));
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&GamePadHandler::IsRightShoulderReleased)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Ability2Pressed", std::bind(&GamePadHandler::IsLeftShoulderPressed)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Ability2Released", std::bind(&GamePadHandler::IsLeftShoulderReleased)));
 	}
 }
 
 void InputMapping::_LoadMouseMapping()
 {
-	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&InputHandler::isMRightPressed)));
-	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&InputHandler::isMRightReleased)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&InputHandler::isMouseLeftPressed)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&InputHandler::isMLeftReleased)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("Ability2Pressed", std::bind(&InputHandler::isMRightPressed)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("Ability2Released", std::bind(&InputHandler::isMRightReleased)));
 }
 
 void InputMapping::_KeyboardCalls()

@@ -52,7 +52,7 @@ public:
 	the key needs to be released for this to become true again. */
 	static bool wasKeyPressed(int keyCode);
 	static bool isMLeftPressed(bool repeat); 
-	static bool isMLeftPressed();
+	static bool isMouseLeftPressed();
 	static bool isMLeftReleased();
 	static bool isMMiddlePressed(); 
 	static bool isMRightPressed(); 

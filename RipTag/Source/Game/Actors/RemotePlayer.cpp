@@ -37,17 +37,6 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//6.
 	//Ability stuff
 	{
-		/*VisabilityAbility * visAbl = new VisabilityAbility();
-		visAbl->setOwner(this);
-		visAbl->setIsLocal(false);
-		visAbl->Init();
-		
-
-		VisabilityAbility * visAbl2 = new VisabilityAbility();
-		visAbl2->setOwner(this);
-		visAbl2->setIsLocal(false);
-		visAbl2->Init();*/
-
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
 		m_teleport->setIsLocal(false);
@@ -70,15 +59,11 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents1[0] = m_teleport;
-		//m_abilityComponents1[1] = visAbl;
-		m_abilityComponents1[2] = m_dis;
-		//m_abilityComponents1[3] = visAbl2;
+		m_abilityComponents1[1] = m_dis;
 
 		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents2[0] = m_blink;
-		//m_abilityComponents2[1] = visAbl;
-		m_abilityComponents2[2] = m_possess;
-		//m_abilityComponents2[3] = visAbl2;
+		m_abilityComponents2[1] = m_possess;
 
 		m_currentAbility = (Ability)0;
 
@@ -93,11 +78,11 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 RemotePlayer::~RemotePlayer()
 {
-	for (int i = 0; i < m_nrOfAbilitys; i++)
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
-	delete m_abilityComponents2[0];
-	delete m_abilityComponents2[2];
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
 }
 

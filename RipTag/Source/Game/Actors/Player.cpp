@@ -14,16 +14,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	//Ability stuff
 	{
-		/*VisabilityAbility * visAbl = new VisabilityAbility();
-		visAbl->setOwner(this);
-		visAbl->setIsLocal(true);
-		visAbl->Init();
-		
-
-		VisabilityAbility * visAbl2 = new VisabilityAbility();
-		visAbl2->setOwner(this);
-		visAbl2->setIsLocal(true);
-		visAbl2->Init();*/
 
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
@@ -47,15 +37,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents1[0] = m_teleport;
-		//m_abilityComponents1[1] = visAbl;
 		m_abilityComponents1[1] = m_dis;
-		//m_abilityComponents1[3] = visAbl2;
 
 		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents2[0] = m_blink;
-		//m_abilityComponents2[1] = visAbl;
 		m_abilityComponents2[1] = m_possess;
-		//m_abilityComponents2[3] = visAbl2;
 
 		m_currentAbility = (Ability)0;
 
@@ -593,6 +579,8 @@ void Player::RegisterThisInstanceToNetwork()
 	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnUpdateMessage, this));
 	Network::Multiplayer::addToOnSendFuncMap("AbilityPressed", std::bind(&Player::SendOnAbilityUsed, this));
 	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("Ability2Pressed", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("Ability2Released", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
 void Player::_collision()
