@@ -15,7 +15,8 @@ Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
-
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+	//setOutline(true);
 }
 
 Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
@@ -28,13 +29,15 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 	this->getCamera()->setFarPlane(20);
 	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+	
 	srand(time(NULL));
+	//setOutline(true);
 }
 
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
-	this->p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
+	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
@@ -61,6 +64,9 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	setScale(.015f, .015f, .015f);
 	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	setTextureTileMult(2, 2);
+	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
+
+	//setOutline(true);
 }
 
 
@@ -78,6 +84,13 @@ Enemy::~Enemy()
 		delete m_alertPath.at(i);
 	}
 	m_alertPath.clear();
+	delete m_boundingFrustum;
+
+	for (auto drawable : m_pathNodes)
+	{
+		delete drawable;
+	}
+	m_pathNodes.clear();
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -172,6 +185,14 @@ void Enemy::Update(double deltaTime)
 {
 	if (getAnimatedModel())
 		getAnimatedModel()->Update(deltaTime);
+	
+	m_sinWaver += deltaTime;
+
+	if (m_PlayerPtr->GetMapPicked())
+	{
+		m_nodeFootPrintsEnabled = true;
+	}
+
 	if (!m_disabled)
 	{
 		//auto dir = p_camera->getDirection();
@@ -190,7 +211,51 @@ void Enemy::Update(double deltaTime)
 		//};
 		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
 		//this->ForceWorld(cameraWorld);
-		
+		DirectX::XMMATRIX viewInv, proj;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
+
+
+		DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
+		m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
+
+		for (size_t i = 0; i < m_teleportBoundingSphere.size(); i++)
+		{
+			
+			if (m_boundingFrustum->Intersects(*m_teleportBoundingSphere[i]))
+			{
+				DirectX::XMFLOAT4 direction = getDirection(getPosition(), DirectX::XMFLOAT4A(m_teleportBoundingSphere[i]->Center.x,
+					m_teleportBoundingSphere[i]->Center.y,
+					m_teleportBoundingSphere[i]->Center.z,
+					0.0f));
+
+				//std::cout << "HOLD OP THE PARTNER" << std::endl;
+
+				//TODO: Fix when ray is corrected
+
+				float lenght;
+				RayCastListener::Ray * r = RipExtern::m_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+					direction.x,
+					direction.y,
+					direction.z,
+					direction.w),
+					getLenght(getPosition(), DirectX::XMFLOAT4A(
+						direction.x,
+						direction.y,
+						direction.z,
+						direction.w)));
+				if (r)
+				{
+					/*std::cout << "-------------------------------------------------" << std::endl;
+					for (int i = 0; i < r->getNrOfContacts(); i++)
+					{						
+						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
+					}*/
+				}
+			}
+			
+		}
+
 		if (!m_inputLocked)
 		{
 			_handleInput(deltaTime);
@@ -211,6 +276,44 @@ void Enemy::Update(double deltaTime)
 			{
 				if (m_path.size() > 0)
 				{
+					if (m_pathNodes.size() == 0)
+					{
+						Manager::g_textureManager.loadTextures("FOOT");
+						Manager::g_meshManager.loadStaticMesh("FOOT");
+						for (unsigned int i = 0; i < m_path.size(); ++i)
+						{
+							
+							Drawable * temp = new Drawable();
+							temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
+							temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
+							temp->setScale({ 0.2, 0.2, 0.2, 1.0 });
+							temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
+
+							if (i + 1 < m_path.size())
+							{
+								temp->setRotation(0, _getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i+1)->worldPos.x, m_path.at(i+1)->worldPos.y }),0);
+							}
+							
+
+							temp->SetTransparant(true);
+							m_pathNodes.push_back(temp);
+						}
+						
+					}
+					/*float posY = 0.04 * sin(1 * DirectX::XM_PI*m_sinWaver*0.5f) + 4.4f;
+					for (auto path : m_pathNodes)
+					{
+						path->setPosition(path->getPosition().x, posY , path->getPosition().z);
+					}*/
+					if (m_nodeFootPrintsEnabled == true)
+					{
+						if (m_currentPathNode != 0)
+						{
+							Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
+							temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
+						}
+					}
+					
 					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
 				}
 			}
@@ -222,12 +325,31 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
-		m_knockOutTimer += deltaTime;
-		if (m_knockOutMaxTime <= m_knockOutTimer)
+		switch (m_knockOutType)
 		{
-			m_disabled = false;
-		}
 
+		case Possessed:
+			if (m_released)
+			{
+				m_possesionRecoverTimer += deltaTime;
+				if (m_possesionRecoverTimer >= m_possessionRecoverMax)
+				{
+					m_disabled = false;
+					m_released = false; 
+					m_possesionRecoverTimer = 0; 
+				}
+			}
+			break; 
+		case Stoned:
+			
+			m_knockOutTimer += deltaTime;
+			if (m_knockOutMaxTime <= m_knockOutTimer)
+			{
+				m_disabled = false;
+				m_knockOutTimer = 0;
+			}
+			break; 
+		}
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
@@ -364,16 +486,16 @@ void Enemy::_handleRotation(double deltaTime)
 
 void Enemy::_TempGuardPath(bool x, double deltaTime)
 {
-	p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
+	//p_camera->Rotate(0.0f, .5f * 5 * deltaTime, 0.0f);
 	   
 	//ImGui::Begin("be");
 	//ImGui::Text("lel %f", p_camera->getYRotationEuler().y);
 	//ImGui::End();
 
 
-	setRotation(p_camera->getYRotationEuler());
+	//setRotation(p_camera->getYRotationEuler());
 	//PhysicsComponent::p_setPositionRot(getPosition().x, getPosition().y, getPosition().z,p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
-	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+	//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 	/* p_camera->getYRotationEuler();*/
 }
 
@@ -416,7 +538,14 @@ void Enemy::removePossessor()
 		this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
+		m_released = true; 
+		m_disabled = true;  
 	}
+}
+
+void Enemy::setKnockOutType(KnockOutType knockOutType)
+{
+	m_knockOutType = knockOutType; 
 }
 
 void Enemy::SetPathVector(std::vector<Node*> path)
@@ -476,9 +605,19 @@ const Enemy::SoundLocation & Enemy::getSoundLocation() const
 	return m_sl;
 }
 
+void Enemy::setReleased(bool released)
+{
+	m_released = released; 
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;
+}
+
+const Enemy::KnockOutType Enemy::getKnockOutType() const
+{
+	return m_knockOutType; 
 }
 
 float Enemy::getTotalVisablilty() const
@@ -489,6 +628,50 @@ float Enemy::getTotalVisablilty() const
 float Enemy::getMaxVisability() const
 {
 	return m_visCounter;
+}
+
+void Enemy::addTeleportAbility(const TeleportAbility & teleportAbility)
+{
+	m_teleportBoundingSphere.push_back(teleportAbility.GetBoundingSphere());
+}
+
+void Enemy::DrawGuardPath()
+{
+	if (m_nodeFootPrintsEnabled)
+	{
+		int counter = 0;
+		if (m_currentPathNode != 0)
+		{
+			m_pathNodes.at(m_currentPathNode - 1)->Draw();
+		}
+
+		for (unsigned int i = m_currentPathNode; i < m_pathNodes.size(); ++i)
+		{
+			m_pathNodes.at(i)->Draw();
+			counter++;
+			if (counter >= m_maxDrawOutNode)
+			{
+				break;
+			}
+		}
+	}
+}
+
+void Enemy::EnableGuardPathPrint()
+{
+	m_nodeFootPrintsEnabled = true;
+}
+
+void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
+{
+	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&getPosition()), DirectX::XMLoadFloat4A(&playerPos));
+	vec = DirectX::XMVector3LengthEst(vec);
+	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+}
+
+void Enemy::SetPlayerPointer(Player* player)
+{
+	m_PlayerPtr = player;
 }
 
 float Enemy::getVisCounter() const
@@ -644,7 +827,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += m_cameraOffset;
 	p_camera->setPosition(pos);
-	pos = p_CameraTilting(deltaTime, Input::PeekRight(), getPosition());
+	//pos = p_CameraTilting(deltaTime, Input::PeekRight());
 	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
 
 	pos.y += offsetY;
@@ -661,6 +844,14 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		if (m_currentPathNode == m_path.size())
 		{
 			std::reverse(m_path.begin(), m_path.end());
+			std::reverse(m_pathNodes.begin(), m_pathNodes.end());
+
+			for (auto node : m_pathNodes)
+			{
+				node->setPosition(node->getPosition().x, m_startYPos, node->getPosition().z);
+			}
+
+			m_isReversed = RipExtern::BoolReverser(m_isReversed);
 			m_currentPathNode = 0;
 			return true;
 		}
@@ -674,6 +865,8 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
+		
+		_RotateGuard(x, y, angle, deltaTime);
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
@@ -684,14 +877,6 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
-		/*m_currentAlertPathNode++;
-		if (m_currentAlertPathNode == m_alertPath.size())
-		{
-			std::reverse(m_alertPath.begin(), m_alertPath.end());
-			m_currentAlertPathNode = 0;
-			m_alert = false;
-			return true;
-		}*/
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
 
@@ -708,6 +893,8 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
+		_RotateGuard(x, y, angle, deltaTime);
+
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
 	return false;
@@ -718,7 +905,6 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
 	{
 		delete nextNode;
-		//delete m_alertPath.at(0);
 		m_alertPath.erase(m_alertPath.begin());
 	}
 	else
@@ -731,8 +917,18 @@ void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 
+		_RotateGuard(x, y, angle, deltaTime);
+
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	}
+}
+
+void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
+{
+	p_camera->setDirection(x, p_camera->getDirection().y, y);
+	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
+	p_camera->Rotate(0, angle * deltaTime, 0);
+	p_setRotation(0, cameraRotationY.y, 0);
 }
 
 void Enemy::_CheckPlayer(double deltaTime)
@@ -741,6 +937,10 @@ void Enemy::_CheckPlayer(double deltaTime)
 	{
 		float visPres = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 
+		if (m_lenghtToPlayer < m_lengthToPlayerSpan)
+		{
+			visPres *= 1.5;
+		}
 
 		if (visPres > 0)
 		{
@@ -792,5 +992,32 @@ void Enemy::_deActivateCrouch()
 	m_cameraOffset = m_standHeight;
 	this->getBody()->GetShapeList()[0].SetSensor(false);
 	m_kp.crouching = false;
+}
+
+float Enemy::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
+{
+	if (first.x > last.x)
+	{
+		//Up
+		return 90;
+	}
+	else if (first.x < last.x)
+	{
+		//Down
+		return 90;
+	}
+	else if (first.y > last.y)
+	{
+		//Up
+		return 0;
+	}
+	else if (first.y < last.y)
+	{
+		//left
+		return 0;
+
+	}
+
+	return 0;
 }
 

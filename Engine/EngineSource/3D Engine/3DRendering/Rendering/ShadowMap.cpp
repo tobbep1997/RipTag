@@ -44,9 +44,9 @@ void ShadowMap::ShadowPass(Animation::AnimationCBuffer * animBuffer)
 
 		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
 		m_lightIndex.lightPos.x = i;
-		for (int i = 0; i < 6; i++)
+		for (int j = 0; j < 6; j++)
 		{
-			m_lightIndex.useSides[i].x = (UINT)DX::g_lights[i]->useSides()[i];
+			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
 		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
 

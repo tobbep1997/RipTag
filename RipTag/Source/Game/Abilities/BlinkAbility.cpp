@@ -6,7 +6,7 @@ BlinkAbility::BlinkAbility()
 {
 	m_bState = Blink;
 	m_useFunctionCalled = false;
-	setManaCost(MANA_COST);
+	
 }
 
 
@@ -20,7 +20,8 @@ void BlinkAbility::Init()
 
 void BlinkAbility::Update(double deltaTime)
 {
-	_logic(deltaTime);
+	if (this->isLocal)
+		_logic(deltaTime);
 }
 
 void BlinkAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -39,7 +40,7 @@ void BlinkAbility::Draw()
 //Shoots a ray, gets the contact point and the normal, puts the player on the opposite side of the wall
 void BlinkAbility::_logic(double deltaTime)
 {
-	if (Input::OnAbilityPressed()) // the Use() function was called last frame
+	if (((Player *)p_owner)->getCurrentAbility() == Ability::BLINK && Input::OnAbilityPressed()) // the Use() function was called last frame
 	{
 		Player* pPointer = static_cast<Player*>(p_owner);
 		switch (m_bState)
@@ -53,41 +54,39 @@ void BlinkAbility::_logic(double deltaTime)
 			}
 			break;
 		case BlinkState::Blink:
-			if (pPointer->CheckManaCost(getManaCost()))
-			{
-				RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
 			
-				if(ray != nullptr)
+			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE, true);
+			
+			if(ray != nullptr)
+			{
+				RayCastListener::RayContact* var = ray->getClosestContact();		
+				if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 				{
-					RayCastListener::RayContact* var = ray->getClosestContact();
-					if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+					pPointer->setPosition(
+						var->contactPoint.x + (
+						(fabs(fabs(var->contactPoint.x) - fabs(var->contactShape->GetBody()->GetTransform().translation.x)) *2 + 0.25)*
+							(-var->normal.x)),
+						pPointer->getPosition().y,
+						var->contactPoint.z + (
+						(fabs(fabs(var->contactPoint.z) - fabs(var->contactShape->GetBody()->GetTransform().translation.z))*2 + 0.25) *
+							(-var->normal.z))
+					);
+					if (fabs(var->normal.y) > 0.001)
 					{
 						pPointer->setPosition(
-							var->contactPoint.x + (
-							(fabs(fabs(var->contactPoint.x) - fabs(var->contactShape->GetBody()->GetTransform().translation.x)) *2 + 0.25)*
-								(-var->normal.x)),
-							pPointer->getPosition().y,
-							var->contactPoint.z + (
-							(fabs(fabs(var->contactPoint.z) - fabs(var->contactShape->GetBody()->GetTransform().translation.z))*2 + 0.25) *
-								(-var->normal.z))
+							pPointer->getPosition().x,
+							var->contactPoint.y + (
+							(fabs(var->contactPoint.y - (var->contactShape->GetBody()->GetTransform().translation.y) * 2)) *
+								(-var->normal.y)),
+							pPointer->getPosition().z
 						);
-						if (fabs(var->normal.y) > 0.001)
-						{
-							pPointer->setPosition(
-								pPointer->getPosition().x,
-								var->contactPoint.y + (
-								(fabs(var->contactPoint.y - (var->contactShape->GetBody()->GetTransform().translation.y) * 2)) *
-									(-var->normal.y)),
-								pPointer->getPosition().z
-							);
-						}
-						//std::cout << var->originBody->GetTransform().translation.x << " " <<
-						//	var->originBody->GetTransform().translation.y << " " <<
-						//	var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
-						pPointer->DrainMana(getManaCost());
-						m_bState = BlinkState::Wait;
 					}
-				}
+					//std::cout << var->originBody->GetTransform().translation.x << " " <<
+					//	var->originBody->GetTransform().translation.y << " " <<
+					//	var->originBody->GetTransform().translation.z << " " << std::endl << std::endl;
+						
+					m_bState = BlinkState::Wait;
+				}				
 			}
 			break;
 		}

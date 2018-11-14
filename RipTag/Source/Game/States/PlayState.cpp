@@ -9,43 +9,18 @@ RayCastListener * RipExtern::m_rayListener;
 
 bool PlayState::m_youlost = false;
 
-PlayState::PlayState(RenderingManager * rm) : State(rm)
+PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
-	m_youlost = false;
-	RipExtern::g_world = &m_world;
-	m_contactListener = new ContactListener();
-	RipExtern::m_contactListener = m_contactListener;
-	RipExtern::g_world->SetContactListener(m_contactListener);
-	m_rayListener = new RayCastListener();
-	RipExtern::m_rayListener = m_rayListener;
-	CameraHandler::Instance();
-	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
-	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_meshManager.loadDynamicMesh("STATE");
-	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
-
-	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
-	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
-
-	//Load assets
+	//we dont care about this yet
+	if (coopData)
 	{
-		//:c *queue sad music*
+		isCoop = true;
+		pCoopData = (CoopData*)coopData;
 	}
-
-	future1.get();
-	
-	m_playerManager = new PlayerManager(&this->m_world);
-	m_playerManager->RegisterThisInstanceToNetwork();
-	m_playerManager->CreateLocalPlayer();
-
-
-
-	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
-
-
-	
-	
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 	//Do not remove pls <3
 	{
 	//	model->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
@@ -135,35 +110,15 @@ PlayState::PlayState(RenderingManager * rm) : State(rm)
 	//	stateMachine->SetState("walk_forward");
 
 	}
-
-
-
-	triggerHandler = new TriggerHandler();
-
-	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
-	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
-	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
-	
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
-	
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
-
-	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
-
-	
-
-	Input::ResetMouse();
-
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
-	m_firstRun = false;
-	
-	m_physicsThread = std::thread(&PlayState::testtThread, this, 0);
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
+	//DO NOT USE, USE Load Function
 }
 
 PlayState::~PlayState()
 {
+
 	m_levelHandler->Release();
 	delete m_levelHandler;
 
@@ -195,7 +150,6 @@ void PlayState::Update(double deltaTime)
 	
 	
 	
-	
 	m_contactListener->ClearContactQueue();
 	m_rayListener->ClearConsumedContacts();
 
@@ -208,7 +162,6 @@ void PlayState::Update(double deltaTime)
 		InputHandler::setShowCursor(FALSE);	   
 
 	
-	TemporaryLobby();
 #if _DEBUG
 #endif
 	if (GamePadHandler::IsSelectPressed())
@@ -267,7 +220,8 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-
+	//DrawWorldCollisionboxes();
+	
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
 
@@ -276,7 +230,7 @@ void PlayState::setYouLost(const bool& youLost)
 	m_youlost = youLost;
 }
 
-void PlayState::testtThread(double deltaTime)
+void PlayState::_PhyscisThread(double deltaTime)
 {
 	while (m_destoryPhysicsThread == false)
 	{
@@ -331,8 +285,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMFLOAT4A soundDirNormalized;
 							DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 							
-							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							float occ = 1.0f;
+							/*
+							RayCastListener::Ray * ray = RipExtern::m_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							if (ray)
 							{
 								for (auto & c : ray->GetRayContacts())
@@ -347,7 +302,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 										occ *= 0.50f;
 									}
 								}
-							}
+							}*/
 
 							float volume = 0;
 							c->getVolume(&volume);
@@ -431,58 +386,145 @@ void PlayState::thread(std::string s)
 	Manager::g_meshManager.loadStaticMesh(s);
 }
 
-void PlayState::TemporaryLobby()
+#include "EngineSource\Structs.h"
+#include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
+
+void PlayState::DrawWorldCollisionboxes(const std::string & type)
 {
-	Network::Multiplayer * ptr = Network::Multiplayer::GetInstance();
-
-	ImGui::Begin("Network Lobby");
-	if (!ptr->isConnected() && !ptr->isRunning())
+	static const DirectX::XMFLOAT4A _SXMcube[] =
 	{
-		if (ImGui::Button("Start Server"))
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
+	};
+	static std::vector<Drawable*> _drawables;
+	static std::vector<StaticVertex> _vertices;
+	static StaticMesh _sm;
+
+
+	static bool _loaded = false;
+
+	if (!_loaded)
+	{
+		for (int i = 0; i < 36; i++)
 		{
-			ptr->SetupServer();
+			StaticVertex v;
+			v.pos = _SXMcube[i];
+			_vertices.push_back(v);
 		}
-		else if (ImGui::Button("Start Client"))
+		_sm.setVertices(_vertices);
+		
+		
+		_loaded = true;
+		const b3Body * b = m_world.getBodyList();
+
+		while (b != nullptr)
 		{
-			//ptr->StartUpClient();
-		}
-	}
-
-	if (ptr->isRunning() && ptr->isServer() && !ptr->isConnected())
-	{
-		ImGui::Text("Server running... Awaiting Connections...");
-		if (ImGui::Button("Cancel"))
-			ptr->EndConnectionAttempt();
-	}
-
-	if (ptr->isRunning() && ptr->isClient() && !ptr->isConnected())
-	{
-		ImGui::Text("Client running... Searching for Host...");
-		if (ImGui::Button("Cancel"))
-			ptr->EndConnectionAttempt();
-	}
-
-	if (ptr->isRunning() && ptr->isConnected() && !ptr->isGameRunning())
-	{
-		if (ptr->isServer() && !ptr->isGameRunning())
-			if (ImGui::Button("Start Game"))
+			if (b->GetObjectTag() != "TELEPORT")
 			{
-				ptr->setIsGameRunning(true);
-				Network::EVENTPACKET packet(Network::NETWORKMESSAGES::ID_GAME_START);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
+				if (type == "" || b->GetObjectTag() == type)
+				{
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
+					{
+						Drawable * d = new Drawable;
+						d->setModel(&_sm);
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
+
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+						DirectX::XMMATRIX world = scl * rot * trans;
+						d->ForceWorld(DirectX::XMMatrixTranspose(world));
+						_drawables.push_back(d);
+
+						s = s->GetNext();
+					}
+				}
 			}
-		ImGui::Text(ptr->GetNetworkInfo().c_str());
-		if (ImGui::Button("Disconnect"))
-			ptr->Disconnect();
+			b = b->GetNext();
+		}
 	}
-
-	if (ptr->isRunning() && ptr->isConnected() && ptr->isGameRunning())
+	else
 	{
-		if (ImGui::Button("Spawn on Remote"))
-			m_playerManager->SendOnPlayerCreate();
+		int counter = 0;
+		const b3Body * b = m_world.getBodyList();
+		while (b != nullptr)
+		{
+			if (b->GetObjectTag() != "TELEPORT")
+			{
+				if (type == "" || b->GetObjectTag() == type)
+				{
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
+					{
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
+
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+						DirectX::XMMATRIX world = scl * rot * trans;
+						_drawables[counter++]->ForceWorld(DirectX::XMMatrixTranspose(world));
+						
+						s = s->GetNext();
+					}
+				}
+			
+			}
+			b = b->GetNext();
+		}
 	}
 
-	ImGui::End();
+
+	for (auto & d : _drawables)
+		d->DrawWireFrame();
 }
 
 void PlayState::unLoad()
@@ -508,19 +550,101 @@ void PlayState::Load()
 	Manager::g_textureManager.loadTextures("FML");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("BLACK");
+	Manager::g_textureManager.loadTextures("BAR");
 
-	m_playerManager->getLocalPlayer()->Init(m_world, e_dynamicBody, 0.5f, 0.9f, 0.5f);
-	m_playerManager->getLocalPlayer()->setEntityType(EntityType::PlayerType);
-	m_playerManager->getLocalPlayer()->setColor(10, 10, 0, 1);
+	//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
+	Network::Multiplayer::LocalPlayerOnSendMap.clear();
+	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
-	m_playerManager->getLocalPlayer()->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	m_playerManager->getLocalPlayer()->setScale(1.0f, 1.0f, 1.0f);
-	m_playerManager->getLocalPlayer()->setPosition(0.0, -3.0, 0.0);
-	m_playerManager->getLocalPlayer()->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_playerManager->getLocalPlayer()->setTextureTileMult(2, 2);
+	m_youlost = false;
+	RipExtern::g_world = &m_world;
+	m_contactListener = new ContactListener();
+	RipExtern::m_contactListener = m_contactListener;
+	RipExtern::g_world->SetContactListener(m_contactListener);
+	m_rayListener = new RayCastListener();
+	RipExtern::m_rayListener = m_rayListener;
+	CameraHandler::Instance();
+	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+	Manager::g_meshManager.loadDynamicMesh("STATE");
+	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 
+	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
+	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
+
+	//Load assets
+	{
+		//:c *queue sad music*
+	}
+
+	future1.get();
+
+	m_playerManager = new PlayerManager(&this->m_world);
+	m_playerManager->CreateLocalPlayer();
+	
 	m_levelHandler = new LevelHandler();
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	if (isCoop)
+	{
+		this->m_seed = pCoopData->seed;
+		auto startingPositions = m_levelHandler->getStartingPositions();
+		DirectX::XMFLOAT4 posOne = std::get<0>(startingPositions);
+		DirectX::XMFLOAT4 posTwo = std::get<1>(startingPositions);
+		switch (pCoopData->localPlayerCharacter)
+		{
+		case 1:
+			m_playerManager->getLocalPlayer()->setPosition(posOne.x, posOne.y, posOne.z, posOne.w);
+			m_playerManager->getLocalPlayer()->SetAbilitySet(1);
+			m_playerManager->CreateRemotePlayer({ posTwo.x, posTwo.y, posTwo.z, posTwo.w }, pCoopData->remoteID);
+			m_playerManager->getRemotePlayer()->SetAbilitySet(2);
+			break;
+		case 2:
+			m_playerManager->getLocalPlayer()->setPosition(posTwo.x, posTwo.y, posTwo.z, posTwo.w);
+			m_playerManager->getLocalPlayer()->SetAbilitySet(2);
+			m_playerManager->CreateRemotePlayer({ posOne.x, posOne.y, posOne.z, posOne.w }, pCoopData->remoteID);
+			m_playerManager->getRemotePlayer()->SetAbilitySet(1);
+			break;
+		}
+		m_playerManager->isCoop(true);
+		//free up memory when we are done with this data
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
+	else
+	{
+		m_playerManager->isCoop(false);
+	}
+
+	triggerHandler = new TriggerHandler();
+	if (isCoop)
+		triggerHandler->RegisterThisInstanceToNetwork();
+
+	name = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", true);
+	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
+	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt, AudioEngine::Other);
+	AudioEngine::PlaySoundEffect(name, &caveSoundAt2, AudioEngine::Other);
+
+	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
+
+	AudioEngine::CreateReverb(reverbAt, 15.0f, 40.0f);
+
+	
+
+
+
+	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
+
+	Input::ResetMouse();
+
+	m_step.velocityIterations = 1;
+	m_step.sleeping = false;
+	m_firstRun = false;
+
+	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 
 	std::cout << "PlayState Load" << std::endl;
 }

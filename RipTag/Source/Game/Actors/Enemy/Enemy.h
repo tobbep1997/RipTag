@@ -24,6 +24,14 @@ public:
 		float percentage;
 		DirectX::XMFLOAT3 soundPos;
 	};
+
+public:
+	enum KnockOutType
+	{
+		Stoned,
+		Possessed
+	};
+
 private:
 	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
@@ -39,11 +47,16 @@ private:
 		bool interact = false;
 	};
 
+	KnockOutType m_knockOutType; 
+
 	VisibilityComponent * m_vc;
 	bool m_allowVisability = false;
 
 	bool m_inputLocked = true;
 	bool m_disabled = false;
+	bool m_released = false; 
+
+	bool m_justReleased = false; 
 
 	float m_moveSpeed = 2;
 	float m_cameraOffset;
@@ -78,6 +91,7 @@ private:
 	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
+	bool m_isReversed = false;
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
@@ -88,10 +102,31 @@ private:
 	bool m_found = false;
 
 	float m_knockOutTimer = 0;
+	float m_possesionRecoverTimer = 0; 
+	float m_possessionRecoverMax = 5; 
 	float m_knockOutMaxTime = 2;
 
 	float enemyX = 0;
 	float enemyY = 0;
+
+	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
+	DirectX::BoundingFrustum * m_boundingFrustum;
+
+	const int m_maxDrawOutNode = 10;
+	std::vector<Drawable*> m_pathNodes;
+	float m_sinWaver = 0;
+
+	bool m_nodeFootPrintsEnabled = false;
+
+	const float m_startYPos = 4.5f;
+
+	/*	Okey, do the lenght to the player is what it sounds like. Length span is just how close the player sould be. before the if state ment activates
+	 *	So This is in _CheckPlayer, this will activate a multiply for the visPress 
+	 */
+	float m_lenghtToPlayer = 1000000000;
+	float m_lengthToPlayerSpan = 8;
+
+	Player * m_PlayerPtr;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -132,10 +167,14 @@ public:
 	void setPossessor(Actor* possessor, float maxDuration, float delay);
 	void removePossessor();
 
+	//0 is Stoned, 1 is exit-possess cooldown
+	void setKnockOutType(KnockOutType knockOutType);
+
 	void SetPathVector(std::vector<Node*>  path);
 	Node * GetCurrentPathNode() const;
 
 	void SetAlertVector(std::vector<Node*> alertPath);
+	void setReleased(bool released); 
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;
 
@@ -146,10 +185,19 @@ public:
 	const SoundLocation & getSoundLocation() const;
 
 	bool getIfLost();
+	const KnockOutType getKnockOutType() const; 
 
 	float getTotalVisablilty() const;
 	float getMaxVisability() const;
 	float getVisCounter() const;
+	void addTeleportAbility(const TeleportAbility & teleportAbility);
+
+	void DrawGuardPath();
+	void EnableGuardPathPrint();
+
+	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+
+	void SetPlayerPointer(Player * player);
 private:
 
 	void _handleInput(double deltaTime);
@@ -166,9 +214,12 @@ private:
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
 	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);
+	void _RotateGuard(float x, float y, float angle, float deltaTime);
 
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch();
 	void _deActivateCrouch();
+
+	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 };
 

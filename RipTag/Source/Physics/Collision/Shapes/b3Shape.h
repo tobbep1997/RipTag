@@ -87,6 +87,9 @@ public :
 	void* GetUserData() const;
 	void SetUserData(void* data);
 
+	void SetObjectTag(std::string tag);
+	std::string GetObjectTag();
+
 	b3Shape* GetNext();
 	const b3Shape* GetNext() const;
 protected :
@@ -100,6 +103,7 @@ protected :
 	i32 broadPhaseID;
 	bool m_isSensor;
 	void* m_userData;
+	std::string m_objectTag = "NULL";
 
 	b3Body* m_body;
 	b3Transform m_local;
@@ -128,12 +132,12 @@ inline void b3Shape::SetTransform(const b3Vec3& position, const b3Vec3& axis, r3
 	q.ToRotationMatrix(m_local.rotation);
 	m_local.translation = position;
 }
-inline void b3Shape::SetTransform(const b3Vec3& position, const b3Quaternion& quartinion) {
+inline void b3Shape::SetTransform(const b3Vec3& position, const b3Quaternion& quaternion) {
 	b3Quaternion quar;
-	quar.a = quartinion.a;
-	quar.b = quartinion.b;
-	quar.c = quartinion.c;
-	quar.d = quartinion.d;
+	quar.a = quaternion.a;
+	quar.b = quaternion.b;
+	quar.c = quaternion.c;
+	quar.d = quaternion.d;
 	quar.ToRotationMatrix(m_local.rotation);
 
 	m_local.translation = position;
@@ -166,6 +170,11 @@ inline void* b3Shape::GetUserData() const {
 inline void b3Shape::SetUserData(void* data) { 
 	m_userData = data; 
 }
+
+inline void b3Shape::SetObjectTag(std::string tag) { m_objectTag = tag; }
+
+inline std::string b3Shape::GetObjectTag() { return m_objectTag; }
+
 
 inline b3Shape* b3Shape::GetNext() {
 	return m_next;

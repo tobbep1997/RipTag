@@ -20,9 +20,8 @@ void LevelHandler::Init(b3World& worldPtr, Player * playerPtr)
 	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
-
 	_LoadPreFabs();
-	_GenerateLevelStruct(1, 1);
+	_GenerateLevelStruct(1, 2);
 
 	_RoomLoadingManager();
 	m_rooms[m_activeRoom]->SetActive(true);
@@ -122,6 +121,11 @@ const std::vector<Enemy*>* LevelHandler::getEnemies() const
 	return m_rooms[m_activeRoom]->getEnemies();
 }
 
+std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
+{
+	return std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4>(this->m_rooms[0]->getPlayer1StartPos(), this->m_rooms[0]->getPlayer2StartPos());
+}
+
 void LevelHandler::_LoadPreFabs()
 {
 	
@@ -130,17 +134,21 @@ void LevelHandler::_LoadPreFabs()
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 {
 	srand(seed);
-	//std::vector<int> usedRooms;
-	for (short unsigned int i = 0; i < amountOfRooms; i++)
+	std::vector<int> usedRooms;
+	                               //Byt i < 1 till amountOfRooms
+	for (short unsigned int i = 0; i < 1; i++)
 	{
 		//Create a room
-		//Get a random int
+		//Get a random int					//VERY NECCESSARY TO COMMENT BACK IN
 		int randomRoom = rand() % amountOfRooms;
 		Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
 
 
 		m_rooms.push_back(room);
 	}
+	//add to loop -> 1 0 i;
+	Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
+	m_rooms.push_back(room);
 }
 
 void LevelHandler::_RoomLoadingManager(short int room)
@@ -181,6 +189,8 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	
 
 	m_rooms.at(current)->loadTextures();
+	int x = m_rooms.at(current)->getRoomIndex();
+	if(m_rooms.at(current)->getRoomIndex() != -1)
 	m_rooms.at(current)->LoadRoomToMemory();
 
 	if ((current + 1) < m_rooms.size())

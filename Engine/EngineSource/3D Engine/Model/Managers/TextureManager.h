@@ -18,6 +18,8 @@ public:
 	void loadTextures(const std::string & path);
 	Texture* getTexture(const std::string & path);
 
+	void loadRawTexture(const std::string & path);
+
 	bool UnloadTexture(const std::string & path);
 	bool UnloadAllTexture();
 

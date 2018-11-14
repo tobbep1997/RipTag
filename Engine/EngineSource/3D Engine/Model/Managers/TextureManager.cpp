@@ -80,6 +80,10 @@ Texture * TextureManager::getTexture(const std::string & path)
 	return nullptr;
 }
 
+void TextureManager::loadRawTexture(const std::string & path)
+{
+}
+
 bool TextureManager::UnloadTexture(const std::string& path)
 {
 	std::wstring fullPath = this->_getFullPath(path);

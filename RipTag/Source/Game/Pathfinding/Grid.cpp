@@ -1,12 +1,12 @@
-#include "RipTagPCH.h"
-#include "Grid.h"
-
 #ifdef _DEBUG
 #ifndef DBG_NEW
 #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #define new DBG_NEW
 #endif
 #endif  // _DEBUG
+
+#include "RipTagPCH.h"
+#include "Grid.h"
 
 Grid::Grid(int width, int height)
 {
@@ -20,6 +20,26 @@ Grid::Grid(int width, int height)
 			m_nodeMap.push_back(Tile(j, i));
 		}
 	}
+}
+
+Grid::Grid(float xVal, float yVal, int width, int depth)
+{
+	
+	float tempXval = xVal;
+	for (int i = 0; i < depth; i++)
+	{
+		yVal += 1;
+		xVal = tempXval;
+		for (size_t j = 0; j < width; j++)
+		{
+			m_nodeMap.push_back(Node(Tile(j, i),
+				NodeWorldPos(xVal,
+					yVal)));//kanske rätt//Det är rätt//Kanske inte är rätt. //Rätt, 100%Garanti/Fredrik
+			xVal += 1;
+		}
+	}
+
+
 }
 
 Grid::~Grid()
@@ -58,7 +78,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
-	if (!_isValid(destination))
+	if (!_isValid(destination) || !_isValid(source))
 	{
 		return std::vector<Node*>();
 	}

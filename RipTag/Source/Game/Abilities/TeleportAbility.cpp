@@ -8,11 +8,13 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 	m_tpState = Throwable;
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
+	m_boundingSphere = DBG_NEW DirectX::BoundingSphere(DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z), .1f);
 }
 
 TeleportAbility::~TeleportAbility()
 {
 	delete m_light;
+	delete m_boundingSphere;
 	PhysicsComponent::Release(*RipExtern::g_world);
 }
 
@@ -47,7 +49,7 @@ void TeleportAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 	
 	HUDComponent::AddQuad(m_bar);
-	setManaCost(START_MANA_COST);
+	
 }
 
 void TeleportAbility::Update(double deltaTime)
@@ -59,6 +61,8 @@ void TeleportAbility::Update(double deltaTime)
 	}
 	if (this->isLocal)
 		_logicLocal(deltaTime);
+	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
+
 }
 
 void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -125,6 +129,11 @@ DirectX::XMFLOAT4A TeleportAbility::getStart()
 	return this->m_lastStart;
 }
 
+DirectX::BoundingSphere * TeleportAbility::GetBoundingSphere() const
+{
+	return m_boundingSphere;
+}
+
 void TeleportAbility::_logicLocal(double deltaTime)
 {
 	switch (m_tpState)
@@ -148,12 +157,11 @@ void TeleportAbility::_inStateThrowable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
-			if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-			{
-				m_tpState = TeleportAbility::Charging;
-			}
+			
+			m_tpState = TeleportAbility::Charging;
+			
 		}
 	}
 }
@@ -162,11 +170,16 @@ void TeleportAbility::_inStateCharging(double dt)
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
+		}
+		if (((Player *)p_owner)->getCurrentAbility() != Ability::TELEPORT)
+		{
+			m_charge = 0.0;
+			m_tpState = TeleportState::Throwable;
 		}
 		if (Input::OnAbilityReleased())
 		{
@@ -179,7 +192,7 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-				((Player*)p_owner)->DrainMana(getManaCost());
+				
 
 				start.w = 1.0f;
 				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
@@ -195,7 +208,7 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-				((Player*)p_owner)->DrainMana(getManaCost());
+				
 
 
 				start.w = 1.0f;
@@ -214,7 +227,7 @@ void TeleportAbility::_inStateTeleportable()
 {
 	if (isLocal)
 	{
-		if (Input::OnAbilityPressed())
+		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
 

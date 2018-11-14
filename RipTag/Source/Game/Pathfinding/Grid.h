@@ -82,6 +82,7 @@ private:
 
 public:
 	Grid(int width = 0, int height = 0);
+	Grid(float xVal, float yVal, int width, int depth);
 	virtual ~Grid();
 
 	Tile WorldPosToTile(float x, float y);

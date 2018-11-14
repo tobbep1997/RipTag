@@ -7,9 +7,9 @@ PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 {
 	m_pState = Possess;
 	m_useFunctionCalled = false;
-	setManaCost(MANA_COST_START);
+	
 	m_possessHud = new Quad();
-	m_possessHud->init({ 0.5f, 1.0f }, { 0.4, 0.2 });
+	m_possessHud->init({ 0.5f, 1.0f }, { 0.4f, 0.2f });
 	m_possessHud->setPivotPoint(Quad::PivotPoint::upperCenter);
 	m_possessHud->setFont(FontHandler::getFont("consolas32"));
 	m_possessHud->setUnpressedTexture("SPHERE");
@@ -31,7 +31,8 @@ void PossessGuard::Init()
 
 void PossessGuard::Update(double deltaTime)
 {
-	_logic(deltaTime);
+	if (this->isLocal)
+		_logic(deltaTime);
 }
 
 void PossessGuard::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -52,7 +53,7 @@ void PossessGuard::Draw()
 void PossessGuard::_logic(double deltaTime)
 {
 	m_useFunctionCalled = false;
-	if (Input::OnAbilityPressed())
+	if (((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbilityPressed())
 		this->Use();
 	Player* pPointer = static_cast<Player*>(p_owner);
 	/*if (Input::OnAbilityReleased())
@@ -77,12 +78,15 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
+				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
+				this->m_possessTarget->DisableEnemy();
+				this->m_possessTarget->setReleased(true); 
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
-				p_cooldown = 0;
+				p_cooldown = 0; 
 				//m_useFunctionCalled = false;
 			}
-			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
+			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
 			{
 				this->m_possessTarget->removePossessor();
 				m_duration = 0;
@@ -95,36 +99,36 @@ void PossessGuard::_logic(double deltaTime)
 				m_possessHud->setString(str.substr(0, 4));
 			}
 
-			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
+			
 			break;
 		case PossessGuard::Possess:
-			if (pPointer->CheckManaCost(getManaCost()))
+			
+			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
+
+			if (ray != nullptr)
 			{
-				RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
-
-				if (ray != nullptr)
+				RayCastListener::RayContact* contact = ray->getClosestContact();
+				if (contact->originBody->GetObjectTag() == "PLAYER" && contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
-					RayCastListener::RayContact* contact = ray->getClosestContact();
-					if (contact->originBody->GetObjectTag() == "PLAYER" && contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-					{
-						pPointer->DrainMana(getManaCost());
-						pPointer->getBody()->SetType(e_staticBody);
-						pPointer->getBody()->SetAwake(false);
-						pPointer->LockPlayerInput();
+					
+					pPointer->getBody()->SetType(e_staticBody);
+					pPointer->getBody()->SetAwake(false);
+					pPointer->LockPlayerInput();
 
-						this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
-						contact->contactShape->GetBody()->SetType(e_dynamicBody);
-						contact->contactShape->GetBody()->SetAwake(true);
-						this->m_possessTarget->UnlockEnemyInput();
-						this->m_possessTarget->setPossessor(pPointer, 20, 1);
+					this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+					contact->contactShape->GetBody()->SetType(e_dynamicBody);
+					contact->contactShape->GetBody()->SetAwake(true);
+					this->m_possessTarget->UnlockEnemyInput();
+					this->m_possessTarget->setPossessor(pPointer, 20, 1);
+					this->m_possessTarget->setReleased(false); 
 
-						CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
-						m_pState = PossessGuard::Possessing;
-						p_cooldown = 0;
-						//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
-					}
-				}		
-			}
+					CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
+					m_pState = PossessGuard::Possessing;
+					p_cooldown = 0;
+					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
+				}
+			}		
+			
 			break;
 		}
 	}
@@ -144,7 +148,7 @@ void PossessGuard::_logic(double deltaTime)
 				p_cooldown = 0;
 				//m_useFunctionCalled = false;
 			}
-			else if (!pPointer->CheckManaCost(getManaCost()) || m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
+			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
 			{
 				this->m_possessTarget->removePossessor();
 				m_duration = 0;
@@ -157,7 +161,7 @@ void PossessGuard::_logic(double deltaTime)
 				std::string str = std::to_string(p * COOLDOWN_POSSESSING_MAX);
 				m_possessHud->setString(str.substr(0, 4));
 			}
-			pPointer->DrainMana(MANA_COST_DRAIN*deltaTime);
+			
 			break;
 		case PossessGuard::Wait:
 			p_cooldown += deltaTime;

@@ -2,13 +2,15 @@
 #include <filesystem>
 #include <iostream>
 #include <future>
-
+#include "../Level/RoomGenerator.h"
 class Room;
 class Player;
-
+class RoomGenerator;
 class LevelHandler
 {
 private:
+	RoomGenerator m_roomGenerator;
+
 	const std::string m_roomString;
 	std::vector<std::string> m_prefabRoomFiles;
 
@@ -41,6 +43,8 @@ public:
 	void setPlayer(Player * playerPtr);
 
 	const std::vector<Enemy*>* getEnemies() const;
+
+	std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> getStartingPositions();
 private:
 
 	void _LoadPreFabs();

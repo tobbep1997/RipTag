@@ -202,7 +202,7 @@ inline void b3DynamicAABBTree::RayCast(T* callback, const b3RayCastInput& input)
 
 				if (newMaxFraction == B3_ZERO) {
 					// The client has stopped the ray cast.
-					return;
+					// TODO:: Do some kind of optimization.
 				}
 			}
 			else {
