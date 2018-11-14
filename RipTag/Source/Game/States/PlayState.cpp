@@ -40,7 +40,7 @@ PlayState::~PlayState()
 	delete m_playerManager;
 
 
-	delete triggerHandler;
+	//delete triggerHandler;
 
 	delete m_contactListener;
 	delete m_rayListener;
@@ -466,6 +466,14 @@ void PlayState::Load()
 {
 	std::cout << "PlayState Load" << std::endl;
 
+	//Initially Clear network maps
+	if (isCoop)
+	{
+		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
+		Network::Multiplayer::LocalPlayerOnSendMap.clear();
+		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+	}
+
 	m_youlost = false;
 	Input::ResetMouse();
 	CameraHandler::Instance();
@@ -534,9 +542,6 @@ void PlayState::_loadPlayers()
 
 void PlayState::_loadNetwork()
 {
-	//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
-	Network::Multiplayer::LocalPlayerOnSendMap.clear();
-	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
 	if (isCoop)
 	{
