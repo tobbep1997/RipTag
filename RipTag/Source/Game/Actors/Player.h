@@ -121,6 +121,8 @@ private:
 	float totVis = 0;
 	float maxVis = 0;
 	unsigned short m_currentEnemysVisable = 0;
+
+	bool m_MapPicked = false;
 public:
 	//Magic number
 	static const int g_fullVisability = 4500;
@@ -169,6 +171,8 @@ public:
 
 	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
+
+	bool GetMapPicked();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

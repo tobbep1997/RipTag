@@ -188,6 +188,11 @@ void Enemy::Update(double deltaTime)
 	
 	m_sinWaver += deltaTime;
 
+	if (m_PlayerPtr->GetMapPicked())
+	{
+		m_nodeFootPrintsEnabled = true;
+	}
+
 	if (!m_disabled)
 	{
 		//auto dir = p_camera->getDirection();
@@ -662,6 +667,11 @@ void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
 	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&getPosition()), DirectX::XMLoadFloat4A(&playerPos));
 	vec = DirectX::XMVector3LengthEst(vec);
 	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+}
+
+void Enemy::SetPlayerPointer(Player* player)
+{
+	m_PlayerPtr = player;
 }
 
 float Enemy::getVisCounter() const
