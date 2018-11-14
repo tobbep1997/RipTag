@@ -131,7 +131,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 AORoughMet = float3(1, 1, 1); 
 
     input.uv.y = 1 - input.uv.y;
-	ambient = float4(.2f, .2f, .2f, 1);
+	ambient = float4(1, 1, 1, 1);
 	if (usingTexture.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
@@ -225,7 +225,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     //finalColor = saturate(finalColor);
     //finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
     //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
-//finalColor += input.worldPos*0.02;
+    finalColor += input.worldPos*0.02;
     finalColor.a = albedo.a;
 	//return (input.worldPos);
     return min(finalColor, float4(1, 1, 1, 1));

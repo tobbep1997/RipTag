@@ -18,7 +18,7 @@ void RoomGenerator::_generateGrid()
 
 	m_nrOfWalls = 4; // MAke random
 	m_roomDepth = (20 * m_roomGridDepth) / 2.0f;
-	m_roomWidth = (15 * m_roomGridWidth) / 2.0f;
+	m_roomWidth = (20 * m_roomGridWidth) / 2.0f;
 	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, m_roomWidth * 2, m_roomDepth * 2);
 	
 }
@@ -127,7 +127,7 @@ void RoomGenerator::_placeProps()
 	int r = rand() % 2;
 
 	//L�CKER MINNE MELLAN
-	for (float i = -m_roomWidth + 7.5f; i <= m_roomWidth - 7.5f; i += 15.f)
+	for (float i = -m_roomWidth + 10.f; i <= m_roomWidth - 10.f; i += 20.f)
 	{
 		int jy = -1;
 		ix++;
@@ -138,7 +138,7 @@ void RoomGenerator::_placeProps()
 			if (ix == is && jy == js)
 			{
 				r = 3;
-
+		
 				iskip = 0;
 				jskip = 1;
 				if (rand() % 2)
@@ -146,7 +146,7 @@ void RoomGenerator::_placeProps()
 					iskip = 1;
 					jskip = 0;
 				}
-
+		
 			}
 			if (ix == is + iskip && jy == js + jskip)
 			{
@@ -169,9 +169,11 @@ void RoomGenerator::_placeProps()
 				if (iskip == 1)
 				{
 					asset->setRotation(0, 90, 0, false);
-					asset->setScale((20.f / 15.f), 1, 0.75f);
+					asset->setScale(1, 1, 1);
 				}
 			}
+			if (r == 2)
+				asset->setScale(1, 1, 1);
 
 
 			XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
@@ -214,92 +216,92 @@ void RoomGenerator::_placeProps()
 
 			}
 
-			asset->Init(*m_worldPtr, modCollisionBoxes);
 
+				asset->Init(*m_worldPtr, modCollisionBoxes);
 
 			if (r == 3)
 			{
-				asset->setPosition(i + (7.5f * iskip), 2.5, j + (10.0f * jskip), true);
-				asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling) * 2, DirectX::XMVectorGetY(decomposeScaling) * 2, DirectX::XMVectorGetZ(decomposeScaling) * 2));
+				asset->setPosition(i + (10.f * iskip), 2.5, j + (10.f * jskip), true);
+			//	asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling) * 2, DirectX::XMVectorGetY(decomposeScaling) * 2, DirectX::XMVectorGetZ(decomposeScaling) * 2));
 
 			}
 			else
 			{
 				asset->setPosition(i, 2.5, j);
-				asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling)*2, DirectX::XMVectorGetY(decomposeScaling) * 2, DirectX::XMVectorGetZ(decomposeScaling) * 2));
+			//	asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(DirectX::XMVectorGetX(decomposeScaling)*2, DirectX::XMVectorGetY(decomposeScaling) * 2, DirectX::XMVectorGetZ(decomposeScaling) * 2));
 			}
-			asset->setModel(Manager::g_meshManager.getStaticMesh("MOD" + std::to_string(r)));
-			asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
-			asset->setTextureTileMult(5, 5);
-			m_generated_assetVector.push_back(asset);
 
+				asset->setModel(Manager::g_meshManager.getStaticMesh("MOD" + std::to_string(r)));
+				asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
+				asset->setTextureTileMult(5, 5);
+				m_generated_assetVector.push_back(asset);
 
 
 			//PROPS
-			ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile("MOD" + std::to_string(r));
-			for (int k = 0; k < tempProps.nrOfItems; k++)
-			{
-				
-				XMFLOAT3 propPos = XMFLOAT3(tempProps.props[k].transform_position);
-				XMFLOAT3 propScale = XMFLOAT3(tempProps.props[k].transform_scale);
-				//XMFLOAT4 propRotation = XMFLOAT4(tempProps.props[k].transform_rotation);
+			//ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile("MOD" + std::to_string(r));
+			//for (int k = 0; k < tempProps.nrOfItems; k++)
+			//{
+			//	
+			//	XMFLOAT3 propPos = XMFLOAT3(tempProps.props[k].transform_position);
+			//	XMFLOAT3 propScale = XMFLOAT3(tempProps.props[k].transform_scale);
+			//	//XMFLOAT4 propRotation = XMFLOAT4(tempProps.props[k].transform_rotation);
 
-				DirectX::XMMATRIX propTranslationMatrix = DirectX::XMMatrixTranslation(propPos.x, propPos.y, propPos.z);
-				DirectX::XMMATRIX propRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(tempProps.props[k].transform_rotation[0], tempProps.props[k].transform_rotation[1], tempProps.props[k].transform_rotation[2]);
-				DirectX::XMMATRIX propScaleMatrix = DirectX::XMMatrixScaling(propScale.x, propScale.y, propScale.z);
+			//	DirectX::XMMATRIX propTranslationMatrix = DirectX::XMMatrixTranslation(propPos.x, propPos.y, propPos.z);
+			//	DirectX::XMMATRIX propRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(tempProps.props[k].transform_rotation[0], tempProps.props[k].transform_rotation[1], tempProps.props[k].transform_rotation[2]);
+			//	DirectX::XMMATRIX propScaleMatrix = DirectX::XMMatrixScaling(propScale.x, propScale.y, propScale.z);
 
-				DirectX::XMMATRIX itemWorldSpace = propScaleMatrix * propRotationMatrix * propTranslationMatrix;
+			//	DirectX::XMMATRIX itemWorldSpace = propScaleMatrix * propRotationMatrix * propTranslationMatrix;
 
 
-				itemWorldSpace = itemWorldSpace * roomSpace;
-				XMVECTOR decomposeTranslation;
-				XMVECTOR decomposeRotation;
-				XMVECTOR decomposeScaling;
+			//	itemWorldSpace = itemWorldSpace * roomSpace;
+			//	XMVECTOR decomposeTranslation;
+			//	XMVECTOR decomposeRotation;
+			//	XMVECTOR decomposeScaling;
 
-				XMMatrixDecompose(&decomposeScaling, &decomposeRotation, &decomposeTranslation, itemWorldSpace);
+			//	XMMatrixDecompose(&decomposeScaling, &decomposeRotation, &decomposeTranslation, itemWorldSpace);
 
-				if (iskip == 1)
-				{
-					tempProps.props[k].transform_rotation[0] += 90.f;
-					tempProps.props[k].transform_rotation[1] += 90.f;
-					tempProps.props[k].transform_rotation[2] += 90.f;
-				}
-				asset = DBG_NEW BaseActor();
-				asset->Init(*m_worldPtr, e_staticBody, tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]);
+			//	if (iskip == 1)
+			//	{
+			//		tempProps.props[k].transform_rotation[0] += 90.f;
+			//		tempProps.props[k].transform_rotation[1] += 90.f;
+			//		tempProps.props[k].transform_rotation[2] += 90.f;
+			//	}
+			//	asset = DBG_NEW BaseActor();
+			//	asset->Init(*m_worldPtr, e_staticBody, tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]);
 
-				if (r == 3)
-				{
-					asset->setPosition(i + (7.5f * iskip) + tempProps.props[k].transform_position[0], 2.5 +tempProps.props[k].transform_position[1], j + (10.0f * jskip) + tempProps.props[k].transform_position[2], true);
-					asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
-					asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
+			//	if (r == 3)
+			//	{
+			//		asset->setPosition(i + (7.5f * iskip) + tempProps.props[k].transform_position[0], 2.5 +tempProps.props[k].transform_position[1], j + (10.0f * jskip) + tempProps.props[k].transform_position[2], true);
+			//		asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
+			//		asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
 
-				}
-				else
-				{
-					asset->setPosition(i + tempProps.props[k].transform_position[0], 2.5 + tempProps.props[k].transform_position[1], j + tempProps.props[k].transform_position[2], true);
-					asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
-					asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
-				}
-				switch (tempProps.props[k].typeOfProp)
-				{
-				case(8):
-					Manager::g_meshManager.loadStaticMesh("BANNER");
-					Manager::g_textureManager.loadTextures("BANNER");
-					asset->setModel(Manager::g_meshManager.getStaticMesh("BANNER"));
-					asset->setTexture(Manager::g_textureManager.getTexture("BANNER"));
-					break;
-				case(7):
-					Manager::g_meshManager.loadStaticMesh("BARREL");
-					Manager::g_textureManager.loadTextures("BARREL");
-					asset->setModel(Manager::g_meshManager.getStaticMesh("BARREL"));
-					asset->setTexture(Manager::g_textureManager.getTexture("BARREL"));
-					break;
-				default:
-					break;
-				}
-				m_generated_assetVector.push_back(asset);
-			}
-			delete tempProps.props;
+			//	}
+			//	else
+			//	{
+			//		asset->setPosition(i + tempProps.props[k].transform_position[0], 2.5 + tempProps.props[k].transform_position[1], j + tempProps.props[k].transform_position[2], true);
+			//		asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
+			//		asset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]));
+			//	}
+			//	switch (tempProps.props[k].typeOfProp)
+			//	{
+			//	case(8):
+			//		Manager::g_meshManager.loadStaticMesh("BANNER");
+			//		Manager::g_textureManager.loadTextures("BANNER");
+			//		asset->setModel(Manager::g_meshManager.getStaticMesh("BANNER"));
+			//		asset->setTexture(Manager::g_textureManager.getTexture("BANNER"));
+			//		break;
+			//	case(7):
+			//		Manager::g_meshManager.loadStaticMesh("BARREL");
+			//		Manager::g_textureManager.loadTextures("BARREL");
+			//		asset->setModel(Manager::g_meshManager.getStaticMesh("BARREL"));
+			//		asset->setTexture(Manager::g_textureManager.getTexture("BARREL"));
+			//		break;
+			//	default:
+			//		break;
+			//	}
+			//	m_generated_assetVector.push_back(asset);
+			//}
+			//delete tempProps.props;
 			if (modCollisionBoxes.boxes)
 				delete[] modCollisionBoxes.boxes;
 			if (lights.lights)
