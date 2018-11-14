@@ -257,14 +257,17 @@ void ForwardRender::Flush(Camera & camera)
 	_mapCameraBuffer(camera);
 	this->GeometryPass();
 	this->AnimatedGeometryPass(camera);
+	this->_OutliningPass(camera);
+
 	_mapCameraBuffer(camera);
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+
 	for (auto & lol : DX::g_emitters)
 	{
 
 		lol->Draw();
 	}
-	this->_OutliningPass(camera);
-
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);
 
 	//_GuardFrustumDraw();
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);

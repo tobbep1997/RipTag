@@ -9,5 +9,5 @@ struct VS_OUTPUT
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
-    return float4(1, input.tangent.x, input.tangent.x, 1);
+    return float4(1, input.tangent.x, input.tangent.x, .1f);
 }
