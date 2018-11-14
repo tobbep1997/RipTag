@@ -27,7 +27,6 @@ private:
 	LevelHandler * m_levelHandler;		//Released
 	ContactListener * m_contactListener;//Released
 	RayCastListener * m_rayListener;	//Released
-	std::string name;
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
@@ -65,9 +64,18 @@ private:
 	void _lightCulling();
 	void thread(std::string s);
 	void DrawWorldCollisionboxes(const std::string & type = "");
-
 	// Inherited via State
 	virtual void unLoad();
 	virtual void Load();
+
+	// LOAD functions
+	void _loadTextures();
+	void _loadPhysics();
+	void _loadMeshes();
+	void _loadPlayers();
+	void _loadNetwork();
+	void _loadSound();
+	// Unload functions
+
 };
 

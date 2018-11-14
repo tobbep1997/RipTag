@@ -38,7 +38,7 @@ void PressurePlate::Update(double deltaTime)
 	p_updatePhysics(this);
 	bool previousState = this->getTriggerState();
 
-	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
+	for (ContactListener::S_EndContact con : RipExtern::g_contactListener->GetEndContacts())
 	{
 		if ((con.a->GetBody()->GetObjectTag() == "PLAYER" || con.a->GetBody()->GetObjectTag() == "ENEMY") ||
 			(con.b->GetBody()->GetObjectTag() == "ENEMY" || con.b->GetBody()->GetObjectTag() == "PLAYER"))
@@ -47,7 +47,7 @@ void PressurePlate::Update(double deltaTime)
 				this->setTriggerState(false);
 			}
 	}
-	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (con)
 		{

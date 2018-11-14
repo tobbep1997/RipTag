@@ -15,8 +15,6 @@ Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, lin
 Lever::~Lever()
 {
 	//PhysicsComponent::Release(*RipExtern::g_world);
-	AudioEngine::UnLoadSoundEffect(lock);
-	AudioEngine::UnLoadSoundEffect(unlock);
 }
 
 void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
@@ -31,15 +29,13 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
 	getAnimatedModel()->Pause();
 	BaseActor::setUserDataBody(this);
-	unlock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
-	lock = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
 }
 
 
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::Ray* ray : RipExtern::m_rayListener->GetRays())
+	for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
 	{
 		for (RayCastListener::RayContact* con : ray->GetRayContacts())
 		{
@@ -53,11 +49,11 @@ void Lever::Update(double deltaTime)
 					if (this->getTriggerState())
 					{
 						this->setTriggerState(false);
-						AudioEngine::PlaySoundEffect(unlock, &fVector, AudioEngine::Player);
+						AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &fVector, AudioEngine::Player);
 					}
 					else
 					{
-						AudioEngine::PlaySoundEffect(lock, &fVector, AudioEngine::Player);
+						AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &fVector, AudioEngine::Player);
 						this->setTriggerState(true);
 					}
 					*(con->consumeState) += 1;
