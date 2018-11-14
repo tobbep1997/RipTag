@@ -42,6 +42,7 @@ private:
 
 	std::vector<Quad* > m_buttons;
 	std::vector<Quad* > m_text;
+	Quad* m_background = nullptr;
 	Quad * m_restart;
 	int m_fov;
 	DirectX::XMINT2 m_sens;
