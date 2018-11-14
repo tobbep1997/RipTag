@@ -569,8 +569,11 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(false);
 	}
 
+	triggerHandler->LoadTriggerPairMap();
+
 	if (isCoop)
 		triggerHandler->RegisterThisInstanceToNetwork();
+
 }
 
 void PlayState::_loadSound()
