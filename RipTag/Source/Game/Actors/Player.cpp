@@ -1,6 +1,10 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 
+//#todoREMOVE
+float Player::m_currentPitch = 0.0f;
+
+
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
@@ -593,6 +597,7 @@ void Player::SendOnAnimationUpdate(double dt)
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
 			this->m_currentDirection, 
 			this->m_currentSpeed,
+			this->m_currentPitch,
 			this->getCamera()->getYRotationEuler());
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
@@ -912,6 +917,8 @@ void Player::_onRotate(double deltaTime)
 		}
 		
 	}
+	//#todoREMOVE
+	m_currentPitch = - p_camera->getPitch().x;
 }
 
 

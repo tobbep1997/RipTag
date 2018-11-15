@@ -24,6 +24,13 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	return {0.0, r, 0.0, 0.0};
 }
 
+const DirectX::XMFLOAT4A Camera::getPitch()
+{
+	using namespace DirectX;
+
+	return { m_direction.y, 0.0, 0.0, 0.0 };
+}
+
 void Camera::_calcViewMatrix(bool dir)
 {
 	DirectX::XMVECTOR pos = DirectX::XMLoadFloat4A(&this->p_position);

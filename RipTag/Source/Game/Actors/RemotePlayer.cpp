@@ -185,6 +185,7 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 	{
 		this->m_currentDirection = data->direction;
 		this->m_currentSpeed = data->speed;
+		this->m_currentPitch = data->pitch;
 		this->setRotation(data->rot);
 	}
 }
@@ -305,16 +306,16 @@ void RemotePlayer::_registerAnimationStateMachine()
 
 	//#todoREMOVE
 	auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
-	auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &AnimationDebugHelper::foo, 0.0f, 1.0f);
+	auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
 	
 	std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
 	SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
 	up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
-	up.location = 1.0f;
+	up.location = .90f;
 	up.weight = 1.0f;
 	SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
 	down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
-	down.location = 0.0f;
+	down.location = -.9f;
 	down.weight = 1.0f;
 
 	layerData.push_back(down);

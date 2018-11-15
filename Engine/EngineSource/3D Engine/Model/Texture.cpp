@@ -64,7 +64,6 @@ HRESULT Texture::Load(const wchar_t * file)
 	//HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, albedoName.c_str(), nullptr, &m_SRV[0]);
 	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, normalName.c_str(), nullptr, &m_SRV[1]);
 	//hr = DirectX::CreateWICTextureFromFile(DX::g_device, ORMname.c_str(), nullptr, &m_SRV[2]);
-	HRESULT;
 	return hr;
 }
 
