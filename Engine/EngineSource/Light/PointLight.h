@@ -2,6 +2,7 @@
 #include <vector>
 #include <d3d11_1.h>
 #include <DirectXMath.h>
+#include "Source/Physics/Wrapper/PhysicsComponent.h"
 
 class Camera;
 class b3Body;
@@ -38,12 +39,16 @@ private:
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
 
+	PhysicsComponent m_phys;
+
 	bool m_update = false;
 	bool m_firstRun = true;
 
 	BOOL m_useSides[6];
 
 	float m_cullingDistanceToCamera = -0.0f;
+
+	bool m_lightOn = true;
 
 public:
 	PointLight();
@@ -108,6 +113,9 @@ public:
 	void	setDistanceToCamera(const float & distance);
 	float	getDistanceToCamera() const;
 
+	bool getLightOn() const;
+	void setLightOn(bool bo);
+	void SwitchLightOn();
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);

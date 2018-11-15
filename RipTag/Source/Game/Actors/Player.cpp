@@ -979,6 +979,8 @@ void Player::_onInteract()
 							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 							{
 								*con->consumeState += 1;
+								PointLight * lol = static_cast<PointLight*>(con->contactShape->GetBody()->GetUserData());
+								lol->SwitchLightOn();
 								//Snuff out torches (example)
 							}
 							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
@@ -1057,7 +1059,13 @@ void Player::_objectInfo(double deltaTime)
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
+					m_cross->setUnpressedTexture("CROSSHAND");
 					//Snuff out torches (example)
+				}
+				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+				{
+					//m_infoText->setString("Press X to pull");
+					m_cross->setUnpressedTexture("CROSSHAND");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
 				{
