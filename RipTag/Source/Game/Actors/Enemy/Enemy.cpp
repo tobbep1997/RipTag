@@ -831,8 +831,8 @@ void Enemy::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A pos = getPosition();
 	pos.y += m_cameraOffset;
 	p_camera->setPosition(pos);
-	//pos = p_CameraTilting(deltaTime, Input::PeekRight());
-	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+	pos = p_CameraTilting(deltaTime, Input::PeekRight());
+	float offsetY = p_viewBobbing(deltaTime, m_moveSpeed, this->getBody());
 
 	pos.y += offsetY;
 
