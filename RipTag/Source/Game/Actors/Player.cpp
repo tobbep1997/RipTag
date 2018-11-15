@@ -55,62 +55,17 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		SetAbilitySet(2);
 	}
-	Quad * quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 49);
+ 
+	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 50);
+	m_cross = HUDComponent::GetQuad("Cross");
+	m_cross->setScale(DirectX::XMFLOAT2A(m_cross->getScale().x / 16.0, m_cross->getScale().y / 9.0f));
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.1f, 0.05f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 50);
-
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 50);
-
-	m_cross = new Quad();
-	m_cross->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
-	m_cross->setUnpressedTexture("CROSS");
-	HUDComponent::AddQuad(m_cross);
 	
+	m_winBar = HUDComponent::GetQuad("YouWin"); 
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("VISIBILITYICON");
-	HUDComponent::AddQuad(quad);
+	m_infoText = HUDComponent::GetQuad("InfoText"); 
 
-	m_winBar = new Quad();
-	m_winBar->init();
-	m_winBar->setPosition(1.5f, 1.5f);
-	m_winBar->setScale(0.5f, 0.25f);
-
-	m_winBar->setString("YOU WIN");
-	m_winBar->setUnpressedTexture("SPHERE");
-	m_winBar->setPressedTexture("DAB");
-	m_winBar->setHoverTexture("PIRASRUM");
-	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_winBar->setFont(FontHandler::getFont("consolas32"));
-	HUDComponent::AddQuad(m_winBar);
-
-	m_infoText = new Quad();
-	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
-	m_infoText->setUnpressedTexture("BLACK");
-	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_infoText->setScale(0, 0);
-	m_infoText->setFont(FontHandler::getFont("consolas16"));
-	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	HUDComponent::AddQuad(m_infoText);
 	m_tutorialMessages.push("");
 	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
 	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
@@ -118,14 +73,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialMessages.push("Peek to the sides with LT and RT");
 	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
-	m_tutorialText = new Quad();
-	m_tutorialText->init(DirectX::XMFLOAT2A(0.5, 0.9f), DirectX::XMFLOAT2A(0, 0));
-	m_tutorialText->setUnpressedTexture("BLACK");
-	m_tutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_tutorialText->setScale(0, 0);
-	m_tutorialText->setFont(FontHandler::getFont("consolas16"));
-	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	HUDComponent::AddQuad(m_tutorialText);
+
+	m_tutorialText = HUDComponent::GetQuad("TutorialText"); 
+
 	
 	if (m_tutorialActive)
 	{
@@ -133,29 +83,19 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		m_tutorialMessages.pop();
 	}
 
-	m_abilityTutorialText = new Quad();
-	m_abilityTutorialText->init(DirectX::XMFLOAT2A(0.15, 0.26f), DirectX::XMFLOAT2A(0, 0));
-	m_abilityTutorialText->setUnpressedTexture("BLACK");
-	m_abilityTutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_abilityTutorialText->setScale(0, 0);
-	m_abilityTutorialText->setFont(FontHandler::getFont("consolas16"));
-	m_abilityTutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	HUDComponent::AddQuad(m_abilityTutorialText);
+	m_abilityTutorialText = HUDComponent::GetQuad("AbilityTutorial"); 
 
-	m_HUDcircle = new Circle();
-	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
-	m_HUDcircle->setRadie(.5f);
-	m_HUDcircle->setInnerRadie(.45f);
-	m_HUDcircle->setUnpressedTexture("DAB");
-	m_HUDcircle->setPressedTexture("DAB");
-	m_HUDcircle->setHoverTexture("PIRASRUM");
 
-	Manager::g_textureManager.loadTextures("FML");
-	m_HUDcircleFiller = new Circle();
-	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
-	m_HUDcircleFiller->setInnerRadie(-1.0f);
-	m_HUDcircleFiller->setUnpressedTexture("FML");
-	
+	m_HUDcircle = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewCircle")); 
+	m_HUDcircle->setScale(DirectX::XMFLOAT2A(m_HUDcircle->getScale().x / 16.0f, m_HUDcircle->getScale().y / 9.0f)); 
+	dynamic_cast<Circle*>(m_HUDcircle)->setInnerRadie(0.45f); 
+
+
+	m_HUDcircleFiller = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewFiller"));
+	m_HUDcircleFiller->setScale(DirectX::XMFLOAT2A(m_HUDcircleFiller->getScale().x / 16.0f, m_HUDcircleFiller->getScale().y / 9.0f));
+	dynamic_cast<Circle*>(m_HUDcircleFiller)->setInnerRadie(-1.0f);
+
+
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
 		Circle * c = new Circle();
@@ -181,10 +121,8 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
-	m_HUDcircle->Release();
-	delete m_HUDcircle;
-	m_HUDcircleFiller->Release();
-	delete m_HUDcircleFiller;
+	
+	HUDComponent::removeHUD(); 
 
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
