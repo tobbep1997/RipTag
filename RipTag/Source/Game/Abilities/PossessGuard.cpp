@@ -144,6 +144,9 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
+				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
+				this->m_possessTarget->DisableEnemy();
+				this->m_possessTarget->setReleased(true);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0;

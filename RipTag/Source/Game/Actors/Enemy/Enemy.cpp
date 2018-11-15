@@ -82,14 +82,16 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 		layerMachine->SetState("pitch_state");
 		*/
 	}
-	PhysicsComponent::Init(*world, e_staticBody,1,0.9,1);
+	b3Vec3 pos(1, 0.9, 1);
+	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
-	CreateShape(0, 0.9, 0);
-	m_standHeight = 0.9 * 1.8;
-	m_crouchHeight = 0.9 * 1.1;
-	m_cameraOffset = m_standHeight;
+	CreateShape(0, pos.y, 0, pos.x, pos.y, pos.z, "UPPERBODY");
+	CreateShape(0, (pos.y*1.5) + 0.25, 0, 0.5, 0.5, 0.1, "HEAD");
+	m_standHeight = (pos.y*1.5) + 0.25;
+	m_crouchHeight = pos.y * 1.1;
+	setUserDataBody(this);
 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
@@ -434,14 +436,16 @@ void Enemy::_handleInput(double deltaTime)
 		m_kp.unlockMouse = false;
 
 	_onSprint();
-	_handleMovement(deltaTime);
-	_handleRotation(deltaTime);
 	_onCrouch();
+	_scrollMovementMod();
+	_onMovement(deltaTime);
+	_onInteract();
+	_onRotate(deltaTime);
 	_possessed(deltaTime);
 	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 }
 
-void Enemy::_handleMovement(double deltaTime)
+void Enemy::_onMovement(double deltaTime)
 {
 	using namespace DirectX;
 	XMFLOAT4A forward = p_camera->getDirection();
@@ -449,6 +453,7 @@ void Enemy::_handleMovement(double deltaTime)
 	float yDir = forward.y;
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
 	XMFLOAT4 RIGHT;
+	//GeT_RiGhT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
 	XMVECTOR vUP = XMLoadFloat4(&UP);
@@ -463,6 +468,13 @@ void Enemy::_handleMovement(double deltaTime)
 	float z = 0;
 
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+
+	if (Input::MoveRight() > 1.0f || Input::MoveForward() > 1.0f)
+	{
+		dir.x *= m_scrollMoveModifier;
+		dir.y *= m_scrollMoveModifier;
+	}
+
 	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
 	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
 
@@ -476,38 +488,88 @@ void Enemy::_handleMovement(double deltaTime)
 	z = dir.y * m_moveSpeed * forward.z;
 	z += dir.x * m_moveSpeed * RIGHT.z;
 
+	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
-void Enemy::_handleRotation(double deltaTime)
+void Enemy::_scrollMovementMod()
+{
+	float moveMod = Input::MouseMovementModifier();
+	if (moveMod != 0.0f)
+	{
+		m_scrollMoveModifier += 0.05*moveMod;
+		m_scrollMoveModifier = std::clamp(m_scrollMoveModifier, 0.2f, 0.9f);
+	}
+
+	if (Input::ResetMouseMovementModifier())
+	{
+		m_scrollMoveModifier = 0.9f;
+	}
+}
+
+void Enemy::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
 	{
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
-		if (deltaX && !Input::PeekRight())
+		if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
 		{
-			p_camera->Rotate(0.0f, deltaX * m_camSensitivity * deltaTime, 0.0f);
+
+		}
+		else
+		{
+			if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
+			{
+				if (m_peekRotate > 0)
+				{
+					p_camera->Rotate(0.0f, -0.05f, 0.0f);
+					m_peekRotate -= 0.05;
+				}
+				else
+				{
+					p_camera->Rotate(0.0f, +0.05f, 0.0f);
+					m_peekRotate += 0.05;
+				}
+
+			}
+			else
+			{
+				m_peekRotate = 0;
+			}
+			//m_peekRotate = 0;
+		}
+
+		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
+		{
+			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
+			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+			{
+				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
+			}
 		}
 		if (deltaY)
 		{
-			if ((p_camera->getDirection().y - deltaY * m_camSensitivity * deltaTime) < 0.90f)
+			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
 			{
-				p_camera->Rotate(deltaY * m_camSensitivity * deltaTime, 0.0f, 0.0f);
+				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y >= 0.90f)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
 			}
-			if ((p_camera->getDirection().y - deltaY * m_camSensitivity * deltaTime) > -0.90f)
+			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) > -0.90f)
 			{
-				p_camera->Rotate(deltaY * m_camSensitivity * deltaTime, 0.0f, 0.0f);
+				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y <= -0.90f)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
 			}
+
+
 		}
+
 	}
 }
 
@@ -551,7 +613,7 @@ Enemy* Enemy::validate()
 	return this;
 }
 
-void Enemy::setPossessor(Actor* possessor, float maxDuration, float delay)
+void Enemy::setPossessor(Player* possessor, float maxDuration, float delay)
 {
 	m_possessor = possessor;
 	m_possessReturnDelay = 1;
@@ -561,7 +623,7 @@ void Enemy::removePossessor()
 {
 	if (m_possessor != nullptr)
 	{
-		static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+		m_possessor->UnlockPlayerInput();
 		this->getBody()->SetType(e_staticBody);
 		this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
@@ -724,7 +786,7 @@ void Enemy::_possessed(double deltaTime)
 		{
 			if (Input::OnCancelAbilityPressed())
 			{
-				static_cast<Player*>(m_possessor)->UnlockPlayerInput();
+				m_possessor->UnlockPlayerInput();
 				m_possessor = nullptr;
 				//this->CreateBox(1,1,1);
 				this->getBody()->SetType(e_staticBody);
@@ -778,9 +840,9 @@ void Enemy::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
-				m_crouchAnimStartPos = this->p_camera->getPosition().y;
-				m_cameraOffset = m_crouchHeight;
-				this->getBody()->GetShapeList()[0].SetSensor(true);
+				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
+				crouchDir = 1;
+
 				m_kp.crouching = true;
 			}
 		}
@@ -788,9 +850,9 @@ void Enemy::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
-				m_crouchAnimStartPos = this->p_camera->getPosition().y;
-				m_cameraOffset = m_standHeight;
-				this->getBody()->GetShapeList()[0].SetSensor(false);
+				crouchDir = -1;
+				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
+
 				m_kp.crouching = false;
 			}
 		}
@@ -818,6 +880,7 @@ void Enemy::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
 			}
 			else
 			{
@@ -844,6 +907,8 @@ void Enemy::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
+
 			}
 			else
 			{
@@ -859,18 +924,169 @@ void Enemy::_onSprint()
 	}
 }
 
+void Enemy::_onInteract()
+{
+	if (Input::Interact())
+	{
+		if (m_kp.interact == false)
+		{
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Enemy::INTERACT_RANGE, false);
+			if (ray)
+			{
+				for (RayCastListener::RayContact* con : ray->GetRayContacts())
+				{
+					if (*con->consumeState != 2)
+					{
+						if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
+						{
+							if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+							{
+								*con->consumeState += 1;
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+							{
+								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+							{
+
+								//std::cout << "Enemy Found!" << std::endl;
+								//Snuff out torches (example)
+							}
+							else if (con->contactShape->GetBody()->GetObjectTag() == "PLAYER")
+							{
+
+								//std::cout << "Player Found!" << std::endl;
+								//Snuff out torches (example)
+							}
+						}
+					}
+				}
+			}
+
+			m_kp.interact = true;
+		}
+	}
+	else
+	{
+		m_kp.interact = false;
+	}
+}
+
+
 void Enemy::_cameraPlacement(double deltaTime)
 {
-	DirectX::XMFLOAT4A pos = getPosition();
-	pos.y += m_cameraOffset;
-	p_camera->setPosition(pos);
-	//pos = p_CameraTilting(deltaTime, Input::PeekRight());
-	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+	if (!m_inputLocked)
+	{
+		//Head Movement
+		b3Vec3 upperBodyLocal = this->getBody()->GetShapeList()->GetNext()->GetTransform().translation;
+		b3Vec3 headPosLocal = this->getBody()->GetShapeList()->GetTransform().translation;
 
-	pos.y += offsetY;
 
-	pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
-	p_camera->setPosition(pos);
+		//-------------------------------------------Peeking--------------------------------------------// 
+
+		m_peektimer += peekDir * (float)deltaTime *m_peekSpeed;
+
+		if (m_peekRangeB > m_peekRangeA)
+			m_peektimer = std::clamp(m_peektimer, m_peekRangeA, m_peekRangeB);
+		else
+			m_peektimer = std::clamp(m_peektimer, m_peekRangeB, m_peekRangeA);
+
+		//Offsets to the sides to slerp between
+		b3Vec3 peekOffsetLeft;
+		b3Vec3 peekOffsetRight;
+
+		peekOffsetLeft.x = (upperBodyLocal.x - 1) * p_camera->getDirection().z;
+		peekOffsetLeft.y = upperBodyLocal.y;
+		peekOffsetLeft.z = (upperBodyLocal.z + 1)* p_camera->getDirection().x;
+
+		peekOffsetRight.x = (upperBodyLocal.x + 1) * p_camera->getDirection().z;
+		peekOffsetRight.y = upperBodyLocal.y;
+		peekOffsetRight.z = (upperBodyLocal.z - 1) * p_camera->getDirection().x;
+
+		headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer + 1)*0.5) - headPosLocal;
+
+		//-------------------------------------------Crouch-------------------------------------------// 
+
+		m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
+		m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
+		headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - m_standHeight;
+
+		if (m_crouchAnimSteps == 1 || m_crouchAnimSteps == 0) //Animation Finished
+		{
+			crouchDir = 0;
+		}
+
+		//--------------------------------------Camera movement---------------------------------------// 
+		b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
+		DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
+		p_camera->setPosition(pos);
+		//Camera Tilt
+		p_CameraTilting(deltaTime, m_peektimer);
+
+		static float lastOffset = 0.0f;
+		static bool hasPlayed = true;
+		static int last = 0;
+
+		//Head Bobbing
+		float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+
+		pos.y += offsetY;
+
+		//Footsteps
+		if (p_moveState == Walking || p_moveState == Sprinting)
+		{
+			if (!hasPlayed)
+			{
+				if (lastOffset < offsetY)
+				{
+					hasPlayed = true;
+					auto xmPos = getPosition();
+					FMOD_VECTOR at = { xmPos.x, xmPos.y, xmPos.z };
+					int index = -1;
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_stepsStone.size();
+					}
+					FMOD::Channel * c = nullptr;
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
+					b3Vec3 vel = getLiniearVelocity();
+					DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
+					float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+
+					speed *= 0.1;
+					speed -= 0.2f;
+					c->setVolume(speed);
+					last = index;
+				}
+			}
+			else
+			{
+				if (lastOffset > offsetY)
+				{
+					hasPlayed = false;
+				}
+			}
+
+			lastOffset = offsetY;
+		}
+
+		this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
+		p_camera->setPosition(pos);
+	}
+	else
+	{
+		DirectX::XMFLOAT4A pos = getPosition();
+		pos.y += m_standHeight;
+		p_camera->setPosition(pos);
+		//pos = p_CameraTilting(deltaTime, Input::PeekRight());
+		float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+
+		pos.y += offsetY;
+
+		//pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
+		p_camera->setPosition(pos);
+	}
 }
 
 bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
@@ -1023,17 +1239,15 @@ void Enemy::_CheckPlayer(double deltaTime)
 
 void Enemy::_activateCrouch()
 {
-	m_crouchAnimStartPos = this->p_camera->getPosition().y;
-	m_cameraOffset = m_crouchHeight;
-	this->getBody()->GetShapeList()[0].SetSensor(true);
+	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
+	crouchDir = 1;
 	m_kp.crouching = true;
 }
 
 void Enemy::_deActivateCrouch()
 {
-	m_crouchAnimStartPos = this->p_camera->getPosition().y;
-	m_cameraOffset = m_standHeight;
-	this->getBody()->GetShapeList()[0].SetSensor(false);
+	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
+	crouchDir = -1;
 	m_kp.crouching = false;
 }
 
@@ -1090,3 +1304,36 @@ void Enemy::_playFootsteps(double deltaTime)
 	m_av.lastCurve = curve;
 }
 
+b3Vec3 Enemy::_slerp(b3Vec3 start, b3Vec3 end, float percent)
+{
+	// Dot product - the cosine of the angle between 2 vectors.
+	float dot = b3Dot(start, end);
+	// Clamp it to be in the range of Acos()
+	// This may be unnecessary, but floating point
+	// precision can be a fickle mistress.
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	// Acos(dot) returns the angle between start and end,
+	// And multiplying that by percent returns the angle between
+	// start and the final result.
+	float theta = std::acosf(dot)*percent;
+	//float theta = mathf.Acos(dot)*percent;
+	b3Vec3 tempStart = start;
+	tempStart.x *= dot;
+	tempStart.y *= dot;
+	tempStart.z *= dot;
+	b3Vec3 relativeVec = end - tempStart;
+	b3Normalize(relativeVec);   // Orthonormal basis
+	// The final result.
+	tempStart = start;
+	tempStart.x *= std::cos(theta);
+	tempStart.y *= std::cos(theta);
+	tempStart.z *= std::cos(theta);
+
+	b3Vec3 tempRelativeVec = relativeVec;
+	tempRelativeVec.x *= std::sin(theta);
+	tempRelativeVec.y *= std::sin(theta);
+	tempRelativeVec.z *= std::sin(theta);
+
+
+	return (tempStart + tempRelativeVec);
+}
