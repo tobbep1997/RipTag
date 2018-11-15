@@ -42,8 +42,7 @@
 #include "2D Engine/Render2D.h"
 
 //RipTag
-#include "Source/Physics/Bounce.h"
-
+#include "RipTagExtern\RipExtern.h"
 //import
 #include "ImportLibrary/FormatHeader.h"
 #include "ImportLibrary/formatImporter.h"
@@ -56,3 +55,9 @@
 #include "EngineSource/Debugg/ImGui/ImGuiManager.h"
 #include "EngineSource/Debugg/ImGui/imgui_impl_win32.h"
 #include "EngineSource/Debugg/ImGui/imgui_impl_dx11.h"
+
+#include "Source/Physics/Bounce.h"
+#include "Source/Physics/Wrapper/CollisionBoxes.h"
+#include "Source/Physics/Wrapper/RayCastListener.h"
+#include "Source/Physics/Wrapper/ContactListener.h"
+#include "Source/Physics/Wrapper/PhysicsComponent.h"
