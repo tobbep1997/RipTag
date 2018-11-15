@@ -25,12 +25,12 @@ void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("Door");
-	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("JOCKDOOR"));
+	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("DOOR"));
 	BaseActor::setTexture(Manager::g_textureManager.getTexture("RUM1"));
-	//auto& machine = getAnimatedModel()->InitStateMachine(1);
-	//getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
-	//machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("DOOR", "DOOR_ANIMATION").get());
-	//getAnimatedModel()->Pause();
+	auto& machine = getAnimatedModel()->InitStateMachine(1);
+	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
+	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("DOOR", "DOOR_ANIMATION").get());
+	getAnimatedModel()->Pause();
 
 	BaseActor::setUserDataBody(this);
 	//BaseActor::Update(0);
@@ -40,11 +40,11 @@ void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 void Door::Update(double deltaTime)
 {
 
-	//BaseActor::Update(deltaTime);
+	BaseActor::Update(deltaTime);
 
 	if (Triggerable::getState() == true)
 		PhysicsComponent::p_setPosition(200, 200, 200);
-
+	
 	//b3Mat33 mat = getBody()->GetTransform().rotation;
 	//Transform::setPhysicsRotation(mat);//;->setPhysicsRotation(mat);
 }
