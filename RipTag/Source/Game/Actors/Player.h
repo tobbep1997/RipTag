@@ -91,6 +91,8 @@ private:
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
 	Quad * m_tutorialText;
+
+	Quad * m_cross;
 	std::stack<std::string> m_tutorialMessages;
 	float m_tutorialDuration = 0.0f;
 	bool m_tutorialActive = true;

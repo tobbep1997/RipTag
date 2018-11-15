@@ -4,6 +4,7 @@
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("CROSSHAND");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
@@ -74,10 +75,11 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	quad->setPressedTexture("DAB");
 	HUDComponent::AddQuad(quad, 50);
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
-	quad->setUnpressedTexture("CROSS");
-	HUDComponent::AddQuad(quad);
+	m_cross = new Quad();
+	m_cross->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
+	m_cross->setUnpressedTexture("CROSS");
+	HUDComponent::AddQuad(m_cross);
+	
 
 	quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -1052,10 +1054,12 @@ void Player::_objectInfo(double deltaTime)
 				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
 				{
 					m_infoText->setString("Press X to pull");
+					m_cross->setUnpressedTexture("CROSSHAND");
 				}
 				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
 				{
 					m_infoText->setString("Press X to pull");
+					m_cross->setUnpressedTexture("CROSSHAND");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
@@ -1064,14 +1068,20 @@ void Player::_objectInfo(double deltaTime)
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
 				{
 					m_infoText->setString("Press RB to possess");
+					m_cross->setUnpressedTexture("CROSSHAND");
 					//Snuff out torches (example)
 				}
 				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
 				{
 					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
 						m_infoText->setString("Press RB to pass");
+					m_cross->setUnpressedTexture("CROSSHAND");
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
+				}
+				else
+				{
+					m_cross->setUnpressedTexture("CROSS");
 				}
 			}
 			m_objectInfoTime = 0;
