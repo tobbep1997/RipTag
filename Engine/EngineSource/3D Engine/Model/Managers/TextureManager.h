@@ -11,19 +11,19 @@ private:
 	std::mutex m_textureMutex;
 
 	std::vector<Texture*> m_textures[TEXTURE_HASHTABLE_SIZE];
-	//std::vector<Texture*> m_GuiTextures[TEXTURE_HASHTABLE_SIZE];
-	
+	std::vector<Texture*> m_GuiTextures;
 public:
 	TextureManager();
 	~TextureManager();
 	void loadTextures(const std::string & path);
 	Texture* getTexture(const std::string & path);
-	Texture* getSingleTextureByName(const std::wstring& name);
+	Texture* getGUITextureByName(const std::wstring& name);
 
-	void loadSingleTexture(const std::wstring name, const std::wstring & full_path);
+	void loadGUITexture(const std::wstring name, const std::wstring & full_path);
 
 	bool UnloadTexture(const std::string & path);
 	bool UnloadAllTexture();
+	bool UnloadGUITextures();
 
 	const unsigned int getLoadedTextures() const;
 private:
