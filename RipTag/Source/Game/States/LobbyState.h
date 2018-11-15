@@ -37,6 +37,7 @@ private:
 	std::vector<Quad*> m_hostListButtons;
 	Quad* m_background = nullptr;
 	unsigned int m_currentButton;
+	unsigned int m_currentButtonServerList;
 
 	bool inServerList = false;
 

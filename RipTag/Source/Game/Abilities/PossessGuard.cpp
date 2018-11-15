@@ -53,7 +53,7 @@ void PossessGuard::Draw()
 void PossessGuard::_logic(double deltaTime)
 {
 	m_useFunctionCalled = false;
-	if (((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbilityPressed())
+	if (m_pState != PossessGuard::Possessing  && ((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbility2Pressed())
 		this->Use();
 	Player* pPointer = static_cast<Player*>(p_owner);
 	/*if (Input::OnAbilityReleased())
@@ -84,6 +84,7 @@ void PossessGuard::_logic(double deltaTime)
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0; 
+				m_duration = 0;
 				//m_useFunctionCalled = false;
 			}
 			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
@@ -146,6 +147,7 @@ void PossessGuard::_logic(double deltaTime)
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0;
+				m_duration = 0;
 				//m_useFunctionCalled = false;
 			}
 			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana

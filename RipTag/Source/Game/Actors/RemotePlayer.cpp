@@ -39,17 +39,6 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//6.
 	//Ability stuff
 	{
-		VisabilityAbility * visAbl = new VisabilityAbility();
-		visAbl->setOwner(this);
-		visAbl->setIsLocal(false);
-		visAbl->Init();
-		
-
-		VisabilityAbility * visAbl2 = new VisabilityAbility();
-		visAbl2->setOwner(this);
-		visAbl2->setIsLocal(false);
-		visAbl2->Init();
-
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
 		m_teleport->setIsLocal(false);
@@ -72,15 +61,11 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents1[0] = m_teleport;
-		m_abilityComponents1[1] = visAbl;
-		m_abilityComponents1[2] = m_dis;
-		m_abilityComponents1[3] = visAbl2;
+		m_abilityComponents1[1] = m_dis;
 
 		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents2[0] = m_blink;
-		m_abilityComponents2[1] = visAbl;
-		m_abilityComponents2[2] = m_possess;
-		m_abilityComponents2[3] = visAbl2;
+		m_abilityComponents2[1] = m_possess;
 
 		m_currentAbility = (Ability)0;
 
@@ -95,11 +80,11 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 RemotePlayer::~RemotePlayer()
 {
-	for (int i = 0; i < m_nrOfAbilitys; i++)
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
-	delete m_abilityComponents2[0];
-	delete m_abilityComponents2[2];
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
 }
 
@@ -135,7 +120,8 @@ void RemotePlayer::Update(double dt)
 	this->_lerpPosition(dt);
 
 	//2.
-	m_activeSet[m_currentAbility]->Update(dt);
+	for (size_t i = 0; i < m_nrOfAbilitys; i++)
+		m_activeSet[i]->Update(dt);
 
 	//3.
 	this->getAnimatedModel()->Update(dt);
@@ -182,10 +168,14 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 
 void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 {
-	if ((Ability)data->ability != Ability::NONE)
+	if ((Ability)data->ability != Ability::NONE && !data->isCommonUpadate)
 	{
 		m_currentAbility = (Ability)data->ability;
 		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
+	}
+	else if (data->isCommonUpadate)
+	{
+		m_abilityComponents1[data->ability]->UpdateFromNetwork(data);
 	}
 }
 

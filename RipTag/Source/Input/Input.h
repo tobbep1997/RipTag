@@ -35,12 +35,16 @@ public:
 	//Axis binds
 	static float MoveForward();
 	static float MoveRight();
+	static float MouseMovementModifier();
+	static bool ResetMouseMovementModifier();
 	static float PeekRight();
 	static bool Sprinting();
 	static bool OnAbilityPressed();
 	static bool OnAbilityReleased();
-	static bool Blink();
-	static bool Possess();
+	static bool OnAbility2Pressed();
+	static bool OnAbility2Released();
+	static bool OnCancelAbilityPressed();
+	static bool OnCancelAbilityReleased();
 	static bool Interact();
 	static bool Exit();
 	static bool MouseLock();
@@ -82,6 +86,8 @@ public:
 	//Gamepad maps -> the key is the function, the value is the string to use in the Network OnSend map
 	static std::map<std::string, std::function<float()>> gamePadFunctionMapFloat;
 	static std::map<std::string, std::function<bool()>> gamePadFunctionMapBool;
+	//Mouse Map
+	static std::map<std::string, std::function<bool()>> mouseFunctionMap;
 
 	static void Init();
 	static bool isInitialized;
@@ -94,6 +100,8 @@ public:
 private:
 	static void _ReloadKeyMapping();
 	static void _LoadGamePadMapping();
+	static void _LoadMouseMapping();
 	static void _KeyboardCalls();
 	static void _GamePadCalls();
+	static void _MouseCalls();
 };

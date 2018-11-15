@@ -56,7 +56,7 @@
 #include "Source/Game/Abilities/BlinkAbility.h"
 #include "Source/Game/Abilities/PossessGuard.h"
 #include "Source/Game/Abilities/TeleportAbility.h"
-#include "Source/Game/Abilities/VisabilityAbility.h"
+//#include "Source/Game/Abilities/VisabilityAbility.h"
 
 #include "Source/Timer/DeltaTime.h"
 

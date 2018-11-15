@@ -47,7 +47,7 @@ private:
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
 
-	const unsigned short int m_nrOfAbilitys = 4;
+	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 private:
 	//DisableAbility m_disable;
@@ -61,6 +61,7 @@ private:
 	Enemy* possessTarget;
 
 	float m_moveSpeed = 4.0f;
+	float m_scrollMoveModifier = 1.0f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
 
@@ -122,7 +123,7 @@ private:
 	const unsigned int MAXROCKS = 5;
 public:
 	//Magic number
-	static const int g_fullVisability = 4500;
+	static const int g_fullVisability = 1300;
 	bool hasWon = false;
 	bool gameIsWon = false;
 	bool unlockMouse = false;
@@ -145,6 +146,7 @@ public:
 	//Networking
 	void SendOnUpdateMessage();
 	void SendOnAbilityUsed();
+	void SendAbilityUpdates();
 	void SendOnAnimationUpdate(double dt);
 	void SendOnWin();
 	void RegisterThisInstanceToNetwork();
@@ -174,6 +176,7 @@ private:
 	void _collision();
 	void _handleInput(double deltaTime);
 	void _onMovement();
+	void _scrollMovementMod();
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);

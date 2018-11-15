@@ -33,6 +33,7 @@ private:
 	float			m_travelSpeed;
 	Quad * m_bar;
 
+	bool m_canceled = false;
 	//Network
 	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;
