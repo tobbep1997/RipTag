@@ -62,6 +62,8 @@ namespace DX {
 			std::vector<long> index;
 		};
 		extern std::vector<GROUP> g_instanceGroups;
+		extern std::vector<GROUP> g_instanceShadowGroups;
+		extern void submitToShadowQueueInstance(Drawable* drawable);
 		extern void submitToInstance(Drawable* drawable);
 
 	}

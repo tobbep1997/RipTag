@@ -51,7 +51,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
 		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
-		renderingManager->DrawInstanced(nullptr, &DX::INSTANCING::g_instanceGroups);
+		renderingManager->DrawInstanced(nullptr, &DX::INSTANCING::g_instanceShadowGroups);
 	}
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
