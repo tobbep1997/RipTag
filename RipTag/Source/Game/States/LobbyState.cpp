@@ -262,7 +262,15 @@ void LobbyState::Update(double deltaTime)
 						isReady = false;
 						isRemoteReady = false;
 
-						m_loadingScreen.draw();
+						//loading screen stuff
+						{
+							delete m_charOneInfo;
+							delete m_charTwoInfo;
+							delete m_charSelectInfo;
+							delete m_charSelectionBG;
+							m_loadingScreen.removeGUI(this->m_charSelectButtons);
+							m_loadingScreen.draw();
+						}
 
 						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
 						
@@ -1255,7 +1263,15 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	ptr->remoteID = packet->remoteID;
 	isReady = false;
 	isRemoteReady = false;
-	m_loadingScreen.draw();
+	//loading screen stuff
+	{
+		delete m_charOneInfo;
+		delete m_charTwoInfo;
+		delete m_charSelectInfo;
+		delete m_charSelectionBG;
+		m_loadingScreen.removeGUI(this->m_charSelectButtons);
+		m_loadingScreen.draw();
+	}
 	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
 }
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
