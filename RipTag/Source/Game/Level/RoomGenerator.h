@@ -17,6 +17,8 @@ private:
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 5;
+	int incrementalValueX = 20;
+	int incrementalValueY = 20; // add these instead of 20
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;

@@ -12,6 +12,8 @@ class RandomRoom
 public:
 	bool north, east, south, west;
 	int leadsToRoom[4];
+	int pairedWith;
+	bool propsPlaced;
 	RoomType type;
 
 public:

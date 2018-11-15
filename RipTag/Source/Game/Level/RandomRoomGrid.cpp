@@ -15,9 +15,9 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 
 RandomRoomGrid::~RandomRoomGrid()
 {
-	delete [] m_roomGrid;
-	m_roomGrid = nullptr;
-	delete [] m_rooms;
+	//delete [] m_roomGrid;
+	//m_roomGrid = nullptr;
+	//delete [] m_rooms;
 	m_rooms = nullptr;
 }
 
@@ -198,9 +198,13 @@ void RandomRoomGrid::_connectRooms()
 {
 	for (int i = 0; i < m_oddRooms.size(); i++)
 	{
-		_createRoomConnection(m_oddRooms.at(i).startIndex, m_oddRooms.at(i).endIndex);
-		m_rooms[m_oddRooms.at(i).startIndex].type = m_oddRooms.at(i).type;
-		m_rooms[m_oddRooms.at(i).endIndex].type = m_oddRooms.at(i).type;
+		int start = m_oddRooms.at(i).startIndex;
+		int end = m_oddRooms.at(i).endIndex;
+		_createRoomConnection(start, end);
+		m_rooms[start].type = m_oddRooms.at(i).type;
+		m_rooms[start].pairedWith = end;
+		m_rooms[end].type = m_oddRooms.at(i).type;
+		m_rooms[end].pairedWith = start;
 	}
 
 	for (int i = 0; i < m_depth; i++)

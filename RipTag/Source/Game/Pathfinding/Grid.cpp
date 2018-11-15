@@ -63,8 +63,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
 	m_nodeMap.clear();
 	m_width = grid.maxX;
-	//m_height = grid.maxY;
-	m_height = 11;
+	m_height = grid.maxY;
 
 	for (int i = 0; i < m_height; i++)
 	{
