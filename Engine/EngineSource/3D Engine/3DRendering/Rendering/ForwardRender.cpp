@@ -220,7 +220,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->_OutliningPass(camera);
 
 
-	_GuardFrustumDraw();
+	//_GuardFrustumDraw();
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass();
