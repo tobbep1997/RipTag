@@ -47,6 +47,7 @@ private:
 	static bool m_youlost;
 	//BaseActor * tempp;
 	//DirectX::XMFLOAT4A rot;
+	Quad * m_eventOverlay;
 	//COOP STUFF
 	
 	bool isCoop = false;
@@ -93,7 +94,6 @@ private:
 	// Unload functions
 
 	//Network send and receive functions
-
 
 	void _sendOnGameOver();
 	void _sendOnGameWon();

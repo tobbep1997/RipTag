@@ -653,5 +653,18 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 	static const double MAX_DURATION = 5.0; //unit is in seconds
 	static double accumulatedTime = 0.0;
 
-
+	if (m_coopState.gameOver || m_coopState.gameWon || m_coopState.remoteDisconnected)
+	{
+		if (Input::isUsingGamepad())
+			if (GamePadHandler::IsAPressed())
+				this->BackToMenu();
+		if (InputHandler::wasKeyPressed(InputHandler::Enter))
+			this->BackToMenu();
+		accumulatedTime += deltaTime;
+		if (accumulatedTime >= MAX_DURATION)
+		{
+			accumulatedTime = 0;
+			this->BackToMenu();
+		}
+	}
 }
