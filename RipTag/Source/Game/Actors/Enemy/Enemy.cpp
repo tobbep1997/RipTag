@@ -317,7 +317,7 @@ void Enemy::Update(double deltaTime)
 							Drawable * temp = new Drawable();
 							temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
 							temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
-							temp->setScale({ 0.2, 0.2, 0.2, 1.0 });
+							temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
 							temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
 
 							if (i + 1 < m_path.size())
@@ -1112,7 +1112,7 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 	}
 	else
 	{
-		/*float x = nextNode->worldPos.x - getPosition().x;
+		float x = nextNode->worldPos.x - getPosition().x;
 		float y = nextNode->worldPos.y - getPosition().z;
 
 		float angle = atan2(y, x);
@@ -1128,7 +1128,7 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 		_RotateGuard(x, y, angle, deltaTime);
 
-		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);*/
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	//DirectX::XMFLOAT4A a = DirectX::XMFLOAT4A(nextNode->worldPos.x, 0, nextNode->worldPos.y, 1.0f);
 	//DirectX::XMFLOAT4A b = DirectX::XMFLOAT4A(m_path.at(m_currentPathNode)->worldPos.x, 0, m_path.at(m_currentPathNode)->worldPos.y,  1.0f);
 //FREDRIK FIXAR PÅ MÅNDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);
