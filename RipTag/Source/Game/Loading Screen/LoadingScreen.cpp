@@ -17,6 +17,7 @@ void LoadingScreen::Init()
 		m_loadingText->Release();
 		delete m_loadingText;
 	}
+
 	m_loadingText = new Quad();
 	m_loadingText->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(2.0f, 2.0f));
 	m_loadingText->setPivotPoint(Quad::center);
