@@ -16,6 +16,7 @@ TextureManager::~TextureManager()
 			delete m_textures[i][j];
 		}
 	}
+	this->UnloadGUITextures();
 }
 
 void TextureManager::loadTextures(const std::string & path)
@@ -77,15 +78,66 @@ Texture * TextureManager::getTexture(const std::string & path)
 			return m_textures[key][i];
 		}
 	}
-	for (int i = 0; i < 8; i++)
-	{
-		std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
-	}
-	throw std::exception("NOT TEXTURE FOUND");
+	
+	//This will be spammed because of the Draw calls each frame
+	//std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
+	
+	//throw std::exception("TEXTURE NOT FOUND");
+	return nullptr;
 }
 
-void TextureManager::loadRawTexture(const std::string & path)
+Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 {
+	for (auto &t : m_GuiTextures)
+	{
+		if (t->getName() == name)
+			return t;
+	}
+	
+	//This will be spammed because of the Draw calls each frame
+	//std::cout << red << std::string(name.begin(), name.end()) << " NOT FOUND" << std::endl;
+
+	//throw std::exception("TEXTURE NOT FOUND");
+	return nullptr;
+}
+
+void TextureManager::loadGUITexture(const std::wstring name, const std::wstring & full_path)
+{
+	Texture * tempTexture = new Texture();
+
+	if (m_GuiTextures.size() > 0)
+	{
+		for (auto &t : m_GuiTextures)
+		{
+			if (t->getName() == name)
+			{
+				//we already have this texture loaded 
+				std::cout << yellow << std::string(name.begin(), name.end()) << " Texture Already loaded" << std::endl;
+				std::cout << white;
+				delete tempTexture;
+				return;
+			}
+		}
+		//new entry
+		tempTexture->setName(name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_GuiTextures.push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
+	else
+	{
+		//first entry is always free
+		tempTexture->setName(name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_GuiTextures.push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
 }
 
 bool TextureManager::UnloadTexture(const std::string& path)
@@ -117,6 +169,14 @@ bool TextureManager::UnloadAllTexture()
 	}
 
 	return true;
+}
+
+bool TextureManager::UnloadGUITextures()
+{
+	for (auto & t : m_GuiTextures)
+		delete t;
+	m_GuiTextures.clear();
+	return false;
 }
 
 const unsigned int TextureManager::getLoadedTextures() const
