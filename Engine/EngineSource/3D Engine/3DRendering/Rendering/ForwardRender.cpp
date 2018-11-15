@@ -241,7 +241,7 @@ void ForwardRender::Flush(Camera & camera)
 
 	_visabilityPass();
 	this->GeometryPass(camera);
-	//this->AnimatedGeometryPass(camera);
+	this->AnimatedGeometryPass(camera);
 	//this->_OutliningPass(camera);
 
 

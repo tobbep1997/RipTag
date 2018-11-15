@@ -142,16 +142,16 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	srand(seed);
 	std::vector<int> usedRooms;
 	                               //Byt i < 1 till amountOfRooms
-	//for (short unsigned int i = 0; i < 1; i++)
-	//{
-	//	//Create a room
-	//	//Get a random int					//VERY NECCESSARY TO COMMENT BACK IN
-	//	int randomRoom = rand() % amountOfRooms;
-	//	Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
+	for (short unsigned int i = 0; i < 1; i++)
+	{
+		//Create a room
+		//Get a random int					//VERY NECCESSARY TO COMMENT BACK IN
+		int randomRoom = rand() % amountOfRooms;
+		Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
 
 
-	//	m_rooms.push_back(room);
-	//}
+		m_rooms.push_back(room);
+	}
 	//add to loop -> 1 0 i;
 	Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
 	m_rooms.push_back(room);
