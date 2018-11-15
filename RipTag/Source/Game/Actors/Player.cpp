@@ -48,6 +48,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
+		SetAbilitySet(2);
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -350,6 +351,7 @@ const AudioEngine::Listener & Player::getFMODListener() const
 
 void Player::SetAbilitySet(int set)
 {
+	set = std::clamp(set, 1, 2);
 	if (set == 1)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
