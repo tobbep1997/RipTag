@@ -71,7 +71,6 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
 	wfdesc.FillMode = D3D11_FILL_SOLID;
 	wfdesc.CullMode = D3D11_CULL_NONE;
-	//wfdesc.DepthClipEnable = FALSE;
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_disableBackFace);
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
@@ -100,38 +99,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
 	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, true);
-	//UINT32 vertexSize = sizeof(StaticVertex);
-	//UINT32 offset = 0;
-	//
-	//DirectX::BoundingFrustum cameraFrustrum;
-	//DirectX::XMMATRIX viewInv, proj, invInvView;
-
-	//proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
-	//viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
-	//invInvView = DirectX::XMLoadFloat4x4A(&camera.getView());
-	//DirectX::BoundingFrustum::CreateFromMatrix(cameraFrustrum, proj);
-	//cameraFrustrum.Transform(cameraFrustrum, viewInv);
-
-	//for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
-	//{
-	//	if (DX::g_geometryQueue[i]->getHidden() != true) //&& DX::g_geometryQueue[i]->getOutline() != true)
-	//	{
-	//		ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-
-	//		if (DX::g_geometryQueue[i]->getBoundingBox())
-	//		{
-	//			DirectX::BoundingBox * bb = DX::g_geometryQueue[i]->getBoundingBox();
-	//			bb->Transform(*bb, DirectX::XMLoadFloat4x4A(&DX::g_geometryQueue[i]->getWorldmatrix()));
-	//			if (!cameraFrustrum.Intersects(*DX::g_geometryQueue[i]->getBoundingBox()))
-	//				continue;
-	//		}
-
-	//		_mapObjectBuffer(DX::g_geometryQueue[i]);
-	//		DX::g_geometryQueue[i]->BindTextures();
-	//		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-	//		DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
-	//	}
-	//}
+	
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
@@ -215,44 +183,17 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	{
 		if (DX::g_animatedGeometryQueue[i]->getHidden() != true )
 		{
-			if (DX::g_animatedGeometryQueue[i]->getOutline() == true)
-			{
-				/*{
-					DX::g_deviceContext->OMSetDepthStencilState(m_write0State, 0);
-					ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
 
-					_mapObjectOutlineBuffer(DX::g_animatedGeometryQueue[i], camera.getPosition());
-					DX::g_animatedGeometryQueue[i]->BindTextures();
-					DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-					DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-				}
-				{
-					DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
-					ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-					_mapObjectInsideOutlineBuffer(DX::g_animatedGeometryQueue[i], camera.getPosition());
-					DX::g_animatedGeometryQueue[i]->BindTextures();
-					DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-					DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-				}
-				DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);*/
-			}
-			else
-			{
-				//todoREMOVE
-				auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
-				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			DX::g_animatedGeometryQueue[i]->BindTextures();
 
-				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
-
-				DX::g_animatedGeometryQueue[i]->BindTextures();
-
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
-				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-			}
-			
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 			
 		}		
 	}
@@ -520,14 +461,14 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 void ForwardRender::_GuardLightCulling()
 {
 	//Get all the guards for this frame
-	/*std::vector<Drawable*> guards;
-	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); ++i)
-	{
-		if (DX::g_geometryQueue.at(i)->getEntityType() == EntityType::GuarddType)
-		{
-			guards.push_back(DX::g_geometryQueue.at(i));
-		}
-	}*/
+	///*std::vector<Drawable*> guards;
+	//for (unsigned int i = 0; i < DX::g_geometryQueue.size(); ++i)
+	//{
+	//	if (DX::g_geometryQueue.at(i)->getEntityType() == EntityType::GuarddType)
+	//	{
+	//		guards.push_back(DX::g_geometryQueue.at(i));
+	//	}
+	//}*/
 
 	//std::vector<PointLight*> lights;
 	//std::vector<int> indexs;
@@ -666,13 +607,6 @@ void ForwardRender::_mapObjectInsideOutlineBuffer(Drawable* drawable, const Dire
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 {
-	//if (!m_animationBuffer)
-	//{
-	//	//m_animationBuffer = std::make_unique<Animation::AnimationCBuffer>();
-	//	m_animationBuffer = new Animation::AnimationCBuffer();
-	//	m_animationBuffer->SetAnimationCBuffer();
-	//}
-
 	std::vector<DirectX::XMFLOAT4X4A> skinningVector = drawable->getAnimatedModel()->GetSkinningMatrices();
 
 	m_animationBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
@@ -886,21 +820,7 @@ void ForwardRender::_setAnimatedShaders()
 
 void ForwardRender::_createShaders()
 {
-	//D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	//};
-	//D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	//};
-	
+
 	//TODO:: ADD NEW SHADER FOR ANIMATED OBJECTS, CONNECT TOANIMATEDINPUTDESC
 
 	m_shaderThreads[2] = std::thread(&ForwardRender::_createShadersInput, this);
@@ -988,5 +908,3 @@ void ForwardRender::_wireFramePass()
 
 	//DX::g_deviceContext->RSSetState(m_standardRast);
 }
-
-
