@@ -25,6 +25,7 @@ namespace ImporterLibrary
 	struct AnimationFromFile;
 };
 
+
 namespace Animation
 {
 #pragma region AnimatedModelClassStructs
@@ -35,11 +36,13 @@ namespace Animation
 		DirectX::XMFLOAT4A m_translation;
 		DirectX::XMFLOAT4A m_scale;
 
-		SRT() 
+		SRT()
+			: m_rotationQuaternion{0.0, 0.0, 0.0, 0.0}, m_translation{0.0, 0.0, 0.0, 0.0}, m_scale{1.0, 1.0, 1.0, 0.0}
 		{
-			DirectX::XMStoreFloat4A(&m_rotationQuaternion, DirectX::XMVectorZero());
-			DirectX::XMStoreFloat4A(&m_translation, DirectX::XMVectorZero());
-			m_scale = { 1.0, 1.0, 1.0, 1.0 };
+			//auto zeroVector = DirectX::XMVectorZero();
+			//DirectX::XMStoreFloat4A(&m_rotationQuaternion, DirectX::XMVectorZero());
+			//DirectX::XMStoreFloat4A(&m_translation, DirectX::XMVectorZero());
+			//m_scale = { 1.0, 1.0, 1.0, 1.0 };
 		};
 		SRT(const ImporterLibrary::Transform& transform);
 		SRT(const ImporterLibrary::DecomposedTransform& transform);
@@ -180,6 +183,7 @@ namespace Animation
 
 		void Update(float deltaTime);
 		void UpdateBlend(float deltaTime);
+		SkeletonPose UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData);
 		SkeletonPose UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
@@ -193,14 +197,20 @@ namespace Animation
 		int GetCurrentFrameIndex();
 
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
+		std::unique_ptr<SM::AnimationStateMachine>& GetLayerStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& InitStateMachine(size_t numStates);
+		std::unique_ptr<SM::AnimationStateMachine>& InitLayerStateMachine(size_t numStates);
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
+		float GetCachedDeltaTime();
 	private:
 		float m_currentFrameDeltaTime = 0.0f;
 
 		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
+		std::unique_ptr<SM::AnimationStateMachine> m_LayerStateMachine;
 		std::unique_ptr<SM::StateVisitor> m_Visitor;
+		std::unique_ptr<SM::LayerVisitor> m_LayerVisitor;
+
 		std::vector<DirectX::XMFLOAT4X4A> m_skinningMatrices;
 		std::vector<DirectX::XMFLOAT4X4A> m_globalMatrices;
 		
@@ -223,9 +233,11 @@ namespace Animation
 		unsigned int m_scrubIndex = 0; // #todo remove
 
 		//-- Helper functions --
+	public:
 		JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
 		SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
 		SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
+	private:
 		//----------------------
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
@@ -250,6 +262,19 @@ namespace Animation
 		void UpdateLooping(Animation::AnimationClip* clip);
 		void UpdateOnce(Animation::AnimationClip* clip);
 	};
+
+	//Stuff
+	inline SkeletonPose MakeSkeletonPose(const SkeletonPose& referencePose, uint16_t jointCount)
+	{
+		SkeletonPose newPose;
+		newPose.m_jointPoses = std::make_unique<JointPose[]>(jointCount);
+		
+		for (int i = 0; i < jointCount; i++)
+			newPose.m_jointPoses[i].m_transformation = referencePose.m_jointPoses[i].m_transformation;
+
+		return std::move(newPose);
+	}
+	//
 
 #pragma region AnimationCBufferClass
 	class AnimationCBuffer

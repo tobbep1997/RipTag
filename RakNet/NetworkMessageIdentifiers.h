@@ -118,9 +118,10 @@ namespace Network
 		RakNet::NetworkID nid;
 		float direction;
 		float speed;
+		float pitch;
 		DirectX::XMFLOAT4A rot;
-		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, DirectX::XMFLOAT4A _rot)
-			: id(_id), nid(_nid), direction(_dir), speed(_speed), rot(_rot) {}
+		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, float _pitch, DirectX::XMFLOAT4A _rot)
+			: id(_id), nid(_nid), direction(_dir), speed(_speed), pitch(_pitch), rot(_rot) {}
 	};
 
 	struct TRIGGEREVENTPACKET

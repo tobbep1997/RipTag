@@ -172,6 +172,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EngineSource\Helper\AnimationDebugHelper.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Base\CameraHolder.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Transform.h" />
@@ -226,6 +227,7 @@
     <ClInclude Include="EnginePCH.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EngineSource\Helper\AnimationDebugHelper.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\Component\VisibilityComponent.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\CameraHolder.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\Transform.cpp" />

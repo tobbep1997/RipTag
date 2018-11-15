@@ -72,6 +72,8 @@ void Game::Clear()
 
 void Game::Update(double deltaTime)
 {
+
+
 #if _DEBUG
 	_restartGameIf();
 #endif
