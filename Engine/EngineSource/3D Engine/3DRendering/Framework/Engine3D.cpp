@@ -11,7 +11,7 @@ std::vector<Drawable*> DX::g_animatedGeometryQueue;
 
 std::vector<PointLight*> DX::g_lights;
 
-std::vector<Drawable*> DX::g_visabilityDrawQueue;
+std::vector<Drawable*> DX::g_outlineQueue;
 
 std::vector<Drawable*> DX::g_wireFrameDrawQueue;
 
@@ -30,17 +30,20 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable)
 	/*
 	 * Copyright chefen (c) 2018
 	 */
-	std::vector<GROUP> * queue;
-	if (drawable->getEntityType() != EntityType::PlayerType)
+	std::vector<GROUP> * queue = nullptr;
+	if (drawable->getEntityType() != EntityType::PlayerType && !drawable->getOutline())
 	{
+		queue = &g_instanceGroups;
+	}
+	else if (drawable->getOutline())
+	{
+		DX::g_outlineQueue.push_back(drawable);
 		queue = &g_instanceGroups;
 	}
 	else
 	{
 		g_player = drawable;
 		queue = nullptr;
-
-
 	}
 
 	if (!queue)

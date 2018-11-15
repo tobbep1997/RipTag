@@ -161,6 +161,43 @@ void ForwardRender::PrePass(Camera & camera)
 	
 	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, false);
 
+
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl"), nullptr, 0);
+
+	UINT32 vertexSize = sizeof(StaticVertex);
+
+	UINT32 offset = 0;
+	for (int i = 0; i < DX::g_outlineQueue.size(); i++)
+	{
+		{
+			DX::g_deviceContext->OMSetDepthStencilState(m_write0State, 0);
+			ID3D11Buffer * vertexBuffer = DX::g_outlineQueue[i]->getBuffer();
+
+			_mapObjectOutlineBuffer(DX::g_outlineQueue[i], camera.getPosition());
+			DX::g_outlineQueue[i]->BindTextures();
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_outlineQueue[i]->getVertexSize(), 0);
+
+		}
+
+		{
+
+			DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
+			ID3D11Buffer * vertexBuffer = DX::g_outlineQueue[i]->getBuffer();
+
+			_mapObjectInsideOutlineBuffer(DX::g_outlineQueue[i], camera.getPosition());
+			DX::g_outlineQueue[i]->BindTextures();
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_outlineQueue[i]->getVertexSize(), 0);
+
+		}
+
+		DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	}
+
+
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
@@ -228,9 +265,6 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	this->PrePass(camera);
 
-
-
-
 	_simpleLightCulling(camera);
 
 	_mapLightInfoNoMatrix();
@@ -242,10 +276,10 @@ void ForwardRender::Flush(Camera & camera)
 	_visabilityPass();
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
-	//this->_OutliningPass(camera);
+	this->_OutliningPass(camera);
 
 
-	_GuardFrustumDraw();
+	//_GuardFrustumDraw();
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass();
@@ -265,7 +299,7 @@ void ForwardRender::Clear()
 
 	DX::g_player = nullptr;
 
-	DX::g_visabilityDrawQueue.clear();
+	DX::g_outlineQueue.clear();
 	//this->m_shadowMap->Clear();
 	DX::g_visibilityComponentQueue.clear();
 
@@ -675,62 +709,55 @@ void ForwardRender::_mapLightInfoNoMatrix()
 void ForwardRender::_OutliningPass(Camera & cam)
 {
 
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//DX::g_deviceContext->OMSetDepthStencilState(depthoutState, 0);
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
-	_setStaticShaders();
+	//_setStaticShaders();
 	//TODO
-	//for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
-	//{
-	//	if (DX::g_geometryQueue[i]->getOutline() == true)
-	//	{
-	//		{
-	//			m_outLineValues.outLineColor = DX::g_geometryQueue[i]->getOutlineColor();
-	//			//DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
+	for (unsigned int i = 0; i < DX::g_outlineQueue.size(); i++)
+	{			
+		m_outLineValues.outLineColor = DX::g_outlineQueue[i]->getOutlineColor();
+		//DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
 
-	//			DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
+		DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
 
-	//			DX::g_deviceContext->OMSetDepthStencilState(m_OutlineState, 0);
+		DX::g_deviceContext->OMSetDepthStencilState(m_OutlineState, 0);
 
-	//			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
-	//			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
-	//			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+		ID3D11Buffer * vertexBuffer = DX::g_outlineQueue[i]->getBuffer();
 
-	//			_mapObjectOutlineBuffer(DX::g_geometryQueue[i], cam.getPosition());
-	//			DX::g_geometryQueue[i]->BindTextures();
-	//			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-	//			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
-	//		}
-	//		
-	//	}
-	//}
+		_mapObjectOutlineBuffer(DX::g_outlineQueue[i], cam.getPosition());
+		DX::g_outlineQueue[i]->BindTextures();
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		DX::g_deviceContext->Draw(DX::g_outlineQueue[i]->getVertexSize(), 0);
+			
 
-	//_setAnimatedShaders();
-	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
-	//for (int i = 0; i < DX::g_animatedGeometryQueue.size(); ++i)
-	//{
-	//	if (DX::g_animatedGeometryQueue[i]->getOutline() == true)
-	//	{
-	//		m_outLineValues.outLineColor = DX::g_animatedGeometryQueue[i]->getOutlineColor();
-	//		//DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
+	}
 
-	//		DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
+	_setAnimatedShaders();
+	for (int i = 0; i < DX::g_animatedGeometryQueue.size(); ++i)
+	{
+		if (DX::g_animatedGeometryQueue[i]->getOutline() == true)
+		{
+			m_outLineValues.outLineColor = DX::g_animatedGeometryQueue[i]->getOutlineColor();
+			//DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
 
-	//		DX::g_deviceContext->OMSetDepthStencilState(m_OutlineState, 0);
+			DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
 
-	//		//DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
-	//		//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
-	//		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			DX::g_deviceContext->OMSetDepthStencilState(m_OutlineState, 0);
 
-	//		_mapObjectOutlineBuffer(DX::g_animatedGeometryQueue[i], cam.getPosition());
-	//		DX::g_animatedGeometryQueue[i]->BindTextures();
-	//		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-	//		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-	//	}
-	//}
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+			_mapObjectOutlineBuffer(DX::g_animatedGeometryQueue[i], cam.getPosition());
+			DX::g_animatedGeometryQueue[i]->BindTextures();
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+		}
+	}
 
 }
 
@@ -921,6 +948,13 @@ void ForwardRender::_createShadersInput()
 		{ "ALPHA", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
+	D3D11_INPUT_ELEMENT_DESC outlineInputDesc[] = {
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "UV", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl", "main", outlineInputDesc, 4);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl", "main", inputDesc, 11);
 

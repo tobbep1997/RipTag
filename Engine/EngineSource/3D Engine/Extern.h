@@ -30,7 +30,7 @@ namespace DX {
 
 	extern Drawable* g_player;
 	extern std::vector<Drawable*> g_animatedGeometryQueue;
-	extern std::vector<Drawable*> g_visabilityDrawQueue;
+	extern std::vector<Drawable*> g_outlineQueue;
 	extern std::vector<Drawable*> g_wireFrameDrawQueue;
 
 	extern std::vector<PointLight*> g_lights;
