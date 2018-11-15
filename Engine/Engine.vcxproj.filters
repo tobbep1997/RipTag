@@ -18,6 +18,7 @@
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlineVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\wireFramePixel.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\OutlinePrepassVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />

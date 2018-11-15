@@ -28,7 +28,15 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 
 void PhysicsComponent::p_setPosition(const  float& x, const float& y, const float& z)
 {
-	m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
+	if (this->singelCollider)
+		m_body->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());	
+	else
+	{
+		for (int i = 0; i < m_bodys.size(); i++)
+		{
+			m_bodys[i]->SetTransform(b3Vec3(m_bodys[i]->GetTransform().translation.x + x, m_bodys[i]->GetTransform().translation.y + y, m_bodys[i]->GetTransform().translation.z + z), m_bodys[i]->GetQuaternion());
+		}
+	}
 }
 
 void PhysicsComponent::p_setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll)
@@ -152,7 +160,6 @@ void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const
 	b3Quaternion qu = m_body->GetQuaternion();
 	DirectX::XMVECTOR vec = DirectX::XMVectorSet(qu.a, qu.b, qu.c, qu.d);
 
-	//add == mulitypyy
 
 	DirectX::XMVECTOR t = DirectX::XMQuaternionRotationRollPitchYaw(pitch, 0, 0);
 
@@ -206,7 +213,7 @@ void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const
 
 PhysicsComponent::PhysicsComponent()
 {
-
+	m_bodyDef = nullptr;
 }
 
 PhysicsComponent::~PhysicsComponent()
@@ -242,6 +249,7 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 
 		h = new b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+		m_scales.push_back(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_hulls.push_back(h);
 
 		//-----------------------------------------------------
@@ -450,8 +458,9 @@ void PhysicsComponent::addForceToCenter(float x, float y, float z)
 
 void PhysicsComponent::Release(b3World& world)
 {
-	delete m_bodyDef;
-	if (singelCollider)
+	if (m_bodyDef)
+		delete m_bodyDef;
+	if (singelCollider && m_bodyDef)
 	{
 		m_body->DestroyShape(m_shape);
 		delete m_poly;

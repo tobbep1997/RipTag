@@ -78,7 +78,7 @@ void Texture::setName(const std::wstring & name)
 	this->m_textureName = name;
 }
 
-const std::wstring Texture::getName() const
+const std::wstring & Texture::getName() const
 {
 	return this->m_textureName;
 }

@@ -43,10 +43,11 @@ void BaseActor::Update(double deltaTime)
 		getAnimatedModel()->Update(deltaTime);
 }
 
-void BaseActor::setPosition(const float& x, const float& y, const float& z)
+void BaseActor::setPosition(const float& x, const float& y, const float& z, const bool & setPhysics)
 {
 	Transform::setPosition(x, y, z);
-	PhysicsComponent::p_setPosition(x, y, z);
+	if (setPhysics)
+		PhysicsComponent::p_setPosition(x, y, z);
 }
 
 void BaseActor::setPositionRot(const float& x, const float& y, const float& z, const float& pitch, const float& yaw,
@@ -55,19 +56,17 @@ void BaseActor::setPositionRot(const float& x, const float& y, const float& z, c
 	Transform::setPosition(x, y, z);
 	Transform::setRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
 	PhysicsComponent::p_setPositionRot(x, y, z, DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
-	//PhysicsComponent::p_setPositionRot(x, y, z, DirectX::XMConvertToRadians(-pitch), DirectX::XMConvertToRadians(-yaw), DirectX::XMConvertToRadians(-roll));
 }
 
 void BaseActor::setPositionRot(const DirectX::XMFLOAT4A& pos, const DirectX::XMFLOAT4A rot)
 {
 	setPositionRot(pos.x, pos.y, pos.z, rot.x, rot.y, rot.z);
 }
-
-
-void BaseActor::setRotation(const float& pitch, const float& yaw, const float& roll)
+void BaseActor::setRotation(const float& pitch, const float& yaw, const float& roll, const bool & setPhysics)
 {
 	Transform::setRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
-	PhysicsComponent::p_setRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
+	if (setPhysics)
+		PhysicsComponent::p_setRotation(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
 }
 
 void BaseActor::addRotation(const float& pitch, const float& yaw, const float& roll)
@@ -89,6 +88,8 @@ void BaseActor::ImGuiTransform(DirectX::XMFLOAT4A& pos, DirectX::XMFLOAT4A & rot
 
 	ImGui::End();
 }
+
+
 
 
 

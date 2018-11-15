@@ -140,14 +140,17 @@ public:
 		D3D11_VIEWPORT				viewport);
 
 
-	void GeometryPass();
+	void GeometryPass(Camera & camera);
 	void PrePass(Camera & camera);
 	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();
 
 	void Release();
+	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 private:
+
+
 	void _GuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);
