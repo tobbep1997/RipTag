@@ -193,34 +193,36 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR vSPos = DirectX::XMVectorSet(soundPos.x, soundPos.y, soundPos.z, 1.0f);
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
-
-							DirectX::XMFLOAT4A soundDirNormalized;
-							DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
-							
 							float occ = 1.0f;
-							
-							RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
-							if (ray)
+							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
-								for (auto & c : ray->GetRayContacts())
+								DirectX::XMFLOAT4A soundDirNormalized;
+								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
+
+								RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+								if (ray)
 								{
-									std::string tag = c->contactShape->GetBody()->GetObjectTag();
-									if (tag == "WORLD" || tag == "NULL")
+									for (auto & c : ray->GetRayContacts())
 									{
-										occ *= 0.15f;
-									}
-									else if (tag == "BLINK_WALL")
-									{
-										occ *= 0.50f;
+										std::string tag = c->contactShape->GetBody()->GetObjectTag();
+										if (tag == "WORLD" || tag == "NULL")
+										{
+											occ *= 0.15f;
+										}
+										else if (tag == "BLINK_WALL")
+										{
+											occ *= 0.50f;
+										}
 									}
 								}
 							}
+							
 
 							float volume = 0;
 							c->getVolume(&volume);
 							volume *= 100.0f;
 							volume *= occ;
-							float addThis = (volume / lengthSquared) * DirectX::XM_PI;
+							float addThis = (volume / (lengthSquared * 3));
 
 							switch (*soundType)
 							{
