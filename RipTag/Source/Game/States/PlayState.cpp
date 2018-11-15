@@ -53,7 +53,7 @@ void PlayState::Update(double deltaTime)
 	m_step.velocityIterations = 2;
 	m_step.sleeping = false;
 	m_firstRun = false;
-			
+		//int i = 0;
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime);
 	m_playerManager->Update(deltaTime);
@@ -148,11 +148,12 @@ void PlayState::_PhyscisThread(double deltaTime)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
-
+	
 		if (m_deltaTime <= 0.65f)
 		{
 			m_world.Step(m_step);
 		}
+		
 	}
 }
 

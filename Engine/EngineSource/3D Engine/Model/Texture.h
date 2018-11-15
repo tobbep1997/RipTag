@@ -18,7 +18,7 @@ public:
 	ID3D11ShaderResourceView* m_SRV[3] = { nullptr, nullptr, nullptr };
 
 	void setName(const std::wstring & name);
-	const std::wstring getName() const;
+	const std::wstring & getName() const;
 private:
 };
 

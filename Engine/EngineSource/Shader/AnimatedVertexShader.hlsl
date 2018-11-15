@@ -27,6 +27,9 @@ struct VS_OUTPUT
 	float4 normal : NORMAL;
 	float3x3 TBN : TBN;
 	float2 uv : UV;
+    
+    float4 color : COLOR;
+    int4 info : INFO;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -71,5 +74,7 @@ VS_OUTPUT main(VS_INPUT input)
     float3x3 TBN = float3x3(tangent, bitangent, output.normal.xyz);
     output.TBN = TBN;
 	output.uv = input.uv;
+    output.color = float4(1, 1, 1, 1);
+    output.info = int4(1, 0, 0, 0);
 	return output;
 }

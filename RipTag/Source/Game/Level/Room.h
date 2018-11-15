@@ -41,7 +41,7 @@ private:
 	//---------------------------------------------------
 
 	bool m_roomLoaded = false;
-	std::vector<StaticAsset*> m_staticAssets;	//Released
+	std::vector<BaseActor*> m_staticAssets;	//Released
 	std::vector<PointLight*> m_pointLights;		//Released
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
@@ -52,10 +52,10 @@ private:
 	DirectX::XMFLOAT4 m_player1StartPos;
 	DirectX::XMFLOAT4 m_player2StartPos;
 
-	BaseActor * CollisionBoxes;
+	
 	Player * m_playerInRoomPtr;
 	std::vector<Enemy*> m_roomGuards;
-	EnemyHandler m_enemyHandler;
+	EnemyHandler * m_enemyHandler;
 	//-------------------------------------
 	//Physics
 	b3World * m_worldPtr;
@@ -73,6 +73,7 @@ private:
 	bool m_youLost = false;
 
 public:
+	BaseActor * CollisionBoxes;
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	Room(b3World * worldPtr, int arrayIndex, Player * playerPtr);
@@ -115,11 +116,11 @@ public:
 	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; };
 	void setPlayer1StartPos(DirectX::XMFLOAT4 startPos) { this->m_player1StartPos = startPos; };
 	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; };
-	void setStaticMeshes(std::vector<StaticAsset*> assets) { this->m_staticAssets = assets; };
+	void setStaticMeshes(std::vector<BaseActor*> assets) { this->m_staticAssets = assets; };
 	void setLightvector(std::vector<PointLight*> lights) { this->m_pointLights = lights; };
-
 	TriggerHandler * getTriggerHandler() { return triggerHandler; }
-
+	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
+	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };
 private:
 
 	

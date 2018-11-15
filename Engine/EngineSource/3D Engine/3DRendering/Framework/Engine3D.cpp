@@ -6,12 +6,12 @@ ID3D11DeviceContext1*	DX::g_deviceContext;
 
 Shaders::ShaderManager DX::g_shaderManager;
 
-std::vector<Drawable*> DX::g_geometryQueue;
+Drawable* DX::g_player;
 std::vector<Drawable*> DX::g_animatedGeometryQueue;
 
 std::vector<PointLight*> DX::g_lights;
 
-std::vector<Drawable*> DX::g_visabilityDrawQueue;
+std::vector<Drawable*> DX::g_outlineQueue;
 
 std::vector<Drawable*> DX::g_wireFrameDrawQueue;
 
@@ -21,6 +21,61 @@ std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
+
+std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceGroups;
+void DX::INSTANCING::submitToInstance(Drawable* drawable)
+{
+	using namespace DirectX;
+	using namespace DX::INSTANCING;
+	/*
+	 * Copyright chefen (c) 2018
+	 */
+	std::vector<GROUP> * queue = nullptr;
+	if (drawable->getEntityType() != EntityType::PlayerType && !drawable->getOutline())
+	{
+		queue = &g_instanceGroups;
+	}
+	else if (drawable->getOutline())
+	{
+		DX::g_outlineQueue.push_back(drawable);
+		queue = &g_instanceGroups;
+	}
+	else
+	{
+		g_player = drawable;
+		queue = nullptr;
+	}
+
+	if (!queue)
+		return;
+
+	auto exisitingEntry = std::find_if(queue->begin(), queue->end(), [&](const GROUP& item) {
+		return drawable->getStaticMesh() == item.staticMesh && drawable->getTextureName() == item.textureName;
+	});
+
+	OBJECT attribute;
+	
+	attribute.worldMatrix = drawable->getWorldmatrix();
+	attribute.objectColor = drawable->getColor();
+	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y,0,0);
+	attribute.usingTexture.x = drawable->isTextureAssigned();
+	
+
+	if (exisitingEntry == queue->end())
+	{
+		GROUP newGroup;
+
+		newGroup.attribs.push_back(attribute);
+		newGroup.staticMesh = drawable->getStaticMesh();
+		newGroup.textureName = drawable->getTextureName();
+		queue->push_back(newGroup);
+	}
+	else
+	{
+		exisitingEntry->attribs.push_back(attribute);
+	}
+
+}
  
 
 void DX::SafeRelease(IUnknown * unknown)
@@ -113,8 +168,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 }
 
 void Engine3D::Flush(Camera & camera)
-{
-	
+{	
 	m_forwardRendering->Flush(camera);
 }
 

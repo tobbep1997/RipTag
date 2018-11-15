@@ -12,7 +12,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 110.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
@@ -605,12 +605,6 @@ void Player::SendOnAnimationUpdate(double dt)
 	}
 }
 
-void Player::SendOnWin()
-{
-	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
-
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-}
 
 void Player::RegisterThisInstanceToNetwork()
 {
@@ -1239,6 +1233,13 @@ void Player::_deActivateCrouch()
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 	crouchDir = -1;
 	m_kp.crouching = false;
+}
+
+void Player::SendOnWin()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
+	
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void Player::_hasWon()
