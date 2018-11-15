@@ -725,6 +725,21 @@ void Enemy::SetPlayerPointer(Player* player)
 	m_PlayerPtr = player;
 }
 
+void Enemy::AddActTimer(double deltaTime)
+{
+	m_actTimer += deltaTime;
+}
+
+float Enemy::GetActTimer() const
+{
+	return m_actTimer;
+}
+
+void Enemy::SetActTimer(const float& time)
+{
+	m_actTimer = time;
+}
+
 void Enemy::AddHighAlertTimer(double deltaTime)
 {
 	m_HighAlertTime += deltaTime;

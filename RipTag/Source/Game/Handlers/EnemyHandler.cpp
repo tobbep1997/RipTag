@@ -37,6 +37,12 @@ void EnemyHandler::Update(float deltaTime)
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
 		{
+		case Suspicious:
+			if (timer > 0.3f)
+			{
+				_suspicious(currentGuard,timer);
+				timer = 0.0f;
+			}
 		case Investigating_Sight:
 			if (timer > 0.3f)
 			{
@@ -171,5 +177,15 @@ void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
 		guard->SetHightAlertTimer(0.f);
 		guard->setEnemeyState(Patrolling);
 		std::cout << red << "highAlertEnded" << white << std::endl;
+	}
+}
+
+void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
+{
+	guard->AddActTimer(dt);
+
+	if (guard->GetActTimer() > 2.0)
+	{
+		guard->SetActTimer(0.0f);
 	}
 }

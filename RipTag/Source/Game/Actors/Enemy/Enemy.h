@@ -14,6 +14,8 @@ enum EnemyState
 	Investigating_Sight,
 	Investigating_Sound,
 	High_Alert,
+	Suspicious,
+	Cooling_Down,
 	Patrolling
 };
 
@@ -104,6 +106,7 @@ private:
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
 
+
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
 
@@ -141,6 +144,7 @@ private:
 	Player * m_PlayerPtr;
 
 	float m_HighAlertTime = 0.f;
+	float m_actTimer = 0.0f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -212,6 +216,10 @@ public:
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+
+	void AddActTimer(double deltaTime);
+	float GetActTimer() const;
+	void SetActTimer(const float & time);
 
 	void AddHighAlertTimer(double deltaTime);
 	float GetHighAlertTimer() const;
