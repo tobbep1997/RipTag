@@ -265,9 +265,13 @@ void LobbyState::Update(double deltaTime)
 						//loading screen stuff
 						{
 							delete m_charOneInfo;
+							m_charOneInfo = nullptr;
 							delete m_charTwoInfo;
+							m_charTwoInfo = nullptr;
 							delete m_charSelectInfo;
+							m_charSelectInfo = nullptr;
 							delete m_charSelectionBG;
+							m_charSelectionBG = nullptr;
 							m_loadingScreen.removeGUI(this->m_charSelectButtons);
 							m_loadingScreen.draw();
 						}
@@ -1134,7 +1138,7 @@ void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 	pNetwork->setIsConnected(true);
 	hasClient = true;
 	m_clientIP = data->systemAddress;
-	this->m_charSelectInfo->setString("You:\n" + this->m_MyHostName + "Connected to:\n" + m_clientIP.ToString());
+	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + m_clientIP.ToString());
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
@@ -1155,7 +1159,7 @@ void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 	this->selectedHost = data->systemAddress;
 	hasJoined = true;
 	_resetCharSelectButtonStates();
-	this->m_charSelectInfo->setString("You:\n" + this->m_MyHostName + "Connected to:\n" + this->m_ServerName);
+	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + this->m_ServerName);
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
@@ -1189,7 +1193,7 @@ void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
 		m_clientIP = RakNet::SystemAddress("0.0.0.0");
 		hasClient = false;
 		isRemoteReady = false;
-		this->m_charSelectInfo->setString("You:\n" + this->m_MyHostName + "Connected to:\nNone");
+		this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\nNone");
 		this->m_remoteNID = 0;
 
 		if (hasRemoteCharSelected)
@@ -1266,9 +1270,13 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	//loading screen stuff
 	{
 		delete m_charOneInfo;
+		m_charOneInfo = nullptr;
 		delete m_charTwoInfo;
+		m_charTwoInfo = nullptr;
 		delete m_charSelectInfo;
+		m_charSelectInfo = nullptr;
 		delete m_charSelectionBG;
+		m_charSelectionBG = nullptr;
 		m_loadingScreen.removeGUI(this->m_charSelectButtons);
 		m_loadingScreen.draw();
 	}
