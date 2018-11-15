@@ -1,6 +1,8 @@
 #pragma once
 #include "State.h"
 #include "../Loading Screen/LoadingScreen.h"
+#include <filesystem>
+
 class Quad;
 class Circle;
 class TextInput;
@@ -45,4 +47,5 @@ private:
 	// Inherited via State
 	virtual void Load() override;
 	virtual void unLoad() override;
+	void LoadAllGuiElements();
 };

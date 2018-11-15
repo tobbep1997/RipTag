@@ -136,9 +136,16 @@ void Quad::setUnpressedTexture(const std::string & texture)
 
 void Quad::MapTexture()
 {
-	if (Manager::g_textureManager.getTexture(this->m_textures[m_buttonState]))
+	std::string name = this->m_textures[m_buttonState];
+	std::wstring wName = std::wstring(name.begin(), name.end());
+
+	if (Manager::g_textureManager.getTexture(name))
 	{
-		Manager::g_textureManager.getTexture(this->m_textures[m_buttonState])->Bind(1);
+		Manager::g_textureManager.getTexture(name)->Bind(1);
+	}
+	else if (Manager::g_textureManager.getGUITextureByName(wName))
+	{
+		Manager::g_textureManager.getGUITextureByName(wName)->Bind(1);
 	}
 	else
 		std::cout << red << "Can't Find Texture: " << this->m_textures[m_buttonState] << std::endl;

@@ -284,7 +284,7 @@ void Enemy::Update(double deltaTime)
 							Drawable * temp = new Drawable();
 							temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
 							temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
-							temp->setScale({ 0.2, 0.2, 0.2, 1.0 });
+							temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
 							temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
 
 							if (i + 1 < m_path.size())

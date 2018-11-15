@@ -68,6 +68,23 @@ HRESULT Texture::Load(const wchar_t * file)
 	return hr;
 }
 
+HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
+{
+	std::wstring file = absolutePath;
+
+	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, file.c_str(), nullptr, &m_SRV[0]);
+	if (FAILED(hr))
+	{
+		std::string p = std::string(file.begin(), file.end());
+		size_t t = p.find_last_of(L'/');
+		p = p.substr(t + 1);
+		std::cout << red << p << " Failed to Load" << std::endl;
+		std::cout << white;
+		return hr;
+	}
+	return E_FAIL;
+}
+
 void Texture::Bind(const uint8_t slot)
 {
 	DX::g_deviceContext->PSSetShaderResources(slot, 3, m_SRV);
