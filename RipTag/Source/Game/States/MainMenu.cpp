@@ -256,6 +256,8 @@ void MainMenu::Load()
 	_initButtons();
 	m_loadingScreen.Init();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+	Manager::g_textureManager.loadTextures("LOADING");
+
 	std::cout << "MainMenu Load" << std::endl;
 }
 

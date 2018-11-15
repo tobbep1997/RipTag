@@ -247,6 +247,7 @@ void ForwardRender::Clear()
 	DX::g_wireFrameDrawQueue.clear();
 
 	DX::INSTANCING::g_instanceGroups.clear();
+	DX::INSTANCING::g_instanceShadowGroups.clear();
 }
 
 void ForwardRender::Release()

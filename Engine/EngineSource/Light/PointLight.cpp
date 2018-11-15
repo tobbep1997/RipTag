@@ -1,6 +1,6 @@
 #include "EnginePCH.h"
 #include "PointLight.h"
-
+#include "RipTagExtern/RipExtern.h"
 
 
 PointLight::PointLight()
@@ -26,10 +26,16 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	}
 	this->m_dropOff = .5f;
 	_initDirectX(128U,128U);
+
+	m_phys.Init(*RipExtern::g_world, e_staticBody, 0.4, 0.4, 0.4);
+	m_phys.p_setPosition(translation[0], translation[1], translation[2]);
+	m_phys.setObjectTag("TORCH");
+	m_phys.setUserDataBody(this);
 }
 
 PointLight::~PointLight()
 {
+	m_phys.Release(*RipExtern::g_world);
 	for (int i = 0; i < m_sides.size(); i++)
 	{
 		delete m_sides[i];
@@ -275,10 +281,28 @@ float PointLight::getDistanceToCamera() const
 	return m_cullingDistanceToCamera;
 }
 
+bool PointLight::getLightOn() const
+{
+	return m_lightOn;
+}
+
+void PointLight::setLightOn(bool bo)
+{
+	m_lightOn = bo;
+}
+
+void PointLight::SwitchLightOn()
+{
+	m_lightOn = !m_lightOn;
+}
+
 
 void PointLight::QueueLight()
 {
-	DX::g_lights.push_back(this);
+	if (m_lightOn)
+	{
+		DX::g_lights.push_back(this);
+	}
 }
 
 void PointLight::setPosition(const DirectX::XMFLOAT4A & pos)
