@@ -262,6 +262,8 @@ void LobbyState::Update(double deltaTime)
 						isReady = false;
 						isRemoteReady = false;
 
+						m_loadingScreen.draw();
+
 						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
 						
 					}
@@ -1253,6 +1255,7 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	ptr->remoteID = packet->remoteID;
 	isReady = false;
 	isRemoteReady = false;
+	m_loadingScreen.draw();
 	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
 }
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
@@ -1332,6 +1335,8 @@ void LobbyState::Load()
 {
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrderLobby::Host;
+
+	m_loadingScreen.Init();
 
 	this->pNetwork = Network::Multiplayer::GetInstance();
 	this->pNetwork->Init();

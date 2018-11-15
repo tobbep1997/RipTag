@@ -254,6 +254,7 @@ void MainMenu::Load()
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	_initButtons();
+	m_loadingScreen.Init();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 	std::cout << "MainMenu Load" << std::endl;
 }
