@@ -17,7 +17,7 @@ namespace SM
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
 				return std::make_pair(outState.second.state, 0.4f);
 		}
-		return std::make_pair(nullptr, .0);
+		return std::make_pair(nullptr, .0f);
 	}
 
 	AnimationState::~AnimationState()
