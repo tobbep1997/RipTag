@@ -263,7 +263,11 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			if (m_alertPath.size() > 0 )
+			if (m_state == Suspicious)
+			{
+				getBody()->SetAwake(false);
+			}
+			else if (m_alertPath.size() > 0 )
 			{
 				if (m_state != High_Alert)
 				{
@@ -654,6 +658,36 @@ void Enemy::setSoundLocation(const SoundLocation & sl)
 const Enemy::SoundLocation & Enemy::getSoundLocation() const
 {
 	return m_sl;
+}
+
+const Enemy::SoundLocation & Enemy::getLoudestSoundLocation() const
+{
+	return m_loudestSoundLocation;
+}
+
+void Enemy::setLoudestSoundLocation(const SoundLocation & sl)
+{
+	m_loudestSoundLocation = sl;
+}
+
+const DirectX::XMFLOAT4A & Enemy::getClearestPlayerLocation() const
+{
+	return m_clearestPlayerPos;
+}
+
+void Enemy::setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl)
+{
+	m_clearestPlayerPos = cpl;
+}
+
+const float & Enemy::getBiggestVisCounter() const
+{
+	return m_biggestVisCounter;
+}
+
+void Enemy::setBiggestVisCounter(float bvc)
+{
+	m_biggestVisCounter = bvc;
 }
 
 void Enemy::setReleased(bool released)

@@ -24,8 +24,8 @@ class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 public:
 	struct SoundLocation
 	{
-		float percentage;
-		DirectX::XMFLOAT3 soundPos;
+		float percentage = 0.0f;
+		DirectX::XMFLOAT3 soundPos = DirectX::XMFLOAT3(0,0,0);
 	};
 
 public:
@@ -109,6 +109,10 @@ private:
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
+	SoundLocation m_loudestSoundLocation;
+
+	DirectX::XMFLOAT4A m_clearestPlayerPos;
+	float m_biggestVisCounter = 0.0f;
 
 	float m_visCounter;
 	float m_visabilityTimer = 1.6f;
@@ -201,6 +205,15 @@ public:
 
 	void setSoundLocation(const SoundLocation & sl);
 	const SoundLocation & getSoundLocation() const;
+
+	const SoundLocation & getLoudestSoundLocation() const;
+	void setLoudestSoundLocation(const SoundLocation & sl);
+
+	const DirectX::XMFLOAT4A & getClearestPlayerLocation() const;
+	void setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl);
+
+	const float & getBiggestVisCounter() const;
+	void setBiggestVisCounter(float bvc);
 
 	bool getIfLost();
 	const KnockOutType getKnockOutType() const; 
