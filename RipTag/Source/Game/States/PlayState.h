@@ -47,9 +47,18 @@ private:
 	static bool m_youlost;
 	//BaseActor * tempp;
 	//DirectX::XMFLOAT4A rot;
+	//COOP STUFF
+	
 	bool isCoop = false;
 	CoopData * pCoopData = nullptr;
 	int m_seed = 0;
+	struct CoopState
+	{
+		bool gameOver = false;
+		bool gameWon = false;
+		bool remoteDisconnected = false;
+	} m_coopState;
+	
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();
@@ -59,6 +68,10 @@ public:
 	void Draw() override;
 
 	static void setYouLost(const bool & youLost);
+
+	//Network
+	//TODO: ADD HANDLING FOR ON LOST, ON WIN AND ON DISCONNECT
+	void HandlePacket(unsigned char id, unsigned char * data);
 
 private:
 	void _PhyscisThread(double deltaTime);
@@ -78,6 +91,19 @@ private:
 	void _loadNetwork();
 	void _loadSound();
 	// Unload functions
+
+	//Network send and receive functions
+
+
+	void _sendOnGameOver();
+	void _sendOnGameWon();
+	void _sendOnDisconnect();
+
+	void _onGameOverPacket();
+	void _onGameWonPacket();
+	void _onDisconnectPacket();
+
+	void _updateOnCoopMode(double deltaTime);
 
 };
 

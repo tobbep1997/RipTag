@@ -612,3 +612,44 @@ void PlayState::_loadSound()
 
 	AudioEngine::CreateReverb(reverbAt, 30.0f, 50.0f);
 }
+
+void PlayState::_sendOnGameOver()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_LOST, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void PlayState::_sendOnGameWon()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void PlayState::_sendOnDisconnect()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_DISCONNECT, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::IMMEDIATE_PRIORITY);
+}
+
+void PlayState::_onGameOverPacket()
+{
+	m_coopState.gameOver = true;
+}
+
+void PlayState::_onGameWonPacket()
+{
+	m_coopState.gameWon = true;
+}
+
+void PlayState::_onDisconnectPacket()
+{
+	m_coopState.remoteDisconnected = true;
+}
+
+void PlayState::_updateOnCoopMode(double deltaTime)
+{
+	static const double MAX_DURATION = 5.0; //unit is in seconds
+	static double accumulatedTime = 0.0;
+
+
+}
