@@ -468,27 +468,26 @@ void Enemy::_onMovement(double deltaTime)
 	float z = 0;
 
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+	DirectX::XMStoreFloat2(&dir, vDir);
 
-	if (Input::MoveRight() > 1.0f || Input::MoveForward() > 1.0f)
+
+	if (fabs(Input::MoveRight()) > 1.0f || fabs(Input::MoveForward()) > 1.0f)
 	{
 		dir.x *= m_scrollMoveModifier;
 		dir.y *= m_scrollMoveModifier;
 	}
-
-	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
-	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
-
-	if (length > 1.0)
-		vDir = DirectX::XMVector2Normalize(vDir);
-
-	DirectX::XMStoreFloat2(&dir, vDir);
 
 	x = dir.x * m_moveSpeed  * RIGHT.x;
 	x += dir.y * m_moveSpeed * forward.x;
 	z = dir.y * m_moveSpeed * forward.z;
 	z += dir.x * m_moveSpeed * RIGHT.z;
 
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
+	m_cameraSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
+
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -1029,7 +1028,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 		static int last = 0;
 
 		//Head Bobbing
-		float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+		float offsetY = p_viewBobbing(deltaTime, m_cameraSpeed, this->getBody());
 
 		pos.y += offsetY;
 
@@ -1072,7 +1071,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 		}
 
 		this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
-		p_camera->setPosition(pos);
+		//p_camera->setPosition(pos);
 	}
 	else
 	{
@@ -1080,12 +1079,12 @@ void Enemy::_cameraPlacement(double deltaTime)
 		pos.y += m_standHeight;
 		p_camera->setPosition(pos);
 		//pos = p_CameraTilting(deltaTime, Input::PeekRight());
-		float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+		float offsetY = p_viewBobbing(deltaTime, m_moveSpeed, this->getBody());
 
 		pos.y += offsetY;
 
 		//pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
-		p_camera->setPosition(pos);
+		//p_camera->setPosition(pos);
 	}
 }
 
@@ -1131,7 +1130,7 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	//DirectX::XMFLOAT4A a = DirectX::XMFLOAT4A(nextNode->worldPos.x, 0, nextNode->worldPos.y, 1.0f);
 	//DirectX::XMFLOAT4A b = DirectX::XMFLOAT4A(m_path.at(m_currentPathNode)->worldPos.x, 0, m_path.at(m_currentPathNode)->worldPos.y,  1.0f);
-//FREDRIK FIXAR PÅ MÅNDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);
+//FREDRIK FIXAR Pï¿½ Mï¿½NDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);
 	//DirectX::XMVECTOR current = DirectX::XMLoadFloat4A(&b);
 	//DirectX::XMVECTOR moveVector = DirectX::XMVectorSubtract(current, direction);
 	//this->setLiniearVelocity(DirectX::XMVectorGetX(moveVector), this->getLiniearVelocity().y, DirectX::XMVectorGetZ(moveVector));

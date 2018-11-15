@@ -229,6 +229,7 @@ Quad * HUDComponent::GetQuad(std::string tag)
 			return m_quads[i]->quad; 
 		}
 	}
+	return nullptr;
 }
 
 void HUDComponent::removeHUD()

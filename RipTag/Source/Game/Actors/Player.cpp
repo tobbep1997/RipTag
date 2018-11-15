@@ -638,27 +638,26 @@ void Player::_onMovement()
 	float z = 0;
 
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+	DirectX::XMStoreFloat2(&dir, vDir);
 	
-	if (Input::MoveRight() > 1.0f || Input::MoveForward() > 1.0f)
+
+	if (fabs(Input::MoveRight()) > 1.0f || fabs(Input::MoveForward()) > 1.0f)
 	{
 		dir.x *= m_scrollMoveModifier;
 		dir.y *= m_scrollMoveModifier;
 	}
-
-	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
-	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
-
-	if (length > 1.0)
-		vDir = DirectX::XMVector2Normalize(vDir);
-
-	DirectX::XMStoreFloat2(&dir, vDir);
 
 	x = dir.x * m_moveSpeed  * RIGHT.x;
 	x += dir.y * m_moveSpeed * forward.x;
 	z = dir.y * m_moveSpeed * forward.z;
 	z += dir.x * m_moveSpeed * RIGHT.z;
 
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
+	m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
+
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -788,7 +787,6 @@ void Player::_onCrouch()
 	}
 }
 
-
 void Player::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
@@ -856,7 +854,6 @@ void Player::_onRotate(double deltaTime)
 	//#todoREMOVE
 	m_currentPitch = - p_camera->getPitch().x;
 }
-
 
 void Player::_onPeak(double deltaTime)
 {
@@ -1108,7 +1105,7 @@ void Player::_cameraPlacement(double deltaTime)
 	static int last = 0;
 
 	//Head Bobbing
-	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+	float offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
 
 	pos.y += offsetY;
 
@@ -1151,7 +1148,7 @@ void Player::_cameraPlacement(double deltaTime)
 	}
 
 	this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
-	p_camera->setPosition(pos);
+	//p_camera->setPosition(pos);
 }
 
 void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos)
