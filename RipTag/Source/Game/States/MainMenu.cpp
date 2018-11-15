@@ -255,6 +255,8 @@ void MainMenu::Load()
 	FontHandler::loadFont("consolas16");
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+	Manager::g_textureManager.loadTextures("LOADING");
+
 	std::cout << "MainMenu Load" << std::endl;
 }
 
