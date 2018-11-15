@@ -1321,9 +1321,9 @@ void LobbyState::_newHostEntry(std::string & hostName)
 	float py = startY - (offsetY * size);
 
 	m_hostListButtons.push_back(Quad::CreateButton(hostName, px, py, scaleX, scaleY));
-	m_hostListButtons[size]->setUnpressedTexture(("SPHERE"));
-	m_hostListButtons[size]->setPressedTexture(("DAB"));
-	m_hostListButtons[size]->setHoverTexture(("PIRASRUM"));
+	m_hostListButtons[size]->setUnpressedTexture(("gui_transparent_pixel"));
+	m_hostListButtons[size]->setPressedTexture(("gui_hover_pixel"));
+	m_hostListButtons[size]->setHoverTexture(("gui_pressed_pixel"));
 	m_hostListButtons[size]->setTextColor(DefaultColor);
 	m_hostListButtons[size]->setFont(FontHandler::getFont("consolas16"));
 }
