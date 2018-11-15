@@ -9,6 +9,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
 	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
+
 }
 
 MainMenu::~MainMenu()
@@ -56,7 +57,6 @@ void MainMenu::Update(double deltaTime)
 		}
 	}
 	
-		
 }
 
 void MainMenu::Draw()
@@ -250,6 +250,7 @@ void MainMenu::Load()
 		m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
 
+
 	this->LoadAllGuiElements();
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
@@ -257,6 +258,7 @@ void MainMenu::Load()
 	m_loadingScreen.Init();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 	Manager::g_textureManager.loadTextures("LOADING");
+	Manager::g_textureManager.loadTextures("DAB");
 
 	std::cout << "MainMenu Load" << std::endl;
 }
