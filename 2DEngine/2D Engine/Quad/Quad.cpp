@@ -36,6 +36,11 @@ void Quad::p_setStaticQuadVertex()
 
 }
 
+const float& Quad::getAngle() const
+{
+	return -1;
+}
+
 void Quad::_rebuildQuad()
 {
 	static int counter = 0;
@@ -315,6 +320,11 @@ const float & Quad::getRadie() const
 const float & Quad::getInnerRadie() const
 {
 	return 0.0f;
+}
+
+void Quad::setAngle(const float& angle)
+{
+	
 }
 
 const bool Quad::getIsButton() const

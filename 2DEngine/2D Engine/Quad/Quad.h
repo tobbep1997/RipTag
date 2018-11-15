@@ -82,8 +82,10 @@ private:
 	float uScale = 1.0f;
 	float vScale = 1.0f;
 
+
 	void _rebuildQuad();
 protected:
+	float p_angle = 0.0f;
 	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
 	Quad();
@@ -141,6 +143,8 @@ public:
 	virtual unsigned int getType() const;
 	virtual const float & getRadie() const;
 	virtual const float & getInnerRadie() const;
+	virtual void setAngle(const float & angle);
+	virtual const float & getAngle() const;
 
 	virtual const bool getIsButton() const; 
 

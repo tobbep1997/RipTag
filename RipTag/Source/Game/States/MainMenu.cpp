@@ -9,11 +9,18 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
 	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
+
+	c = new Circle();
+	c->init(DirectX::XMFLOAT2A(.5, .5), DirectX::XMFLOAT2A(2 / 16.0f, 2 / 9.0f));
+	c->setRadie(10);
+	c->setInnerRadie(.15);
 }
 
 MainMenu::~MainMenu()
 {
 	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
+	c->Release();
+	delete c;
 	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
@@ -56,7 +63,8 @@ void MainMenu::Update(double deltaTime)
 		}
 	}
 	
-		
+	cTimer += deltaTime * 90;
+	c->setAngle(cTimer);
 }
 
 void MainMenu::Draw()
@@ -68,6 +76,7 @@ void MainMenu::Draw()
 	m_background->Draw();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 		m_buttons[i]->Draw();
+	c->Draw();
 	p_renderingManager->Flush(camera);
 }
 
@@ -250,12 +259,15 @@ void MainMenu::Load()
 		m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
 
+
 	this->LoadAllGuiElements();
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	_initButtons();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 	Manager::g_textureManager.loadTextures("LOADING");
+	Manager::g_textureManager.loadTextures("DAB");
+	c->setUnpressedTexture("DAB");
 
 	std::cout << "MainMenu Load" << std::endl;
 }

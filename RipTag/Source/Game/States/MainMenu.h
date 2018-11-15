@@ -26,6 +26,7 @@ private:
 
 	Circle * c;
 	long float cTimer;
+
 public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
