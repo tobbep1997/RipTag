@@ -59,7 +59,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
 
 	m_cross = HUDComponent::GetQuad("Cross");
-	m_cross->setScale(DirectX::XMFLOAT2A(m_cross->getScale().x / 16.0, m_cross->getScale().y / 9.0f));
+	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
 
 	
 	m_winBar = HUDComponent::GetQuad("YouWin"); 
