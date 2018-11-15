@@ -61,6 +61,7 @@ private:
 	Enemy* possessTarget;
 
 	float m_moveSpeed = 4.0f;
+	float m_scrollMoveModifier = 1.0f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
 
@@ -175,6 +176,7 @@ private:
 	void _collision();
 	void _handleInput(double deltaTime);
 	void _onMovement();
+	void _scrollMovementMod();
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);

@@ -146,11 +146,11 @@ float Input::MoveForward()
 			{
 				if (keyIterator->second == "MoveForward")
 				{
-					result = 1;
+					result = 1.1;
 				}
 				else if (keyIterator->second == "MoveBackward")
 				{
-					result = -1;
+					result = -1.1;
 				}
 			}
 		}
@@ -174,16 +174,26 @@ float Input::MoveRight()
 			{
 				if (keyIterator->second == "MoveRight")
 				{
-					result = 1;
+					result = 1.1;
 				}
 				else if (keyIterator->second == "MoveLeft")
 				{
-					result = -1;
+					result = -1.1;
 				}
 			}
 		}
 	}
 	return result;
+}
+
+float Input::MouseMovementModifier()
+{
+	return InputHandler::getMouseDelta();
+}
+
+bool Input::ResetMouseMovementModifier()
+{
+	return InputHandler::isMMiddlePressed();
 }
 
 float Input::PeekRight()

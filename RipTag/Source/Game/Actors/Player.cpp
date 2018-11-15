@@ -655,14 +655,15 @@ void Player::_handleInput(double deltaTime)
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
 
-
 	if (Input::OnAbilityPressed() && !Input::OnAbility2Pressed())
 		m_currentAbility = (Ability)0;
 	else if (Input::OnAbility2Pressed() && !Input::OnAbilityPressed())
 		m_currentAbility = (Ability)1;
 
+
 	_onSprint();
 	_onCrouch();
+	_scrollMovementMod();
 	_onMovement();
 	//_onJump();
 	//_onAbility(deltaTime);
@@ -696,6 +697,13 @@ void Player::_onMovement()
 	float z = 0;
 
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	
+	if (Input::MoveRight() > 1.0f || Input::MoveForward() > 1.0f)
+	{
+		dir.x *= m_scrollMoveModifier;
+		dir.y *= m_scrollMoveModifier;
+	}
+
 	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
 	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
 
@@ -711,6 +719,21 @@ void Player::_onMovement()
 
 	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+}
+
+void Player::_scrollMovementMod()
+{
+	float moveMod = Input::MouseMovementModifier();
+	if (moveMod != 0.0f)
+	{
+		m_scrollMoveModifier += 0.05*moveMod;
+		m_scrollMoveModifier = std::clamp(m_scrollMoveModifier, 0.2f, 0.9f);
+	}
+
+	if (Input::ResetMouseMovementModifier())
+	{
+		m_scrollMoveModifier = 0.9f;
+	}
 }
 
 void Player::_onSprint()
