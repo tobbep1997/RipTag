@@ -147,7 +147,7 @@ public:
 	void Clear();
 
 	void Release();
-	void DrawInstanced(Camera * camera, const bool & bindTextures = true);
+	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 private:
 
 

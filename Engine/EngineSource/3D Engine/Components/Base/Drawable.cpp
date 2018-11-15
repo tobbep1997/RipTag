@@ -186,7 +186,7 @@ void Drawable::Draw()
 		{
 		case Static:
 			if(m_staticMesh)
-				DX::INSTANCING::submitToInstance(this, DX::INSTANCING::g_instanceGroups);
+				DX::INSTANCING::submitToInstance(this);
 			break;
 		case Dynamic:
 			if (m_dynamicMesh)

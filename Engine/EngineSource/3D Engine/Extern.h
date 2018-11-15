@@ -28,7 +28,7 @@ namespace DX {
 	extern void SafeRelease(IUnknown * u);
 	extern Shaders::ShaderManager g_shaderManager;
 
-	extern std::vector<Drawable*> g_geometryQueue;
+	extern Drawable* g_player;
 	extern std::vector<Drawable*> g_animatedGeometryQueue;
 	extern std::vector<Drawable*> g_visabilityDrawQueue;
 	extern std::vector<Drawable*> g_wireFrameDrawQueue;
@@ -46,7 +46,7 @@ namespace DX {
 		{
 			DirectX::XMFLOAT4X4A worldMatrix;
 			DirectX::XMFLOAT4A objectColor;
-			DirectX::XMFLOAT2A textureTileMult;
+			DirectX::XMFLOAT4A textureTileMult;
 			DirectX::XMINT4 usingTexture;
 		};
 		struct GROUP
@@ -62,7 +62,7 @@ namespace DX {
 			std::vector<long> index;
 		};
 		extern std::vector<GROUP> g_instanceGroups;
-		extern void submitToInstance(Drawable* drawable, std::vector<GROUP>& queue);
+		extern void submitToInstance(Drawable* drawable);
 
 	}
 

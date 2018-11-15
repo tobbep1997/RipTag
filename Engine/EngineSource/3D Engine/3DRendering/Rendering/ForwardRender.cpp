@@ -99,7 +99,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
-	DrawInstanced(&camera, true);
+	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, true);
 	//UINT32 vertexSize = sizeof(StaticVertex);
 	//UINT32 offset = 0;
 	//
@@ -159,7 +159,7 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	
-	DrawInstanced(&camera, false);
+	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, false);
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
@@ -239,13 +239,13 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
 
-	//_visabilityPass();
+	_visabilityPass();
 	this->GeometryPass(camera);
 	//this->AnimatedGeometryPass(camera);
 	//this->_OutliningPass(camera);
 
 
-	////_GuardFrustumDraw();
+	_GuardFrustumDraw();
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass();
@@ -263,7 +263,7 @@ void ForwardRender::Clear()
 	DX::g_animatedGeometryQueue.clear();
 	DX::g_lights.clear();
 
-	DX::g_geometryQueue.clear();
+	DX::g_player = nullptr;
 
 	DX::g_visabilityDrawQueue.clear();
 	//this->m_shadowMap->Clear();
@@ -306,19 +306,19 @@ void ForwardRender::Release()
 	delete m_animationBuffer;
 }
 
-void ForwardRender::DrawInstanced(Camera* camera, const bool& bindTextures)
+void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool& bindTextures)
 {
 	using namespace DX::INSTANCING;
 	if (camera)
 		_mapCameraBuffer(*camera);
 
 
-	size_t instanceGroupSize = g_instanceGroups.size();
+	size_t instanceGroupSize = instanceGroup->size();
 	size_t attributeSize = 0;
 	ID3D11Buffer * instanceBuffer;
 	for (size_t group = 0; group < instanceGroupSize; group++)
 	{
-		GROUP instance = g_instanceGroups[group];
+		GROUP instance = instanceGroup->at(group);
 
 		D3D11_BUFFER_DESC instBuffDesc;
 		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
@@ -486,74 +486,76 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 void ForwardRender::_GuardLightCulling()
 {
 	//Get all the guards for this frame
-	std::vector<Drawable*> guards;
+	/*std::vector<Drawable*> guards;
 	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); ++i)
 	{
 		if (DX::g_geometryQueue.at(i)->getEntityType() == EntityType::GuarddType)
 		{
 			guards.push_back(DX::g_geometryQueue.at(i));
 		}
-	}
+	}*/
 
-	std::vector<PointLight*> lights;
-	std::vector<int> indexs;
+	//std::vector<PointLight*> lights;
+	//std::vector<int> indexs;
 
-	for (unsigned int i = 0; i < guards.size(); ++i)
-	{
-		float bobbyDickLenght = 1000000;
-		int lightIndex = -1;
-		for (unsigned int j = 0; j < DX::g_lights.size(); ++j)
-		{
-			float lenght = DX::g_lights.at(j)->getDistanceFromObject(guards.at(i)->getPosition());
-			if (lenght < bobbyDickLenght)
-			{
-				bobbyDickLenght = lenght;
-				lightIndex = j;
-			}
-		}
-		if (lightIndex != -1)
-		{
-			lights.push_back(DX::g_lights.at(lightIndex));
-			indexs.push_back(lightIndex);
-		}
-	}
-	//bool Culled = false;
-	//while (Culled == false)
+	//for (unsigned int i = 0; i < guards.size(); ++i)
 	//{
-	//	bool ff = false;
-	//	for (unsigned int i = 0; i < DX::g_lights.size(); ++i)
+	//	//DONT TOUCH
+	//	float bobbyDickLenght = 1000000;
+	//	//ITS VERY IMPORTANT
+	//	int lightIndex = -1;
+	//	for (unsigned int j = 0; j < DX::g_lights.size(); ++j)
 	//	{
-	//		bool found = false;
-	//		for (unsigned int j = 0; j < lights.size(); ++j)
+	//		float lenght = DX::g_lights.at(j)->getDistanceFromObject(guards.at(i)->getPosition());
+	//		if (lenght < bobbyDickLenght)
 	//		{
-	//			if (DX::g_lights.at(i) != lights.at(j))
-	//			{
-	//				found = true;
-	//				DX::g_lights.erase(DX::g_lights.begin() + i);
-	//				//lights.erase(lights.begin() + j);
-	//				break;
-	//			}
+	//			bobbyDickLenght = lenght;
+	//			lightIndex = j;
 	//		}
-	//		if (found == true)
-	//		{
-	//			ff = true;
-	//			break;
-	//		}
-	//		
 	//	}
-	//	if (ff == false)
+	//	if (lightIndex != -1)
 	//	{
-	//		Culled = true;
+	//		lights.push_back(DX::g_lights.at(lightIndex));
+	//		indexs.push_back(lightIndex);
 	//	}
-	//	
 	//}
+	////bool Culled = false;
+	////while (Culled == false)
+	////{
+	////	bool ff = false;
+	////	for (unsigned int i = 0; i < DX::g_lights.size(); ++i)
+	////	{
+	////		bool found = false;
+	////		for (unsigned int j = 0; j < lights.size(); ++j)
+	////		{
+	////			if (DX::g_lights.at(i) != lights.at(j))
+	////			{
+	////				found = true;
+	////				DX::g_lights.erase(DX::g_lights.begin() + i);
+	////				//lights.erase(lights.begin() + j);
+	////				break;
+	////			}
+	////		}
+	////		if (found == true)
+	////		{
+	////			ff = true;
+	////			break;
+	////		}
+	////		
+	////	}
+	////	if (ff == false)
+	////	{
+	////		Culled = true;
+	////	}
+	////	
+	////}
 
-	DX::g_lights.clear();
-	DX::g_lights = lights;
-	
-	ImGui::Begin("lgihts");
-	ImGui::Text("Lights, %d", DX::g_lights.size());
-	ImGui::End();
+	//DX::g_lights.clear();
+	//DX::g_lights = lights;
+	//
+	//ImGui::Begin("lgihts");
+	//ImGui::Text("Lights, %d", DX::g_lights.size());
+	//ImGui::End();
 }
 
 void ForwardRender::_createConstantBuffer()
@@ -680,30 +682,31 @@ void ForwardRender::_OutliningPass(Camera & cam)
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
 	_setStaticShaders();
-	for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
-	{
-		if (DX::g_geometryQueue[i]->getOutline() == true)
-		{
-			{
-				m_outLineValues.outLineColor = DX::g_geometryQueue[i]->getOutlineColor();
-				//DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
+	//TODO
+	//for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
+	//{
+	//	if (DX::g_geometryQueue[i]->getOutline() == true)
+	//	{
+	//		{
+	//			m_outLineValues.outLineColor = DX::g_geometryQueue[i]->getOutlineColor();
+	//			//DX::g_deviceContext->PSSetShaderResources(10, 1, &m_outlineShaderRes);
 
-				DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
+	//			DXRHC::MapBuffer(m_outlineBuffer, &m_outLineValues, sizeof(OutLineBuffer), 8, 1, ShaderTypes::pixel);
 
-				DX::g_deviceContext->OMSetDepthStencilState(m_OutlineState, 0);
+	//			DX::g_deviceContext->OMSetDepthStencilState(m_OutlineState, 0);
 
-				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
-				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
-				ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
+	//			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl"), nullptr, 0);
+	//			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
+	//			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
 
-				_mapObjectOutlineBuffer(DX::g_geometryQueue[i], cam.getPosition());
-				DX::g_geometryQueue[i]->BindTextures();
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
-			}
-			
-		}
-	}
+	//			_mapObjectOutlineBuffer(DX::g_geometryQueue[i], cam.getPosition());
+	//			DX::g_geometryQueue[i]->BindTextures();
+	//			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+	//			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
+	//		}
+	//		
+	//	}
+	//}
 
 	//_setAnimatedShaders();
 	//DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl"), nullptr, 0);
@@ -810,7 +813,7 @@ void ForwardRender::_OutlineDepthCreate()
 
 void ForwardRender::_setStaticShaders()
 {
-	if (DX::g_geometryQueue.empty())
+	/*if (DX::g_geometryQueue.empty())
 		return;
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
@@ -822,7 +825,7 @@ void ForwardRender::_setStaticShaders()
 	if (m_lastPixelPath != DX::g_geometryQueue[0]->getPixelPath())
 	{
 		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
-	}
+	}*/
 }
 
 void ForwardRender::_visabilityPass()
@@ -830,7 +833,7 @@ void ForwardRender::_visabilityPass()
 	m_visabilityPass->SetViewportAndRenderTarget();
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
-		m_visabilityPass->GuardDepthPrePassFor(guard, m_animationBuffer);
+		m_visabilityPass->GuardDepthPrePassFor(guard, this, m_animationBuffer);
 		m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
 	}
 	
@@ -893,7 +896,7 @@ void ForwardRender::_createShadersInput()
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		//World matrix
 		{ "WORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		{ "WORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
@@ -901,8 +904,8 @@ void ForwardRender::_createShadersInput()
 		{ "WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		//Attributes
 		{ "COLOR" , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 64, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{ "UVMULT", 0, DXGI_FORMAT_R32G32_FLOAT, 1,	80, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-		{ "INFO" , 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, 88, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "UVMULT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 80, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "INFO" , 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, 96, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 	};
 	D3D11_INPUT_ELEMENT_DESC animatedInputDesc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },

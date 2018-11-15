@@ -133,6 +133,8 @@ void StaticMesh::LoadMesh(const std::string & path)
 
 		tempvertex.uvPos.x = newMesh.mesh_vertices[i].vertex_UVCoord[0];
 		tempvertex.uvPos.y = newMesh.mesh_vertices[i].vertex_UVCoord[1];
+		tempvertex.uvPos.z = 0; 
+		tempvertex.uvPos.w = 0;
 
 		m_staticVertex.push_back(tempvertex);
 
