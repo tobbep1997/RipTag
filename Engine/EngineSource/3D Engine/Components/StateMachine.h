@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 #include <optional>
-
+//#include "../Model/Meshes/AnimatedModel.h"
 #pragma region "FwdDec"
 namespace Animation
 {
@@ -155,7 +155,7 @@ namespace SM
 
 
 		AnimationState(const AnimationState& other) = delete;
-		virtual Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) = 0;
+		virtual std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
 		std::pair<AnimationState*, float> EvaluateAll();
 	private:
@@ -165,6 +165,7 @@ namespace SM
 	};
 
 	class BlendSpace1D;
+	class BlendSpace1DAdditive;
 	class BlendSpace2D;
 	class LoopState;
 	class AutoTransitionState;
@@ -172,11 +173,13 @@ namespace SM
 
 	class StateVisitorBase{
 	public:
-		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) = 0;
-		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) = 0;
-		virtual Animation::SkeletonPose dispatch(LoopState& state) = 0;
-		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) = 0;
-		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) = 0;
+		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state);
+		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state);
+		virtual Animation::SkeletonPose dispatch(LoopState& state);
+		virtual Animation::SkeletonPose dispatch(PlayOnceState& state);
+		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state);
+
+		virtual std::optional<Animation::SkeletonPose> dispatch(BlendSpace1DAdditive& state);
 	};
 
 #pragma endregion "AnimationState"
@@ -206,7 +209,7 @@ namespace SM
 		//Assumes arguments are sorted from lowest to highest
 		void AddBlendNodes(const std::vector<BlendSpaceClipData> nodes);
 	
-		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		Current1DStateData CalculateCurrentClips();
 
@@ -219,6 +222,38 @@ namespace SM
 		float* m_Current = nullptr;
 		std::optional<float> m_LockedValue = std::nullopt;
 	};
+
+	class BlendSpace1DAdditive : public AnimationState
+	{
+	public:
+		struct BlendSpaceLayerData
+		{
+			Animation::AnimationClip* clip;
+			float location;
+
+			float weight;
+			float currentTime;
+		};
+		BlendSpace1DAdditive(std::string name, float* blendSpaceDriver, float min, float max)
+			: m_Current(blendSpaceDriver), m_Min(min), m_Max(max), AnimationState(name)
+		{}
+		
+		void AddBlendNodes(const std::vector<BlendSpaceLayerData> nodes);
+		virtual void LockCurrentValues() override;
+
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
+
+		BlendSpace1D::Current1DStateData CalculateCurrent(float deltaTime);
+
+	private:
+		std::vector<BlendSpaceLayerData> m_Layers;
+		float m_Min = 0.0f;
+		float m_Max = 1.0f;
+		float* m_Current = nullptr;
+		//std::optional<float> m_LockedValue = std::nullopt;
+	};
+
+
 #pragma endregion "BlendSpace1D"
 
 #pragma region "BlendSpace2D"
@@ -250,7 +285,7 @@ namespace SM
 		//Assumes arguments are sorted from lowest to highest
 		void AddRow(float y, std::vector<BlendSpaceClipData2D>&& nodes);
 
-		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		Current2DStateData CalculateCurrentClips();
 
@@ -283,7 +318,7 @@ namespace SM
 
 		void SetClip(Animation::AnimationClip* clip);
 		Animation::AnimationClip* GetClip();
-		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 		virtual void LockCurrentValues() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
@@ -299,7 +334,7 @@ namespace SM
 		AutoTransitionState(std::string name);
 		~AutoTransitionState();
 	
-		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 	private:
 	};
 
@@ -315,7 +350,7 @@ namespace SM
 
 		void SetClip(Animation::AnimationClip* clip);
 		Animation::AnimationClip* GetClip();
-		Animation::SkeletonPose recieveStateVisitor(StateVisitorBase& visitor) override;
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 		virtual void LockCurrentValues() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
@@ -333,6 +368,16 @@ namespace SM
 		virtual Animation::SkeletonPose dispatch(LoopState& state) override;
 		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) override;
 		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) override;
+	private:
+		Animation::AnimatedModel* m_AnimatedModel = nullptr;
+	};
+
+	class LayerVisitor : public StateVisitorBase {
+	public:
+		LayerVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
+		{}
+		virtual std::optional<Animation::SkeletonPose> dispatch(BlendSpace1DAdditive& state) override;
+
 	private:
 		Animation::AnimatedModel* m_AnimatedModel = nullptr;
 	};
@@ -355,6 +400,8 @@ namespace SM
 		//Returns a pointer to the new state.
 		///AnimationState* AddState(std::string name);
 		BlendSpace1D* AddBlendSpace1DState
+			(std::string name, float* blendSpaceDriver, float min, float max);
+		SM::BlendSpace1DAdditive* AddBlendSpace1DAdditiveState
 			(std::string name, float* blendSpaceDriver, float min, float max);
 		BlendSpace2D* AddBlendSpace2DState
 			(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY);

@@ -10,6 +10,9 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
+//#todoREMOVE
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
+
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
@@ -46,8 +49,39 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 
-	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
-	this->getAnimatedModel()->Play();
+	{
+		auto idleAnim = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get();
+		auto walkAnim = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get();
+		auto& machine = getAnimatedModel()->InitStateMachine(1);
+		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.0);
+		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 0.0} });
+		//state->AddRow(0.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		//state->AddRow(1.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		machine->SetState("walk_state");
+		//this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
+		this->getAnimatedModel()->Play();
+
+		//#todoREMOVE
+		/*
+		auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
+		auto lState = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &Player::m_currentPitch, -0.9, 0.9);
+		std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
+		SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
+		up.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_UP_ANIMATION").get();
+		up.location = .9f;
+		up.weight = 1.0f;
+		SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
+		down.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_DOWN_ANIMATION").get();
+		down.location = -.9f;
+		down.weight = 1.0f;
+
+		layerData.push_back(down);
+		layerData.push_back(up);
+
+		lState->AddBlendNodes(layerData);
+		layerMachine->SetState("pitch_state");
+		*/
+	}
 	b3Vec3 pos(1, 0.9, 1);
 	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
@@ -234,7 +268,6 @@ void Enemy::Update(double deltaTime)
 
 				//TODO: Fix when ray is corrected
 
-				float lenght;
 				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 					direction.x,
 					direction.y,
@@ -1079,7 +1112,7 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 	}
 	else
 	{
-		/*float x = nextNode->worldPos.x - getPosition().x;
+		float x = nextNode->worldPos.x - getPosition().x;
 		float y = nextNode->worldPos.y - getPosition().z;
 
 		float angle = atan2(y, x);
@@ -1087,9 +1120,15 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 		
+		//Update current movespeed
+		{
+			auto deltaVector = DirectX::XMVectorSet(dx, dy, 0.0, 0.0);
+			m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		}
+
 		_RotateGuard(x, y, angle, deltaTime);
 
-		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);*/
+		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
 	//DirectX::XMFLOAT4A a = DirectX::XMFLOAT4A(nextNode->worldPos.x, 0, nextNode->worldPos.y, 1.0f);
 	//DirectX::XMFLOAT4A b = DirectX::XMFLOAT4A(m_path.at(m_currentPathNode)->worldPos.x, 0, m_path.at(m_currentPathNode)->worldPos.y,  1.0f);
 //FREDRIK FIXAR PÅ MÅNDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);

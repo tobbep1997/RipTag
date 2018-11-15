@@ -45,18 +45,38 @@ void Animation::AnimatedModel::Update(float deltaTime)
 		auto finalPoseCurrent = m_StateMachine->GetCurrentState().recieveStateVisitor(*m_Visitor);
 		auto pPreviousState = m_StateMachine->GetPreviousState();
 		
-		if (pPreviousState)
+		//Layer
+		if (m_LayerStateMachine)
 		{
-			auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
-			_computeSkinningMatrices(&finalPosePrevious, &finalPoseCurrent, blendFactor);
+			auto finalLayerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
+
+			if (pPreviousState)
+			{
+				auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
+				_computeSkinningMatrices(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor);
+				return;
+			}
+			if (finalPoseCurrent.value().m_jointPoses)
+				_computeSkinningMatrices(&finalPoseCurrent.value());
+
 			return;
 		}
-		if (finalPoseCurrent.m_jointPoses)
-			_computeSkinningMatrices(&finalPoseCurrent);
-		return;
+		else //no layers
+		{
+			if (pPreviousState)
+			{
+				auto finalPosePrevious = pPreviousState->recieveStateVisitor(*m_Visitor);
+				_computeSkinningMatrices(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor);
+				return;
+			}
+			if (finalPoseCurrent.value().m_jointPoses)
+				_computeSkinningMatrices(&finalPoseCurrent.value());
+			return;
+		}
 	}
 	
-
+	///
+/*	return;*/
 
 	if (m_targetClip)
 	{
@@ -138,6 +158,46 @@ float getSpeedScale(size_t firstFrameCount, size_t secondFrameCount, float weigh
 	float scale = static_cast<float>(firstFrameCount) / static_cast<float>(secondFrameCount);
 	scale += lerp(0.0, 1.0 - scale, weight);
 	return scale;
+}
+
+Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData)
+{
+	if (!stateData.first)
+		return Animation::SkeletonPose();
+
+	float speedScale = 1.0f;
+	std::pair<uint16_t, float> indexAndProgressionFirst{};
+	std::pair<uint16_t, float> indexAndProgressionSecond{};
+	if (stateData.second)
+	{
+		speedScale = getSpeedScale(stateData.second->m_frameCount, stateData.first->m_frameCount, stateData.weight);
+		indexAndProgressionFirst = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_currentNormalizedTime, stateData.second->m_frameCount);
+	}
+	indexAndProgressionSecond = _computeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_currentNormalizedTime, stateData.first->m_frameCount);
+
+	auto prevIndexFirst = indexAndProgressionFirst.first;
+	auto progressionFirst= indexAndProgressionFirst.second;
+	auto prevIndexSecond = indexAndProgressionSecond.first;
+	auto progressionSecond = indexAndProgressionSecond.second;
+	SkeletonPose finalPose;
+	if (!stateData.second)
+	{
+		finalPose = _BlendSkeletonPoses(&stateData.first->m_skeletonPoses[prevIndexFirst], &stateData.first->m_skeletonPoses[prevIndexFirst + 1], progressionFirst, m_skeleton->m_jointCount);
+	}
+	else
+	{
+		auto finalFirst = _BlendSkeletonPoses(&stateData.first->m_skeletonPoses[prevIndexFirst], &stateData.first->m_skeletonPoses[prevIndexFirst + 1], progressionFirst, m_skeleton->m_jointCount);
+		auto finalSecond = _BlendSkeletonPoses(&stateData.second->m_skeletonPoses[prevIndexSecond], &stateData.second->m_skeletonPoses[prevIndexSecond + 1], progressionSecond, m_skeleton->m_jointCount);
+
+		finalPose = _BlendSkeletonPoses
+		(
+			&finalFirst,
+			&finalSecond,
+			stateData.weight,
+			m_skeleton->m_jointCount
+		);
+	}
+	return std::move(finalPose);
 }
 
 Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
@@ -284,6 +344,11 @@ std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::GetStateMa
 	return m_StateMachine;
 }
 
+std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::GetLayerStateMachine()
+{
+	return m_LayerStateMachine;
+}
+
 std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitStateMachine(size_t numStates)
 {
 	m_StateMachine = std::make_unique<SM::AnimationStateMachine>(numStates);
@@ -291,10 +356,22 @@ std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitStateM
 	return m_StateMachine;
 }
 
+std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitLayerStateMachine(size_t numStates)
+{
+	m_LayerStateMachine = std::make_unique<SM::AnimationStateMachine>(numStates);
+	m_LayerVisitor = std::make_unique<SM::LayerVisitor>(this);
+	return m_LayerStateMachine;
+}
+
 // Returns a reference to the skinning matrix vector
 const std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
 {
 	return m_skinningMatrices;
+}
+
+float Animation::AnimatedModel::GetCachedDeltaTime()
+{
+	return m_currentFrameDeltaTime;
 }
 
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
@@ -445,6 +522,25 @@ Animation::JointPose Animation::AnimatedModel::_BlendJointPoses(JointPose* first
 	return _interpolateJointPose(firstPose, secondPose, blendFactor);
 }
 
+Animation::JointPose getAdditivePose(Animation::JointPose targetPose, Animation::JointPose differencePose)
+{
+	using namespace DirectX;
+
+	XMMATRIX targetPoseMatrix = _createMatrixFromSRT(targetPose.m_transformation);
+	XMMATRIX differencePoseMatrix = _createMatrixFromSRT(differencePose.m_transformation);
+	XMMATRIX additivePoseMatrix = XMMatrixMultiply(differencePoseMatrix, targetPoseMatrix);
+
+
+	Animation::SRT additivePose = {};
+	XMVECTOR s, r, t;
+	XMMatrixDecompose(&s, &r, &t, additivePoseMatrix);
+	XMStoreFloat4A(&additivePose.m_scale, s);
+	XMStoreFloat4A(&additivePose.m_rotationQuaternion, r);
+	XMStoreFloat4A(&additivePose.m_translation, t);
+
+	return Animation::JointPose(additivePose);
+}
+
 Animation::SkeletonPose Animation::AnimatedModel::_BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount)
 {
 	using Animation::SkeletonPose;
@@ -541,14 +637,25 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose * pose)
 {
 	using namespace DirectX;
 
-	XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
+	//Check if we have layers
+	std::optional<Animation::SkeletonPose> layerPose = std::nullopt;
+	if (m_LayerStateMachine)
+		layerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
+
+	if (layerPose.has_value())
+		XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(getAdditivePose(pose->m_jointPoses[0].m_transformation, layerPose.value().m_jointPoses[0].m_transformation).m_transformation));
+	else
+		XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(pose->m_jointPoses[0].m_transformation));
 
 	for (int i = 1; i < m_skeleton->m_jointCount; i++)
 	{
 		const int16_t parentIndex = m_skeleton->m_joints[i].parentIndex;
 		const XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
 
-		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix)); // #matrixmultiplication
+		if (layerPose.has_value())
+			DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(getAdditivePose(pose->m_jointPoses[i].m_transformation, layerPose.value().m_jointPoses[i]).m_transformation), parentGlobalMatrix)); // #matrixmultiplication
+		else
+			XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_jointPoses[i].m_transformation), parentGlobalMatrix));
 	}
 }
 
@@ -556,15 +663,29 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose * pose)
 void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {
 	using namespace DirectX;
+
+	//Check if we have layers
+	std::optional<Animation::SkeletonPose> layerPose = std::nullopt;
+	if (m_LayerStateMachine)
+		layerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
+
+
 	auto rootJointPose = _interpolateJointPose(&firstPose->m_jointPoses[0], &secondPose->m_jointPoses[0], weight);
+	if (layerPose.has_value())
+		rootJointPose = getAdditivePose(rootJointPose, layerPose.value().m_jointPoses[0]);
+
 	DirectX::XMStoreFloat4x4A(&m_globalMatrices[0], Animation::_createMatrixFromSRT(rootJointPose.m_transformation));
+	
+
+
 
 	for (int i = 1; i < m_skeleton->m_jointCount; i++) //start at second joint (first is root, already processed)
 	{
 		const int16_t parentIndex = m_skeleton->m_joints[i].parentIndex;
 		const XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_globalMatrices[parentIndex]);
 		auto jointPose = _interpolateJointPose(&firstPose->m_jointPoses[i], &secondPose->m_jointPoses[i], weight);
-
+		if (layerPose.has_value())
+			jointPose = getAdditivePose(jointPose, layerPose.value().m_jointPoses[i]);
 		DirectX::XMStoreFloat4x4A(&m_globalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(jointPose.m_transformation), parentGlobalMatrix)); // #matrixmultiplication
 	}
 }
