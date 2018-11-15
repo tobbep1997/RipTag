@@ -752,6 +752,7 @@ void Player::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
 			}
 			else
 			{
@@ -778,6 +779,8 @@ void Player::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
+				
 			}
 			else
 			{
