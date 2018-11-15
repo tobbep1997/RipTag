@@ -1,124 +1,24 @@
 #include "RipTagPCH.h"
 #include "RandomRoomGrid.h"
 
-void RandomRoomGrid::_insertRooms(int count)
+RandomRoomGrid::RandomRoomGrid(int width, int depth)
 {
-	for (int i = 0; i < count; i++)
-	{
-		int randomPosition = rand() % GRID_SIZE;
-		int otherPosition = 0;
-		int pickRoom = rand() % 2;
+	m_width = width;
+	m_depth = depth;
+	m_gridSize = m_width * m_depth;
+	m_roomGrid = new int[m_gridSize];
+	m_rooms = new RandomRoom[m_gridSize];
 
-		if (roomGrid[randomPosition] == 2)
-		{
-			if (pickRoom == 0)
-			{
-				// Division by Width gives y value
-				int y = randomPosition / width;
-				int firstRowIndex = y * width;
-				int lastRowIndex = y * width + (width - 1);
-				int left = randomPosition - 1;
-				int right = randomPosition + 1;
+	for (int i = 0; i < m_gridSize; i++)
+		m_roomGrid[i] = 2;
+}
 
-				if (roomGrid[firstRowIndex] != 2 && roomGrid[lastRowIndex] != 2)
-				{
-					i--;
-					continue;
-				}
-
-				if (randomPosition == firstRowIndex)
-				{
-					if (roomGrid[right] != 2)
-					{
-						i--;
-						continue;
-					}
-					otherPosition = right;
-				}
-				else if (randomPosition == lastRowIndex)
-				{
-					if (roomGrid[left] != 2)
-					{
-						i--;
-						continue;
-					}
-					otherPosition = left;
-				}
-				else
-				{
-					if (left >= firstRowIndex && roomGrid[left] != 2)
-						otherPosition = right;
-					else if (right <= lastRowIndex && roomGrid[right] != 2)
-						otherPosition = left;
-					else
-					{
-						int direction = rand() % 2;
-						if (direction == 0)
-							otherPosition = left;
-						else
-							otherPosition = right;
-					}
-				}
-			}
-			else
-			{
-				// Division by Width gives y value
-				int y = randomPosition / width;
-				int previousColumnIndex = randomPosition - width;
-				int nextColumnIndex = randomPosition + width;
-
-				if (previousColumnIndex > 0 && nextColumnIndex < GRID_SIZE)
-				{
-					if (roomGrid[previousColumnIndex] != 2 && roomGrid[nextColumnIndex] != 2)
-					{
-						i--;
-						continue;
-					}
-				}
-				else if (previousColumnIndex < 0)
-				{
-					if (roomGrid[nextColumnIndex] != 2)
-					{
-						i--;
-						continue;
-					}
-				}
-				else if (nextColumnIndex >= GRID_SIZE)
-				{
-					if (roomGrid[previousColumnIndex] != 2)
-					{
-						i--;
-						continue;
-					}
-				}
-
-				if (previousColumnIndex < 0)
-					otherPosition = nextColumnIndex;
-				else if (nextColumnIndex >= GRID_SIZE)
-					otherPosition = previousColumnIndex;
-				else
-				{
-					if (roomGrid[previousColumnIndex] != 2)
-						otherPosition = nextColumnIndex;
-					else if (roomGrid[nextColumnIndex] != 2)
-						otherPosition = previousColumnIndex;
-					else
-					{
-						int direction = rand() % 2;
-						if (direction == 0)
-							otherPosition = previousColumnIndex;
-						else
-							otherPosition = nextColumnIndex;
-					}
-				}
-			}
-			roomGrid[randomPosition] = pickRoom;
-			roomGrid[otherPosition] = pickRoom;
-			oddRooms.push_back(RoomLocations(RoomType(pickRoom), randomPosition, otherPosition));
-		}
-		else
-			i--;
-	}
+RandomRoomGrid::~RandomRoomGrid()
+{
+	delete [] m_roomGrid;
+	m_roomGrid = nullptr;
+	delete [] m_rooms;
+	m_rooms = nullptr;
 }
 
 void RandomRoomGrid::GenerateRoomLayout()
@@ -142,63 +42,189 @@ void RandomRoomGrid::GenerateRoomLayout()
 	_insertRooms(nrOfBigRooms);
 	_connectRooms();
 	_checkConnections();
+
+	Print();
+	std::cout << "\n\n\n";
+	DrawConnections();
 }
 
 void RandomRoomGrid::Print()
 {
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < m_depth; i++)
 	{
-		for (int j = 0; j < width; j++)
-			std::cout << roomGrid[j + i * width] << " ";
+		for (int j = 0; j < m_width; j++)
+			std::cout << m_roomGrid[j + i * m_width] << " ";
 		std::cout << "\n";
 	}
 }
 
 void RandomRoomGrid::DrawConnections()
 {
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < m_depth; i++)
 	{
-		for (int j = 0; j < width; j++)
-			std::cout << " " << rooms[j + i * width].north << "    ";
+		for (int j = 0; j < m_width; j++)
+			std::cout << " " << m_rooms[j + i * m_width].north << "    ";
 		std::cout << "\n";
-		for (int j = 0; j < width; j++)
-			std::cout << rooms[j + i * width].west << " " << rooms[j + i * width].east << "   ";
+		for (int j = 0; j < m_width; j++)
+			std::cout << m_rooms[j + i * m_width].west << " " << m_rooms[j + i * m_width].east << "   ";
 		std::cout << "\n";
-		for (int j = 0; j < width; j++)
-			std::cout << " " << rooms[j + i * width].south << "    ";
+		for (int j = 0; j < m_width; j++)
+			std::cout << " " << m_rooms[j + i * m_width].south << "    ";
 		std::cout << "\n\n";
+	}
+}
+
+void RandomRoomGrid::_insertRooms(int count)
+{
+	for (int i = 0; i < count; i++)
+	{
+		int randomPosition = rand() % m_gridSize;
+		int otherPosition = 0;
+		int pickRoom = rand() % 2;
+
+		if (m_roomGrid[randomPosition] == 2)
+		{
+			if (pickRoom == 0)
+			{
+				// Division by Width gives y value
+				int y = randomPosition / m_width;
+				int firstRowIndex = y * m_width;
+				int lastRowIndex = y * m_width + (m_width - 1);
+				int left = randomPosition - 1;
+				int right = randomPosition + 1;
+
+				if (m_roomGrid[firstRowIndex] != 2 && m_roomGrid[lastRowIndex] != 2)
+				{
+					i--;
+					continue;
+				}
+
+				if (randomPosition == firstRowIndex)
+				{
+					if (m_roomGrid[right] != 2)
+					{
+						i--;
+						continue;
+					}
+					otherPosition = right;
+				}
+				else if (randomPosition == lastRowIndex)
+				{
+					if (m_roomGrid[left] != 2)
+					{
+						i--;
+						continue;
+					}
+					otherPosition = left;
+				}
+				else
+				{
+					if (left >= firstRowIndex && m_roomGrid[left] != 2)
+						otherPosition = right;
+					else if (right <= lastRowIndex && m_roomGrid[right] != 2)
+						otherPosition = left;
+					else
+					{
+						int direction = rand() % 2;
+						if (direction == 0)
+							otherPosition = left;
+						else
+							otherPosition = right;
+					}
+				}
+			}
+			else
+			{
+				// Division by Width gives y value
+				int y = randomPosition / m_width;
+				int previousColumnIndex = randomPosition - m_width;
+				int nextColumnIndex = randomPosition + m_width;
+
+				if (previousColumnIndex > 0 && nextColumnIndex < m_gridSize)
+				{
+					if (m_roomGrid[previousColumnIndex] != 2 && m_roomGrid[nextColumnIndex] != 2)
+					{
+						i--;
+						continue;
+					}
+				}
+				else if (previousColumnIndex < 0)
+				{
+					if (m_roomGrid[nextColumnIndex] != 2)
+					{
+						i--;
+						continue;
+					}
+				}
+				else if (nextColumnIndex >= m_gridSize)
+				{
+					if (m_roomGrid[previousColumnIndex] != 2)
+					{
+						i--;
+						continue;
+					}
+				}
+
+				if (previousColumnIndex < 0)
+					otherPosition = nextColumnIndex;
+				else if (nextColumnIndex >= m_gridSize)
+					otherPosition = previousColumnIndex;
+				else
+				{
+					if (m_roomGrid[previousColumnIndex] != 2)
+						otherPosition = nextColumnIndex;
+					else if (m_roomGrid[nextColumnIndex] != 2)
+						otherPosition = previousColumnIndex;
+					else
+					{
+						int direction = rand() % 2;
+						if (direction == 0)
+							otherPosition = previousColumnIndex;
+						else
+							otherPosition = nextColumnIndex;
+					}
+				}
+			}
+			m_roomGrid[randomPosition] = pickRoom;
+			m_roomGrid[otherPosition] = pickRoom;
+			m_oddRooms.push_back(RoomLocations(RoomType(pickRoom), randomPosition, otherPosition));
+		}
+		else
+			i--;
 	}
 }
 
 void RandomRoomGrid::_connectRooms()
 {
-	for (int i = 0; i < oddRooms.size(); i++)
+	for (int i = 0; i < m_oddRooms.size(); i++)
 	{
-		_createRoomConnection(oddRooms.at(i).startIndex, oddRooms.at(i).endIndex);
-		rooms[oddRooms.at(i).startIndex].type = oddRooms.at(i).type;
-		rooms[oddRooms.at(i).endIndex].type = oddRooms.at(i).type;
+		_createRoomConnection(m_oddRooms.at(i).startIndex, m_oddRooms.at(i).endIndex);
+		m_rooms[m_oddRooms.at(i).startIndex].type = m_oddRooms.at(i).type;
+		m_rooms[m_oddRooms.at(i).endIndex].type = m_oddRooms.at(i).type;
 	}
 
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < m_depth; i++)
 	{
-		for (int j = 0; j < width; j++)
+		for (int j = 0; j < m_width; j++)
 		{
 			bool validDirections[4];
-			memset(validDirections, false, sizeof(validDirections));
+			for (int i = 0; i < 4; i++)
+				validDirections[i] = false;
+
 			int directionIndex[4];
 			for (int i = 0; i < 4; i++)
 				directionIndex[i] = -1;
 
-			int index = j + i * width;
-			int northIndex = index - width;
+			int index = j + i * m_width;
+			int northIndex = index - m_width;
 			int eastIndex = index + 1;
-			int southIndex = index + width;
+			int southIndex = index + m_width;
 			int westIndex = index - 1;
 			int doorCount = 0;
 
 			if (northIndex >= 0)
 			{
-				if (!rooms[northIndex].south)
+				if (!m_rooms[northIndex].south)
 				{
 					validDirections[0] = true;
 					directionIndex[0] = northIndex;
@@ -206,9 +232,9 @@ void RandomRoomGrid::_connectRooms()
 				else
 					doorCount++;
 			}
-			if (eastIndex < i * width + width)
+			if (eastIndex < i * m_width + m_width)
 			{
-				if (!rooms[eastIndex].west)
+				if (!m_rooms[eastIndex].west)
 				{
 					validDirections[1] = true;
 					directionIndex[1] = eastIndex;
@@ -216,9 +242,9 @@ void RandomRoomGrid::_connectRooms()
 				else
 					doorCount++;
 			}
-			if (southIndex < GRID_SIZE)
+			if (southIndex < m_gridSize)
 			{
-				if (!rooms[southIndex].north)
+				if (!m_rooms[southIndex].north)
 				{
 					validDirections[2] = true;
 					directionIndex[2] = southIndex;
@@ -226,9 +252,9 @@ void RandomRoomGrid::_connectRooms()
 				else
 					doorCount++;
 			}
-			if (westIndex >= i * width)
+			if (westIndex >= i * m_width)
 			{
-				if (!rooms[westIndex].east)
+				if (!m_rooms[westIndex].east)
 				{
 					validDirections[3] = true;
 					directionIndex[3] = westIndex;
@@ -302,35 +328,37 @@ void RandomRoomGrid::_generateDoors(bool * validDirections, int doorCount, int r
 
 void RandomRoomGrid::_forcePath(bool * visited)
 {
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < m_depth; i++)
 	{
-		for (int j = 0; j < width; j++)
+		for (int j = 0; j < m_width; j++)
 		{
-			int index = j + i * width;
+			int index = j + i * m_width;
 			if (!visited[index])
 			{
 				bool alreadyConnected[4];
+				for (int i = 0; i < 4; i++)
+					alreadyConnected[i] = false;
 				int directionIndexes[4];
 				// North
-				directionIndexes[0] = index - width;
+				directionIndexes[0] = index - m_width;
 				// East
 				directionIndexes[1] = index + 1;
 				// South
-				directionIndexes[2] = index + width;
+				directionIndexes[2] = index + m_width;
 				// West
 				directionIndexes[3] = index - 1;
 
 				if (directionIndexes[0] >= 0)
-					if (rooms[directionIndexes[0]].south)
+					if (visited[directionIndexes[0]])
 						alreadyConnected[0] = true;
-				if (directionIndexes[1] < i * width + width)
-					if (rooms[directionIndexes[1]].west)
+				if (directionIndexes[1] < i * m_width + m_width)
+					if (visited[directionIndexes[1]])
 						alreadyConnected[1] = true;
-				if (directionIndexes[2] < GRID_SIZE)
-					if (rooms[directionIndexes[2]].north)
+				if (directionIndexes[2] < m_gridSize)
+					if (visited[directionIndexes[2]])
 						alreadyConnected[2] = true;
-				if (directionIndexes[3] >= i * width)
-					if (rooms[directionIndexes[3]].east)
+				if (directionIndexes[3] >= i * m_width)
+					if (visited[directionIndexes[3]])
 						alreadyConnected[3] = true;
 
 				// Check already connected paths to see where the new door will be
@@ -353,34 +381,39 @@ void RandomRoomGrid::_forcePath(bool * visited)
 
 void RandomRoomGrid::_checkConnections()
 {
-	bool * visited = new bool[GRID_SIZE];
-	memset(visited, false, GRID_SIZE);
+	bool * visited = new bool[m_gridSize];
 
+	for (int i = 0; i < m_gridSize; i++)
+		visited[i] = false;
+
+	DrawConnections();
 	_followConnection(visited, 0);
-	_forcePath(visited);
 
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < m_depth; i++)
 	{
-		for (int j = 0; j < width; j++)
-			std::cout << " " << visited[j + i * width] << " ";
+		for (int j = 0; j < m_width; j++)
+			std::cout << " " << visited[j + i * m_width] << " ";
 		std::cout << "\n\n";
 	}
 
-	delete visited;
+	_forcePath(visited);
+
+	delete [] visited;
+	visited = nullptr;
 }
 
 void RandomRoomGrid::_followConnection(bool * visited, int roomIndex)
 {
 	visited[roomIndex] = true;
 
-	if (rooms[roomIndex].north && !visited[rooms[roomIndex].leadsToRoom[0]])
-		_followConnection(visited, rooms[roomIndex].leadsToRoom[0]);
-	if (rooms[roomIndex].east && !visited[rooms[roomIndex].leadsToRoom[1]])
-		_followConnection(visited, rooms[roomIndex].leadsToRoom[1]);
-	if (rooms[roomIndex].south && !visited[rooms[roomIndex].leadsToRoom[2]])
-		_followConnection(visited, rooms[roomIndex].leadsToRoom[2]);
-	if (rooms[roomIndex].west && !visited[rooms[roomIndex].leadsToRoom[3]])
-		_followConnection(visited, rooms[roomIndex].leadsToRoom[3]);
+	if (m_rooms[roomIndex].north && !visited[m_rooms[roomIndex].leadsToRoom[0]])
+		_followConnection(visited, m_rooms[roomIndex].leadsToRoom[0]);
+	if (m_rooms[roomIndex].east && !visited[m_rooms[roomIndex].leadsToRoom[1]])
+		_followConnection(visited, m_rooms[roomIndex].leadsToRoom[1]);
+	if (m_rooms[roomIndex].south && !visited[m_rooms[roomIndex].leadsToRoom[2]])
+		_followConnection(visited, m_rooms[roomIndex].leadsToRoom[2]);
+	if (m_rooms[roomIndex].west && !visited[m_rooms[roomIndex].leadsToRoom[3]])
+		_followConnection(visited, m_rooms[roomIndex].leadsToRoom[3]);
 }
 
 void RandomRoomGrid::_createRoomConnection(int start, int end)
@@ -390,35 +423,35 @@ void RandomRoomGrid::_createRoomConnection(int start, int end)
 	{
 		if (direction == 1)
 		{
-			rooms[start].west = true;
-			rooms[start].leadsToRoom[3] = end;
-			rooms[end].east = true;
-			rooms[end].leadsToRoom[1] = start;
+			m_rooms[start].west = true;
+			m_rooms[start].leadsToRoom[3] = end;
+			m_rooms[end].east = true;
+			m_rooms[end].leadsToRoom[1] = start;
 
 		}
 		else
 		{
-			rooms[start].north = true;
-			rooms[start].leadsToRoom[0] = end;
-			rooms[end].south = true;
-			rooms[end].leadsToRoom[2] = start;
+			m_rooms[start].north = true;
+			m_rooms[start].leadsToRoom[0] = end;
+			m_rooms[end].south = true;
+			m_rooms[end].leadsToRoom[2] = start;
 		}
 	}
 	else
 	{
 		if (direction == -1)
 		{
-			rooms[start].east = true;
-			rooms[start].leadsToRoom[1] = end;
-			rooms[end].west = true;
-			rooms[end].leadsToRoom[3] = start;
+			m_rooms[start].east = true;
+			m_rooms[start].leadsToRoom[1] = end;
+			m_rooms[end].west = true;
+			m_rooms[end].leadsToRoom[3] = start;
 		}
 		else
 		{
-			rooms[start].south = true;
-			rooms[start].leadsToRoom[2] = end;
-			rooms[end].north = true;
-			rooms[end].leadsToRoom[0] = start;
+			m_rooms[start].south = true;
+			m_rooms[start].leadsToRoom[2] = end;
+			m_rooms[end].north = true;
+			m_rooms[end].leadsToRoom[0] = start;
 		}
 	}
 }

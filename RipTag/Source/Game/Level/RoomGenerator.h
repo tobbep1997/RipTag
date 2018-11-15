@@ -1,9 +1,11 @@
 #pragma once
-#include "RandomRoomGrid.h"//TODO move to pch //maybe/Fredrik
+#include "RandomRoomGrid.h"
+
 class Room;
 class Grid;
 class PointLight;
 class EnemyHandler;
+
 class RoomGenerator
 {
 private:
@@ -21,6 +23,7 @@ private:
 	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
+
 
 	EnemyHandler * m_generatedRoomEnemyHandler;
 	void dbgFuncSpawnAboveMap();

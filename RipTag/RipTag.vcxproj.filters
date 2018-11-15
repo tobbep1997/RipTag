@@ -68,6 +68,7 @@
     <ClCompile Include="Source\Game\Item\Map.cpp" />
     <ClCompile Include="Source\Game\Item\Rock.cpp" />
     <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
+    <ClCompile Include="Source\Game\Level\RandomRoom.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">

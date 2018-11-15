@@ -105,35 +105,38 @@ void RoomGenerator::_makeWalls()
 	Manager::g_meshManager.loadStaticMesh("CLOSEDWALL");
 	Manager::g_meshManager.loadStaticMesh("OPENWALL");
 	
-	int lol1 = (int)(m_roomDepth + 0.5f);
-	int lol2 = (int)(m_roomWidth + 0.5f);
-	for (int i = -lol1 + 10; i <= lol1 - 10; i += 20)
+	int depth = (int)(m_roomDepth + 0.5f);
+	int width = (int)(m_roomWidth + 0.5f);
+	for (int i = -depth + 10; i <= depth - 10; i += 20)
 	{
 
 		widthCounter = 0;
-		for (int j = -lol2 + 10; j <= lol2 - 10; j += 20)
+		for (int j = -width + 10; j <= width - 10; j += 20)
 		{
 			bool directions[4];
-			int lol3 = depthCounter * m_roomGridWidth + widthCounter;
+			int index = depthCounter * m_roomGridWidth + widthCounter;
 
-			directions[0] = randomizer.rooms[lol3].north;
-			directions[1] = randomizer.rooms[lol3].south;
-			directions[2] = randomizer.rooms[lol3].east;
-			directions[3] = randomizer.rooms[lol3].west;
+			directions[0] = randomizer.m_rooms[index].north;
+			directions[1] = randomizer.m_rooms[index].south;
+			directions[2] = randomizer.m_rooms[index].east;
+			directions[3] = randomizer.m_rooms[index].west;
 
 			for (int x = 0; x < 4; x++)
 			{
 				asset = new BaseActor();
-				asset->setModel(Manager::g_meshManager.getStaticMesh("CLOSEDWALL"));
-				modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/CLOSEDWALLFOLDER/CLOSEDWALL_BBOX.bin");
 
 				if (directions[x])
 				{
-					if (modCollisionBoxes.boxes)
-						delete[] modCollisionBoxes.boxes;
+					/*if (modCollisionBoxes.boxes)
+						delete[] modCollisionBoxes.boxes;*/
 					asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
 					modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/OPENWALLFOLDER/OPENWALL_BBOX.bin");
 
+				}
+				else
+				{
+					asset->setModel(Manager::g_meshManager.getStaticMesh("CLOSEDWALL"));
+					modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/CLOSEDWALLFOLDER/CLOSEDWALL_BBOX.bin");
 				}
 				asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
 
@@ -167,8 +170,6 @@ void RoomGenerator::_makeWalls()
 				if (modCollisionBoxes.boxes)
 					delete[] modCollisionBoxes.boxes;
 			}
-
-
 			widthCounter++;
 		}
 		depthCounter++;
