@@ -6,23 +6,18 @@ class Camera;
 class CameraHolder
 {
 private:
+	const float SPEED_CONSTANT = 1.5f;
+	const float IDLE_CONSTANT = 1.0f;
+	const float VERTICAL_AMPLIFIER = 0.1f;
+	const float HORIZONTAL_AMPLIFIER = 0.05f;
 
-	float m_moveBob = 0.0f;
-	float m_stopBob = 0.0f;
-	float m_sprintBob = 0.0f;
+	float m_verticalBob = 0.0f;
+	bool m_verAdder = true;
+	float m_horizontalBob = DirectX::XM_PIDIV2;
+	bool m_horAdder = true;
+	float m_offsetX = 0.0f;
+	float m_offsetY = 0.0f;
 
-	float m_moveFreq = 1.8f; 
-	float m_moveAmp = 0.01f;
-
-	float m_stopFreq = 0.7f; 
-	float m_stopAmp = 0.03f;
-
-	float m_sprintFreq = 1.4f; 
-	float m_sprintAmp = 0.04f;
-
-	float m_currentAmp = 0.0f; 
-
-	float m_offset = 0.0f;
 
 protected:
 	Camera * p_camera;
@@ -45,7 +40,7 @@ protected:
 	float m_lastHeight = 0;
 
 	void p_initCamera(Camera * camera);
-	double p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState);
+	double p_viewBobbing(double deltaTime, double moveSpeed, b3Body * owner);
 	DirectX::XMFLOAT4A p_CameraTilting(double deltaTime, float targetPeek);
 	double p_Crouching(double deltaTime, float& startHeight, const DirectX::XMFLOAT4A & pos);
 public:

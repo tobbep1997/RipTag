@@ -64,6 +64,7 @@ private:
 	float m_moveSpeed = 4.0f;
 	float m_scrollMoveModifier = 0.9f;
 	float m_cameraSpeed = 1.0f;
+	float m_currentMoveSpeed = 0.0f;
 	float m_offPutY = 0.4f; 
 
 	bool m_currClickCrouch = false; 
