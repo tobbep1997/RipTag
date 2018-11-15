@@ -67,6 +67,7 @@ private:
 	bool m_justReleased = false; 
 
 	float m_moveSpeed = 2;
+	float m_currentMoveSpeed = 0.0f;
 	float m_cameraOffset;
 	float m_camSensitivity = 5;
 	float m_offPutY = 0.4f;

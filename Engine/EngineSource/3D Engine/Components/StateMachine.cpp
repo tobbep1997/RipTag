@@ -180,12 +180,15 @@ namespace SM
 
 		if (!m_AnimatedModel)
 			return Animation::SkeletonPose();
-		if (clips.first)
-			m_AnimatedModel->SetPlayingClip(clips.first, true, true);
-		if (clips.second)
-			m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
-		else
-			m_AnimatedModel->SetLayeredClipWeight(0.0);
+
+		//if (clips.first)
+		//	m_AnimatedModel->SetPlayingClip(clips.first, true, true);
+		//if (clips.second)
+		//	m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
+		//else
+		//	m_AnimatedModel->SetLayeredClipWeight(0.0);
+
+		return std::move(m_AnimatedModel->UpdateBlendspace1D(clips));
 	}
 	Animation::SkeletonPose StateVisitor::dispatch(BlendSpace2D& state) {
 		BlendSpace2D::Current2DStateData clips = state.CalculateCurrentClips();

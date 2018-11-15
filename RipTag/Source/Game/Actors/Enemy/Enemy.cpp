@@ -51,11 +51,13 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	//#todoREMOVE
 	{
 		auto idleAnim = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get();
+		auto walkAnim = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get();
 		auto& machine = getAnimatedModel()->InitStateMachine(1);
-		auto state = machine->AddBlendSpace2DState("idle_state", &AnimationDebugHelper::foo, &AnimationDebugHelper::bar, 0.0, 1.0, 0.0, 1.0);
-		state->AddRow(0.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
-		state->AddRow(1.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
-		machine->SetState("idle_state");
+		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.0f);
+		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 0.0} });
+		//state->AddRow(0.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		//state->AddRow(1.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		machine->SetState("walk_state");
 		//this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
 
 		auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
@@ -262,7 +264,6 @@ void Enemy::Update(double deltaTime)
 
 				//TODO: Fix when ray is corrected
 
-				float lenght;
 				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 					direction.x,
 					direction.y,
@@ -896,6 +897,12 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 		
+		//Update current movespeed
+		{
+			auto deltaVector = DirectX::XMVectorSet(dx, dy, 0.0, 0.0);
+			m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		}
+
 		_RotateGuard(x, y, angle, deltaTime);
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);

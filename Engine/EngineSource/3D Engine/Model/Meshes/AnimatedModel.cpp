@@ -160,6 +160,46 @@ float getSpeedScale(size_t firstFrameCount, size_t secondFrameCount, float weigh
 	return scale;
 }
 
+Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData)
+{
+	if (!stateData.first)
+		return Animation::SkeletonPose();
+
+	float speedScale = 1.0f;
+	std::pair<uint16_t, float> indexAndProgressionFirst{};
+	std::pair<uint16_t, float> indexAndProgressionSecond{};
+	if (stateData.second)
+	{
+		speedScale = getSpeedScale(stateData.second->m_frameCount, stateData.first->m_frameCount, stateData.weight);
+		indexAndProgressionFirst = _computeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_currentNormalizedTime, stateData.second->m_frameCount);
+	}
+	indexAndProgressionSecond = _computeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_currentNormalizedTime, stateData.first->m_frameCount);
+
+	auto prevIndexFirst = indexAndProgressionFirst.first;
+	auto progressionFirst= indexAndProgressionFirst.second;
+	auto prevIndexSecond = indexAndProgressionSecond.first;
+	auto progressionSecond = indexAndProgressionSecond.second;
+	SkeletonPose finalPose;
+	if (!stateData.second)
+	{
+		finalPose = _BlendSkeletonPoses(&stateData.first->m_skeletonPoses[prevIndexFirst], &stateData.first->m_skeletonPoses[prevIndexFirst + 1], progressionFirst, m_skeleton->m_jointCount);
+	}
+	else
+	{
+		auto finalFirst = _BlendSkeletonPoses(&stateData.first->m_skeletonPoses[prevIndexFirst], &stateData.first->m_skeletonPoses[prevIndexFirst + 1], progressionFirst, m_skeleton->m_jointCount);
+		auto finalSecond = _BlendSkeletonPoses(&stateData.second->m_skeletonPoses[prevIndexSecond], &stateData.second->m_skeletonPoses[prevIndexSecond + 1], progressionSecond, m_skeleton->m_jointCount);
+
+		finalPose = _BlendSkeletonPoses
+		(
+			&finalFirst,
+			&finalSecond,
+			stateData.weight,
+			m_skeleton->m_jointCount
+		);
+	}
+	return std::move(finalPose);
+}
+
 Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
 {
 	if (!stateData.firstTop)
