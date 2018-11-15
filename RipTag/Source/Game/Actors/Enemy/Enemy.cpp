@@ -292,6 +292,7 @@ void Enemy::Update(double deltaTime)
 
 		if (!m_inputLocked)
 		{
+			setHidden(true);
 			_handleInput(deltaTime);
 		}
 		else
@@ -350,8 +351,10 @@ void Enemy::Update(double deltaTime)
 		}
 
 		_cameraPlacement(deltaTime);
-
-		_CheckPlayer(deltaTime);
+		if (!m_inputLocked)
+		{
+			_CheckPlayer(deltaTime);
+		}
 	}
 	else
 	{
@@ -512,33 +515,33 @@ void Enemy::_onRotate(double deltaTime)
 	{
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
-		if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		{
+		//if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+		//{
 
-		}
-		else
-		{
-			if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
-			{
-				if (m_peekRotate > 0)
-				{
-					p_camera->Rotate(0.0f, -0.05f, 0.0f);
-					m_peekRotate -= 0.05;
-				}
-				else
-				{
-					p_camera->Rotate(0.0f, +0.05f, 0.0f);
-					m_peekRotate += 0.05;
-				}
+		//}
+		//else
+		//{
+		//	if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
+		//	{
+		//		if (m_peekRotate > 0)
+		//		{
+		//			p_camera->Rotate(0.0f, -0.05f, 0.0f);
+		//			m_peekRotate -= 0.05;
+		//		}
+		//		else
+		//		{
+		//			p_camera->Rotate(0.0f, +0.05f, 0.0f);
+		//			m_peekRotate += 0.05;
+		//		}
 
-			}
-			else
-			{
-				m_peekRotate = 0;
-			}
-			//m_peekRotate = 0;
-		}
-
+		//	}
+		//	else
+		//	{
+		//		m_peekRotate = 0;
+		//	}
+		//	//
+		//}
+		m_peekRotate = 0;
 		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
 		{
 			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
