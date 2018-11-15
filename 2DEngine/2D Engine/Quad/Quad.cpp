@@ -176,6 +176,11 @@ void Quad::setScale(const DirectX::XMFLOAT2A & size)
 	p_createBuffer();
 }
 
+void Quad::setTag(std::string tag)
+{
+	m_tag = tag; 
+}
+
 void Quad::setFont(DirectX::SpriteFont * font)
 {
 	this->m_spriteFont = font;
@@ -315,6 +320,11 @@ const float & Quad::getRadie() const
 const float & Quad::getInnerRadie() const
 {
 	return 0.0f;
+}
+
+const std::string Quad::getTag() const
+{
+	return m_tag; 
 }
 
 const bool Quad::getIsButton() const
