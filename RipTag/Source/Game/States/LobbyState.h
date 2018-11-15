@@ -38,6 +38,8 @@ private:
 	Quad* m_charOneInfo = nullptr;
 	Quad* m_charTwoInfo = nullptr;
 
+	LoadingScreen m_loadingScreen;
+
 	std::vector<Quad*> m_lobbyButtons;
 	std::vector<Quad*> m_charSelectButtons;
 	std::vector<Quad*> m_hostListButtons;
