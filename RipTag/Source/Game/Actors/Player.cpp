@@ -8,7 +8,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 110.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
@@ -48,6 +48,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
+		SetAbilitySet(2);
 	}
 	Quad * quad = new Quad();
 	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
@@ -350,6 +351,7 @@ const AudioEngine::Listener & Player::getFMODListener() const
 
 void Player::SetAbilitySet(int set)
 {
+	set = std::clamp(set, 1, 2);
 	if (set == 1)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
@@ -598,12 +600,6 @@ void Player::SendOnAnimationUpdate(double dt)
 	}
 }
 
-void Player::SendOnWin()
-{
-	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
-
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-}
 
 void Player::RegisterThisInstanceToNetwork()
 {
@@ -655,14 +651,15 @@ void Player::_handleInput(double deltaTime)
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
 
-
 	if (Input::OnAbilityPressed() && !Input::OnAbility2Pressed())
 		m_currentAbility = (Ability)0;
 	else if (Input::OnAbility2Pressed() && !Input::OnAbilityPressed())
 		m_currentAbility = (Ability)1;
 
+
 	_onSprint();
 	_onCrouch();
+	_scrollMovementMod();
 	_onMovement();
 	//_onJump();
 	//_onAbility(deltaTime);
@@ -696,6 +693,13 @@ void Player::_onMovement()
 	float z = 0;
 
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	
+	if (Input::MoveRight() > 1.0f || Input::MoveForward() > 1.0f)
+	{
+		dir.x *= m_scrollMoveModifier;
+		dir.y *= m_scrollMoveModifier;
+	}
+
 	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
 	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
 
@@ -711,6 +715,21 @@ void Player::_onMovement()
 
 	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+}
+
+void Player::_scrollMovementMod()
+{
+	float moveMod = Input::MouseMovementModifier();
+	if (moveMod != 0.0f)
+	{
+		m_scrollMoveModifier += 0.05*moveMod;
+		m_scrollMoveModifier = std::clamp(m_scrollMoveModifier, 0.2f, 0.9f);
+	}
+
+	if (Input::ResetMouseMovementModifier())
+	{
+		m_scrollMoveModifier = 0.9f;
+	}
 }
 
 void Player::_onSprint()
@@ -729,6 +748,7 @@ void Player::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
 			}
 			else
 			{
@@ -755,6 +775,8 @@ void Player::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
+				
 			}
 			else
 			{
@@ -1021,10 +1043,13 @@ void Player::_objectInfo(double deltaTime)
 				if(ray->getNrOfContacts() >= 2)
 					cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-				if ((cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" || cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER"))
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
 				{
-					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-						m_infoText->setString("Press X to pull");
+					m_infoText->setString("Press X to pull");
+				}
+				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+				{
+					m_infoText->setString("Press X to pull");
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
@@ -1201,6 +1226,13 @@ void Player::_deActivateCrouch()
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 	crouchDir = -1;
 	m_kp.crouching = false;
+}
+
+void Player::SendOnWin()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
+	
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void Player::_hasWon()

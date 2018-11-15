@@ -42,7 +42,7 @@ private: //stuff for state machine
 	float m_currentDirection = 0.0; //[-1,1]
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 4.0f;
+	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
@@ -61,6 +61,7 @@ private:
 	Enemy* possessTarget;
 
 	float m_moveSpeed = 4.0f;
+	float m_scrollMoveModifier = 0.9f;
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
 
@@ -175,6 +176,7 @@ private:
 	void _collision();
 	void _handleInput(double deltaTime);
 	void _onMovement();
+	void _scrollMovementMod();
 	void _onSprint();
 	void _onCrouch();
 	void _onRotate(double deltaTime);

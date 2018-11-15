@@ -35,12 +35,16 @@ public:
 	//Axis binds
 	static float MoveForward();
 	static float MoveRight();
+	static float MouseMovementModifier();
+	static bool ResetMouseMovementModifier();
 	static float PeekRight();
 	static bool Sprinting();
 	static bool OnAbilityPressed();
 	static bool OnAbilityReleased();
 	static bool OnAbility2Pressed();
 	static bool OnAbility2Released();
+	static bool OnCancelAbilityPressed();
+	static bool OnCancelAbilityReleased();
 	static bool Interact();
 	static bool Exit();
 	static bool MouseLock();
