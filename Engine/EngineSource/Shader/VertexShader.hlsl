@@ -45,6 +45,6 @@ VS_OUTPUT main(VS_INPUT input)
 	output.color = input.color;
 	output.info = input.info;
 
-    output.uv = input.uv * input.uvMult;
+    output.uv = input.uv.xy * input.uvMult.xy;
 	return output;
 }

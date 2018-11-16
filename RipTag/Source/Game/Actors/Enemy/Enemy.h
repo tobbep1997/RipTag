@@ -40,7 +40,8 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
-
+	const float TURN_SPEED = 1.0f;
+	const float REVERSE_SPEED = 0.5f;
 
 private:
 	struct AudioVars
@@ -50,6 +51,16 @@ private:
 		int lastIndex = 0;
 		bool hasPlayed = false;
 	};
+
+	struct lerpVal
+	{
+		bool newNode = true;
+		bool turnState = false;
+		float timer = 0.0f;
+		b3Vec3 lastDir = { 0,0,0 };
+	};
+
+	lerpVal m_lv;
 
 	AudioVars m_av;
 	KnockOutType m_knockOutType; 
