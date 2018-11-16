@@ -389,6 +389,9 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 	case Network::ID_GAME_STARTED:
 		_onGameStartedPacket(packet);
 		break;
+	case Network::ID_HOST_NAME:
+		_onHostNamePacket(packet);
+		break;
 	}
 }
 
@@ -1108,6 +1111,7 @@ void LobbyState::_registerThisInstanceToNetwork()
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REQUEST_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REPLY_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_GAME_STARTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_HOST_NAME, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
