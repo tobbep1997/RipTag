@@ -44,8 +44,6 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 		case(3):
 			Manager::g_meshManager.loadStaticMesh("DOOR");
 			Manager::g_textureManager.loadTextures("DOOR");
-			//Manager::g_animationManager.loadSkeleton("../Assets/DOORFOLDER/DOOR_SKELETON.bin", "DOOR");
-			//Manager::g_animationManager.loadClipCollection("DOOR", "DOOR", "../Assets/DOORFOLDER", Manager::g_animationManager.getSkeleton("DOOR"));
 			tempDoor = new Door(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
 			tempDoor->Init(propsToPlace.props[i].transform_position[0],
 				propsToPlace.props[i].transform_position[1],
@@ -64,8 +62,6 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			//ladda in d�rr etc etc 
 			break;
 		case(4):
-			//Manager::g_meshManager.loadStaticMesh("SPAK");
-			//Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_meshManager.loadDynamicMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
@@ -82,10 +78,8 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			tempLever = nullptr;
 			break;
 		case(5):
-			Manager::g_meshManager.loadDynamicMesh("BARS");
+			Manager::g_meshManager.loadStaticMesh("BARS");
 			Manager::g_textureManager.loadTextures("BARS");
-			Manager::g_animationManager.loadSkeleton("../Assets/BARSFOLDER/BARS_SKELETON.bin", "BARS");
-			Manager::g_animationManager.loadClipCollection("BARS", "BARS", "../Assets/BARSFOLDER", Manager::g_animationManager.getSkeleton("BARS"));
 			tempBars = new Bars(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
 			tempBars->Init(propsToPlace.props[i].transform_position[0],
 				propsToPlace.props[i].transform_position[1],

@@ -3,8 +3,8 @@
 class Bars : public Triggerable
 {
 private:
-	DirectX::XMFLOAT4A pos1;
-	DirectX::XMFLOAT4A pos2;
+	DirectX::XMFLOAT4A m_closePos;
+	DirectX::XMFLOAT4A m_openPos;
 public:
 	Bars();
 	Bars(int uniqueID, int linkedID, bool isTrigger);

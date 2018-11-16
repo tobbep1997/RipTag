@@ -13,9 +13,10 @@
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
-	transform->setPosition(m_body->GetTransform().translation.x,
-		m_body->GetTransform().translation.y,
-		m_body->GetTransform().translation.z);
+	if (this->getBodyType() != e_staticBody)
+		transform->setPosition(m_body->GetTransform().translation.x,
+			m_body->GetTransform().translation.y,
+			m_body->GetTransform().translation.z);
 
 	// #todoREMOVE
 	auto vel = m_body->GetLinearVelocity();
@@ -23,7 +24,7 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 
 	b3Mat33 mat = m_body->GetTransform().rotation;
 	if(this->getBodyType() != e_staticBody)
-	transform->setPhysicsRotation(mat);
+		transform->setPhysicsRotation(mat);
 	
 }
 
