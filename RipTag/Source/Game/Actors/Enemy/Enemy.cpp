@@ -976,7 +976,6 @@ void Enemy::_onInteract()
 	}
 }
 
-
 void Enemy::_cameraPlacement(double deltaTime)
 {
 	if (!m_inputLocked)
@@ -1095,8 +1094,10 @@ void Enemy::_cameraPlacement(double deltaTime)
 bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 {
 	_playFootsteps(deltaTime);
-	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
+	if (abs(nextNode->worldPos.x - getPosition().x) <= 1.0f && abs(nextNode->worldPos.y - getPosition().z) <= 1.0f)
 	{
+		m_lv.newNode = true;
+		m_lv.timer = 0.0f;
 		m_currentPathNode++;
 		if (m_currentPathNode == m_path.size())
 		{
@@ -1110,6 +1111,10 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 			m_isReversed = RipExtern::BoolReverser(m_isReversed);
 			m_currentPathNode = 0;
+			m_lv.turnState = true;
+			m_lv.timer = 0.0f;
+			m_lv.lastDir = getLiniearVelocity();
+			m_lv.lastDir.y = 0.0f;
 			return true;
 		}
 	}
@@ -1120,24 +1125,57 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 		float angle = atan2(y, x);
 
-		float dx = cos(angle) * m_guardSpeed * deltaTime;
-		float dy = sin(angle) * m_guardSpeed * deltaTime;
+		float dx = cos(angle) * m_guardSpeed;
+		float dy = sin(angle) * m_guardSpeed;
 		
-		//Update current movespeed
+		
+
+		DirectX::XMFLOAT2 vel = { dx, dy };
+		if (m_lv.turnState)
 		{
-			auto deltaVector = DirectX::XMVectorSet(dx, dy, 0.0, 0.0);
-			m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+			b3Vec3 newDir = { dx, 0.0, dy };
+			m_lv.timer += deltaTime * REVERSE_SPEED;
+			m_lv.timer = min(1.0f, m_lv.timer);
+
+			newDir = _slerp(m_lv.lastDir, newDir, m_lv.timer);
+
+			vel.x = newDir.x;
+			vel.y = newDir.z;
+			angle = atan2(vel.x, vel.y);
+
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				m_lv.turnState = false;
+			}
+			
+		}
+		else if (m_lv.newNode)
+		{
+			b3Vec3 lastVel = getLiniearVelocity();
+			DirectX::XMFLOAT2 xmLastVel = { lastVel.x, lastVel.z };
+			DirectX::XMVECTOR vLastVel = XMLoadFloat2(&xmLastVel);
+			DirectX::XMVECTOR vVel = XMLoadFloat2(&vel);
+			m_lv.timer += deltaTime * TURN_SPEED;
+			m_lv.timer = min(1.0f, m_lv.timer);
+			DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(vLastVel, vVel, m_lv.timer);
+
+			DirectX::XMStoreFloat2(&vel, lerp);
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				m_lv.newNode = false;
+			}
 		}
 
-		_RotateGuard(x, y, angle, deltaTime);
+		//Update current movespeed
 
-		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
-	//DirectX::XMFLOAT4A a = DirectX::XMFLOAT4A(nextNode->worldPos.x, 0, nextNode->worldPos.y, 1.0f);
-	//DirectX::XMFLOAT4A b = DirectX::XMFLOAT4A(m_path.at(m_currentPathNode)->worldPos.x, 0, m_path.at(m_currentPathNode)->worldPos.y,  1.0f);
-//FREDRIK FIXAR P� M�NDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);
-	//DirectX::XMVECTOR current = DirectX::XMLoadFloat4A(&b);
-	//DirectX::XMVECTOR moveVector = DirectX::XMVectorSubtract(current, direction);
-	//this->setLiniearVelocity(DirectX::XMVectorGetX(moveVector), this->getLiniearVelocity().y, DirectX::XMVectorGetZ(moveVector));
+		_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
+		vel.x *= !m_lv.turnState;
+		vel.y *= !m_lv.turnState;
+		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
+		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
+		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
 	}
 	return false;
 }
@@ -1149,6 +1187,11 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 	{
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
+		m_lv.newNode = true;
+		m_lv.timer = 0.0f;
+	/*	m_lv.turnState = true;
+		m_lv.lastDir = getLiniearVelocity();
+		m_lv.lastDir.y = 0.0f;*/
 	}
 	else
 	{
@@ -1157,12 +1200,57 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 
 		float angle = atan2(y, x);
 
-		float dx = cos(angle) * m_guardSpeed * deltaTime;
-		float dy = sin(angle) * m_guardSpeed * deltaTime;
+		float dx = cos(angle) * m_guardSpeed;
+		float dy = sin(angle) * m_guardSpeed;
 
-		_RotateGuard(x, y, angle, deltaTime);
 
-		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
+
+		DirectX::XMFLOAT2 vel = { dx, dy };
+		if (m_lv.turnState)
+		{
+			b3Vec3 newDir = { dx, 0.0, dy };
+			m_lv.timer += deltaTime * REVERSE_SPEED * 5;
+			m_lv.timer = min(1.0f, m_lv.timer);
+
+			newDir = _slerp(m_lv.lastDir, newDir, m_lv.timer);
+
+			vel.x = newDir.x;
+			vel.y = newDir.z;
+			angle = atan2(vel.x, vel.y);
+
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				m_lv.turnState = false;
+			}
+
+		}
+		else if (m_lv.newNode)
+		{
+			b3Vec3 lastVel = getLiniearVelocity();
+			DirectX::XMFLOAT2 xmLastVel = { lastVel.x, lastVel.z };
+			DirectX::XMVECTOR vLastVel = XMLoadFloat2(&xmLastVel);
+			DirectX::XMVECTOR vVel = XMLoadFloat2(&vel);
+			m_lv.timer += deltaTime * TURN_SPEED;
+			m_lv.timer = min(1.0f, m_lv.timer);
+			DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(vLastVel, vVel, m_lv.timer);
+
+			DirectX::XMStoreFloat2(&vel, lerp);
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				m_lv.newNode = false;
+			}
+		}
+
+		//Update current movespeed
+
+		_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
+		vel.x *= !m_lv.turnState;
+		vel.y *= !m_lv.turnState;
+		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
+		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
+		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
 	}
 	return false;
 }
@@ -1193,9 +1281,12 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 
 void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
 {
-	p_camera->setDirection(x, p_camera->getDirection().y, y);
-	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
+	DirectX::XMVECTOR newDir = DirectX::XMVector3Normalize(DirectX::XMVectorSet(x, 0, y, 0));
+	DirectX::XMFLOAT4A xmDir;
+	DirectX::XMStoreFloat4A(&xmDir, newDir);
+	p_camera->setDirection(xmDir);
 	p_camera->Rotate(0, angle * deltaTime, 0);
+	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
 	p_setRotation(0, cameraRotationY.y, 0);
 }
 
