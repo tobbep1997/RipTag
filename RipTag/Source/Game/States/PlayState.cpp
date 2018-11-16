@@ -11,6 +11,7 @@ std::string				 RipSounds::g_pressurePlateDeactivate;
 std::string				 RipSounds::g_torch;
 std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
+std::string				 RipSounds::g_grunt;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -459,6 +460,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateActivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
 }
 
 void PlayState::Load()
@@ -600,6 +602,7 @@ void PlayState::_loadSound()
 	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
 	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
 	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
+	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
 
 
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
