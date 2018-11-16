@@ -1176,7 +1176,6 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
 		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
 		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
-		CameraHandler::setActiveCamera(getCamera());
 	}
 	return false;
 }
@@ -1188,6 +1187,11 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 	{
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
+		m_lv.newNode = true;
+		m_lv.timer = 0.0f;
+	/*	m_lv.turnState = true;
+		m_lv.lastDir = getLiniearVelocity();
+		m_lv.lastDir.y = 0.0f;*/
 	}
 	else
 	{
@@ -1196,14 +1200,57 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 
 		float angle = atan2(y, x);
 
-		float dx = cos(angle) * m_guardSpeed * deltaTime;
-		float dy = sin(angle) * m_guardSpeed * deltaTime;
+		float dx = cos(angle) * m_guardSpeed;
+		float dy = sin(angle) * m_guardSpeed;
 
-		_RotateGuard(x, y, angle, deltaTime);
 
-		DirectX::XMFLOAT2 vel = { dx / (float)deltaTime, dy / (float)deltaTime };
 
+		DirectX::XMFLOAT2 vel = { dx, dy };
+		if (m_lv.turnState)
+		{
+			b3Vec3 newDir = { dx, 0.0, dy };
+			m_lv.timer += deltaTime * REVERSE_SPEED * 5;
+			m_lv.timer = min(1.0f, m_lv.timer);
+
+			newDir = _slerp(m_lv.lastDir, newDir, m_lv.timer);
+
+			vel.x = newDir.x;
+			vel.y = newDir.z;
+			angle = atan2(vel.x, vel.y);
+
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				m_lv.turnState = false;
+			}
+
+		}
+		else if (m_lv.newNode)
+		{
+			b3Vec3 lastVel = getLiniearVelocity();
+			DirectX::XMFLOAT2 xmLastVel = { lastVel.x, lastVel.z };
+			DirectX::XMVECTOR vLastVel = XMLoadFloat2(&xmLastVel);
+			DirectX::XMVECTOR vVel = XMLoadFloat2(&vel);
+			m_lv.timer += deltaTime * TURN_SPEED;
+			m_lv.timer = min(1.0f, m_lv.timer);
+			DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(vLastVel, vVel, m_lv.timer);
+
+			DirectX::XMStoreFloat2(&vel, lerp);
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				m_lv.newNode = false;
+			}
+		}
+
+		//Update current movespeed
+
+		_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
+		vel.x *= !m_lv.turnState;
+		vel.y *= !m_lv.turnState;
 		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
+		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
+		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
 	}
 	return false;
 }
