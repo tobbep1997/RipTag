@@ -434,7 +434,7 @@ void Room::Update(float deltaTime, Camera * camera)
 			break;
 		}
 	}
-	/*if (m_youLost)
+	if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
@@ -443,7 +443,7 @@ void Room::Update(float deltaTime, Camera * camera)
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
-	}*/
+	}
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{

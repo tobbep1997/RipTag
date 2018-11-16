@@ -27,6 +27,7 @@ PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 		pCoopData = (CoopData*)coopData;
 	}
 	
+	
 }
 
 PlayState::~PlayState()
@@ -47,86 +48,107 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	m_step.dt = deltaTime;
-	m_step.velocityIterations = 2;
-	m_step.sleeping = false;
-	m_firstRun = false;
-		//int i = 0;
-	triggerHandler->Update(deltaTime);
-	m_levelHandler->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
-	m_playerManager->Update(deltaTime);
-
-	m_playerManager->PhysicsUpdate();
-	
-	
-	
-	m_contactListener->ClearContactQueue();
-	m_rayListener->ClearConsumedContacts();
-
-	m_deltaTime = deltaTime;
-	m_physicsCondition.notify_all();
-	
-	
-	
-	if (InputHandler::getShowCursor() != FALSE)
-		InputHandler::setShowCursor(FALSE);	   
-
-	if (GamePadHandler::IsSelectPressed())
+	if (runGame)
 	{
-		Input::SetActivateGamepad(Input::isUsingGamepad());
-	}
+		InputMapping::Call();
 
-	if (Input::Exit() || GamePadHandler::IsStartPressed())
-	{
-		m_destoryPhysicsThread = true;
+		m_step.dt = deltaTime;
+		m_step.velocityIterations = 2;
+		m_step.sleeping = false;
+		m_firstRun = false;
+			//int i = 0;
+		triggerHandler->Update(deltaTime);
+		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+		m_playerManager->Update(deltaTime);
+
+
+		m_playerManager->PhysicsUpdate();
+	
+	
+	
+		m_contactListener->ClearContactQueue();
+		m_rayListener->ClearConsumedContacts();
+
+		m_deltaTime = deltaTime;
 		m_physicsCondition.notify_all();
+	
+	
+	
+		if (InputHandler::getShowCursor() != FALSE)
+			InputHandler::setShowCursor(FALSE);	   
+
+		if (GamePadHandler::IsSelectPressed())
+		{
+			Input::SetActivateGamepad(Input::isUsingGamepad());
+		}
+
+		if (Input::Exit() || GamePadHandler::IsStartPressed())
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
 		
 
-		if (m_physicsThread.joinable())
-		{
-			m_physicsThread.join();
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			BackToMenu();
 		}
-		BackToMenu();
-	}
 
-	if (m_youlost)
-	{
-		m_destoryPhysicsThread = true;
-		m_physicsCondition.notify_all();
-
-
-		if (m_physicsThread.joinable())
+		if (m_youlost)
 		{
-			m_physicsThread.join();
+			if (isCoop)
+				_sendOnGameOver();
+
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy."));
 		}
-		pushNewState(new LoseState(p_renderingManager));
-	}
 
 	
 	
-	_audioAgainstGuards(deltaTime);
+		_audioAgainstGuards(deltaTime);
 
 
-	// Must be last in update
-	if (!m_playerManager->getLocalPlayer()->unlockMouse)
-	{
-		Input::ResetMouse();
-		InputHandler::setShowCursor(false);
+		// Must be last in update
+		if (!m_playerManager->getLocalPlayer()->unlockMouse)
+		{
+			Input::ResetMouse();
+			InputHandler::setShowCursor(false);
+		}
+		else
+		{
+			InputHandler::setShowCursor(true);
+		}
+
 	}
 	else
 	{
-		InputHandler::setShowCursor(true);
+		_updateOnCoopMode(deltaTime);
 	}
 
 }
 
 void PlayState::Draw()
 {
+
 	m_levelHandler->Draw();
 
 	_lightCulling();
 
 	m_playerManager->Draw();
+
+	if (!runGame)
+	{
+		if (m_eventOverlay)
+			m_eventOverlay->Draw();
+	}
 
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
@@ -137,6 +159,25 @@ void PlayState::Draw()
 void PlayState::setYouLost(const bool& youLost)
 {
 	m_youlost = youLost;
+}
+
+void PlayState::HandlePacket(unsigned char id, unsigned char * data)
+{
+	switch (id)
+	{
+	case Network::ID_PLAYER_WON:
+		_onGameWonPacket();
+		break;
+	case Network::ID_PLAYER_LOST:
+		_onGameOverPacket();
+		break;
+	case Network::ID_PLAYER_DISCONNECT:
+		_onDisconnectPacket();
+		break;
+	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
+		_onDisconnectPacket();
+		break;
+	}
 }
 
 void PlayState::_PhyscisThread(double deltaTime)
@@ -461,6 +502,19 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
+
+	if (m_eventOverlay)
+	{
+		m_eventOverlay->Release();
+		delete m_eventOverlay;
+		m_eventOverlay = nullptr;
+	}
+
+	if (isCoop)
+		this->_sendOnDisconnect();
+
+	Network::Multiplayer::LocalPlayerOnSendMap.clear();
+	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 }
 
 void PlayState::Load()
@@ -568,6 +622,7 @@ void PlayState::_loadNetwork()
 			break;
 		}
 		m_playerManager->isCoop(true);
+		this->_registerThisInstanceToNetwork();
 		//free up memory when we are done with this data
 		delete pCoopData;
 		pCoopData = nullptr;
@@ -578,11 +633,19 @@ void PlayState::_loadNetwork()
 	}
 
 	triggerHandler = m_levelHandler->getTriggerHandler();
+	
+	//Create event overlay quad
+	{
+		m_eventOverlay = new Quad();
+		m_eventOverlay->setPivotPoint(Quad::PivotPoint::center);
+		m_eventOverlay->setPosition(0.5f, 0.5f);
+		m_eventOverlay->setScale(0.0001f, 0.0001f);
+		m_eventOverlay->setUnpressedTexture("gui_pressed_pixel");
+		m_eventOverlay->setPressedTexture("gui_pressed_pixel");
+		m_eventOverlay->setHoverTexture("gui_pressed_pixel");
+		m_eventOverlay->setFont(FontHandler::getFont("consolas32"));
+	}
 
-	/*triggerHandler->LoadTriggerPairMap();
-
-	if (isCoop)
-		triggerHandler->RegisterThisInstanceToNetwork();*/
 
 }
 
@@ -616,4 +679,99 @@ void PlayState::_loadSound()
 	AudioEngine::CreateReverb(reverbAt, 30.0f, 50.0f);
 }
 
-	//delete triggerHandler;
+void PlayState::_registerThisInstanceToNetwork()
+{
+
+	using namespace Network;
+	using namespace std::placeholders;
+
+	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_WON, std::bind(&PlayState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_LOST, std::bind(&PlayState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&PlayState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&PlayState::HandlePacket, this, _1, _2));
+}
+
+void PlayState::_sendOnGameOver()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_LOST, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void PlayState::_sendOnGameWon()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void PlayState::_sendOnDisconnect()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_DISCONNECT, 0);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::IMMEDIATE_PRIORITY);
+}
+
+void PlayState::_onGameOverPacket()
+{
+	m_coopState.gameOver = true;
+	runGame = false;
+}
+
+void PlayState::_onGameWonPacket()
+{
+	m_coopState.gameWon = true;
+	runGame = false;
+}
+
+void PlayState::_onDisconnectPacket()
+{
+	m_coopState.remoteDisconnected = true;
+	runGame = false;
+}
+
+void PlayState::_updateOnCoopMode(double deltaTime)
+{
+	static const double MAX_DURATION = 1.0; //unit is in seconds
+	static double accumulatedTime = 0.0;
+
+	if (m_coopState.gameOver || m_coopState.gameWon || m_coopState.remoteDisconnected)
+	{
+		
+		accumulatedTime += deltaTime;
+		double percentage = accumulatedTime / MAX_DURATION; //range[0,1[
+		m_eventOverlay->setScale({ (float)(percentage * 2.0f), (float)(percentage * 2.0f) });
+
+		if (accumulatedTime >= MAX_DURATION)
+		{
+			m_eventOverlay->setScale({2.0f, 2.0f});
+			accumulatedTime = 0;
+
+			if (m_coopState.gameWon)
+			{
+				//We need a GameWon state perhaps, or we simply make the LoseState into a more general State that can handle both Lose and Won
+			}
+			else if (m_coopState.gameOver)
+			{
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
+				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?"));
+			}
+			else if (m_coopState.remoteDisconnected)
+			{
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
+				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?"));
+			}
+		}
+	}
+}

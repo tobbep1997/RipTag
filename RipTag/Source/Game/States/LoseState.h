@@ -7,11 +7,15 @@ class LoseState :
 	public State
 {
 private:
-	Quad * m_youLost;
+	Quad * m_gameOver;
+	Quad * m_eventInfo;
 	Quad * m_backToMenu;
+	Quad * m_backGround;
+
+	std::string m_eventString = "";
 
 public:
-	LoseState(RenderingManager * rm);
+	LoseState(RenderingManager * rm, std::string eventString = "");
 	~LoseState();
 
 	void Update(double deltaTime);
@@ -21,5 +25,8 @@ public:
 	// Inherited via State
 	virtual void Load() override;
 	virtual void unLoad() override;
+
+private:
+	void _initButtons();
 };
 
