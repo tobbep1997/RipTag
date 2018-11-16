@@ -50,7 +50,7 @@ void LoseState::Update(double deltaTime)
 	//Back to menu
 	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
-		BackToMenu();
+		this->pushAndPop(2, new PlayState(this->p_renderingManager, nullptr));
 	}
 	if (InputHandler::wasKeyPressed(InputHandler::Enter) || InputHandler::wasKeyPressed(InputHandler::Esc))
 		BackToMenu();

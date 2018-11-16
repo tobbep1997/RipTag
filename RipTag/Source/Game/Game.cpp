@@ -110,8 +110,23 @@ void Game::_handleStateSwaps()
 		m_gameStack.push(m_gameStack.top()->getNewState());
 		m_gameStack.top()->Load();
 	}
-
-	if (m_gameStack.top()->getKillState())
+	if (m_gameStack.top()->getPushNPop() != nullptr)
+	{
+		State::pushNpop * pnp = m_gameStack.top()->getPushNPop();
+		State * s = pnp->state;
+		for (int i = 0; i < pnp->i; i++)
+		{
+			m_gameStack.top()->unLoad();
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+		m_gameStack.push(pnp->state);
+		m_gameStack.top()->Load();
+		delete pnp;
+		
+	}
+	else if (m_gameStack.top()->getKillState())
 	{
 		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
