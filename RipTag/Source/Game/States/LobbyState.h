@@ -77,7 +77,7 @@ private:
 	std::map<uint64_t, std::string> m_hostNameMap;
 	std::map<std::string, RakNet::SystemAddress> m_hostAdressMap;
 
-
+	CoopData * pCoopData = nullptr;
 public:
 	LobbyState(RenderingManager * rm);
 	~LobbyState();

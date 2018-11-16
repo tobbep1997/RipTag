@@ -63,6 +63,11 @@ LobbyState::~LobbyState()
 		this->m_charSelectInfo->Release();
 		delete this->m_charSelectInfo;
 	}
+	if (pCoopData)
+	{
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
 	this->pNetwork->ShutdownPeer();
 }
 
@@ -253,11 +258,17 @@ void LobbyState::Update(double deltaTime)
 						_sendGameStartedPacket();
 						//create the proper struct/tuple containing all necessary info
 						//for the PlayState constructor, then push it on the state stack
-						CoopData * data = new CoopData();
-						data->seed = pNetwork->GetSeed();
-						data->localPlayerCharacter = selectedChar;
-						data->remotePlayerCharacter = remoteSelectedChar;
-						data->remoteID = this->m_remoteNID;
+						if (pCoopData)
+						{
+							delete pCoopData;
+							pCoopData = nullptr;
+						}
+						pCoopData = new CoopData();
+						pCoopData->seed = pNetwork->GetSeed();
+						pCoopData->localPlayerCharacter = selectedChar;
+						pCoopData->remotePlayerCharacter = remoteSelectedChar;
+						pCoopData->remoteID = this->m_remoteNID;
+						pCoopData->role = Role::Server;
 
 						isReady = false;
 						isRemoteReady = false;
@@ -276,7 +287,7 @@ void LobbyState::Update(double deltaTime)
 							m_loadingScreen.draw();
 						}
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
+						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
 						
 					}
 				}
@@ -1270,6 +1281,7 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	ptr->localPlayerCharacter = selectedChar;
 	ptr->remotePlayerCharacter = remoteSelectedChar;
 	ptr->remoteID = packet->remoteID;
+	ptr->role = Role::Client;
 	isReady = false;
 	isRemoteReady = false;
 	//loading screen stuff

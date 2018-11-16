@@ -2,9 +2,10 @@
 #include "LoseState.h"
 
 
-LoseState::LoseState(RenderingManager * rm, std::string eventString) : State(rm)
+LoseState::LoseState(RenderingManager * rm, std::string eventString, void * pCoopData = nullptr) : State(rm)
 {
 	m_eventString = eventString;
+	this->pCoopData = pCoopData;
 }
 
 
@@ -28,6 +29,12 @@ LoseState::~LoseState()
 		delete m_backToMenu;
 		m_backToMenu = nullptr;
 	}
+	if (m_Retry)
+	{
+		m_Retry->Release();
+		delete m_Retry;
+		m_Retry = nullptr;
+	}
 	if (m_backGround)
 	{
 		m_backGround->Release();
@@ -40,6 +47,7 @@ void LoseState::Update(double deltaTime)
 {
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
+	//Back to menu
 	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
 		BackToMenu();
@@ -49,6 +57,34 @@ void LoseState::Update(double deltaTime)
 	if (Input::isUsingGamepad())
 		if (GamePadHandler::IsAPressed() || GamePadHandler::IsBPressed())
 			BackToMenu();
+	//Retry
+	if (m_Retry->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+	{
+		if (isReady)
+		{
+			isReady = false;
+			m_Retry->setTextColor(Colors::White);
+		}
+		else
+		{
+			isReady = true;
+			m_Retry->setTextColor(Colors::Green);
+		}
+		if (pCoopData)
+		{
+			_sendReadyPacket();
+		}
+	}
+
+	if (pCoopData)
+	{
+		if (isReady && isRemoteReady)
+		{
+			this->pushNewState(new PlayState(p_renderingManager, pCoopData));
+		}
+	}
+	else if (isReady)
+		this->pushNewState(new PlayState(p_renderingManager));
 	
 }
 
@@ -62,6 +98,8 @@ void LoseState::Draw()
 		m_eventInfo->Draw();
 	if (m_backToMenu)
 		m_backToMenu->Draw();
+	if (m_Retry)
+		m_Retry->Draw();
 	if (m_backGround)
 		m_backGround->Draw();
 
@@ -71,6 +109,14 @@ void LoseState::Draw()
 void LoseState::Load()
 {
 	std::cout << "Loose Load" << std::endl;
+	if (pCoopData)
+	{
+		CoopData * data = (CoopData*)pCoopData;
+		if (data->role == 0)
+			isServer = true;
+		else
+			isClient = true;
+	}
 	_initButtons();
 }
 
@@ -100,13 +146,19 @@ void LoseState::_initButtons()
 		this->m_eventInfo->setFont(FontHandler::getFont("consolas32"));
 		this->m_eventInfo->setTextColor(Colors::White);
 
-		this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.5f, 0.20f, 0.5f, 0.25f);
+		this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.3f, 0.20f, 0.5f, 0.25f);
 		this->m_backToMenu->setUnpressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setPressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setHoverTexture("gui_pressed_pixel");
 		this->m_backToMenu->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_backToMenu->setFont(FontHandler::getFont("consolas16"));
 
+		this->m_Retry = Quad::CreateButton("Retry", 0.6f, 0.20f, 0.5f, 0.25f);
+		this->m_Retry->setUnpressedTexture("gui_pressed_pixel");
+		this->m_Retry->setPressedTexture("gui_pressed_pixel");
+		this->m_Retry->setHoverTexture("gui_pressed_pixel");
+		this->m_Retry->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_Retry->setFont(FontHandler::getFont("consolas16"));
 	}
 	//Background
 	{
