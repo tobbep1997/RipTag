@@ -53,10 +53,11 @@ void PlayState::Update(double deltaTime)
 	m_firstRun = false;
 			
 	triggerHandler->Update(deltaTime);
-	m_levelHandler->Update(deltaTime);
+	m_levelHandler->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 	m_playerManager->Update(deltaTime);
 
-	m_particleEmitter->setPosition(6, 10, 0);
+	timer += 2 * deltaTime;
+	m_particleEmitter->setPosition(7 + cos(timer), 6, 0 + sin(timer));
 	m_particleEmitter->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 
 	m_playerManager->PhysicsUpdate();
@@ -493,6 +494,8 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
 	Manager::g_textureManager.loadTextures("STATE");
+	Manager::g_textureManager.loadTextures("FIRE");
+
 }
 
 void PlayState::_loadPhysics()

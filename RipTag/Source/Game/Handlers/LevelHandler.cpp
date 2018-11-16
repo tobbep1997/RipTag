@@ -44,7 +44,7 @@ void LevelHandler::Release()
 	}
 }
 
-void LevelHandler::Update(float deltaTime)
+void LevelHandler::Update(float deltaTime, Camera * camera)
 {
 	using namespace std::chrono_literals;
 	if (future.valid())
@@ -57,7 +57,7 @@ void LevelHandler::Update(float deltaTime)
 		}
 	}
 
-	m_rooms.at(m_activeRoom)->Update(deltaTime);
+	m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
 	if (InputHandler::isKeyPressed('N'))
 	{
 		if (pressed == false)

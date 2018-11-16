@@ -4,6 +4,7 @@
 ParticleSystem::ParticleSystem()
 {
 	nrOfEmitters = 0;
+
 }
 
 

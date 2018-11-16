@@ -81,6 +81,14 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	m_2DRender = new Render2D();
 	m_2DRender->Init();
 
+	D3D11_DEPTH_STENCIL_DESC dpd{};
+	dpd.DepthEnable = TRUE;
+	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dpd.DepthFunc = D3D11_COMPARISON_LESS;
+
+	//Create the Depth/Stencil View
+	DX::g_device->CreateDepthStencilState(&dpd, &m_particleDepthStencilState);
+
 }
 
 void ForwardRender::GeometryPass()
@@ -259,17 +267,12 @@ void ForwardRender::Flush(Camera & camera)
 	this->AnimatedGeometryPass(camera);
 	this->_OutliningPass(camera);
 
-	_mapCameraBuffer(camera);
-	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
-
-	for (auto & lol : DX::g_emitters)
-	{
-
-		lol->Draw();
-	}
-	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);
 
 	//_GuardFrustumDraw();
+	_mapCameraBuffer(camera);
+	
+	_particlePass();
+
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass();
@@ -318,7 +321,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_write1State);
 	DX::SafeRelease(m_OutlineState);
 	//DX::SafeRelease(depthoutState);
-
+	DX::SafeRelease(m_particleDepthStencilState);
 	DX::SafeRelease(m_outlineBuffer);
 	m_shadowMap->Release();
 	delete m_shadowMap;
@@ -810,6 +813,19 @@ void ForwardRender::_setAnimatedShaders()
 		}
 	}
 	
+}
+
+void ForwardRender::_particlePass()
+{
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+	DX::g_deviceContext->OMSetDepthStencilState(m_particleDepthStencilState, NULL);
+	for (auto & lol : DX::g_emitters)
+	{
+		lol->Draw();
+	}
+	DX::g_emitters.clear();
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 }
 
 void ForwardRender::_createShaders()

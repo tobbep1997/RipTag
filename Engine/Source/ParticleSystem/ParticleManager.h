@@ -14,6 +14,5 @@ public:
 	~ParticleManager();
 
 	std::vector<ParticleSystem*> m_ParticleSystem;
-	ID3D11Buffer* particleVertexBuffer;
 };
 

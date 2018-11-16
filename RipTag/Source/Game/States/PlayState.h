@@ -52,6 +52,7 @@ private:
 	bool isCoop = false;
 	CoopData * pCoopData = nullptr;
 	int m_seed = 0;
+	float timer = 0;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();

@@ -23,13 +23,14 @@ class TriggerHandler;
 class Triggerable;
 class Trigger;
 class Bars;
+class ParticleEmitter;
 
 class Enemy;//Ta bort sen
 
 class Room : public HUDComponent
 {
 private:
-	
+	std::vector< ParticleEmitter*> m_emitters;
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -78,7 +79,7 @@ public:
 	Room(b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	~Room();
 
-	void Update(float deltaTime);
+	void Update(float deltaTime, Camera * camera);
 
 	void SetActive(bool state);
 

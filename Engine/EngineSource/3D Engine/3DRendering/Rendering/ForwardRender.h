@@ -84,6 +84,7 @@ private:
 	ID3D11SamplerState*			m_samplerState;
 	ID3D11SamplerState*			m_shadowSampler;
 	ID3D11DepthStencilState*	m_depthStencilState;
+	ID3D11DepthStencilState*	m_particleDepthStencilState;
 	
 
 	D3D11_VIEWPORT				m_viewport;
@@ -176,6 +177,9 @@ private:
 
 	//VisabilityPass
 	void _visabilityPass();
+
+	//ParticlePass
+	void _particlePass();
 
 	void _createShaders();
 	void _createShadersInput();
