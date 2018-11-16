@@ -177,7 +177,7 @@ void DisableAbility::_inStateCharging(double dt)
 			
 
 			start.w = 1.0f;
-			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
+			direction = XMMATH::scale(direction, TRAVEL_SPEED);
 			setPosition(start.x, start.y, start.z);
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			m_lastVelocity = direction;

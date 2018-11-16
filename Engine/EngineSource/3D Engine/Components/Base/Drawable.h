@@ -43,9 +43,7 @@ private:
 	bool m_outline;
 	bool m_transparant;
 	DirectX::XMFLOAT4A m_outLineColor;
-public:
-	SM::AnimationStateMachine* InitStateMachine();
-	SM::AnimationStateMachine* m_stateMachine = nullptr;
+
 protected:	
 	Texture * p_texture;
 

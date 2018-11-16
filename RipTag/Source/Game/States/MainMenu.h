@@ -24,8 +24,7 @@ private:
 	FMOD::Channel * m_music;
 	bool m_playstatePressed = false;
 
-	Circle * c;
-	long float cTimer;
+	
 public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
