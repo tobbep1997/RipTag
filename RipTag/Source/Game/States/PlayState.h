@@ -44,6 +44,7 @@ private:
 	double m_deltaTime = 0;
 	bool m_destoryPhysicsThread = false;
 
+	bool runGame = true;
 	static bool m_youlost;
 	//BaseActor * tempp;
 	//DirectX::XMFLOAT4A rot;
@@ -94,6 +95,7 @@ private:
 	// Unload functions
 
 	//Network send and receive functions
+	void _registerThisInstanceToNetwork();
 
 	void _sendOnGameOver();
 	void _sendOnGameWon();
