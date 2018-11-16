@@ -6,6 +6,9 @@ class Door : public Triggerable
 private:
 	DirectX::XMFLOAT4A pos1;
 	DirectX::XMFLOAT4A pos2;
+	DirectX::XMFLOAT3 m_startRotModel;
+	DirectX::XMFLOAT3 m_startRotBox;
+
 
 public:
 	Door();

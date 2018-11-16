@@ -44,10 +44,14 @@ void PressurePlate::Update(double deltaTime)
 			(con.b->GetBody()->GetObjectTag() == "ENEMY" || con.b->GetBody()->GetObjectTag() == "PLAYER"))
 			if ((con.a->GetBody()->GetObjectTag() == "PressurePlate") || (con.b->GetBody()->GetObjectTag() == "PressurePlate"))
 			{
-				if (this->getTriggerState())
+				if (static_cast<PressurePlate*>(con.a->GetBody()->GetUserData()) == this ||
+					static_cast<PressurePlate*>(con.b->GetBody()->GetUserData()) == this)
 				{
-					this->setTriggerState(false);
-					this->SendOverNetwork();
+					if (this->getTriggerState())
+					{
+						this->setTriggerState(false);
+						this->SendOverNetwork();
+					}
 				}
 			}
 	}
@@ -59,14 +63,20 @@ void PressurePlate::Update(double deltaTime)
 				(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
 				if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
 				{
-					if (!this->getTriggerState())
+					if (static_cast<PressurePlate*>(con->GetShapeA()->GetBody()->GetUserData()) == this ||
+						static_cast<PressurePlate*>(con->GetShapeB()->GetBody()->GetUserData()) == this)
 					{
-						this->setTriggerState(true);
-						this->SendOverNetwork();
+						if (!this->getTriggerState())
+						{
+							this->setTriggerState(true);
+							this->SendOverNetwork();
+						}
 					}
 				}
 		}
 	}
+	
+
 	//If previous state was true, but the new state is false no one is one the plate locally
 	if (previousState && !this->getTriggerState())
 		this->SendOverNetwork();

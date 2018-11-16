@@ -22,6 +22,7 @@ void PhysicsComponent::p_updatePhysics(Transform * transform)
 	transform->setVelocity(vel);
 
 	b3Mat33 mat = m_body->GetTransform().rotation;
+	if(this->getBodyType() != e_staticBody)
 	transform->setPhysicsRotation(mat);
 	
 }

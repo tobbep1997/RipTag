@@ -192,7 +192,8 @@ void Drawable::DrawWireFrame()
 {
 	if (p_objectType == Static)
 	{
-		DX::g_wireFrameDrawQueue.push_back(this);
+		//DX::g_wireFrameDrawQueue.push_back(this);
+		DX::INSTANCING::submitToWireframeInstance(this);
 	}
 }
 
