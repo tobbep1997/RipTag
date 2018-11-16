@@ -99,7 +99,8 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
 	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, true);
-	
+
+
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
@@ -831,7 +832,10 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
+
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl");
+
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertexAnimated.hlsl");
 
