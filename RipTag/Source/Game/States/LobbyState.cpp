@@ -1276,12 +1276,18 @@ void LobbyState::_onReadyPacket(RakNet::Packet * data)
 void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 {
 	Network::GAMESTARTEDPACKET * packet = (Network::GAMESTARTEDPACKET*)data->data;
-	CoopData * ptr = new CoopData();
-	ptr->seed = packet->seed;
-	ptr->localPlayerCharacter = selectedChar;
-	ptr->remotePlayerCharacter = remoteSelectedChar;
-	ptr->remoteID = packet->remoteID;
-	ptr->role = Role::Client;
+	if (pCoopData)
+	{
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
+	pCoopData = new CoopData();
+	pCoopData->seed = packet->seed;
+	pCoopData->localPlayerCharacter = selectedChar;
+	pCoopData->remotePlayerCharacter = remoteSelectedChar;
+	pCoopData->remoteID = packet->remoteID;
+	pCoopData->role = Role::Client;
+
 	isReady = false;
 	isRemoteReady = false;
 	//loading screen stuff
@@ -1297,7 +1303,7 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 		m_loadingScreen.removeGUI(this->m_charSelectButtons);
 		m_loadingScreen.draw();
 	}
-	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
+	this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
 }
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
 {
