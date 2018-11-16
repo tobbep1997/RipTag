@@ -53,6 +53,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
+		SetAbilitySet(2);
 	}
  
 	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
@@ -978,7 +979,6 @@ void Player::_objectInfo(double deltaTime)
 	{
 		if (m_objectInfoTime >= 0.2f)
 		{
-			m_infoText->setString("");
 			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
 			if (ray != nullptr)
 			{
@@ -1033,6 +1033,12 @@ void Player::_objectInfo(double deltaTime)
 					m_cross->setUnpressedTexture("CROSS");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 				}
+			}
+			else
+			{
+				m_infoText->setString("");
+				m_cross->setUnpressedTexture("CROSS");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
 			m_objectInfoTime = 0;
 		}

@@ -60,9 +60,6 @@ void EnemyHandler::Update(float deltaTime)
 		case Suspicious:
 			_suspicious(currentGuard, deltaTime);
 			break;
-		case Cooling_Down:
-			_coolingDown(currentGuard, deltaTime);
-			break;
 		}
 	}
 
@@ -191,18 +188,24 @@ void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
 void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 {
 	guard->AddActTimer(dt);
-
-	if (guard->getVisCounter() >= guard->getBiggestVisCounter())
+	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
+	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT / 3)
+	{
+		attentionMultiplier = 1.2f;
+	}
+	if (guard->getVisCounter()*attentionMultiplier >= guard->getBiggestVisCounter())
 	{
 		guard->setClearestPlayerLocation(m_player->getPosition());
-		guard->setBiggestVisCounter(guard->getVisCounter());
+		guard->setBiggestVisCounter(guard->getVisCounter()*attentionMultiplier);
 		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
 		b3Normalize(dir);
 		guard->setDir(dir.x, dir.y, dir.y);*/
 	}
-	if (guard->getSoundLocation().percentage >= guard->getLoudestSoundLocation().percentage)
+	if (guard->getSoundLocation().percentage*attentionMultiplier >= guard->getLoudestSoundLocation().percentage)
 	{
-		guard->setLoudestSoundLocation(guard->getSoundLocation());
+		Enemy::SoundLocation temp = guard->getSoundLocation();
+		temp.percentage *= attentionMultiplier;
+		guard->setLoudestSoundLocation(temp);
 		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
 		b3Normalize(dir);
 		guard->setDir(dir.x, dir.y, dir.y);*/
@@ -211,15 +214,15 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 	{
 		std::cout << yellow << "Investigating" << white << std::endl;
 		guard->SetActTimer(0.0f);
-		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT)
+		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT+(ALERT_TIME_LIMIT/4))
 			_alert(guard); //what was that?
-		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL)
+		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL+(SOUND_LEVEL/4))
 			_alert(guard, true); //what was that noise?
 		else
 		{
 			guard->SetActTimer(0.0f);
 			guard->setEnemeyState(Patrolling);
-			//Must have been nothing
+			//Must have been nothing...
 		}
 	}
 }
@@ -227,7 +230,7 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 void EnemyHandler::_coolingDown(Enemy * guard, const double & dt)
 {
 	guard->AddActTimer(dt);
-	if (guard->GetActTimer() > 3)
+	if (guard->GetActTimer() > 2)
 	{
 		guard->SetActTimer(0.0f);
 		guard->setEnemeyState(Patrolling);

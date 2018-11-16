@@ -147,7 +147,6 @@ private:
 	float m_lengthToPlayerSpan = 8;
 
 	Player * m_PlayerPtr;
-
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
 public:
