@@ -16,8 +16,8 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	BaseActor::setRotation(pitch, yaw, roll, false);
 	BaseActor::setPhysicsRotation(pitch, 0, roll);
 	
-		m_closePos = { xPos, yPos + bboxScaleY / 2, zPos , 1.0f };
-		m_openPos = { xPos, yPos + bboxScaleY / 2, zPos , 1.0f };
+		m_closePos = { xPos, yPos, zPos , 1.0f };
+		m_openPos = { xPos, yPos + bboxScaleY * 2, zPos , 1.0f };
 
 
 
