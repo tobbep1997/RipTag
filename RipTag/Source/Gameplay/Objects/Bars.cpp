@@ -17,7 +17,7 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	BaseActor::setPhysicsRotation(pitch, 0, roll);
 	
 		m_closePos = { xPos, yPos, zPos , 1.0f };
-		m_openPos = { xPos, yPos + bboxScaleY, zPos , 1.0f };
+		m_openPos = { xPos, yPos + 200, zPos , 1.0f };
 
 
 
@@ -38,13 +38,13 @@ void Bars::Update(double deltaTime)
 	BaseActor::Update(deltaTime);
 	if (Triggerable::getState() == true)
 	{
-		p_setPosition(m_openPos.x, m_openPos.y, m_openPos.z);
 		setPosition(m_openPos.x, m_openPos.y, m_openPos.z);
+		p_setPosition(m_openPos.x, m_openPos.y, m_openPos.z);
 	}
 	else
 	{
-		p_setPosition(m_closePos.x, m_closePos.y, m_closePos.z);
 		setPosition(m_closePos.x, m_closePos.y, m_closePos.z);
+		p_setPosition(m_closePos.x, m_closePos.y, m_closePos.z);
 
 	}
 }
