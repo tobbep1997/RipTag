@@ -108,7 +108,7 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy."));
+			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", pCoopData));
 		}
 
 	
@@ -756,7 +756,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 				{
 					m_physicsThread.join();
 				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?"));
+				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?", pCoopData));
 			}
 			else if (m_coopState.remoteDisconnected)
 			{
@@ -768,7 +768,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 				{
 					m_physicsThread.join();
 				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?"));
+				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?", pCoopData));
 			}
 		}
 	}

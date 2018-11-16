@@ -80,11 +80,11 @@ void LoseState::Update(double deltaTime)
 	{
 		if (isReady && isRemoteReady)
 		{
-			this->pushNewState(new PlayState(p_renderingManager, pCoopData));
+			this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
 		}
 	}
 	else if (isReady)
-		this->pushNewState(new PlayState(p_renderingManager));
+		this->pushAndPop(2, new PlayState(p_renderingManager));
 	
 }
 
