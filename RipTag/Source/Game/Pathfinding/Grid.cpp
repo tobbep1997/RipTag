@@ -39,8 +39,6 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 		}
 		yVal += 1;
 	}
-
-
 }
 
 Grid::~Grid()
@@ -72,6 +70,9 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
 				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
 					grid.gridPoints[i + j * m_height].translation[2])));
+			Node checkNode = m_nodeMap.at(m_nodeMap.size() - 1);
+			int index = i + j * m_height;
+			int heHE = 0;
 		}
 	}
 }
