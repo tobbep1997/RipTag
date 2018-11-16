@@ -660,8 +660,7 @@ void Player::_onMovement(double deltaTime)
 
 	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 	{
-		m_VcurrentSpeed = DirectX::XMVECTOR{ x,getLiniearVelocity().y,z }; 
-		m_VlastSpeed = m_VcurrentSpeed;
+		m_VlastSpeed = DirectX::XMVECTOR{ x,getLiniearVelocity().y,z };
 	}
 	
 
