@@ -81,11 +81,7 @@ void Game::Update(double deltaTime)
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
-	//move this to playstate ---
-	{
-		InputMapping::Call();
-	}
-	//--------------------------
+
 	pNetworkInstance->Update();
 
 	InputHandler::getRawInput();

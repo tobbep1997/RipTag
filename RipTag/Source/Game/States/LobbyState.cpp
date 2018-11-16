@@ -389,6 +389,9 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 	case Network::ID_GAME_STARTED:
 		_onGameStartedPacket(packet);
 		break;
+	case Network::ID_HOST_NAME:
+		_onHostNamePacket(packet);
+		break;
 	}
 }
 
@@ -1108,6 +1111,7 @@ void LobbyState::_registerThisInstanceToNetwork()
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REQUEST_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REPLY_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_GAME_STARTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_HOST_NAME, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
@@ -1138,7 +1142,6 @@ void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 	pNetwork->setIsConnected(true);
 	hasClient = true;
 	m_clientIP = data->systemAddress;
-	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + m_clientIP.ToString());
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
@@ -1166,6 +1169,8 @@ void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 	//send a request to retrive the Character selection
 	Network::COMMONEVENTPACKET packet2(Network::ID_REQUEST_SELECTED_CHAR, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet2, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+
+	_sendMyHostNamePacket();
 }
 
 void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
@@ -1302,6 +1307,13 @@ void LobbyState::_onReplyPacket(RakNet::Packet * data)
 	this->m_remoteNID = packet->nid;
 }
 
+void LobbyState::_onHostNamePacket(RakNet::Packet * data)
+{
+	Network::LOBBYEVENTPACKET* packet = (Network::LOBBYEVENTPACKET*)data->data;
+	std::string name = std::string(packet->string);
+	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + name);
+}
+
 void LobbyState::_sendCharacterSelectionPacket()
 {
 	if (hasClient || hasJoined)
@@ -1332,6 +1344,12 @@ void LobbyState::_sendGameStartedPacket()
 	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed(), pNetwork->GetNetworkID());
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::GAMESTARTEDPACKET), PacketPriority::IMMEDIATE_PRIORITY);
+}
+
+void LobbyState::_sendMyHostNamePacket()
+{
+	Network::LOBBYEVENTPACKET packet(Network::ID_HOST_NAME, this->m_MyHostName);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::LOBBYEVENTPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
@@ -1378,6 +1396,7 @@ void LobbyState::Load()
 
 void LobbyState::unLoad()
 {
+	Network::Multiplayer::LobbyOnReceiveMap.clear();
 	std::cout << "Lobby unLoad" << std::endl;
 }
 
