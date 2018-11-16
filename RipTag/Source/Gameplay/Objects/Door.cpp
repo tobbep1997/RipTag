@@ -18,19 +18,19 @@ Door::~Door()
 
 void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleZ, bboxScaleY, bboxScaleX, false);
-	BaseActor::setPositionRot(xPos, yPos - 1, zPos, pitch, yaw, roll); 
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleZ, bboxScaleY, bboxScaleX, true);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll); 
 	//BaseActor::InitPositionRot(xPos, yPos - 1, zPos, pitch, yaw, roll);
 	//BaseActor::setPosition(xPos, yPos, zPos);
 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("Door");
-	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("DOOR"));
-	BaseActor::setTexture(Manager::g_textureManager.getTexture("RUM1"));
-	auto& machine = getAnimatedModel()->InitStateMachine(1);
-	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
-	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("DOOR", "DOOR_ANIMATION").get());
-	getAnimatedModel()->Pause();
+	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
+	BaseActor::setTexture(Manager::g_textureManager.getTexture("DOOR"));
+	//auto& machine = getAnimatedModel()->InitStateMachine(1);
+//	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
+	//machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("DOOR", "DOOR_ANIMATION").get());
+	//getAnimatedModel()->Pause();
 
 	BaseActor::setUserDataBody(this);
 	//BaseActor::Update(0);
