@@ -605,7 +605,7 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_scrollMovementMod();
-	_onMovement();
+	_onMovement(deltaTime);
 	//_onJump();
 	//_onAbility(deltaTime);
 	_onInteract();
@@ -615,7 +615,7 @@ void Player::_handleInput(double deltaTime)
 	_updateTutorial(deltaTime);
 }
 
-void Player::_onMovement()
+void Player::_onMovement(double deltaTime)
 {
 	using namespace DirectX;
 	XMFLOAT4A forward = p_camera->getDirection();
@@ -658,6 +658,21 @@ void Player::_onMovement()
 
 	m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
 
+	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
+	{
+		m_VcurrentSpeed = DirectX::XMVECTOR{ x,getLiniearVelocity().y,z }; 
+		m_VlastSpeed = m_VcurrentSpeed;
+	}
+	
+
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+			DirectX::XMVECTOR end = DirectX::XMVECTOR{ 0,getLiniearVelocity().y,0 };
+			m_VlastSpeed = DirectX::XMVectorLerp(m_VlastSpeed,end,deltaTime * 9);
+	
+			x = DirectX::XMVectorGetX(m_VlastSpeed);
+			z = DirectX::XMVectorGetZ(m_VlastSpeed);
+	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
