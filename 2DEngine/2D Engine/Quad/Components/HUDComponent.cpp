@@ -26,7 +26,7 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 
 	if (inputStream.is_open())
 	{
-		std::string keyWords[] = {"i","pp","b","text","f","c","texture" };
+		std::string keyWords[] = {"i","pp","b","text","f","c","texture","t" };
 		std::string collector = "";
 		unsigned int type = 0; 
 
@@ -71,14 +71,14 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 				sizeY = std::stof(collector.substr(sepIndex + 1));
 
 				if(type == 0)
-				currQuad->init(DirectX::XMFLOAT2A(posX, posY), DirectX::XMFLOAT2A(sizeX / 16.0f, sizeY / 9.0f));
+				currQuad->init(DirectX::XMFLOAT2A(posX, posY), DirectX::XMFLOAT2A(sizeX, sizeY));
 				else
 				{
 					float radius; 
 					sepIndex = collector.find_last_of(';');
 					radius = std::stof(collector.substr(sepIndex + 1)); 
 
-					currQuad->init(DirectX::XMFLOAT2A(posX, posY), DirectX::XMFLOAT2A(sizeX / 16.0f, sizeY / 9.0f));
+					currQuad->init(DirectX::XMFLOAT2A(posX, posY), DirectX::XMFLOAT2A(sizeX, sizeY));
 					dynamic_cast<Circle*>(currQuad)->setRadie(radius); 
 				}
 			}
@@ -116,7 +116,10 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 			if (collector == keyWords[3])
 			{
 				std::getline(inputStream, collector);
-				currQuad->setString(collector);
+				if (collector == "NULL")
+					currQuad->setString(""); 
+				else
+					currQuad->setString(collector);
 			}
 
 			std::getline(inputStream, collector);
@@ -184,6 +187,17 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 				currQuad->setUnpressedTexture(textureNames[1].c_str());
 				currQuad->setHoverTexture(textureNames[2].c_str());
 			}
+
+			std::getline(inputStream, collector); 
+
+			//Tag
+			if (collector == keyWords[7])
+			{
+				inputStream >> collector; 
+				inputStream.ignore(); 
+
+				currQuad->setTag(collector); 
+			}
 			AddQuad(currQuad);
 		}
 
@@ -204,6 +218,29 @@ Quad * HUDComponent::GetQuad(const unsigned short int & i)
 		return m_quads[i]->quad;
 	else
 		throw "u stoopid";
+}
+
+Quad * HUDComponent::GetQuad(std::string tag)
+{
+	for (int i = 0; i < m_quads.size(); i++)
+	{
+		if (m_quads[i]->quad->getTag() == tag)
+		{
+			return m_quads[i]->quad; 
+		}
+	}
+	return nullptr;
+}
+
+void HUDComponent::removeHUD()
+{
+	for (int i = 0; i < m_quads.size(); i++)
+	{
+		m_quads[i]->quad->Release(); 
+		delete m_quads[i]->quad;
+		delete m_quads[i];
+	}
+	m_quads.clear(); 
 }
 
 void HUDComponent::ResetStates()

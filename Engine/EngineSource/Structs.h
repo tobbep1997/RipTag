@@ -7,7 +7,7 @@ struct StaticVertex
 	DirectX::XMFLOAT4A pos;
 	DirectX::XMFLOAT4A normal;
 	DirectX::XMFLOAT4A tangent;
-	DirectX::XMFLOAT2A uvPos;
+	DirectX::XMFLOAT4A uvPos;
 };
 
 struct DynamicVertex

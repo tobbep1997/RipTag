@@ -109,6 +109,7 @@ void PlayerManager::Update(float dt)
 		{
 			accumulatedDT -= frequency;
 			mLocalPlayer->SendOnUpdateMessage();
+			mLocalPlayer->SendAbilityUpdates();
 		}
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}

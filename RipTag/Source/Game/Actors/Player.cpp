@@ -1,9 +1,14 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 
+//#todoREMOVE
+float Player::m_currentPitch = 0.0f;
+
+
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
+	Manager::g_textureManager.loadTextures("CROSSHAND");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
@@ -14,16 +19,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	//Ability stuff
 	{
-		VisabilityAbility * visAbl = new VisabilityAbility();
-		visAbl->setOwner(this);
-		visAbl->setIsLocal(true);
-		visAbl->Init();
-		
-
-		VisabilityAbility * visAbl2 = new VisabilityAbility();
-		visAbl2->setOwner(this);
-		visAbl2->setIsLocal(true);
-		visAbl2->Init();
 
 		TeleportAbility * m_teleport = new TeleportAbility();
 		m_teleport->setOwner(this);
@@ -47,83 +42,30 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents1[0] = m_teleport;
-		m_abilityComponents1[1] = visAbl;
-		m_abilityComponents1[2] = m_dis;
-		m_abilityComponents1[3] = visAbl2;
+		m_abilityComponents1[1] = m_dis;
 
 		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
 		m_abilityComponents2[0] = m_blink;
-		m_abilityComponents2[1] = visAbl;
-		m_abilityComponents2[2] = m_possess;
-		m_abilityComponents2[3] = visAbl2;
+		m_abilityComponents2[1] = m_possess;
 
 		m_currentAbility = (Ability)0;
 
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
+		SetAbilitySet(2);
 	}
-	Quad * quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.1f, 0.15f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 49);
+ 
+	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 50);
+	m_cross = HUDComponent::GetQuad("Cross");
+	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.1f, 0.05f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 50);
+	
+	m_winBar = HUDComponent::GetQuad("YouWin"); 
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.05f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("SPHERE");
-	quad->setPressedTexture("DAB");
-	HUDComponent::AddQuad(quad, 50);
+	m_infoText = HUDComponent::GetQuad("InfoText"); 
 
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(5.0f / 16.0f, 5.0f /9.0f));
-	quad->setUnpressedTexture("CROSS");
-	HUDComponent::AddQuad(quad);
-
-	quad = new Quad();
-	quad->init(DirectX::XMFLOAT2A(0.15f, 0.1f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	quad->setUnpressedTexture("VISIBILITYICON");
-	HUDComponent::AddQuad(quad);
-
-
-
-	   	 
-
-
-
-	m_winBar = new Quad();
-	m_winBar->init();
-	m_winBar->setPosition(1.5f, 1.5f);
-	m_winBar->setScale(0.5f, 0.25f);
-
-	m_winBar->setString("YOU WIN");
-	m_winBar->setUnpressedTexture("SPHERE");
-	m_winBar->setPressedTexture("DAB");
-	m_winBar->setHoverTexture("PIRASRUM");
-	m_winBar->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_winBar->setFont(FontHandler::getFont("consolas32"));
-	HUDComponent::AddQuad(m_winBar);
-
-	m_infoText = new Quad();
-	m_infoText->init(DirectX::XMFLOAT2A(0.5, 0.3f), DirectX::XMFLOAT2A(0, 0));
-	m_infoText->setUnpressedTexture("BLACK");
-	m_infoText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_infoText->setScale(0, 0);
-	m_infoText->setFont(FontHandler::getFont("consolas16"));
-	m_infoText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	HUDComponent::AddQuad(m_infoText);
 	m_tutorialMessages.push("");
 	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
 	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
@@ -131,14 +73,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_tutorialMessages.push("Peek to the sides with LT and RT");
 	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
 
-	m_tutorialText = new Quad();
-	m_tutorialText->init(DirectX::XMFLOAT2A(0.5, 0.9f), DirectX::XMFLOAT2A(0, 0));
-	m_tutorialText->setUnpressedTexture("BLACK");
-	m_tutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_tutorialText->setScale(0, 0);
-	m_tutorialText->setFont(FontHandler::getFont("consolas16"));
-	m_tutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	HUDComponent::AddQuad(m_tutorialText);
+
+	m_tutorialText = HUDComponent::GetQuad("TutorialText"); 
+
 	
 	if (m_tutorialActive)
 	{
@@ -146,39 +83,19 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		m_tutorialMessages.pop();
 	}
 
-	m_abilityTutorialText = new Quad();
-	m_abilityTutorialText->init(DirectX::XMFLOAT2A(0.15, 0.26f), DirectX::XMFLOAT2A(0, 0));
-	m_abilityTutorialText->setUnpressedTexture("BLACK");
-	m_abilityTutorialText->setPivotPoint(Quad::PivotPoint::lowerLeft);
-	m_abilityTutorialText->setScale(0, 0);
-	m_abilityTutorialText->setFont(FontHandler::getFont("consolas16"));
-	m_abilityTutorialText->setTextColor({ 255.0f / 255.0f , 255.0f / 255.0f, 200.0f / 255.0f,1.0f });
-	HUDComponent::AddQuad(m_abilityTutorialText);
-
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
-	m_sounds.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
+	m_abilityTutorialText = HUDComponent::GetQuad("AbilityTutorial"); 
 
 
-	m_HUDcircle = new Circle();
-	m_HUDcircle->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.1f / 16.0f, 2.1f / 9.0f));
-	m_HUDcircle->setRadie(.5f);
-	m_HUDcircle->setInnerRadie(.45f);
-	m_HUDcircle->setUnpressedTexture("DAB");
-	m_HUDcircle->setPressedTexture("DAB");
-	m_HUDcircle->setHoverTexture("PIRASRUM");
+	m_HUDcircle = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewCircle")); 
+	m_HUDcircle->setScale(DirectX::XMFLOAT2A(m_HUDcircle->getScale().x / 16.0f, m_HUDcircle->getScale().y / 9.0f)); 
+	dynamic_cast<Circle*>(m_HUDcircle)->setInnerRadie(0.45f); 
 
-	Manager::g_textureManager.loadTextures("FML");
-	m_HUDcircleFiller = new Circle();
-	m_HUDcircleFiller->init(DirectX::XMFLOAT2A(0.95f, 0.075f), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
-	m_HUDcircleFiller->setInnerRadie(-1.0f);
-	m_HUDcircleFiller->setUnpressedTexture("FML");
-	
+
+	m_HUDcircleFiller = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewFiller"));
+	m_HUDcircleFiller->setScale(DirectX::XMFLOAT2A(m_HUDcircleFiller->getScale().x / 16.0f, m_HUDcircleFiller->getScale().y / 9.0f));
+	dynamic_cast<Circle*>(m_HUDcircleFiller)->setInnerRadie(-1.0f);
+
+
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
 		Circle * c = new Circle();
@@ -201,15 +118,11 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
-	delete m_abilityComponents2[0];
-	delete m_abilityComponents2[2];
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
-	for (auto & s : m_sounds)
-		AudioEngine::UnLoadSoundEffect(s);
-	m_HUDcircle->Release();
-	delete m_HUDcircle;
-	m_HUDcircleFiller->Release();
-	delete m_HUDcircleFiller;
+	
+	HUDComponent::removeHUD(); 
 
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
@@ -307,45 +220,26 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 	
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
 		m_activeSet[i]->Update(deltaTime);
 
-		if (i != m_currentAbility)
+		/*if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
-		}
+		}*/
 	}
 
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
 	
-	if (Input::SelectAbility1())
-		m_currentAbility = (Ability)0;
-	else if (Input::SelectAbility2())
-		m_currentAbility = (Ability)1;
-	else if (Input::SelectAbility3())
-		m_currentAbility = (Ability)2;
-	else if (Input::SelectAbility4())
-		m_currentAbility = (Ability)3;
-	
-	if (GamePadHandler::IsUpDpadPressed())
-		m_currentAbility = (Ability)0;
-	else if (GamePadHandler::IsRightDpadPressed())
-		m_currentAbility = (Ability)1;
-	else if (GamePadHandler::IsDownDpadPressed())
-		m_currentAbility = (Ability)2;
-	else if (GamePadHandler::IsLeftDpadPressed())
-		m_currentAbility = (Ability)3;
 
 
 	if (m_tutorialActive)
 	{
 		if (m_currentAbility == Ability::TELEPORT && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
-		else if (m_currentAbility == Ability::VISIBILITY || m_currentAbility == Ability::VIS2)
-			m_abilityTutorialText->setString("Visibility Sphere:\nSee how visible \nfor the guard you are.");
 		else if (m_currentAbility == Ability::DISABLE && m_activeSetID == 1)
 			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
 		else if (m_currentAbility == Ability::BLINK && m_activeSetID == 2)
@@ -357,7 +251,7 @@ void Player::Update(double deltaTime)
 
 	HUDComponent::ResetStates();
 	HUDComponent::setSelectedQuad(m_currentAbility);
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
 		Quad * current =HUDComponent::GetQuad(i);
 		if (m_activeSet[i]->getPercentage() <= 0.0f)
@@ -401,6 +295,7 @@ const AudioEngine::Listener & Player::getFMODListener() const
 
 void Player::SetAbilitySet(int set)
 {
+	set = std::clamp(set, 1, 2);
 	if (set == 1)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
@@ -524,10 +419,12 @@ void Player::SendOnAbilityUsed()
 	packet.timeStamp = RakNet::GetTime();
 	packet.m_id = ID_PLAYER_ABILITY;
 	packet.ability = (unsigned int)NONE;
+	packet.isCommonUpadate = false;
 
+	
 	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
 	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
-	VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
+	//VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
 	//unique based on active ability
 	switch (this->m_currentAbility)
 	{
@@ -549,16 +446,42 @@ void Player::SendOnAbilityUsed()
 			packet.state = dis_ptr->getState();
 		}
 		break;
-	case Ability::VIS2:
-	case Ability::VISIBILITY:
-		packet.ability = (unsigned int)VISIBILITY;
-		packet.start = vis_ptr->getStart();
-		packet.velocity = vis_ptr->getLastColor();
-		packet.state = vis_ptr->getState();
-		break;
 	}
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+}
+
+void Player::SendAbilityUpdates()
+{
+	using namespace Network;
+	ENTITYABILITYPACKET packet;
+
+	//Same for every ability packet
+	packet.id = ID_TIMESTAMP;
+	packet.timeStamp = RakNet::GetTime();
+	packet.m_id = ID_PLAYER_ABILITY;
+	packet.ability = (unsigned int)NONE;
+	packet.isCommonUpadate = true;
+
+	if (m_activeSetID == 1)
+	{
+		TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[Ability::TELEPORT]);
+		DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE]);
+
+		packet.ability = (unsigned int)TELEPORT;
+		packet.start = tp_ptr->getStart();
+		packet.velocity = tp_ptr->getVelocity();
+		packet.state = tp_ptr->getState();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+
+		packet.ability = (unsigned int)DISABLE;
+		packet.start = dis_ptr->getStart();
+		packet.velocity = dis_ptr->getVelocity();
+		packet.state = dis_ptr->getState();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::SendOnAnimationUpdate(double dt)
@@ -616,6 +539,7 @@ void Player::SendOnAnimationUpdate(double dt)
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
 			this->m_currentDirection, 
 			this->m_currentSpeed,
+			this->m_currentPitch,
 			this->getCamera()->getYRotationEuler());
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
@@ -631,11 +555,13 @@ void Player::RegisterThisInstanceToNetwork()
 	Network::Multiplayer::addToOnSendFuncMap("MoveBackward", std::bind(&Player::SendOnUpdateMessage, this));
 	Network::Multiplayer::addToOnSendFuncMap("AbilityPressed", std::bind(&Player::SendOnAbilityUsed, this));
 	Network::Multiplayer::addToOnSendFuncMap("AbilityReleased", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("Ability2Pressed", std::bind(&Player::SendOnAbilityUsed, this));
+	Network::Multiplayer::addToOnSendFuncMap("Ability2Released", std::bind(&Player::SendOnAbilityUsed, this));
 }
 
 void Player::_collision()
 {
-	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
+	for (ContactListener::S_EndContact con : RipExtern::g_contactListener->GetEndContacts())
 	{
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
 				if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
@@ -644,7 +570,7 @@ void Player::_collision()
 					m_recentHeadCollision = true;
 				}
 	}
-	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (con)
 		{
@@ -669,13 +595,19 @@ void Player::_handleInput(double deltaTime)
 	}
 	else if (!Input::MouseLock())
 		m_kp.unlockMouse = false;
-	
+
+	if (Input::OnAbilityPressed() && !Input::OnAbility2Pressed())
+		m_currentAbility = (Ability)0;
+	else if (Input::OnAbility2Pressed() && !Input::OnAbilityPressed())
+		m_currentAbility = (Ability)1;
+
 
 	_onSprint();
 	_onCrouch();
+	_scrollMovementMod();
 	_onMovement();
 	//_onJump();
-	_onAbility(deltaTime);
+	//_onAbility(deltaTime);
 	_onInteract();
 	_onPeak(deltaTime);
 	_onRotate(deltaTime);
@@ -708,19 +640,40 @@ void Player::_onMovement()
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
 	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
 	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
-
 	if (length > 1.0)
 		vDir = DirectX::XMVector2Normalize(vDir);
-
 	DirectX::XMStoreFloat2(&dir, vDir);
+	
+
+	if (fabs(Input::MoveRight()) > 1.0f || fabs(Input::MoveForward()) > 1.0f)
+	{
+		dir.x *= m_scrollMoveModifier;
+		dir.y *= m_scrollMoveModifier;
+	}
 
 	x = dir.x * m_moveSpeed  * RIGHT.x;
 	x += dir.y * m_moveSpeed * forward.x;
 	z = dir.y * m_moveSpeed * forward.z;
 	z += dir.x * m_moveSpeed * RIGHT.z;
 
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
+	m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
+
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+}
+
+void Player::_scrollMovementMod()
+{
+	float moveMod = Input::MouseMovementModifier();
+	if (moveMod != 0.0f)
+	{
+		m_scrollMoveModifier += 0.05*moveMod;
+		m_scrollMoveModifier = std::clamp(m_scrollMoveModifier, 0.2f, 0.9f);
+	}
+
+	if (Input::ResetMouseMovementModifier())
+	{
+		m_scrollMoveModifier = 0.9f;
+	}
 }
 
 void Player::_onSprint()
@@ -739,6 +692,7 @@ void Player::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
 			}
 			else
 			{
@@ -765,6 +719,8 @@ void Player::_onSprint()
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
+				m_scrollMoveModifier = 0.9f;
+				
 			}
 			else
 			{
@@ -831,7 +787,6 @@ void Player::_onCrouch()
 	}
 }
 
-
 void Player::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
@@ -896,8 +851,9 @@ void Player::_onRotate(double deltaTime)
 		}
 		
 	}
+	//#todoREMOVE
+	m_currentPitch = - p_camera->getPitch().x;
 }
-
 
 void Player::_onPeak(double deltaTime)
 {
@@ -942,7 +898,7 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
 			if (ray)
 			{
 				for (RayCastListener::RayContact* con : ray->GetRayContacts())
@@ -965,6 +921,8 @@ void Player::_onInteract()
 							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 							{
 								*con->consumeState += 1;
+								PointLight * lol = static_cast<PointLight*>(con->contactShape->GetBody()->GetUserData());
+								lol->SwitchLightOn();
 								//Snuff out torches (example)
 							}
 							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
@@ -1019,10 +977,10 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_tutorialActive)
 	{
-		if (m_objectInfoTime >= 0.5f)
+		if (m_objectInfoTime >= 0.2f)
 		{
 			m_infoText->setString("");
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* cContact = ray->getClosestContact();
@@ -1031,26 +989,50 @@ void Player::_objectInfo(double deltaTime)
 				if(ray->getNrOfContacts() >= 2)
 					cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-				if ((cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" || cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER"))
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
 				{
-					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-						m_infoText->setString("Press X to pull");
+					m_infoText->setString("Press X to pull");
+					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+				}
+				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+				{
+					m_infoText->setString("Press X to pull");
+					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
+					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//Snuff out torches (example)
+				}
+				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+				{
+					//m_infoText->setString("Press X to pull");
+					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
 				{
 					m_infoText->setString("Press RB to possess");
+					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//Snuff out torches (example)
 				}
 				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
 				{
 					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
 						m_infoText->setString("Press RB to pass");
+					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
+				}
+				else
+				{
+					m_cross->setUnpressedTexture("CROSS");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 				}
 			}
 			m_objectInfoTime = 0;
@@ -1130,7 +1112,7 @@ void Player::_cameraPlacement(double deltaTime)
 	static int last = 0;
 
 	//Head Bobbing
-	float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+	float offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
 
 	pos.y += offsetY;
 
@@ -1147,10 +1129,10 @@ void Player::_cameraPlacement(double deltaTime)
 				int index = -1;
 				while (index == -1 || index == last)
 				{
-					index = rand() % (int)m_sounds.size();
+					index = rand() % (int)RipSounds::g_stepsStone.size();
 				}
 				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(m_sounds[index], &at, AudioEngine::Player);
+				c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1173,7 +1155,7 @@ void Player::_cameraPlacement(double deltaTime)
 	}
 
 	this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
-	p_camera->setPosition(pos);
+	//p_camera->setPosition(pos);
 }
 
 void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos)
@@ -1222,11 +1204,11 @@ void Player::SendOnWin()
 
 void Player::_hasWon()
 {
-	for (int i = 0; i < RipExtern::m_contactListener->GetBeginContacts().size(); i++)
+	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
 	{
-		if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
 		{
-			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
+			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
 			{
 				hasWon = true;
 				SendOnWin();
@@ -1234,9 +1216,9 @@ void Player::_hasWon()
 				break;
 			}
 		}
-		else if(RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
+		else if(RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
 		{
-			if (RipExtern::m_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
 			{
 				hasWon = true;
 				SendOnWin();

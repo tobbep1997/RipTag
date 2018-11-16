@@ -53,7 +53,7 @@ void PossessGuard::Draw()
 void PossessGuard::_logic(double deltaTime)
 {
 	m_useFunctionCalled = false;
-	if (((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbilityPressed())
+	if (m_pState != PossessGuard::Possessing  && ((Player *)p_owner)->getCurrentAbility() == Ability::POSSESS && Input::OnAbility2Pressed())
 		this->Use();
 	Player* pPointer = static_cast<Player*>(p_owner);
 	/*if (Input::OnAbilityReleased())
@@ -84,6 +84,7 @@ void PossessGuard::_logic(double deltaTime)
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0; 
+				m_duration = 0;
 				//m_useFunctionCalled = false;
 			}
 			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
@@ -103,7 +104,7 @@ void PossessGuard::_logic(double deltaTime)
 			break;
 		case PossessGuard::Possess:
 			
-			RayCastListener::Ray* ray = RipExtern::m_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
 
 			if (ray != nullptr)
 			{
@@ -143,9 +144,13 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
+				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
+				this->m_possessTarget->DisableEnemy();
+				this->m_possessTarget->setReleased(true);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0;
+				m_duration = 0;
 				//m_useFunctionCalled = false;
 			}
 			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana

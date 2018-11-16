@@ -106,6 +106,7 @@ namespace Network
 		XMFLOAT4A start;
 		XMFLOAT4A velocity;
 		unsigned int state;
+		bool isCommonUpadate;
 		ENTITYABILITYPACKET() {}
 		ENTITYABILITYPACKET(unsigned char _id, unsigned int _ability, XMFLOAT4A _start, XMFLOAT4A _vel, unsigned int _state) 
 			: id(ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), ability(_ability), start(_start), velocity(_vel), state(_state) {}
@@ -117,9 +118,10 @@ namespace Network
 		RakNet::NetworkID nid;
 		float direction;
 		float speed;
+		float pitch;
 		DirectX::XMFLOAT4A rot;
-		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, DirectX::XMFLOAT4A _rot)
-			: id(_id), nid(_nid), direction(_dir), speed(_speed), rot(_rot) {}
+		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, float _pitch, DirectX::XMFLOAT4A _rot)
+			: id(_id), nid(_nid), direction(_dir), speed(_speed), pitch(_pitch), rot(_rot) {}
 	};
 
 	struct TRIGGEREVENTPACKET

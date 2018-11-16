@@ -7,7 +7,10 @@ class LobbyState :
 {
 private:
 	const double FLUSH_FREQUENCY = 1.0; //unit is in seconds
-
+	const DirectX::XMFLOAT4A DefaultColor = { 1.0f, 1.0f, 1.0f, 1.0f }; //Sharp/Full White
+	const DirectX::XMFLOAT4A ActivatedColor = { 0.0f, 0.6f, 0.1f, 1.0f }; //Warmer/softer green
+	const DirectX::XMFLOAT4A InactivatedColor = { 0.7f, 0.2f, 0.0f, 1.0f }; //Warmer/softer red
+	
 	enum ButtonOrderLobby
 	{
 		Host = 0,
@@ -29,10 +32,19 @@ private:
 	};
 
 	Quad* m_infoWindow = nullptr;
+	Quad* m_background = nullptr;
+	Quad* m_charSelectionBG = nullptr;
+	Quad* m_charSelectInfo = nullptr;
+	Quad* m_charOneInfo = nullptr;
+	Quad* m_charTwoInfo = nullptr;
+
+	LoadingScreen m_loadingScreen;
+
 	std::vector<Quad*> m_lobbyButtons;
 	std::vector<Quad*> m_charSelectButtons;
 	std::vector<Quad*> m_hostListButtons;
 	unsigned int m_currentButton;
+	unsigned int m_currentButtonServerList;
 
 	bool inServerList = false;
 
@@ -52,7 +64,7 @@ private:
 	RakNet::NetworkID m_remoteNID = 0;
 
 	std::string m_MyHostName;
-	std::string m_ServerName = "";
+	std::string m_ServerName = "None";
 	//This packet is created when we create a Server and host it
 	Network::LOBBYEVENTPACKET m_adPacket;
 
@@ -60,7 +72,7 @@ private:
 	bool isRemoteReady = false;
 
 	RakNet::SystemAddress selectedHost = RakNet::SystemAddress("0.0.0.0");
-	std::string selectedHostInfo = "Selected Host: None";
+	std::string selectedHostInfo = "Selected Host:\nNone\n";
 
 	std::map<uint64_t, std::string> m_hostNameMap;
 	std::map<std::string, RakNet::SystemAddress> m_hostAdressMap;
@@ -119,7 +131,6 @@ private:
 
 	// Inherited via State
 	virtual void Load() override;
-
 	virtual void unLoad() override;
 
 };

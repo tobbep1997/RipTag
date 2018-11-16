@@ -15,7 +15,7 @@ private: // CONST VARS
 	 */
 	const int START_MANA_COST = 10;
 	const float TRAVEL_SPEED = 20.0f;
-	const float MAX_CHARGE = 2.0f;
+	const float MAX_CHARGE = 0.0f;
 private:
 	// ENUM
 	enum DisableState
@@ -33,6 +33,7 @@ private:
 	float			m_travelSpeed;
 	Quad * m_bar;
 
+	bool m_canceled = false;
 	//Network
 	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;

@@ -10,6 +10,7 @@ private:
 public:
 	LoadingScreen(); 
 	~LoadingScreen(); 
+	void Init();
 
 	void removeGUI(std::vector<Quad*>& GUICollection); 
 

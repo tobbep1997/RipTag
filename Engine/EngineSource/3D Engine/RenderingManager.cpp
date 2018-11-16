@@ -98,9 +98,6 @@ void RenderingManager::Flush(Camera & camera)
 	//Draws Everything in the queue
 	m_engine->Flush(camera);
 	
-	
-
-
 	if(DEBUG)
 	{
 		m_ImGuiManager->Draw();

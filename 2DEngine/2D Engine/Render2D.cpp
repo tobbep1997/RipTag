@@ -70,7 +70,7 @@ void Render2D::GUIPass()
 			m_HUDTypeValues.center.y = q->getV();
 			break;
 		case Render2D::CircleType:
-			m_HUDTypeValues.center.x = q->getCenter().x;
+			m_HUDTypeValues.center.x = q->getAngle();
 			m_HUDTypeValues.center.y = q->getCenter().y;
 			m_HUDTypeValues.center.z = q->getRadie();
 			m_HUDTypeValues.center.w = q->getInnerRadie();
