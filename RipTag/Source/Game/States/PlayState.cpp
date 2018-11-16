@@ -99,6 +99,9 @@ void PlayState::Update(double deltaTime)
 
 		if (m_youlost)
 		{
+			if (isCoop)
+				_sendOnGameOver();
+
 			m_destoryPhysicsThread = true;
 			m_physicsCondition.notify_all();
 
