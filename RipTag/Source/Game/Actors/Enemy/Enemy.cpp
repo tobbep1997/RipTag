@@ -292,7 +292,6 @@ void Enemy::Update(double deltaTime)
 
 		if (!m_inputLocked)
 		{
-			setHidden(true);
 			_handleInput(deltaTime);
 		}
 		else
@@ -636,7 +635,7 @@ void Enemy::removePossessor()
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
 		m_released = true; 
-		m_disabled = true;  
+		m_disabled = true; 
 	}
 }
 

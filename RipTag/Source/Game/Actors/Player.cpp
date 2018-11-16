@@ -1045,14 +1045,14 @@ void Player::_objectInfo(double deltaTime)
 					m_cross->setUnpressedTexture("CROSSHAND");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
 				{
-					m_infoText->setString("Press RB to possess");
+					m_infoText->setString("Press LB to possess");
 					m_cross->setUnpressedTexture("CROSSHAND");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//Snuff out torches (example)
 				}
-				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
+				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")  && m_activeSetID == 2)
 				{
 					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
 						m_infoText->setString("Press RB to pass");
