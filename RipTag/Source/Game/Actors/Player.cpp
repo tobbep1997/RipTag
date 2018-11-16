@@ -53,7 +53,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
-		SetAbilitySet(1);
+		SetAbilitySet(2);
 	}
  
 	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
@@ -605,7 +605,7 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_scrollMovementMod();
-	_onMovement();
+	_onMovement(deltaTime);
 	//_onJump();
 	//_onAbility(deltaTime);
 	_onInteract();
@@ -615,7 +615,7 @@ void Player::_handleInput(double deltaTime)
 	_updateTutorial(deltaTime);
 }
 
-void Player::_onMovement()
+void Player::_onMovement(double deltaTime)
 {
 	using namespace DirectX;
 	XMFLOAT4A forward = p_camera->getDirection();
@@ -658,6 +658,20 @@ void Player::_onMovement()
 
 	m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
 
+	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
+	{
+		m_VlastSpeed = DirectX::XMVECTOR{ x,getLiniearVelocity().y,z };
+	}
+	
+
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+			DirectX::XMVECTOR end = DirectX::XMVECTOR{ 0,getLiniearVelocity().y,0 };
+			m_VlastSpeed = DirectX::XMVectorLerp(m_VlastSpeed,end,deltaTime * 9);
+	
+			x = DirectX::XMVectorGetX(m_VlastSpeed);
+			z = DirectX::XMVectorGetZ(m_VlastSpeed);
+	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -977,10 +991,10 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_tutorialActive)
 	{
-		if (m_objectInfoTime >= 0.5f)
+		if (m_objectInfoTime >= 0.2f)
 		{
 			m_infoText->setString("");
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* cContact = ray->getClosestContact();
@@ -993,26 +1007,31 @@ void Player::_objectInfo(double deltaTime)
 				{
 					m_infoText->setString("Press X to pull");
 					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
 				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
 				{
 					m_infoText->setString("Press X to pull");
 					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
 					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//Snuff out torches (example)
 				}
 				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
 				{
 					//m_infoText->setString("Press X to pull");
 					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
 				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
 				{
 					m_infoText->setString("Press RB to possess");
 					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//Snuff out torches (example)
 				}
 				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
@@ -1020,12 +1039,14 @@ void Player::_objectInfo(double deltaTime)
 					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
 						m_infoText->setString("Press RB to pass");
 					m_cross->setUnpressedTexture("CROSSHAND");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//m_infoText->setString("Illusory wall ahead");
 					//Snuff out torches (example)
 				}
 				else
 				{
 					m_cross->setUnpressedTexture("CROSS");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 				}
 			}
 			m_objectInfoTime = 0;
