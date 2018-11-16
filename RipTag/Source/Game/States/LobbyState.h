@@ -32,10 +32,17 @@ private:
 	};
 
 	Quad* m_infoWindow = nullptr;
+	Quad* m_background = nullptr;
+	Quad* m_charSelectionBG = nullptr;
+	Quad* m_charSelectInfo = nullptr;
+	Quad* m_charOneInfo = nullptr;
+	Quad* m_charTwoInfo = nullptr;
+
+	LoadingScreen m_loadingScreen;
+
 	std::vector<Quad*> m_lobbyButtons;
 	std::vector<Quad*> m_charSelectButtons;
 	std::vector<Quad*> m_hostListButtons;
-	Quad* m_background = nullptr;
 	unsigned int m_currentButton;
 	unsigned int m_currentButtonServerList;
 
@@ -65,7 +72,7 @@ private:
 	bool isRemoteReady = false;
 
 	RakNet::SystemAddress selectedHost = RakNet::SystemAddress("0.0.0.0");
-	std::string selectedHostInfo = "Selected Host: None";
+	std::string selectedHostInfo = "Selected Host:\nNone\n";
 
 	std::map<uint64_t, std::string> m_hostNameMap;
 	std::map<std::string, RakNet::SystemAddress> m_hostAdressMap;
@@ -124,7 +131,6 @@ private:
 
 	// Inherited via State
 	virtual void Load() override;
-
 	virtual void unLoad() override;
 
 };

@@ -1,6 +1,8 @@
 #pragma once
 #include "State.h"
 #include "../Loading Screen/LoadingScreen.h"
+#include <filesystem>
+
 class Quad;
 class Circle;
 class TextInput;
@@ -22,8 +24,7 @@ private:
 	FMOD::Channel * m_music;
 	bool m_playstatePressed = false;
 
-	Circle * c;
-	long float cTimer;
+	
 public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
@@ -45,4 +46,5 @@ private:
 	// Inherited via State
 	virtual void Load() override;
 	virtual void unLoad() override;
+	void LoadAllGuiElements();
 };

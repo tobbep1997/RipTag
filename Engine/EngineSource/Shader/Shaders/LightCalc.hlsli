@@ -25,12 +25,6 @@ cbuffer CAMERA_BUFFER : register(b2)
     float4 cameraPosition;
     float4x4 viewProjection;
 };
-cbuffer TEXTURE_BUFFER : register(b7)
-{
-    int4 usingTexture;
-    float4 uvScaling;
-    float4 ObjectColor;
-};
 // end<TODO>
 
 
@@ -45,12 +39,16 @@ Texture2D MRATexture : register(t3);
 
 struct VS_OUTPUT
 {
-    float4 pos : SV_POSITION;
-    float4 worldPos : WORLD;
-    float4 normal : NORMAL;
-    float3x3 TBN : TBN;
-    float2 uv : UV;
+	float4 pos : SV_POSITION;
+	float4 worldPos : WORLD;
+	float4 normal : NORMAL;
+	float3x3 TBN : TBN;
+	float2 uv : UV;
+
+	float4 color : COLOR;
+	int4 info : INFO;
 };
+
 
 float RoughnessDistribution(float3 N, float3 H, float roughness)
 {
@@ -59,7 +57,7 @@ float RoughnessDistribution(float3 N, float3 H, float roughness)
     float nDotH_2 = nDotH * nDotH;
 
     float denom = (nDotH_2 * (r4 - 1.0f) + 1.0f);
-    denom = 3.14f * denom * denom;
+    denom = 3.141592f * denom * denom;
 
     return r4 / max(denom, 0.001f);
 }
@@ -81,12 +79,12 @@ float OvershadowOcclusion(float3 normal, float3 view, float3 light, float roughn
     float occlusionView = Occlusion(normDotView, roughness);
     float occlusionLight = Occlusion(normDotLight, roughness);
 
-    return occlusionView * occlusionLight;
+    return occlusionView * occlusionLight; 
 }
 
 float4 FresnelReflection(float cosTheta, float4 f0)
 {
-    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 512.0f);
+    return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 5.f);
 }
 float4 emptyFloat4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -94,10 +92,10 @@ float4 VERY_TEMP_FUNCTION_PLEASE_DONT_USE(VS_OUTPUT input, out float4 ambient)
 {
     float4 albedo;
     float3 AORoughMet;
-    if (usingTexture.x)
+    if (input.info.x)
     {
-        albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
-        AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
+        albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;
+        AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     }
  
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;  
@@ -108,8 +106,7 @@ float4 VERY_TEMP_FUNCTION_PLEASE_DONT_USE(VS_OUTPUT input, out float4 ambient)
 }
 
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
-{
-    
+{	
     float4 posToLight;
     float distanceToLight;
     float attenuation;
@@ -125,34 +122,24 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float normDotLight;
     float finalShadowCoeff;
 
-    float4 albedo = ObjectColor; //float4(1,1,0,1);
+    float4 albedo = input.color; 
     float3 normal = input.normal.xyz;
     float3 AORoughMet = float3(1, 1, 1); 
 
     input.uv.y = 1 - input.uv.y;
-	ambient = float4(0, 0, 0, 0);
-	
-	if (usingTexture.x)
+	ambient = float4(.2f, .2f, .2f, 1);
+	if (input.info.x)
     {
-        albedo = diffuseTexture.Sample(defaultSampler, input.uv * uvScaling.xy) * ObjectColor;
-        //normal = normalize(mul((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz) - 1.0f, input.TBN));
-		normal = normalize((2.0f * normalTexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz - 1.0f));
+        albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;
+		normal = normalize((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz - 1.0f));
 		normal = normalize(mul(normal, input.TBN));
 		normal = normalize(input.normal.xyz + normal);
-        AORoughMet = MRATexture.Sample(defaultSampler, input.uv * uvScaling.xy).xyz;
+        AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     }
-	//return float4(normal, 1);// = input.normal.xyz;
-	//normal = float3(0, 1, 0);
-    //ambient = float4(0, 0, 0, 0);
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
-    //ao = 0;
-    //return albedo;
 
-    ambient = float4(0.09f, 0.09f, 0.09f, 1.0f) * albedo * ao;
-	//return float4(normal, 1);
-    //ambient = float4(0.02f, 0.02f, 0.025f, 1.0f) * albedo * ao;
+    ambient = ambient * albedo * ao;
    
-    //float4 ambient = float4(0.15f, 0.15f, 0.15f, 1.0f) * albedo;
     float4 finalColor = emptyFloat4;
 
 	
@@ -195,7 +182,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         }
 
         finalShadowCoeff = pow(shadowCoeff / div, 32);
-                
         posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);
@@ -221,11 +207,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     
     finalColor = ambient + lightCal;
 	
-    // why do we need this?
-    //finalColor = saturate(finalColor);
-    finalColor = finalColor / (finalColor + float4(1.0f, 1.0f, 1.0f, 1.0f));
-    //finalColor = pow(abs(finalColor), float4(0.45f, 0.45f, 0.45f, 0.45f));
+
     finalColor.a = albedo.a;
-	//return (input.worldPos);
     return min(finalColor, float4(1, 1, 1, 1));
 }

@@ -51,3 +51,17 @@ const float & Circle::getInnerRadie() const
 {
 	return m_innerRadie;
 }
+
+void Circle::setAngle(const float & angle)
+{
+	p_angle = DirectX::XMConvertToRadians(angle);
+	while (p_angle > DirectX::XMConvertToRadians(361.0f))
+	{
+		p_angle -= DirectX::XM_PI * 2.0;
+	}
+}
+
+const float& Circle::getAngle() const
+{
+	return this->p_angle;
+}

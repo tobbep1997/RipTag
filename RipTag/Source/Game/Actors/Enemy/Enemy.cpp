@@ -10,6 +10,9 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
+//#todoREMOVE
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
+
 Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
@@ -46,8 +49,39 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 
-	this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
-	this->getAnimatedModel()->Play();
+	{
+		auto idleAnim = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get();
+		auto walkAnim = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get();
+		auto& machine = getAnimatedModel()->InitStateMachine(1);
+		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.0);
+		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 0.0} });
+		//state->AddRow(0.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		//state->AddRow(1.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		machine->SetState("walk_state");
+		//this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
+		this->getAnimatedModel()->Play();
+
+		//#todoREMOVE
+		/*
+		auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
+		auto lState = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &Player::m_currentPitch, -0.9, 0.9);
+		std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
+		SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
+		up.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_UP_ANIMATION").get();
+		up.location = .9f;
+		up.weight = 1.0f;
+		SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
+		down.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_DOWN_ANIMATION").get();
+		down.location = -.9f;
+		down.weight = 1.0f;
+
+		layerData.push_back(down);
+		layerData.push_back(up);
+
+		lState->AddBlendNodes(layerData);
+		layerMachine->SetState("pitch_state");
+		*/
+	}
 	b3Vec3 pos(1, 0.9, 1);
 	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
@@ -234,7 +268,6 @@ void Enemy::Update(double deltaTime)
 
 				//TODO: Fix when ray is corrected
 
-				float lenght;
 				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 					direction.x,
 					direction.y,
@@ -259,6 +292,7 @@ void Enemy::Update(double deltaTime)
 
 		if (!m_inputLocked)
 		{
+			setHidden(true);
 			_handleInput(deltaTime);
 		}
 		else
@@ -288,7 +322,7 @@ void Enemy::Update(double deltaTime)
 							Drawable * temp = new Drawable();
 							temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
 							temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
-							temp->setScale({ 0.2, 0.2, 0.2, 1.0 });
+							temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
 							temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
 
 							if (i + 1 < m_path.size())
@@ -321,8 +355,11 @@ void Enemy::Update(double deltaTime)
 		}
 
 		_cameraPlacement(deltaTime);
-
-		_CheckPlayer(deltaTime);
+		
+		if (m_inputLocked)
+		{
+			_CheckPlayer(deltaTime);
+		}
 	}
 	else
 	{
@@ -439,27 +476,26 @@ void Enemy::_onMovement(double deltaTime)
 	float z = 0;
 
 	DirectX::XMFLOAT2 dir = { Input::MoveRight(), Input::MoveForward() };
+	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
+	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
+	if (length > 1.0)
+		vDir = DirectX::XMVector2Normalize(vDir);
+	DirectX::XMStoreFloat2(&dir, vDir);
 
-	if (Input::MoveRight() > 1.0f || Input::MoveForward() > 1.0f)
+
+	if (fabs(Input::MoveRight()) > 1.0f || fabs(Input::MoveForward()) > 1.0f)
 	{
 		dir.x *= m_scrollMoveModifier;
 		dir.y *= m_scrollMoveModifier;
 	}
-
-	DirectX::XMVECTOR vDir = DirectX::XMLoadFloat2(&dir);
-	float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(vDir));
-
-	if (length > 1.0)
-		vDir = DirectX::XMVector2Normalize(vDir);
-
-	DirectX::XMStoreFloat2(&dir, vDir);
 
 	x = dir.x * m_moveSpeed  * RIGHT.x;
 	x += dir.y * m_moveSpeed * forward.x;
 	z = dir.y * m_moveSpeed * forward.z;
 	z += dir.x * m_moveSpeed * RIGHT.z;
 
-	//p_setPosition(getPosition().x + x, getPosition().y, getPosition().z + z);
+	m_cameraSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
+
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -484,33 +520,33 @@ void Enemy::_onRotate(double deltaTime)
 	{
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
-		if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		{
+		//if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+		//{
 
-		}
-		else
-		{
-			if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
-			{
-				if (m_peekRotate > 0)
-				{
-					p_camera->Rotate(0.0f, -0.05f, 0.0f);
-					m_peekRotate -= 0.05;
-				}
-				else
-				{
-					p_camera->Rotate(0.0f, +0.05f, 0.0f);
-					m_peekRotate += 0.05;
-				}
+		//}
+		//else
+		//{
+		//	if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
+		//	{
+		//		if (m_peekRotate > 0)
+		//		{
+		//			p_camera->Rotate(0.0f, -0.05f, 0.0f);
+		//			m_peekRotate -= 0.05;
+		//		}
+		//		else
+		//		{
+		//			p_camera->Rotate(0.0f, +0.05f, 0.0f);
+		//			m_peekRotate += 0.05;
+		//		}
 
-			}
-			else
-			{
-				m_peekRotate = 0;
-			}
-			//m_peekRotate = 0;
-		}
-
+		//	}
+		//	else
+		//	{
+		//		m_peekRotate = 0;
+		//	}
+		//	//
+		//}
+		m_peekRotate = 0;
 		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
 		{
 			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
@@ -1045,7 +1081,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 		static int last = 0;
 
 		//Head Bobbing
-		float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+		float offsetY = p_viewBobbing(deltaTime, m_cameraSpeed, this->getBody());
 
 		pos.y += offsetY;
 
@@ -1088,7 +1124,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 		}
 
 		this->getBody()->GetShapeList()->SetTransform(headPosLocal, getBody()->GetQuaternion());
-		p_camera->setPosition(pos);
+		//p_camera->setPosition(pos);
 	}
 	else
 	{
@@ -1096,12 +1132,12 @@ void Enemy::_cameraPlacement(double deltaTime)
 		pos.y += m_standHeight;
 		p_camera->setPosition(pos);
 		//pos = p_CameraTilting(deltaTime, Input::PeekRight());
-		float offsetY = p_viewBobbing(deltaTime, Input::MoveForward(), m_moveSpeed, p_moveState);
+		float offsetY = p_viewBobbing(deltaTime, m_moveSpeed, this->getBody());
 
 		pos.y += offsetY;
 
 		//pos.y += p_Crouching(deltaTime, m_crouchAnimStartPos, p_camera->getPosition());
-		p_camera->setPosition(pos);
+		//p_camera->setPosition(pos);
 	}
 }
 
@@ -1136,9 +1172,21 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		float dx = cos(angle) * m_guardSpeed * deltaTime;
 		float dy = sin(angle) * m_guardSpeed * deltaTime;
 		
+		//Update current movespeed
+		{
+			auto deltaVector = DirectX::XMVectorSet(dx, dy, 0.0, 0.0);
+			m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		}
+
 		_RotateGuard(x, y, angle, deltaTime);
 
 		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
+	//DirectX::XMFLOAT4A a = DirectX::XMFLOAT4A(nextNode->worldPos.x, 0, nextNode->worldPos.y, 1.0f);
+	//DirectX::XMFLOAT4A b = DirectX::XMFLOAT4A(m_path.at(m_currentPathNode)->worldPos.x, 0, m_path.at(m_currentPathNode)->worldPos.y,  1.0f);
+//FREDRIK FIXAR P� M�NDAG	//DirectX::XMVECTOR direction = DirectX::XMLoadFloat4A(&a);
+	//DirectX::XMVECTOR current = DirectX::XMLoadFloat4A(&b);
+	//DirectX::XMVECTOR moveVector = DirectX::XMVectorSubtract(current, direction);
+	//this->setLiniearVelocity(DirectX::XMVectorGetX(moveVector), this->getLiniearVelocity().y, DirectX::XMVectorGetZ(moveVector));
 	}
 	return false;
 }

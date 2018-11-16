@@ -36,7 +36,7 @@
 #include "Source/Game/Handlers/AnimationHandler.h"
 #include "Source/Game/Handlers/LevelHandler.h"
 #include "Source/Game/Handlers/PlayerManager.h"
-
+#include "Source/Game/Handlers/EnemyHandler.h"
 #include "Source/Gameplay/Triggers/Trigger.h"
 #include "Source/Gameplay/Triggers/Triggerable.h"
 #include "Source/Gameplay/Triggers/TriggerHandler.h"

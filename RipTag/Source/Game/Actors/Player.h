@@ -40,9 +40,10 @@ private: //stuff for state machine
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
 	float m_currentDirection = 0.0; //[-1,1]
+	static float m_currentPitch;
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
-	const float MOVE_SPEED = 4.0f;
+	const float MOVE_SPEED = 5.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
@@ -63,6 +64,7 @@ private:
 	float m_moveSpeed = 4.0f;
 	float m_scrollMoveModifier = 0.9f;
 	float m_cameraSpeed = 1.0f;
+	float m_currentMoveSpeed = 0.0f;
 	float m_offPutY = 0.4f; 
 
 	bool m_currClickCrouch = false; 
@@ -91,6 +93,8 @@ private:
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
 	Quad * m_tutorialText;
+
+	Quad * m_cross;
 	std::stack<std::string> m_tutorialMessages;
 	float m_tutorialDuration = 0.0f;
 	bool m_tutorialActive = true;

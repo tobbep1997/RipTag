@@ -9,6 +9,7 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
 	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
+
 }
 
 MainMenu::~MainMenu()
@@ -56,7 +57,6 @@ void MainMenu::Update(double deltaTime)
 		}
 	}
 	
-		
 }
 
 void MainMenu::Draw()
@@ -82,34 +82,34 @@ void MainMenu::StopMusic()
 void MainMenu::_initButtons()
 {
 	//play button
-	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.815f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("SPHERE");
-	this->m_buttons[ButtonOrder::Play]->setPressedTexture("DAB");
-	this->m_buttons[ButtonOrder::Play]->setHoverTexture("PIRASRUM");
+	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.815f, 0.565f, 0.20f));
+	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("gui_transparent_pixel");
+	this->m_buttons[ButtonOrder::Play]->setPressedTexture("gui_pressed_pixel");
+	this->m_buttons[ButtonOrder::Play]->setHoverTexture("gui_hover_pixel");
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
 
 
 	//lobby button
-	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.6f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture("SPHERE");
-	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture("DAB");
-	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture("PIRASRUM");
+	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.605f, 0.565f, 0.20f));
+	this->m_buttons[ButtonOrder::Lobby]->setUnpressedTexture("gui_transparent_pixel");
+	this->m_buttons[ButtonOrder::Lobby]->setPressedTexture("gui_pressed_pixel");
+	this->m_buttons[ButtonOrder::Lobby]->setHoverTexture("gui_hover_pixel");
 	this->m_buttons[ButtonOrder::Lobby]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Lobby]->setFont(FontHandler::getFont("consolas32"));
 
-	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.38f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture("SPHERE");
-	this->m_buttons[ButtonOrder::Option]->setPressedTexture("DAB");
-	this->m_buttons[ButtonOrder::Option]->setHoverTexture("PIRASRUM");
+	this->m_buttons.push_back(Quad::CreateButton("Options", 0.5f, 0.380f, 0.565f, 0.20f));
+	this->m_buttons[ButtonOrder::Option]->setUnpressedTexture("gui_transparent_pixel");
+	this->m_buttons[ButtonOrder::Option]->setPressedTexture("gui_pressed_pixel");
+	this->m_buttons[ButtonOrder::Option]->setHoverTexture("gui_hover_pixel");
 	this->m_buttons[ButtonOrder::Option]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Option]->setFont(FontHandler::getFont("consolas32"));
 
 	//Quit button
-	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.17f, 0.5f, 0.25f));
-	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture("SPHERE");
-	this->m_buttons[ButtonOrder::Quit]->setPressedTexture("DAB");
-	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("PIRASRUM");
+	this->m_buttons.push_back(Quad::CreateButton("Quit", 0.5f, 0.175f, 0.565f, 0.20f));
+	this->m_buttons[ButtonOrder::Quit]->setUnpressedTexture("gui_transparent_pixel");
+	this->m_buttons[ButtonOrder::Quit]->setPressedTexture("gui_pressed_pixel");
+	this->m_buttons[ButtonOrder::Quit]->setHoverTexture("gui_hover_pixel");
 	this->m_buttons[ButtonOrder::Quit]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Quit]->setFont(FontHandler::getFont("consolas32"));
 
@@ -118,9 +118,9 @@ void MainMenu::_initButtons()
 	this->m_background->setPivotPoint(Quad::PivotPoint::center);
 	this->m_background->setPosition(0.5f, 0.5f);
 	this->m_background->setScale(2.0f, 2.0f);
-	this->m_background->setUnpressedTexture("MAINMENUBG");
-	this->m_background->setPressedTexture("MAINMENUBG");
-	this->m_background->setHoverTexture("MAINMENUBG");
+	this->m_background->setUnpressedTexture("gui_main_menu");
+	this->m_background->setPressedTexture("gui_main_menu");
+	this->m_background->setHoverTexture("gui_main_menu");
 
 }
 
@@ -249,27 +249,22 @@ void MainMenu::Load()
 	if (!isPlaying)
 		m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
-	Manager::g_textureManager.loadTextures("LOADING"); 
-	Manager::g_textureManager.loadTextures("MAINMENUBG");
+
+
+	this->LoadAllGuiElements();
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	_initButtons();
+	m_loadingScreen.Init();
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+	Manager::g_textureManager.loadTextures("LOADING");
+	Manager::g_textureManager.loadTextures("DAB");
+
 	std::cout << "MainMenu Load" << std::endl;
 }
 
 void MainMenu::unLoad()
 {
-	Manager::g_textureManager.UnloadTexture("KOMBIN");
-	Manager::g_textureManager.UnloadTexture("SPHERE");
-	Manager::g_textureManager.UnloadTexture("PIRASRUM");
-	Manager::g_textureManager.UnloadTexture("DAB");
-	Manager::g_textureManager.UnloadTexture("LOADING"); 
-	Manager::g_textureManager.UnloadTexture("MAINMENUBG");
-	Manager::g_textureManager.UnloadAllTexture();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
 		m_buttons[i]->Release();
@@ -285,4 +280,29 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadAllTexture();
 
 	std::cout << "MainMenu unLoad" << std::endl;
+}
+
+void MainMenu::LoadAllGuiElements()
+{
+	//Loop through GUI folder and inspect the files extensions
+	std::string path = "../Assets/GUIFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
+				if (extension == L".png" || extension == L".jpg")
+					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
+			}
+		}
+
+
+		//std::cout << p.path().generic_string() << std::endl;
+	}
+		
 }

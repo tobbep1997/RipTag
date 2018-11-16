@@ -15,6 +15,8 @@ TeleportAbility::~TeleportAbility()
 {
 	delete m_light;
 	delete m_boundingSphere;
+	m_bar->Release();
+	delete m_bar;
 	PhysicsComponent::Release(*RipExtern::g_world);
 }
 
@@ -40,15 +42,17 @@ void TeleportAbility::Init()
 	m_light->setFarPlane(50.0f);
 	m_light->setNearPlane(0.01f);
 	m_light->setIntensity(10.0f);
-	m_light->setDropOff(1.0f);
+	m_light->setDropOff(1.f); // set to 1
 
-	m_bar = new Quad();
-	Manager::g_textureManager.loadTextures("BAR");
-	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	m_bar->setUnpressedTexture("BAR");
+	m_bar = new Circle();
+	Manager::g_textureManager.loadTextures("SPHERE");
+	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(1.0f / 16.0f, 1.0f / 9.0f));
+	m_bar->setUnpressedTexture("SPHERE");
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
+	m_bar->setRadie(.5f);
+	m_bar->setInnerRadie(.4);
+	m_bar->setAngle(0);
 	
-	HUDComponent::AddQuad(m_bar);
 	
 }
 
@@ -104,7 +108,7 @@ void TeleportAbility::Draw()
 	switch (m_tpState)
 	{
 	case TeleportState::Charging:
-		HUDComponent::HUDDraw();
+		m_bar->Draw();
 		break;
 	case TeleportState::Teleportable:
 	case TeleportState::RemoteActive:
@@ -176,7 +180,11 @@ void TeleportAbility::_inStateCharging(double dt)
 	{
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
-			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
+			float charge = (m_charge / MAX_CHARGE);
+			if (charge >= 1.0f)
+				charge = 1.0f;
+			m_bar->setAngle(360.0f * charge);
+			//m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
@@ -284,6 +292,8 @@ void TeleportAbility::_inStateCooldown(double dt)
 {
 	//static double accumulatedTime = 0;
 	//static const double cooldownDuration = 1.0 / 2.0; //500 ms
+	m_bar->setAngle(0);
+
 	p_cooldown += dt;
 	if (p_cooldown >= p_cooldownMax)
 	{

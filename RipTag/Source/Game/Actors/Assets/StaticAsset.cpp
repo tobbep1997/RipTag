@@ -31,6 +31,7 @@ void StaticAsset::Update(double deltaTime)
 void StaticAsset::setPosition(const float& x, const float& y, const float& z)
 {
 	Transform::setPosition(x, y, z);
+
 }
 
 

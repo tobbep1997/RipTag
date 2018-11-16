@@ -98,9 +98,6 @@ void RenderingManager::Flush(Camera & camera)
 	//Draws Everything in the queue
 	m_engine->Flush(camera);
 	
-	
-
-
 	if(DEBUG)
 	{
 		m_ImGuiManager->Draw();
@@ -173,7 +170,6 @@ void RenderingManager::Reset()
 
 void RenderingManager::_reloadShaders()
 {
-	//std::cout << "Shader reloading is disabled" << std::endl;
 	bool f = true;
 	if (f)
 		DX::g_shaderManager.ReloadAllShaders();
