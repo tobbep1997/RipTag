@@ -2,7 +2,7 @@
 #include "LoseState.h"
 
 
-LoseState::LoseState(RenderingManager * rm, std::string eventString, void * pCoopData = nullptr) : State(rm)
+LoseState::LoseState(RenderingManager * rm, std::string eventString, void * pCoopData) : State(rm)
 {
 	m_eventString = eventString;
 	this->pCoopData = pCoopData;
@@ -51,7 +51,6 @@ void LoseState::Update(double deltaTime)
 	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
 		BackToMenu();
-		//this->pushAndPop(2, new PlayState(this->p_renderingManager, nullptr));
 	}
 	if (InputHandler::wasKeyPressed(InputHandler::Enter) || InputHandler::wasKeyPressed(InputHandler::Esc))
 		BackToMenu();
@@ -109,7 +108,7 @@ void LoseState::Draw()
 
 void LoseState::Load()
 {
-	std::cout << "Loose Load" << std::endl;
+	std::cout << "Lose State Load" << std::endl;
 	if (pCoopData)
 	{
 		CoopData * data = (CoopData*)pCoopData;
@@ -117,6 +116,7 @@ void LoseState::Load()
 			isServer = true;
 		else
 			isClient = true;
+		this->_registerThisInstanceToNetwork();
 	}
 	_initButtons();
 }
@@ -124,7 +124,23 @@ void LoseState::Load()
 void LoseState::unLoad()
 {
 
-	std::cout << "Loose unLoad" << std::endl;
+	std::cout << "Lose State unLoad" << std::endl;
+}
+
+void LoseState::HandlePacket(unsigned char id, unsigned char * data)
+{
+	switch (id)
+	{
+	case Network::ID_READY_PRESSED:
+		_onReadyPacket();
+		break;
+	case Network::ID_PLAYER_DISCONNECT:
+		_onDisconnectPacket();
+		break;
+	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
+		_onDisconnectPacket();
+		break;
+	}
 }
 
 void LoseState::_initButtons()
@@ -169,7 +185,41 @@ void LoseState::_initButtons()
 		this->m_backGround->setPressedTexture("gui_temp_bg");
 		this->m_backGround->setHoverTexture("gui_temp_bg");
 	}
-	
+}
 
+void LoseState::_registerThisInstanceToNetwork()
+{
+	using namespace Network;
+	using namespace std::placeholders;
 
+	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+
+	Multiplayer::addToOnReceiveFuncMap(ID_READY_PRESSED, std::bind(&LoseState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&LoseState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&LoseState::HandlePacket, this, _1, _2));
+}
+
+void LoseState::_onDisconnectPacket()
+{
+	pCoopData = nullptr;
+}
+
+void LoseState::_onReadyPacket()
+{
+	if (isRemoteReady)
+		isRemoteReady = false;
+	else
+		isRemoteReady = true;
+}
+
+void LoseState::_sendDisconnectPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_DISCONNECT);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::IMMEDIATE_PRIORITY);
+}
+
+void LoseState::_sendReadyPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_READY_PRESSED);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::IMMEDIATE_PRIORITY);
 }

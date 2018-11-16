@@ -44,10 +44,8 @@ private:
 
 	void _onDisconnectPacket();
 	void _onReadyPacket();
-	void _onStartGamePacket();
 
 	void _sendDisconnectPacket();
 	void _sendReadyPacket();
-	void _sendStartGamePacket();
 };
 
