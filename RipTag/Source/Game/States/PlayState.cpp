@@ -735,11 +735,27 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 			if (GamePadHandler::IsAPressed())
 			{
 				inAnimation = true;
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
 				this->BackToMenu();
 			}
 		if (InputHandler::wasKeyPressed(InputHandler::Enter) && !inAnimation)
 		{
 			inAnimation = true;
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
 			this->BackToMenu();
 		}
 
@@ -756,7 +772,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 			accumulatedTime = 0;
 			inAnimation = false;
 
-			if (!Input::isUsingGamepad)
+			if (!Input::isUsingGamepad())
 				gamePadString = "";
 
 			if (m_coopState.gameWon)
