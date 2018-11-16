@@ -98,6 +98,9 @@ private:
 	std::stack<std::string> m_tutorialMessages;
 	float m_tutorialDuration = 0.0f;
 	bool m_tutorialActive = true;
+	
+	DirectX::XMVECTOR m_VlastSpeed; 
+	DirectX::XMVECTOR m_VcurrentSpeed; 
 
 	//Crouch
 	float m_standHeight;
@@ -179,7 +182,7 @@ public:
 private:
 	void _collision();
 	void _handleInput(double deltaTime);
-	void _onMovement();
+	void _onMovement(double deltaTime);
 	void _scrollMovementMod();
 	void _onSprint();
 	void _onCrouch();
