@@ -39,7 +39,6 @@ PlayState::~PlayState()
 
 
 	//delete triggerHandler;
-	delete m_particleEmitter;
 	delete m_contactListener;
 	delete m_rayListener;
 
@@ -55,10 +54,6 @@ void PlayState::Update(double deltaTime)
 	triggerHandler->Update(deltaTime);
 	m_levelHandler->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 	m_playerManager->Update(deltaTime);
-
-	timer += 2 * deltaTime;
-	m_particleEmitter->setPosition(7 + cos(timer), 6, 0 + sin(timer));
-	m_particleEmitter->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 
 	m_playerManager->PhysicsUpdate();
 	
@@ -131,7 +126,6 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
-	m_particleEmitter->Queue();
 
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
