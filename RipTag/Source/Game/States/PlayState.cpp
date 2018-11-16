@@ -618,6 +618,7 @@ void PlayState::_loadNetwork()
 			break;
 		}
 		m_playerManager->isCoop(true);
+		this->_registerThisInstanceToNetwork();
 		//free up memory when we are done with this data
 		delete pCoopData;
 		pCoopData = nullptr;
