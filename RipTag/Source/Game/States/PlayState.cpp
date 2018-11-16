@@ -20,8 +20,6 @@ bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
-	//USE LOAD NOT THIS
-	//we dont care about this yet
 	if (coopData)
 	{
 		isCoop = true;
@@ -41,7 +39,7 @@ PlayState::~PlayState()
 
 
 	//delete triggerHandler;
-
+	delete m_particleEmitter;
 	delete m_contactListener;
 	delete m_rayListener;
 
@@ -55,9 +53,12 @@ void PlayState::Update(double deltaTime)
 	m_firstRun = false;
 		//int i = 0;
 	triggerHandler->Update(deltaTime);
-	m_levelHandler->Update(deltaTime);
+	m_levelHandler->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 	m_playerManager->Update(deltaTime);
 
+	timer += 2 * deltaTime;
+	m_particleEmitter->setPosition(7 + cos(timer), 6, 0 + sin(timer));
+	m_particleEmitter->Update(deltaTime, m_playerManager->getLocalPlayer()->getCamera());
 
 	m_playerManager->PhysicsUpdate();
 	
@@ -130,6 +131,7 @@ void PlayState::Draw()
 	_lightCulling();
 
 	m_playerManager->Draw();
+	m_particleEmitter->Queue();
 
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
@@ -503,6 +505,8 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
 	Manager::g_textureManager.loadTextures("STATE");
+	Manager::g_textureManager.loadTextures("FIRE");
+
 }
 
 void PlayState::_loadPhysics()
@@ -614,3 +618,5 @@ void PlayState::_loadSound()
 
 	AudioEngine::CreateReverb(reverbAt, 30.0f, 50.0f);
 }
+
+	//delete triggerHandler;

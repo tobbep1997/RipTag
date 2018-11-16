@@ -21,6 +21,7 @@ class ContactListener;
 class RayCastListener;
 class RenderingManager;
 class Drawable; //#todoREMOVE
+class ParticleEmitter;
 
 
 class PlayState : public State
@@ -33,6 +34,7 @@ private:
 
 	b3World m_world;
 
+	ParticleEmitter * m_particleEmitter = new ParticleEmitter();
 	TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
 	bool m_firstRun = true;
@@ -50,6 +52,7 @@ private:
 	bool isCoop = false;
 	CoopData * pCoopData = nullptr;
 	int m_seed = 0;
+	float timer = 0;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();
