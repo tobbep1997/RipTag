@@ -16,12 +16,8 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	BaseActor::setRotation(pitch, yaw, roll, false);
 	BaseActor::setPhysicsRotation(pitch, 0, roll);
 	
-		m_closePos = { xPos, yPos, zPos , 1.0f };
-		m_openPos = { xPos, yPos + 200, zPos , 1.0f };
-
-
-
-
+	m_closePos = { xPos, yPos, zPos , 1.0f };
+	m_openPos = { xPos, yPos + 8.0f, zPos , 1.0f };
 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("BARS");
@@ -35,16 +31,39 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 
 void Bars::Update(double deltaTime)
 {
+	m_timer += deltaTime * 0.5f;
+	m_timer = min(m_timer, 1.0f);
 	BaseActor::Update(deltaTime);
+	DirectX::XMVECTOR v1, v2;
+	v1 = DirectX::XMLoadFloat4A(&m_openPos);
+	v2 = DirectX::XMLoadFloat4A(&m_closePos);
 	if (Triggerable::getState() == true)
 	{
-		setPosition(m_openPos.x, m_openPos.y, m_openPos.z);
-		p_setPosition(m_openPos.x, m_openPos.y, m_openPos.z);
+		if (m_wasClosed)
+		{
+			m_wasClosed = false;
+			m_timer = 0.0f;
+		}
+		DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(v2, v1, m_timer);
+		DirectX::XMFLOAT3 openPos;
+		DirectX::XMStoreFloat3(&openPos, lerp);
+		setPosition(openPos.x, openPos.y, openPos.z);
+		p_setPosition(openPos.x, openPos.y, openPos.z);
 	}
 	else
 	{
-		setPosition(m_closePos.x, m_closePos.y, m_closePos.z);
-		p_setPosition(m_closePos.x, m_closePos.y, m_closePos.z);
+		if (!m_wasClosed)
+		{
+			m_wasClosed = true;
+			m_timer = 0.0f;
+		}
+		DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(v1, v2, m_timer);
+
+		DirectX::XMFLOAT3 closePos;
+		DirectX::XMStoreFloat3(&closePos, lerp);
+
+		setPosition(closePos.x, closePos.y, closePos.z);
+		p_setPosition(closePos.x, closePos.y, closePos.z);
 
 	}
 }

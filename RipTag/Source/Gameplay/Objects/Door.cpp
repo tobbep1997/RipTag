@@ -49,16 +49,67 @@ void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 void Door::Update(double deltaTime)
 {
 	BaseActor::Update(deltaTime);
+	m_timer += deltaTime;
+	m_timer = min(m_timer, 1.0f);
+
+	DirectX::XMVECTOR vp1, vp2, vrm1, vrm2, vrb1, vrb2;
+	
+	DirectX::XMFLOAT3 xmrMe(m_startRotModel), xmrBe(m_startRotBox);
+	xmrMe.y += 90;
+	xmrBe.y += 90;
+
+	vp1 = DirectX::XMLoadFloat4A(&m_closePos);
+	vp2 = DirectX::XMLoadFloat4A(&m_openPos);
+
+	vrm1 = DirectX::XMLoadFloat3(&m_startRotModel);
+	vrm2 = DirectX::XMLoadFloat3(&xmrMe);
+
+	vrb1 = DirectX::XMLoadFloat3(&m_startRotBox);
+	vrb2 = DirectX::XMLoadFloat3(&xmrBe);
+
 	if (Triggerable::getState() == true)
 	{
-		setRotation(m_startRotModel.x, m_startRotModel.y + 90, m_startRotModel.z, false);
-		setPhysicsRotation(m_startRotBox.x, m_startRotBox.y + 90, m_startRotBox.z);
-		p_setPosition(m_openPos.x, m_openPos.y, m_openPos.z);
+		if (m_wasClosed)
+		{
+			m_wasClosed = false;
+			m_timer = 0.0f;
+		}
+		DirectX::XMFLOAT3 xmCurrentModelRotation, xmCurrentBoundingRotation, xmCurrentBoundingPos;
+
+		DirectX::XMVECTOR vCurrentModelRotation, vCurrentBoundingRotation, vCurrentBoundingPos;
+		vCurrentModelRotation = DirectX::XMVectorLerp(vrm1, vrm2, m_timer);
+		vCurrentBoundingRotation = DirectX::XMVectorLerp(vrb1, vrb2, m_timer);
+		vCurrentBoundingPos = DirectX::XMVectorLerp(vp1, vp2, m_timer);
+
+		DirectX::XMStoreFloat3(&xmCurrentModelRotation, vCurrentModelRotation);
+		DirectX::XMStoreFloat3(&xmCurrentBoundingRotation, vCurrentBoundingRotation);
+		DirectX::XMStoreFloat3(&xmCurrentBoundingPos, vCurrentBoundingPos);
+
+		setRotation(xmCurrentModelRotation.x, xmCurrentModelRotation.y, xmCurrentModelRotation.z, false);
+		setPhysicsRotation(xmCurrentBoundingRotation.x, xmCurrentBoundingRotation.y, xmCurrentBoundingRotation.z);
+		p_setPosition(xmCurrentBoundingPos.x, xmCurrentBoundingPos.y, xmCurrentBoundingPos.z);
 	}
 	else
 	{
-		setRotation(m_startRotModel.x, m_startRotModel.y, m_startRotModel.z, false);
-		setPhysicsRotation(m_startRotBox.x, m_startRotBox.y, m_startRotBox.z);
-		p_setPosition(m_closePos.x, m_closePos.y, m_closePos.z);
+		if (!m_wasClosed)
+		{
+			m_wasClosed = true;
+			m_timer = 0.0f;
+		}
+
+		DirectX::XMFLOAT3 xmCurrentModelRotation, xmCurrentBoundingRotation, xmCurrentBoundingPos;
+
+		DirectX::XMVECTOR vCurrentModelRotation, vCurrentBoundingRotation, vCurrentBoundingPos;
+		vCurrentModelRotation = DirectX::XMVectorLerp(vrm2, vrm1, m_timer);
+		vCurrentBoundingRotation = DirectX::XMVectorLerp(vrb2, vrb1, m_timer);
+		vCurrentBoundingPos = DirectX::XMVectorLerp(vp2, vp1, m_timer);
+
+		DirectX::XMStoreFloat3(&xmCurrentModelRotation, vCurrentModelRotation);
+		DirectX::XMStoreFloat3(&xmCurrentBoundingRotation, vCurrentBoundingRotation);
+		DirectX::XMStoreFloat3(&xmCurrentBoundingPos, vCurrentBoundingPos);
+
+		setRotation(xmCurrentModelRotation.x, xmCurrentModelRotation.y, xmCurrentModelRotation.z, false);
+		setPhysicsRotation(xmCurrentBoundingRotation.x, xmCurrentBoundingRotation.y, xmCurrentBoundingRotation.z);
+		p_setPosition(xmCurrentBoundingPos.x, xmCurrentBoundingPos.y, xmCurrentBoundingPos.z);
 	}
 }
