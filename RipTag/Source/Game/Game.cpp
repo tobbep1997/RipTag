@@ -107,7 +107,6 @@ void Game::_handleStateSwaps()
 	if (m_gameStack.top()->getNewState() != nullptr)
 	{
 		m_gameStack.top()->unLoad();
-		m_gameStack.top()->pushNewState(nullptr);
 		m_gameStack.push(m_gameStack.top()->getNewState());
 		m_gameStack.top()->Load();
 	}
