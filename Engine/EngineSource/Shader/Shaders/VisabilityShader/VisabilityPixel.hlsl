@@ -10,7 +10,7 @@ void main (VS_OUTPUT input)
     float2 smTex = float2(fragmentLightPosition.x, fragmentLightPosition.y);
 
     clip(guardDepthTex.Sample(defaultSampler, smTex).r - fragmentLightPosition.z);
-    float4 ambient;
+    float4 ambient = float4(0.2,0.2,0.2,1);
     //float4 fragmentColor = OptimizedLightCalculation(input, ambient) - ambient;
     float4 fragmentColor = OptimizedLightCalculation(input, ambient);
     //float4 fragmentColor = VERY_TEMP_FUNCTION_PLEASE_DONT_USE(input, ambient);

@@ -30,13 +30,14 @@ private:
 	AbilityComponent ** m_abilityComponents2;
 	AbilityComponent ** m_activeSet;
 	Ability m_currentAbility;// = Ability::TELEPORT;
-	const unsigned short int m_nrOfAbilitys = 4;
+	const unsigned short int m_nrOfAbilitys = 2;
 	DirectX::XMFLOAT4A m_mostRecentPosition;
 	RakNet::Time m_timeDiff;
 
 	//ANIMATION
 	float m_currentDirection = 0.0f;
 	float m_currentSpeed = 0.0f;
+	float m_currentPitch = 0.0f;
 
 public:
 	//PUBLIC MEMBER FUNCTIONS

@@ -72,7 +72,7 @@ public:
 
 	void Init(UINT width, UINT height);
 
-	void ShadowPass(Animation::AnimationCBuffer * animBuffer = nullptr);
+	void ShadowPass(ForwardRender * renderingManager);
 
 	void MapAllLightMatrix(std::vector<PointLight*> * lights);
 

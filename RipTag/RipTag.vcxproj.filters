@@ -41,7 +41,6 @@
     <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
     <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
     <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
-    <ClCompile Include="Source\Game\Abilities\VisabilityAbility.cpp" />
     <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
     <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
     <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
@@ -281,7 +280,6 @@
     <ClInclude Include="Source\Game\Handlers\AnimationHandler.h" />
     <ClInclude Include="Source\Game\Abilities\AbilityComponent.h" />
     <ClInclude Include="Source\Game\Abilities\TeleportAbility.h" />
-    <ClInclude Include="Source\Game\Abilities\VisabilityAbility.h" />
     <ClInclude Include="Source\Game\Abilities\Disable\DisableAbility.h" />
     <ClInclude Include="Source\Game\Actors\Abilities\Teleport.h" />
     <ClInclude Include="Source\Game\Pathfinding\Grid.h" />

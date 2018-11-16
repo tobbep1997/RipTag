@@ -27,6 +27,9 @@ public:
 
 	virtual void AddQuad(Quad *& quad, unsigned int keyCode = 0x0);
 	virtual Quad * GetQuad(const unsigned short int & i);
+	virtual Quad* GetQuad(std::string tag); 
+
+	void removeHUD(); 
 
 	virtual void ResetStates();
 	virtual void setSelectedQuad(const unsigned short int & i);

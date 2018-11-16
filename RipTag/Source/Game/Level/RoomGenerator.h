@@ -34,7 +34,7 @@ private:
 	void _generateGrid();
 	void _makeFloor();
 	void _makeWalls();
-	void _placeProps();
+	//void _placeProps();
 	void _createEnemies();
 	void _FindWinnableAndGuardPaths();
 	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);

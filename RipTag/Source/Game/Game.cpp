@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "Game.h"
+#include <filesystem>
 
 Game::Game()
 {
@@ -71,6 +72,8 @@ void Game::Clear()
 
 void Game::Update(double deltaTime)
 {
+
+
 #if _DEBUG
 	_restartGameIf();
 #endif
@@ -78,7 +81,11 @@ void Game::Update(double deltaTime)
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
-	InputMapping::Call();
+	//move this to playstate ---
+	{
+		InputMapping::Call();
+	}
+	//--------------------------
 	pNetworkInstance->Update();
 
 	InputHandler::getRawInput();

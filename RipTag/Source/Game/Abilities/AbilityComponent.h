@@ -5,11 +5,9 @@
 enum Ability
 {
 	TELEPORT = 0,
-	VISIBILITY = 1,
-	DISABLE = 2,
-	VIS2 = 3, //this is a placeholder
+	DISABLE = 1,
 	BLINK = 0,
-	POSSESS = 2,
+	POSSESS = 1,
 	NONE = 999
 };
 

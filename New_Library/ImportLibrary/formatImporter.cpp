@@ -491,8 +491,6 @@ namespace ImporterLibrary
 			}
 			customGridFile.close();
 		}
-		else
-			return DBG_NEW GridStruct();
 		return gridPos;
 	}
 }

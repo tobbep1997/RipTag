@@ -67,7 +67,7 @@ public:
 	VisabilityPass();
 	~VisabilityPass();
 	void Init();
-	void GuardDepthPrePassFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
+	void GuardDepthPrePassFor(VisibilityComponent * target, ForwardRender * forwardRender, Animation::AnimationCBuffer * animBuffer = nullptr);
 	void CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
 	void SetViewportAndRenderTarget();
 private:

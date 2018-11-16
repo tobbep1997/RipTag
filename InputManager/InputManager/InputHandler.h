@@ -52,8 +52,11 @@ public:
 	the key needs to be released for this to become true again. */
 	static bool wasKeyPressed(int keyCode);
 	static bool isMLeftPressed(bool repeat); 
+	static bool isMouseLeftPressed();
+	static bool isMLeftReleased();
 	static bool isMMiddlePressed(); 
 	static bool isMRightPressed(); 
+	static bool isMRightReleased();
 	static int getLastPressed(); 
 	static float getMouseDelta(); 
 	static DirectX::XMFLOAT2 getMousePositionLH(); 

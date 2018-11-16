@@ -13,6 +13,7 @@ enum EnemyState
 {
 	Investigating_Sight,
 	Investigating_Sound,
+	High_Alert,
 	Patrolling
 };
 
@@ -33,20 +34,22 @@ public:
 	};
 
 private:
-	const float MOVE_SPEED = 5.0f;
+	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
+	const float INTERACT_RANGE = 3.0f;
+
 
 private:
-	struct KeyPressedEnemy
+	struct AudioVars
 	{
-		bool jump = false;
-		bool crouching = false;
-		bool possess = false;
-		bool unlockMouse = false;
-		bool interact = false;
+		double timer = 0.0;
+		float lastCurve = 0.0f;
+		int lastIndex = 0;
+		bool hasPlayed = false;
 	};
 
+	AudioVars m_av;
 	KnockOutType m_knockOutType; 
 
 	VisibilityComponent * m_vc;
@@ -58,17 +61,18 @@ private:
 
 	bool m_justReleased = false; 
 
-	float m_moveSpeed = 2;
-	float m_cameraOffset;
-	float m_camSensitivity = 5;
-	float m_offPutY = 0.4f;
+	float m_moveSpeed = 4.0f;
+	float m_scrollMoveModifier = 1.0f;
+	float m_cameraSpeed = 1.0f;
+	float m_offPutY = 0.4f; 
+	float m_currentMoveSpeed = 0.0f;
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
 	float m_guardSpeed = 1.5;
 
 	//Possess
-	Actor* m_possessor;
+	Player* m_possessor;
 	float m_possessReturnDelay;
 	
 	//Key Input
@@ -80,18 +84,26 @@ private:
 
 	int m_toggleCrouch = 0;
 	int m_toggleSprint = 0;
-	KeyPressedEnemy m_kp;
+	KeyPressed m_kp;
 
+	//Crouch
 	float m_standHeight;
 	float m_crouchHeight;
-	float m_crouchAnimStartPos;
+	int crouchDir = 0;
 
-	bool m_alert = false;
+	//Peek
+	int peekDir = 0;
+	int LastPeekDir = 0;
+	float m_peekRotate;
+	float m_peekRangeA = 0;
+	float m_peekRangeB = 0;
+	float m_peektimer = 0;
+	bool  m_allowPeek = true;
+	bool m_recentHeadCollision = false;
+
 	int m_currentPathNode = 0;
-	int m_currentAlertPathNode = 0;
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
-	bool m_isReversed = false;
 
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
@@ -112,6 +124,7 @@ private:
 	std::vector<DirectX::BoundingSphere*> m_teleportBoundingSphere;
 	DirectX::BoundingFrustum * m_boundingFrustum;
 
+	bool m_isReversed = false;
 	const int m_maxDrawOutNode = 10;
 	std::vector<Drawable*> m_pathNodes;
 	float m_sinWaver = 0;
@@ -127,6 +140,8 @@ private:
 	float m_lengthToPlayerSpan = 8;
 
 	Player * m_PlayerPtr;
+
+	float m_HighAlertTime = 0.f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -164,7 +179,7 @@ public:
 
 	Enemy * validate();
 
-	void setPossessor(Actor* possessor, float maxDuration, float delay);
+	void setPossessor(Player* possessor, float maxDuration, float delay);
 	void removePossessor();
 
 	//0 is Stoned, 1 is exit-possess cooldown
@@ -172,8 +187,8 @@ public:
 
 	void SetPathVector(std::vector<Node*>  path);
 	Node * GetCurrentPathNode() const;
-
 	void SetAlertVector(std::vector<Node*> alertPath);
+
 	void setReleased(bool released); 
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;
@@ -198,28 +213,35 @@ public:
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+
+	void AddHighAlertTimer(double deltaTime);
+	float GetHighAlertTimer() const;
+	void SetHightAlertTimer(const float & time);
 private:
 
-	void _handleInput(double deltaTime);
+	void _handleInput(double deltaTime);  //v 0.5
 	//Movement
-	void _handleMovement(double deltaTime);
-	void _handleRotation(double deltaTime);
+	void _onMovement(double deltaTime); //v
+	void _scrollMovementMod();
+	void _onCrouch(); //v
+	void _onJump(); 
+	void _onSprint(); //v
+	void _onInteract(); //v
+	void _onRotate(double deltaTime);  //v
 
+	void _possessed(double deltaTime); //v
 	void _TempGuardPath(bool x, double deltaTime);
-	void _possessed(double deltaTime);
-	void _onCrouch();
-	void _onJump();
-	void _onSprint();
-	void _cameraPlacement(double deltaTime);
+	void _cameraPlacement(double deltaTime); //v
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
-	void _MoveBackToPatrolRoute(Node * nextNode, double deltaTime);
 	void _RotateGuard(float x, float y, float angle, float deltaTime);
-
 	void _CheckPlayer(double deltaTime);
-	void _activateCrouch();
-	void _deActivateCrouch();
+	void _activateCrouch(); //v
+	void _deActivateCrouch(); //v
 
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
+
+	void _playFootsteps(double deltaTime);
+	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
 };
 

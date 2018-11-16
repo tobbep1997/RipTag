@@ -36,6 +36,11 @@ void Quad::p_setStaticQuadVertex()
 
 }
 
+const float& Quad::getAngle() const
+{
+	return -1;
+}
+
 void Quad::_rebuildQuad()
 {
 	static int counter = 0;
@@ -136,9 +141,16 @@ void Quad::setUnpressedTexture(const std::string & texture)
 
 void Quad::MapTexture()
 {
-	if (Manager::g_textureManager.getTexture(this->m_textures[m_buttonState]))
+	std::string name = this->m_textures[m_buttonState];
+	std::wstring wName = std::wstring(name.begin(), name.end());
+
+	if (Manager::g_textureManager.getTexture(name))
 	{
-		Manager::g_textureManager.getTexture(this->m_textures[m_buttonState])->Bind(1);
+		Manager::g_textureManager.getTexture(name)->Bind(1);
+	}
+	else if (Manager::g_textureManager.getGUITextureByName(wName))
+	{
+		Manager::g_textureManager.getGUITextureByName(wName)->Bind(1);
 	}
 	else
 		std::cout << red << "Can't Find Texture: " << this->m_textures[m_buttonState] << std::endl;
@@ -167,6 +179,11 @@ void Quad::setScale(const DirectX::XMFLOAT2A & size)
 	Transform2D::setScale(size);
 	_rebuildQuad();
 	p_createBuffer();
+}
+
+void Quad::setTag(std::string tag)
+{
+	m_tag = tag; 
 }
 
 void Quad::setFont(DirectX::SpriteFont * font)
@@ -308,6 +325,16 @@ const float & Quad::getRadie() const
 const float & Quad::getInnerRadie() const
 {
 	return 0.0f;
+}
+
+const std::string Quad::getTag() const
+{
+	return m_tag; 
+}
+
+void Quad::setAngle(const float& angle)
+{
+	
 }
 
 const bool Quad::getIsButton() const

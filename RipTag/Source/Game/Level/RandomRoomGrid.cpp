@@ -15,9 +15,9 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 
 RandomRoomGrid::~RandomRoomGrid()
 {
-	//delete [] m_roomGrid;
-	//m_roomGrid = nullptr;
-	//delete [] m_rooms;
+	delete [] m_roomGrid;
+	m_roomGrid = nullptr;
+	delete [] m_rooms;
 	m_rooms = nullptr;
 }
 
@@ -390,15 +390,14 @@ void RandomRoomGrid::_checkConnections()
 	for (int i = 0; i < m_gridSize; i++)
 		visited[i] = false;
 
-	DrawConnections();
 	_followConnection(visited, 0);
 
-	for (int i = 0; i < m_depth; i++)
+	/*for (int i = 0; i < m_depth; i++)
 	{
 		for (int j = 0; j < m_width; j++)
 			std::cout << " " << visited[j + i * m_width] << " ";
 		std::cout << "\n\n";
-	}
+	}*/
 
 	_forcePath(visited);
 

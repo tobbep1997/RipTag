@@ -147,7 +147,10 @@ public:
 	void Clear();
 
 	void Release();
+	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 private:
+
+
 	void _GuardFrustumDraw();
 
 	void _simpleLightCulling(Camera & cam);

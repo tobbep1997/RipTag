@@ -5,11 +5,25 @@ class b3World;
 class ContactListener;
 class RayCastListener;
 
+namespace RipSounds
+{
+	extern std::vector<std::string> g_stepsStone;
+	extern std::string				g_leverActivate;
+	extern std::string				g_leverDeactivate;
+	extern std::string				g_pressurePlateActivate;
+	extern std::string				g_pressurePlateDeactivate;
+	extern std::string				g_torch;
+	extern std::string				g_windAndDrip;
+	extern std::string				g_phase;
+	extern std::string				g_music1;
+}
+
 namespace RipExtern
 {
 	extern b3World * g_world;
-	extern ContactListener * m_contactListener;
-	extern RayCastListener * m_rayListener;
+	extern ContactListener	* g_contactListener;
+	extern RayCastListener	* g_rayListener;
+
 
 	static bool BoolReverser(const bool & first)
 	{

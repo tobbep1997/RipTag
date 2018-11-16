@@ -43,9 +43,7 @@ private:
 	bool m_outline;
 	bool m_transparant;
 	DirectX::XMFLOAT4A m_outLineColor;
-public:
-	SM::AnimationStateMachine* InitStateMachine();
-	SM::AnimationStateMachine* m_stateMachine = nullptr;
+
 protected:	
 	Texture * p_texture;
 
@@ -101,6 +99,7 @@ public:
 
 	//returns AnimatedModel ptr if valid
 	Animation::AnimatedModel* getAnimatedModel();
+	StaticMesh* getStaticMesh();
 
 	virtual void setTextureTileMult(float u, float v);
 	const DirectX::XMFLOAT2A & getTextureTileMult () const;
@@ -126,6 +125,8 @@ public:
 
 	virtual void SetTransparant(const bool & bo);
 	virtual bool GetTransparant();
+
+	std::string getTextureName() const;
 
 private:
 	virtual void _setStaticBuffer();

@@ -38,6 +38,9 @@ void BaseActor::BeginPlay()
 void BaseActor::Update(double deltaTime)
 {
 	p_updatePhysics(this);
+
+	if (getAnimatedModel())
+		getAnimatedModel()->Update(deltaTime);
 }
 
 void BaseActor::setPosition(const float& x, const float& y, const float& z, const bool & setPhysics)

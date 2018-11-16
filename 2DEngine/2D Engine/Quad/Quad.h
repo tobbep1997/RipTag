@@ -58,6 +58,7 @@ private:
 
 	ID3D11Buffer * m_vertexBuffer;
 
+	std::string m_tag; 
 
 	ButtonStates m_buttonState = ButtonStates::Normal;
 	PivotPoint m_pivotPoint = PivotPoint::center;
@@ -82,8 +83,10 @@ private:
 	float uScale = 1.0f;
 	float vScale = 1.0f;
 
+
 	void _rebuildQuad();
 protected:
+	float p_angle = 10.0f;
 	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
 	Quad();
@@ -104,6 +107,8 @@ public:
 
 	void setScale(const float & x, const float & y) override;
 	void setScale(const DirectX::XMFLOAT2A & size) override;
+
+	void setTag(std::string tag); 
 
 	void setFont(DirectX::SpriteFont * font);
 	void setString(const std::string & string);
@@ -141,6 +146,10 @@ public:
 	virtual unsigned int getType() const;
 	virtual const float & getRadie() const;
 	virtual const float & getInnerRadie() const;
+	virtual void setAngle(const float & angle);
+	virtual const float & getAngle() const;
+
+	virtual const std::string getTag() const; 
 
 	virtual const bool getIsButton() const; 
 

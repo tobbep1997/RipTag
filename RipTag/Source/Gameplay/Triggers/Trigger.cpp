@@ -31,8 +31,9 @@ const bool & Trigger::Triggered() const
 	return m_triggerState;
 }
 
-void Trigger::setTriggerState(bool state)
+void Trigger::setTriggerState(bool state, bool isLocal)
 {
+
 	if (!m_triggerState && state)
 	{
 		//Play activated state
@@ -47,6 +48,10 @@ void Trigger::setTriggerState(bool state)
 		this->getAnimatedModel()->GetStateMachine()->SetState(this->deactivatedAnimation);
 		this->getAnimatedModel()->Play();
 	}
+	if (isLocal)
+		this->_playSound();
+	else
+		this->_playSound(AudioEngine::RemotePlayer);
 }
 
 void Trigger::BeginPlay()

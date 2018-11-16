@@ -11,6 +11,9 @@ namespace ImporterLibrary
 class StaticMesh
 {
 private:
+	ID3D11Buffer * m_vertexBuffer = nullptr;
+	void _createVertexBuffer();
+private:
 	std::string m_meshName;
 	std::vector<StaticVertex> m_staticVertex;
 	ImporterLibrary::CollisionBoxes * m_collisionBox;
@@ -31,5 +34,8 @@ public:
 
 	void LoadMesh(const std::string & path);
 	void LoadCollision(const std::string & path);
+
+	ID3D11Buffer * getBuffer();
+
 };
 

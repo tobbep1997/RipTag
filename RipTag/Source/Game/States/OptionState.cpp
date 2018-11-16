@@ -33,6 +33,13 @@ OptionState::~OptionState()
 		delete b;
 	}
 	m_buttons.clear();
+
+	if (this->m_background)
+	{
+		this->m_background->Release();
+		delete this->m_background;
+	}
+
 	m_restart->Release();
 	delete m_restart;
 }
@@ -192,6 +199,8 @@ void OptionState::Draw()
 {
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
+	if (this->m_background)
+		this->m_background->Draw();
 
 	for (auto & t : m_text)
 		t->Draw();
@@ -218,63 +227,63 @@ void OptionState::_slide()
 
 void OptionState::_initButtons()
 {
-	m_text.push_back(Quad::CreateButton("Field of View", 0.5f, 0.95f, 0.70f, 0.17f));
-	m_text[ButtonOrder::SliderFov]->setUnpressedTexture("SPHERE");
-	m_text[ButtonOrder::SliderFov]->setPressedTexture("DAB");
-	m_text[ButtonOrder::SliderFov]->setHoverTexture("PIRASRUM");
+	m_text.push_back(Quad::CreateButton("Field of View", 0.5f, 0.86f, 0.70f, 0.17f));
+	m_text[ButtonOrder::SliderFov]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderFov]->setPressedTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderFov]->setHoverTexture("gui_transparent_pixel");
 	m_text[ButtonOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderFov]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
 
 	float xPos = ((((float)m_fov - (float)MIN_MAX_FOV.x) * (0.7 - 0.3)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + 0.3);
 	 
-	m_buttons.push_back(Quad::CreateButton("", xPos, 0.88f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderFov]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::SliderFov]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::SliderFov]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton("", xPos, 0.79f, 0.04f, 0.10f));
+	m_buttons[ButtonOrder::SliderFov]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderFov]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderFov]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("X-Axis: ", 0.5f, 0.81f, 0.70f, 0.17f));
-	m_text[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("SPHERE");
-	m_text[ButtonOrder::SliderSensitivityX]->setPressedTexture("DAB");
-	m_text[ButtonOrder::SliderSensitivityX]->setHoverTexture("PIRASRUM");
+	m_text.push_back(Quad::CreateButton("X-Axis: ", 0.5f, 0.71f, 0.70f, 0.17f));
+	m_text[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_transparent_pixel");
 	m_text[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderSensitivityX]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 
 	xPos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
-	m_buttons.push_back(Quad::CreateButton("", xPos, 0.74f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::SliderSensitivityX]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::SliderSensitivityX]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton("", xPos, 0.64f, 0.04f, 0.10f));
+	m_buttons[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("Y-Axis: ", 0.5f, 0.67f, 0.70f, 0.17f));
-	m_text[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("SPHERE");
-	m_text[ButtonOrder::SliderSensitivityY]->setPressedTexture("DAB");
-	m_text[ButtonOrder::SliderSensitivityY]->setHoverTexture("PIRASRUM");
+	m_text.push_back(Quad::CreateButton("Y-Axis: ", 0.5f, 0.56f, 0.70f, 0.17f));
+	m_text[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderSensitivityY]->setHoverTexture("gui_transparent_pixel");
 	m_text[ButtonOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderSensitivityY]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 
 	xPos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
-	m_buttons.push_back(Quad::CreateButton("", xPos, 0.60f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::SliderSensitivityY]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::SliderSensitivityY]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton("", xPos, 0.49f, 0.04f, 0.10f));
+	m_buttons[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensitivityY]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_buttons.push_back(Quad::CreateButton(SWAP_RESOLUTION[m_resSelection], 0.5f, 0.50f, 0.70f, 0.17f));
-	m_buttons[ButtonOrder::ToggleResolution]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::ToggleResolution]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::ToggleResolution]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton(SWAP_RESOLUTION[m_resSelection], 0.5f, 0.40f, 0.73f, 0.12f));
+	m_buttons[ButtonOrder::ToggleResolution]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::ToggleResolution]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::ToggleResolution]->setHoverTexture("gui_hover_pixel");
 	m_buttons[ButtonOrder::ToggleResolution]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::ToggleResolution]->setFont(FontHandler::getFont("consolas16"));
 
-	m_buttons.push_back(Quad::CreateButton(SWAP_GRAPHICS[m_graphicsSelection], 0.5f, 0.40f, 0.70f, 0.17f));
-	m_buttons[ButtonOrder::ToggleGraphics]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::ToggleGraphics]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::ToggleGraphics]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton(SWAP_GRAPHICS[m_graphicsSelection], 0.5f, 0.31f, 0.73f, 0.12f));
+	m_buttons[ButtonOrder::ToggleGraphics]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::ToggleGraphics]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::ToggleGraphics]->setHoverTexture("gui_hover_pixel");
 	m_buttons[ButtonOrder::ToggleGraphics]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::ToggleGraphics]->setFont(FontHandler::getFont("consolas16"));
 
@@ -282,26 +291,38 @@ void OptionState::_initButtons()
 	if (!m_fullscreen)
 		f = "off";
 
-	m_buttons.push_back(Quad::CreateButton("Fullscreen: " + f, 0.5f, 0.30f, 0.70f, 0.17f));
-	m_buttons[ButtonOrder::ToggleFullscreen]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::ToggleFullscreen]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::ToggleFullscreen]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton("Fullscreen: " + f, 0.5f, 0.22f, 0.73f, 0.12f));
+	m_buttons[ButtonOrder::ToggleFullscreen]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::ToggleFullscreen]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::ToggleFullscreen]->setHoverTexture("gui_hover_pixel");
 	m_buttons[ButtonOrder::ToggleFullscreen]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::ToggleFullscreen]->setFont(FontHandler::getFont("consolas16"));
 
-	m_buttons.push_back(Quad::CreateButton("Save and return", 0.5f, 0.20f, 0.70f, 0.17f));
-	m_buttons[ButtonOrder::Return]->setUnpressedTexture("SPHERE");
-	m_buttons[ButtonOrder::Return]->setPressedTexture("DAB");
-	m_buttons[ButtonOrder::Return]->setHoverTexture("PIRASRUM");
+	m_buttons.push_back(Quad::CreateButton("Save and return", 0.5f, 0.13f, 0.73f, 0.12f));
+	m_buttons[ButtonOrder::Return]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::Return]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::Return]->setHoverTexture("gui_hover_pixel");
 	m_buttons[ButtonOrder::Return]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::Return]->setFont(FontHandler::getFont("consolas16"));
 
-	m_restart = Quad::CreateButton("You must restart the game to apply some of the changes made", 0.5f, 0.1f, 1.2f, 0.17f);
-	m_restart->setUnpressedTexture("SPHERE");
-	m_restart->setPressedTexture("DAB");
-	m_restart->setHoverTexture("PIRASRUM");
+	m_restart = Quad::CreateButton("You must restart the game to apply some of the changes made", 0.5f, 0.05f, 1.2f, 0.17f);
+	m_restart->setUnpressedTexture("gui_transparent_pixel");
+	m_restart->setPressedTexture("gui_button_pressed_small");
+	m_restart->setHoverTexture("gui_button_hover_small");
 	m_restart->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_restart->setFont(FontHandler::getFont("consolas16"));
+
+	//Background Window
+	{
+		this->m_background = new Quad();
+		this->m_background->init();
+		this->m_background->setPivotPoint(Quad::PivotPoint::center);
+		this->m_background->setPosition(0.5f, 0.5f);
+		this->m_background->setScale(2.0f, 2.0f);
+		this->m_background->setUnpressedTexture("gui_options_menu");
+		this->m_background->setPressedTexture("gui_options_menu");
+		this->m_background->setHoverTexture("gui_options_menu");
+	}
 }
 
 void OptionState::_handleGamePadInput(double dt)
@@ -555,18 +576,10 @@ void OptionState::_ParseFileInputInt(const std::string & name, int key)
 
 void OptionState::Load()
 {
-	Manager::g_textureManager.loadTextures("SPHERE");
-	Manager::g_textureManager.loadTextures("PIRASRUM");
-	Manager::g_textureManager.loadTextures("DAB");
 	std::cout << "OptionState Load" << std::endl;
 }
 
 void OptionState::unLoad()
 {
-	Manager::g_textureManager.UnloadTexture("SPHERE");
-	Manager::g_textureManager.UnloadTexture("PIRASRUM");
-	Manager::g_textureManager.UnloadTexture("DAB");
-	Manager::g_textureManager.UnloadAllTexture();
-
 	std::cout << "OptionState unLoad" << std::endl;
 }

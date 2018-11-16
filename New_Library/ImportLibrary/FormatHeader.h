@@ -92,6 +92,8 @@ namespace ImporterLibrary
 		int nrOf;
 		int maxX;
 		int maxY;
+
+		GridStruct() { gridPoints = nullptr; }
 	};
 	struct CollisionBox
 	{

@@ -76,6 +76,8 @@ namespace Network
 		bool isConnected() { return m_isConnected; }
 		bool isGameRunning() { return m_isGameRunning; }
 
+		void setIsConnected(bool b) { this->m_isConnected = b; }
+
 		std::string GetNetworkStatistics();
 		std::string GetNID();
 		std::string GetNetworkInfo();
