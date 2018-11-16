@@ -1346,7 +1346,7 @@ void LobbyState::_sendGameStartedPacket()
 void LobbyState::_sendMyHostNamePacket()
 {
 	Network::LOBBYEVENTPACKET packet(Network::ID_HOST_NAME, this->m_MyHostName);
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::LOBBYEVENTPACKET, PacketPriority::LOW_PRIORITY));
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::LOBBYEVENTPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
