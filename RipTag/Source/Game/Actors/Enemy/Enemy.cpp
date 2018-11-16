@@ -297,7 +297,6 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			m_currentMoveSpeed = 0;
 			if (m_state == Suspicious)
 			{
 				getBody()->SetAwake(false);

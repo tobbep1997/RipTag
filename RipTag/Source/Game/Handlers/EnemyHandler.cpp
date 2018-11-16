@@ -214,9 +214,9 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 	{
 		std::cout << yellow << "Investigating" << white << std::endl;
 		guard->SetActTimer(0.0f);
-		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT+(ALERT_TIME_LIMIT/4))
+		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT*1.5)
 			_alert(guard); //what was that?
-		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL+(SOUND_LEVEL/4))
+		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL*1.5)
 			_alert(guard, true); //what was that noise?
 		else
 		{
