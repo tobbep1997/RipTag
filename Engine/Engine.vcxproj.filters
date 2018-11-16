@@ -18,6 +18,8 @@
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlineVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\wireFramePixel.hlsl" />
+    <FxCompile Include="Source\Shader\ParticlePixel.hlsl" />
+    <FxCompile Include="Source\Shader\ParticleVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePrepassVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +58,10 @@
     <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
     <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
     <ClCompile Include="EnginePCH.cpp" />
+    <ClCompile Include="Source\ParticleSystem\Particle.cpp" />
+    <ClCompile Include="Source\ParticleSystem\ParticleEmitter.cpp" />
+    <ClCompile Include="Source\ParticleSystem\ParticleManager.cpp" />
+    <ClCompile Include="Source\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="EngineSource\Helper\AnimationDebugHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +117,10 @@
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="EnginePCH.h" />
     <ClInclude Include="ConsoleColor.h" />
+    <ClInclude Include="Source\ParticleSystem\ParticleSystem.h" />
+    <ClInclude Include="Source\ParticleSystem\Particle.h" />
+    <ClInclude Include="Source\ParticleSystem\ParticleEmitter.h" />
+    <ClInclude Include="Source\ParticleSystem\ParticleManager.h" />
     <ClInclude Include="EngineSource\Helper\AnimationDebugHelper.h" />
   </ItemGroup>
   <ItemGroup>
