@@ -351,7 +351,8 @@ void Enemy::Update(double deltaTime)
 		}
 
 		_cameraPlacement(deltaTime);
-		if (!m_inputLocked)
+		
+		if (m_inputLocked)
 		{
 			_CheckPlayer(deltaTime);
 		}
