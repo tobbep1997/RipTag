@@ -1311,7 +1311,6 @@ void LobbyState::_onHostNamePacket(RakNet::Packet * data)
 {
 	Network::LOBBYEVENTPACKET* packet = (Network::LOBBYEVENTPACKET*)data->data;
 	std::string name = std::string(packet->string);
-	name.erase(0, 1);
 	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + name);
 }
 
