@@ -36,7 +36,7 @@ public:
 	void Init(b3World & worldPtr, Player * playerPtr);
 	void Release();
 
-	void Update(float deltaTime);
+	void Update(float deltaTime, Camera * camera);
 
 	void Draw();
 

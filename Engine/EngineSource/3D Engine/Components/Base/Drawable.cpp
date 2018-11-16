@@ -67,12 +67,6 @@ void Drawable::_setDynamicBuffer()
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
 }
 
-SM::AnimationStateMachine* Drawable::InitStateMachine()
-{
-	m_stateMachine = new SM::AnimationStateMachine(1);
-	return m_stateMachine;
-}
-
 void Drawable::setOutline(bool outline)
 {
 	m_outline = outline;
@@ -172,8 +166,7 @@ Drawable::~Drawable()
 	DX::SafeRelease(p_vertexBuffer);
 	if (m_anim)
 		delete m_anim;
-	if (m_stateMachine)
-		delete m_stateMachine;
+
 	if (m_bb)
 		delete m_bb;
 }
@@ -199,7 +192,8 @@ void Drawable::DrawWireFrame()
 {
 	if (p_objectType == Static)
 	{
-		DX::g_wireFrameDrawQueue.push_back(this);
+		//DX::g_wireFrameDrawQueue.push_back(this);
+		DX::INSTANCING::submitToWireframeInstance(this);
 	}
 }
 

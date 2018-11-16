@@ -80,6 +80,14 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	m_2DRender = new Render2D();
 	m_2DRender->Init();
 
+	D3D11_DEPTH_STENCIL_DESC dpd{};
+	dpd.DepthEnable = TRUE;
+	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dpd.DepthFunc = D3D11_COMPARISON_LESS;
+
+	//Create the Depth/Stencil View
+	DX::g_device->CreateDepthStencilState(&dpd, &m_particleDepthStencilState);
+
 }
 
 void ForwardRender::GeometryPass(Camera & camera)
@@ -99,7 +107,8 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
 	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, true);
-	
+
+
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
@@ -206,6 +215,9 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	this->PrePass(camera);
 
+
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
 
 	_mapLightInfoNoMatrix();
@@ -220,10 +232,14 @@ void ForwardRender::Flush(Camera & camera)
 	this->_OutliningPass(camera);
 
 
-	_GuardFrustumDraw();
+	//_GuardFrustumDraw();
+	_mapCameraBuffer(camera);
+	
+	_particlePass();
+
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
-	this->_wireFramePass();
+	this->_wireFramePass(&camera);
 }
 
 void ForwardRender::Clear()
@@ -248,6 +264,8 @@ void ForwardRender::Clear()
 
 	DX::INSTANCING::g_instanceGroups.clear();
 	DX::INSTANCING::g_instanceShadowGroups.clear();
+	DX::INSTANCING::g_instanceWireFrameGroups.clear();
+
 }
 
 void ForwardRender::Release()
@@ -272,7 +290,7 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_write1State);
 	DX::SafeRelease(m_OutlineState);
 	//DX::SafeRelease(depthoutState);
-
+	DX::SafeRelease(m_particleDepthStencilState);
 	DX::SafeRelease(m_outlineBuffer);
 	m_shadowMap->Release();
 	delete m_shadowMap;
@@ -334,8 +352,6 @@ void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GR
 		offsets[0] = 0;
 		offsets[1] = 0;
 
-
-		//DX::g_deviceContext->IASetIndexBuffer(indices, DXGI_FORMAT_R32_UINT, offset);
 		DX::g_deviceContext->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
 
 		DX::g_deviceContext->DrawInstanced(instance.staticMesh->getVertice().size(),
@@ -819,6 +835,19 @@ void ForwardRender::_setAnimatedShaders()
 	
 }
 
+void ForwardRender::_particlePass()
+{
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+	DX::g_deviceContext->OMSetDepthStencilState(m_particleDepthStencilState, NULL);
+	for (auto & lol : DX::g_emitters)
+	{
+		lol->Draw();
+	}
+	DX::g_emitters.clear();
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
+}
+
 void ForwardRender::_createShaders()
 {
 
@@ -831,7 +860,10 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
+
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePixelShader.hlsl");
+
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertex.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/PreDepthPassVertexAnimated.hlsl");
 
@@ -884,28 +916,30 @@ void ForwardRender::_createShadersInput()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", guardFrustumInputDesc, 3);
 }
 
-void ForwardRender::_wireFramePass()
+void ForwardRender::_wireFramePass(Camera * camera)
 {
 	DX::g_deviceContext->RSSetState(m_wireFrame);
 
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
-	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
-
-	UINT32 vertexSize = sizeof(StaticVertex);
-	UINT32 offset = 0;
-	_setStaticShaders();
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
+	
+	//_setStaticShaders();
+	//Manager::g_textureManager.getTexture("BAR")->Bind(1);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/wireFramePixel.hlsl"), nullptr, 0);
-	for (unsigned int i = 0; i < DX::g_wireFrameDrawQueue.size(); i++)
-	{
-		ID3D11Buffer * vertexBuffer = DX::g_wireFrameDrawQueue[i]->getBuffer();
+	if (DX::INSTANCING::g_instanceWireFrameGroups.size() > 0)
+		DrawInstanced(camera, &DX::INSTANCING::g_instanceWireFrameGroups, false);
+	//for (unsigned int i = 0; i < DX::g_wireFrameDrawQueue.size(); i++)
+	//{
+	//	ID3D11Buffer * vertexBuffer = DX::g_wireFrameDrawQueue[i]->getBuffer();
 
-		_mapObjectBuffer(DX::g_wireFrameDrawQueue[i]);
-		DX::g_wireFrameDrawQueue[i]->BindTextures();
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(DX::g_wireFrameDrawQueue[i]->getVertexSize(), 0);
+	//	_mapObjectBuffer(DX::g_wireFrameDrawQueue[i]);
+	//	DX::g_wireFrameDrawQueue[i]->BindTextures();
+	//	DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+	//	DX::g_deviceContext->Draw(DX::g_wireFrameDrawQueue[i]->getVertexSize(), 0);
 
-	}
+	//}
 
 	//DX::g_deviceContext->RSSetState(m_standardRast);
 }

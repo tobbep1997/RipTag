@@ -21,6 +21,7 @@ class ContactListener;
 class RayCastListener;
 class RenderingManager;
 class Drawable; //#todoREMOVE
+class ParticleEmitter;
 
 
 class PlayState : public State

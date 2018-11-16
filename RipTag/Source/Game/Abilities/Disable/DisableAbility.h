@@ -15,7 +15,7 @@ private: // CONST VARS
 	 */
 	const int START_MANA_COST = 10;
 	const float TRAVEL_SPEED = 20.0f;
-	const float MAX_CHARGE = 2.0f;
+	const float MAX_CHARGE = 0.0f;
 private:
 	// ENUM
 	enum DisableState

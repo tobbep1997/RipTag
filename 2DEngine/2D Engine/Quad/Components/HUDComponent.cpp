@@ -16,6 +16,11 @@ HUDComponent::~HUDComponent()
 		delete m_quads[i]->quad;
 		delete m_quads[i];
 	}
+	for (unsigned int i = 0; i < m_circles.size(); i++)
+	{
+		m_circles[i]->Release();
+		delete m_circles[i];
+	}
 }
 
 
@@ -212,12 +217,22 @@ void HUDComponent::AddQuad(Quad *& quad, unsigned int keyCode)
 	m_quads.push_back(qo);
 }
 
+void HUDComponent::AddQuad(Circle*& quad, unsigned keyCode)
+{
+	m_circles.push_back(quad);
+}
+
 Quad * HUDComponent::GetQuad(const unsigned short int & i)
 {
 	if (i < m_quads.size())
 		return m_quads[i]->quad;
 	else
 		throw "u stoopid";
+}
+
+Circle* HUDComponent::GetCircle(const unsigned short& i)
+{
+	return nullptr;
 }
 
 Quad * HUDComponent::GetQuad(std::string tag)
@@ -268,5 +283,9 @@ void HUDComponent::HUDDraw()
 	for (unsigned int i = 0; i < m_quads.size(); i++)
 	{
 		m_quads[i]->quad->Draw();
+	}
+	for (unsigned int i = 0; i < m_circles.size(); i++)
+	{
+		m_circles[i]->Draw();
 	}
 }

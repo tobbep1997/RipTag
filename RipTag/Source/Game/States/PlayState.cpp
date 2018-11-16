@@ -20,8 +20,6 @@ bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
-	//USE LOAD NOT THIS
-	//we dont care about this yet
 	if (coopData)
 	{
 		isCoop = true;
@@ -42,7 +40,6 @@ PlayState::~PlayState()
 
 
 	//delete triggerHandler;
-
 	delete m_contactListener;
 	delete m_rayListener;
 
@@ -60,7 +57,7 @@ void PlayState::Update(double deltaTime)
 		m_firstRun = false;
 			//int i = 0;
 		triggerHandler->Update(deltaTime);
-		m_levelHandler->Update(deltaTime);
+		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 
 
@@ -556,6 +553,8 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
 	Manager::g_textureManager.loadTextures("STATE");
+	Manager::g_textureManager.loadTextures("FIRE");
+
 }
 
 void PlayState::_loadPhysics()
