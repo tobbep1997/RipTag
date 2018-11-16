@@ -110,7 +110,7 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new LoseState(p_renderingManager));
+			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy."));
 		}
 
 	
@@ -729,15 +729,25 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 {
 	static const double MAX_DURATION = 1.0; //unit is in seconds
 	static double accumulatedTime = 0.0;
-	static bool inAnimation = true;
-	std::string gamePadString = "A (Gamepad) or ";
 
 	if (m_coopState.gameOver || m_coopState.gameWon || m_coopState.remoteDisconnected)
 	{
-		if (Input::isUsingGamepad() && !inAnimation)
-			if (GamePadHandler::IsAPressed())
+		
+		accumulatedTime += deltaTime;
+		double percentage = accumulatedTime / MAX_DURATION; //range[0,1[
+		m_eventOverlay->setScale({ (float)(percentage * 2.0f), (float)(percentage * 2.0f) });
+
+		if (accumulatedTime >= MAX_DURATION)
+		{
+			m_eventOverlay->setScale({2.0f, 2.0f});
+			accumulatedTime = 0;
+
+			if (m_coopState.gameWon)
 			{
-				inAnimation = true;
+				//We need a GameWon state perhaps, or we simply make the LoseState into a more general State that can handle both Lose and Won
+			}
+			else if (m_coopState.gameOver)
+			{
 				m_destoryPhysicsThread = true;
 				m_physicsCondition.notify_all();
 
@@ -746,52 +756,19 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 				{
 					m_physicsThread.join();
 				}
-				this->BackToMenu();
-			}
-		if (InputHandler::wasKeyPressed(InputHandler::Enter) && !inAnimation)
-		{
-			inAnimation = true;
-			m_destoryPhysicsThread = true;
-			m_physicsCondition.notify_all();
-
-
-			if (m_physicsThread.joinable())
-			{
-				m_physicsThread.join();
-			}
-			this->BackToMenu();
-		}
-
-		if (inAnimation)
-		{
-			accumulatedTime += deltaTime;
-			double percentage = accumulatedTime / MAX_DURATION; //range[0,1[
-			m_eventOverlay->setScale({ (float)(percentage * 2.0f), (float)(percentage * 2.0f) });
-		}
-
-		if (accumulatedTime >= MAX_DURATION)
-		{
-			m_eventOverlay->setScale({2.0f, 2.0f});
-			accumulatedTime = 0;
-			inAnimation = false;
-
-			if (!Input::isUsingGamepad())
-				gamePadString = "";
-
-			if (m_coopState.gameWon)
-			{
-				m_eventOverlay->setString("WINNER WINNER\nCHICKEN DINNER!\n\n\nPress " + gamePadString + "Enter to return to Main Menu");
-				m_eventOverlay->setTextColor(Colors::GreenDark);
-			}
-			else if (m_coopState.gameOver)
-			{
-				m_eventOverlay->setString("LOSER LOSER\nVIRGIN CRUISER!\n\n\nPress " + gamePadString + "Enter to return to Main Menu");
-				m_eventOverlay->setTextColor(Colors::Red);
+				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?"));
 			}
 			else if (m_coopState.remoteDisconnected)
 			{
-				m_eventOverlay->setString("Player disconnected :(\nRIP GAME!\n\n\nPress " + gamePadString + "Enter to return to Main Menu");
-				m_eventOverlay->setTextColor(Colors::Blue);
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
+				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?"));
 			}
 		}
 	}
