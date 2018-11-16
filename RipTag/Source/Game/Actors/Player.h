@@ -58,6 +58,8 @@ private:
 	unsigned int m_activeSetID = 1;
 	Ability m_currentAbility;// = Ability::TELEPORT;
 
+	Circle ** m_abilityCircle;
+
 	PlayerState m_currentState = PlayerState::Idle;
 	Enemy* possessTarget;
 
