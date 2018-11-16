@@ -161,6 +161,8 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	
+
 	{
 		using namespace DirectX;
 		//calculate walk direction (-1, 1, based on camera) and movement speed
@@ -261,6 +263,8 @@ void Player::Update(double deltaTime)
 		else
 			current->setV(m_activeSet[i]->getPercentage());
 	}
+
+	
 
 }
 
@@ -659,6 +663,25 @@ void Player::_onMovement()
 	m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
 
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+
+	RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.f, false);
+
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+		if (ray)
+		{
+			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			{
+				if (con->contactShape->GetObjectTag() == "NULL")
+				{
+					if (con->normal.y != 1 || con->normal.y != -1)
+						p_setPosition(getPosition().x, getPosition().y, getPosition().z);
+					
+				}
+			}
+		}
+	}
+	
 }
 
 void Player::_scrollMovementMod()

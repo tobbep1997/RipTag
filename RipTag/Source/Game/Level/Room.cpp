@@ -42,7 +42,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 
 			break;
 		case(3):
-			Manager::g_meshManager.loadDynamicMesh("DOOR");
+			/*Manager::g_meshManager.loadDynamicMesh("DOOR");
 			Manager::g_textureManager.loadTextures("DOOR");
 			Manager::g_animationManager.loadSkeleton("../Assets/DOORFOLDER/DOOR_SKELETON.bin", "DOOR");
 			Manager::g_animationManager.loadClipCollection("DOOR", "DOOR", "../Assets/DOORFOLDER", Manager::g_animationManager.getSkeleton("DOOR"));
@@ -60,7 +60,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_scale[1],
 				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempDoor);
-			tempDoor = nullptr;
+			tempDoor = nullptr;*/
 			//ladda in d�rr etc etc 
 			break;
 		case(4):
