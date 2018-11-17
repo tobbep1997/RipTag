@@ -18,7 +18,7 @@ Game::~Game()
 	}
 }
 
-void Game::Init(_In_ HINSTANCE hInstance)
+void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
 	//Rendering Manager Start
 	{
@@ -44,7 +44,10 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		pNetworkInstance->Init();
 	}
 
-	m_gameStack.push(new MainMenu(m_renderingManager));
+	if (dbg)
+		m_gameStack.push(new DBGState(m_renderingManager));
+	else
+		m_gameStack.push(new MainMenu(m_renderingManager));
 	m_gameStack.top()->Load();
 }
 
