@@ -161,7 +161,8 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
-	
+	if (getLiniearVelocity().y > 5.0f)
+		setLiniearVelocity(getLiniearVelocity().x, 5.0f, getLiniearVelocity().z);
 
 	{
 		using namespace DirectX;
