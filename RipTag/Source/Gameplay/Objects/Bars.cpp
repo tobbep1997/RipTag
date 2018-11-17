@@ -31,9 +31,18 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 
 void Bars::Update(double deltaTime)
 {
-	m_timer += deltaTime * 0.5f;
-	m_timer = min(m_timer, 1.0f);
 	BaseActor::Update(deltaTime);
+	
+	float t = deltaTime * 0.5f;
+
+	if (m_wasClosed)
+		m_timer += t;
+	else
+		m_timer -= t;
+
+	m_timer = max(m_timer, 0.0f);
+	m_timer = min(m_timer, 1.0f);
+
 	DirectX::XMVECTOR v1, v2;
 	v1 = DirectX::XMLoadFloat4A(&m_openPos);
 	v2 = DirectX::XMLoadFloat4A(&m_closePos);
@@ -42,9 +51,8 @@ void Bars::Update(double deltaTime)
 		if (m_wasClosed)
 		{
 			m_wasClosed = false;
-			m_timer = 0.0f;
 		}
-		DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(v2, v1, m_timer);
+		DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(v1, v2, m_timer);
 		DirectX::XMFLOAT3 openPos;
 		DirectX::XMStoreFloat3(&openPos, lerp);
 		setPosition(openPos.x, openPos.y, openPos.z);
@@ -55,7 +63,6 @@ void Bars::Update(double deltaTime)
 		if (!m_wasClosed)
 		{
 			m_wasClosed = true;
-			m_timer = 0.0f;
 		}
 		DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(v1, v2, m_timer);
 

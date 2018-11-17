@@ -678,7 +678,7 @@ void Player::_onMovement(double deltaTime)
 	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 
-	RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.f, false);
+	RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.0f, false);
 
 	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
 	{
@@ -688,9 +688,11 @@ void Player::_onMovement(double deltaTime)
 			{
 				if (con->contactShape->GetObjectTag() == "NULL")
 				{
-					if (con->normal.y != 1 || con->normal.y != -1)
+					if (fabs(con->normal.y) < 0.999f)
+					{
 						p_setPosition(getPosition().x, getPosition().y, getPosition().z);
-					
+						break;
+					}
 				}
 			}
 		}

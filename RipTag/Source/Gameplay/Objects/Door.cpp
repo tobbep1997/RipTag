@@ -49,12 +49,23 @@ void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 void Door::Update(double deltaTime)
 {
 	BaseActor::Update(deltaTime);
-	m_timer += deltaTime;
+
+	float t = deltaTime * 0.5f;
+
+
+
+	if (!m_wasClosed)
+		m_timer += t;
+	else
+		m_timer -= t;
+
+	m_timer = max(m_timer, 0.0f);
 	m_timer = min(m_timer, 1.0f);
 
+
 	DirectX::XMVECTOR vp1, vp2, vrm1, vrm2, vrb1, vrb2;
-	
 	DirectX::XMFLOAT3 xmrMe(m_startRotModel), xmrBe(m_startRotBox);
+	
 	xmrMe.y += 90;
 	xmrBe.y += 90;
 
@@ -72,14 +83,13 @@ void Door::Update(double deltaTime)
 		if (m_wasClosed)
 		{
 			m_wasClosed = false;
-			m_timer = 0.0f;
 		}
 		DirectX::XMFLOAT3 xmCurrentModelRotation, xmCurrentBoundingRotation, xmCurrentBoundingPos;
 
 		DirectX::XMVECTOR vCurrentModelRotation, vCurrentBoundingRotation, vCurrentBoundingPos;
-		vCurrentModelRotation = DirectX::XMVectorLerp(vrm1, vrm2, m_timer);
-		vCurrentBoundingRotation = DirectX::XMVectorLerp(vrb1, vrb2, m_timer);
-		vCurrentBoundingPos = DirectX::XMVectorLerp(vp1, vp2, m_timer);
+		vCurrentModelRotation = DirectX::XMVectorLerp(		vrm1,	vrm2, m_timer);
+		vCurrentBoundingRotation = DirectX::XMVectorLerp(	vrb1,	vrb2, m_timer);
+		vCurrentBoundingPos = DirectX::XMVectorLerp(		vp1,	vp2, m_timer);
 
 		DirectX::XMStoreFloat3(&xmCurrentModelRotation, vCurrentModelRotation);
 		DirectX::XMStoreFloat3(&xmCurrentBoundingRotation, vCurrentBoundingRotation);
@@ -94,15 +104,15 @@ void Door::Update(double deltaTime)
 		if (!m_wasClosed)
 		{
 			m_wasClosed = true;
-			m_timer = 0.0f;
+			
 		}
 
 		DirectX::XMFLOAT3 xmCurrentModelRotation, xmCurrentBoundingRotation, xmCurrentBoundingPos;
 
 		DirectX::XMVECTOR vCurrentModelRotation, vCurrentBoundingRotation, vCurrentBoundingPos;
-		vCurrentModelRotation = DirectX::XMVectorLerp(vrm2, vrm1, m_timer);
-		vCurrentBoundingRotation = DirectX::XMVectorLerp(vrb2, vrb1, m_timer);
-		vCurrentBoundingPos = DirectX::XMVectorLerp(vp2, vp1, m_timer);
+		vCurrentModelRotation = DirectX::XMVectorLerp(		vrm1,	vrm2, m_timer);
+		vCurrentBoundingRotation = DirectX::XMVectorLerp(	vrb1,	vrb2, m_timer);
+		vCurrentBoundingPos = DirectX::XMVectorLerp(		vp1,	vp2, m_timer);
 
 		DirectX::XMStoreFloat3(&xmCurrentModelRotation, vCurrentModelRotation);
 		DirectX::XMStoreFloat3(&xmCurrentBoundingRotation, vCurrentBoundingRotation);
