@@ -674,14 +674,12 @@ std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressi
 	float properTime = std::fmod(*currentTime, 1.0f);
 	*currentTime = properTime;
 	///calc the actual frame index and progression towards the next frame
-	//float actualTime = properTime / (1.0 / 24.0);
 	float prevIndexFloat = (properTime * frameCount) ;
 	int prevIndexInt = (int)prevIndexFloat;
 	float lol = properTime * frameCount;
 	float progression = prevIndexFloat - (float)prevIndexInt;
 
 
-	//return values
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndexInt), progression));
 }
 
