@@ -119,9 +119,9 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace1D(SM::Blend
 	if (stateData.second)
 	{
 		speedScale = getSpeedScale(stateData.second->m_FrameCount, stateData.first->m_FrameCount, stateData.weight);
-		indexAndProgressionFirst = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_CurrentNormalizedTime, stateData.second->m_FrameCount);
+		indexAndProgressionSecond = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_CurrentNormalizedTime, stateData.second->m_FrameCount);
 	}
-	indexAndProgressionSecond = _ComputeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_CurrentNormalizedTime, stateData.first->m_FrameCount);
+	indexAndProgressionFirst = _ComputeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_CurrentNormalizedTime, stateData.first->m_FrameCount);
 
 	auto prevIndexFirst = indexAndProgressionFirst.first;
 	auto progressionFirst = indexAndProgressionFirst.second;

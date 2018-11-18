@@ -79,6 +79,8 @@ private:
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
 	float m_currentMoveSpeed = 0.0f;
+	float m_LastFrameXPos = 0.0f;
+	float m_LastFrameZPos = 0.0f;
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
