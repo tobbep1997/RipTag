@@ -260,7 +260,7 @@ void Drawable::setEntityType(EntityType en)
 	this->p_entityType = en;
 }
 
-Animation::AnimatedModel* Drawable::getAnimatedModel()
+Animation::AnimationPlayer* Drawable::getAnimationPlayer()
 {
 	return m_anim;
 }
@@ -301,7 +301,7 @@ void Drawable::setModel(DynamicMesh * dynamicMesh)
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(dynamicMesh);
 	p_createBuffer();
-	m_anim = new Animation::AnimatedModel();
+	m_anim = new Animation::AnimationPlayer();
 }
 
 void Drawable::setColor(const DirectX::XMFLOAT4A& color)

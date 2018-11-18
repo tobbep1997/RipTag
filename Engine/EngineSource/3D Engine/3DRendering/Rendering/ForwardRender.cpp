@@ -192,8 +192,6 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	{
 		if (DX::g_animatedGeometryQueue[i]->getHidden() != true )
 		{
-			auto animatedModel = DX::g_animatedGeometryQueue[i]->getAnimatedModel();
-
 			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
 			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
@@ -624,7 +622,7 @@ void ForwardRender::_mapObjectInsideOutlineBuffer(Drawable* drawable, const Dire
 
 void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 {
-	std::vector<DirectX::XMFLOAT4X4A> skinningVector = drawable->getAnimatedModel()->GetSkinningMatrices();
+	std::vector<DirectX::XMFLOAT4X4A> skinningVector = drawable->getAnimationPlayer()->GetSkinningMatrices();
 
 	m_animationBuffer->UpdateBuffer(skinningVector.data(), skinningVector.size() * sizeof(float) * 16);
 	m_animationBuffer->SetToShader();

@@ -24,7 +24,7 @@ class Texture;
 
 namespace Animation 
 {
-	class AnimatedModel;
+	class AnimationPlayer;
 };
 namespace SM
 {
@@ -36,7 +36,7 @@ class Drawable : public Transform
 private:
 	StaticMesh* m_staticMesh = nullptr;
 	DynamicMesh* m_dynamicMesh = nullptr;
-	Animation::AnimatedModel* m_anim = nullptr;
+	Animation::AnimationPlayer* m_anim = nullptr;
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
 	bool m_hidden;
@@ -97,8 +97,8 @@ public:
 	virtual EntityType getEntityType();
 	virtual void setEntityType(EntityType en);
 
-	//returns AnimatedModel ptr if valid
-	Animation::AnimatedModel* getAnimatedModel();
+	//returns AnimationPlayer ptr if valid
+	Animation::AnimationPlayer* getAnimationPlayer();
 	StaticMesh* getStaticMesh();
 
 	virtual void setTextureTileMult(float u, float v);

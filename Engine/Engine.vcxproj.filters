@@ -35,7 +35,6 @@
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\TextureManager.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimatedModel.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Texture.cpp" />
@@ -63,6 +62,8 @@
     <ClCompile Include="Source\ParticleSystem\ParticleManager.cpp" />
     <ClCompile Include="Source\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="EngineSource\Helper\AnimationDebugHelper.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -79,7 +80,6 @@
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\TextureManager.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimatedModel.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Texture.h" />
@@ -122,6 +122,8 @@
     <ClInclude Include="Source\ParticleSystem\ParticleEmitter.h" />
     <ClInclude Include="Source\ParticleSystem\ParticleManager.h" />
     <ClInclude Include="EngineSource\Helper\AnimationDebugHelper.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

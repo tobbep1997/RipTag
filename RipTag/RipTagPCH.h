@@ -69,7 +69,7 @@
 #include "EngineSource/3D Engine/Components/Camera.h"
 #include "EngineSource/3D Engine/Components/Base/Drawable.h"
 #include "EngineSource/3D Engine/Components/StateMachine.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
+#include "EngineSource/3D Engine/Model/Meshes/AnimationPlayer.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"

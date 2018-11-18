@@ -23,11 +23,11 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setObjectTag("LEVER");
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("SPAK"));//BYT TILL SPAK
-	auto& machine = getAnimatedModel()->InitStateMachine(1);
-	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
+	auto& machine = getAnimationPlayer()->InitStateMachine(1);
+	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
 	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
-	getAnimatedModel()->Pause();
+	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
 
@@ -61,7 +61,7 @@ void Lever::Update(double deltaTime)
 			}
 		}
 	}
-	this->getAnimatedModel()->Update(deltaTime);
+	this->getAnimationPlayer()->Update(deltaTime);
 }
 
 void Lever::BeginPlay()
