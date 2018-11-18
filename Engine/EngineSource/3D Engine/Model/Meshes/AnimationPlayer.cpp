@@ -1,15 +1,8 @@
 #include "EnginePCH.h"
 #include "AnimationPlayer.h"
+#include "../../../Helper/AnimationHelpers.h"
 
-float lerp(float from, float to, float fraction)
-{
-	return from + fraction * (to - from);
-}
 
-float constexpr getNewValueInNewRange(float minOld, float maxOld, float minNew, float maxNew, float value)
-{
-	return ((minOld - maxOld) * ((value - maxNew) / (minNew - maxOld))) + maxNew;
-}
 
 Animation::AnimationPlayer::AnimationPlayer()
 {
@@ -111,7 +104,7 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 float getSpeedScale(size_t firstFrameCount, size_t secondFrameCount, float weight)
 {
 	float scale = static_cast<float>(firstFrameCount) / static_cast<float>(secondFrameCount);
-	scale += lerp(0.0, 1.0 - scale, weight);
+	scale += Animation::lerp(0.0, 1.0 - scale, weight);
 	return scale;
 }
 
@@ -131,9 +124,10 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace1D(SM::Blend
 	indexAndProgressionSecond = _ComputeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_CurrentNormalizedTime, stateData.first->m_FrameCount);
 
 	auto prevIndexFirst = indexAndProgressionFirst.first;
-	auto progressionFirst= indexAndProgressionFirst.second;
+	auto progressionFirst = indexAndProgressionFirst.second;
 	auto prevIndexSecond = indexAndProgressionSecond.first;
 	auto progressionSecond = indexAndProgressionSecond.second;
+
 	SkeletonPose finalPose;
 	if (!stateData.second)
 	{
@@ -314,25 +308,6 @@ std::shared_ptr<Animation::Skeleton> Animation::LoadAndCreateSkeleton(std::strin
 	return std::make_shared<Animation::Skeleton>(importedSkeleton);
 }
 
-Animation::JointPose Animation::getDifferencePose(JointPose sourcePose, JointPose referencePose)
-{
-	using namespace DirectX;
-
-	XMMATRIX sourceMatrix    = _createMatrixFromSRT(sourcePose.m_Transformation);
-	XMMATRIX referenceMatrix = _createMatrixFromSRT(referencePose.m_Transformation);
-	XMMATRIX referenceMatrixInverse = XMMatrixInverse(nullptr, referenceMatrix);
-	XMMATRIX differenceMatrix = XMMatrixMultiply(sourceMatrix, referenceMatrixInverse);
-
-	SRT differencePose = {};
-	XMVECTOR s, r, t;
-	XMMatrixDecompose(&s, &r, &t, differenceMatrix);
-	XMStoreFloat4A(&differencePose.m_Scale, s);
-	XMStoreFloat4A(&differencePose.m_RotationQuaternion, r);
-	XMStoreFloat4A(&differencePose.m_Translation, t);
-
-	return JointPose(differencePose);
-}
-
 Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose differencePose)
 {
 	using namespace DirectX;
@@ -352,88 +327,9 @@ Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose 
 	return JointPose(additivePose);
 }
 
-// Returns null if the clips are not compatible
-Animation::AnimationClip* Animation::computeDifferenceClip(Animation::AnimationClip* sourceClip, Animation::AnimationClip* referenceClip)
-{
-#pragma region using stuff
-	using namespace Animation;
-	using std::make_unique;
-#pragma endregion 
-
-	if (sourceClip->m_FrameCount != referenceClip->m_FrameCount
-	   || sourceClip->m_Skeleton != referenceClip->m_Skeleton)
-		return nullptr;
-
-	AnimationClip* differenceClip = new AnimationClip();
-	differenceClip->m_FrameCount = sourceClip->m_FrameCount;
-	differenceClip->m_Skeleton = sourceClip->m_Skeleton;
-	differenceClip->m_SkeletonPoses = make_unique<SkeletonPose[]>(differenceClip->m_FrameCount);
-
-	//Go through each skeleton pose and set new difference pose for each joint
-	for (int frame = 0; frame < differenceClip->m_FrameCount; frame++) 
-	{
-		//Init joint pose array for this skeleton pose
-		differenceClip->m_SkeletonPoses[frame].m_JointPoses = make_unique<JointPose[]>(differenceClip->m_Skeleton->m_JointCount);
-		
-		//Go through each joint and assign the difference pose
-		for (int jointPose = 0; jointPose < differenceClip->m_Skeleton->m_JointCount; jointPose++)
-		{
-			auto sourcePose = sourceClip->m_SkeletonPoses[frame].m_JointPoses[jointPose];
-			auto referencePose = referenceClip->m_SkeletonPoses[frame].m_JointPoses[jointPose];
-			auto differencePose = getDifferencePose(sourcePose, referencePose);
-
-			differenceClip->m_SkeletonPoses[frame].m_JointPoses[jointPose] = differencePose;
-		}
-	}
-
-	return differenceClip;
-}
-
-bool Animation::bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip)
-{
-#pragma region incompatibility check
-	if (targetClip->m_FrameCount != differenceClip->m_FrameCount // #todo support different clip lengths
-		|| targetClip->m_Skeleton != differenceClip->m_Skeleton)
-		return false;
-#pragma endregion
-
-	for (int frame = 0; frame < targetClip->m_FrameCount; frame++) //for each frame
-	{
-		for (int jointPose = 0; jointPose < targetClip->m_Skeleton->m_JointCount; jointPose++) //for each joint in this frame
-		{
-			auto targetPose = targetClip->m_SkeletonPoses[frame].m_JointPoses[jointPose];
-			auto differencePose = differenceClip->m_SkeletonPoses[frame].m_JointPoses[jointPose];
-
-			//Concatenate the target pose and difference pose and store in target animation clip
-			targetClip->m_SkeletonPoses[frame].m_JointPoses[jointPose] = getAdditivePose(targetPose, differencePose);
-		}
-	}
-
-	return true;
-}
-
 Animation::JointPose Animation::AnimationPlayer::_BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor)
 {
 	return _InterpolateJointPose(firstPose, secondPose, blendFactor);
-}
-
-Animation::JointPose getAdditivePose(Animation::JointPose targetPose, Animation::JointPose differencePose)
-{
-	using namespace DirectX;
-
-	XMMATRIX targetPoseMatrix = _createMatrixFromSRT(targetPose.m_Transformation);
-	XMMATRIX differencePoseMatrix = _createMatrixFromSRT(differencePose.m_Transformation);
-	XMMATRIX additivePoseMatrix = XMMatrixMultiply(differencePoseMatrix, targetPoseMatrix);
-
-
-	Animation::SRT additivePose = {};
-	XMVECTOR s, r, t;
-	XMMatrixDecompose(&s, &r, &t, additivePoseMatrix);
-	XMStoreFloat4A(&additivePose.m_Scale, s);
-	XMStoreFloat4A(&additivePose.m_RotationQuaternion, r);
-	XMStoreFloat4A(&additivePose.m_Translation, t);
-
-	return Animation::JointPose(additivePose);
 }
 
 Animation::SkeletonPose Animation::AnimationPlayer::_BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount)
@@ -492,32 +388,6 @@ void Animation::AnimationPlayer::_ComputeSkinningMatrices(SkeletonPose * pose)
 	}
 }
 
-void Animation::AnimationPlayer::_ComputeModelMatrices(SkeletonPose * pose)
-{
-	using namespace DirectX;
-
-	//Check if we have layers
-	std::optional<Animation::SkeletonPose> layerPose = std::nullopt;
-	if (m_LayerStateMachine)
-		layerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
-
-	if (layerPose.has_value())
-		XMStoreFloat4x4A(&m_GlobalMatrices[0], Animation::_createMatrixFromSRT(getAdditivePose(pose->m_JointPoses[0].m_Transformation, layerPose.value().m_JointPoses[0].m_Transformation).m_Transformation));
-	else
-		XMStoreFloat4x4A(&m_GlobalMatrices[0], Animation::_createMatrixFromSRT(pose->m_JointPoses[0].m_Transformation));
-
-	for (int i = 1; i < m_Skeleton->m_JointCount; i++)
-	{
-		const int16_t parentIndex = m_Skeleton->m_Joints[i].m_ParentIndex;
-		const XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_GlobalMatrices[parentIndex]);
-
-		if (layerPose.has_value())
-			DirectX::XMStoreFloat4x4A(&m_GlobalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(getAdditivePose(pose->m_JointPoses[i].m_Transformation, layerPose.value().m_JointPoses[i]).m_Transformation), parentGlobalMatrix)); // #matrixmultiplication
-		else
-			XMStoreFloat4x4A(&m_GlobalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_JointPoses[i].m_Transformation), parentGlobalMatrix));
-	}
-}
-
 // #modelmatrix 
 void Animation::AnimationPlayer::_ComputeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {
@@ -549,7 +419,32 @@ void Animation::AnimationPlayer::_ComputeModelMatrices(SkeletonPose* firstPose, 
 	}
 }
 
-// #convert Transform conversion
+void Animation::AnimationPlayer::_ComputeModelMatrices(SkeletonPose * pose)
+{
+	using namespace DirectX;
+
+	//Check if we have layers
+	std::optional<Animation::SkeletonPose> layerPose = std::nullopt;
+	if (m_LayerStateMachine)
+		layerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
+
+	if (layerPose.has_value())
+		XMStoreFloat4x4A(&m_GlobalMatrices[0], Animation::_createMatrixFromSRT(getAdditivePose(pose->m_JointPoses[0].m_Transformation, layerPose.value().m_JointPoses[0].m_Transformation).m_Transformation));
+	else
+		XMStoreFloat4x4A(&m_GlobalMatrices[0], Animation::_createMatrixFromSRT(pose->m_JointPoses[0].m_Transformation));
+
+	for (int i = 1; i < m_Skeleton->m_JointCount; i++)
+	{
+		const int16_t parentIndex = m_Skeleton->m_Joints[i].m_ParentIndex;
+		const XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_GlobalMatrices[parentIndex]);
+
+		if (layerPose.has_value())
+			DirectX::XMStoreFloat4x4A(&m_GlobalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(getAdditivePose(pose->m_JointPoses[i].m_Transformation, layerPose.value().m_JointPoses[i]).m_Transformation), parentGlobalMatrix)); // #matrixmultiplication
+		else
+			XMStoreFloat4x4A(&m_GlobalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(pose->m_JointPoses[i].m_Transformation), parentGlobalMatrix));
+	}
+}
+
 Animation::SRT Animation::ConvertTransformToSRT(ImporterLibrary::Transform transform)
 {
 	using namespace DirectX;
@@ -565,26 +460,6 @@ Animation::SRT Animation::ConvertTransformToSRT(ImporterLibrary::Transform trans
 	srt.m_Translation = { transform.transform_position[0], transform.transform_position[1], transform.transform_position[2], 1.0f };
 	srt.m_Scale = { 1.0, 1.0, 1.0, 1.0f };
 	return srt;
-}
-
-// #interpolate
-void Animation::AnimationPlayer::_InterpolatePose(SkeletonPose * firstPose, SkeletonPose * secondPose, float weight)
-{
-	for (int i = 0; i < m_Skeleton->m_JointCount; i++)
-	{		
-		DirectX::XMVECTOR firstRotation     = DirectX::XMLoadFloat4A(&firstPose->m_JointPoses[i].m_Transformation.m_RotationQuaternion);
-		DirectX::XMVECTOR secondRotation    = DirectX::XMLoadFloat4A(&secondPose->m_JointPoses[i].m_Transformation.m_RotationQuaternion);
-		DirectX::XMVECTOR firstTranslation  = DirectX::XMLoadFloat4A(&firstPose->m_JointPoses[i].m_Transformation.m_Translation);
-
-		DirectX::XMVECTOR secondTranslation = DirectX::XMLoadFloat4A(&secondPose->m_JointPoses[i].m_Transformation.m_Translation);
-		DirectX::XMVECTOR firstScale        = DirectX::XMLoadFloat4A(&firstPose->m_JointPoses[i].m_Transformation.m_Scale);
-		DirectX::XMVECTOR secondScale       = DirectX::XMLoadFloat4A(&secondPose->m_JointPoses[i].m_Transformation.m_Scale);
-
-		DirectX::XMVECTOR newRotation    = DirectX::XMQuaternionSlerp(firstRotation, secondRotation, weight);
-		DirectX::XMVECTOR newTranslation = DirectX::XMVectorLerp(firstTranslation, secondTranslation, weight);
-		DirectX::XMVECTOR newScale       = DirectX::XMVectorLerp(firstScale, secondScale, weight);
-	}
-	//TODO do stuff / return new skeleton pose
 }
 
 // #interpolate

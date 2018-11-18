@@ -124,6 +124,7 @@
     <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.h" />
+    <ClInclude Include="EngineSource\Helper\AnimationHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />
