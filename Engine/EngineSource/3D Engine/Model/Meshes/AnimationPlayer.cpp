@@ -270,6 +270,7 @@ std::vector<DirectX::XMMATRIX> Animation::AnimationPlayer::_CombinePoses(std::ve
 	{
 		
 	}
+	return std::vector<DirectX::XMMATRIX>{};
 }
 
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
