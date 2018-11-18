@@ -25,11 +25,11 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("PressurePlate");
 	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("PLATE"));
-	auto& stateMachine = getAnimatedModel()->InitStateMachine(2);
-	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
+	auto& stateMachine = getAnimationPlayer()->InitStateMachine(2);
+	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
 	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
 	stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
-	getAnimatedModel()->Pause();
+	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
 
@@ -71,7 +71,7 @@ void PressurePlate::Update(double deltaTime)
 	if (previousState && !this->getTriggerState())
 		this->SendOverNetwork();
 
-	this->getAnimatedModel()->Update(deltaTime);
+	this->getAnimationPlayer()->Update(deltaTime);
 }
 
 void PressurePlate::_playSound(AudioEngine::SoundType st)

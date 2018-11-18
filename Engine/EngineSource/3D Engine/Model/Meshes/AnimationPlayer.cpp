@@ -1,5 +1,5 @@
 #include "EnginePCH.h"
-#include "AnimatedModel.h"
+#include "AnimationPlayer.h"
 
 float lerp(float a, float b, float f)
 {
@@ -11,7 +11,7 @@ float constexpr getNewValueInNewRange(float x, float a, float b, float c, float 
 	return ((x - a) * ((d - c) / (b - a))) + c;
 }
 
-Animation::AnimatedModel::AnimatedModel()
+Animation::AnimationPlayer::AnimationPlayer()
 {
 	m_skinningMatrices.resize(128);
 	m_globalMatrices.resize(128);
@@ -21,12 +21,12 @@ Animation::AnimatedModel::AnimatedModel()
 	std::fill(m_globalMatrices.begin(), m_globalMatrices.end(), identityMatrix);
 }
 
-Animation::AnimatedModel::~AnimatedModel()
+Animation::AnimationPlayer::~AnimationPlayer()
 {
 }
 
 // Computes the frame we're currently on and computes final skinning matrices for gpu skinning
-void Animation::AnimatedModel::Update(float deltaTime)
+void Animation::AnimationPlayer::Update(float deltaTime)
 {
 	timeAlreadyUpdatedThisFrame = false;
 	m_currentFrameDeltaTime = deltaTime;
@@ -115,7 +115,7 @@ float getSpeedScale(size_t firstFrameCount, size_t secondFrameCount, float weigh
 	return scale;
 }
 
-Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData)
+Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData)
 {
 	if (!stateData.first)
 		return Animation::SkeletonPose();
@@ -155,7 +155,7 @@ Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace1D(SM::BlendSp
 	return std::move(finalPose);
 }
 
-Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
+Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData)
 {
 	if (!stateData.firstTop)
 		return Animation::SkeletonPose();
@@ -207,7 +207,7 @@ Animation::SkeletonPose Animation::AnimatedModel::UpdateBlendspace2D(SM::BlendSp
 	return std::move(finalPose);
 }
 
-void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
+void Animation::AnimationPlayer::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
 {
 	m_currentClip = clip;
 	m_currentTime = keepCurrentNormalizedTime
@@ -215,7 +215,7 @@ void Animation::AnimatedModel::SetPlayingClip(AnimationClip* clip, bool isLoopin
 		: 0.0;
 }
 
-void Animation::AnimatedModel::SetSkeleton(SharedSkeleton skeleton)
+void Animation::AnimationPlayer::SetSkeleton(SharedSkeleton skeleton)
 {
 	m_skeleton = skeleton;
 
@@ -224,34 +224,34 @@ void Animation::AnimatedModel::SetSkeleton(SharedSkeleton skeleton)
 	m_skinningMatrices.resize(skeleton->m_jointCount);
 }
 
-void Animation::AnimatedModel::Pause()
+void Animation::AnimationPlayer::Pause()
 {
 	m_isPlaying = false;
 }
 
-void Animation::AnimatedModel::Play()
+void Animation::AnimationPlayer::Play()
 {
 	m_isPlaying = true;
 }
 
-std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::GetStateMachine()
+std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimationPlayer::GetStateMachine()
 {
 	return m_StateMachine;
 }
 
-std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::GetLayerStateMachine()
+std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimationPlayer::GetLayerStateMachine()
 {
 	return m_LayerStateMachine;
 }
 
-std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitStateMachine(size_t numStates)
+std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimationPlayer::InitStateMachine(size_t numStates)
 {
 	m_StateMachine = std::make_unique<SM::AnimationStateMachine>(numStates);
 	m_Visitor = std::make_unique<SM::StateVisitor>(this);
 	return m_StateMachine;
 }
 
-std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitLayerStateMachine(size_t numStates)
+std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimationPlayer::InitLayerStateMachine(size_t numStates)
 {
 	m_LayerStateMachine = std::make_unique<SM::AnimationStateMachine>(numStates);
 	m_LayerVisitor = std::make_unique<SM::LayerVisitor>(this);
@@ -259,12 +259,12 @@ std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimatedModel::InitLayerS
 }
 
 // Returns a reference to the skinning matrix vector
-const std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimatedModel::GetSkinningMatrices()
+const std::vector<DirectX::XMFLOAT4X4A>& Animation::AnimationPlayer::GetSkinningMatrices()
 {
 	return m_skinningMatrices;
 }
 
-float Animation::AnimatedModel::GetCachedDeltaTime()
+float Animation::AnimationPlayer::GetCachedDeltaTime()
 {
 	return m_currentFrameDeltaTime;
 }
@@ -412,7 +412,7 @@ bool Animation::bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip,
 	return true;
 }
 
-Animation::JointPose Animation::AnimatedModel::_BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor)
+Animation::JointPose Animation::AnimationPlayer::_BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor)
 {
 	return _interpolateJointPose(firstPose, secondPose, blendFactor);
 }
@@ -436,7 +436,7 @@ Animation::JointPose getAdditivePose(Animation::JointPose targetPose, Animation:
 	return Animation::JointPose(additivePose);
 }
 
-Animation::SkeletonPose Animation::AnimatedModel::_BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount)
+Animation::SkeletonPose Animation::AnimationPlayer::_BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount)
 {
 	using Animation::SkeletonPose;
 	SkeletonPose pose(jointCount);
@@ -450,7 +450,7 @@ Animation::SkeletonPose Animation::AnimatedModel::_BlendSkeletonPoses(SkeletonPo
 }
 
 //Blend first and second pair, then blend the results
-Animation::SkeletonPose Animation::AnimatedModel::_BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount)
+Animation::SkeletonPose Animation::AnimationPlayer::_BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount)
 {
 	auto firstBlendedPose  = _BlendSkeletonPoses(firstPair.first, firstPair.second, firstPair.blendFactor, jointCount);
 	auto secondBlendedPose = _BlendSkeletonPoses(secondPair.first, secondPair.second, secondPair.blendFactor, jointCount);
@@ -458,7 +458,7 @@ Animation::SkeletonPose Animation::AnimatedModel::_BlendSkeletonPoses2D(Skeleton
 	return std::move(finalBlendedPose);
 }
 
-void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
+void Animation::AnimationPlayer::_computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {
 	using namespace DirectX;
 
@@ -476,7 +476,7 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose* firstPose,
 	}
 }
 
-void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose * pose)
+void Animation::AnimationPlayer::_computeSkinningMatrices(SkeletonPose * pose)
 {
 	using namespace DirectX;
 	_computeModelMatrices(pose);
@@ -492,7 +492,7 @@ void Animation::AnimatedModel::_computeSkinningMatrices(SkeletonPose * pose)
 	}
 }
 
-void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose * pose)
+void Animation::AnimationPlayer::_computeModelMatrices(SkeletonPose * pose)
 {
 	using namespace DirectX;
 
@@ -519,7 +519,7 @@ void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose * pose)
 }
 
 // #modelmatrix 
-void Animation::AnimatedModel::_computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
+void Animation::AnimationPlayer::_computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight)
 {
 	using namespace DirectX;
 
@@ -568,7 +568,7 @@ Animation::SRT Animation::ConvertTransformToSRT(ImporterLibrary::Transform trans
 }
 
 // #interpolate
-void Animation::AnimatedModel::_interpolatePose(SkeletonPose * firstPose, SkeletonPose * secondPose, float weight)
+void Animation::AnimationPlayer::_interpolatePose(SkeletonPose * firstPose, SkeletonPose * secondPose, float weight)
 {
 	for (int i = 0; i < m_skeleton->m_jointCount; i++)
 	{		
@@ -588,7 +588,7 @@ void Animation::AnimatedModel::_interpolatePose(SkeletonPose * firstPose, Skelet
 }
 
 // #interpolate
-Animation::JointPose Animation::AnimatedModel::_interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight)//1.0 weight means 100% second pose
+Animation::JointPose Animation::AnimationPlayer::_interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight)//1.0 weight means 100% second pose
 {
 	using namespace DirectX;
 
@@ -611,7 +611,7 @@ Animation::JointPose Animation::AnimatedModel::_interpolateJointPose(JointPose *
 	return JointPose(srt);
 }
 
-std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount)
+std::pair<uint16_t, float> Animation::AnimationPlayer::_computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount)
 {
 	currentTime += deltaTime;
 	frameCount -= 1;
@@ -627,7 +627,7 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
 }
 
-std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount)
+std::pair<uint16_t, float> Animation::AnimationPlayer::_computeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount)
 {
 	*currentTime += deltaTime;
 	frameCount -= 1;
@@ -643,7 +643,7 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
 }
 
-std::optional<std::pair<uint16_t, float>> Animation::AnimatedModel::_computeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount)
+std::optional<std::pair<uint16_t, float>> Animation::AnimationPlayer::_computeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount)
 {
 	*currentTime += deltaTime;
 	frameCount -= 1;
@@ -660,7 +660,7 @@ std::optional<std::pair<uint16_t, float>> Animation::AnimatedModel::_computeInde
 	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
 }
 
-std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount)
+std::pair<uint16_t, float> Animation::AnimationPlayer::_computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount)
 {
 	if (!timeAlreadyUpdatedThisFrame)
 	{
@@ -685,7 +685,7 @@ std::pair<uint16_t, float> Animation::AnimatedModel::_computeIndexAndProgression
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndexInt), progression));
 }
 
-void Animation::AnimatedModel::UpdateLooping(Animation::AnimationClip* clip)
+void Animation::AnimationPlayer::UpdateLooping(Animation::AnimationClip* clip)
 {
 	if (clip != m_currentClip)
 		this->SetPlayingClip(clip, true, false);
@@ -722,7 +722,7 @@ void Animation::AnimatedModel::UpdateLooping(Animation::AnimationClip* clip)
 	}
 }
 
-void Animation::AnimatedModel::UpdateOnce(Animation::AnimationClip* clip)
+void Animation::AnimationPlayer::UpdateOnce(Animation::AnimationClip* clip)
 {
 	if (clip != m_currentClip)
 		this->SetPlayingClip(clip, false, false);

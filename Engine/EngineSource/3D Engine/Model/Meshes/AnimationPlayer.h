@@ -28,7 +28,7 @@ namespace ImporterLibrary
 
 namespace Animation
 {
-#pragma region AnimatedModelClassStructs
+#pragma region AnimationPlayerClassStructs
 	// Struct containing rotation, translation and scale as XMFLOAT4A, in that order
 	struct SRT
 	{
@@ -168,7 +168,7 @@ namespace Animation
 		float blendFactor;
 	};
 
-	class AnimatedModel
+	class AnimationPlayer
 	{
 	public:
 		enum ANIMATION_TYPE_STATE
@@ -177,9 +177,9 @@ namespace Animation
 			STATE_2D_BLEND,
 			STATE_SINGLE_CLIP
 		};
-		AnimatedModel();
+		AnimationPlayer();
 	
-		~AnimatedModel();
+		~AnimationPlayer();
 
 		void Update(float deltaTime);
 		SkeletonPose UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData);

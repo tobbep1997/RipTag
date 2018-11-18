@@ -24,7 +24,7 @@
 #include "EngineSource/3D Engine/Model/Meshes/StaticMesh.h"
 #include "EngineSource/3D Engine/Model/Meshes/DynamicMesh.h"
 #include "EngineSource/3D Engine/Components/Base/Drawable.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
+#include "EngineSource/3D Engine/Model/Meshes/AnimationPlayer.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/3DRendering/Framework/Engine3D.h"

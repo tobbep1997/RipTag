@@ -104,16 +104,16 @@ namespace SM
 		return state;
 	}
 
-	void AnimationStateMachine::SetModel(Animation::AnimatedModel* model)
+	void AnimationStateMachine::SetModel(Animation::AnimationPlayer* model)
 	{
-		m_AnimatedModel = model;
+		m_AnimationPlayer = model;
 	}
 
 	void AnimationStateMachine::SetState(std::string stateName)
 	{
 		m_CurrentState = m_States.at(stateName);
-		if (m_AnimatedModel)
-			m_AnimatedModel->Play();
+		if (m_AnimationPlayer)
+			m_AnimationPlayer->Play();
 	}
 
 	void AnimationStateMachine::SetStateIfAllowed(std::string stateName)
@@ -178,31 +178,31 @@ namespace SM
 	Animation::SkeletonPose StateVisitor::dispatch(BlendSpace1D& state){
 		auto clips = state.CalculateCurrentClips();
 
-		if (!m_AnimatedModel)
+		if (!m_AnimationPlayer)
 			return Animation::SkeletonPose();
 
 		//if (clips.first)
-		//	m_AnimatedModel->SetPlayingClip(clips.first, true, true);
+		//	m_AnimationPlayer->SetPlayingClip(clips.first, true, true);
 		//if (clips.second)
-		//	m_AnimatedModel->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
+		//	m_AnimationPlayer->SetLayeredClip(clips.second, clips.weight, BLEND_MATCH_TIME, true);
 		//else
-		//	m_AnimatedModel->SetLayeredClipWeight(0.0);
+		//	m_AnimationPlayer->SetLayeredClipWeight(0.0);
 
-		return std::move(m_AnimatedModel->UpdateBlendspace1D(clips));
+		return std::move(m_AnimationPlayer->UpdateBlendspace1D(clips));
 	}
 	Animation::SkeletonPose StateVisitor::dispatch(BlendSpace2D& state) {
 		BlendSpace2D::Current2DStateData clips = state.CalculateCurrentClips();
-		if (!m_AnimatedModel)
+		if (!m_AnimationPlayer)
 			return Animation::SkeletonPose();
 
-		return std::move(m_AnimatedModel->UpdateBlendspace2D(clips));
+		return std::move(m_AnimationPlayer->UpdateBlendspace2D(clips));
 	}
 	Animation::SkeletonPose StateVisitor::dispatch(LoopState & state)
 	{
-		if (!m_AnimatedModel)
+		if (!m_AnimationPlayer)
 			return Animation::SkeletonPose();
 
-		m_AnimatedModel->UpdateLooping(state.GetClip());
+		m_AnimationPlayer->UpdateLooping(state.GetClip());
 	}
 
 	Animation::SkeletonPose StateVisitor::dispatch(AutoTransitionState& state)
@@ -212,10 +212,10 @@ namespace SM
 
 	Animation::SkeletonPose StateVisitor::dispatch(PlayOnceState& state)
 	{
-		if (!m_AnimatedModel)
+		if (!m_AnimationPlayer)
 			return Animation::SkeletonPose();
 
-		m_AnimatedModel->UpdateOnce(state.GetClip());
+		m_AnimationPlayer->UpdateOnce(state.GetClip());
 		
 		//#todo
 		return Animation::SkeletonPose();
@@ -227,14 +227,14 @@ namespace SM
 
 	std::optional<Animation::SkeletonPose> LayerVisitor::dispatch(BlendSpace1DAdditive& state)
 	{
-		assert(m_AnimatedModel && "LayerVisitor missing animated model");
+		assert(m_AnimationPlayer && "LayerVisitor missing animation player");
 		//#todo all layers
 
-		auto clips = state.CalculateCurrent(m_AnimatedModel->GetCachedDeltaTime());
+		auto clips = state.CalculateCurrent(m_AnimationPlayer->GetCachedDeltaTime());
 		float b = clips.weight;
 
 		if (clips.second)
-			return m_AnimatedModel->_BlendSkeletonPoses(&clips.first->m_skeletonPoses[0], &clips.second->m_skeletonPoses[0], clips.weight, clips.first->m_skeleton->m_jointCount);
+			return m_AnimationPlayer->_BlendSkeletonPoses(&clips.first->m_skeletonPoses[0], &clips.second->m_skeletonPoses[0], clips.weight, clips.first->m_skeleton->m_jointCount);
 		else if (clips.first)
 			return Animation::MakeSkeletonPose(clips.first->m_skeletonPoses[0], clips.first->m_skeleton->m_jointCount);
 		else

@@ -32,7 +32,6 @@ public:
 	DynamicMesh* getDynamicMesh(const std::string & meshName);
 	StaticMesh* getStaticMesh(const std::string & meshName);
 	const ImporterLibrary::CollisionBoxes & getCollisionBoxes(const std::string & meshName);
-	void UpdateAllAnimations(float deltaTime);
 
 	bool UnloadStaticMesh(const std::string & meshName);
 	bool UnloadDynamicMesh(const std::string & meshName);
