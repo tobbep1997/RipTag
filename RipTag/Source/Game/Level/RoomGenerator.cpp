@@ -181,7 +181,7 @@ void RoomGenerator::_placeProps()
 			XMVECTOR decomposeTranslation;
 			XMVECTOR decomposeRotation;
 			XMVECTOR decomposeScaling;
-			for (int k = 0; k < modCollisionBoxes.nrOfBoxes && true; k++)
+			for (unsigned int k = 0; k < modCollisionBoxes.nrOfBoxes && true; k++)
 			{
 				XMFLOAT3 cPos = XMFLOAT3(modCollisionBoxes.boxes[k].translation);
 				XMFLOAT3 cScl = XMFLOAT3(modCollisionBoxes.boxes[k].scale);

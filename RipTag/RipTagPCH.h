@@ -25,6 +25,7 @@
 #include "Source/Game/States/OptionState.h"
 #include "Source/Game/States/LobbyState.h"
 #include "Source/Game/States/LoseState.h"
+#include "Source/Game/States/DBG/DBGState.h"
 
 #include "Source/Input/Input.h"
 #include "Source/Game/Level/Room.h"
