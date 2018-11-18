@@ -234,9 +234,9 @@ namespace SM
 		float b = clips.weight;
 
 		if (clips.second)
-			return m_AnimationPlayer->_BlendSkeletonPoses(&clips.first->m_skeletonPoses[0], &clips.second->m_skeletonPoses[0], clips.weight, clips.first->m_skeleton->m_jointCount);
+			return m_AnimationPlayer->_BlendSkeletonPoses(&clips.first->m_SkeletonPoses[0], &clips.second->m_SkeletonPoses[0], clips.weight, clips.first->m_Skeleton->m_JointCount);
 		else if (clips.first)
-			return Animation::MakeSkeletonPose(clips.first->m_skeletonPoses[0], clips.first->m_skeleton->m_jointCount);
+			return Animation::MakeSkeletonPose(clips.first->m_SkeletonPoses[0], clips.first->m_Skeleton->m_JointCount);
 		else
 			return std::nullopt;
 

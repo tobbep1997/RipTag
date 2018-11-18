@@ -73,7 +73,7 @@ public:
 	BasicLayer(std::string name, Animation::AnimationClip* clip, float blendInTime, float blendOutTime, LayerMachine* owner)
 		: LayerState(name, blendInTime, blendOutTime, owner), m_Clip(clip)
 	{
-		LayerState::_setLength(m_Clip->m_frameCount / 24.0f);
+		LayerState::_setLength(m_Clip->m_FrameCount / 24.0f);
 	}
 
 	~BasicLayer();
