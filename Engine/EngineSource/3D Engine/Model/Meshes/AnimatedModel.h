@@ -182,19 +182,12 @@ namespace Animation
 		~AnimatedModel();
 
 		void Update(float deltaTime);
-		void UpdateBlend(float deltaTime);
 		SkeletonPose UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData);
 		SkeletonPose UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
-		void SetLayeredClip(AnimationClip* clip, float weight, UINT flags = BLEND_MATCH_NORMALIZED_TIME, bool isLooping = true);
-		void SetLayeredClipWeight(const float& weight);
-		void SetTargetClip(AnimationClip* clip, UINT blendFlags = 0, float blendTime = 1.0f, bool isLooping = true);
 		void SetSkeleton(SharedSkeleton skeleton);
-		void SetScrubIndex(unsigned int index);
 		void Pause();
 		void Play();
-		float GetCurrentTimeInClip();
-		int GetCurrentFrameIndex();
 
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetLayerStateMachine();
@@ -216,37 +209,28 @@ namespace Animation
 		
 		SharedSkeleton m_skeleton = nullptr;
 		AnimationClip* m_currentClip = nullptr;
-		CombinedClip m_combinedClip;
-		AnimationClip* m_targetClip = nullptr;
 
 		float m_currentBlendTime = 0.0;
 		float m_targetBlendTime = 0.0;
-		float m_targetClipCurrentTime = 0.0;
 
 		float m_currentTime = 0.0f;
 		float m_currentNormalizedTime = 0.0f;
 		bool timeAlreadyUpdatedThisFrame = false;
-		uint16_t m_currentFrame = 0;
 		bool m_isPlaying = false;
 		bool m_isLooping = true;
 
-		unsigned int m_scrubIndex = 0; // #todo remove
-
-		//-- Helper functions --
 	public:
+		//-- Helper functions --
 		JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
 		SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
 		SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
-	private:
 		//----------------------
+	private:
 
 		void _computeSkinningMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		void _computeSkinningMatrices(SkeletonPose* pose);
-		void _computeSkinningMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
-		void _computeSkinningMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _computeModelMatrices(SkeletonPose* pose);
 		void _computeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
-		void _computeModelMatrices(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 		void _interpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
 		JointPose _interpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _computeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
@@ -255,10 +239,7 @@ namespace Animation
 		std::pair<uint16_t, float> _computeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount);
 
 
-
-		void _computeModelMatricesCombined(SkeletonPose* firstPose1, SkeletonPose* secondPose1, float weight1, SkeletonPose* firstPose2, SkeletonPose* secondPose2, float weight2);
 	public:
-		void UpdateCombined(float deltaTime);
 		void UpdateLooping(Animation::AnimationClip* clip);
 		void UpdateOnce(Animation::AnimationClip* clip);
 	};

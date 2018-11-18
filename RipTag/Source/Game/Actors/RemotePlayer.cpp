@@ -220,7 +220,6 @@ void RemotePlayer::_registerAnimationStateMachine()
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BLEFT_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BRIGHT_ANIMATION"));
 
-	this->getAnimatedModel()->SetPlayingClip(sharedAnimations[IDLE].get());
 	this->getAnimatedModel()->Play();
 	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
 
