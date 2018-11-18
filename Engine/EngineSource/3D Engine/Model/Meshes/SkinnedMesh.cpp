@@ -34,7 +34,7 @@ void SkinnedMesh::SET_DEFAULT()
 	using namespace DirectX;
 
 	ImporterLibrary::CustomFileLoader meshloader;
-	ImporterLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile("../Assets/ANIMATEDCUBE.bin");
+	ImporterLibrary::SkinnedMeshFromFile newMesh = meshloader.readSkinnedMeshFile("../Assets/ANIMATEDCUBE.bin");
 
 	DynamicVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
@@ -90,7 +90,7 @@ void SkinnedMesh::LoadMesh(const std::string & path)
 	using namespace DirectX;
 
 	ImporterLibrary::CustomFileLoader meshloader;
-	ImporterLibrary::AnimatedMeshFromFile newMesh = meshloader.readAnimatedMeshFile(path);
+	ImporterLibrary::SkinnedMeshFromFile newMesh = meshloader.readSkinnedMeshFile(path);
 	DynamicVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
