@@ -8,12 +8,17 @@ class LayerState;
 class LayerMachine
 {
 public:
-	LayerMachine();
+	LayerMachine(Animation::Skeleton* skeleton);
 	~LayerMachine();
 
-	void AddLayer(std::string layerName);
+	void UpdatePoseWithLayers(Animation::SkeletonPose& mainAnimationPose, float deltaTime);
+
+	void AddBasicLayer(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime);
+	void Add1DLayer(std::string layerName, float* driver, std::vector<std::pair<float, Animation::AnimationClip*>> nodes);
 	void PopLayer(LayerState*);
+	uint16_t GetSkeletonJointCount();
 private:
+	Animation::Skeleton* m_Skeleton{ nullptr };
 	std::vector<LayerState*> m_ActiveLayers;
 	std::unordered_map<std::string, LayerState*> m_Layers;
 };
@@ -44,13 +49,12 @@ public:
 
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) = 0;
 	bool IsPopped() const;
-	void _getIndexAndProgression();
+	std::pair<uint16_t, float> _getIndexAndProgression();
 private:
 	bool m_IsPopped = false;
 
 	std::string m_Name = "";
 	BLEND_STATE m_BlendState = NONE;
-	LayerMachine* m_OwnerMachine = nullptr;
 
 	float m_CurrentTime = 0.0f;
 	float m_ClipLength = 0.0f;
@@ -62,6 +66,8 @@ private:
 	float m_BlendOutTime = 0.0f;
 
 protected:
+	LayerMachine* m_OwnerMachine = nullptr;
+
 	void _updateBlend(float deltaTime);
 	void _updateTime(float deltaTime);
 	void _setLength(float length);

@@ -147,10 +147,7 @@ namespace Animation
 	DirectX::XMMATRIX _createMatrixFromSRT(const ImporterLibrary::DecomposedTransform& transform);
 	Animation::SharedAnimation LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
 	SharedSkeleton LoadAndCreateSkeleton(std::string file);
-	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
 	Animation::JointPose getAdditivePose(JointPose targetPose, JointPose differencePose);
-	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
-	bool bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip);
 
 #pragma endregion Conversion stuff, Loaders, ...
 
@@ -182,6 +179,7 @@ namespace Animation
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 		float GetCachedDeltaTime();
+		static std::vector<DirectX::XMMATRIX> _CombinePoses(std::vector<Animation::SkeletonPose>&& poses);
 	private:
 		float m_currentFrameDeltaTime = 0.0f;
 
@@ -204,9 +202,9 @@ namespace Animation
 
 	public:
 		//-- Helper functions --
-		JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
-		SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
-		SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
+		static JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
+		static SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
+		static SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
 		//----------------------
 	private:
 
@@ -214,8 +212,6 @@ namespace Animation
 		void _ComputeSkinningMatrices(SkeletonPose* pose);
 		void _ComputeModelMatrices(SkeletonPose* pose);
 		void _ComputeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
-		void _InterpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
-		JointPose _InterpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _ComputeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
 		std::pair<uint16_t, float> _ComputeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
 		std::optional<std::pair<uint16_t, float>> _ComputeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount);

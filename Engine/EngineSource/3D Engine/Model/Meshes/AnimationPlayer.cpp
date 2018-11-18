@@ -265,6 +265,13 @@ float Animation::AnimationPlayer::GetCachedDeltaTime()
 	return m_currentFrameDeltaTime;
 }
 
+std::vector<DirectX::XMMATRIX> Animation::AnimationPlayer::_CombinePoses(std::vector<Animation::SkeletonPose>&& poses)
+{
+	{
+		
+	}
+}
+
 DirectX::XMMATRIX Animation::_createMatrixFromSRT(const SRT& srt)
 {
 	using namespace DirectX;
@@ -331,7 +338,25 @@ Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose 
 
 Animation::JointPose Animation::AnimationPlayer::_BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor)
 {
-	return _InterpolateJointPose(firstPose, secondPose, blendFactor);
+	using namespace DirectX;
+
+	XMVECTOR firstRotation = XMLoadFloat4A(&firstPose->m_Transformation.m_RotationQuaternion);
+	XMVECTOR secondRotation = XMLoadFloat4A(&secondPose->m_Transformation.m_RotationQuaternion);
+	XMVECTOR firstTranslation = XMLoadFloat4A(&firstPose->m_Transformation.m_Translation);
+	XMVECTOR secondTranslation = XMLoadFloat4A(&secondPose->m_Transformation.m_Translation);
+	XMVECTOR firstScale = XMLoadFloat4A(&firstPose->m_Transformation.m_Scale);
+	XMVECTOR secondScale = XMLoadFloat4A(&secondPose->m_Transformation.m_Scale);
+
+	DirectX::XMVECTOR newRotation = XMQuaternionSlerp(firstRotation, secondRotation, blendFactor);
+	DirectX::XMVECTOR newTranslation = XMVectorLerp(firstTranslation, secondTranslation, blendFactor);
+	DirectX::XMVECTOR newScale = XMVectorLerp(firstScale, secondScale, blendFactor);
+
+	SRT srt = {};
+	XMStoreFloat4A(&srt.m_RotationQuaternion, newRotation);
+	XMStoreFloat4A(&srt.m_Scale, newScale);
+	XMStoreFloat4A(&srt.m_Translation, newTranslation);
+
+	return JointPose(srt);
 }
 
 Animation::SkeletonPose Animation::AnimationPlayer::_BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount)
@@ -401,7 +426,7 @@ void Animation::AnimationPlayer::_ComputeModelMatrices(SkeletonPose* firstPose, 
 		layerPose = m_LayerStateMachine->GetCurrentState().recieveStateVisitor(*m_LayerVisitor);
 
 
-	auto rootJointPose = _InterpolateJointPose(&firstPose->m_JointPoses[0], &secondPose->m_JointPoses[0], weight);
+	auto rootJointPose = _BlendJointPoses(&firstPose->m_JointPoses[0], &secondPose->m_JointPoses[0], weight);
 	if (layerPose.has_value())
 		rootJointPose = getAdditivePose(rootJointPose, layerPose.value().m_JointPoses[0]);
 
@@ -414,7 +439,7 @@ void Animation::AnimationPlayer::_ComputeModelMatrices(SkeletonPose* firstPose, 
 	{
 		const int16_t parentIndex = m_Skeleton->m_Joints[i].m_ParentIndex;
 		const XMMATRIX parentGlobalMatrix = XMLoadFloat4x4A(&m_GlobalMatrices[parentIndex]);
-		auto jointPose = _InterpolateJointPose(&firstPose->m_JointPoses[i], &secondPose->m_JointPoses[i], weight);
+		auto jointPose = _BlendJointPoses(&firstPose->m_JointPoses[i], &secondPose->m_JointPoses[i], weight);
 		if (layerPose.has_value())
 			jointPose = getAdditivePose(jointPose, layerPose.value().m_JointPoses[i]);
 		DirectX::XMStoreFloat4x4A(&m_GlobalMatrices[i], XMMatrixMultiply(Animation::_createMatrixFromSRT(jointPose.m_Transformation), parentGlobalMatrix)); // #matrixmultiplication
@@ -464,30 +489,6 @@ Animation::SRT Animation::ConvertTransformToSRT(ImporterLibrary::Transform trans
 	return srt;
 }
 
-// #interpolate
-Animation::JointPose Animation::AnimationPlayer::_InterpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight)//1.0 weight means 100% second pose
-{
-	using namespace DirectX;
-
-	XMVECTOR firstRotation     = XMLoadFloat4A(&firstPose->m_Transformation.m_RotationQuaternion);
-	XMVECTOR secondRotation    = XMLoadFloat4A(&secondPose->m_Transformation.m_RotationQuaternion);
-	XMVECTOR firstTranslation  = XMLoadFloat4A(&firstPose->m_Transformation.m_Translation);
-	XMVECTOR secondTranslation = XMLoadFloat4A(&secondPose->m_Transformation.m_Translation);
-	XMVECTOR firstScale        = XMLoadFloat4A(&firstPose->m_Transformation.m_Scale);
-	XMVECTOR secondScale       = XMLoadFloat4A(&secondPose->m_Transformation.m_Scale);
-
-	DirectX::XMVECTOR newRotation    = XMQuaternionSlerp(firstRotation, secondRotation, weight);
-	DirectX::XMVECTOR newTranslation = XMVectorLerp(firstTranslation, secondTranslation, weight);
-	DirectX::XMVECTOR newScale       = XMVectorLerp(firstScale, secondScale, weight);
-
-	SRT srt = {};
-	XMStoreFloat4A(&srt.m_RotationQuaternion, newRotation);
-	XMStoreFloat4A(&srt.m_Scale, newScale);
-	XMStoreFloat4A(&srt.m_Translation, newTranslation);
-
-	return JointPose(srt);
-}
-
 std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount)
 {
 	currentTime += deltaTime;
@@ -517,7 +518,7 @@ std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressi
 	float progression = (actualTime)-(float)prevIndex;
 
 	//return values
-	return std::move(std::make_pair(static_cast<uint16_t>(prevIndex), progression));
+	return std::make_pair(static_cast<uint16_t>(prevIndex), progression);
 }
 
 std::optional<std::pair<uint16_t, float>> Animation::AnimationPlayer::_ComputeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount)
