@@ -164,14 +164,7 @@ namespace Animation
 	class AnimationPlayer
 	{
 	public:
-		enum ANIMATION_TYPE_STATE
-		{
-			STATE_1D_BLEND,
-			STATE_2D_BLEND,
-			STATE_SINGLE_CLIP
-		};
 		AnimationPlayer();
-	
 		~AnimationPlayer();
 
 		void Update(float deltaTime);
@@ -240,8 +233,8 @@ namespace Animation
 		SkeletonPose newPose;
 		newPose.m_JointPoses = std::make_unique<JointPose[]>(jointCount);
 		
-		for (int i = 0; i < jointCount; i++)
-			newPose.m_JointPoses[i].m_Transformation = referencePose.m_JointPoses[i].m_Transformation;
+		for (int j = 0; j < jointCount; j++)
+			newPose.m_JointPoses[j].m_Transformation = referencePose.m_JointPoses[j].m_Transformation;
 
 		return std::move(newPose);
 	}
