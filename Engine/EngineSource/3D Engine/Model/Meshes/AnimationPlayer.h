@@ -134,13 +134,6 @@ namespace Animation
 		~AnimationClip();
 	};
 
-	struct CombinedClip
-	{
-		AnimationClip* firstClip = nullptr;
-		AnimationClip* secondClip = nullptr;
-		float secondWeight = 0.0;
-		float secondCurrentTime = 0.0;
-	};
 #pragma endregion Joint, Skeleton, AnimationClip, ...
 	typedef std::shared_ptr<Animation::AnimationClip> SharedAnimation;
 	typedef std::unordered_map<std::string, SharedAnimation> ClipCollection;
