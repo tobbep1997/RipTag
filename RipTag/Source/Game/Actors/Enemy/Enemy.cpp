@@ -53,8 +53,8 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
 		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
 		auto& machine = getAnimationPlayer()->InitStateMachine(1);
-		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.0);
-		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 0.015} });
+		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5);
+		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5} });
 		machine->SetState("walk_state");
 		this->getAnimationPlayer()->Play();
 
@@ -198,12 +198,13 @@ void Enemy::Update(double deltaTime)
 {
 	using namespace DirectX;
 
-	b3Transform bodyTransform = PhysicsComponent::getBody()->GetTransform();
-	auto deltaX = bodyTransform.translation.x - m_LastFrameXPos;
-	auto deltaZ = bodyTransform.translation.z - m_LastFrameZPos;
-	m_currentMoveSpeed = XMVectorGetX(XMVector2LengthEst(XMVectorSet(deltaX, deltaZ, 0.0, 0.0)));
-	m_LastFrameXPos = bodyTransform.translation.x;
-	m_LastFrameZPos = bodyTransform.translation.z;
+	auto currentPosition = Transform::getPosition();
+	
+	auto deltaX = currentPosition.x - m_LastFrameXPos;
+	auto deltaZ = currentPosition.z - m_LastFrameZPos;
+	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+	m_LastFrameXPos = currentPosition.x;
+	m_LastFrameZPos = currentPosition.z;
 
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
@@ -1203,9 +1204,9 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		}
 
 		//Update current movespeed
-		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
-		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
-		std::cout << m_currentMoveSpeed << std::endl;
+		//auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
+		//m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		//std::cout << m_currentMoveSpeed << std::endl;
 
 		_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
 		vel.x *= !m_lv.turnState;
@@ -1285,7 +1286,7 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 		vel.y *= !m_lv.turnState;
 		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
 		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
-		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		//m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
 	}
 	return false;
 }
