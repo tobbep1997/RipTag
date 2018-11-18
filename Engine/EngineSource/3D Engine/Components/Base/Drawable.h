@@ -19,7 +19,7 @@ enum EntityType
 };
 
 class StaticMesh;
-class DynamicMesh;
+class SkinnedMesh;
 class Texture;
 
 namespace Animation 
@@ -35,7 +35,7 @@ class Drawable : public Transform
 {
 private:
 	StaticMesh* m_staticMesh = nullptr;
-	DynamicMesh* m_dynamicMesh = nullptr;
+	SkinnedMesh* m_skinnedMesh = nullptr;
 	Animation::AnimationPlayer* m_anim = nullptr;
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
@@ -63,7 +63,7 @@ protected:
 
 	//Setting the mesh for the object
 	virtual void p_setMesh(StaticMesh * staticMesh);
-	virtual void p_setMesh(DynamicMesh * dynamicMesh);
+	virtual void p_setMesh(SkinnedMesh * skinnedMesh);
 	
 
 public:
@@ -107,7 +107,7 @@ public:
 	virtual bool isTextureAssigned();
 
 	virtual void setModel(StaticMesh * staticMesh);
-	virtual void setModel(DynamicMesh * dynamicMesh);
+	virtual void setModel(SkinnedMesh * skinnedMesh);
 
 	virtual void setColor(const DirectX::XMFLOAT4A & color);
 	virtual void setColor(const float & x, const float & y, const float & z, const float & w);

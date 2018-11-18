@@ -35,7 +35,6 @@
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\TextureManager.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Texture.cpp" />
     <ClCompile Include="EngineSource\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
@@ -64,6 +63,7 @@
     <ClCompile Include="EngineSource\Helper\AnimationDebugHelper.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -80,7 +80,6 @@
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\TextureManager.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Texture.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\dds.h" />
@@ -124,6 +123,8 @@
     <ClInclude Include="EngineSource\Helper\AnimationDebugHelper.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.h" />
+    <ClInclude Include="EngineSource\Helper\AnimationHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

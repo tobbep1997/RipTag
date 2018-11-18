@@ -20,7 +20,7 @@ namespace ImporterLibrary
 		~CustomFileLoader();
 
 		MeshFromFile readMeshFile(std::string fileName);
-		AnimatedMeshFromFile readAnimatedMeshFile(std::string fileName);
+		SkinnedMeshFromFile readSkinnedMeshFile(std::string fileName);
 		//SkeletonFromFile readSkeletonFile(std::string fileName);
 		ImporterLibrary::Skeleton readSkeletonFile(std::string fileName);
 		//AnimationFromFile readAnimationFile(std::string fileName, uint16_t jointCount);
@@ -39,10 +39,7 @@ namespace ImporterLibrary
 		Vec4 loadVec4(std::ifstream& file);
 		int32_t loadInt32(std::ifstream& file);
 		DecomposedTransform loadTransform(std::ifstream& file);
-		Bone loadBone(std::ifstream& file);
-	private:
-		int getNrOfVerticesFromFile(std::ifstream& file);
-		
+		Bone loadBone(std::ifstream& file);		
 	};
 
 }

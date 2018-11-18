@@ -556,6 +556,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("BAR");
 	Manager::g_textureManager.loadTextures("STATE");
 	Manager::g_textureManager.loadTextures("FIRE");
+	Manager::g_textureManager.loadTextures("GUARD");
 
 }
 
@@ -578,8 +579,12 @@ void PlayState::_loadMeshes()
 {
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_meshManager.loadDynamicMesh("STATE");
+	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
+
+	Manager::g_meshManager.loadSkinnedMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");

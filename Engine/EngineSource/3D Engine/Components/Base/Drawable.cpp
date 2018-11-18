@@ -38,7 +38,7 @@ void Drawable::_setDynamicBuffer()
 		float g1, g2;
 	};
 
-	auto vec = m_dynamicMesh->getVertices();
+	auto vec = m_skinnedMesh->getVertices();
 	std::vector<stuff> stuffs;
 	for (auto& v : vec)
 	{
@@ -121,9 +121,9 @@ void Drawable::p_setMesh(StaticMesh * staticMesh)
 	this->m_staticMesh = staticMesh;
 }
 
-void Drawable::p_setMesh(DynamicMesh * dynamicMesh)
+void Drawable::p_setMesh(SkinnedMesh * skinnedMesh)
 {
-	this->m_dynamicMesh = dynamicMesh;
+	this->m_skinnedMesh = skinnedMesh;
 }
 
 void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & center, const DirectX::XMFLOAT3 & extens)
@@ -151,7 +151,7 @@ void Drawable::BindTextures()
 Drawable::Drawable() : Transform()
 {	
 	m_staticMesh = nullptr;
-	m_dynamicMesh = nullptr;
+	m_skinnedMesh = nullptr;
 	p_vertexBuffer = nullptr;
 	p_color = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	m_hidden = false;
@@ -182,7 +182,7 @@ void Drawable::Draw()
 				DX::INSTANCING::submitToInstance(this);
 			break;
 		case Dynamic:
-			if (m_dynamicMesh)
+			if (m_skinnedMesh)
 				DX::g_animatedGeometryQueue.push_back(this);
 			break;
 		}	
@@ -227,7 +227,7 @@ UINT Drawable::getVertexSize()
 		return (UINT)m_staticMesh->getVertice().size();
 		break;
 	case Dynamic:
-		return (UINT)m_dynamicMesh->getVertices().size();
+		return (UINT)m_skinnedMesh->getVertices().size();
 		break;
 	default:
 		return 0;
@@ -239,7 +239,7 @@ UINT Drawable::getVertexSize()
 
 ID3D11Buffer * Drawable::getBuffer()
 {
-	if (m_dynamicMesh)
+	if (m_skinnedMesh)
 		return p_vertexBuffer;
 	else
 		return m_staticMesh->getBuffer();
@@ -294,12 +294,12 @@ void Drawable::setModel(StaticMesh * staticMesh)
 	Drawable::p_setMesh(staticMesh);
 }
 
-void Drawable::setModel(DynamicMesh * dynamicMesh)
+void Drawable::setModel(SkinnedMesh * skinnedMesh)
 {
 	this->p_objectType = Dynamic;
 	setVertexShader(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl");
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
-	Drawable::p_setMesh(dynamicMesh);
+	Drawable::p_setMesh(skinnedMesh);
 	p_createBuffer();
 	m_anim = new Animation::AnimationPlayer();
 }
