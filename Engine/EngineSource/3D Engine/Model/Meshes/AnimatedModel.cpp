@@ -36,8 +36,10 @@ void Animation::AnimatedModel::Update(float deltaTime)
 
 	if (m_StateMachine)
 	{
-		m_StateMachine->UpdateCurrentState();
 
+
+		m_StateMachine->UpdateCurrentState();
+		
 		//Blendfactor used to blend between two states.
 		float blendFactor = 1.0 - m_StateMachine->UpdateBlendFactor(deltaTime);
 
@@ -74,9 +76,6 @@ void Animation::AnimatedModel::Update(float deltaTime)
 			return;
 		}
 	}
-	
-	///
-/*	return;*/
 
 	if (m_targetClip)
 	{

@@ -253,7 +253,7 @@ namespace SM
 
 	std::optional<Animation::SkeletonPose> BlendSpace1D::recieveStateVisitor(StateVisitorBase& visitor)
 	{
-		return std::move(visitor.dispatch(*this));
+		return visitor.dispatch(*this);
 	}
 
 	BlendSpace1D::Current1DStateData BlendSpace1D::CalculateCurrentClips()

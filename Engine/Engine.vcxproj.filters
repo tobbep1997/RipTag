@@ -63,6 +63,7 @@
     <ClCompile Include="Source\ParticleSystem\ParticleManager.cpp" />
     <ClCompile Include="Source\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="EngineSource\Helper\AnimationDebugHelper.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="Source\ParticleSystem\ParticleEmitter.h" />
     <ClInclude Include="Source\ParticleSystem\ParticleManager.h" />
     <ClInclude Include="EngineSource\Helper\AnimationDebugHelper.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

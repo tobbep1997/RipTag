@@ -180,6 +180,7 @@
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="ConsoleColor.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.h" />
@@ -374,6 +375,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
     <ClCompile Include="Source\ParticleSystem\Particle.cpp" />
     <ClCompile Include="Source\ParticleSystem\ParticleEmitter.cpp" />
     <ClCompile Include="Source\ParticleSystem\ParticleManager.cpp" />
