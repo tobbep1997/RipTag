@@ -1,35 +1,35 @@
 #include "EnginePCH.h"
-#include "DynamicMesh.h"
+#include "SkinnedMesh.h"
 
 
 
 
-DynamicMesh::DynamicMesh()
+SkinnedMesh::SkinnedMesh()
 {
 }
 
 
-DynamicMesh::~DynamicMesh()
+SkinnedMesh::~SkinnedMesh()
 {
 }
 
-const DynamicVertex * DynamicMesh::getRawVertices() const
+const DynamicVertex * SkinnedMesh::getRawVertices() const
 {
 	return m_dynamicVertex.data();
 }
 
-const std::vector<DynamicVertex>& DynamicMesh::getVertices() const
+const std::vector<DynamicVertex>& SkinnedMesh::getVertices() const
 {
 	return m_dynamicVertex;
 }
 
-void DynamicMesh::setVertices(std::vector<DynamicVertex>& input)
+void SkinnedMesh::setVertices(std::vector<DynamicVertex>& input)
 {
 	m_dynamicVertex.clear();
 	m_dynamicVertex = input;
 }
 
-void DynamicMesh::SET_DEFAULT()
+void SkinnedMesh::SET_DEFAULT()
 {
 	using namespace DirectX;
 
@@ -75,17 +75,17 @@ void DynamicMesh::SET_DEFAULT()
 	delete newMesh.mesh_vertices;
 }
 
-void DynamicMesh::setName(const std::string & name)
+void SkinnedMesh::setName(const std::string & name)
 {
 	this->m_meshName = name;
 }
 
-const std::string & DynamicMesh::getName() const
+const std::string & SkinnedMesh::getName() const
 {
 	return this->m_meshName;
 }
 
-void DynamicMesh::LoadMesh(const std::string & path)
+void SkinnedMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
 

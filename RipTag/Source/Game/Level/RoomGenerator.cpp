@@ -315,7 +315,7 @@ void RoomGenerator::_createEnemies()
 {
 	Enemy * enemy;
 	
-	Manager::g_meshManager.loadDynamicMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	for (int i = 0; i < m_nrOfEnemies; i++)
 	{

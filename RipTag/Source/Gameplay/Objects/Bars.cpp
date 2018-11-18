@@ -15,7 +15,7 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	BaseActor::setPositionRot(xPos, yPos-5.f, zPos -3.f, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("BARS");
-	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("BARS"));
+	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("BARS"));
 	auto& machine = getAnimationPlayer()->InitStateMachine(1);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("BARS"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("BARS", "BARS_ANIMATION").get());

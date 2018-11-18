@@ -45,7 +45,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
 	this->getCamera()->setFarPlane(20);
-	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
 

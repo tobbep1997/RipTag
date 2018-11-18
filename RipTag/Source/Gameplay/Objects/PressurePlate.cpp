@@ -24,7 +24,7 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("PressurePlate");
-	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("PLATE"));
+	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("PLATE"));
 	auto& stateMachine = getAnimationPlayer()->InitStateMachine(2);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
 	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());

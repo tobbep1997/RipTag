@@ -195,7 +195,7 @@
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\WICTextureLoader.h" />
     <ClInclude Include="EngineSource\Light\PointLight.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Camera.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Drawable.h" />
     <ClInclude Include="EngineSource\Debugg\FunctionQueue.h" />
@@ -281,7 +281,7 @@
     <ClCompile Include="EngineSource\Helper\Timer.cpp" />
     <ClCompile Include="EngineSource\Light\PointLight.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Camera.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\Drawable.cpp" />
     <ClCompile Include="EngineSource\Debugg\ImGui\ImGuiManager.cpp">
