@@ -119,14 +119,16 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace1D(SM::Blend
 	if (stateData.second)
 	{
 		speedScale = getSpeedScale(stateData.second->m_FrameCount, stateData.first->m_FrameCount, stateData.weight);
+		assert(speedScale >= 0.0f);
 		indexAndProgressionSecond = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_CurrentNormalizedTime, stateData.second->m_FrameCount);
 	}
-	indexAndProgressionFirst = _ComputeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_CurrentNormalizedTime, stateData.first->m_FrameCount);
+	indexAndProgressionFirst= _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_CurrentNormalizedTime, stateData.first->m_FrameCount);
 
 	auto prevIndexFirst = indexAndProgressionFirst.first;
 	auto progressionFirst = indexAndProgressionFirst.second;
 	auto prevIndexSecond = indexAndProgressionSecond.first;
 	auto progressionSecond = indexAndProgressionSecond.second;
+
 
 	SkeletonPose finalPose;
 	if (!stateData.second)
@@ -575,7 +577,7 @@ void Animation::AnimationPlayer::UpdateLooping(Animation::AnimationClip* clip)
 		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
 		if (prevIndex >= m_CurrentClip->m_FrameCount - 1) /// -1 because last frame is only used to interpolate towards
 		{
-			assert(1 == 0);
+			//assert(1 == 0);
 			if (m_IsLooping)
 			{
 				m_CurrentTime = 0.0 + progression;
