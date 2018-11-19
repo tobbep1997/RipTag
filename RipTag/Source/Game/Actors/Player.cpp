@@ -1117,13 +1117,27 @@ void Player::_cameraPlacement(double deltaTime)
 	b3Vec3 peekOffsetLeft;
 	b3Vec3 peekOffsetRight;
 
-	peekOffsetLeft.x = (upperBodyLocal.x - 1) * p_camera->getDirection().z;
-	peekOffsetLeft.y = upperBodyLocal.y;
-	peekOffsetLeft.z = (upperBodyLocal.z + 1)* p_camera->getDirection().x;
+	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
-	peekOffsetRight.x = (upperBodyLocal.x + 1) * p_camera->getDirection().z;
+	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
+	DirectX::XMFLOAT4 RIGHT;
+
+	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
+	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);
+	DirectX::XMVECTOR vRight;
+
+	vRight = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vUP, vForward));
+	vForward = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vRight, vUP));
+
+	XMStoreFloat4A(&forward, vForward);
+
+	peekOffsetLeft.x = (upperBodyLocal.x - 1) * forward.z;
+	peekOffsetLeft.y = upperBodyLocal.y;
+	peekOffsetLeft.z = (upperBodyLocal.z + 1)* forward.x;
+
+	peekOffsetRight.x = (upperBodyLocal.x + 1) * forward.z;
 	peekOffsetRight.y = upperBodyLocal.y;
-	peekOffsetRight.z = (upperBodyLocal.z - 1) * p_camera->getDirection().x;
+	peekOffsetRight.z = (upperBodyLocal.z - 1) * forward.x;
 
 	headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5) - headPosLocal;
 

@@ -68,7 +68,11 @@
     <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
     <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
     <ClCompile Include="Source\Source.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="Source\Gameplay\Objects\Torch.cpp" />
+=======
+    <ClCompile Include="Source\Game\States\OptionSound.cpp" />
+>>>>>>> Dev
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -309,6 +313,10 @@
     <ClInclude Include="Source\Game\Level\RandomRoomGrid.h" />
     <ClInclude Include="Source\Game\Level\RandomRoom.h" />
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
+<<<<<<< HEAD
     <ClInclude Include="Source\Gameplay\Objects\Torch.h" />
+=======
+    <ClInclude Include="Source\Game\States\OptionSound.h" />
+>>>>>>> Dev
   </ItemGroup>
 </Project>

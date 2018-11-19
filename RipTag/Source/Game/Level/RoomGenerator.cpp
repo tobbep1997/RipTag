@@ -439,10 +439,6 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	Manager::g_meshManager.loadStaticMesh("WALL");
 	Manager::g_textureManager.loadTextures("WALL");
 
-	
-
-
-
 	returnableRoom = DBG_NEW Room(worldPtr, arrayIndex, playerPtr);
 	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
@@ -451,10 +447,6 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	//_FindWinnableAndGuardPaths();
 	returnableRoom->setGrid(this->m_generatedGrid);
 	_placeProps();
-	
-
-	
-
 	_makeFloor();
 	_makeWalls();
 	//_createEnemies();
@@ -468,7 +460,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
-	returnableRoom->setLightvector(m_generated_pointLightVector);
 	returnableRoom->setRoomGuards(m_generatedRoomEnemies);
+
 	return returnableRoom;
 }

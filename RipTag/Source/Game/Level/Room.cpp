@@ -239,21 +239,14 @@ void Room::UnloadRoomFromMemory()
 		{
 			delete asset;
 		}
-		for (int i = 0; i < m_pointLights.size(); i++)
-			delete m_pointLights[i];
+
 		m_staticAssets.clear();
-		m_pointLights.clear();
 
 		CollisionBoxes->Release(*RipExtern::g_world);
 		delete CollisionBoxes;
 
 		for (auto & ab : m_audioBoxes)
 			ab->release();
-		
-		for (int i = 0; i < m_emitters.size(); i++)
-		{
-			delete m_emitters[i];
-		}
 
 		m_audioBoxes.clear();
 		delete m_grid->gridPoints;
@@ -535,11 +528,6 @@ void Room::Release()
 		delete CollisionBoxes;
 		CollisionBoxes = nullptr;
 	}
-	for (auto light : m_pointLights)
-	{
-		delete light;
-	}
-	m_pointLights.clear();
 	for (auto enemy : m_roomGuards)
 	{
 		delete enemy;
@@ -554,15 +542,12 @@ void Room::Release()
 
 		delete m_grid;
 	}
-	for (int i = 0; i < m_emitters.size(); i++)
-	{
-		delete m_emitters[i];
-	}
 	for (int i = 0; i < m_Torches.size(); i++)
 	{
-		delete m_Torches[i];
-		m_Torches[i] = nullptr;
+		/*delete m_Torches[i];
+		m_Torches[i] = nullptr;*/
 	}
+	m_Torches.clear();
 
 
 	triggerHandler->Release();
