@@ -20,6 +20,10 @@ Game::~Game()
 
 void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
+#ifdef _SHOWSYSTEMINFO
+	system("systeminfo");
+#endif // _SHOWSYSTEMINFO
+
 	//Rendering Manager Start
 	{
 		m_renderingManager = RenderingManager::GetInstance();
