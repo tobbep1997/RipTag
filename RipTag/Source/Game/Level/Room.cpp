@@ -18,7 +18,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			
 			break;
 		case(2):
-			Manager::g_meshManager.loadDynamicMesh("PLATE");
+			Manager::g_meshManager.loadSkinnedMesh("PLATE");
 			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
 			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
 			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
@@ -42,7 +42,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 
 			break;
 		case(3):
-			Manager::g_meshManager.loadDynamicMesh("DOOR");
+			Manager::g_meshManager.loadSkinnedMesh("DOOR");
 			Manager::g_textureManager.loadTextures("DOOR");
 			Manager::g_animationManager.loadSkeleton("../Assets/DOORFOLDER/DOOR_SKELETON.bin", "DOOR");
 			Manager::g_animationManager.loadClipCollection("DOOR", "DOOR", "../Assets/DOORFOLDER", Manager::g_animationManager.getSkeleton("DOOR"));
@@ -66,7 +66,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 		case(4):
 			//Manager::g_meshManager.loadStaticMesh("SPAK");
 			//Manager::g_textureManager.loadTextures("SPAK");
-			Manager::g_meshManager.loadDynamicMesh("SPAK");
+			Manager::g_meshManager.loadSkinnedMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
 			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
@@ -82,7 +82,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			tempLever = nullptr;
 			break;
 		case(5):
-			Manager::g_meshManager.loadDynamicMesh("BARS");
+			Manager::g_meshManager.loadSkinnedMesh("BARS");
 			Manager::g_textureManager.loadTextures("BARS");
 			Manager::g_animationManager.loadSkeleton("../Assets/BARSFOLDER/BARS_SKELETON.bin", "BARS");
 			Manager::g_animationManager.loadClipCollection("BARS", "BARS", "../Assets/BARSFOLDER", Manager::g_animationManager.getSkeleton("BARS"));
@@ -244,6 +244,11 @@ void Room::UnloadRoomFromMemory()
 		for (auto & ab : m_audioBoxes)
 			ab->release();
 		
+		for (int i = 0; i < m_emitters.size(); i++)
+		{
+			delete m_emitters[i];
+		}
+
 		m_audioBoxes.clear();
 		delete m_grid->gridPoints;
 		delete m_grid;
@@ -253,14 +258,20 @@ void Room::UnloadRoomFromMemory()
 
 void Room::LoadRoomToMemory()
 {
+	
 	//TODO:: add all the assets to whatever
 	if (m_roomLoaded == false)
 	{
 		ImporterLibrary::CustomFileLoader fileLoader;
 		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
+		ParticleEmitter * p_emit;
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
 			this->m_pointLights.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
+			p_emit = new ParticleEmitter();
+			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2]);
+			m_emitters.push_back(p_emit);
+			std::cout << tempLights.lights[i].translate[0] << tempLights.lights[i].translate[1] << tempLights.lights[i].translate[2] << std::endl;
 			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
 			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
@@ -374,7 +385,7 @@ void Room::getPath()
 	}
 }
 
-void Room::Update(float deltaTime)
+void Room::Update(float deltaTime, Camera * camera)
 {
 	/*for (size_t i = 0; i < m_roomGuards.size(); i++)
 	{
@@ -400,6 +411,10 @@ void Room::Update(float deltaTime)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();*/
+	for (int i = 0; i < m_emitters.size(); i++)
+	{
+		m_emitters[i]->Update(deltaTime, camera);
+	}
 	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler->Update(deltaTime);
 
@@ -466,7 +481,10 @@ void Room::Draw()
 	{
 		guard->DrawGuardPath();
 	}
-	
+	for (int i = 0; i < m_emitters.size(); i++)
+	{
+		m_emitters[i]->Queue();
+	}
 
 }
 
@@ -505,7 +523,10 @@ void Room::Release()
 
 		delete m_grid;
 	}
-	
+	for (int i = 0; i < m_emitters.size(); i++)
+	{
+		delete m_emitters[i];
+	}
 
 	triggerHandler->Release();
 	delete triggerHandler;

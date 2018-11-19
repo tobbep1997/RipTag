@@ -16,6 +16,7 @@ namespace RipSounds
 	extern std::string				g_windAndDrip;
 	extern std::string				g_phase;
 	extern std::string				g_music1;
+	extern std::string				g_grunt;
 }
 
 namespace RipExtern

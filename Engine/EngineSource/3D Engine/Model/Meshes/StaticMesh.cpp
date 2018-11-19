@@ -51,6 +51,7 @@ void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 {
 	m_staticVertex.clear();
 	m_staticVertex = input;
+	_createVertexBuffer();
 }
 
 const ImporterLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const

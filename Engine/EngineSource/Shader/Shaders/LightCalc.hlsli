@@ -182,6 +182,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         }
 
         finalShadowCoeff = pow(shadowCoeff / div, 32);
+        //return float4(finalShadowCoeff, 0, 0, 1);
         posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);

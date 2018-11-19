@@ -11,6 +11,7 @@ std::string				 RipSounds::g_pressurePlateDeactivate;
 std::string				 RipSounds::g_torch;
 std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
+std::string				 RipSounds::g_grunt;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -20,8 +21,6 @@ bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
 {	
-	//USE LOAD NOT THIS
-	//we dont care about this yet
 	if (coopData)
 	{
 		isCoop = true;
@@ -42,7 +41,6 @@ PlayState::~PlayState()
 
 
 	//delete triggerHandler;
-
 	delete m_contactListener;
 	delete m_rayListener;
 
@@ -60,7 +58,7 @@ void PlayState::Update(double deltaTime)
 		m_firstRun = false;
 			//int i = 0;
 		triggerHandler->Update(deltaTime);
-		m_levelHandler->Update(deltaTime);
+		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 
 
@@ -110,7 +108,7 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy."));
+			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
 		}
 
 	
@@ -503,6 +501,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateActivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
 
 	if (m_eventOverlay)
 	{
@@ -556,6 +555,9 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("BAR");
 	Manager::g_textureManager.loadTextures("STATE");
+	Manager::g_textureManager.loadTextures("FIRE");
+	Manager::g_textureManager.loadTextures("GUARD");
+
 }
 
 void PlayState::_loadPhysics()
@@ -577,8 +579,12 @@ void PlayState::_loadMeshes()
 {
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_meshManager.loadDynamicMesh("STATE");
+	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
+
+	Manager::g_meshManager.loadSkinnedMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
@@ -623,8 +629,6 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(true);
 		this->_registerThisInstanceToNetwork();
 		//free up memory when we are done with this data
-		delete pCoopData;
-		pCoopData = nullptr;
 	}
 	else
 	{
@@ -664,6 +668,7 @@ void PlayState::_loadSound()
 	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
 	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
 	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
+	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
 
 
 	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
@@ -756,7 +761,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 				{
 					m_physicsThread.join();
 				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?"));
+				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
 			}
 			else if (m_coopState.remoteDisconnected)
 			{
@@ -768,7 +773,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 				{
 					m_physicsThread.join();
 				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?"));
+				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
 			}
 		}
 	}

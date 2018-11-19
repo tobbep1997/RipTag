@@ -3,12 +3,12 @@
 #include <vector>
 #include <functional>
 #include <optional>
-//#include "../Model/Meshes/AnimatedModel.h"
+
 #pragma region "FwdDec"
 namespace Animation
 {
 	struct AnimationClip;
-	class AnimatedModel;
+	class AnimationPlayer;
 	struct SkeletonPose;
 }
 #pragma endregion "FwdDec"
@@ -361,7 +361,7 @@ namespace SM
 #pragma region "Visitors"
 	class StateVisitor : public StateVisitorBase{
 	public:
-		StateVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
+		StateVisitor(Animation::AnimationPlayer* player) : m_AnimationPlayer(player)
 		{}
 		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) override;
 		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) override;
@@ -369,17 +369,17 @@ namespace SM
 		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) override;
 		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) override;
 	private:
-		Animation::AnimatedModel* m_AnimatedModel = nullptr;
+		Animation::AnimationPlayer* m_AnimationPlayer = nullptr;
 	};
 
 	class LayerVisitor : public StateVisitorBase {
 	public:
-		LayerVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
+		LayerVisitor(Animation::AnimationPlayer* player) : m_AnimationPlayer(player)
 		{}
 		virtual std::optional<Animation::SkeletonPose> dispatch(BlendSpace1DAdditive& state) override;
 
 	private:
-		Animation::AnimatedModel* m_AnimatedModel = nullptr;
+		Animation::AnimationPlayer* m_AnimationPlayer = nullptr;
 	};
 
 #pragma endregion "Visitors"
@@ -410,15 +410,15 @@ namespace SM
 
 		void SetState(std::string stateName);
 		void SetStateIfAllowed(std::string stateName);
-		void SetModel(Animation::AnimatedModel* model);
+		void SetModel(Animation::AnimationPlayer* model);
 		AnimationState& GetCurrentState();
 		AnimationState* GetPreviousState();
 		bool UpdateCurrentState();
 		float UpdateBlendFactor(float deltaTime);
 		SM::PlayOnceState* AddPlayOnceState(std::string name, Animation::AnimationClip* clip);
 	private:
-		//The animated model to set the clip to when we enter a state
-		Animation::AnimatedModel* m_AnimatedModel;
+		//The animation playher to set the clip to when we enter a state
+		Animation::AnimationPlayer* m_AnimationPlayer;
 
 		//The current state(s)
 		AnimationState* m_CurrentState = nullptr;

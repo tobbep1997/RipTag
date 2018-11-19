@@ -21,6 +21,7 @@ struct CoopData
 	int localPlayerCharacter;
 	int remotePlayerCharacter;
 	RakNet::NetworkID remoteID;
+	int role;
 };
 
 namespace Network

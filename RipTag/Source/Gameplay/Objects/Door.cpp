@@ -25,12 +25,12 @@ void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("Door");
-	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("DOOR"));
+	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("DOOR"));
 	BaseActor::setTexture(Manager::g_textureManager.getTexture("RUM1"));
-	auto& machine = getAnimatedModel()->InitStateMachine(1);
-	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
+	auto& machine = getAnimationPlayer()->InitStateMachine(1);
+	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("DOOR"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("DOOR", "DOOR_ANIMATION").get());
-	getAnimatedModel()->Pause();
+	getAnimationPlayer()->Pause();
 
 	BaseActor::setUserDataBody(this);
 	//BaseActor::Update(0);

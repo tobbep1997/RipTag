@@ -17,5 +17,8 @@ public:
 	const float & getRadie() const override;
 	const float & getInnerRadie() const override;
 
+	void setAngle(const float & angle) override;
+	const float & getAngle() const override;
+
 };
 

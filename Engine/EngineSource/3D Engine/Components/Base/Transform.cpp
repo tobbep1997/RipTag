@@ -3,7 +3,7 @@
 
 float constexpr getNewValueInNewRange(float value, float rangeMin, float rangeMax, float newRangeMin, float newRangeMax)
 {
-	if (value > newRangeMax)
+	if (value > rangeMax)
 	{
 		return newRangeMax;
 	}
@@ -57,7 +57,7 @@ void Transform::p_calcWorldMatrixForOutline(const float & lenght)
 	using namespace DirectX;
 
 	float scaleBy = getNewValueInNewRange(lenght, 1.0f, 30.0f, 1.3f, 3.3f);
-
+	//scaleBy = 1.3f;
 	//valueInRange(lenght, 1.3f, 2.1f);
 	
 	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
@@ -96,7 +96,7 @@ void Transform::p_calcWorldMatrixForInsideOutline(const float& lenght)
 	using namespace DirectX;
 
 	float scaleBy = getNewValueInNewRange(lenght, 1.0f, 30.0f, 1.0f, 2.5f);
-
+	//scaleBy = 1;
 	XMMATRIX translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
 	XMMATRIX scaling;
 

@@ -49,7 +49,7 @@ namespace Network
 	{
 		unsigned char id;
 		RakNet::NetworkID nid;
-		COMMONEVENTPACKET(unsigned char _id, RakNet::NetworkID _nid) : id(_id), nid(_nid) {}
+		COMMONEVENTPACKET(unsigned char _id, RakNet::NetworkID _nid = 0) : id(_id), nid(_nid) {}
 	};
 
 	struct LOBBYEVENTPACKET

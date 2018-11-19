@@ -77,9 +77,11 @@ void PossessGuard::_logic(double deltaTime)
 				this->m_possessTarget->LockEnemyInput();
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
+				pPointer->setHidden(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
 				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
 				this->m_possessTarget->DisableEnemy();
+				this->m_possessTarget->setHidden(false);
 				this->m_possessTarget->setReleased(true); 
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
@@ -114,6 +116,7 @@ void PossessGuard::_logic(double deltaTime)
 					
 					pPointer->getBody()->SetType(e_staticBody);
 					pPointer->getBody()->SetAwake(false);
+					pPointer->setHidden(false);
 					pPointer->LockPlayerInput();
 
 					this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
@@ -122,6 +125,7 @@ void PossessGuard::_logic(double deltaTime)
 					this->m_possessTarget->UnlockEnemyInput();
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
 					this->m_possessTarget->setReleased(false); 
+					this->m_possessTarget->setHidden(true);
 
 					CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
 					m_pState = PossessGuard::Possessing;
@@ -143,10 +147,12 @@ void PossessGuard::_logic(double deltaTime)
 				this->m_possessTarget->LockEnemyInput();
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
+				pPointer->setHidden(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
 				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
 				this->m_possessTarget->DisableEnemy();
 				this->m_possessTarget->setReleased(true);
+				this->m_possessTarget->setHidden(false);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0;

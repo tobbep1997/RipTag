@@ -17,7 +17,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//7. Register animation state machine
 	
 	//1.
-	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
@@ -124,7 +124,7 @@ void RemotePlayer::Update(double dt)
 		m_activeSet[i]->Update(dt);
 
 	//3.
-	this->getAnimatedModel()->Update(dt);
+	this->getAnimationPlayer()->Update(dt);
 
 
 }
@@ -220,11 +220,10 @@ void RemotePlayer::_registerAnimationStateMachine()
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BLEFT_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BRIGHT_ANIMATION"));
 
-	this->getAnimatedModel()->SetPlayingClip(sharedAnimations[IDLE].get());
-	this->getAnimatedModel()->Play();
-	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
+	this->getAnimationPlayer()->Play();
+	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
 
-	std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimatedModel()->InitStateMachine(nrOfStates);
+	std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimationPlayer()->InitStateMachine(nrOfStates);
 
 	{
 		//Blend spaces - forward&backward
@@ -305,7 +304,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 	}
 
 	//#todoREMOVE
-	auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
+	auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
 	auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
 	
 	std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
