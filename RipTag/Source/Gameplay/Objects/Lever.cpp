@@ -43,9 +43,6 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
-					auto pos = getPosition();
-					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
-
 					if (this->getTriggerState())
 					{
 						this->setTriggerState(false);
@@ -67,6 +64,7 @@ void Lever::Update(double deltaTime)
 void Lever::BeginPlay()
 {
 }
+
 
 void Lever::_playSound(AudioEngine::SoundType st)
 {

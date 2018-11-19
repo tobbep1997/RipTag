@@ -24,6 +24,7 @@ class Triggerable;
 class Trigger;
 class Bars;
 class ParticleEmitter;
+class Torch;
 
 class Enemy;//Ta bort sen
 
@@ -31,6 +32,8 @@ class Room : public HUDComponent
 {
 private:
 	std::vector< ParticleEmitter*> m_emitters;
+	std::vector<PointLight*> m_pointLights;		//Released
+	std::vector<Torch*> m_Torches;
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -43,7 +46,6 @@ private:
 
 	bool m_roomLoaded = false;
 	std::vector<BaseActor*> m_staticAssets;	//Released
-	std::vector<PointLight*> m_pointLights;		//Released
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
 
@@ -104,6 +106,7 @@ public:
 	DirectX::XMFLOAT4 getPlayer2StartPos();
 
 	const std::vector<Enemy*>* getEnemies() const;
+	void GiveCameraToParticles(Camera * ptr);
 
 	//---------------------------------------------------
 	//Memory Management

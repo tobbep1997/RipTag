@@ -47,6 +47,7 @@
 #include "Source/Gameplay/Objects/Door.h"
 #include "Source/Gameplay/Objects/Bars.h"
 #include "Source/Gameplay/Objects/Lever.h"
+#include "Source/Gameplay/Objects/Torch.h"
 #include "Source/Gameplay/Objects/PressurePlate.h"
 
 #include "Source/Physics/Bounce.h"

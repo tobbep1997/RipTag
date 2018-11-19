@@ -62,7 +62,6 @@ private:
 	DirectX::XMFLOAT4X4A m_worldMatrix;
 
 
-
 public:
 	ParticleEmitter();
 	~ParticleEmitter();
