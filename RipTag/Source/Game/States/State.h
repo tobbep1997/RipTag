@@ -3,10 +3,23 @@
 
 class State
 {
+public:
+	struct pushNpop
+	{
+		pushNpop(int i, State * state)
+		{
+			this->i = i;
+			this->state = state;
+		}
+		int i;
+		State * state;
+	};
 private:
 	bool m_killState;
 	bool m_backToMenu;
 	State * m_newState = nullptr;
+
+	pushNpop * m_pnp;
 protected:
 	RenderingManager * p_renderingManager;
 	
@@ -33,4 +46,8 @@ public:
 
 	void BackToMenu();
 	bool getBackToMenu();
+
+	void pushAndPop(int i, State * state);
+	void resetPushNPop();
+	pushNpop * getPushNPop();
 };

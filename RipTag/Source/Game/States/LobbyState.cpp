@@ -63,6 +63,11 @@ LobbyState::~LobbyState()
 		this->m_charSelectInfo->Release();
 		delete this->m_charSelectInfo;
 	}
+	if (pCoopData)
+	{
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
 	this->pNetwork->ShutdownPeer();
 }
 
@@ -253,11 +258,17 @@ void LobbyState::Update(double deltaTime)
 						_sendGameStartedPacket();
 						//create the proper struct/tuple containing all necessary info
 						//for the PlayState constructor, then push it on the state stack
-						CoopData * data = new CoopData();
-						data->seed = pNetwork->GetSeed();
-						data->localPlayerCharacter = selectedChar;
-						data->remotePlayerCharacter = remoteSelectedChar;
-						data->remoteID = this->m_remoteNID;
+						if (pCoopData)
+						{
+							delete pCoopData;
+							pCoopData = nullptr;
+						}
+						pCoopData = new CoopData();
+						pCoopData->seed = pNetwork->GetSeed();
+						pCoopData->localPlayerCharacter = selectedChar;
+						pCoopData->remotePlayerCharacter = remoteSelectedChar;
+						pCoopData->remoteID = this->m_remoteNID;
+						pCoopData->role = Role::Server;
 
 						isReady = false;
 						isRemoteReady = false;
@@ -276,7 +287,7 @@ void LobbyState::Update(double deltaTime)
 							m_loadingScreen.draw();
 						}
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)data));
+						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
 						
 					}
 				}
@@ -388,6 +399,9 @@ void LobbyState::HandlePacket(unsigned char id, RakNet::Packet * packet)
 		break;
 	case Network::ID_GAME_STARTED:
 		_onGameStartedPacket(packet);
+		break;
+	case Network::ID_HOST_NAME:
+		_onHostNamePacket(packet);
 		break;
 	}
 }
@@ -1108,6 +1122,7 @@ void LobbyState::_registerThisInstanceToNetwork()
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REQUEST_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_REPLY_NID, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 	Multiplayer::addToLobbyOnReceiveMap(Network::ID_GAME_STARTED, std::bind(&LobbyState::HandlePacket, this, _1, _2));
+	Multiplayer::addToLobbyOnReceiveMap(Network::ID_HOST_NAME, std::bind(&LobbyState::HandlePacket, this, _1, _2));
 }
 
 void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
@@ -1138,7 +1153,6 @@ void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 	pNetwork->setIsConnected(true);
 	hasClient = true;
 	m_clientIP = data->systemAddress;
-	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + m_clientIP.ToString());
 	//send a request to retrive the NetworkID of the remote machine
 	Network::COMMONEVENTPACKET packet(Network::ID_REQUEST_NID, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
@@ -1166,6 +1180,8 @@ void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 	//send a request to retrive the Character selection
 	Network::COMMONEVENTPACKET packet2(Network::ID_REQUEST_SELECTED_CHAR, 0);
 	Network::Multiplayer::SendPacket((const char*)&packet2, sizeof(Network::COMMONEVENTPACKET), PacketPriority::LOW_PRIORITY);
+
+	_sendMyHostNamePacket();
 }
 
 void LobbyState::_onDisconnectPacket(RakNet::Packet * data)
@@ -1260,11 +1276,18 @@ void LobbyState::_onReadyPacket(RakNet::Packet * data)
 void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 {
 	Network::GAMESTARTEDPACKET * packet = (Network::GAMESTARTEDPACKET*)data->data;
-	CoopData * ptr = new CoopData();
-	ptr->seed = packet->seed;
-	ptr->localPlayerCharacter = selectedChar;
-	ptr->remotePlayerCharacter = remoteSelectedChar;
-	ptr->remoteID = packet->remoteID;
+	if (pCoopData)
+	{
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
+	pCoopData = new CoopData();
+	pCoopData->seed = packet->seed;
+	pCoopData->localPlayerCharacter = selectedChar;
+	pCoopData->remotePlayerCharacter = remoteSelectedChar;
+	pCoopData->remoteID = packet->remoteID;
+	pCoopData->role = Role::Client;
+
 	isReady = false;
 	isRemoteReady = false;
 	//loading screen stuff
@@ -1280,7 +1303,7 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 		m_loadingScreen.removeGUI(this->m_charSelectButtons);
 		m_loadingScreen.draw();
 	}
-	this->pushNewState(new PlayState(this->p_renderingManager, (void*)ptr));
+	this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
 }
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
 {
@@ -1300,6 +1323,13 @@ void LobbyState::_onReplyPacket(RakNet::Packet * data)
 {
 	Network::COMMONEVENTPACKET * packet = (Network::COMMONEVENTPACKET*)data->data;
 	this->m_remoteNID = packet->nid;
+}
+
+void LobbyState::_onHostNamePacket(RakNet::Packet * data)
+{
+	Network::LOBBYEVENTPACKET* packet = (Network::LOBBYEVENTPACKET*)data->data;
+	std::string name = std::string(packet->string);
+	this->m_charSelectInfo->setString("You: " + this->m_MyHostName + "\nConnected to:\n" + name);
 }
 
 void LobbyState::_sendCharacterSelectionPacket()
@@ -1332,6 +1362,12 @@ void LobbyState::_sendGameStartedPacket()
 	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed(), pNetwork->GetNetworkID());
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::GAMESTARTEDPACKET), PacketPriority::IMMEDIATE_PRIORITY);
+}
+
+void LobbyState::_sendMyHostNamePacket()
+{
+	Network::LOBBYEVENTPACKET packet(Network::ID_HOST_NAME, this->m_MyHostName);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::LOBBYEVENTPACKET), PacketPriority::LOW_PRIORITY);
 }
 
 void LobbyState::_newHostEntry(std::string & hostName)
@@ -1378,6 +1414,7 @@ void LobbyState::Load()
 
 void LobbyState::unLoad()
 {
+	Network::Multiplayer::LobbyOnReceiveMap.clear();
 	std::cout << "Lobby unLoad" << std::endl;
 }
 

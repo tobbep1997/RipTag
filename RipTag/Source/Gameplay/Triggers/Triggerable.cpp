@@ -16,21 +16,15 @@ void Triggerable::setState(bool state)
 	{
 		//Play activated state
 		m_isActivated = state;
-		if (this->getAnimatedModel())
-		{
-			this->getAnimatedModel()->GetStateMachine()->SetState(this->activatedAnimation);
-			this->getAnimatedModel()->Play();
-		}
+	/*	this->getAnimatedModel()->GetStateMachine()->SetState(this->activatedAnimation);
+		this->getAnimatedModel()->Play();*/
 	}
 	else if (m_isActivated && !state)
 	{
 		//Play Inactivated state
 		m_isActivated = state;
-		if (this->getAnimatedModel())
-		{
-			this->getAnimatedModel()->GetStateMachine()->SetState(this->deactivatedAnimation);
-			this->getAnimatedModel()->Play();
-		}
+		/*this->getAnimatedModel()->GetStateMachine()->SetState(this->deactivatedAnimation);
+		this->getAnimatedModel()->Play();*/
 	}
 }
 
@@ -57,3 +51,5 @@ Triggerable::Triggerable(int uniqueId, int linkedID, bool isTrigger, std::string
 	this->deactivatedAnimation = deactivAnim;
 
 }
+
+

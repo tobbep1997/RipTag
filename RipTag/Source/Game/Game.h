@@ -24,7 +24,7 @@ public:
 	~Game();
 
 	//Init
-	void Init(_In_ HINSTANCE hInstance);
+	void Init(_In_ HINSTANCE hInstance, bool dbg = false);
 	//------------------------------------
 	//VitalFunctions to make the game work
 	bool isRunning();			//Is game running

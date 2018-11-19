@@ -17,7 +17,7 @@ class VisibilityComponent;
 
 namespace Animation {
 	class AnimationCBuffer;
-	class AnimatedModel;
+	class AnimationPlayer;
 };
 
 class VisabilityPass

@@ -5,7 +5,7 @@
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include "EngineSource/3D Engine/Components/Camera.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
+#include "EngineSource/3D Engine/Model/Meshes/AnimationPlayer.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
@@ -45,42 +45,19 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);
 	this->getCamera()->setFarPlane(20);
-	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("GUARD"));
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("STATE"));
+	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("GUARD"));
 
 	{
-		auto idleAnim = Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get();
-		auto walkAnim = Manager::g_animationManager.getAnimation("STATE", "WALK_FORWARD_ANIMATION").get();
-		auto& machine = getAnimatedModel()->InitStateMachine(1);
-		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.0);
-		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 0.0} });
-		//state->AddRow(0.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
-		//state->AddRow(1.0f, { {idleAnim, 0.0}, {idleAnim, 1.0} });
+		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
+		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
+		auto& machine = getAnimationPlayer()->InitStateMachine(1);
+		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5);
+		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5} });
 		machine->SetState("walk_state");
-		//this->getAnimatedModel()->SetPlayingClip(Manager::g_animationManager.getAnimation("STATE", "IDLE_ANIMATION").get());
-		this->getAnimatedModel()->Play();
+		this->getAnimationPlayer()->Play();
 
-		//#todoREMOVE
-		/*
-		auto& layerMachine = getAnimatedModel()->InitLayerStateMachine(1);
-		auto lState = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &Player::m_currentPitch, -0.9, 0.9);
-		std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
-		SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
-		up.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_UP_ANIMATION").get();
-		up.location = .9f;
-		up.weight = 1.0f;
-		SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
-		down.clip = Manager::g_animationManager.getAnimation("STATE", "PITCH_DOWN_ANIMATION").get();
-		down.location = -.9f;
-		down.weight = 1.0f;
-
-		layerData.push_back(down);
-		layerData.push_back(up);
-
-		lState->AddBlendNodes(layerData);
-		layerMachine->SetState("pitch_state");
-		*/
 	}
 	b3Vec3 pos(1, 0.9, 1);
 	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
@@ -96,10 +73,10 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -1.0, 0.0));
-	setScale(.015f, .015f, .015f);
-	setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	setTextureTileMult(2, 2);
+	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.9, 0.0));
+	setScale(.5, .5, .5);
+	setTexture(Manager::g_textureManager.getTexture("GUARD"));
+	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
 
 	//setOutline(true);
@@ -219,8 +196,18 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	if (getAnimatedModel())
-		getAnimatedModel()->Update(deltaTime);
+	using namespace DirectX;
+
+	auto currentPosition = Transform::getPosition();
+	
+	auto deltaX = currentPosition.x - m_LastFrameXPos;
+	auto deltaZ = currentPosition.z - m_LastFrameZPos;
+	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+	m_LastFrameXPos = currentPosition.x;
+	m_LastFrameZPos = currentPosition.z;
+
+	if (getAnimationPlayer())
+		getAnimationPlayer()->Update(deltaTime);
 	
 	m_sinWaver += deltaTime;
 
@@ -292,12 +279,15 @@ void Enemy::Update(double deltaTime)
 
 		if (!m_inputLocked)
 		{
-			setHidden(true);
 			_handleInput(deltaTime);
 		}
 		else
 		{
-			if (m_alertPath.size() > 0 )
+			if (m_state == Suspicious)
+			{
+				getBody()->SetAwake(false);
+			}
+			else if (m_alertPath.size() > 0 )
 			{
 				if (m_state != High_Alert)
 				{
@@ -632,7 +622,7 @@ void Enemy::removePossessor()
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
 		m_released = true; 
-		m_disabled = true;  
+		m_disabled = true; 
 	}
 }
 
@@ -690,6 +680,36 @@ void Enemy::setSoundLocation(const SoundLocation & sl)
 const Enemy::SoundLocation & Enemy::getSoundLocation() const
 {
 	return m_sl;
+}
+
+const Enemy::SoundLocation & Enemy::getLoudestSoundLocation() const
+{
+	return m_loudestSoundLocation;
+}
+
+void Enemy::setLoudestSoundLocation(const SoundLocation & sl)
+{
+	m_loudestSoundLocation = sl;
+}
+
+const DirectX::XMFLOAT4A & Enemy::getClearestPlayerLocation() const
+{
+	return m_clearestPlayerPos;
+}
+
+void Enemy::setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl)
+{
+	m_clearestPlayerPos = cpl;
+}
+
+const float & Enemy::getBiggestVisCounter() const
+{
+	return m_biggestVisCounter;
+}
+
+void Enemy::setBiggestVisCounter(float bvc)
+{
+	m_biggestVisCounter = bvc;
 }
 
 void Enemy::setReleased(bool released)
@@ -759,6 +779,21 @@ void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
 void Enemy::SetPlayerPointer(Player* player)
 {
 	m_PlayerPtr = player;
+}
+
+void Enemy::AddActTimer(double deltaTime)
+{
+	m_actTimer += deltaTime;
+}
+
+float Enemy::GetActTimer() const
+{
+	return m_actTimer;
+}
+
+void Enemy::SetActTimer(const float& time)
+{
+	m_actTimer = time;
 }
 
 void Enemy::AddHighAlertTimer(double deltaTime)
@@ -1169,13 +1204,14 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 		}
 
 		//Update current movespeed
+		//auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
+		//m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		//std::cout << m_currentMoveSpeed << std::endl;
 
 		_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
 		vel.x *= !m_lv.turnState;
 		vel.y *= !m_lv.turnState;
 		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
-		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
-		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
 	}
 	return false;
 }
@@ -1250,7 +1286,7 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 		vel.y *= !m_lv.turnState;
 		setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
 		auto deltaVector = DirectX::XMVectorSet(vel.x * deltaTime, vel.y * deltaTime, 0.0, 0.0);
-		m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
+		//m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2LengthEst(deltaVector));
 	}
 	return false;
 }

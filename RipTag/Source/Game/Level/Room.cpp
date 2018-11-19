@@ -18,7 +18,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			
 			break;
 		case(2):
-			Manager::g_meshManager.loadDynamicMesh("PLATE");
+			Manager::g_meshManager.loadSkinnedMesh("PLATE");
 			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
 			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
 			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
@@ -59,10 +59,11 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempDoor);
 			tempDoor = nullptr;
-			//ladda in d�rr etc etc 
 			break;
 		case(4):
-			Manager::g_meshManager.loadDynamicMesh("SPAK");
+			//Manager::g_meshManager.loadStaticMesh("SPAK");
+			//Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_meshManager.loadSkinnedMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
 			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
@@ -428,7 +429,7 @@ void Room::Update(float deltaTime, Camera * camera)
 			break;
 		}
 	}
-	/*if (m_youLost)
+	if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
@@ -437,7 +438,7 @@ void Room::Update(float deltaTime, Camera * camera)
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
-	}*/
+	}
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{

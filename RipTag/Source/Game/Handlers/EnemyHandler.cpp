@@ -57,6 +57,9 @@ void EnemyHandler::Update(float deltaTime)
 		case Patrolling:
 			_patrolling(currentGuard);
 			break;
+		case Suspicious:
+			_suspicious(currentGuard, deltaTime);
+			break;
 		}
 	}
 
@@ -74,7 +77,7 @@ void EnemyHandler::_alert(Enemy * guard, bool followSound)
 {
 	if (!followSound)
 	{
-		DirectX::XMFLOAT4A playerPos = m_player->getPosition();
+		DirectX::XMFLOAT4A playerPos = guard->getClearestPlayerLocation();
 		DirectX::XMFLOAT4A guardPos = guard->getPosition();
 		Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
@@ -84,7 +87,7 @@ void EnemyHandler::_alert(Enemy * guard, bool followSound)
 	}
 	else
 	{
-		DirectX::XMFLOAT3 soundPos = guard->getSoundLocation().soundPos;
+		DirectX::XMFLOAT3 soundPos = guard->getLoudestSoundLocation().soundPos;
 		DirectX::XMFLOAT4A guardPos = guard->getPosition();
 		Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
@@ -98,7 +101,7 @@ void EnemyHandler::_investigating(Enemy * guard)
 {
 	if (guard->GetAlertPathSize() > 0)
 	{
-		if (guard->getVisCounter() >= ALERT_TIME_LIMIT)
+		if (guard->getVisCounter() > guard->getBiggestVisCounter())
 		{
 			DirectX::XMFLOAT4A playerPos = m_player->getPosition();
 			Node * pathDestination = guard->GetAlertDestination();
@@ -128,7 +131,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 {
 	if (guard->GetAlertPathSize() > 0)
 	{
-		if (guard->getSoundLocation().percentage > SOUND_LEVEL)
+		if (guard->getSoundLocation().percentage > guard->getLoudestSoundLocation().percentage)
 		{
 			DirectX::XMFLOAT3 soundPos = guard->getSoundLocation().soundPos;
 			Node * pathDestination = guard->GetAlertDestination();
@@ -156,10 +159,15 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 
 void EnemyHandler::_patrolling(Enemy * guard)
 {
-	if (guard->getVisCounter() >= ALERT_TIME_LIMIT)
-		_alert(guard);
-	else if (guard->getSoundLocation().percentage > SOUND_LEVEL)
-		_alert(guard, true);
+	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
+	{
+		guard->setEnemeyState(Suspicious);
+		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
+		guard->setLoudestSoundLocation(Enemy::SoundLocation());
+		guard->setBiggestVisCounter(0);
+		FMOD_VECTOR at = { guard->getPosition().x, guard->getPosition().y, guard->getPosition().z };
+		AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+	}
 }
 
 void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
@@ -169,7 +177,62 @@ void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
 	if (guard->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
 	{
 		guard->SetHightAlertTimer(0.f);
-		guard->setEnemeyState(Patrolling);
+		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
+		guard->setLoudestSoundLocation(Enemy::SoundLocation());
+		guard->setBiggestVisCounter(0);
+		guard->setEnemeyState(Suspicious);
 		std::cout << red << "highAlertEnded" << white << std::endl;
+	}
+}
+
+void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
+{
+	guard->AddActTimer(dt);
+	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
+	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT / 3)
+	{
+		attentionMultiplier = 1.2f;
+	}
+	if (guard->getVisCounter()*attentionMultiplier >= guard->getBiggestVisCounter())
+	{
+		guard->setClearestPlayerLocation(m_player->getPosition());
+		guard->setBiggestVisCounter(guard->getVisCounter()*attentionMultiplier);
+		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
+		b3Normalize(dir);
+		guard->setDir(dir.x, dir.y, dir.y);*/
+	}
+	if (guard->getSoundLocation().percentage*attentionMultiplier >= guard->getLoudestSoundLocation().percentage)
+	{
+		Enemy::SoundLocation temp = guard->getSoundLocation();
+		temp.percentage *= attentionMultiplier;
+		guard->setLoudestSoundLocation(temp);
+		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
+		b3Normalize(dir);
+		guard->setDir(dir.x, dir.y, dir.y);*/
+	}
+	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
+	{
+		std::cout << yellow << "Investigating" << white << std::endl;
+		guard->SetActTimer(0.0f);
+		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT*1.5)
+			_alert(guard); //what was that?
+		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL*1.5)
+			_alert(guard, true); //what was that noise?
+		else
+		{
+			guard->SetActTimer(0.0f);
+			guard->setEnemeyState(Patrolling);
+			//Must have been nothing...
+		}
+	}
+}
+
+void EnemyHandler::_coolingDown(Enemy * guard, const double & dt)
+{
+	guard->AddActTimer(dt);
+	if (guard->GetActTimer() > 2)
+	{
+		guard->SetActTimer(0.0f);
+		guard->setEnemeyState(Patrolling);
 	}
 }

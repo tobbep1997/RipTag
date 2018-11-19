@@ -45,3 +45,19 @@ bool State::getBackToMenu()
 {
 	return m_backToMenu;
 }
+
+void State::pushAndPop(int i, State* state)
+{
+	this->m_pnp = new pushNpop(i, state);
+}
+
+void State::resetPushNPop()
+{
+	delete this->m_pnp;
+	this->m_pnp = nullptr;
+}
+
+State::pushNpop * State::getPushNPop()
+{
+	return this->m_pnp;
+}

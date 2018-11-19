@@ -18,7 +18,7 @@ Game::~Game()
 	}
 }
 
-void Game::Init(_In_ HINSTANCE hInstance)
+void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
 	//Rendering Manager Start
 	{
@@ -44,7 +44,10 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		pNetworkInstance->Init();
 	}
 
-	m_gameStack.push(new MainMenu(m_renderingManager));
+	if (dbg)
+		m_gameStack.push(new DBGState(m_renderingManager));
+	else
+		m_gameStack.push(new MainMenu(m_renderingManager));
 	m_gameStack.top()->Load();
 }
 
@@ -81,11 +84,7 @@ void Game::Update(double deltaTime)
 	_handleStateSwaps();
 	GamePadHandler::UpdateState();
 	m_gameStack.top()->Update(deltaTime);
-	//move this to playstate ---
-	{
-		InputMapping::Call();
-	}
-	//--------------------------
+
 	pNetworkInstance->Update();
 
 	InputHandler::getRawInput();
@@ -114,8 +113,23 @@ void Game::_handleStateSwaps()
 		m_gameStack.push(m_gameStack.top()->getNewState());
 		m_gameStack.top()->Load();
 	}
-
-	if (m_gameStack.top()->getKillState())
+	if (m_gameStack.top()->getPushNPop() != nullptr)
+	{
+		State::pushNpop * pnp = m_gameStack.top()->getPushNPop();
+		State * s = pnp->state;
+		for (int i = 0; i < pnp->i; i++)
+		{
+			m_gameStack.top()->unLoad();
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+		m_gameStack.push(pnp->state);
+		m_gameStack.top()->Load();
+		delete pnp;
+		
+	}
+	else if (m_gameStack.top()->getKillState())
 	{
 		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
