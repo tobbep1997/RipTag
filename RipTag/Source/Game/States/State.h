@@ -22,7 +22,7 @@ private:
 	pushNpop * m_pnp;
 protected:
 	RenderingManager * p_renderingManager;
-	
+	const DirectX::XMFLOAT2 MIN_MAX_SLIDE = { 0.379f, 0.621f };
 
 public:
 	State(RenderingManager * rm = nullptr);

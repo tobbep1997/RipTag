@@ -16,6 +16,71 @@ void _alocConsole() {
 }
 #endif
 
+struct SoundSettings {
+	float master, effects, ambient, music;
+};
+
+SoundSettings _ReadSettingsFromFile()
+{
+	SoundSettings ss = {100,100,100,100};
+	std::string file[1] = { "../Configuration/AudioSettings.ini" };
+	std::string names[1] = { "Audio" };
+	for (int k = 0; k < 1; k++)
+	{
+		const int bufferSize = 1024;
+		char buffer[bufferSize];
+
+		//Load in Keyboard section
+		if (GetPrivateProfileStringA(names[k].c_str(), NULL, NULL, buffer, bufferSize, file[k].c_str()))
+		{
+			std::vector<std::string> nameList;
+			std::istringstream nameStream;
+			nameStream.str(std::string(buffer, bufferSize));
+
+			std::string name = "";
+			while (std::getline(nameStream, name, '\0'))
+			{
+				if (name == "")
+					break;
+				nameList.push_back(name);
+			}
+
+			for (size_t i = 0; i < nameList.size(); i++)
+			{
+				int key = -1;
+				key = GetPrivateProfileIntA(names[k].c_str(), nameList[i].c_str(), -1, file[k].c_str());
+				if (key != -1)
+				{
+					if (nameList[i] == "Master")
+					{
+						ss.master = key;
+					}
+					else if (nameList[i] == "Effects")
+					{
+						ss.effects = key;
+					}
+					else if (nameList[i] == "Ambient")
+					{
+						ss.ambient = key;
+					}
+					else if (nameList[i] == "Music")
+					{
+						ss.music = key;
+					}
+				}
+
+			}
+			//Clear buffer for reuse
+			ZeroMemory(buffer, bufferSize);
+
+		}
+		else
+			std::cout << GetLastError() << std::endl;
+	}
+	return ss;
+}
+
+
 void GameLoop(Game * game)
 {
 	DeltaTime dt;
@@ -80,6 +145,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 #endif
     AudioEngine::Init();
+	SoundSettings ss = _ReadSettingsFromFile();
+	AudioEngine::SetMasterVolume(ss.master / 100.0f);
+	AudioEngine::SetEffectVolume(ss.effects / 100.0f);
+	AudioEngine::SetAmbientVolume(ss.ambient / 100.0f);
+	AudioEngine::SetMusicVolume(ss.music / 100.0f);
 	srand(time(0));
 
 

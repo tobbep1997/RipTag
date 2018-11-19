@@ -64,7 +64,7 @@ void OptionState::Update(double deltaTime)
 				if (m_liu == Mouse)
 				{
 					_slide();
-					m_fov = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_FOV.x;
+					m_fov = (((m_buttons[m_currentButton]->getPosition().x - MIN_MAX_SLIDE.x) * ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x)) / (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) + (float)MIN_MAX_FOV.x;
 				}
 				else
 				{
@@ -86,7 +86,7 @@ void OptionState::Update(double deltaTime)
 						break;
 					}
 
-					float pos = (((float)m_fov - (float)MIN_MAX_FOV.x) * (0.7 - 0.3)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + 0.3;
+					float pos = (((float)m_fov - (float)MIN_MAX_FOV.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + MIN_MAX_SLIDE.x;
 					m_buttons[ButtonOrder::SliderFov]->setPosition(pos, m_buttons[ButtonOrder::SliderFov]->getPosition().y);
 				}
 					m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
@@ -95,7 +95,7 @@ void OptionState::Update(double deltaTime)
 				if (m_liu == Mouse)
 				{
 					_slide();
-					m_sens.x = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
+					m_sens.x = (((m_buttons[m_currentButton]->getPosition().x - MIN_MAX_SLIDE.x) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) + (float)MIN_MAX_SENSITIVITY.x;
 				}
 				else
 				{
@@ -116,7 +116,7 @@ void OptionState::Update(double deltaTime)
 							m_sens.x = MIN_MAX_SENSITIVITY.y;
 						break;
 					}
-					float pos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
+					float pos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE.x;
 					m_buttons[ButtonOrder::SliderSensitivityX]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityX]->getPosition().y);
 				}
 				m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
@@ -125,7 +125,7 @@ void OptionState::Update(double deltaTime)
 				if (m_liu == Mouse)
 				{
 					_slide();
-					m_sens.y = (((m_buttons[m_currentButton]->getPosition().x - 0.3) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (0.7f - 0.3f)) + (float)MIN_MAX_SENSITIVITY.x;
+					m_sens.y = (((m_buttons[m_currentButton]->getPosition().x - MIN_MAX_SLIDE.x) * ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x)) / (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) + (float)MIN_MAX_SENSITIVITY.x;
 				}
 				else
 				{
@@ -147,7 +147,7 @@ void OptionState::Update(double deltaTime)
 						break;
 					}
 
-					float pos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
+					float pos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE.x;
 					m_buttons[ButtonOrder::SliderSensitivityY]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityY]->getPosition().y);
 				}
 					m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
@@ -185,6 +185,9 @@ void OptionState::Update(double deltaTime)
 					}
 					break;
 				}
+				case SoundSettings:
+					this->pushNewState(new OptionSound(this->p_renderingManager));
+					break;
 				case Return:
 					_WriteSettingsToFile();
 					p_renderingManager->Reset();
@@ -219,10 +222,10 @@ void OptionState::_slide()
 
 	DirectX::XMFLOAT2A pos = m_buttons[m_currentButton]->getPosition();
 	m_buttons[m_currentButton]->setPosition(mp.x / InputHandler::getViewportSize().x, pos.y);
-	if (m_buttons[m_currentButton]->getPosition().x < 0.3f)
-		m_buttons[m_currentButton]->setPosition(0.3f, pos.y);
-	else if (m_buttons[m_currentButton]->getPosition().x > 0.7f)
-		m_buttons[m_currentButton]->setPosition(0.7f, pos.y);
+	if (m_buttons[m_currentButton]->getPosition().x < MIN_MAX_SLIDE.x)
+		m_buttons[m_currentButton]->setPosition(MIN_MAX_SLIDE.x, pos.y);
+	else if (m_buttons[m_currentButton]->getPosition().x > MIN_MAX_SLIDE.y)
+		m_buttons[m_currentButton]->setPosition(MIN_MAX_SLIDE.y, pos.y);
 }
 
 void OptionState::_initButtons()
@@ -235,7 +238,7 @@ void OptionState::_initButtons()
 	m_text[ButtonOrder::SliderFov]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
 
-	float xPos = ((((float)m_fov - (float)MIN_MAX_FOV.x) * (0.7 - 0.3)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + 0.3);
+	float xPos = ((((float)m_fov - (float)MIN_MAX_FOV.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + MIN_MAX_SLIDE.x);
 	 
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.79f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderFov]->setUnpressedTexture("gui_slider_button");
@@ -251,7 +254,7 @@ void OptionState::_initButtons()
 	m_text[ButtonOrder::SliderSensitivityX]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 
-	xPos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
+	xPos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.64f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_slider_button");
@@ -266,7 +269,7 @@ void OptionState::_initButtons()
 	m_text[ButtonOrder::SliderSensitivityY]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 
-	xPos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (0.7 - 0.3)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + 0.3;
+	xPos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.49f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_slider_button");
@@ -298,7 +301,16 @@ void OptionState::_initButtons()
 	m_buttons[ButtonOrder::ToggleFullscreen]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::ToggleFullscreen]->setFont(FontHandler::getFont("consolas16"));
 
-	m_buttons.push_back(Quad::CreateButton("Save and return", 0.5f, 0.13f, 0.73f, 0.12f));
+	m_buttons.push_back(Quad::CreateButton("Sound Settings", 0.5075f, 0.13f, 0.365f, 0.12f));
+	m_buttons[ButtonOrder::SoundSettings]->setPivotPoint(Quad::PivotPoint::centerLeft);
+	m_buttons[ButtonOrder::SoundSettings]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::SoundSettings]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::SoundSettings]->setHoverTexture("gui_hover_pixel");
+	m_buttons[ButtonOrder::SoundSettings]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SoundSettings]->setFont(FontHandler::getFont("consolas16"));
+
+	m_buttons.push_back(Quad::CreateButton("Save and return", 0.4915f, 0.13f, 0.365f, 0.12f));
+	m_buttons[ButtonOrder::Return]->setPivotPoint(Quad::PivotPoint::centerRight);
 	m_buttons[ButtonOrder::Return]->setUnpressedTexture("gui_transparent_pixel");
 	m_buttons[ButtonOrder::Return]->setPressedTexture("gui_pressed_pixel");
 	m_buttons[ButtonOrder::Return]->setHoverTexture("gui_hover_pixel");
