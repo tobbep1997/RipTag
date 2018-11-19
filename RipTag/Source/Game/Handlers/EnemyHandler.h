@@ -12,7 +12,7 @@ private:
 	const int SIGHT_LEVEL = 1700;
 	const float ALERT_TIME_LIMIT = 0.8f;
 	const float SUSPICIOUS_TIME_LIMIT = 2.0f;
-	const float SEARCH_ROOM_TIME_LIMIT = 10.0f;
+	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
 
 private:

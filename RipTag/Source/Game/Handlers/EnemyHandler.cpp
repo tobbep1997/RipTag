@@ -261,13 +261,69 @@ void EnemyHandler::_ScanArea(Enemy * guard, const double & dt) //Look around
 void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search around room (high Alert?)
 {
 	guard->AddActTimer(dt);
+	static int lastSearchDirX = 0;
+	static int lastSearchDirY = 0;
+	int random = dt;
+	srand(random);
+
 	if (guard->GetAlertPathSize() == 0)
 	{
-		Tile randPos(rand() % (m_grid->getGridWidth() - 1), rand() % (m_grid->getGridHeight() - 1));
+		int dirX = (rand() % 3) - 1;
+		random += dt*100;
+		srand(random);
+		int dirY = (rand() % 3) - 1;
+
+		if (lastSearchDirX == 0 && lastSearchDirY == 0)
+		{
+
+		}
+		else
+		{
+			while ((dirX == 0 && dirY == 0) || (dirX == lastSearchDirX && dirY == lastSearchDirY))
+			{
+				random += dt * 100;
+				srand(random);
+				dirX = (rand() % 3) - 1;
+				random += dt * 100;
+				srand(random);
+				dirY = (rand() % 3) - 1;
+				float dy = dirY - lastSearchDirY;
+				float dx = dirX - lastSearchDirX;
+				float theta = std::atan2(dy, dx);
+				theta *= 180 / B3_PI;
+				if (abs(theta) > 25)
+				{
+				}
+				else
+				{
+					dirX = 0;
+					dirY = 0;
+				}
+			}
+		}
+
+		
+		random += dt;
+		srand(random);
+		int searchLength = (rand() % 4) + 4;
 		DirectX::XMFLOAT4A guardPos = guard->getPosition();
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+		Tile newPos;
+		for (int i = 1; i < searchLength; i++)
+		{
+			newPos = m_grid->WorldPosToTile(guardPos.x + (dirX*i), guardPos.z + (dirY*i));
+			if (!newPos.getPathable())
+				break;
+		}
 
-		guard->SetAlertVector(m_grid->FindPath(guardTile, randPos));
+		if (newPos.getPathable())
+		{
+			lastSearchDirX = dirX;
+			lastSearchDirY = dirY;
+			guard->SetAlertVector(m_grid->FindPath(guardTile, newPos));
+		}
+
+		//guard->SetAlertVector(m_grid->FindPath(guardTile, randPos));
 	}
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL)
 	{
@@ -283,3 +339,31 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 		guard->setEnemeyState(Patrolling);
 	}
 }
+
+
+/*float dirX = (((float)rand() / (float)RAND_MAX) *2) -1;
+		dirX = std::round(dirX * 10.0) / 10.0;
+		dirX = floor((dirX * 2) + 0.5) / 2;
+		
+		random += dt;
+		srand(random);
+		float dirY = (((float)rand() / (float)RAND_MAX) * 2) - 1;
+		dirY = std::round(dirY * 10.0) / 10.0;
+		dirY = floor((dirY * 2) + 0.5) / 2;
+
+		while(dirX == -lastSearchDirX && dirY == -lastSearchDirY)
+		{
+			random += dt;
+			srand(random);
+			dirX = (((float)rand() / (float)RAND_MAX) * 2) - 1;
+			dirX = std::round(dirX * 10.0) / 10.0;
+			dirX = floor((dirX * 2) + 0.5) / 2;
+
+			random += dt;
+			srand(random);
+			dirY = (((float)rand() / (float)RAND_MAX) * 2) - 1;
+			dirY = std::round(dirY * 10.0) / 10.0;
+			dirY = floor((dirY * 2) + 0.5) / 2;
+		}
+		random += dt;
+		srand(random);*/
