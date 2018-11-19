@@ -4,6 +4,7 @@
 #include <string>
 #include <DirectXCollision.h>
 #include "Transform.h"
+#include <d3d11_3.h>
 
 enum ObjectType
 {
@@ -43,6 +44,10 @@ private:
 	bool m_outline;
 	bool m_transparant;
 	DirectX::XMFLOAT4A m_outLineColor;
+
+	ID3D11Buffer* uavstage = nullptr;
+	ID3D11Buffer * m_UAVOutput = nullptr;
+	ID3D11UnorderedAccessView* m_animatedUAV = nullptr;
 
 protected:	
 	Texture * p_texture;
@@ -127,6 +132,11 @@ public:
 	virtual bool GetTransparant();
 
 	std::string getTextureName() const;
+
+
+	ID3D11Buffer * GetAnimatedVertex();
+	ID3D11UnorderedAccessView * GetUAV();
+	void DontCallMe();
 
 private:
 	virtual void _setStaticBuffer();

@@ -120,6 +120,7 @@ private:
 	ID3D11RasterizerState * m_standardRast;
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
+	ID3D11RasterizerState * m_NUKE;
 
 	ID3D11Buffer * m_outlineBuffer;
 	OutLineBuffer m_outLineValues;
@@ -127,6 +128,9 @@ private:
 	ID3D11DepthStencilState * m_write0State;
 	ID3D11DepthStencilState * m_write1State;
 	ID3D11DepthStencilState * m_OutlineState;
+	ID3D11DepthStencilState * m_NUKE2;
+
+
 	
 public:
 	ForwardRender();
@@ -143,6 +147,8 @@ public:
 
 	void GeometryPass(Camera & camera);
 	void PrePass(Camera & camera);
+
+	void AnimationPrePass(Camera & camera);
 	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();
