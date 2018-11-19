@@ -86,6 +86,7 @@ namespace Network
 		RakNet::RakNetGUID GetMyGUID();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
+		void setOccasionalPing();
 
 		static void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void _send_packet(const char* message, size_t length, PacketPriority priority);
