@@ -13,9 +13,10 @@ enum EnemyState
 {
 	Investigating_Sight,
 	Investigating_Sound,
+	Investigating_Room,
 	High_Alert,
 	Suspicious,
-	Cooling_Down,
+	Scanning_Area,
 	Patrolling
 };
 

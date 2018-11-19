@@ -283,7 +283,7 @@ void Enemy::Update(double deltaTime)
 		}
 		else
 		{
-			if (m_state == Suspicious)
+			if (m_state == Suspicious || m_state == Scanning_Area)
 			{
 				getBody()->SetAwake(false);
 			}

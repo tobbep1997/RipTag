@@ -51,6 +51,13 @@ void EnemyHandler::Update(float deltaTime)
 				_investigateSound(currentGuard);
 			}
 			break;
+		case Investigating_Room:
+			if (timer > 0.3f)
+			{
+				_investigateRoom(currentGuard, timer);
+				timer = 0.0f;
+			}
+			break;
 		case High_Alert:
 			_highAlert(currentGuard, deltaTime);
 			break;
@@ -59,6 +66,9 @@ void EnemyHandler::Update(float deltaTime)
 			break;
 		case Suspicious:
 			_suspicious(currentGuard, deltaTime);
+			break;
+		case Scanning_Area:
+			_ScanArea(currentGuard, deltaTime);
 			break;
 		}
 	}
@@ -227,10 +237,30 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 	}
 }
 
-void EnemyHandler::_coolingDown(Enemy * guard, const double & dt)
+void EnemyHandler::_ScanArea(Enemy * guard, const double & dt) //Look around
 {
 	guard->AddActTimer(dt);
-	if (guard->GetActTimer() > 2)
+	//Do animation
+	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
+	{
+		guard->SetActTimer(0.0f);
+		guard->setEnemeyState(Patrolling);
+	}
+}
+
+void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search around room (high Alert?)
+{
+	guard->AddActTimer(dt);
+	if (guard->GetAlertPathSize() == 0)
+	{
+		//rand() % gridSize();
+	}
+	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL)
+	{
+		guard->SetActTimer(0.0f);
+		guard->setEnemeyState(Suspicious);
+	}
+	if (guard->GetActTimer() > SEARCH_ROOM_TIME_LIMIT)
 	{
 		guard->SetActTimer(0.0f);
 		guard->setEnemeyState(Patrolling);
