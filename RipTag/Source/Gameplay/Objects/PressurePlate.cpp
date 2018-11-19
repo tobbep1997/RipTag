@@ -24,6 +24,7 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("PressurePlate");
+	setTexture(Manager::g_textureManager.getTexture("PLATE"));
 	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("PLATE"));
 	auto& stateMachine = getAnimationPlayer()->InitStateMachine(2);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
@@ -55,6 +56,7 @@ void PressurePlate::Update(double deltaTime)
 				}
 			}
 	}
+
 	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
 	{
 		if (con)
