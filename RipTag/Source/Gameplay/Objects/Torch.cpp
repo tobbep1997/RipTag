@@ -84,8 +84,12 @@ void Torch::Draw()
 	if (pPointLight->getLightOn())
 	{
 		this->pPointLight->QueueLight();
-		pParticles->Queue();
+		pParticles->setEmmiterLife(0);
 	}
+	else
+		pParticles->setEmmiterLife(1);
+	
+	pParticles->Queue();
 }
 
 void Torch::QueueLight()

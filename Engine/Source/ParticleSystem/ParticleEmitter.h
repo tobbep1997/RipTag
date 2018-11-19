@@ -85,5 +85,7 @@ public:
 
 	DirectX::XMFLOAT4X4A getWorldMatrix();
 
+	void setEmmiterLife(const float & lifeTime);
+
 };
 
