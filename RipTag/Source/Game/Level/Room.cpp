@@ -400,10 +400,6 @@ void Room::LoadRoomToMemory()
 		//getPath();
 
 
-		BaseActor * temp = DBG_NEW BaseActor();
-		temp->Init(*m_worldPtr, e_staticBody, 1, 1, 1);
-		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-		temp->setPosition(0, 0, 0);
 		//Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
 		///temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 		//temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
@@ -426,8 +422,6 @@ void Room::LoadRoomToMemory()
 			ge->setActive(false);
 			m_audioBoxes.push_back(ge);
 		}
-
-		m_staticAssets.push_back(temp);
 		
 		m_roomLoaded = true;	
 	}
@@ -566,7 +560,7 @@ void Room::Release()
 	}
 	for (auto asset : m_staticAssets)
 	{
-	//	delete asset;
+		delete asset;
 	}
 	if (CollisionBoxes)
 	{
