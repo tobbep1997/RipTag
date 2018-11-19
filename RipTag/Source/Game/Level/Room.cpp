@@ -409,7 +409,6 @@ void Room::LoadRoomToMemory()
 	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		ImporterLibrary::CollisionBoxes boxes = fileLoader.readMeshCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
-		
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
 			float * f4Rot = boxes.boxes[i].rotation;
@@ -422,6 +421,7 @@ void Room::LoadRoomToMemory()
 			ge->setActive(false);
 			m_audioBoxes.push_back(ge);
 		}
+		delete [] boxes.boxes;
 		
 		m_roomLoaded = true;	
 	}
