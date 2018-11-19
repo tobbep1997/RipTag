@@ -144,6 +144,9 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	//LoadTuTorialRoomFirst
 	Room * room = new Room(56, m_worldPtr, 0, m_playerPtr);
 	m_rooms.push_back(room);
+	room = new Room(0, m_worldPtr, 1, m_playerPtr);
+	m_rooms.push_back(room);
+
 
 	                               //Byt i < 1 till amountOfRooms
 	for (short unsigned int i = 0; i < 1; i++)
@@ -151,7 +154,7 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 		//Create a room
 		//Get a random int					//VERY NECCESSARY TO COMMENT BACK IN
 		int randomRoom = rand() % amountOfRooms;
-		Room * room = new Room(1, m_worldPtr, i+1, m_playerPtr);//TODO
+		Room * room = new Room(1, m_worldPtr, i+2, m_playerPtr);//TODO
 
 
 		m_rooms.push_back(room);
