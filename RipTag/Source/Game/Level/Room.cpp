@@ -228,12 +228,16 @@ void Room::LoadRoomToMemory()
 
 		//getPath();
 
+		Manager::g_textureManager.loadTextures(this->getAssetFilePath());
 
-		//Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
-		///temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
+		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
+		//BaseActor * temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 		//temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 
-
+		BaseActor * temp = new BaseActor();
+		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
+		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
+		m_staticAssets.push_back(temp);
 		CollisionBoxes = DBG_NEW BaseActor();
 	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
 		ImporterLibrary::CollisionBoxes boxes = fileLoader.readMeshCollisionBoxes(this->getAssetFilePath());
