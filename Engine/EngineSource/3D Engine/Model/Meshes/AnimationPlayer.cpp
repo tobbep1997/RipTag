@@ -269,14 +269,6 @@ float Animation::AnimationPlayer::GetCachedDeltaTime()
 	return m_currentFrameDeltaTime;
 }
 
-std::vector<DirectX::XMMATRIX> Animation::AnimationPlayer::_CombinePoses(std::vector<Animation::SkeletonPose>&& poses)
-{
-	{
-		
-	}
-	return std::vector<DirectX::XMMATRIX>{};
-}
-
 std::unique_ptr<LayerMachine>& Animation::AnimationPlayer::InitLayerMachine(Animation::Skeleton* skeleton)
 {
 	m_LayerMachine = std::make_unique<LayerMachine>(skeleton);
@@ -347,6 +339,24 @@ Animation::JointPose Animation::getAdditivePose(JointPose targetPose, JointPose 
 	return JointPose(additivePose);
 }
 
+
+void Animation::AnimationPlayer::_ScalePose(Animation::SkeletonPose* pose, float scale, uint16_t jointCount)
+{
+	for (uint16_t joint = 0; joint < jointCount; joint++)
+	{
+		pose->m_JointPoses[joint] = _ScalePose(pose->m_JointPoses[joint], scale);
+	}
+}
+
+Animation::JointPose Animation::AnimationPlayer::_ScalePose(Animation::JointPose& pose, float scale)
+{
+	auto zeroPose = Animation::JointPose{};
+	zeroPose.m_Transformation.m_RotationQuaternion = { 0.0, 0.0, 0.0, 1.0 };
+	zeroPose.m_Transformation.m_Translation = { 0.0, 0.0, 0.0, 1.0 };
+	zeroPose.m_Transformation.m_Scale = { 1.0, 1.0, 1.0, 1.0 };
+
+	return _BlendJointPoses(&zeroPose, &pose, scale);
+}
 
 Animation::JointPose Animation::AnimationPlayer::_GetAdditivePose(Animation::JointPose targetPose, DirectX::XMMATRIX differencePose)
 {

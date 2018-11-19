@@ -50,8 +50,9 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	{
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton("GUARD").get());
-		layerMachine->AddBasicLayer("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 0.2f);
-		layerMachine->ActivateLayer("test_layer", false);
+		layerMachine->AddBasicLayer
+			("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 3.f);
+		layerMachine->ActivateLayer("test_layer", 2.5);
 	}
 	{
 		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();

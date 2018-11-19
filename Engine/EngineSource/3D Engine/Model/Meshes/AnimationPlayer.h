@@ -182,7 +182,6 @@ namespace Animation
 
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 		float GetCachedDeltaTime();
-		static std::vector<DirectX::XMMATRIX> _CombinePoses(std::vector<Animation::SkeletonPose>&& poses);
 		std::unique_ptr<LayerMachine>& InitLayerMachine(Animation::Skeleton* skeleton);
 	private:
 		float m_currentFrameDeltaTime = 0.0f;
@@ -209,6 +208,8 @@ namespace Animation
 		//-- Helper functions --
 		static DirectX::XMMATRIX _CreateMatrixFromSRT(const SRT& srt);
 
+		static void         _ScalePose(Animation::SkeletonPose* pose, float scale, uint16_t jointCount);
+		static JointPose    _ScalePose(Animation::JointPose& pose, float scale);
 		static JointPose    _GetAdditivePose(Animation::JointPose targetPose, DirectX::XMMATRIX differencePose);
 		static JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
 		static SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);

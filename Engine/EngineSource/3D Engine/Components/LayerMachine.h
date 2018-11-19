@@ -18,15 +18,19 @@ public:
 
 	void UpdatePoseWithLayers(Animation::SkeletonPose& mainAnimationPose, float deltaTime);
 
-	void ActivateLayer(std::string layerName, bool popOnFinish = false);
 	void AddBasicLayer(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime);
+	void ActivateLayer(std::string layerName);
+	void ActivateLayer(std::string layerName, float loopCount);
 	void Add1DLayer(std::string layerName, float* driver, std::vector<std::pair<float, Animation::AnimationClip*>> nodes);
 	void PopLayer(LayerState*);
+	void PopLayer(std::string layer);
 	uint16_t GetSkeletonJointCount();
 private:
-	Animation::Skeleton* m_Skeleton{ nullptr };
-	std::vector<LayerState*> m_ActiveLayers;
 	std::unordered_map<std::string, LayerState*> m_Layers;
+	std::vector<LayerState*> m_ActiveLayers;
+	Animation::Skeleton* m_Skeleton{ nullptr };
+
+	bool _mildResetIfActive(LayerState* layer);
 };
 #pragma endregion "Machine"
 
@@ -51,11 +55,14 @@ public:
 
 	void BlendOut();
 	void PopOnFinish();
+	void SetPlayTime(float loopCount);
 	void Reset();
+	void MildReset();
 
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) = 0;
 	bool IsPopped() const;
 	std::pair<uint16_t, float> _getIndexAndProgression();
+	LayerState::BLEND_STATE GetState();
 private:
 	bool m_IsPopped = false;
 
@@ -64,14 +71,16 @@ private:
 
 	float m_CurrentTime = 0.0f;
 	float m_ClipLength = 0.0f;
-	bool m_IsLooping = true;
+	bool m_IsEndlesslyLooping = true;
+	
+	float m_PlayTime = 0.0f;
 
+protected:
 	//Blend members
 	float m_CurrentBlendTime = 0.0f;
 	float m_BlendInTime = 0.0f;
 	float m_BlendOutTime = 0.0f;
 
-protected:
 	LayerMachine* m_OwnerMachine = nullptr;
 
 	void _updateBlend(float deltaTime);
