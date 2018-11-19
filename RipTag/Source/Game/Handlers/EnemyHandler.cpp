@@ -43,6 +43,7 @@ void EnemyHandler::Update(float deltaTime)
 				timer = 0.0f;
 				_investigating(currentGuard);
 			}
+			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
 			break;
 		case Investigating_Sound:
 			if (timer > 0.3f)
@@ -50,6 +51,7 @@ void EnemyHandler::Update(float deltaTime)
 				timer = 0.0f;
 				_investigateSound(currentGuard);
 			}
+			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 			break;
 		case Investigating_Room:
 			if (timer > 0.3f)
@@ -60,12 +62,15 @@ void EnemyHandler::Update(float deltaTime)
 			break;
 		case High_Alert:
 			_highAlert(currentGuard, deltaTime);
+			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
 			break;
 		case Patrolling:
 			_patrolling(currentGuard);
+			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 			break;
 		case Suspicious:
 			_suspicious(currentGuard, deltaTime);
+			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 			break;
 		case Scanning_Area:
 			_ScanArea(currentGuard, deltaTime);
@@ -94,6 +99,8 @@ void EnemyHandler::_alert(Enemy * guard, bool followSound)
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 		guard->setEnemeyState(Investigating_Sight);
+		std::cout << green << "Enemy Transition: Suspicious -> Investigate Sight" << white << std::endl;
+
 	}
 	else
 	{
@@ -104,6 +111,7 @@ void EnemyHandler::_alert(Enemy * guard, bool followSound)
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 		guard->setEnemeyState(Investigating_Sound);
+		std::cout << green << "Enemy Transition: Suspicious -> Investigate Sound" << white << std::endl;
 	}
 }
 
@@ -134,6 +142,7 @@ void EnemyHandler::_investigating(Enemy * guard)
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
 		guard->setEnemeyState(High_Alert);
+		std::cout << green << "Enemy Transition: Investigating Sight -> High Alert" << white << std::endl;
 	}
 }
 
@@ -163,6 +172,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
+		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
 		guard->setEnemeyState(High_Alert);
 	}
 }
@@ -171,6 +181,7 @@ void EnemyHandler::_patrolling(Enemy * guard)
 {
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
+		std::cout << green << "Enemy Transition: Patrolling -> Suspicious" << white << std::endl;
 		guard->setEnemeyState(Suspicious);
 		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
 		guard->setLoudestSoundLocation(Enemy::SoundLocation());
@@ -183,7 +194,6 @@ void EnemyHandler::_patrolling(Enemy * guard)
 void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
 {
 	guard->AddHighAlertTimer(dt);
-	std::cout << yellow << "HighAlert" << white << std::endl;
 	if (guard->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
 	{
 		guard->SetHightAlertTimer(0.f);
@@ -191,7 +201,7 @@ void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
 		guard->setLoudestSoundLocation(Enemy::SoundLocation());
 		guard->setBiggestVisCounter(0);
 		guard->setEnemeyState(Suspicious);
-		std::cout << red << "highAlertEnded" << white << std::endl;
+		std::cout << green << "Enemy Transition: High Alert -> Suspicious" << white << std::endl;
 	}
 }
 
@@ -222,7 +232,6 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 	}
 	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
 	{
-		std::cout << yellow << "Investigating" << white << std::endl;
 		guard->SetActTimer(0.0f);
 		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT*1.5)
 			_alert(guard); //what was that?
@@ -232,6 +241,7 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 		{
 			guard->SetActTimer(0.0f);
 			guard->setEnemeyState(Patrolling);
+			std::cout << green << "Enemy Transition: Suspicious -> Patrolling" << white << std::endl;
 			//Must have been nothing...
 		}
 	}

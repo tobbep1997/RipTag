@@ -218,6 +218,7 @@ void Enemy::Update(double deltaTime)
 
 	if (!m_disabled)
 	{
+		getBody()->SetType(e_dynamicBody);
 		//auto dir = p_camera->getDirection();
 		//DirectX::XMFLOAT4A forward, right, up;
 		//forward = { dir.x, dir.y, dir.z, 0.0};
@@ -349,6 +350,7 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
+		getBody()->SetType(e_staticBody);
 		switch (m_knockOutType)
 		{
 
@@ -377,7 +379,7 @@ void Enemy::Update(double deltaTime)
 		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
-	getBody()->SetType(e_dynamicBody);
+	
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
