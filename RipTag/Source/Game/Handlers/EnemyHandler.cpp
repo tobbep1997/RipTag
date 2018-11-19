@@ -56,6 +56,7 @@ void EnemyHandler::Update(float deltaTime)
 		case High_Alert:
 			_highAlert(currentGuard, deltaTime);
 			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+			currentGuard->getAnimationPlayer()->GetLayerMachine()->PopLayer("test_layer");
 			break;
 		case Patrolling:
 			_patrolling(currentGuard);
@@ -63,6 +64,7 @@ void EnemyHandler::Update(float deltaTime)
 			break;
 		case Suspicious:
 			_suspicious(currentGuard, deltaTime);
+			currentGuard->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("test_layer", 2.5);
 			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 			break;
 		}

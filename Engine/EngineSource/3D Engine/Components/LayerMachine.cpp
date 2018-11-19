@@ -71,13 +71,14 @@ void LayerMachine::ActivateLayer(std::string layerName)
 	m_ActiveLayers.push_back(layer);
 }
 
-void LayerMachine::ActivateLayer( std::string layerName, float loopCount /*= 1.0f*/)
+void LayerMachine::ActivateLayer( std::string layerName, float loopCount)
 {
 	auto layer = m_Layers.at(layerName);
 	layer->SetPlayTime(loopCount);
 	layer->PopOnFinish();
 	if (!_mildResetIfActive(layer))
 	{
+		layer->Reset();
 		m_ActiveLayers.push_back(layer);
 	}
 }
@@ -85,7 +86,11 @@ void LayerMachine::ActivateLayer( std::string layerName, float loopCount /*= 1.0
 void LayerMachine::PopLayer(LayerState* state)
 {
 	auto it = std::find(m_ActiveLayers.begin(), m_ActiveLayers.end(), state);
-	m_ActiveLayers.erase(it);
+	if (it != std::end(m_ActiveLayers)) 
+	{
+		(*it)->BlendOut();
+		//m_ActiveLayers.erase(it);
+	}
 }
 
 void LayerMachine::PopLayer(std::string layer)
@@ -129,6 +134,7 @@ void LayerState::Reset()
 {
 	m_CurrentBlendTime = 0.0f;
 	m_CurrentTime = 0.0f;
+	m_BlendState = NONE;
 	m_IsPopped = false;
 }
 
