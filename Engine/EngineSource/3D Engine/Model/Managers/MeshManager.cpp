@@ -51,7 +51,7 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 	{		
 		tempMesh->setName(fullPath);
 		tempMesh->LoadMesh(fullPath);
-		tempMesh->LoadCollision(this->_getFullPathCollision(meshName));
+		tempMesh->LoadCollision(this->_getFullPath(meshName));
 		m_mutexStatic.lock();
 		m_staticMesh[key].push_back(tempMesh);
 		m_mutexStatic.unlock();

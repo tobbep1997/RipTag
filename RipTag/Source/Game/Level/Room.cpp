@@ -8,9 +8,11 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
+		BaseActor * tempAsset = nullptr;
 	
 	for (int i = 0; i < propsToPlace.nrOfItems; i++)
 	{
+		tempAsset = DBG_NEW BaseActor();
 		int a = propsToPlace.props[i].typeOfProp;
 		switch (propsToPlace.props[i].typeOfProp)
 		{
@@ -96,6 +98,78 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 				propsToPlace.props[i].transform_scale[2]);
 			triggerHandler->Triggerables.push_back(tempBars);
 			tempDoor = nullptr;
+			break;
+		case(8):
+			Manager::g_meshManager.loadStaticMesh("BANNER");
+			Manager::g_textureManager.loadTextures("BANNER");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("BANNER"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("BANNER"));
+			tempAsset->Init(*m_worldPtr, e_staticBody, propsToPlace.props[i].BBOX_INFO[0], propsToPlace.props[i].BBOX_INFO[1], propsToPlace.props[i].BBOX_INFO[2]);
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], true);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2]);
+			m_staticAssets.push_back(tempAsset);
+			break;
+		case(7):
+			Manager::g_meshManager.loadStaticMesh("BARREL");
+			Manager::g_textureManager.loadTextures("BARREL");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("BARREL"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("BARREL"));
+			tempAsset->Init(*m_worldPtr, e_staticBody, propsToPlace.props[i].BBOX_INFO[0], propsToPlace.props[i].BBOX_INFO[1], propsToPlace.props[i].BBOX_INFO[2]);
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], true);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2]);
+			m_staticAssets.push_back(tempAsset);
+			break;
+		case(20):
+			Manager::g_meshManager.loadStaticMesh("THICKWALL");
+			Manager::g_textureManager.loadTextures("THICKWALL");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("THICKWALL"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("THICKWALL"));
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], false);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2], false);
+			m_staticAssets.push_back(tempAsset);
+			break;
+		case(21):
+			Manager::g_meshManager.loadStaticMesh("THICKWALLWITHOPENING");
+			Manager::g_textureManager.loadTextures("THICKWALLWITHOPENING");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("THICKWALLWITHOPENING"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("THICKWALLWITHOPENING"));
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], false);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2], false);
+			m_staticAssets.push_back(tempAsset);
+			break;
+		case(22):
+			Manager::g_meshManager.loadStaticMesh("THINWALL");
+			Manager::g_textureManager.loadTextures("THINWALL");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("THINWALL"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("THINWALL"));
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], false);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2], false);
+			m_staticAssets.push_back(tempAsset);
+			break;
+		case(23):
+			Manager::g_meshManager.loadStaticMesh("THINWALLWITHOPENING");
+			Manager::g_textureManager.loadTextures("THINWALLWITHOPENING");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("THINWALLWITHOPENING"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("THINWALLWITHOPENING"));
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], false);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2], false);
+			m_staticAssets.push_back(tempAsset);
+			break;
+		case(24):
+			Manager::g_meshManager.loadStaticMesh("STATICROOMFLOOR");
+			Manager::g_textureManager.loadTextures("STATICROOMFLOOR");
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("STATICROOMFLOOR"));
+			tempAsset->setTexture(Manager::g_textureManager.getTexture("STATICROOMFLOOR"));
+			tempAsset->setScale(propsToPlace.props[i].transform_scale[0], propsToPlace.props[i].transform_scale[1], propsToPlace.props[i].transform_scale[2]);
+			tempAsset->setPosition(propsToPlace.props[i].transform_position[0], propsToPlace.props[i].transform_position[1], propsToPlace.props[i].transform_position[2], false);
+			tempAsset->setRotation(propsToPlace.props[i].transform_rotation[0], propsToPlace.props[i].transform_rotation[1], propsToPlace.props[i].transform_rotation[2], false);
+			m_staticAssets.push_back(tempAsset);
 			break;
 		default:
 			break;
@@ -330,13 +404,14 @@ void Room::LoadRoomToMemory()
 		temp->Init(*m_worldPtr, e_staticBody, 1, 1, 1);
 		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
 		temp->setPosition(0, 0, 0);
-		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
-		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
-		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
+		//Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
+		///temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
+		//temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
 
 
 		CollisionBoxes = DBG_NEW BaseActor();
-		ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+		ImporterLibrary::CollisionBoxes boxes = fileLoader.readMeshCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
 		
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
@@ -491,7 +566,7 @@ void Room::Release()
 	}
 	for (auto asset : m_staticAssets)
 	{
-		delete asset;
+	//	delete asset;
 	}
 	if (CollisionBoxes)
 	{

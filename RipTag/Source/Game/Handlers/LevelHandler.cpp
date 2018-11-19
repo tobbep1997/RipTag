@@ -142,7 +142,7 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	srand(seed);
 	std::vector<int> usedRooms;
 	//LoadTuTorialRoomFirst
-	Room * room = new Room(0, m_worldPtr, 0, m_playerPtr);
+	Room * room = new Room(56, m_worldPtr, 0, m_playerPtr);
 	m_rooms.push_back(room);
 
 	                               //Byt i < 1 till amountOfRooms
