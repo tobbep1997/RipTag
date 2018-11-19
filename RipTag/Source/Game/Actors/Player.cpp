@@ -79,9 +79,6 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
 
-	
-	m_winBar = HUDComponent::GetQuad("YouWin"); 
-
 	m_infoText = HUDComponent::GetQuad("InfoText"); 
 
 	m_tutorialMessages.push("");
@@ -1258,19 +1255,12 @@ void Player::_hasWon()
 {
 	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
 	{
-		if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag();
+
+		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
 		{
-			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
-			{
-				hasWon = true;
-				SendOnWin();
-				
-				break;
-			}
-		}
-		else if(RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
-		{
-			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
+			if (Object_B_Tag == "PLAYER" || Object_B_Tag == "WIN_BOX")
 			{
 				hasWon = true;
 				SendOnWin();
@@ -1278,8 +1268,6 @@ void Player::_hasWon()
 			}
 		}
 	}
-	if (gameIsWon == true)
-		drawWinBar();
 }
 
 b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
@@ -1316,8 +1304,4 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 	return (tempStart + tempRelativeVec);
 }
 
-void Player::drawWinBar()
-{
-	m_winBar->setPosition(0.5f, 0.5f);
-}
 

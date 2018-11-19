@@ -47,8 +47,6 @@ private:
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
 
-	PhysicsComponent m_phys;
-
 	bool m_update = false;
 	bool m_firstRun = true;
 

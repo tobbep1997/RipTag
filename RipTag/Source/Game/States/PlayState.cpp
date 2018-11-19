@@ -108,7 +108,7 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
 		}
 
 	
@@ -744,33 +744,25 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 			m_eventOverlay->setScale({2.0f, 2.0f});
 			accumulatedTime = 0;
 
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
 			if (m_coopState.gameWon)
 			{
-				//We need a GameWon state perhaps, or we simply make the LoseState into a more general State that can handle both Lose and Won
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away.. this time!\nGod of Stealth", (void*)pCoopData));
 			}
 			else if (m_coopState.gameOver)
 			{
-				m_destoryPhysicsThread = true;
-				m_physicsCondition.notify_all();
-
-
-				if (m_physicsThread.joinable())
-				{
-					m_physicsThread.join();
-				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
 			}
 			else if (m_coopState.remoteDisconnected)
 			{
-				m_destoryPhysicsThread = true;
-				m_physicsCondition.notify_all();
-
-
-				if (m_physicsThread.joinable())
-				{
-					m_physicsThread.join();
-				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
 			}
 		}
 	}

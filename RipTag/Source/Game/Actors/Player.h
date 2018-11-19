@@ -89,9 +89,6 @@ private:
 	int mouseX = 0;
 	int mouseY = 0;
 
-
-	Quad * m_winBar;
-
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
 	Quad * m_tutorialText;
@@ -133,8 +130,9 @@ private:
 public:
 	//Magic number
 	static const int g_fullVisability = 1300;
+
 	bool hasWon = false;
-	bool gameIsWon = false;
+	
 	bool unlockMouse = false;
 	Player();
 	Player(RakNet::NetworkID nID, float x, float y, float z);
@@ -168,11 +166,11 @@ public:
 
 	const float & getVisability() const;
 	const int & getFullVisability() const;
+	const bool & getWinState() const { return hasWon; }
 
 	const AudioEngine::Listener & getFMODListener() const; 
 	
 	//This is a way of checking if we can use the ability with out current mana
-	void drawWinBar();
 	void SetAbilitySet(int set);
 
 	void setEnemyPositions(std::vector<Enemy *> enemys);
