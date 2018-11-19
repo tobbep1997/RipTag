@@ -366,7 +366,7 @@ void Room::LoadRoomToMemory()
 
 	for (auto light : m_pointLights)
 	{
-		light->setColor(90, 112.0f, 130.0f);
+		light->setColor(120.0f, 112.0f, 90.0f);
 	}
 }
 
@@ -420,9 +420,9 @@ void Room::Update(float deltaTime, Camera * camera)
 
 	for (auto light : m_pointLights)
 	{
-		light->setDropOff(2.0425345f);
-		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
+		light->setDropOff(0.2f);
+		light->setPower(2.4f);
+		light->setIntensity(light->TourchEffect(deltaTime, 8.3f, 2.5f));
 	}
 	triggerHandler->Update(deltaTime);
 

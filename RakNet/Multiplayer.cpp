@@ -161,6 +161,12 @@ namespace Network
 		}
 	}
 
+	void Multiplayer::setOccasionalPing()
+	{
+		if (pPeer)
+			pPeer->SetOccasionalPing(true);
+	}
+
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)
 	{
 		Multiplayer::GetInstance()->_send_packet(message, length, priority);
