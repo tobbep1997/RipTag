@@ -18,7 +18,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			
 			break;
 		case(2):
-			Manager::g_meshManager.loadDynamicMesh("PLATE");
+			Manager::g_meshManager.loadSkinnedMesh("PLATE");
 			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
 			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
 			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
@@ -42,7 +42,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 
 			break;
 		case(3):
-			Manager::g_meshManager.loadDynamicMesh("DOOR");
+			Manager::g_meshManager.loadSkinnedMesh("DOOR");
 			Manager::g_textureManager.loadTextures("DOOR");
 			Manager::g_animationManager.loadSkeleton("../Assets/DOORFOLDER/DOOR_SKELETON.bin", "DOOR");
 			Manager::g_animationManager.loadClipCollection("DOOR", "DOOR", "../Assets/DOORFOLDER", Manager::g_animationManager.getSkeleton("DOOR"));
@@ -66,7 +66,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 		case(4):
 			//Manager::g_meshManager.loadStaticMesh("SPAK");
 			//Manager::g_textureManager.loadTextures("SPAK");
-			Manager::g_meshManager.loadDynamicMesh("SPAK");
+			Manager::g_meshManager.loadSkinnedMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
 			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
@@ -82,7 +82,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 			tempLever = nullptr;
 			break;
 		case(5):
-			Manager::g_meshManager.loadDynamicMesh("BARS");
+			Manager::g_meshManager.loadSkinnedMesh("BARS");
 			Manager::g_textureManager.loadTextures("BARS");
 			Manager::g_animationManager.loadSkeleton("../Assets/BARSFOLDER/BARS_SKELETON.bin", "BARS");
 			Manager::g_animationManager.loadClipCollection("BARS", "BARS", "../Assets/BARSFOLDER", Manager::g_animationManager.getSkeleton("BARS"));
@@ -434,7 +434,7 @@ void Room::Update(float deltaTime, Camera * camera)
 			break;
 		}
 	}
-	/*if (m_youLost)
+	if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
@@ -443,7 +443,7 @@ void Room::Update(float deltaTime, Camera * camera)
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
-	}*/
+	}
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{

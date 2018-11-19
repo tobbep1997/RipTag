@@ -178,13 +178,15 @@
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Transform.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
+    <ClInclude Include="EngineSource\Helper\AnimationHelpers.h" />
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="ConsoleColor.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.h" />
     <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimatedModel.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\dds.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\DirectXHelpers.h" />
@@ -194,7 +196,7 @@
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\WICTextureLoader.h" />
     <ClInclude Include="EngineSource\Light\PointLight.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Camera.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Components\Base\Drawable.h" />
     <ClInclude Include="EngineSource\Debugg\FunctionQueue.h" />
@@ -241,7 +243,7 @@
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\ShadowMap.cpp" />
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\VisabilityPass\VisabilityPass.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimatedModel.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.cpp" />
     <ClCompile Include="EngineSource\3D Engine\WICTextureLoader\DDSTextureLoader.cpp">
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ConformanceMode>
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ConformanceMode>
@@ -280,7 +282,7 @@
     <ClCompile Include="EngineSource\Helper\Timer.cpp" />
     <ClCompile Include="EngineSource\Light\PointLight.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Camera.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Components\Base\Drawable.cpp" />
     <ClCompile Include="EngineSource\Debugg\ImGui\ImGuiManager.cpp">
@@ -374,6 +376,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
     <ClCompile Include="Source\ParticleSystem\Particle.cpp" />
     <ClCompile Include="Source\ParticleSystem\ParticleEmitter.cpp" />
     <ClCompile Include="Source\ParticleSystem\ParticleManager.cpp" />

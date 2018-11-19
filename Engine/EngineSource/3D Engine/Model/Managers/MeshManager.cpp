@@ -12,11 +12,11 @@ MeshManager::~MeshManager()
 {
 	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
 	{
-		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)
+		for (unsigned int j = 0; j < m_skinnedMesh[i].size(); j++)
 		{
-			delete m_dynamicMesh[i][j];
+			delete m_skinnedMesh[i][j];
 		}
-		m_dynamicMesh[i].clear();
+		m_skinnedMesh[i].clear();
 	}
 	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
 	{
@@ -28,16 +28,16 @@ MeshManager::~MeshManager()
 	}
 }
 
-bool MeshManager::loadDynamicMesh(const std::string & meshName)
+bool MeshManager::loadSkinnedMesh(const std::string & meshName)
 {
-	DynamicMesh* tempMesh = new DynamicMesh();
+	SkinnedMesh* tempMesh = new SkinnedMesh();
 	std::string fullPath = this->_getFullPath(meshName);
 	unsigned int key = this->_getKey(fullPath);
 
 	tempMesh->setName(fullPath);
 	tempMesh->LoadMesh(fullPath);
 
-	m_dynamicMesh[key].push_back(tempMesh);	
+	m_skinnedMesh[key].push_back(tempMesh);	
 	return true;
 }
 
@@ -86,16 +86,16 @@ bool MeshManager::loadStaticMesh(const std::string & meshName)
 	return true;
 }
 
-DynamicMesh * MeshManager::getDynamicMesh(const std::string & meshName)
+SkinnedMesh * MeshManager::getSkinnedMesh(const std::string & meshName)
 {
 	std::string fullPath = this->_getFullPath(meshName);
 	unsigned int key = this->_getKey(fullPath);
 
-	for (unsigned int i = 0; i < m_dynamicMesh[key].size(); i++)
+	for (unsigned int i = 0; i < m_skinnedMesh[key].size(); i++)
 	{
-		if (m_dynamicMesh[key][i]->getName() == fullPath)
+		if (m_skinnedMesh[key][i]->getName() == fullPath)
 		{
-			return m_dynamicMesh[key][i];
+			return m_skinnedMesh[key][i];
 		}
 	}
 	return nullptr;
@@ -132,25 +132,6 @@ const ImporterLibrary::CollisionBoxes & MeshManager::getCollisionBoxes(const std
 }
 
 
-void MeshManager::UpdateAllAnimations(float deltaTime)
-{
-	//for (auto& dynamicMeshVector : m_dynamicMesh)
-	//{
-	//	for (auto& mesh : dynamicMeshVector)
-	//		mesh->getAnimatedModel()->Update(deltaTime);
-	//}
-
-	//for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
-	//{
-	//	for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)
-	//	{
-	//		auto animatedModelPtr = m_dynamicMesh[i][j]->getAnimatedModel();
-	//		if (animatedModelPtr)
-	//			animatedModelPtr->Update(deltaTime);
-	//	}
-	//}
-}
-
 bool MeshManager::UnloadStaticMesh(const std::string& meshName)
 {
 	std::string fullPath = this->_getFullPath(meshName);
@@ -168,17 +149,17 @@ bool MeshManager::UnloadStaticMesh(const std::string& meshName)
 	return false;
 }
 
-bool MeshManager::UnloadDynamicMesh(const std::string& meshName)
+bool MeshManager::UnloadSkinnedMesh(const std::string& meshName)
 {
 	std::string fullPath = this->_getFullPath(meshName);
 	unsigned int key = this->_getKey(fullPath);
 
-	for (unsigned int i = 0; i < m_dynamicMesh[key].size(); i++)
+	for (unsigned int i = 0; i < m_skinnedMesh[key].size(); i++)
 	{
-		if (m_dynamicMesh[key].at(i)->getName() == fullPath)
+		if (m_skinnedMesh[key].at(i)->getName() == fullPath)
 		{
-			delete m_dynamicMesh[key].at(i);
-			m_dynamicMesh[key].erase(m_dynamicMesh[key].begin() + i);
+			delete m_skinnedMesh[key].at(i);
+			m_skinnedMesh[key].erase(m_skinnedMesh[key].begin() + i);
 			return true;
 		}
 	}
@@ -189,11 +170,11 @@ void MeshManager::UnloadAllMeshes()
 {
 	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
 	{
-		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)
+		for (unsigned int j = 0; j < m_skinnedMesh[i].size(); j++)
 		{
-			delete m_dynamicMesh[i][j];
+			delete m_skinnedMesh[i][j];
 		}
-		m_dynamicMesh[i].clear();
+		m_skinnedMesh[i].clear();
 	}
 	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)
 	{
@@ -210,7 +191,7 @@ const unsigned int MeshManager::getAllLoadedMeshes() const
 {
 	unsigned int count = 0;
 	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)	
-		for (unsigned int j = 0; j < m_dynamicMesh[i].size(); j++)		
+		for (unsigned int j = 0; j < m_skinnedMesh[i].size(); j++)		
 			count++;
 
 	for (unsigned int i = 0; i < MESH_HASHTABLE_SIZE; i++)	

@@ -3,14 +3,14 @@
 
 struct DynamicVertex;
 
-class DynamicMesh 
+class SkinnedMesh 
 {
 private:
 	std::vector <DynamicVertex> m_dynamicVertex;
 	std::string m_meshName;
 public:
-	DynamicMesh();
-	~DynamicMesh();
+	SkinnedMesh();
+	~SkinnedMesh();
 	const DynamicVertex * getRawVertices() const;
 	const std::vector<DynamicVertex> & getVertices() const;
 	void setVertices(std::vector<DynamicVertex>& input);

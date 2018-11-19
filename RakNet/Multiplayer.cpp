@@ -91,7 +91,9 @@ namespace Network
 			m_isRunning = false;
 		}
 		else
+		{
 			this->pPeer->SetMaximumIncomingConnections(0);
+		}
 	}
 
 	void Multiplayer::ShutdownPeer()

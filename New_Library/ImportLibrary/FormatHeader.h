@@ -174,7 +174,7 @@ namespace ImporterLibrary
 		};
 	};
 
-	struct AnimatedMeshFromFile
+	struct SkinnedMeshFromFile
 	{
 		unsigned int mesh_nrOfVertices;
 		char mesh_meshID[MAX_FILENAME];

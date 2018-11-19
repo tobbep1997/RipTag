@@ -69,7 +69,7 @@ bool AnimationHandler::loadClip(std::string file, std::string collection)
 	std::shared_ptr<Animation::Skeleton> skeleton = nullptr;
 	try
 	{
-		skeleton = m_clipCollectionMap.at(collection)->begin()->second->m_skeleton;
+		skeleton = m_clipCollectionMap.at(collection)->begin()->second->m_Skeleton;
 	}
 	catch (std::out_of_range e)
 	{

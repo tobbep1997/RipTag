@@ -77,7 +77,7 @@ private:
 	std::map<uint64_t, std::string> m_hostNameMap;
 	std::map<std::string, RakNet::SystemAddress> m_hostAdressMap;
 
-
+	CoopData * pCoopData = nullptr;
 public:
 	LobbyState(RenderingManager * rm);
 	~LobbyState();
@@ -122,9 +122,12 @@ private:
 	void _onGameStartedPacket(RakNet::Packet * data);
 	void _onRequestPacket(unsigned char id, RakNet::Packet * data);
 	void _onReplyPacket(RakNet::Packet * data);
+	void _onHostNamePacket(RakNet::Packet * data);
+
 	void _sendCharacterSelectionPacket();
 	void _sendReadyPacket();
 	void _sendGameStartedPacket();
+	void _sendMyHostNamePacket();
 
 	void _newHostEntry(std::string& hostName);
 

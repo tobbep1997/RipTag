@@ -187,7 +187,7 @@ private:
 	void _createShaders();
 	void _createShadersInput();
 
-	void _wireFramePass();
+	void _wireFramePass(Camera * camera);
 
 	int run = 0;
 };

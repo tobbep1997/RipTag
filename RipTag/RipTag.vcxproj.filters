@@ -25,7 +25,6 @@
     <ClCompile Include="Source\Physics\Dynamics\Joints\b3SphericalJoint.cpp" />
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\PhysicsComponent.cpp" />
-    <ClCompile Include="Source\Source.cpp" />
     <ClCompile Include="Source\Timer\DeltaTime.cpp" />
     <ClCompile Include="Source\Game\Actors\Actor.cpp" />
     <ClCompile Include="Source\Game\Actors\Player.cpp" />
@@ -67,6 +66,8 @@
     <ClCompile Include="Source\Game\Item\Map.cpp" />
     <ClCompile Include="Source\Game\Item\Rock.cpp" />
     <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
+    <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
+    <ClCompile Include="Source\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -169,9 +170,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Game\Actors\BaseActor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -309,5 +307,6 @@
     <ClInclude Include="Source\Game\Item\Rock.h" />
     <ClInclude Include="Source\Game\Level\RandomRoomGrid.h" />
     <ClInclude Include="Source\Game\Level\RandomRoom.h" />
+    <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
   </ItemGroup>
 </Project>
