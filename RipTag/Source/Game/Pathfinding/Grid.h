@@ -88,6 +88,7 @@ public:
 	Tile WorldPosToTile(float x, float y);
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
+	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int roomWidth, int roomSize);
 	std::vector<Node*> FindPath(Tile src, Tile dest);
 	std::vector<Node*> InvestigateAreaPath(Tile src);
 

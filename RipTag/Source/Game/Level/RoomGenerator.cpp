@@ -237,11 +237,7 @@ void RoomGenerator::_makeWalls()
 						for (int b = 0; b < tempGridStruct->maxX; b++)
 						{
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0] += j + BigRoomAddX;
-							//float one = tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0];
-							//appendedGridStruct[i]->gridPoints[a + b * appendedGridStruct[i]->maxY].translation[0] += i;
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2] += i + BigRoomAddZ;
-							//float two = tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2];
-							//int checkGrid = 0;
 						}
 					}
 					else
@@ -249,7 +245,6 @@ void RoomGenerator::_makeWalls()
 						for (int b = 0; b < tempGridStruct->maxX; b++)
 						{
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0] += i + BigRoomAddX;
-							//appendedGridStruct[i]->gridPoints[a + b * appendedGridStruct[i]->maxY].translation[0] += i;
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2] += j + BigRoomAddZ;
 						}
 						int tempInt;
@@ -344,7 +339,7 @@ void RoomGenerator::_makeWalls()
 		for (int j = 0; j < appendedGridStruct[i]->nrOf; j++)
 			gridStructToSendBack->gridPoints[indexInGridStruct++] = appendedGridStruct[i]->gridPoints[j];
 
-	m_generatedGrid->CreateGridWithWorldPosValues(*gridStructToSendBack);
+	m_generatedGrid->CreateGridFromRandomRoomLayout(*gridStructToSendBack, m_roomGridPointsWidth, m_roomGridPointsWidth * m_roomGridPointsDepth);
 	returnableRoom->setGrid(m_generatedGrid);
 	
 	for (int i = 0; i < appendedGridStruct.size(); i++)

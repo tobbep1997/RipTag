@@ -14,12 +14,8 @@ Grid::Grid(int width, int height)
 	m_height = height;
 	
 	for (int i = 0; i < m_height; i++)
-	{
 		for (int j = 0; j < m_width; j++)
-		{
 			m_nodeMap.push_back(Tile(j, i));
-		}
-	}
 }
 
 Grid::Grid(float xVal, float yVal, int width, int depth)
@@ -64,31 +60,40 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	m_height = grid.maxY;
 
 	for (int i = 0; i < m_height; i++)
-	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
-				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
-					grid.gridPoints[i + j * m_height].translation[2])));
-			Node checkNode = m_nodeMap.at(m_nodeMap.size() - 1);
 			int index = i + j * m_height;
-			int heHE = 0;
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
+				NodeWorldPos(grid.gridPoints[index].translation[0],
+					grid.gridPoints[index].translation[2])));
 		}
-	}
+}
+
+void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int roomWidth, int roomSize)
+{
+	m_nodeMap.clear();
+	m_width = grid.maxX;
+	m_height = grid.maxY;
+	int iterations = (m_height * m_width) / roomSize;
+
+	for (int i = 0; i < iterations; i++)
+		for (int j = 0; j < roomWidth; j++)
+		{
+			int index = j * roomWidth + i * roomSize;
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
+				NodeWorldPos(grid.gridPoints[index].translation[0],
+					grid.gridPoints[index].translation[2])));
+		}
 }
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!_isValid(destination) || !_isValid(source))
-	{
 		return std::vector<Node*>();
-	}
 
 	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	if (!dest.getPathable())
-	{
 		return std::vector<Node*>();
-	}
 
 	bool * closedList = new bool[m_height * m_width];
 	for (int i = 0; i < m_height * m_width; i++)
