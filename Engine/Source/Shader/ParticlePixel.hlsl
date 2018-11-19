@@ -20,11 +20,12 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	float temp = color.w;
 	if (input.tangent.x > 0.25f)
 	{
-		temp -= 0.1f;
 		color = MRATexture.Sample(defaultSampler, input.uv);
 		color.x -= input.tangent.x - 0.2f;
 		color.y -= input.tangent.x - 0.2f;
 		color.z -= input.tangent.x - 0.2f;
+		
+		temp = color.w - input.tangent.x;
 	}
 
     return float4(color.xyz, temp);

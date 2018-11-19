@@ -6,14 +6,16 @@ ParticleEmitter::ParticleEmitter()
 	m_EmitterActiv = 1;
 	m_EmitterCurrentLife = 0;
 	m_EmitterLife = 0;
-	m_Rotation = 10;
-	m_MaxParticle = 10;
-	m_MinParticle = 35;
+	m_RotationMinMax = DirectX::XMINT2{1, 360};
+	m_MaxParticle = 35;
+	m_MinParticle = 3;
 	nrOfEmittedParticles = 35;
 	m_Speed = 0.2f;
 	m_SpawnPosition = DirectX::XMVECTOR{0,0,0};
 	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
-
+	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
+	spreadMinMax = DirectX::XMINT2{-2, 4 };
+	directionMinMax = DirectX::XMINT2{ 4, 10 };
 	InitializeBuffer();
 	srand(time(0));
 }
@@ -72,16 +74,17 @@ void ParticleEmitter::Update(float timeDelata, Camera * camera)
 
 			m_newParticle = new Particle();
 
-			m_newParticle->position = m_SpawnPosition;// RandomOffset(m_SpawnPosition, 1);
-			m_newParticle->velocity = DirectX::XMVECTOR{ RandomFloat(DirectX::XMINT2 {-2, 3}), RandomFloat(DirectX::XMINT2 {0, 10}), RandomFloat(DirectX::XMINT2 {-2, 3})};
+			DirectX::XMVectorSetY(m_SpawnPosition, DirectX::XMVectorGetY(m_SpawnPosition) - 1);
+			m_newParticle->position = m_SpawnPosition;
+			m_newParticle->velocity = DirectX::XMVECTOR{ RandomFloat(spreadMinMax), RandomFloat(directionMinMax), RandomFloat(spreadMinMax)};
 			//if ((m_EmitterCurrentLife + 0.5) > m_EmitterLife)
 			//	m_newParticle->velocity = DirectX::XMVECTOR{ RandomFloat(DirectX::XMINT2 {-2, 3}), RandomFloat(DirectX::XMINT2 {0, 15}), RandomFloat(DirectX::XMINT2 {1, 17}) };
 			m_newParticle->speed = m_Speed;
 			float temp = RandomFloat(DirectX::XMINT2 {0, 20});
 			m_newParticle->color = DirectX::XMFLOAT4A(temp, temp, temp, 1); //(rand() % 2, rand() % 2, rand() % 2, rand() % 2);
-			m_newParticle->scale = DirectX::XMFLOAT2(0.3f, 0.3f);
+			m_newParticle->scale = scale;
 			m_newParticle->lifeTime = RandomFloat(DirectX::XMINT2{0, 1});
-			
+			m_newParticle->rotation = RandomFloat(m_RotationMinMax);
 			
 			m_Particles.push_back(m_newParticle);
 		}
@@ -104,8 +107,18 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 		m_SpeedDir = DirectX::XMVectorScale(m_Particles[i]->velocity, m_Particles[i]->speed * timeDelata);
 		m_Particles[i]->position = DirectX::XMVectorAdd(m_Particles[i]->position, m_SpeedDir);
 		
+		
+		rotationMatrix = DirectX::XMMatrixIdentity();
+		rotationMatrix = DirectX::XMMatrixRotationAxis(m_forward, 43);//m_Particles[i]->rotation);
+		//m_up = DirectX::XMVector3Transform(m_right, rotationMatrix);
+		//m_right = DirectX::XMVector3Transform(m_up, rotationMatrix);
+		//m_right = DirectX::XMVectorRotateLeft(m_up, 45);
+		//m_up = DirectX::XMVectorRotateLeft(m_up, 45);
+
+
 		m_up = DirectX::XMVectorScale(m_up, m_Particles[i]->scale.x);
 		m_right = DirectX::XMVectorScale(m_right, m_Particles[i]->scale.y);
+
 
 		m_Particles[i]->scale.x -= scaleOverTime.x * timeDelata;
 		m_Particles[i]->scale.y -= scaleOverTime.y *timeDelata;
