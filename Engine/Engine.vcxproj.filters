@@ -7,9 +7,6 @@
     <FxCompile Include="EngineSource\Shader\Shaders\VisabilityShader\PreDepthPassVertexAnimated.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
-    <FxCompile Include="EngineSource\Shader\Shaders\ShadowGeometry.hlsl" />
-    <FxCompile Include="EngineSource\Shader\Shaders\ShadowVertex.hlsl" />
-    <FxCompile Include="EngineSource\Shader\Shaders\ShadowVertexAnimated.hlsl" />
     <FxCompile Include="EngineSource\Shader\AnimatedVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\PixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\VertexShader.hlsl" />
@@ -22,6 +19,9 @@
     <FxCompile Include="Source\Shader\ParticleVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePrepassVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\PreAnimatedVertexShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertexAnimated.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowGeometry.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
