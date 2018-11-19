@@ -510,9 +510,6 @@ void PlayState::unLoad()
 		m_eventOverlay = nullptr;
 	}
 
-	if (isCoop)
-		this->_sendOnDisconnect();
-
 	Network::Multiplayer::LocalPlayerOnSendMap.clear();
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 }
