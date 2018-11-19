@@ -276,10 +276,12 @@ void Room::LoadRoomToMemory()
 			ParticleEmitter * p_emit = nullptr;
 
 			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
+			p_pointLight->setColor(90, 112.0f, 130.0f);
+			
 			p_emit = new ParticleEmitter();
 			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2]);
 
-			m_Torches.push_back( new Torch(p_pointLight, p_emit, i));
+			m_Torches.push_back( new Torch(p_pointLight, p_emit, 0));
 			
 			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
 			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
@@ -373,9 +375,11 @@ void Room::LoadRoomToMemory()
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
-	for (auto light : m_pointLights)
+	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
+	for (int i = 0; i < m_Torches.size(); i++)
 	{
-		light->setColor(90, 112.0f, 130.0f);
+		m_Torches[i]->setUniqueID(nrOfTriggers + i);
+		triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(m_Torches[i]->getUniqueID(), m_Torches[i]));
 	}
 }
 
@@ -480,15 +484,15 @@ void Room::Draw()
 	{
 		m_staticAssets.at(i)->Draw();
 	}
-	/*for (auto light : m_pointLights)
-	{
-		light->QueueLight();
-	}*/
-	for (auto torch : m_Torches)
-	{
-		torch->QueueLight();
-		torch->Draw();
-	}
+	//for (auto light : m_pointLights)
+	//{
+	//	light->QueueLight();
+	//}
+	//for (auto torch : m_Torches)
+	//{
+	//	torch->QueueLight();
+	//	//torch->Draw();
+	//}
 
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
@@ -509,6 +513,10 @@ void Room::Draw()
 		m_emitters[i]->Queue();
 	}*/
 
+	for (auto torch : m_Torches)
+	{
+		torch->Draw();
+	}
 }
 
 void Room::Release()

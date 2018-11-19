@@ -83,14 +83,14 @@ void Torch::Draw()
 	Drawable::Draw();
 	if (pPointLight->getLightOn())
 	{
+		this->pPointLight->QueueLight();
 		pParticles->Queue();
 	}
 }
 
 void Torch::QueueLight()
 {
-	if (pPointLight->getLightOn())
-		pPointLight->QueueLight();
+	this->pPointLight->QueueLight();
 }
 
 void Torch::BeginPlay()

@@ -18,6 +18,7 @@ public:
 	PointLight * getPointLightPtr() { return pPointLight; }
 
 	void setCamera(Camera * ptr) { this->pCamera = ptr; }
+	void setUniqueID(int id) { Trigger::setUniqueId(id); }
 private:
 	void _playSound(AudioEngine::SoundType st = AudioEngine::Player) override;
 };

@@ -18,6 +18,7 @@ public:
 	Trigger();
 	Trigger(int uniqueId, int linkedID, bool isTrigger, std::string activeAnim, std::string deactiveAnim);
 	virtual ~Trigger();
+	void setUniqueId(int id) { m_uniqueID = id; }
 	int getLinkId() { return this->m_linkedID; };
 	int getUniqueID() { return this->m_uniqueID; };
 	bool getIsTriggerable() { return this->m_isTrigger; };
