@@ -6,6 +6,8 @@
 #include <DirectXMath.h>
 #include <unordered_map>
 #include "../../Components/StateMachine.h"
+class LayerMachine;
+
 #define MAXJOINT 128
 #define BLEND_MATCH_TIME (1<<1)
 #define BLEND_FROM_START (1<<2)
@@ -15,6 +17,7 @@
 
 #define ANIMATION_FRAMETIME 0.041666666f
 #define ANIMATION_FRAMERATE 24
+
 namespace ImporterLibrary
 {
 	class CustomFileLoader;
@@ -143,7 +146,6 @@ namespace Animation
 	SRT ConvertTransformToSRT(ImporterLibrary::Transform transform);
 	Animation::SharedAnimation ConvertToAnimationClip(ImporterLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const ImporterLibrary::Skeleton* importedSkeleton);
-	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	DirectX::XMMATRIX _createMatrixFromSRT(const ImporterLibrary::DecomposedTransform& transform);
 	Animation::SharedAnimation LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
 	SharedSkeleton LoadAndCreateSkeleton(std::string file);
@@ -172,6 +174,7 @@ namespace Animation
 		void Pause();
 		void Play();
 
+		std::unique_ptr<LayerMachine>& GetLayerMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetLayerStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& InitStateMachine(size_t numStates);
@@ -180,9 +183,11 @@ namespace Animation
 		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
 		float GetCachedDeltaTime();
 		static std::vector<DirectX::XMMATRIX> _CombinePoses(std::vector<Animation::SkeletonPose>&& poses);
+		std::unique_ptr<LayerMachine>& InitLayerMachine(Animation::Skeleton* skeleton);
 	private:
 		float m_currentFrameDeltaTime = 0.0f;
 
+		std::unique_ptr<LayerMachine> m_LayerMachine{};
 		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
 		std::unique_ptr<SM::AnimationStateMachine> m_LayerStateMachine;
 		std::unique_ptr<SM::StateVisitor> m_Visitor;
@@ -202,6 +207,9 @@ namespace Animation
 
 	public:
 		//-- Helper functions --
+		static DirectX::XMMATRIX _CreateMatrixFromSRT(const SRT& srt);
+
+		static JointPose    _GetAdditivePose(Animation::JointPose targetPose, DirectX::XMMATRIX differencePose);
 		static JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
 		static SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
 		static SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);

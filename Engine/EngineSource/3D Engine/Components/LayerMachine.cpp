@@ -1,6 +1,5 @@
 #include "EnginePCH.h"
 #include "LayerMachine.h"
-#include "../Model/Meshes/AnimationPlayer.h"
 
 LayerMachine::LayerMachine(Animation::Skeleton* skeleton)
 	: m_Skeleton(skeleton)
@@ -15,18 +14,56 @@ LayerMachine::~LayerMachine()
 
 void LayerMachine::UpdatePoseWithLayers(Animation::SkeletonPose& mainPose, float deltaTime)
 {
-	if (m_ActiveLayers.empty())
-		return;
+	if (m_ActiveLayers.empty()) return;
 
+	//Get final poses for active layers
 	std::vector<Animation::SkeletonPose> finalLayerPoses{};
 	for (auto& layer : m_ActiveLayers)
 	{
 		auto layerPose = layer->UpdateAndGetFinalPose(deltaTime);
 		if (layerPose.has_value())
+		{
 			finalLayerPoses.push_back(std::move(layerPose.value()));
+		}
+	}
+
+	//Create matrix array from layer poses
+	std::vector<DirectX::XMMATRIX> layerPosesMultiplied{};
+	layerPosesMultiplied.resize(m_Skeleton->m_JointCount);
+	{
+		//Do first layer
+		for (int joint = 0; joint < m_Skeleton->m_JointCount; joint++)
+		{
+			layerPosesMultiplied[joint] = Animation::AnimationPlayer::_CreateMatrixFromSRT(finalLayerPoses[0].m_JointPoses[joint].m_Transformation);
+		}
+
+		//Do all other layers
+		for (size_t layer = 1; layer < finalLayerPoses.size(); layer++)
+		{
+			for (size_t joint = 0; joint < m_Skeleton->m_JointCount; joint++)
+			{
+				auto thisPoseMatrix = Animation::AnimationPlayer::_CreateMatrixFromSRT(finalLayerPoses[layer].m_JointPoses[joint].m_Transformation);
+				layerPosesMultiplied[joint] = DirectX::XMMatrixMultiply(thisPoseMatrix, layerPosesMultiplied[joint]);
+			}
+		}
 	}
 	
-	//#CONTINUE
+	//Combine layer matrices with the main pose
+	for (int joint = 0; joint < m_Skeleton->m_JointCount; joint++)
+	{
+		mainPose.m_JointPoses[joint] = Animation::AnimationPlayer::_GetAdditivePose(mainPose.m_JointPoses[joint], layerPosesMultiplied[joint]);
+	}
+
+}
+
+void LayerMachine::ActivateLayer( std::string layerName, bool popOnFinish /*= false*/)
+{
+	auto layer = m_Layers.at(layerName);
+
+	if (popOnFinish)
+		layer->PopOnFinish();
+
+	m_ActiveLayers.push_back(layer);
 }
 
 void LayerMachine::AddBasicLayer
@@ -46,6 +83,8 @@ uint16_t LayerMachine::GetSkeletonJointCount()
 {
 	return m_Skeleton->m_JointCount;
 }
+
+
 
 LayerState::~LayerState()
 {
@@ -77,7 +116,7 @@ bool LayerState::IsPopped() const
 
 std::pair<uint16_t, float> LayerState::_getIndexAndProgression()
 {
-	m_CurrentTime = std::fmod(m_CurrentTime, (m_ClipLength - 1) / 24.0);
+	m_CurrentTime = std::fmod(m_CurrentTime, (m_ClipLength - (1/24)));
 
 	///calc the actual frame index and progression towards the next frame
 	float indexTime = m_CurrentTime / (1.0 / 24.0);
@@ -133,6 +172,12 @@ void LayerState::_setLength(float length)
 	m_ClipLength = length;
 }
 
+BasicLayer::BasicLayer(std::string name, Animation::AnimationClip* clip, float blendInTime, float blendOutTime, LayerMachine* owner)
+	: LayerState(name, blendInTime, blendOutTime, owner), m_Clip(clip)
+{
+	LayerState::_setLength((m_Clip->m_FrameCount-1) / 24.0f);
+}
+
 BasicLayer::~BasicLayer()
 {
 }
@@ -145,6 +190,7 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 	{
 		auto indexAndProgression = LayerState::_getIndexAndProgression();
 		float weight = 1.0f; //todo
+
 
 		return Animation::AnimationPlayer::_BlendSkeletonPoses
 			( &m_Clip->m_SkeletonPoses[indexAndProgression.first]

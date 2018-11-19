@@ -2,6 +2,11 @@
 
 #pragma region "FwdDec"
 class LayerState;
+namespace Animation
+{
+	struct Skeleton;
+	struct AnimationClip;
+}
 #pragma endregion "FwdDec"
 
 #pragma region "Machine"
@@ -13,6 +18,7 @@ public:
 
 	void UpdatePoseWithLayers(Animation::SkeletonPose& mainAnimationPose, float deltaTime);
 
+	void ActivateLayer(std::string layerName, bool popOnFinish = false);
 	void AddBasicLayer(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime);
 	void Add1DLayer(std::string layerName, float* driver, std::vector<std::pair<float, Animation::AnimationClip*>> nodes);
 	void PopLayer(LayerState*);
@@ -76,11 +82,7 @@ protected:
 class BasicLayer : public LayerState
 {
 public:
-	BasicLayer(std::string name, Animation::AnimationClip* clip, float blendInTime, float blendOutTime, LayerMachine* owner)
-		: LayerState(name, blendInTime, blendOutTime, owner), m_Clip(clip)
-	{
-		LayerState::_setLength(m_Clip->m_FrameCount / 24.0f);
-	}
+	BasicLayer(std::string name, Animation::AnimationClip* clip, float blendInTime, float blendOutTime, LayerMachine* owner);
 
 	~BasicLayer();
 
