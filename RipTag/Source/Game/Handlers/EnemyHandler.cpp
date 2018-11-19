@@ -141,8 +141,8 @@ void EnemyHandler::_investigating(Enemy * guard)
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		guard->setEnemeyState(High_Alert);
 		std::cout << green << "Enemy Transition: Investigating Sight -> High Alert" << white << std::endl;
+		guard->setEnemeyState(Scanning_Area);
 	}
 }
 
@@ -173,7 +173,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
 		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
-		guard->setEnemeyState(High_Alert);
+		guard->setEnemeyState(Scanning_Area);
 	}
 }
 
@@ -254,7 +254,7 @@ void EnemyHandler::_ScanArea(Enemy * guard, const double & dt) //Look around
 	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
 	{
 		guard->SetActTimer(0.0f);
-		guard->setEnemeyState(Patrolling);
+		guard->setEnemeyState(Investigating_Room);
 	}
 }
 
@@ -263,11 +263,18 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 	guard->AddActTimer(dt);
 	if (guard->GetAlertPathSize() == 0)
 	{
-		//rand() % gridSize();
+		Tile randPos(rand() % (m_grid->getGridWidth() - 1), rand() % (m_grid->getGridHeight() - 1));
+		DirectX::XMFLOAT4A guardPos = guard->getPosition();
+		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+
+		guard->SetAlertVector(m_grid->FindPath(guardTile, randPos));
 	}
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL)
 	{
 		guard->SetActTimer(0.0f);
+		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
+		guard->setLoudestSoundLocation(Enemy::SoundLocation());
+		guard->setBiggestVisCounter(0);
 		guard->setEnemeyState(Suspicious);
 	}
 	if (guard->GetActTimer() > SEARCH_ROOM_TIME_LIMIT)
