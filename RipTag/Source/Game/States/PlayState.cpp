@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
 #include <DirectXCollision.h>
+#include "Helper/RandomRoomPicker.h"
 
 
 std::vector<std::string> RipSounds::g_stepsStone;
@@ -23,12 +24,13 @@ bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
+	m_roomIndex = roomIndex;
 	if (coopData)
 	{
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	m_roomIndex = roomIndex;
+	
 }
 
 PlayState::~PlayState()
@@ -567,6 +569,8 @@ void PlayState::Load()
 		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
 		Network::Multiplayer::LocalPlayerOnSendMap.clear();
 		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+
+		RandomRoomPicker::RoomPick(pCoopData->seed);
 	}
 
 	m_youlost = false;
