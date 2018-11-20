@@ -152,12 +152,12 @@ void RoomGenerator::_makeWalls()
 					if (directions[x])
 					{
 						asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
-						modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/OPENWALLFOLDER/OPENWALL_BBOX.bin");
+						modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
 					}
 					else
 					{
 						asset->setModel(Manager::g_meshManager.getStaticMesh("CLOSEDWALL"));
-						modCollisionBoxes = loader.readMeshCollisionBoxes("../Assets/CLOSEDWALLFOLDER/CLOSEDWALL_BBOX.bin");
+						modCollisionBoxes = loader.readMeshCollisionBoxes("CLOSEDWALL");
 					}
 					asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
 
@@ -208,9 +208,9 @@ void RoomGenerator::_makeWalls()
 
 #pragma endregion
 
+#pragma region GRID
 			int BigRoomAddX = 0;
 			int BigRoomAddZ = 0;
-
 			int startX = -m_roomWidth + 10.5f;
 			int startZ = -m_roomDepth + 10.5f;
 			if (RANDOM_MOD_NR > MAX_SMALL_MODS)
@@ -219,22 +219,13 @@ void RoomGenerator::_makeWalls()
 					BigRoomAddX = 11;
 				else
 					BigRoomAddZ = 11;
-
 			}
-#pragma region GRID
 
 			if (!randomizer.m_rooms[index].propsPlaced)
 			{
 				ImporterLibrary::GridStruct * tempGridStruct;
-
 				tempGridStruct = loader.readGridFile(MODNAMESTRING);
 
-				/*if (isRotated)
-				{
-					int tempInt = tempGridStruct->maxX;
-					tempGridStruct->maxX = tempGridStruct->maxY;
-					tempGridStruct->maxY = tempInt;
-				}*/
 				for (int a = 0; a < tempGridStruct->maxY; a++)
 				{
 					if (isRotated == false)
@@ -260,7 +251,6 @@ void RoomGenerator::_makeWalls()
 						for (int b = 0; b < tempGridStruct->maxX; b++)
 						{
 							int current = a * tempGridStruct->maxX + b;
-							//int current = a + b * tempGridStruct->maxY;
 							float tmp = tempGridStruct->gridPoints[current].translation[0];
 							tempGridStruct->gridPoints[current].translation[0] = tempGridStruct->gridPoints[current].translation[2];
 							tempGridStruct->gridPoints[current].translation[2] = tmp;
@@ -275,6 +265,76 @@ void RoomGenerator::_makeWalls()
 							m_generated_assetVector.push_back(asset);
 							*/
 						}
+					}
+				}
+				if (randomizer.m_rooms[index].type == 1)
+				{
+					int temp = tempGridStruct->maxX;
+					tempGridStruct->maxX = tempGridStruct->maxY;
+					tempGridStruct->maxY = temp;
+				}
+				// North
+				if (randomizer.m_rooms[index].north)
+				{
+					for (int z = 7; z < 14; z++)
+					{
+						tempGridStruct->gridPoints[z].pathable = true;
+					}
+				}
+				// East
+				if (randomizer.m_rooms[index].east)
+				{
+					for (int z = 7; z < 14; z++)
+					{
+						tempGridStruct->gridPoints[(z * tempGridStruct->maxX) - 1].pathable = true;
+					}
+				}
+				// South
+				if (randomizer.m_rooms[index].south)
+				{
+					int pathIndex = tempGridStruct->nrOf - 7;
+					for (int z = pathIndex - 7; z < pathIndex; z++)
+					{
+						tempGridStruct->gridPoints[pathIndex].pathable = true;
+					}
+				}
+				// West
+				if (randomizer.m_rooms[index].west)
+				{
+					for (int z = 6; z < 13; z++)
+					{
+						tempGridStruct->gridPoints[z * tempGridStruct->maxX].pathable = true;
+					}
+				}
+				// Horizontal
+				if (randomizer.m_rooms[index].type == 0)
+				{
+					// North
+					int pathIndex = tempGridStruct->maxX - 7;
+					for (int z = pathIndex - 7; z < pathIndex; z++)
+					{
+						tempGridStruct->gridPoints[z].pathable = true;
+					}
+					// South
+					pathIndex = tempGridStruct->nrOf - tempGridStruct->maxX + 14;
+					for (int z = pathIndex - 7; z < pathIndex; z++)
+					{
+						tempGridStruct->gridPoints[z].pathable = true;
+					}
+				}
+				// Vertical
+				else if (randomizer.m_rooms[index].type == 1)
+				{
+					// East
+					int pathIndex = tempGridStruct->maxY - 7;
+					for (int z = pathIndex - 7; z < pathIndex; z++)
+					{
+
+					}
+					// West
+					for (int z = 0; z < 0; z++)
+					{
+
 					}
 				}
 				appendedGridStruct.push_back(tempGridStruct);
@@ -669,7 +729,7 @@ void RoomGenerator::_createEnemies(Player * playerPtr)
 			x = returnRandomInGridWidth();
 			z = returnRandomInGridDepth();
 			enemyPos = m_generatedGrid->WorldPosToTile(x, z);
-			if (enemyPos.getX() != -1)
+			if (enemyPos.getX() != -1 && enemyPos.getPathable())
 				gotPos = true;
 		}
 		enemy = DBG_NEW Enemy(m_worldPtr, x, 15 , z);
