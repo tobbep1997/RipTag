@@ -225,6 +225,7 @@ PhysicsComponent::~PhysicsComponent()
 
 void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float y, float z, bool sensor, float friction)
 {
+	isInited = true;
 	setBaseBodyDef(bodyType);
 	CreateBox(x, y, z);
 	setBaseShapeDef(sensor,friction);
@@ -233,6 +234,7 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 
 void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes, float friction)
 {
+	isInited = true;
 	singelCollider = false;
 	//setBaseBodyDef---------------------------------------
 	m_bodyDef = DBG_NEW b3BodyDef();
@@ -460,6 +462,10 @@ void PhysicsComponent::addForceToCenter(float x, float y, float z)
 
 void PhysicsComponent::Release(b3World& world)
 {
+	if (isInited == false)
+	{
+		return;
+	}
 	if (m_bodyDef)
 	{
 		delete m_bodyDef;

@@ -422,7 +422,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 		
 		
 		_loaded = true;
-		const b3Body * b = m_world->getBodyList();
+		const b3Body * b = m_world.getBodyList();
 
 		while (b != nullptr)
 		{
@@ -473,7 +473,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	else
 	{
 		int counter = 0;
-		const b3Body * b = m_world->getBodyList();
+		const b3Body * b = m_world.getBodyList();
 		while (b != nullptr)
 		{
 			if (b->GetObjectTag() != "TELEPORT")

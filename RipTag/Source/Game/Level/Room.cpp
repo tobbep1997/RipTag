@@ -241,7 +241,7 @@ void Room::LoadRoomToMemory()
 
 
 		//Tartillbaka Hela rum
-		if (m_roomIndex != 8)
+		if (m_roomIndex != 8 && m_roomIndex != 0)
 		{
 
 			Manager::g_textureManager.loadTextures(this->getAssetFilePath());
@@ -414,11 +414,19 @@ void Room::Release()
 		m_roomLoaded = false;
 		for (auto asset : m_staticAssets)
 		{
-			asset->Release(*m_worldPtr);
+			if (asset)
+			{
+				asset->Release(*m_worldPtr);
+			}
+			
 		}
 		for (auto asset : m_staticAssets)
 		{
-			delete asset;
+			if (asset)
+			{
+				
+				delete asset;
+			}
 		}
 		m_staticAssets.clear();
 		if (CollisionBoxes)
@@ -444,8 +452,8 @@ void Room::Release()
 		}
 		if (m_grid)
 		{
-			delete m_grid->gridPoints;
-
+			delete[] m_grid->gridPoints;
+			
 			delete m_grid;
 		}
 		for (int i = 0; i < m_emitters.size(); i++)
@@ -474,7 +482,6 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
-	BaseActor * tempAsset = nullptr;
 
 	for (int i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
@@ -581,7 +588,7 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			_setPropAttributes(propsAndAssets.props[i], "TABLE", &m_staticAssets, true);
 			break;
 		case(11):
-			_setPropAttributes(propsAndAssets.props[i], "CARPET", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "CARPET", &m_staticAssets, false);
 			break;
 		case(12):
 			_setPropAttributes(propsAndAssets.props[i], "BUCKET", &m_staticAssets, true);
@@ -590,13 +597,13 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", &m_staticAssets, true);
 			break;
 		case(14):
-			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", &m_staticAssets, false);
 			break;
 		case(15):
-			_setPropAttributes(propsAndAssets.props[i], "TORCH", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "TORCH", &m_staticAssets, false);
 			break;
 		case(16):
-			_setPropAttributes(propsAndAssets.props[i], "GIANTPILLAR", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "GIANTPILLAR", &m_staticAssets, false);
 			break;
 		case(17):
 			_setPropAttributes(propsAndAssets.props[i], "BOOK", &m_staticAssets, true);
@@ -614,16 +621,16 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", &m_staticAssets, false);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", &m_staticAssets, true);
 			break;
 		case(23):
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", &m_staticAssets, false);
 			break;
 		case(24):
-			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", &m_staticAssets, true);
 			break;
 		case(25):
-			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", &m_staticAssets, true);
 			break;
 		case(26):
 			_setPropAttributes(propsAndAssets.props[i], "CANDLE", &m_staticAssets, false);
@@ -635,16 +642,22 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			_setPropAttributes(propsAndAssets.props[i], "SPEAR", &m_staticAssets, false);
 			break;
 		case(29):
-			_setPropAttributes(propsAndAssets.props[i], "KEG", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "KEG", &m_staticAssets, true);
 			break;
 		case(30):
-			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", &m_staticAssets, true);
 			break;
 		case(31):
 			_setPropAttributes(propsAndAssets.props[i], "WALLCHAIN", &m_staticAssets, false);
 			break;
 		case(32):
-			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", &m_staticAssets, true);
+			break;
+		case(33):
+			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", &m_staticAssets, true);
+			break;
+		case(35):
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", &m_staticAssets, false);
 			break;
 		default:
 			break;
@@ -662,12 +675,24 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	Manager::g_textureManager.loadTextures(name);
 	tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
 	tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
-	if(useBoundingBox == true)
-	tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+	bool moveBox = false;
+	if (useBoundingBox == true)
+	{
+		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		moveBox = true;
+		
+	}
+	if (name == "FLOOR")
+		tempAsset->setTextureTileMult(prop.transform_scale[0], prop.transform_scale[2]);
+	if (name == "BLINKWALL")
+		tempAsset->setObjectTag("BLINK_WALL");
+	if(name == "THICKWALL")
+		tempAsset->setTextureTileMult(prop.transform_scale[1], prop.transform_scale[0]);
+
 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
-	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], useBoundingBox);
-	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], useBoundingBox);
+	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
 	assetVector->push_back(tempAsset);
 }
 

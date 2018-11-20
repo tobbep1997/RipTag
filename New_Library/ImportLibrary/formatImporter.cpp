@@ -483,16 +483,18 @@ namespace ImporterLibrary
 			customGridFile.read((char*)&gridPos->maxY, sizeof(int));
 			customGridFile.read((char*)&gridPos->nrOf, sizeof(int));
 			gridPos->gridPoints = DBG_NEW GridPointStruct[gridPos->nrOf];
-			
+
 			for (int i = 0; i < gridPos->nrOf; i++)
 			{
 				customGridFile.read((char*)&gridPos->gridPoints[i].pathable, sizeof(bool));
-				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float)*3);
+				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float) * 3);
 			}
 			customGridFile.close();
 		}
-		else
+		else {
+			delete gridPos;
 			return DBG_NEW GridStruct();
+		}
 		return gridPos;
 	}
 }
