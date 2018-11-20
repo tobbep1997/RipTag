@@ -78,40 +78,6 @@ void EnemyHandler::_isServerUpdate(double deltaTime)
 		{
 			soundPercentage = tempSoundPercentage;
 		}
-
-		//All of this should be moved to Enemy - Delete later
-		EnemyState state = currentGuard->getEnemyState();
-		switch (state)
-		{
-		case Investigating_Sight:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				_investigating(currentGuard);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-			break;
-		case Investigating_Sound:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				_investigateSound(currentGuard);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
-			break;
-		case High_Alert:
-			_highAlert(currentGuard, deltaTime);
-			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-			break;
-		case Patrolling:
-			_patrolling(currentGuard);
-			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-			break;
-		case Suspicious:
-			_suspicious(currentGuard, deltaTime);
-			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-			break;
-		}
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);
@@ -137,41 +103,8 @@ void EnemyHandler::_isClientUpdate(double deltaTime)
 		{
 			soundPercentage = tempSoundPercentage;
 		}
-		//All of this should be moved to Enemy - Delete later
-		EnemyState state = currentGuard->getEnemyState();
-		switch (state)
-		{
-		case Investigating_Sight:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				_investigating(currentGuard);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-			break;
-		case Investigating_Sound:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				_investigateSound(currentGuard);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
-			break;
-		case High_Alert:
-			_highAlert(currentGuard, deltaTime);
-			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-			break;
-		case Patrolling:
-			_patrolling(currentGuard);
-			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-			break;
-		case Suspicious:
-			_suspicious(currentGuard, deltaTime);
-			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-			break;
-		}
+		
 	}
-
 	m_player->SetCurrentSoundPercentage(soundPercentage);
 }
 
@@ -201,39 +134,6 @@ void EnemyHandler::_isSinglePlayerUpdate(double deltaTime)
 			soundPercentage = tempSoundPercentage;
 		}
 
-		//All of this should be moved to Enemy - Delete later
-		EnemyState state = currentGuard->getEnemyState();
-		switch (state)
-		{
-		case Investigating_Sight:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				_investigating(currentGuard);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-			break;
-		case Investigating_Sound:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				_investigateSound(currentGuard);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
-			break;
-		case High_Alert:
-			_highAlert(currentGuard, deltaTime);
-			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-			break;
-		case Patrolling:
-			_patrolling(currentGuard);
-			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-			break;
-		case Suspicious:
-			_suspicious(currentGuard, deltaTime);
-			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-			break;
-		}
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);
