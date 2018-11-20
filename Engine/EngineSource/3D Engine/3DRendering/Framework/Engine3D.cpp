@@ -19,10 +19,14 @@ std::vector<Quad*> DX::g_2DQueue;
 
 std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
 
+std::vector<ParticleEmitter*> DX::g_emitters;
+
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
 
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceGroups;
+std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceWireFrameGroups;
+
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceShadowGroups;
 void DX::INSTANCING::submitToShadowQueueInstance(Drawable* drawable)
 {
@@ -51,6 +55,39 @@ void DX::INSTANCING::submitToShadowQueueInstance(Drawable* drawable)
 		newGroup.attribs.push_back(attribute);
 		newGroup.staticMesh = drawable->getStaticMesh();
 		newGroup.textureName = drawable->getTextureName();
+		queue->push_back(newGroup);
+	}
+	else
+	{
+		exisitingEntry->attribs.push_back(attribute);
+	}
+}
+void DX::INSTANCING::submitToWireframeInstance(Drawable* drawable)
+{
+	using namespace DX::INSTANCING;
+	std::vector<GROUP> * queue = &g_instanceWireFrameGroups;
+
+	if (!queue)
+		return;
+
+	auto exisitingEntry = std::find_if(queue->begin(), queue->end(), [&](const GROUP& item) {
+		return drawable->getStaticMesh() == item.staticMesh;
+	});
+
+	OBJECT attribute;
+
+	attribute.worldMatrix = drawable->getWorldmatrix();
+	attribute.objectColor = drawable->getColor();
+	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
+	attribute.usingTexture.x = drawable->isTextureAssigned();
+
+
+	if (exisitingEntry == queue->end())
+	{
+		GROUP newGroup;
+		newGroup.attribs.push_back(attribute);
+		newGroup.staticMesh = drawable->getStaticMesh();
+		newGroup.textureName = "";
 		queue->push_back(newGroup);
 	}
 	else
@@ -142,7 +179,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_0 };
+	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_1 };
 	D3D_FEATURE_LEVEL fl_out = D3D_FEATURE_LEVEL_11_0;
 
 	// fill the swap chain description struct

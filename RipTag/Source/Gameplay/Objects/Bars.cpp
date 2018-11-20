@@ -15,11 +15,11 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	BaseActor::setPositionRot(xPos, yPos-5.f, zPos -3.f, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("BARS");
-	BaseActor::setModel(Manager::g_meshManager.getDynamicMesh("BARS"));
-	auto& machine = getAnimatedModel()->InitStateMachine(1);
-	getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton("BARS"));
+	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("BARS"));
+	auto& machine = getAnimationPlayer()->InitStateMachine(1);
+	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("BARS"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("BARS", "BARS_ANIMATION").get());
-	getAnimatedModel()->Pause();
+	getAnimationPlayer()->Pause();
 
 	BaseActor::setUserDataBody(this);
 }
@@ -27,7 +27,7 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 
 void Bars::Update(double deltaTime)
 {
-	getAnimatedModel()->Update(deltaTime);
+	getAnimationPlayer()->Update(deltaTime);
 	if (Triggerable::getState() == true)
 		PhysicsComponent::p_setPosition(200, 200, 200);
 }

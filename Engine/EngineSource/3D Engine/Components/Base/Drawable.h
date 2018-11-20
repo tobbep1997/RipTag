@@ -4,6 +4,7 @@
 #include <string>
 #include <DirectXCollision.h>
 #include "Transform.h"
+#include <d3d11_3.h>
 
 enum ObjectType
 {
@@ -19,12 +20,12 @@ enum EntityType
 };
 
 class StaticMesh;
-class DynamicMesh;
+class SkinnedMesh;
 class Texture;
 
 namespace Animation 
 {
-	class AnimatedModel;
+	class AnimationPlayer;
 };
 namespace SM
 {
@@ -35,14 +36,18 @@ class Drawable : public Transform
 {
 private:
 	StaticMesh* m_staticMesh = nullptr;
-	DynamicMesh* m_dynamicMesh = nullptr;
-	Animation::AnimatedModel* m_anim = nullptr;
+	SkinnedMesh* m_skinnedMesh = nullptr;
+	Animation::AnimationPlayer* m_anim = nullptr;
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
 	bool m_hidden;
 	bool m_outline;
 	bool m_transparant;
 	DirectX::XMFLOAT4A m_outLineColor;
+
+	ID3D11Buffer* uavstage = nullptr;
+	ID3D11Buffer * m_UAVOutput = nullptr;
+	ID3D11UnorderedAccessView* m_animatedUAV = nullptr;
 
 protected:	
 	Texture * p_texture;
@@ -63,7 +68,7 @@ protected:
 
 	//Setting the mesh for the object
 	virtual void p_setMesh(StaticMesh * staticMesh);
-	virtual void p_setMesh(DynamicMesh * dynamicMesh);
+	virtual void p_setMesh(SkinnedMesh * skinnedMesh);
 	
 
 public:
@@ -97,8 +102,8 @@ public:
 	virtual EntityType getEntityType();
 	virtual void setEntityType(EntityType en);
 
-	//returns AnimatedModel ptr if valid
-	Animation::AnimatedModel* getAnimatedModel();
+	//returns AnimationPlayer ptr if valid
+	Animation::AnimationPlayer* getAnimationPlayer();
 	StaticMesh* getStaticMesh();
 
 	virtual void setTextureTileMult(float u, float v);
@@ -107,7 +112,7 @@ public:
 	virtual bool isTextureAssigned();
 
 	virtual void setModel(StaticMesh * staticMesh);
-	virtual void setModel(DynamicMesh * dynamicMesh);
+	virtual void setModel(SkinnedMesh * skinnedMesh);
 
 	virtual void setColor(const DirectX::XMFLOAT4A & color);
 	virtual void setColor(const float & x, const float & y, const float & z, const float & w);
@@ -127,6 +132,11 @@ public:
 	virtual bool GetTransparant();
 
 	std::string getTextureName() const;
+
+
+	ID3D11Buffer * GetAnimatedVertex();
+	ID3D11UnorderedAccessView * GetUAV();
+	void DontCallMe();
 
 private:
 	virtual void _setStaticBuffer();

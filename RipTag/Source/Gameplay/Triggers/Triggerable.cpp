@@ -16,15 +16,15 @@ void Triggerable::setState(bool state)
 	{
 		//Play activated state
 		m_isActivated = state;
-		this->getAnimatedModel()->GetStateMachine()->SetState(this->activatedAnimation);
-		this->getAnimatedModel()->Play();
+		this->getAnimationPlayer()->GetStateMachine()->SetState(this->activatedAnimation);
+		this->getAnimationPlayer()->Play();
 	}
 	else if (m_isActivated && !state)
 	{
 		//Play Inactivated state
 		m_isActivated = state;
-		this->getAnimatedModel()->GetStateMachine()->SetState(this->deactivatedAnimation);
-		this->getAnimatedModel()->Play();
+		this->getAnimationPlayer()->GetStateMachine()->SetState(this->deactivatedAnimation);
+		this->getAnimationPlayer()->Play();
 	}
 }
 

@@ -108,7 +108,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SHOWSYSTEMINFO;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)RipTag\RakNet;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Source;$(SolutionDir)RipTag</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -183,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\Level\RandomRoom.cpp" />
+    <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
     <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
     <ClCompile Include="Source\Game\Item\Rock.cpp" />
     <ClCompile Include="Source\Game\Item\Map.cpp" />
@@ -212,6 +213,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Game\States\OptionSound.cpp" />
     <ClCompile Include="Source\Game\States\OptionState.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
@@ -529,6 +531,7 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
     <ClInclude Include="Source\Game\Item\Rock.h" />
     <ClInclude Include="Source\Game\Item\Map.h" />
     <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
@@ -541,6 +544,7 @@
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />
     <ClInclude Include="RipTagPCH.h" />
+    <ClInclude Include="Source\Game\States\OptionSound.h" />
     <ClInclude Include="Source\Game\States\OptionState.h" />
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
     <ClInclude Include="Source\Gameplay\Objects\Lever.h" />

@@ -1,4 +1,4 @@
-#include "StaticConstantBuffers.hlsli"
+#include "../StaticConstantBuffers.hlsli"
 
 struct VS_INPUT
 {

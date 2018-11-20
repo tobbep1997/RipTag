@@ -210,11 +210,11 @@ namespace ImporterLibrary
 		return meshToReturn;
 	}
 
-	AnimatedMeshFromFile ImporterLibrary::CustomFileLoader::readAnimatedMeshFile(std::string fileName)
+	SkinnedMeshFromFile ImporterLibrary::CustomFileLoader::readSkinnedMeshFile(std::string fileName)
 	{
 		//reads the custom mesh file and stores all the data
 
-		AnimatedMeshFromFile meshToReturn = {};
+		SkinnedMeshFromFile meshToReturn = {};
 
 		bool fileIsOpen = false;
 

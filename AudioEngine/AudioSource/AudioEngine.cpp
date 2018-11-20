@@ -331,6 +331,34 @@ void AudioEngine::SetMasterVolume(float vol)
 	s_masterGroup->setVolume(vol);
 }
 
+float AudioEngine::GetEffectVolume()
+{
+	float v;
+	s_soundEffectGroup->getVolume(&v);
+	return v;
+}
+
+float AudioEngine::GetAmbientVolume()
+{
+	float v;
+	s_ambientSoundGroup->getVolume(&v);
+	return v;
+}
+
+float AudioEngine::GetMusicVolume()
+{
+	float v;
+	s_musicSoundGroup->getVolume(&v);
+	return v;
+}
+
+float AudioEngine::GetMasterVolume()
+{
+	float v;
+	s_masterGroup->getVolume(&v);
+	return v;
+}
+
 void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
 {
 	FMOD::Reverb3D * r;

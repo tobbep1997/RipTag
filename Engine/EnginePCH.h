@@ -11,7 +11,10 @@
 #include <sstream>
 
 #include "ConsoleColor.h"
-
+#include "Source/ParticleSystem/Particle.h"
+#include "Source/ParticleSystem/ParticleEmitter.h"
+#include "Source/ParticleSystem/ParticleManager.h"
+#include "Source/ParticleSystem/ParticleSystem.h"
 #include "EngineSource/Structs.h"
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/Model/Texture.h"
@@ -19,9 +22,9 @@
 #include "EngineSource/3D Engine/Components/Camera.h"
 #include "EngineSource/3D Engine/Components/StateMachine.h"
 #include "EngineSource/3D Engine/Model/Meshes/StaticMesh.h"
-#include "EngineSource/3D Engine/Model/Meshes/DynamicMesh.h"
+#include "EngineSource/3D Engine/Model/Meshes/SkinnedMesh.h"
 #include "EngineSource/3D Engine/Components/Base/Drawable.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
+#include "EngineSource/3D Engine/Model/Meshes/AnimationPlayer.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/3DRendering/Framework/Engine3D.h"

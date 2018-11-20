@@ -14,7 +14,24 @@ enum EnemyState
 	Investigating_Sight,
 	Investigating_Sound,
 	High_Alert,
-	Patrolling
+	Suspicious,
+	Patrolling,
+	Possessed,
+	Disabled,
+	
+};
+
+enum TransitionState
+{
+	None,
+	Alerted,
+	InvestigateSource,
+	Observe,
+	SearchArea,
+	ReturnToPatrol,
+	BeingPossessed,
+	BeingDisabled,
+
 };
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
@@ -22,8 +39,8 @@ class Enemy : public Actor, public CameraHolder, public PhysicsComponent
 public:
 	struct SoundLocation
 	{
-		float percentage;
-		DirectX::XMFLOAT3 soundPos;
+		float percentage = 0.0f;
+		DirectX::XMFLOAT3 soundPos = DirectX::XMFLOAT3(0,0,0);
 	};
 
 public:
@@ -38,7 +55,8 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
-
+	const float TURN_SPEED = 1.0f;
+	const float REVERSE_SPEED = 0.5f;
 
 private:
 	struct AudioVars
@@ -48,6 +66,16 @@ private:
 		int lastIndex = 0;
 		bool hasPlayed = false;
 	};
+
+	struct lerpVal
+	{
+		bool newNode = true;
+		bool turnState = false;
+		float timer = 0.0f;
+		b3Vec3 lastDir = { 0,0,0 };
+	};
+
+	lerpVal m_lv;
 
 	AudioVars m_av;
 	KnockOutType m_knockOutType; 
@@ -66,6 +94,8 @@ private:
 	float m_cameraSpeed = 1.0f;
 	float m_offPutY = 0.4f; 
 	float m_currentMoveSpeed = 0.0f;
+	float m_LastFrameXPos = 0.0f;
+	float m_LastFrameZPos = 0.0f;
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
@@ -105,8 +135,13 @@ private:
 	std::vector<Node*> m_path;
 	std::vector<Node*> m_alertPath;
 
+
 	EnemyState m_state = Patrolling;
 	SoundLocation m_sl;
+	SoundLocation m_loudestSoundLocation;
+
+	DirectX::XMFLOAT4A m_clearestPlayerPos;
+	float m_biggestVisCounter = 0.0f;
 
 	float m_visCounter;
 	float m_visabilityTimer = 1.6f;
@@ -140,8 +175,8 @@ private:
 	float m_lengthToPlayerSpan = 8;
 
 	Player * m_PlayerPtr;
-
 	float m_HighAlertTime = 0.f;
+	float m_actTimer = 0.0f;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -200,6 +235,15 @@ public:
 	void setSoundLocation(const SoundLocation & sl);
 	const SoundLocation & getSoundLocation() const;
 
+	const SoundLocation & getLoudestSoundLocation() const;
+	void setLoudestSoundLocation(const SoundLocation & sl);
+
+	const DirectX::XMFLOAT4A & getClearestPlayerLocation() const;
+	void setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl);
+
+	const float & getBiggestVisCounter() const;
+	void setBiggestVisCounter(float bvc);
+
 	bool getIfLost();
 	const KnockOutType getKnockOutType() const; 
 
@@ -214,6 +258,10 @@ public:
 	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+
+	void AddActTimer(double deltaTime);
+	float GetActTimer() const;
+	void SetActTimer(const float & time);
 
 	void AddHighAlertTimer(double deltaTime);
 	float GetHighAlertTimer() const;
