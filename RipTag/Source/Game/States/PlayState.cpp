@@ -56,6 +56,12 @@ void PlayState::Update(double deltaTime)
 		m_step.velocityIterations = 2;
 		m_step.sleeping = false;
 		m_firstRun = false;
+
+		while (m_physRunning)
+		{
+			int i = 0;
+		}
+
 			//int i = 0;
 		triggerHandler->Update(deltaTime);
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
@@ -63,9 +69,9 @@ void PlayState::Update(double deltaTime)
 
 
 		m_playerManager->PhysicsUpdate();
-	
-	
-	
+
+
+		
 		m_contactListener->ClearContactQueue();
 		m_rayListener->ClearConsumedContacts();
 
@@ -186,11 +192,12 @@ void PlayState::_PhyscisThread(double deltaTime)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
-	
+		m_physRunning = true;
 		if (m_deltaTime <= 0.65f)
 		{
 			m_world.Step(m_step);
 		}
+		m_physRunning = false;
 		
 	}
 }
