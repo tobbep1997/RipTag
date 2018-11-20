@@ -62,7 +62,8 @@ void Render2D::GUIPass()
 		Quad * q = DX::g_2DQueue[j];
 		HUDTypeEnum type = (HUDTypeEnum)q->getType();
 		m_HUDTypeValues.type.x = (unsigned int)type;
-
+		m_HUDTypeValues.color = q->getColor();
+		m_HUDTypeValues.outlineColor = q->getOutlineColor();
 		switch (type)
 		{
 		case Render2D::QuadType:
@@ -74,6 +75,17 @@ void Render2D::GUIPass()
 			m_HUDTypeValues.center.y = q->getCenter().y;
 			m_HUDTypeValues.center.z = q->getRadie();
 			m_HUDTypeValues.center.w = q->getInnerRadie();
+			break;
+		case Render2D::OutlinedQuad:
+		{
+				auto scl = q->getScale();
+				float dx = 1 / (scl.x * 0.5f * InputHandler::getViewportSize().x);
+				float dy = 1 / (scl.y * 0.5f * InputHandler::getViewportSize().y);
+				m_HUDTypeValues.center.x = q->getU();
+				m_HUDTypeValues.center.y = q->getV();
+				m_HUDTypeValues.center.z = dx * q->getRadie();
+				m_HUDTypeValues.center.w = dy * q->getRadie();
+		}
 			break;
 		default:
 			break;
