@@ -411,12 +411,19 @@ void Room::Update(float deltaTime, Camera * camera)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();*/
+
+	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+	m_enemyHandler->Update(deltaTime);
+
+	//#todoREMOVE
+	//auto poop = m_roomGuards[1]->getAnimationPlayer()->GetWorldPositionAndOrientationOfJoint(7);
+
+	//m_emitters[0]->setPosition(DirectX::XMVectorGetX(poop.first), DirectX::XMVectorGetY(poop.first), DirectX::XMVectorGetZ(poop.first), DirectX::XMVectorGetW(poop.first));
+
 	for (int i = 0; i < m_emitters.size(); i++)
 	{
 		m_emitters[i]->Update(deltaTime, camera);
 	}
-	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
-	m_enemyHandler->Update(deltaTime);
 
 	for (auto light : m_pointLights)
 	{
