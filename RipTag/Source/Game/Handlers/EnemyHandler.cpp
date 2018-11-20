@@ -23,7 +23,7 @@ void EnemyHandler::Update(float deltaTime)
 	static float timer = 0.0f;
 	timer += deltaTime;
 	int playerVisibility = 0;
-	
+	float soundPercentage = 0.0f;
 	for (int i = 0; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
@@ -34,6 +34,13 @@ void EnemyHandler::Update(float deltaTime)
 		int tempVisibility = _getPlayerVisibility(currentGuard);
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
+		
+		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
+		if (tempSoundPercentage > soundPercentage)
+		{
+			soundPercentage = tempSoundPercentage;
+		}
+
 
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
@@ -70,6 +77,7 @@ void EnemyHandler::Update(float deltaTime)
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);
+	m_player->SetCurrentSoundPercentage(soundPercentage);
 }
 
 void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)

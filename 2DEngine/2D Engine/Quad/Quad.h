@@ -68,6 +68,12 @@ public:
 		rightAligned
 	};
 
+	enum QuadType
+	{
+		Normal = 0,
+		Outlined = 2
+	};
+
 private:
 	enum Vertex_Positions
 	{
@@ -103,7 +109,12 @@ private:
 
 	float uScale = 1.0f;
 	float vScale = 1.0f;
+	float m_rad = 0.0f;
 
+	QuadType m_qt = Normal;
+
+	DirectX::XMFLOAT4A m_color = {1.0f,1.0f,1.0f,1.0f};
+	DirectX::XMFLOAT4A m_outlineColor = {1.0f,1.0f,1.0f,1.0f};
 
 	void _rebuildQuad();
 protected:
@@ -118,6 +129,13 @@ public:
 	void Draw();
 	
 	void Release();
+
+	void setColor(const DirectX::XMFLOAT4A & color);
+	void setColor(float r, float g, float b, float a = 1.0f);
+	void setOutlineColor(const DirectX::XMFLOAT4A & color);
+	void setOutlineColor(float r, float g, float b, float a = 1.0f);
+	const DirectX::XMFLOAT4A & getColor() const;
+	const DirectX::XMFLOAT4A & getOutlineColor() const;
 
 	void setPressedTexture(const std::string & texture);
 	void setHoverTexture(const std::string & texture);
@@ -165,8 +183,13 @@ public:
 	TextAlignment getTextAlignment() const;
 
 	virtual DirectX::XMFLOAT4 getCenter() const;
+
+	virtual void setType(QuadType qt);
 	virtual unsigned int getType() const;
+
+	virtual bool setRadie(const float & radie);;
 	virtual const float & getRadie() const;
+
 	virtual const float & getInnerRadie() const;
 	virtual void setAngle(const float & angle);
 	virtual const float & getAngle() const;
