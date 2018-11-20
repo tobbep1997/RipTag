@@ -5,6 +5,8 @@ Texture2D diffuseTexture : register(t1);
 cbuffer HUD_TYPE : register (b0)
 {
 	float4 center;
+    float4 color;
+    float4 outlineColor;
 	uint4 type;
 };
 
@@ -20,9 +22,10 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	if (type.x == 0)
 	{
         if (input.UV.x <= center.x && input.UV.y >= (1.0f - center.y))
-		    return diffuseTexture.Sample(defaultSampler, input.UV);
+            //return float4(1, 1, 1, 1);
+            return diffuseTexture.Sample(defaultSampler, input.UV) * color;
         else
-			return (0, 0, 0, 0);
+            return float4(0, 0, 0, 0);
     }
     else if (type.x == 1)
     {
@@ -35,14 +38,30 @@ float4 main(VS_OUTPUT input) : SV_TARGET
             if (angle < 0.f)
                 angle += 2.0f * PI;
             if (angle < center.x)    
-                return diffuseTexture.Sample(defaultSampler, input.UV);
+                return diffuseTexture.Sample(defaultSampler, input.UV) * color;
 
             return float4(0, 0, 0, 0);
         }
         else
             return float4(0, 0, 0, 0);
 
-    }	
+    }
+    else if (type.x == 2)
+    {
+        float outlineXWidth = center.z;
+        float outlineYWidth = center.w;
+
+        if (input.UV.x <= center.x && input.UV.y >= (1.0f - center.y))
+        {
+            if (input.UV.x > outlineXWidth && input.UV.y > outlineYWidth &&
+                1.0f - input.UV.x > outlineXWidth && 1.0f - input.UV.y > outlineYWidth)
+                return diffuseTexture.Sample(defaultSampler, input.UV) * color;
+            else
+                return outlineColor;
+            }
+            else
+                return float4(0, 0, 0, 0);
+    }
     else
         return float4(1, 0, 0, 1);
 }
