@@ -1253,6 +1253,8 @@ void Player::SendOnWinState()
 
 void Player::_hasWon()
 {
+	static int frameCounter = 0;
+	frameCounter++;
 	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
 	{
 		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag();
@@ -1264,11 +1266,12 @@ void Player::_hasWon()
 			{
 				hasWon = true;
 				SendOnWinState();
+				frameCounter = 0;
 				return;
 			}
 		}
 	}
-	if (hasWon)
+	if (hasWon && frameCounter > 5)
 	{
 		hasWon = false;
 		SendOnWinState();
