@@ -21,7 +21,7 @@ enum EnemyState
 	
 };
 
-enum TransitionState
+enum EnemyTransitionState
 {
 	None,
 	Alerted,
@@ -74,6 +74,7 @@ private:
 		float timer = 0.0f;
 		b3Vec3 lastDir = { 0,0,0 };
 	};
+	unsigned int uniqueID;
 
 	lerpVal m_lv;
 
@@ -180,7 +181,7 @@ private:
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
-	Enemy(b3World* world, float startPosX, float startPosY, float startPosZ);
+	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
 
 	//TEMP
@@ -265,6 +266,9 @@ public:
 	void AddHighAlertTimer(double deltaTime);
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
+
+	//Network
+	void onAIPacket(Network::ENTITYAIPACKET * packet);
 private:
 
 	void _handleInput(double deltaTime);  //v 0.5
@@ -291,5 +295,7 @@ private:
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
+	
+	void _sendAIPacket();
 };
 

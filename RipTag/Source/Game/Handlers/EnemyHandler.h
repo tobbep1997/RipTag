@@ -27,8 +27,11 @@ public:
 	void Init(std::vector<Enemy*> enemies, Player * player, Grid * grid);
 	
 	void Update(float deltaTime);
+	void HandlePacket(unsigned char id, unsigned char * data);
 
 private:
+	void _registerThisInstanceToNetwork();
+
 	int _getPlayerVisibility(Enemy * guard);
 	void _alert(Enemy * guard, bool followSound = false);
 	void _investigating(Enemy * guard);

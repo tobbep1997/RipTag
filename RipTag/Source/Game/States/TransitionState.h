@@ -3,15 +3,26 @@
 
 class RenderingManager;
 class Quad;
-class LoseState :
-	public State
+
+enum Transition
+{
+	Lose = 0,
+	Win = 1
+};
+
+class TransitionState :
+	public State 
 {
 private:
-	Quad * m_gameOver;
-	Quad * m_eventInfo;
-	Quad * m_backToMenu;
-	Quad * m_Retry;
-	Quad * m_backGround;
+	Transition m_type;
+
+	Quad * m_header			= nullptr;
+	Quad * m_victory		= nullptr;
+	Quad * m_eventInfo		= nullptr;
+	Quad * m_backToMenu		= nullptr;
+	Quad * m_ready			= nullptr;
+
+	Quad * m_background		= nullptr;
 
 	std::string m_eventString = "";
 	void * pCoopData = nullptr;
@@ -22,8 +33,8 @@ private:
 	bool isReady = false;
 	bool isRemoteReady = false;
 public:
-	LoseState(RenderingManager * rm, std::string eventString = "", void * pCoopData = nullptr);
-	~LoseState();
+	TransitionState(RenderingManager * rm, Transition type, std::string eventString = "", void * pCoopData = nullptr);
+	~TransitionState();
 
 	void Update(double deltaTime);
 
@@ -47,5 +58,8 @@ private:
 
 	void _sendDisconnectPacket();
 	void _sendReadyPacket();
+
+private:
+	
 };
 

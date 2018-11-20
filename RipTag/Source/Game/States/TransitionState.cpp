@@ -1,21 +1,22 @@
 #include "RipTagPCH.h"
-#include "LoseState.h"
+#include "TransitionState.h"
 
 
-LoseState::LoseState(RenderingManager * rm, std::string eventString, void * pCoopData) : State(rm)
+TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData) : State(rm)
 {
+	this->m_type = type;
 	m_eventString = eventString;
 	this->pCoopData = pCoopData;
 }
 
 
-LoseState::~LoseState()
+TransitionState::~TransitionState()
 {
-	if (m_gameOver)
+	if (m_header)
 	{
-		m_gameOver->Release();
-		delete m_gameOver;
-		m_gameOver = nullptr;
+		m_header->Release();
+		delete m_header;
+		m_header = nullptr;
 	}
 	if (m_eventInfo)
 	{
@@ -29,21 +30,21 @@ LoseState::~LoseState()
 		delete m_backToMenu;
 		m_backToMenu = nullptr;
 	}
-	if (m_Retry)
+	if (m_ready)
 	{
-		m_Retry->Release();
-		delete m_Retry;
-		m_Retry = nullptr;
+		m_ready->Release();
+		delete m_ready;
+		m_ready = nullptr;
 	}
-	if (m_backGround)
+	if (m_background)
 	{
-		m_backGround->Release();
-		delete m_backGround;
-		m_backGround = nullptr;
+		m_background->Release();
+		delete m_background;
+		m_background = nullptr;
 	}
 }
 
-void LoseState::Update(double deltaTime)
+void TransitionState::Update(double deltaTime)
 {
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
@@ -58,17 +59,17 @@ void LoseState::Update(double deltaTime)
 		if (GamePadHandler::IsAPressed() || GamePadHandler::IsBPressed())
 			BackToMenu();
 	//Retry
-	if (m_Retry->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+	if (m_ready->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
 		if (isReady)
 		{
 			isReady = false;
-			m_Retry->setTextColor(Colors::White);
+			m_ready->setTextColor(Colors::White);
 		}
 		else
 		{
 			isReady = true;
-			m_Retry->setTextColor(Colors::Green);
+			m_ready->setTextColor(Colors::Green);
 		}
 		if (pCoopData)
 		{
@@ -88,25 +89,25 @@ void LoseState::Update(double deltaTime)
 	
 }
 
-void LoseState::Draw()
+void TransitionState::Draw()
 {
 	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 
-	if (m_gameOver)
-		m_gameOver->Draw();
+	if (m_header)
+		m_header->Draw();
 	if (m_eventInfo)
 		m_eventInfo->Draw();
 	if (m_backToMenu)
 		m_backToMenu->Draw();
-	if (m_Retry)
-		m_Retry->Draw();
-	if (m_backGround)
-		m_backGround->Draw();
+	if (m_ready)
+		m_ready->Draw();
+	if (m_background)
+		m_background->Draw();
 
 	p_renderingManager->Flush(camera);
 }
 
-void LoseState::Load()
+void TransitionState::Load()
 {
 	std::cout << "Lose State Load" << std::endl;
 	if (pCoopData)
@@ -121,13 +122,13 @@ void LoseState::Load()
 	_initButtons();
 }
 
-void LoseState::unLoad()
+void TransitionState::unLoad()
 {
 
 	std::cout << "Lose State unLoad" << std::endl;
 }
 
-void LoseState::HandlePacket(unsigned char id, unsigned char * data)
+void TransitionState::HandlePacket(unsigned char id, unsigned char * data)
 {
 	switch (id)
 	{
@@ -143,17 +144,27 @@ void LoseState::HandlePacket(unsigned char id, unsigned char * data)
 	}
 }
 
-void LoseState::_initButtons()
+void TransitionState::_initButtons()
 {
 	//Buttons
 	{
-		this->m_gameOver = Quad::CreateButton("Game Over", 0.5f, 0.7f, 0.5f, 0.25f);
-		this->m_gameOver->setUnpressedTexture("gui_transparent_pixel");
-		this->m_gameOver->setPressedTexture("gui_transparent_pixel");
-		this->m_gameOver->setHoverTexture("gui_transparent_pixel");
-		this->m_gameOver->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_gameOver->setFont(FontHandler::getFont("consolas32"));
-		this->m_gameOver->setTextColor(Colors::Red);
+		if (m_type == Transition::Lose)
+		{
+			this->m_header = Quad::CreateButton("Game Over", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header->setTextColor(Colors::Red);
+			
+		}
+		else
+		{
+			this->m_header = Quad::CreateButton("Victory", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header->setTextColor(Colors::Green);
+		}
+		this->m_header->setUnpressedTexture("gui_transparent_pixel");
+		this->m_header->setPressedTexture("gui_transparent_pixel");
+		this->m_header->setHoverTexture("gui_transparent_pixel");
+		this->m_header->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_header->setFont(FontHandler::getFont("consolas32"));
+
 
 		this->m_eventInfo = Quad::CreateButton(m_eventString, 0.5, 0.5f, 0.7f, 0.7f);
 		this->m_eventInfo->setUnpressedTexture("gui_transparent_pixel");
@@ -170,41 +181,51 @@ void LoseState::_initButtons()
 		this->m_backToMenu->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_backToMenu->setFont(FontHandler::getFont("consolas16"));
 
-		this->m_Retry = Quad::CreateButton("Retry", 0.6f, 0.20f, 0.5f, 0.25f);
-		this->m_Retry->setUnpressedTexture("gui_pressed_pixel");
-		this->m_Retry->setPressedTexture("gui_pressed_pixel");
-		this->m_Retry->setHoverTexture("gui_pressed_pixel");
-		this->m_Retry->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-		this->m_Retry->setFont(FontHandler::getFont("consolas16"));
+		this->m_ready = Quad::CreateButton("Ready", 0.6f, 0.20f, 0.5f, 0.25f);
+		this->m_ready->setUnpressedTexture("gui_pressed_pixel");
+		this->m_ready->setPressedTexture("gui_pressed_pixel");
+		this->m_ready->setHoverTexture("gui_pressed_pixel");
+		this->m_ready->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+		this->m_ready->setFont(FontHandler::getFont("consolas16"));
 	}
 	//Background
 	{
-		this->m_backGround = Quad::CreateButton("", 0.5f, 0.5f, 2.0f, 2.0f);
-		this->m_backGround->setPivotPoint(Quad::PivotPoint::center);
-		this->m_backGround->setUnpressedTexture("gui_temp_bg");
-		this->m_backGround->setPressedTexture("gui_temp_bg");
-		this->m_backGround->setHoverTexture("gui_temp_bg");
+		this->m_background = Quad::CreateButton("", 0.5f, 0.5f, 2.0f, 2.0f);
+		this->m_background->setPivotPoint(Quad::PivotPoint::center);
+		if (m_type == Transition::Lose)
+		{
+			this->m_background->setUnpressedTexture("gui_temp_bg");
+			this->m_background->setPressedTexture("gui_temp_bg");
+			this->m_background->setHoverTexture("gui_temp_bg");
+		}
+		else
+		{
+			this->m_background->setUnpressedTexture("gui_temp_bg");
+			this->m_background->setPressedTexture("gui_temp_bg");
+			this->m_background->setHoverTexture("gui_temp_bg");
+		}
 	}
 }
 
-void LoseState::_registerThisInstanceToNetwork()
+void TransitionState::_registerThisInstanceToNetwork()
 {
 	using namespace Network;
 	using namespace std::placeholders;
 
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
-	Multiplayer::addToOnReceiveFuncMap(ID_READY_PRESSED, std::bind(&LoseState::HandlePacket, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&LoseState::HandlePacket, this, _1, _2));
-	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&LoseState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_READY_PRESSED, std::bind(&TransitionState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&TransitionState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&TransitionState::HandlePacket, this, _1, _2));
 }
 
-void LoseState::_onDisconnectPacket()
+void TransitionState::_onDisconnectPacket()
 {
+	this->m_eventInfo->setString("Your partner has abandoned you...\nYou are on your own now!");
 	pCoopData = nullptr;
 }
 
-void LoseState::_onReadyPacket()
+void TransitionState::_onReadyPacket()
 {
 	if (isRemoteReady)
 		isRemoteReady = false;
@@ -212,13 +233,13 @@ void LoseState::_onReadyPacket()
 		isRemoteReady = true;
 }
 
-void LoseState::_sendDisconnectPacket()
+void TransitionState::_sendDisconnectPacket()
 {
 	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_DISCONNECT);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::IMMEDIATE_PRIORITY);
 }
 
-void LoseState::_sendReadyPacket()
+void TransitionState::_sendReadyPacket()
 {
 	Network::COMMONEVENTPACKET packet(Network::ID_READY_PRESSED);
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::COMMONEVENTPACKET), PacketPriority::IMMEDIATE_PRIORITY);

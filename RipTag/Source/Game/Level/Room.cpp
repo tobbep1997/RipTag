@@ -135,13 +135,13 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	m_lose = new Quad();
 	m_lose->init();
-	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setPosition(0.5f, 0.8f);
 	m_lose->setScale(0.5f, 0.25f);
 	
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture("SPHERE");
-	m_lose->setPressedTexture("DAB");
-	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_lose->setFont(FontHandler::getFont("consolas32"));
 
@@ -167,11 +167,11 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	m_lose->setScale(0.5f, 0.25f);
 
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture("SPHERE");
-	m_lose->setPressedTexture("DAB");
-	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(FontHandler::getFont("consolas32"));
+	m_lose->setFont(FontHandler::getFont("consolas16"));
 
 	HUDComponent::AddQuad(m_lose);
 
@@ -221,6 +221,12 @@ const std::vector<Enemy*>* Room::getEnemies() const
 	return &m_roomGuards;
 }
 
+void Room::GiveCameraToParticles(Camera * ptr)
+{
+	for (auto torch : m_Torches)
+		torch->setCamera(ptr);
+}
+
 void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
@@ -233,21 +239,14 @@ void Room::UnloadRoomFromMemory()
 		{
 			delete asset;
 		}
-		for (int i = 0; i < m_pointLights.size(); i++)
-			delete m_pointLights[i];
+
 		m_staticAssets.clear();
-		m_pointLights.clear();
 
 		CollisionBoxes->Release(*RipExtern::g_world);
 		delete CollisionBoxes;
 
 		for (auto & ab : m_audioBoxes)
 			ab->release();
-		
-		for (int i = 0; i < m_emitters.size(); i++)
-		{
-			delete m_emitters[i];
-		}
 
 		m_audioBoxes.clear();
 		delete m_grid->gridPoints;
@@ -264,14 +263,19 @@ void Room::LoadRoomToMemory()
 	{
 		ImporterLibrary::CustomFileLoader fileLoader;
 		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
-		ParticleEmitter * p_emit;
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
-			this->m_pointLights.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
+			PointLight * p_pointLight = nullptr;
+			ParticleEmitter * p_emit = nullptr;
+
+			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
+			p_pointLight->setColor(90, 112.0f, 130.0f);
+			
 			p_emit = new ParticleEmitter();
 			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2]);
-			m_emitters.push_back(p_emit);
-			std::cout << tempLights.lights[i].translate[0] << tempLights.lights[i].translate[1] << tempLights.lights[i].translate[2] << std::endl;
+
+			m_Torches.push_back( new Torch(p_pointLight, p_emit, 0));
+			
 			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
 			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
@@ -299,7 +303,7 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			this->m_roomGuards.push_back(e);
@@ -364,9 +368,11 @@ void Room::LoadRoomToMemory()
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
-	for (auto light : m_pointLights)
+	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
+	for (int i = 0; i < m_Torches.size(); i++)
 	{
-		light->setColor(120.0f, 112.0f, 90.0f);
+		m_Torches[i]->setUniqueID(nrOfTriggers + i);
+		triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(m_Torches[i]->getUniqueID(), m_Torches[i]));
 	}
 }
 
@@ -411,19 +417,27 @@ void Room::Update(float deltaTime, Camera * camera)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();*/
-	for (int i = 0; i < m_emitters.size(); i++)
+	for (auto torch : m_Torches)
+	{
+		torch->Update(deltaTime);
+		auto light = torch->getPointLightPtr();
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
+	}
+	/*for (int i = 0; i < m_emitters.size(); i++)
 	{
 		m_emitters[i]->Update(deltaTime, camera);
-	}
+	}*/
 	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler->Update(deltaTime);
 
-	for (auto light : m_pointLights)
+	/*for (auto light : m_pointLights)
 	{
-		light->setDropOff(0.2f);
-		light->setPower(2.4f);
-		light->setIntensity(light->TourchEffect(deltaTime, 8.3f, 2.5f));
-	}
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
+	}*/
 	triggerHandler->Update(deltaTime);
 
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
@@ -463,10 +477,16 @@ void Room::Draw()
 	{
 		m_staticAssets.at(i)->Draw();
 	}
-	for (auto light : m_pointLights)
-	{
-		light->QueueLight();
-	}
+	//for (auto light : m_pointLights)
+	//{
+	//	light->QueueLight();
+	//}
+	//for (auto torch : m_Torches)
+	//{
+	//	torch->QueueLight();
+	//	//torch->Draw();
+	//}
+
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
 	
@@ -481,11 +501,15 @@ void Room::Draw()
 	{
 		guard->DrawGuardPath();
 	}
-	for (int i = 0; i < m_emitters.size(); i++)
+	/*for (int i = 0; i < m_emitters.size(); i++)
 	{
 		m_emitters[i]->Queue();
-	}
+	}*/
 
+	for (auto torch : m_Torches)
+	{
+		torch->Draw();
+	}
 }
 
 void Room::Release()
@@ -504,11 +528,6 @@ void Room::Release()
 		delete CollisionBoxes;
 		CollisionBoxes = nullptr;
 	}
-	for (auto light : m_pointLights)
-	{
-		delete light;
-	}
-	m_pointLights.clear();
 	for (auto enemy : m_roomGuards)
 	{
 		delete enemy;
@@ -523,10 +542,13 @@ void Room::Release()
 
 		delete m_grid;
 	}
-	for (int i = 0; i < m_emitters.size(); i++)
+	for (int i = 0; i < m_Torches.size(); i++)
 	{
-		delete m_emitters[i];
+		/*delete m_Torches[i];
+		m_Torches[i] = nullptr;*/
 	}
+	m_Torches.clear();
+
 
 	triggerHandler->Release();
 	delete triggerHandler;

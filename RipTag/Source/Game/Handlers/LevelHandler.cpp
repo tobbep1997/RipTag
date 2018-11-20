@@ -25,6 +25,7 @@ void LevelHandler::Init(b3World& worldPtr, Player * playerPtr)
 
 	_RoomLoadingManager();
 	m_rooms[m_activeRoom]->SetActive(true);
+	m_rooms[m_activeRoom]->GiveCameraToParticles(playerPtr->getCamera());
 
 	this->m_playerPtr->setPosition(m_rooms.at(0)->getPlayer1StartPos().x,
 		m_rooms.at(0)->getPlayer1StartPos().y,

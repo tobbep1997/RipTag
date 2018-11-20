@@ -270,6 +270,8 @@ void LobbyState::Update(double deltaTime)
 						pCoopData->remoteID = this->m_remoteNID;
 						pCoopData->role = Role::Server;
 
+						srand(pCoopData->seed);
+
 						isReady = false;
 						isRemoteReady = false;
 
@@ -1289,6 +1291,8 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	pCoopData->remotePlayerCharacter = remoteSelectedChar;
 	pCoopData->remoteID = packet->remoteID;
 	pCoopData->role = Role::Client;
+
+	srand(pCoopData->seed);
 
 	isReady = false;
 	isRemoteReady = false;

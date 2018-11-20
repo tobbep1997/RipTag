@@ -38,16 +38,10 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	}
 	this->m_dropOff = .5f;
 	_initDirectX(128U,128U);
-
-	m_phys.Init(*RipExtern::g_world, e_staticBody, 0.4f, 0.4f, 0.4f);
-	m_phys.p_setPosition(translation[0], translation[1], translation[2]);
-	m_phys.setObjectTag("TORCH");
-	m_phys.setUserDataBody(this);
 }
 
 PointLight::~PointLight()
 {
-	m_phys.Release(*RipExtern::g_world);
 	for (int i = 0; i < m_sides.size(); i++)
 	{
 		delete m_sides[i];
