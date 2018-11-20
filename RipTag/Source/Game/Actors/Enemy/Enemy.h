@@ -181,6 +181,8 @@ private:
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
 	EnemyTransitionState m_transState = EnemyTransitionState::None;
+	float lastSearchDirX = 0;
+	float lastSearchDirY = 0;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);

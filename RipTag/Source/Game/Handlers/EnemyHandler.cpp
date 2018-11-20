@@ -72,8 +72,8 @@ void EnemyHandler::Update(float deltaTime)
 			if (timer > 0.3f)
 			{
 				timer = 0.0f;
-				//currentGuard->investigatingSight(m_grid);
-				_investigating(currentGuard);
+				//_investigating(currentGuard);
+				currentGuard->investigatingSight(m_grid);
 			}
 			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
 			break;
@@ -81,37 +81,39 @@ void EnemyHandler::Update(float deltaTime)
 			if (timer > 0.3f)
 			{
 				timer = 0.0f;
-				_investigateSound(currentGuard);
-				//currentGuard->investigatingSound(m_grid);
+				//_investigateSound(currentGuard);
+				currentGuard->investigatingSound(m_grid);
 			}
 			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 			break;
 		case Investigating_Room:
 			if (timer > 0.3f)
 			{
-				_investigateRoom(currentGuard, timer);
-				//currentGuard->investigatingRoom(m_grid, ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, timer);
+				std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
+				//_investigateRoom(currentGuard, timer);
+				currentGuard->investigatingRoom(m_grid, ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, timer);
 				timer = 0.0f;
 			}
 			break;
 		case High_Alert:
-			_highAlert(currentGuard, deltaTime);
-			//currentGuard->highAlert(HIGH_ALERT_LIMIT, deltaTime);
+			//_highAlert(currentGuard, deltaTime);
+			currentGuard->highAlert(HIGH_ALERT_LIMIT, deltaTime);
 			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
 			break;
 		case Patrolling:
-			_patrolling(currentGuard);
-			//currentGuard->patrolling(ALERT_TIME_LIMIT, SOUND_LEVEL);
+			//_patrolling(currentGuard);
+			currentGuard->patrolling(ALERT_TIME_LIMIT, SOUND_LEVEL);
 			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 			break;
 		case Suspicious:
-			_suspicious(currentGuard, deltaTime);
-			//currentGuard->suspicious(ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, deltaTime);
+			//_suspicious(currentGuard, deltaTime);
+			currentGuard->suspicious(ALERT_TIME_LIMIT, SOUND_LEVEL, SUSPICIOUS_TIME_LIMIT, deltaTime);
 			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 			break;
 		case Scanning_Area:
-			_ScanArea(currentGuard, deltaTime);
-			//currentGuard->scanningArea(SUSPICIOUS_TIME_LIMIT, deltaTime);
+			//_ScanArea(currentGuard, deltaTime);
+			currentGuard->scanningArea(SUSPICIOUS_TIME_LIMIT, deltaTime);
+			std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
 			break;
 		}
 	}

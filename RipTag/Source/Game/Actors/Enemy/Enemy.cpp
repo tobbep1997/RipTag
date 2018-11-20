@@ -1530,7 +1530,7 @@ void Enemy::onObserve(Grid* grid)
 {
 	DirectX::XMFLOAT4A guardPos = this->getPosition();
 	Tile guardTile = grid->WorldPosToTile(guardPos.x, guardPos.z);
-
+	this->m_actTimer = 0;
 	this->SetAlertVector(grid->FindPath(guardTile, this->GetCurrentPathNode()->tile));
 	std::cout << green << "Enemy Transition: Investigating Source -> Scanning Area" << white << std::endl;
 	this->m_state = Scanning_Area;
@@ -1619,8 +1619,6 @@ void Enemy::investigatingSound(Grid* grid)
 void Enemy::investigatingRoom(Grid* grid, const float visionLimit, const float soundLimit, const float searchLimit, const float deltaTime)
 {
 	this->m_actTimer += deltaTime;
-	static int lastSearchDirX = 0;
-	static int lastSearchDirY = 0;
 	int random = deltaTime;
 	srand(random);
 
@@ -1733,7 +1731,6 @@ void Enemy::suspicious(const float visionLimit, const float soundLimit, const fl
 	}
 	if (this->m_actTimer > suspiciousLimit)
 	{
-		this->m_actTimer = 0;
 		if (this->m_biggestVisCounter >= visionLimit * 1.5)
 			this->m_transState = EnemyTransitionState::InvestigateSight; //what was that?
 		else if (this->m_loudestSoundLocation.percentage > soundLimit*1.5)
