@@ -61,6 +61,14 @@ private:
 	const float TURN_SPEED = 1.0f;
 	const float REVERSE_SPEED = 0.5f;
 
+	//AI Behavior constants
+	const float SOUND_LEVEL = 0.33f;
+	const int SIGHT_LEVEL = 1700;
+	const float ALERT_TIME_LIMIT = 0.8f;
+	const float SUSPICIOUS_TIME_LIMIT = 2.0f;
+	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
+	const float HIGH_ALERT_LIMIT = 3.0f;
+
 private:
 	struct AudioVars
 	{
@@ -103,6 +111,7 @@ private:
 	bool forward = true;
 	float distance = 0.1f;
 	float m_guardSpeed = 1.5;
+	unsigned int uniqueID;
 
 	//Possess
 	Player* m_possessor;
@@ -183,10 +192,11 @@ private:
 	EnemyTransitionState m_transState = EnemyTransitionState::None;
 	float lastSearchDirX = 0;
 	float lastSearchDirY = 0;
+	Grid* m_grid;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
-	Enemy(b3World* world, float startPosX, float startPosY, float startPosZ);
+	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
 
 	//TEMP
@@ -275,26 +285,8 @@ public:
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
 
-	//Transistion States
-	void onAlerted();
-	void onInvestigateSound(Grid* grid);
-	void onInvestigateSight(Grid* grid);
-	void onObserve(Grid* grid);
-	void onSearchArea(Grid* grid);
-	void onReturnToPatrol();
-	void onBeingPossessed();
-	void onBeingDisabled();
-
-	//States
-	void investigatingSight(Grid* grid);
-	void investigatingSound(Grid* grid);
-	void investigatingRoom(Grid* grid, const float visionLimit, const float soundLimit, const float searchLimit, const float deltaTime);
-	void highAlert(const float highAlertLimit, const float deltaTime);
-	void suspicious(const float visionLimit, const float soundLimit, const float suspiciousLimit , const float deltaTime);
-	void scanningArea(const float suspiciousLimit, const float deltaTime);
-	void patrolling(const float visionLimit, const float soundLimit);
-	//void possessed();
-	void disabled();
+	void setGrid(Grid* grid);
+	
 
 private:
 
@@ -323,5 +315,26 @@ private:
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
 
+	void _handleStates(const double deltaTime);
+	//Transistion States
+	void _onAlerted();
+	void _onInvestigateSound();
+	void _onInvestigateSight();
+	void _onObserve();
+	void _onSearchArea();
+	void _onReturnToPatrol();
+	void _onBeingPossessed();
+	void _onBeingDisabled();
+
+	//States
+	void _investigatingSight();
+	void _investigatingSound();
+	void _investigatingRoom(const double deltaTime);
+	void _highAlert(const double deltaTime);
+	void _suspicious(const double deltaTime);
+	void _scanningArea(const double deltaTime);
+	void _patrolling();
+	//void possessed();
+	void _disabled();
 };
 

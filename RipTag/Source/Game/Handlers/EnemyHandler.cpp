@@ -15,6 +15,10 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 	m_guards = enemies;
 	m_player = player;
 	m_grid = grid;
+	for (Enemy* var : m_guards)
+	{
+		var->setGrid(m_grid);
+	}
 }
 
 void EnemyHandler::Update(float deltaTime)
@@ -34,88 +38,88 @@ void EnemyHandler::Update(float deltaTime)
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
 
-		EnemyTransitionState transState = currentGuard->getTransitionState();
-		switch (transState)
-		{
-		case EnemyTransitionState::None:
-			break;
-		case EnemyTransitionState::Alerted:
-			currentGuard->onAlerted();
-			break;
-		case EnemyTransitionState::InvestigateSound:
-			currentGuard->onInvestigateSound(m_grid);
-			break;
-		case EnemyTransitionState::InvestigateSight:
-			currentGuard->onInvestigateSight(m_grid);
-			break;
-		case EnemyTransitionState::Observe:
-			currentGuard->onObserve(m_grid);
-			break;
-		case EnemyTransitionState::SearchArea:
-			currentGuard->onSearchArea(m_grid);
-			break;
-		case EnemyTransitionState::ReturnToPatrol:
-			currentGuard->onReturnToPatrol();
-			break;
-		case EnemyTransitionState::BeingPossessed:
-			currentGuard->onBeingPossessed();
-			break;
-		case EnemyTransitionState::BeingDisabled:
-			currentGuard->onBeingDisabled();
-			break;
-		}
+		//EnemyTransitionState transState = currentGuard->getTransitionState();
+		//switch (transState)
+		//{
+		//case EnemyTransitionState::None:
+		//	break;
+		//case EnemyTransitionState::Alerted:
+		//	currentGuard->onAlerted();
+		//	break;
+		//case EnemyTransitionState::InvestigateSound:
+		//	currentGuard->onInvestigateSound(m_grid);
+		//	break;
+		//case EnemyTransitionState::InvestigateSight:
+		//	currentGuard->onInvestigateSight(m_grid);
+		//	break;
+		//case EnemyTransitionState::Observe:
+		//	currentGuard->onObserve(m_grid);
+		//	break;
+		//case EnemyTransitionState::SearchArea:
+		//	currentGuard->onSearchArea(m_grid);
+		//	break;
+		//case EnemyTransitionState::ReturnToPatrol:
+		//	currentGuard->onReturnToPatrol();
+		//	break;
+		//case EnemyTransitionState::BeingPossessed:
+		//	currentGuard->onBeingPossessed();
+		//	break;
+		//case EnemyTransitionState::BeingDisabled:
+		//	currentGuard->onBeingDisabled();
+		//	break;
+		//}
 
-		EnemyState state = currentGuard->getEnemyState();
-		switch (state)
-		{
-		case Investigating_Sight:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				//_investigating(currentGuard);
-				currentGuard->investigatingSight(m_grid);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-			break;
-		case Investigating_Sound:
-			if (timer > 0.3f)
-			{
-				timer = 0.0f;
-				//_investigateSound(currentGuard);
-				currentGuard->investigatingSound(m_grid);
-			}
-			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
-			break;
-		case Investigating_Room:
-			if (timer > 0.3f)
-			{
-				std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
-				//_investigateRoom(currentGuard, timer);
-				currentGuard->investigatingRoom(m_grid, ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, timer);
-				timer = 0.0f;
-			}
-			break;
-		case High_Alert:
-			//_highAlert(currentGuard, deltaTime);
-			currentGuard->highAlert(HIGH_ALERT_LIMIT, deltaTime);
-			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-			break;
-		case Patrolling:
-			//_patrolling(currentGuard);
-			currentGuard->patrolling(ALERT_TIME_LIMIT, SOUND_LEVEL);
-			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-			break;
-		case Suspicious:
-			//_suspicious(currentGuard, deltaTime);
-			currentGuard->suspicious(ALERT_TIME_LIMIT, SOUND_LEVEL, SUSPICIOUS_TIME_LIMIT, deltaTime);
-			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-			break;
-		case Scanning_Area:
-			//_ScanArea(currentGuard, deltaTime);
-			currentGuard->scanningArea(SUSPICIOUS_TIME_LIMIT, deltaTime);
-			std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
-			break;
-		}
+		//EnemyState state = currentGuard->getEnemyState();
+		//switch (state)
+		//{
+		//case Investigating_Sight:
+		//	if (timer > 0.3f)
+		//	{
+		//		timer = 0.0f;
+		//		//_investigating(currentGuard);
+		//		currentGuard->investigatingSight(m_grid);
+		//	}
+		//	std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+		//	break;
+		//case Investigating_Sound:
+		//	if (timer > 0.3f)
+		//	{
+		//		timer = 0.0f;
+		//		//_investigateSound(currentGuard);
+		//		currentGuard->investigatingSound(m_grid);
+		//	}
+		//	std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+		//	break;
+		//case Investigating_Room:
+		//	if (timer > 0.3f)
+		//	{
+		//		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
+		//		//_investigateRoom(currentGuard, timer);
+		//		currentGuard->investigatingRoom(m_grid, timer);
+		//		timer = 0.0f;
+		//	}
+		//	break;
+		//case High_Alert:
+		//	//_highAlert(currentGuard, deltaTime);
+		//	currentGuard->highAlert(deltaTime);
+		//	std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+		//	break;
+		//case Patrolling:
+		//	//_patrolling(currentGuard);
+		//	currentGuard->patrolling();
+		//	std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+		//	break;
+		//case Suspicious:
+		//	//_suspicious(currentGuard, deltaTime);
+		//	currentGuard->suspicious(deltaTime);
+		//	std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+		//	break;
+		//case Scanning_Area:
+		//	//_ScanArea(currentGuard, deltaTime);
+		//	currentGuard->scanningArea(deltaTime);
+		//	std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
+		//	break;
+		//}
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);

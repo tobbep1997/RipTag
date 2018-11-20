@@ -322,7 +322,7 @@ void RoomGenerator::_createEnemies()
 	{
 		int x = returnRandomInGridWidth();
 		int z = returnRandomInGridDepth();
-		enemy = DBG_NEW Enemy(m_worldPtr, x, 15 , z);
+		enemy = DBG_NEW Enemy(m_worldPtr,i, x, 15 , z);
 		DirectX::XMFLOAT4A pos = enemy->getPosition();
 		Tile finPos = Tile(int(returnRandomInGridWidth()), int(returnRandomInGridDepth()));
 		Tile enemyPos = m_generatedGrid->WorldPosToTile(pos.x, pos.z);
