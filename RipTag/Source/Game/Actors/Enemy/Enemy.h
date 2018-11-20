@@ -27,7 +27,8 @@ enum EnemyTransitionState
 {
 	None,
 	Alerted,
-	InvestigateSource,
+	InvestigateSound,
+	InvestigateSight,
 	Observe,
 	SearchArea,
 	ReturnToPatrol,
@@ -272,14 +273,26 @@ public:
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
 
-	//Actions
+	//Transistion States
 	void onAlerted();
-	void onInvestigateSource();
-	void onObserve();
-	void onSearchArea();
+	void onInvestigateSound(Grid* grid);
+	void onInvestigateSight(Grid* grid);
+	void onObserve(Grid* grid);
+	void onSearchArea(Grid* grid);
 	void onReturnToPatrol();
 	void onBeingPossessed();
 	void onBeingDisabled();
+
+	//States
+	void investigatingSight(Grid* grid);
+	void investigatingSound(Grid* grid);
+	void investigatingRoom(Grid* grid, const float visionLimit, const float soundLimit, const float searchLimit, const float deltaTime);
+	void highAlert(const float highAlertLimit, const float deltaTime);
+	void suspicious(const float visionLimit, const float soundLimit, const float suspiciousLimit , const float deltaTime);
+	void scanningArea(const float suspiciousLimit, const float deltaTime);
+	void patrolling(const float visionLimit, const float soundLimit);
+	//void possessed();
+	void disabled();
 
 private:
 

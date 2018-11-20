@@ -42,14 +42,17 @@ void EnemyHandler::Update(float deltaTime)
 		case EnemyTransitionState::Alerted:
 			currentGuard->onAlerted();
 			break;
-		case EnemyTransitionState::InvestigateSource:
-			currentGuard->onInvestigateSource();
+		case EnemyTransitionState::InvestigateSound:
+			currentGuard->onInvestigateSound(m_grid);
+			break;
+		case EnemyTransitionState::InvestigateSight:
+			currentGuard->onInvestigateSight(m_grid);
 			break;
 		case EnemyTransitionState::Observe:
-			currentGuard->onObserve();
+			currentGuard->onObserve(m_grid);
 			break;
 		case EnemyTransitionState::SearchArea:
-			currentGuard->onSearchArea();
+			currentGuard->onSearchArea(m_grid);
 			break;
 		case EnemyTransitionState::ReturnToPatrol:
 			currentGuard->onReturnToPatrol();
@@ -69,6 +72,7 @@ void EnemyHandler::Update(float deltaTime)
 			if (timer > 0.3f)
 			{
 				timer = 0.0f;
+				//currentGuard->investigatingSight(m_grid);
 				_investigating(currentGuard);
 			}
 			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
@@ -78,6 +82,7 @@ void EnemyHandler::Update(float deltaTime)
 			{
 				timer = 0.0f;
 				_investigateSound(currentGuard);
+				//currentGuard->investigatingSound(m_grid);
 			}
 			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 			break;
@@ -85,23 +90,28 @@ void EnemyHandler::Update(float deltaTime)
 			if (timer > 0.3f)
 			{
 				_investigateRoom(currentGuard, timer);
+				//currentGuard->investigatingRoom(m_grid, ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, timer);
 				timer = 0.0f;
 			}
 			break;
 		case High_Alert:
 			_highAlert(currentGuard, deltaTime);
+			//currentGuard->highAlert(HIGH_ALERT_LIMIT, deltaTime);
 			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
 			break;
 		case Patrolling:
 			_patrolling(currentGuard);
+			//currentGuard->patrolling(ALERT_TIME_LIMIT, SOUND_LEVEL);
 			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 			break;
 		case Suspicious:
 			_suspicious(currentGuard, deltaTime);
+			//currentGuard->suspicious(ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, deltaTime);
 			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 			break;
 		case Scanning_Area:
 			_ScanArea(currentGuard, deltaTime);
+			//currentGuard->scanningArea(SUSPICIOUS_TIME_LIMIT, deltaTime);
 			break;
 		}
 	}
@@ -165,12 +175,7 @@ void EnemyHandler::_investigating(Enemy * guard)
 	}
 	else
 	{
-		DirectX::XMFLOAT4A guardPos = guard->getPosition();
-		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		std::cout << green << "Enemy Transition: Investigating Sight -> Scanning Area" << white << std::endl;
-		guard->setEnemeyState(Scanning_Area);
+		guard->setTransitionState(EnemyTransitionState::Observe);
 	}
 }
 
@@ -196,12 +201,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 	}
 	else
 	{
-		DirectX::XMFLOAT4A guardPos = guard->getPosition();
-		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		std::cout << green << "Enemy Transition: Investigating Sound -> Scanning Area" << white << std::endl;
-		guard->setEnemeyState(Scanning_Area);
+		guard->setTransitionState(EnemyTransitionState::Observe);
 	}
 }
 
@@ -209,7 +209,7 @@ void EnemyHandler::_patrolling(Enemy * guard)
 {
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
-		guard->setTransitionState = EnemyTransitionState::Alerted;
+		guard->setTransitionState(EnemyTransitionState::Alerted);
 	}
 }
 
@@ -255,15 +255,13 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
 	{
 		guard->SetActTimer(0.0f);
-		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT*1.5)
-			_alert(guard); //what was that?
+		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT * 1.5)
+			guard->setTransitionState(EnemyTransitionState::InvestigateSight); //what was that?
 		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL*1.5)
-			_alert(guard, true); //what was that noise?
+			guard->setTransitionState(EnemyTransitionState::InvestigateSound); //what was that noise?
 		else
 		{
-			guard->SetActTimer(0.0f);
-			guard->setEnemeyState(Patrolling);
-			std::cout << green << "Enemy Transition: Suspicious -> Patrolling" << white << std::endl;
+			guard->setTransitionState(EnemyTransitionState::ReturnToPatrol);
 			//Must have been nothing...
 		}
 	}
@@ -274,11 +272,8 @@ void EnemyHandler::_ScanArea(Enemy * guard, const double & dt) //Look around
 	guard->AddActTimer(dt);
 	//Do animation
 	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
-	{
-		guard->SetActTimer(0.0f);
-		guard->setEnemeyState(Investigating_Room);
-		std::cout << green << "Enemy Transition: Scanning Area -> Investigating Area" << white << std::endl;
-
+	{	
+		guard->setTransitionState(EnemyTransitionState::SearchArea);
 	}
 }
 
@@ -303,7 +298,7 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 		}
 		else
 		{
-			while ((dirX == 0 && dirY == 0) || (dirX == lastSearchDirX && dirY == lastSearchDirY))
+			while ((dirX == 0 && dirY == 0) || (dirX == lastSearchDirX && dirY == lastSearchDirY) || (dirX == -lastSearchDirX && dirY == -lastSearchDirY))
 			{
 				random += dt * 100;
 				srand(random);
@@ -311,7 +306,8 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 				random += dt * 100;
 				srand(random);
 				dirY = (rand() % 3) - 1;
-				float dy = dirY - lastSearchDirY;
+
+				/*float dy = dirY - lastSearchDirY;
 				float dx = dirX - lastSearchDirX;
 				float theta = std::atan2(dy, dx);
 				theta *= 180 / B3_PI;
@@ -322,7 +318,7 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 				{
 					dirX = 0;
 					dirY = 0;
-				}
+				}*/
 			}
 		}
 
@@ -351,16 +347,11 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 	}
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL)
 	{
-		guard->SetActTimer(0.0f);
-		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
-		guard->setLoudestSoundLocation(Enemy::SoundLocation());
-		guard->setBiggestVisCounter(0);
-		guard->setEnemeyState(Suspicious);
+		guard->setTransitionState(EnemyTransitionState::Alerted);
 	}
 	if (guard->GetActTimer() > SEARCH_ROOM_TIME_LIMIT)
 	{
-		guard->SetActTimer(0.0f);
-		guard->setEnemeyState(Patrolling);
+		guard->setTransitionState(EnemyTransitionState::ReturnToPatrol);
 	}
 }
 
