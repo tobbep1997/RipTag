@@ -127,7 +127,7 @@ private:
 	float m_peekRotate;
 	float m_peekRangeA = 0;
 	float m_peekRangeB = 0;
-	float m_peektimer = 0;
+	float m_peektimer = 0; 
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
 
