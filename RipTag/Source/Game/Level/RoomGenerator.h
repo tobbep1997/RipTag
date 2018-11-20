@@ -14,8 +14,6 @@ private:
 	float m_roomDepth;
 	int m_roomGridWidth = 5;
 	int m_roomGridDepth = 5;
-	int m_roomGridPointsWidth = 21;
-	int m_roomGridPointsDepth = 21;
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;
@@ -44,8 +42,7 @@ private:
 	int returnRandomInGridWidth();
 	int returnRandomInGridDepth();
 	int returnRandomBetween(int min, int max);
-	void _swapGridPoint(ImporterLibrary::GridStruct * grid, int left, int right);
-
+	
 public:
 	RoomGenerator();
 	~RoomGenerator();

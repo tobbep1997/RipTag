@@ -57,8 +57,6 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
 	if (!m_nodeMap.empty())
 		m_nodeMap.clear();
-	m_nodeMap = std::vector<Node>(grid.nrOf);
-	m_nodeMap.clear();
 	m_width = grid.maxX;
 	m_height = grid.maxY;
 
@@ -72,16 +70,12 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		}
 }
 
-void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int roomDepth, int roomWidth)
+void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int durr)
 {
 	if (!m_nodeMap.empty())
 		m_nodeMap.clear();
-	/*m_width = grid.maxX;
+	m_width = grid.maxX;
 	m_height = grid.maxY;
-	int roomSize = roomDepth * roomWidth;
-	int rooms = (m_height * m_width) / roomSize;
-	int roomsWidth = m_width / roomWidth;
-	int roomsDepth = m_height / roomDepth;*/
 
 	for (int i = 0; i < grid.maxY; i++)
 		for (int j = 0; j < grid.maxX; j++)
@@ -91,22 +85,6 @@ void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int 
 				NodeWorldPos(grid.gridPoints[index].translation[0],
 					grid.gridPoints[index].translation[2])));
 		}
-	/*for (int x = 0; x < roomsDepth; x++)
-		for (int j = 0; j < roomDepth; j++)
-		{
-			for (int i = 0; i < roomsWidth; i++)
-			{
-				for (int k = 0; k < roomWidth; k++)
-				{
-					int index = j + (k * roomWidth) + ((i + x * roomsWidth) * roomSize);
-					int tileX = k + i * roomWidth;
-					int tileY = j + x * roomDepth;
-					m_nodeMap.push_back(Node(Tile(tileX, tileY, grid.gridPoints[index].pathable),
-						NodeWorldPos(grid.gridPoints[index].translation[0],
-							grid.gridPoints[index].translation[2])));
-				}
-			}
-		}*/
 }
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
@@ -235,36 +213,38 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 Tile Grid::GetRandomNearbyTile(Tile src, int dir)
 {
-	// Make random
-	int direction = dir;
-	int x = src.getX();
-	int y = src.getY();
-	int index = 0;
-
-	switch (direction)
+	if (src.getX() != -1)
 	{
-	// North
-	case 0:
-		index = x - m_width + y * m_width;
-		if (index >= 0 && m_nodeMap.at(index).tile.getPathable())
-			return _nearbyTile(src, 0, -1);
-	// East
-	case 1:
-		index = x + 1 + y * m_width;
-		if (index < m_width + y * m_width)
-			return _nearbyTile(src, 1, 0);
-	// South
-	case 2:
-		index = x + m_width + y * m_width;
-		if (index < m_nodeMap.size())
-			return _nearbyTile(src, 0, 1);
-	case 3:
-		index = x - 1 + y * m_width;
-		if (index >= y * m_width)
-			return _nearbyTile(src, -1, 0);
-		break;
-	}
+		// Make random
+		int direction = dir;
+		int x = src.getX();
+		int y = src.getY();
+		int index = 0;
 
+		switch (direction)
+		{
+			// North
+		case 0:
+			index = x - m_width + y * m_width;
+			if (index >= 0 && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, 0, -1);
+			// East
+		case 1:
+			index = x + 1 + y * m_width;
+			if (index < m_width + y * m_width && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, 1, 0);
+			// South
+		case 2:
+			index = x + m_width + y * m_width;
+			if (index < m_nodeMap.size() && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, 0, 1);
+		case 3:
+			index = x - 1 + y * m_width;
+			if (index >= y * m_width && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, -1, 0);
+			break;
+		}
+	}
 	return Tile();
 }
 
@@ -376,9 +356,9 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 			destY += y;
 		}
 	}
-	destination = Tile(destination.getX() + x * count, destination.getY() + y * count);
+	/*destination = Tile(destination.getX() + x * count, destination.getY() + y * count);
 	destX = destination.getX();
-	destY = destination.getY();
+	destY = destination.getY();*/
 	if (destX < 0)
 		destX = 0;
 	if (destY < 0)
