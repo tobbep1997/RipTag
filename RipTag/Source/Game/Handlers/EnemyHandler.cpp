@@ -141,7 +141,7 @@ void EnemyHandler::_investigating(Enemy * guard)
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		std::cout << green << "Enemy Transition: Investigating Sight -> High Alert" << white << std::endl;
+		std::cout << green << "Enemy Transition: Investigating Sight -> Scanning Area" << white << std::endl;
 		guard->setEnemeyState(Scanning_Area);
 	}
 }
@@ -172,7 +172,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
+		std::cout << green << "Enemy Transition: Investigating Sound -> Scanning Area" << white << std::endl;
 		guard->setEnemeyState(Scanning_Area);
 	}
 }
@@ -255,6 +255,8 @@ void EnemyHandler::_ScanArea(Enemy * guard, const double & dt) //Look around
 	{
 		guard->SetActTimer(0.0f);
 		guard->setEnemeyState(Investigating_Room);
+		std::cout << green << "Enemy Transition: Scanning Area -> Investigating Area" << white << std::endl;
+
 	}
 }
 
