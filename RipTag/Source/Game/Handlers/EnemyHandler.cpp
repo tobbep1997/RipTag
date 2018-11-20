@@ -172,6 +172,8 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
 		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
 		guard->setEnemeyState(High_Alert);
+	/*	guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
+		guard->setEnemeyState(High_Alert);*/
 	}
 }
 

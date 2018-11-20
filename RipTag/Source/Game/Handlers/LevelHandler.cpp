@@ -147,7 +147,7 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 		//Create a room
 		//Get a random int					//VERY NECCESSARY TO COMMENT BACK IN
 		int randomRoom = rand() % amountOfRooms;
-		Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
+		Room * room = new Room(1, m_worldPtr, i+2, m_playerPtr);//TODO
 
 
 		m_rooms.push_back(room);
@@ -186,10 +186,10 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		/*m_loadMutex.lock();
 		m_loadingQueue.push_back(current - 1);
 		m_loadMutex.unlock();*/
-		if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
+		/*if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
 		{
 			m_rooms.at(current - 1)->UnloadRoomFromMemory();
-		}
+		}*/
 		
 	}
 	
@@ -206,10 +206,10 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		//m_loadMutex.lock();
 		//m_loadingQueue.push_back(current + 1);
 		//m_loadMutex.unlock();
-		if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
+		/*if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
 		{
 			m_rooms.at(current + 1)->UnloadRoomFromMemory();
-		}
+		}*/
 		
 	}
 
