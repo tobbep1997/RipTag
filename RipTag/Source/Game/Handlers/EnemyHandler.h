@@ -3,6 +3,7 @@
 
 class Enemy;
 class Player;
+class RemotePlayer;
 class Grid;
 
 class EnemyHandler

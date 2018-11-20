@@ -15,7 +15,7 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 	m_guards = enemies;
 	m_player = player;
 	m_grid = grid;
-
+	_registerThisInstanceToNetwork();
 }
 
 void EnemyHandler::Update(float deltaTime)
