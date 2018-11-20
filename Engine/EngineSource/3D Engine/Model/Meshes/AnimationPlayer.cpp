@@ -229,6 +229,18 @@ void Animation::AnimationPlayer::Play()
 	m_IsPlaying = true;
 }
 
+std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> Animation::AnimationPlayer::GetPositionAndOrientationOfJoint(uint16_t jointIndex)
+{
+	using namespace DirectX;
+	auto matrix = XMLoadFloat4x4A(&m_GlobalMatrices[jointIndex]);
+	XMVECTOR s{};
+	XMVECTOR r{};
+	XMVECTOR t{};
+	XMMatrixDecompose(&s, &r, &t, matrix);
+
+	return std::make_pair(t, r);
+}
+
 std::unique_ptr<LayerMachine>& Animation::AnimationPlayer::GetLayerMachine()
 {
 	return m_LayerMachine;
@@ -353,7 +365,7 @@ Animation::JointPose Animation::AnimationPlayer::_ScalePose(Animation::JointPose
 	auto zeroPose = Animation::JointPose{};
 	zeroPose.m_Transformation.m_RotationQuaternion = { 0.0, 0.0, 0.0, 1.0 };
 	zeroPose.m_Transformation.m_Translation = { 0.0, 0.0, 0.0, 1.0 };
-	zeroPose.m_Transformation.m_Scale = { 1.0, 1.0, 1.0, 1.0 };
+	zeroPose.m_Transformation.m_Scale = { 1.0, 1.0, 1.0, 0.0 };
 
 	return _BlendJointPoses(&zeroPose, &pose, scale);
 }

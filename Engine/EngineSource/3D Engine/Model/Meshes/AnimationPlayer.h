@@ -173,6 +173,10 @@ namespace Animation
 		void SetSkeleton(SharedSkeleton skeleton);
 		void Pause();
 		void Play();
+		DirectX::XMMATRIX GetModelMatrixForJoint(uint16_t jointIndex);
+		DirectX::XMVECTOR GetPositionForJoint(uint16_t jointIndex);
+		DirectX::XMVECTOR GetOrientationForJoint(uint16_t jointIndex);
+		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetPositionAndOrientationOfJoint(uint16_t jointIndex);
 
 		std::unique_ptr<LayerMachine>& GetLayerMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();

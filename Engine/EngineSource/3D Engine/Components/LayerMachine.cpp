@@ -4,6 +4,8 @@
 LayerMachine::LayerMachine(Animation::Skeleton* skeleton)
 	: m_Skeleton(skeleton)
 {
+	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_OFF);
+
 }
 
 LayerMachine::~LayerMachine()
@@ -150,7 +152,7 @@ bool LayerState::IsPopped() const
 
 std::pair<uint16_t, float> LayerState::_getIndexAndProgression()
 {
-	m_CurrentTime = std::fmod(m_CurrentTime, (m_ClipLength - (1/24)));
+	m_CurrentTime = std::fmod(m_CurrentTime, (m_ClipLength));
 
 	///calc the actual frame index and progression towards the next frame
 	float indexTime = m_CurrentTime / (1.0 / 24.0);
@@ -226,7 +228,7 @@ void LayerState::_setLength(float length)
 
 void LayerState::SetPlayTime(float loopCount)
 {
-	m_PlayTime = loopCount * m_ClipLength;
+	m_PlayTime = loopCount * (m_ClipLength);
 }
 
 BasicLayer::BasicLayer(std::string name, Animation::AnimationClip* clip, float blendInTime, float blendOutTime, LayerMachine* owner)
@@ -253,7 +255,6 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 			if (currentState == BLENDING_OUT)
 			{
 				weight = m_CurrentBlendTime / m_BlendOutTime;
-
 			}
 		}
 
