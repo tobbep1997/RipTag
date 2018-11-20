@@ -197,7 +197,10 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	
+	static double accumulatedTime = 0.0;
+	static const double SEND_AI_PACKET_FREQUENCY = 1.0 / 15.0; 
+
+
 	using namespace DirectX;
 
 	auto currentPosition = Transform::getPosition();
@@ -381,6 +384,13 @@ void Enemy::Update(double deltaTime)
 		}
 		//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
+	}
+
+	accumulatedTime += deltaTime;
+	if (accumulatedTime >= SEND_AI_PACKET_FREQUENCY)
+	{
+		_sendAIPacket();
+		accumulatedTime -= SEND_AI_PACKET_FREQUENCY;
 	}
 	
 }
@@ -819,7 +829,7 @@ void Enemy::SetHightAlertTimer(const float& time)
 void Enemy::onAIPacket(Network::ENTITYAIPACKET * packet)
 {
 	//WHAT TO DO HERE MATEY?! ARRRRR
-	
+	m_state = (EnemyState)packet->state;
 }
 
 float Enemy::getVisCounter() const
@@ -1388,7 +1398,7 @@ void Enemy::_activateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 	crouchDir = 1;
-	m_kp.crouching = true;
+m_kp.crouching = true;
 }
 
 void Enemy::_deActivateCrouch()
@@ -1442,7 +1452,7 @@ void Enemy::_playFootsteps(double deltaTime)
 			index = rand() % (int)RipSounds::g_stepsStone.size();
 		}
 		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
-		
+
 		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
 		m_av.lastIndex = index;
 		m_av.hasPlayed = !m_av.hasPlayed;
@@ -1487,10 +1497,15 @@ b3Vec3 Enemy::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 void Enemy::_sendAIPacket()
 {
-	Network::ENTITYAIPACKET packet;
+	if (Network::Multiplayer::GetInstance()->isConnected())
+	{
+		Network::ENTITYAIPACKET packet;
 
-	//TODO: Depending on what state we have we fill the packet with corresponding data
+		//TODO: Depending on what state we have we fill the packet with corresponding data
+		packet.id = Network::ID_ENEMY_AI;
+		packet.uniqueID = uniqueID;
+		packet.state = m_state;
 
-
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYAIPACKET), PacketPriority::LOW_PRIORITY);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYAIPACKET), PacketPriority::LOW_PRIORITY);
+	}
 }

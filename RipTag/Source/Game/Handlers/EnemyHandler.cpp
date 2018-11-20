@@ -20,10 +20,39 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 
 void EnemyHandler::Update(float deltaTime)
 {
+
+	if (m_type == 0)
+		_isServerUpdate(deltaTime);
+	else if (m_type == 1)
+		_isClientUpdate(deltaTime);
+	else if (m_type == 2)
+		_isSinglePlayerUpdate(deltaTime);
+	else
+		return;
+}
+
+void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
+{
+	switch (id)
+	{
+	case Network::ID_ENEMY_AI:
+		Network::ENTITYAIPACKET * pData = (Network::ENTITYAIPACKET*)data;
+		//this is very unsafe
+		this->m_guards[pData->uniqueID]->onAIPacket(pData);
+		break;
+	}
+}
+
+void EnemyHandler::_isServerUpdate(double deltaTime)
+{
 	static float timer = 0.0f;
 	timer += deltaTime;
+
 	int playerVisibility = 0;
+	int remotePlayerVisibility = 0;
+
 	float soundPercentage = 0.0f;
+
 	for (int i = 0; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
@@ -32,16 +61,143 @@ void EnemyHandler::Update(float deltaTime)
 		currentGuard->PhysicsUpdate(deltaTime);
 
 		int tempVisibility = _getPlayerVisibility(currentGuard);
+		int tempVisRemotePlayer = _getRemotePlayerVisibility(currentGuard);
+
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
-		
+
+		if (tempVisRemotePlayer > remotePlayerVisibility)
+			remotePlayerVisibility = tempVisRemotePlayer;
+
 		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
 		if (tempSoundPercentage > soundPercentage)
 		{
 			soundPercentage = tempSoundPercentage;
 		}
 
+		//All of this should be moved to Enemy - Delete later
+		EnemyState state = currentGuard->getEnemyState();
+		switch (state)
+		{
+		case Investigating_Sight:
+			if (timer > 0.3f)
+			{
+				timer = 0.0f;
+				_investigating(currentGuard);
+			}
+			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+			break;
+		case Investigating_Sound:
+			if (timer > 0.3f)
+			{
+				timer = 0.0f;
+				_investigateSound(currentGuard);
+			}
+			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+			break;
+		case High_Alert:
+			_highAlert(currentGuard, deltaTime);
+			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+			break;
+		case Patrolling:
+			_patrolling(currentGuard);
+			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+			break;
+		case Suspicious:
+			_suspicious(currentGuard, deltaTime);
+			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+			break;
+		}
+	}
 
+	m_player->SetCurrentVisability(playerVisibility);
+	m_player->SetCurrentSoundPercentage(soundPercentage);
+	m_remotePlayer->SetVisibility(remotePlayerVisibility);
+}
+
+void EnemyHandler::_isClientUpdate(double deltaTime)
+{
+	static float timer = 0.0f;
+	timer += deltaTime;
+	float soundPercentage = 0.0f;
+
+	for (int i = 0; i < m_guards.size(); i++)
+	{
+		Enemy * currentGuard = m_guards.at(i);
+		currentGuard->SetLenghtToPlayer(m_player->getPosition());
+		currentGuard->Update(deltaTime);
+		currentGuard->PhysicsUpdate(deltaTime);
+
+		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
+		if (tempSoundPercentage > soundPercentage)
+		{
+			soundPercentage = tempSoundPercentage;
+		}
+		//All of this should be moved to Enemy - Delete later
+		EnemyState state = currentGuard->getEnemyState();
+		switch (state)
+		{
+		case Investigating_Sight:
+			if (timer > 0.3f)
+			{
+				timer = 0.0f;
+				_investigating(currentGuard);
+			}
+			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+			break;
+		case Investigating_Sound:
+			if (timer > 0.3f)
+			{
+				timer = 0.0f;
+				_investigateSound(currentGuard);
+			}
+			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+			break;
+		case High_Alert:
+			_highAlert(currentGuard, deltaTime);
+			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+			break;
+		case Patrolling:
+			_patrolling(currentGuard);
+			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+			break;
+		case Suspicious:
+			_suspicious(currentGuard, deltaTime);
+			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+			break;
+		}
+	}
+
+	m_player->SetCurrentSoundPercentage(soundPercentage);
+}
+
+void EnemyHandler::_isSinglePlayerUpdate(double deltaTime)
+{
+	static float timer = 0.0f;
+	timer += deltaTime;
+
+	int playerVisibility = 0;
+	float soundPercentage = 0.0f;
+
+	for (int i = 0; i < m_guards.size(); i++)
+	{
+		Enemy * currentGuard = m_guards.at(i);
+		currentGuard->SetLenghtToPlayer(m_player->getPosition());
+		currentGuard->Update(deltaTime);
+		currentGuard->PhysicsUpdate(deltaTime);
+
+		int tempVisibility = _getPlayerVisibility(currentGuard);
+
+		if (tempVisibility > playerVisibility)
+			playerVisibility = tempVisibility;
+
+		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
+		if (tempSoundPercentage > soundPercentage)
+		{
+			soundPercentage = tempSoundPercentage;
+		}
+
+		//All of this should be moved to Enemy - Delete later
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
 		{
@@ -80,18 +236,6 @@ void EnemyHandler::Update(float deltaTime)
 	m_player->SetCurrentSoundPercentage(soundPercentage);
 }
 
-void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
-{
-	switch (id)
-	{
-	case Network::ID_ENEMY_AI:
-		Network::ENTITYAIPACKET * pData = (Network::ENTITYAIPACKET*)data;
-		//this is very unsafe
-		this->m_guards[pData->uniqueID]->onAIPacket(pData);
-		break;
-	}
-}
-
 void EnemyHandler::_registerThisInstanceToNetwork()
 {
 	using namespace Network;
@@ -105,6 +249,13 @@ int EnemyHandler::_getPlayerVisibility(Enemy * guard)
 	guard->CullingForVisability(*m_player->getTransform());
 	guard->QueueForVisibility();
 	return guard->getPlayerVisibility()[0];
+}
+
+int EnemyHandler::_getRemotePlayerVisibility(Enemy * guard)
+{
+	guard->CullingForVisability(*m_remotePlayer->getTransform());
+	guard->QueueForVisibility();
+	return guard->getPlayerVisibility()[1];
 }
 
 void EnemyHandler::_alert(Enemy * guard, bool followSound)

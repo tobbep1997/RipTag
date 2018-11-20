@@ -271,9 +271,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							volume *= occ;
 							float addThis = (volume / (lengthSquared * 3));
 
+							//Pro Tip: Not putting break in a case will not stop execution, 
+							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
 							switch (*soundType)
 							{
 							case AudioEngine::Player:
+							case AudioEngine::RemotePlayer:
 								allSounds += addThis;
 								playerSounds += addThis;
 								if (playerSounds > sl.percentage)

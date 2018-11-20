@@ -296,6 +296,7 @@ private:
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
 	
+	//call this once everywhile in Update, always call this when we do a state swap
 	void _sendAIPacket();
 };
 
