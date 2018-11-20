@@ -19,7 +19,7 @@ Lever::~Lever()
 
 void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setObjectTag("LEVER");
 	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("SPAK"));//BYT TILL SPAK

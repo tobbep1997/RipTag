@@ -8,7 +8,7 @@ Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqu
 	this->pParticles = pParticleEmitter;
 	DirectX::XMFLOAT4A lightPos = pPointLight->getPosition();
 	
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
 	BaseActor::setPosition(lightPos.x, lightPos.y, lightPos.z);
 	BaseActor::setObjectTag("TORCH");
 	//Need a model for torch
