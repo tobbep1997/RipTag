@@ -38,8 +38,9 @@ Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), Camer
 	//setOutline(true);
 }
 
-Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
+Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
+	this->uniqueID = id;
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
@@ -60,7 +61,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	}
 	b3Vec3 pos(1, 0.9, 1);
-	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
+	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, FLT_MAX); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -196,6 +197,7 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
+	
 	using namespace DirectX;
 
 	auto currentPosition = Transform::getPosition();
@@ -276,6 +278,7 @@ void Enemy::Update(double deltaTime)
 				}
 			}
 			
+			
 		}
 
 		if (!m_inputLocked)
@@ -350,7 +353,7 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
-		getBody()->SetType(e_staticBody);
+		getBody()->SetType(e_dynamicBody);
 		switch (m_knockOutType)
 		{
 
@@ -376,7 +379,7 @@ void Enemy::Update(double deltaTime)
 			}
 			break; 
 		}
-		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+		//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
 	
@@ -811,6 +814,12 @@ float Enemy::GetHighAlertTimer() const
 void Enemy::SetHightAlertTimer(const float& time)
 {
 	m_HighAlertTime = time;
+}
+
+void Enemy::onAIPacket(Network::ENTITYAIPACKET * packet)
+{
+	//WHAT TO DO HERE MATEY?! ARRRRR
+	
 }
 
 float Enemy::getVisCounter() const
@@ -1474,4 +1483,14 @@ b3Vec3 Enemy::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 
 	return (tempStart + tempRelativeVec);
+}
+
+void Enemy::_sendAIPacket()
+{
+	Network::ENTITYAIPACKET packet;
+
+	//TODO: Depending on what state we have we fill the packet with corresponding data
+
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYAIPACKET), PacketPriority::LOW_PRIORITY);
 }

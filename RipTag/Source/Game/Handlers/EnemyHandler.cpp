@@ -15,6 +15,7 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 	m_guards = enemies;
 	m_player = player;
 	m_grid = grid;
+
 }
 
 void EnemyHandler::Update(float deltaTime)
@@ -69,6 +70,26 @@ void EnemyHandler::Update(float deltaTime)
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);
+}
+
+void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
+{
+	switch (id)
+	{
+	case Network::ID_ENEMY_AI:
+		Network::ENTITYAIPACKET * pData = (Network::ENTITYAIPACKET*)data;
+		//this is very unsafe
+		this->m_guards[pData->uniqueID]->onAIPacket(pData);
+		break;
+	}
+}
+
+void EnemyHandler::_registerThisInstanceToNetwork()
+{
+	using namespace Network;
+	using namespace std::placeholders;
+
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_AI, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 }
 
 int EnemyHandler::_getPlayerVisibility(Enemy * guard)
@@ -234,15 +255,5 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 			std::cout << green << "Enemy Transition: Suspicious -> Patrolling" << white << std::endl;
 			//Must have been nothing...
 		}
-	}
-}
-
-void EnemyHandler::_coolingDown(Enemy * guard, const double & dt)
-{
-	guard->AddActTimer(dt);
-	if (guard->GetActTimer() > 2)
-	{
-		guard->SetActTimer(0.0f);
-		guard->setEnemeyState(Patrolling);
 	}
 }

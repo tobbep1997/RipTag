@@ -179,7 +179,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_0 };
+	D3D_FEATURE_LEVEL fl_in[] = { D3D_FEATURE_LEVEL_11_1 };
 	D3D_FEATURE_LEVEL fl_out = D3D_FEATURE_LEVEL_11_0;
 
 	// fill the swap chain description struct

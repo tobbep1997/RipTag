@@ -135,13 +135,13 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	m_lose = new Quad();
 	m_lose->init();
-	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setPosition(0.5f, 0.8f);
 	m_lose->setScale(0.5f, 0.25f);
 	
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture("SPHERE");
-	m_lose->setPressedTexture("DAB");
-	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_lose->setFont(FontHandler::getFont("consolas32"));
 
@@ -303,7 +303,7 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			this->m_roomGuards.push_back(e);

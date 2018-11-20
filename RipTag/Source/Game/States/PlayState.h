@@ -61,7 +61,8 @@ private:
 		bool gameWon = false;
 		bool remoteDisconnected = false;
 	} m_coopState;
-	
+
+	bool m_physRunning = false;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr);
 	~PlayState();
