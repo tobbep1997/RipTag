@@ -409,11 +409,9 @@ void RoomGenerator::_makeWalls()
 	}
 	delete [] gridStructToSendBack->gridPoints;
 	gridStructToSendBack->gridPoints = DBG_NEW ImporterLibrary::GridPointStruct[cleanGridStruct.size()];
-	for (int i = 0; i < cleanGridStruct.size(); i++)
-	{
-		gridStructToSendBack->gridPoints[i] = cleanGridStruct[i];
-	}
 	gridStructToSendBack->nrOf = cleanGridStruct.size();
+	for (int i = 0; i < cleanGridStruct.size(); i++)
+		gridStructToSendBack->gridPoints[i] = cleanGridStruct[i];
 	int widthCount = 101;
 	int depthCount = 101;
 	gridStructToSendBack->maxX = widthCount;
