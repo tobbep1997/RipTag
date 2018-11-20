@@ -41,6 +41,20 @@ const float& Quad::getAngle() const
 	return -1;
 }
 
+const bool Quad::Inside(const DirectX::XMFLOAT2 & mousePos)
+{
+	static long long counter = 0;
+	DirectX::XMFLOAT2 mp = mousePos;
+	DirectX::XMFLOAT2 pos;
+
+	pos.x = 0.5f * quadVertex[Upper_Left].position.x + 0.5f;
+	pos.y = -0.5f * quadVertex[Upper_Left].position.y + 0.5f;
+	DirectX::XMFLOAT2A size = { getSize().x * 0.5f, getSize().y * 0.5f };
+
+	return mp.x > pos.x && mp.x < pos.x + size.x &&
+		mp.y > pos.y && mp.y < pos.y + size.y;
+}
+
 void Quad::_rebuildQuad()
 {
 	static int counter = 0;
@@ -235,7 +249,7 @@ ID3D11Buffer * Quad::getVertexBuffer() const
 const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 {
 	m_preState = m_currentState;
-	if (Button::Inside(mousepos))
+	if (Inside(mousepos))
 	{
 		if (InputHandler::isMLeftPressed(true))
 		{

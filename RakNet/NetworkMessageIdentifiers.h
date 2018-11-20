@@ -31,12 +31,15 @@ namespace Network
 		ID_REQUEST_NID = ID_USER_PACKET_ENUM + 23,
 		ID_REPLY_NID = ID_USER_PACKET_ENUM + 24,
 		ID_REQUEST_SELECTED_CHAR = ID_USER_PACKET_ENUM + 25,
+		ID_HOST_NAME = ID_USER_PACKET_ENUM + 26,
 
 		//this packet is sent by the server, contains a random seed
 		ID_GAME_STARTED = ID_USER_PACKET_ENUM + 29,
-		//GAMEPLAY EVENTS 30-49
+		//GAMEPLAY/GAMESTATE EVENTS 30-49
 		ID_TRIGGER_USED = ID_USER_PACKET_ENUM + 30,
-		ID_PLAYER_WON = ID_USER_PACKET_ENUM + 31
+		ID_PLAYER_WON = ID_USER_PACKET_ENUM + 31,
+		ID_PLAYER_LOST = ID_USER_PACKET_ENUM + 32,
+
 	};
 
 
@@ -46,7 +49,7 @@ namespace Network
 	{
 		unsigned char id;
 		RakNet::NetworkID nid;
-		COMMONEVENTPACKET(unsigned char _id, RakNet::NetworkID _nid) : id(_id), nid(_nid) {}
+		COMMONEVENTPACKET(unsigned char _id, RakNet::NetworkID _nid = 0) : id(_id), nid(_nid) {}
 	};
 
 	struct LOBBYEVENTPACKET
@@ -95,6 +98,16 @@ namespace Network
 		unsigned int state;
 		bool condition;
 		ENTITYSTATEPACKET(unsigned char _id, unsigned int _state, bool _condition) : id(_id), state(_state), condition(_condition) {}
+	};
+
+	struct ENTITYAIPACKET //W.I.P Needs constructors
+	{
+		unsigned char id;
+		unsigned int state;
+		unsigned int transitionState;
+		XMFLOAT2 soundLocation;	   //Sound percentage, Sound position
+		XMFLOAT2 sightingLocation; //Visibility counter, Remote player position
+		XMFLOAT2 nodes[8];		   // <-- AI path: node positions to calculate a path locally
 	};
 
 	struct ENTITYABILITYPACKET

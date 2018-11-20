@@ -211,14 +211,14 @@ void RoomGenerator::_makeWalls()
 			int BigRoomAddX = 0;
 			int BigRoomAddZ = 0;
 
-			int startX = -m_roomWidth + 10;
-			int startZ = -m_roomDepth + 10;
+			int startX = -m_roomWidth + 10.5f;
+			int startZ = -m_roomDepth + 10.5f;
 			if (RANDOM_MOD_NR > MAX_SMALL_MODS)
 			{
 				if (!isRotated)
-					BigRoomAddX = 10;
+					BigRoomAddX = 11;
 				else
-					BigRoomAddZ = 10;
+					BigRoomAddZ = 11;
 
 			}
 #pragma region GRID
@@ -229,7 +229,12 @@ void RoomGenerator::_makeWalls()
 
 				tempGridStruct = loader.readGridFile(MODNAMESTRING);
 
-
+				/*if (isRotated)
+				{
+					int tempInt = tempGridStruct->maxX;
+					tempGridStruct->maxX = tempGridStruct->maxY;
+					tempGridStruct->maxY = tempInt;
+				}*/
 				for (int a = 0; a < tempGridStruct->maxY; a++)
 				{
 					if (isRotated == false)
@@ -238,19 +243,38 @@ void RoomGenerator::_makeWalls()
 						{
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0] += j + BigRoomAddX;
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2] += i + BigRoomAddZ;
+							/*asset = new BaseActor();
+							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+							if (randomizer.m_rooms[index].type == 0)
+								asset->setPosition(tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0], 5,
+									tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2], false);
+							else
+								asset->setPosition(tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0], 2.5,
+									tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2], false);
+							asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
+							m_generated_assetVector.push_back(asset);*/
 						}
 					}
 					else
 					{
 						for (int b = 0; b < tempGridStruct->maxX; b++)
 						{
-							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0] += i + BigRoomAddX;
-							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2] += j + BigRoomAddZ;
+							int current = a * tempGridStruct->maxX + b;
+							//int current = a + b * tempGridStruct->maxY;
+							float tmp = tempGridStruct->gridPoints[current].translation[0];
+							tempGridStruct->gridPoints[current].translation[0] = tempGridStruct->gridPoints[current].translation[2];
+							tempGridStruct->gridPoints[current].translation[2] = tmp;
+							tempGridStruct->gridPoints[current].translation[0] += j + BigRoomAddX;
+							tempGridStruct->gridPoints[current].translation[2] += i + BigRoomAddZ;
+							/*asset = new BaseActor();
+							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+							asset->setPosition(tempGridStruct->gridPoints[current].translation[0], 5,
+							tempGridStruct->gridPoints[current].translation[2], false);
+
+							asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
+							m_generated_assetVector.push_back(asset);
+							*/
 						}
-						int tempInt;
-						tempInt = tempGridStruct->maxX;
-						tempGridStruct->maxX = tempGridStruct->maxY;
-						tempGridStruct->maxY = tempInt;
 					}
 				}
 				appendedGridStruct.push_back(tempGridStruct);
@@ -314,32 +338,88 @@ void RoomGenerator::_makeWalls()
 			widthCounter++;
 		}
 		depthCounter++;
-
 	}
 
 	ImporterLibrary::GridStruct * gridStructToSendBack = DBG_NEW ImporterLibrary::GridStruct();
 	int gridTotalCount = 0;
 	//Change to adaptive room width/depth
-	int widthCount = 105;
-	int depthCount = 105;
-	/*for (int i = 0; i < m_roomGridDepth; i++)
-		depthCount += appendedGridStruct[i]->maxY;
-	for (int i = 0; i < m_roomGridWidth; i++)
-		widthCount += appendedGridStruct[i]->maxX;*/
 	for (int i = 0; i < appendedGridStruct.size(); i++)
 		gridTotalCount += appendedGridStruct[i]->nrOf;
 
 	gridStructToSendBack->gridPoints = DBG_NEW ImporterLibrary::GridPointStruct[gridTotalCount];
-	gridStructToSendBack->maxX = widthCount;
-	gridStructToSendBack->maxY = depthCount;
 	gridStructToSendBack->nrOf = gridTotalCount;
 
 	int indexInGridStruct = 0;
 	for (int i = 0; i < appendedGridStruct.size(); i++)
 		for (int j = 0; j < appendedGridStruct[i]->nrOf; j++)
 			gridStructToSendBack->gridPoints[indexInGridStruct++] = appendedGridStruct[i]->gridPoints[j];
+	
+	// Sort y coordinates
+	for (int i = 0; i < gridStructToSendBack->nrOf - 1; i++)
+	{
+		int swapIndex = i;
+		for (int j = i + 1; j < gridStructToSendBack->nrOf; j++)
+		{
+			if (gridStructToSendBack->gridPoints[j].translation[2] <
+				gridStructToSendBack->gridPoints[swapIndex].translation[2])
+			{
+				swapIndex = j;
+			}
+		}
+		if (swapIndex != i)
+		{
+			ImporterLibrary::GridPointStruct temp = gridStructToSendBack->gridPoints[i];
+			gridStructToSendBack->gridPoints[i] = gridStructToSendBack->gridPoints[swapIndex];
+			gridStructToSendBack->gridPoints[swapIndex] = temp;
+		}
+	}
 
-	m_generatedGrid->CreateGridFromRandomRoomLayout(*gridStructToSendBack, m_roomGridPointsWidth, m_roomGridPointsWidth * m_roomGridPointsDepth);
+	// Sort x coordinates
+	for (int i = 0; i < gridStructToSendBack->nrOf - 1; i++)
+	{
+		int swapIndex = i;
+		for (int j = i + 1; j < gridStructToSendBack->nrOf; j++)
+		{
+			if (gridStructToSendBack->gridPoints[j].translation[0] <=
+				gridStructToSendBack->gridPoints[swapIndex].translation[0] &&
+				gridStructToSendBack->gridPoints[j].translation[2] <=
+				gridStructToSendBack->gridPoints[swapIndex].translation[2])
+			{
+				swapIndex = j;
+			}
+		}
+		if (swapIndex != i)
+		{
+			ImporterLibrary::GridPointStruct temp = gridStructToSendBack->gridPoints[i];
+			gridStructToSendBack->gridPoints[i] = gridStructToSendBack->gridPoints[swapIndex];
+			gridStructToSendBack->gridPoints[swapIndex] = temp;
+		}
+	}
+
+	std::vector<ImporterLibrary::GridPointStruct> cleanGridStruct;
+
+	cleanGridStruct.push_back(gridStructToSendBack->gridPoints[0]);
+	for (int i = 1; i < gridStructToSendBack->nrOf; i++)
+	{
+		if (cleanGridStruct.back().translation[0] != gridStructToSendBack->gridPoints[i].translation[0] ||
+			cleanGridStruct.back().translation[2] != gridStructToSendBack->gridPoints[i].translation[2])
+		{
+			cleanGridStruct.push_back(gridStructToSendBack->gridPoints[i]);
+		}
+	}
+	delete [] gridStructToSendBack->gridPoints;
+	gridStructToSendBack->gridPoints = DBG_NEW ImporterLibrary::GridPointStruct[cleanGridStruct.size()];
+	for (int i = 0; i < cleanGridStruct.size(); i++)
+	{
+		gridStructToSendBack->gridPoints[i] = cleanGridStruct[i];
+	}
+	gridStructToSendBack->nrOf = cleanGridStruct.size();
+	int widthCount = 101;
+	int depthCount = 101;
+	gridStructToSendBack->maxX = widthCount;
+	gridStructToSendBack->maxY = depthCount;
+
+	m_generatedGrid->CreateGridFromRandomRoomLayout(*gridStructToSendBack, 0);
 	returnableRoom->setGrid(m_generatedGrid);
 	
 	for (int i = 0; i < appendedGridStruct.size(); i++)
@@ -570,24 +650,44 @@ void RoomGenerator::_makeWalls()
 //}
 
 
-void RoomGenerator::_createEnemies()
+void RoomGenerator::_createEnemies(Player * playerPtr)
 {
 	Enemy * enemy;
 	
-	Manager::g_meshManager.loadDynamicMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 	Manager::g_textureManager.loadTextures("SPHERE");
 	for (int i = 0; i < m_nrOfEnemies; i++)
 	{
 		int x = returnRandomInGridWidth();
 		int z = returnRandomInGridDepth();
+		Tile enemyPos = m_generatedGrid->WorldPosToTile(x, z);
+		bool gotPos = false;
+
+		if (enemyPos.getX() != -1)
+			gotPos = true;
+		while (!gotPos)
+		{
+			x = returnRandomInGridWidth();
+			z = returnRandomInGridDepth();
+			enemyPos = m_generatedGrid->WorldPosToTile(x, z);
+			if (enemyPos.getX() != -1)
+				gotPos = true;
+		}
 		enemy = DBG_NEW Enemy(m_worldPtr, x, 15 , z);
-		DirectX::XMFLOAT4A pos = enemy->getPosition();
-		Tile finPos = Tile(int(returnRandomInGridWidth()), int(returnRandomInGridDepth()));
-		Tile enemyPos = m_generatedGrid->WorldPosToTile(pos.x, pos.z);
-		enemy->SetPathVector(this->m_generatedGrid->FindPath(enemyPos, finPos));
+		enemy->addTeleportAbility(*playerPtr->getTeleportAbility());
+		enemy->SetPlayerPointer(playerPtr);
+		
+
+		bool gotPath = false;
+		while (!gotPath)
+		{
+			enemy->SetPathVector(this->m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(enemyPos)));
+			if (!enemy->GetPathEmpty())
+				gotPath = true;
+		}
 		m_generatedRoomEnemies.push_back(enemy);
 	}
-
 }
 
 void RoomGenerator::_FindWinnableAndGuardPaths()
@@ -704,12 +804,12 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	_makeWalls();
 	_makeFloor();
-	//_createEnemies();
+	_createEnemies(playerPtr);
 	
-	for (int i = 0; i < 12; i++)
+	/*for (int i = 0; i < 12; i++)
 	{
 		_generateLights(i*5, 4, i*5, 50, 60, 70, 10);	
-	}
+	}*/
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 

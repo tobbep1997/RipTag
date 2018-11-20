@@ -91,7 +91,9 @@ namespace Network
 			m_isRunning = false;
 		}
 		else
+		{
 			this->pPeer->SetMaximumIncomingConnections(0);
+		}
 	}
 
 	void Multiplayer::ShutdownPeer()
@@ -157,6 +159,12 @@ namespace Network
 			this->HandleGameMessages(mID, packet->data);
 			
 		}
+	}
+
+	void Multiplayer::setOccasionalPing()
+	{
+		if (pPeer)
+			pPeer->SetOccasionalPing(true);
 	}
 
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)

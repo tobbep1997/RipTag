@@ -19,6 +19,7 @@ class PointLight;
 class MeshManager;
 class TextureManager;
 class AnimationHandler;
+class ParticleEmitter;
 
 
 
@@ -38,6 +39,7 @@ namespace DX {
 
 	extern std::vector<Quad*> g_2DQueue;
 
+	extern std::vector<ParticleEmitter*> g_emitters;
 
 	namespace INSTANCING
 	{
@@ -62,8 +64,10 @@ namespace DX {
 			std::vector<long> index;
 		};
 		extern std::vector<GROUP> g_instanceGroups;
+		extern std::vector<GROUP> g_instanceWireFrameGroups;
 		extern std::vector<GROUP> g_instanceShadowGroups;
 		extern void submitToShadowQueueInstance(Drawable* drawable);
+		extern void submitToWireframeInstance(Drawable* drawable);
 		extern void submitToInstance(Drawable* drawable);
 
 	}

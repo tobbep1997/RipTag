@@ -7,9 +7,6 @@
     <FxCompile Include="EngineSource\Shader\Shaders\VisabilityShader\PreDepthPassVertexAnimated.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\VisabilityShader\VisabilityPixel.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\VisabilityShader\VisabilityVertex.hlsl" />
-    <FxCompile Include="EngineSource\Shader\Shaders\ShadowGeometry.hlsl" />
-    <FxCompile Include="EngineSource\Shader\Shaders\ShadowVertex.hlsl" />
-    <FxCompile Include="EngineSource\Shader\Shaders\ShadowVertexAnimated.hlsl" />
     <FxCompile Include="EngineSource\Shader\AnimatedVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\PixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\VertexShader.hlsl" />
@@ -18,7 +15,13 @@
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePixelShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlineVertexShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\wireFramePixel.hlsl" />
+    <FxCompile Include="Source\Shader\ParticlePixel.hlsl" />
+    <FxCompile Include="Source\Shader\ParticleVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\OutlinePrepassVertex.hlsl" />
+    <FxCompile Include="EngineSource\Shader\PreAnimatedVertexShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertexAnimated.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowGeometry.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertex.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
@@ -33,8 +36,6 @@
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\MeshManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\ModelManager.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Managers\TextureManager.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimatedModel.cpp" />
-    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Texture.cpp" />
     <ClCompile Include="EngineSource\3D Engine\WICTextureLoader\DDSTextureLoader.cpp" />
@@ -56,7 +57,14 @@
     <ClCompile Include="EngineSource\3D Engine\Components\StateMachine.cpp" />
     <ClCompile Include="EngineSource\Helper\HelperFunctions.cpp" />
     <ClCompile Include="EnginePCH.cpp" />
+    <ClCompile Include="Source\ParticleSystem\Particle.cpp" />
+    <ClCompile Include="Source\ParticleSystem\ParticleEmitter.cpp" />
+    <ClCompile Include="Source\ParticleSystem\ParticleManager.cpp" />
+    <ClCompile Include="Source\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="EngineSource\Helper\AnimationDebugHelper.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -73,8 +81,6 @@
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\MeshManager.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\ModelManager.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Managers\TextureManager.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimatedModel.h" />
-    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\DynamicMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\StaticMesh.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Texture.h" />
     <ClInclude Include="EngineSource\3D Engine\WICTextureLoader\dds.h" />
@@ -111,7 +117,15 @@
     <ClInclude Include="EngineSource\Helper\HelperFunctions.h" />
     <ClInclude Include="EnginePCH.h" />
     <ClInclude Include="ConsoleColor.h" />
+    <ClInclude Include="Source\ParticleSystem\ParticleSystem.h" />
+    <ClInclude Include="Source\ParticleSystem\Particle.h" />
+    <ClInclude Include="Source\ParticleSystem\ParticleEmitter.h" />
+    <ClInclude Include="Source\ParticleSystem\ParticleManager.h" />
     <ClInclude Include="EngineSource\Helper\AnimationDebugHelper.h" />
+    <ClInclude Include="EngineSource\3D Engine\Components\LayerMachine.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.h" />
+    <ClInclude Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.h" />
+    <ClInclude Include="EngineSource\Helper\AnimationHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

@@ -58,6 +58,24 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
  
 	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
 
+	m_abilityCircle = new Circle*[2];
+	m_abilityCircle[0] = new Circle();
+	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05, .075), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	m_abilityCircle[0]->setRadie(.5);
+	m_abilityCircle[0]->setInnerRadie(.4f);
+	m_abilityCircle[0]->setUnpressedTexture("DAB");
+	m_abilityCircle[0]->setAngle(360);
+
+	m_abilityCircle[1] = new Circle();
+	m_abilityCircle[1]->init(DirectX::XMFLOAT2A(.125, .075), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
+	m_abilityCircle[1]->setRadie(.5);
+	m_abilityCircle[1]->setInnerRadie(.4f);
+	m_abilityCircle[1]->setUnpressedTexture("DAB");
+	m_abilityCircle[1]->setAngle(360);
+
+	HUDComponent::AddQuad(m_abilityCircle[0]);
+	HUDComponent::AddQuad(m_abilityCircle[1]);
+
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
 
@@ -129,6 +147,7 @@ Player::~Player()
 		m_enemyCircles[i]->Release();
 		delete m_enemyCircles[i];
 	}
+	delete[] m_abilityCircle;
 }
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
@@ -250,16 +269,16 @@ void Player::Update(double deltaTime)
 
 
 	HUDComponent::ResetStates();
-	HUDComponent::setSelectedQuad(m_currentAbility);
+	//HUDComponent::setSelectedQuad(m_currentAbility);
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
-		Quad * current =HUDComponent::GetQuad(i);
+		Circle * current = m_abilityCircle[i];
 		if (m_activeSet[i]->getPercentage() <= 0.0f)
 		{
-			current->setV(1);
+			current->setAngle(360.0f);
 		}
 		else
-			current->setV(m_activeSet[i]->getPercentage());
+			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
 
 }
@@ -605,7 +624,7 @@ void Player::_handleInput(double deltaTime)
 	_onSprint();
 	_onCrouch();
 	_scrollMovementMod();
-	_onMovement();
+	_onMovement(deltaTime);
 	//_onJump();
 	//_onAbility(deltaTime);
 	_onInteract();
@@ -615,7 +634,7 @@ void Player::_handleInput(double deltaTime)
 	_updateTutorial(deltaTime);
 }
 
-void Player::_onMovement()
+void Player::_onMovement(double deltaTime)
 {
 	using namespace DirectX;
 	XMFLOAT4A forward = p_camera->getDirection();
@@ -658,6 +677,20 @@ void Player::_onMovement()
 
 	m_currentMoveSpeed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(x, z, 0, 0)));
 
+	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
+	{
+		m_VlastSpeed = DirectX::XMVECTOR{ x,getLiniearVelocity().y,z };
+	}
+	
+
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+			DirectX::XMVECTOR end = DirectX::XMVECTOR{ 0,getLiniearVelocity().y,0 };
+			m_VlastSpeed = DirectX::XMVectorLerp(m_VlastSpeed,end,deltaTime * 9);
+	
+			x = DirectX::XMVectorGetX(m_VlastSpeed);
+			z = DirectX::XMVectorGetZ(m_VlastSpeed);
+	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
 }
 
@@ -979,7 +1012,6 @@ void Player::_objectInfo(double deltaTime)
 	{
 		if (m_objectInfoTime >= 0.2f)
 		{
-			m_infoText->setString("");
 			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
 			if (ray != nullptr)
 			{
@@ -1013,14 +1045,14 @@ void Player::_objectInfo(double deltaTime)
 					m_cross->setUnpressedTexture("CROSSHAND");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY" && m_currentAbility == Ability::POSSESS  && m_activeSetID == 2)
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
 				{
-					m_infoText->setString("Press RB to possess");
+					m_infoText->setString("Press LB to possess");
 					m_cross->setUnpressedTexture("CROSSHAND");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 					//Snuff out torches (example)
 				}
-				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_currentAbility == Ability::BLINK  && m_activeSetID == 2)
+				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")  && m_activeSetID == 2)
 				{
 					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
 						m_infoText->setString("Press RB to pass");
@@ -1034,6 +1066,12 @@ void Player::_objectInfo(double deltaTime)
 					m_cross->setUnpressedTexture("CROSS");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 				}
+			}
+			else
+			{
+				m_infoText->setString("");
+				m_cross->setUnpressedTexture("CROSS");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
 			m_objectInfoTime = 0;
 		}
@@ -1079,13 +1117,27 @@ void Player::_cameraPlacement(double deltaTime)
 	b3Vec3 peekOffsetLeft;
 	b3Vec3 peekOffsetRight;
 
-	peekOffsetLeft.x = (upperBodyLocal.x - 1) * p_camera->getDirection().z;
-	peekOffsetLeft.y = upperBodyLocal.y;
-	peekOffsetLeft.z = (upperBodyLocal.z + 1)* p_camera->getDirection().x;
+	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
-	peekOffsetRight.x = (upperBodyLocal.x + 1) * p_camera->getDirection().z;
+	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
+	DirectX::XMFLOAT4 RIGHT;
+
+	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
+	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);
+	DirectX::XMVECTOR vRight;
+
+	vRight = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vUP, vForward));
+	vForward = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vRight, vUP));
+
+	XMStoreFloat4A(&forward, vForward);
+
+	peekOffsetLeft.x = (upperBodyLocal.x - 1) * forward.z;
+	peekOffsetLeft.y = upperBodyLocal.y;
+	peekOffsetLeft.z = (upperBodyLocal.z + 1)* forward.x;
+
+	peekOffsetRight.x = (upperBodyLocal.x + 1) * forward.z;
 	peekOffsetRight.y = upperBodyLocal.y;
-	peekOffsetRight.z = (upperBodyLocal.z - 1) * p_camera->getDirection().x;
+	peekOffsetRight.z = (upperBodyLocal.z - 1) * forward.x;
 
 	headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5) - headPosLocal;
 

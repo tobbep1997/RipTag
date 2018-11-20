@@ -25,7 +25,15 @@ public:
 private:
 	const unsigned int SHADOW_SIDES = 6U;
 	const float FOV = DirectX::XM_PI * 0.5f;
-	
+	struct TourchEffectVars
+	{
+		double timer;
+		DirectX::XMFLOAT2 current, target;
+		float ran;
+	};
+
+	TourchEffectVars m_tev;
+
 	std::vector<Camera *>	m_sides;
 	DirectX::XMFLOAT4A		m_position;
 	DirectX::XMFLOAT4A		m_color;
@@ -58,7 +66,6 @@ public:
 	void CreateShadowDirection(ShadowDir direction);
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
-	
 
 	void QueueLight();
 

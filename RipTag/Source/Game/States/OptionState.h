@@ -13,6 +13,7 @@ private:
 		ToggleResolution,
 		ToggleGraphics,
 		ToggleFullscreen,
+		SoundSettings,
 		Return
 	};
 	enum LastInputUsed

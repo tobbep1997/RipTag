@@ -11,9 +11,9 @@ public:
 	virtual ~Tile();
 
 	// Getters
-	bool getPathable();
-	int getX();
-	int getY();
+	bool getPathable() const;
+	int getX() const;
+	int getY() const;
 	
 	// Setters
 	void setPathable(bool _pathable);
