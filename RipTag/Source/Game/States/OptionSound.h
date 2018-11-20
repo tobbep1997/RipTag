@@ -1,19 +1,17 @@
 #pragma once
+#pragma once
 #include "State.h"
 #include <vector>
 class Quad;
-class OptionState : public State
+class OptionSound : public State
 {
 private:
 	enum ButtonOrder
 	{
-		SliderFov = 0,
-		SliderSensitivityX,
-		SliderSensitivityY,
-		ToggleResolution,
-		ToggleGraphics,
-		ToggleFullscreen,
-		SoundSettings,
+		SliderMaster = 0,
+		SliderEffects,
+		SliderAmbient,
+		SliderMusic,
 		Return
 	};
 	enum LastInputUsed
@@ -23,42 +21,27 @@ private:
 		Keyboard
 	};
 
-	const DirectX::XMINT2 MIN_MAX_FOV = {45, 135};
-	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = {1, 11};
-	const std::string SWAP_RESOLUTION[3] = {
-		"Res: 1280 x 720",
-		"Res: 1920 x 1080",
-		"Res: 3840 x 2160"
-	};
-	const std::string SWAP_GRAPHICS[3] = {
-		"Graphics: LOW",
-		"Graphics: MEDIUM",
-		"Graphics: HIGH"
-	};
-	const DirectX::XMINT2 RES[3] = {
-		{1280, 720},
-		{1920, 1080},
-		{3840, 2160}
-	};
+	const DirectX::XMINT2 MIN_MAX_SOUND = { 0, 100 };
 
 	std::vector<Quad* > m_buttons;
 	std::vector<Quad* > m_text;
 	Quad* m_background = nullptr;
 	Quad * m_restart;
-	int m_fov;
-	DirectX::XMINT2 m_sens;
-	unsigned short m_resSelection;
-	unsigned short m_graphicsSelection;
+	
+	int m_master;
+	int m_effects;
+	int m_ambient;
+	int m_music;
+
 	bool m_sliderPressed;
-	bool m_fullscreen;
 	short m_currentButton;
 	bool m_buttonPressed;
-	bool m_drawMustRestart;
+
 	bool m_mouseMoved;
 	LastInputUsed m_liu;
 public:
-	OptionState(RenderingManager * rm = nullptr);
-	~OptionState();
+	OptionSound(RenderingManager * rm = nullptr);
+	~OptionSound();
 
 	void Update(double deltaTime) override;
 	void Draw() override;

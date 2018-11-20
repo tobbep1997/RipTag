@@ -112,6 +112,7 @@ protected:
 public:
 	Quad();
 	virtual~Quad();
+	const bool Inside(const DirectX::XMFLOAT2 & mousePos) override;
 
 	void init(DirectX::XMFLOAT2A position = DirectX::XMFLOAT2A(0,0), DirectX::XMFLOAT2A size = DirectX::XMFLOAT2A(1,1));
 	void Draw();

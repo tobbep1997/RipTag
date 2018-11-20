@@ -17,7 +17,23 @@ enum EnemyState
 	High_Alert,
 	Suspicious,
 	Scanning_Area,
-	Patrolling
+	Patrolling,
+	Possessed,
+	Disabled,
+	
+};
+
+enum EnemyTransitionState
+{
+	None,
+	Alerted,
+	InvestigateSource,
+	Observe,
+	SearchArea,
+	ReturnToPatrol,
+	BeingPossessed,
+	BeingDisabled,
+
 };
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
@@ -163,6 +179,7 @@ private:
 	Player * m_PlayerPtr;
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
+	EnemyTransitionState m_transState = EnemyTransitionState::None;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -217,6 +234,9 @@ public:
 	EnemyState getEnemyState() const;
 	void setEnemeyState(EnemyState state);
 
+	EnemyTransitionState getTransitionState() const;
+	void setTransitionState(EnemyTransitionState state);
+
 	void setSoundLocation(const SoundLocation & sl);
 	const SoundLocation & getSoundLocation() const;
 
@@ -251,6 +271,16 @@ public:
 	void AddHighAlertTimer(double deltaTime);
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
+
+	//Actions
+	void onAlerted();
+	void onInvestigateSource();
+	void onObserve();
+	void onSearchArea();
+	void onReturnToPatrol();
+	void onBeingPossessed();
+	void onBeingDisabled();
+
 private:
 
 	void _handleInput(double deltaTime);  //v 0.5
@@ -277,5 +307,6 @@ private:
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
+
 };
 

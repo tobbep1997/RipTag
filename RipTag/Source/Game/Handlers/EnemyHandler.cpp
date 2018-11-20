@@ -34,6 +34,34 @@ void EnemyHandler::Update(float deltaTime)
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
 
+		EnemyTransitionState transState = currentGuard->getTransitionState();
+		switch (transState)
+		{
+		case EnemyTransitionState::None:
+			break;
+		case EnemyTransitionState::Alerted:
+			currentGuard->onAlerted();
+			break;
+		case EnemyTransitionState::InvestigateSource:
+			currentGuard->onInvestigateSource();
+			break;
+		case EnemyTransitionState::Observe:
+			currentGuard->onObserve();
+			break;
+		case EnemyTransitionState::SearchArea:
+			currentGuard->onSearchArea();
+			break;
+		case EnemyTransitionState::ReturnToPatrol:
+			currentGuard->onReturnToPatrol();
+			break;
+		case EnemyTransitionState::BeingPossessed:
+			currentGuard->onBeingPossessed();
+			break;
+		case EnemyTransitionState::BeingDisabled:
+			currentGuard->onBeingDisabled();
+			break;
+		}
+
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
 		{
@@ -181,13 +209,7 @@ void EnemyHandler::_patrolling(Enemy * guard)
 {
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
-		std::cout << green << "Enemy Transition: Patrolling -> Suspicious" << white << std::endl;
-		guard->setEnemeyState(Suspicious);
-		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
-		guard->setLoudestSoundLocation(Enemy::SoundLocation());
-		guard->setBiggestVisCounter(0);
-		FMOD_VECTOR at = { guard->getPosition().x, guard->getPosition().y, guard->getPosition().z };
-		AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+		guard->setTransitionState = EnemyTransitionState::Alerted;
 	}
 }
 

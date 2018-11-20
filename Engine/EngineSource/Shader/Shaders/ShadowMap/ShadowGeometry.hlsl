@@ -1,4 +1,4 @@
-#include "StaticConstantBuffers.hlsli"
+#include "../StaticConstantBuffers.hlsli"
 
 cbuffer LIGHT_INDEX : register(b13)
 {

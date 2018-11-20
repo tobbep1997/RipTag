@@ -674,6 +674,17 @@ void Enemy::setEnemeyState(EnemyState state)
 	m_state = state;
 }
 
+EnemyTransitionState Enemy::getTransitionState() const
+{
+	return m_transState;
+}
+
+void Enemy::setTransitionState(EnemyTransitionState state)
+{
+	m_transState = state;
+}
+
+
 void Enemy::setSoundLocation(const SoundLocation & sl)
 {
 	m_sl = sl;
@@ -1474,4 +1485,45 @@ b3Vec3 Enemy::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 
 	return (tempStart + tempRelativeVec);
+}
+
+void Enemy::onAlerted()
+{
+	std::cout << green << "Enemy Transition: Patrolling -> Suspicious" << white << std::endl;
+	this->m_state = Suspicious;
+	this->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
+	this->m_loudestSoundLocation = Enemy::SoundLocation();
+	this->m_biggestVisCounter = 0;
+	FMOD_VECTOR at = { this->getPosition().x, this->getPosition().y, this->getPosition().z };
+	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+	this->m_transState = EnemyTransitionState::None;
+}
+
+void Enemy::onInvestigateSource()
+{
+}
+
+void Enemy::onObserve()
+{
+	this->m_state = Suspicious;
+}
+
+void Enemy::onSearchArea()
+{
+	this->m_state = Investigating_Room;
+}
+
+void Enemy::onReturnToPatrol()
+{
+	this->m_state = Patrolling;
+}
+
+void Enemy::onBeingPossessed()
+{
+	this->m_state = EnemyState::Possessed;
+}
+
+void Enemy::onBeingDisabled()
+{
+	this->m_state = EnemyState::Disabled;
 }
