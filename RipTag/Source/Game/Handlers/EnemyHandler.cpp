@@ -165,7 +165,7 @@ void EnemyHandler::_patrolling(Enemy * guard)
 void EnemyHandler::_highAlert(Enemy* guard, const double & dt)
 {
 	guard->AddHighAlertTimer(dt);
-	std::cout << yellow << "HighAlert" << white << std::endl;
+	//std::cout << yellow << "HighAlert" << white << std::endl;
 	if (guard->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
 	{
 		guard->SetHightAlertTimer(0.f);

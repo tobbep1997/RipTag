@@ -12,17 +12,17 @@ Tile::~Tile()
 {
 }
 
-bool Tile::getPathable()
+bool Tile::getPathable() const
 {
 	return m_pathable;
 }
 
-int Tile::getX()
+int Tile::getX() const
 {
 	return m_xCoord;
 }
 
-int Tile::getY()
+int Tile::getY() const
 {
 	return m_yCoord;
 }

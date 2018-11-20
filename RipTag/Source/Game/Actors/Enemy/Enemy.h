@@ -189,7 +189,8 @@ public:
 	Node * GetCurrentPathNode() const;
 	void SetAlertVector(std::vector<Node*> alertPath);
 
-	void setReleased(bool released); 
+	void setReleased(bool released);
+	bool GetPathEmpty() const;
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;
 
