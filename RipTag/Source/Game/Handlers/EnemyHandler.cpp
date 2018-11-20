@@ -41,6 +41,37 @@ void EnemyHandler::Update(float deltaTime)
 		}
 
 
+		EnemyTransitionState transState = currentGuard->getTransitionState();
+		switch (transState)
+		{
+		case EnemyTransitionState::None:
+			break;
+		case EnemyTransitionState::Alerted:
+			currentGuard->onAlerted();
+			break;
+		case EnemyTransitionState::InvestigateSound:
+			currentGuard->onInvestigateSound(m_grid);
+			break;
+		case EnemyTransitionState::InvestigateSight:
+			currentGuard->onInvestigateSight(m_grid);
+			break;
+		case EnemyTransitionState::Observe:
+			currentGuard->onObserve(m_grid);
+			break;
+		case EnemyTransitionState::SearchArea:
+			currentGuard->onSearchArea(m_grid);
+			break;
+		case EnemyTransitionState::ReturnToPatrol:
+			currentGuard->onReturnToPatrol();
+			break;
+		case EnemyTransitionState::BeingPossessed:
+			currentGuard->onBeingPossessed();
+			break;
+		case EnemyTransitionState::BeingDisabled:
+			currentGuard->onBeingDisabled();
+			break;
+		}
+
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
 		{
@@ -48,6 +79,7 @@ void EnemyHandler::Update(float deltaTime)
 			if (timer > 0.3f)
 			{
 				timer = 0.0f;
+				//currentGuard->investigatingSight(m_grid);
 				_investigating(currentGuard);
 			}
 			std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
@@ -57,20 +89,36 @@ void EnemyHandler::Update(float deltaTime)
 			{
 				timer = 0.0f;
 				_investigateSound(currentGuard);
+				//currentGuard->investigatingSound(m_grid);
 			}
 			std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 			break;
+		case Investigating_Room:
+			if (timer > 0.3f)
+			{
+				_investigateRoom(currentGuard, timer);
+				//currentGuard->investigatingRoom(m_grid, ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, timer);
+				timer = 0.0f;
+			}
+			break;
 		case High_Alert:
 			_highAlert(currentGuard, deltaTime);
+			//currentGuard->highAlert(HIGH_ALERT_LIMIT, deltaTime);
 			std::cout << yellow << "Enemy State: High Alert" << white << "\r";
 			break;
 		case Patrolling:
 			_patrolling(currentGuard);
+			//currentGuard->patrolling(ALERT_TIME_LIMIT, SOUND_LEVEL);
 			std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 			break;
 		case Suspicious:
 			_suspicious(currentGuard, deltaTime);
+			//currentGuard->suspicious(ALERT_TIME_LIMIT, SOUND_LEVEL, SEARCH_ROOM_TIME_LIMIT, deltaTime);
 			std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+			break;
+		case Scanning_Area:
+			_ScanArea(currentGuard, deltaTime);
+			//currentGuard->scanningArea(SUSPICIOUS_TIME_LIMIT, deltaTime);
 			break;
 		}
 	}
@@ -135,12 +183,7 @@ void EnemyHandler::_investigating(Enemy * guard)
 	}
 	else
 	{
-		DirectX::XMFLOAT4A guardPos = guard->getPosition();
-		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		guard->setEnemeyState(High_Alert);
-		std::cout << green << "Enemy Transition: Investigating Sight -> High Alert" << white << std::endl;
+		guard->setTransitionState(EnemyTransitionState::Observe);
 	}
 }
 
@@ -166,12 +209,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 	}
 	else
 	{
-		DirectX::XMFLOAT4A guardPos = guard->getPosition();
-		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
-		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
-		guard->setEnemeyState(High_Alert);
+		guard->setTransitionState(EnemyTransitionState::Observe);
 	}
 }
 
@@ -179,13 +217,7 @@ void EnemyHandler::_patrolling(Enemy * guard)
 {
 	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
-		std::cout << green << "Enemy Transition: Patrolling -> Suspicious" << white << std::endl;
-		guard->setEnemeyState(Suspicious);
-		guard->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
-		guard->setLoudestSoundLocation(Enemy::SoundLocation());
-		guard->setBiggestVisCounter(0);
-		FMOD_VECTOR at = { guard->getPosition().x, guard->getPosition().y, guard->getPosition().z };
-		AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+		guard->setTransitionState(EnemyTransitionState::Alerted);
 	}
 }
 
@@ -231,16 +263,130 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
 	{
 		guard->SetActTimer(0.0f);
-		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT*1.5)
-			_alert(guard); //what was that?
+		if (guard->getBiggestVisCounter() >= ALERT_TIME_LIMIT * 1.5)
+			guard->setTransitionState(EnemyTransitionState::InvestigateSight); //what was that?
 		else if (guard->getLoudestSoundLocation().percentage > SOUND_LEVEL*1.5)
-			_alert(guard, true); //what was that noise?
+			guard->setTransitionState(EnemyTransitionState::InvestigateSound); //what was that noise?
 		else
 		{
-			guard->SetActTimer(0.0f);
-			guard->setEnemeyState(Patrolling);
-			std::cout << green << "Enemy Transition: Suspicious -> Patrolling" << white << std::endl;
+			guard->setTransitionState(EnemyTransitionState::ReturnToPatrol);
 			//Must have been nothing...
 		}
 	}
 }
+
+void EnemyHandler::_ScanArea(Enemy * guard, const double & dt) //Look around
+{
+	guard->AddActTimer(dt);
+	//Do animation
+	if (guard->GetActTimer() > SUSPICIOUS_TIME_LIMIT)
+	{	
+		guard->setTransitionState(EnemyTransitionState::SearchArea);
+	}
+}
+
+void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search around room (high Alert?)
+{
+	guard->AddActTimer(dt);
+	static int lastSearchDirX = 0;
+	static int lastSearchDirY = 0;
+	int random = dt;
+	srand(random);
+
+	if (guard->GetAlertPathSize() == 0)
+	{
+		int dirX = (rand() % 3) - 1;
+		random += dt*100;
+		srand(random);
+		int dirY = (rand() % 3) - 1;
+
+		if (lastSearchDirX == 0 && lastSearchDirY == 0)
+		{
+
+		}
+		else
+		{
+			while ((dirX == 0 && dirY == 0) || (dirX == lastSearchDirX && dirY == lastSearchDirY) || (dirX == -lastSearchDirX && dirY == -lastSearchDirY))
+			{
+				random += dt * 100;
+				srand(random);
+				dirX = (rand() % 3) - 1;
+				random += dt * 100;
+				srand(random);
+				dirY = (rand() % 3) - 1;
+
+				/*float dy = dirY - lastSearchDirY;
+				float dx = dirX - lastSearchDirX;
+				float theta = std::atan2(dy, dx);
+				theta *= 180 / B3_PI;
+				if (abs(theta) > 25)
+				{
+				}
+				else
+				{
+					dirX = 0;
+					dirY = 0;
+				}*/
+			}
+		}
+
+		
+		random += dt;
+		srand(random);
+		int searchLength = (rand() % 4) + 4;
+		DirectX::XMFLOAT4A guardPos = guard->getPosition();
+		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+		Tile newPos;
+		for (int i = 1; i < searchLength; i++)
+		{
+			newPos = m_grid->WorldPosToTile(guardPos.x + (dirX*i), guardPos.z + (dirY*i));
+			if (!newPos.getPathable())
+				break;
+		}
+
+		if (newPos.getPathable())
+		{
+			lastSearchDirX = dirX;
+			lastSearchDirY = dirY;
+			guard->SetAlertVector(m_grid->FindPath(guardTile, newPos));
+		}
+
+		//guard->SetAlertVector(m_grid->FindPath(guardTile, randPos));
+	}
+	if (guard->getVisCounter() >= ALERT_TIME_LIMIT || guard->getSoundLocation().percentage > SOUND_LEVEL)
+	{
+		guard->setTransitionState(EnemyTransitionState::Alerted);
+	}
+	if (guard->GetActTimer() > SEARCH_ROOM_TIME_LIMIT)
+	{
+		guard->setTransitionState(EnemyTransitionState::ReturnToPatrol);
+	}
+}
+
+
+/*float dirX = (((float)rand() / (float)RAND_MAX) *2) -1;
+		dirX = std::round(dirX * 10.0) / 10.0;
+		dirX = floor((dirX * 2) + 0.5) / 2;
+		
+		random += dt;
+		srand(random);
+		float dirY = (((float)rand() / (float)RAND_MAX) * 2) - 1;
+		dirY = std::round(dirY * 10.0) / 10.0;
+		dirY = floor((dirY * 2) + 0.5) / 2;
+
+		while(dirX == -lastSearchDirX && dirY == -lastSearchDirY)
+		{
+			random += dt;
+			srand(random);
+			dirX = (((float)rand() / (float)RAND_MAX) * 2) - 1;
+			dirX = std::round(dirX * 10.0) / 10.0;
+			dirX = floor((dirX * 2) + 0.5) / 2;
+
+			random += dt;
+			srand(random);
+			dirY = (((float)rand() / (float)RAND_MAX) * 2) - 1;
+			dirY = std::round(dirY * 10.0) / 10.0;
+			dirY = floor((dirY * 2) + 0.5) / 2;
+		}
+		random += dt;
+		srand(random);*/

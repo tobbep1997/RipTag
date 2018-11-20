@@ -13,19 +13,22 @@ enum EnemyState
 {
 	Investigating_Sight,
 	Investigating_Sound,
+	Investigating_Room,
 	High_Alert,
 	Suspicious,
+	Scanning_Area,
 	Patrolling,
 	Possessed,
 	Disabled,
 	
 };
 
-enum TransitionState
+enum EnemyTransitionState
 {
 	None,
 	Alerted,
-	InvestigateSource,
+	InvestigateSound,
+	InvestigateSight,
 	Observe,
 	SearchArea,
 	ReturnToPatrol,
@@ -177,6 +180,7 @@ private:
 	Player * m_PlayerPtr;
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
+	EnemyTransitionState m_transState = EnemyTransitionState::None;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -231,6 +235,9 @@ public:
 	EnemyState getEnemyState() const;
 	void setEnemeyState(EnemyState state);
 
+	EnemyTransitionState getTransitionState() const;
+	void setTransitionState(EnemyTransitionState state);
+
 	void setSoundLocation(const SoundLocation & sl);
 	const SoundLocation & getSoundLocation() const;
 
@@ -265,6 +272,28 @@ public:
 	void AddHighAlertTimer(double deltaTime);
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
+
+	//Transistion States
+	void onAlerted();
+	void onInvestigateSound(Grid* grid);
+	void onInvestigateSight(Grid* grid);
+	void onObserve(Grid* grid);
+	void onSearchArea(Grid* grid);
+	void onReturnToPatrol();
+	void onBeingPossessed();
+	void onBeingDisabled();
+
+	//States
+	void investigatingSight(Grid* grid);
+	void investigatingSound(Grid* grid);
+	void investigatingRoom(Grid* grid, const float visionLimit, const float soundLimit, const float searchLimit, const float deltaTime);
+	void highAlert(const float highAlertLimit, const float deltaTime);
+	void suspicious(const float visionLimit, const float soundLimit, const float suspiciousLimit , const float deltaTime);
+	void scanningArea(const float suspiciousLimit, const float deltaTime);
+	void patrolling(const float visionLimit, const float soundLimit);
+	//void possessed();
+	void disabled();
+
 private:
 
 	void _handleInput(double deltaTime);  //v 0.5
@@ -291,5 +320,6 @@ private:
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
+
 };
 
