@@ -15,8 +15,23 @@ enum EnemyState
 	Investigating_Sound,
 	High_Alert,
 	Suspicious,
-	Cooling_Down,
-	Patrolling
+	Patrolling,
+	Possessed,
+	Disabled,
+	
+};
+
+enum TransitionState
+{
+	None,
+	Alerted,
+	InvestigateSource,
+	Observe,
+	SearchArea,
+	ReturnToPatrol,
+	BeingPossessed,
+	BeingDisabled,
+
 };
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent
@@ -112,7 +127,7 @@ private:
 	float m_peekRotate;
 	float m_peekRangeA = 0;
 	float m_peekRangeB = 0;
-	float m_peektimer = 0;
+	float m_peektimer = 0; 
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
 

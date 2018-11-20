@@ -138,6 +138,36 @@ void Quad::Release()
 	DX::SafeRelease(m_vertexBuffer);
 }
 
+void Quad::setColor(const DirectX::XMFLOAT4A & color)
+{
+	m_color = color;
+}
+
+void Quad::setColor(float r, float g, float b, float a)
+{
+	m_color = { r, g, b, a };
+}
+
+void Quad::setOutlineColor(const DirectX::XMFLOAT4A & color)
+{
+	m_outlineColor = color;
+}
+
+void Quad::setOutlineColor(float r, float g, float b, float a)
+{
+	m_outlineColor = { r, g, b, a };
+}
+
+const DirectX::XMFLOAT4A & Quad::getColor() const
+{
+	return m_color;
+}
+
+const DirectX::XMFLOAT4A & Quad::getOutlineColor() const
+{
+	return m_outlineColor;
+}
+
 void Quad::setPressedTexture(const std::string &  texture)
 {
 	this->m_textures[ButtonStates::Pressed] = texture;
@@ -326,14 +356,25 @@ DirectX::XMFLOAT4 Quad::getCenter() const
 	return DirectX::XMFLOAT4();
 }
 
+void Quad::setType(QuadType qt)
+{
+	m_qt = qt;
+}
+
 unsigned int Quad::getType() const
 {
-	return 0U;
+	return (unsigned)m_qt;
+}
+
+bool Quad::setRadie(const float & radie)
+{
+	m_rad = radie;
+	return true;
 }
 
 const float & Quad::getRadie() const
 {
-	return 0.0f;
+	return m_rad;
 }
 
 const float & Quad::getInnerRadie() const
