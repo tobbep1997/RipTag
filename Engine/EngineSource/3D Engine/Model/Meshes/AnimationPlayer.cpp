@@ -3,14 +3,15 @@
 #include "../../../Helper/AnimationHelpers.h"
 #include "../../Components/LayerMachine.h"
 
-Animation::AnimationPlayer::AnimationPlayer()
+Animation::AnimationPlayer::AnimationPlayer(Drawable* owner)
+	: m_Owner(owner)
 {
-// 	m_SkinningMatrices.resize(128);
-// 	m_GlobalMatrices.resize(128);
-/*	DirectX::XMFLOAT4X4A identityMatrix = {};*/
-// 	DirectX::XMStoreFloat4x4A(&identityMatrix, DirectX::XMMatrixIdentity());
-// 	std::fill(m_SkinningMatrices.begin(), m_SkinningMatrices.end(), identityMatrix);
-// 	std::fill(m_GlobalMatrices.begin(), m_GlobalMatrices.end(), identityMatrix);
+ 	m_SkinningMatrices.resize(128);
+ 	m_GlobalMatrices.resize(128);
+	DirectX::XMFLOAT4X4A identityMatrix = {};
+ 	DirectX::XMStoreFloat4x4A(&identityMatrix, DirectX::XMMatrixIdentity());
+ 	std::fill(m_SkinningMatrices.begin(), m_SkinningMatrices.end(), identityMatrix);
+ 	std::fill(m_GlobalMatrices.begin(), m_GlobalMatrices.end(), identityMatrix);
 }
 
 Animation::AnimationPlayer::~AnimationPlayer()
@@ -229,10 +230,23 @@ void Animation::AnimationPlayer::Play()
 	m_IsPlaying = true;
 }
 
-std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> Animation::AnimationPlayer::GetPositionAndOrientationOfJoint(uint16_t jointIndex)
+std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> Animation::AnimationPlayer::GetLocalPositionAndOrientationOfJoint(uint16_t jointIndex)
 {
 	using namespace DirectX;
 	auto matrix = XMLoadFloat4x4A(&m_GlobalMatrices[jointIndex]);
+	XMVECTOR s{};
+	XMVECTOR r{};
+	XMVECTOR t{};
+	XMMatrixDecompose(&s, &r, &t, matrix);
+
+	return std::make_pair(t, r);
+}
+
+std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> Animation::AnimationPlayer::GetWorldPositionAndOrientationOfJoint(uint16_t jointIndex)
+{
+	using namespace DirectX;
+	auto ownerWorldMatrix = m_Owner->getWorldmatrix();
+	auto matrix = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4A(&ownerWorldMatrix), XMLoadFloat4x4A(&m_GlobalMatrices[jointIndex])));
 	XMVECTOR s{};
 	XMVECTOR r{};
 	XMVECTOR t{};

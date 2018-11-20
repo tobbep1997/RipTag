@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "../../Components/StateMachine.h"
 class LayerMachine;
+class Drawable;
 
 #define MAXJOINT 128
 #define BLEND_MATCH_TIME (1<<1)
@@ -163,7 +164,7 @@ namespace Animation
 	class AnimationPlayer
 	{
 	public:
-		AnimationPlayer();
+		AnimationPlayer(Drawable* owner);
 		~AnimationPlayer();
 
 		void Update(float deltaTime);
@@ -176,7 +177,8 @@ namespace Animation
 		DirectX::XMMATRIX GetModelMatrixForJoint(uint16_t jointIndex);
 		DirectX::XMVECTOR GetPositionForJoint(uint16_t jointIndex);
 		DirectX::XMVECTOR GetOrientationForJoint(uint16_t jointIndex);
-		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetPositionAndOrientationOfJoint(uint16_t jointIndex);
+		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetLocalPositionAndOrientationOfJoint(uint16_t jointIndex);
+		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetWorldPositionAndOrientationOfJoint(uint16_t jointIndex);
 
 		std::unique_ptr<LayerMachine>& GetLayerMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
@@ -184,11 +186,12 @@ namespace Animation
 		std::unique_ptr<SM::AnimationStateMachine>& InitStateMachine(size_t numStates);
 		std::unique_ptr<SM::AnimationStateMachine>& InitLayerStateMachine(size_t numStates);
 
-		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
+		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices(); 
 		float GetCachedDeltaTime();
 		std::unique_ptr<LayerMachine>& InitLayerMachine(Animation::Skeleton* skeleton);
 	private:
-		float m_currentFrameDeltaTime = 0.0f;
+		Drawable* m_Owner{ nullptr };
+
 
 		std::unique_ptr<LayerMachine> m_LayerMachine{};
 		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
@@ -202,6 +205,7 @@ namespace Animation
 		SharedSkeleton m_Skeleton = nullptr;
 		AnimationClip* m_CurrentClip = nullptr;
 
+		float m_currentFrameDeltaTime = 0.0f;
 		float m_CurrentTime = 0.0f;
 		float m_CurrentNormalizedTime = 0.0f;
 		bool m_TimeAlreadyUpdatedThisFrame = false;
