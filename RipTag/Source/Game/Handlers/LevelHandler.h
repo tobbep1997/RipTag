@@ -22,6 +22,9 @@ private:
 	Player * m_playerPtr; //Released in playstate
 	b3World * m_worldPtr; //static in playsatet
 
+	unsigned short m_roomIndex;
+	unsigned short m_nextRoomIndex = 0;
+
 private:
 	std::vector<int> m_unloadingQueue;
 	std::mutex m_unloadMutex;
@@ -30,7 +33,7 @@ private:
 
 	std::future<void> future;
 public:
-	LevelHandler();
+	LevelHandler(const unsigned short & roomIndex);
 	~LevelHandler();
 
 	void Init(b3World & worldPtr, Player * playerPtr);
@@ -47,7 +50,11 @@ public:
 	TriggerHandler * getTriggerHandler();
 
 	std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> getStartingPositions();
+
+	const unsigned short getNextRoom() const;
 private:
+
+	
 
 	void _LoadPreFabs();
 	void _GenerateLevelStruct(const int seed, const int amountOfRooms = 5);

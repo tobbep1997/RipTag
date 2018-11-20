@@ -86,7 +86,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 Enemy::~Enemy()
 {
 	delete m_vc;
-	this->Release(*this->getBody()->GetScene());
+	this->Release(*RipExtern::g_world);
 	for (int i = 0; i < m_path.size(); i++)
 	{
 		delete m_path.at(i);

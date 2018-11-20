@@ -13,6 +13,11 @@ PointLight::PointLight()
 	m_nearPlane = 1.0f;
 	m_farPlane = 50.0f;
 	_initDirectX(128U, 128U);
+
+	m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
+	m_phys.p_setPosition(-999,-9999,-99999);
+	m_phys.setObjectTag("FUCKOFF");
+	m_phys.setUserDataBody(this);
 }
 
 PointLight::PointLight(float * translation, float * color, float intensity)

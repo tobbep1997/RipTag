@@ -287,7 +287,7 @@ void LobbyState::Update(double deltaTime)
 							m_loadingScreen.draw();
 						}
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
+						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
 						
 					}
 				}

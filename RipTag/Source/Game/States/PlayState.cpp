@@ -17,17 +17,18 @@ b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
 
+bool RipExtern::m_first = false;
+
 bool PlayState::m_youlost = false;
 
-PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
+PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
 	if (coopData)
 	{
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
-	
+	m_roomIndex = roomIndex;
 }
 
 PlayState::~PlayState()
@@ -43,11 +44,12 @@ PlayState::~PlayState()
 	//delete triggerHandler;
 	delete m_contactListener;
 	delete m_rayListener;
-
+	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
 void PlayState::Update(double deltaTime)
 {
+	RipExtern::m_first = false;
 	if (runGame)
 	{
 		InputMapping::Call();
@@ -57,14 +59,35 @@ void PlayState::Update(double deltaTime)
 		m_step.sleeping = false;
 		m_firstRun = false;
 
+		
 		while (m_physRunning)
 		{
+			//SpinLock
 			int i = 0;
 		}
+		//Physics Done
+		//Time to do stuff
 
-			//int i = 0;
-		triggerHandler->Update(deltaTime);
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+			//int i = 0;
+		if (RipExtern::m_first == true)
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			//this->pushNewState();
+			RipExtern::m_first = false;
+			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+			return;
+		}
+
+		triggerHandler = m_levelHandler->getTriggerHandler();
+		triggerHandler->Update(deltaTime);
 		m_playerManager->Update(deltaTime);
 
 
@@ -75,8 +98,17 @@ void PlayState::Update(double deltaTime)
 		m_contactListener->ClearContactQueue();
 		m_rayListener->ClearConsumedContacts();
 
-		m_deltaTime = deltaTime;
-		m_physicsCondition.notify_all();
+		//Start Physics thread
+		if (RipExtern::m_first == false)
+		{
+			m_deltaTime = deltaTime;
+			m_physicsCondition.notify_all();
+		}
+		else
+		{
+			//this->resetState(new PlayState(this->p_renderingManager, pCoopData));
+		}
+		
 	
 	
 	
@@ -193,6 +225,10 @@ void PlayState::_PhyscisThread(double deltaTime)
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 		m_physRunning = true;
+		if (RipExtern::m_first == true)
+		{
+			return;
+		}
 		if (m_deltaTime <= 0.65f)
 		{
 			m_world.Step(m_step);
@@ -386,7 +422,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 		
 		
 		_loaded = true;
-		const b3Body * b = m_world.getBodyList();
+		const b3Body * b = m_world->getBodyList();
 
 		while (b != nullptr)
 		{
@@ -437,7 +473,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	else
 	{
 		int counter = 0;
-		const b3Body * b = m_world.getBodyList();
+		const b3Body * b = m_world->getBodyList();
 		while (b != nullptr)
 		{
 			if (b->GetObjectTag() != "TELEPORT")
@@ -566,7 +602,9 @@ void PlayState::_loadTextures()
 
 void PlayState::_loadPhysics()
 {
+	
 	RipExtern::g_world = &m_world;
+	
 	m_contactListener = new ContactListener();
 	RipExtern::g_contactListener = m_contactListener;
 	RipExtern::g_world->SetContactListener(m_contactListener);
@@ -601,7 +639,7 @@ void PlayState::_loadPlayers()
 	m_playerManager = new PlayerManager(&this->m_world);
 	m_playerManager->CreateLocalPlayer();
 
-	m_levelHandler = new LevelHandler();
+	m_levelHandler = new LevelHandler(m_roomIndex);
 	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }

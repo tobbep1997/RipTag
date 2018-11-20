@@ -64,9 +64,9 @@ private:
 
 	bool m_physRunning = false;
 public:
-	PlayState(RenderingManager * rm, void * coopData = nullptr);
+	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
-
+	unsigned short m_roomIndex = 0;
 	void Update(double deltaTime) override;
 
 	void Draw() override;

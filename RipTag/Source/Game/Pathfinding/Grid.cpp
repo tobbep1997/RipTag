@@ -45,6 +45,13 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 
 Grid::~Grid()
 {
+	for (auto asset : m_path)
+	{
+		delete asset;
+	}
+	m_path.clear();
+
+
 }
 
 Tile Grid::WorldPosToTile(float x, float y)
