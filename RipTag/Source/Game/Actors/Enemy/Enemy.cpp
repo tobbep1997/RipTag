@@ -60,7 +60,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	}
 	b3Vec3 pos(1, 0.9, 1);
-	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
+	PhysicsComponent::Init(*world, e_dynamicBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -78,7 +78,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
-
+	
 	//setOutline(true);
 }
 
