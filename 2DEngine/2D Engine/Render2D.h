@@ -15,11 +15,14 @@ private:
 	enum HUDTypeEnum
 	{
 		QuadType = 0U,
-		CircleType = 1U
+		CircleType = 1U,
+		OutlinedQuad = 2U
 	};
 	struct HUDTypeStruct
 	{
 		DirectX::XMFLOAT4A center;
+		DirectX::XMFLOAT4A color;
+		DirectX::XMFLOAT4A outlineColor;
 		DirectX::XMUINT4 type;
 	};
 private:

@@ -4,13 +4,15 @@
 //#todoREMOVE
 float Player::m_currentPitch = 0.0f;
 
-
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
 	Manager::g_textureManager.loadTextures("CROSSHAND");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
+	Manager::g_textureManager.loadTextures("WHITE");
+
+
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
 	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 112.0f));
@@ -53,7 +55,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
-		SetAbilitySet(2);
+		SetAbilitySet(1);
 	}
  
 	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
@@ -72,6 +74,35 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityCircle[1]->setInnerRadie(.4f);
 	m_abilityCircle[1]->setUnpressedTexture("DAB");
 	m_abilityCircle[1]->setAngle(360);
+
+	{ // SoundHud
+		Quad * soundBack = new Quad;
+		Quad * soundfor = new Quad;
+		float outline = 5.0f;
+		DirectX::XMFLOAT2 scl = {50.0f, 200.0f};
+
+		soundBack->init({ 0.0f, 1.0f }, { scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
+		soundBack->setUnpressedTexture("WHITE");
+		soundBack->setType(Quad::QuadType::Outlined);
+		soundBack->setRadie(outline);
+		soundBack->setPivotPoint(Quad::PivotPoint::upperLeft);
+		soundBack->setOutlineColor(1, 1, 0, 0.5f);
+		soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
+		
+		soundfor->init(
+			{ outline / InputHandler::getViewportSize().x,
+			1.0f - (outline / InputHandler::getViewportSize().y)
+			},
+			{ (scl.x - (outline * 4.0f)) / InputHandler::getViewportSize().x, (scl.y - (outline * 4.0f)) / InputHandler::getViewportSize().y });
+
+		
+		soundfor->setUnpressedTexture("WHITE");
+		soundfor->setPivotPoint(Quad::PivotPoint::upperLeft);
+		soundfor->setColor(0, 0, 1);
+
+		m_soundLevelHUD.bckg = soundBack;
+		m_soundLevelHUD.forg = soundfor;
+	}
 
 	HUDComponent::AddQuad(m_abilityCircle[0]);
 	HUDComponent::AddQuad(m_abilityCircle[1]);
@@ -180,6 +211,9 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	if (getLiniearVelocity().y > 5.0f)
+		setLiniearVelocity(getLiniearVelocity().x, 5.0f, getLiniearVelocity().z);
+
 	{
 		using namespace DirectX;
 		//calculate walk direction (-1, 1, based on camera) and movement speed
@@ -280,6 +314,8 @@ void Player::Update(double deltaTime)
 		else
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
+
+	
 
 }
 
@@ -392,6 +428,7 @@ void Player::Draw()
 	{
 		m_enemyCircles[i]->Draw();
 	}
+	m_soundLevelHUD.Draw();
 }
 
 void Player::LockPlayerInput()
@@ -412,6 +449,14 @@ void Player::UnlockPlayerInput()
 void Player::SetCurrentVisability(const float & guard)
 {
 	this->m_visability = guard;
+}
+
+void Player::SetCurrentSoundPercentage(const float & percentage)
+{
+	this->m_soundPercentage = percentage;
+	m_soundLevelHUD.forg->setV(m_soundPercentage);
+	m_soundLevelHUD.forg->setColor(m_soundPercentage, 1.0f - m_soundPercentage, 1.0f - m_soundPercentage);
+	m_soundLevelHUD.bckg->setOutlineColor(m_soundPercentage, 1.0f - m_soundPercentage, 0.0f, 0.5f);
 }
 
 void Player::SendOnUpdateMessage()
@@ -564,7 +609,6 @@ void Player::SendOnAnimationUpdate(double dt)
 	}
 }
 
-
 void Player::RegisterThisInstanceToNetwork()
 {
 	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnUpdateMessage, this));
@@ -692,6 +736,27 @@ void Player::_onMovement(double deltaTime)
 			z = DirectX::XMVectorGetZ(m_VlastSpeed);
 	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+
+	RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.0f, false);
+
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+		if (ray)
+		{
+			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			{
+				if (con->contactShape->GetObjectTag() == "NULL")
+				{
+					if (fabs(con->normal.y) < 0.999f)
+					{
+						p_setPosition(getPosition().x, getPosition().y, getPosition().z);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
 }
 
 void Player::_scrollMovementMod()

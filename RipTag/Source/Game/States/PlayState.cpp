@@ -157,7 +157,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes();
+//	DrawWorldCollisionboxes();
 #endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }

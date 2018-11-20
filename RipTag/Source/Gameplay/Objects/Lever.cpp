@@ -22,6 +22,7 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, false);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setObjectTag("LEVER");
+	setTexture(Manager::g_textureManager.getTexture("SPAK"));
 	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("SPAK"));//BYT TILL SPAK
 	auto& machine = getAnimationPlayer()->InitStateMachine(1);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));

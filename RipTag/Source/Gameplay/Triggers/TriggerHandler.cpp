@@ -25,33 +25,46 @@ void TriggerHandler::Update(double deltaTime)
 	for (size_t i = 0; i < Triggers.size(); i++)
 	{
 		Triggers[i]->Update(deltaTime);
-		
 	}
 		
-
 	for (size_t i = 0; i < Triggerables.size(); i++)
 		Triggerables[i]->Update(deltaTime);
 
 	for (auto &pair : localTriggerPairs)
 	{
-		if (pair.second.triggerables.size() > 0)
+		//if lever or pressure
+		for (int i = 0; i < pair.second.triggerables.size(); i++)
 		{
-			if (!pair.second.triggerables[0]->getState())
+			if (pair.second.triggers.size() > 0)
 			{
-				//If not active check the linked triggers state - if all are true set all triggerable's to true
-				for (size_t i = 0; i < pair.second.triggers.size(); i++)
+				if (dynamic_cast<PressurePlate*> (pair.second.triggers[0]))
 				{
-					if (!pair.second.triggers[i]->getTriggerState())
-						break;
-					if ((i + 1) == pair.second.triggers.size())
+					for (int j = 0; j < pair.second.triggers.size(); j++)
 					{
-						for (size_t j = 0; j < pair.second.triggerables.size(); j++)
-							pair.second.triggerables[j]->setState(true);
+						if (pair.second.triggers[j]->getTriggerState() == false)
+						{
+						//	pair.second.triggerables[i]->setState(false);
+						}
+						else
+						{
+							pair.second.triggerables[i]->setState(true);
+							break;
+						}
 					}
 				}
-			}
+				else
+				{
+					bool shouldOpen = true;
+					for (int j = 0; j < pair.second.triggers.size(); j++)
+					{
+						if (pair.second.triggers[j]->getTriggerState() == false)
+							shouldOpen = false;
+						pair.second.triggerables[i]->setState(shouldOpen);
+
+					}
+				}
+			}	
 		}
-		//check the first Triggerable object and see if it is not Active
 	}
 }
 
@@ -74,11 +87,33 @@ void TriggerHandler::Release()
 
 void TriggerHandler::LoadTriggerPairMap()
 {
-	for (int i = 0; i <this->Triggerables.size(); i++)
+	for (auto & t : Triggers)
 	{
-		int tempLink = this->Triggerables[i]->getLinkId();
+		int tmpLink = t->getLinkId();
+		std::map<int, TriggerHandler::TriggerPair>::iterator it = this->localTriggerPairs.find(tmpLink);
+		if (it != this->localTriggerPairs.end())
+		{
+			it->second.triggers.push_back(t);
+		}
+		else
+		{
+			TriggerPair tp;
+			tp.triggers.push_back(t);
+			this->localTriggerPairs.insert(std::pair<int, TriggerHandler::TriggerPair>(tmpLink, tp));
+		}
+	}
+	for (auto & pair : localTriggerPairs)
+	{
+		int tempLink = pair.first;
+		for (int i = 0; i < this->Triggerables.size(); i++)
+		{
+			//tempLink == this->Triggerables[i]->getLinkId();
+			if (this->Triggerables[i]->getLinkId() == tempLink)
+				pair.second.triggerables.push_back(this->Triggerables[i]);	
+		}
 
-		std::map<int, TriggerHandler::TriggerPair>::iterator it = this->localTriggerPairs.find(tempLink);
+	}
+		/*std::map<int, TriggerHandler::TriggerPair>::iterator it = this->localTriggerPairs.find(tempLink);
 		if (it != this->localTriggerPairs.end())
 		{
 			it->second.triggerables.push_back(this->Triggerables[i]);
@@ -88,20 +123,20 @@ void TriggerHandler::LoadTriggerPairMap()
 			TriggerHandler::TriggerPair t_pair;
 			t_pair.triggerables.push_back(this->Triggerables[i]);
 			this->localTriggerPairs.insert(std::pair<int, TriggerHandler::TriggerPair>(tempLink, t_pair));
-		}
-	}
-	for (int j = 0; j < this->Triggers.size(); j++)
-	{
-		this->localTriggerPairs[this->Triggers[j]->getLinkId()].triggers.push_back(this->Triggers[j]);// (this->Triggers[j]->getLinkId()).triggers.push_back(this->Triggers[j]);
+		}*/
+	//for (int j = 0; j < this->Triggers.size(); j++)
+	//{
+	//	this->localTriggerPairs[this->Triggers[j]->getLinkId()].triggers.push_back(this->Triggers[j]);// (this->Triggers[j]->getLinkId()).triggers.push_back(this->Triggers[j]);
 
-		//this->localTriggerPairs.at(this->Triggers[j]->getLinkId()).triggers.push_back(this->Triggers[j]);
-	}
+	//	//this->localTriggerPairs.at(this->Triggers[j]->getLinkId()).triggers.push_back(this->Triggers[j]);
+	//}
 }
 
 void TriggerHandler::HandlePacket(unsigned char id, unsigned char * data)
 {
 	Network::TRIGGEREVENTPACKET * _data = (Network::TRIGGEREVENTPACKET*)data;
 	netWorkTriggers.at(_data->uniqueID)->setTriggerState(_data->state, false);
+	//ifnetwork is tru -> false, vice versa
 	
 }
 

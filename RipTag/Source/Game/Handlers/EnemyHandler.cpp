@@ -22,7 +22,7 @@ void EnemyHandler::Update(float deltaTime)
 	static float timer = 0.0f;
 	timer += deltaTime;
 	int playerVisibility = 0;
-	
+	float soundPercentage = 0.0f;
 	for (int i = 0; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
@@ -33,6 +33,13 @@ void EnemyHandler::Update(float deltaTime)
 		int tempVisibility = _getPlayerVisibility(currentGuard);
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
+		
+		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
+		if (tempSoundPercentage > soundPercentage)
+		{
+			soundPercentage = tempSoundPercentage;
+		}
+
 
 		EnemyState state = currentGuard->getEnemyState();
 		switch (state)
@@ -69,6 +76,7 @@ void EnemyHandler::Update(float deltaTime)
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);
+	m_player->SetCurrentSoundPercentage(soundPercentage);
 }
 
 int EnemyHandler::_getPlayerVisibility(Enemy * guard)
@@ -164,6 +172,8 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
 		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
 		guard->setEnemeyState(High_Alert);
+	/*	guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
+		guard->setEnemeyState(High_Alert);*/
 	}
 }
 
