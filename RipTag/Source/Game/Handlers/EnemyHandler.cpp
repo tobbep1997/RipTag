@@ -160,7 +160,7 @@ void EnemyHandler::_investigateSound(Enemy * guard)
 	{
 		DirectX::XMFLOAT4A guardPos = guard->getPosition();
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
+        //Might craaa
 		guard->SetAlertVector(m_grid->FindPath(guardTile, guard->GetCurrentPathNode()->tile));
 		std::cout << green << "Enemy Transition: Investigating Sound -> High Alert" << white << std::endl;
 		guard->setEnemeyState(High_Alert);

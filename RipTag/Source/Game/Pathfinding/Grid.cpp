@@ -194,7 +194,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		else
 		{
 			// Might be needed to avoid mem leaks if it doesn't lead to any new paths.
-			delete current;
+		//	delete current;
 		}
 		openList.insert(std::end(openList), std::begin(earlyExploration), std::end(earlyExploration));
 		earlyExploration.clear();

@@ -343,7 +343,7 @@ namespace ImporterLibrary
 		newFileName.append(fileName + "FOLDER/" + fileName + "_BBOX.bin");
 		bool fileIsOpen = false;
 
-		std::ifstream customBoxFile(fileName, std::ifstream::binary);
+		std::ifstream customBoxFile(newFileName, std::ifstream::binary);
 	
 
 		if (customBoxFile.is_open()) // opens file
