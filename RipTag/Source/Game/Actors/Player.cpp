@@ -53,7 +53,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		//By default always this set
 		m_activeSet = m_abilityComponents1;
 
-		SetAbilitySet(2);
+		SetAbilitySet(1);
 	}
  
 	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
