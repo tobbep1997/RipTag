@@ -1253,8 +1253,6 @@ void Player::SendOnWinState()
 
 void Player::_hasWon()
 {
-	static int frameCounter = 0;
-	frameCounter++;
 	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
 	{
 		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag();
@@ -1266,17 +1264,26 @@ void Player::_hasWon()
 			{
 				hasWon = true;
 				SendOnWinState();
-				frameCounter = 0;
 				return;
 			}
 		}
 	}
-	if (hasWon && frameCounter > 5)
+	for (int i = 0; i < RipExtern::g_contactListener->GetEndContacts().size(); i++)
 	{
-		hasWon = false;
-		SendOnWinState();
-		return;
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContacts()[i].a->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContacts()[i].b->GetBody()->GetObjectTag();
+
+		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
+		{
+			if (Object_B_Tag == "PLAYER" || Object_B_Tag == "WIN_BOX")
+			{
+				hasWon = false;
+				SendOnWinState();
+				return;
+			}
+		}
 	}
+	
 }
 
 b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
