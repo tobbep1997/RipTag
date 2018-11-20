@@ -23,7 +23,7 @@ void EnemyHandler::Update(float deltaTime)
 	timer += deltaTime;
 	int playerVisibility = 0;
 	float soundPercentage = 0.0f;
-	for (int i = 0; i < m_guards.size(); i++)
+	for (int i = 1; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
 		currentGuard->SetLenghtToPlayer(m_player->getPosition());
@@ -291,57 +291,26 @@ void EnemyHandler::_investigateRoom(Enemy * guard, const double & dt) //search a
 	static int lastSearchDirX = 0;
 	static int lastSearchDirY = 0;
 	int random = dt;
-	srand(random);
+	
+	int dirX, dirY;
+	dirX = 1;
+	dirY = 0;
 
 	if (guard->GetAlertPathSize() == 0)
 	{
-		int dirX = (rand() % 3) - 1;
-		random += dt*100;
-		srand(random);
-		int dirY = (rand() % 3) - 1;
-
-		if (lastSearchDirX == 0 && lastSearchDirY == 0)
-		{
-
-		}
-		else
-		{
-			while ((dirX == 0 && dirY == 0) || (dirX == lastSearchDirX && dirY == lastSearchDirY) || (dirX == -lastSearchDirX && dirY == -lastSearchDirY))
-			{
-				random += dt * 100;
-				srand(random);
-				dirX = (rand() % 3) - 1;
-				random += dt * 100;
-				srand(random);
-				dirY = (rand() % 3) - 1;
-
-				/*float dy = dirY - lastSearchDirY;
-				float dx = dirX - lastSearchDirX;
-				float theta = std::atan2(dy, dx);
-				theta *= 180 / B3_PI;
-				if (abs(theta) > 25)
-				{
-				}
-				else
-				{
-					dirX = 0;
-					dirY = 0;
-				}*/
-			}
-		}
-
 		
-		random += dt;
-		srand(random);
-		int searchLength = (rand() % 4) + 4;
+		int searchLength = 4;
 		DirectX::XMFLOAT4A guardPos = guard->getPosition();
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 		Tile newPos;
 		for (int i = 1; i < searchLength; i++)
 		{
-			newPos = m_grid->WorldPosToTile(guardPos.x + (dirX*i), guardPos.z + (dirY*i));
+			newPos = m_grid->WorldPosToTile(guardPos.x + (dirX), guardPos.z + (dirY));
 			if (!newPos.getPathable())
-				break;
+			{
+				newPos = m_grid->WorldPosToTile(guardPos.x + (lastSearchDirX), guardPos.z + (dirY));
+			}
+				
 		}
 
 		if (newPos.getPathable())
