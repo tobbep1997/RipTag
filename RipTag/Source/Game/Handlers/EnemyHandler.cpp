@@ -236,13 +236,3 @@ void EnemyHandler::_suspicious(Enemy * guard, const double & dt)
 		}
 	}
 }
-
-void EnemyHandler::_coolingDown(Enemy * guard, const double & dt)
-{
-	guard->AddActTimer(dt);
-	if (guard->GetActTimer() > 2)
-	{
-		guard->SetActTimer(0.0f);
-		guard->setEnemeyState(Patrolling);
-	}
-}

@@ -36,6 +36,5 @@ private:
 	void _patrolling(Enemy * guard);
 	void _highAlert(Enemy * guard, const double & dt);
 	void _suspicious(Enemy * guard, const double & dt);
-	void _coolingDown(Enemy * guard, const double & dt);
 
 };
