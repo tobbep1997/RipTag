@@ -246,7 +246,7 @@ std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> Animation::AnimationPlayer::GetW
 {
 	using namespace DirectX;
 	auto ownerWorldMatrix = m_Owner->getWorldmatrix();
-	auto matrix = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4A(&ownerWorldMatrix), XMLoadFloat4x4A(&m_GlobalMatrices[jointIndex])));
+	auto matrix = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4A(&ownerWorldMatrix), XMMatrixTranspose(XMLoadFloat4x4A(&m_GlobalMatrices[jointIndex]))));
 	XMVECTOR s{};
 	XMVECTOR r{};
 	XMVECTOR t{};
