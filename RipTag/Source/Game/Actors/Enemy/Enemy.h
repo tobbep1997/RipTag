@@ -13,8 +13,10 @@ enum EnemyState
 {
 	Investigating_Sight,
 	Investigating_Sound,
+	Investigating_Room,
 	High_Alert,
 	Suspicious,
+	Scanning_Area,
 	Patrolling,
 	Possessed,
 	Disabled,
@@ -25,7 +27,8 @@ enum EnemyTransitionState
 {
 	None,
 	Alerted,
-	InvestigateSource,
+	InvestigateSound,
+	InvestigateSight,
 	Observe,
 	SearchArea,
 	ReturnToPatrol,
@@ -57,6 +60,14 @@ private:
 	const float INTERACT_RANGE = 3.0f;
 	const float TURN_SPEED = 1.0f;
 	const float REVERSE_SPEED = 0.5f;
+
+	//AI Behavior constants
+	const float SOUND_LEVEL = 0.33f;
+	const int SIGHT_LEVEL = 1700;
+	const float ALERT_TIME_LIMIT = 0.8f;
+	const float SUSPICIOUS_TIME_LIMIT = 2.0f;
+	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
+	const float HIGH_ALERT_LIMIT = 3.0f;
 
 private:
 	struct AudioVars
@@ -178,6 +189,10 @@ private:
 	Player * m_PlayerPtr;
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
+	EnemyTransitionState m_transState = EnemyTransitionState::None;
+	float lastSearchDirX = 0;
+	float lastSearchDirY = 0;
+	Grid* m_grid;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
@@ -232,6 +247,9 @@ public:
 	EnemyState getEnemyState() const;
 	void setEnemeyState(EnemyState state);
 
+	EnemyTransitionState getTransitionState() const;
+	void setTransitionState(EnemyTransitionState state);
+
 	void setSoundLocation(const SoundLocation & sl);
 	const SoundLocation & getSoundLocation() const;
 
@@ -267,6 +285,10 @@ public:
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
 
+	void setGrid(Grid* grid);
+	
+
+
 	//Network
 	void onAIPacket(Network::ENTITYAIPACKET * packet);
 private:
@@ -298,5 +320,27 @@ private:
 	
 	//call this once everywhile in Update, always call this when we do a state swap
 	void _sendAIPacket();
+
+	void _handleStates(const double deltaTime);
+	//Transistion States
+	void _onAlerted();
+	void _onInvestigateSound();
+	void _onInvestigateSight();
+	void _onObserve();
+	void _onSearchArea();
+	void _onReturnToPatrol();
+	void _onBeingPossessed();
+	void _onBeingDisabled();
+
+	//States
+	void _investigatingSight();
+	void _investigatingSound();
+	void _investigatingRoom(const double deltaTime);
+	void _highAlert(const double deltaTime);
+	void _suspicious(const double deltaTime);
+	void _scanningArea(const double deltaTime);
+	void _patrolling();
+	//void possessed();
+	void _disabled();
 };
 
