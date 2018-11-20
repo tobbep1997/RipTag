@@ -7,6 +7,7 @@ ID3D11DeviceContext1*	DX::g_deviceContext;
 Shaders::ShaderManager DX::g_shaderManager;
 
 Drawable* DX::g_player;
+Drawable* DX::g_remotePlayer = nullptr;
 std::vector<Drawable*> DX::g_animatedGeometryQueue;
 
 std::vector<PointLight*> DX::g_lights;
@@ -117,6 +118,10 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable)
 	else if (drawable->getEntityType() == EntityType::PlayerType)
 	{
 		g_player = drawable;
+	}
+	else if (drawable->getEntityType() == EntityType::RemotePlayerType)
+	{
+		g_remotePlayer = drawable;
 	}
 
 	if (!queue)

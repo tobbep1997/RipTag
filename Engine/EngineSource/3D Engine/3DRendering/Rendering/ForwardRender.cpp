@@ -304,6 +304,7 @@ void ForwardRender::Clear()
 	DX::g_lights.clear();
 
 	DX::g_player = nullptr;
+	DX::g_remotePlayer = nullptr;
 
 	DX::g_outlineQueue.clear();
 	//this->m_shadowMap->Clear();

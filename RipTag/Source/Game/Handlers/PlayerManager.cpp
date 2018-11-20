@@ -179,6 +179,7 @@ void PlayerManager::CreateRemotePlayer(DirectX::XMFLOAT4A pos, RakNet::NetworkID
 		DirectX::XMFLOAT4A scale = DirectX::XMFLOAT4A(0.015f, 0.015f, 0.015f, 1.0f);
 		DirectX::XMFLOAT4A rot = { 0.0, 0.0, 0.0, 0.0 };
 		this->mRemotePlayer = new RemotePlayer(nid, pos, scale, rot);
+		this->mRemotePlayer->setEntityType(EntityType::RemotePlayerType);
 		hasRemotePlayer = true;
 	}
 }
