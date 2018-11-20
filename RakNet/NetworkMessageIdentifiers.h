@@ -100,6 +100,14 @@ namespace Network
 		ENTITYSTATEPACKET(unsigned char _id, unsigned int _state, bool _condition) : id(_id), state(_state), condition(_condition) {}
 	};
 
+	struct ENEMYAIUPDATEPACKET
+	{
+		unsigned char id;
+		unsigned int state;
+		//WHAT DATA? 
+	
+	};
+
 	struct ENTITYABILITYPACKET
 	{
 		unsigned char id;

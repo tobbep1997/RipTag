@@ -95,7 +95,7 @@ void PlayState::Update(double deltaTime)
 			BackToMenu();
 		}
 
-		if (m_youlost)
+		if (m_youlost || m_playerManager->isGameWon())
 		{
 			if (isCoop)
 				_sendOnGameOver();
@@ -108,10 +108,11 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			if (m_youlost)
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			else
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away!\nGod of Stealth!.", (void*)pCoopData));
 		}
-
-	
 	
 		_audioAgainstGuards(deltaTime);
 

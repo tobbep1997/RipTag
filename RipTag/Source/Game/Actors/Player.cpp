@@ -1244,9 +1244,9 @@ void Player::_deActivateCrouch()
 	m_kp.crouching = false;
 }
 
-void Player::SendOnWin()
+void Player::SendOnWinState()
 {
-	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
+	Network::ENTITYSTATEPACKET packet(Network::ID_PLAYER_WON, 0, this->hasWon);
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
@@ -1263,10 +1263,16 @@ void Player::_hasWon()
 			if (Object_B_Tag == "PLAYER" || Object_B_Tag == "WIN_BOX")
 			{
 				hasWon = true;
-				SendOnWin();
-				break;
+				SendOnWinState();
+				return;
 			}
 		}
+	}
+	if (hasWon)
+	{
+		hasWon = false;
+		SendOnWinState();
+		return;
 	}
 }
 

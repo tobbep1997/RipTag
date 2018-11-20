@@ -155,7 +155,7 @@ public:
 	void SendOnAbilityUsed();
 	void SendAbilityUpdates();
 	void SendOnAnimationUpdate(double dt);
-	void SendOnWin();
+	void SendOnWinState();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);

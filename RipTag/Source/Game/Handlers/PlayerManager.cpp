@@ -69,7 +69,8 @@ void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data
 
 void PlayerManager::_onRemotePlayerWonPacket(unsigned char id, unsigned char * data)
 {
-	mRemotePlayer->hasWon = true;
+	Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
+	mRemotePlayer->hasWon = pData->condition;
 }
 
 void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * data)
@@ -114,14 +115,6 @@ void PlayerManager::Update(float dt)
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
-	if (mRemotePlayer)
-	{
-		if(mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
-		mLocalPlayer->drawWinBar();
-		//YOU WON THE GAME! 
-	}
-	
-
 }
 
 void PlayerManager::PhysicsUpdate()
@@ -139,12 +132,6 @@ void PlayerManager::Draw()
 	}
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Draw();
-}
-
-void PlayerManager::win()
-{
-	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
-		mLocalPlayer->gameIsWon = true;
 }
 
 void PlayerManager::isCoop(bool coop)
@@ -218,4 +205,12 @@ Player * PlayerManager::getLocalPlayer()
 RemotePlayer * PlayerManager::getRemotePlayer()
 {
 	return this->mRemotePlayer;
+}
+
+bool PlayerManager::isGameWon()
+{
+	if (hasLocalPlayer && hasRemotePlayer)
+		return (mLocalPlayer->getWinState() && mRemotePlayer->hasWon);
+	else
+		return mLocalPlayer->getWinState();
 }

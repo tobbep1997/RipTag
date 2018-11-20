@@ -39,7 +39,6 @@ public:
 	void Update(float dt);
 	void PhysicsUpdate();
 	void Draw();
-	void win();
 	void isCoop(bool coop);
 	//Local player handling
 	void CreateLocalPlayer(DirectX::XMFLOAT4A pos = { 0.f, 0.f, 0.f, 0.f });
@@ -50,6 +49,8 @@ public:
 	void SendOnPlayerCreate();
 	Player * getLocalPlayer();
 	RemotePlayer * getRemotePlayer();
+
+	bool isGameWon();
 
 	//use this function to set the type from char selection 
 	void setPlayerType(int type) { player_type = type; }
