@@ -13,31 +13,6 @@
 //#todoREMOVE
 #include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
 
-Enemy::Enemy() : Actor(), CameraHolder(), PhysicsComponent()
-{
-	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
-	m_vc = new VisibilityComponent();
-	m_vc->Init(this->p_camera);
-	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
-	//setOutline(true);
-}
-
-Enemy::Enemy(float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder()
-{
-	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
-	m_vc = new VisibilityComponent();
-	m_vc->Init(this->p_camera);
-	this->setPosition(startPosX, startPosY, startPosZ);
-	this->setDir(1, 0, 0);
-	this->getCamera()->setFarPlane(20);
-	this->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
-	
-	srand(time(NULL));
-	//setOutline(true);
-}
-
 Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
@@ -60,7 +35,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 
 	}
 	b3Vec3 pos(1, 0.9, 1);
-	PhysicsComponent::Init(*world, e_staticBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
+	PhysicsComponent::Init(*world, e_dynamicBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -78,7 +53,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
-
+	
 	//setOutline(true);
 }
 
@@ -86,7 +61,7 @@ Enemy::Enemy(b3World* world, float startPosX, float startPosY, float startPosZ) 
 Enemy::~Enemy()
 {
 	delete m_vc;
-	this->Release(*this->getBody()->GetScene());
+	this->Release(*RipExtern::g_world);
 	for (int i = 0; i < m_path.size(); i++)
 	{
 		delete m_path.at(i);
@@ -256,7 +231,7 @@ void Enemy::Update(double deltaTime)
 
 				//TODO: Fix when ray is corrected
 
-				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+		/*		RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 					direction.x,
 					direction.y,
 					direction.z,
@@ -265,15 +240,15 @@ void Enemy::Update(double deltaTime)
 						direction.x,
 						direction.y,
 						direction.z,
-						direction.w)));
-				if (r)
-				{
-					/*std::cout << "-------------------------------------------------" << std::endl;
-					for (int i = 0; i < r->getNrOfContacts(); i++)
-					{						
-						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
-					}*/
-				}
+						direction.w)));*/
+				//if (r)
+				//{
+				//	/*std::cout << "-------------------------------------------------" << std::endl;
+				//	for (int i = 0; i < r->getNrOfContacts(); i++)
+				//	{						
+				//		std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
+				//	}*/
+				//}
 			}
 			
 		}

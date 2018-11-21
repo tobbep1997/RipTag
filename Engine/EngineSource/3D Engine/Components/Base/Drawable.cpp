@@ -179,6 +179,16 @@ void Drawable::DontCallMe()
 	//}
 }
 
+void Drawable::CastShadows(const bool& shadows)
+{
+	this->m_castShadow = shadows;
+}
+
+const bool& Drawable::getCastShadows() const
+{
+	return this->m_castShadow;
+}
+
 
 void Drawable::p_createBuffer()
 {
@@ -235,6 +245,7 @@ Drawable::Drawable() : Transform()
 	m_outLineColor = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	m_outline = false;
 	m_transparant = false;
+	m_castShadow = true;
 }
 
 

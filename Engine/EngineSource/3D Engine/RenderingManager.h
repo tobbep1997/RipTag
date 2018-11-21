@@ -2,11 +2,14 @@
 #include <Windows.h>
 
 struct ProcMsg;
+struct WindowContext;
 
 class Window;
 class Engine3D;
 class Camera;
 class ImGuiManager;
+
+
 
 class RenderingManager
 {
@@ -17,6 +20,7 @@ private:
 	HINSTANCE m_hInstance;
 	//IMGUI onlt take 1 mb in debug mode
 	ImGuiManager * m_ImGuiManager;
+	WindowContext * m_wind;
 public:
 	RenderingManager();
 	~RenderingManager();

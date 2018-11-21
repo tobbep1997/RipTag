@@ -39,7 +39,7 @@ void MainMenu::Update(double deltaTime)
 			m_background = nullptr;
 			m_loadingScreen.removeGUI(m_buttons);
 			m_loadingScreen.draw();
-			this->pushNewState(new PlayState(this->p_renderingManager));
+			this->pushNewState(new PlayState(this->p_renderingManager, nullptr, 0));
 			m_music->stop();
 			break; 
 		case ButtonOrder::Lobby:

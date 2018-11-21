@@ -3,111 +3,10 @@
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
-	std::pair<Trigger*, Door> doorLeverPair;
-	Lever * tempLever = nullptr;
-	Door * tempDoor = nullptr;
-	PressurePlate * tempPressurePlate = nullptr;
-	Bars * tempBars = nullptr;
 	
-	for (int i = 0; i < propsToPlace.nrOfItems; i++)
-	{
-		int a = propsToPlace.props[i].typeOfProp;
-		switch (propsToPlace.props[i].typeOfProp)
-		{
-		case(1):
-			
-			break;
-		case(2):
-			Manager::g_meshManager.loadSkinnedMesh("PLATE");
-			Manager::g_textureManager.loadTextures("PRESSUREPLATE");
-			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
-			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
-			tempPressurePlate = new PressurePlate(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
-
-			tempPressurePlate->Init(propsToPlace.props[i].transform_position[0],
-				propsToPlace.props[i].transform_position[1],
-				propsToPlace.props[i].transform_position[2],
-				propsToPlace.props[i].transform_rotation[0],
-				propsToPlace.props[i].transform_rotation[1],
-				propsToPlace.props[i].transform_rotation[2],
-				propsToPlace.props[i].BBOX_INFO[0],
-				propsToPlace.props[i].BBOX_INFO[1],
-				propsToPlace.props[i].BBOX_INFO[2],
-				propsToPlace.props[i].transform_scale[0],
-				propsToPlace.props[i].transform_scale[1],
-				propsToPlace.props[i].transform_scale[2]);
-			triggerHandler->Triggers.push_back(tempPressurePlate);
-			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
-			tempPressurePlate = nullptr;
-
-			break;
-		case(3):
-			Manager::g_meshManager.loadSkinnedMesh("DOOR");
-			Manager::g_textureManager.loadTextures("DOOR");
-			Manager::g_animationManager.loadSkeleton("../Assets/DOORFOLDER/DOOR_SKELETON.bin", "DOOR");
-			Manager::g_animationManager.loadClipCollection("DOOR", "DOOR", "../Assets/DOORFOLDER", Manager::g_animationManager.getSkeleton("DOOR"));
-			tempDoor = new Door(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
-			tempDoor->Init(propsToPlace.props[i].transform_position[0],
-				propsToPlace.props[i].transform_position[1],
-				propsToPlace.props[i].transform_position[2],
-				propsToPlace.props[i].transform_rotation[0],
-				propsToPlace.props[i].transform_rotation[1],
-				propsToPlace.props[i].transform_rotation[2],
-				propsToPlace.props[i].BBOX_INFO[0],
-				propsToPlace.props[i].BBOX_INFO[1],
-				propsToPlace.props[i].BBOX_INFO[2],
-				propsToPlace.props[i].transform_scale[0],
-				propsToPlace.props[i].transform_scale[1],
-				propsToPlace.props[i].transform_scale[2]);
-			triggerHandler->Triggerables.push_back(tempDoor);
-			tempDoor = nullptr;
-			//ladda in d�rr etc etc 
-			break;
-		case(4):
-			//Manager::g_meshManager.loadStaticMesh("SPAK");
-			//Manager::g_textureManager.loadTextures("SPAK");
-			Manager::g_meshManager.loadSkinnedMesh("SPAK");
-			Manager::g_textureManager.loadTextures("SPAK");
-			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
-			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
-			tempLever = new Lever(i, propsToPlace.props[i].linkedItem,propsToPlace.props[i].isTrigger);
-			tempLever->Init(propsToPlace.props[i].transform_position[0],
-				propsToPlace.props[i].transform_position[1],
-				propsToPlace.props[i].transform_position[2],
-				propsToPlace.props[i].transform_rotation[0],
-				propsToPlace.props[i].transform_rotation[1],
-				propsToPlace.props[i].transform_rotation[2]);
-			triggerHandler->Triggers.push_back(tempLever);
-			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
-			tempLever = nullptr;
-			break;
-		case(5):
-			Manager::g_meshManager.loadSkinnedMesh("BARS");
-			Manager::g_textureManager.loadTextures("BARS");
-			Manager::g_animationManager.loadSkeleton("../Assets/BARSFOLDER/BARS_SKELETON.bin", "BARS");
-			Manager::g_animationManager.loadClipCollection("BARS", "BARS", "../Assets/BARSFOLDER", Manager::g_animationManager.getSkeleton("BARS"));
-			tempBars = new Bars(i, propsToPlace.props[i].linkedItem, propsToPlace.props[i].isTrigger);
-			tempBars->Init(propsToPlace.props[i].transform_position[0],
-				propsToPlace.props[i].transform_position[1],
-				propsToPlace.props[i].transform_position[2],
-				propsToPlace.props[i].transform_rotation[0],
-				propsToPlace.props[i].transform_rotation[1],
-				propsToPlace.props[i].transform_rotation[2],
-				propsToPlace.props[i].BBOX_INFO[0],
-				propsToPlace.props[i].BBOX_INFO[1],
-				propsToPlace.props[i].BBOX_INFO[2],
-				propsToPlace.props[i].transform_scale[0], 
-				propsToPlace.props[i].transform_scale[1],
-				propsToPlace.props[i].transform_scale[2]);
-			triggerHandler->Triggerables.push_back(tempBars);
-			tempDoor = nullptr;
-			break;
-		default:
-			break;
-		}
-	}
-
-
+	std::pair<Trigger*, Door> doorLeverPair;
+	
+	_addPropsAndAssets(propsToPlace, triggerHandler, &m_staticAssets);
 	triggerHandler->LoadTriggerPairMap();
 	
 }
@@ -122,6 +21,8 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 }
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr) : HUDComponent()
 {
+	std::cout << blue << "ROOM INIT" << white << std::endl;
+
 	std::string filePath = "RUM";
 	filePath += std::to_string(roomIndex);
 	this->m_arrayIndex = arrayIndex;
@@ -130,7 +31,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
-	triggerHandler = new TriggerHandler();
+	triggerHandler = DBG_NEW TriggerHandler();
 	triggerHandler->RegisterThisInstanceToNetwork();
 
 	m_lose = new Quad();
@@ -148,17 +49,19 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
-	m_pathfindingGrid = new Grid();
+	m_pathfindingGrid = DBG_NEW Grid();
 }
 Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 {
 	//GeneratedRoom
+	std::cout << green << "ROOM INIT" << white << std::endl;
+
 	this->m_roomIndex = -1;
 	this->m_playerInRoomPtr = playerPtr;
 	this->m_arrayIndex = arrayIndex;
 	this->m_worldPtr = worldPtr;
 
-	triggerHandler = new TriggerHandler();
+	triggerHandler = DBG_NEW TriggerHandler();
 	triggerHandler->RegisterThisInstanceToNetwork();
 
 	m_lose = new Quad();
@@ -180,6 +83,9 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 }
 Room::~Room()
 {
+	triggerHandler->Release();
+	delete triggerHandler;
+	delete m_pathfindingGrid;
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -225,7 +131,7 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		for (auto asset : m_staticAssets)
+		/*for (auto asset : m_staticAssets)
 		{
 			asset->Release(*m_worldPtr);
 		}
@@ -252,7 +158,8 @@ void Room::UnloadRoomFromMemory()
 		m_audioBoxes.clear();
 		delete m_grid->gridPoints;
 		delete m_grid;
-		m_roomLoaded = false;
+		m_roomLoaded = false;*/
+		Release();
 	}
 }
 
@@ -267,8 +174,8 @@ void Room::LoadRoomToMemory()
 		ParticleEmitter * p_emit;
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
-			this->m_pointLights.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
-			p_emit = new ParticleEmitter();
+			this->m_pointLights.push_back(DBG_NEW PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
+			p_emit = DBG_NEW ParticleEmitter();
 			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2]);
 			m_emitters.push_back(p_emit);
 			std::cout << tempLights.lights[i].translate[0] << tempLights.lights[i].translate[1] << tempLights.lights[i].translate[2] << std::endl;
@@ -331,19 +238,24 @@ void Room::LoadRoomToMemory()
 		//getPath();
 
 
-		BaseActor * temp = DBG_NEW BaseActor();
-		temp->Init(*m_worldPtr, e_staticBody, 1, 1, 1);
-		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-		temp->setPosition(0, 0, 0);
-		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
-		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
-		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
+		//Tartillbaka Hela rum
+		if (m_roomIndex != 8 && m_roomIndex != 0)
+		{
 
+			Manager::g_textureManager.loadTextures(this->getAssetFilePath());
+			Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
+			BaseActor * temp = DBG_NEW BaseActor();
+			temp->Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
+			temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
+			temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
+			m_staticAssets.push_back(temp);
+
+		}
 
 		CollisionBoxes = DBG_NEW BaseActor();
-		ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+		ImporterLibrary::CollisionBoxes boxes = fileLoader.readMeshCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
-		
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
 			float * f4Rot = boxes.boxes[i].rotation;
@@ -356,8 +268,7 @@ void Room::LoadRoomToMemory()
 			ge->setActive(false);
 			m_audioBoxes.push_back(ge);
 		}
-
-		m_staticAssets.push_back(temp);
+		delete [] boxes.boxes;
 		
 		m_roomLoaded = true;	
 	}
@@ -384,6 +295,10 @@ void Room::getPath()
 		}
 	}
 }
+
+
+
+
 
 void Room::Update(float deltaTime, Camera * camera)
 {
@@ -490,51 +405,295 @@ void Room::Draw()
 
 void Room::Release()
 {
-	for (auto asset : m_staticAssets)
-	{
-		asset->Release(*m_worldPtr);
-	}
-	for (auto asset : m_staticAssets)
-	{
-		delete asset;
-	}
-	if (CollisionBoxes)
-	{
-		CollisionBoxes->Release(*RipExtern::g_world);
-		delete CollisionBoxes;
-		CollisionBoxes = nullptr;
-	}
-	for (auto light : m_pointLights)
-	{
-		delete light;
-	}
-	m_pointLights.clear();
-	for (auto enemy : m_roomGuards)
-	{
-		delete enemy;
-	}
-	for (auto ab : m_audioBoxes)
-	{
-		ab->release();
-	}
-	if (m_grid)
-	{
-		delete m_grid->gridPoints;
+	
 
-		delete m_grid;
-	}
-	for (int i = 0; i < m_emitters.size(); i++)
+	if (m_roomLoaded == true)
 	{
-		delete m_emitters[i];
-	}
+		m_roomLoaded = false;
+		for (auto asset : m_staticAssets)
+		{
+			if (asset)
+			{
+				asset->Release(*m_worldPtr);
+			}
+			
+		}
+		for (auto asset : m_staticAssets)
+		{
+			if (asset)
+			{
+				
+				delete asset;
+			}
+		}
+		m_staticAssets.clear();
+		if (CollisionBoxes)
+		{
+			CollisionBoxes->Release(*RipExtern::g_world);
+			delete CollisionBoxes;
+			CollisionBoxes = nullptr;
+		}
+		for (auto light : m_pointLights)
+		{
+			delete light;
+		}
+		m_pointLights.clear();
+		for (auto enemy : m_roomGuards)
+		{
+			delete enemy;
+		}
+		m_roomGuards.clear();
 
-	triggerHandler->Release();
-	delete triggerHandler;
-	delete m_enemyHandler;
-	delete m_pathfindingGrid;
+		for (auto ab : m_audioBoxes)
+		{
+			ab->release();
+		}
+		if (m_grid)
+		{
+			delete[] m_grid->gridPoints;
+			
+			delete m_grid;
+		}
+		for (int i = 0; i < m_emitters.size(); i++)
+		{
+			delete m_emitters[i];
+		}
+		delete m_enemyHandler;
+		
+		
+		
+	}
+	
 }
 
 void Room::loadTextures()
 {
 	Manager::g_textureManager.loadTextures(this->getAssetFilePath());
 }
+
+
+#pragma region LoadPropsAndAssets
+void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector)
+{
+	std::pair<Trigger*, Door> doorLeverPair;
+	Lever * tempLever = nullptr;
+	Door * tempDoor = nullptr;
+	PressurePlate * tempPressurePlate = nullptr;
+	Bars * tempBars = nullptr;
+
+	for (int i = 0; i < propsAndAssets.nrOfItems; i++)
+	{
+		//tempAsset = DBG_NEW BaseActor();
+		int a = propsAndAssets.props[i].typeOfProp;
+		switch (propsAndAssets.props[i].typeOfProp)
+		{
+		case(1):
+
+			break;
+		case(2):
+			Manager::g_meshManager.loadSkinnedMesh("PLATE");
+			Manager::g_textureManager.loadTextures("PLATE");
+			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
+			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
+			tempPressurePlate = DBG_NEW PressurePlate(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+
+			tempPressurePlate->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2],
+				propsAndAssets.props[i].BBOX_INFO[0],
+				propsAndAssets.props[i].BBOX_INFO[1],
+				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].transform_scale[2]);
+			triggerHandler->Triggers.push_back(tempPressurePlate);
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			tempPressurePlate = nullptr;
+
+			break;
+		case(3):
+			Manager::g_meshManager.loadStaticMesh("DOOR");
+			Manager::g_textureManager.loadTextures("DOOR");
+			tempDoor = DBG_NEW Door(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempDoor->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2],
+				propsAndAssets.props[i].BBOX_INFO[0],
+				propsAndAssets.props[i].BBOX_INFO[1],
+				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].transform_scale[2]);
+			triggerHandler->Triggerables.push_back(tempDoor);
+			tempDoor = nullptr;
+			break;
+		case(4):
+			//Manager::g_meshManager.loadStaticMesh("SPAK");
+			//Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_meshManager.loadSkinnedMesh("SPAK");
+			Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
+			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
+			tempLever = DBG_NEW Lever(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempLever->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2]);
+			triggerHandler->Triggers.push_back(tempLever);
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
+			tempLever = nullptr;
+			break;
+		case(5):
+			Manager::g_meshManager.loadStaticMesh("BARS");
+			Manager::g_textureManager.loadTextures("BARS");
+			tempBars = DBG_NEW Bars(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempBars->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2],
+				propsAndAssets.props[i].BBOX_INFO[0],
+				propsAndAssets.props[i].BBOX_INFO[1],
+				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].transform_scale[2]);
+			triggerHandler->Triggerables.push_back(tempBars);
+			tempDoor = nullptr;
+			break;
+		case(6):
+			_setPropAttributes(propsAndAssets.props[i], "CRATE", &m_staticAssets, true);
+			break;
+		case(7):
+			_setPropAttributes(propsAndAssets.props[i], "BARREL", &m_staticAssets, true);
+			break;
+		case(8):
+			_setPropAttributes(propsAndAssets.props[i], "BANNER", &m_staticAssets, true);
+			break;
+		case(9):
+			_setPropAttributes(propsAndAssets.props[i], "CHAIR", &m_staticAssets, true);
+			break;
+		case(10):
+			_setPropAttributes(propsAndAssets.props[i], "TABLE", &m_staticAssets, true);
+			break;
+		case(11):
+			_setPropAttributes(propsAndAssets.props[i], "CARPET", &m_staticAssets, false);
+			break;
+		case(12):
+			_setPropAttributes(propsAndAssets.props[i], "BUCKET", &m_staticAssets, true);
+			break;
+		case(13):
+			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", &m_staticAssets, true);
+			break;
+		case(14):
+			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", &m_staticAssets, false);
+			break;
+		case(15):
+			_setPropAttributes(propsAndAssets.props[i], "TORCH", &m_staticAssets, false);
+			break;
+		case(16):
+			_setPropAttributes(propsAndAssets.props[i], "GIANTPILLAR", &m_staticAssets, false);
+			break;
+		case(17):
+			_setPropAttributes(propsAndAssets.props[i], "BOOK", &m_staticAssets, true);
+			break;
+		case(18):
+			_setPropAttributes(propsAndAssets.props[i], "SMALLCEILING", &m_staticAssets, true);
+			break;
+		case(19):
+			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", &m_staticAssets, true);
+			break;
+		case(20):
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", &m_staticAssets, true);
+			break;
+		case(21):
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", &m_staticAssets, false);
+			break;
+		case(22):
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", &m_staticAssets, true);
+			break;
+		case(23):
+			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", &m_staticAssets, false);
+			break;
+		case(24):
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", &m_staticAssets, true);
+			break;
+		case(25):
+			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", &m_staticAssets, true);
+			break;
+		case(26):
+			_setPropAttributes(propsAndAssets.props[i], "CANDLE", &m_staticAssets, false);
+			break;
+		case(27):
+			_setPropAttributes(propsAndAssets.props[i], "TANKARD", &m_staticAssets, false);
+			break;
+		case(28):
+			_setPropAttributes(propsAndAssets.props[i], "SPEAR", &m_staticAssets, false);
+			break;
+		case(29):
+			_setPropAttributes(propsAndAssets.props[i], "KEG", &m_staticAssets, true);
+			break;
+		case(30):
+			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", &m_staticAssets, true);
+			break;
+		case(31):
+			_setPropAttributes(propsAndAssets.props[i], "WALLCHAIN", &m_staticAssets, false);
+			break;
+		case(32):
+			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", &m_staticAssets, true);
+			break;
+		case(33):
+			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", &m_staticAssets, true);
+			break;
+		case(35):
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", &m_staticAssets, false);
+			break;
+		default:
+			break;
+		}
+	}
+
+
+}
+
+void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox)
+{
+	BaseActor * tempAsset = DBG_NEW BaseActor();
+	Manager::g_meshManager.loadStaticMesh(name);
+	Manager::g_textureManager.loadTextures(name);
+	tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+	tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+	bool moveBox = false;
+	if (useBoundingBox == true)
+	{
+		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		moveBox = true;
+		
+	}
+	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
+		tempAsset->CastShadows(false);
+	if (name == "FLOOR")
+		tempAsset->setTextureTileMult(prop.transform_scale[0], prop.transform_scale[2]);
+	if (name == "BLINKWALL")
+		tempAsset->setObjectTag("BLINK_WALL");
+	if(name == "THICKWALL")
+		tempAsset->setTextureTileMult(prop.transform_scale[1], prop.transform_scale[0]);
+
+
+	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
+	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	assetVector->push_back(tempAsset);
+}
+
+
+#pragma endregion

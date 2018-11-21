@@ -7,6 +7,7 @@
 #include "Source/Game/Actors/BaseActor.h"
 #include "Source/Game/Item/Map.h"
 #include "Source/Game/Item/Rock.h"
+#include "Helper/RandomRoomPicker.h"
 
 namespace FMOD
 {
@@ -64,9 +65,9 @@ private:
 
 	bool m_physRunning = false;
 public:
-	PlayState(RenderingManager * rm, void * coopData = nullptr);
+	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
-
+	unsigned short m_roomIndex = 0;
 	void Update(double deltaTime) override;
 
 	void Draw() override;
@@ -91,7 +92,7 @@ private:
 	void _loadTextures();
 	void _loadPhysics();
 	void _loadMeshes();
-	void _loadPlayers();
+	void _loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms);
 	void _loadNetwork();
 	void _loadSound();
 	// Unload functions

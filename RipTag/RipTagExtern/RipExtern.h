@@ -24,7 +24,7 @@ namespace RipExtern
 	extern b3World * g_world;
 	extern ContactListener	* g_contactListener;
 	extern RayCastListener	* g_rayListener;
-
+	extern bool m_first;
 
 	static bool BoolReverser(const bool & first)
 	{
