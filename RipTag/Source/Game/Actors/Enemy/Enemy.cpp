@@ -176,21 +176,6 @@ void Enemy::Update(double deltaTime)
 
 	_handleStates(deltaTime);
 
-	static float floor = 999.0f, roof = -1.0f;
-
-	auto lol = getLiniearVelocity();
-	float speed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(lol.x, lol.z, 0.0f, 0.0f)));
-
-	if (speed < floor && speed > 0.01f)
-		floor = speed;
-	if (speed > roof)
-		roof = speed;
-
-#ifdef _DEBUG
-	std::cout << std::endl << green <<"Speed: " << speed << "\nRoof: " << roof << "\nFloor: " << floor << "\nMaxDif: " << roof - floor << white << std::endl;
-#endif // _DEBUG
-
-
 	auto deltaX = getLiniearVelocity().x * deltaTime;
 	auto deltaZ = getLiniearVelocity().z * deltaTime;
 	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
@@ -207,111 +192,6 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
-	if (!m_disabled)
-	{
-		getBody()->SetType(e_dynamicBody);
-		
-		if (!m_inputLocked)
-		{
-			_handleInput(deltaTime);
-		}
-		else
-		{
-			if (m_state == Suspicious || m_state == Scanning_Area)
-			{
-				getBody()->SetAwake(false);
-			}
-			else if (m_alertPath.size() > 0 )
-			{
-				if (m_state != High_Alert)
-				{
-					_MoveToAlert(m_alertPath.at(0), deltaTime);
-				}
-			}
-			else
-			{
-				if (m_path.size() > 0)
-				{
-					if (m_pathNodes.size() == 0)
-					{
-						Manager::g_textureManager.loadTextures("FOOT");
-						Manager::g_meshManager.loadStaticMesh("FOOT");
-						for (unsigned int i = 0; i < m_path.size(); ++i)
-						{
-							
-							Drawable * temp = new Drawable();
-							temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
-							temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
-							temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
-							temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
-
-							if (i + 1 < m_path.size())
-							{
-								temp->setRotation(0, _getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i+1)->worldPos.x, m_path.at(i+1)->worldPos.y }),0);
-							}
-							
-
-							temp->SetTransparant(true);
-							m_pathNodes.push_back(temp);
-						}
-						
-					}
-					/*float posY = 0.04 * sin(1 * DirectX::XM_PI*m_sinWaver*0.5f) + 4.4f;
-					for (auto path : m_pathNodes)
-					{
-						path->setPosition(path->getPosition().x, posY , path->getPosition().z);
-					}*/
-					if (m_nodeFootPrintsEnabled == true)
-					{
-						if (m_currentPathNode != 0)
-						{
-							Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
-							temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
-						}
-					}
-					_MoveTo(m_path.at(m_currentPathNode), deltaTime);
-				}
-			}
-		}
-
-		_cameraPlacement(deltaTime);
-		
-		if (m_inputLocked)
-		{
-			_CheckPlayer(deltaTime);
-		}
-	}
-	else
-	{
-		getBody()->SetType(e_staticBody);
-		switch (m_knockOutType)
-		{
-
-		case Possessed:
-			if (m_released)
-			{
-				m_possesionRecoverTimer += deltaTime;
-				if (m_possesionRecoverTimer >= m_possessionRecoverMax)
-				{
-					m_disabled = false;
-					m_released = false; 
-					m_possesionRecoverTimer = 0; 
-				}
-			}
-			break; 
-		case Stoned:
-			
-			m_knockOutTimer += deltaTime;
-			if (m_knockOutMaxTime <= m_knockOutTimer)
-			{
-				m_disabled = false;
-				m_knockOutTimer = 0;
-			}
-			break; 
-		}
-		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
-		m_visCounter = 0;
-	}
 	
 }
 
@@ -370,7 +250,7 @@ void Enemy::_handleInput(double deltaTime)
 	_onMovement(deltaTime);
 	_onInteract();
 	_onRotate(deltaTime);
-	_possessed(deltaTime);
+	_onReleasePossessed(deltaTime);
 	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 }
 
@@ -766,7 +646,7 @@ float Enemy::getVisCounter() const
 	return m_visCounter;
 }
 
-void Enemy::_possessed(double deltaTime)
+void Enemy::_onReleasePossessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
 	{
@@ -1528,7 +1408,7 @@ void Enemy::_handleStates(const double deltaTime)
 
 	switch (m_transState)
 	{
-	case EnemyTransitionState::None:
+	case EnemyTransitionState::NoTransitionState:
 		break;
 	case EnemyTransitionState::Alerted:
 		this->_onAlerted();
@@ -1554,88 +1434,97 @@ void Enemy::_handleStates(const double deltaTime)
 	case EnemyTransitionState::BeingDisabled:
 		this->_onBeingDisabled();
 		break;
+	case EnemyTransitionState::ExitingPossess:
+		this->_onExitingPossessed();
+		break;
+	case EnemyTransitionState::ExitingDisable:
+		this->_onExitingDisabled();
+		break;
 	}
 
 	switch (m_state)
 	{
 	case EnemyState::Investigating_Sight:
+		#ifdef _DEBUG
+		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+		#endif
+		
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
-			//_investigating(currentGuard);
 			this->_investigatingSight(deltaTime);
 		}
+		if (m_transState == EnemyTransitionState::NoTransitionState)
+			_MoveToAlert(m_alertPath.at(0), deltaTime);
 		_detectTeleportSphere();
-		
-#ifdef _DEBUG
-
-		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-#endif
-		
 		break;
 	case EnemyState::Investigating_Sound:
+		#ifdef _DEBUG
+		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+		#endif
+
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
-			//_investigateSound(currentGuard);
 			this->_investigatingSound(deltaTime);
 		}
+		if (m_transState == EnemyTransitionState::NoTransitionState)
+			_MoveToAlert(m_alertPath.at(0), deltaTime);
 		_detectTeleportSphere();
-#ifdef _DEBUG
-
-		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
-#endif
 		break;
 	case EnemyState::Investigating_Room:
-#ifdef _DEBUG
-
+		#ifdef _DEBUG
 		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
-#endif
-		//_investigateRoom(currentGuard, timer);
+		#endif
+
 		this->_investigatingRoom(deltaTime);
 		_detectTeleportSphere();
+		if(m_transState == EnemyTransitionState::NoTransitionState)
+			_MoveToAlert(m_alertPath.at(0), deltaTime);
 		break;
 	case EnemyState::High_Alert:
-		//_highAlert(currentGuard, deltaTime);
-		this->_highAlert(deltaTime);
-#ifdef _DEBUG
-
+		#ifdef _DEBUG
 		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-#endif
+		#endif
+
+		this->_highAlert(deltaTime);
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Patrolling:
-		//_patrolling(currentGuard);
-		this->_patrolling(deltaTime);
-#ifdef _DEBUG
-
+		#ifdef _DEBUG
 		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-#endif
+		#endif
+
+		this->_patrolling(deltaTime);
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Suspicious:
-		//_suspicious(currentGuard, deltaTime);
-		this->_suspicious(deltaTime);
-#ifdef _DEBUG
-
+		#ifdef _DEBUG
 		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-#endif
+		#endif
+
+		this->_suspicious(deltaTime);
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Scanning_Area:
-		//_ScanArea(currentGuard, deltaTime);
-		this->_scanningArea(deltaTime);
-#ifdef _DEBUG
-
+		#ifdef _DEBUG
 		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
-#endif
+		#endif
+
+		this->_scanningArea(deltaTime);
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Possessed:
-
+		#ifdef _DEBUG
+		std::cout << yellow << "Enemy State: Possessed" << white << "\r";
+		#endif
+		_possessed(deltaTime);
 		break;
 	case EnemyState::Disabled:
-
+		#ifdef _DEBUG
+		std::cout << yellow << "Enemy State: Disabled" << white << "\r";
+		#endif
+		_disabled(deltaTime);
 		break;
 	}
 }
@@ -1653,7 +1542,7 @@ void Enemy::_onAlerted()
 	this->m_biggestVisCounter = 0;
 	FMOD_VECTOR at = { this->getPosition().x, this->getPosition().y, this->getPosition().z };
 	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 }
 
 void Enemy::_onInvestigateSound()
@@ -1669,7 +1558,7 @@ void Enemy::_onInvestigateSound()
 
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 }
 
 void Enemy::_onInvestigateSight()
@@ -1685,7 +1574,7 @@ void Enemy::_onInvestigateSight()
 
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Investigate Sight" << white << std::endl;
 #endif
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 }
 
 void Enemy::_onObserve()
@@ -1699,7 +1588,7 @@ void Enemy::_onObserve()
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
 #endif
 	this->m_state = Scanning_Area;
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 }
 
 void Enemy::_onSearchArea()
@@ -1710,7 +1599,7 @@ void Enemy::_onSearchArea()
 
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
 #endif
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 	auto pos = getPosition();
 	Tile guardTile = m_grid->WorldPosToTile(pos.x, pos.z);
 	
@@ -1749,24 +1638,57 @@ void Enemy::_onReturnToPatrol()
 
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
 #endif
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 }
 
 void Enemy::_onBeingPossessed()
 {
+	this->UnlockEnemyInput();
+	this->setReleased(false);
+	this->setHidden(true);
+
+	CameraHandler::setActiveCamera(getCamera());
+
 	this->m_state = EnemyState::Possessed;
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
 }
 
 void Enemy::_onBeingDisabled()
 {
+	this->DisableEnemy();
+	m_knockOutType = Stoned;
 	this->m_state = EnemyState::Disabled;
-	this->m_transState = EnemyTransitionState::None;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
+}
+
+void Enemy::_onExitingPossessed()
+{
+	m_knockOutType = Possessed;
+	this->DisableEnemy();
+	this->setReleased(true);
+	this->setHidden(false);
+
+	this->m_state = EnemyState::Disabled;
+	this->m_transState = EnemyTransitionState::NoTransitionState;
+}
+
+void Enemy::_onExitingDisabled()
+{
+	m_disabled = false;
+	m_released = false;
+	m_possesionRecoverTimer = 0;
+	m_knockOutTimer = 0;
+	this->m_state = EnemyState::NoState;
+	this->m_transState = EnemyTransitionState::SearchArea;
 }
 
 
 void Enemy::_investigatingSight(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
+
 	if (this->GetAlertPathSize() > 0)
 	{
 		if (this->m_visCounter > this->m_biggestVisCounter)
@@ -1792,6 +1714,10 @@ void Enemy::_investigatingSight(const double deltaTime)
 }
 void Enemy::_investigatingSound(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
+
 	if (this->GetAlertPathSize() > 0)
 	{
 		if (this->m_sl.percentage > this->m_loudestSoundLocation.percentage)
@@ -1817,6 +1743,10 @@ void Enemy::_investigatingSound(const double deltaTime)
 }
 void Enemy::_investigatingRoom(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
+
 	this->m_searchTimer += deltaTime;
 	
 	if (this->GetAlertPathSize() == 0)
@@ -1831,13 +1761,13 @@ void Enemy::_investigatingRoom(const double deltaTime)
 	{
 		this->setTransitionState(EnemyTransitionState::ReturnToPatrol);
 	}
-	else if(this->m_transState != EnemyTransitionState::Observe)
-	{
-		_MoveToAlert(m_alertPath.at(0), deltaTime);
-	}
 }
 void Enemy::_highAlert(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
+
 	this->m_HighAlertTime = deltaTime;
 	if (this->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
 	{
@@ -1854,6 +1784,9 @@ void Enemy::_highAlert(const double deltaTime)
 }
 void Enemy::_suspicious(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
 
 	this->m_actTimer += deltaTime;
 	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
@@ -1893,6 +1826,10 @@ void Enemy::_suspicious(const double deltaTime)
 }
 void Enemy::_scanningArea(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
+
 	this->m_actTimer += deltaTime;
 	//Do animation
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
@@ -1902,12 +1839,88 @@ void Enemy::_scanningArea(const double deltaTime)
 }
 void Enemy::_patrolling(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_CheckPlayer(deltaTime);
+
+	if (m_path.size() > 0)
+	{
+		if (m_pathNodes.size() == 0)
+		{
+			Manager::g_textureManager.loadTextures("FOOT");
+			Manager::g_meshManager.loadStaticMesh("FOOT");
+			for (unsigned int i = 0; i < m_path.size(); ++i)
+			{
+
+				Drawable * temp = new Drawable();
+				temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
+				temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
+				temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
+				temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
+
+				if (i + 1 < m_path.size())
+				{
+					temp->setRotation(0, _getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i + 1)->worldPos.x, m_path.at(i + 1)->worldPos.y }), 0);
+				}
+
+
+				temp->SetTransparant(true);
+				m_pathNodes.push_back(temp);
+			}
+
+		}
+		/*float posY = 0.04 * sin(1 * DirectX::XM_PI*m_sinWaver*0.5f) + 4.4f;
+		for (auto path : m_pathNodes)
+		{
+			path->setPosition(path->getPosition().x, posY , path->getPosition().z);
+		}*/
+		if (m_nodeFootPrintsEnabled == true)
+		{
+			if (m_currentPathNode != 0)
+			{
+				Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
+				temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
+			}
+		}
+		_MoveTo(m_path.at(m_currentPathNode), deltaTime);
+	}
+
 	if (this->getVisCounter() >= ALERT_TIME_LIMIT || this->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
 		this->m_transState = EnemyTransitionState::Alerted;
 	}
 }
-void Enemy::_disabled()
+void Enemy::_possessed(const double deltaTime)
 {
+	getBody()->SetType(e_dynamicBody);
+	_cameraPlacement(deltaTime);
+	_handleInput(deltaTime);
+}
+void Enemy::_disabled(const double deltaTime)
+{
+	getBody()->SetType(e_staticBody);
+	switch (m_knockOutType)
+	{
 
+	case Possessed:
+		if (m_released)
+		{
+			m_possesionRecoverTimer += deltaTime;
+			if (m_possesionRecoverTimer >= m_possessionRecoverMax)
+			{
+				m_transState = EnemyTransitionState::ExitingDisable;
+			}
+		}
+		break;
+	case Stoned:
+
+		m_knockOutTimer += deltaTime;
+		if (m_knockOutMaxTime <= m_knockOutTimer)
+		{
+			m_transState = EnemyTransitionState::ExitingDisable;
+		}
+		break;
+	}
+	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+	m_visCounter = 0;
 }

@@ -203,9 +203,7 @@ void DisableAbility::_inStateMoving(double dt)
 		{
 			if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
 			{
-				Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
-				temp->DisableEnemy();
-				temp->setKnockOutType(temp->Stoned); 
+				static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(EnemyTransitionState::BeingDisabled);
 				m_dState = DisableState::Cooldown;
 				this->setPosition(-999.9f, -999.9f, -999.9f);
 				p_cooldown = 0.0;
