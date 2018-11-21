@@ -39,6 +39,7 @@ void MainMenu::Update(double deltaTime)
 			m_background = nullptr;
 			m_loadingScreen.removeGUI(m_buttons);
 			m_loadingScreen.draw();
+			
 			this->pushNewState(new PlayState(this->p_renderingManager, nullptr, 0));
 			m_music->stop();
 			break; 
@@ -278,6 +279,7 @@ void MainMenu::unLoad()
 		m_background = nullptr;
 	}
 	Manager::g_textureManager.UnloadAllTexture();
+	Manager::g_textureManager.UnloadGUITextures();
 
 	std::cout << "MainMenu unLoad" << std::endl;
 }
