@@ -208,7 +208,6 @@ void RoomGenerator::_makeWalls()
 
 #pragma endregion
 
-
 #pragma region WALLS
 
 			
@@ -285,6 +284,18 @@ void RoomGenerator::_makeWalls()
 							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
 						}
 					}
+					for (unsigned int i = 0; i < modCollisionBoxes.nrOfBoxes; i++)
+					{
+						float * f4Rot = modCollisionBoxes.boxes[i].rotation;
+						float * f3Pos = modCollisionBoxes.boxes[i].translation;
+						float * f3Scl = modCollisionBoxes.boxes[i].scale;
+						DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };				//FOR SoUND
+							DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1 };
+						DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
+						FMOD::Geometry * ge = AudioEngine::CreateCube(0.75f, 0.35f, xmPos, xmScl, xmQ);
+						ge->setActive(false);
+						m_generatedAudioBoxes.push_back(ge);
+					}
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
 				}
@@ -330,7 +341,6 @@ void RoomGenerator::_makeWalls()
 			delete tempLights.lights;
 
 #pragma endregion
-
 
 #pragma region GRID
 		
@@ -397,8 +407,6 @@ void RoomGenerator::_makeWalls()
 
 #pragma endregion
 
-		
-
 #pragma region PROPS
 
 	
@@ -431,11 +439,44 @@ void RoomGenerator::_makeWalls()
 		
 #pragma endregion		
 
-		
+#pragma region ColissionBoxes
+
+			asset = DBG_NEW BaseActor();
+
+			ImporterLibrary::CollisionBoxes boxes = loader.readMeshCollisionBoxes(MODNAMESTRING);
+			for (int k = 0; k < boxes.nrOfBoxes; k++)
+			{
+				if (isRotated == true)
+				{
+					float tempPosX = boxes.boxes[k].translation[0];
+					boxes.boxes[k].translation[0] = j + tempLights.lights[k].translate[2];
+					boxes.boxes[k].translation[2] = i + 10 + tempPosX;
+					asset->addRotation(0, 90, 0);
+
+				}
+				else
+				{
+					boxes.boxes[k].translation[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
+					boxes.boxes[k].translation[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
+				}
+				m_generated_pointLightVector.push_back(new PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
+			}
+
+
+			asset->Init(*m_worldPtr, boxes);
+			m_generated_assetVector.push_back(asset);
+			/**/
+			delete[] boxes.boxes;
+
+
+#pragma endregion
+
 			widthCounter++;
 		}
 		depthCounter++;
 	}
+
+#pragma region Manage grid
 
 	ImporterLibrary::GridStruct * gridStructToSendBack = DBG_NEW ImporterLibrary::GridStruct();
 	int gridTotalCount = 0;
@@ -450,7 +491,7 @@ void RoomGenerator::_makeWalls()
 	for (int i = 0; i < appendedGridStruct.size(); i++)
 		for (int j = 0; j < appendedGridStruct[i]->nrOf; j++)
 			gridStructToSendBack->gridPoints[indexInGridStruct++] = appendedGridStruct[i]->gridPoints[j];
-	
+
 	// Sort y coordinates
 	for (int i = 0; i < gridStructToSendBack->nrOf - 1; i++)
 	{
@@ -504,7 +545,7 @@ void RoomGenerator::_makeWalls()
 			cleanGridStruct.push_back(gridStructToSendBack->gridPoints[i]);
 		}
 	}
-	delete [] gridStructToSendBack->gridPoints;
+	delete[] gridStructToSendBack->gridPoints;
 	gridStructToSendBack->gridPoints = DBG_NEW ImporterLibrary::GridPointStruct[cleanGridStruct.size()];
 	gridStructToSendBack->nrOf = cleanGridStruct.size();
 	for (int i = 0; i < cleanGridStruct.size(); i++)
@@ -516,15 +557,18 @@ void RoomGenerator::_makeWalls()
 
 	m_generatedGrid->CreateGridFromRandomRoomLayout(*gridStructToSendBack, 0);
 	returnableRoom->setGrid(m_generatedGrid);
-	
+
 	for (int i = 0; i < appendedGridStruct.size(); i++)
 	{
-		delete [] appendedGridStruct[i]->gridPoints;
+		delete[] appendedGridStruct[i]->gridPoints;
 		delete appendedGridStruct[i];
 	}
 
-	delete [] gridStructToSendBack->gridPoints;
+	delete[] gridStructToSendBack->gridPoints;
 	delete gridStructToSendBack;
+#pragma endregion
+
+	
 }
 
 void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex)
@@ -990,13 +1034,14 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
 	returnableRoom->setLightvector(m_generated_pointLightVector);
 	returnableRoom->setRoomGuards(m_generatedRoomEnemies);
 	returnableRoom->setParticleEmitterVector(m_generated_Emitters);
+	returnableRoom->setAudioBoxes(m_generatedAudioBoxes);
 	returnableRoom->loadTriggerPairMap();
 	return returnableRoom;
 }

@@ -157,7 +157,10 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes("ENEMY");
+	if (InputHandler::isKeyPressed('O'))
+	DrawWorldCollisionboxes("WIN_BOX");
+
+
 #endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }

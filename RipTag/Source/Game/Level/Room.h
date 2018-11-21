@@ -126,6 +126,7 @@ public:
 	TriggerHandler * getTriggerHandler() { return triggerHandler; }
 	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
 	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };
+	void setAudioBoxes(std::vector<FMOD::Geometry*> audioBoxes) { this->m_audioBoxes = audioBoxes; };
 	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
 private:
 	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false);
