@@ -80,9 +80,7 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->setHidden(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
 				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
-				this->m_possessTarget->DisableEnemy();
-				this->m_possessTarget->setHidden(false);
-				this->m_possessTarget->setReleased(true); 
+				this->m_possessTarget->setTransitionState(EnemyTransitionState::ExitingPossess);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0; 
@@ -119,15 +117,11 @@ void PossessGuard::_logic(double deltaTime)
 					pPointer->setHidden(false);
 					pPointer->LockPlayerInput();
 
-					this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
 					contact->contactShape->GetBody()->SetType(e_dynamicBody);
 					contact->contactShape->GetBody()->SetAwake(true);
-					this->m_possessTarget->UnlockEnemyInput();
+					this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+					this->m_possessTarget->setTransitionState(EnemyTransitionState::BeingPossessed);
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
-					this->m_possessTarget->setReleased(false); 
-					this->m_possessTarget->setHidden(true);
-
-					CameraHandler::setActiveCamera(this->m_possessTarget->getCamera());
 					m_pState = PossessGuard::Possessing;
 					p_cooldown = 0;
 					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
@@ -149,10 +143,7 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->getBody()->SetAwake(true);
 				pPointer->setHidden(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
-				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
-				this->m_possessTarget->DisableEnemy();
-				this->m_possessTarget->setReleased(true);
-				this->m_possessTarget->setHidden(false);
+				this->m_possessTarget->setTransitionState(EnemyTransitionState::ExitingPossess);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0;

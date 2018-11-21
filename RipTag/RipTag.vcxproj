@@ -620,6 +620,9 @@
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Gameplay\Objects\Torch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

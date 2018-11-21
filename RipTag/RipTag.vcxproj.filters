@@ -197,4 +197,7 @@
     <ClInclude Include="Source\Game\States\OptionSound.h" />
     <ClInclude Include="Source\Game\States\Helper\RandomRoomPicker.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
 </Project>
