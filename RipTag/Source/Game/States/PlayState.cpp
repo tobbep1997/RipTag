@@ -132,9 +132,9 @@ void PlayState::Update(double deltaTime)
 			BackToMenu();
 		}
 
-		if (m_youlost)
+		if (m_youlost || m_playerManager->isGameWon())
 		{
-			if (isCoop)
+			if (isCoop && m_youlost)
 				_sendOnGameOver();
 
 			m_destoryPhysicsThread = true;
@@ -145,10 +145,11 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			if (m_youlost)
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			else
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away... this time!\nGod of Stealth", (void*)pCoopData));
 		}
-
-	
 	
 		_audioAgainstGuards(deltaTime);
 
@@ -314,9 +315,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							volume *= occ;
 							float addThis = (volume / (lengthSquared * 3));
 
+							//Pro Tip: Not putting break in a case will not stop execution, 
+							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
 							switch (*soundType)
 							{
 							case AudioEngine::Player:
+							case AudioEngine::RemotePlayer:
 								allSounds += addThis;
 								playerSounds += addThis;
 								if (playerSounds > sl.percentage)
@@ -693,6 +697,7 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(true);
 		this->_registerThisInstanceToNetwork();
 		//free up memory when we are done with this data
+		m_levelHandler->getEnemyHandler()->setRemotePlayer(m_playerManager->getRemotePlayer());
 	}
 	else
 	{
@@ -811,33 +816,25 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 			m_eventOverlay->setScale({2.0f, 2.0f});
 			accumulatedTime = 0;
 
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
 			if (m_coopState.gameWon)
 			{
-				//We need a GameWon state perhaps, or we simply make the LoseState into a more general State that can handle both Lose and Won
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away.. this time!\nGod of Stealth", (void*)pCoopData));
 			}
 			else if (m_coopState.gameOver)
 			{
-				m_destoryPhysicsThread = true;
-				m_physicsCondition.notify_all();
-
-
-				if (m_physicsThread.joinable())
-				{
-					m_physicsThread.join();
-				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
 			}
 			else if (m_coopState.remoteDisconnected)
 			{
-				m_destoryPhysicsThread = true;
-				m_physicsCondition.notify_all();
-
-
-				if (m_physicsThread.joinable())
-				{
-					m_physicsThread.join();
-				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
 			}
 		}
 	}

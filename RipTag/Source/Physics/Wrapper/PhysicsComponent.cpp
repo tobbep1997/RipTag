@@ -287,10 +287,14 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 			b->SetObjectTag("BLINK_WALL");
 
 		if (collisionBoxes.boxes[i].typeOfBox == 2)
+		{
 			b->SetObjectTag("WIN_BOX");
+		}
 		//b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
 		m_bodys.push_back(b);
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
+		if (collisionBoxes.boxes[i].typeOfBox == 2)
+			m_shapes[m_shapes.size() - 1]->SetSensor(true);
 	}
   }
 

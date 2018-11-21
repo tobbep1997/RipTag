@@ -36,7 +36,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 	}
 	b3Vec3 pos(1, 0.9, 1);
-	PhysicsComponent::Init(*world, e_dynamicBody,pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
+	PhysicsComponent::Init(*world, e_dynamicBody, pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
@@ -172,6 +172,10 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
+	static double accumulatedTime = 0.0;
+	static const double SEND_AI_PACKET_FREQUENCY = 1.0 / 15.0; 
+
+
 	using namespace DirectX;
 
 	_handleStates(deltaTime);
@@ -210,7 +214,65 @@ void Enemy::Update(double deltaTime)
 	if (!m_disabled)
 	{
 		getBody()->SetType(e_dynamicBody);
-		
+		//auto dir = p_camera->getDirection();
+		//DirectX::XMFLOAT4A forward, right, up;
+		//forward = { dir.x, dir.y, dir.z, 0.0};
+		//up = { 0,1,0,0.0 };
+		//DirectX::XMStoreFloat4A(&right, DirectX::XMVector3Cross(XMLoadFloat4A(&forward), XMLoadFloat4A(&up)));
+		//DirectX::XMStoreFloat4A(&forward, DirectX::XMVector3Cross(XMLoadFloat4A(&right), XMLoadFloat4A(&up)));
+
+		//DirectX::XMFLOAT4X4A rotMatrix = 
+		//{
+		//	right.x,	right.y,	right.z,	0,
+		//	0,			1,			0,			0,
+		//	forward.x,	forward.y,	forward.z,	0,
+		//	0,			0,			0,			1
+		//};
+		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
+		//this->ForceWorld(cameraWorld);
+		DirectX::XMMATRIX viewInv, proj;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
+
+		DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
+		m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
+
+		for (size_t i = 0; i < m_teleportBoundingSphere.size(); i++)
+		{
+			
+			if (m_boundingFrustum->Intersects(*m_teleportBoundingSphere[i]))
+			{
+				DirectX::XMFLOAT4 direction = getDirection(getPosition(), DirectX::XMFLOAT4A(m_teleportBoundingSphere[i]->Center.x,
+					m_teleportBoundingSphere[i]->Center.y,
+					m_teleportBoundingSphere[i]->Center.z,
+					0.0f));
+
+				//std::cout << "HOLD OP THE PARTNER" << std::endl;
+
+				//TODO: Fix when ray is corrected
+
+				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+					direction.x,
+					direction.y,
+					direction.z,
+					direction.w),
+					getLenght(getPosition(), DirectX::XMFLOAT4A(
+						direction.x,
+						direction.y,
+						direction.z,
+						direction.w)));
+				if (r)
+				{
+					/*std::cout << "-------------------------------------------------" << std::endl;
+					for (int i = 0; i < r->getNrOfContacts(); i++)
+					{						
+						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
+					}*/
+				}
+			}
+			
+		}
+
 		if (!m_inputLocked)
 		{
 			_handleInput(deltaTime);
@@ -283,7 +345,7 @@ void Enemy::Update(double deltaTime)
 	}
 	else
 	{
-		getBody()->SetType(e_staticBody);
+		getBody()->SetType(e_dynamicBody);
 		switch (m_knockOutType)
 		{
 
@@ -309,10 +371,16 @@ void Enemy::Update(double deltaTime)
 			}
 			break; 
 		}
-		PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+		//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
 	
+}
+
+void Enemy::ClientUpdate(double deltaTime)
+{
+	if (getAnimationPlayer())
+		getAnimationPlayer()->Update(deltaTime);
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -352,6 +420,24 @@ void Enemy::EnableEnemy()
 bool Enemy::GetDisabledState()
 {
 	return m_disabled;
+}
+
+void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
+{
+	this->m_currentMoveSpeed = packet->moveSpeed;
+	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, packet->pos.y);
+	this->setRotation(packet->rot);
+}
+
+void Enemy::sendNetworkUpdate()
+{
+	Network::ENEMYUPDATEPACKET packet;
+	packet.uniqueID = uniqueID;
+	packet.pos = getPosition();
+	packet.rot = getEulerRotation();
+	packet.moveSpeed = m_currentMoveSpeed;
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void Enemy::_handleInput(double deltaTime)
@@ -1187,7 +1273,7 @@ void Enemy::_activateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 	crouchDir = 1;
-	m_kp.crouching = true;
+m_kp.crouching = true;
 }
 
 void Enemy::_deActivateCrouch()
@@ -1416,7 +1502,7 @@ void Enemy::_playFootsteps(double deltaTime)
 			index = rand() % (int)RipSounds::g_stepsStone.size();
 		}
 		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
-		
+
 		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
 		m_av.lastIndex = index;
 		m_av.hasPlayed = !m_av.hasPlayed;
@@ -1911,3 +1997,4 @@ void Enemy::_disabled()
 {
 
 }
+		

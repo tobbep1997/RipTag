@@ -13,6 +13,7 @@ public:
 	void Update(double deltaTime);
 	bool isEqual(Lever* target);
 	void BeginPlay() override;
+	
 private:
 	void _playSound(AudioEngine::SoundType st = AudioEngine::Player) override;
 };

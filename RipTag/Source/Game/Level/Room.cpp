@@ -36,13 +36,13 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	m_lose = new Quad();
 	m_lose->init();
-	m_lose->setPosition(0.5f, 0.5f);
+	m_lose->setPosition(0.5f, 0.8f);
 	m_lose->setScale(0.5f, 0.25f);
 	
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture("SPHERE");
-	m_lose->setPressedTexture("DAB");
-	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_lose->setFont(FontHandler::getFont("consolas32"));
 
@@ -70,11 +70,11 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	m_lose->setScale(0.5f, 0.25f);
 
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture("SPHERE");
-	m_lose->setPressedTexture("DAB");
-	m_lose->setHoverTexture("PIRASRUM");
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(FontHandler::getFont("consolas32"));
+	m_lose->setFont(FontHandler::getFont("consolas16"));
 
 	HUDComponent::AddQuad(m_lose);
 
@@ -83,9 +83,7 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 }
 Room::~Room()
 {
-	triggerHandler->Release();
-	delete triggerHandler;
-	delete m_pathfindingGrid;
+	
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -127,6 +125,12 @@ const std::vector<Enemy*>* Room::getEnemies() const
 	return &m_roomGuards;
 }
 
+void Room::GiveCameraToParticles(Camera * ptr)
+{
+	for (auto torch : m_Torches)
+		torch->setCamera(ptr);
+}
+
 void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
@@ -144,14 +148,19 @@ void Room::LoadRoomToMemory()
 	{
 		ImporterLibrary::CustomFileLoader fileLoader;
 		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
-		ParticleEmitter * p_emit;
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
-			this->m_pointLights.push_back(DBG_NEW PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
-			p_emit = DBG_NEW ParticleEmitter();
-			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2]);
-			m_emitters.push_back(p_emit);
-			std::cout << tempLights.lights[i].translate[0] << tempLights.lights[i].translate[1] << tempLights.lights[i].translate[2] << std::endl;
+			PointLight * p_pointLight = nullptr;
+			ParticleEmitter * p_emit = nullptr;
+
+			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
+			p_pointLight->setColor(90, 112.0f, 130.0f);
+
+			p_emit = new ParticleEmitter();
+			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);
+
+			m_Torches.push_back( new Torch(p_pointLight, p_emit, 0));
+			
 			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
 			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
@@ -249,9 +258,11 @@ void Room::LoadRoomToMemory()
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
-	for (auto light : m_pointLights)
+	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
+	for (int i = 0; i < m_Torches.size(); i++)
 	{
-		light->setColor(120.0f, 112.0f, 90.0f);
+		m_Torches[i]->setUniqueID(nrOfTriggers + i);
+		triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(m_Torches[i]->getUniqueID(), m_Torches[i]));
 	}
 }
 
@@ -300,19 +311,20 @@ void Room::Update(float deltaTime, Camera * camera)
 	m_playerInRoomPtr->SetCurrentVisability(endvis);
 	
 	vis.clear();*/
-	for (int i = 0; i < m_emitters.size(); i++)
-	{
-		m_emitters[i]->Update(deltaTime, camera);
-	}
+	
+	
 	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler->Update(deltaTime);
 
-	for (auto light : m_pointLights)
+	for (auto torch : m_Torches)
 	{
-		light->setDropOff(0.2f);
-		light->setPower(2.4f);
-		light->setIntensity(light->TourchEffect(deltaTime, 8.3f, 2.5f));
+		torch->Update(deltaTime);
+		auto light = torch->getPointLightPtr();
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
 	}
+
 	triggerHandler->Update(deltaTime);
 
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
@@ -352,10 +364,12 @@ void Room::Draw()
 	{
 		m_staticAssets.at(i)->Draw();
 	}
-	for (auto light : m_pointLights)
+	
+	for (auto torch : m_Torches)
 	{
-		light->QueueLight();
+		torch->Draw();
 	}
+
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
 	
@@ -370,11 +384,6 @@ void Room::Draw()
 	{
 		guard->DrawGuardPath();
 	}
-	for (int i = 0; i < m_emitters.size(); i++)
-	{
-		m_emitters[i]->Queue();
-	}
-
 }
 
 void Room::Release()
@@ -407,35 +416,31 @@ void Room::Release()
 			delete CollisionBoxes;
 			CollisionBoxes = nullptr;
 		}
-		for (auto light : m_pointLights)
-		{
-			delete light;
-		}
-		m_pointLights.clear();
 		for (auto enemy : m_roomGuards)
 		{
 			delete enemy;
 		}
-		m_roomGuards.clear();
-
 		for (auto ab : m_audioBoxes)
 		{
 			ab->release();
 		}
 		if (m_grid)
 		{
-			delete[] m_grid->gridPoints;
-			
-			delete m_grid;
+			delete m_grid->gridPoints;
 		}
-		for (int i = 0; i < m_emitters.size(); i++)
+
+		for (int i = 0; i < m_Torches.size(); i++)
 		{
-			delete m_emitters[i];
+			delete m_Torches[i];
+			m_Torches[i] = nullptr; 
 		}
+		m_Torches.clear();
+
+		triggerHandler->Release();
+		delete triggerHandler;
 		delete m_enemyHandler;
-		
-		
-		
+		delete m_pathfindingGrid;
+	
 	}
 	
 }
@@ -445,8 +450,6 @@ void Room::loadTextures()
 	Manager::g_textureManager.loadTextures(this->getAssetFilePath());
 }
 
-
-#pragma region LoadPropsAndAssets
 void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector)
 {
 	std::pair<Trigger*, Door> doorLeverPair;
@@ -455,14 +458,11 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
 
-	for (int i = 0; i < propsAndAssets.nrOfItems; i++)
+	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
-		//tempAsset = DBG_NEW BaseActor();
-		int a = propsAndAssets.props[i].typeOfProp;
 		switch (propsAndAssets.props[i].typeOfProp)
 		{
 		case(1):
-
 			break;
 		case(2):
 			Manager::g_meshManager.loadSkinnedMesh("PLATE");
@@ -635,8 +635,6 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			break;
 		}
 	}
-
-
 }
 
 void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox)
@@ -670,4 +668,6 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 }
 
 
-#pragma endregion
+
+	
+	

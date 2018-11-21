@@ -34,12 +34,12 @@ public:
 	void _onRemotePlayerDisconnect(unsigned char id, unsigned char * data);
 	void _onRemotePlayerPacket(unsigned char id, unsigned char * data);
 	void _onRemotePlayerWonPacket(unsigned char id, unsigned char *data);
+	void _onVisibilityPacket(unsigned char id, unsigned char *data);
 
 	void Init(b3World * physWorld);
 	void Update(float dt);
 	void PhysicsUpdate();
 	void Draw();
-	void win();
 	void isCoop(bool coop);
 	//Local player handling
 	void CreateLocalPlayer(DirectX::XMFLOAT4A pos = { 0.f, 0.f, 0.f, 0.f });
@@ -50,6 +50,8 @@ public:
 	void SendOnPlayerCreate();
 	Player * getLocalPlayer();
 	RemotePlayer * getRemotePlayer();
+
+	bool isGameWon();
 
 	//use this function to set the type from char selection 
 	void setPlayerType(int type) { player_type = type; }

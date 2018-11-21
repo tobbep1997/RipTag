@@ -19,7 +19,7 @@ Lever::~Lever()
 
 void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setObjectTag("LEVER");
 	setTexture(Manager::g_textureManager.getTexture("SPAK"));
@@ -44,9 +44,6 @@ void Lever::Update(double deltaTime)
 			{
 				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
 				{
-					auto pos = getPosition();
-					FMOD_VECTOR fVector = { pos.x, pos.y, pos.z };
-
 					if (this->getTriggerState())
 					{
 						this->setTriggerState(false);
@@ -68,6 +65,7 @@ void Lever::Update(double deltaTime)
 void Lever::BeginPlay()
 {
 }
+
 
 void Lever::_playSound(AudioEngine::SoundType st)
 {
