@@ -186,7 +186,10 @@ void Enemy::Update(double deltaTime)
 	if (speed > roof)
 		roof = speed;
 
+#ifdef _DEBUG
 	std::cout << std::endl << green <<"Speed: " << speed << "\nRoof: " << roof << "\nFloor: " << floor << "\nMaxDif: " << roof - floor << white << std::endl;
+#endif // _DEBUG
+
 
 	auto deltaX = getLiniearVelocity().x * deltaTime;
 	auto deltaZ = getLiniearVelocity().z * deltaTime;
@@ -1563,7 +1566,12 @@ void Enemy::_handleStates(const double deltaTime)
 			this->_investigatingSight(deltaTime);
 		}
 		_detectTeleportSphere();
+		
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+#endif
+		
 		break;
 	case EnemyState::Investigating_Sound:
 		if (timer > 0.3f)
@@ -1573,10 +1581,16 @@ void Enemy::_handleStates(const double deltaTime)
 			this->_investigatingSound(deltaTime);
 		}
 		_detectTeleportSphere();
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+#endif
 		break;
 	case EnemyState::Investigating_Room:
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
+#endif
 		//_investigateRoom(currentGuard, timer);
 		this->_investigatingRoom(deltaTime);
 		_detectTeleportSphere();
@@ -1584,25 +1598,37 @@ void Enemy::_handleStates(const double deltaTime)
 	case EnemyState::High_Alert:
 		//_highAlert(currentGuard, deltaTime);
 		this->_highAlert(deltaTime);
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+#endif
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Patrolling:
 		//_patrolling(currentGuard);
 		this->_patrolling(deltaTime);
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+#endif
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Suspicious:
 		//_suspicious(currentGuard, deltaTime);
 		this->_suspicious(deltaTime);
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+#endif
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Scanning_Area:
 		//_ScanArea(currentGuard, deltaTime);
 		this->_scanningArea(deltaTime);
+#ifdef _DEBUG
+
 		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
+#endif
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Possessed:
@@ -1616,7 +1642,10 @@ void Enemy::_handleStates(const double deltaTime)
 
 void Enemy::_onAlerted()
 {
+#ifdef _DEBUG
+
 	std::cout << green << "Enemy " << this->uniqueID <<  " Transition: Patrolling -> Suspicious" << white << std::endl;
+#endif
 	this->m_state = Suspicious;
 	this->m_actTimer = 0;
 	this->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
@@ -1636,7 +1665,10 @@ void Enemy::_onInvestigateSound()
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 	this->m_state = Investigating_Sound;
+#ifdef _DEBUG
+
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
+#endif
 	this->m_transState = EnemyTransitionState::None;
 }
 
@@ -1649,7 +1681,10 @@ void Enemy::_onInvestigateSight()
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 	this->m_state = Investigating_Sight;
+#ifdef _DEBUG
+
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Investigate Sight" << white << std::endl;
+#endif
 	this->m_transState = EnemyTransitionState::None;
 }
 
@@ -1659,7 +1694,10 @@ void Enemy::_onObserve()
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 	this->m_actTimer = 0;
 	//this->SetAlertVector(m_grid->FindPath(guardTile, this->GetCurrentPathNode()->tile));
+#ifdef _DEBUG
+
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
+#endif
 	this->m_state = Scanning_Area;
 	this->m_transState = EnemyTransitionState::None;
 }
@@ -1668,7 +1706,10 @@ void Enemy::_onSearchArea()
 {
 	this->m_actTimer = 0;
 	this->m_state = Investigating_Room;
+#ifdef _DEBUG
+
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
+#endif
 	this->m_transState = EnemyTransitionState::None;
 	auto pos = getPosition();
 	Tile guardTile = m_grid->WorldPosToTile(pos.x, pos.z);
@@ -1704,7 +1745,10 @@ void Enemy::_onReturnToPatrol()
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
 	this->m_state = Patrolling;
+#ifdef _DEBUG
+
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
+#endif
 	this->m_transState = EnemyTransitionState::None;
 }
 
@@ -1802,7 +1846,10 @@ void Enemy::_highAlert(const double deltaTime)
 		this->setLoudestSoundLocation(Enemy::SoundLocation());
 		this->setBiggestVisCounter(0);
 		this->m_state = EnemyState::Suspicious;
+#ifdef _DEBUG
+
 		std::cout << green << "Enemy " << this->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
+#endif
 	}
 }
 void Enemy::_suspicious(const double deltaTime)

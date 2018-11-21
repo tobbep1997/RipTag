@@ -1,0 +1,3 @@
+Time nr: 1050
+Timer now: 0.0178935
+inside While: 0.00122688
