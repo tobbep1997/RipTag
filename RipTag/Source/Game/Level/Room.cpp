@@ -1,8 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
 
-
-
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
 	
