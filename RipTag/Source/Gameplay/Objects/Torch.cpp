@@ -30,6 +30,7 @@ Torch::~Torch()
 		pParticles = nullptr;
 	}
 	Trigger::Release();*/
+	Release();
 }
 
 void Torch::Update(double deltaTime)
