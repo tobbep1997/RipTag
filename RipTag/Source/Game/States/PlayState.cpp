@@ -52,8 +52,8 @@ void PlayState::Update(double deltaTime)
 	{
 		InputMapping::Call();
 
-		m_step.dt = deltaTime;
-		m_step.velocityIterations = 2;
+		m_step.dt = m_UpdateTime;
+		m_step.velocityIterations = 8;
 		m_step.sleeping = false;
 		m_firstRun = false;
 
@@ -193,12 +193,17 @@ void PlayState::_PhyscisThread(double deltaTime)
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 		m_physRunning = true;
-		if (m_deltaTime <= 0.65f)
-		{
-			m_world.Step(m_step);
-		}
-		m_physRunning = false;
 		
+		/*if (m_deltaTime <= 0.65f) // IF Something wierd happens, please uncomment *DISCLAIMER*
+		{*/
+			m_timer += m_deltaTime;
+			while (m_timer >= m_UpdateTime)
+			{
+				m_world.Step(m_step);
+				m_timer -= m_UpdateTime;
+			}
+		//}
+		m_physRunning = false;
 	}
 }
 
