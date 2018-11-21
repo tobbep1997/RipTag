@@ -37,6 +37,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_VISIBILITY, std::bind(&PlayerManager::_onVisibilityPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
@@ -71,6 +72,12 @@ void PlayerManager::_onRemotePlayerWonPacket(unsigned char id, unsigned char * d
 {
 	Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
 	mRemotePlayer->hasWon = pData->condition;
+}
+
+void PlayerManager::_onVisibilityPacket(unsigned char id, unsigned char * data)
+{
+	Network::VISIBILITYPACKET * pData = (Network::VISIBILITYPACKET*)data;
+	mLocalPlayer->SetCurrentVisability(pData->value);
 }
 
 void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * data)

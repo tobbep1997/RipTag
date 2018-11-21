@@ -24,6 +24,7 @@ namespace Network
 		ID_PLAYER_STATE				 = ID_USER_PACKET_ENUM + 4,
 		ID_PLAYER_ABILITY			 = ID_USER_PACKET_ENUM + 5,
 		ID_PLAYER_ANIMATION			 = ID_USER_PACKET_ENUM + 6,
+		ID_PLAYER_VISIBILITY		 = ID_USER_PACKET_ENUM + 7, 
 		// 20-29 is reserved for lobby
 		ID_SERVER_ADVERTISE			 = ID_USER_PACKET_ENUM + 20,
 		ID_CHAR_SELECTED			 = ID_USER_PACKET_ENUM + 21,
@@ -162,6 +163,12 @@ namespace Network
 		int seed;
 		RakNet::NetworkID remoteID;
 		GAMESTARTEDPACKET(unsigned char _id, int _seed, RakNet::NetworkID nid) : id(_id), seed(_seed), remoteID(nid) {}
+	};
+
+	struct VISIBILITYPACKET
+	{
+		unsigned char id = ID_PLAYER_VISIBILITY;
+		float value;
 	};
 #pragma pack(pop)
 	//STRUCTS END
