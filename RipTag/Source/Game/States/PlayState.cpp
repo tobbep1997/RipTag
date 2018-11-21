@@ -153,7 +153,6 @@ void PlayState::Update(double deltaTime)
 	
 		_audioAgainstGuards(deltaTime);
 
-
 		// Must be last in update
 		if (!m_playerManager->getLocalPlayer()->unlockMouse)
 		{
@@ -569,9 +568,10 @@ void PlayState::unLoad()
 		delete m_eventOverlay;
 		m_eventOverlay = nullptr;
 	}
-
 	Network::Multiplayer::LocalPlayerOnSendMap.clear();
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+
+	dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
 }
 
 void PlayState::Load()
@@ -672,7 +672,6 @@ void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 
 void PlayState::_loadNetwork()
 {
-
 	if (isCoop)
 	{
 		this->m_seed = pCoopData->seed;

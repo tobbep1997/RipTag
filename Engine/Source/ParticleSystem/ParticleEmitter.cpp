@@ -20,12 +20,11 @@ ParticleEmitter::ParticleEmitter()
 
 ParticleEmitter::~ParticleEmitter()
 {
+	m_vertexBuffer->Release();
 	for (auto& particle : m_Particles)
 	{
 		delete particle;
 	}
-	
-	m_vertexBuffer->Release();
 }
 
 void ParticleEmitter::Update(float timeDelata, Camera * camera)
@@ -95,7 +94,6 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 
 	for (int i = 0; i < m_Particles.size(); i++)
 	{
-		
 		DirectX::XMVECTOR cameraPos = DirectX::XMLoadFloat4A(&camera->getPosition());
 		m_toCam = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(m_Particles[i]->position, cameraPos));
 		m_right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_toCam, m_fakeUp));
@@ -254,6 +252,11 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 	return basePos;
 }
 
+void ParticleEmitter::releaseVertexBuffer()
+{
+	m_vertexBuffer->Release(); 
+}
+
 void ParticleEmitter::Queue()
 {
 	DX::g_emitters.push_back(this);
@@ -262,6 +265,11 @@ void ParticleEmitter::Queue()
 void ParticleEmitter::setPosition(const float & x, const float & y, const float & z, const float & w)
 {
 	m_SpawnPosition = DirectX::XMVECTOR{ x,y,z,w };
+}
+
+const DirectX::XMVECTOR & ParticleEmitter::getPosition() const
+{
+	return m_SpawnPosition; 
 }
 
 DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()

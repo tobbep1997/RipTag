@@ -413,7 +413,6 @@ void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
-		
 		m_activeSet[i]->Draw();
 	}
 	Drawable::Draw();
