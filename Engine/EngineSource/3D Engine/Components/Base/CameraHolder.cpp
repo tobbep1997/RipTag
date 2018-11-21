@@ -181,6 +181,13 @@ double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const Dir
 	return 0;
 }
 
+DirectX::XMFLOAT4A CameraHolder::getForward() const
+{
+	
+	return p_camera->getForward();
+
+}
+
 CameraHolder::CameraHolder()
 {
 }

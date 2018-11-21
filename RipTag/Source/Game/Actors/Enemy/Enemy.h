@@ -317,7 +317,7 @@ private:
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch(); //v
 	void _deActivateCrouch(); //v
-
+	void _Move(Node * nextNode, double deltaTime);
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 
 	void _playFootsteps(double deltaTime);
