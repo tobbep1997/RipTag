@@ -144,11 +144,11 @@ void RoomGenerator::_makeWalls()
 			directions[3] = randomizer.m_rooms[index].west;
 			
 
-			RANDOM_MOD_NR = MAX_SMALL_MODS;//rand() % 2 + 1; //INCREASE AS MODS INCREASE, MAKE ONE FOR double rooms
+			RANDOM_MOD_NR = MAX_SMALL_MODS;//RANDOM MELLAN MAX_SMALL MODS och 1
 
 			if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
 			{
-				RANDOM_MOD_NR = 2;//random from smallmods+1
+				RANDOM_MOD_NR = 2;//random från antal small rum upp till max big room
 			}
 			isRotated = false;
 			if (randomizer.m_rooms[index].type == 1)
@@ -156,8 +156,16 @@ void RoomGenerator::_makeWalls()
 			
 			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 
-#pragma region WALLS
+			int BigRoomAddX = 0;
+			int BigRoomAddZ = 0;
 
+			if (RANDOM_MOD_NR > MAX_SMALL_MODS)
+			{
+				if (!isRotated)
+					BigRoomAddX = 10;
+				else
+					BigRoomAddZ = 10;
+			}
 			bool placeWall = true;
 			isWinRoom = false;
 			//PLACEWINROOM
@@ -167,6 +175,45 @@ void RoomGenerator::_makeWalls()
 				MODNAMESTRING = "MOD" + std::to_string(99);
 
 			}
+#pragma region Guards
+
+			Manager::g_meshManager.loadSkinnedMesh("STATE");
+			Manager::g_meshManager.loadSkinnedMesh("GUARD");
+			Manager::g_textureManager.loadTextures("SPHERE");
+			ImporterLibrary::GuardStartingPositions tempGuards = loader.readGuardStartFiles(MODNAMESTRING);
+			for (int k = 0; k < tempGuards.nrOf; k++)
+			{
+				if (isRotated == true)
+				{
+					float tempPosX = tempGuards.startingPositions[k].startingPos[0];
+					tempGuards.startingPositions[k].startingPos[0] = j + tempGuards.startingPositions[k].startingPos[2];
+					tempGuards.startingPositions[k].startingPos[2] = i + 10 + tempPosX;
+
+				}
+				else
+				{
+			
+
+					tempGuards.startingPositions[k].startingPos[0] = j + tempGuards.startingPositions[k].startingPos[0] + BigRoomAddX;
+					tempGuards.startingPositions[k].startingPos[2] = i + tempGuards.startingPositions[k].startingPos[2] + BigRoomAddZ;
+				}
+
+				Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
+				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
+				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
+				this->m_generatedRoomEnemies.push_back(e);
+			}
+			delete tempGuards.startingPositions;
+			//set random PATH?
+
+
+
+#pragma endregion
+
+
+#pragma region WALLS
+
+			
 			
 			for (int x = 0; x < 4; x++)
 			{
@@ -178,8 +225,6 @@ void RoomGenerator::_makeWalls()
 				if (randomizer.m_rooms[index].leadsToRoom[x] != -1)
 					if (randomizer.m_rooms[index].pairedWith == randomizer.m_rooms[index].leadsToRoom[x])
 						placeWall = false;
-			////////
-
 
 				if (placeWall)
 				{
@@ -236,6 +281,11 @@ void RoomGenerator::_makeWalls()
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j - 10.f, 2.5, i);
 						m_generated_assetVector.push_back(asset);
+						if (isWinRoom)
+						{
+							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
+							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
+						}
 					}
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
@@ -251,23 +301,33 @@ void RoomGenerator::_makeWalls()
 
 			ImporterLibrary::PointLights tempLights = loader.readLightFile(MODNAMESTRING);
 			ParticleEmitter * p_emit;
-			for (int i = 0; i < tempLights.nrOf; i++)
+			for (int k = 0; k < tempLights.nrOf; k++)
 			{
-				if (isRotated)
+				if (isRotated == true)
 				{
+					float tempPosX = tempLights.lights[k].translate[0];
+					tempLights.lights[k].translate[1] += 90.f;
+					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[2];
+					tempLights.lights[k].translate[2] = i + 10 + tempPosX;
 
 				}
+				else
+				{
+					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
+					tempLights.lights[k].translate[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
+				}
+				m_generated_pointLightVector.push_back(new PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
 
-
-
-
-				m_generated_pointLightVector.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
 				p_emit = new ParticleEmitter();
-				p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2]);
+				p_emit->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2]);
 				m_generated_Emitters.push_back(p_emit);
-				std::cout << tempLights.lights[i].translate[0] << tempLights.lights[i].translate[1] << tempLights.lights[i].translate[2] << std::endl;
-				FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
+				std::cout << tempLights.lights[k].translate[0] << tempLights.lights[k].translate[1] << tempLights.lights[k].translate[2] << std::endl;
+				FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[k].translate[2] };
 				AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
+			}
+			for (auto light : m_generated_pointLightVector)
+			{
+				light->setColor(120.0f, 112.0f, 90.0f);
 			}
 			delete tempLights.lights;
 
@@ -275,16 +335,7 @@ void RoomGenerator::_makeWalls()
 
 
 #pragma region GRID
-			int BigRoomAddX = 0;
-			int BigRoomAddZ = 0;
-
-			if (RANDOM_MOD_NR > MAX_SMALL_MODS)
-			{
-				if (!isRotated)
-					BigRoomAddX = 10;
-				else
-					BigRoomAddZ = 10;
-			}
+		
 
 			if (!randomizer.m_rooms[index].propsPlaced)
 			{
@@ -328,19 +379,6 @@ void RoomGenerator::_makeWalls()
 				_unblockIndex(randomizer, tempGridStruct, index);
 				if (randomizer.m_rooms[index].pairedWith != -1)
 					_unblockIndex(randomizer, tempGridStruct, randomizer.m_rooms[index].pairedWith);
-
-				for (int z = 0; z < tempGridStruct->nrOf; z++)
-				{
-					if (!tempGridStruct->gridPoints[z].pathable)
-					{
-						asset = new BaseActor();
-						asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-						asset->setPosition(tempGridStruct->gridPoints[z].translation[0], 2,
-							tempGridStruct->gridPoints[z].translation[2], false);
-						asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
-						m_generated_assetVector.push_back(asset);
-					}
-				}
 				appendedGridStruct.push_back(tempGridStruct);
 			}
 
