@@ -53,17 +53,27 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 	case 0:
 		m_shadowMap->Init(64, 64);
 		m_lightCullingDistance = 50;
-		m_forceCullingLimit = 5;
+		m_forceCullingLimit = 4;
 		break;
 	case 1:
 		m_shadowMap->Init(128, 128);
 		m_lightCullingDistance = 75;
-		m_forceCullingLimit = 7;
+		m_forceCullingLimit = 6;
 		break;
 	case 2:
 		m_shadowMap->Init(1024, 1024);
 		m_lightCullingDistance = 100;
 		m_forceCullingLimit = 8;
+		break;
+	case 3:
+		m_shadowMap->Init(2048, 2048);
+		m_lightCullingDistance = 250;
+		m_forceCullingLimit = 8;
+		break;
+	default:
+		m_shadowMap->Init(64, 64);
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 5;
 		break;
 	}
 	D3D11_BLEND_DESC omDesc;

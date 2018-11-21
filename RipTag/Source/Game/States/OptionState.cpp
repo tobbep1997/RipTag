@@ -166,7 +166,7 @@ void OptionState::Update(double deltaTime)
 					if (m_buttonPressed)
 					{
 						m_graphicsSelection++;
-						if (m_graphicsSelection > 2)
+						if (m_graphicsSelection > 3)
 							m_graphicsSelection = 0;
 						m_buttons[m_currentButton]->setString(SWAP_GRAPHICS[m_graphicsSelection]);
 						m_drawMustRestart = true;
