@@ -59,17 +59,18 @@ void LayerMachine::UpdatePoseWithLayers(Animation::SkeletonPose& mainPose, float
 
 }
 
-void LayerMachine::AddBasicLayer
-	(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime)
+BasicLayer* LayerMachine::AddBasicLayer(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime)
 {
-	LayerState* state = new BasicLayer(layerName, clip, blendInTime, blendOutTime, this);
-	m_Layers.insert(std::make_pair(layerName, state));
+	BasicLayer* state = new BasicLayer(layerName, clip, blendInTime, blendOutTime, this);
+	m_Layers.insert(std::make_pair(layerName, static_cast<LayerState*>(state)));
+	return state;
 }
 
 void LayerMachine::ActivateLayer(std::string layerName)
 {
 	auto layer = m_Layers.at(layerName);
 	layer->Reset();
+	layer->SetEndlessLoop();
 	m_ActiveLayers.push_back(layer);
 }
 
@@ -130,6 +131,11 @@ void LayerState::BlendOut()
 void LayerState::PopOnFinish()
 {
 	m_IsEndlesslyLooping = false;
+}
+
+void LayerState::SetEndlessLoop()
+{
+	m_IsEndlesslyLooping = true;
 }
 
 void LayerState::Reset()
@@ -243,12 +249,14 @@ BasicLayer::~BasicLayer()
 
 std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float deltaTime)
 {
+	_updateDriverWeight();
+	deltaTime *= m_CurrentDriverWeight;
 	LayerState::_updateTime(deltaTime);
 	LayerState::_updateBlend(deltaTime);
 	if (!LayerState::IsPopped())
 	{
 		auto indexAndProgression = LayerState::_getIndexAndProgression();
-		float weight = -1.0f; //todo
+		float weight = 1.0f; //todo
 		auto currentState = LayerState::GetState();
 		if (currentState != NONE)
 		{
@@ -257,13 +265,14 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 				weight = m_CurrentBlendTime / m_BlendOutTime;
 			}
 		}
-
 		auto pose = Animation::AnimationPlayer::_BlendSkeletonPoses
 			( &m_Clip->m_SkeletonPoses[indexAndProgression.first]
 			, &m_Clip->m_SkeletonPoses[indexAndProgression.first + 1]
 			, indexAndProgression.second, m_OwnerMachine->GetSkeletonJointCount());
 
-		if (weight >= 0.0f)
+		weight *= m_CurrentDriverWeight;
+		std::cout << m_CurrentDriverWeight << std::endl;
+		if (weight >= 0.0f || weight < 0.9999f)
 		{
 			Animation::AnimationPlayer::_ScalePose(&pose, weight, m_OwnerMachine->GetSkeletonJointCount());
 		}
@@ -271,4 +280,21 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 		return pose;
 	}
 	else return std::nullopt;
+}
+
+void BasicLayer::MakeDriven(float * driver, float min, float max, bool affectsSpeed /*= true*/)
+{
+	m_Driver = driver;
+	m_DriverMin = min;
+	m_DriverMax = max;
+	m_DriverAffectsSpeed = affectsSpeed;
+}
+
+void BasicLayer::_updateDriverWeight()
+{
+	m_CurrentDriverWeight = m_Driver
+		? (*m_Driver - m_DriverMin) / (m_DriverMax - m_DriverMin)
+		: 1.0f;
+
+	m_CurrentDriverWeight = std::clamp(m_CurrentDriverWeight, 0.0f, 1.0f);
 }

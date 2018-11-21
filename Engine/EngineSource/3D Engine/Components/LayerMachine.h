@@ -2,6 +2,7 @@
 
 #pragma region "FwdDec"
 class LayerState;
+class BasicLayer;
 namespace Animation
 {
 	struct Skeleton;
@@ -18,7 +19,7 @@ public:
 
 	void UpdatePoseWithLayers(Animation::SkeletonPose& mainAnimationPose, float deltaTime);
 
-	void AddBasicLayer(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime);
+	BasicLayer* AddBasicLayer(std::string layerName, Animation::AnimationClip* clip, float blendInTime, float blendOutTime);
 	void ActivateLayer(std::string layerName);
 	void ActivateLayer(std::string layerName, float loopCount);
 	void Add1DLayer(std::string layerName, float* driver, std::vector<std::pair<float, Animation::AnimationClip*>> nodes);
@@ -55,6 +56,7 @@ public:
 
 	void BlendOut();
 	void PopOnFinish();
+	void SetEndlessLoop();
 	void SetPlayTime(float loopCount);
 	void Reset();
 	void MildReset();
@@ -97,8 +99,17 @@ public:
 
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) override;
 
+	void MakeDriven(float* driver, float min, float max, bool affectsSpeed = true);
 private:
 	Animation::AnimationClip* m_Clip;
+
+	float* m_Driver{ nullptr };
+	float m_CurrentDriverWeight = 1.0f;
+	float m_DriverMin{ 0.0f };
+	float m_DriverMax{ 0.0f };
+	bool m_DriverAffectsSpeed{ true };
+
+	void _updateDriverWeight();
 };
 
 #pragma endregion "States"

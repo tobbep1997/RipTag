@@ -488,11 +488,11 @@ void Player::SetFirstPersonModel()
 	state->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
 	machine->SetState("idle");
 
-	//auto& layerMachine = animPlayer->InitLayerStateMachine(1);
-	//auto additiveState = layerMachine->AddBlendSpace1DAdditiveState("bob", &m_currentSpeed, 0.0, 1.5f);
-	//additiveState->AddBlendNodes({ {bpClip, 0.0f}, {bobClip, 1.5f} });
-	
-	
+	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
+	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
+	additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
+	layerMachine->ActivateLayer("bob");
+
 	animPlayer->Play();
 
 }
