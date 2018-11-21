@@ -153,8 +153,8 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 		m_rooms.push_back(room);
 	}*/
 	//add to loop -> 1 0 i;
-	/*Room * room = new Room(0, m_worldPtr, 0, m_playerPtr);
-	m_rooms.push_back(room);*/
+	//Room * room = new Room(0, m_worldPtr, 0, m_playerPtr);
+	//m_rooms.push_back(room);
 
 	Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
 	m_rooms.push_back(room);

@@ -109,12 +109,36 @@ void RoomGenerator::_makeWalls()
 	
 	int depth = (int)(m_roomDepth + 0.5f);
 	int width = (int)(m_roomWidth + 0.5f);
+
+	int winRoomIndexPlacement = rand () % 5;
+	bool isWinRoom = false;
+	winRoomIndexPlacement *= m_roomGridWidth;
+	//if (randomizer.m_rooms[winRoomIndexPlacement].type != 2)
+//	{
+	int tempCounterI = 0;
+	int tempCounterJ = 0;
+
+	
+	if (randomizer.m_rooms[winRoomIndexPlacement].type != 2)
+	{
+		for (int i = 0; i < m_roomGridWidth; i++)
+		{
+			if (randomizer.m_rooms[i * m_roomGridWidth].type == 2)
+			{
+				winRoomIndexPlacement = i * m_roomGridWidth;
+				break;
+			}
+		}
+	}
+	
 	for (int i = -depth + 10; i <= depth - 10; i += 20)
 	{
 
 		widthCounter = 0;
 		for (int j = -width + 10; j <= width - 10; j += 20)
 		{
+
+
 			bool directions[4];
 			int index = depthCounter * m_roomGridWidth + widthCounter;
 
@@ -138,13 +162,28 @@ void RoomGenerator::_makeWalls()
 			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 
 #pragma region WALLS
+
+			bool placeWall = true;
+			isWinRoom = false;
+			//PLACEWINROOM
+			if (index == winRoomIndexPlacement)
+			{
+				isWinRoom = true;
+			}
+			
 			for (int x = 0; x < 4; x++)
 			{
-				bool placeWall = true;
+			
+			
+					placeWall = true;
+			
+
 				if (randomizer.m_rooms[index].leadsToRoom[x] != -1)
 					if (randomizer.m_rooms[index].pairedWith == randomizer.m_rooms[index].leadsToRoom[x])
 						placeWall = false;
+				////////
 
+#pragma region placeWalls
 				if (placeWall)
 				{
 					asset = DBG_NEW BaseActor();
@@ -180,6 +219,7 @@ void RoomGenerator::_makeWalls()
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j + 10.f, 2.5, i);
 						m_generated_assetVector.push_back(asset);
+						
 					}
 					if (x == 2)
 					{
@@ -188,6 +228,7 @@ void RoomGenerator::_makeWalls()
 						applyTransformationToBoundingBox(roomSpace, modCollisionBoxes);
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j, 2.5, i + 10.f);
+						
 						m_generated_assetVector.push_back(asset);
 					}
 
@@ -200,19 +241,29 @@ void RoomGenerator::_makeWalls()
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j - 10.f, 2.5, i);
 						m_generated_assetVector.push_back(asset);
+						if (isWinRoom)
+						{
+							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
+							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
+							asset->setPosition(j - 10.f, 2.5, i);
+
+						}
 					}
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
 				}
+#pragma endregion
+
 			}
+
+
+
 
 #pragma endregion
 
 			int BigRoomAddX = 0;
 			int BigRoomAddZ = 0;
 
-			int startX = -m_roomWidth + 10.5f;
-			int startZ = -m_roomDepth + 10.5f;
 			if (RANDOM_MOD_NR > MAX_SMALL_MODS)
 			{
 				if (!isRotated)
@@ -228,13 +279,6 @@ void RoomGenerator::_makeWalls()
 				ImporterLibrary::GridStruct * tempGridStruct;
 
 				tempGridStruct = loader.readGridFile(MODNAMESTRING);
-
-				/*if (isRotated)
-				{
-					int tempInt = tempGridStruct->maxX;
-					tempGridStruct->maxX = tempGridStruct->maxY;
-					tempGridStruct->maxY = tempInt;
-				}*/
 				for (int a = 0; a < tempGridStruct->maxY; a++)
 				{
 					if (isRotated == false)
@@ -243,16 +287,6 @@ void RoomGenerator::_makeWalls()
 						{
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0] += j + BigRoomAddX;
 							tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2] += i + BigRoomAddZ;
-							/*asset = new BaseActor();
-							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-							if (randomizer.m_rooms[index].type == 0)
-								asset->setPosition(tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0], 5,
-									tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2], false);
-							else
-								asset->setPosition(tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0], 2.5,
-									tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2], false);
-							asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
-							m_generated_assetVector.push_back(asset);*/
 						}
 					}
 					else
@@ -260,20 +294,11 @@ void RoomGenerator::_makeWalls()
 						for (int b = 0; b < tempGridStruct->maxX; b++)
 						{
 							int current = a * tempGridStruct->maxX + b;
-							//int current = a + b * tempGridStruct->maxY;
 							float tmp = tempGridStruct->gridPoints[current].translation[0];
 							tempGridStruct->gridPoints[current].translation[0] = tempGridStruct->gridPoints[current].translation[2];
 							tempGridStruct->gridPoints[current].translation[2] = tmp;
 							tempGridStruct->gridPoints[current].translation[0] += j + BigRoomAddX;
 							tempGridStruct->gridPoints[current].translation[2] += i + BigRoomAddZ;
-							/*asset = new BaseActor();
-							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-							asset->setPosition(tempGridStruct->gridPoints[current].translation[0], 5,
-							tempGridStruct->gridPoints[current].translation[2], false);
-
-							asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
-							m_generated_assetVector.push_back(asset);
-							*/
 						}
 					}
 				}
@@ -286,22 +311,38 @@ void RoomGenerator::_makeWalls()
 
 #pragma region PROPS
 
-			if (!randomizer.m_rooms[index].propsPlaced)
+			if (isWinRoom)
 			{
-				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile(MODNAMESTRING); //TODO MAKE RANDOM 
+				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile("WINMOD");
 				for (int k = 0; k < tempProps.nrOfItems; k++)
 				{
 					
-
+						tempProps.props[k].transform_position[0] = j + tempProps.props[k].transform_position[0] + BigRoomAddX;
+						tempProps.props[k].transform_position[2] = i + tempProps.props[k].transform_position[2] + BigRoomAddZ;
+				}
+				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
+				delete tempProps.props;
+				randomizer.m_rooms[index].propsPlaced = true;
+				if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
+					randomizer.m_rooms[randomizer.m_rooms[index].pairedWith].propsPlaced = true;
+			}
+			else if (!randomizer.m_rooms[index].propsPlaced)
+			{
+				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile(MODNAMESTRING); 
+				for (int k = 0; k < tempProps.nrOfItems; k++)
+				{
 					if (isRotated == true)
 					{
-						tempProps.props[k].transform_rotation[1] += 90.f;
+						float tempPosX = tempProps.props[k].transform_position[0];
+						tempProps.props[k].transform_rotation[1] += 270.f;
 						tempProps.props[k].transform_position[0] = j + tempProps.props[k].transform_position[2];
-						tempProps.props[k].transform_position[2] = i + 10 + tempProps.props[k].transform_position[0];
+						tempProps.props[k].transform_position[2] = i + 10 + tempPosX;
+
 					}
 					else
 					{
 						tempProps.props[k].transform_position[0] = j + tempProps.props[k].transform_position[0] + BigRoomAddX;
+
 						tempProps.props[k].transform_position[2] = i + tempProps.props[k].transform_position[2] + BigRoomAddZ;
 					}
 				}
@@ -311,6 +352,7 @@ void RoomGenerator::_makeWalls()
 				if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
 					randomizer.m_rooms[randomizer.m_rooms[index].pairedWith].propsPlaced = true;
 			}
+			
 		
 #pragma endregion		
 
@@ -793,11 +835,12 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
 	returnableRoom->setLightvector(m_generated_pointLightVector);
 	returnableRoom->setRoomGuards(m_generatedRoomEnemies);
+	returnableRoom->loadTriggerPairMap();
 	return returnableRoom;
 }

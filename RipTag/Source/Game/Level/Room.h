@@ -115,6 +115,7 @@ public:
 	void getPath();
 
 	//RoomGeneration
+	void loadTriggerPairMap();
 	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; };
 	void setPlayer1StartPos(DirectX::XMFLOAT4 startPos) { this->m_player1StartPos = startPos; };
 	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; };

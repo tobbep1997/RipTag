@@ -6,8 +6,7 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 	std::pair<Trigger*, Door> doorLeverPair;
 	
 	addPropsAndAssets(propsToPlace, triggerHandler, &m_staticAssets);
-	triggerHandler->LoadTriggerPairMap();
-	
+	loadTriggerPairMap();
 }
 
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
@@ -280,6 +279,11 @@ void Room::getPath()
 				m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z)));
 		}
 	}
+}
+
+void Room::loadTriggerPairMap()
+{
+	triggerHandler->LoadTriggerPairMap();
 }
 
 
