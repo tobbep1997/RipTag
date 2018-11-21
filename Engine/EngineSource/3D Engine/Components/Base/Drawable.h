@@ -44,6 +44,7 @@ private:
 	bool m_hidden;
 	bool m_outline;
 	bool m_transparant;
+	bool m_castShadow;
 	DirectX::XMFLOAT4A m_outLineColor;
 
 	ID3D11Buffer* uavstage = nullptr;
@@ -139,6 +140,9 @@ public:
 	ID3D11UnorderedAccessView * GetUAV();
 	void DontCallMe();
 
+	virtual void CastShadows(const bool & shadows);
+	virtual const bool & getCastShadows() const;
+	
 private:
 	virtual void _setStaticBuffer();
 	virtual void _setDynamicBuffer();

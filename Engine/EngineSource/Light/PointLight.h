@@ -125,6 +125,7 @@ private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
 	void _updateCameras();
-	void _initDirectX(UINT width = 64U, UINT hight = 64U);
+	void _initDirectX();
+	void _setFarPlane();
 };
 

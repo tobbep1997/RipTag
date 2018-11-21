@@ -58,7 +58,7 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
-	const float TURN_SPEED = 1.0f;
+	const float TURN_SPEED = 2.0f;
 	const float REVERSE_SPEED = 0.5f;
 
 	//AI Behavior constants
@@ -82,8 +82,10 @@ private:
 	{
 		bool newNode = true;
 		bool turnState = false;
+		bool next = false;
 		float timer = 0.0f;
-		b3Vec3 lastDir = { 0,0,0 };
+		DirectX::XMFLOAT2 lastDir = { 0.0f,0.0f };
+		DirectX::XMFLOAT2 middleTarget = { 0.0f,0.0f };
 	};
 	unsigned int uniqueID;
 
@@ -189,6 +191,7 @@ private:
 	Player * m_PlayerPtr;
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
+	float m_searchTimer = 0.0f;
 	EnemyTransitionState m_transState = EnemyTransitionState::None;
 	float lastSearchDirX = 0;
 	float lastSearchDirY = 0;
@@ -312,11 +315,13 @@ private:
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch(); //v
 	void _deActivateCrouch(); //v
-
+	void _Move(Node * nextNode, double deltaTime);
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
+
+	void _detectTeleportSphere();
 
 	void _handleStates(const double deltaTime);
 	//Transistion States
@@ -330,13 +335,13 @@ private:
 	void _onBeingDisabled();
 
 	//States
-	void _investigatingSight();
-	void _investigatingSound();
+	void _investigatingSight(const double deltaTime);
+	void _investigatingSound(const double deltaTime);
 	void _investigatingRoom(const double deltaTime);
 	void _highAlert(const double deltaTime);
 	void _suspicious(const double deltaTime);
 	void _scanningArea(const double deltaTime);
-	void _patrolling();
+	void _patrolling(const double deltaTime);
 	//void possessed();
 	void _disabled();
 };

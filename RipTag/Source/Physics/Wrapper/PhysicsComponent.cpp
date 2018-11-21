@@ -13,16 +13,18 @@
 
 void PhysicsComponent::p_updatePhysics(Transform * transform)
 {
-	transform->setPosition(m_body->GetTransform().translation.x,
-		m_body->GetTransform().translation.y,
-		m_body->GetTransform().translation.z);
+	if (this->getBodyType() != e_staticBody)
+		transform->setPosition(m_body->GetTransform().translation.x,
+			m_body->GetTransform().translation.y,
+			m_body->GetTransform().translation.z);
 
 	// #todoREMOVE
 	auto vel = m_body->GetLinearVelocity();
 	transform->setVelocity(vel);
 
 	b3Mat33 mat = m_body->GetTransform().rotation;
-	transform->setPhysicsRotation(mat);
+	if(this->getBodyType() != e_staticBody)
+		transform->setPhysicsRotation(mat);
 	
 }
 
@@ -223,6 +225,7 @@ PhysicsComponent::~PhysicsComponent()
 
 void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float y, float z, bool sensor, float friction)
 {
+	isInited = true;
 	setBaseBodyDef(bodyType);
 	CreateBox(x, y, z);
 	setBaseShapeDef(sensor,friction);
@@ -231,9 +234,10 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 
 void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes, float friction)
 {
+	isInited = true;
 	singelCollider = false;
 	//setBaseBodyDef---------------------------------------
-	m_bodyDef = new b3BodyDef();
+	m_bodyDef = DBG_NEW b3BodyDef();
 	m_bodyDef->position.Set(0, 0, 0);
 	m_bodyDef->type = e_staticBody;
 	m_bodyDef->gravityScale = 1;
@@ -247,21 +251,21 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
 
-		h = new b3Hull();
+		h = DBG_NEW b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_scales.push_back(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_hulls.push_back(h);
 
 		//-----------------------------------------------------
 
-		p = new b3Polyhedron();
+		p = DBG_NEW b3Polyhedron();
 		p->SetHull(h);
 		m_polys.push_back(p);
 		
 
 		//-----------------------------------------------------
 
-		s = new b3ShapeDef();
+		s = DBG_NEW b3ShapeDef();
 		s->shape = p;
 		s->density = 1.0f;
 		s->restitution = 0;
@@ -299,19 +303,19 @@ void PhysicsComponent::addCollisionBox(b3Vec3 pos, b3Vec3 size, b3Quaternion rot
 
 
 	b3Hull * h;
-	h = new b3Hull();
+	h = DBG_NEW b3Hull();
 	h->SetAsBox(b3Vec3(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f));
 	m_hulls.push_back(h);
 
 
 	b3Polyhedron * p;
-	p = new b3Polyhedron();
+	p = DBG_NEW b3Polyhedron();
 	p->SetHull(h);
 	m_polys.push_back(p);
 
 
 	b3ShapeDef* s;
-	s = new b3ShapeDef();
+	s = DBG_NEW b3ShapeDef();
 	s->shape = p;
 	s->density = 1.0f;
 	s->restitution = 0;
@@ -341,7 +345,7 @@ void PhysicsComponent::addCollisionBox(b3Vec3 pos, b3Vec3 size, b3Quaternion rot
 
 void PhysicsComponent::setBaseBodyDef(b3BodyType bodyType)
 {
-	m_bodyDef = new b3BodyDef();
+	m_bodyDef = DBG_NEW b3BodyDef();
 	m_bodyDef->position.Set(0, 0, 0);
 	m_bodyDef->type = bodyType;
 	m_bodyDef->gravityScale = 9.82f;
@@ -351,7 +355,7 @@ void PhysicsComponent::setBaseBodyDef(b3BodyType bodyType)
 
 void PhysicsComponent::setBodyDef(BodyDefine bodyDefine)
 {
-	m_bodyDef = new b3BodyDef();
+	m_bodyDef = DBG_NEW b3BodyDef();
 	m_bodyDef->position.Set(bodyDefine.posX, bodyDefine.posY, bodyDefine.posZ);
 	m_bodyDef->type = bodyDefine.bodyType;
 	m_bodyDef->angularVelocity = bodyDefine.angularVelocity;
@@ -363,7 +367,7 @@ void PhysicsComponent::setBodyDef(BodyDefine bodyDefine)
 void PhysicsComponent::setBaseShapeDef(bool sensor, float friction)
 {
 	//Create a base shape definition
-	m_bodyBoxDef = new b3ShapeDef();
+	m_bodyBoxDef = DBG_NEW b3ShapeDef();
 	m_bodyBoxDef->shape = m_poly;
 	m_bodyBoxDef->density = 1.0f;
 	m_bodyBoxDef->restitution = 0;
@@ -383,10 +387,10 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 	if (m_bodyBox == nullptr)
 	{
 		//Create the box
-		m_bodyBox = new b3Hull();
+		m_bodyBox = DBG_NEW b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
 		//Then the poly
-		m_poly = new b3Polyhedron();
+		m_poly = DBG_NEW b3Polyhedron();
 		m_poly->SetHull(m_bodyBox);
 	}
 	else
@@ -397,7 +401,7 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 		delete m_bodyBox;
 
 		//Create a new Box
-		m_bodyBox = new b3Hull();
+		m_bodyBox = DBG_NEW b3Hull();
 		m_bodyBox->SetAsBox(b3Vec3(x, y, z));
 		
 		//Set the Polyhedron to the new box
@@ -421,15 +425,15 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 
 void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, std::string objectTag)
 {
-	b3Hull* hull = new b3Hull();
+	b3Hull* hull = DBG_NEW b3Hull();
 	hull->SetAsBox(b3Vec3(sizeX, sizeY, sizeZ));
-	b3Polyhedron* polyhedron = new b3Polyhedron();
+	b3Polyhedron* polyhedron = DBG_NEW b3Polyhedron();
 	polyhedron->SetHull(hull);
 	//polyhedron->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
 	polyhedron->SetObjectTag(objectTag);
 	//b3Shape* shape = polyhedron;//
 	b3ShapeDef* s;
-	s = new b3ShapeDef();
+	s = DBG_NEW b3ShapeDef();
 	s->shape = polyhedron;
 	s->density = 1.0f;
 	s->restitution = 0;
@@ -462,33 +466,64 @@ void PhysicsComponent::addForceToCenter(float x, float y, float z)
 
 void PhysicsComponent::Release(b3World& world)
 {
+	if (isInited == false)
+	{
+		return;
+	}
 	if (m_bodyDef)
+	{
 		delete m_bodyDef;
-	if (singelCollider && m_bodyDef)
+		m_bodyDef = nullptr;
+	}
+	
+	if (singelCollider)// && m_bodyDef)
 	{
 		m_body->DestroyShape(m_shape);
+		m_shape = nullptr;
 		delete m_poly;
+		m_poly = nullptr;
 		delete m_bodyBox;
+		m_bodyBox = nullptr;
 		delete m_bodyBoxDef;
+		m_bodyBoxDef = nullptr;
 		world.DestroyBody(m_body);
+		m_body = nullptr;
 	}
 
+	
 
 
-
-	for (int i = 0; i < m_bodys.size(); i++) 
-		m_bodys[i]->DestroyShape(m_shapes[i]);
-	for (int i = 0; i < m_polys.size(); i++)
-		delete m_polys[i];
-	for (int i = 0; i < m_hulls.size(); i++)
-		delete m_hulls[i];
-	for (int i = 0; i < m_shapeDefs.size(); i++)
-		delete m_shapeDefs[i];
 	for (int i = 0; i < m_bodys.size(); i++)
+	{
+		m_bodys[i]->DestroyShape(m_shapes[i]);
+		m_shapes[i] = nullptr;
+	}
+	for (int i = 0; i < m_polys.size(); i++)
+	{
+		delete m_polys[i];
+		m_polys[i] = nullptr;
+	}
+	for (int i = 0; i < m_hulls.size(); i++)
+	{
+		delete m_hulls[i];
+		m_hulls[i] = nullptr;
+	}
+	for (int i = 0; i < m_shapeDefs.size(); i++)
+	{
+		delete m_shapeDefs[i];
+		m_shapeDefs[i] = nullptr;
+	}
+	for (int i = 0; i < m_bodys.size(); i++)
+	{
 		world.DestroyBody(m_bodys[i]);
+		m_bodys[i] = nullptr;
+	}
+	m_shapes.clear();
+	m_polys.clear();
+	m_hulls.clear();
+	m_shapeDefs.clear();
+	m_bodys.clear();
 
-	
-	
 }
 
 b3Vec3 PhysicsComponent::getLiniearVelocity()

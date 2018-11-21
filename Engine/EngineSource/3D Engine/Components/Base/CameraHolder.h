@@ -43,6 +43,7 @@ protected:
 	double p_viewBobbing(double deltaTime, double moveSpeed, b3Body * owner);
 	DirectX::XMFLOAT4A p_CameraTilting(double deltaTime, float targetPeek);
 	double p_Crouching(double deltaTime, float& startHeight, const DirectX::XMFLOAT4A & pos);
+	DirectX::XMFLOAT4A getForward() const;
 public:
 	CameraHolder();
 	virtual~CameraHolder();

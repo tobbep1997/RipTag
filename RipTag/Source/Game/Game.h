@@ -13,6 +13,7 @@ namespace Network
 class Game
 {
 private:
+	bool m_justSwaped = false;
 	RenderingManager * m_renderingManager = 0;
 	Network::Multiplayer * pNetworkInstance = 0;
 

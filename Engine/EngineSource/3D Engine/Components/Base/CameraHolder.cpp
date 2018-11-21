@@ -36,6 +36,7 @@ double CameraHolder::p_viewBobbing(double deltaTime, double moveSpeed, b3Body * 
 	{
 		XMFLOAT4A point;
 		b3Vec3 vec = ray->getClosestContact()->contactPoint;
+		//std::cout << ray->getClosestContact()->originBody->GetObjectTag() << std::endl;
 		point = { vec.x, vec.y, vec.z, 1.0f };
 		vPoint = XMLoadFloat4A(&point);
 	}
@@ -179,6 +180,13 @@ double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const Dir
 		return startPos.y - pos.y;
 	}
 	return 0;
+}
+
+DirectX::XMFLOAT4A CameraHolder::getForward() const
+{
+	
+	return p_camera->getForward();
+
 }
 
 CameraHolder::CameraHolder()

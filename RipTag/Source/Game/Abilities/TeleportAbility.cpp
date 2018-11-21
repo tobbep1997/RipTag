@@ -25,7 +25,8 @@ void TeleportAbility::Init()
 	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
-	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	Manager::g_textureManager.loadTextures("OUTLINE");
+	Drawable::setTexture(Manager::g_textureManager.getTexture("OUTLINE"));
 	//OUTLINGING
 	Drawable::setOutline(true);
 	Drawable::setOutlineColor(DirectX::XMFLOAT4A(1, 0, 0, 1));

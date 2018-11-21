@@ -6,12 +6,12 @@
 
 Animation::AnimationPlayer::AnimationPlayer()
 {
-// 	m_SkinningMatrices.resize(128);
-// 	m_GlobalMatrices.resize(128);
-/*	DirectX::XMFLOAT4X4A identityMatrix = {};*/
-// 	DirectX::XMStoreFloat4x4A(&identityMatrix, DirectX::XMMatrixIdentity());
-// 	std::fill(m_SkinningMatrices.begin(), m_SkinningMatrices.end(), identityMatrix);
-// 	std::fill(m_GlobalMatrices.begin(), m_GlobalMatrices.end(), identityMatrix);
+ 	m_SkinningMatrices.resize(128);
+ 	m_GlobalMatrices.resize(128);
+	DirectX::XMFLOAT4X4A identityMatrix = {};
+ 	DirectX::XMStoreFloat4x4A(&identityMatrix, DirectX::XMMatrixIdentity());
+ 	std::fill(m_SkinningMatrices.begin(), m_SkinningMatrices.end(), identityMatrix);
+ 	std::fill(m_GlobalMatrices.begin(), m_GlobalMatrices.end(), identityMatrix);
 }
 
 Animation::AnimationPlayer::~AnimationPlayer()

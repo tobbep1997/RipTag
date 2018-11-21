@@ -78,6 +78,7 @@ void EnemyHandler::_isServerUpdate(double deltaTime)
 
 	for (int i = 0; i < m_guards.size(); i++)
 	{
+
 		Enemy * currentGuard = m_guards.at(i);
 		currentGuard->SetLenghtToPlayer(m_player->getPosition());
 		currentGuard->Update(deltaTime);
