@@ -239,6 +239,16 @@ bool Grid::IsPathReady()
 	return status == std::future_status::ready;
 }
 
+int Grid::getGridWidth()
+{
+	return m_width;
+}
+
+int Grid::getGridHeight()
+{
+	return m_height;
+}
+
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList, bool * closedList)
 {
 	int currentX = current->tile.getX();

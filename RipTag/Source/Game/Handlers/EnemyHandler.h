@@ -12,6 +12,7 @@ private:
 	const int SIGHT_LEVEL = 1700;
 	const float ALERT_TIME_LIMIT = 0.8f;
 	const float SUSPICIOUS_TIME_LIMIT = 2.0f;
+	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
 
 private:
@@ -30,11 +31,4 @@ public:
 
 private:
 	int _getPlayerVisibility(Enemy * guard);
-	void _alert(Enemy * guard, bool followSound = false);
-	void _investigating(Enemy * guard);
-	void _investigateSound(Enemy * guard);
-	void _patrolling(Enemy * guard);
-	void _highAlert(Enemy * guard, const double & dt);
-	void _suspicious(Enemy * guard, const double & dt);
-
 };
