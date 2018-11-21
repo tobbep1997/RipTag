@@ -43,7 +43,7 @@ private:
 	std::thread m_physicsThread;
 	std::mutex m_physicsMutex;
 	std::condition_variable m_physicsCondition;
-	double m_deltaTime = 0;
+	double m_deltaTime = 0.0;
 	bool m_destoryPhysicsThread = false;
 
 	bool runGame = true;
@@ -64,9 +64,12 @@ private:
 	} m_coopState;
 
 	bool m_physRunning = false;
-
 	LoadingScreen m_loadingScreen;
 	bool m_removeHud = false;
+	// PHYSICS, DONT TOUCH
+	bool m_physicsFirstRun = true;
+	const double	UPDATE_TIME = 1.0 / 60.0;
+	double			m_timer = 0.0f;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
