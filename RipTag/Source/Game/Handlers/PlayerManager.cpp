@@ -37,6 +37,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_VISIBILITY, std::bind(&PlayerManager::_onVisibilityPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
@@ -69,7 +70,14 @@ void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data
 
 void PlayerManager::_onRemotePlayerWonPacket(unsigned char id, unsigned char * data)
 {
-	mRemotePlayer->hasWon = true;
+	Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
+	mRemotePlayer->hasWon = pData->condition;
+}
+
+void PlayerManager::_onVisibilityPacket(unsigned char id, unsigned char * data)
+{
+	Network::VISIBILITYPACKET * pData = (Network::VISIBILITYPACKET*)data;
+	mLocalPlayer->SetCurrentVisability(pData->value);
 }
 
 void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * data)
@@ -114,14 +122,6 @@ void PlayerManager::Update(float dt)
 		mLocalPlayer->SendOnAnimationUpdate(dt);
 	}
 
-	if (mRemotePlayer)
-	{
-		if(mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
-		mLocalPlayer->drawWinBar();
-		//YOU WON THE GAME! 
-	}
-	
-
 }
 
 void PlayerManager::PhysicsUpdate()
@@ -139,12 +139,6 @@ void PlayerManager::Draw()
 	}
 	if (mLocalPlayer && hasLocalPlayer)
 		mLocalPlayer->Draw();
-}
-
-void PlayerManager::win()
-{
-	if (mLocalPlayer->hasWon == true && mRemotePlayer->hasWon == true)
-		mLocalPlayer->gameIsWon = true;
 }
 
 void PlayerManager::isCoop(bool coop)
@@ -179,6 +173,7 @@ void PlayerManager::CreateRemotePlayer(DirectX::XMFLOAT4A pos, RakNet::NetworkID
 		DirectX::XMFLOAT4A scale = DirectX::XMFLOAT4A(0.015f, 0.015f, 0.015f, 1.0f);
 		DirectX::XMFLOAT4A rot = { 0.0, 0.0, 0.0, 0.0 };
 		this->mRemotePlayer = new RemotePlayer(nid, pos, scale, rot);
+		this->mRemotePlayer->setEntityType(EntityType::RemotePlayerType);
 		hasRemotePlayer = true;
 	}
 }
@@ -218,4 +213,12 @@ Player * PlayerManager::getLocalPlayer()
 RemotePlayer * PlayerManager::getRemotePlayer()
 {
 	return this->mRemotePlayer;
+}
+
+bool PlayerManager::isGameWon()
+{
+	if (hasLocalPlayer && hasRemotePlayer)
+		return (mLocalPlayer->getWinState() && mRemotePlayer->hasWon);
+	else
+		return mLocalPlayer->getWinState();
 }

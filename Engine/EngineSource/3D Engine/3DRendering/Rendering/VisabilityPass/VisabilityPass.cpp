@@ -108,53 +108,63 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 
 	DX::g_deviceContext->PSSetShaderResources(10, 1, &m_guardShaderResource);
 
-	UINT32 vertexSize = sizeof(StaticVertex);
-	UINT32 offset = 0;
-
-	int playerIndex = 0;
-
-	//-----------------------------------------------	Player input layout slot 1
-	DX::INSTANCING::OBJECT player_object {};
-	player_object.worldMatrix = DX::g_player->getWorldmatrix();
-	player_object.objectColor = DX::g_player->getColor();
-	player_object.textureTileMult = DirectX::XMFLOAT4A(DX::g_player->getTextureTileMult().x, DX::g_player->getTextureTileMult().y,0,0);
-	player_object.usingTexture.x = DX::g_player->isTextureAssigned();
-	//-----------------------------------------------
+	_drawForPlayer(DX::g_player, target, 0);
+	if (DX::g_remotePlayer)
+		_drawForPlayer(DX::g_remotePlayer, target, 1);
 
 
-	//-----------------------------------------------	Important buffers
-	ID3D11Buffer * instanceBuffer;
-	D3D11_BUFFER_DESC instBuffDesc;
-	memset(&instBuffDesc, 0, sizeof(instBuffDesc));
-	instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
-	instBuffDesc.ByteWidth = sizeof(DX::INSTANCING::OBJECT);
-	instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	
-	D3D11_SUBRESOURCE_DATA instData;
-	memset(&instData, 0, sizeof(instData));
-	instData.pSysMem = &player_object;
-	HRESULT hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer);
+	//UINT32 vertexSize = sizeof(StaticVertex);
+	//UINT32 offset = 0;
 
-	//_mapObjectBuffer(DX::g_geometryQueue[i]);
-	ID3D11Buffer * inputBuffers[2];
-	inputBuffers[0] = DX::g_player->getBuffer();
-	inputBuffers[1] = instanceBuffer;
+	//int playerIndex = 0;
 
-	unsigned int strides[2];
-	strides[0] = sizeof(StaticVertex);
-	strides[1] = sizeof(DX::INSTANCING::OBJECT);
+	//// Player
+	//	//-----------------------------------------------	Player input layout slot 1
+	//	DX::INSTANCING::OBJECT player_object{};
+	//	player_object.worldMatrix = DX::g_player->getWorldmatrix();
+	//	player_object.objectColor = DX::g_player->getColor();
+	//	player_object.textureTileMult = DirectX::XMFLOAT4A(DX::g_player->getTextureTileMult().x, DX::g_player->getTextureTileMult().y, 0, 0);
+	//	player_object.usingTexture.x = DX::g_player->isTextureAssigned();
+	//	//-----------------------------------------------
 
-	unsigned int offsets[2];
-	offsets[0] = 0;
-	offsets[1] = 0;
-	//-----------------------------------------------
-	DX::g_player->BindTextures();
-	//-----------------------------------------------
-		DX::g_deviceContext->IASetVertexBuffers(0, 2, inputBuffers, strides, offsets);
-	DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
-	target->CalculateVisabilityFor(playerIndex++);
-	//-----------------------------------------------
-	DX::SafeRelease(instanceBuffer);
+
+	//	//-----------------------------------------------	Important buffers
+	//	ID3D11Buffer * instanceBuffer;
+	//	D3D11_BUFFER_DESC instBuffDesc;
+	//	memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+	//	instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
+	//	instBuffDesc.ByteWidth = sizeof(DX::INSTANCING::OBJECT);
+	//	instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	//	D3D11_SUBRESOURCE_DATA instData;
+	//	memset(&instData, 0, sizeof(instData));
+	//	instData.pSysMem = &player_object;
+	//	HRESULT hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer);
+
+	//	//_mapObjectBuffer(DX::g_geometryQueue[i]);
+	//	ID3D11Buffer * inputBuffers[2];
+	//	inputBuffers[0] = DX::g_player->getBuffer();
+	//	inputBuffers[1] = instanceBuffer;
+
+	//	unsigned int strides[2];
+	//	strides[0] = sizeof(StaticVertex);
+	//	strides[1] = sizeof(DX::INSTANCING::OBJECT);
+
+	//	unsigned int offsets[2];
+	//	offsets[0] = 0;
+	//	offsets[1] = 0;
+	//	//-----------------------------------------------
+	//	DX::g_player->BindTextures();
+	//	//-----------------------------------------------
+	//	DX::g_deviceContext->IASetVertexBuffers(0, 2, inputBuffers, strides, offsets);
+	//	DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
+	//	target->CalculateVisabilityFor(playerIndex++);
+	//	//-----------------------------------------------
+	//	DX::SafeRelease(instanceBuffer);
+	// Remote
+
+
+
 
 	/*if (animBuffer && !DX::g_animatedGeometryQueue.empty())
 	{
@@ -286,4 +296,54 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 	m_textureValues.color = target->getColor();
 
 	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
+}
+
+void VisabilityPass::_drawForPlayer(Drawable * player, VisibilityComponent * target, int playerIndex)
+{
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
+
+	// Player
+		//-----------------------------------------------	Player input layout slot 1
+	DX::INSTANCING::OBJECT player_object{};
+	player_object.worldMatrix = player->getWorldmatrix();
+	player_object.objectColor = player->getColor();
+	player_object.textureTileMult = DirectX::XMFLOAT4A(player->getTextureTileMult().x, player->getTextureTileMult().y, 0, 0);
+	player_object.usingTexture.x = player->isTextureAssigned();
+	//-----------------------------------------------
+
+
+	//-----------------------------------------------	Important buffers
+	ID3D11Buffer * instanceBuffer;
+	D3D11_BUFFER_DESC instBuffDesc;
+	memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+	instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
+	instBuffDesc.ByteWidth = sizeof(DX::INSTANCING::OBJECT);
+	instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA instData;
+	memset(&instData, 0, sizeof(instData));
+	instData.pSysMem = &player_object;
+	HRESULT hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer);
+
+	//_mapObjectBuffer(DX::g_geometryQueue[i]);
+	ID3D11Buffer * inputBuffers[2];
+	inputBuffers[0] = player->getBuffer();
+	inputBuffers[1] = instanceBuffer;
+
+	unsigned int strides[2];
+	strides[0] = sizeof(StaticVertex);
+	strides[1] = sizeof(DX::INSTANCING::OBJECT);
+
+	unsigned int offsets[2];
+	offsets[0] = 0;
+	offsets[1] = 0;
+	//-----------------------------------------------
+	player->BindTextures();
+	//-----------------------------------------------
+	DX::g_deviceContext->IASetVertexBuffers(0, 2, inputBuffers, strides, offsets);
+	DX::g_deviceContext->Draw(player->getVertexSize(), 0);
+	target->CalculateVisabilityFor(playerIndex);
+	//-----------------------------------------------
+	DX::SafeRelease(instanceBuffer);
 }

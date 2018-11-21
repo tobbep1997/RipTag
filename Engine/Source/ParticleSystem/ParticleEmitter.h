@@ -62,7 +62,6 @@ private:
 	DirectX::XMFLOAT4X4A m_worldMatrix;
 
 
-
 public:
 	ParticleEmitter();
 	~ParticleEmitter();
@@ -85,6 +84,8 @@ public:
 	void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f);
 
 	DirectX::XMFLOAT4X4A getWorldMatrix();
+
+	void setEmmiterLife(const float & lifeTime);
 
 };
 

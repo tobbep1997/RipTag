@@ -21,7 +21,7 @@ Game::~Game()
 void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
 #ifdef _SHOWSYSTEMINFO
-	system("systeminfo");
+	system("systeminfo /fo list");
 #endif // _SHOWSYSTEMINFO
 
 	//Rendering Manager Start

@@ -90,6 +90,7 @@ private:
 		DirectX::XMFLOAT2 lastDir = { 0.0f,0.0f };
 		DirectX::XMFLOAT2 middleTarget = { 0.0f,0.0f };
 	};
+	unsigned int uniqueID;
 
 	lerpVal m_lv;
 
@@ -116,7 +117,6 @@ private:
 	bool forward = true;
 	float distance = 0.1f;
 	float m_guardSpeed = 1.5;
-	unsigned int uniqueID;
 
 	//Possess
 	Player* m_possessor;
@@ -220,6 +220,7 @@ public:
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
+	void ClientUpdate(double deltaTime);
 	virtual void PhysicsUpdate(double deltaTime);
 
 	//Depending on the culling, this can cancel the queue
@@ -292,8 +293,10 @@ public:
 	void SetHightAlertTimer(const float & time);
 
 	void setGrid(Grid* grid);
-	
 
+	//Network
+	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
+	void sendNetworkUpdate();
 private:
 
 	void _handleInput(double deltaTime);  //v 0.5

@@ -25,13 +25,14 @@ class Triggerable;
 class Trigger;
 class Bars;
 class ParticleEmitter;
+class Torch;
 
 class Enemy;//Ta bort sen
 
 class Room : public HUDComponent
 {
 private:
-	std::vector< ParticleEmitter*> m_emitters;
+	std::vector<Torch*> m_Torches;
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -44,7 +45,6 @@ private:
 
 	bool m_roomLoaded = false;
 	std::vector<BaseActor*> m_staticAssets;	//Released
-	std::vector<PointLight*> m_pointLights;		//Released
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
 
@@ -97,13 +97,15 @@ public:
 	std::string getAssetFilePath();
 
 	const bool getRoomLoaded();
+	EnemyHandler * getEnemyHandler() { return m_enemyHandler; }
 
-	BaseActor * getCollissionBox() { return CollisionBoxes; };
+	BaseActor * getCollissionBox() { return CollisionBoxes; }
 
 	DirectX::XMFLOAT4 getPlayer1StartPos();
 	DirectX::XMFLOAT4 getPlayer2StartPos();
 
 	const std::vector<Enemy*>* getEnemies() const;
+	void GiveCameraToParticles(Camera * ptr);
 
 	//---------------------------------------------------
 	//Memory Management
@@ -114,14 +116,13 @@ public:
 	void getPath();
 
 	//RoomGeneration
-	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; };
-	void setPlayer1StartPos(DirectX::XMFLOAT4 startPos) { this->m_player1StartPos = startPos; };
-	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; };
-	void setStaticMeshes(std::vector<BaseActor*> assets) { this->m_staticAssets = assets; };
-	void setLightvector(std::vector<PointLight*> lights) { this->m_pointLights = lights; };
+	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; }
+	void setPlayer1StartPos(DirectX::XMFLOAT4 startPos) { this->m_player1StartPos = startPos; }
+	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; }
+	void setStaticMeshes(std::vector<BaseActor*> assets) { this->m_staticAssets = assets; }
 	TriggerHandler * getTriggerHandler() { return triggerHandler; }
-	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
-	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };
+	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; }
+	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; }
 private:
 	void _addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector);
 	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false);

@@ -3,6 +3,7 @@
 
 class Enemy;
 class Player;
+class RemotePlayer;
 class Grid;
 
 class EnemyHandler
@@ -18,17 +19,29 @@ private:
 private:
 	std::vector<Enemy*> m_guards;
 	Player * m_player;
+	RemotePlayer * m_remotePlayer = nullptr;
 	Grid * m_grid;
-
+	int m_type = 2;
 public:
 	EnemyHandler();
 	~EnemyHandler();
 
 	// Add guard function rather than init for guards (?)
 	void Init(std::vector<Enemy*> enemies, Player * player, Grid * grid);
-	
+	void setRemotePlayer(RemotePlayer * ptr = nullptr) { m_remotePlayer = ptr; }
+	//Types: 0 = Server; 1 = Client, 2 = SinglePlayer
+
 	void Update(float deltaTime);
+	void HandlePacket(unsigned char id, unsigned char * data);
 
 private:
+	void _isServerUpdate(double deltaTime);
+	void _isClientUpdate(double deltaTime);
+	void _isSinglePlayerUpdate(double deltaTime);
+
+	void _registerThisInstanceToNetwork();
+
 	int _getPlayerVisibility(Enemy * guard);
+	int _getRemotePlayerVisibility(Enemy * guard);
+
 };

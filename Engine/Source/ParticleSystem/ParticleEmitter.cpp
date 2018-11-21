@@ -274,6 +274,11 @@ DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
 	return m_worldMatrix;
 }
 
+void ParticleEmitter::setEmmiterLife(const float & lifeTime)
+{
+	m_EmitterLife = lifeTime;
+}
+
 float ParticleEmitter::RandomFloat(DirectX::XMINT2 min_max)
 {
 	float ret = rand() % (min_max.y * 10) + (min_max.x * 10);
