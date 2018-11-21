@@ -66,6 +66,7 @@ private:
 	bool m_physRunning = false;
 
 	LoadingScreen m_loadingScreen;
+	bool m_removeHud = false;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
