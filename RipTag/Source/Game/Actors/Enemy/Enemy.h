@@ -189,6 +189,7 @@ private:
 	Player * m_PlayerPtr;
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
+	float m_searchTimer = 0.0f;
 	EnemyTransitionState m_transState = EnemyTransitionState::None;
 	float lastSearchDirX = 0;
 	float lastSearchDirY = 0;
@@ -315,6 +316,8 @@ private:
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
 
+	void _detectTeleportSphere();
+
 	void _handleStates(const double deltaTime);
 	//Transistion States
 	void _onAlerted();
@@ -327,13 +330,13 @@ private:
 	void _onBeingDisabled();
 
 	//States
-	void _investigatingSight();
-	void _investigatingSound();
+	void _investigatingSight(const double deltaTime);
+	void _investigatingSound(const double deltaTime);
 	void _investigatingRoom(const double deltaTime);
 	void _highAlert(const double deltaTime);
 	void _suspicious(const double deltaTime);
 	void _scanningArea(const double deltaTime);
-	void _patrolling();
+	void _patrolling(const double deltaTime);
 	//void possessed();
 	void _disabled();
 };

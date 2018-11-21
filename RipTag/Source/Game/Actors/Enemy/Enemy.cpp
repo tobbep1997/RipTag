@@ -222,65 +222,7 @@ void Enemy::Update(double deltaTime)
 	if (!m_disabled)
 	{
 		getBody()->SetType(e_dynamicBody);
-		//auto dir = p_camera->getDirection();
-		//DirectX::XMFLOAT4A forward, right, up;
-		//forward = { dir.x, dir.y, dir.z, 0.0};
-		//up = { 0,1,0,0.0 };
-		//DirectX::XMStoreFloat4A(&right, DirectX::XMVector3Cross(XMLoadFloat4A(&forward), XMLoadFloat4A(&up)));
-		//DirectX::XMStoreFloat4A(&forward, DirectX::XMVector3Cross(XMLoadFloat4A(&right), XMLoadFloat4A(&up)));
-
-		//DirectX::XMFLOAT4X4A rotMatrix = 
-		//{
-		//	right.x,	right.y,	right.z,	0,
-		//	0,			1,			0,			0,
-		//	forward.x,	forward.y,	forward.z,	0,
-		//	0,			0,			0,			1
-		//};
-		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
-		//this->ForceWorld(cameraWorld);
-		DirectX::XMMATRIX viewInv, proj;
-		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
-		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
-
-		DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
-		m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
-
-		for (size_t i = 0; i < m_teleportBoundingSphere.size(); i++)
-		{
-			
-			if (m_boundingFrustum->Intersects(*m_teleportBoundingSphere[i]))
-			{
-				DirectX::XMFLOAT4 direction = getDirection(getPosition(), DirectX::XMFLOAT4A(m_teleportBoundingSphere[i]->Center.x,
-					m_teleportBoundingSphere[i]->Center.y,
-					m_teleportBoundingSphere[i]->Center.z,
-					0.0f));
-
-				//std::cout << "HOLD OP THE PARTNER" << std::endl;
-
-				//TODO: Fix when ray is corrected
-
-				RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
-					direction.x,
-					direction.y,
-					direction.z,
-					direction.w),
-					getLenght(getPosition(), DirectX::XMFLOAT4A(
-						direction.x,
-						direction.y,
-						direction.z,
-						direction.w)));
-				if (r)
-				{
-					/*std::cout << "-------------------------------------------------" << std::endl;
-					for (int i = 0; i < r->getNrOfContacts(); i++)
-					{						
-						std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
-					}*/
-				}
-			}
-			
-		}
-
+		
 		if (!m_inputLocked)
 		{
 			_handleInput(deltaTime);
@@ -1495,6 +1437,68 @@ b3Vec3 Enemy::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 	return (tempStart + tempRelativeVec);
 }
 
+void Enemy::_detectTeleportSphere()
+{
+	//auto dir = p_camera->getDirection();
+		//DirectX::XMFLOAT4A forward, right, up;
+		//forward = { dir.x, dir.y, dir.z, 0.0};
+		//up = { 0,1,0,0.0 };
+		//DirectX::XMStoreFloat4A(&right, DirectX::XMVector3Cross(XMLoadFloat4A(&forward), XMLoadFloat4A(&up)));
+		//DirectX::XMStoreFloat4A(&forward, DirectX::XMVector3Cross(XMLoadFloat4A(&right), XMLoadFloat4A(&up)));
+
+		//DirectX::XMFLOAT4X4A rotMatrix = 
+		//{
+		//	right.x,	right.y,	right.z,	0,
+		//	0,			1,			0,			0,
+		//	forward.x,	forward.y,	forward.z,	0,
+		//	0,			0,			0,			1
+		//};
+		//auto cameraWorld = p_camera->ForceRotation(rotMatrix);
+		//this->ForceWorld(cameraWorld);
+	DirectX::XMMATRIX viewInv, proj;
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getView())));
+
+	DirectX::BoundingFrustum::CreateFromMatrix(*m_boundingFrustum, proj);
+	m_boundingFrustum->Transform(*m_boundingFrustum, viewInv);
+
+	for (size_t i = 0; i < m_teleportBoundingSphere.size(); i++)
+	{
+
+		if (m_boundingFrustum->Intersects(*m_teleportBoundingSphere[i]))
+		{
+			DirectX::XMFLOAT4 direction = getDirection(getPosition(), DirectX::XMFLOAT4A(m_teleportBoundingSphere[i]->Center.x,
+				m_teleportBoundingSphere[i]->Center.y,
+				m_teleportBoundingSphere[i]->Center.z,
+				0.0f));
+
+			//std::cout << "HOLD OP THE PARTNER" << std::endl;
+
+			//TODO: Fix when ray is corrected
+
+			RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+				direction.x,
+				direction.y,
+				direction.z,
+				direction.w),
+				getLenght(getPosition(), DirectX::XMFLOAT4A(
+					direction.x,
+					direction.y,
+					direction.z,
+					direction.w)));
+			if (r)
+			{
+				/*std::cout << "-------------------------------------------------" << std::endl;
+				for (int i = 0; i < r->getNrOfContacts(); i++)
+				{
+					std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
+				}*/
+			}
+		}
+
+	}
+}
+
 void Enemy::_handleStates(const double deltaTime)
 {
 	static float timer = 0.0f;
@@ -1532,25 +1536,27 @@ void Enemy::_handleStates(const double deltaTime)
 
 	switch (m_state)
 	{
-	case Investigating_Sight:
+	case EnemyState::Investigating_Sight:
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
 			//_investigating(currentGuard);
-			this->_investigatingSight();
+			this->_investigatingSight(deltaTime);
 		}
+		_detectTeleportSphere();
 		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
 		break;
-	case Investigating_Sound:
+	case EnemyState::Investigating_Sound:
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
 			//_investigateSound(currentGuard);
-			this->_investigatingSound();
+			this->_investigatingSound(deltaTime);
 		}
+		_detectTeleportSphere();
 		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 		break;
-	case Investigating_Room:
+	case EnemyState::Investigating_Room:
 		if (timer > 0.3f)
 		{
 			std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
@@ -1558,26 +1564,37 @@ void Enemy::_handleStates(const double deltaTime)
 			this->_investigatingRoom(timer);
 			timer = 0.0f;
 		}
+		_detectTeleportSphere();
 		break;
-	case High_Alert:
+	case EnemyState::High_Alert:
 		//_highAlert(currentGuard, deltaTime);
 		this->_highAlert(deltaTime);
 		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+		_detectTeleportSphere();
 		break;
-	case Patrolling:
+	case EnemyState::Patrolling:
 		//_patrolling(currentGuard);
-		this->_patrolling();
+		this->_patrolling(deltaTime);
 		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+		_detectTeleportSphere();
 		break;
-	case Suspicious:
+	case EnemyState::Suspicious:
 		//_suspicious(currentGuard, deltaTime);
 		this->_suspicious(deltaTime);
 		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+		_detectTeleportSphere();
 		break;
-	case Scanning_Area:
+	case EnemyState::Scanning_Area:
 		//_ScanArea(currentGuard, deltaTime);
 		this->_scanningArea(deltaTime);
 		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
+		_detectTeleportSphere();
+		break;
+	case EnemyState::Possessed:
+
+		break;
+	case EnemyState::Disabled:
+
 		break;
 	}
 }
@@ -1643,6 +1660,7 @@ void Enemy::_onSearchArea()
 void Enemy::_onReturnToPatrol()
 {
 	this->m_actTimer = 0;
+	this->m_searchTimer = 0;
 	this->m_state = Patrolling;
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
 	this->m_transState = EnemyTransitionState::None;
@@ -1661,7 +1679,7 @@ void Enemy::_onBeingDisabled()
 }
 
 
-void Enemy::_investigatingSight()
+void Enemy::_investigatingSight(const double deltaTime)
 {
 	if (this->GetAlertPathSize() > 0)
 	{
@@ -1686,7 +1704,7 @@ void Enemy::_investigatingSight()
 		this->m_transState = EnemyTransitionState::Observe;
 	}
 }
-void Enemy::_investigatingSound()
+void Enemy::_investigatingSound(const double deltaTime)
 {
 	if (this->GetAlertPathSize() > 0)
 	{
@@ -1713,8 +1731,7 @@ void Enemy::_investigatingSound()
 }
 void Enemy::_investigatingRoom(const double deltaTime)
 {
-	
-	this->m_actTimer += deltaTime;
+	this->m_searchTimer += deltaTime;
 	int random = deltaTime;
 	srand(random);
 
@@ -1739,26 +1756,12 @@ void Enemy::_investigatingRoom(const double deltaTime)
 				random += deltaTime * 100;
 				srand(random);
 				dirY = (rand() % 3) - 1;
-
-				/*float dy = dirY - lastSearchDirY;
-				float dx = dirX - lastSearchDirX;
-				float theta = std::atan2(dy, dx);
-				theta *= 180 / B3_PI;
-				if (abs(theta) > 25)
-				{
-				}
-				else
-				{
-					dirX = 0;
-					dirY = 0;
-				}*/
 			}
 		}
 
-
 		random += deltaTime;
 		srand(random);
-		int searchLength = (rand() % 4) + 4;
+		int searchLength = (rand() % 10) + 20;
 		DirectX::XMFLOAT4A guardPos = this->getPosition();
 		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 		Tile newPos;
@@ -1775,16 +1778,20 @@ void Enemy::_investigatingRoom(const double deltaTime)
 			lastSearchDirY = dirY;
 			this->SetAlertVector(m_grid->FindPath(guardTile, newPos));
 		}
-
+		this->setTransitionState(EnemyTransitionState::Observe);
 		//guard->SetAlertVector(m_grid->FindPath(guardTile, randPos));
 	}
 	if (this->getVisCounter() >= ALERT_TIME_LIMIT || this->getSoundLocation().percentage > SOUND_LEVEL)
 	{
 		this->setTransitionState(EnemyTransitionState::Alerted);
 	}
-	if (this->GetActTimer() > SEARCH_ROOM_TIME_LIMIT)
+	else if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
 	{
 		this->setTransitionState(EnemyTransitionState::ReturnToPatrol);
+	}
+	else if(this->m_transState != EnemyTransitionState::Observe)
+	{
+		_MoveToAlert(m_alertPath.at(0), deltaTime);
 	}
 }
 void Enemy::_highAlert(const double deltaTime)
@@ -1848,7 +1855,7 @@ void Enemy::_scanningArea(const double deltaTime)
 		this->m_transState = EnemyTransitionState::SearchArea;
 	}
 }
-void Enemy::_patrolling()
+void Enemy::_patrolling(const double deltaTime)
 {
 	if (this->getVisCounter() >= ALERT_TIME_LIMIT || this->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
