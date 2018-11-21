@@ -212,6 +212,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Game\States\OptionSound.cpp" />
     <ClCompile Include="Source\Game\States\OptionState.cpp" />
     <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
@@ -535,6 +536,7 @@
     <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
     <ClInclude Include="Source\Game\Level\RandomRoom.h" />
     <ClInclude Include="Source\Game\Level\RandomRoomGrid.h" />
+    <ClInclude Include="Source\Game\States\Helper\RandomRoomPicker.h" />
     <ClInclude Include="Source\Game\States\LoseState.h" />
     <ClInclude Include="Source\Game\States\LobbyState.h" />
     <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
@@ -542,6 +544,7 @@
     <ClInclude Include="Source\Gameplay\Objects\Bars.h" />
     <ClInclude Include="BouncePCH.h" />
     <ClInclude Include="RipTagPCH.h" />
+    <ClInclude Include="Source\Game\States\OptionSound.h" />
     <ClInclude Include="Source\Game\States\OptionState.h" />
     <ClInclude Include="Source\Physics\Wrapper\CollisionBoxes.h" />
     <ClInclude Include="Source\Gameplay\Objects\Lever.h" />

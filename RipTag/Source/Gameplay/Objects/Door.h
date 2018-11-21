@@ -4,8 +4,12 @@
 class Door : public Triggerable
 {
 private:
-	DirectX::XMFLOAT4A pos1;
-	DirectX::XMFLOAT4A pos2;
+	DirectX::XMFLOAT4A m_closePos;
+	DirectX::XMFLOAT4A m_openPos;
+	DirectX::XMFLOAT3 m_startRotModel;
+	DirectX::XMFLOAT3 m_startRotBox;
+	float m_timer = 0.0f;
+	bool m_wasClosed = false;
 
 public:
 	Door();

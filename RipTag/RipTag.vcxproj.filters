@@ -68,6 +68,7 @@
     <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
     <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
     <ClCompile Include="Source\Source.cpp" />
+    <ClCompile Include="Source\Game\States\OptionSound.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Game\States\PlayState.cpp">
@@ -308,5 +309,7 @@
     <ClInclude Include="Source\Game\Level\RandomRoomGrid.h" />
     <ClInclude Include="Source\Game\Level\RandomRoom.h" />
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
+    <ClInclude Include="Source\Game\States\OptionSound.h" />
+    <ClInclude Include="Source\Game\States\Helper\RandomRoomPicker.h" />
   </ItemGroup>
 </Project>

@@ -71,6 +71,10 @@ public:
 	static void SetAmbientVolume(float vol);
 	static void SetMusicVolume(float vol);
 	static void SetMasterVolume(float vol);
+	static float GetEffectVolume();
+	static float GetAmbientVolume();
+	static float GetMusicVolume();
+	static float GetMasterVolume();
 
 	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings = FMOD_PRESET_STONEROOM);
 

@@ -54,6 +54,34 @@ private:
 	//First-person model
 	BaseActor* m_FirstPersonModel{ nullptr };
 
+	struct QuadPair
+	{
+		Quad * bckg = nullptr;
+		Quad * forg = nullptr;
+		void Draw()
+		{
+			if (bckg)
+				bckg->Draw();
+			if (forg)
+				forg->Draw();
+		}
+		~QuadPair()
+		{
+			if (bckg)
+			{
+				bckg->Release();
+				delete bckg;
+				bckg = nullptr;
+			}
+			if (forg)
+			{
+				forg->Release();
+				delete forg;
+				forg = nullptr;
+			}
+		}
+	};
+
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents1;
 	AbilityComponent ** m_abilityComponents2;
@@ -84,6 +112,7 @@ private:
 	KeyPressed m_kp;
 	
 	float m_visability = 0.0f;
+	float m_soundPercentage = 0.0f;
 
 	bool m_lockPlayerInput;
 
@@ -98,6 +127,9 @@ private:
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
 	Quad * m_tutorialText;
+	
+	QuadPair m_soundLevelHUD;
+	
 
 	Quad * m_cross;
 	std::stack<std::string> m_tutorialMessages;
@@ -164,6 +196,7 @@ public:
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
+	void SetCurrentSoundPercentage(const float & percentage);
 	void SetFirstPersonModel();
 	void LockPlayerInput();
 	bool IsInputLocked();

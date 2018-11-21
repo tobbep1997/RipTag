@@ -100,6 +100,16 @@ namespace Network
 		ENTITYSTATEPACKET(unsigned char _id, unsigned int _state, bool _condition) : id(_id), state(_state), condition(_condition) {}
 	};
 
+	struct ENTITYAIPACKET //W.I.P Needs constructors
+	{
+		unsigned char id;
+		unsigned int state;
+		unsigned int transitionState;
+		XMFLOAT2 soundLocation;	   //Sound percentage, Sound position
+		XMFLOAT2 sightingLocation; //Visibility counter, Remote player position
+		XMFLOAT2 nodes[8];		   // <-- AI path: node positions to calculate a path locally
+	};
+
 	struct ENTITYABILITYPACKET
 	{
 		unsigned char id;

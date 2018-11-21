@@ -111,8 +111,8 @@ private:
 
 	
 
-	float m_lightCullingDistance = 100;	
-	float m_forceCullingLimit = 7;		
+	float m_lightCullingDistance = 50;	
+	float m_forceCullingLimit = 5;		
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
@@ -120,6 +120,7 @@ private:
 	ID3D11RasterizerState * m_standardRast;
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
+	ID3D11RasterizerState * m_NUKE;
 
 	ID3D11Buffer * m_outlineBuffer;
 	OutLineBuffer m_outLineValues;
@@ -127,6 +128,9 @@ private:
 	ID3D11DepthStencilState * m_write0State;
 	ID3D11DepthStencilState * m_write1State;
 	ID3D11DepthStencilState * m_OutlineState;
+	ID3D11DepthStencilState * m_NUKE2;
+
+
 	
 public:
 	ForwardRender();
@@ -138,11 +142,14 @@ public:
 		ID3D11DepthStencilState*	m_depthStencilState,
 		ID3D11Texture2D*			depthBufferTex,
 		ID3D11SamplerState*			samplerState,
-		D3D11_VIEWPORT				viewport);
+		D3D11_VIEWPORT				viewport,
+		const WindowContext &		windowContext);
 
 
 	void GeometryPass(Camera & camera);
 	void PrePass(Camera & camera);
+
+	void AnimationPrePass(Camera & camera);
 	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();

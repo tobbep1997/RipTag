@@ -33,7 +33,8 @@ const bool & Trigger::Triggered() const
 
 void Trigger::setTriggerState(bool state, bool isLocal)
 {
-
+	if (m_linkedID == 3)
+		int lol = 0;
 	if (!m_triggerState && state)
 	{
 		//Play activated state

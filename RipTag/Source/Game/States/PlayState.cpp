@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
 #include <DirectXCollision.h>
+#include "Helper/RandomRoomPicker.h"
 
 
 std::vector<std::string> RipSounds::g_stepsStone;
@@ -17,16 +18,18 @@ b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
 
+bool RipExtern::g_kill = false;
+
 bool PlayState::m_youlost = false;
 
-PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
+PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
+	m_roomIndex = roomIndex;
 	if (coopData)
 	{
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
 	
 }
 
@@ -43,34 +46,73 @@ PlayState::~PlayState()
 	//delete triggerHandler;
 	delete m_contactListener;
 	delete m_rayListener;
-
+	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
 void PlayState::Update(double deltaTime)
 {
+	RipExtern::g_kill = false;
 	if (runGame)
 	{
 		InputMapping::Call();
 
-		m_step.dt = deltaTime;
-		m_step.velocityIterations = 2;
+		m_step.dt = UPDATE_TIME;
+		m_step.velocityIterations = 8;
 		m_step.sleeping = false;
 		m_firstRun = false;
-			//int i = 0;
-		triggerHandler->Update(deltaTime);
+		int i = 0;
+		std::ofstream lol;
+		lol.open("lolol.txt");
+		while (m_physRunning)
+		{
+			//SpinLock
+			lol << i << "\n";
+			i++;
+		}
+		lol.close();
+		i;
+		//Physics Done
+		//Time to do stuff
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+			//int i = 0;
+		if (RipExtern::g_kill == true)
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			//this->pushNewState();
+			m_loadingScreen.draw();
+			RipExtern::g_kill = false;
+			m_removeHud = true;
+			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+			return;
+		}
+
+		triggerHandler = m_levelHandler->getTriggerHandler();
+		triggerHandler->Update(deltaTime);
 		m_playerManager->Update(deltaTime);
 
-
 		m_playerManager->PhysicsUpdate();
-	
-	
-	
+		
 		m_contactListener->ClearContactQueue();
 		m_rayListener->ClearConsumedContacts();
 
-		m_deltaTime = deltaTime;
-		m_physicsCondition.notify_all();
+		//Start Physics thread
+		if (RipExtern::g_kill == false)
+		{
+			m_deltaTime = deltaTime * !m_physicsFirstRun;
+			m_physicsCondition.notify_all();
+		}
+		else
+		{
+			//this->resetState(new PlayState(this->p_renderingManager, pCoopData));
+		}
+		
 	
 	
 	
@@ -132,22 +174,26 @@ void PlayState::Update(double deltaTime)
 	{
 		_updateOnCoopMode(deltaTime);
 	}
-
+	m_physicsFirstRun = false;
 }
 
 void PlayState::Draw()
 {
-
-	m_levelHandler->Draw();
-
-	_lightCulling();
-
-	m_playerManager->Draw();
-
-	if (!runGame)
+	if (!m_removeHud)
 	{
-		if (m_eventOverlay)
-			m_eventOverlay->Draw();
+
+		m_levelHandler->Draw();
+
+		_lightCulling();
+
+		m_playerManager->Draw();
+
+		if (!runGame)
+		{
+			if (m_eventOverlay)
+				m_eventOverlay->Draw();
+		}
+
 	}
 
 #ifdef _DEBUG
@@ -182,16 +228,26 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
+	static int counter = 0;
 	while (m_destoryPhysicsThread == false)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
-	
-		if (m_deltaTime <= 0.65f)
+		m_physRunning = true;
+		if (RipExtern::g_kill == true)
+		{
+			return;
+		}
+		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
+		//{
+		m_timer += m_deltaTime;
+		while (m_timer >= UPDATE_TIME)
 		{
 			m_world.Step(m_step);
+			m_timer -= UPDATE_TIME;
 		}
-		
+		//}
+		m_physRunning = false;
 	}
 }
 
@@ -284,6 +340,11 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 				}
 
 				sl.percentage = playerSounds / allSounds;
+				e->setSoundLocation(sl);
+			}
+			else
+			{
+				sl.soundPos = { 0,0,0 };
 				e->setSoundLocation(sl);
 			}
 			counter++;
@@ -516,16 +577,24 @@ void PlayState::unLoad()
 
 void PlayState::Load()
 {
+	m_loadingScreen.Init();
 	std::cout << "PlayState Load" << std::endl;
-
+	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
+	
 	if (isCoop)
 	{
 		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
 		Network::Multiplayer::LocalPlayerOnSendMap.clear();
 		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
-	}
 
+		rooms = RandomRoomPicker::RoomPick(pCoopData->seed);
+	}
+	else
+	{
+		rooms = RandomRoomPicker::RoomPick(0);
+	}
+	
 	m_youlost = false;
 	Input::ResetMouse();
 	CameraHandler::Instance();
@@ -535,7 +604,7 @@ void PlayState::Load()
 	_loadPhysics();
 	_loadMeshes();
 	_loadAnimations();
-	_loadPlayers();
+	_loadPlayers(rooms);
 	_loadNetwork();
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
@@ -560,7 +629,9 @@ void PlayState::_loadTextures()
 
 void PlayState::_loadPhysics()
 {
+	
 	RipExtern::g_world = &m_world;
+	
 	m_contactListener = new ContactListener();
 	RipExtern::g_contactListener = m_contactListener;
 	RipExtern::g_world->SetContactListener(m_contactListener);
@@ -603,13 +674,14 @@ void PlayState::_loadAnimations()
 	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
 }
 
-void PlayState::_loadPlayers()
+void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 {
 	m_playerManager = new PlayerManager(&this->m_world);
 	m_playerManager->CreateLocalPlayer();
 
-	m_levelHandler = new LevelHandler();
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	m_levelHandler = new LevelHandler(m_roomIndex);
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }
 

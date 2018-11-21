@@ -18,11 +18,12 @@ private:
 	bool m_killState;
 	bool m_backToMenu;
 	State * m_newState = nullptr;
-
+	State * m_resetState = nullptr;
 	pushNpop * m_pnp;
+
 protected:
 	RenderingManager * p_renderingManager;
-	
+	const DirectX::XMFLOAT2 MIN_MAX_SLIDE = { 0.379f, 0.621f };
 
 public:
 	State(RenderingManager * rm = nullptr);
@@ -48,6 +49,9 @@ public:
 	bool getBackToMenu();
 
 	void pushAndPop(int i, State * state);
+	void resetState(State * state);
 	void resetPushNPop();
+
 	pushNpop * getPushNPop();
+	State * GetReset();
 };
