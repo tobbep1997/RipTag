@@ -473,6 +473,7 @@ void Player::SetFirstPersonModel()
 
 	auto fpsmodel = Manager::g_meshManager.getSkinnedMesh("ARMS");
 	m_FirstPersonModel->setModel(fpsmodel);
+	m_FirstPersonModel->setTexture(Manager::g_textureManager.getTexture("ARMS"));
 
 	//Animation stuff
 	auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
@@ -1204,7 +1205,7 @@ void Player::_updateFirstPerson(float deltaTime)
 {
 	using namespace DirectX;
 
-	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.f, -.75)), XMMatrixScaling(.1, .1, .1));
+	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.23f, -.45)), XMMatrixScaling(.1, .1, .1));
 	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr,XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
 
 	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
