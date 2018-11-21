@@ -397,6 +397,12 @@ void Enemy::Update(double deltaTime)
 	
 }
 
+void Enemy::ClientUpdate(double deltaTime)
+{
+	if (getAnimationPlayer())
+		getAnimationPlayer()->Update(deltaTime);
+}
+
 void Enemy::PhysicsUpdate(double deltaTime)
 {
 	p_updatePhysics(this);
@@ -434,6 +440,24 @@ void Enemy::EnableEnemy()
 bool Enemy::GetDisabledState()
 {
 	return m_disabled;
+}
+
+void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
+{
+	this->m_currentMoveSpeed = packet->moveSpeed;
+	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, packet->pos.y);
+	this->setRotation(packet->rot);
+}
+
+void Enemy::sendNetworkUpdate()
+{
+	Network::ENEMYUPDATEPACKET packet;
+	packet.uniqueID = uniqueID;
+	packet.pos = getPosition();
+	packet.rot = getEulerRotation();
+	packet.moveSpeed = m_currentMoveSpeed;
+
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void Enemy::_handleInput(double deltaTime)

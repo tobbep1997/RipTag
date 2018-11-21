@@ -214,6 +214,7 @@ public:
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
+	void ClientUpdate(double deltaTime);
 	virtual void PhysicsUpdate(double deltaTime);
 
 	//Depending on the culling, this can cancel the queue
@@ -286,11 +287,10 @@ public:
 	void SetHightAlertTimer(const float & time);
 
 	void setGrid(Grid* grid);
-	
-
 
 	//Network
-	void onAIPacket(Network::ENTITYAIPACKET * packet);
+	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
+	void sendNetworkUpdate();
 private:
 
 	void _handleInput(double deltaTime);  //v 0.5
@@ -317,9 +317,6 @@ private:
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
-	
-	//call this once everywhile in Update, always call this when we do a state swap
-	void _sendAIPacket();
 
 	void _handleStates(const double deltaTime);
 	//Transistion States

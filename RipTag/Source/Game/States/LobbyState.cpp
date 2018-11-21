@@ -68,6 +68,7 @@ LobbyState::~LobbyState()
 		delete pCoopData;
 		pCoopData = nullptr;
 	}
+	pNetwork->setRole();
 	this->pNetwork->ShutdownPeer();
 }
 
@@ -270,6 +271,7 @@ void LobbyState::Update(double deltaTime)
 						pCoopData->remoteID = this->m_remoteNID;
 						pCoopData->role = Role::Server;
 
+						pNetwork->setRole((int)Role::Server);
 						srand(pCoopData->seed);
 
 						isReady = false;
@@ -1291,6 +1293,8 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	pCoopData->remotePlayerCharacter = remoteSelectedChar;
 	pCoopData->remoteID = packet->remoteID;
 	pCoopData->role = Role::Client;
+
+	pNetwork->setRole((int)Role::Client);
 
 	srand(pCoopData->seed);
 

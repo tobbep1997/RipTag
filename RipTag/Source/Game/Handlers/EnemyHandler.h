@@ -30,7 +30,6 @@ public:
 	void Init(std::vector<Enemy*> enemies, Player * player, Grid * grid);
 	void setRemotePlayer(RemotePlayer * ptr = nullptr) { m_remotePlayer = ptr; }
 	//Types: 0 = Server; 1 = Client, 2 = SinglePlayer
-	void setType(int type = 2) { m_type = type; }
 
 	void Update(float deltaTime);
 	void HandlePacket(unsigned char id, unsigned char * data);
@@ -44,13 +43,5 @@ private:
 
 	int _getPlayerVisibility(Enemy * guard);
 	int _getRemotePlayerVisibility(Enemy * guard);
-	void _alert(Enemy * guard, bool followSound = false);
-	void _investigating(Enemy * guard);
-	void _investigateSound(Enemy * guard);
-	void _patrolling(Enemy * guard);
-	void _highAlert(Enemy * guard, const double & dt);
-	void _suspicious(Enemy * guard, const double & dt);
-	void _ScanArea(Enemy * guard, const double & dt);
-	void _investigateRoom(Enemy * guard, const double & dt);
 
 };

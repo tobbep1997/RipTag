@@ -39,7 +39,7 @@ namespace Network
 		ID_TRIGGER_USED				= ID_USER_PACKET_ENUM + 30,
 		ID_PLAYER_WON				= ID_USER_PACKET_ENUM + 31,
 		ID_PLAYER_LOST				= ID_USER_PACKET_ENUM + 32,
-		ID_ENEMY_AI					= ID_USER_PACKET_ENUM + 33
+		ID_ENEMY_UPDATE				= ID_USER_PACKET_ENUM + 33
 
 	};
 
@@ -101,15 +101,15 @@ namespace Network
 		ENTITYSTATEPACKET(unsigned char _id, unsigned int _state, bool _condition) : id(_id), state(_state), condition(_condition) {}
 	};
 
-	struct ENTITYAIPACKET //W.I.P Needs constructors
+	struct ENEMYUPDATEPACKET
 	{
-		unsigned char id;
-		unsigned int uniqueID;
-		unsigned int state;
-		unsigned int transitionState;
-		XMFLOAT2 soundLocation;	   //Sound percentage, Sound position
-		XMFLOAT2 sightingLocation; //Visibility counter, Remote player position
-		XMFLOAT2 nodes[8];		   // <-- AI path: node positions to calculate a path locally
+		unsigned char id = ID_ENEMY_UPDATE;
+		int uniqueID;
+		//transformation data
+		DirectX::XMFLOAT4A pos;
+		DirectX::XMFLOAT4A rot;
+		//Animation data
+		float moveSpeed;
 	};
 
 	struct ENTITYABILITYPACKET

@@ -202,6 +202,25 @@ namespace Network
 	}
 
 
+	void Multiplayer::setRole(int role)
+	{
+		switch (role)
+		{
+		case 0:
+			m_isServer = true;
+			m_isClient = false;
+			break;
+		case 1:
+			m_isServer = false;
+			m_isClient = true;
+			break;
+		default:
+			m_isServer = false;
+			m_isClient = false;
+			break;
+		}
+	}
+
 	std::string Multiplayer::GetNetworkStatistics()
 	{
 		RakNet::RakNetStatistics * data = 0;
