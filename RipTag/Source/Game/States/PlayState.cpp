@@ -60,17 +60,12 @@ void PlayState::Update(double deltaTime)
 		m_step.velocityIterations = 8;
 		m_step.sleeping = false;
 		m_firstRun = false;
-		int i = 0;
-		std::ofstream lol;
-		lol.open("lolol.txt");
 		while (m_physRunning)
 		{
 			//SpinLock
-			lol << i << "\n";
-			i++;
+			int i = 0;
 		}
-		lol.close();
-		i;
+
 		//Physics Done
 		//Time to do stuff
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
