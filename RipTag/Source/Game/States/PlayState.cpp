@@ -83,7 +83,9 @@ void PlayState::Update(double deltaTime)
 				m_physicsThread.join();
 			}
 			//this->pushNewState();
+			m_loadingScreen.draw();
 			RipExtern::m_first = false;
+			m_removeHud = true;
 			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
 			return;
 		}
@@ -177,17 +179,21 @@ void PlayState::Update(double deltaTime)
 
 void PlayState::Draw()
 {
-
-	m_levelHandler->Draw();
-
-	_lightCulling();
-
-	m_playerManager->Draw();
-
-	if (!runGame)
+	if (!m_removeHud)
 	{
-		if (m_eventOverlay)
-			m_eventOverlay->Draw();
+
+		m_levelHandler->Draw();
+
+		_lightCulling();
+
+		m_playerManager->Draw();
+
+		if (!runGame)
+		{
+			if (m_eventOverlay)
+				m_eventOverlay->Draw();
+		}
+
 	}
 
 #ifdef _DEBUG
@@ -561,6 +567,7 @@ void PlayState::unLoad()
 
 void PlayState::Load()
 {
+	m_loadingScreen.Init();
 	std::cout << "PlayState Load" << std::endl;
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
