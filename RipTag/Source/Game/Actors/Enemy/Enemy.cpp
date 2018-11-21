@@ -387,13 +387,6 @@ void Enemy::Update(double deltaTime)
 		//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 		m_visCounter = 0;
 	}
-
-	accumulatedTime += deltaTime;
-	if (accumulatedTime >= SEND_AI_PACKET_FREQUENCY)
-	{
-		_sendAIPacket();
-		accumulatedTime -= SEND_AI_PACKET_FREQUENCY;
-	}
 	
 }
 
@@ -863,11 +856,6 @@ void Enemy::SetHightAlertTimer(const float& time)
 	m_HighAlertTime = time;
 }
 
-void Enemy::onAIPacket(Network::ENTITYAIPACKET * packet)
-{
-	//WHAT TO DO HERE MATEY?! ARRRRR
-	m_state = (EnemyState)packet->state;
-}
 
 void Enemy::setGrid(Grid * grid)
 {
@@ -1902,17 +1890,3 @@ void Enemy::_disabled()
 
 }
 
-void Enemy::_sendAIPacket()
-{
-	if (Network::Multiplayer::GetInstance()->isConnected())
-	{
-		Network::ENTITYAIPACKET packet;
-
-		//TODO: Depending on what state we have we fill the packet with corresponding data
-		packet.id = Network::ID_ENEMY_AI;
-		packet.uniqueID = uniqueID;
-		packet.state = m_state;
-
-		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYAIPACKET), PacketPriority::LOW_PRIORITY);
-	}
-}
