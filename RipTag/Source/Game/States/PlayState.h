@@ -108,5 +108,6 @@ private:
 
 	void _updateOnCoopMode(double deltaTime);
 
+	void _loadAnimations();
 };
 

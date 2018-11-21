@@ -1,6 +1,6 @@
 #include "RipTagPCH.h"
 #include "Player.h"
-
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
 //#todoREMOVE
 float Player::m_currentPitch = 0.0f;
 
@@ -122,6 +122,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		c->setUnpressedTexture("SPHERE");
 		m_enemyCircles.push_back(c);
 	}
+	
+	SetFirstPersonModel();
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -133,6 +135,8 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 
 Player::~Player()
 {
+	if (m_FirstPersonModel)
+		delete m_FirstPersonModel;
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
@@ -280,7 +284,7 @@ void Player::Update(double deltaTime)
 		else
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
-
+	_updateFirstPerson(deltaTime);
 }
 
 void Player::PhysicsUpdate()
@@ -392,6 +396,7 @@ void Player::Draw()
 	{
 		m_enemyCircles[i]->Draw();
 	}
+	m_FirstPersonModel->Draw();
 }
 
 void Player::LockPlayerInput()
@@ -412,6 +417,41 @@ void Player::UnlockPlayerInput()
 void Player::SetCurrentVisability(const float & guard)
 {
 	this->m_visability = guard;
+}
+
+void Player::SetFirstPersonModel()
+{
+	if (m_FirstPersonModel)
+	{
+		delete m_FirstPersonModel;
+	}
+	
+	m_FirstPersonModel = new BaseActor();
+
+	auto fpsmodel = Manager::g_meshManager.getSkinnedMesh("ARMS");
+	m_FirstPersonModel->setModel(fpsmodel);
+
+	//Animation stuff
+	auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
+	auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
+	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
+
+	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
+
+	auto& machine = animPlayer->InitStateMachine(1);
+	animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
+
+	auto state = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+	state->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+	machine->SetState("idle");
+
+	//auto& layerMachine = animPlayer->InitLayerStateMachine(1);
+	//auto additiveState = layerMachine->AddBlendSpace1DAdditiveState("bob", &m_currentSpeed, 0.0, 1.5f);
+	//additiveState->AddBlendNodes({ {bpClip, 0.0f}, {bobClip, 1.5f} });
+	
+	
+	animPlayer->Play();
+
 }
 
 void Player::SendOnUpdateMessage()
@@ -1095,6 +1135,16 @@ void Player::_updateTutorial(double deltaTime)
 			m_tutorialDuration += deltaTime;
 		}
 	}
+}
+
+void Player::_updateFirstPerson(float deltaTime)
+{
+	using namespace DirectX;
+
+	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.f, -.75)), XMMatrixScaling(.1, .1, .1));
+	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr,XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
+
+	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
 }
 
 void Player::_cameraPlacement(double deltaTime)

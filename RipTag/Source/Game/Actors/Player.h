@@ -51,6 +51,9 @@ private:
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 private:
+	//First-person model
+	BaseActor* m_FirstPersonModel{ nullptr };
+
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents1;
 	AbilityComponent ** m_abilityComponents2;
@@ -161,7 +164,7 @@ public:
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
-
+	void SetFirstPersonModel();
 	void LockPlayerInput();
 	bool IsInputLocked();
 	void UnlockPlayerInput();
@@ -195,7 +198,8 @@ private:
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
 	void _updateTutorial(double deltaTime);
-
+	
+	void _updateFirstPerson(float deltaTime);
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 

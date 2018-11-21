@@ -534,6 +534,7 @@ void PlayState::Load()
 	_loadTextures();
 	_loadPhysics();
 	_loadMeshes();
+	_loadAnimations();
 	_loadPlayers();
 	_loadNetwork();
 
@@ -575,18 +576,31 @@ void PlayState::_loadPhysics()
 void PlayState::_loadMeshes()
 {
 	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
-	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
-	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
-	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
-	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
+	
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
+	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
 	future1.get();
+}
+
+void PlayState::_loadAnimations()
+{
+	//First-person arms
+	Manager::g_animationManager.loadSkeleton("../Assets/ARMSFOLDER/ARMS_SKELETON.bin", "ARMS");
+	Manager::g_animationManager.loadClipCollection("ARMS", "ARMS", "../Assets/ARMSFOLDER", Manager::g_animationManager.getSkeleton("ARMS"));
+
+	//State (old placeholder character)
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+
+	//Guard
+	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
+	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
 }
 
 void PlayState::_loadPlayers()
@@ -775,3 +789,5 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 		}
 	}
 }
+
+

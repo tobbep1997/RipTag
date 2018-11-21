@@ -22,6 +22,7 @@ public:
 	void Update(double deltaTime) override;
 
 	void setPosition(const float & x, const float & y, const float & z, const bool & setPhysics = true);
+	void setPosition(const DirectX::XMFLOAT4A& pos, const bool setPhysics);
 	void setPositionRot(const float & x, const float & y, const float & z, const float & pitch, const float & yaw, const float & roll);
 	void setRotation(const float & pitch, const float & yaw, const float & roll, const bool & setPhysics = true);
 	void setPositionRot(const DirectX::XMFLOAT4A & pos,const DirectX::XMFLOAT4A rot);
