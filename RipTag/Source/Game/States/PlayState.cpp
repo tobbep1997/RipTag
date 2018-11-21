@@ -337,6 +337,11 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 				sl.percentage = playerSounds / allSounds;
 				e->setSoundLocation(sl);
 			}
+			else
+			{
+				sl.soundPos = { 0,0,0 };
+				e->setSoundLocation(sl);
+			}
 			counter++;
 		}
 	}
