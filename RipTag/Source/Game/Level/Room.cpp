@@ -696,7 +696,3 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 
 #pragma endregion
-
-	for (int i = 0; i < m_emitters.size(); i++)
-	{
-		m_emitters[i]->Update(deltaTime, camera);
