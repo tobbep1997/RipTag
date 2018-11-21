@@ -123,8 +123,8 @@ public:
 	TriggerHandler * getTriggerHandler() { return triggerHandler; }
 	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
 	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };
+	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
 private:
-	void _addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector);
-	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false);
+	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false);
 	void _addToTriggerHandler(ImporterLibrary::PropItem prop, const std::string & name, TriggerHandler * triggerHandler, bool animated, int index);
 };

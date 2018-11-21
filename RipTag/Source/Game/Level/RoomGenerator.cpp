@@ -351,41 +351,21 @@ void RoomGenerator::_makeWalls()
 				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile(MODNAMESTRING); //TODO MAKE RANDOM 
 				for (int k = 0; k < tempProps.nrOfItems; k++)
 				{
-					asset = DBG_NEW BaseActor();
+					
 
 					if (isRotated == true)
 					{
 						tempProps.props[k].transform_rotation[1] += 90.f;
-						//tempProps.props[k].transform_rotation[1] += 90.f; // TODO WHEN DOUBLE
-						//tempProps.props[k].transform_rotation[2] += 90.f;
+						tempProps.props[k].transform_position[0] = j + tempProps.props[k].transform_position[2];
+						tempProps.props[k].transform_position[2] = i + 10 + tempProps.props[k].transform_position[0];
 					}
-					asset->Init(*m_worldPtr, e_staticBody, tempProps.props[k].BBOX_INFO[0], tempProps.props[k].BBOX_INFO[1], tempProps.props[k].BBOX_INFO[2]);
-
-					asset->setPosition(j + tempProps.props[k].transform_position[0] + BigRoomAddX, tempProps.props[k].transform_position[1], i + tempProps.props[k].transform_position[2] + BigRoomAddZ, true);
-					if(isRotated)
-						asset->setPosition(j + tempProps.props[k].transform_position[2] , tempProps.props[k].transform_position[1], i + 10 + tempProps.props[k].transform_position[0], true);
-
-					asset->setScale(tempProps.props[k].transform_scale[0], tempProps.props[k].transform_scale[1], tempProps.props[k].transform_scale[2]);
-					asset->setRotation(tempProps.props[k].transform_rotation[0], tempProps.props[k].transform_rotation[1], tempProps.props[k].transform_rotation[2]);
-					switch (tempProps.props[k].typeOfProp)
+					else
 					{
-					case(8):
-						Manager::g_meshManager.loadStaticMesh("BANNER");
-						Manager::g_textureManager.loadTextures("BANNER");
-						asset->setModel(Manager::g_meshManager.getStaticMesh("BANNER"));
-						asset->setTexture(Manager::g_textureManager.getTexture("BANNER"));
-						break;
-					case(7):
-						Manager::g_meshManager.loadStaticMesh("BARREL");
-						Manager::g_textureManager.loadTextures("BARREL");
-						asset->setModel(Manager::g_meshManager.getStaticMesh("BARREL"));
-						asset->setTexture(Manager::g_textureManager.getTexture("BARREL"));
-						break;
-					default:
-						break;
+						tempProps.props[k].transform_position[0] = j + tempProps.props[k].transform_position[0] + BigRoomAddX;
+						tempProps.props[k].transform_position[2] = i + tempProps.props[k].transform_position[2] + BigRoomAddZ;
 					}
-					m_generated_assetVector.push_back(asset);
 				}
+				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
 				delete tempProps.props;
 				randomizer.m_rooms[index].propsPlaced = true;
 				if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
@@ -871,7 +851,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	//dbgFuncSpawnAboveMap();
+	dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
