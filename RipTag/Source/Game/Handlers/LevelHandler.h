@@ -45,6 +45,7 @@ public:
 	const std::vector<Enemy*>* getEnemies() const;
 
 	TriggerHandler * getTriggerHandler();
+	EnemyHandler * getEnemyHandler();
 
 	std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> getStartingPositions();
 private:

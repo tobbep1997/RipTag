@@ -97,6 +97,7 @@ public:
 	std::string getAssetFilePath();
 
 	const bool getRoomLoaded();
+	EnemyHandler * getEnemyHandler() { return m_enemyHandler; }
 
 	BaseActor * getCollissionBox() { return CollisionBoxes; }
 

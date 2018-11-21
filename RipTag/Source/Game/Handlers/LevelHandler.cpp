@@ -127,6 +127,11 @@ TriggerHandler * LevelHandler::getTriggerHandler()
 	return m_rooms[m_activeRoom]->getTriggerHandler();
 }
 
+EnemyHandler * LevelHandler::getEnemyHandler()
+{
+	return m_rooms[m_activeRoom]->getEnemyHandler();
+}
+
 
 std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
 {

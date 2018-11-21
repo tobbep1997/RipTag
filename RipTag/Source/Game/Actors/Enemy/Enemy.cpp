@@ -856,7 +856,6 @@ void Enemy::SetHightAlertTimer(const float& time)
 	m_HighAlertTime = time;
 }
 
-
 void Enemy::setGrid(Grid * grid)
 {
 	m_grid = grid;
