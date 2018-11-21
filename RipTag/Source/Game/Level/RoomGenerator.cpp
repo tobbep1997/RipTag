@@ -153,7 +153,6 @@ void RoomGenerator::_makeWalls()
 			isRotated = false;
 			if (randomizer.m_rooms[index].type == 1)
 				isRotated = true;
-
 			
 			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 
@@ -179,7 +178,7 @@ void RoomGenerator::_makeWalls()
 				if (randomizer.m_rooms[index].leadsToRoom[x] != -1)
 					if (randomizer.m_rooms[index].pairedWith == randomizer.m_rooms[index].leadsToRoom[x])
 						placeWall = false;
-				////////
+			////////
 
 
 				if (placeWall)
@@ -217,7 +216,6 @@ void RoomGenerator::_makeWalls()
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j + 10.f, 2.5, i);
 						m_generated_assetVector.push_back(asset);
-						
 					}
 					if (x == 2)
 					{
@@ -226,7 +224,6 @@ void RoomGenerator::_makeWalls()
 						applyTransformationToBoundingBox(roomSpace, modCollisionBoxes);
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j, 2.5, i + 10.f);
-						
 						m_generated_assetVector.push_back(asset);
 					}
 
@@ -239,13 +236,6 @@ void RoomGenerator::_makeWalls()
 						asset->Init(*m_worldPtr, modCollisionBoxes);
 						asset->setPosition(j - 10.f, 2.5, i);
 						m_generated_assetVector.push_back(asset);
-						if (isWinRoom)
-						{
-							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
-							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
-							asset->setPosition(j - 10.f, 2.5, i);
-
-						}
 					}
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
@@ -291,17 +281,15 @@ void RoomGenerator::_makeWalls()
 			if (RANDOM_MOD_NR > MAX_SMALL_MODS)
 			{
 				if (!isRotated)
-					BigRoomAddX = 11;
+					BigRoomAddX = 10;
 				else
-					BigRoomAddZ = 11;
+					BigRoomAddZ = 10;
 			}
 
 			if (!randomizer.m_rooms[index].propsPlaced)
 			{
 				ImporterLibrary::GridStruct * tempGridStruct;
 				tempGridStruct = loader.readGridFile(MODNAMESTRING);
-				if (randomizer.m_rooms[index].type == 1 || randomizer.m_rooms[index].type == 0)
-					
 				for (int a = 0; a < tempGridStruct->maxY; a++)
 				{
 					
@@ -318,6 +306,8 @@ void RoomGenerator::_makeWalls()
 					{
 						for (int b = 0; b < tempGridStruct->maxX; b++)
 						{
+							//tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[0] += j + BigRoomAddX;
+							//tempGridStruct->gridPoints[a + b * tempGridStruct->maxY].translation[2] += i + BigRoomAddZ;
 							int current = a * tempGridStruct->maxX + b;
 							float tmp = tempGridStruct->gridPoints[current].translation[0];
 							tempGridStruct->gridPoints[current].translation[0] = tempGridStruct->gridPoints[current].translation[2];
@@ -330,13 +320,27 @@ void RoomGenerator::_makeWalls()
 				}
 				if (randomizer.m_rooms[index].type == 1)
 				{
+					tempGridStruct->maxX--;
 					int temp = tempGridStruct->maxX;
 					tempGridStruct->maxX = tempGridStruct->maxY;
 					tempGridStruct->maxY = temp;
 				}
-			
+				_unblockIndex(randomizer, tempGridStruct, index);
+				if (randomizer.m_rooms[index].pairedWith != -1)
+					_unblockIndex(randomizer, tempGridStruct, randomizer.m_rooms[index].pairedWith);
+
 				for (int z = 0; z < tempGridStruct->nrOf; z++)
-					tempGridStruct->gridPoints[z].pathable = true;
+				{
+					if (!tempGridStruct->gridPoints[z].pathable)
+					{
+						asset = new BaseActor();
+						asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+						asset->setPosition(tempGridStruct->gridPoints[z].translation[0], 2,
+							tempGridStruct->gridPoints[z].translation[2], false);
+						asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
+						m_generated_assetVector.push_back(asset);
+					}
+				}
 				appendedGridStruct.push_back(tempGridStruct);
 			}
 
@@ -470,6 +474,88 @@ void RoomGenerator::_makeWalls()
 
 	delete [] gridStructToSendBack->gridPoints;
 	delete gridStructToSendBack;
+}
+
+void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex)
+{
+	tempGridStruct->gridPoints[tempGridStruct->nrOf / 2].pathable = false;
+	// North
+	if (randomizer.m_rooms[roomIndex].north)
+	{
+		for (int z = 7; z < 14; z++)
+		{
+			tempGridStruct->gridPoints[z * tempGridStruct->maxX].pathable = true;
+		}
+	}
+	// East
+	if (randomizer.m_rooms[roomIndex].east)
+	{
+		int pathIndex = tempGridStruct->nrOf - 7;
+		for (int z = pathIndex - 7; z < pathIndex; z++)
+		{
+			tempGridStruct->gridPoints[z].pathable = true;
+		}
+	}
+	// South
+	if (randomizer.m_rooms[roomIndex].south)
+	{
+		for (int z = 7; z < 14; z++)
+		{
+			tempGridStruct->gridPoints[(z * tempGridStruct->maxX) + tempGridStruct->maxX - 1].pathable = true;
+		}
+	}
+	// West
+	if (randomizer.m_rooms[roomIndex].west)
+	{
+		for (int z = 7; z < 14; z++)
+		{
+			tempGridStruct->gridPoints[z].pathable = true;
+		}
+	}
+	// Horizontal
+	/*if (randomizer.m_rooms[roomIndex].type == 0)
+	{
+		int pathIndex = tempGridStruct->maxX - 7;
+		// North
+		if (randomizer.m_rooms[roomIndex].north)
+		{
+			for (int z = pathIndex - 7; z < pathIndex; z++)
+			{
+				tempGridStruct->gridPoints[z].pathable = true;
+			}
+		}
+		// South
+		if (randomizer.m_rooms[roomIndex].south)
+		{
+			pathIndex = tempGridStruct->nrOf - tempGridStruct->maxX + 14;
+			for (int z = pathIndex - 7; z < pathIndex; z++)
+			{
+				tempGridStruct->gridPoints[z].pathable = true;
+			}
+		}
+	}
+	// Vertical
+	else if (randomizer.m_rooms[roomIndex].type == 1)
+	{
+		int pathIndex = tempGridStruct->nrOf - tempGridStruct->maxX + 7;
+		// East
+		if (randomizer.m_rooms[roomIndex].east)
+		{
+			for (int z = pathIndex; z < pathIndex; z++)
+			{
+				tempGridStruct->gridPoints[z].pathable = true;
+			}
+		}
+		// West
+		if (randomizer.m_rooms[roomIndex].west)
+		{
+			pathIndex = tempGridStruct->maxX - 7;
+			for (int z = pathIndex - 7; z < pathIndex; z++)
+			{
+				tempGridStruct->gridPoints[z].pathable = true;
+			}
+		}
+	}*/
 }
 
 
