@@ -310,23 +310,26 @@ void Room::LoadRoomToMemory()
 			Test paths for guard on bottom floor
 		*/
 		// 0, 0 -> 5, 0
-		std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
-		// 5, 0 -> 5, 10
-		std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+		std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+		std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(2, 0));
 		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-		// 5, 10 -> 0, 10
-		partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(0, 10));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-		// 0, 10 -> 0, 0
-		partOfPath = m_pathfindingGrid->FindPath(Tile(0, 10), Tile(0, 0));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
+		//std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
+		//// 5, 0 -> 5, 10
+		//std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+		//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//partOfPath.clear();
+		//// 5, 10 -> 0, 10
+		//partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(0, 10));
+		//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//partOfPath.clear();
+		//// 0, 10 -> 0, 0
+		//partOfPath = m_pathfindingGrid->FindPath(Tile(0, 10), Tile(0, 0));
+		//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//partOfPath.clear();
 
 		m_roomGuards.at(1)->SetPathVector(fullPath);
 
-		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
+		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10)));
 
 		//getPath();
 

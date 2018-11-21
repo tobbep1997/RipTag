@@ -275,7 +275,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
 
-	_visabilityPass();
+	//_visabilityPass();
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	this->_OutliningPass(camera);
