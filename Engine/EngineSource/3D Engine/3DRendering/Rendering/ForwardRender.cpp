@@ -308,6 +308,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap->ShadowPass(this);
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	DX::g_deviceContext->RSSetState(m_standardRast);
 
 	_visabilityPass();
 	this->GeometryPass(camera);
@@ -315,7 +317,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->_OutliningPass(camera);
 
 
-	//_GuardFrustumDraw();
+	_GuardFrustumDraw();
 	_mapCameraBuffer(camera);
 	
 	_particlePass();
