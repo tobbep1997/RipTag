@@ -73,7 +73,7 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			m_rooms[m_activeRoom]->SetActive(true);
 			RipExtern::g_rayListener->ClearConsumedContacts();
 			RipExtern::g_contactListener->ClearContactQueue();
-			RipExtern::m_first = true;
+			RipExtern::g_kill = true;
 		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
@@ -92,7 +92,7 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 
 			RipExtern::g_rayListener->ClearConsumedContacts();
 			RipExtern::g_contactListener->ClearContactQueue();
-			RipExtern::m_first = true;
+			RipExtern::g_kill = true;
 		}
 	}
 	else if (InputHandler::isKeyPressed('H'))
@@ -108,7 +108,7 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 	
 		pressed = false;
 	}
-	if (RipExtern::m_first == false)
+	if (RipExtern::g_kill == false)
 		m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
 }
 
