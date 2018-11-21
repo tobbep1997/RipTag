@@ -12,7 +12,18 @@ PointLight::PointLight()
 	};
 	m_nearPlane = 1.0f;
 	m_farPlane = 50.0f;
-	_initDirectX(128U, 128U);
+	switch (SettingLoader::g_windowContext->graphicsQuality)
+	{
+	case 0:
+		_initDirectX(64, 64);
+		break;
+	case 1:
+		_initDirectX(128, 128);
+		break;
+	case 2:
+		_initDirectX(1024, 1024);
+		break;
+	}
 
 	m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
 	m_phys.p_setPosition(-999,-9999,-99999);
@@ -42,7 +53,19 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 		m_useSides[i] = TRUE;
 	}
 	this->m_dropOff = .5f;
-	_initDirectX(128U,128U);
+
+	switch (SettingLoader::g_windowContext->graphicsQuality)
+	{
+	case 0:
+		_initDirectX(64, 64);
+		break;
+	case 1:
+		_initDirectX(128, 128);
+		break;
+	case 2:
+		_initDirectX(1024, 1024);
+		break;
+	}
 
 	m_phys.Init(*RipExtern::g_world, e_staticBody, 0.4f, 0.4f, 0.4f);
 	m_phys.p_setPosition(translation[0], translation[1], translation[2]);
@@ -388,7 +411,7 @@ void PointLight::_createSides()
 	Camera * cam;
 
 	float fov = 0.5f;
-	
+	m_nearPlane = 0.1f;
 
 	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->m_position);

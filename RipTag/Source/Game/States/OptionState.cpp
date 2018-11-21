@@ -506,10 +506,12 @@ void OptionState::_WriteSettingsToFile()
 	WritePrivateProfileStringA("Player", "YAXIS", std::to_string(m_sens.y).c_str(), file.c_str());
 	WritePrivateProfileStringA("Player", "PlayerFOV", std::to_string(m_fov).c_str(), file.c_str());
 
+
 	file = "../Configuration/defultEngineSettings.ini";
 	WritePrivateProfileStringA("Engine", "fullscreen", std::to_string(m_fullscreen).c_str(), file.c_str());
 	WritePrivateProfileStringA("Engine", "width", std::to_string(RES[m_resSelection].x).c_str(), file.c_str());
 	WritePrivateProfileStringA("Engine", "height", std::to_string(RES[m_resSelection].y).c_str(), file.c_str());
+	WritePrivateProfileStringA("Engine", "graphics", std::to_string(m_graphicsSelection).c_str(), file.c_str());
 	
 }
 
@@ -583,6 +585,10 @@ void OptionState::_ParseFileInputInt(const std::string & name, int key)
 			m_resSelection = 1;
 		else
 			m_resSelection = 2;
+	}
+	else if (name == "graphics")
+	{
+		m_graphicsSelection = key;
 	}
 }
 
