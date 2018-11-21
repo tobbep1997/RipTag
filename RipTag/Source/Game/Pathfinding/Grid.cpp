@@ -70,7 +70,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		}
 }
 
-void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int durr)
+void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded)
 {
 	if (!m_nodeMap.empty())
 		m_nodeMap.clear();
