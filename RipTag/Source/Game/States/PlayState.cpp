@@ -83,6 +83,7 @@ void PlayState::Update(double deltaTime)
 				m_physicsThread.join();
 			}
 			//this->pushNewState();
+			m_loadingScreen.draw();
 			RipExtern::m_first = false;
 			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
 			return;
@@ -561,6 +562,7 @@ void PlayState::unLoad()
 
 void PlayState::Load()
 {
+	m_loadingScreen.Init();
 	std::cout << "PlayState Load" << std::endl;
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
