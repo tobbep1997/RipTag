@@ -448,25 +448,21 @@ void RoomGenerator::_makeWalls()
 			{
 				if (isRotated == true)
 				{
-					float tempPosX = boxes.boxes[k].translation[0];
-					boxes.boxes[k].translation[0] = j + tempLights.lights[k].translate[2];
+					float tempPosX = tempLights.lights[k].translate[0];
+					boxes.boxes[k].translation[1] += 90.f;
+					boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[2];
 					boxes.boxes[k].translation[2] = i + 10 + tempPosX;
-					asset->addRotation(0, 90, 0);
-
 				}
 				else
 				{
-					boxes.boxes[k].translation[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
-					boxes.boxes[k].translation[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
+					boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[0] + BigRoomAddX;
+					boxes.boxes[k].translation[2] = i + boxes.boxes[k].translation[2] + BigRoomAddZ;
 				}
-				m_generated_pointLightVector.push_back(new PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
 			}
-
-
 			asset->Init(*m_worldPtr, boxes);
 			m_generated_assetVector.push_back(asset);
-			/**/
 			delete[] boxes.boxes;
+			
 
 
 #pragma endregion
@@ -1034,7 +1030,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	//dbgFuncSpawnAboveMap();
+	dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
