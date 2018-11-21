@@ -206,7 +206,7 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
-			Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			this->m_roomGuards.push_back(e);
@@ -216,6 +216,7 @@ void Room::LoadRoomToMemory()
 		/*
 			Test paths for guard on bottom floor
 		*/
+		// 0, 0 -> 5, 0
 		// 0, 0 -> 5, 0
 		std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
 		// 5, 0 -> 5, 10

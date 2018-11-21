@@ -94,6 +94,8 @@ public:
 	void ThreadPath(Tile src, Tile dest);
 	std::vector<Node*> GetPathFromThread();
 	bool IsPathReady();
+	int getGridWidth();
+	int getGridHeight();
 
 private:
 	// Utility functions
