@@ -1102,7 +1102,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 		static int last = 0;
 
 		//Head Bobbing
-		float offsetY = p_viewBobbing(deltaTime, m_cameraSpeed, this->getBody());
+		float offsetY = 0;//p_viewBobbing(deltaTime, m_cameraSpeed, this->getBody());
 
 		pos.y += offsetY;
 
@@ -1231,6 +1231,10 @@ void Enemy::_CheckPlayer(double deltaTime)
 		if (m_lenghtToPlayer < m_lengthToPlayerSpan)
 		{
 			visPres *= 1.5;
+		}
+		if (m_state == High_Alert)
+		{
+			visPres *= 1.2;
 		}
 
 		if (visPres > 0)
