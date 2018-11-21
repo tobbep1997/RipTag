@@ -90,7 +90,7 @@ void RoomGenerator::_makeWalls()
 {
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 1; // change when small mods added
+	int MAX_SMALL_MODS = 2; // change when small mods added
 	bool isRotated = false;
 
 	RandomRoomGrid randomizer;
@@ -144,11 +144,11 @@ void RoomGenerator::_makeWalls()
 			directions[3] = randomizer.m_rooms[index].west;
 			
 
-			RANDOM_MOD_NR = MAX_SMALL_MODS;//RANDOM MELLAN MAX_SMALL MODS och 1
+			RANDOM_MOD_NR = rand() % MAX_SMALL_MODS + 1;//RANDOM MELLAN MAX_SMALL MODS och 1
 
 			if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
 			{
-				RANDOM_MOD_NR = 2;//random från antal small rum upp till max big room
+				RANDOM_MOD_NR = 3;//random från antal small rum upp till max big room
 			}
 			isRotated = false;
 			if (randomizer.m_rooms[index].type == 1)
@@ -192,8 +192,6 @@ void RoomGenerator::_makeWalls()
 				}
 				else
 				{
-			
-
 					tempGuards.startingPositions[k].startingPos[0] = j + tempGuards.startingPositions[k].startingPos[0] + BigRoomAddX;
 					tempGuards.startingPositions[k].startingPos[2] = i + tempGuards.startingPositions[k].startingPos[2] + BigRoomAddZ;
 				}
