@@ -1105,11 +1105,6 @@ bool Enemy::_MoveTo(Node* nextNode, double deltaTime)
 
 			m_isReversed = RipExtern::BoolReverser(m_isReversed);
 			m_currentPathNode = 0;
-			m_lv.newNode = true;
-			m_lv.timer = 0.0f;
-			m_lv.next = false;
-			m_lv.turnState = false;
-
 			return true;
 		}
 	}
@@ -1138,30 +1133,6 @@ bool Enemy::_MoveToAlert(Node * nextNode, double deltaTime)
 	}
 	return false;
 }
-
-/*void Enemy::_MoveBackToPatrolRoute(Node * nextNode, double deltaTime)
-{
-	_playFootsteps(deltaTime);
-	if (abs(nextNode->worldPos.x - getPosition().x) <= 1 && abs(nextNode->worldPos.y - getPosition().z) <= 1)
-	{
-		delete nextNode;
-		m_alertPath.erase(m_alertPath.begin());
-	}
-	else
-	{
-		float x = nextNode->worldPos.x - getPosition().x;
-		float y = nextNode->worldPos.y - getPosition().z;
-		
-		float angle = atan2(y, x);
-
-		float dx = cos(angle) * m_guardSpeed * deltaTime;
-		float dy = sin(angle) * m_guardSpeed * deltaTime;
-
-		_RotateGuard(x, y, angle, deltaTime);
-
-		setPosition(getPosition().x + dx, getPosition().y, getPosition().z + dy);
-	}
-}*/
 
 void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
 {
@@ -1237,6 +1208,7 @@ void Enemy::_deActivateCrouch()
 
 void Enemy::_Move(Node * nextNode, double deltaTime)
 {
+	// Get dirction to target
 	float x = nextNode->worldPos.x - getPosition().x;
 	float y = nextNode->worldPos.y - getPosition().z;
 
@@ -1293,16 +1265,25 @@ void Enemy::_Move(Node * nextNode, double deltaTime)
 	{
 		b3Vec3 lastVel = getLiniearVelocity();
 		DirectX::XMFLOAT2 xmLastVel = { lastVel.x, lastVel.z };
+
 		DirectX::XMVECTOR vLastVel = XMLoadFloat2(&xmLastVel);
-		DirectX::XMVECTOR vVel = XMLoadFloat2(&vel);
+		float l = DirectX::XMVectorGetX(DirectX::XMVector2Length(vLastVel));
+		if (l < 0.01f)
+		{
+			vLastVel = DirectX::XMVectorSet(p_camera->getForward().x, p_camera->getForward().z, 0.0f,0.0f);
+		}
+
+
+		DirectX::XMFLOAT2 tmp = { x, y };
+		DirectX::XMVECTOR vVel = XMLoadFloat2(&tmp);
 		float dot = DirectX::XMVectorGetX(DirectX::XMVector2Dot(DirectX::XMVector2Normalize(vVel), (DirectX::XMVector2Normalize(vLastVel))));
 
 
-		if (dot < 0.0f)
+		if (dot <= 0.0f)
 		{
 			m_lv.turnState = true;
 			m_lv.timer = 0.0f;
-			DirectX::XMFLOAT4A lastDir = p_camera->getDirection();
+			DirectX::XMFLOAT4A lastDir = p_camera->getForward();
 			m_lv.lastDir = { lastDir.x, lastDir.z };
 
 			DirectX::XMFLOAT3 xm1, xm2;
@@ -1314,9 +1295,22 @@ void Enemy::_Move(Node * nextNode, double deltaTime)
 			v2 = DirectX::XMLoadFloat3(&xm2);
 
 			DirectX::XMVECTOR v3 = DirectX::XMVector3Cross(v1, v2);
-			DirectX::XMFLOAT3 xm3;
-			DirectX::XMStoreFloat3(&xm3, v3);
-			m_lv.middleTarget = { xm3.x, xm3.z };
+
+			float dotLeft = DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMVector3Normalize(v3), DirectX::XMVector3Normalize(vVel)));
+
+			if (dotLeft > 0.0f)
+			{
+				DirectX::XMFLOAT3 xm3;
+				DirectX::XMStoreFloat3(&xm3, v3);
+				m_lv.middleTarget = { xm3.x, xm3.z };
+			}
+			else
+			{
+				DirectX::XMVECTOR v4 = DirectX::XMVector3Cross(v2, v1);
+				DirectX::XMFLOAT3 xm3;
+				DirectX::XMStoreFloat3(&xm3, v4);
+				m_lv.middleTarget = { xm3.x, xm3.z };
+			}
 
 			DirectX::XMFLOAT2 newDir;
 			DirectX::XMFLOAT2 oldDir;
@@ -1360,26 +1354,25 @@ void Enemy::_Move(Node * nextNode, double deltaTime)
 		}
 		else
 		{
-			
-				m_lv.timer += deltaTime / TURN_SPEED;
-				m_lv.timer = min(1.0f, m_lv.timer);
-				DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(vLastVel, vVel, m_lv.timer);
+			m_lv.timer += deltaTime / TURN_SPEED;
+			m_lv.timer = min(1.0f, m_lv.timer);
+			DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(vLastVel, vVel, m_lv.timer);
 
-				DirectX::XMStoreFloat2(&vel, lerp);
+			DirectX::XMStoreFloat2(&vel, lerp);
 
-				if (m_lv.timer >= 0.9999f)
-				{
-					m_lv.timer = 0.0f;
-					if (m_lv.newNode)
-						m_lv.next = false;
-					else
-						m_lv.newNode = false;
-				}
-			
+			if (m_lv.timer >= 0.9999f)
+			{
+				m_lv.timer = 0.0f;
+				if (m_lv.newNode)
+					m_lv.next = false;
+				else
+					m_lv.newNode = false;
+			}	
 		}
 	}
 
 	_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
+	auto lol = getLiniearVelocity();
 	vel.x *= !m_lv.turnState;
 	vel.y *= !m_lv.turnState;
 	setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
@@ -1592,13 +1585,9 @@ void Enemy::_handleStates(const double deltaTime)
 		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 		break;
 	case EnemyState::Investigating_Room:
-		if (timer > 0.3f)
-		{
-			std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
-			//_investigateRoom(currentGuard, timer);
-			this->_investigatingRoom(timer);
-			timer = 0.0f;
-		}
+		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
+		//_investigateRoom(currentGuard, timer);
+		this->_investigatingRoom(deltaTime);
 		_detectTeleportSphere();
 		break;
 	case EnemyState::High_Alert:
@@ -1678,7 +1667,7 @@ void Enemy::_onObserve()
 	DirectX::XMFLOAT4A guardPos = this->getPosition();
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 	this->m_actTimer = 0;
-	this->SetAlertVector(m_grid->FindPath(guardTile, this->GetCurrentPathNode()->tile));
+	//this->SetAlertVector(m_grid->FindPath(guardTile, this->GetCurrentPathNode()->tile));
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
 	this->m_state = Scanning_Area;
 	this->m_transState = EnemyTransitionState::None;
@@ -1690,6 +1679,33 @@ void Enemy::_onSearchArea()
 	this->m_state = Investigating_Room;
 	std::cout << green << "Enemy " << this->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
 	this->m_transState = EnemyTransitionState::None;
+	auto pos = getPosition();
+	Tile guardTile = m_grid->WorldPosToTile(pos.x, pos.z);
+	
+	int x = rand() % 4 + 1;
+	int y = rand() % 11;
+
+	DirectX::XMFLOAT2 gPos = { (float)guardTile.getX(), (float)guardTile.getY() };
+	DirectX::XMFLOAT2 tPos = { (float)x, (float)y };
+
+	float dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
+
+	while (dist < 3.0f)
+	{
+		int x = rand() % 4 + 1;
+		int y = rand() % 10;
+
+		DirectX::XMFLOAT2 tPos = { (float)x, (float)y };
+
+		dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
+	}
+
+
+	std::vector<Node*> fullPath = m_grid->FindPath(guardTile, Tile(x, y));
+	//std::vector<Node*> partOfPath = m_grid->FindPath(Tile(5, 6), Tile(1, 2));
+	//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+
+	this->SetAlertVector(fullPath);
 }
 
 void Enemy::_onReturnToPatrol()
@@ -1753,7 +1769,7 @@ void Enemy::_investigatingSound(const double deltaTime)
 			{
 				DirectX::XMFLOAT4A guardPos = this->getPosition();
 				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
-				Tile guardTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
 				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 			}
@@ -1767,58 +1783,14 @@ void Enemy::_investigatingSound(const double deltaTime)
 void Enemy::_investigatingRoom(const double deltaTime)
 {
 	this->m_searchTimer += deltaTime;
-	int random = deltaTime;
-	srand(random);
-
+	
 	if (this->GetAlertPathSize() == 0)
 	{
-		int dirX = (rand() % 3) - 1;
-		random += deltaTime * 100;
-		srand(random);
-		int dirY = (rand() % 3) - 1;
-
-		if (lastSearchDirX == 0 && lastSearchDirY == 0)
-		{
-
-		}
-		else
-		{
-			while ((dirX == 0 && dirY == 0) || (dirX == lastSearchDirX && dirY == lastSearchDirY) || (dirX == -lastSearchDirX && dirY == -lastSearchDirY))
-			{
-				random += deltaTime * 100;
-				srand(random);
-				dirX = (rand() % 3) - 1;
-				random += deltaTime * 100;
-				srand(random);
-				dirY = (rand() % 3) - 1;
-			}
-		}
-
-		random += deltaTime;
-		srand(random);
-		int searchLength = (rand() % 10) + 20;
-		DirectX::XMFLOAT4A guardPos = this->getPosition();
-		Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-		Tile newPos;
-		for (int i = 1; i < searchLength; i++)
-		{
-			newPos = m_grid->WorldPosToTile(guardPos.x + (dirX*i), guardPos.z + (dirY*i));
-			if (!newPos.getPathable())
-				break;
-		}
-
-		if (newPos.getPathable())
-		{
-			lastSearchDirX = dirX;
-			lastSearchDirY = dirY;
-			this->SetAlertVector(m_grid->FindPath(guardTile, newPos));
-		}
 		this->setTransitionState(EnemyTransitionState::Observe);
-		//guard->SetAlertVector(m_grid->FindPath(guardTile, randPos));
 	}
 	if (this->getVisCounter() >= ALERT_TIME_LIMIT || this->getSoundLocation().percentage > SOUND_LEVEL)
 	{
-		this->setTransitionState(EnemyTransitionState::Alerted);
+		//this->setTransitionState(EnemyTransitionState::Alerted);
 	}
 	else if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
 	{

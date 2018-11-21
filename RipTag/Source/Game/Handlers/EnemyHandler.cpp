@@ -29,7 +29,10 @@ void EnemyHandler::Update(float deltaTime)
 	float soundPercentage = 0.0f;
 	for (int i = 0; i < m_guards.size(); i++)
 	{
+
 		Enemy * currentGuard = m_guards.at(i);
+		if (GetAsyncKeyState('T'))
+			CameraHandler::setActiveCamera(currentGuard->getCamera());
 		currentGuard->SetLenghtToPlayer(m_player->getPosition());
 		currentGuard->Update(deltaTime);
 		currentGuard->PhysicsUpdate(deltaTime);
@@ -37,6 +40,9 @@ void EnemyHandler::Update(float deltaTime)
 		int tempVisibility = _getPlayerVisibility(currentGuard);
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
+		float tempSoundLevel = currentGuard->getSoundLocation().percentage;
+		if (tempSoundLevel > soundPercentage)
+			soundPercentage = tempSoundLevel;
 	}
 
 	m_player->SetCurrentVisability(playerVisibility);
