@@ -64,9 +64,11 @@ private:
 	} m_coopState;
 
 	bool m_physRunning = false;
-
 	LoadingScreen m_loadingScreen;
 	bool m_removeHud = false;
+	// PHYSICS, DONT TOUCH
+	const double	m_UpdateTime = 1.0 / 60.0;
+	double			m_timer = 0.0;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();

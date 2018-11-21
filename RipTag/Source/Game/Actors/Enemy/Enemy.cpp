@@ -29,8 +29,8 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
 		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
 		auto& machine = getAnimationPlayer()->InitStateMachine(1);
-		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 2.15f);
-		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 2.15f} });
+		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
+		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
 		machine->SetState("walk_state");
 		this->getAnimationPlayer()->Play();
 
@@ -175,6 +175,19 @@ void Enemy::Update(double deltaTime)
 	using namespace DirectX;
 
 	_handleStates(deltaTime);
+
+	static float floor = 999.0f, roof = -1.0f;
+
+	auto lol = getLiniearVelocity();
+	float speed = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSet(lol.x, lol.z, 0.0f, 0.0f)));
+
+	if (speed < floor && speed > 0.01f)
+		floor = speed;
+	if (speed > roof)
+		roof = speed;
+
+	std::cout << std::endl << green <<"Speed: " << speed << "\nRoof: " << roof << "\nFloor: " << floor << "\nMaxDif: " << roof - floor << white << std::endl;
+
 	auto deltaX = getLiniearVelocity().x * deltaTime;
 	auto deltaZ = getLiniearVelocity().z * deltaTime;
 	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
@@ -1350,7 +1363,10 @@ void Enemy::_Move(Node * nextNode, double deltaTime)
 	auto lol = getLiniearVelocity();
 	vel.x *= !m_lv.turnState;
 	vel.y *= !m_lv.turnState;
-	setLiniearVelocity(vel.x, getLiniearVelocity().y, vel.y);
+
+	DirectX::XMStoreFloat2(&vel, DirectX::XMVector2Normalize(DirectX::XMLoadFloat2(&vel)));
+
+	setLiniearVelocity(vel.x * m_guardSpeed, getLiniearVelocity().y, vel.y * m_guardSpeed);
 }
 
 float Enemy::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
