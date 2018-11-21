@@ -339,6 +339,21 @@ void RoomGenerator::_makeWalls()
 			{
 				ImporterLibrary::GridStruct * tempGridStruct;
 				tempGridStruct = loader.readGridFile(MODNAMESTRING);
+				if (isRotated)
+				{
+					// Transpose the room grid
+					ImporterLibrary::GridPointStruct * veryTempGrid = DBG_NEW ImporterLibrary::GridPointStruct[tempGridStruct->nrOf];
+					int temp = tempGridStruct->maxX;
+					tempGridStruct->maxX = tempGridStruct->maxY;
+					tempGridStruct->maxY = temp;
+					int count = 0;
+					for (int z = 0; z < tempGridStruct->nrOf; z++)
+					{
+
+					}
+					delete [] tempGridStruct->gridPoints;
+					tempGridStruct->gridPoints = veryTempGrid;
+				}
 				for (int a = 0; a < tempGridStruct->maxY; a++)
 				{
 					
