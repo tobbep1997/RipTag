@@ -131,34 +131,7 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		/*for (auto asset : m_staticAssets)
-		{
-			asset->Release(*m_worldPtr);
-		}
-		for (auto asset : m_staticAssets)
-		{
-			delete asset;
-		}
-		for (int i = 0; i < m_pointLights.size(); i++)
-			delete m_pointLights[i];
-		m_staticAssets.clear();
-		m_pointLights.clear();
-
-		CollisionBoxes->Release(*RipExtern::g_world);
-		delete CollisionBoxes;
-
-		for (auto & ab : m_audioBoxes)
-			ab->release();
 		
-		for (int i = 0; i < m_emitters.size(); i++)
-		{
-			delete m_emitters[i];
-		}
-
-		m_audioBoxes.clear();
-		delete m_grid->gridPoints;
-		delete m_grid;
-		m_roomLoaded = false;*/
 		Release();
 	}
 }

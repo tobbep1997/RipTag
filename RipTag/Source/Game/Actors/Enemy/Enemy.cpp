@@ -187,7 +187,7 @@ void Enemy::Update(double deltaTime)
 		roof = speed;
 
 #ifdef _DEBUG
-	std::cout << std::endl << green <<"Speed: " << speed << "\nRoof: " << roof << "\nFloor: " << floor << "\nMaxDif: " << roof - floor << white << std::endl;
+	//std::cout << std::endl << green <<"Speed: " << speed << "\nRoof: " << roof << "\nFloor: " << floor << "\nMaxDif: " << roof - floor << white << std::endl;
 #endif // _DEBUG
 
 
@@ -1569,7 +1569,7 @@ void Enemy::_handleStates(const double deltaTime)
 		
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+		//std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
 #endif
 		
 		break;
@@ -1583,13 +1583,13 @@ void Enemy::_handleStates(const double deltaTime)
 		_detectTeleportSphere();
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+		//std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 #endif
 		break;
 	case EnemyState::Investigating_Room:
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
+		//std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
 #endif
 		//_investigateRoom(currentGuard, timer);
 		this->_investigatingRoom(deltaTime);
@@ -1600,7 +1600,7 @@ void Enemy::_handleStates(const double deltaTime)
 		this->_highAlert(deltaTime);
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+		//std::cout << yellow << "Enemy State: High Alert" << white << "\r";
 #endif
 		_detectTeleportSphere();
 		break;
@@ -1609,7 +1609,7 @@ void Enemy::_handleStates(const double deltaTime)
 		this->_patrolling(deltaTime);
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+		//std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 #endif
 		_detectTeleportSphere();
 		break;
@@ -1618,7 +1618,7 @@ void Enemy::_handleStates(const double deltaTime)
 		this->_suspicious(deltaTime);
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+		//std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 #endif
 		_detectTeleportSphere();
 		break;
@@ -1627,7 +1627,7 @@ void Enemy::_handleStates(const double deltaTime)
 		this->_scanningArea(deltaTime);
 #ifdef _DEBUG
 
-		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
+		//std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
 #endif
 		_detectTeleportSphere();
 		break;
