@@ -562,17 +562,22 @@ void PlayState::unLoad()
 void PlayState::Load()
 {
 	std::cout << "PlayState Load" << std::endl;
-
+	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
+	
 	if (isCoop)
 	{
 		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
 		Network::Multiplayer::LocalPlayerOnSendMap.clear();
 		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 
-		RandomRoomPicker::RoomPick(pCoopData->seed);
+		rooms = RandomRoomPicker::RoomPick(pCoopData->seed);
 	}
-
+	else
+	{
+		rooms = RandomRoomPicker::RoomPick(0);
+	}
+	
 	m_youlost = false;
 	Input::ResetMouse();
 	CameraHandler::Instance();
@@ -581,7 +586,7 @@ void PlayState::Load()
 	_loadTextures();
 	_loadPhysics();
 	_loadMeshes();
-	_loadPlayers();
+	_loadPlayers(rooms);
 	_loadNetwork();
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
@@ -638,13 +643,14 @@ void PlayState::_loadMeshes()
 	future1.get();
 }
 
-void PlayState::_loadPlayers()
+void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 {
 	m_playerManager = new PlayerManager(&this->m_world);
 	m_playerManager->CreateLocalPlayer();
 
+
 	m_levelHandler = new LevelHandler(m_roomIndex);
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }
 

@@ -7,6 +7,7 @@
 #include "Source/Game/Actors/BaseActor.h"
 #include "Source/Game/Item/Map.h"
 #include "Source/Game/Item/Rock.h"
+#include "Helper/RandomRoomPicker.h"
 
 namespace FMOD
 {
@@ -91,7 +92,7 @@ private:
 	void _loadTextures();
 	void _loadPhysics();
 	void _loadMeshes();
-	void _loadPlayers();
+	void _loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms);
 	void _loadNetwork();
 	void _loadSound();
 	// Unload functions

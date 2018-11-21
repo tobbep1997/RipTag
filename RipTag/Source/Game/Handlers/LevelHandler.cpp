@@ -16,13 +16,13 @@ LevelHandler::~LevelHandler()
 	}
 }
 
-void LevelHandler::Init(b3World& worldPtr, Player * playerPtr)
+void LevelHandler::Init(b3World& worldPtr, Player * playerPtr, const int & seed, const int & roomIndex)
 {
 	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
-	_LoadPreFabs();
-	_GenerateLevelStruct(1, 2);
+	_LoadCorrectRoom(seed,roomIndex);
+	
 
 	_RoomLoadingManager();
 	m_rooms[m_activeRoom]->SetActive(true);
@@ -151,9 +151,15 @@ const unsigned short LevelHandler::getNextRoom() const
 	return this->m_nextRoomIndex;
 }
 
-void LevelHandler::_LoadPreFabs()
+void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
-	
+	Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	m_rooms.push_back(room);
+
+	m_rooms.at(0)->loadTextures();
+	int x = m_rooms.at(0)->getRoomIndex();
+	if (m_rooms.at(0)->getRoomIndex() != -1)
+		m_rooms.at(0)->LoadRoomToMemory();
 }
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
@@ -240,10 +246,13 @@ void LevelHandler::_RoomLoadingManager(short int room)
 
 		//m_rooms.at(current + 1)->UnloadRoomFromMemory();
 	}
+	m_nextRoomIndex = m_roomIndex + 1;
+	/*
 	if (m_roomIndex == 0)
 		m_nextRoomIndex = 1;
 	else if (m_roomIndex == 1)
 		m_nextRoomIndex = 0;
+	*/
 
 	const b3Body * world = RipExtern::g_world->getBodyList();
 	u32 wc = RipExtern::g_world->GetBodyCount();

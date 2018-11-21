@@ -36,7 +36,7 @@ public:
 	LevelHandler(const unsigned short & roomIndex);
 	~LevelHandler();
 
-	void Init(b3World & worldPtr, Player * playerPtr);
+	void Init(b3World & worldPtr, Player * playerPtr, const int & seed = 0, const int & roomIndex = 0);
 	void Release();
 
 	void Update(float deltaTime, Camera * camera);
@@ -53,10 +53,8 @@ public:
 
 	const unsigned short getNextRoom() const;
 private:
+	void _LoadCorrectRoom(const int & seed, const int & roomIndex);
 
-	
-
-	void _LoadPreFabs();
 	void _GenerateLevelStruct(const int seed, const int amountOfRooms = 5);
 
 	void _RoomLoadingManager(short int room = -1);
