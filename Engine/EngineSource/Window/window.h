@@ -15,6 +15,8 @@ struct WindowContext
 
 	HINSTANCE windowInstance;
 	WNDCLASSEX wcex;
+
+	UINT graphicsQuality;
 };
 
 struct ProcMsg

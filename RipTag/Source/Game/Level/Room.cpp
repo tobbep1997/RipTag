@@ -668,7 +668,6 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox)
 {
 	BaseActor * tempAsset = DBG_NEW BaseActor();
-
 	Manager::g_meshManager.loadStaticMesh(name);
 	Manager::g_textureManager.loadTextures(name);
 	tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
@@ -680,6 +679,8 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		moveBox = true;
 		
 	}
+	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
+		tempAsset->CastShadows(false);
 	if (name == "FLOOR")
 		tempAsset->setTextureTileMult(prop.transform_scale[0], prop.transform_scale[2]);
 	if (name == "BLINKWALL")

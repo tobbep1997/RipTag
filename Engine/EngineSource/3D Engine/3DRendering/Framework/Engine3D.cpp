@@ -31,7 +31,9 @@ std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceShadowGroups;
 void DX::INSTANCING::submitToShadowQueueInstance(Drawable* drawable)
 {
 	using namespace DX::INSTANCING;
-	std::vector<GROUP> * queue = &g_instanceShadowGroups;
+	std::vector<GROUP> * queue = nullptr;
+	if (drawable->getCastShadows())
+		queue = &g_instanceShadowGroups;
 		
 	if (!queue)
 		return;
@@ -158,6 +160,8 @@ void DX::SafeRelease(IUnknown * unknown)
 	unknown = nullptr;
 }
 
+WindowContext * SettingLoader::g_windowContext;
+
 Engine3D::Engine3D()
 {
 	
@@ -168,7 +172,7 @@ Engine3D::~Engine3D()
 {
 }
 
-HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
+HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 {
 	UINT createDeviceFlags = 0;
 
@@ -188,7 +192,7 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
 	scd.OutputWindow = hwnd;								// the window to be used
 	scd.SampleDesc.Count = m_sampleCount;                   // how many multisamples
-	scd.Windowed = !fullscreen;								// windowed/full-screen mode
+	scd.Windowed = !windContext.fullscreen;								// windowed/full-screen mode
 	
 	
 
@@ -224,19 +228,26 @@ HRESULT Engine3D::Init(HWND hwnd, bool fullscreen, UINT width, UINT hight)
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		pBackBuffer->Release();
 
-		m_swapChain->ResizeBuffers(0, width, hight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		m_swapChain->ResizeBuffers(0, windContext.clientWidth, windContext.clientHeight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
 		//we are creating the standard depth buffer here.
-		_createDepthSetencil(width, hight);
-		_initViewPort(width, hight);
+		_createDepthSetencil(windContext.clientWidth, windContext.clientHeight);
+		_initViewPort(windContext.clientWidth, windContext.clientHeight);
 
 	
 		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
 		pBackBuffer->Release();
 	}
 	m_forwardRendering = new ForwardRender();
-	m_forwardRendering->Init(m_swapChain, m_backBufferRTV, m_depthStencilView,m_depthStencilState, m_depthBufferTex, m_samplerState, m_viewport);
+	m_forwardRendering->Init(m_swapChain, 
+		m_backBufferRTV, 
+		m_depthStencilView,
+		m_depthStencilState,
+		m_depthBufferTex,
+		m_samplerState,
+		m_viewport,
+		windContext);
 	return hr;
 }
 

@@ -111,8 +111,8 @@ private:
 
 	
 
-	float m_lightCullingDistance = 100;	
-	float m_forceCullingLimit = 7;		
+	float m_lightCullingDistance = 50;	
+	float m_forceCullingLimit = 5;		
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
@@ -142,7 +142,8 @@ public:
 		ID3D11DepthStencilState*	m_depthStencilState,
 		ID3D11Texture2D*			depthBufferTex,
 		ID3D11SamplerState*			samplerState,
-		D3D11_VIEWPORT				viewport);
+		D3D11_VIEWPORT				viewport,
+		const WindowContext &		windowContext);
 
 
 	void GeometryPass(Camera & camera);

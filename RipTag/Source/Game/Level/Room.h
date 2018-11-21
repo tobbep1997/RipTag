@@ -64,7 +64,6 @@ private:
 
 	TriggerHandler * triggerHandler;
 
-
 	
 	//std::vector<StaticAsset*> TODO:: FIX
 
