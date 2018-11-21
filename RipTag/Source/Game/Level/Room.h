@@ -121,6 +121,8 @@ public:
 	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; };
 	void setStaticMeshes(std::vector<BaseActor*> assets) { this->m_staticAssets = assets; };
 	void setLightvector(std::vector<PointLight*> lights) { this->m_pointLights = lights; };
+	void setParticleEmitterVector(std::vector<ParticleEmitter*> emitter) { this->m_emitters = emitter; };
+
 	TriggerHandler * getTriggerHandler() { return triggerHandler; }
 	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
 	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };

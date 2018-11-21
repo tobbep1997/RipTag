@@ -5,7 +5,7 @@ class Room;
 class Grid;
 class PointLight;
 class EnemyHandler;
-
+class ParticleEmitter;
 class RoomGenerator
 {
 private:
@@ -22,6 +22,7 @@ private:
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;
+	std::vector< ParticleEmitter*> m_generated_Emitters;
 	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
