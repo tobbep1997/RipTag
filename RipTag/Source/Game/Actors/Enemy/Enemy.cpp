@@ -249,6 +249,7 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 	this->m_currentMoveSpeed = packet->moveSpeed;
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, packet->pos.y);
 	this->setRotation(packet->rot);
+	p_camera->setDirection(packet->camDir);
 }
 
 void Enemy::sendNetworkUpdate()
@@ -257,6 +258,7 @@ void Enemy::sendNetworkUpdate()
 	packet.uniqueID = uniqueID;
 	packet.pos = getPosition();
 	packet.rot = p_camera->getYRotationEuler();
+	packet.camDir = p_camera->getDirection();
 	packet.moveSpeed = m_currentMoveSpeed;
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);

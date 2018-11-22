@@ -109,6 +109,7 @@ namespace Network
 		//transformation data
 		DirectX::XMFLOAT4A pos;
 		DirectX::XMFLOAT4A rot;
+		DirectX::XMFLOAT4A camDir;
 		//Animation data
 		float moveSpeed;
 	};
