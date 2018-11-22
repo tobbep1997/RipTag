@@ -62,6 +62,7 @@ void BlinkAbility::_logic(double deltaTime)
 				RayCastListener::RayContact* var = ray->getClosestContact();		
 				if(var->originBody->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 				{
+					((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("phase");
 					pPointer->setPosition(
 						var->contactPoint.x + (
 						(fabs(fabs(var->contactPoint.x) - fabs(var->contactShape->GetBody()->GetTransform().translation.x)) *2 + 0.25)*

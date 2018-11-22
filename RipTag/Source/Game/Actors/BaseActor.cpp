@@ -43,6 +43,11 @@ void BaseActor::Update(double deltaTime)
 		getAnimationPlayer()->Update(deltaTime);
 }
 
+void BaseActor::setPosition(const DirectX::XMFLOAT4A& pos, const bool setPhysics)
+{
+	setPosition(pos.x, pos.y, pos.z, setPhysics);
+}
+
 void BaseActor::setPosition(const float& x, const float& y, const float& z, const bool & setPhysics)
 {
 	Transform::setPosition(x, y, z);

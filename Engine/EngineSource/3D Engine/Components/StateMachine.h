@@ -153,6 +153,8 @@ namespace SM
 		//Locks the current X,Y driver values
 		virtual void LockCurrentValues() = 0;
 
+		//Resets the state
+		virtual void Reset() {};
 
 		AnimationState(const AnimationState& other) = delete;
 		virtual std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) = 0;
@@ -331,11 +333,23 @@ namespace SM
 	class AutoTransitionState : public AnimationState
 	{
 	public:
-		AutoTransitionState(std::string name);
+		friend class StateVisitor;
+
+		AutoTransitionState(std::string name, Animation::AnimationClip* clip, AnimationState* outState);
 		~AutoTransitionState();
-	
+
+		Animation::AnimationClip* GetClip();
+		
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
+
+		virtual void LockCurrentValues() override;
+
+		virtual void Reset() override;
+
 	private:
+		Animation::AnimationClip* m_Clip{ nullptr };
+		bool m_ShouldTransition = false;
+		bool m_PoseIsLocked = false;
 	};
 
 #pragma endregion "AutoTransState"
@@ -401,11 +415,15 @@ namespace SM
 		///AnimationState* AddState(std::string name);
 		BlendSpace1D* AddBlendSpace1DState
 			(std::string name, float* blendSpaceDriver, float min, float max);
-		SM::BlendSpace1DAdditive* AddBlendSpace1DAdditiveState
+		BlendSpace1DAdditive* AddBlendSpace1DAdditiveState
 			(std::string name, float* blendSpaceDriver, float min, float max);
 		BlendSpace2D* AddBlendSpace2DState
 			(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY);
+		AutoTransitionState* AddAutoTransitionState
+			(std::string name, Animation::AnimationClip* clip, AnimationState* outState);
 		LoopState* AddLoopState
+			(std::string name, Animation::AnimationClip* clip);
+		PlayOnceState* AddPlayOnceState
 			(std::string name, Animation::AnimationClip* clip);
 
 		void SetState(std::string stateName);
@@ -415,7 +433,6 @@ namespace SM
 		AnimationState* GetPreviousState();
 		bool UpdateCurrentState();
 		float UpdateBlendFactor(float deltaTime);
-		SM::PlayOnceState* AddPlayOnceState(std::string name, Animation::AnimationClip* clip);
 	private:
 		//The animation playher to set the clip to when we enter a state
 		Animation::AnimationPlayer* m_AnimationPlayer;

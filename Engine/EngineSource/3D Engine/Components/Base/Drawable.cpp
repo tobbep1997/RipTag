@@ -403,7 +403,7 @@ void Drawable::setModel(SkinnedMesh * skinnedMesh)
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(skinnedMesh);
 	p_createBuffer();
-	m_anim = new Animation::AnimationPlayer();
+	m_anim = new Animation::AnimationPlayer(this);
 }
 
 void Drawable::setColor(const DirectX::XMFLOAT4A& color)

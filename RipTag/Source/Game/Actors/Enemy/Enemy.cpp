@@ -4,14 +4,13 @@
 #include "EngineSource/3D Engine/Extern.h"
 #include "EngineSource/3D Engine/RenderingManager.h"
 #include "EngineSource/3D Engine/Components/Camera.h"
+
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimationPlayer.h"
+
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-//#todoREMOVE
-#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
 
 Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
@@ -25,6 +24,12 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("GUARD"));
 
+	{
+		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton("GUARD").get());
+		layerMachine->AddBasicLayer
+			("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 1.0f);
+		
+	}
 	{
 		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
 		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
