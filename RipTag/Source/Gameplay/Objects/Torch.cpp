@@ -19,7 +19,7 @@ Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqu
 
 Torch::~Torch()
 {
-	/*if (pPointLight)
+	if (pPointLight)
 	{
 		delete pPointLight;
 		pPointLight = nullptr;
@@ -29,7 +29,8 @@ Torch::~Torch()
 		delete pParticles;
 		pParticles = nullptr;
 	}
-	Trigger::Release();*/
+	
+	Release();
 }
 
 void Torch::Update(double deltaTime)

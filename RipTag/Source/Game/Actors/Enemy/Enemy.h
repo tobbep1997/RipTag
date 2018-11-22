@@ -11,6 +11,7 @@ class Grid;
 
 enum EnemyState
 {
+	NoState,
 	Investigating_Sight,
 	Investigating_Sound,
 	Investigating_Room,
@@ -25,7 +26,7 @@ enum EnemyState
 
 enum EnemyTransitionState
 {
-	None,
+	NoTransitionState,
 	Alerted,
 	InvestigateSound,
 	InvestigateSight,
@@ -34,6 +35,8 @@ enum EnemyTransitionState
 	ReturnToPatrol,
 	BeingPossessed,
 	BeingDisabled,
+	ExitingPossess,
+	ExitingDisable,
 
 };
 
@@ -192,7 +195,7 @@ private:
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
 	float m_searchTimer = 0.0f;
-	EnemyTransitionState m_transState = EnemyTransitionState::None;
+	EnemyTransitionState m_transState = EnemyTransitionState::NoTransitionState;
 	float lastSearchDirX = 0;
 	float lastSearchDirY = 0;
 	Grid* m_grid;
@@ -306,7 +309,7 @@ private:
 	void _onInteract(); //v
 	void _onRotate(double deltaTime);  //v
 
-	void _possessed(double deltaTime); //v
+	void _onReleasePossessed(double deltaTime); //v
 	void _TempGuardPath(bool x, double deltaTime);
 	void _cameraPlacement(double deltaTime); //v
 	bool _MoveTo(Node * nextNode, double deltaTime);
@@ -333,6 +336,8 @@ private:
 	void _onReturnToPatrol();
 	void _onBeingPossessed();
 	void _onBeingDisabled();
+	void _onExitingPossessed();
+	void _onExitingDisabled();
 
 	//States
 	void _investigatingSight(const double deltaTime);
@@ -342,7 +347,7 @@ private:
 	void _suspicious(const double deltaTime);
 	void _scanningArea(const double deltaTime);
 	void _patrolling(const double deltaTime);
-	//void possessed();
-	void _disabled();
+	void _possessed(const double deltaTime);
+	void _disabled(const double deltaTime);
 };
 

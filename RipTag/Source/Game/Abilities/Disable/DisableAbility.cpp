@@ -11,6 +11,7 @@ DisableAbility::DisableAbility(void* owner) : AbilityComponent(owner), BaseActor
 DisableAbility::~DisableAbility()
 {
 	PhysicsComponent::Release(*RipExtern::g_world);
+	//&this->deleteEffect(); 
 }
 
 void DisableAbility::Init()
@@ -217,21 +218,24 @@ void DisableAbility::_inStateMoving(double dt)
 	p_cooldown = accumulatedTime;
 	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
 	{
-		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
+		if (!m_hasHit)
 		{
-			if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
+			if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
 			{
-				Enemy * temp = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData());
-				temp->DisableEnemy();
-				temp->setKnockOutType(temp->Stoned);
-				m_dState = DisableState::Cooldown;
-				//Particle effects here before changing the position.  
-				m_particleEmitter = new ParticleEmitter();
-				m_particleEmitter->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-				this->setPosition(-999.9f, -999.9f, -999.9f);
-				p_cooldown = 0.0;
-				accumulatedTime = 0.0;
-				this->_sendOnHitNotification();	
+				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
+				{
+					m_hasHit = true; 
+					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(EnemyTransitionState::BeingDisabled);
+					m_dState = DisableState::Cooldown;
+					//Particle effects here before changing the position.  
+					m_particleEmitter = new ParticleEmitter();
+					m_particleEmitter->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+					std::cout << "X: " << DirectX::XMVectorGetX(m_particleEmitter->getPosition()) << " Y: " << DirectX::XMVectorGetY(m_particleEmitter->getPosition()) << " Z: " << DirectX::XMVectorGetZ(m_particleEmitter->getPosition()) << std::endl;
+					this->setPosition(-999.9f, -999.9f, -999.9f);
+					p_cooldown = 0.0;
+					accumulatedTime = 0.0;
+					this->_sendOnHitNotification();
+				}
 			}
 		}
 	}
@@ -256,7 +260,10 @@ void DisableAbility::_inStateCooldown(double dt)
 		m_dState = DisableState::Throwable;
 		delete m_particleEmitter; 
 		m_particleEmitter = nullptr; 
+		m_hasHit = false;
 	}
+
+	 
 }
 
 void DisableAbility::_inStateRemoteActive(double dt)

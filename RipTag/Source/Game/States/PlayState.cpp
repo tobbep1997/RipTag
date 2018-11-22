@@ -65,7 +65,8 @@ void PlayState::Update(double deltaTime)
 			//SpinLock
 			int i = 0;
 		}
-
+		//Handle all packets
+		Network::Multiplayer::HandlePackets();
 		//Physics Done
 		//Time to do stuff
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
@@ -570,6 +571,7 @@ void PlayState::unLoad()
 	}
 	Network::Multiplayer::LocalPlayerOnSendMap.clear();
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+	Network::Multiplayer::inPlayState = false;
 
 	dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
 }
@@ -674,6 +676,7 @@ void PlayState::_loadNetwork()
 {
 	if (isCoop)
 	{
+		Network::Multiplayer::inPlayState = true;
 		this->m_seed = pCoopData->seed;
 		auto startingPositions = m_levelHandler->getStartingPositions();
 		DirectX::XMFLOAT4 posOne = std::get<0>(startingPositions);

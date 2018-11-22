@@ -427,6 +427,8 @@ void Room::Release()
 		if (m_grid)
 		{
 			delete m_grid->gridPoints;
+
+			delete m_grid;
 		}
 
 		for (int i = 0; i < m_Torches.size(); i++)

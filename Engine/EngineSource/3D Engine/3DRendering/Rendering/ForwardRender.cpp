@@ -317,7 +317,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->_OutliningPass(camera);
 
 
-	_GuardFrustumDraw();
+	//_GuardFrustumDraw();
 	_mapCameraBuffer(camera);
 	
 	_particlePass();
