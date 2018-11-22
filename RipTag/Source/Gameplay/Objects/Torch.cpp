@@ -35,62 +35,116 @@ Torch::~Torch()
 
 void Torch::Update(double deltaTime)
 {
-	p_updatePhysics(this);
-	pParticles->Update(deltaTime, pCamera);
-	std::string thisObject = getBody()->GetObjectTag();
-	for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
+	//Check wether to crate new fire.
+	if (pParticles == nullptr)
 	{
-		for (RayCastListener::RayContact* con : ray->GetRayContacts())
+		std::string thisObject = getBody()->GetObjectTag();
+		for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
 		{
-			std::string originObject = con->originBody->GetObjectTag();
-			std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
-
-			bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
-			bool onEnemy = originObject == "ENEMY" && contactObject == thisObject;
-
-			if (onPlayer || onEnemy)
+			for (RayCastListener::RayContact* con : ray->GetRayContacts())
 			{
-				Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-				if ( ObjectPointer == this && *con->consumeState != 2)
+				std::string originObject = con->originBody->GetObjectTag();
+				std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
+
+				bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
+				bool onEnemy = originObject == "ENEMY" && contactObject == thisObject;
+
+				if (onPlayer || onEnemy)
 				{
-					if (this->getTriggerState())
+					Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
+					if (ObjectPointer == this && *con->consumeState != 2)
 					{
-						this->setTriggerState(false);
+						if (this->getTriggerState())
+						{
+							this->setTriggerState(false);
+							pPointLight->setLightOn(true);
+							pParticles = new ParticleEmitter();
+							pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+							m_hasChecked = true;
+						}
+						*(con->consumeState) += 1;
+						//SENDTriggerd here for network
+						this->SendOverNetwork();
 					}
-					else
-					{
-						this->setTriggerState(true);
-					}
-					*(con->consumeState) += 1;
-					//SENDTriggerd here for network
-					this->SendOverNetwork();
 				}
 			}
 		}
+		//this needs to be here because of over network state change
+		if (this->getTriggerState())
+		{
+			this->pPointLight->setLightOn(false);
+		}
+		else
+		{
+			this->pPointLight->setLightOn(true);
+		}
 	}
-	//this needs to be here because of over network state change
-	if (this->getTriggerState())
+	
+	p_updatePhysics(this);
+
+	if (pParticles != nullptr && !m_hasChecked)
 	{
-		this->pPointLight->setLightOn(false);
+		pParticles->Update(deltaTime, pCamera);
+
+		std::string thisObject = getBody()->GetObjectTag();
+		for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
+		{
+			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			{
+				std::string originObject = con->originBody->GetObjectTag();
+				std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
+
+				bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
+				bool onEnemy = originObject == "ENEMY" && contactObject == thisObject;
+
+				if (onPlayer || onEnemy)
+				{
+					Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
+					if (ObjectPointer == this && *con->consumeState != 2)
+					{
+						if (this->getTriggerState())
+						{
+							this->setTriggerState(false);
+							pPointLight->setLightOn(true);
+						}
+						else if(!this->getTriggerState() && !m_hasChecked)
+						{
+							this->setTriggerState(true);
+							pPointLight->setLightOn(false);
+							delete pParticles;
+							pParticles = nullptr;
+						}
+						*(con->consumeState) += 1;
+						//SENDTriggerd here for network
+						this->SendOverNetwork();
+					}
+				}
+			}
+		}
+		//this needs to be here because of over network state change
+		if (this->getTriggerState())
+		{
+			this->pPointLight->setLightOn(false);
+		}
+		else
+		{
+			this->pPointLight->setLightOn(true);
+		}
 	}
-	else
-	{
-		this->pPointLight->setLightOn(true);
-	}
+	m_hasChecked = false; 
 }
 
 void Torch::Draw()
 {
 	Drawable::Draw();
-	if (pPointLight->getLightOn())
+	if (!this->getTriggerState())
 	{
 		this->pPointLight->QueueLight();
 		pParticles->setEmmiterLife(0);
 	}
-	else
-		pParticles->setEmmiterLife(1);
-	
-	pParticles->Queue();
+		
+	if(pParticles != nullptr)
+	pParticles->Queue(); 
 }
 
 void Torch::QueueLight()
