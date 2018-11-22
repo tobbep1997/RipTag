@@ -570,6 +570,11 @@ void Enemy::setReleased(bool released)
 	m_released = released; 
 }
 
+bool Enemy::GetPathEmpty() const
+{
+	return m_path.empty();
+}
+
 bool Enemy::getIfLost()
 {
 	return m_found;

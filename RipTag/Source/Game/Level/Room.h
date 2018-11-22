@@ -48,6 +48,8 @@ private:
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
 	float m_playerStartPos;
 
+	std::vector<PointLight*> m_pointLights;
+
 	ImporterLibrary::GridStruct * m_grid;
 	Grid * m_pathfindingGrid;
 	
@@ -74,7 +76,7 @@ private:
 	bool m_youLost = false;
 
 public:
-	BaseActor * CollisionBoxes;
+	BaseActor * CollisionBoxes = nullptr;
 	Room(const short unsigned int roomIndex, b3World * worldPtr);
 	Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player * playerPtr);
 	Room(b3World * worldPtr, int arrayIndex, Player * playerPtr);
@@ -116,15 +118,23 @@ public:
 	void getPath();
 
 	//RoomGeneration
-	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; }
-	void setPlayer1StartPos(DirectX::XMFLOAT4 startPos) { this->m_player1StartPos = startPos; }
-	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; }
-	void setStaticMeshes(std::vector<BaseActor*> assets) { this->m_staticAssets = assets; }
+	void loadTriggerPairMap();
+	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; };
+	void setPlayer1StartPos(DirectX::XMFLOAT4 startPos) { this->m_player1StartPos = startPos; };
+	void setPlayer2StartPos(DirectX::XMFLOAT4 startPos) { this->m_player2StartPos = startPos; };
+	void setStaticMeshes(std::vector<BaseActor*> assets) { this->m_staticAssets = assets; };
+	void setLightvector(std::vector<PointLight*> lights) { this->m_pointLights = lights; };
+	//void setParticleEmitterVector(std::vector<ParticleEmitter*> emitter) { this->m_emitters = emitter; };
+	Player * getPLayerInRoomPtr() { return this->m_playerInRoomPtr; };
 	TriggerHandler * getTriggerHandler() { return triggerHandler; }
-	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; }
-	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; }
+	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
+	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };
+	void setAudioBoxes(std::vector<FMOD::Geometry*> audioBoxes) { this->m_audioBoxes = audioBoxes; };
+	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
+
+	void setLoaded(const bool & loaded) { this->m_roomLoaded = loaded; }
+
 private:
-	void _addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector);
-	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false);
+	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false);
 	void _addToTriggerHandler(ImporterLibrary::PropItem prop, const std::string & name, TriggerHandler * triggerHandler, bool animated, int index);
 };

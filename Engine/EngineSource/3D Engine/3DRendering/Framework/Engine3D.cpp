@@ -192,7 +192,7 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 	D3D_FEATURE_LEVEL fl_out = D3D_FEATURE_LEVEL_11_0;
 
 	// fill the swap chain description struct
-	scd.BufferCount = 3;                                    // one back buffer
+	scd.BufferCount = 4;                                    // one back buffer
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
 	scd.OutputWindow = hwnd;								// the window to be used

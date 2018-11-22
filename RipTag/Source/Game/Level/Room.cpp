@@ -6,9 +6,8 @@ void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 	
 	std::pair<Trigger*, Door> doorLeverPair;
 	
-	_addPropsAndAssets(propsToPlace, triggerHandler, &m_staticAssets);
-	triggerHandler->LoadTriggerPairMap();
-	
+	addPropsAndAssets(propsToPlace, triggerHandler, &m_staticAssets);
+	loadTriggerPairMap();
 }
 
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
@@ -281,6 +280,11 @@ void Room::getPath()
 	}
 }
 
+void Room::loadTriggerPairMap()
+{
+	triggerHandler->LoadTriggerPairMap();
+}
+
 
 
 
@@ -322,7 +326,7 @@ void Room::Update(float deltaTime, Camera * camera)
 		auto light = torch->getPointLightPtr();
 		light->setDropOff(2.0425345f);
 		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
 	}
 
 	triggerHandler->Update(deltaTime);
@@ -384,12 +388,14 @@ void Room::Draw()
 	{
 		guard->DrawGuardPath();
 	}
+	for (auto lights : m_pointLights)
+	{
+		lights->QueueLight();
+	}
 }
 
 void Room::Release()
 {
-	
-
 	if (m_roomLoaded == true)
 	{
 		m_roomLoaded = false;
@@ -438,6 +444,11 @@ void Room::Release()
 		}
 		m_Torches.clear();
 
+		for (int i = 0; i < m_pointLights.size(); i++)
+		{
+			delete m_pointLights[i];
+		}
+
 		triggerHandler->Release();
 		delete triggerHandler;
 		delete m_enemyHandler;
@@ -452,7 +463,9 @@ void Room::loadTextures()
 	Manager::g_textureManager.loadTextures(this->getAssetFilePath());
 }
 
-void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector)
+
+#pragma region LoadPropsAndAssets
+void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom)
 {
 	std::pair<Trigger*, Door> doorLeverPair;
 	Lever * tempLever = nullptr;
@@ -547,91 +560,91 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			tempDoor = nullptr;
 			break;
 		case(6):
-			_setPropAttributes(propsAndAssets.props[i], "CRATE", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "CRATE", assetVector, true, isRandomRoom);
 			break;
 		case(7):
-			_setPropAttributes(propsAndAssets.props[i], "BARREL", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BARREL", assetVector, true, isRandomRoom);
 			break;
 		case(8):
-			_setPropAttributes(propsAndAssets.props[i], "BANNER", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BANNER", assetVector, true, isRandomRoom);
 			break;
 		case(9):
-			_setPropAttributes(propsAndAssets.props[i], "CHAIR", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "CHAIR", assetVector, true, isRandomRoom);
 			break;
 		case(10):
-			_setPropAttributes(propsAndAssets.props[i], "TABLE", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "TABLE", assetVector, true, isRandomRoom);
 			break;
 		case(11):
-			_setPropAttributes(propsAndAssets.props[i], "CARPET", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "CARPET", assetVector, false, isRandomRoom);
 			break;
 		case(12):
-			_setPropAttributes(propsAndAssets.props[i], "BUCKET", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BUCKET", assetVector, true, isRandomRoom);
 			break;
 		case(13):
-			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", assetVector, true, isRandomRoom);
 			break;
 		case(14):
-			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", assetVector, false, isRandomRoom);
 			break;
 		case(15):
-			_setPropAttributes(propsAndAssets.props[i], "TORCH", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "TORCH", assetVector, false, isRandomRoom);
 			break;
 		case(16):
-			_setPropAttributes(propsAndAssets.props[i], "GIANTPILLAR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "GIANTPILLAR", assetVector, false, isRandomRoom);
 			break;
 		case(17):
-			_setPropAttributes(propsAndAssets.props[i], "BOOK", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BOOK", assetVector, true, isRandomRoom);
 			break;
 		case(18):
-			_setPropAttributes(propsAndAssets.props[i], "SMALLCEILING", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "SMALLCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(19):
-			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);
 			break;
 		case(21):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom);
 			break;
 		case(23):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(24):
-			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, true, isRandomRoom);
 			break;
 		case(25):
-			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom);
 			break;
 		case(26):
-			_setPropAttributes(propsAndAssets.props[i], "CANDLE", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "CANDLE", assetVector, false, isRandomRoom);
 			break;
 		case(27):
-			_setPropAttributes(propsAndAssets.props[i], "TANKARD", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "TANKARD", assetVector, false, isRandomRoom);
 			break;
 		case(28):
-			_setPropAttributes(propsAndAssets.props[i], "SPEAR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "SPEAR", assetVector, false, isRandomRoom);
 			break;
 		case(29):
-			_setPropAttributes(propsAndAssets.props[i], "KEG", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "KEG", assetVector, true, isRandomRoom);
 			break;
 		case(30):
-			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", assetVector, true, isRandomRoom);
 			break;
 		case(31):
-			_setPropAttributes(propsAndAssets.props[i], "WALLCHAIN", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "WALLCHAIN", assetVector, false, isRandomRoom);
 			break;
 		case(32):
-			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", assetVector, true, isRandomRoom);
 			break;
 		case(33):
-			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom);
 			break;
 		case(35):
-			_setPropAttributes(propsAndAssets.props[i], "FLOOR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):
 			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false);
@@ -642,7 +655,7 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 	}
 }
 
-void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox)
+void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox, bool isRandomRoom)
 {
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	Manager::g_meshManager.loadStaticMesh(name);
@@ -670,6 +683,11 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
 	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	if(moveBox == true && isRandomRoom == true)
+		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
+	if(name == "BANNER")
+		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1] - 90, prop.transform_rotation[2]);
+
 	assetVector->push_back(tempAsset);
 }
 

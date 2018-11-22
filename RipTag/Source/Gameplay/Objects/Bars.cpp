@@ -21,6 +21,7 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("BLINK_WALL");
+	BaseActor::getBody()->SetUserData(this);
 	BaseActor::setTexture(Manager::g_textureManager.getTexture("BARS"));
 	BaseActor::getBody()->SetUserData(this);
 	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("BARS"));
