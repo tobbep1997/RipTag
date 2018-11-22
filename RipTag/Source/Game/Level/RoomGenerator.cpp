@@ -83,31 +83,39 @@ void RoomGenerator::_generateGrid()
 				changeY = 0.0f;
 				for (int b = 0; b < 5; b++)
 				{
-					RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(base->getBody(), DirectX::XMFLOAT4A(node.worldPos.x + changeX, -500, node.worldPos.y + changeY, 1), DirectX::XMFLOAT4A(0, 1, 0, 0), 1000.f);
-					if (ray != nullptr)
+					bool col = false;
+					for (int x = 0; x < m_generated_assetVector.size() && !col; x++)
+					{
+						if (m_generated_assetVector[x]->getBoundingBox())
+							if (m_generated_assetVector[x]->getBoundingBox()->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 4, node.worldPos.y + changeY))))
+							{
+								col = true;
+							}
+
+					}
+			/*		if (col)
 					{
 						counter++;
-						std::cout << ray->getClosestContact()->contactShape->GetBody()->GetObjectTag() << "\n";
 						node.tile.setPathable(false);
 						placed = true;
-						break;
-					}
+						Manager::g_meshManager.loadStaticMesh("FLOOR");
+						Manager::g_textureManager.loadTextures("CANDLE");
+						asset = DBG_NEW BaseActor();
+						asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+						asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
+						asset->setTextureTileMult(m_roomWidth, m_roomDepth);
+						asset->setPosition(node.worldPos.x, 15, node.worldPos.y, false);
+						m_generated_assetVector.push_back(asset);
+						
+					}*/
 					changeY += 0.2;
 				}
-				if (placed)
-					break;
+				
 				changeX += 0.2;
 			}
 			if (!node.tile.getPathable())
 			{
-				Manager::g_meshManager.loadStaticMesh("FLOOR");
-				Manager::g_textureManager.loadTextures("CANDLE");
-				asset = DBG_NEW BaseActor();
-				asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-				asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
-				asset->setTextureTileMult(m_roomWidth, m_roomDepth);
-				asset->setPosition(node.worldPos.x, 10, node.worldPos.y, false);
-				m_generated_assetVector.push_back(asset);
+				
 			}
 		}
 	}
@@ -889,8 +897,8 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	//_placeProps();
 
 	_makeWalls();
-	_makeFloor();
 	_generateGrid();
+	_makeFloor();
 	//_createEnemies(playerPtr);
 	
 	returnableRoom->setGrid(this->m_generatedGrid);
