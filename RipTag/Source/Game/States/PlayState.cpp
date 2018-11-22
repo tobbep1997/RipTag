@@ -277,7 +277,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
 			Enemy::SoundLocation sl;
 			sl.percentage = 0.0f;
-			if (length < 20.0f)
+			if (length < 20.0f && false)
 			{
 				for (auto & c : channels)
 				{

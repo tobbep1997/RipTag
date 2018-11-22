@@ -72,7 +72,6 @@ void EnemyHandler::_isServerUpdate(double deltaTime)
 	timer += deltaTime;
 
 	int playerVisibility = 0;
-	int remotePlayerVisibility = 0;
 
 	float soundPercentage = 0.0f;
 
@@ -85,13 +84,9 @@ void EnemyHandler::_isServerUpdate(double deltaTime)
 		currentGuard->PhysicsUpdate(deltaTime);
 
 		int tempVisibility = _getPlayerVisibility(currentGuard);
-		int tempVisRemotePlayer = _getRemotePlayerVisibility(currentGuard);
 
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
-
-		if (tempVisRemotePlayer > remotePlayerVisibility)
-			remotePlayerVisibility = tempVisRemotePlayer;
 
 		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
 		if (tempSoundPercentage > soundPercentage)
@@ -102,7 +97,6 @@ void EnemyHandler::_isServerUpdate(double deltaTime)
 
 	m_player->SetCurrentVisability(playerVisibility);
 	m_player->SetCurrentSoundPercentage(soundPercentage);
-	m_remotePlayer->SetVisibility(remotePlayerVisibility);
 }
 
 void EnemyHandler::_isClientUpdate(double deltaTime)
@@ -110,13 +104,18 @@ void EnemyHandler::_isClientUpdate(double deltaTime)
 	static float timer = 0.0f;
 	timer += deltaTime;
 	float soundPercentage = 0.0f;
-
+	int playerVisibility = 0;
 	for (int i = 0; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
 		currentGuard->SetLenghtToPlayer(m_player->getPosition());
 		currentGuard->ClientUpdate(deltaTime);
 		currentGuard->PhysicsUpdate(deltaTime);
+
+		int tempVisibility = _getPlayerVisibility(currentGuard);
+
+		if (tempVisibility > playerVisibility)
+			playerVisibility = tempVisibility;
 
 		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
 		if (tempSoundPercentage > soundPercentage)
@@ -125,6 +124,7 @@ void EnemyHandler::_isClientUpdate(double deltaTime)
 		}
 		
 	}
+	m_player->SetCurrentVisability(playerVisibility);
 	m_player->SetCurrentSoundPercentage(soundPercentage);
 }
 

@@ -201,8 +201,10 @@ void Enemy::Update(double deltaTime)
 
 void Enemy::ClientUpdate(double deltaTime)
 {
+	_cameraPlacement(deltaTime);
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
+	setLiniearVelocity(0, 0, 0);
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -247,8 +249,8 @@ bool Enemy::GetDisabledState()
 void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 {
 	this->m_currentMoveSpeed = packet->moveSpeed;
-	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, packet->pos.y);
-	this->setRotation(packet->rot);
+	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
+	p_setRotation(0.0f, packet->rot.y, 0.0f);
 	p_camera->setDirection(packet->camDir);
 }
 
