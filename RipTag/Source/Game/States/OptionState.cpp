@@ -166,7 +166,7 @@ void OptionState::Update(double deltaTime)
 					if (m_buttonPressed)
 					{
 						m_graphicsSelection++;
-						if (m_graphicsSelection > 2)
+						if (m_graphicsSelection > 3)
 							m_graphicsSelection = 0;
 						m_buttons[m_currentButton]->setString(SWAP_GRAPHICS[m_graphicsSelection]);
 						m_drawMustRestart = true;
@@ -506,10 +506,12 @@ void OptionState::_WriteSettingsToFile()
 	WritePrivateProfileStringA("Player", "YAXIS", std::to_string(m_sens.y).c_str(), file.c_str());
 	WritePrivateProfileStringA("Player", "PlayerFOV", std::to_string(m_fov).c_str(), file.c_str());
 
+
 	file = "../Configuration/defultEngineSettings.ini";
 	WritePrivateProfileStringA("Engine", "fullscreen", std::to_string(m_fullscreen).c_str(), file.c_str());
 	WritePrivateProfileStringA("Engine", "width", std::to_string(RES[m_resSelection].x).c_str(), file.c_str());
 	WritePrivateProfileStringA("Engine", "height", std::to_string(RES[m_resSelection].y).c_str(), file.c_str());
+	WritePrivateProfileStringA("Engine", "graphics", std::to_string(m_graphicsSelection).c_str(), file.c_str());
 	
 }
 
@@ -584,14 +586,39 @@ void OptionState::_ParseFileInputInt(const std::string & name, int key)
 		else
 			m_resSelection = 2;
 	}
+	else if (name == "graphics")
+	{
+		m_graphicsSelection = key;
+	}
 }
 
 void OptionState::Load()
 {
+	std::string path = "../Assets/GUIFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
+				if (extension == L".png" || extension == L".jpg")
+					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
+			}
+		}
+
+
+		//std::cout << p.path().generic_string() << std::endl;
+	}
 	std::cout << "OptionState Load" << std::endl;
 }
 
 void OptionState::unLoad()
 {
+	Manager::g_textureManager.UnloadAllTexture();
+	Manager::g_textureManager.UnloadGUITextures();
 	std::cout << "OptionState unLoad" << std::endl;
 }

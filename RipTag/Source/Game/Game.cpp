@@ -21,7 +21,7 @@ Game::~Game()
 void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
 #ifdef _SHOWSYSTEMINFO
-	system("systeminfo");
+	system("systeminfo /fo list");
 #endif // _SHOWSYSTEMINFO
 
 	//Rendering Manager Start
@@ -84,12 +84,17 @@ void Game::Update(double deltaTime)
 #if _DEBUG
 	_restartGameIf();
 #endif
-
 	_handleStateSwaps();
-	GamePadHandler::UpdateState();
-	m_gameStack.top()->Update(deltaTime);
+	if (!m_justSwaped)
+	{
+		
+		GamePadHandler::UpdateState();
+		m_gameStack.top()->Update(deltaTime);
+		pNetworkInstance->Update();
+	}
+	else
+		m_justSwaped = false;
 
-	pNetworkInstance->Update();
 
 	InputHandler::getRawInput();
 }
@@ -111,11 +116,26 @@ void Game::ImGuiPoll()
 
 void Game::_handleStateSwaps()
 {
+
 	if (m_gameStack.top()->getNewState() != nullptr)
 	{
 		m_gameStack.top()->unLoad();
 		m_gameStack.push(m_gameStack.top()->getNewState());
 		m_gameStack.top()->Load();
+		m_justSwaped = true;
+	}
+	if (m_gameStack.top()->GetReset() != nullptr)
+	{
+		State * ss = m_gameStack.top()->GetReset();
+		m_gameStack.top()->resetState(nullptr);
+		m_gameStack.top()->unLoad();
+		delete m_gameStack.top();
+		m_gameStack.pop();
+		m_gameStack.top()->resetState(nullptr);
+		m_gameStack.push(ss);
+		m_gameStack.top()->Load();
+		m_justSwaped = true;
+
 	}
 	if (m_gameStack.top()->getPushNPop() != nullptr)
 	{
@@ -131,7 +151,8 @@ void Game::_handleStateSwaps()
 		m_gameStack.push(pnp->state);
 		m_gameStack.top()->Load();
 		delete pnp;
-		
+		m_justSwaped = true;
+
 	}
 	else if (m_gameStack.top()->getKillState())
 	{
@@ -140,6 +161,8 @@ void Game::_handleStateSwaps()
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
 		m_gameStack.top()->Load();
+		m_justSwaped = true;
+
 	}
 
 	if (m_gameStack.top()->getBackToMenu())
@@ -152,6 +175,8 @@ void Game::_handleStateSwaps()
 			m_gameStack.top()->pushNewState(nullptr);
 		}
 		m_gameStack.top()->Load();
+		m_justSwaped = true;
+
 	}
 }
 

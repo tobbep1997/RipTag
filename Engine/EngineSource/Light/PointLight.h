@@ -47,8 +47,6 @@ private:
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
 
-	PhysicsComponent m_phys;
-
 	bool m_update = false;
 	bool m_firstRun = true;
 
@@ -127,6 +125,7 @@ private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
 	void _updateCameras();
-	void _initDirectX(UINT width = 64U, UINT hight = 64U);
+	void _initDirectX();
+	void _setFarPlane();
 };
 

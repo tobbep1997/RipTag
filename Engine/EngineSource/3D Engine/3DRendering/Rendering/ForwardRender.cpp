@@ -16,7 +16,14 @@ ForwardRender::~ForwardRender()
 	delete m_visabilityPass;
 }
 
-void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * backBufferRTV, ID3D11DepthStencilView * depthStencilView, ID3D11DepthStencilState* m_depthStencilState, ID3D11Texture2D * depthBufferTex, ID3D11SamplerState * samplerState, D3D11_VIEWPORT viewport)
+void ForwardRender::Init(IDXGISwapChain * swapChain,
+	ID3D11RenderTargetView * backBufferRTV,
+	ID3D11DepthStencilView * depthStencilView,
+	ID3D11DepthStencilState* m_depthStencilState,
+	ID3D11Texture2D * depthBufferTex,
+	ID3D11SamplerState * samplerState,
+	D3D11_VIEWPORT viewport,
+	const WindowContext & windowContext)
 {
 	m_swapChain = swapChain;
 	m_backBufferRTV = backBufferRTV;
@@ -41,7 +48,34 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 	_OutlineDepthCreate();
 	m_shadowMap = new ShadowMap();
-	m_shadowMap->Init(128, 128);
+	switch (windowContext.graphicsQuality)
+	{
+	case 0:
+		m_shadowMap->Init(64, 64);
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 4;
+		break;
+	case 1:
+		m_shadowMap->Init(128, 128);
+		m_lightCullingDistance = 75;
+		m_forceCullingLimit = 6;
+		break;
+	case 2:
+		m_shadowMap->Init(1024, 1024);
+		m_lightCullingDistance = 100;
+		m_forceCullingLimit = 8;
+		break;
+	case 3:
+		m_shadowMap->Init(2048, 2048);
+		m_lightCullingDistance = 250;
+		m_forceCullingLimit = 8;
+		break;
+	default:
+		m_shadowMap->Init(64, 64);
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 5;
+		break;
+	}
 	D3D11_BLEND_DESC omDesc;
 	ZeroMemory(&omDesc, sizeof(D3D11_BLEND_DESC));
 	omDesc.RenderTarget[0].BlendEnable = true;
@@ -274,6 +308,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap->ShadowPass(this);
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	DX::g_deviceContext->RSSetState(m_standardRast);
 
 	_visabilityPass();
 	this->GeometryPass(camera);
@@ -304,6 +340,7 @@ void ForwardRender::Clear()
 	DX::g_lights.clear();
 
 	DX::g_player = nullptr;
+	DX::g_remotePlayer = nullptr;
 
 	DX::g_outlineQueue.clear();
 	//this->m_shadowMap->Clear();

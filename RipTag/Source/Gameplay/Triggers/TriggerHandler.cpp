@@ -18,6 +18,9 @@ TriggerHandler::~TriggerHandler()
 		delete Triggers[i];
 	for (size_t i = 0; i < Triggerables.size(); i++)
 		delete Triggerables[i];
+
+	Triggers.clear();
+	Triggerables.clear();
 }
 
 void TriggerHandler::Update(double deltaTime)

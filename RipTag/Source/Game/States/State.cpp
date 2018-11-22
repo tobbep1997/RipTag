@@ -51,6 +51,11 @@ void State::pushAndPop(int i, State* state)
 	this->m_pnp = new pushNpop(i, state);
 }
 
+void State::resetState(State* state)
+{
+	this->m_resetState = state;
+}
+
 void State::resetPushNPop()
 {
 	delete this->m_pnp;
@@ -60,4 +65,9 @@ void State::resetPushNPop()
 State::pushNpop * State::getPushNPop()
 {
 	return this->m_pnp;
+}
+
+State* State::GetReset()
+{
+	return this->m_resetState;
 }

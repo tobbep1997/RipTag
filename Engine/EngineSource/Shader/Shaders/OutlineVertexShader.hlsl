@@ -32,7 +32,7 @@ VS_OUTPUT main(VS_INPUT input)
     output.worldPos = float4(0, 0, 0, 0);
     output.normal = float4(0, 0, 0, 0);
     output.TBN = (float3x3) 0;
-    output.uv = float2(0, 0);
+    output.uv = input.uv;
 
     return output;
 }

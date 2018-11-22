@@ -1,6 +1,8 @@
 #include "LightCalc.hlsli"
 Texture2D depth : register(t10);
 
+Texture2D texturee : register(t1);
+
 cbuffer LIGHTS : register(b8)
 {
     float4 outlineColor;
@@ -25,6 +27,8 @@ float4 main(VS_OUTP input) : SV_TARGET
     //{
     //    discard;
     //}
+
+    
    
-    return outlineColor;
+    return texturee.Sample(defaultSampler, input.uv) * outlineColor;
 }

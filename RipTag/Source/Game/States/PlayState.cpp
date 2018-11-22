@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "PlayState.h"
 #include <DirectXCollision.h>
+#include "Helper/RandomRoomPicker.h"
 
 
 std::vector<std::string> RipSounds::g_stepsStone;
@@ -17,16 +18,18 @@ b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
 
+bool RipExtern::g_kill = false;
+
 bool PlayState::m_youlost = false;
 
-PlayState::PlayState(RenderingManager * rm, void * coopData) : State(rm)
+PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
+	m_roomIndex = roomIndex;
 	if (coopData)
 	{
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
 	
 }
 
@@ -43,40 +46,69 @@ PlayState::~PlayState()
 	//delete triggerHandler;
 	delete m_contactListener;
 	delete m_rayListener;
-
+	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
 void PlayState::Update(double deltaTime)
 {
+	RipExtern::g_kill = false;
 	if (runGame)
 	{
 		InputMapping::Call();
 
-		m_step.dt = deltaTime;
-		m_step.velocityIterations = 2;
+		m_step.dt = UPDATE_TIME;
+		m_step.velocityIterations = 8;
 		m_step.sleeping = false;
 		m_firstRun = false;
-
 		while (m_physRunning)
 		{
+			//SpinLock
 			int i = 0;
 		}
-
-			//int i = 0;
-		triggerHandler->Update(deltaTime);
+		//Handle all packets
+		Network::Multiplayer::HandlePackets();
+		//Physics Done
+		//Time to do stuff
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+			//int i = 0;
+		if (RipExtern::g_kill == true)
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			//this->pushNewState();
+			m_loadingScreen.draw();
+			RipExtern::g_kill = false;
+			m_removeHud = true;
+			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+			return;
+		}
+
+		triggerHandler = m_levelHandler->getTriggerHandler();
+		triggerHandler->Update(deltaTime);
 		m_playerManager->Update(deltaTime);
 
-
 		m_playerManager->PhysicsUpdate();
-
-
 		
 		m_contactListener->ClearContactQueue();
 		m_rayListener->ClearConsumedContacts();
 
-		m_deltaTime = deltaTime;
-		m_physicsCondition.notify_all();
+		//Start Physics thread
+		if (RipExtern::g_kill == false)
+		{
+			m_deltaTime = deltaTime * !m_physicsFirstRun;
+			m_physicsCondition.notify_all();
+		}
+		else
+		{
+			//this->resetState(new PlayState(this->p_renderingManager, pCoopData));
+		}
+		
 	
 	
 	
@@ -101,9 +133,9 @@ void PlayState::Update(double deltaTime)
 			BackToMenu();
 		}
 
-		if (m_youlost)
+		if (m_youlost || m_playerManager->isGameWon())
 		{
-			if (isCoop)
+			if (isCoop && m_youlost)
 				_sendOnGameOver();
 
 			m_destoryPhysicsThread = true;
@@ -114,10 +146,11 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
-			pushNewState(new LoseState(p_renderingManager, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			if (m_youlost)
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			else
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away... this time!\nGod of Stealth", (void*)pCoopData));
 		}
-
-	
 	
 		_audioAgainstGuards(deltaTime);
 
@@ -138,22 +171,26 @@ void PlayState::Update(double deltaTime)
 	{
 		_updateOnCoopMode(deltaTime);
 	}
-
+	m_physicsFirstRun = false;
 }
 
 void PlayState::Draw()
 {
-
-	m_levelHandler->Draw();
-
-	_lightCulling();
-
-	m_playerManager->Draw();
-
-	if (!runGame)
+	if (!m_removeHud)
 	{
-		if (m_eventOverlay)
-			m_eventOverlay->Draw();
+
+		m_levelHandler->Draw();
+
+		_lightCulling();
+
+		m_playerManager->Draw();
+
+		if (!runGame)
+		{
+			if (m_eventOverlay)
+				m_eventOverlay->Draw();
+		}
+
 	}
 
 #ifdef _DEBUG
@@ -188,17 +225,26 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
+	static int counter = 0;
 	while (m_destoryPhysicsThread == false)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 		m_physRunning = true;
-		if (m_deltaTime <= 0.65f)
+		if (RipExtern::g_kill == true)
 		{
-			m_world.Step(m_step);
+			return;
 		}
+		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
+		//{
+		m_timer += m_deltaTime;
+			m_world.Step(m_step);
+		while (m_timer >= UPDATE_TIME)
+		{
+			m_timer -= UPDATE_TIME;
+		}
+		//}
 		m_physRunning = false;
-		
 	}
 }
 
@@ -270,9 +316,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							volume *= occ;
 							float addThis = (volume / (lengthSquared * 3));
 
+							//Pro Tip: Not putting break in a case will not stop execution, 
+							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
 							switch (*soundType)
 							{
 							case AudioEngine::Player:
+							case AudioEngine::RemotePlayer:
 								allSounds += addThis;
 								playerSounds += addThis;
 								if (playerSounds > sl.percentage)
@@ -291,6 +340,11 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 				}
 
 				sl.percentage = playerSounds / allSounds;
+				e->setSoundLocation(sl);
+			}
+			else
+			{
+				sl.soundPos = { 0,0,0 };
 				e->setSoundLocation(sl);
 			}
 			counter++;
@@ -519,20 +573,29 @@ void PlayState::unLoad()
 
 	Network::Multiplayer::LocalPlayerOnSendMap.clear();
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
+	Network::Multiplayer::inPlayState = false;
 }
 
 void PlayState::Load()
 {
+	m_loadingScreen.Init();
 	std::cout << "PlayState Load" << std::endl;
-
+	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
+	
 	if (isCoop)
 	{
 		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
 		Network::Multiplayer::LocalPlayerOnSendMap.clear();
 		Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
-	}
 
+		rooms = RandomRoomPicker::RoomPick(pCoopData->seed);
+	}
+	else
+	{
+		rooms = RandomRoomPicker::RoomPick(0);
+	}
+	
 	m_youlost = false;
 	Input::ResetMouse();
 	CameraHandler::Instance();
@@ -541,7 +604,7 @@ void PlayState::Load()
 	_loadTextures();
 	_loadPhysics();
 	_loadMeshes();
-	_loadPlayers();
+	_loadPlayers(rooms);
 	_loadNetwork();
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
@@ -566,7 +629,9 @@ void PlayState::_loadTextures()
 
 void PlayState::_loadPhysics()
 {
+	
 	RipExtern::g_world = &m_world;
+	
 	m_contactListener = new ContactListener();
 	RipExtern::g_contactListener = m_contactListener;
 	RipExtern::g_world->SetContactListener(m_contactListener);
@@ -597,13 +662,14 @@ void PlayState::_loadMeshes()
 	//future1.get();
 }
 
-void PlayState::_loadPlayers()
+void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 {
 	m_playerManager = new PlayerManager(&this->m_world);
 	m_playerManager->CreateLocalPlayer();
 
-	m_levelHandler = new LevelHandler();
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer());
+
+	m_levelHandler = new LevelHandler(m_roomIndex);
+	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }
 
@@ -612,6 +678,7 @@ void PlayState::_loadNetwork()
 
 	if (isCoop)
 	{
+		Network::Multiplayer::inPlayState = true;
 		this->m_seed = pCoopData->seed;
 		auto startingPositions = m_levelHandler->getStartingPositions();
 		DirectX::XMFLOAT4 posOne = std::get<0>(startingPositions);
@@ -634,6 +701,7 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(true);
 		this->_registerThisInstanceToNetwork();
 		//free up memory when we are done with this data
+		m_levelHandler->getEnemyHandler()->setRemotePlayer(m_playerManager->getRemotePlayer());
 	}
 	else
 	{
@@ -752,33 +820,25 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 			m_eventOverlay->setScale({2.0f, 2.0f});
 			accumulatedTime = 0;
 
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
 			if (m_coopState.gameWon)
 			{
-				//We need a GameWon state perhaps, or we simply make the LoseState into a more general State that can handle both Lose and Won
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away.. this time!\nGod of Stealth", (void*)pCoopData));
 			}
 			else if (m_coopState.gameOver)
 			{
-				m_destoryPhysicsThread = true;
-				m_physicsCondition.notify_all();
-
-
-				if (m_physicsThread.joinable())
-				{
-					m_physicsThread.join();
-				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
 			}
 			else if (m_coopState.remoteDisconnected)
 			{
-				m_destoryPhysicsThread = true;
-				m_physicsCondition.notify_all();
-
-
-				if (m_physicsThread.joinable())
-				{
-					m_physicsThread.join();
-				}
-				pushNewState(new LoseState(p_renderingManager, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
 			}
 		}
 	}

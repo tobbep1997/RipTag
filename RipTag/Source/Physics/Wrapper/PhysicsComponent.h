@@ -35,6 +35,7 @@ class PhysicsComponent
 {
 private:
 	bool singelCollider = true;
+	bool isInited = false;
 
 	b3Body*			 m_body = nullptr;
 	b3Shape *		 m_shape = nullptr;
@@ -99,6 +100,7 @@ public:
 	virtual void setUserDataBody(void * self);
 	virtual void setObjectTag(const char * type);
 
+	
 
 	virtual b3Body* getBody();
 };

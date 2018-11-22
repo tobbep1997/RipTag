@@ -39,6 +39,9 @@ private:
 	float m_currentSpeed = 0.0f;
 	float m_currentPitch = 0.0f;
 
+	//Visibility data
+	float m_currentVisibility = 0.0f;
+
 public:
 	//PUBLIC MEMBER FUNCTIONS
 	void BeginPlay();
@@ -47,6 +50,7 @@ public:
 	void Draw() override;
 	bool hasWon = false;
 	void SetAbilitySet(int);
+	void SetVisibility(const float & value) { m_currentVisibility = value; }
 private:
 	//PRIVATE FUNCTIONS
 
@@ -54,6 +58,7 @@ private:
 	void _onNetworkUpdate(Network::ENTITYUPDATEPACKET * data);
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
+	void _sendVisibilityPacket();
 
 	void _lerpPosition(float dt);
 

@@ -31,6 +31,16 @@ const DirectX::XMFLOAT4A Camera::getPitch()
 	return { m_direction.y, 0.0, 0.0, 0.0 };
 }
 
+DirectX::XMFLOAT4A Camera::getForward() const
+{
+	DirectX::XMFLOAT4A forward = this->m_direction;
+	forward.y = 0.0f;
+
+	DirectX::XMStoreFloat4A(&forward, DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&forward)));
+
+	return forward;
+}
+
 void Camera::_calcViewMatrix(bool dir)
 {
 	DirectX::XMVECTOR pos = DirectX::XMLoadFloat4A(&this->p_position);

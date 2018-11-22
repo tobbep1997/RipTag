@@ -39,15 +39,21 @@ void Trigger::setTriggerState(bool state, bool isLocal)
 	{
 		//Play activated state
 		m_triggerState = state;
-		this->getAnimationPlayer()->GetStateMachine()->SetState(this->activatedAnimation);
-		this->getAnimationPlayer()->Play();
+		if (this->getAnimationPlayer())
+		{
+			this->getAnimationPlayer()->GetStateMachine()->SetState(this->activatedAnimation);
+			this->getAnimationPlayer()->Play();
+		}
 	}
 	else if (m_triggerState && !state)
 	{
 		//Play Inactivated state
 		m_triggerState = state;
-		this->getAnimationPlayer()->GetStateMachine()->SetState(this->deactivatedAnimation);
-		this->getAnimationPlayer()->Play();
+		if (this->getAnimationPlayer())
+		{
+			this->getAnimationPlayer()->GetStateMachine()->SetState(this->deactivatedAnimation);
+			this->getAnimationPlayer()->Play();
+		}
 	}
 	if (isLocal)
 		this->_playSound();

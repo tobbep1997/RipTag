@@ -196,7 +196,7 @@ void RoomGenerator::_makeWalls()
 					tempGuards.startingPositions[k].startingPos[2] = i + tempGuards.startingPositions[k].startingPos[2] + BigRoomAddZ;
 				}
 
-				Enemy * e = DBG_NEW Enemy(m_worldPtr, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
+				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
 				this->m_generatedRoomEnemies.push_back(e);
@@ -890,42 +890,42 @@ void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::
 
 void RoomGenerator::_createEnemies(Player * playerPtr)
 {
-	Enemy * enemy;
-	
-	Manager::g_meshManager.loadSkinnedMesh("STATE");
-	Manager::g_meshManager.loadSkinnedMesh("GUARD");
-	Manager::g_textureManager.loadTextures("SPHERE");
-	for (int i = 0; i < m_nrOfEnemies; i++)
-	{
-		int x = returnRandomInGridWidth();
-		int z = returnRandomInGridDepth();
-		Tile enemyPos = m_generatedGrid->WorldPosToTile(x, z);
-		bool gotPos = false;
+	//Enemy * enemy;
+	//
+	//Manager::g_meshManager.loadSkinnedMesh("STATE");
+	//Manager::g_meshManager.loadSkinnedMesh("GUARD");
+	//Manager::g_textureManager.loadTextures("SPHERE");
+	//for (int i = 0; i < m_nrOfEnemies; i++)
+	//{
+	//	int x = returnRandomInGridWidth();
+	//	int z = returnRandomInGridDepth();
+	//	Tile enemyPos = m_generatedGrid->WorldPosToTile(x, z);
+	//	bool gotPos = false;
 
-		if (enemyPos.getX() != -1)
-			gotPos = true;
-		while (!gotPos)
-		{
-			x = returnRandomInGridWidth();
-			z = returnRandomInGridDepth();
-			enemyPos = m_generatedGrid->WorldPosToTile(x, z);
-			if (enemyPos.getX() != -1 && enemyPos.getPathable())
-				gotPos = true;
-		}
-		enemy = DBG_NEW Enemy(m_worldPtr, x, 15 , z);
-		enemy->addTeleportAbility(*playerPtr->getTeleportAbility());
-		enemy->SetPlayerPointer(playerPtr);
-		
+	//	if (enemyPos.getX() != -1)
+	//		gotPos = true;
+	//	while (!gotPos)
+	//	{
+	//		x = returnRandomInGridWidth();
+	//		z = returnRandomInGridDepth();
+	//		enemyPos = m_generatedGrid->WorldPosToTile(x, z);
+	//		if (enemyPos.getX() != -1 && enemyPos.getPathable())
+	//			gotPos = true;
+	//	}
+	//	//enemy = DBG_NEW Enemy(m_worldPtr, x, 15 , z);
+	//	enemy->addTeleportAbility(*playerPtr->getTeleportAbility());
+	//	enemy->SetPlayerPointer(playerPtr);
+	//	
 
-		bool gotPath = false;
-		while (!gotPath)
-		{
-			enemy->SetPathVector(this->m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(enemyPos)));
-			if (!enemy->GetPathEmpty())
-				gotPath = true;
-		}
-		m_generatedRoomEnemies.push_back(enemy);
-	}
+	//	bool gotPath = false;
+	//	while (!gotPath)
+	//	{
+	//		enemy->SetPathVector(this->m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(enemyPos)));
+	//		if (!enemy->GetPathEmpty())
+	//			gotPath = true;
+	//	}
+	//	m_generatedRoomEnemies.push_back(enemy);
+	//}
 }
 
 void RoomGenerator::_FindWinnableAndGuardPaths()
@@ -1051,13 +1051,13 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	//dbgFuncSpawnAboveMap();
+	dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
-	returnableRoom->setLightvector(m_generated_pointLightVector);
 	returnableRoom->setRoomGuards(m_generatedRoomEnemies);
-	returnableRoom->setParticleEmitterVector(m_generated_Emitters);
+	returnableRoom->setLightvector(m_generated_pointLightVector);
+	//returnableRoom->setParticleEmitterVector(m_generated_Emitters);
 	returnableRoom->setAudioBoxes(m_generatedAudioBoxes);
 	returnableRoom->loadTriggerPairMap();
 	return returnableRoom;

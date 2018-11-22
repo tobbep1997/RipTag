@@ -11,26 +11,32 @@ class Grid;
 
 enum EnemyState
 {
+	NoState,
 	Investigating_Sight,
 	Investigating_Sound,
+	Investigating_Room,
 	High_Alert,
 	Suspicious,
+	Scanning_Area,
 	Patrolling,
 	Possessed,
 	Disabled,
 	
 };
 
-enum TransitionState
+enum EnemyTransitionState
 {
-	None,
+	NoTransitionState,
 	Alerted,
-	InvestigateSource,
+	InvestigateSound,
+	InvestigateSight,
 	Observe,
 	SearchArea,
 	ReturnToPatrol,
 	BeingPossessed,
 	BeingDisabled,
+	ExitingPossess,
+	ExitingDisable,
 
 };
 
@@ -55,8 +61,16 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
-	const float TURN_SPEED = 1.0f;
+	const float TURN_SPEED = 2.0f;
 	const float REVERSE_SPEED = 0.5f;
+
+	//AI Behavior constants
+	const float SOUND_LEVEL = 0.33f;
+	const int SIGHT_LEVEL = 1700;
+	const float ALERT_TIME_LIMIT = 0.8f;
+	const float SUSPICIOUS_TIME_LIMIT = 2.0f;
+	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
+	const float HIGH_ALERT_LIMIT = 3.0f;
 
 private:
 	struct AudioVars
@@ -71,9 +85,12 @@ private:
 	{
 		bool newNode = true;
 		bool turnState = false;
+		bool next = false;
 		float timer = 0.0f;
-		b3Vec3 lastDir = { 0,0,0 };
+		DirectX::XMFLOAT2 lastDir = { 0.0f,0.0f };
+		DirectX::XMFLOAT2 middleTarget = { 0.0f,0.0f };
 	};
+	unsigned int uniqueID;
 
 	lerpVal m_lv;
 
@@ -177,10 +194,15 @@ private:
 	Player * m_PlayerPtr;
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
+	float m_searchTimer = 0.0f;
+	EnemyTransitionState m_transState = EnemyTransitionState::NoTransitionState;
+	float lastSearchDirX = 0;
+	float lastSearchDirY = 0;
+	Grid* m_grid;
 public:
 	Enemy();
 	Enemy(float startPosX, float startPosY, float startPosZ);
-	Enemy(b3World* world, float startPosX, float startPosY, float startPosZ);
+	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
 
 	//TEMP
@@ -198,6 +220,7 @@ public:
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
 	virtual void Update(double deltaTime) override;
+	void ClientUpdate(double deltaTime);
 	virtual void PhysicsUpdate(double deltaTime);
 
 	//Depending on the culling, this can cancel the queue
@@ -231,6 +254,9 @@ public:
 
 	EnemyState getEnemyState() const;
 	void setEnemeyState(EnemyState state);
+
+	EnemyTransitionState getTransitionState() const;
+	void setTransitionState(EnemyTransitionState state);
 
 	void setSoundLocation(const SoundLocation & sl);
 	const SoundLocation & getSoundLocation() const;
@@ -266,6 +292,12 @@ public:
 	void AddHighAlertTimer(double deltaTime);
 	float GetHighAlertTimer() const;
 	void SetHightAlertTimer(const float & time);
+
+	void setGrid(Grid* grid);
+
+	//Network
+	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
+	void sendNetworkUpdate();
 private:
 
 	void _handleInput(double deltaTime);  //v 0.5
@@ -278,7 +310,7 @@ private:
 	void _onInteract(); //v
 	void _onRotate(double deltaTime);  //v
 
-	void _possessed(double deltaTime); //v
+	void _onReleasePossessed(double deltaTime); //v
 	void _TempGuardPath(bool x, double deltaTime);
 	void _cameraPlacement(double deltaTime); //v
 	bool _MoveTo(Node * nextNode, double deltaTime);
@@ -287,10 +319,36 @@ private:
 	void _CheckPlayer(double deltaTime);
 	void _activateCrouch(); //v
 	void _deActivateCrouch(); //v
-
+	void _Move(Node * nextNode, double deltaTime);
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
+
+	void _detectTeleportSphere();
+
+	void _handleStates(const double deltaTime);
+	//Transistion States
+	void _onAlerted();
+	void _onInvestigateSound();
+	void _onInvestigateSight();
+	void _onObserve();
+	void _onSearchArea();
+	void _onReturnToPatrol();
+	void _onBeingPossessed();
+	void _onBeingDisabled();
+	void _onExitingPossessed();
+	void _onExitingDisabled();
+
+	//States
+	void _investigatingSight(const double deltaTime);
+	void _investigatingSound(const double deltaTime);
+	void _investigatingRoom(const double deltaTime);
+	void _highAlert(const double deltaTime);
+	void _suspicious(const double deltaTime);
+	void _scanningArea(const double deltaTime);
+	void _patrolling(const double deltaTime);
+	void _possessed(const double deltaTime);
+	void _disabled(const double deltaTime);
 };
 

@@ -51,5 +51,6 @@ Triggerable::Triggerable(int uniqueId, int linkedID, bool isTrigger, std::string
 	this->deactivatedAnimation = deactivAnim;
 
 }
-
-
+
+
+

@@ -24,7 +24,7 @@ private:
 	std::vector<Enemy*> m_generatedRoomEnemies;
 	std::vector<ParticleEmitter*> m_generated_Emitters;
 	std::vector<FMOD::Geometry*> m_generatedAudioBoxes;
-
+	
 	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
