@@ -368,7 +368,7 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	{
 	
 		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
-		if ((fabs(pos.x) > 0 || fabs(pos.y) > 0)
+		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
 			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
 			if (enemys[i]->getTotalVisablilty() > totVis)
@@ -1183,7 +1183,6 @@ void Player::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
 	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
-	DirectX::XMFLOAT4 RIGHT;
 
 	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
 	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);
