@@ -11,6 +11,7 @@ DisableAbility::DisableAbility(void* owner) : AbilityComponent(owner), BaseActor
 DisableAbility::~DisableAbility()
 {
 	PhysicsComponent::Release(*RipExtern::g_world);
+	//&this->deleteEffect(); 
 }
 
 void DisableAbility::Init()
@@ -33,16 +34,28 @@ void DisableAbility::Init()
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
 
 	HUDComponent::AddQuad(m_bar);
-	
+}
+
+void DisableAbility::deleteEffect()
+{
+	if (m_particleEmitter != nullptr)
+	{
+		delete m_particleEmitter;
+	}
+}
+
+ParticleEmitter * DisableAbility::getEmitter()
+{
+	return m_particleEmitter; 
 }
 
 void DisableAbility::Update(double deltaTime)
 {
 	if (m_dState == DisableState::Moving || m_dState == DisableState::RemoteActive)
 		BaseActor::Update(deltaTime);
-
+	Camera * camera = CameraHandler::getActiveCamera();
 	if (this->isLocal)
-		_logicLocal(deltaTime);
+		_logicLocal(deltaTime, camera);
 	else
 		_logicRemote(deltaTime);
 }
@@ -91,6 +104,8 @@ void DisableAbility::Draw()
 	{
 		BaseActor::Draw();
 	}
+	if (m_particleEmitter != nullptr)
+		m_particleEmitter->Queue();
 }
 
 DirectX::XMFLOAT4A DisableAbility::getVelocity()
@@ -108,7 +123,7 @@ unsigned int DisableAbility::getState()
 	return (unsigned int)this->m_dState;
 }
 
-void DisableAbility::_logicLocal(double deltaTime)
+void DisableAbility::_logicLocal(double deltaTime, Camera* camera)
 {
 	switch (m_dState)
 	{
@@ -126,6 +141,12 @@ void DisableAbility::_logicLocal(double deltaTime)
 		this->_inStateCooldown(deltaTime);
 		break;
 	}
+
+	if (m_particleEmitter != nullptr)
+	{
+		m_particleEmitter->Update(deltaTime, camera);
+	}
+
 }
 
 void DisableAbility::_logicRemote(double dt)
@@ -174,8 +195,6 @@ void DisableAbility::_inStateCharging(double dt)
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
-			
-
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED);
 			setPosition(start.x, start.y, start.z);
@@ -199,16 +218,24 @@ void DisableAbility::_inStateMoving(double dt)
 	p_cooldown = accumulatedTime;
 	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
 	{
-		if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
+		if (!m_hasHit)
 		{
-			if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
+			if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
 			{
-				static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(EnemyTransitionState::BeingDisabled);
-				m_dState = DisableState::Cooldown;
-				this->setPosition(-999.9f, -999.9f, -999.9f);
-				p_cooldown = 0.0;
-				accumulatedTime = 0.0;
-				this->_sendOnHitNotification();
+				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
+				{
+					m_hasHit = true; 
+					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(EnemyTransitionState::BeingDisabled);
+					m_dState = DisableState::Cooldown;
+					//Particle effects here before changing the position.  
+					m_particleEmitter = new ParticleEmitter();
+					m_particleEmitter->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+					std::cout << "X: " << DirectX::XMVectorGetX(m_particleEmitter->getPosition()) << " Y: " << DirectX::XMVectorGetY(m_particleEmitter->getPosition()) << " Z: " << DirectX::XMVectorGetZ(m_particleEmitter->getPosition()) << std::endl;
+					this->setPosition(-999.9f, -999.9f, -999.9f);
+					p_cooldown = 0.0;
+					accumulatedTime = 0.0;
+					this->_sendOnHitNotification();
+				}
 			}
 		}
 	}
@@ -222,7 +249,6 @@ void DisableAbility::_inStateMoving(double dt)
 		this->setPosition(-999.9f, -999.9f, -999.9f);
 		return;
 	}
-
 }
 
 void DisableAbility::_inStateCooldown(double dt)
@@ -232,7 +258,12 @@ void DisableAbility::_inStateCooldown(double dt)
 	{
 		p_cooldown = 0;
 		m_dState = DisableState::Throwable;
+		delete m_particleEmitter; 
+		m_particleEmitter = nullptr; 
+		m_hasHit = false;
 	}
+
+	 
 }
 
 void DisableAbility::_inStateRemoteActive(double dt)

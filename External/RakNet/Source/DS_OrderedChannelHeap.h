@@ -13,7 +13,6 @@
 /// \brief Ordered Channel Heap .  This is a heap where you add to it on multiple ordered channels, with each channel having a different weight.
 ///
 
-
 #ifndef __RAKNET_ORDERED_CHANNEL_HEAP_H
 #define __RAKNET_ORDERED_CHANNEL_HEAP_H
 
