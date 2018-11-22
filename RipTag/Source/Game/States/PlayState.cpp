@@ -237,9 +237,9 @@ void PlayState::_PhyscisThread(double deltaTime)
 		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
 		//{
 		m_timer += m_deltaTime;
+			m_world.Step(m_step);
 		while (m_timer >= UPDATE_TIME)
 		{
-			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
 		//}

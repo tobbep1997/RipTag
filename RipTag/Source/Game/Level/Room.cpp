@@ -176,8 +176,8 @@ void Room::LoadRoomToMemory()
 		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
 		ImporterLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
 
-		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1], player1Start.startingPos[2], 1.0f);
-		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1], player2Start.startingPos[2], 1.0f);
+		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1] +1 , player1Start.startingPos[2], 1.0f);
+		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1] + 1, player2Start.startingPos[2], 1.0f);
 
 		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
 
@@ -222,7 +222,7 @@ void Room::LoadRoomToMemory()
 
 
 		//Tartillbaka Hela rum
-		if (m_roomIndex != 8 && m_roomIndex != 0)
+	/*	if (m_roomIndex != 8 && m_roomIndex != 0 && m_roomIndex != 1)
 		{
 
 			Manager::g_textureManager.loadTextures(this->getAssetFilePath());
@@ -233,7 +233,7 @@ void Room::LoadRoomToMemory()
 			temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
 			m_staticAssets.push_back(temp);
 
-		}
+		}*/
 
 		CollisionBoxes = DBG_NEW BaseActor();
 	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
