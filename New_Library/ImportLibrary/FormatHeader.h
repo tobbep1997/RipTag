@@ -88,7 +88,7 @@ namespace ImporterLibrary
 	};
 	struct GridStruct
 	{
-		GridPointStruct * gridPoints;
+		GridPointStruct * gridPoints = nullptr;
 		int nrOf;
 		int maxX;
 		int maxY;
