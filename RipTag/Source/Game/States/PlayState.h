@@ -35,7 +35,7 @@ private:
 
 	b3World m_world;
 
-	TriggerHandler *	triggerHandler; //Released
+	//TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
 	bool m_firstRun = true;
 	bool unlockMouse = true;

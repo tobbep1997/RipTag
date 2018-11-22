@@ -62,7 +62,7 @@ void PlayState::Update(double deltaTime)
 		m_firstRun = false;
 		while (m_physRunning)
 		{
-			//SpinLock
+			std::cout << "SPIIIN ME ROUND!\n";
 			int i = 0;
 		}
 		//Handle all packets
@@ -89,8 +89,8 @@ void PlayState::Update(double deltaTime)
 			return;
 		}
 
-		triggerHandler = m_levelHandler->getTriggerHandler();
-		triggerHandler->Update(deltaTime);
+		//triggerHandler = m_levelHandler->getTriggerHandler();
+		//triggerHandler->Update(deltaTime);
 		m_playerManager->Update(deltaTime);
 
 		m_playerManager->PhysicsUpdate();
@@ -707,7 +707,7 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(false);
 	}
 
-	triggerHandler = m_levelHandler->getTriggerHandler();
+	//triggerHandler = m_levelHandler->getTriggerHandler();
 	
 	//Create event overlay quad
 	{
