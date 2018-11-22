@@ -193,7 +193,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes("WIN_BOX");
+	//DrawWorldCollisionboxes();
 #endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -631,7 +631,6 @@ void PlayState::_loadPhysics()
 {
 	
 	RipExtern::g_world = &m_world;
-	
 	m_contactListener = new ContactListener();
 	RipExtern::g_contactListener = m_contactListener;
 	RipExtern::g_world->SetContactListener(m_contactListener);
@@ -639,7 +638,7 @@ void PlayState::_loadPhysics()
 	RipExtern::g_rayListener = m_rayListener;
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 	// triggerHandler = new TriggerHandler();
-	m_step.velocityIterations = 1;
+	m_step.velocityIterations = 8;
 	m_step.sleeping = false;
 	m_firstRun = false;
 }
@@ -669,7 +668,7 @@ void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 
 
 	m_levelHandler = new LevelHandler(m_roomIndex);
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
+	m_levelHandler->Init(*RipExtern::g_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }
 

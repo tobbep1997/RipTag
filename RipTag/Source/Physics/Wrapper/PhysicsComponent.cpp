@@ -235,67 +235,92 @@ void PhysicsComponent::Init(b3World& world, b3BodyType bodyType, float x, float 
 void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes, float friction)
 {
 	isInited = true;
-	singelCollider = false;
-	//setBaseBodyDef---------------------------------------
 	m_bodyDef = DBG_NEW b3BodyDef();
 	m_bodyDef->position.Set(0, 0, 0);
 	m_bodyDef->type = e_staticBody;
 	m_bodyDef->gravityScale = 1;
 	m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
-	//-----------------------------------------------------
-	   
-	b3Hull * h;
-	b3Polyhedron * p;
-	b3ShapeDef* s;
+
+	m_body = RipExtern::g_world->CreateBody(*m_bodyDef);
+
+	b3Hull h;
+	b3Polyhedron  p;
+	b3ShapeDef s;
 
 	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
 	{
-
-		h = DBG_NEW b3Hull();
-		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+		h.SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_scales.push_back(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
-		m_hulls.push_back(h);
 
-		//-----------------------------------------------------
 
-		p = DBG_NEW b3Polyhedron();
-		p->SetHull(h);
-		m_polys.push_back(p);
-		
 
-		//-----------------------------------------------------
-
-		s = DBG_NEW b3ShapeDef();
-		s->shape = p;
-		s->density = 1.0f;
-		s->restitution = 0;
-		s->friction = friction;
-		
-		s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
-		m_shapeDefs.push_back(s);
-		
 	}
 
-	for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
-	{
-		b3Body * b = world.CreateBody(*m_bodyDef);
-		b->SetObjectTag("WORLD");
-		b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
-			b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
-		
-		if (collisionBoxes.boxes[i].typeOfBox == 1)
-			b->SetObjectTag("BLINK_WALL");
 
-		if (collisionBoxes.boxes[i].typeOfBox == 2)
-		{
-			b->SetObjectTag("WIN_BOX");
-		}
-		//b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
-		m_bodys.push_back(b);
-		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
-		if (collisionBoxes.boxes[i].typeOfBox == 2)
-			m_shapes[m_shapes.size() - 1]->SetSensor(true);
-	}
+	//isInited = true;
+	//singelCollider = false;
+	////setBaseBodyDef---------------------------------------
+	//m_bodyDef = DBG_NEW b3BodyDef();
+	//m_bodyDef->position.Set(0, 0, 0);
+	//m_bodyDef->type = e_staticBody;
+	//m_bodyDef->gravityScale = 1;
+	//m_bodyDef->linearVelocity = b3Vec3(0, 0, 0);
+	////-----------------------------------------------------
+	//   
+	//b3Hull * h;
+	//b3Polyhedron * p;
+	//b3ShapeDef* s;
+
+	//for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	//{
+
+	//	h = DBG_NEW b3Hull();
+	//	h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+	//	m_scales.push_back(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+
+	//	m_hulls.push_back(h);
+
+	//	//-----------------------------------------------------
+
+	//	p = DBG_NEW b3Polyhedron();
+	//	p->SetHull(h);
+	//	m_polys.push_back(p);
+	//	
+
+	//	//-----------------------------------------------------
+
+	//	s = DBG_NEW b3ShapeDef();
+	//	s->shape = p;
+	//	s->density = 1.0f;
+	//	s->restitution = 0;
+	//	s->friction = friction;
+	//	
+	//	s->userData = (void*)collisionBoxes.boxes[i].typeOfBox;
+	//	m_shapeDefs.push_back(s);
+	//	
+	//}
+
+	//for (unsigned int i = 0; i < collisionBoxes.nrOfBoxes; i++)
+	//{
+	//	b3Body * b = world.CreateBody(*m_bodyDef);
+	//	b->SetObjectTag("WORLD");
+	//	b->SetTransform(b3Vec3(collisionBoxes.boxes[i].translation[0], collisionBoxes.boxes[i].translation[1], collisionBoxes.boxes[i].translation[2]),
+	//		b3Quaternion(collisionBoxes.boxes[i].rotation[0], collisionBoxes.boxes[i].rotation[1], collisionBoxes.boxes[i].rotation[2], collisionBoxes.boxes[i].rotation[3]));
+	//	
+	//	if (collisionBoxes.boxes[i].typeOfBox == 1)
+	//		b->SetObjectTag("BLINK_WALL");
+
+	//	if (collisionBoxes.boxes[i].typeOfBox == 2)
+	//	{
+	//		b->SetObjectTag("WIN_BOX");
+	//	}
+	//	//b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
+	//	m_bodys.push_back(b);
+	//	
+	//	m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
+	//	if (collisionBoxes.boxes[i].typeOfBox == 2)
+	//		m_shapes[m_shapes.size() - 1]->SetSensor(true);
+	//}
   }
 
 void PhysicsComponent::addCollisionBox(b3Vec3 pos, b3Vec3 size, b3Quaternion rotation, std::string type, bool sensor, b3World * world)
@@ -551,12 +576,34 @@ void PhysicsComponent::setAwakeState(const bool& awa)
 
 void PhysicsComponent::setUserDataBody(void* self)
 {
-	this->m_body->SetUserData(self);
+	if (m_body)
+		this->m_body->SetUserData(self);
+	else
+	{
+		for (auto &lol : m_bodys)
+		{
+			lol->SetUserData(self);
+		}
+	}
 }
 
 void PhysicsComponent::setObjectTag(const char * type)
 {
-	m_body->SetObjectTag(type);
+	if (m_body)
+		m_body->SetObjectTag(type);
+	else
+	{
+		for (auto &lol : m_bodys)
+		{
+			lol->SetObjectTag(type);
+			auto lol2 = lol->GetShapeList();
+			while (lol2 != nullptr)
+			{
+				lol2->SetObjectTag(type);
+				lol2 = lol2->GetNext();
+			}
+		}
+	}
 	
 }
 

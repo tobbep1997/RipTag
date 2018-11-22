@@ -86,6 +86,7 @@ public:
 	virtual ~Grid();
 
 	Tile WorldPosToTile(float x, float y);
+	Node GetWorldPosFromIndex(int index);
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded = 0);
