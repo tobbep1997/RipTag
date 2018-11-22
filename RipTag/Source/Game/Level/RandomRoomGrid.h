@@ -19,22 +19,19 @@ struct RoomLocations
 class RandomRoomGrid
 {
 private:
-	static const int GRID_SIZE = 25;
-	int currentGridLocation = 0;
-	int depth = 5;
-	int width = 5;
-
-	void _insertRooms(int count);
-
-public:
-	int roomGrid[GRID_SIZE];
-	std::vector<RoomLocations> oddRooms;
-
-	RandomRoom rooms[GRID_SIZE];
+	//int currentGridLocation = 0;
+	int m_gridSize;
+	int m_depth;
+	int m_width;
+	int * m_roomGrid;
+	std::vector<RoomLocations> m_oddRooms;
 
 public:
-	RandomRoomGrid() { for (int i = 0; i < GRID_SIZE; i++) { roomGrid[i] = 2; } }
-	~RandomRoomGrid() {}
+	RandomRoom * m_rooms;
+
+public:
+	RandomRoomGrid(int width = 5, int depth = 5);
+	~RandomRoomGrid();
 
 	void GenerateRoomLayout();
 
@@ -42,6 +39,7 @@ public:
 	void DrawConnections();
 
 private:
+	void _insertRooms(int count);
 	void _connectRooms();
 	// Send in valid directions in the order North -> East -> South -> West
 	void _generateDoors(bool * validDirections, int doorCount, int roomIndex, int * directionIndex);

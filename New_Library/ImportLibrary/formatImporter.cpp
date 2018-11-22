@@ -384,7 +384,10 @@ namespace ImporterLibrary
 
 		}
 		else
+		{
+			
 			return CollisionBoxes();
+		}
 		return collisionBoxes; // done :D
 	}
 	PointLights CustomFileLoader::readLightFile(const std::string & fileName)

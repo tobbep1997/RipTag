@@ -329,7 +329,7 @@ void ForwardRender::Flush(Camera & camera)
 
 void ForwardRender::Clear()
 {
-	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
+	float c[4] = { .5f,.5f,.5f,1.0f };
 
 	
 

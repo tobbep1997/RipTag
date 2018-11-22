@@ -159,8 +159,12 @@ const unsigned short LevelHandler::getNextRoom() const
 
 void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
-	Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
+	room->setLoaded(true);
 	m_rooms.push_back(room);
+
+	//Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	//m_rooms.push_back(room);
 
 	m_rooms.at(0)->loadTextures();
 	int x = m_rooms.at(0)->getRoomIndex();
@@ -170,19 +174,19 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 {
-	srand(seed);
-	std::vector<int> usedRooms;
-	//LoadTuTorialRoomFirst
-	Room * room = new Room(m_roomIndex, m_worldPtr, 0, m_playerPtr);
-	m_rooms.push_back(room);
-	//room = new Room(1, m_worldPtr, 1, m_playerPtr);
+	//srand(seed);
+	//std::vector<int> usedRooms;
+	////LoadTuTorialRoomFirst
+	//Room * room = new Room(m_roomIndex, m_worldPtr, 0, m_playerPtr);
 	//m_rooms.push_back(room);
-	//room = new Room(0, m_worldPtr, 2, m_playerPtr);
-	//m_rooms.push_back(room);
-	m_rooms.at(0)->loadTextures();
-	int x = m_rooms.at(0)->getRoomIndex();
-	if(m_rooms.at(0)->getRoomIndex() != -1)
-	m_rooms.at(0)->LoadRoomToMemory();
+	////room = new Room(1, m_worldPtr, 1, m_playerPtr);
+	////m_rooms.push_back(room);
+	////room = new Room(0, m_worldPtr, 2, m_playerPtr);
+	////m_rooms.push_back(room);
+	//m_rooms.at(0)->loadTextures();
+	//int x = m_rooms.at(0)->getRoomIndex();
+	//if(m_rooms.at(0)->getRoomIndex() != -1)
+	//m_rooms.at(0)->LoadRoomToMemory();
 
 	//                               //Byt i < 1 till amountOfRooms
 	//for (short unsigned int i = 0; i < 1; i++)
@@ -196,6 +200,9 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	//	m_rooms.push_back(room);
 	//}
 	//add to loop -> 1 0 i;
+	//Room * room = new Room(0, m_worldPtr, 0, m_playerPtr);
+	//m_rooms.push_back(room);
+
 	//Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
 	//m_rooms.push_back(room);
 }
