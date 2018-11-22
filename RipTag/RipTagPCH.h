@@ -33,6 +33,7 @@
 #include "Source/Game/Actors/Player.h"
 #include "Source/Game/Actors/BaseActor.h"
 #include "Source/Game/Actors/RemotePlayer.h"
+#include "Source/Game/Actors/Enemy/AI.h"
 #include "Source/Game/Actors/Enemy/Enemy.h"
 #include "Source/Game/Actors/Assets/StaticAsset.h"
 #include "Source/Game/Pathfinding/Tile.h"

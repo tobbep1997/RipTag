@@ -269,7 +269,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			DirectX::XMVECTOR vPPos = DirectX::XMLoadFloat4A(&pPos);
 			DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(vPPos, vEPos);
 			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
-			Enemy::SoundLocation sl;
+			AI::SoundLocation sl;
 			sl.percentage = 0.0f;
 			if (length < 20.0f)
 			{

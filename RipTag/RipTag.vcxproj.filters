@@ -70,6 +70,7 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Torch.cpp" />
     <ClCompile Include="Source\Game\States\TransitionState.cpp" />
+    <ClCompile Include="Source\Game\Actors\Enemy\AI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
@@ -186,7 +187,6 @@
     <ClInclude Include="Source\Game\Handlers\EnemyHandler.h" />
     <ClInclude Include="Source\Game\States\OptionState.h" />
     <ClInclude Include="Source\Game\States\LobbyState.h" />
-    <ClInclude Include="Source\Game\States\LoseState.h" />
     <ClInclude Include="Source\Game\Level\RoomGenerator.h" />
     <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
     <ClInclude Include="Source\Game\Item\Map.h" />
@@ -196,8 +196,6 @@
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
     <ClInclude Include="Source\Game\States\OptionSound.h" />
     <ClInclude Include="Source\Game\States\Helper\RandomRoomPicker.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="Source\Game\Actors\Enemy\AI.h" />
   </ItemGroup>
 </Project>
