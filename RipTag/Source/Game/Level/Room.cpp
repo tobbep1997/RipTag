@@ -655,13 +655,14 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	}
 	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
 		tempAsset->CastShadows(false);
-	if (name == "FLOOR")
+	else if (name == "FLOOR")
 		tempAsset->setTextureTileMult(prop.transform_scale[0], prop.transform_scale[2]);
-	if (name == "BLINKWALL")
+	else if (name == "BLINKWALL")
 		tempAsset->setObjectTag("BLINK_WALL");
-	if(name == "THICKWALL")
+	else if(name == "THICKWALL")
 		tempAsset->setTextureTileMult(prop.transform_scale[1], prop.transform_scale[0]);
-
+	else if (name == "BARS")
+		tempAsset->setObjectTag("BLINK_WALL");
 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
