@@ -28,7 +28,7 @@ public:
 
 	// Add guard function rather than init for guards (?)
 	void Init(std::vector<Enemy*> enemies, Player * player, Grid * grid);
-	void setRemotePlayer(RemotePlayer * ptr = nullptr) { m_remotePlayer = ptr; }
+	void setRemotePlayer(RemotePlayer * ptr = nullptr);
 	//Types: 0 = Server; 1 = Client, 2 = SinglePlayer
 
 	void Update(float deltaTime);

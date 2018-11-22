@@ -191,7 +191,9 @@ private:
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
 
-	Player * m_PlayerPtr;
+	Player * m_PlayerPtr		= nullptr;
+	RemotePlayer * m_RemotePtr	= nullptr;
+
 	float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
 	float m_searchTimer = 0.0f;
@@ -283,9 +285,10 @@ public:
 	void DrawGuardPath();
 	void EnableGuardPathPrint();
 
-	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+	float GetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+	void SetRemotePointer(RemotePlayer * remote) { m_RemotePtr = remote; }
 
 	void AddActTimer(double deltaTime);
 	float GetActTimer() const;

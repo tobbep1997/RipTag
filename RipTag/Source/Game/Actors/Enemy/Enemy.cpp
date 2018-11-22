@@ -195,8 +195,6 @@ void Enemy::Update(double deltaTime)
 	{
 		m_nodeFootPrintsEnabled = true;
 	}
-
-	
 }
 
 void Enemy::ClientUpdate(double deltaTime)
@@ -631,11 +629,12 @@ void Enemy::EnableGuardPathPrint()
 	m_nodeFootPrintsEnabled = true;
 }
 
-void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
+float Enemy::GetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
 {
 	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&getPosition()), DirectX::XMLoadFloat4A(&playerPos));
 	vec = DirectX::XMVector3LengthEst(vec);
-	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+	//m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+	return DirectX::XMVectorGetX(vec);
 }
 
 void Enemy::SetPlayerPointer(Player* player)
@@ -1057,20 +1056,36 @@ void Enemy::_CheckPlayer(double deltaTime)
 {
 	if (m_allowVisability)
 	{
-		float visPres = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+		float visPercRemote = (float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
 
-		if (m_lenghtToPlayer < m_lengthToPlayerSpan)
+		float visPerc;
+		float lengthToTarget;
+
+		if (visPercLocal >= visPercRemote)
 		{
-			visPres *= 1.5;
+			lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
+			visPerc = visPercLocal;
+		}
+		else
+		{
+			visPerc = visPercRemote;
+			lengthToTarget = GetLenghtToPlayer(m_RemotePtr->getPosition());
+		}
+
+
+		if (lengthToTarget < m_lengthToPlayerSpan)
+		{
+			visPerc *= 1.5;
 		}
 		if (m_state == High_Alert)
 		{
-			visPres *= 1.2;
+			visPerc *= 1.2;
 		}
 
-		if (visPres > 0)
+		if (visPerc > 0)
 		{
-			m_visCounter += visPres * deltaTime;
+			m_visCounter += visPercLocal * deltaTime;
 			if (m_visabilityTimer <= m_visCounter)
 			{	
 				m_found = true;
@@ -1740,6 +1755,15 @@ void Enemy::_investigatingSight(const double deltaTime)
 		if (this->m_visCounter > this->m_biggestVisCounter)
 		{
 			DirectX::XMFLOAT4A playerPos = m_PlayerPtr->getPosition();
+			
+			if (m_RemotePtr)
+			{
+				const int * vis = m_vc->getVisibilityForPlayers();
+				if (vis[1] > vis[0])
+					playerPos = m_RemotePtr->getPosition();
+			}
+
+
 			Node * pathDestination = this->GetAlertDestination();
 
 			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
@@ -1856,7 +1880,17 @@ void Enemy::_suspicious(const double deltaTime)
 	}
 	if (this->m_visCounter*attentionMultiplier >= this->m_biggestVisCounter)
 	{
-		this->setClearestPlayerLocation(m_PlayerPtr->getPosition());
+
+		DirectX::XMFLOAT4A playerPos = m_PlayerPtr->getPosition();
+
+		if (m_RemotePtr)
+		{
+			const int * vis = m_vc->getVisibilityForPlayers();
+			if (vis[1] > vis[0])
+				playerPos = m_RemotePtr->getPosition();
+		}
+
+		this->setClearestPlayerLocation(playerPos);
 		this->setBiggestVisCounter(this->getVisCounter()*attentionMultiplier);
 		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
 		b3Normalize(dir);

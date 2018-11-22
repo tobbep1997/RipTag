@@ -30,6 +30,15 @@ void EnemyHandler::Init(std::vector<Enemy*> enemies, Player * player, Grid * gri
 	}
 }
 
+void EnemyHandler::setRemotePlayer(RemotePlayer * ptr)
+{
+	m_remotePlayer = ptr;
+	for (auto & e : m_guards)
+	{
+		e->SetRemotePointer(m_remotePlayer);
+	}
+}
+
 void EnemyHandler::Update(float deltaTime)
 {
 	static double accumulatedTime = 0.0;
@@ -87,7 +96,6 @@ void EnemyHandler::_isServerUpdate(double deltaTime)
 	{
 
 		Enemy * currentGuard = m_guards.at(i);
-		currentGuard->SetLenghtToPlayer(m_player->getPosition());
 		currentGuard->Update(deltaTime);
 		currentGuard->PhysicsUpdate(deltaTime);
 
@@ -116,7 +124,7 @@ void EnemyHandler::_isClientUpdate(double deltaTime)
 	for (int i = 0; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
-		currentGuard->SetLenghtToPlayer(m_player->getPosition());
+		//currentGuard->SetLenghtToPlayer(m_player->getPosition());
 		currentGuard->ClientUpdate(deltaTime);
 		currentGuard->PhysicsUpdate(deltaTime);
 
@@ -158,7 +166,6 @@ void EnemyHandler::_isSinglePlayerUpdate(double deltaTime)
 	for (int i = 0; i < m_guards.size(); i++)
 	{
 		Enemy * currentGuard = m_guards.at(i);
-		currentGuard->SetLenghtToPlayer(m_player->getPosition());
 		currentGuard->Update(deltaTime);
 		currentGuard->PhysicsUpdate(deltaTime);
 
@@ -205,7 +212,6 @@ int EnemyHandler::_getRemotePlayerVisibility(Enemy * guard)
 void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 {
 	//unsafe lol
-	std::cout << std::endl << data->soundValue << std::endl;
 	m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
 	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos});
 }
