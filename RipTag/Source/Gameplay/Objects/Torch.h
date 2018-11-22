@@ -7,6 +7,7 @@ private:
 	PointLight * pPointLight = nullptr;
 	ParticleEmitter * pParticles = nullptr;
 	Camera * pCamera = nullptr;
+	bool m_hasChecked = false; 
 public:
 	Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId);
 	~Torch();
