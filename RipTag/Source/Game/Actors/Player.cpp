@@ -375,7 +375,7 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	{
 	
 		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
-		if (pos.x > 0 || pos.y > 0)
+		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
 			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
 			if (enemys[i]->getTotalVisablilty() > totVis)

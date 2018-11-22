@@ -29,14 +29,31 @@ std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceGroups;
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceWireFrameGroups;
 
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceShadowGroups;
+
+bool checkLoltest5(Drawable* drawable, PointLight * pl)
+{
+	using namespace DirectX;
+	BoundingBox bb = BoundingBox(XMFLOAT3(pl->getPosition().x, pl->getPosition().y, pl->getPosition().z),
+								 XMFLOAT3(pl->getFarPlane(), pl->getFarPlane(), pl->getFarPlane()));
+	if (drawable->getBoundingBox())
+		return drawable->getBoundingBox()->Intersects(bb);
+	return false;
+}
+
 void DX::INSTANCING::submitToShadowQueueInstance(Drawable* drawable)
 {
 	using namespace DX::INSTANCING;
 	std::vector<GROUP> * queue = nullptr;
 	if (drawable->getCastShadows())
 		queue = &g_instanceShadowGroups;
-		
-	if (!queue)
+
+	auto lol = false;
+	for (int i = 0; i < DX::g_lights.size() && !lol; i++)
+	{
+		if (checkLoltest5(drawable, DX::g_lights[i]))
+			lol = true;
+	}
+	if (!queue || !lol)
 		return;
 
 	auto exisitingEntry = std::find_if(queue->begin(), queue->end(), [&](const GROUP& item) {
@@ -99,7 +116,7 @@ void DX::INSTANCING::submitToWireframeInstance(Drawable* drawable)
 	}
 }
 
-void DX::INSTANCING::submitToInstance(Drawable* drawable)
+void DX::INSTANCING::submitToInstance(Drawable* drawable, Camera * camera)
 {
 	using namespace DirectX;
 	using namespace DX::INSTANCING;
@@ -128,7 +145,15 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable)
 
 	if (!queue)
 		return;
-	
+	XMMATRIX proj, viewInv;
+	BoundingFrustum boundingFrustum;
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getView())));
+	DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+	boundingFrustum.Transform(boundingFrustum, viewInv);
+	if (drawable->getBoundingBox())
+		if (!drawable->getBoundingBox()->Intersects(boundingFrustum))
+			return;
 	auto exisitingEntry = std::find_if(queue->begin(), queue->end(), [&](const GROUP& item) {
 		return drawable->getStaticMesh() == item.staticMesh && drawable->getTextureName() == item.textureName;
 	});
@@ -156,7 +181,50 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable)
 	}
 
 }
- 
+
+std::vector<Drawable*> DX::al_qaeda_isis;
+std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_temp;
+
+void DX::INSTANCING::tempInstance(Drawable* drawable)
+{
+	using namespace DirectX;
+	using namespace DX::INSTANCING;
+	/*
+	 * Copyright chefen (c) 2018
+	 */
+	submitToShadowQueueInstance(drawable);
+	std::vector<GROUP> * queue = &g_temp;
+
+
+
+	
+	auto exisitingEntry = std::find_if(queue->begin(), queue->end(), [&](const GROUP& item) {
+		return drawable->getStaticMesh() == item.staticMesh && drawable->getTextureName() == item.textureName;
+	});
+
+	OBJECT attribute;
+
+	attribute.worldMatrix = drawable->getWorldmatrix();
+	attribute.objectColor = drawable->getColor();
+	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
+	attribute.usingTexture.x = drawable->isTextureAssigned();
+
+
+	if (exisitingEntry == queue->end())
+	{
+		GROUP newGroup;
+
+		newGroup.attribs.push_back(attribute);
+		newGroup.staticMesh = drawable->getStaticMesh();
+		newGroup.textureName = drawable->getTextureName();
+		queue->push_back(newGroup);
+	}
+	else
+	{
+		exisitingEntry->attribs.push_back(attribute);
+	}
+
+}
 
 void DX::SafeRelease(IUnknown * unknown)
 {
@@ -258,6 +326,7 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 
 void Engine3D::Flush(Camera & camera)
 {	
+	
 	m_forwardRendering->Flush(camera);
 }
 
