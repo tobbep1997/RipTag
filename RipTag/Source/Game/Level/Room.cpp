@@ -396,8 +396,6 @@ void Room::Draw()
 
 void Room::Release()
 {
-	
-
 	if (m_roomLoaded == true)
 	{
 		m_roomLoaded = false;
