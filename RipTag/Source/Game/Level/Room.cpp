@@ -589,7 +589,7 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", &m_staticAssets, true);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", &m_staticAssets, true);
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", &m_staticAssets, false);
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", &m_staticAssets, false);
@@ -632,6 +632,9 @@ void Room::_addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, 
 			break;
 		case(35):
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", &m_staticAssets, false);
+			break;
+		case(36):
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false);
 			break;
 		default:
 			break;

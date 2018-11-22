@@ -1505,8 +1505,11 @@ void Enemy::_handleStates(const double deltaTime)
 			timer = 0.0f;
 			this->_investigatingSound(deltaTime);
 		}
+
 		if (m_transState == EnemyTransitionState::NoTransitionState)
+			if(m_alertPath.size() > 0)
 			_MoveToAlert(m_alertPath.at(0), deltaTime);
+
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Investigating_Room:
