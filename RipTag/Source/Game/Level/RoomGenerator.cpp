@@ -284,11 +284,11 @@ void RoomGenerator::_makeWalls()
 							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
 						}
 					}
-					for (unsigned int i = 0; i < modCollisionBoxes.nrOfBoxes; i++)
+					for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
 					{
-						float * f4Rot = modCollisionBoxes.boxes[i].rotation;
-						float * f3Pos = modCollisionBoxes.boxes[i].translation;
-						float * f3Scl = modCollisionBoxes.boxes[i].scale;
+						float * f4Rot = modCollisionBoxes.boxes[a].rotation;
+						float * f3Pos = modCollisionBoxes.boxes[a].translation;
+						float * f3Scl = modCollisionBoxes.boxes[a].scale;
 						DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };				//FOR SoUND
 							DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1 };
 						DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
@@ -551,7 +551,23 @@ void RoomGenerator::_makeWalls()
 	gridStructToSendBack->maxX = widthCount;
 	gridStructToSendBack->maxY = depthCount;
 
+	for (int a = 0; a < gridStructToSendBack->nrOf; a++)
+	{
+		if (gridStructToSendBack->gridPoints[a].pathable == false)
+		{
+			asset = new BaseActor();
+			asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+			asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
+			asset->setPosition(gridStructToSendBack->gridPoints[a].translation[0],
+				15,
+				gridStructToSendBack->gridPoints[a].translation[2], false);
+			m_generated_assetVector.push_back(asset);
+		}
+	
+
+	}
 	m_generatedGrid->CreateGridFromRandomRoomLayout(*gridStructToSendBack, 0);
+	
 	returnableRoom->setGrid(m_generatedGrid);
 
 	for (int i = 0; i < appendedGridStruct.size(); i++)
@@ -570,12 +586,15 @@ void RoomGenerator::_makeWalls()
 void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex)
 {
 	tempGridStruct->gridPoints[tempGridStruct->nrOf / 2].pathable = false;
+	Manager::g_meshManager.loadStaticMesh("FLOOR");
+	Manager::g_textureManager.loadTextures("CANDLE");
 	// North
 	if (randomizer.m_rooms[roomIndex].north)
 	{
 		for (int z = 7; z < 14; z++)
 		{
 			tempGridStruct->gridPoints[z * tempGridStruct->maxX].pathable = true;
+			
 		}
 	}
 	// East
@@ -585,6 +604,7 @@ void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::
 		for (int z = pathIndex - 7; z < pathIndex; z++)
 		{
 			tempGridStruct->gridPoints[z].pathable = true;
+			
 		}
 	}
 	// South
@@ -601,6 +621,7 @@ void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::
 		for (int z = 7; z < 14; z++)
 		{
 			tempGridStruct->gridPoints[z].pathable = true;
+			
 		}
 	}
 	// Horizontal
@@ -1030,7 +1051,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
