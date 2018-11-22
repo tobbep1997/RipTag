@@ -549,6 +549,11 @@ void Enemy::setLoudestSoundLocation(const SoundLocation & sl)
 	m_loudestSoundLocation = sl;
 }
 
+void Enemy::setCalculatedVisibilityFor(int playerIndex, int value)
+{
+	m_vc->SetCalculatedVisibilityFor(playerIndex, value);
+}
+
 const DirectX::XMFLOAT4A & Enemy::getClearestPlayerLocation() const
 {
 	return m_clearestPlayerPos;
@@ -1761,9 +1766,17 @@ void Enemy::_investigatingSound(const double deltaTime)
 
 	if (this->GetAlertPathSize() > 0)
 	{
-		if (this->m_sl.percentage > this->m_loudestSoundLocation.percentage)
+		SoundLocation tmp = m_sl;
+
+		if (Network::Multiplayer::GetInstance()->isServer())
 		{
-			DirectX::XMFLOAT3 soundPos = this->m_sl.soundPos;
+			if (tmp.percentage < m_slRemote.percentage)
+				tmp = m_slRemote;
+		}
+
+		if (tmp.percentage > this->m_loudestSoundLocation.percentage)
+		{
+			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
 			Node * pathDestination = this->GetAlertDestination();
 
 			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||

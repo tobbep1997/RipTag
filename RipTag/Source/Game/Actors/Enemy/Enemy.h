@@ -93,7 +93,6 @@ private:
 	unsigned int uniqueID;
 
 	lerpVal m_lv;
-
 	AudioVars m_av;
 	KnockOutType m_knockOutType; 
 
@@ -154,8 +153,9 @@ private:
 
 
 	EnemyState m_state = Patrolling;
-	SoundLocation m_sl;
-	SoundLocation m_loudestSoundLocation;
+	SoundLocation m_sl = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+	SoundLocation m_slRemote = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+	SoundLocation m_loudestSoundLocation = { 0.0f, {-999.0f, -999.0f, -999.0f} };
 
 	DirectX::XMFLOAT4A m_clearestPlayerPos;
 	float m_biggestVisCounter = 0.0f;
@@ -258,10 +258,13 @@ public:
 	void setTransitionState(EnemyTransitionState state);
 
 	void setSoundLocation(const SoundLocation & sl);
+	void setSoundLocationRemote(const SoundLocation & sl) { m_slRemote = sl; };
 	const SoundLocation & getSoundLocation() const;
 
 	const SoundLocation & getLoudestSoundLocation() const;
 	void setLoudestSoundLocation(const SoundLocation & sl);
+	void setCalculatedVisibilityFor(int playerIndex, int value);
+
 
 	const DirectX::XMFLOAT4A & getClearestPlayerLocation() const;
 	void setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl);
@@ -293,6 +296,8 @@ public:
 	void SetHightAlertTimer(const float & time);
 
 	void setGrid(Grid* grid);
+
+	unsigned int getUniqueID() const { return this->uniqueID; }
 
 	//Network
 	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);

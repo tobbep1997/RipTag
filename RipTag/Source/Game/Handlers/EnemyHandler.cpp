@@ -59,9 +59,17 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 	switch (id)
 	{
 	case Network::ID_ENEMY_UPDATE:
+	{
 		Network::ENEMYUPDATEPACKET * pData = (Network::ENEMYUPDATEPACKET*)data;
 		//this is very unsafe
 		this->m_guards[pData->uniqueID]->onNetworkUpdate(pData);
+	}
+		break;
+	case Network::ID_ENEMY_VISIBILITY:
+	{
+		Network::VISIBILITYPACKET * pData = (Network::VISIBILITYPACKET*)data;
+		_onVisibilityPacket(pData);
+	}
 		break;
 	}
 }
@@ -117,7 +125,18 @@ void EnemyHandler::_isClientUpdate(double deltaTime)
 		if (tempVisibility > playerVisibility)
 			playerVisibility = tempVisibility;
 
-		float tempSoundPercentage = currentGuard->getSoundLocation().percentage;
+		auto sl = currentGuard->getSoundLocation();
+		float tempSoundPercentage = sl.percentage;
+		
+		Network::VISIBILITYPACKET packet;
+		packet.visibilityValue = tempVisibility;
+		packet.soundValue = tempSoundPercentage;
+		packet.soundPos = sl.soundPos;
+		packet.uniqueID = m_guards[i]->getUniqueID();
+		
+		Network::Multiplayer::SendPacket((const char *)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
+		
+		
 		if (tempSoundPercentage > soundPercentage)
 		{
 			soundPercentage = tempSoundPercentage;
@@ -166,6 +185,7 @@ void EnemyHandler::_registerThisInstanceToNetwork()
 	using namespace std::placeholders;
 
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_UPDATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_VISIBILITY, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 }
 
 int EnemyHandler::_getPlayerVisibility(Enemy * guard)
@@ -180,4 +200,11 @@ int EnemyHandler::_getRemotePlayerVisibility(Enemy * guard)
 	guard->CullingForVisability(*m_remotePlayer->getTransform());
 	guard->QueueForVisibility();
 	return guard->getPlayerVisibility()[1];
+}
+
+void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
+{
+	//unsafe lol
+	m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
+	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos});
 }

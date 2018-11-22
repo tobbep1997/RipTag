@@ -44,4 +44,6 @@ private:
 	int _getPlayerVisibility(Enemy * guard);
 	int _getRemotePlayerVisibility(Enemy * guard);
 
+	//network
+	void _onVisibilityPacket(Network::VISIBILITYPACKET * data);
 };

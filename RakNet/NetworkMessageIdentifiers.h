@@ -24,7 +24,6 @@ namespace Network
 		ID_PLAYER_STATE				 = ID_USER_PACKET_ENUM + 4,
 		ID_PLAYER_ABILITY			 = ID_USER_PACKET_ENUM + 5,
 		ID_PLAYER_ANIMATION			 = ID_USER_PACKET_ENUM + 6,
-		ID_PLAYER_VISIBILITY		 = ID_USER_PACKET_ENUM + 7, 
 		// 20-29 is reserved for lobby
 		ID_SERVER_ADVERTISE			 = ID_USER_PACKET_ENUM + 20,
 		ID_CHAR_SELECTED			 = ID_USER_PACKET_ENUM + 21,
@@ -40,7 +39,8 @@ namespace Network
 		ID_TRIGGER_USED				= ID_USER_PACKET_ENUM + 30,
 		ID_PLAYER_WON				= ID_USER_PACKET_ENUM + 31,
 		ID_PLAYER_LOST				= ID_USER_PACKET_ENUM + 32,
-		ID_ENEMY_UPDATE				= ID_USER_PACKET_ENUM + 33
+		ID_ENEMY_UPDATE				= ID_USER_PACKET_ENUM + 33,
+		ID_ENEMY_VISIBILITY			= ID_USER_PACKET_ENUM + 34 
 
 	};
 
@@ -168,8 +168,12 @@ namespace Network
 
 	struct VISIBILITYPACKET
 	{
-		unsigned char id = ID_PLAYER_VISIBILITY;
-		float value;
+		unsigned char id = ID_ENEMY_VISIBILITY;
+		unsigned int uniqueID;
+		int visibilityValue;
+		float soundValue;
+		DirectX::XMFLOAT3 soundPos;
+
 	};
 #pragma pack(pop)
 	//STRUCTS END
