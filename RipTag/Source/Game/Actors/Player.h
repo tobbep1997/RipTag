@@ -50,6 +50,9 @@ private:
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 private:
+	//First-person model
+	BaseActor* m_FirstPersonModel{ nullptr };
+
 	struct QuadPair
 	{
 		Quad * bckg = nullptr;
@@ -191,7 +194,7 @@ public:
 
 	void SetCurrentVisability(const float & guard);
 	void SetCurrentSoundPercentage(const float & percentage);
-
+	void SetFirstPersonModel();
 	void LockPlayerInput();
 	bool IsInputLocked();
 	void UnlockPlayerInput();
@@ -199,6 +202,7 @@ public:
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 	const bool & getWinState() const { return hasWon; }
+	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
 	
@@ -225,7 +229,8 @@ private:
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
 	void _updateTutorial(double deltaTime);
-
+	
+	void _updateFirstPerson(float deltaTime);
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
 	void _activateCrouch(); 

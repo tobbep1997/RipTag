@@ -935,9 +935,9 @@ void ForwardRender::_particlePass()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	DX::g_deviceContext->OMSetDepthStencilState(m_particleDepthStencilState, NULL);
-	for (auto & lol : DX::g_emitters)
+	for (auto & emitter : DX::g_emitters)
 	{
-		lol->Draw();
+		emitter->Draw();
 	}
 	DX::g_emitters.clear();
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);

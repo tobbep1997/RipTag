@@ -80,6 +80,7 @@ public:
 	const DirectX::XMFLOAT4X4A & getView();
 	const DirectX::XMFLOAT4X4A & getProjection() const;
 	const DirectX::XMFLOAT4X4A & getViewProjection();
+	DirectX::XMVECTOR getRotation();
 	//-------------------------------------------------------------------------------------------	
 
 private:

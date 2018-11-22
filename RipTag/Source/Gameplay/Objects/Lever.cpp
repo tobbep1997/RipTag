@@ -24,7 +24,7 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	BaseActor::setObjectTag("LEVER");
 	setTexture(Manager::g_textureManager.getTexture("SPAK"));
 	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("SPAK"));//BYT TILL SPAK
-	auto& machine = getAnimationPlayer()->InitStateMachine(1);
+	auto& machine = getAnimationPlayer()->InitStateMachine(2);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
 	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
 	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());

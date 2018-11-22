@@ -1,6 +1,6 @@
 #include "RipTagPCH.h"
 #include "Player.h"
-
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
 //#todoREMOVE
 float Player::m_currentPitch = 0.0f;
 
@@ -150,6 +150,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		c->setUnpressedTexture("SPHERE");
 		m_enemyCircles.push_back(c);
 	}
+	
+	SetFirstPersonModel();
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -161,6 +163,8 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 
 Player::~Player()
 {
+	if (m_FirstPersonModel)
+		delete m_FirstPersonModel;
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents1[i];
 	delete[] m_abilityComponents1;
@@ -313,9 +317,7 @@ void Player::Update(double deltaTime)
 		else
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
-
-	
-
+	_updateFirstPerson(deltaTime);
 }
 
 void Player::PhysicsUpdate()
@@ -340,6 +342,11 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+Animation::AnimationPlayer* Player::GetFirstPersonAnimationPlayer()
+{
+	return m_FirstPersonModel->getAnimationPlayer();
 }
 
 const AudioEngine::Listener & Player::getFMODListener() const
@@ -427,6 +434,7 @@ void Player::Draw()
 		m_enemyCircles[i]->Draw();
 	}
 	m_soundLevelHUD.Draw();
+	m_FirstPersonModel->Draw();
 }
 
 void Player::LockPlayerInput()
@@ -455,6 +463,47 @@ void Player::SetCurrentSoundPercentage(const float & percentage)
 	m_soundLevelHUD.forg->setV(m_soundPercentage);
 	m_soundLevelHUD.forg->setColor(m_soundPercentage, 1.0f - m_soundPercentage, 1.0f - m_soundPercentage);
 	m_soundLevelHUD.bckg->setOutlineColor(m_soundPercentage, 1.0f - m_soundPercentage, 0.0f, 0.5f);
+}
+
+void Player::SetFirstPersonModel()
+{
+	if (m_FirstPersonModel)
+	{
+		delete m_FirstPersonModel;
+	}
+	
+	m_FirstPersonModel = new BaseActor();
+
+	auto fpsmodel = Manager::g_meshManager.getSkinnedMesh("ARMS");
+	m_FirstPersonModel->setModel(fpsmodel);
+	m_FirstPersonModel->setTexture(Manager::g_textureManager.getTexture("ARMS"));
+
+	//Animation stuff
+	auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
+	auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
+	auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
+	auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
+	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
+
+	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
+
+	auto& machine = animPlayer->InitStateMachine(3);
+	animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
+
+	auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+	idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+	auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
+	machine->SetState("idle");
+
+	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
+
+	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
+	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
+	additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
+	layerMachine->ActivateLayer("bob");
+
+	animPlayer->Play();
+
 }
 
 void Player::SendOnUpdateMessage()
@@ -1160,6 +1209,16 @@ void Player::_updateTutorial(double deltaTime)
 	}
 }
 
+void Player::_updateFirstPerson(float deltaTime)
+{
+	using namespace DirectX;
+
+	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.23f, -.45)), XMMatrixScaling(.1, .1, .1));
+	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr,XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
+
+	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
+}
+
 void Player::_cameraPlacement(double deltaTime)
 {
 	//Head Movement
@@ -1183,7 +1242,6 @@ void Player::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
 	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
-	DirectX::XMFLOAT4 RIGHT;
 
 	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
 	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);

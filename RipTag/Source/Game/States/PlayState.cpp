@@ -604,6 +604,7 @@ void PlayState::Load()
 	_loadTextures();
 	_loadPhysics();
 	_loadMeshes();
+	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
 
@@ -624,6 +625,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("STATE");
 	Manager::g_textureManager.loadTextures("FIRE");
 	Manager::g_textureManager.loadTextures("GUARD");
+	Manager::g_textureManager.loadTextures("ARMS");
 
 }
 
@@ -655,11 +657,27 @@ void PlayState::_loadMeshes()
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
+	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
 	//future1.get();
+}
+
+void PlayState::_loadAnimations()
+{
+	//First-person arms
+	Manager::g_animationManager.loadSkeleton("../Assets/ARMSFOLDER/ARMS_SKELETON.bin", "ARMS");
+	Manager::g_animationManager.loadClipCollection("ARMS", "ARMS", "../Assets/ARMSFOLDER", Manager::g_animationManager.getSkeleton("ARMS"));
+
+	//State (old placeholder character)
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+
+	//Guard
+	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
+	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
 }
 
 void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
@@ -842,3 +860,5 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 		}
 	}
 }
+
+
