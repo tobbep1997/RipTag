@@ -203,6 +203,38 @@ void Enemy::ClientUpdate(double deltaTime)
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
 	setLiniearVelocity(0, 0, 0);
+
+	//Visibility update
+	{
+		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+		float lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
+
+		if (lengthToTarget < m_lengthToPlayerSpan)
+		{
+			visPercLocal *= 1.5;
+		}
+
+		if (visPercLocal > 0)
+		{
+			m_visCounter += visPercLocal * deltaTime;
+			if (m_visabilityTimer <= m_visCounter)
+			{
+				m_found = true;
+			}
+		}
+		else
+		{
+
+			if (m_visCounter - deltaTime > 0)
+			{
+				m_visCounter -= deltaTime;
+			}
+			else
+			{
+				m_visCounter = 0;
+			}
+		}
+	}
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -1085,7 +1117,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 
 		if (visPerc > 0)
 		{
-			m_visCounter += visPercLocal * deltaTime;
+			m_visCounter += visPerc * deltaTime;
 			if (m_visabilityTimer <= m_visCounter)
 			{	
 				m_found = true;

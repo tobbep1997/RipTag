@@ -379,7 +379,6 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		}
 	}
 	XMFLOAT2A finalPos = m_HUDcircle->getPosition();
-
 	m_currentEnemysVisable = 0;
 	for (int i = 0; i < relativEnemyPostions.size() && i < MAX_ENEMY_CIRCLES; i++)
 	{

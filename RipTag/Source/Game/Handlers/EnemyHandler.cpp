@@ -151,6 +151,7 @@ void EnemyHandler::_isClientUpdate(double deltaTime)
 		}
 		
 	}
+
 	m_player->SetCurrentVisability(playerVisibility);
 	m_player->SetCurrentSoundPercentage(soundPercentage);
 }
