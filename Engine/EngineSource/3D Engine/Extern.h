@@ -20,7 +20,7 @@ class MeshManager;
 class TextureManager;
 class AnimationHandler;
 class ParticleEmitter;
-
+class Camera;
 
 
 namespace DX {
@@ -41,6 +41,8 @@ namespace DX {
 	extern std::vector<Quad*> g_2DQueue;
 
 	extern std::vector<ParticleEmitter*> g_emitters;
+
+	extern std::vector <Drawable*> al_qaeda_isis;
 
 	namespace INSTANCING
 	{
@@ -69,7 +71,11 @@ namespace DX {
 		extern std::vector<GROUP> g_instanceShadowGroups;
 		extern void submitToShadowQueueInstance(Drawable* drawable);
 		extern void submitToWireframeInstance(Drawable* drawable);
-		extern void submitToInstance(Drawable* drawable);
+		extern void submitToInstance(Drawable* drawable, Camera * camera);
+
+
+		extern std::vector<GROUP> g_temp;
+		extern void tempInstance(Drawable* drawable);
 
 	}
 

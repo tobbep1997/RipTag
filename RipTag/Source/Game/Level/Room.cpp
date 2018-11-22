@@ -364,15 +364,19 @@ void Room::SetActive(bool state)
 
 void Room::Draw()
 {
+	for (auto torch : m_Torches)
+	{
+		torch->Draw();
+	}
+	for (auto lights : m_pointLights)
+	{
+		lights->QueueLight();
+	}
 	for (int i = 0; i < m_staticAssets.size(); ++i)
 	{
 		m_staticAssets.at(i)->Draw();
 	}
 	
-	for (auto torch : m_Torches)
-	{
-		torch->Draw();
-	}
 
 	for (size_t i = 0; i < m_roomGuards.size(); i++)
 		this->m_roomGuards.at(i)->Draw();
@@ -387,10 +391,6 @@ void Room::Draw()
 	for (auto guard : m_roomGuards)
 	{
 		guard->DrawGuardPath();
-	}
-	for (auto lights : m_pointLights)
-	{
-		lights->QueueLight();
 	}
 }
 
@@ -667,8 +667,8 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	{
 		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
 		moveBox = true;
-		
 	}
+
 	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
 		tempAsset->CastShadows(false);
 	else if (name == "FLOOR")
@@ -683,6 +683,10 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
 	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	
+	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2]),
+		DirectX::XMFLOAT3(prop.BBOX_INFO[0] * 1.0f, prop.BBOX_INFO[1] * 1.0f, prop.BBOX_INFO[2] * 1.0f));
+	
 	if(moveBox == true && isRandomRoom == true)
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 	if(name == "BANNER")

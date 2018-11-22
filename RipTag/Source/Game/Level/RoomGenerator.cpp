@@ -134,10 +134,8 @@ void RoomGenerator::_makeWalls()
 		for (int j = -width + 10; j <= width - 10; j += 20)
 		{
 
-
 			bool directions[4];
 			int index = depthCounter * m_roomGridWidth + widthCounter;
-
 			directions[0] = randomizer.m_rooms[index].north;
 			directions[1] = randomizer.m_rooms[index].east;
 			directions[2] = randomizer.m_rooms[index].south;
@@ -238,7 +236,7 @@ void RoomGenerator::_makeWalls()
 						modCollisionBoxes = loader.readMeshCollisionBoxes("CLOSEDWALL");
 					}
 					asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
-
+	
 
 					if (x == 0)
 					{
