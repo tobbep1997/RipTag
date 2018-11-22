@@ -20,7 +20,8 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	m_openPos = { xPos, yPos + 8.0f, zPos , 1.0f };
 
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
-	BaseActor::setObjectTag("BARS");
+	BaseActor::setObjectTag("BLINK_WALL");
+	BaseActor::getBody()->SetUserData(this);
 	BaseActor::setTexture(Manager::g_textureManager.getTexture("BARS"));
 
 	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("BARS"));
