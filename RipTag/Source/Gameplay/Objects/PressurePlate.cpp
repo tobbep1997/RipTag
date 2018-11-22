@@ -96,8 +96,8 @@ void PressurePlate::Update(double deltaTime)
 	
 
 	//If previous state was true, but the new state is false no one is one the plate locally
-	if (previousState && !this->getTriggerState())
-		this->SendOverNetwork();
+	//if (previousState && !this->getTriggerState())
+		//this->SendOverNetwork();
 
 	this->getAnimationPlayer()->Update(deltaTime);
 }

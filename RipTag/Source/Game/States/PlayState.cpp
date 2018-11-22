@@ -19,7 +19,6 @@ ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
 
 bool RipExtern::g_kill = false;
-
 bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
@@ -44,8 +43,13 @@ PlayState::~PlayState()
 
 
 	//delete triggerHandler;
-	delete m_contactListener;
-	delete m_rayListener;
+	
+	delete RipExtern::g_contactListener;
+	RipExtern::g_contactListener = nullptr;
+	delete RipExtern::g_rayListener;
+	RipExtern::g_rayListener = nullptr;
+	RipExtern::g_world = nullptr;
+
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
@@ -191,7 +195,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	DrawWorldCollisionboxes();
+	//DrawWorldCollisionboxes();
 #endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -235,11 +239,12 @@ void PlayState::_PhyscisThread(double deltaTime)
 		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
 		//{
 		m_timer += m_deltaTime;
-			m_contactListener->ClearContactQueue();
-			m_rayListener->ClearConsumedContacts();
+
+		RipExtern::g_contactListener->ClearContactQueue();
+		RipExtern::g_rayListener->ClearConsumedContacts();
+
 		while (m_timer >= UPDATE_TIME)
 		{
-
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
@@ -629,14 +634,10 @@ void PlayState::_loadTextures()
 
 void PlayState::_loadPhysics()
 {
-	
 	RipExtern::g_world = &m_world;
-	
-	m_contactListener = new ContactListener();
-	RipExtern::g_contactListener = m_contactListener;
-	RipExtern::g_world->SetContactListener(m_contactListener);
-	m_rayListener = new RayCastListener();
-	RipExtern::g_rayListener = m_rayListener;
+	RipExtern::g_contactListener = new ContactListener();
+	RipExtern::g_world->SetContactListener(RipExtern::g_contactListener);
+	RipExtern::g_rayListener = new RayCastListener();
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 	// triggerHandler = new TriggerHandler();
 	m_step.velocityIterations = 1;
