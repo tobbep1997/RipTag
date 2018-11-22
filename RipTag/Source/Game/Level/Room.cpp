@@ -326,7 +326,7 @@ void Room::Update(float deltaTime, Camera * camera)
 		auto light = torch->getPointLightPtr();
 		light->setDropOff(2.0425345f);
 		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 10.1f, 8.5f));
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
 	}
 
 	triggerHandler->Update(deltaTime);
@@ -445,6 +445,11 @@ void Room::Release()
 			m_Torches[i] = nullptr; 
 		}
 		m_Torches.clear();
+
+		for (int i = 0; i < m_pointLights.size(); i++)
+		{
+			delete m_pointLights[i];
+		}
 
 		triggerHandler->Release();
 		delete triggerHandler;
@@ -599,7 +604,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, false, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);

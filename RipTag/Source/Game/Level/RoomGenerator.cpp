@@ -280,8 +280,10 @@ void RoomGenerator::_makeWalls()
 						m_generated_assetVector.push_back(asset);
 						if (isWinRoom)
 						{
+							if (modCollisionBoxes.boxes)
+								delete[] modCollisionBoxes.boxes;
 							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
-							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
+							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL"); 
 						}
 					}
 					for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
@@ -325,14 +327,14 @@ void RoomGenerator::_makeWalls()
 					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
 					tempLights.lights[k].translate[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
 				}
-				m_generated_pointLightVector.push_back(new PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
+				m_generated_pointLightVector.push_back(DBG_NEW PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
 
-				p_emit = new ParticleEmitter();
+				/*p_emit = DBG_NEW ParticleEmitter();
 				p_emit->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2]);
 				m_generated_Emitters.push_back(p_emit);
 				std::cout << tempLights.lights[k].translate[0] << tempLights.lights[k].translate[1] << tempLights.lights[k].translate[2] << std::endl;
 				FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[k].translate[2] };
-				AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
+				AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);*/
 			}
 			for (auto light : m_generated_pointLightVector)
 			{
@@ -555,13 +557,13 @@ void RoomGenerator::_makeWalls()
 	{
 		if (gridStructToSendBack->gridPoints[a].pathable == false)
 		{
-			asset = new BaseActor();
+			/*asset = DBG_NEW BaseActor();
 			asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 			asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
 			asset->setPosition(gridStructToSendBack->gridPoints[a].translation[0],
 				15,
 				gridStructToSendBack->gridPoints[a].translation[2], false);
-			m_generated_assetVector.push_back(asset);
+			m_generated_assetVector.push_back(asset);*/
 		}
 	
 
@@ -1051,7 +1053,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
@@ -1060,5 +1062,6 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	//returnableRoom->setParticleEmitterVector(m_generated_Emitters);
 	returnableRoom->setAudioBoxes(m_generatedAudioBoxes);
 	returnableRoom->loadTriggerPairMap();
+	returnableRoom->setRoomIndex(-1);
 	return returnableRoom;
 }
