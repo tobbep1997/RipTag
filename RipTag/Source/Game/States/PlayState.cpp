@@ -191,7 +191,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes();
+	DrawWorldCollisionboxes();
 #endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -235,10 +235,10 @@ void PlayState::_PhyscisThread(double deltaTime)
 		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
 		//{
 		m_timer += m_deltaTime;
-		while (m_timer >= UPDATE_TIME)
-		{
 			m_contactListener->ClearContactQueue();
 			m_rayListener->ClearConsumedContacts();
+		while (m_timer >= UPDATE_TIME)
+		{
 
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
