@@ -57,8 +57,8 @@ void PlayState::Update(double deltaTime)
 		InputMapping::Call();
 
 		m_step.dt = UPDATE_TIME;
-		m_step.velocityIterations = 8;
-		m_step.sleeping = false;
+		m_step.velocityIterations = 2;
+		m_step.sleeping = true;
 		m_firstRun = false;
 		while (m_physRunning)
 		{
@@ -195,7 +195,16 @@ void PlayState::Draw()
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes("WIN_BOX");
 #endif
+
+	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
+	//camera->setUP(1, 0, 0);
+	//camera->setDirection(0, -1, 0);
+	//DirectX::XMFLOAT4A lol = m_playerManager->getLocalPlayer()->getPosition();
+	//lol.y += 20;
+	//camera->setPosition(lol);
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+	//p_renderingManager->Flush(*camera);
+	//delete camera;
 }
 
 void PlayState::setYouLost(const bool& youLost)

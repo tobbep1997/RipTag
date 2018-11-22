@@ -16,7 +16,7 @@
 Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent()
 {
 	this->uniqueID = id;
-	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 50.0f));
+	this->p_initCamera(new Camera(DirectX::XMConvertToRadians(150.0f / 2.0f), 250.0f / 150.0f, 0.1f, 20.0f));
 	m_vc = new VisibilityComponent();
 	m_vc->Init(this->p_camera);
 	this->setDir(1, 0, 0);

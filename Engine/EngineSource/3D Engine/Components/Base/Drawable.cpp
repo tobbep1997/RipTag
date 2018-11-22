@@ -1,5 +1,6 @@
 #include "EnginePCH.h"
 #include "Drawable.h"
+#include "Source/Game/Handlers/CameraHandler.h"
 
 void Drawable::_setStaticBuffer()
 {
@@ -219,7 +220,8 @@ void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & center, const Direc
 		delete m_bb;
 	m_bb = nullptr;
 	this->m_bb = new DirectX::BoundingBox(center, extens);
-	this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
+	//this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
+	
 }
 
 void Drawable::setTexture(Texture * texture)
@@ -270,8 +272,16 @@ void Drawable::Draw()
 		switch (p_objectType)
 		{
 		case Static:
-			if(m_staticMesh)
-				DX::INSTANCING::submitToInstance(this);
+			if (m_staticMesh)
+				DX::al_qaeda_isis.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
+			if (getEntityType() == EntityType::PlayerType)
+			{
+				DX::g_player = this;
+			}
+			else if (getOutline())
+			{
+				DX::g_outlineQueue.push_back(this);
+			}
 			break;
 		case Dynamic:
 			if (m_skinnedMesh)

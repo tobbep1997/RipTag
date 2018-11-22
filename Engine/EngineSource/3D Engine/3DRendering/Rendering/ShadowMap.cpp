@@ -38,6 +38,8 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 	m_runned = 0;
 
 	//DirectX::BoundingSphere bs;
+	DirectX::XMMATRIX proj, viewInv;
+	DirectX::BoundingFrustum boundingFrustum;
 	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
 	{
 		if (!DX::g_lights[i]->getUpdate())
@@ -49,9 +51,29 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		for (int j = 0; j < 6; j++)
 		{
 			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
+			if (DX::g_lights[i]->useSides()[j])
+			{				
+				for (int k = 0; k < DX::al_qaeda_isis.size(); k++)
+				{
+					proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getProjection()));
+					viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getView())));
+					DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+					boundingFrustum.Transform(boundingFrustum, viewInv);
+					if (DX::al_qaeda_isis[k]->getCastShadows())
+					{
+						if (DX::al_qaeda_isis[k]->getBoundingBox())
+						{
+							if (DX::al_qaeda_isis[k]->getBoundingBox()->Intersects(boundingFrustum))
+								DX::INSTANCING::tempInstance(DX::al_qaeda_isis[k]);
+						}
+						else
+							DX::INSTANCING::tempInstance(DX::al_qaeda_isis[k]);
+					}
+				}
+			}
 		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
-		renderingManager->DrawInstanced(nullptr, &DX::INSTANCING::g_instanceShadowGroups);
+		renderingManager->DrawInstancedCull(nullptr);
 	}
 
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
