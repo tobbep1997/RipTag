@@ -71,14 +71,14 @@ private:
 	float lastSearchDirY = 0;
 
 
-	SoundLocation m_sl = SoundLocation();
-	SoundLocation m_loudestSoundLocation = SoundLocation();
+	//SoundLocation m_sl = SoundLocation();
+	//SoundLocation m_loudestSoundLocation = SoundLocation();
 
-	DirectX::XMFLOAT4A m_clearestPlayerPos;
-	float m_biggestVisCounter = 0.0f;
+	//DirectX::XMFLOAT4A m_clearestPlayerPos;
+	//float m_biggestVisCounter = 0.0f;
 
-	float m_visCounter = 0.0f;
-	float m_visabilityTimer = 1.6f;
+	//float m_visCounter = 0.0f;
+	//float m_visabilityTimer = 1.6f;
 
 	//Pathing
 	Grid* m_grid;
@@ -120,24 +120,9 @@ public:
 	AITransitionState getTransitionState() const;
 	void setTransitionState(AITransitionState state);
 
-	void setSoundLocation(const SoundLocation & sl);
-	const SoundLocation & getSoundLocation() const;
-
-	const SoundLocation & getLoudestSoundLocation() const;
-	void setLoudestSoundLocation(const SoundLocation & sl);
-
-	const DirectX::XMFLOAT4A & getClearestPlayerLocation() const;
-	void setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl);
-
-	const float & getBiggestVisCounter() const;
-	void setBiggestVisCounter(float bvc);
 	void setGrid(Grid* grid);
 
 	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
-
-	float getTotalVisablilty() const;
-	float getMaxVisability() const;
-	float getVisCounter() const;
 
 private:
 
@@ -168,7 +153,6 @@ private:
 	void _Move(Node * nextNode, double deltaTime);
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
-	void _CheckPlayer(double deltaTime);
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
 };
 

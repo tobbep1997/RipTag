@@ -100,7 +100,10 @@ void AI::handleStates(const double deltaTime)
 			this->_investigatingSound(deltaTime);
 		}
 		if (m_transState == AITransitionState::NoTransitionState)
-			_MoveToAlert(m_alertPath.at(0), deltaTime);
+			if (m_alertPath.size() != 0)
+			{
+				_MoveToAlert(m_alertPath.at(0), deltaTime);
+			}
 		m_owner->_detectTeleportSphere();
 		break;
 	case AIState::Investigating_Room:
@@ -111,7 +114,10 @@ void AI::handleStates(const double deltaTime)
 		this->_investigatingRoom(deltaTime);
 		m_owner->_detectTeleportSphere();
 		if (m_transState == AITransitionState::NoTransitionState)
-			_MoveToAlert(m_alertPath.at(0), deltaTime);
+			if (m_alertPath.size() != 0)
+			{
+				_MoveToAlert(m_alertPath.at(0), deltaTime);
+			}
 		break;
 	case AIState::High_Alert:
 #ifdef _DEBUG
@@ -169,9 +175,9 @@ void AI::_onAlerted()
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
 	this->m_actTimer = 0;
-	this->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
-	this->m_loudestSoundLocation = AI::SoundLocation();
-	this->m_biggestVisCounter = 0;
+	m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
+	m_owner->m_loudestSoundLocation = AI::SoundLocation();
+	m_owner->m_biggestVisCounter = 0;
 	FMOD_VECTOR at = { m_owner->getPosition().x, m_owner->getPosition().y, m_owner->getPosition().z };
 	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
 	this->m_transState = AITransitionState::NoTransitionState;
@@ -179,7 +185,7 @@ void AI::_onAlerted()
 
 void AI::_onInvestigateSound()
 {
-	DirectX::XMFLOAT3 soundPos = this->getLoudestSoundLocation().soundPos;
+	DirectX::XMFLOAT3 soundPos = m_owner->getLoudestSoundLocation().soundPos;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 	Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
@@ -195,7 +201,7 @@ void AI::_onInvestigateSound()
 
 void AI::_onInvestigateSight()
 {
-	DirectX::XMFLOAT4A playerPos = this->getClearestPlayerLocation();
+	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
@@ -323,9 +329,18 @@ void AI::_investigatingSight(const double deltaTime)
 
 	if (this->GetAlertPathSize() > 0)
 	{
-		if (this->m_visCounter > this->m_biggestVisCounter)
+		if (m_owner->m_visCounter > m_owner->m_biggestVisCounter)
 		{
 			DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
+
+			if (m_owner->m_RemotePtr)
+			{
+				const int * vis = m_owner->getPlayerVisibility();
+				if (vis[1] > vis[0])
+					playerPos = m_owner->m_RemotePtr->getPosition();
+			}
+
+
 			Node * pathDestination = this->GetAlertDestination();
 
 			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
@@ -352,9 +367,19 @@ void AI::_investigatingSound(const double deltaTime)
 
 	if (this->GetAlertPathSize() > 0)
 	{
-		if (this->m_sl.percentage > this->m_loudestSoundLocation.percentage)
+		SoundLocation tmp = m_owner->m_sl;
+
+		if (Network::Multiplayer::GetInstance()->isServer())
 		{
-			DirectX::XMFLOAT3 soundPos = this->m_sl.soundPos;
+			if (tmp.percentage < m_owner->m_slRemote.percentage)
+				tmp = m_owner->m_slRemote;
+		}
+
+
+
+		if (tmp.percentage > m_owner->m_loudestSoundLocation.percentage)
+		{
+			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
 			Node * pathDestination = this->GetAlertDestination();
 
 			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
@@ -385,7 +410,11 @@ void AI::_investigatingRoom(const double deltaTime)
 	{
 		this->m_transState = AITransitionState::Observe;
 	}
-	if (m_visCounter >= ALERT_TIME_LIMIT || this->m_sl.percentage > SOUND_LEVEL)
+	SoundLocation target = m_owner->m_sl;
+
+	if (target.percentage < m_owner->m_slRemote.percentage)
+		target = m_owner->m_slRemote;
+	if (m_owner->m_visCounter >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL)
 	{
 		//this->setTransitionState(EnemyTransitionState::Alerted);
 	}
@@ -404,9 +433,9 @@ void AI::_highAlert(const double deltaTime)
 	if (this->m_HighAlertTime >= HIGH_ALERT_LIMIT)
 	{
 		this->m_HighAlertTime = 0.0f;
-		this->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
-		this->m_loudestSoundLocation = AI::SoundLocation();
-		this->m_biggestVisCounter = 0.0f;
+		m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
+		m_owner->m_loudestSoundLocation = SoundLocation();
+		m_owner->m_biggestVisCounter = 0.0f;
 		this->m_state = AIState::Suspicious;
 #ifdef _DEBUG
 
@@ -426,28 +455,50 @@ void AI::_suspicious(const double deltaTime)
 	{
 		attentionMultiplier = 1.2f;
 	}
-	if (this->m_visCounter*attentionMultiplier >= this->m_biggestVisCounter)
+	if (m_owner->m_visCounter*attentionMultiplier >= m_owner->m_biggestVisCounter)
 	{
-		this->m_clearestPlayerPos = m_owner->m_PlayerPtr->getPosition();
-		this->m_biggestVisCounter = this->m_visCounter*attentionMultiplier;
+
+		DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
+
+		const int * vis = m_owner->getPlayerVisibility();
+		
+		int	visValue = vis[0];
+
+		if (m_owner->m_RemotePtr)
+		{
+			if (vis[1] > vis[0])
+			{
+				playerPos = m_owner->m_RemotePtr->getPosition();
+				visValue = vis[1];
+			}
+		}
+
+		m_owner->setClearestPlayerLocation(playerPos);
+		m_owner->setBiggestVisCounter(vis[0]*attentionMultiplier);
 		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
 		b3Normalize(dir);
 		guard->setDir(dir.x, dir.y, dir.y);*/
 	}
-	if (this->m_sl.percentage*attentionMultiplier >= this->m_loudestSoundLocation.percentage)
+
+	SoundLocation target = m_owner->m_sl;
+
+	if (target.percentage < m_owner->m_slRemote.percentage)
+		target = m_owner->m_slRemote;
+
+	if (target.percentage*attentionMultiplier >= m_owner->m_loudestSoundLocation.percentage)
 	{
-		AI::SoundLocation temp = this->m_sl;
+		Enemy::SoundLocation temp = target;
 		temp.percentage *= attentionMultiplier;
-		this->m_loudestSoundLocation = temp;
+		m_owner->m_loudestSoundLocation = temp;
 		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
 		b3Normalize(dir);
 		guard->setDir(dir.x, dir.y, dir.y);*/
 	}
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
-		if (this->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5)
+		if (m_owner->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5)
 			this->m_transState = AITransitionState::InvestigateSight; //what was that?
-		else if (this->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
+		else if (m_owner->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
 			this->m_transState = AITransitionState::InvestigateSound; //what was that noise?
 		else
 		{
@@ -517,7 +568,12 @@ void AI::_patrolling(const double deltaTime)
 		_MoveTo(m_path.at(m_currentPathNode), deltaTime);
 	}
 
-	if (this->m_visCounter >= ALERT_TIME_LIMIT || this->m_sl.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
+	SoundLocation target = m_owner->m_sl;
+
+	if (target.percentage < m_owner->m_slRemote.percentage)
+		target = m_owner->m_slRemote;
+
+	if (m_owner->m_visCounter >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
 		this->m_transState = AITransitionState::Alerted;
 	}
@@ -553,8 +609,8 @@ void AI::_disabled(const double deltaTime)
 		}
 		break;
 	}
-	m_owner->PhysicsComponent::p_setRotation(m_owner->p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), m_owner->p_camera->getYRotationEuler().y, m_owner->p_camera->getYRotationEuler().z);
-	m_visCounter = 0;
+	//m_owner->PhysicsComponent::p_setRotation(m_owner->p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), m_owner->p_camera->getYRotationEuler().y, m_owner->p_camera->getYRotationEuler().z);
+	m_owner->m_visCounter = 0;
 }
 
 void AI::_Move(Node * nextNode, double deltaTime)
@@ -783,57 +839,6 @@ bool AI::_MoveToAlert(Node * nextNode, double deltaTime)
 	return false;
 }
 
-void AI::_CheckPlayer(double deltaTime)
-{
-	if (m_owner->m_allowVisability)
-	{
-		float visPres = (float)m_owner->getPlayerVisibility()[0] / (float)Player::g_fullVisability;
-
-		if (m_owner->m_lenghtToPlayer < m_owner->m_lengthToPlayerSpan)
-		{
-			visPres *= 1.5;
-		}
-		if (m_state == High_Alert)
-		{
-			visPres *= 1.2;
-		}
-
-		if (visPres > 0)
-		{
-			m_visCounter += visPres * deltaTime;
-			if (m_visabilityTimer <= m_visCounter)
-			{
-				m_owner->m_found = true;
-			}
-		}
-		else
-		{
-
-			if (m_visCounter - deltaTime > 0)
-			{
-				m_visCounter -= deltaTime;
-			}
-			else
-			{
-				m_visCounter = 0;
-			}
-		}
-
-	}
-	else
-	{
-		if (m_visCounter - deltaTime > 0)
-		{
-			m_visCounter -= deltaTime;
-		}
-		else
-		{
-			m_visCounter = 0;
-		}
-	}
-
-}
-
 float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 {
 	if (first.x > last.x)
@@ -928,66 +933,11 @@ void AI::setTransitionState(AITransitionState state)
 	m_transState = state;
 }
 
-void AI::setSoundLocation(const SoundLocation & sl)
-{
-	m_sl = sl;
-}
-
-const AI::SoundLocation & AI::getSoundLocation() const
-{
-	return m_sl;
-}
-
-const AI::SoundLocation & AI::getLoudestSoundLocation() const
-{
-	return m_loudestSoundLocation;
-}
-
-void AI::setLoudestSoundLocation(const SoundLocation & sl)
-{
-	m_loudestSoundLocation = sl;
-}
-
-const DirectX::XMFLOAT4A & AI::getClearestPlayerLocation() const
-{
-	return m_clearestPlayerPos;
-}
-
-void AI::setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl)
-{
-	m_clearestPlayerPos = cpl;
-}
-
-const float & AI::getBiggestVisCounter() const
-{
-	return m_biggestVisCounter;
-}
-
-void AI::setBiggestVisCounter(float bvc)
-{
-	m_biggestVisCounter = bvc;
-}
-
-float AI::getTotalVisablilty() const
-{
-	return m_visCounter / m_visabilityTimer;
-}
-
-float AI::getMaxVisability() const
-{
-	return m_visCounter;
-}
-
-float AI::getVisCounter() const
-{
-	return m_visCounter;
-}
-
 DirectX::XMFLOAT2 AI::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Camera& playerCma)
 {
 	using namespace DirectX;
 
-	if (m_visCounter > 0)
+	if (m_owner->m_visCounter > 0)
 	{
 		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
 		XMVECTOR enemyPos = XMLoadFloat4A(&m_owner->getPosition());

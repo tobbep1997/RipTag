@@ -11,11 +11,6 @@ class AI;
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent, public AI
 {
 public:
-	struct SoundLocation
-	{
-		float percentage = 0.0f;
-		DirectX::XMFLOAT3 soundPos = DirectX::XMFLOAT3(0,0,0);
-	};
 
 public:
 	enum KnockOutType
@@ -55,7 +50,6 @@ private:
 	unsigned int uniqueID;
 
 	lerpVal m_lv;
-
 	AudioVars m_av;
 	KnockOutType m_knockOutType; 
 
@@ -110,6 +104,17 @@ private:
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
 
+
+	SoundLocation m_sl = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+	SoundLocation m_slRemote = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+	SoundLocation m_loudestSoundLocation = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+
+	DirectX::XMFLOAT4A m_clearestPlayerPos;
+	float m_biggestVisCounter = 0.0f;
+
+	float m_visCounter;
+	float m_visabilityTimer = 1.6f;
+
 	bool m_found = false;
 
 	float m_knockOutTimer = 0;
@@ -138,7 +143,8 @@ private:
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
 
-	Player * m_PlayerPtr;
+	Player * m_PlayerPtr		= nullptr;
+	RemotePlayer * m_RemotePtr	= nullptr;
 public:
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
@@ -182,6 +188,21 @@ public:
 	void setReleased(bool released);
 
 
+	void setSoundLocation(const SoundLocation & sl);
+	void setSoundLocationRemote(const SoundLocation & sl) { m_slRemote = sl; };
+	const SoundLocation & getSoundLocation() const;
+
+	const SoundLocation & getLoudestSoundLocation() const;
+	void setLoudestSoundLocation(const SoundLocation & sl);
+	void setCalculatedVisibilityFor(int playerIndex, int value);
+
+
+	const DirectX::XMFLOAT4A & getClearestPlayerLocation() const;
+	void setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl);
+
+	const float & getBiggestVisCounter() const;
+	void setBiggestVisCounter(float bvc);
+
 	bool getIfLost();
 	const KnockOutType getKnockOutType() const; 
 
@@ -190,13 +211,21 @@ public:
 	void DrawGuardPath();
 	void EnableGuardPathPrint();
 
-	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+	float GetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+	void SetRemotePointer(RemotePlayer * remote) { m_RemotePtr = remote; }
+
+
+	void _CheckPlayer(double deltaTime);
+	unsigned int getUniqueID() const { return this->uniqueID; }
 
 	//Network
 	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
 	void sendNetworkUpdate();
+
+	float getTotalVisibility();
+	float getMaxVisibility();
 private:
 
 	void _handleInput(double deltaTime);

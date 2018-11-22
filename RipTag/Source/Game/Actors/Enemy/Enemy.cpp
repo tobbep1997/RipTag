@@ -165,14 +165,46 @@ void Enemy::Update(double deltaTime)
 	{
 		m_nodeFootPrintsEnabled = true;
 	}
-
-	
 }
 
 void Enemy::ClientUpdate(double deltaTime)
 {
+	_cameraPlacement(deltaTime);
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
+	setLiniearVelocity(0, 0, 0);
+
+	//Visibility update
+	{
+		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+		float lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
+
+		if (lengthToTarget < m_lengthToPlayerSpan)
+		{
+			visPercLocal *= 1.5;
+		}
+
+		if (visPercLocal > 0)
+		{
+			m_visCounter += visPercLocal * deltaTime;
+			if (m_visabilityTimer <= m_visCounter)
+			{
+				m_found = true;
+			}
+		}
+		else
+		{
+
+			if (m_visCounter - deltaTime > 0)
+			{
+				m_visCounter -= deltaTime;
+			}
+			else
+			{
+				m_visCounter = 0;
+			}
+		}
+	}
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
@@ -217,8 +249,9 @@ bool Enemy::GetDisabledState()
 void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 {
 	this->m_currentMoveSpeed = packet->moveSpeed;
-	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, packet->pos.y);
-	this->setRotation(packet->rot);
+	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
+	p_setRotation(0.0f, packet->rot.y, 0.0f);
+	p_camera->setDirection(packet->camDir);
 }
 
 void Enemy::sendNetworkUpdate()
@@ -227,9 +260,20 @@ void Enemy::sendNetworkUpdate()
 	packet.uniqueID = uniqueID;
 	packet.pos = getPosition();
 	packet.rot = p_camera->getYRotationEuler();
+	packet.camDir = p_camera->getDirection();
 	packet.moveSpeed = m_currentMoveSpeed;
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+}
+
+float Enemy::getTotalVisibility()
+{
+	return m_visCounter;
+}
+
+float Enemy::getMaxVisibility()
+{
+	return m_visabilityTimer;
 }
 
 void Enemy::_handleInput(double deltaTime)
@@ -429,6 +473,51 @@ void Enemy::setKnockOutType(KnockOutType knockOutType)
 	m_knockOutType = knockOutType; 
 }
 
+void Enemy::setSoundLocation(const SoundLocation & sl)
+{
+	m_sl = sl;
+}
+
+const Enemy::SoundLocation & Enemy::getSoundLocation() const
+{
+	return m_sl;
+}
+
+const Enemy::SoundLocation & Enemy::getLoudestSoundLocation() const
+{
+	return m_loudestSoundLocation;
+}
+
+void Enemy::setLoudestSoundLocation(const SoundLocation & sl)
+{
+	m_loudestSoundLocation = sl;
+}
+
+void Enemy::setCalculatedVisibilityFor(int playerIndex, int value)
+{
+	m_vc->SetCalculatedVisibilityFor(playerIndex, value);
+}
+
+const DirectX::XMFLOAT4A & Enemy::getClearestPlayerLocation() const
+{
+	return m_clearestPlayerPos;
+}
+
+void Enemy::setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl)
+{
+	m_clearestPlayerPos = cpl;
+}
+
+const float & Enemy::getBiggestVisCounter() const
+{
+	return m_biggestVisCounter;
+}
+
+void Enemy::setBiggestVisCounter(float bvc)
+{
+	m_biggestVisCounter = bvc;
+}
+
 void Enemy::setReleased(bool released)
 {
 	m_released = released; 
@@ -477,11 +566,12 @@ void Enemy::EnableGuardPathPrint()
 	m_nodeFootPrintsEnabled = true;
 }
 
-void Enemy::SetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
+float Enemy::GetLenghtToPlayer(const DirectX::XMFLOAT4A& playerPos)
 {
 	DirectX::XMVECTOR vec = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&getPosition()), DirectX::XMLoadFloat4A(&playerPos));
 	vec = DirectX::XMVector3LengthEst(vec);
-	m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+	//m_lenghtToPlayer = DirectX::XMVectorGetX(vec);
+	return DirectX::XMVectorGetX(vec);
 }
 
 void Enemy::SetPlayerPointer(Player* player)
@@ -811,6 +901,75 @@ void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
 	p_setRotation(0, cameraRotationY.y, 0);
 }
 
+void Enemy::_CheckPlayer(double deltaTime)
+{
+	if (m_allowVisability)
+	{
+		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
+		float visPercRemote = (float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
+
+		float visPerc;
+		float lengthToTarget;
+
+		if (visPercLocal >= visPercRemote)
+		{
+			lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
+			visPerc = visPercLocal;
+		}
+		else
+		{
+			visPerc = visPercRemote;
+			lengthToTarget = GetLenghtToPlayer(m_RemotePtr->getPosition());
+		}
+
+
+		if (lengthToTarget < m_lengthToPlayerSpan)
+		{
+			visPerc *= 1.5;
+		}
+		if (getAIState() == High_Alert)
+		{
+			visPerc *= 1.2;
+		}
+
+		if (visPerc > 0)
+		{
+			m_visCounter += visPerc * deltaTime;
+			
+			if (m_visabilityTimer <= m_visCounter)
+			{	
+				m_visCounter = m_visabilityTimer;
+				m_found = true;
+			}
+		}
+		else
+		{
+			
+			if (m_visCounter - deltaTime > 0)
+			{
+				m_visCounter -= deltaTime;
+			}
+			else
+			{
+				m_visCounter = 0;
+			}
+		}
+
+	}
+	else
+	{
+		if (m_visCounter - deltaTime > 0)
+		{
+			m_visCounter -= deltaTime;
+		}
+		else
+		{
+			m_visCounter = 0;
+		}
+	}
+
+}
+
 void Enemy::_activateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
@@ -946,3 +1105,292 @@ void Enemy::_detectTeleportSphere()
 
 	}
 }
+
+
+//void Enemy::_investigatingSight(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	if (this->GetAlertPathSize() > 0)
+//	{
+//		if (this->m_visCounter > this->m_biggestVisCounter)
+//		{
+//			DirectX::XMFLOAT4A playerPos = m_PlayerPtr->getPosition();
+//			
+//			if (m_RemotePtr)
+//			{
+//				const int * vis = m_vc->getVisibilityForPlayers();
+//				if (vis[1] > vis[0])
+//					playerPos = m_RemotePtr->getPosition();
+//			}
+//
+//
+//			Node * pathDestination = this->GetAlertDestination();
+//
+//			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
+//				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
+//			{
+//				DirectX::XMFLOAT4A guardPos = this->getPosition();
+//				Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
+//				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+//
+//				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+//			}
+//		}
+//	}
+//	else
+//	{
+//		this->m_transState = EnemyTransitionState::Observe;
+//	}
+//}
+//void Enemy::_investigatingSound(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	if (this->GetAlertPathSize() > 0)
+//	{
+//		SoundLocation tmp = m_sl;
+//
+//		if (Network::Multiplayer::GetInstance()->isServer())
+//		{
+//			if (tmp.percentage < m_slRemote.percentage)
+//				tmp = m_slRemote;
+//		}
+//
+//		
+//
+//		if (tmp.percentage > this->m_loudestSoundLocation.percentage)
+//		{
+//			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
+//			Node * pathDestination = this->GetAlertDestination();
+//
+//			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
+//				abs(pathDestination->worldPos.y - soundPos.z) > 2.0f)
+//			{
+//				DirectX::XMFLOAT4A guardPos = this->getPosition();
+//				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+//				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+//
+//				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+//			}
+//		}
+//	}
+//	else
+//	{
+//		this->m_transState = EnemyTransitionState::Observe;
+//	}
+//}
+//void Enemy::_investigatingRoom(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	this->m_searchTimer += deltaTime;
+//	
+//	if (this->GetAlertPathSize() == 0)
+//	{
+//		this->setTransitionState(EnemyTransitionState::Observe);
+//	}
+//	SoundLocation target = m_sl;
+//
+//	if (target.percentage < m_slRemote.percentage)
+//		target = m_slRemote;
+//	if (this->getVisCounter() >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL)
+//	{
+//		//this->setTransitionState(EnemyTransitionState::Alerted);
+//	}
+//	else if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
+//	{
+//		this->setTransitionState(EnemyTransitionState::ReturnToPatrol);
+//	}
+//}
+//void Enemy::_highAlert(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	this->m_HighAlertTime = deltaTime;
+//	if (this->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
+//	{
+//		this->SetHightAlertTimer(0.f);
+//		this->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
+//		this->setLoudestSoundLocation(Enemy::SoundLocation());
+//		this->setBiggestVisCounter(0);
+//		this->m_state = EnemyState::Suspicious;
+//#ifdef _DEBUG
+//
+//		std::cout << green << "Enemy " << this->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
+//#endif
+//	}
+//}
+//void Enemy::_suspicious(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	this->m_actTimer += deltaTime;
+//	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
+//	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT / 3)
+//	{
+//		attentionMultiplier = 1.2f;
+//	}
+//	if (this->m_visCounter*attentionMultiplier >= this->m_biggestVisCounter)
+//	{
+//
+//		DirectX::XMFLOAT4A playerPos = m_PlayerPtr->getPosition();
+//
+//		if (m_RemotePtr)
+//		{
+//			const int * vis = m_vc->getVisibilityForPlayers();
+//			if (vis[1] > vis[0])
+//				playerPos = m_RemotePtr->getPosition();
+//		}
+//
+//		this->setClearestPlayerLocation(playerPos);
+//		this->setBiggestVisCounter(this->getVisCounter()*attentionMultiplier);
+//		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
+//		b3Normalize(dir);
+//		guard->setDir(dir.x, dir.y, dir.y);*/
+//	}
+//
+//	SoundLocation target = m_sl;
+//
+//	if (target.percentage < m_slRemote.percentage)
+//		target = m_slRemote;
+//
+//	if (target.percentage*attentionMultiplier >= this->m_loudestSoundLocation.percentage)
+//	{
+//		Enemy::SoundLocation temp = target;
+//		temp.percentage *= attentionMultiplier;
+//		this->m_loudestSoundLocation = temp;
+//		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
+//		b3Normalize(dir);
+//		guard->setDir(dir.x, dir.y, dir.y);*/
+//	}
+//	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
+//	{
+//		if (this->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5)
+//			this->m_transState = EnemyTransitionState::InvestigateSight; //what was that?
+//		else if (this->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
+//			this->m_transState = EnemyTransitionState::InvestigateSound; //what was that noise?
+//		else
+//		{
+//			this->m_transState = EnemyTransitionState::ReturnToPatrol;
+//			//Must have been nothing...
+//		}
+//	}
+//}
+//void Enemy::_scanningArea(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	this->m_actTimer += deltaTime;
+//	//Do animation
+//	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
+//	{
+//		this->m_transState = EnemyTransitionState::SearchArea;
+//	}
+//}
+//void Enemy::_patrolling(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_CheckPlayer(deltaTime);
+//
+//	if (m_path.size() > 0)
+//	{
+//		if (m_pathNodes.size() == 0)
+//		{
+//			Manager::g_textureManager.loadTextures("FOOT");
+//			Manager::g_meshManager.loadStaticMesh("FOOT");
+//			for (unsigned int i = 0; i < m_path.size(); ++i)
+//			{
+//
+//				Drawable * temp = new Drawable();
+//				temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
+//				temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
+//				temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
+//				temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
+//
+//				if (i + 1 < m_path.size())
+//				{
+//					temp->setRotation(0, _getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i + 1)->worldPos.x, m_path.at(i + 1)->worldPos.y }), 0);
+//				}
+//
+//
+//				temp->SetTransparant(true);
+//				m_pathNodes.push_back(temp);
+//			}
+//
+//		}
+//		/*float posY = 0.04 * sin(1 * DirectX::XM_PI*m_sinWaver*0.5f) + 4.4f;
+//		for (auto path : m_pathNodes)
+//		{
+//			path->setPosition(path->getPosition().x, posY , path->getPosition().z);
+//		}*/
+//		if (m_nodeFootPrintsEnabled == true)
+//		{
+//			if (m_currentPathNode != 0)
+//			{
+//				Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
+//				temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
+//			}
+//		}
+//		_MoveTo(m_path.at(m_currentPathNode), deltaTime);
+//	}
+//
+//	SoundLocation target = m_sl;
+//
+//	if (target.percentage < m_slRemote.percentage)
+//		target = m_slRemote;
+//
+//
+//	if (this->getVisCounter() >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
+//	{
+//		this->m_transState = EnemyTransitionState::Alerted;
+//	}
+//}
+//void Enemy::_possessed(const double deltaTime)
+//{
+//	getBody()->SetType(e_dynamicBody);
+//	_cameraPlacement(deltaTime);
+//	_handleInput(deltaTime);
+//}
+//void Enemy::_disabled(const double deltaTime)
+//{
+//	getBody()->SetType(e_staticBody);
+//	switch (m_knockOutType)
+//	{
+//
+//	case Possessed:
+//		if (m_released)
+//		{
+//			m_possesionRecoverTimer += deltaTime;
+//			if (m_possesionRecoverTimer >= m_possessionRecoverMax)
+//			{
+//				m_transState = EnemyTransitionState::ExitingDisable;
+//			}
+//		}
+//		break;
+//	case Stoned:
+//
+//		m_knockOutTimer += deltaTime;
+//		if (m_knockOutMaxTime <= m_knockOutTimer)
+//		{
+//			m_transState = EnemyTransitionState::ExitingDisable;
+//		}
+//		break;
+//	}
+//	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
+//	m_visCounter = 0;
+//}
+//		
