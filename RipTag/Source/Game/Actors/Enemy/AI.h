@@ -109,7 +109,8 @@ public:
 	Node * GetCurrentPathNode() const;
 	int GetCurrentPathNodeGridID() const;
 	void SetAlertVector(std::vector<Node*> alertPath);
-
+	
+	bool GetPathEmpty() const;
 	size_t GetAlertPathSize() const;
 	Node * GetAlertDestination() const;
 

@@ -62,7 +62,7 @@ void PlayState::Update(double deltaTime)
 		m_firstRun = false;
 		while (m_physRunning)
 		{
-			//SpinLock
+			std::cout << "SPIIIN ME ROUND!\n";
 			int i = 0;
 		}
 		//Handle all packets
@@ -89,8 +89,8 @@ void PlayState::Update(double deltaTime)
 			return;
 		}
 
-		triggerHandler = m_levelHandler->getTriggerHandler();
-		triggerHandler->Update(deltaTime);
+		//triggerHandler = m_levelHandler->getTriggerHandler();
+		//triggerHandler->Update(deltaTime);
 		m_playerManager->Update(deltaTime);
 
 		m_playerManager->PhysicsUpdate();
@@ -154,7 +154,6 @@ void PlayState::Update(double deltaTime)
 	
 		_audioAgainstGuards(deltaTime);
 
-
 		// Must be last in update
 		if (!m_playerManager->getLocalPlayer()->unlockMouse)
 		{
@@ -194,7 +193,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes();
+	//DrawWorldCollisionboxes("WIN_BOX");
 #endif
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
 }
@@ -238,9 +237,9 @@ void PlayState::_PhyscisThread(double deltaTime)
 		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
 		//{
 		m_timer += m_deltaTime;
+			m_world.Step(m_step);
 		while (m_timer >= UPDATE_TIME)
 		{
-			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
 		//}
@@ -570,10 +569,11 @@ void PlayState::unLoad()
 		delete m_eventOverlay;
 		m_eventOverlay = nullptr;
 	}
-
 	Network::Multiplayer::LocalPlayerOnSendMap.clear();
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
+
+	dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
 }
 
 void PlayState::Load()
@@ -646,7 +646,8 @@ void PlayState::_loadPhysics()
 
 void PlayState::_loadMeshes()
 {
-	auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	//auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
+	Manager::g_meshManager.loadStaticMesh("SPHERE");
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
 	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
@@ -658,7 +659,7 @@ void PlayState::_loadMeshes()
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
-	future1.get();
+	//future1.get();
 }
 
 void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
@@ -674,7 +675,6 @@ void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 
 void PlayState::_loadNetwork()
 {
-
 	if (isCoop)
 	{
 		Network::Multiplayer::inPlayState = true;
@@ -707,7 +707,7 @@ void PlayState::_loadNetwork()
 		m_playerManager->isCoop(false);
 	}
 
-	triggerHandler = m_levelHandler->getTriggerHandler();
+	//triggerHandler = m_levelHandler->getTriggerHandler();
 	
 	//Create event overlay quad
 	{

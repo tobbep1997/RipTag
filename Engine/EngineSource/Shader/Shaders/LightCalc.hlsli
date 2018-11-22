@@ -127,7 +127,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 AORoughMet = float3(1, 1, 1); 
 
     input.uv.y = 1 - input.uv.y;
-	ambient = float4(.2f, .2f, .2f, 1);
+	//ambient = float4(.2f, .2f, .2f, 1);
+    ambient = float4(0.2f, 0.2f, 0.2f, 1.f);
 	if (input.info.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;
@@ -182,7 +183,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         }
 
         finalShadowCoeff = pow(shadowCoeff / div, 32);
-        //return float4(finalShadowCoeff, 0, 0, 1);
         posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
         distanceToLight = length(lightPosition[shadowLight] - input.worldPos);
         halfwayVecor = normalize(worldToCamera + posToLight);
@@ -206,9 +206,11 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         lightCal += finalShadowCoeff * (kD * albedo / PI + specular) * radiance * normDotLight * ((lightDropOff[shadowLight].x - attenuation + 1.0f));
     }
     
-    finalColor = ambient + lightCal;
+    float zDepth = input.pos.z / input.pos.w;
+    float fogend = 0.9;
+    float fogMul = saturate((zDepth) / (fogend - 0.6f));
+    finalColor = fogMul * (ambient + lightCal) + ((1.0f - fogMul) * float4(.5,.5,.5,0.6f));
 	
-
     finalColor.a = albedo.a;
     return min(finalColor, float4(1, 1, 1, 1));
 }

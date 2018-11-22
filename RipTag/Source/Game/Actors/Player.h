@@ -23,7 +23,6 @@ struct KeyPressed
 enum Ability;
 enum PlayerState;
 
-
 class AbilityComponent;
 class Enemy;
 class BlinkAbility;

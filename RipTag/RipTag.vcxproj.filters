@@ -71,6 +71,44 @@
     <ClCompile Include="Source\Gameplay\Objects\Torch.cpp" />
     <ClCompile Include="Source\Game\States\TransitionState.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\AI.cpp" />
+    <ClCompile Include="Source\Game\Actors\Assets\StaticAsset.cpp" />
+    <ClCompile Include="Source\Game\Handlers\AnimationHandler.cpp" />
+    <ClCompile Include="Source\Physics\Wrapper\ContactListener.cpp" />
+    <ClCompile Include="Source\Game\Abilities\AbilityComponent.cpp" />
+    <ClCompile Include="Source\Game\Abilities\TeleportAbility.cpp" />
+    <ClCompile Include="Source\Game\Abilities\Disable\DisableAbility.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Grid.cpp" />
+    <ClCompile Include="Source\Game\Pathfinding\Tile.cpp" />
+    <ClCompile Include="Source\Game\Handlers\PlayerManager.cpp" />
+    <ClCompile Include="Source\Game\Actors\RemotePlayer.cpp" />
+    <ClCompile Include="Source\Game\Abilities\PossessGuard.cpp" />
+    <ClCompile Include="Source\Game\Abilities\BlinkAbility.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Trigger.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\TriggerHandler.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\PressurePlate.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Door.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Lever.cpp" />
+    <ClCompile Include="Source\Physics\Wrapper\CollisionBoxes.cpp" />
+    <ClCompile Include="RipTagPCH.cpp" />
+    <ClCompile Include="BouncePCH.cpp" />
+    <ClCompile Include="Source\Gameplay\Triggers\Triggerable.cpp" />
+    <ClCompile Include="Source\Gameplay\Objects\Bars.cpp" />
+    <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
+    <ClCompile Include="Source\Game\States\OptionState.cpp" />
+    <ClCompile Include="Source\Game\States\LobbyState.cpp" />
+    <ClCompile Include="Source\Game\States\LoseState.cpp" />
+    <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
+    <ClCompile Include="Source\Game\Loading Screen\LoadingScreen.cpp" />
+    <ClCompile Include="Source\Game\Item\Map.cpp" />
+    <ClCompile Include="Source\Game\Item\Rock.cpp" />
+    <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
+<<<<<<< HEAD
+    <ClCompile Include="Source\Game\Level\RandomRoom.cpp" />
+=======
+    <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
+    <ClCompile Include="Source\Source.cpp" />
+    <ClCompile Include="Source\Game\States\OptionSound.cpp" />
+>>>>>>> Dev
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />

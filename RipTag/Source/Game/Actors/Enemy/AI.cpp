@@ -893,6 +893,11 @@ void AI::SetAlertVector(std::vector<Node*> alertPath)
 	m_alertPath = alertPath;
 }
 
+bool AI::GetPathEmpty() const
+{
+	return m_path.empty();
+}
+
 size_t AI::GetAlertPathSize() const
 {
 	return m_alertPath.size();

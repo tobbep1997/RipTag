@@ -179,7 +179,7 @@ public:
 	//0 is Stoned, 1 is exit-possess cooldown
 	void setKnockOutType(KnockOutType knockOutType);
 
-	void setReleased(bool released); 
+	void setReleased(bool released);
 
 
 	bool getIfLost();
