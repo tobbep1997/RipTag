@@ -45,6 +45,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		if (!DX::g_lights[i]->getUpdate())
 			continue;
 		DX::g_lights[i]->Clear();
+		DX::g_prevlights.push_back(DX::g_lights[i]);
 
 		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
 		m_lightIndex.lightPos.x = i;
@@ -115,8 +116,11 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 		m_allLightMatrixValues.nrOfviewProjection[light] = DirectX::XMINT4(lights->at(light)->getSides().size(),0,0,0);
 		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
-			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides().at(i)->getViewProjection();
-			m_allLightMatrixValues.useDir[light][i].x = (UINT)lights->at(light)->useSides()[i];
+			if (lights->at(light)->useSides()[i])
+			{				
+				m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides().at(i)->getViewProjection();
+				m_allLightMatrixValues.useDir[light][i].x = (UINT)lights->at(light)->useSides()[i];
+			}
 		}
 	}
 	
@@ -131,15 +135,16 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 void ShadowMap::SetSamplerAndShaderResources()
 {
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
-	for (int i = 0; i < DX::g_lights.size(); i++)
+	std::vector<PointLight*>* pl = &DX::g_prevlights;
+	for (int i = 0; i < DX::g_prevlights.size(); i++)
 	{
-		if (!DX::g_lights[i]->getUpdate())
+		if (!DX::g_prevlights[i]->getUpdate())
 			continue;
-		DX::g_lights[i]->FirstRun();
+		DX::g_prevlights[i]->FirstRun();
 		for (int j = 0; j < 6; j++)
 		{
-			if (DX::g_lights[i]->useSides()[j])
-				DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_lights[i]->getTEX(), j, NULL);
+			if (DX::g_prevlights[i]->useSides()[j])
+				DX::g_deviceContext->CopySubresourceRegion(m_shadowDepthBufferTex, (i * 6) + j, 0, 0, 0, DX::g_prevlights[i]->getTEX(), j, NULL);
 				
 		}
 	}	
@@ -150,7 +155,7 @@ void ShadowMap::SetSamplerAndShaderResources()
 void ShadowMap::Clear()
 {
 	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
-
+	DX::g_prevlights.clear();
 	DX::g_deviceContext->ClearRenderTargetView(m_renderTargetView, c);
 	//DX::g_deviceContext->ClearDepthStencilView(m_shadowDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }

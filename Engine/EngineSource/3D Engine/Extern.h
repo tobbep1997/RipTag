@@ -36,6 +36,7 @@ namespace DX {
 	extern std::vector<Drawable*> g_wireFrameDrawQueue;
 
 	extern std::vector<PointLight*> g_lights;
+	extern std::vector<PointLight*> g_prevlights;
 	extern std::vector<VisibilityComponent*> g_visibilityComponentQueue;
 
 	extern std::vector<Quad*> g_2DQueue;

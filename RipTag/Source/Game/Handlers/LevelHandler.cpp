@@ -159,10 +159,10 @@ const unsigned short LevelHandler::getNextRoom() const
 
 void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
-	//Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
-	//room->setLoaded(true);
+	Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
+	room->setLoaded(true);
 
-	Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	//Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
 	m_rooms.push_back(room);
 
 	m_rooms.at(0)->loadTextures();

@@ -11,6 +11,7 @@ Drawable* DX::g_remotePlayer = nullptr;
 std::vector<Drawable*> DX::g_animatedGeometryQueue;
 
 std::vector<PointLight*> DX::g_lights;
+std::vector<PointLight*> DX::g_prevlights;
 
 std::vector<Drawable*> DX::g_outlineQueue;
 

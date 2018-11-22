@@ -14,6 +14,7 @@ ForwardRender::ForwardRender()
 ForwardRender::~ForwardRender()
 {
 	delete m_visabilityPass;
+	
 }
 
 void ForwardRender::Init(IDXGISwapChain * swapChain,
@@ -336,10 +337,15 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
-
-	
 	this->AnimationPrePass(camera);
 
+	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75, 16.0f / 9.0f, 1, 100);
+	dbg_camera->setDirection(0, -1, 0);
+	dbg_camera->setUP(1, 0, 0);
+	DirectX::XMFLOAT4A pos = camera.getPosition();
+	pos.y += 10;
+	dbg_camera->setPosition(pos);
+	//_mapCameraBuffer(*dbg_camera);
 	this->PrePass(camera);
 	
 	
@@ -348,20 +354,28 @@ void ForwardRender::Flush(Camera & camera)
 	_simpleLightCulling(camera);
 
 	_mapLightInfoNoMatrix();
-	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
-	this->m_shadowMap->ShadowPass(this);
+	shadowRun++;
+	this->m_shadowMap->MapAllLightMatrix(&DX::g_prevlights);
+	if (shadowRun % 5 == 0)
+	{
+		//std::cout << "Shadow Ran" << std::endl;
+		this->m_shadowMap->ShadowPass(this);
+		shadowRun = 0;
+	}
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 	DX::g_deviceContext->RSSetState(m_standardRast);
 
 	_visabilityPass();
+	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	this->_OutliningPass(camera);
 
 
 	//_GuardFrustumDraw();
+	//_DBG_DRAW_CAMERA(camera);
 	_mapCameraBuffer(camera);
 	
 	_particlePass();
@@ -369,14 +383,13 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass(&camera);
+	
+	delete dbg_camera;
 }
 
 void ForwardRender::Clear()
 {
 	float c[4] = { .5f,.5f,.5f,1.0f };
-
-	
-
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -387,7 +400,6 @@ void ForwardRender::Clear()
 	DX::g_remotePlayer = nullptr;
 
 	DX::g_outlineQueue.clear();
-	//this->m_shadowMap->Clear();
 	DX::g_visibilityComponentQueue.clear();
 
 	DX::g_wireFrameDrawQueue.clear();
@@ -601,6 +613,53 @@ void ForwardRender::_GuardFrustumDraw()
 		DX::g_deviceContext->Draw(DX::g_visibilityComponentQueue[i]->getFrustum()->size(), 0);
 
 	}
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+	DX::g_deviceContext->RSSetState(m_standardRast);
+}
+
+void ForwardRender::_DBG_DRAW_CAMERA(Camera& camera)
+{
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+
+	DX::g_deviceContext->RSSetState(m_disableBackFace);
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl"), nullptr, 0);
+
+
+	DirectX::XMFLOAT4X4A viewProj = camera.getViewProjection();
+	DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
+	DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
+	DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	GuardBuffer gb;
+	DirectX::XMStoreFloat4x4A(&gb.viewProj, mViewProj);
+	DirectX::XMStoreFloat4x4A(&gb.viewProjInverse, mViewProjInverse);
+	//gb.worldMatrix = DX::g_visibilityComponentQueue[i]->getWorldMatrix();
+
+	DX::g_deviceContext->Map(m_GuardBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+	// copy memory from CPU to GPU the entire struct
+	memcpy(dataPtr.pData, &gb, sizeof(GuardBuffer));
+	// UnMap constant buffer so that we can use it again in the GPU
+	DX::g_deviceContext->Unmap(m_GuardBuffer, 0);
+	// set resource to Vertex Shader
+	DX::g_deviceContext->VSSetConstantBuffers(5, 1, &m_GuardBuffer);
+
+	VisibilityComponent * tmp = new VisibilityComponent();
+	tmp->Init(&camera);
+
+	ID3D11Buffer * ver = tmp->getFrustumBuffer();
+
+	UINT32 sizeVertex = tmp->sizeOfFrustumVertex();
+	UINT32 offset = 0;
+
+	DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &sizeVertex, &offset);
+	DX::g_deviceContext->Draw(tmp->getFrustum()->size(), 0);
+
+	delete tmp;
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 	DX::g_deviceContext->RSSetState(m_standardRast);
 }
