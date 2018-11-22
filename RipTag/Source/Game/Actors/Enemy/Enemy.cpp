@@ -1774,6 +1774,8 @@ void Enemy::_investigatingSound(const double deltaTime)
 				tmp = m_slRemote;
 		}
 
+		
+
 		if (tmp.percentage > this->m_loudestSoundLocation.percentage)
 		{
 			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
@@ -1807,7 +1809,11 @@ void Enemy::_investigatingRoom(const double deltaTime)
 	{
 		this->setTransitionState(EnemyTransitionState::Observe);
 	}
-	if (this->getVisCounter() >= ALERT_TIME_LIMIT || this->getSoundLocation().percentage > SOUND_LEVEL)
+	SoundLocation target = m_sl;
+
+	if (target.percentage < m_slRemote.percentage)
+		target = m_slRemote;
+	if (this->getVisCounter() >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL)
 	{
 		//this->setTransitionState(EnemyTransitionState::Alerted);
 	}
@@ -1856,9 +1862,15 @@ void Enemy::_suspicious(const double deltaTime)
 		b3Normalize(dir);
 		guard->setDir(dir.x, dir.y, dir.y);*/
 	}
-	if (this->m_sl.percentage*attentionMultiplier >= this->m_loudestSoundLocation.percentage)
+
+	SoundLocation target = m_sl;
+
+	if (target.percentage < m_slRemote.percentage)
+		target = m_slRemote;
+
+	if (target.percentage*attentionMultiplier >= this->m_loudestSoundLocation.percentage)
 	{
-		Enemy::SoundLocation temp = this->m_sl;
+		Enemy::SoundLocation temp = target;
 		temp.percentage *= attentionMultiplier;
 		this->m_loudestSoundLocation = temp;
 		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
@@ -1939,7 +1951,13 @@ void Enemy::_patrolling(const double deltaTime)
 		_MoveTo(m_path.at(m_currentPathNode), deltaTime);
 	}
 
-	if (this->getVisCounter() >= ALERT_TIME_LIMIT || this->getSoundLocation().percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
+	SoundLocation target = m_sl;
+
+	if (target.percentage < m_slRemote.percentage)
+		target = m_slRemote;
+
+
+	if (this->getVisCounter() >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
 	{
 		this->m_transState = EnemyTransitionState::Alerted;
 	}

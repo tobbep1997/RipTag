@@ -205,6 +205,7 @@ int EnemyHandler::_getRemotePlayerVisibility(Enemy * guard)
 void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 {
 	//unsafe lol
+	std::cout << std::endl << data->soundValue << std::endl;
 	m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
 	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos});
 }
