@@ -15,7 +15,6 @@ ParticleEmitter::ParticleEmitter()
 	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
 
 	InitializeBuffer();
-	srand(time(0));
 }
 
 ParticleEmitter::~ParticleEmitter()
