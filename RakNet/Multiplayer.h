@@ -51,6 +51,8 @@ namespace Network
 		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
 		static void addToLobbyOnReceiveMap(unsigned char key, std::function<void(unsigned char, RakNet::Packet*)> func);
 
+		static bool inPlayState;
+
 		int GenerateSeed();
 		int GetSeed() { return m_seed; }
 
@@ -78,6 +80,7 @@ namespace Network
 		bool isGameRunning() { return m_isGameRunning; }
 
 		void setIsConnected(bool b) { this->m_isConnected = b; }
+		void setRole(int role = -1);
 
 		std::string GetNetworkStatistics();
 		std::string GetNID();
@@ -86,7 +89,9 @@ namespace Network
 		RakNet::RakNetGUID GetMyGUID();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
+		void setOccasionalPing();
 
+		static void HandlePackets();
 		static void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void _send_packet(const char* message, size_t length, PacketPriority priority);
 		//unsafe, find a better way

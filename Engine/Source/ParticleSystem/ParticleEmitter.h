@@ -59,9 +59,7 @@ private:
 
 	void _particleVertexCalculation(float timeDelata, Camera * camera);
 
-
 	DirectX::XMFLOAT4X4A m_worldMatrix;
-
 
 
 public:
@@ -85,11 +83,16 @@ public:
 	DirectX::XMINT2 minMaxSpeed;
 	DirectX::XMINT2 minMax;
 
+	void releaseVertexBuffer(); 
+
 	void Queue();
 
 	void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f);
+	const DirectX::XMVECTOR& getPosition() const; 
 
 	DirectX::XMFLOAT4X4A getWorldMatrix();
+
+	void setEmmiterLife(const float & lifeTime);
 
 };
 

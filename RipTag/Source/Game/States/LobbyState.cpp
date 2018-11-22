@@ -68,6 +68,7 @@ LobbyState::~LobbyState()
 		delete pCoopData;
 		pCoopData = nullptr;
 	}
+	pNetwork->setRole();
 	this->pNetwork->ShutdownPeer();
 }
 
@@ -270,6 +271,9 @@ void LobbyState::Update(double deltaTime)
 						pCoopData->remoteID = this->m_remoteNID;
 						pCoopData->role = Role::Server;
 
+						pNetwork->setRole((int)Role::Server);
+						srand(pCoopData->seed);
+
 						isReady = false;
 						isRemoteReady = false;
 
@@ -287,7 +291,7 @@ void LobbyState::Update(double deltaTime)
 							m_loadingScreen.draw();
 						}
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
+						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
 						
 					}
 				}
@@ -1151,6 +1155,7 @@ void LobbyState::_onAdvertisePacket(RakNet::Packet * packet)
 void LobbyState::_onClientJoinPacket(RakNet::Packet * data)
 {
 	pNetwork->setIsConnected(true);
+	pNetwork->setOccasionalPing();
 	hasClient = true;
 	m_clientIP = data->systemAddress;
 	//send a request to retrive the NetworkID of the remote machine
@@ -1170,6 +1175,7 @@ void LobbyState::_onFailedPacket(RakNet::Packet * data)
 void LobbyState::_onSucceedPacket(RakNet::Packet * data)
 {
 	pNetwork->setIsConnected(true);
+	pNetwork->setOccasionalPing();
 	this->selectedHost = data->systemAddress;
 	hasJoined = true;
 	_resetCharSelectButtonStates();
@@ -1287,6 +1293,10 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	pCoopData->remotePlayerCharacter = remoteSelectedChar;
 	pCoopData->remoteID = packet->remoteID;
 	pCoopData->role = Role::Client;
+
+	pNetwork->setRole((int)Role::Client);
+
+	srand(pCoopData->seed);
 
 	isReady = false;
 	isRemoteReady = false;
@@ -1409,12 +1419,34 @@ void LobbyState::Load()
 
 	this->_registerThisInstanceToNetwork();
 
+	std::string path = "../Assets/GUIFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
+				if (extension == L".png" || extension == L".jpg")
+					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
+			}
+		}
+
+
+		//std::cout << p.path().generic_string() << std::endl;
+	}
+
 	std::cout << "Lobby Load" << std::endl;
 }
 
 void LobbyState::unLoad()
 {
 	Network::Multiplayer::LobbyOnReceiveMap.clear();
+	Manager::g_textureManager.UnloadAllTexture();
+	Manager::g_textureManager.UnloadGUITextures();
 	std::cout << "Lobby unLoad" << std::endl;
 }
 

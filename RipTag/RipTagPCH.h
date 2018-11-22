@@ -24,7 +24,8 @@
 #include "Source/Game/States/PlayState.h"
 #include "Source/Game/States/OptionState.h"
 #include "Source/Game/States/LobbyState.h"
-#include "Source/Game/States/LoseState.h"
+#include "Source/Game/States/OptionSound.h"
+#include "Source/Game/States/TransitionState.h"
 #include "Source/Game/States/DBG/DBGState.h"
 
 #include "Source/Input/Input.h"
@@ -47,6 +48,7 @@
 #include "Source/Gameplay/Objects/Door.h"
 #include "Source/Gameplay/Objects/Bars.h"
 #include "Source/Gameplay/Objects/Lever.h"
+#include "Source/Gameplay/Objects/Torch.h"
 #include "Source/Gameplay/Objects/PressurePlate.h"
 
 #include "Source/Physics/Bounce.h"

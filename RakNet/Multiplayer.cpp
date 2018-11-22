@@ -9,6 +9,8 @@ namespace Network
 	std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> Multiplayer::RemotePlayerOnReceiveMap;
 	std::map<unsigned char, std::function<void(unsigned char, RakNet::Packet*)>> Multiplayer::LobbyOnReceiveMap;
 
+	bool Multiplayer::inPlayState = false;
+
 	Multiplayer * Network::Multiplayer::GetInstance()
 	{
 		static Multiplayer m_instance;
@@ -161,6 +163,18 @@ namespace Network
 		}
 	}
 
+	void Multiplayer::setOccasionalPing()
+	{
+		if (pPeer)
+			pPeer->SetOccasionalPing(true);
+	}
+
+	void Multiplayer::HandlePackets()
+	{
+		static Multiplayer * pNetwork = Multiplayer::GetInstance();
+		pNetwork->ReadPackets();
+	}
+
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)
 	{
 		Multiplayer::GetInstance()->_send_packet(message, length, priority);
@@ -191,10 +205,29 @@ namespace Network
 
 	void Multiplayer::Update()
 	{
-		if (m_isRunning)	
+		if (m_isRunning && !inPlayState)	
 			this->ReadPackets();
 	}
 
+
+	void Multiplayer::setRole(int role)
+	{
+		switch (role)
+		{
+		case 0:
+			m_isServer = true;
+			m_isClient = false;
+			break;
+		case 1:
+			m_isServer = false;
+			m_isClient = true;
+			break;
+		default:
+			m_isServer = false;
+			m_isClient = false;
+			break;
+		}
+	}
 
 	std::string Multiplayer::GetNetworkStatistics()
 	{

@@ -4,16 +4,18 @@
 //#todoREMOVE
 float Player::m_currentPitch = 0.0f;
 
-
 Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
 	Manager::g_textureManager.loadTextures("CROSSHAND");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
+	Manager::g_textureManager.loadTextures("WHITE");
+
+
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 50.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 30.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
@@ -76,14 +78,40 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_abilityCircle[1]->setUnpressedTexture("DAB");
 	m_abilityCircle[1]->setAngle(360);
 
+	{ // SoundHud
+		Quad * soundBack = new Quad;
+		Quad * soundfor = new Quad;
+		float outline = 5.0f;
+		DirectX::XMFLOAT2 scl = {50.0f, 200.0f};
+
+		soundBack->init({ 0.0f, 1.0f }, { scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
+		soundBack->setUnpressedTexture("WHITE");
+		soundBack->setType(Quad::QuadType::Outlined);
+		soundBack->setRadie(outline);
+		soundBack->setPivotPoint(Quad::PivotPoint::upperLeft);
+		soundBack->setOutlineColor(1, 1, 0, 0.5f);
+		soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
+		
+		soundfor->init(
+			{ outline / InputHandler::getViewportSize().x,
+			1.0f - (outline / InputHandler::getViewportSize().y)
+			},
+			{ (scl.x - (outline * 4.0f)) / InputHandler::getViewportSize().x, (scl.y - (outline * 4.0f)) / InputHandler::getViewportSize().y });
+
+		
+		soundfor->setUnpressedTexture("WHITE");
+		soundfor->setPivotPoint(Quad::PivotPoint::upperLeft);
+		soundfor->setColor(0, 0, 1);
+
+		m_soundLevelHUD.bckg = soundBack;
+		m_soundLevelHUD.forg = soundfor;
+	}
+
 	HUDComponent::AddQuad(m_abilityCircle[0]);
 	HUDComponent::AddQuad(m_abilityCircle[1]);
 
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
-
-	
-	m_winBar = HUDComponent::GetQuad("YouWin"); 
 
 	m_infoText = HUDComponent::GetQuad("InfoText"); 
 
@@ -155,7 +183,7 @@ Player::~Player()
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
-	PhysicsComponent::Init(world, bodyType, x, y, z, false , 0);
+	PhysicsComponent::Init(world, bodyType, x , y, z, false , 0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
@@ -183,6 +211,11 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	_cheats();
+
+	/*if (getLiniearVelocity().y > 5.0f)
+		setLiniearVelocity(getLiniearVelocity().x, 5.0f, getLiniearVelocity().z);*/
+
 	{
 		using namespace DirectX;
 		//calculate walk direction (-1, 1, based on camera) and movement speed
@@ -284,6 +317,8 @@ void Player::Update(double deltaTime)
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
 
+	
+
 }
 
 void Player::PhysicsUpdate()
@@ -383,7 +418,6 @@ void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
-		
 		m_activeSet[i]->Draw();
 	}
 	Drawable::Draw();
@@ -395,6 +429,7 @@ void Player::Draw()
 	{
 		m_enemyCircles[i]->Draw();
 	}
+	m_soundLevelHUD.Draw();
 }
 
 void Player::LockPlayerInput()
@@ -415,6 +450,14 @@ void Player::UnlockPlayerInput()
 void Player::SetCurrentVisability(const float & guard)
 {
 	this->m_visability = guard;
+}
+
+void Player::SetCurrentSoundPercentage(const float & percentage)
+{
+	this->m_soundPercentage = percentage;
+	m_soundLevelHUD.forg->setV(m_soundPercentage);
+	m_soundLevelHUD.forg->setColor(m_soundPercentage, 1.0f - m_soundPercentage, 1.0f - m_soundPercentage);
+	m_soundLevelHUD.bckg->setOutlineColor(m_soundPercentage, 1.0f - m_soundPercentage, 0.0f, 0.5f);
 }
 
 void Player::SendOnUpdateMessage()
@@ -567,7 +610,6 @@ void Player::SendOnAnimationUpdate(double dt)
 	}
 }
 
-
 void Player::RegisterThisInstanceToNetwork()
 {
 	Network::Multiplayer::addToOnSendFuncMap("Jump", std::bind(&Player::SendOnUpdateMessage, this));
@@ -695,6 +737,27 @@ void Player::_onMovement(double deltaTime)
 			z = DirectX::XMVectorGetZ(m_VlastSpeed);
 	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+
+	RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.0f, false);
+
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+		if (ray)
+		{
+			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			{
+				if (con->contactShape->GetObjectTag() == "NULL")
+				{
+					if (fabs(con->normal.y) < 0.999f)
+					{
+						p_setPosition(getPosition().x, getPosition().y, getPosition().z);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
 }
 
 void Player::_scrollMovementMod()
@@ -1120,13 +1183,27 @@ void Player::_cameraPlacement(double deltaTime)
 	b3Vec3 peekOffsetLeft;
 	b3Vec3 peekOffsetRight;
 
-	peekOffsetLeft.x = (upperBodyLocal.x - 1) * p_camera->getDirection().z;
-	peekOffsetLeft.y = upperBodyLocal.y;
-	peekOffsetLeft.z = (upperBodyLocal.z + 1)* p_camera->getDirection().x;
+	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
-	peekOffsetRight.x = (upperBodyLocal.x + 1) * p_camera->getDirection().z;
+	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
+	DirectX::XMFLOAT4 RIGHT;
+
+	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
+	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);
+	DirectX::XMVECTOR vRight;
+
+	vRight = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vUP, vForward));
+	vForward = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vRight, vUP));
+
+	XMStoreFloat4A(&forward, vForward);
+
+	peekOffsetLeft.x = (upperBodyLocal.x - 1) * forward.z;
+	peekOffsetLeft.y = upperBodyLocal.y;
+	peekOffsetLeft.z = (upperBodyLocal.z + 1)* forward.x;
+
+	peekOffsetRight.x = (upperBodyLocal.x + 1) * forward.z;
 	peekOffsetRight.y = upperBodyLocal.y;
-	peekOffsetRight.z = (upperBodyLocal.z - 1) * p_camera->getDirection().x;
+	peekOffsetRight.z = (upperBodyLocal.z - 1) * forward.x;
 
 	headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5) - headPosLocal;
 
@@ -1236,9 +1313,9 @@ void Player::_deActivateCrouch()
 	m_kp.crouching = false;
 }
 
-void Player::SendOnWin()
+void Player::SendOnWinState()
 {
-	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_WON, 0);
+	Network::ENTITYSTATEPACKET packet(Network::ID_PLAYER_WON, 0, this->hasWon);
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
@@ -1247,28 +1324,35 @@ void Player::_hasWon()
 {
 	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
 	{
-		if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER")
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag();
+
+		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
 		{
-			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "WIN_BOX")
+			if (Object_B_Tag == "PLAYER" || Object_B_Tag == "WIN_BOX")
 			{
 				hasWon = true;
-				SendOnWin();
-				
-				break;
-			}
-		}
-		else if(RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag() == "WIN_BOX")
-		{
-			if (RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
-			{
-				hasWon = true;
-				SendOnWin();
-				break;
+				SendOnWinState();
+				return;
 			}
 		}
 	}
-	if (gameIsWon == true)
-		drawWinBar();
+	for (int i = 0; i < RipExtern::g_contactListener->GetEndContacts().size(); i++)
+	{
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContacts()[i].a->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContacts()[i].b->GetBody()->GetObjectTag();
+
+		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
+		{
+			if (Object_B_Tag == "PLAYER" || Object_B_Tag == "WIN_BOX")
+			{
+				hasWon = false;
+				SendOnWinState();
+				return;
+			}
+		}
+	}
+	
 }
 
 b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
@@ -1305,8 +1389,22 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 	return (tempStart + tempRelativeVec);
 }
 
-void Player::drawWinBar()
+void Player::_cheats()
 {
-	m_winBar->setPosition(0.5f, 0.5f);
+	//Swap ability set cheat
+	if (InputHandler::isKeyPressed(InputHandler::Ctrl) && InputHandler::wasKeyPressed('O'))
+	{
+		if (m_activeSetID == 1)
+		{
+			m_activeSetID = 2;
+			m_activeSet = m_abilityComponents2;
+		}
+		else if (m_activeSetID == 2)
+		{
+			m_activeSetID = 1;
+			m_activeSet = m_abilityComponents1;
+		}
+	}
 }
+
 

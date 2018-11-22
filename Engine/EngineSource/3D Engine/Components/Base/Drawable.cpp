@@ -18,6 +18,9 @@ void Drawable::_setStaticBuffer()
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_staticMesh->getRawVertice();
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+
+
+
 }
 
 void Drawable::_setDynamicBuffer()
@@ -57,14 +60,36 @@ void Drawable::_setDynamicBuffer()
 
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER ;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.ByteWidth = sizeof(stuff) * (UINT)stuffs.size();
-
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = stuffs.data();
 	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+
+	bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+	bufferDesc.StructureByteStride = sizeof(PostAniDynamicVertex);
+	hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput);
+
+	bufferDesc.BindFlags = 0;
+	bufferDesc.Usage = D3D11_USAGE_STAGING;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &uavstage);
+
+
+	if (SUCCEEDED(hr))
+	{
+		D3D11_UNORDERED_ACCESS_VIEW_DESC ud = {};
+		ud.Format = DXGI_FORMAT_R32_FLOAT;
+		ud.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+
+		unsigned int numFloatElementsPerVertex = 11; //needed since DXGI_FORMAT_R32_FLOAT format
+		ud.Buffer.NumElements = m_skinnedMesh->getVertices().size() * numFloatElementsPerVertex;
+		hr = DX::g_device->CreateUnorderedAccessView(m_UAVOutput, &ud, &m_animatedUAV);
+	}
+
+
 }
 
 void Drawable::setOutline(bool outline)
@@ -100,6 +125,68 @@ bool Drawable::GetTransparant()
 std::string Drawable::getTextureName() const
 {
 	return std::string(this->p_texture->getName().begin(), this->p_texture->getName().end());
+}
+
+ID3D11Buffer* Drawable::GetAnimatedVertex()
+{
+	return m_UAVOutput;
+}
+
+ID3D11UnorderedAccessView* Drawable::GetUAV()
+{
+	return m_animatedUAV;
+}
+
+//Please dont call this function
+//Like ever
+void Drawable::DontCallMe()
+{
+	DX::g_deviceContext->CopyResource(uavstage, m_UAVOutput);
+	D3D11_MAPPED_SUBRESOURCE mr;
+
+	std::vector<DynamicVertex> temp = m_skinnedMesh->getVertices();
+
+	if (SUCCEEDED(DX::g_deviceContext->Map(uavstage, 0, D3D11_MAP_READ, 0, &mr)))
+	{
+		PostAniDynamicVertex* data = (PostAniDynamicVertex*)mr.pData;
+		for (unsigned int i = 0; i < (UINT)m_skinnedMesh->getVertices().size(); ++i)
+		{
+			if (temp.at(i).pos.x != data[i].pos.x)
+			{
+				std::cout << "re" << std::endl;
+			}
+			if (temp.at(i).pos.y != data[i].pos.y)
+			{
+				std::cout << "re" << std::endl;
+			}
+			if (temp.at(i).pos.z != data[i].pos.z)
+			{
+				std::cout << "re" << std::endl;
+			}
+		}
+		
+		DX::g_deviceContext->Unmap(uavstage, 0);
+	}
+	throw std::exception("What did i fucking tell you");
+	//D3D11_MAPPED_SUBRESOURCE dataPtr;
+	//if (SUCCEEDED(DX::g_deviceContext->Map(uavstage, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
+	//{
+	//	ShadowTestData killer = { 0 };
+	//	memcpy(dataPtr.pData, &killer, sizeof(ShadowTestData));
+	//	DX::g_deviceContext->CopyResource(m_UAV.uavTextureBuffer, m_UAV.uavTextureBufferCPU);
+	//	//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
+	//	DX::g_deviceContext->Unmap(m_UAV.uavTextureBufferCPU, 0);
+	//}
+}
+
+void Drawable::CastShadows(const bool& shadows)
+{
+	this->m_castShadow = shadows;
+}
+
+const bool& Drawable::getCastShadows() const
+{
+	return this->m_castShadow;
 }
 
 
@@ -158,6 +245,7 @@ Drawable::Drawable() : Transform()
 	m_outLineColor = DirectX::XMFLOAT4A(1, 1, 1, 1);
 	m_outline = false;
 	m_transparant = false;
+	m_castShadow = true;
 }
 
 
@@ -169,6 +257,10 @@ Drawable::~Drawable()
 
 	if (m_bb)
 		delete m_bb;
+
+	DX::SafeRelease(uavstage);
+	DX::SafeRelease(m_UAVOutput);
+	DX::SafeRelease(m_animatedUAV);
 }
 
 

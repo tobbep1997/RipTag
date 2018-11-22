@@ -30,6 +30,7 @@ namespace DX {
 	extern Shaders::ShaderManager g_shaderManager;
 
 	extern Drawable* g_player;
+	extern Drawable* g_remotePlayer;
 	extern std::vector<Drawable*> g_animatedGeometryQueue;
 	extern std::vector<Drawable*> g_outlineQueue;
 	extern std::vector<Drawable*> g_wireFrameDrawQueue;

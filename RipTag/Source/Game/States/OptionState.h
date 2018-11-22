@@ -13,6 +13,7 @@ private:
 		ToggleResolution,
 		ToggleGraphics,
 		ToggleFullscreen,
+		SoundSettings,
 		Return
 	};
 	enum LastInputUsed
@@ -29,10 +30,11 @@ private:
 		"Res: 1920 x 1080",
 		"Res: 3840 x 2160"
 	};
-	const std::string SWAP_GRAPHICS[3] = {
+	const std::string SWAP_GRAPHICS[4] = {
 		"Graphics: LOW",
 		"Graphics: MEDIUM",
-		"Graphics: HIGH"
+		"Graphics: HIGH",
+		"Graphics: ULTRA"
 	};
 	const DirectX::XMINT2 RES[3] = {
 		{1280, 720},

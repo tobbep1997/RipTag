@@ -9,7 +9,7 @@ class TeleportAbility : public AbilityComponent, public BaseActor , public HUDCo
 {
 private: // CONST VARS
 	const int START_MANA_COST = 10;
-	const float TRAVEL_SPEED = 20.0f;
+	const float TRAVEL_SPEED = 30.0f;
 	const float MAX_CHARGE = 1.0f;
 	const bool USE_SHADOWS = true;
 	const DirectX::XMFLOAT4A COLOUR{

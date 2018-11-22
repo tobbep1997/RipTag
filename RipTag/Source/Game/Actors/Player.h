@@ -23,7 +23,6 @@ struct KeyPressed
 enum Ability;
 enum PlayerState;
 
-
 class AbilityComponent;
 class Enemy;
 class BlinkAbility;
@@ -51,6 +50,34 @@ private:
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 private:
+	struct QuadPair
+	{
+		Quad * bckg = nullptr;
+		Quad * forg = nullptr;
+		void Draw()
+		{
+			if (bckg)
+				bckg->Draw();
+			if (forg)
+				forg->Draw();
+		}
+		~QuadPair()
+		{
+			if (bckg)
+			{
+				bckg->Release();
+				delete bckg;
+				bckg = nullptr;
+			}
+			if (forg)
+			{
+				forg->Release();
+				delete forg;
+				forg = nullptr;
+			}
+		}
+	};
+
 	//DisableAbility m_disable;
 	AbilityComponent ** m_abilityComponents1;
 	AbilityComponent ** m_abilityComponents2;
@@ -81,6 +108,7 @@ private:
 	KeyPressed m_kp;
 	
 	float m_visability = 0.0f;
+	float m_soundPercentage = 0.0f;
 
 	bool m_lockPlayerInput;
 
@@ -89,12 +117,12 @@ private:
 	int mouseX = 0;
 	int mouseY = 0;
 
-
-	Quad * m_winBar;
-
 	Quad * m_infoText;
 	Quad * m_abilityTutorialText;
 	Quad * m_tutorialText;
+	
+	QuadPair m_soundLevelHUD;
+	
 
 	Quad * m_cross;
 	std::stack<std::string> m_tutorialMessages;
@@ -133,8 +161,9 @@ private:
 public:
 	//Magic number
 	static const int g_fullVisability = 1300;
+
 	bool hasWon = false;
-	bool gameIsWon = false;
+	
 	bool unlockMouse = false;
 	Player();
 	Player(RakNet::NetworkID nID, float x, float y, float z);
@@ -157,10 +186,11 @@ public:
 	void SendOnAbilityUsed();
 	void SendAbilityUpdates();
 	void SendOnAnimationUpdate(double dt);
-	void SendOnWin();
+	void SendOnWinState();
 	void RegisterThisInstanceToNetwork();
 
 	void SetCurrentVisability(const float & guard);
+	void SetCurrentSoundPercentage(const float & percentage);
 
 	void LockPlayerInput();
 	bool IsInputLocked();
@@ -168,11 +198,11 @@ public:
 
 	const float & getVisability() const;
 	const int & getFullVisability() const;
+	const bool & getWinState() const { return hasWon; }
 
 	const AudioEngine::Listener & getFMODListener() const; 
 	
 	//This is a way of checking if we can use the ability with out current mana
-	void drawWinBar();
 	void SetAbilitySet(int set);
 
 	void setEnemyPositions(std::vector<Enemy *> enemys);
@@ -202,4 +232,7 @@ private:
 	void _deActivateCrouch();
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
+
+	//Cheats, like changing ability set
+	void _cheats();
 };

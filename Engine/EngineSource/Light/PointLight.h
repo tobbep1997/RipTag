@@ -25,7 +25,15 @@ public:
 private:
 	const unsigned int SHADOW_SIDES = 6U;
 	const float FOV = DirectX::XM_PI * 0.5f;
-	
+	struct TourchEffectVars
+	{
+		double timer;
+		DirectX::XMFLOAT2 current, target;
+		float ran;
+	};
+
+	TourchEffectVars m_tev;
+
 	std::vector<Camera *>	m_sides;
 	DirectX::XMFLOAT4A		m_position;
 	DirectX::XMFLOAT4A		m_color;
@@ -38,8 +46,6 @@ private:
 	ID3D11ShaderResourceView *	m_shadowShaderResourceView;
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;
 	ID3D11Texture2D*			m_shadowDepthBufferTex;
-
-	PhysicsComponent m_phys;
 
 	bool m_update = false;
 	bool m_firstRun = true;
@@ -58,7 +64,6 @@ public:
 	void CreateShadowDirection(ShadowDir direction);
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
-	
 
 	void QueueLight();
 
@@ -120,6 +125,7 @@ private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
 	void _updateCameras();
-	void _initDirectX(UINT width = 64U, UINT hight = 64U);
+	void _initDirectX();
+	void _setFarPlane();
 };
 

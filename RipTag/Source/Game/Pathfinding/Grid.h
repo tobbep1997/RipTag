@@ -88,12 +88,15 @@ public:
 	Tile WorldPosToTile(float x, float y);
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
+	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded = 0);
 	std::vector<Node*> FindPath(Tile src, Tile dest);
-	std::vector<Node*> InvestigateAreaPath(Tile src);
+	Tile GetRandomNearbyTile(Tile src, int dir = 0);
 
 	void ThreadPath(Tile src, Tile dest);
 	std::vector<Node*> GetPathFromThread();
 	bool IsPathReady();
+	int getGridWidth();
+	int getGridHeight();
 
 private:
 	// Utility functions
@@ -103,4 +106,5 @@ private:
 	float _calcHValue(Tile src, Tile dest) const;
 	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
 	int _findXInYRow(int begin, int end, int x, int y) const;
+	Tile _nearbyTile(Tile src, int x, int y);
 };

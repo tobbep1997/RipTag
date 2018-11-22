@@ -16,7 +16,14 @@ ForwardRender::~ForwardRender()
 	delete m_visabilityPass;
 }
 
-void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * backBufferRTV, ID3D11DepthStencilView * depthStencilView, ID3D11DepthStencilState* m_depthStencilState, ID3D11Texture2D * depthBufferTex, ID3D11SamplerState * samplerState, D3D11_VIEWPORT viewport)
+void ForwardRender::Init(IDXGISwapChain * swapChain,
+	ID3D11RenderTargetView * backBufferRTV,
+	ID3D11DepthStencilView * depthStencilView,
+	ID3D11DepthStencilState* m_depthStencilState,
+	ID3D11Texture2D * depthBufferTex,
+	ID3D11SamplerState * samplerState,
+	D3D11_VIEWPORT viewport,
+	const WindowContext & windowContext)
 {
 	m_swapChain = swapChain;
 	m_backBufferRTV = backBufferRTV;
@@ -41,7 +48,34 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 
 	_OutlineDepthCreate();
 	m_shadowMap = new ShadowMap();
-	m_shadowMap->Init(128, 128);
+	switch (windowContext.graphicsQuality)
+	{
+	case 0:
+		m_shadowMap->Init(64, 64);
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 4;
+		break;
+	case 1:
+		m_shadowMap->Init(128, 128);
+		m_lightCullingDistance = 75;
+		m_forceCullingLimit = 6;
+		break;
+	case 2:
+		m_shadowMap->Init(1024, 1024);
+		m_lightCullingDistance = 100;
+		m_forceCullingLimit = 8;
+		break;
+	case 3:
+		m_shadowMap->Init(2048, 2048);
+		m_lightCullingDistance = 250;
+		m_forceCullingLimit = 8;
+		break;
+	default:
+		m_shadowMap->Init(64, 64);
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 5;
+		break;
+	}
 	D3D11_BLEND_DESC omDesc;
 	ZeroMemory(&omDesc, sizeof(D3D11_BLEND_DESC));
 	omDesc.RenderTarget[0].BlendEnable = true;
@@ -73,6 +107,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain, ID3D11RenderTargetView * ba
 	wfdesc.CullMode = D3D11_CULL_NONE;
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_disableBackFace);
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
+
+	DXRHC::CreateRasterizerState(m_NUKE, FALSE, D3D11_CULL_NONE, 0, 0, FALSE);
 
 	m_animationBuffer = new Animation::AnimationCBuffer();
 	m_animationBuffer->SetAnimationCBuffer();
@@ -178,6 +214,45 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
 
+void ForwardRender::AnimationPrePass(Camera& camera)
+{
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl"));
+	UINT32 vertexSize = sizeof(DynamicVertex);
+	UINT32 offset = 0;
+	DX::g_deviceContext->RSSetState(m_NUKE);
+	DX::g_deviceContext->OMSetDepthStencilState(m_NUKE2, 0);
+
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+	{
+		auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
+		DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+			0,
+			nullptr,
+			NULL,
+			//NULL,
+			0, 1, &lol, 0
+		);
+
+		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+	}
+
+	DX::g_deviceContext->RSSetState(m_standardRast);
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+
+}
+
 void ForwardRender::AnimatedGeometryPass(Camera & camera)
 {
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -185,23 +260,32 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
-	UINT32 vertexSize = sizeof(DynamicVertex);
+	UINT32 vertexSize = sizeof(PostAniDynamicVertex);
 	UINT32 offset = 0;
-	_setAnimatedShaders();
+	//_setAnimatedShaders();
+
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
+
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
 		if (DX::g_animatedGeometryQueue[i]->getHidden() != true )
 		{
-			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
 
 			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
 			DX::g_animatedGeometryQueue[i]->BindTextures();
 
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+			//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
 			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-			
+
+			//DX::g_animatedGeometryQueue[i]->TEMP();
 		}		
 	}
 }
@@ -211,9 +295,10 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
+	this->AnimationPrePass(camera);
 	this->PrePass(camera);
-
-
+	
+	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	_simpleLightCulling(camera);
@@ -223,6 +308,8 @@ void ForwardRender::Flush(Camera & camera)
 	this->m_shadowMap->ShadowPass(this);
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	DX::g_deviceContext->RSSetState(m_standardRast);
 
 	_visabilityPass();
 	this->GeometryPass(camera);
@@ -242,7 +329,7 @@ void ForwardRender::Flush(Camera & camera)
 
 void ForwardRender::Clear()
 {
-	float c[4] = { 0.0f,0.0f,0.0f,1.0f };
+	float c[4] = { .5f,.5f,.5f,1.0f };
 
 	
 
@@ -253,6 +340,7 @@ void ForwardRender::Clear()
 	DX::g_lights.clear();
 
 	DX::g_player = nullptr;
+	DX::g_remotePlayer = nullptr;
 
 	DX::g_outlineQueue.clear();
 	//this->m_shadowMap->Clear();
@@ -290,6 +378,10 @@ void ForwardRender::Release()
 	//DX::SafeRelease(depthoutState);
 	DX::SafeRelease(m_particleDepthStencilState);
 	DX::SafeRelease(m_outlineBuffer);
+
+	DX::SafeRelease(m_NUKE);
+	DX::SafeRelease(m_NUKE2);
+
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
@@ -783,7 +875,13 @@ void ForwardRender::_OutlineDepthCreate()
 
 	DX::g_device->CreateDepthStencilState(&depth2, &m_OutlineState);
 
+	D3D11_DEPTH_STENCIL_DESC depth4{};
+	depth4.DepthEnable = FALSE;
+	//depth2.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	//depth2.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	depth4.StencilEnable = FALSE;
 
+	DX::g_device->CreateDepthStencilState(&depth4, &m_NUKE2);
 
 }
 
@@ -856,7 +954,7 @@ void ForwardRender::_createShaders()
 	//m_shaderThreads[1] = std::thread([]() {DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/VisabilityVertex.hlsl");  });
 
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/VisabilityShader/VisabilityPixel.hlsl");
-	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowVertexAnimated.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertexAnimated.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl");
 
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl");
@@ -893,6 +991,13 @@ void ForwardRender::_createShadersInput()
 		{ "JOINTINFLUENCES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "JOINTWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
+	D3D11_INPUT_ELEMENT_DESC postAnimatedInputDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
 	D3D11_INPUT_ELEMENT_DESC guardFrustumInputDesc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "UV", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -909,7 +1014,9 @@ void ForwardRender::_createShadersInput()
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl", "main", inputDesc, 11);
 
-	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
+
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl", "main", postAnimatedInputDesc, 4);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", guardFrustumInputDesc, 3);
 }

@@ -41,6 +41,20 @@ const float& Quad::getAngle() const
 	return -1;
 }
 
+const bool Quad::Inside(const DirectX::XMFLOAT2 & mousePos)
+{
+	static long long counter = 0;
+	DirectX::XMFLOAT2 mp = mousePos;
+	DirectX::XMFLOAT2 pos;
+
+	pos.x = 0.5f * quadVertex[Upper_Left].position.x + 0.5f;
+	pos.y = -0.5f * quadVertex[Upper_Left].position.y + 0.5f;
+	DirectX::XMFLOAT2A size = { getSize().x * 0.5f, getSize().y * 0.5f };
+
+	return mp.x > pos.x && mp.x < pos.x + size.x &&
+		mp.y > pos.y && mp.y < pos.y + size.y;
+}
+
 void Quad::_rebuildQuad()
 {
 	static int counter = 0;
@@ -122,6 +136,36 @@ void Quad::Draw()
 void Quad::Release()
 {
 	DX::SafeRelease(m_vertexBuffer);
+}
+
+void Quad::setColor(const DirectX::XMFLOAT4A & color)
+{
+	m_color = color;
+}
+
+void Quad::setColor(float r, float g, float b, float a)
+{
+	m_color = { r, g, b, a };
+}
+
+void Quad::setOutlineColor(const DirectX::XMFLOAT4A & color)
+{
+	m_outlineColor = color;
+}
+
+void Quad::setOutlineColor(float r, float g, float b, float a)
+{
+	m_outlineColor = { r, g, b, a };
+}
+
+const DirectX::XMFLOAT4A & Quad::getColor() const
+{
+	return m_color;
+}
+
+const DirectX::XMFLOAT4A & Quad::getOutlineColor() const
+{
+	return m_outlineColor;
 }
 
 void Quad::setPressedTexture(const std::string &  texture)
@@ -235,7 +279,7 @@ ID3D11Buffer * Quad::getVertexBuffer() const
 const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 {
 	m_preState = m_currentState;
-	if (Button::Inside(mousepos))
+	if (Inside(mousepos))
 	{
 		if (InputHandler::isMLeftPressed(true))
 		{
@@ -312,14 +356,25 @@ DirectX::XMFLOAT4 Quad::getCenter() const
 	return DirectX::XMFLOAT4();
 }
 
+void Quad::setType(QuadType qt)
+{
+	m_qt = qt;
+}
+
 unsigned int Quad::getType() const
 {
-	return 0U;
+	return (unsigned)m_qt;
+}
+
+bool Quad::setRadie(const float & radie)
+{
+	m_rad = radie;
+	return true;
 }
 
 const float & Quad::getRadie() const
 {
-	return 0.0f;
+	return m_rad;
 }
 
 const float & Quad::getInnerRadie() const

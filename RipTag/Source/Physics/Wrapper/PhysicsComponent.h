@@ -35,6 +35,7 @@ class PhysicsComponent
 {
 private:
 	bool singelCollider = true;
+	bool isInited = false;
 
 	b3Body*			 m_body = nullptr;
 	b3Shape *		 m_shape = nullptr;
@@ -67,6 +68,7 @@ public:
 	PhysicsComponent();
 	virtual ~PhysicsComponent();
 
+	virtual b3BodyType getBodyType() { return this->m_bodyDef->type; };
 	virtual void Init(b3World & world, b3BodyType bodyType, float x = 1, float y = 1, float z = 1, bool sensor = false, float friction = 0);
 	virtual void Init(b3World & world, const ImporterLibrary::CollisionBoxes & collisionBoxes, float friction = 0.1f);
 
@@ -98,6 +100,7 @@ public:
 	virtual void setUserDataBody(void * self);
 	virtual void setObjectTag(const char * type);
 
+	
 
 	virtual b3Body* getBody();
 };

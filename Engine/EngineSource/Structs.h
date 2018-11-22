@@ -20,3 +20,11 @@ struct DynamicVertex
 	DirectX::XMFLOAT4A jointWeights;
 
 };
+
+struct PostAniDynamicVertex
+{
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT2 uvPos;
+};

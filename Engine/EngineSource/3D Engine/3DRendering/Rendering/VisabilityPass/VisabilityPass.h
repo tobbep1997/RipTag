@@ -87,4 +87,6 @@ private:
 	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
 
 	void _mapObjectBuffer(Drawable * target);
+
+	void _drawForPlayer(Drawable * player, VisibilityComponent * enemy, int playerIndex);
 };

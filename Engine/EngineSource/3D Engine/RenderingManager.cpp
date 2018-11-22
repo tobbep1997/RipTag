@@ -2,12 +2,12 @@
 #include "RenderingManager.h"
 
 
-
 RenderingManager::RenderingManager()
 {
 	m_wnd = new Window();
 	m_engine = new Engine3D();
 	m_ImGuiManager = new ImGuiManager();
+	m_wind = new WindowContext();
 }
 
 
@@ -16,6 +16,7 @@ RenderingManager::~RenderingManager()
 	delete m_wnd;
 	delete m_engine;
 	delete m_ImGuiManager;
+	delete m_wind;
 }
 
 RenderingManager * RenderingManager::GetInstance()
@@ -32,17 +33,18 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	DEBUG = true;
 #endif
 	m_hInstance = hInstance;
-	WindowContext wind;
-	wind.clientWidth = 1280;
-	wind.clientHeight = 720;
-	wind.fullscreen = false;
-	wind.windowInstance = hInstance;
-	wind.windowTitle = L"RipTag";
+	
+	m_wind->clientWidth = 1280;
+	m_wind->clientHeight = 720;
+	m_wind->fullscreen = false;
+	m_wind->windowInstance = hInstance;
+	m_wind->windowTitle = L"RipTag";
 	//Will override the settings above
-	SettingLoader::LoadWindowSettings(wind);
-	m_wnd->Init(wind);
+	SettingLoader::LoadWindowSettings(*m_wind);
+	SettingLoader::g_windowContext = m_wind;
+	m_wnd->Init(*m_wind);
 
-	m_engine->Init(m_wnd->getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);
+	m_engine->Init(m_wnd->getHandler(), *m_wind);
 
 	if (DEBUG)
 	{

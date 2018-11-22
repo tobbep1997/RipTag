@@ -39,6 +39,10 @@ void SettingLoader::LoadWindowSettings(WindowContext & wind,std::string path)
 				{
 					wind.clientHeight = (UINT)key;
 				}
+				else if (nameList[i] == "graphics")
+				{
+					wind.graphicsQuality = (UINT)key;
+				}
 			}
 
 		}

@@ -2,17 +2,34 @@
 #include "PointLight.h"
 #include "RipTagExtern/RipExtern.h"
 
-
 PointLight::PointLight()
 {
-	m_nearPlane = 1.0f;
-	m_farPlane = 50.0f;
-	_initDirectX(128U, 128U);
+	m_tev = {
+	0.0,
+	{0.0f, 0.0f},
+	{1.0f, 1.0f},
+	5.5f
+	};
+	m_nearPlane = 0.1f;
+	_initDirectX();
+	_setFarPlane();
+	//m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
+	//m_phys.p_setPosition(-999,-9999,-99999);
+	//m_phys.setObjectTag("FUCKOFF");
+	//m_phys.setUserDataBody(this);
 }
+
 PointLight::PointLight(float * translation, float * color, float intensity)
 {
-	m_nearPlane = 1.0f;
-	m_farPlane = 20.0f;
+	m_tev = {
+	0.0,
+	{0.0f, 0.0f},
+	{1.0f, 1.0f},
+	5.5f
+	};
+	m_nearPlane = 0.1f;
+	_initDirectX();
+	_setFarPlane();
 	this->m_position = DirectX::XMFLOAT4A(translation[0], translation[1], translation[2], 1);
 	this->setColor(color[0], color[1], color[2]);
 	this->m_dropOff = 1.1f;
@@ -25,17 +42,11 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 		m_useSides[i] = TRUE;
 	}
 	this->m_dropOff = .5f;
-	_initDirectX(128U,128U);
 
-	m_phys.Init(*RipExtern::g_world, e_staticBody, 0.4f, 0.4f, 0.4f);
-	m_phys.p_setPosition(translation[0], translation[1], translation[2]);
-	m_phys.setObjectTag("TORCH");
-	m_phys.setUserDataBody(this);
 }
 
 PointLight::~PointLight()
 {
-	m_phys.Release(*RipExtern::g_world);
 	for (int i = 0; i < m_sides.size(); i++)
 	{
 		delete m_sides[i];
@@ -125,8 +136,6 @@ const float & PointLight::getFOV() const
 	return this->FOV;
 }
 
-
-
 void PointLight::CreateShadowDirection(const std::vector<ShadowDir> & shadowDir)
 {
 	for (unsigned int i = 0; i < shadowDir.size(); i++)
@@ -137,34 +146,25 @@ void PointLight::CreateShadowDirection(const std::vector<ShadowDir> & shadowDir)
 
 float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 {
-	//srand(NULL);
-	static double time = 0.0f;
-	static DirectX::XMFLOAT2 current(0.0, 0.0);
-	static DirectX::XMFLOAT2 target(1.0, 1.0);
-	static double timer = 0.0f;
-	timer += deltaTime;
-	static float ran = 5.5f;
+	m_tev.timer += deltaTime;
 
-	if (abs(current.x - target.x) < 0.1)
+	if (abs(m_tev.current.x - m_tev.target.x) < 0.1)
 	{
-		timer = 0.0;
-
-		ran = (float)(rand() % 100) / 100.0f;
-
-		target.x = ran;
-
+		m_tev.timer = 0.0;
+		m_tev.ran = (float)(rand() % 100) / 100.0f;
+		m_tev.target.x = m_tev.ran;
 	}
 
-	auto v1 = DirectX::XMLoadFloat2(&current);
-	auto v2 = DirectX::XMLoadFloat2(&target);
+	auto v1 = DirectX::XMLoadFloat2(&m_tev.current);
+	auto v2 = DirectX::XMLoadFloat2(&m_tev.target);
 	DirectX::XMVECTOR vec;
 
 	vec = DirectX::XMVectorLerp(v1, v2, (float)deltaTime * 5.0f);
 
 
-	current.x = DirectX::XMVectorGetX(vec);
+	m_tev.current.x = DirectX::XMVectorGetX(vec);
 
-	float temp = base + sin(current.x) * amplitude;
+	float temp = base + sin(m_tev.current.x) * amplitude;
 	return temp;
 }
 
@@ -296,7 +296,6 @@ void PointLight::SwitchLightOn()
 	m_lightOn = !m_lightOn;
 }
 
-
 void PointLight::QueueLight()
 {
 	if (m_lightOn)
@@ -323,7 +322,7 @@ void PointLight::setColor(const DirectX::XMFLOAT4A & color)
 
 void PointLight::setColor(float x, float y, float z, float w)
 {
-	this->setColor(DirectX::XMFLOAT4A(x / 256.0f, y / 256.0f, z / 256.0f, 1.0f));
+	this->setColor(DirectX::XMFLOAT4A(x / 255.0f, y / 255.0f, z / 255.0f, 1.0f));
 }
 
 void PointLight::setIntensity(float intencsity)
@@ -383,7 +382,6 @@ void PointLight::_createSides()
 	Camera * cam;
 
 	float fov = 0.5f;
-	
 
 	cam = new Camera(FOV, 1.0f, m_nearPlane, m_farPlane);
 	cam->setPosition(this->m_position);
@@ -438,11 +436,52 @@ void PointLight::_updateCameras()
 	}
 }
 
-void PointLight::_initDirectX(UINT width, UINT hight)
+void PointLight::_initDirectX()
 {
+	UINT size = 0;
+	switch (SettingLoader::g_windowContext->graphicsQuality)
+	{
+	case 0:
+		size = 64U;
+		break;
+	case 1:
+		size = 128U;
+		break;
+	case 2:
+		size = 1024U;
+		break;
+	case 3:
+		size = 2048U;
+		break;
+	default:
+		size = 64U;
+		break;
+	}
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, hight, width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS);
+	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, size, size, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS);
 	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADOW_SIDES);
 	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADOW_SIDES, 0, 0, 1);
 	
+}
+
+void PointLight::_setFarPlane()
+{
+	switch (SettingLoader::g_windowContext->graphicsQuality)
+	{
+	case 0:
+		m_farPlane = 10.0f;
+		break;
+	case 1:
+		m_farPlane = 25.0f;
+		break;
+	case 2:
+		m_farPlane = 50.0f;
+		break;
+	case 3:
+		m_farPlane = 75.0f;
+		break;
+	default:
+		m_farPlane = 20.0f;
+		break;
+	}
 }

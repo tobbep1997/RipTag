@@ -17,18 +17,15 @@ ParticleEmitter::ParticleEmitter()
 	spreadMinMax = DirectX::XMINT2{-2, 4 };
 	directionMinMax = DirectX::XMINT2{ 4, 10 };
 	InitializeBuffer();
-	srand(time(0));
-	//setSmoke();
 }
 
 ParticleEmitter::~ParticleEmitter()
 {
+	m_vertexBuffer->Release();
 	for (auto& particle : m_Particles)
 	{
 		delete particle;
 	}
-	
-	m_vertexBuffer->Release();
 }
 
 void ParticleEmitter::Update(float timeDelata, Camera * camera)
@@ -99,7 +96,6 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 
 	for (int i = 0; i < m_Particles.size(); i++)
 	{
-		
 		DirectX::XMVECTOR cameraPos = DirectX::XMLoadFloat4A(&camera->getPosition());
 		m_toCam = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(m_Particles[i]->position, cameraPos));
 		m_right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_toCam, m_fakeUp));
@@ -284,6 +280,10 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 	return basePos;
 }
 
+void ParticleEmitter::releaseVertexBuffer()
+{
+	m_vertexBuffer->Release(); 
+}
 
 void ParticleEmitter::Queue()
 {
@@ -295,6 +295,11 @@ void ParticleEmitter::setPosition(const float & x, const float & y, const float 
 	m_SpawnPosition = DirectX::XMVECTOR{ x,y,z,w };
 }
 
+const DirectX::XMVECTOR & ParticleEmitter::getPosition() const
+{
+	return m_SpawnPosition; 
+}
+
 DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
 {
 	using namespace DirectX;
@@ -303,6 +308,11 @@ DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
 	XMMATRIX matrix = XMMatrixTranspose(XMMatrixTranslation(pos.x, pos.y, pos.z));
 	XMStoreFloat4x4A(&m_worldMatrix, matrix);
 	return m_worldMatrix;
+}
+
+void ParticleEmitter::setEmmiterLife(const float & lifeTime)
+{
+	m_EmitterLife = lifeTime;
 }
 
 float ParticleEmitter::RandomFloat(DirectX::XMINT2 min_max)

@@ -111,10 +111,12 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 
 void RemotePlayer::Update(double dt)
 {
+	static Network::Multiplayer * pNetwork = Network::Multiplayer::GetInstance();
 	//TODO:
 	//1. Update position
 	//2. Update the ability compononent
 	//3. Update animation
+	//4. send visibility data is we are server
 
 	//1.
 	this->_lerpPosition(dt);
@@ -126,7 +128,9 @@ void RemotePlayer::Update(double dt)
 	//3.
 	this->getAnimationPlayer()->Update(dt);
 
-
+	//4.
+	if (pNetwork->isServer())
+		_sendVisibilityPacket();
 }
 
 void RemotePlayer::Draw()
@@ -188,6 +192,13 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentPitch = data->pitch;
 		this->setRotation(data->rot);
 	}
+}
+
+void RemotePlayer::_sendVisibilityPacket()
+{
+	Network::VISIBILITYPACKET packet;
+	packet.value = m_currentVisibility;
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);
 }
 
 

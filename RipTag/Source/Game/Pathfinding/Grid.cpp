@@ -14,12 +14,8 @@ Grid::Grid(int width, int height)
 	m_height = height;
 	
 	for (int i = 0; i < m_height; i++)
-	{
 		for (int j = 0; j < m_width; j++)
-		{
 			m_nodeMap.push_back(Tile(j, i));
-		}
-	}
 }
 
 Grid::Grid(float xVal, float yVal, int width, int depth)
@@ -39,12 +35,17 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 		}
 		yVal += 1;
 	}
-
-
 }
 
 Grid::~Grid()
 {
+	for (auto asset : m_path)
+	{
+		delete asset;
+	}
+	m_path.clear();
+
+
 }
 
 Tile Grid::WorldPosToTile(float x, float y)
@@ -61,34 +62,46 @@ Tile Grid::WorldPosToTile(float x, float y)
 
 void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
-	m_nodeMap.clear();
+	if (!m_nodeMap.empty())
+		m_nodeMap.clear();
 	m_width = grid.maxX;
-	//m_height = grid.maxY;
-	m_height = 11;
+	m_height = grid.maxY;
 
 	for (int i = 0; i < m_height; i++)
-	{
 		for (int j = 0; j < m_width; j++)
 		{
-			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[i + j * m_height].pathable),
-				NodeWorldPos(grid.gridPoints[i + j * m_height].translation[0],
-					grid.gridPoints[i + j * m_height].translation[2])));
+			int index = i + j * m_height;
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
+				NodeWorldPos(grid.gridPoints[index].translation[0],
+					grid.gridPoints[index].translation[2])));
 		}
-	}
+}
+
+void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded)
+{
+	if (!m_nodeMap.empty())
+		m_nodeMap.clear();
+	m_width = grid.maxX;
+	m_height = grid.maxY;
+
+	for (int i = 0; i < grid.maxY; i++)
+		for (int j = 0; j < grid.maxX; j++)
+		{
+			int index = j + i * grid.maxX;
+			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
+				NodeWorldPos(grid.gridPoints[index].translation[0],
+					grid.gridPoints[index].translation[2])));
+		}
 }
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!_isValid(destination) || !_isValid(source))
-	{
 		return std::vector<Node*>();
-	}
 
 	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	if (!dest.getPathable())
-	{
 		return std::vector<Node*>();
-	}
 
 	bool * closedList = new bool[m_height * m_width];
 	for (int i = 0; i < m_height * m_width; i++)
@@ -191,11 +204,6 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			earlyExplorationNode = earlyExploration.at(0);
 			earlyExploration.erase(earlyExploration.begin());
 		}
-		else
-		{
-			// Might be needed to avoid mem leaks if it doesn't lead to any new paths.
-			delete current;
-		}
 		openList.insert(std::end(openList), std::begin(earlyExploration), std::end(earlyExploration));
 		earlyExploration.clear();
 	}
@@ -209,9 +217,42 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	return std::vector<Node*>();
 }
 
-std::vector<Node*> Grid::InvestigateAreaPath(Tile src)
+
+Tile Grid::GetRandomNearbyTile(Tile src, int dir)
 {
-	return std::vector<Node*>();
+	if (src.getX() != -1)
+	{
+		// Make random
+		int direction = dir;
+		int x = src.getX();
+		int y = src.getY();
+		int index = 0;
+
+		switch (direction)
+		{
+			// North
+		case 0:
+			index = x - m_width + y * m_width;
+			if (index >= 0 && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, 0, -1);
+			// East
+		case 1:
+			index = x + 1 + y * m_width;
+			if (index < m_width + y * m_width && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, 1, 0);
+			// South
+		case 2:
+			index = x + m_width + y * m_width;
+			if (index < m_nodeMap.size() && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, 0, 1);
+		case 3:
+			index = x - 1 + y * m_width;
+			if (index >= y * m_width && m_nodeMap.at(index).tile.getPathable())
+				return _nearbyTile(src, -1, 0);
+			break;
+		}
+	}
+	return Tile();
 }
 
 void Grid::ThreadPath(Tile src, Tile dest)
@@ -232,6 +273,16 @@ bool Grid::IsPathReady()
 	return status == std::future_status::ready;
 }
 
+int Grid::getGridWidth()
+{
+	return m_width;
+}
+
+int Grid::getGridHeight()
+{
+	return m_height;
+}
+
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList, bool * closedList)
 {
 	int currentX = current->tile.getX();
@@ -241,7 +292,7 @@ void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY
 
 	if (_isValid(nextTile) && !closedList[nextTileIndex] && m_nodeMap.at(nextTileIndex).tile.getPathable())
 	{
-		Node * newNode = new Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos,
+		Node * newNode = DBG_NEW Node(m_nodeMap.at(nextTileIndex).tile, m_nodeMap.at(nextTileIndex).worldPos,
 			current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
 		openList.push_back(newNode);
 	}
@@ -297,4 +348,43 @@ int Grid::_findXInYRow(int begin, int end, int x, int y) const
 		return _findXInYRow(mid + 1, end, x, y);
 	}
 	return -1;
+}
+
+Tile Grid::_nearbyTile(Tile src, int x, int y)
+{
+	bool foundTile = false;
+	Tile destination = Tile(src.getX() + x, src.getY() + y);
+	int destX = destination.getX();
+	int destY = destination.getY();
+	int count = 0;
+
+	while (!foundTile)
+	{
+		if (count > 4 || !m_nodeMap.at(destX + destY * m_width).tile.getPathable())
+		{
+			foundTile = true;
+			destX -= x;
+			destY -= y;
+		}
+		else
+		{
+			count++;
+			destX += x;
+			destY += y;
+		}
+	}
+	/*destination = Tile(destination.getX() + x * count, destination.getY() + y * count);
+	destX = destination.getX();
+	destY = destination.getY();*/
+	if (destX < 0)
+		destX = 0;
+	if (destY < 0)
+		destY = 0;
+	if (destX < y * m_width)
+		destX = m_width * y - 1;
+	if (destY >= m_height)
+		destY = m_height - 1;
+	destination = Tile(destX, destY);
+
+	return destination;
 }
