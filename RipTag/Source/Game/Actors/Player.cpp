@@ -483,6 +483,7 @@ void Player::SetFirstPersonModel()
 	auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
 	auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
 	auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
+	auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
 	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
 
 	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
@@ -493,6 +494,7 @@ void Player::SetFirstPersonModel()
 	auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
 	idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
 	auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
+	auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
 	machine->SetState("idle");
 
 	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
