@@ -91,7 +91,7 @@ void LayerMachine::PopLayer(LayerState* state)
 	auto it = std::find(m_ActiveLayers.begin(), m_ActiveLayers.end(), state);
 	if (it != std::end(m_ActiveLayers)) 
 	{
-		(*it)->BlendOut();
+		m_ActiveLayers.erase(it);
 		//m_ActiveLayers.erase(it);
 	}
 }
@@ -251,6 +251,10 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 {
 	_updateDriverWeight();
 	deltaTime *= m_CurrentDriverWeight;
+
+	//if (m_Muted)
+	//	m_CurrentDriverWeight = 0.0f;
+
 	LayerState::_updateTime(deltaTime);
 	LayerState::_updateBlend(deltaTime);
 	if (!LayerState::IsPopped())
@@ -271,7 +275,6 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 			, indexAndProgression.second, m_OwnerMachine->GetSkeletonJointCount());
 
 		weight *= m_CurrentDriverWeight;
-		std::cout << m_CurrentDriverWeight << std::endl;
 		if (weight >= 0.0f || weight < 0.9999f)
 		{
 			Animation::AnimationPlayer::_ScalePose(&pose, weight, m_OwnerMachine->GetSkeletonJointCount());

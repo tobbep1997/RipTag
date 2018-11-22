@@ -345,6 +345,11 @@ const int & Player::getFullVisability() const
 	return g_fullVisability;
 }
 
+Animation::AnimationPlayer* Player::GetFirstPersonAnimationPlayer()
+{
+	return m_FirstPersonModel->getAnimationPlayer();
+}
+
 const AudioEngine::Listener & Player::getFMODListener() const
 {
 	return m_FMODlistener;
@@ -478,16 +483,21 @@ void Player::SetFirstPersonModel()
 	//Animation stuff
 	auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
 	auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
+	auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
+	auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
 	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
 
 	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
 
-	auto& machine = animPlayer->InitStateMachine(1);
+	auto& machine = animPlayer->InitStateMachine(3);
 	animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 
-	auto state = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
-	state->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+	auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+	idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+	auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 	machine->SetState("idle");
+
+	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
 
 	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
 	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
@@ -1234,7 +1244,6 @@ void Player::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
 	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
-	DirectX::XMFLOAT4 RIGHT;
 
 	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
 	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);

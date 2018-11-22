@@ -170,15 +170,23 @@ namespace Animation
 		void Update(float deltaTime);
 		SkeletonPose UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData);
 		SkeletonPose UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
+		void UpdateWithPose(Animation::SkeletonPose* pose);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetSkeleton(SharedSkeleton skeleton);
+		uint16_t GetSkeletonJointCount();
 		void Pause();
 		void Play();
+		void Reset();
+
+		float GetTimeLeft(bool useNormalizedTime);
+
+		///Joint parenting
 		DirectX::XMMATRIX GetModelMatrixForJoint(uint16_t jointIndex);
 		DirectX::XMVECTOR GetPositionForJoint(uint16_t jointIndex);
 		DirectX::XMVECTOR GetOrientationForJoint(uint16_t jointIndex);
 		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetLocalPositionAndOrientationOfJoint(uint16_t jointIndex);
 		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetWorldPositionAndOrientationOfJoint(uint16_t jointIndex);
+		///---------------
 
 		std::unique_ptr<LayerMachine>& GetLayerMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
@@ -237,7 +245,7 @@ namespace Animation
 
 	public:
 		void UpdateLooping(Animation::AnimationClip* clip);
-		void UpdateOnce(Animation::AnimationClip* clip);
+		std::optional<Animation::SkeletonPose> UpdateOnce(Animation::AnimationClip* clip);
 	};
 
 	//Stuff

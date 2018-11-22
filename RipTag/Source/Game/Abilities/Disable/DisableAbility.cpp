@@ -142,7 +142,8 @@ void DisableAbility::_inStateThrowable()
 		{
 			
 			m_dState = DisableAbility::Charging;
-			
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 		}
 		if (Input::OnAbility2Released())
 		{
@@ -170,6 +171,8 @@ void DisableAbility::_inStateCharging(double dt)
 		if (Input::OnAbility2Released())
 		{
 			m_dState = DisableState::Moving;
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;

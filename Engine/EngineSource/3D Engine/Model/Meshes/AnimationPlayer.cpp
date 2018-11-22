@@ -29,8 +29,6 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 
 	if (m_StateMachine)
 	{
-
-
 		m_StateMachine->UpdateCurrentState();
 		
 		//Blendfactor used to blend between two states.
@@ -203,6 +201,11 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace2D(SM::Blend
 	return std::move(finalPose);
 }
 
+void Animation::AnimationPlayer::UpdateWithPose(Animation::SkeletonPose * pose)
+{
+	_ComputeSkinningMatrices(pose);
+}
+
 void Animation::AnimationPlayer::SetPlayingClip(AnimationClip* clip, bool isLooping /*= true*/, bool keepCurrentNormalizedTime /*= false*/)
 {
 	m_CurrentClip = clip;
@@ -220,6 +223,11 @@ void Animation::AnimationPlayer::SetSkeleton(SharedSkeleton skeleton)
 	m_SkinningMatrices.resize(skeleton->m_JointCount);
 }
 
+uint16_t Animation::AnimationPlayer::GetSkeletonJointCount()
+{
+	return m_Skeleton->m_JointCount;
+}
+
 void Animation::AnimationPlayer::Pause()
 {
 	m_IsPlaying = false;
@@ -228,6 +236,23 @@ void Animation::AnimationPlayer::Pause()
 void Animation::AnimationPlayer::Play()
 {
 	m_IsPlaying = true;
+}
+
+void Animation::AnimationPlayer::Reset()
+{
+	m_IsPlaying = true;
+	m_CurrentClip = nullptr;
+	m_CurrentNormalizedTime = 0.0f;
+	m_CurrentTime = 0.0f;
+}
+
+float Animation::AnimationPlayer::GetTimeLeft(bool useNormalizedTime)
+{
+	float clipTotalTime = (m_CurrentClip->m_FrameCount * ANIMATION_FRAMETIME);
+	
+	return useNormalizedTime
+		? clipTotalTime - (m_CurrentNormalizedTime * clipTotalTime)
+		: clipTotalTime - m_CurrentTime;
 }
 
 std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> Animation::AnimationPlayer::GetLocalPositionAndOrientationOfJoint(uint16_t jointIndex)
@@ -273,6 +298,7 @@ std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimationPlayer::GetLayer
 std::unique_ptr<SM::AnimationStateMachine>& Animation::AnimationPlayer::InitStateMachine(size_t numStates)
 {
 	m_StateMachine = std::make_unique<SM::AnimationStateMachine>(numStates);
+	m_StateMachine->SetModel(this);
 	m_Visitor = std::make_unique<SM::StateVisitor>(this);
 	return m_StateMachine;
 }
@@ -670,17 +696,16 @@ void Animation::AnimationPlayer::UpdateLooping(Animation::AnimationClip* clip)
 	}
 }
 
-void Animation::AnimationPlayer::UpdateOnce(Animation::AnimationClip* clip)
+//returns true if the clip is finished, giving an indication
+//that the statemachine might want to progress to another state
+std::optional<Animation::SkeletonPose> Animation::AnimationPlayer::UpdateOnce(Animation::AnimationClip* clip)
 {
-	if (clip != m_CurrentClip)
-		this->SetPlayingClip(clip, false, false);
-
 	if (m_IsPlaying)
 	{
-		/// increase local time
-		//done in _computeIndexAndProgression()
+		if (clip != m_CurrentClip)
+			this->SetPlayingClip(clip, false, false);
 
-		///calc the actual frame index and progression towards the next frame
+		///calc the frame index and progression towards the next frame
 		auto indexAndProgression = _ComputeIndexAndProgressionOnce(m_currentFrameDeltaTime, &m_CurrentTime, m_CurrentClip->m_FrameCount);
 
 		uint16_t prevIndex = 0;
@@ -692,32 +717,32 @@ void Animation::AnimationPlayer::UpdateOnce(Animation::AnimationClip* clip)
 		}
 		else
 		{
-			m_IsPlaying = false;
+/*			Pause();*/
 			prevIndex = m_CurrentClip->m_FrameCount - 1;
 			_ComputeSkinningMatrices(&m_CurrentClip->m_SkeletonPoses[prevIndex]);
-			return;
+			return std::nullopt;
 		}
-		///if we exceeded clips time, set back to 0 ish if we are looping, or stop if we aren't
-		if (prevIndex >= m_CurrentClip->m_FrameCount - 1) /// -1 because last frame is only used to interpolate towards
+		
+		///should never enter here, hence the assert
+		if (prevIndex >= m_CurrentClip->m_FrameCount - 1) 
 		{
 			assert(1 == 0);
-			if (m_IsLooping)
-			{
-				m_CurrentTime = 0.0 + progression;
-
-				prevIndex = std::floorf(m_CurrentClip->m_Framerate / 2 * m_CurrentTime);
-				progression = std::fmod(m_CurrentTime, 1.0 / 24.0);
-			}
-			else
-			{
-				m_IsPlaying = false;
-			}
+			Pause();
+			return true;
 		}
 
 		/// compute skinning matrices
 		if (m_IsPlaying)
-			_ComputeSkinningMatrices(&m_CurrentClip->m_SkeletonPoses[prevIndex], &m_CurrentClip->m_SkeletonPoses[prevIndex + 1], progression);
+		{
+			//_ComputeSkinningMatrices(&m_CurrentClip->m_SkeletonPoses[prevIndex], &m_CurrentClip->m_SkeletonPoses[prevIndex + 1], progression);
+			return _BlendSkeletonPoses(&m_CurrentClip->m_SkeletonPoses[prevIndex], &m_CurrentClip->m_SkeletonPoses[prevIndex + 1], progression, m_Skeleton->m_JointCount);
+		}
+		else 
+		{
+			return std::nullopt;
+		}
 	}
+	return std::nullopt;
 }
 
 Animation::SharedAnimation Animation::ConvertToAnimationClip(ImporterLibrary::AnimationFromFile* animation, uint8_t jointCount)

@@ -88,6 +88,14 @@ namespace SM
 		return state;
 	}
 
+	SM::AutoTransitionState* AnimationStateMachine::AddAutoTransitionState(std::string name, Animation::AnimationClip* clip, AnimationState* outState)
+	{
+		AutoTransitionState* state = new AutoTransitionState(name, clip, outState);
+		m_States.insert(std::make_pair(name, static_cast<AnimationState*>(state)));
+		return state;
+
+	}
+
 	SM::LoopState* AnimationStateMachine::AddLoopState(std::string name, Animation::AnimationClip* clip)
 	{
 		LoopState* state = new LoopState(name);
@@ -113,7 +121,9 @@ namespace SM
 	{
 		m_CurrentState = m_States.at(stateName);
 		if (m_AnimationPlayer)
-			m_AnimationPlayer->Play();
+		{
+			m_AnimationPlayer->Reset();
+		}
 	}
 
 	void AnimationStateMachine::SetStateIfAllowed(std::string stateName)
@@ -137,11 +147,16 @@ namespace SM
 {
 		if (!m_CurrentState)
 			return false;
+
+
 		//returns the first state that has all conditions satisfied, if any.
 		auto state = m_CurrentState->EvaluateAll();
 
 		if (state.first)
 		{
+			m_CurrentState->Reset();
+			state.first->Reset();
+			m_AnimationPlayer->Reset();
 			m_BlendFromState = m_CurrentState;
 			m_BlendFromState->LockCurrentValues();
 			m_CurrentState = state.first;
@@ -160,6 +175,7 @@ namespace SM
 		{
 			m_RemainingBlendTime = 0.0;
 			m_TotalBlendTime = 0.0;
+			m_BlendFromState->Reset();
 			m_BlendFromState = nullptr;
 			return 0.0;
 		}
@@ -207,6 +223,21 @@ namespace SM
 
 	Animation::SkeletonPose StateVisitor::dispatch(AutoTransitionState& state)
 	{
+		if (!m_AnimationPlayer)
+			return Animation::SkeletonPose();
+
+		if (state.m_PoseIsLocked)
+		{
+			state.m_ShouldTransition = true;
+			return Animation::MakeSkeletonPose(state.m_Clip->m_SkeletonPoses[state.m_Clip->m_FrameCount - 1], m_AnimationPlayer->GetSkeletonJointCount());
+		}
+
+		auto pose = m_AnimationPlayer->UpdateOnce(state.GetClip());
+		if (pose.has_value())
+			return std::move(pose.value());
+		else state.m_ShouldTransition = true;
+
+		//#todo
 		return Animation::SkeletonPose();
 	}
 
@@ -215,8 +246,9 @@ namespace SM
 		if (!m_AnimationPlayer)
 			return Animation::SkeletonPose();
 
-		m_AnimationPlayer->UpdateOnce(state.GetClip());
-		
+		auto pose = m_AnimationPlayer->UpdateOnce(state.GetClip());
+		if (pose.has_value())
+			return std::move(pose.value());
 		//#todo
 		return Animation::SkeletonPose();
 	}
@@ -407,19 +439,35 @@ namespace SM
 #pragma endregion "BlendSpace2D"
 
 #pragma region "AutoTransState"
-	AutoTransitionState::AutoTransitionState(std::string name)
-		: AnimationState(name)
+	AutoTransitionState::AutoTransitionState(std::string name, Animation::AnimationClip* clip, AnimationState* outState)
+		: AnimationState(name), m_Clip(clip), m_ShouldTransition(false)
 	{
+		auto& outstate = this->AddOutState(outState); //#todo
+		outstate.AddTransition(&m_ShouldTransition, true, COMPARISON_EQUAL);
 	}
 
 	AutoTransitionState::~AutoTransitionState()
-	{
+	{}
 
+	Animation::AnimationClip* AutoTransitionState::GetClip()
+	{
+		return m_Clip;
 	}
 
 	std::optional<Animation::SkeletonPose> AutoTransitionState::recieveStateVisitor(StateVisitorBase & visitor)
 	{
 		return std::move(visitor.dispatch(*this));
+	}
+
+	void AutoTransitionState::LockCurrentValues()
+	{
+		m_PoseIsLocked = true;
+	}
+
+	void AutoTransitionState::Reset()
+	{
+		m_ShouldTransition = false;
+		m_PoseIsLocked = false;
 	}
 
 #pragma endregion "AutoTransState"

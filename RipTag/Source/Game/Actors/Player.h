@@ -204,6 +204,7 @@ public:
 
 	const float & getVisability() const;
 	const int & getFullVisability() const;
+	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
 	
