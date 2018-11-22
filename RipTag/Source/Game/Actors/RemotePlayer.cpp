@@ -196,9 +196,9 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 
 void RemotePlayer::_sendVisibilityPacket()
 {
-	Network::VISIBILITYPACKET packet;
-	packet.value = m_currentVisibility;
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);
+	//Network::VISIBILITYPACKET packet;
+	//packet.value = m_currentVisibility;
+	/*Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);*/
 }
 
 
