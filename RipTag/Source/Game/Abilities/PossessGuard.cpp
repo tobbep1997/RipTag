@@ -109,22 +109,38 @@ void PossessGuard::_logic(double deltaTime)
 			if (ray != nullptr)
 			{
 				RayCastListener::RayContact* contact = ray->getClosestContact();
-				if (contact->originBody->GetObjectTag() == "PLAYER" && contact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				if (contact->originBody->GetObjectTag() == "PLAYER")
 				{
-					
-					pPointer->getBody()->SetType(e_staticBody);
-					pPointer->getBody()->SetAwake(false);
-					pPointer->setHidden(false);
-					pPointer->LockPlayerInput();
+					std::string objectTag = contact->contactShape->GetBody()->GetObjectTag();
 
-					contact->contactShape->GetBody()->SetType(e_dynamicBody);
-					contact->contactShape->GetBody()->SetAwake(true);
-					this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
-					this->m_possessTarget->setTransitionState(EnemyTransitionState::BeingPossessed);
-					this->m_possessTarget->setPossessor(pPointer, 20, 1);
-					m_pState = PossessGuard::Possessing;
-					p_cooldown = 0;
-					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
+					if (objectTag == "BLINK_WALL")
+					{
+						if (ray->getNrOfContacts() > 1)
+						{
+							contact = ray->GetRayContacts().at(ray->getNrOfContacts() - 2);
+							objectTag = contact->contactShape->GetBody()->GetObjectTag();
+						}
+					}
+
+
+					if (objectTag == "ENEMY")
+					{
+					
+						pPointer->getBody()->SetType(e_staticBody);
+						pPointer->getBody()->SetAwake(false);
+						pPointer->setHidden(false);
+						pPointer->LockPlayerInput();
+
+						contact->contactShape->GetBody()->SetType(e_dynamicBody);
+						contact->contactShape->GetBody()->SetAwake(true);
+						this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+						this->m_possessTarget->setTransitionState(EnemyTransitionState::BeingPossessed);
+						this->m_possessTarget->setPossessor(pPointer, 20, 1);
+						m_pState = PossessGuard::Possessing;
+						p_cooldown = 0;
+						//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
+					}
+
 				}
 			}		
 			

@@ -1487,7 +1487,12 @@ void Enemy::_handleStates(const double deltaTime)
 			this->_investigatingSight(deltaTime);
 		}
 		if (m_transState == EnemyTransitionState::NoTransitionState)
-			_MoveToAlert(m_alertPath.at(0), deltaTime);
+		{
+			if (m_alertPath.size() != 0)
+			{
+				_MoveToAlert(m_alertPath.at(0), deltaTime);
+			}
+		}
 		_detectTeleportSphere();
 		break;
 	case EnemyState::Investigating_Sound:
