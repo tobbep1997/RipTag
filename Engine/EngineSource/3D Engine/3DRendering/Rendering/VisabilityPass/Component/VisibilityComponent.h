@@ -214,6 +214,7 @@ public:
 
 	void QueueVisibility();
 	void CalculateVisabilityFor(int playerIndex);
+	void SetCalculatedVisibilityFor(int playerIndex, int value) { m_playerVisability[playerIndex] = value; }
 	UINT32 sizeOfFrustumVertex();
 
 	ID3D11UnorderedAccessView * getUAV();

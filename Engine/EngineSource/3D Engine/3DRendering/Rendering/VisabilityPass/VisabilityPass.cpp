@@ -129,8 +129,8 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 	DX::g_deviceContext->PSSetShaderResources(10, 1, &m_guardShaderResource);
 
 	_drawForPlayer(DX::g_player, target, 0);
-	if (DX::g_remotePlayer)
-		_drawForPlayer(DX::g_remotePlayer, target, 1);
+	/*if (DX::g_remotePlayer)
+		_drawForPlayer(DX::g_remotePlayer, target, 1);*/
 
 
 	//UINT32 vertexSize = sizeof(StaticVertex);

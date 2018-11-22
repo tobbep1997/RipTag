@@ -228,7 +228,7 @@ void DisableAbility::_inStateMoving(double dt)
 				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
 				{
 					m_hasHit = true; 
-					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(EnemyTransitionState::BeingDisabled);
+					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
 					m_dState = DisableState::Cooldown;
 					//Particle effects here before changing the position.  
 					m_particleEmitter = new ParticleEmitter();

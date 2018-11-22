@@ -573,12 +573,10 @@ void ForwardRender::_GuardFrustumDraw()
 
 	for (unsigned int i = 0; i < DX::g_visibilityComponentQueue.size(); i++)
 	{
-
 		DirectX::XMFLOAT4X4A viewProj = DX::g_visibilityComponentQueue[i]->getCamera()->getViewProjection();
 		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
 		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
-
 
 		D3D11_MAPPED_SUBRESOURCE dataPtr;
 		GuardBuffer gb;

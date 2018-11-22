@@ -61,27 +61,43 @@ void PressurePlate::Update(double deltaTime)
 	{
 		if (con)
 		{
-			if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") || 
-				(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
-				if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
+			b3Shape * shapeA = con->GetShapeA();
+			b3Shape * shapeB = con->GetShapeB();
+			if (shapeA && shapeB)
+			{
+				b3Body * bodyA = shapeA->GetBody();
+				b3Body * bodyB = shapeB->GetBody();
+
+				if (bodyA && bodyB)
 				{
-					if (static_cast<PressurePlate*>(con->GetShapeA()->GetBody()->GetUserData()) == this ||
-						static_cast<PressurePlate*>(con->GetShapeB()->GetBody()->GetUserData()) == this)
+					std::string objectTagA = bodyA->GetObjectTag();
+					std::string objectTagB = bodyB->GetObjectTag();
+
+					if ((objectTagA == "PLAYER" || objectTagA == "ENEMY") ||
+						(objectTagB == "PLAYER" || objectTagB == "ENEMY"))
 					{
-						if (!this->getTriggerState())
+						if (objectTagA == "PressurePlate" || objectTagB == "PressurePlate")
 						{
-							this->setTriggerState(true);
-							this->SendOverNetwork();
+							if (static_cast<PressurePlate*>(bodyA->GetUserData()) == this ||
+								static_cast<PressurePlate*>(bodyB->GetUserData()) == this)
+							{
+								if (!this->getTriggerState())
+								{
+									this->setTriggerState(true);
+									this->SendOverNetwork();
+								}
+							}
 						}
 					}
 				}
+			}
 		}
 	}
 	
 
 	//If previous state was true, but the new state is false no one is one the plate locally
-	if (previousState && !this->getTriggerState())
-		this->SendOverNetwork();
+	//if (previousState && !this->getTriggerState())
+		//this->SendOverNetwork();
 
 	this->getAnimationPlayer()->Update(deltaTime);
 }

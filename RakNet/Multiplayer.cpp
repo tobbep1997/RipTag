@@ -118,7 +118,7 @@ namespace Network
 		double elapsedTime = localClock.getElapsedTime();
 
 		if (elapsedTime >= ADVERTISEMENT_FREQUENCE)
-			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), PEER_PORT, additionalData, length);
+			this->pPeer->AdvertiseSystem(LAN_IP.c_str(), PEER_PORT, additionalData, (int)length);
 	}
 
 	bool Multiplayer::ConnectTo(RakNet::SystemAddress ip)

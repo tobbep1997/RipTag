@@ -3,51 +3,14 @@
 #include "../Actor.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"
-
 struct Node;
 
 class VisibilityComponent;
-class Grid;
+class AI;
 
-enum EnemyState
-{
-	NoState,
-	Investigating_Sight,
-	Investigating_Sound,
-	Investigating_Room,
-	High_Alert,
-	Suspicious,
-	Scanning_Area,
-	Patrolling,
-	Possessed,
-	Disabled,
-	
-};
-
-enum EnemyTransitionState
-{
-	NoTransitionState,
-	Alerted,
-	InvestigateSound,
-	InvestigateSight,
-	Observe,
-	SearchArea,
-	ReturnToPatrol,
-	BeingPossessed,
-	BeingDisabled,
-	ExitingPossess,
-	ExitingDisable,
-
-};
-
-class Enemy : public Actor, public CameraHolder, public PhysicsComponent
+class Enemy : public Actor, public CameraHolder, public PhysicsComponent, public AI
 {
 public:
-	struct SoundLocation
-	{
-		float percentage = 0.0f;
-		DirectX::XMFLOAT3 soundPos = DirectX::XMFLOAT3(0,0,0);
-	};
 
 public:
 	enum KnockOutType
@@ -57,20 +20,14 @@ public:
 	};
 
 private:
+	friend class AI;
+
 	const float MOVE_SPEED = 4.0f;
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
 	const float TURN_SPEED = 2.0f;
 	const float REVERSE_SPEED = 0.5f;
-
-	//AI Behavior constants
-	const float SOUND_LEVEL = 0.33f;
-	const int SIGHT_LEVEL = 1700;
-	const float ALERT_TIME_LIMIT = 0.8f;
-	const float SUSPICIOUS_TIME_LIMIT = 2.0f;
-	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
-	const float HIGH_ALERT_LIMIT = 3.0f;
 
 private:
 	struct AudioVars
@@ -93,7 +50,6 @@ private:
 	unsigned int uniqueID;
 
 	lerpVal m_lv;
-
 	AudioVars m_av;
 	KnockOutType m_knockOutType; 
 
@@ -148,14 +104,10 @@ private:
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
 
-	int m_currentPathNode = 0;
-	std::vector<Node*> m_path;
-	std::vector<Node*> m_alertPath;
 
-
-	EnemyState m_state = Patrolling;
-	SoundLocation m_sl;
-	SoundLocation m_loudestSoundLocation;
+	SoundLocation m_sl = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+	SoundLocation m_slRemote = { 0.0f, {-999.0f, -999.0f, -999.0f} };
+	SoundLocation m_loudestSoundLocation = { 0.0f, {-999.0f, -999.0f, -999.0f} };
 
 	DirectX::XMFLOAT4A m_clearestPlayerPos;
 	float m_biggestVisCounter = 0.0f;
@@ -191,17 +143,9 @@ private:
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
 
-	Player * m_PlayerPtr;
-	float m_HighAlertTime = 0.f;
-	float m_actTimer = 0.0f;
-	float m_searchTimer = 0.0f;
-	EnemyTransitionState m_transState = EnemyTransitionState::NoTransitionState;
-	float lastSearchDirX = 0;
-	float lastSearchDirY = 0;
-	Grid* m_grid;
+	Player * m_PlayerPtr		= nullptr;
+	RemotePlayer * m_RemotePtr	= nullptr;
 public:
-	Enemy();
-	Enemy(float startPosX, float startPosY, float startPosZ);
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
 
@@ -214,8 +158,6 @@ public:
 	// Inherited via Actor
 
 	void CullingForVisability(const Transform & player);
-
-	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
 
 	virtual void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f) override;
 	virtual void BeginPlay() override;
@@ -243,26 +185,17 @@ public:
 	//0 is Stoned, 1 is exit-possess cooldown
 	void setKnockOutType(KnockOutType knockOutType);
 
-	void SetPathVector(std::vector<Node*>  path);
-	Node * GetCurrentPathNode() const;
-	void SetAlertVector(std::vector<Node*> alertPath);
-
 	void setReleased(bool released);
-	bool GetPathEmpty() const;
-	size_t GetAlertPathSize() const;
-	Node * GetAlertDestination() const;
 
-	EnemyState getEnemyState() const;
-	void setEnemeyState(EnemyState state);
-
-	EnemyTransitionState getTransitionState() const;
-	void setTransitionState(EnemyTransitionState state);
 
 	void setSoundLocation(const SoundLocation & sl);
+	void setSoundLocationRemote(const SoundLocation & sl) { m_slRemote = sl; };
 	const SoundLocation & getSoundLocation() const;
 
 	const SoundLocation & getLoudestSoundLocation() const;
 	void setLoudestSoundLocation(const SoundLocation & sl);
+	void setCalculatedVisibilityFor(int playerIndex, int value);
+
 
 	const DirectX::XMFLOAT4A & getClearestPlayerLocation() const;
 	void setClearestPlayerLocation(const DirectX::XMFLOAT4A & cpl);
@@ -273,82 +206,46 @@ public:
 	bool getIfLost();
 	const KnockOutType getKnockOutType() const; 
 
-	float getTotalVisablilty() const;
-	float getMaxVisability() const;
-	float getVisCounter() const;
 	void addTeleportAbility(const TeleportAbility & teleportAbility);
 
 	void DrawGuardPath();
 	void EnableGuardPathPrint();
 
-	void SetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
+	float GetLenghtToPlayer(const DirectX::XMFLOAT4A & playerPos);
 
 	void SetPlayerPointer(Player * player);
+	void SetRemotePointer(RemotePlayer * remote) { m_RemotePtr = remote; }
 
-	void AddActTimer(double deltaTime);
-	float GetActTimer() const;
-	void SetActTimer(const float & time);
 
-	void AddHighAlertTimer(double deltaTime);
-	float GetHighAlertTimer() const;
-	void SetHightAlertTimer(const float & time);
-
-	void setGrid(Grid* grid);
+	void _CheckPlayer(double deltaTime);
+	unsigned int getUniqueID() const { return this->uniqueID; }
 
 	//Network
 	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
 	void sendNetworkUpdate();
+
+	float getTotalVisibility();
+	float getMaxVisibility();
 private:
 
-	void _handleInput(double deltaTime);  //v 0.5
+	void _handleInput(double deltaTime);
 	//Movement
-	void _onMovement(double deltaTime); //v
+	void _onMovement(double deltaTime); 
 	void _scrollMovementMod();
-	void _onCrouch(); //v
+	void _onCrouch();
 	void _onJump(); 
-	void _onSprint(); //v
-	void _onInteract(); //v
-	void _onRotate(double deltaTime);  //v
+	void _onSprint();
+	void _onInteract();
+	void _onRotate(double deltaTime); 
 
-	void _onReleasePossessed(double deltaTime); //v
-	void _TempGuardPath(bool x, double deltaTime);
-	void _cameraPlacement(double deltaTime); //v
-	bool _MoveTo(Node * nextNode, double deltaTime);
-	bool _MoveToAlert(Node * nextNode, double deltaTime);
+	void _onReleasePossessed(double deltaTime);
+	void _cameraPlacement(double deltaTime); 
 	void _RotateGuard(float x, float y, float angle, float deltaTime);
-	void _CheckPlayer(double deltaTime);
-	void _activateCrouch(); //v
-	void _deActivateCrouch(); //v
-	void _Move(Node * nextNode, double deltaTime);
-	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
+	void _activateCrouch();
+	void _deActivateCrouch();
 
 	void _playFootsteps(double deltaTime);
-	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent); //v
+	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
 
 	void _detectTeleportSphere();
-
-	void _handleStates(const double deltaTime);
-	//Transistion States
-	void _onAlerted();
-	void _onInvestigateSound();
-	void _onInvestigateSight();
-	void _onObserve();
-	void _onSearchArea();
-	void _onReturnToPatrol();
-	void _onBeingPossessed();
-	void _onBeingDisabled();
-	void _onExitingPossessed();
-	void _onExitingDisabled();
-
-	//States
-	void _investigatingSight(const double deltaTime);
-	void _investigatingSound(const double deltaTime);
-	void _investigatingRoom(const double deltaTime);
-	void _highAlert(const double deltaTime);
-	void _suspicious(const double deltaTime);
-	void _scanningArea(const double deltaTime);
-	void _patrolling(const double deltaTime);
-	void _possessed(const double deltaTime);
-	void _disabled(const double deltaTime);
 };
-

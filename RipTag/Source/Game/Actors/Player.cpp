@@ -378,15 +378,14 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
 			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
-			if (enemys[i]->getTotalVisablilty() > totVis)
+			if (enemys[i]->getTotalVisibility() > totVis)
 			{
-				totVis = enemys[i]->getTotalVisablilty();
-				maxVis = enemys[i]->getMaxVisability();
+				totVis = enemys[i]->getTotalVisibility();
+				maxVis = enemys[i]->getMaxVisibility();
 			}
 		}
 	}
 	XMFLOAT2A finalPos = m_HUDcircle->getPosition();
-
 	m_currentEnemysVisable = 0;
 	for (int i = 0; i < relativEnemyPostions.size() && i < MAX_ENEMY_CIRCLES; i++)
 	{
