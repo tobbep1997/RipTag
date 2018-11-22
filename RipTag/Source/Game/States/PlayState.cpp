@@ -558,6 +558,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("FIRE");
 	Manager::g_textureManager.loadTextures("GUARD");
 
+
 }
 
 void PlayState::_loadPhysics()

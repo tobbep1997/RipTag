@@ -18,6 +18,7 @@ ParticleEmitter::ParticleEmitter()
 	directionMinMax = DirectX::XMINT2{ 4, 10 };
 	InitializeBuffer();
 	srand(time(0));
+	//setSmoke();
 }
 
 ParticleEmitter::~ParticleEmitter()
@@ -214,6 +215,22 @@ void ParticleEmitter::InitializeBuffer()
 	delete[] initData;
 }
 
+void ParticleEmitter::setSmoke()
+{
+	m_EmitterLife = 1;
+	m_RotationMinMax = DirectX::XMINT2{ 1, 360 };
+	m_MaxParticle = 35;
+	m_MinParticle = 3;
+	nrOfEmittedParticles = 35;
+	m_Speed = 0.2f;
+	m_SpawnPosition = DirectX::XMVECTOR{ 0,0,0 };
+	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
+	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
+	spreadMinMax = DirectX::XMINT2{ -2, 4 };
+	directionMinMax = DirectX::XMINT2{ 4, 10 };
+	InitializeBuffer();
+}
+
 void ParticleEmitter::SetBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedSubresource;
@@ -266,6 +283,7 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 	basePos = DirectX::XMVECTOR{ x,y,z };
 	return basePos;
 }
+
 
 void ParticleEmitter::Queue()
 {

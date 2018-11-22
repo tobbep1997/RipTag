@@ -76,7 +76,7 @@ public:
 	int nrOfEmittedParticles;
 	std::vector<Vertex> vertex;
 	int nrOfVertex;
-
+	void setSmoke();
 
 	DirectX::XMINT2 directionMinMax;
 	DirectX::XMINT2 spreadMinMax;
