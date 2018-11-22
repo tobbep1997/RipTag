@@ -311,13 +311,13 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 	DX::g_deviceContext->RSSetState(m_standardRast);
 
-	_visabilityPass();
+	//_visabilityPass();
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	this->_OutliningPass(camera);
 
 
-	//_GuardFrustumDraw();
+	_GuardFrustumDraw();
 	_mapCameraBuffer(camera);
 	
 	_particlePass();
