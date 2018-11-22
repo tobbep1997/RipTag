@@ -233,4 +233,7 @@ private:
 	void _deActivateCrouch();
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
+
+	//Cheats, like changing ability set
+	void _cheats();
 };

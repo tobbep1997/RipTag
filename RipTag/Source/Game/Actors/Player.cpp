@@ -208,6 +208,8 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+	_cheats();
+
 	/*if (getLiniearVelocity().y > 5.0f)
 		setLiniearVelocity(getLiniearVelocity().x, 5.0f, getLiniearVelocity().z);*/
 
@@ -1383,6 +1385,24 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 
 	return (tempStart + tempRelativeVec);
+}
+
+void Player::_cheats()
+{
+	//Swap ability set cheat
+	if (InputHandler::isKeyPressed(InputHandler::Ctrl) && InputHandler::wasKeyPressed('O'))
+	{
+		if (m_activeSetID == 1)
+		{
+			m_activeSetID = 2;
+			m_activeSet = m_abilityComponents2;
+		}
+		else if (m_activeSetID == 2)
+		{
+			m_activeSetID = 1;
+			m_activeSet = m_abilityComponents1;
+		}
+	}
 }
 
 
