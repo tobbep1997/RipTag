@@ -94,10 +94,7 @@ void PlayState::Update(double deltaTime)
 		m_playerManager->Update(deltaTime);
 
 		m_playerManager->PhysicsUpdate();
-		
-		m_contactListener->ClearContactQueue();
-		m_rayListener->ClearConsumedContacts();
-
+	
 		//Start Physics thread
 		if (RipExtern::g_kill == false)
 		{
@@ -240,6 +237,9 @@ void PlayState::_PhyscisThread(double deltaTime)
 		m_timer += m_deltaTime;
 		while (m_timer >= UPDATE_TIME)
 		{
+			m_contactListener->ClearContactQueue();
+			m_rayListener->ClearConsumedContacts();
+
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
