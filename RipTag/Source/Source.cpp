@@ -150,6 +150,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #endif
 #if _RELEASE_DBG
 	_alocConsole();
+	_CrtSetDbg();
 #endif
 
 
