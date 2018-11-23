@@ -59,9 +59,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	}
 	
 	if(m_activeSetID == 1)
-		HUDComponent::InitHUDFromFile("../Player1HUD.txt"); 
+		HUDComponent::InitHUDFromFile("../Assets/Player1HUD.txt"); 
 	else
-		HUDComponent::InitHUDFromFile("../Player2HUD.txt");
+		HUDComponent::InitHUDFromFile("../Assets/Player2HUD.txt");
 
 	m_abilityCircle = new Circle*[2];
 	m_abilityCircle[0] = new Circle();
