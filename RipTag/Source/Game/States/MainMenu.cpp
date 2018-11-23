@@ -9,7 +9,6 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
 	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
-
 }
 
 MainMenu::~MainMenu()

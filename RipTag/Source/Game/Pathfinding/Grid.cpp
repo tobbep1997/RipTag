@@ -84,6 +84,8 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 
 void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded)
 {
+	if (grid.gridPoints == nullptr)
+		return;
 	if (!m_nodeMap.empty())
 		m_nodeMap.clear();
 	m_width = grid.maxX;
