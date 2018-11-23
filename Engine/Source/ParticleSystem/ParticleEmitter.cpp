@@ -3,19 +3,43 @@
 
 ParticleEmitter::ParticleEmitter()
 {
+	isSmoke = false;
 	m_EmitterActiv = 1;
 	m_EmitterCurrentLife = 0;
 	m_EmitterLife = 0;
 	m_RotationMinMax = DirectX::XMINT2{1, 360};
-	m_MaxParticle = 35;
+	m_MaxParticle = 50;
 	m_MinParticle = 3;
-	nrOfEmittedParticles = 35;
+	nrOfEmittedParticles = 40;
 	m_Speed = 0.2f;
 	m_SpawnPosition = DirectX::XMVECTOR{0,0,0};
 	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
 	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
 	spreadMinMax = DirectX::XMINT2{-2, 4 };
 	directionMinMax = DirectX::XMINT2{ 4, 10 };
+	minMaxLife = DirectX::XMINT2{ 0, 1 };
+	spawnSpread = DirectX::XMINT2{ 0, 0 };
+
+	InitializeBuffer();
+}
+
+void ParticleEmitter::setSmoke()
+{
+	isSmoke = true;
+	m_EmitterLife = 1;
+	m_RotationMinMax = DirectX::XMINT2{ 1, 360 };
+	m_MaxParticle = 100;
+	m_MinParticle = 3;
+	nrOfEmittedParticles = 100;
+	m_Speed = 0.01f;
+	m_SpawnPosition = DirectX::XMVECTOR{ 0,0,0 };
+	scaleOverTime = DirectX::XMFLOAT2{ -0.5f, -0.5f };
+	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
+	spreadMinMax = DirectX::XMINT2{ -20, 20 };
+	directionMinMax = DirectX::XMINT2{ -20, 20 };
+	minMaxLife = DirectX::XMINT2{ 2, 4 };
+	spawnSpread = DirectX::XMINT2{ -1, 2 };
+
 	InitializeBuffer();
 }
 
@@ -72,8 +96,11 @@ void ParticleEmitter::Update(float timeDelata, Camera * camera)
 
 			m_newParticle = new Particle();
 
-			DirectX::XMVectorSetY(m_SpawnPosition, DirectX::XMVectorGetY(m_SpawnPosition) - 1);
-			m_newParticle->position = m_SpawnPosition;
+			float tempX = DirectX::XMVectorGetX(m_SpawnPosition) + (RandomFloat(spawnSpread) * 0.5f);
+			float tempY = DirectX::XMVectorGetY(m_SpawnPosition) + (RandomFloat(spawnSpread) * 0.5f);
+			float tempZ = DirectX::XMVectorGetZ(m_SpawnPosition) + (RandomFloat(spawnSpread) * 0.5f);
+
+			m_newParticle->position = DirectX::XMVECTOR{ tempX, tempY, tempZ };
 			m_newParticle->velocity = DirectX::XMVECTOR{ RandomFloat(spreadMinMax), RandomFloat(directionMinMax), RandomFloat(spreadMinMax)};
 			//if ((m_EmitterCurrentLife + 0.5) > m_EmitterLife)
 			//	m_newParticle->velocity = DirectX::XMVECTOR{ RandomFloat(DirectX::XMINT2 {-2, 3}), RandomFloat(DirectX::XMINT2 {0, 15}), RandomFloat(DirectX::XMINT2 {1, 17}) };
@@ -81,7 +108,7 @@ void ParticleEmitter::Update(float timeDelata, Camera * camera)
 			float temp = RandomFloat(DirectX::XMINT2 {0, 20});
 			m_newParticle->color = DirectX::XMFLOAT4A(temp, temp, temp, 1); //(rand() % 2, rand() % 2, rand() % 2, rand() % 2);
 			m_newParticle->scale = scale;
-			m_newParticle->lifeTime = RandomFloat(DirectX::XMINT2{0, 1});
+			m_newParticle->lifeTime = RandomFloat(minMaxLife);
 			m_newParticle->rotation = RandomFloat(m_RotationMinMax);
 			
 			m_Particles.push_back(m_newParticle);
@@ -118,7 +145,7 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 
 
 		m_Particles[i]->scale.x -= scaleOverTime.x * timeDelata;
-		m_Particles[i]->scale.y -= scaleOverTime.y *timeDelata;
+		m_Particles[i]->scale.y -= scaleOverTime.y * timeDelata;
 
 
 		if (m_Particles[i]->age > m_Particles[i]->lifeTime)
@@ -157,10 +184,15 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 		downRightVertex.tangent = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMStoreFloat4A(&downRightVertex.normal, m_forward);
 
-		upLeftVertex.tangent.x = m_Particles[i]->age;
-		upRightVertex.tangent.x = m_Particles[i]->age;
-		downLeftVertex.tangent.x = m_Particles[i]->age;
-		downRightVertex.tangent.x = m_Particles[i]->age;
+		upLeftVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
+		upRightVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
+		downLeftVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
+		downRightVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
+
+		upLeftVertex.tangent.y = isSmoke;
+		upRightVertex.tangent.y = isSmoke;
+		downLeftVertex.tangent.y = isSmoke;
+		downRightVertex.tangent.y = isSmoke;
 		
 		downLeftVertex.pos.w = 1.0f;
 		upLeftVertex.pos.w = 1.0f;
@@ -209,22 +241,6 @@ void ParticleEmitter::InitializeBuffer()
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/ParticlePixel.hlsl");
 
 	delete[] initData;
-}
-
-void ParticleEmitter::setSmoke()
-{
-	m_EmitterLife = 1;
-	m_RotationMinMax = DirectX::XMINT2{ 1, 360 };
-	m_MaxParticle = 35;
-	m_MinParticle = 3;
-	nrOfEmittedParticles = 35;
-	m_Speed = 0.2f;
-	m_SpawnPosition = DirectX::XMVECTOR{ 0,0,0 };
-	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
-	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
-	spreadMinMax = DirectX::XMINT2{ -2, 4 };
-	directionMinMax = DirectX::XMINT2{ 4, 10 };
-	InitializeBuffer();
 }
 
 void ParticleEmitter::SetBuffer()
@@ -317,8 +333,12 @@ void ParticleEmitter::setEmmiterLife(const float & lifeTime)
 
 float ParticleEmitter::RandomFloat(DirectX::XMINT2 min_max)
 {
-	float ret = rand() % (min_max.y * 10) + (min_max.x * 10);
-	ret = ret * 0.1;
+	float ret = 0;
+	if (min_max.y != 0)
+	{
+		ret = rand() % (min_max.y * 10) + (min_max.x * 10);
+		ret = ret * 0.1;
+	}
 	return ret;
 }
 

@@ -82,6 +82,9 @@ public:
 	DirectX::XMFLOAT2 scale;
 	DirectX::XMINT2 minMaxSpeed;
 	DirectX::XMINT2 minMax;
+	DirectX::XMINT2 minMaxLife;
+	DirectX::XMINT2 spawnSpread;
+	bool isSmoke;
 
 	void releaseVertexBuffer(); 
 
