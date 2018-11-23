@@ -633,6 +633,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
 
+
 }
 
 void PlayState::_loadPhysics()
