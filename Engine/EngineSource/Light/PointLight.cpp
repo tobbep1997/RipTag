@@ -54,6 +54,7 @@ PointLight::~PointLight()
 	DX::SafeRelease(m_shadowShaderResourceView);
 	DX::SafeRelease(m_shadowDepthStencilView);
 	DX::SafeRelease(m_shadowDepthBufferTex);
+	DX::g_prevlights.clear();
 }
 
 void PointLight::CreateShadowDirection(ShadowDir direction)

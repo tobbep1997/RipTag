@@ -53,7 +53,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 
-	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
 		DirectX::XMMATRIX proj, viewInv;
 		DirectX::BoundingFrustum boundingFrustum;
@@ -61,15 +61,15 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getView())));
 		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 		boundingFrustum.Transform(boundingFrustum, viewInv);
-		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType && !DX::al_qaeda_isis[i]->getOutline())
+		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType && !DX::g_cullQueue[i]->getOutline())
 		{
-			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			if (DX::g_cullQueue[i]->getBoundingBox())
 			{
-				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 			}
 			else
-				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 
 		}
 	}
