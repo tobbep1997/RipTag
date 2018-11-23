@@ -39,11 +39,14 @@ void Torch::Update(double deltaTime)
 	if (pParticles == nullptr)
 	{
 		std::string thisObject = getBody()->GetObjectTag();
-		for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
+		RayCastListener::Ray* ray;
+		for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
 		{
-			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			ray = RipExtern::g_rayListener->GetProcessedRay(i);
+			for (int k = 0; k < ray->getNrOfContacts(); k++)
 			{
-				std::string originObject = con->originBody->GetObjectTag();
+				RayCastListener::RayContact* con = ray->GetRayContact(k);
+				std::string originObject = ray->getOriginBody()->GetObjectTag();
 				std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
 
 				bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
@@ -52,7 +55,7 @@ void Torch::Update(double deltaTime)
 				if (onPlayer || onEnemy)
 				{
 					Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-					if (ObjectPointer == this && *con->consumeState != 2)
+					if (ObjectPointer == this)
 					{
 						if (this->getTriggerState())
 						{
@@ -62,7 +65,6 @@ void Torch::Update(double deltaTime)
 							pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
 							m_hasChecked = true;
 						}
-						*(con->consumeState) += 1;
 						//SENDTriggerd here for network
 						this->SendOverNetwork();
 					}
@@ -87,11 +89,14 @@ void Torch::Update(double deltaTime)
 		pParticles->Update(deltaTime, pCamera);
 
 		std::string thisObject = getBody()->GetObjectTag();
-		for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
+		RayCastListener::Ray* ray;
+		for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
 		{
-			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			ray = RipExtern::g_rayListener->GetProcessedRay(i);
+			for (int k = 0; k < ray->getNrOfContacts(); k++)
 			{
-				std::string originObject = con->originBody->GetObjectTag();
+				RayCastListener::RayContact* con = ray->GetRayContact(k);
+				std::string originObject = ray->getOriginBody()->GetObjectTag();
 				std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
 
 				bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
@@ -100,7 +105,7 @@ void Torch::Update(double deltaTime)
 				if (onPlayer || onEnemy)
 				{
 					Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-					if (ObjectPointer == this && *con->consumeState != 2)
+					if (ObjectPointer == this)
 					{
 						if (this->getTriggerState())
 						{
@@ -114,7 +119,6 @@ void Torch::Update(double deltaTime)
 							delete pParticles;
 							pParticles = nullptr;
 						}
-						*(con->consumeState) += 1;
 						//SENDTriggerd here for network
 						this->SendOverNetwork();
 					}

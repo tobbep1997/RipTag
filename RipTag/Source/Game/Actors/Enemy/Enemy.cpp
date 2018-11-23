@@ -737,41 +737,45 @@ void Enemy::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Enemy::INTERACT_RANGE, false);
-			if (ray)
+			if(m_rayId == -100)
+				m_rayId = RipExtern::g_rayListener->PrepareRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Enemy::INTERACT_RANGE);
+
+			m_kp.interact = true;
+		}
+		else if(m_rayId != -100)
+		{
+			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 			{
-				for (RayCastListener::RayContact* con : ray->GetRayContacts())
+				RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
+				for (int i = 0; i < ray->getNrOfContacts(); i++)
 				{
-					if (*con->consumeState != 2)
+					RayCastListener::RayContact* con = ray->GetRayContact(m_rayId);
+					if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
 					{
-						if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
+						if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
 						{
-							if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
-							{
-								*con->consumeState += 1;
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
-							{
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-							{
+							
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+						{
+							//Snuff out torches (example)
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+						{
 
-								//std::cout << "Enemy Found!" << std::endl;
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "PLAYER")
-							{
+							//std::cout << "Enemy Found!" << std::endl;
+							//Snuff out torches (example)
+						}
+						else if (con->contactShape->GetBody()->GetObjectTag() == "PLAYER")
+						{
 
-								//std::cout << "Player Found!" << std::endl;
-								//Snuff out torches (example)
-							}
+							//std::cout << "Player Found!" << std::endl;
+							//Snuff out torches (example)
 						}
 					}
 				}
 			}
-
-			m_kp.interact = true;
+			m_rayId = -100;
 		}
 	}
 	else
@@ -1088,7 +1092,7 @@ void Enemy::_detectTeleportSphere()
 
 			//TODO: Fix when ray is corrected
 
-			RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
+			/*RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
 				direction.x,
 				direction.y,
 				direction.z,
@@ -1097,8 +1101,8 @@ void Enemy::_detectTeleportSphere()
 					direction.x,
 					direction.y,
 					direction.z,
-					direction.w)));
-			if (r)
+					direction.w)));*/
+			//if (r)
 			{
 				/*std::cout << "-------------------------------------------------" << std::endl;
 				for (int i = 0; i < r->getNrOfContacts(); i++)

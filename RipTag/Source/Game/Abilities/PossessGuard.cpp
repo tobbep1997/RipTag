@@ -103,46 +103,51 @@ void PossessGuard::_logic(double deltaTime)
 			
 			break;
 		case PossessGuard::Possess:
-			
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE, true);
-
-			if (ray != nullptr)
+			if(m_rayId == -100)
+				m_rayId = RipExtern::g_rayListener->PrepareRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE);
+			else
 			{
-				RayCastListener::RayContact* contact = ray->getClosestContact();
-				if (contact->originBody->GetObjectTag() == "PLAYER")
+				if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 				{
-					std::string objectTag = contact->contactShape->GetBody()->GetObjectTag();
+					RayCastListener::Ray *ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
 
-					if (objectTag == "BLINK_WALL")
+					RayCastListener::RayContact* contact = ray->getClosestContact();
+					if (ray->getOriginBody()->GetObjectTag() == "PLAYER")
 					{
-						if (ray->getNrOfContacts() > 1)
+						std::string objectTag = contact->contactShape->GetBody()->GetObjectTag();
+
+						if (objectTag == "BLINK_WALL")
 						{
-							contact = ray->GetRayContacts().at(ray->getNrOfContacts() - 2);
-							objectTag = contact->contactShape->GetBody()->GetObjectTag();
+							if (ray->getNrOfContacts() > 1)
+							{
+								contact = ray->GetRayContacts().at(ray->getNrOfContacts() - 2);
+								objectTag = contact->contactShape->GetBody()->GetObjectTag();
+							}
 						}
+
+
+						if (objectTag == "ENEMY")
+						{
+
+							pPointer->getBody()->SetType(e_staticBody);
+							pPointer->getBody()->SetAwake(false);
+							pPointer->setHidden(false);
+							pPointer->LockPlayerInput();
+
+							contact->contactShape->GetBody()->SetType(e_dynamicBody);
+							contact->contactShape->GetBody()->SetAwake(true);
+							this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+							this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
+							this->m_possessTarget->setPossessor(pPointer, 20, 1);
+							m_pState = PossessGuard::Possessing;
+							p_cooldown = 0;
+							//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
+						}
+
 					}
-
-
-					if (objectTag == "ENEMY")
-					{
-					
-						pPointer->getBody()->SetType(e_staticBody);
-						pPointer->getBody()->SetAwake(false);
-						pPointer->setHidden(false);
-						pPointer->LockPlayerInput();
-
-						contact->contactShape->GetBody()->SetType(e_dynamicBody);
-						contact->contactShape->GetBody()->SetAwake(true);
-						this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
-						this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
-						this->m_possessTarget->setPossessor(pPointer, 20, 1);
-						m_pState = PossessGuard::Possessing;
-						p_cooldown = 0;
-						//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
-					}
-
 				}
-			}		
+				m_rayId = -100;
+			}	
 			
 			break;
 		}

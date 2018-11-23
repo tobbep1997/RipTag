@@ -48,6 +48,7 @@ private:
 		DirectX::XMFLOAT2 middleTarget = { 0.0f,0.0f };
 	};
 	unsigned int uniqueID;
+	int m_rayId = -100;
 
 	lerpVal m_lv;
 	AudioVars m_av;

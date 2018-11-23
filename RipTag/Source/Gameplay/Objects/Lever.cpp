@@ -36,28 +36,35 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
+	RayCastListener::Ray* ray;
+	RayCastListener::RayContact* con;
+	for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
 	{
-		for (RayCastListener::RayContact* con : ray->GetRayContacts())
-		{
-			if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+		ray = RipExtern::g_rayListener->GetProcessedRay(i);
+			for (int k = 0; k < ray->getNrOfContacts(); k++)
 			{
-				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
-				{
-					if (this->getTriggerState())
+				con = ray->GetRayContact(k);
+				
+					if (ray->getOriginBody()->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 					{
-						this->setTriggerState(false);
+						if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == k)
+						{
+							if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
+							{
+								if (this->getTriggerState())
+								{
+									this->setTriggerState(false);
+								}
+								else
+								{
+									this->setTriggerState(true);
+								}
+								//SENDTriggerd here for network
+								this->SendOverNetwork();
+							}
+						}
 					}
-					else
-					{
-						this->setTriggerState(true);
-					}
-					*(con->consumeState) += 1;
-					//SENDTriggerd here for network
-					this->SendOverNetwork();
-				}
 			}
-		}
 	}
 	this->getAnimationPlayer()->Update(deltaTime);
 }

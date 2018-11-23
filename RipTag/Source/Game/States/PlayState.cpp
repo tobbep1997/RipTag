@@ -149,7 +149,7 @@ void PlayState::Update(double deltaTime)
 		{
 			InputHandler::setShowCursor(true);
 		}
-
+		RipExtern::g_rayListener->ShotRays();
 		//Start Physics thread
 		if (RipExtern::g_kill == false)
 		{
@@ -242,7 +242,6 @@ void PlayState::_PhyscisThread(double deltaTime)
 		m_timer += m_deltaTime;
 		
 		RipExtern::g_contactListener->ClearContactQueue();
-		RipExtern::g_rayListener->ClearConsumedContacts();
 
 		while (m_timer >= UPDATE_TIME)
 		{
@@ -297,21 +296,29 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 								DirectX::XMFLOAT4A soundDirNormalized;
 								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 
-								RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
-								if (ray)
+								if(m_rayId == -100)
+									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+								else 
 								{
-									for (auto & c : ray->GetRayContacts())
+									if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 									{
-										std::string tag = c->contactShape->GetBody()->GetObjectTag();
-										if (tag == "WORLD" || tag == "NULL")
+										RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
+										RayCastListener::RayContact* c;
+										for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
 										{
-											occ *= 0.15f;
-										}
-										else if (tag == "BLINK_WALL")
-										{
-											occ *= 0.50f;
+											c = ray->GetRayContact(i);
+											std::string tag = c->contactShape->GetBody()->GetObjectTag();
+											if (tag == "WORLD" || tag == "NULL")
+											{
+												occ *= 0.15f;
+											}
+											else if (tag == "BLINK_WALL")
+											{
+												occ *= 0.50f;
+											}
 										}
 									}
+									m_rayId = -100;
 								}
 							}
 							
