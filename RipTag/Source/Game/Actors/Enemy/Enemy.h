@@ -222,6 +222,9 @@ public:
 
 	//Network
 	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
+	void onNetworkPossessed(Network::ENTITYSTATEPACKET * packet);
+	void onNetworkDisabled(Network::ENTITYSTATEPACKET * packet);
+
 	void sendNetworkUpdate();
 
 	float getTotalVisibility();
