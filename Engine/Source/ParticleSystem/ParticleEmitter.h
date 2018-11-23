@@ -28,8 +28,9 @@ private:
 	
 	float m_EmitterLife;
 	float m_EmitterCurrentLife;
+	DirectX::XMMATRIX rotationMatrix;
 	
-	float m_Rotation;
+	DirectX::XMINT2 m_RotationMinMax;
 	float m_Speed;
 	float m_partialParticle;
 	bool m_EmitterActiv;
@@ -73,10 +74,17 @@ public:
 	int nrOfEmittedParticles;
 	std::vector<Vertex> vertex;
 	int nrOfVertex;
+	void setSmoke();
 
+	DirectX::XMINT2 directionMinMax;
+	DirectX::XMINT2 spreadMinMax;
 	DirectX::XMFLOAT2 scaleOverTime;
+	DirectX::XMFLOAT2 scale;
 	DirectX::XMINT2 minMaxSpeed;
 	DirectX::XMINT2 minMax;
+	DirectX::XMINT2 minMaxLife;
+	DirectX::XMINT2 spawnSpread;
+	bool isSmoke;
 
 	void releaseVertexBuffer(); 
 
