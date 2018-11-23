@@ -150,18 +150,18 @@ void PlayState::Update(double deltaTime)
 			InputHandler::setShowCursor(true);
 		}
 
+		//Start Physics thread
+		if (RipExtern::g_kill == false)
+		{
+			m_deltaTime = deltaTime * !m_physicsFirstRun;
+			m_physicsCondition.notify_all();
+		}
 	}
 	else
 	{
 		_updateOnCoopMode(deltaTime);
 	}
 
-	//Start Physics thread
-	if (RipExtern::g_kill == false)
-	{
-		m_deltaTime = deltaTime * !m_physicsFirstRun;
-		m_physicsCondition.notify_all();
-	}
 
 	m_physicsFirstRun = false;
 }
