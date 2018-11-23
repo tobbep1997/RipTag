@@ -60,21 +60,13 @@ void PlayState::Update(double deltaTime)
 	{
 		InputMapping::Call();
 
-		m_step.dt = UPDATE_TIME;
-		m_step.velocityIterations = 2;
-		m_step.sleeping = true;
 		m_firstRun = false;
+		
 		while (m_physRunning)
 		{
-			std::cout << "SPIIIN ME ROUND!\n";
 			int i = 0;
 		}
-		//Handle all packets
-		Network::Multiplayer::HandlePackets();
-		//Physics Done
-		//Time to do stuff
-		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
-			//int i = 0;
+
 		if (RipExtern::g_kill == true)
 		{
 			m_destoryPhysicsThread = true;
@@ -92,38 +84,27 @@ void PlayState::Update(double deltaTime)
 			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
 			return;
 		}
-
-		//triggerHandler = m_levelHandler->getTriggerHandler();
-		//triggerHandler->Update(deltaTime);
-		m_playerManager->Update(deltaTime);
-
-		m_playerManager->PhysicsUpdate();
-	
-		RipExtern::g_contactListener->ClearContactQueue();
-		RipExtern::g_rayListener->ClearConsumedContacts();
-
-		//Start Physics thread
-		if (RipExtern::g_kill == false)
-		{
-			m_deltaTime = deltaTime * !m_physicsFirstRun;
-			m_physicsCondition.notify_all();
-		}
-		else
-		{
-			//this->resetState(new PlayState(this->p_renderingManager, pCoopData));
-		}
 		
+		//Handle all packets
+
+		Network::Multiplayer::HandlePackets();
+		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+		m_playerManager->Update(deltaTime);
+		m_playerManager->PhysicsUpdate();
+		_audioAgainstGuards(deltaTime);
 	
-	
-	
+
+		// Hide mouse
 		if (InputHandler::getShowCursor() != FALSE)
 			InputHandler::setShowCursor(FALSE);	   
-
+		
+		// Select gamepad
 		if (GamePadHandler::IsSelectPressed())
 		{
 			Input::SetActivateGamepad(Input::isUsingGamepad());
 		}
 
+		// On exit
 		if (Input::Exit() || GamePadHandler::IsStartPressed())
 		{
 			m_destoryPhysicsThread = true;
@@ -137,6 +118,7 @@ void PlayState::Update(double deltaTime)
 			BackToMenu();
 		}
 
+		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
 			if (isCoop && m_youlost)
@@ -150,15 +132,14 @@ void PlayState::Update(double deltaTime)
 			{
 				m_physicsThread.join();
 			}
+
 			if (m_youlost)
 				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
 			else
 				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away... this time!\nGod of Stealth", (void*)pCoopData));
 		}
 	
-		_audioAgainstGuards(deltaTime);
-
-		// Must be last in update
+		// Reset mouse to middle of the window, Must be last in update
 		if (!m_playerManager->getLocalPlayer()->unlockMouse)
 		{
 			Input::ResetMouse();
@@ -174,6 +155,14 @@ void PlayState::Update(double deltaTime)
 	{
 		_updateOnCoopMode(deltaTime);
 	}
+
+	//Start Physics thread
+	if (RipExtern::g_kill == false)
+	{
+		m_deltaTime = deltaTime * !m_physicsFirstRun;
+		m_physicsCondition.notify_all();
+	}
+
 	m_physicsFirstRun = false;
 }
 
@@ -242,22 +231,25 @@ void PlayState::_PhyscisThread(double deltaTime)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
+
 		m_physRunning = true;
+
 		if (RipExtern::g_kill == true)
 		{
 			return;
 		}
-		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
-		//{
+		
 		m_timer += m_deltaTime;
-
-		m_world.Step(m_step);
+		
+		RipExtern::g_contactListener->ClearContactQueue();
+		RipExtern::g_rayListener->ClearConsumedContacts();
 
 		while (m_timer >= UPDATE_TIME)
 		{
+			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		//}
+		
 		m_physRunning = false;
 	}
 }
@@ -651,8 +643,9 @@ void PlayState::_loadPhysics()
 	RipExtern::g_rayListener = new RayCastListener();
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 	// triggerHandler = new TriggerHandler();
-	m_step.velocityIterations = 1;
-	m_step.sleeping = false;
+	m_step.dt = UPDATE_TIME;
+	m_step.velocityIterations = 8;
+	m_step.sleeping = true;
 	m_firstRun = false;
 }
 
