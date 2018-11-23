@@ -672,7 +672,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
 		tempAsset->CastShadows(false);
 	else if (name == "FLOOR")
-		tempAsset->setTextureTileMult(prop.transform_scale[0], prop.transform_scale[2]);
+		tempAsset->setTextureTileMult(prop.transform_scale[0] / 2.0f, prop.transform_scale[2] / 2.0f);
 	else if (name == "BLINKWALL")
 		tempAsset->setObjectTag("BLINK_WALL");
 	else if(name == "THICKWALL")
