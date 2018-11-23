@@ -659,7 +659,7 @@ std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressi
 	return std::move(std::make_pair(static_cast<uint16_t>(prevIndexInt), progression));
 }
 
-void Animation::AnimationPlayer::UpdateLooping(Animation::AnimationClip* clip)
+Animation::SkeletonPose Animation::AnimationPlayer::UpdateLooping(Animation::AnimationClip* clip)
 {
 	if (clip != m_CurrentClip)
 		this->SetPlayingClip(clip, true, false);
@@ -692,7 +692,7 @@ void Animation::AnimationPlayer::UpdateLooping(Animation::AnimationClip* clip)
 
 		/// compute skinning matrices
 		if (m_IsPlaying)
-			_ComputeSkinningMatrices(&m_CurrentClip->m_SkeletonPoses[prevIndex], &m_CurrentClip->m_SkeletonPoses[prevIndex + 1], progression);
+			return _BlendSkeletonPoses(&m_CurrentClip->m_SkeletonPoses[prevIndex], &m_CurrentClip->m_SkeletonPoses[prevIndex + 1], progression, m_Skeleton->m_JointCount);
 	}
 }
 
