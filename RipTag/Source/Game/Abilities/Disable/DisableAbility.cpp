@@ -41,6 +41,7 @@ void DisableAbility::deleteEffect()
 	if (m_particleEmitter != nullptr)
 	{
 		delete m_particleEmitter;
+		m_particleEmitter = nullptr;
 	}
 }
 
