@@ -166,10 +166,15 @@ void Room::LoadRoomToMemory()
 		delete tempLights.lights;
 
 		if (m_grid)
+		{
 			delete m_grid;
+			m_grid = nullptr;
+		}
+				
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
 		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
 
+		
 		m_roomLoaded = true;
 
 		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
@@ -185,11 +190,38 @@ void Room::LoadRoomToMemory()
 		placeRoomProps(tempProps);
 		delete tempProps.props;
 
+		//DEBUG NODE 
+		//Manager::g_meshManager.loadStaticMesh("FLOOR");
+		//Manager::g_textureManager.loadTextures("FLOOR");
+		//for (unsigned int i = 0; i < m_grid->maxY; ++i)
+		//{
+		//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
+		//	{
+		//		int index = i + j * m_grid->maxY;
+		//		if (m_grid->gridPoints[index].pathable == true)
+		//		{
+		//			BaseActor * b = DBG_NEW BaseActor();
+		//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+		//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
+
+
+		//			//m_pathfindingGrid->
+		//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
+		//			m_staticAssets.push_back(b);
+		//		}
+		//	}
+		//}
+
+
 		for (int i = 0; i < tempGuards.nrOf; i++)
 		{
 			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
+
+			std::vector<Node*> path = m_pathfindingGrid->FindPath(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z), m_pathfindingGrid->GetRandomNearbyTile(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z)));
+			e->SetPathVector(path);
+
 			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;
@@ -199,23 +231,24 @@ void Room::LoadRoomToMemory()
 		*/
 		// 0, 0 -> 5, 0
 		// 0, 0 -> 5, 0
-		std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
-		// 5, 0 -> 5, 10
-		std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-		// 5, 10 -> 0, 10
-		partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(0, 10));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-		// 0, 10 -> 0, 0
-		partOfPath = m_pathfindingGrid->FindPath(Tile(0, 10), Tile(0, 0));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-
-		m_roomGuards.at(1)->SetPathVector(fullPath);
-
-		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
+		//std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
+		//// 5, 0 -> 5, 10
+		//std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+		//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//partOfPath.clear();
+		//// 5, 10 -> 0, 10
+		//partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(0, 10));
+		//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//partOfPath.clear();
+		//// 0, 10 -> 0, 0
+		//partOfPath = m_pathfindingGrid->FindPath(Tile(0, 10), Tile(0, 0));
+		//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//partOfPath.clear();
+		//
+		//m_roomGuards.at(1)->SetPathVector(fullPath);
+		////m_roomGuards.at(0)->SetPathVector(fullPath);
+		//
+		//m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
 
 		//getPath();
 

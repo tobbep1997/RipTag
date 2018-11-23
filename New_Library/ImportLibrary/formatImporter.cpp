@@ -475,6 +475,8 @@ namespace ImporterLibrary
 	}
 	GridStruct * CustomFileLoader::readGridFile(const std::string & fileName)
 	{
+		//std::vector<DirectX::XMFLOAT3> autoLol;
+		//std::vector<int> aut;
 		GridStruct * gridPos = DBG_NEW GridStruct();
 		std::string newFileName = "../Assets/";
 		newFileName.append(fileName + "FOLDER/" + fileName + "_GRID.bin");
@@ -485,12 +487,18 @@ namespace ImporterLibrary
 			customGridFile.read((char*)&gridPos->maxX, sizeof(int));
 			customGridFile.read((char*)&gridPos->maxY, sizeof(int));
 			customGridFile.read((char*)&gridPos->nrOf, sizeof(int));
-			gridPos->gridPoints = DBG_NEW GridPointStruct[gridPos->nrOf];
 
+
+			gridPos->nrOf = gridPos->maxX * gridPos->maxY;
+			gridPos->gridPoints = DBG_NEW GridPointStruct[gridPos->nrOf];
+			//std::cout << gridPos->nrOf << std::endl;
 			for (int i = 0; i < gridPos->nrOf; i++)
 			{
+				
 				customGridFile.read((char*)&gridPos->gridPoints[i].pathable, sizeof(bool));
 				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float) * 3);
+				//autoLol.push_back(DirectX::XMFLOAT3(gridPos->gridPoints[i].translation));
+				//aut.push_back((int)gridPos->gridPoints[i].pathable);
 			}
 			customGridFile.close();
 		}

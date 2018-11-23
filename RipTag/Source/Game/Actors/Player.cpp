@@ -187,12 +187,12 @@ Player::~Player()
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
-	PhysicsComponent::Init(world, bodyType, x , y, z, false , 0);
+	PhysicsComponent::Init(world, bodyType, x/2.0f , y/2.0f, z/2.0f, false , 0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
-	CreateShape(0, (y*1.5)+0.1, 0, 0.5, 0.5, 0.1, "HEAD");
+	CreateShape(0, (y*1.5)+0.1, 0, 0.3, 0.3, 0.1, "HEAD");
 	m_standHeight = (y*1.5) + 0.1;
 	m_crouchHeight = y*1.1;
 	setUserDataBody(this);
