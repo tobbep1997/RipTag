@@ -37,6 +37,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 		auto& machine = getAnimationPlayer()->InitStateMachine(2);
 		auto walkState = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
 		auto knockState = machine->AddLoopState("knocked_state", knockAnim);
+		knockState->SetBlendTime(.1f);
 		walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
 		machine->SetState("walk_state");
 		this->getAnimationPlayer()->Play();

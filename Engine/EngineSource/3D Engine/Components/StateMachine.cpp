@@ -14,7 +14,7 @@ namespace SM
 		for (auto& outState : m_OutStates)
 		{
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
-				return std::make_pair(outState.second.state, 0.4f);
+				return std::make_pair(outState.second.state, outState.second.state->BlendTime());
 		}
 		return std::make_pair(nullptr, .0f);
 	}
@@ -48,10 +48,21 @@ namespace SM
 		return std::nullopt;
 	}
 
-	std::string AnimationState::GetName()
+	std::string AnimationState::Name()
 	{
 		return m_Name;
 	}
+
+	void AnimationState::SetBlendTime(float blendTime)
+	{
+		m_BlendTime = blendTime;
+	}
+
+	float AnimationState::BlendTime()
+	{
+		return m_BlendTime;
+	}
+
 #pragma endregion "AnimationState"
 
 #pragma region "StateMachine"
@@ -126,8 +137,8 @@ namespace SM
 		{
 			m_BlendFromState = previousState;
 			m_AnimationPlayer->Reset();
-			m_BlendFromState->LockCurrentValues();
-			m_RemainingBlendTime = m_TotalBlendTime = (.2 - m_RemainingBlendTime);
+			m_BlendFromState->Lock();
+			m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime() - m_RemainingBlendTime);
 		}
 
 		if (m_AnimationPlayer)
@@ -168,9 +179,9 @@ namespace SM
 			state.first->Reset();
 			m_AnimationPlayer->Reset();
 			m_BlendFromState = m_CurrentState;
-			m_BlendFromState->LockCurrentValues();
+			m_BlendFromState->Lock();
 			m_CurrentState = state.first;
-			m_RemainingBlendTime = m_TotalBlendTime = (state.second - m_RemainingBlendTime);
+			m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime() - m_RemainingBlendTime);
 		}
 		return true;
 	}
@@ -340,7 +351,7 @@ namespace SM
 		else return { nullptr, nullptr, 0.0f};
 	}
 
-	void BlendSpace1D::LockCurrentValues()
+	void BlendSpace1D::Lock()
 	{
 		m_LockedValue = *m_Current;
 	}
@@ -398,7 +409,7 @@ namespace SM
 			return BlendSpace2D::Current2DStateData();
 	}
 
-	void BlendSpace2D::LockCurrentValues()
+	void BlendSpace2D::Lock()
 	{
 		m_LockedX = *m_Current_X;
 		m_LockedY = *m_Current_Y;
@@ -468,7 +479,7 @@ namespace SM
 		return std::move(visitor.dispatch(*this));
 	}
 
-	void AutoTransitionState::LockCurrentValues()
+	void AutoTransitionState::Lock()
 	{
 		m_PoseIsLocked = true;
 	}
@@ -539,7 +550,7 @@ namespace SM
 		std::copy(nodes.begin(), nodes.end(), std::back_inserter(m_Layers));
 	}
 
-	void BlendSpace1DAdditive::LockCurrentValues()
+	void BlendSpace1DAdditive::Lock()
 	{
 
 	}
