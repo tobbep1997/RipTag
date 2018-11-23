@@ -58,8 +58,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		break;
 	case 1:
 		m_shadowMap->Init(128, 128);
-		m_lightCullingDistance = 75;
-		m_forceCullingLimit = 6;
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 4;
 		break;
 	case 2:
 		m_shadowMap->Init(1024, 1024);
@@ -143,7 +143,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
-	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
 		DirectX::XMMATRIX proj, viewInv;
 		DirectX::BoundingFrustum boundingFrustum;
@@ -151,15 +151,15 @@ void ForwardRender::GeometryPass(Camera & camera)
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
 		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 		boundingFrustum.Transform(boundingFrustum, viewInv);
-		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
-			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			if (DX::g_cullQueue[i]->getBoundingBox())
 			{
-				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 			}
 			else
-				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 
 		}
 	}
@@ -193,7 +193,7 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
-	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
 		DirectX::XMMATRIX proj, viewInv;
 		DirectX::BoundingFrustum boundingFrustum;
@@ -201,15 +201,15 @@ void ForwardRender::PrePass(Camera & camera)
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
 		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 		boundingFrustum.Transform(boundingFrustum, viewInv);
-		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
-			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			if (DX::g_cullQueue[i]->getBoundingBox())
 			{
-				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 			}
 			else
-				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);			
+				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);			
 
 		}
 	}
@@ -339,7 +339,7 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	this->AnimationPrePass(camera);
 
-	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75, 16.0f / 9.0f, 1, 100);
+	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
 	dbg_camera->setDirection(0, -1, 0);
 	dbg_camera->setUP(1, 0, 0);
 	DirectX::XMFLOAT4A pos = camera.getPosition();
@@ -355,13 +355,13 @@ void ForwardRender::Flush(Camera & camera)
 
 	_mapLightInfoNoMatrix();
 	shadowRun++;
-	this->m_shadowMap->MapAllLightMatrix(&DX::g_prevlights);
-	if (shadowRun % 5 == 0)
+	if (shadowRun % 2 == 0 || true)
 	{
-		//std::cout << "Shadow Ran" << std::endl;
 		this->m_shadowMap->ShadowPass(this);
 		shadowRun = 0;
 	}
+	else
+		this->m_shadowMap->MapAllLightMatrix(&DX::g_prevlights);
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
@@ -407,7 +407,7 @@ void ForwardRender::Clear()
 	DX::INSTANCING::g_instanceGroups.clear();
 	DX::INSTANCING::g_instanceShadowGroups.clear();
 	DX::INSTANCING::g_instanceWireFrameGroups.clear();
-	DX::al_qaeda_isis.clear();
+	DX::g_cullQueue.clear();
 
 }
 

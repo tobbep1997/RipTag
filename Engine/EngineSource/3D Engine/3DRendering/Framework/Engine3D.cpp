@@ -183,7 +183,7 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable, Camera * camera)
 
 }
 
-std::vector<Drawable*> DX::al_qaeda_isis;
+std::vector<Drawable*> DX::g_cullQueue;
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_temp;
 
 void DX::INSTANCING::tempInstance(Drawable* drawable)

@@ -470,8 +470,8 @@ void Player::SetFirstPersonModel()
 	{
 		delete m_FirstPersonModel;
 	}
-	
 	m_FirstPersonModel = new BaseActor();
+	m_FirstPersonModel->CastShadows(false);
 
 	auto fpsmodel = Manager::g_meshManager.getSkinnedMesh("ARMS");
 	m_FirstPersonModel->setModel(fpsmodel);

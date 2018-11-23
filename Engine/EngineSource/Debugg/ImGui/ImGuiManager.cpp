@@ -117,7 +117,7 @@ void ImGuiManager::_MemoryManager()
 	m_statex.dwLength = sizeof(m_statex);
 
 	GlobalMemoryStatusEx(&m_statex);
-#if _DEBUG
+#if _DEBUG || _RELEASE_DBG
 	ImGui::Begin("Memory Manager");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 	ImGui::Text("RAM");

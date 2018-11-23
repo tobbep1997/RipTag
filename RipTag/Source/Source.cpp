@@ -6,15 +6,18 @@
 #include "EngineSource/Shader/ShaderManager.h"
 
 //Allocates memory to the console
-#if _DEBUG
+
 void _alocConsole() {
-	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	AllocConsole();
 	FILE* fp;
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
-#endif
+
+void _CrtSetDbg() {
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+}
+
 
 struct SoundSettings {
 	float master, effects, ambient, music;
@@ -143,7 +146,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 {
 #if _DEBUG
 	_alocConsole();
+	_CrtSetDbg();
 #endif
+#if _RELEASE_DBG
+	_alocConsole();
+#endif
+
+
     AudioEngine::Init();
 	SoundSettings ss = _ReadSettingsFromFile();
 	AudioEngine::SetMasterVolume(ss.master / 100.0f);

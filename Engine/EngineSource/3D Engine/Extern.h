@@ -43,7 +43,7 @@ namespace DX {
 
 	extern std::vector<ParticleEmitter*> g_emitters;
 
-	extern std::vector <Drawable*> al_qaeda_isis;
+	extern std::vector <Drawable*> g_cullQueue;
 
 	namespace INSTANCING
 	{

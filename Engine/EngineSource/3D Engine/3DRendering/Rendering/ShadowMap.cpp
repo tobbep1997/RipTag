@@ -37,16 +37,25 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	m_runned = 0;
 
-	//DirectX::BoundingSphere bs;
+
+	this->MapAllLightMatrix(&DX::g_lights);
 	DirectX::XMMATRIX proj, viewInv;
 	DirectX::BoundingFrustum boundingFrustum;
-	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
+	DX::g_prevlights = DX::g_lights;
+	int i = 0;
+	if (DX::g_lights.size())
 	{
-		if (!DX::g_lights[i]->getUpdate())
-			continue;
+		i = m_currentLight++ % DX::g_lights.size();
+	}
+	for (unsigned int k = 0; k < DX::g_lights.size(); k++)
+	{
+		auto newLightIndex = std::find(DX::g_prevlights.begin(), DX::g_prevlights.end(), DX::g_lights[k]);
+		if (newLightIndex == DX::g_prevlights.end())
+			i = k;
+	}
+	if (DX::g_lights.size())
+	{	
 		DX::g_lights[i]->Clear();
-		DX::g_prevlights.push_back(DX::g_lights[i]);
-
 		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
 		m_lightIndex.lightPos.x = i;
 		for (int j = 0; j < 6; j++)
@@ -54,57 +63,56 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
 			if (DX::g_lights[i]->useSides()[j])
 			{				
-				for (int k = 0; k < DX::al_qaeda_isis.size(); k++)
+				for (int k = 0; k < DX::g_cullQueue.size(); k++)
 				{
 					proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getProjection()));
 					viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getView())));
 					DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 					boundingFrustum.Transform(boundingFrustum, viewInv);
-					if (DX::al_qaeda_isis[k]->getCastShadows())
+					if (DX::g_cullQueue[k]->getCastShadows() /*&& DX::g_cullQueue[k]->getEntityType() != EntityType::PlayerType*/)
 					{
-						if (DX::al_qaeda_isis[k]->getBoundingBox())
+						if (DX::g_cullQueue[k]->getBoundingBox())
 						{
-							if (DX::al_qaeda_isis[k]->getBoundingBox()->Intersects(boundingFrustum))
-								DX::INSTANCING::tempInstance(DX::al_qaeda_isis[k]);
+							if (DX::g_cullQueue[k]->getBoundingBox()->Intersects(boundingFrustum))
+								DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
 						}
 						else
-							DX::INSTANCING::tempInstance(DX::al_qaeda_isis[k]);
+							DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
 					}
 				}
 			}
 		}
 		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
 		renderingManager->DrawInstancedCull(nullptr);
-	}
 
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertexAnimated.hlsl"), nullptr, 0);
+		UINT32 vertexSize = sizeof(PostAniDynamicVertex);
+		UINT32 offset = 0;
 
-	UINT32 size = (UINT32)sizeof(PostAniDynamicVertex);
-	UINT32 offset = 0U;
-	for (unsigned int i = 0; i < DX::g_lights.size(); i++)
-	{
-		if (!DX::g_lights[i]->getUpdate())
-			continue;
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"), nullptr, 0);
+		DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 
-		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
-		m_lightIndex.lightPos.x = i;
-		for (int j = 0; j < 6; j++)
+		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 		{
-			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
-		}
-		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex), 13, 1, ShaderTypes::geometry);
-		for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
-		{
-			if (DX::g_animatedGeometryQueue[j]->getHidden() != true)
+			if (DX::g_animatedGeometryQueue[i]->getHidden() != true && DX::g_animatedGeometryQueue[i]->getCastShadows())
 			{
-				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->GetAnimatedVertex();
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &size, &offset);
-				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
+				//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
+
+				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+
+				DX::g_animatedGeometryQueue[i]->BindTextures();
+
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+
+				//DX::g_animatedGeometryQueue[i]->TEMP();
 			}
 		}
 	}
-
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
@@ -112,30 +120,24 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 {
 	m_allLightMatrixValues.nrOfLights = DirectX::XMINT4(lights->size(), 0,0,0);
 	for (unsigned int light = 0; light < lights->size(); light++)
-	{
+	{		
 		m_allLightMatrixValues.nrOfviewProjection[light] = DirectX::XMINT4(lights->at(light)->getSides().size(),0,0,0);
 		for (unsigned int i = 0; i < lights->at(light)->getSides().size(); i++)
 		{
-			if (lights->at(light)->useSides()[i])
-			{				
-				m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides().at(i)->getViewProjection();
-				m_allLightMatrixValues.useDir[light][i].x = (UINT)lights->at(light)->useSides()[i];
-			}
-		}
+			m_allLightMatrixValues.viewProjection[light][i] = lights->at(light)->getSides().at(i)->getViewProjection();
+			m_allLightMatrixValues.useDir[light][i].x = (UINT)lights->at(light)->useSides()[i];			
+		}		
 	}
 	
 	DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer));
 	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->GSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
-	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
-
-	
+	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);	
 }
 
 void ShadowMap::SetSamplerAndShaderResources()
 {
 	DX::g_deviceContext->PSSetSamplers(0, 1, &m_shadowSamplerState);
-	std::vector<PointLight*>* pl = &DX::g_prevlights;
 	for (int i = 0; i < DX::g_prevlights.size(); i++)
 	{
 		if (!DX::g_prevlights[i]->getUpdate())

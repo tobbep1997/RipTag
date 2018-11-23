@@ -447,6 +447,7 @@ void Room::Release()
 		for (int i = 0; i < m_pointLights.size(); i++)
 		{
 			delete m_pointLights[i];
+			m_pointLights[i] = nullptr;
 		}
 
 		triggerHandler->Release();
