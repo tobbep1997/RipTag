@@ -41,11 +41,10 @@ private:
 	void _generateGrid();
 	void _makeFloor();
 	void _makeWalls();
-	void _unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex);
-	//void _placeProps();
 	void _createEnemies(Player * playerPtr);
 	void _FindWinnableAndGuardPaths();
 	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);
+	void _generateGuardPaths();
 
 	int returnRandomInGridWidth();
 	int returnRandomInGridDepth();

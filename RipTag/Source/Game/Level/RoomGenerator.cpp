@@ -117,7 +117,7 @@ void RoomGenerator::_generateGrid()
 	{
 		for (int j = 0; j < iterationsWidth; j++)
 		{
-					bool col = false;
+			bool col = false;
 			Node node = m_generatedGrid->GetWorldPosFromIndex(i + j * iterationsWidth);
 			float changeX = 0;
 			float changeY = 0;
@@ -148,7 +148,6 @@ void RoomGenerator::_generateGrid()
 								asset->p_createBoundingBox(DirectX::XMFLOAT3(1, 1, 1));
 								m_generated_assetVector.push_back(asset);
 								break;
-
 							}
 					}
 					changeY += 0.2;
@@ -191,9 +190,16 @@ void RoomGenerator::_makeWalls()
 	m_roomDepth = (incrementalValueY * m_roomGridDepth) / 2.0f;
 	m_roomWidth = (incrementalValueX * m_roomGridWidth) / 2.0f;
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct;
+	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
 	int MAX_SMALL_MODS = 2; // change when small mods added
-	bool isRotated = false;
+	int MAX_LARGE_MODS = 1;
+	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
+	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
+	for (int i = 0; i < MAX_SMALL_MODS; i++)
+		alreadyPickedSmallMods[i] = false;
+	for (int i = 0; i < MAX_LARGE_MODS; i++)
+		alreadyPickedLargeMods[i] = false;
 
 	RandomRoomGrid randomizer;
 	ImporterLibrary::CustomFileLoader loader;
@@ -242,14 +248,26 @@ void RoomGenerator::_makeWalls()
 			directions[1] = randomizer.m_rooms[index].east;
 			directions[2] = randomizer.m_rooms[index].south;
 			directions[3] = randomizer.m_rooms[index].west;
-			
 
-			RANDOM_MOD_NR = rand() % MAX_SMALL_MODS + 1;//RANDOM MELLAN MAX_SMALL MODS och 1
-
-			if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
+			if (randomizer.m_rooms[index].type == 2)
 			{
-				RANDOM_MOD_NR = 3;//random från antal small rum upp till max big room
+				RANDOM_MOD_NR = rand() % MAX_SMALL_MODS;
+				if (alreadyPickedSmallMods[RANDOM_MOD_NR])
+					RANDOM_MOD_NR = rand() % MAX_SMALL_MODS;
+				alreadyPickedSmallMods[RANDOM_MOD_NR] = true;
+				// To pick the correct module from the assets
+				RANDOM_MOD_NR++;
 			}
+			else
+			{
+				RANDOM_MOD_NR = rand() % MAX_LARGE_MODS;
+				if (alreadyPickedLargeMods[RANDOM_MOD_NR])
+					RANDOM_MOD_NR = rand() % MAX_LARGE_MODS;
+				alreadyPickedLargeMods[RANDOM_MOD_NR] = true;
+				// To pick the correct module from the assets
+				RANDOM_MOD_NR += MAX_SMALL_MODS + 1;
+			}
+
 			isRotated = false;
 			if (randomizer.m_rooms[index].type == 1)
 				isRotated = true;
@@ -302,20 +320,14 @@ void RoomGenerator::_makeWalls()
 				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
-			//set random PATH?
-
-
 
 #pragma endregion
 
 #pragma region WALLS
 			for (int x = 0; x < 4; x++)
 			{
+				placeWall = true;
 			
-			
-					placeWall = true;
-			
-
 				if (randomizer.m_rooms[index].leadsToRoom[x] != -1)
 					if (randomizer.m_rooms[index].pairedWith == randomizer.m_rooms[index].leadsToRoom[x])
 						placeWall = false;
@@ -424,22 +436,35 @@ void RoomGenerator::_makeWalls()
 						asset->setObjectTag("WALL");
 						roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
 						m_generated_assetVector.push_back(asset);
-						for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+
+
+						if (!isWinRoom)
 						{
-							float xPos = modCollisionBoxes.boxes[h].translation[0] + j - 10;
-							float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
-							float zPos = modCollisionBoxes.boxes[h].translation[2] + i;
-							DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[2] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[0] * 0.5));
+							for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+							{
+								float xPos = modCollisionBoxes.boxes[h].translation[0] + j - 10;
+								float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
+								float zPos = modCollisionBoxes.boxes[h].translation[2] + i;
+								DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[2] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[0] * 0.5));
 
-							m_generated_boundingBoxes.push_back(bb);
+								m_generated_boundingBoxes.push_back(bb);
+							}
 						}
-
-						if (isWinRoom)
+						else
 						{
 							if (modCollisionBoxes.boxes)
 								delete[] modCollisionBoxes.boxes;
 							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
-							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL"); 
+							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
+							for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+							{
+								float xPos = modCollisionBoxes.boxes[h].translation[0] + j - 10;
+								float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
+								float zPos = modCollisionBoxes.boxes[h].translation[2] + i;
+								DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[2] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[0] * 0.5));
+
+								m_generated_boundingBoxes.push_back(bb);
+							}
 						}
 					}			
 					
@@ -764,94 +789,6 @@ void RoomGenerator::_makeWalls()
 	
 }
 
-void RoomGenerator::_unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex)
-{
-	tempGridStruct->gridPoints[tempGridStruct->nrOf / 2].pathable = false;
-	Manager::g_meshManager.loadStaticMesh("FLOOR");
-	Manager::g_textureManager.loadTextures("CANDLE");
-	// North
-	if (randomizer.m_rooms[roomIndex].north)
-	{
-		for (int z = 7; z < 14; z++)
-		{
-			tempGridStruct->gridPoints[z * tempGridStruct->maxX].pathable = true;
-			
-		}
-	}
-	// East
-	if (randomizer.m_rooms[roomIndex].east)
-	{
-		int pathIndex = tempGridStruct->nrOf - 7;
-		for (int z = pathIndex - 7; z < pathIndex; z++)
-		{
-			tempGridStruct->gridPoints[z].pathable = true;
-			
-		}
-	}
-	// South
-	if (randomizer.m_rooms[roomIndex].south)
-	{
-		for (int z = 7; z < 14; z++)
-		{
-			tempGridStruct->gridPoints[(z * tempGridStruct->maxX) + tempGridStruct->maxX - 1].pathable = true;
-		}
-	}
-	// West
-	if (randomizer.m_rooms[roomIndex].west)
-	{
-		for (int z = 7; z < 14; z++)
-		{
-			tempGridStruct->gridPoints[z].pathable = true;
-			
-		}
-	}
-	// Horizontal
-	/*if (randomizer.m_rooms[roomIndex].type == 0)
-	{
-		int pathIndex = tempGridStruct->maxX - 7;
-		// North
-		if (randomizer.m_rooms[roomIndex].north)
-		{
-			for (int z = pathIndex - 7; z < pathIndex; z++)
-			{
-				tempGridStruct->gridPoints[z].pathable = true;
-			}
-		}
-		// South
-		if (randomizer.m_rooms[roomIndex].south)
-		{
-			pathIndex = tempGridStruct->nrOf - tempGridStruct->maxX + 14;
-			for (int z = pathIndex - 7; z < pathIndex; z++)
-			{
-				tempGridStruct->gridPoints[z].pathable = true;
-			}
-		}
-	}
-	// Vertical
-	else if (randomizer.m_rooms[roomIndex].type == 1)
-	{
-		int pathIndex = tempGridStruct->nrOf - tempGridStruct->maxX + 7;
-		// East
-		if (randomizer.m_rooms[roomIndex].east)
-		{
-			for (int z = pathIndex; z < pathIndex; z++)
-			{
-				tempGridStruct->gridPoints[z].pathable = true;
-			}
-		}
-		// West
-		if (randomizer.m_rooms[roomIndex].west)
-		{
-			pathIndex = tempGridStruct->maxX - 7;
-			for (int z = pathIndex - 7; z < pathIndex; z++)
-			{
-				tempGridStruct->gridPoints[z].pathable = true;
-			}
-		}
-	}*/
-}
-
-
 void RoomGenerator::_createEnemies(Player * playerPtr)
 {
 	//Enemy * enemy;
@@ -964,6 +901,29 @@ void RoomGenerator::_generateLights(float xPos, float yPos, float zPos, float co
 	m_generated_pointLightVector.push_back(tempLight);
 }
 
+void RoomGenerator::_generateGuardPaths()
+{
+	for (int i = 0; i < m_generatedRoomEnemies.size(); i++)
+	{
+		Enemy * currentEnemey = m_generatedRoomEnemies[i];
+		DirectX::XMFLOAT4A pos = currentEnemey->getPosition();
+		// Set a path
+		Tile enemyPos = m_generatedGrid->WorldPosToTile(pos.x, pos.z);
+		bool gotDestination = false;
+		int x = returnRandomInGridWidth();
+		int z = returnRandomInGridDepth();
+		Tile destination = m_generatedGrid->WorldPosToTile(x, z);
+		while (!gotDestination)
+		{
+			if (destination.getPathable())
+				gotDestination = true;
+			else
+				destination = m_generatedGrid->WorldPosToTile(x, z);
+		}
+		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(destination)));
+	}
+}
+
 int RoomGenerator::returnRandomInGridWidth()
 {
 	float randomNr = (float)rand() / RAND_MAX;
@@ -1026,6 +986,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	_makeWalls();
 	_generateGrid();
+	_generateGuardPaths();
 	_makeFloor();
 	//_createEnemies(playerPtr);
 	
