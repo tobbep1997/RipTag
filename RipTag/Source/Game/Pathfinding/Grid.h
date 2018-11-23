@@ -75,6 +75,7 @@ class Grid
 {
 private:
 	std::vector<Node> m_nodeMap;
+	std::vector<Node> m_roomNodeMap;
 	int m_width, m_height;
 
 	std::vector<Node*> m_path;

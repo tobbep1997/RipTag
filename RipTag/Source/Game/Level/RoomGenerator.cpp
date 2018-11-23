@@ -81,7 +81,7 @@ void RoomGenerator::_generateGrid()
 			{
 				if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 1, node.worldPos.y + changeY))))
 				{
-					placed = true;
+					//placed = true;
 					m_generatedGrid->BlockGridTile(index, false);
 					Manager::g_meshManager.loadStaticMesh("FLOOR");
 					Manager::g_textureManager.loadTextures("CANDLE");
@@ -587,7 +587,11 @@ void RoomGenerator::_generateGuardPaths()
 			if (destination.getPathable())
 				gotDestination = true;
 			else
+			{
+				x = returnRandomInGridWidth();
+				z = returnRandomInGridDepth();
 				destination = m_generatedGrid->WorldPosToTile(x, z);
+			}
 		}
 		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(destination)));
 	}
