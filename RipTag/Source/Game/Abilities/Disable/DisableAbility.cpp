@@ -41,6 +41,7 @@ void DisableAbility::deleteEffect()
 	if (m_particleEmitter != nullptr)
 	{
 		delete m_particleEmitter;
+		m_particleEmitter = nullptr; 
 	}
 }
 
@@ -92,6 +93,11 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 		}
 		break;
 	}
+}
+
+bool DisableAbility::getIsActive() const
+{
+	return m_isActive; 
 }
 
 void DisableAbility::Use()
@@ -228,6 +234,7 @@ void DisableAbility::_inStateMoving(double dt)
 				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
 				{
 					m_hasHit = true; 
+					m_isActive = true; 
 					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
 					m_dState = DisableState::Cooldown;
 					//Particle effects here before changing the position.  
@@ -273,6 +280,7 @@ void DisableAbility::_inStateCooldown(double dt)
 		p_cooldown = 0;
 		m_dState = DisableState::Throwable;
 		m_hasHit = false;
+		m_isActive = false;
 	}
 
 	 

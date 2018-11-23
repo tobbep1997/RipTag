@@ -44,6 +44,7 @@ private:
 	RakNet::Time delay;
 
 	bool m_hasHit = false; 
+	bool m_isActive = false; 
 	float m_smokeTimer = 0.0f;
 
 public:
@@ -58,6 +59,8 @@ public:
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
 	void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) override;
+
+	bool getIsActive() const; 
 
 	/* This Function needs to be used before the Update() function */
 	void Use() override;
