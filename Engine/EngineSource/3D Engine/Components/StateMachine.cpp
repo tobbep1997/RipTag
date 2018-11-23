@@ -215,10 +215,9 @@ namespace SM
 	}
 	Animation::SkeletonPose StateVisitor::dispatch(LoopState & state)
 	{
-		if (!m_AnimationPlayer)
-			return Animation::SkeletonPose();
+		assert(m_AnimationPlayer != nullptr);
 
-		m_AnimationPlayer->UpdateLooping(state.GetClip());
+		return m_AnimationPlayer->UpdateLooping(state.GetClip());
 	}
 
 	Animation::SkeletonPose StateVisitor::dispatch(AutoTransitionState& state)
