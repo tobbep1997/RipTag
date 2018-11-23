@@ -55,7 +55,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	RipExtern::g_kill = false;
+	
 	if (runGame)
 	{
 		InputMapping::Call();
@@ -88,6 +88,8 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 
 		Network::Multiplayer::HandlePackets();
+		RipExtern::g_kill = false;
+
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 		m_playerManager->PhysicsUpdate();
