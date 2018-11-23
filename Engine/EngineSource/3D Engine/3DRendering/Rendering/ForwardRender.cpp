@@ -14,6 +14,7 @@ ForwardRender::ForwardRender()
 ForwardRender::~ForwardRender()
 {
 	delete m_visabilityPass;
+	
 }
 
 void ForwardRender::Init(IDXGISwapChain * swapChain,
@@ -57,8 +58,8 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		break;
 	case 1:
 		m_shadowMap->Init(128, 128);
-		m_lightCullingDistance = 75;
-		m_forceCullingLimit = 6;
+		m_lightCullingDistance = 50;
+		m_forceCullingLimit = 4;
 		break;
 	case 2:
 		m_shadowMap->Init(1024, 1024);
@@ -142,7 +143,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
-	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
 		DirectX::XMMATRIX proj, viewInv;
 		DirectX::BoundingFrustum boundingFrustum;
@@ -150,15 +151,15 @@ void ForwardRender::GeometryPass(Camera & camera)
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
 		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 		boundingFrustum.Transform(boundingFrustum, viewInv);
-		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
-			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			if (DX::g_cullQueue[i]->getBoundingBox())
 			{
-				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 			}
 			else
-				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 
 		}
 	}
@@ -192,7 +193,7 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
-	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
 		DirectX::XMMATRIX proj, viewInv;
 		DirectX::BoundingFrustum boundingFrustum;
@@ -200,15 +201,15 @@ void ForwardRender::PrePass(Camera & camera)
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
 		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 		boundingFrustum.Transform(boundingFrustum, viewInv);
-		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType)
+		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
-			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			if (DX::g_cullQueue[i]->getBoundingBox())
 			{
-				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 			}
 			else
-				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);			
+				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);			
 
 		}
 	}
@@ -336,10 +337,15 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
-
-	
 	this->AnimationPrePass(camera);
 
+	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
+	dbg_camera->setDirection(0, -1, 0);
+	dbg_camera->setUP(1, 0, 0);
+	DirectX::XMFLOAT4A pos = camera.getPosition();
+	pos.y += 10;
+	dbg_camera->setPosition(pos);
+	//_mapCameraBuffer(*dbg_camera);
 	this->PrePass(camera);
 	
 	
@@ -348,20 +354,28 @@ void ForwardRender::Flush(Camera & camera)
 	_simpleLightCulling(camera);
 
 	_mapLightInfoNoMatrix();
-	this->m_shadowMap->MapAllLightMatrix(&DX::g_lights);
-	this->m_shadowMap->ShadowPass(this);
+	shadowRun++;
+	if (shadowRun % 2 == 0 || true)
+	{
+		this->m_shadowMap->ShadowPass(this);
+		shadowRun = 0;
+	}
+	else
+		this->m_shadowMap->MapAllLightMatrix(&DX::g_prevlights);
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 	DX::g_deviceContext->RSSetState(m_standardRast);
 
 	_visabilityPass();
+	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	this->_OutliningPass(camera);
 
 
 	//_GuardFrustumDraw();
+	//_DBG_DRAW_CAMERA(camera);
 	_mapCameraBuffer(camera);
 	
 	_particlePass();
@@ -369,14 +383,13 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass(&camera);
+	
+	delete dbg_camera;
 }
 
 void ForwardRender::Clear()
 {
 	float c[4] = { .5f,.5f,.5f,1.0f };
-
-	
-
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -387,7 +400,6 @@ void ForwardRender::Clear()
 	DX::g_remotePlayer = nullptr;
 
 	DX::g_outlineQueue.clear();
-	//this->m_shadowMap->Clear();
 	DX::g_visibilityComponentQueue.clear();
 
 	DX::g_wireFrameDrawQueue.clear();
@@ -395,7 +407,7 @@ void ForwardRender::Clear()
 	DX::INSTANCING::g_instanceGroups.clear();
 	DX::INSTANCING::g_instanceShadowGroups.clear();
 	DX::INSTANCING::g_instanceWireFrameGroups.clear();
-	DX::al_qaeda_isis.clear();
+	DX::g_cullQueue.clear();
 
 }
 
@@ -601,6 +613,53 @@ void ForwardRender::_GuardFrustumDraw()
 		DX::g_deviceContext->Draw(DX::g_visibilityComponentQueue[i]->getFrustum()->size(), 0);
 
 	}
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+	DX::g_deviceContext->RSSetState(m_standardRast);
+}
+
+void ForwardRender::_DBG_DRAW_CAMERA(Camera& camera)
+{
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+
+	DX::g_deviceContext->RSSetState(m_disableBackFace);
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumPixel.hlsl"), nullptr, 0);
+
+
+	DirectX::XMFLOAT4X4A viewProj = camera.getViewProjection();
+	DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
+	DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
+	DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	GuardBuffer gb;
+	DirectX::XMStoreFloat4x4A(&gb.viewProj, mViewProj);
+	DirectX::XMStoreFloat4x4A(&gb.viewProjInverse, mViewProjInverse);
+	//gb.worldMatrix = DX::g_visibilityComponentQueue[i]->getWorldMatrix();
+
+	DX::g_deviceContext->Map(m_GuardBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+	// copy memory from CPU to GPU the entire struct
+	memcpy(dataPtr.pData, &gb, sizeof(GuardBuffer));
+	// UnMap constant buffer so that we can use it again in the GPU
+	DX::g_deviceContext->Unmap(m_GuardBuffer, 0);
+	// set resource to Vertex Shader
+	DX::g_deviceContext->VSSetConstantBuffers(5, 1, &m_GuardBuffer);
+
+	VisibilityComponent * tmp = new VisibilityComponent();
+	tmp->Init(&camera);
+
+	ID3D11Buffer * ver = tmp->getFrustumBuffer();
+
+	UINT32 sizeVertex = tmp->sizeOfFrustumVertex();
+	UINT32 offset = 0;
+
+	DX::g_deviceContext->IASetVertexBuffers(0, 1, &ver, &sizeVertex, &offset);
+	DX::g_deviceContext->Draw(tmp->getFrustum()->size(), 0);
+
+	delete tmp;
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 	DX::g_deviceContext->RSSetState(m_standardRast);
 }
