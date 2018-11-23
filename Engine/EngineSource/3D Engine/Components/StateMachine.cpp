@@ -10,8 +10,7 @@ namespace SM
 	{}
 
 	std::pair<AnimationState*, float> AnimationState::EvaluateAll()
-{
-
+	{
 		for (auto& outState : m_OutStates)
 		{
 			if (std::all_of(outState.second.transitions.begin(), outState.second.transitions.end(), [](const UniqueTransition& elem) {return elem->Evaluate(); }))
@@ -119,7 +118,18 @@ namespace SM
 
 	void AnimationStateMachine::SetState(std::string stateName)
 	{
-		m_CurrentState = m_States.at(stateName);
+		auto newState = m_States.at(stateName);
+		auto previousState = m_CurrentState;
+		m_CurrentState = newState;
+
+		if (previousState)
+		{
+			m_BlendFromState = previousState;
+			m_AnimationPlayer->Reset();
+			m_BlendFromState->LockCurrentValues();
+			m_RemainingBlendTime = m_TotalBlendTime = (.2 - m_RemainingBlendTime);
+		}
+
 		if (m_AnimationPlayer)
 		{
 			m_AnimationPlayer->Reset();
