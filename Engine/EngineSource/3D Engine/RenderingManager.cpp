@@ -27,10 +27,10 @@ RenderingManager * RenderingManager::GetInstance()
 
 void RenderingManager::Init(HINSTANCE hInstance)
 {
-#if _DEBUG
+#if _DEBUG || _RELEASE_DBG
 	DEBUG = true;
 #else
-	DEBUG = true;
+	DEBUG = false;
 #endif
 	m_hInstance = hInstance;
 	
@@ -64,7 +64,7 @@ void RenderingManager::Update()
 		{
 			m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 		}
-	#if _DEBUG
+	#if _DEBUG || _RELEASE_DBG
 		if (GetAsyncKeyState(int('P')))
 		{
 			_reloadShaders();

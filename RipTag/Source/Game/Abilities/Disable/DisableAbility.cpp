@@ -41,6 +41,7 @@ void DisableAbility::deleteEffect()
 	if (m_particleEmitter != nullptr)
 	{
 		delete m_particleEmitter;
+		m_particleEmitter = nullptr; 
 	}
 }
 
@@ -92,6 +93,11 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 		}
 		break;
 	}
+}
+
+bool DisableAbility::getIsActive() const
+{
+	return m_isActive; 
 }
 
 void DisableAbility::Use()
@@ -228,18 +234,30 @@ void DisableAbility::_inStateMoving(double dt)
 				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
 				{
 					m_hasHit = true; 
+					m_isActive = true; 
 					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
 					m_dState = DisableState::Cooldown;
 					//Particle effects here before changing the position.  
 					m_particleEmitter = new ParticleEmitter();
-					m_particleEmitter->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-					std::cout << "X: " << DirectX::XMVectorGetX(m_particleEmitter->getPosition()) << " Y: " << DirectX::XMVectorGetY(m_particleEmitter->getPosition()) << " Z: " << DirectX::XMVectorGetZ(m_particleEmitter->getPosition()) << std::endl;
+					m_particleEmitter->setSmoke(); 
+					m_particleEmitter->setEmmiterLife(1.5f); 
+					Enemy* tempEnemy = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData()); 
+					m_particleEmitter->setPosition(tempEnemy->getPosition().x, tempEnemy->getPosition().y + 0.5f, tempEnemy->getPosition().z); 
 					this->setPosition(-999.9f, -999.9f, -999.9f);
 					p_cooldown = 0.0;
 					accumulatedTime = 0.0;
 					this->_sendOnHitNotification();
 				}
 			}
+		}
+	}
+
+	if(m_particleEmitter != nullptr)
+	{
+		if (!m_particleEmitter->emitterActiv)
+		{
+			delete m_particleEmitter;
+			m_particleEmitter = nullptr;
 		}
 	}
 
@@ -261,9 +279,8 @@ void DisableAbility::_inStateCooldown(double dt)
 	{
 		p_cooldown = 0;
 		m_dState = DisableState::Throwable;
-		delete m_particleEmitter; 
-		m_particleEmitter = nullptr; 
 		m_hasHit = false;
+		m_isActive = false;
 	}
 
 	 
