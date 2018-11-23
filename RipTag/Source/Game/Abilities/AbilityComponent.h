@@ -14,7 +14,7 @@ enum Ability
 class AbilityComponent
 {
 protected: // CD
-	float p_cooldownMax= 5.0f;
+	float p_cooldownMax= 8.0f;
 	float p_cooldown = 0;
 
 protected:

@@ -4,7 +4,7 @@
 ParticleEmitter::ParticleEmitter()
 {
 	isSmoke = false;
-	m_EmitterActiv = 1;
+	emitterActiv = 1;
 	m_EmitterCurrentLife = 0;
 	m_EmitterLife = 0;
 	m_RotationMinMax = DirectX::XMINT2{1, 360};
@@ -62,12 +62,12 @@ void ParticleEmitter::Update(float timeDelata, Camera * camera)
 		m_MaxParticle = 0;
 		nrOfEmittedParticles -= 1;
 		if(nrOfEmittedParticles <= 0)
-			m_EmitterActiv = false;
+			emitterActiv = false;
 	}
 	else
 		m_EmitterCurrentLife += timeDelata;
 
-	if (m_EmitterActiv)
+	if (emitterActiv)
 	{
 		float emission = nrOfEmittedParticles * timeDelata;
 		float partialEmisson = emission - (long)emission;

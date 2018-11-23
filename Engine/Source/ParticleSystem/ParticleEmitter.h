@@ -33,7 +33,6 @@ private:
 	DirectX::XMINT2 m_RotationMinMax;
 	float m_Speed;
 	float m_partialParticle;
-	bool m_EmitterActiv;
 	DirectX::XMVECTOR m_SpeedDir;
 	DirectX::XMVECTOR m_Dir;
 	DirectX::XMVECTOR m_SpawnPosition = DirectX::XMVECTOR{ 4.297f, 5, -1.682f, 1.0f/*Oof*/ };
@@ -87,6 +86,8 @@ public:
 	bool isSmoke;
 
 	void releaseVertexBuffer(); 
+
+	bool emitterActiv;
 
 	void Queue();
 
