@@ -123,6 +123,11 @@ void PlayState::Update(double deltaTime)
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
+			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
+			{
+				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+			}
+
 			if (isCoop && m_youlost)
 				_sendOnGameOver();
 
