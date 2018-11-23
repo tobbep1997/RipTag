@@ -41,7 +41,7 @@ private:
 
 	//Visibility data
 	float m_currentVisibility = 0.0f;
-
+	float m_soundPercentage = 0.0f;
 public:
 	//PUBLIC MEMBER FUNCTIONS
 	void BeginPlay();
@@ -51,6 +51,7 @@ public:
 	bool hasWon = false;
 	void SetAbilitySet(int);
 	void SetVisibility(const float & value) { m_currentVisibility = value; }
+	void SetSoundPercentage(const float & value) { m_soundPercentage = value; }
 private:
 	//PRIVATE FUNCTIONS
 

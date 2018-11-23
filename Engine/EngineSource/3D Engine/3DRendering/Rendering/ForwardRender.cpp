@@ -51,7 +51,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 	switch (windowContext.graphicsQuality)
 	{
 	case 0:
-		m_shadowMap->Init(64, 64);
+		m_shadowMap->Init(32, 32);
 		m_lightCullingDistance = 50;
 		m_forceCullingLimit = 4;
 		break;
@@ -142,7 +142,27 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
-	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, true);
+	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	{
+		DirectX::XMMATRIX proj, viewInv;
+		DirectX::BoundingFrustum boundingFrustum;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
+		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+		boundingFrustum.Transform(boundingFrustum, viewInv);
+		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType)
+		{
+			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			{
+				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+			}
+			else
+				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+
+		}
+	}
+	DrawInstancedCull(&camera, true);
 
 
 
@@ -171,8 +191,29 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
-	
-	DrawInstanced(&camera, &DX::INSTANCING::g_instanceGroups, false);
+
+	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	{
+		DirectX::XMMATRIX proj, viewInv;
+		DirectX::BoundingFrustum boundingFrustum;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
+		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+		boundingFrustum.Transform(boundingFrustum, viewInv);
+		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType)
+		{
+			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			{
+				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+			}
+			else
+				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);			
+
+		}
+	}
+
+	DrawInstancedCull(&camera, false);
 
 
 
@@ -295,7 +336,10 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
+
+	
 	this->AnimationPrePass(camera);
+
 	this->PrePass(camera);
 	
 	
@@ -351,6 +395,7 @@ void ForwardRender::Clear()
 	DX::INSTANCING::g_instanceGroups.clear();
 	DX::INSTANCING::g_instanceShadowGroups.clear();
 	DX::INSTANCING::g_instanceWireFrameGroups.clear();
+	DX::al_qaeda_isis.clear();
 
 }
 
@@ -392,10 +437,10 @@ void ForwardRender::Release()
 
 void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool& bindTextures)
 {
+	using namespace DirectX;
 	using namespace DX::INSTANCING;
 	if (camera)
 		_mapCameraBuffer(*camera);
-
 
 	size_t instanceGroupSize = instanceGroup->size();
 	size_t attributeSize = 0;
@@ -452,6 +497,69 @@ void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GR
 	}
 }
 
+void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
+{
+	using namespace DirectX;
+	using namespace DX::INSTANCING;
+	if (camera)//TODO TAKE ME HOME
+		_mapCameraBuffer(*camera);
+	   
+	size_t instanceGroupSize = g_temp.size();
+	size_t attributeSize = 0;
+	ID3D11Buffer * instanceBuffer;
+	for (size_t group = 0; group < instanceGroupSize; group++)
+	{
+		GROUP instance = g_temp.at(group);
+
+		D3D11_BUFFER_DESC instBuffDesc;
+		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+		instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
+		instBuffDesc.ByteWidth = sizeof(OBJECT) * (UINT)instance.attribs.size();
+		instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA instData;
+		memset(&instData, 0, sizeof(instData));
+		instData.pSysMem = instance.attribs.data();
+		HRESULT hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer);
+		//We copy the data into the attribute part of the layout.
+		// makes instancing special
+
+		//Map Texture
+		//-----------------------------------------------------------
+		if (bindTextures)
+		{
+			std::string textureName = instance.textureName;
+			size_t t = textureName.find_last_of('/');
+			textureName = textureName.substr(t + 1);
+			Manager::g_textureManager.getTexture(textureName)->Bind(1);
+		}
+		//-----------------------------------------------------------
+
+
+		UINT offset = 0;
+		ID3D11Buffer * bufferPointers[2];
+		bufferPointers[0] = instance.staticMesh->getBuffer();
+		bufferPointers[1] = instanceBuffer;
+
+		unsigned int strides[2];
+		strides[0] = sizeof(StaticVertex);
+		strides[1] = sizeof(OBJECT);
+
+		unsigned int offsets[2];
+		offsets[0] = 0;
+		offsets[1] = 0;
+
+		DX::g_deviceContext->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+
+		DX::g_deviceContext->DrawInstanced(instance.staticMesh->getVertice().size(),
+			instance.attribs.size(),
+			0U,
+			0U);
+		DX::SafeRelease(instanceBuffer);
+	}
+	g_temp.clear();
+}
+
 void ForwardRender::_GuardFrustumDraw()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
@@ -465,12 +573,10 @@ void ForwardRender::_GuardFrustumDraw()
 
 	for (unsigned int i = 0; i < DX::g_visibilityComponentQueue.size(); i++)
 	{
-
 		DirectX::XMFLOAT4X4A viewProj = DX::g_visibilityComponentQueue[i]->getCamera()->getViewProjection();
 		DirectX::XMMATRIX mViewProj = DirectX::XMLoadFloat4x4A(&viewProj);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(mViewProj);
 		DirectX::XMMATRIX mViewProjInverse = DirectX::XMMatrixInverse(&d, mViewProj);
-
 
 		D3D11_MAPPED_SUBRESOURCE dataPtr;
 		GuardBuffer gb;
@@ -935,9 +1041,9 @@ void ForwardRender::_particlePass()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	DX::g_deviceContext->OMSetDepthStencilState(m_particleDepthStencilState, NULL);
-	for (auto & lol : DX::g_emitters)
+	for (auto & emitter : DX::g_emitters)
 	{
-		lol->Draw();
+		emitter->Draw();
 	}
 	DX::g_emitters.clear();
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);

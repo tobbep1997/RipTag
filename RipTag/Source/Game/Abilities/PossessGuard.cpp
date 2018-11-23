@@ -80,7 +80,7 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->setHidden(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
 				this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
-				this->m_possessTarget->setTransitionState(EnemyTransitionState::ExitingPossess);
+				this->m_possessTarget->setTransitionState(AITransitionState::ExitingPossess);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0; 
@@ -134,7 +134,7 @@ void PossessGuard::_logic(double deltaTime)
 						contact->contactShape->GetBody()->SetType(e_dynamicBody);
 						contact->contactShape->GetBody()->SetAwake(true);
 						this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
-						this->m_possessTarget->setTransitionState(EnemyTransitionState::BeingPossessed);
+						this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
 						this->m_possessTarget->setPossessor(pPointer, 20, 1);
 						m_pState = PossessGuard::Possessing;
 						p_cooldown = 0;
@@ -159,7 +159,7 @@ void PossessGuard::_logic(double deltaTime)
 				pPointer->getBody()->SetAwake(true);
 				pPointer->setHidden(true);
 				CameraHandler::setActiveCamera(pPointer->getCamera());
-				this->m_possessTarget->setTransitionState(EnemyTransitionState::ExitingPossess);
+				this->m_possessTarget->setTransitionState(AITransitionState::ExitingPossess);
 				this->m_possessTarget = nullptr;
 				m_pState = PossessGuard::Wait;
 				p_cooldown = 0;

@@ -6,6 +6,9 @@
 #include <DirectXMath.h>
 #include <unordered_map>
 #include "../../Components/StateMachine.h"
+class LayerMachine;
+class Drawable;
+
 #define MAXJOINT 128
 #define BLEND_MATCH_TIME (1<<1)
 #define BLEND_FROM_START (1<<2)
@@ -15,6 +18,7 @@
 
 #define ANIMATION_FRAMETIME 0.041666666f
 #define ANIMATION_FRAMERATE 24
+
 namespace ImporterLibrary
 {
 	class CustomFileLoader;
@@ -143,14 +147,10 @@ namespace Animation
 	SRT ConvertTransformToSRT(ImporterLibrary::Transform transform);
 	Animation::SharedAnimation ConvertToAnimationClip(ImporterLibrary::AnimationFromFile* animation, uint8_t jointCount);
 	void SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const ImporterLibrary::Skeleton* importedSkeleton);
-	DirectX::XMMATRIX _createMatrixFromSRT(const SRT& srt);
 	DirectX::XMMATRIX _createMatrixFromSRT(const ImporterLibrary::DecomposedTransform& transform);
 	Animation::SharedAnimation LoadAndCreateAnimation(std::string file, std::shared_ptr<Skeleton> skeleton);
 	SharedSkeleton LoadAndCreateSkeleton(std::string file);
-	Animation::JointPose getDifferencePose(JointPose sourcePose, JointPose referencePose);
 	Animation::JointPose getAdditivePose(JointPose targetPose, JointPose differencePose);
-	Animation::AnimationClip* computeDifferenceClip(Animation::AnimationClip * sourceClip, Animation::AnimationClip * referenceClip);
-	bool bakeDifferenceClipOntoClip(Animation::AnimationClip* targetClip, Animation::AnimationClip* differenceClip);
 
 #pragma endregion Conversion stuff, Loaders, ...
 
@@ -164,27 +164,44 @@ namespace Animation
 	class AnimationPlayer
 	{
 	public:
-		AnimationPlayer();
+		AnimationPlayer(Drawable* owner);
 		~AnimationPlayer();
 
 		void Update(float deltaTime);
 		SkeletonPose UpdateBlendspace1D(SM::BlendSpace1D::Current1DStateData stateData);
 		SkeletonPose UpdateBlendspace2D(SM::BlendSpace2D::Current2DStateData stateData);
+		void UpdateWithPose(Animation::SkeletonPose* pose);
 		void SetPlayingClip(AnimationClip* clip, bool isLooping = true, bool keepCurrentNormalizedTime = false);
 		void SetSkeleton(SharedSkeleton skeleton);
+		uint16_t GetSkeletonJointCount();
 		void Pause();
 		void Play();
+		void Reset();
 
+		float GetTimeLeft(bool useNormalizedTime);
+
+		///Joint parenting
+		DirectX::XMMATRIX GetModelMatrixForJoint(uint16_t jointIndex);
+		DirectX::XMVECTOR GetPositionForJoint(uint16_t jointIndex);
+		DirectX::XMVECTOR GetOrientationForJoint(uint16_t jointIndex);
+		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetLocalPositionAndOrientationOfJoint(uint16_t jointIndex);
+		std::pair<DirectX::XMVECTOR, DirectX::XMVECTOR> GetWorldPositionAndOrientationOfJoint(uint16_t jointIndex);
+		///---------------
+
+		std::unique_ptr<LayerMachine>& GetLayerMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& GetLayerStateMachine();
 		std::unique_ptr<SM::AnimationStateMachine>& InitStateMachine(size_t numStates);
 		std::unique_ptr<SM::AnimationStateMachine>& InitLayerStateMachine(size_t numStates);
 
-		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices();
+		const std::vector<DirectX::XMFLOAT4X4A>& GetSkinningMatrices(); 
 		float GetCachedDeltaTime();
+		std::unique_ptr<LayerMachine>& InitLayerMachine(Animation::Skeleton* skeleton);
 	private:
-		float m_currentFrameDeltaTime = 0.0f;
+		Drawable* m_Owner{ nullptr };
 
+
+		std::unique_ptr<LayerMachine> m_LayerMachine{};
 		std::unique_ptr<SM::AnimationStateMachine> m_StateMachine;
 		std::unique_ptr<SM::AnimationStateMachine> m_LayerStateMachine;
 		std::unique_ptr<SM::StateVisitor> m_Visitor;
@@ -196,6 +213,7 @@ namespace Animation
 		SharedSkeleton m_Skeleton = nullptr;
 		AnimationClip* m_CurrentClip = nullptr;
 
+		float m_currentFrameDeltaTime = 0.0f;
 		float m_CurrentTime = 0.0f;
 		float m_CurrentNormalizedTime = 0.0f;
 		bool m_TimeAlreadyUpdatedThisFrame = false;
@@ -204,9 +222,14 @@ namespace Animation
 
 	public:
 		//-- Helper functions --
-		JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
-		SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
-		SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
+		static DirectX::XMMATRIX _CreateMatrixFromSRT(const SRT& srt);
+
+		static void         _ScalePose(Animation::SkeletonPose* pose, float scale, uint16_t jointCount);
+		static JointPose    _ScalePose(Animation::JointPose& pose, float scale);
+		static JointPose    _GetAdditivePose(Animation::JointPose targetPose, DirectX::XMMATRIX differencePose);
+		static JointPose    _BlendJointPoses(JointPose* firstPose, JointPose* secondPose, float blendFactor);
+		static SkeletonPose _BlendSkeletonPoses(SkeletonPose* firstPose, SkeletonPose* secondPose, float blendFactor, size_t jointCount);
+		static SkeletonPose _BlendSkeletonPoses2D(SkeletonPosePair firstPair, SkeletonPosePair secondPair, float pairsBlendFactor, size_t jointCount);
 		//----------------------
 	private:
 
@@ -214,8 +237,6 @@ namespace Animation
 		void _ComputeSkinningMatrices(SkeletonPose* pose);
 		void _ComputeModelMatrices(SkeletonPose* pose);
 		void _ComputeModelMatrices(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
-		void _InterpolatePose(SkeletonPose* firstPose, SkeletonPose* secondPose, float weight);
-		JointPose _InterpolateJointPose(JointPose * firstPose, JointPose * secondPose, float weight);
 		std::pair<uint16_t, float> _ComputeIndexAndProgression(float deltaTime, float currentTime, uint16_t frameCount);
 		std::pair<uint16_t, float> _ComputeIndexAndProgression(float deltaTime, float* currentTime, uint16_t frameCount);
 		std::optional<std::pair<uint16_t, float>> _ComputeIndexAndProgressionOnce(float deltaTime, float* currentTime, uint16_t frameCount);
@@ -224,7 +245,7 @@ namespace Animation
 
 	public:
 		void UpdateLooping(Animation::AnimationClip* clip);
-		void UpdateOnce(Animation::AnimationClip* clip);
+		std::optional<Animation::SkeletonPose> UpdateOnce(Animation::AnimationClip* clip);
 	};
 
 	//Stuff

@@ -53,8 +53,28 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 
+	for (int i = 0; i < DX::al_qaeda_isis.size(); i++)
+	{
+		DirectX::XMMATRIX proj, viewInv;
+		DirectX::BoundingFrustum boundingFrustum;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getView())));
+		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+		boundingFrustum.Transform(boundingFrustum, viewInv);
+		if (DX::al_qaeda_isis[i]->getEntityType() != EntityType::PlayerType && !DX::al_qaeda_isis[i]->getOutline())
+		{
+			if (DX::al_qaeda_isis[i]->getBoundingBox())
+			{
+				if (DX::al_qaeda_isis[i]->getBoundingBox()->Intersects(boundingFrustum))
+					DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
+			}
+			else
+				DX::INSTANCING::tempInstance(DX::al_qaeda_isis[i]);
 
-	forwardRender->DrawInstanced(target->getCamera(), &DX::INSTANCING::g_instanceGroups, false);
+		}
+	}
+
+	forwardRender->DrawInstancedCull(target->getCamera());
 
 
 	/*for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
@@ -109,8 +129,8 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 	DX::g_deviceContext->PSSetShaderResources(10, 1, &m_guardShaderResource);
 
 	_drawForPlayer(DX::g_player, target, 0);
-	if (DX::g_remotePlayer)
-		_drawForPlayer(DX::g_remotePlayer, target, 1);
+	/*if (DX::g_remotePlayer)
+		_drawForPlayer(DX::g_remotePlayer, target, 1);*/
 
 
 	//UINT32 vertexSize = sizeof(StaticVertex);

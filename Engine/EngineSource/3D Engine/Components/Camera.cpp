@@ -269,6 +269,17 @@ const DirectX::XMFLOAT4X4A & Camera::getViewProjection()
 	return this->m_viewProjection;
 }
 
+DirectX::XMVECTOR Camera::getRotation()
+{
+	using namespace DirectX;
+	XMVECTOR s{};
+	XMVECTOR r{};
+	XMVECTOR t{};
+
+	XMMatrixDecompose(&s, &r, &t, DirectX::XMLoadFloat4x4A(&getView()));
+	return r;
+}
+
 DirectX::XMFLOAT4A Camera::_add(const DirectX::XMFLOAT4A & a, const DirectX::XMFLOAT4A & b)
 {
 	DirectX::XMVECTOR vA, vB;

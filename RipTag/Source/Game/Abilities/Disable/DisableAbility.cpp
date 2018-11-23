@@ -163,7 +163,8 @@ void DisableAbility::_inStateThrowable()
 		{
 			
 			m_dState = DisableAbility::Charging;
-			
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 		}
 		if (Input::OnAbility2Released())
 		{
@@ -191,6 +192,8 @@ void DisableAbility::_inStateCharging(double dt)
 		if (Input::OnAbility2Released())
 		{
 			m_dState = DisableState::Moving;
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
@@ -225,7 +228,7 @@ void DisableAbility::_inStateMoving(double dt)
 				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
 				{
 					m_hasHit = true; 
-					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(EnemyTransitionState::BeingDisabled);
+					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
 					m_dState = DisableState::Cooldown;
 					//Particle effects here before changing the position.  
 					m_particleEmitter = new ParticleEmitter();

@@ -19,7 +19,6 @@ ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
 
 bool RipExtern::g_kill = false;
-
 bool PlayState::m_youlost = false;
 
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
@@ -44,8 +43,13 @@ PlayState::~PlayState()
 
 
 	//delete triggerHandler;
-	delete m_contactListener;
-	delete m_rayListener;
+	
+	delete RipExtern::g_contactListener;
+	RipExtern::g_contactListener = nullptr;
+	delete RipExtern::g_rayListener;
+	RipExtern::g_rayListener = nullptr;
+	RipExtern::g_world = nullptr;
+
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
@@ -57,8 +61,8 @@ void PlayState::Update(double deltaTime)
 		InputMapping::Call();
 
 		m_step.dt = UPDATE_TIME;
-		m_step.velocityIterations = 8;
-		m_step.sleeping = false;
+		m_step.velocityIterations = 2;
+		m_step.sleeping = true;
 		m_firstRun = false;
 		while (m_physRunning)
 		{
@@ -94,9 +98,9 @@ void PlayState::Update(double deltaTime)
 		m_playerManager->Update(deltaTime);
 
 		m_playerManager->PhysicsUpdate();
-		
-		m_contactListener->ClearContactQueue();
-		m_rayListener->ClearConsumedContacts();
+	
+		RipExtern::g_contactListener->ClearContactQueue();
+		RipExtern::g_rayListener->ClearConsumedContacts();
 
 		//Start Physics thread
 		if (RipExtern::g_kill == false)
@@ -195,7 +199,16 @@ void PlayState::Draw()
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
+
+	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
+	//camera->setUP(1, 0, 0);
+	//camera->setDirection(0, -1, 0);
+	//DirectX::XMFLOAT4A lol = m_playerManager->getLocalPlayer()->getPosition();
+	//lol.y += 20;
+	//camera->setPosition(lol);
 	p_renderingManager->Flush(*CameraHandler::getActiveCamera());
+	//p_renderingManager->Flush(*camera);
+	//delete camera;
 }
 
 void PlayState::setYouLost(const bool& youLost)
@@ -237,7 +250,9 @@ void PlayState::_PhyscisThread(double deltaTime)
 		//if (m_deltaTime <= 0.4f) // IF Something wierd happens, please uncomment *DISCLAIMER*
 		//{
 		m_timer += m_deltaTime;
-			m_world.Step(m_step);
+
+		m_world.Step(m_step);
+
 		while (m_timer >= UPDATE_TIME)
 		{
 			m_timer -= UPDATE_TIME;
@@ -268,7 +283,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			DirectX::XMVECTOR vPPos = DirectX::XMLoadFloat4A(&pPos);
 			DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(vPPos, vEPos);
 			float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
-			Enemy::SoundLocation sl;
+			AI::SoundLocation sl;
 			sl.percentage = 0.0f;
 			if (length < 20.0f)
 			{
@@ -320,7 +335,6 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							switch (*soundType)
 							{
 							case AudioEngine::Player:
-							case AudioEngine::RemotePlayer:
 								allSounds += addThis;
 								playerSounds += addThis;
 								if (playerSounds > sl.percentage)
@@ -604,6 +618,7 @@ void PlayState::Load()
 	_loadTextures();
 	_loadPhysics();
 	_loadMeshes();
+	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
 
@@ -624,18 +639,16 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("STATE");
 	Manager::g_textureManager.loadTextures("FIRE");
 	Manager::g_textureManager.loadTextures("GUARD");
+	Manager::g_textureManager.loadTextures("ARMS");
 
 }
 
 void PlayState::_loadPhysics()
 {
-	
 	RipExtern::g_world = &m_world;
-	m_contactListener = new ContactListener();
-	RipExtern::g_contactListener = m_contactListener;
-	RipExtern::g_world->SetContactListener(m_contactListener);
-	m_rayListener = new RayCastListener();
-	RipExtern::g_rayListener = m_rayListener;
+	RipExtern::g_contactListener = new ContactListener();
+	RipExtern::g_world->SetContactListener(RipExtern::g_contactListener);
+	RipExtern::g_rayListener = new RayCastListener();
 	m_world.SetGravityDirection(b3Vec3(0, -1, 0));
 	// triggerHandler = new TriggerHandler();
 	m_step.velocityIterations = 8;
@@ -654,11 +667,27 @@ void PlayState::_loadMeshes()
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
+	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
 
 	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
 	Manager::g_meshManager.loadStaticMesh("JOCKDOOR");
 	//future1.get();
+}
+
+void PlayState::_loadAnimations()
+{
+	//First-person arms
+	Manager::g_animationManager.loadSkeleton("../Assets/ARMSFOLDER/ARMS_SKELETON.bin", "ARMS");
+	Manager::g_animationManager.loadClipCollection("ARMS", "ARMS", "../Assets/ARMSFOLDER", Manager::g_animationManager.getSkeleton("ARMS"));
+
+	//State (old placeholder character)
+	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
+	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));
+
+	//Guard
+	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
+	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
 }
 
 void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
@@ -841,3 +870,5 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 		}
 	}
 }
+
+

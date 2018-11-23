@@ -67,19 +67,24 @@ Node Grid::GetWorldPosFromIndex(int index)
 
 void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
+	
 	if (!m_nodeMap.empty())
 		m_nodeMap.clear();
-	m_width = grid.maxX;
-	m_height = grid.maxY;
+	
+	if (grid.gridPoints)
+	{
+		m_width = grid.maxX;
+		m_height = grid.maxY;
 
-	for (int i = 0; i < m_height; i++)
-		for (int j = 0; j < m_width; j++)
-		{
-			int index = i + j * m_height;
-			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
-				NodeWorldPos(grid.gridPoints[index].translation[0],
-					grid.gridPoints[index].translation[2])));
-		}
+		for (int i = 0; i < m_height; i++)
+			for (int j = 0; j < m_width; j++)
+			{
+				int index = i + j * m_height;
+				m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
+					NodeWorldPos(grid.gridPoints[index].translation[0],
+						grid.gridPoints[index].translation[2])));
+			}
+	}
 }
 
 void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded)

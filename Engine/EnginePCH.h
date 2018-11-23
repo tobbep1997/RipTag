@@ -1,6 +1,7 @@
 #pragma once
 #pragma warning (disable : 4715)
 #include <iostream>
+#include <vector>
 #include <math.h>
 #include <algorithm>
 #include <assert.h>
@@ -35,6 +36,7 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 
 #include "EngineSource/Helper/Timer.h"
+#include "EngineSource/Helper/AnimationDebugHelper.h"
 #include "EngineSource/Window/window.h"
 #include "EngineSource/Light/PointLight.h"
 #include "EngineSource/Shader/ShaderManager.h"

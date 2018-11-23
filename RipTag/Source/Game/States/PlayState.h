@@ -29,8 +29,6 @@ class PlayState : public State
 {
 private:
 	LevelHandler * m_levelHandler;		//Released
-	ContactListener * m_contactListener;//Released
-	RayCastListener * m_rayListener;	//Released
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
@@ -116,5 +114,6 @@ private:
 
 	void _updateOnCoopMode(double deltaTime);
 
+	void _loadAnimations();
 };
 

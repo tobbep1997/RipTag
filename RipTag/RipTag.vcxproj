@@ -182,6 +182,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Actors\Enemy\AI.cpp" />
     <ClCompile Include="Source\Game\Level\RandomRoom.cpp" />
     <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
     <ClCompile Include="Source\Game\Level\RandomRoomGrid.cpp" />
@@ -532,6 +533,7 @@
     <ClCompile Include="Source\Gameplay\Objects\Torch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Actors\Enemy\AI.h" />
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
     <ClInclude Include="Source\Game\Item\Rock.h" />
     <ClInclude Include="Source\Game\Item\Map.h" />
@@ -620,9 +622,6 @@
     <ClInclude Include="Source\Game\States\PlayState.h" />
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Gameplay\Objects\Torch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
