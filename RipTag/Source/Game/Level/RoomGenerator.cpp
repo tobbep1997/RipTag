@@ -63,7 +63,7 @@ void RoomGenerator::_generateGrid()
 {
 	int iterationsDepth = m_roomDepth * 2 + 1;
 	int iterationsWidth = m_roomWidth * 2 + 1;
-	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
+	//m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
 	int counter = 0;
 	BaseActor * base = new BaseActor();
 	base->Init(*m_worldPtr, e_staticBody);
@@ -160,6 +160,10 @@ void RoomGenerator::_makeWalls()
 	ImporterLibrary::CustomFileLoader loader;
 
 	randomizer.GenerateRoomLayout();
+	int iterationsDepth = m_roomDepth * 2 + 1;
+	int iterationsWidth = m_roomWidth * 2 + 1;
+	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
+	m_generatedGrid->GenerateRoomNodeMap(&randomizer);
 
 	int widthCounter = 0;
 	int depthCounter = 0;

@@ -44,10 +44,11 @@ void RandomRoomGrid::GenerateRoomLayout()
 	_insertRooms(nrOfBigRooms);
 	_connectRooms();
 	_checkConnections();
+}
 
-	Print();
-	std::cout << "\n\n\n";
-	DrawConnections();
+DirectX::XMINT2 RandomRoomGrid::GetSize() const
+{
+	return DirectX::XMINT2(m_width, m_depth);
 }
 
 void RandomRoomGrid::Print()

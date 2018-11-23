@@ -30,6 +30,7 @@
 
 #include "Source/Input/Input.h"
 #include "Source/Game/Level/Room.h"
+#include "Source/Game/Level/RandomRoomGrid.h"
 #include "Source/Game/Actors/Player.h"
 #include "Source/Game/Actors/BaseActor.h"
 #include "Source/Game/Actors/RemotePlayer.h"

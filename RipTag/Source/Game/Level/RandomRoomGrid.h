@@ -34,6 +34,7 @@ public:
 	~RandomRoomGrid();
 
 	void GenerateRoomLayout();
+	DirectX::XMINT2 GetSize() const;
 
 	void Print();
 	void DrawConnections();
