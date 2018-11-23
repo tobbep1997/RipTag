@@ -124,6 +124,12 @@ void RoomGenerator::_generateGrid()
 
 	delete base;
 
+	Tile s, d;
+	s = m_generatedGrid->WorldPosToTile(-48, -48);
+	d = m_generatedGrid->WorldPosToTile(48, 48);
+
+	m_generatedGrid->FindPath(s, d);
+
 }
 
 void RoomGenerator::_makeFloor()

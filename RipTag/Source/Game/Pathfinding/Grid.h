@@ -125,8 +125,9 @@ private:
 	bool _tilesAreInTheSameRoom(const Tile & source, const Tile & destination);
 
 	std::vector<Node*> _findRoomNodePath(const Tile & source, const Tile & destination);
+	Tile _getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap);
 
-	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes);
+	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
 
 	std::vector<Node*> _findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height);
 };

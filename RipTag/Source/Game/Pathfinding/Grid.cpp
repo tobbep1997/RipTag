@@ -119,11 +119,11 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
 
 		// A* in each room to get to the next
-		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath);
+		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 
 		for (auto & tp : tilePairs)
 		{
-			auto partOfPath = _findPath(tp.source, tp.destination, m_roomNodeMap, m_width, m_height);
+			auto partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
 		}
 		
@@ -401,19 +401,104 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 
 	// TODO :: Translate this to center point of the room (sIndex and dIndex)
 
-
-
 	Tile roomSource = m_roomNodeMap[sIndex].tile;
 	Tile roomDest = m_roomNodeMap[dIndex].tile;
 
+	if (!roomSource.getPathable())
+		roomSource = _getCenterGridFromRoomGrid(roomSource, source);
+	if (!roomDest.getPathable())
+		roomDest = _getCenterGridFromRoomGrid(roomDest, destination);
 
 
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
 }
 
-std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* roomNodes)
+Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap)
 {
-	return std::vector<TilePair>();
+	int Xroom = tileOnRoomNodeMap.getX();
+	int Yroom = tileOnRoomNodeMap.getY();
+
+	std::vector<Node*> potentialCenter;
+
+	if (Yroom % 2 == 0)
+	{
+		// Center is either on Left or Right
+		int iLeft = Yroom * 9 + Xroom - 1;
+		int iRight = Yroom * 9 + Xroom + 1;
+		potentialCenter.push_back(&m_roomNodeMap.at(iLeft));
+		potentialCenter.push_back(&m_roomNodeMap.at(iRight));
+	}
+	else if (Xroom % 2 == 0)
+	{
+		// Center is either on Up or Down
+		int iUp = (Yroom - 1) * 9 + Xroom;
+		int iDown = (Yroom + 1) * 9 + Xroom;
+		potentialCenter.push_back(&m_roomNodeMap.at(iUp));
+		potentialCenter.push_back(&m_roomNodeMap.at(iDown));
+	}
+	else
+	{
+		// Center is either D-Up, D-Right, D-Down, D-Left
+		int leftUp = (Yroom - 1) * 9 + Xroom - 1;
+		int rightUp = (Yroom - 1) * 9 + Xroom + 1;
+		int rightDown = (Yroom + 1) * 9 + Xroom + 1;
+		int leftDown = (Yroom + 1) * 9 + Xroom - 1;
+
+		potentialCenter.push_back(&m_roomNodeMap.at(leftUp));
+		potentialCenter.push_back(&m_roomNodeMap.at(rightUp));
+		potentialCenter.push_back(&m_roomNodeMap.at(rightDown));
+		potentialCenter.push_back(&m_roomNodeMap.at(leftDown));
+	}
+
+	float distance = 99999.9f;
+
+	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * tileInNodeMap.getX()].worldPos;
+	DirectX::XMVECTOR vSWpos = DirectX::XMVectorSet(sWpos.x, sWpos.y, 0.0f, 0.0f);
+
+	Tile center;
+
+	for (auto & node : potentialCenter)
+	{
+		auto pos = node->worldPos;
+		DirectX::XMVECTOR vNode = DirectX::XMVectorSet(pos.x, pos.y, 0.0f, 0.0f);
+
+		float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(vNode, vSWpos)));
+		if (length < distance)
+		{
+			center = node->tile;
+			distance = length;
+		}
+	}
+
+	return center;
+}
+
+std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* roomNodes, const Tile & source, const Tile & destination)
+{
+	std::vector<Grid::TilePair> gtp;
+	
+	for (int i = 0; i < roomNodes->size() - 1; i++)
+	{
+		Grid::TilePair tp;
+		auto wpS = roomNodes->at(i)->worldPos;
+		auto wpD = roomNodes->at(i + 1)->worldPos;
+		
+		
+		// TODO :: BOTH THIS MAY BE UN-PATH-ABLE due to props being in the middle of the room :(
+		tp.source = WorldPosToTile(wpS.x, wpS.y);
+		tp.destination = WorldPosToTile(wpD.x, wpD.y);
+
+
+
+
+
+		gtp.push_back(tp);
+	}
+
+	gtp[0].source = source;
+	gtp[gtp.size() - 1].destination = destination;
+
+	return gtp;
 }
 
 std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height)
