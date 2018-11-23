@@ -90,17 +90,7 @@ void RoomGenerator::_generateGrid()
 							}
 							if (col)
 							{
-								node.tile.setPathable(false);
-								placed = true;
-								Manager::g_meshManager.loadStaticMesh("FLOOR");
-								Manager::g_textureManager.loadTextures("CANDLE");
-								asset = DBG_NEW BaseActor();
-								asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-								asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
-								asset->setTextureTileMult(m_roomWidth, m_roomDepth);
-								asset->setPosition(node.worldPos.x, 1.5, node.worldPos.y, false);
-								asset->p_createBoundingBox(DirectX::XMFLOAT3(1, 1, 1));
-								m_generated_assetVector.push_back(asset);
+								
 								break;
 
 							}
@@ -146,7 +136,8 @@ void RoomGenerator::_makeWalls()
 	m_roomWidth = (incrementalValueX * m_roomGridWidth) / 2.0f;
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 2; // change when small mods added
+	int MAX_SMALL_MODS = 8; 
+	int MAX_BIG_MODS = 5;
 	bool isRotated = false;
 
 	RandomRoomGrid randomizer;
@@ -198,17 +189,18 @@ void RoomGenerator::_makeWalls()
 			directions[3] = randomizer.m_rooms[index].west;
 			
 
-			RANDOM_MOD_NR = rand() % MAX_SMALL_MODS + 1;//RANDOM MELLAN MAX_SMALL MODS och 1
+			RANDOM_MOD_NR = rand() % MAX_SMALL_MODS;//RANDOM MELLAN MAX_SMALL MODS och 1
+			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 
 			if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
 			{
-				RANDOM_MOD_NR = 3;//random från antal small rum upp till max big room
+				RANDOM_MOD_NR = rand() % MAX_BIG_MODS;//random från antal small rum upp till max big room 
+				MODNAMESTRING = "STORMOD" + std::to_string(RANDOM_MOD_NR);
 			}
 			isRotated = false;
 			if (randomizer.m_rooms[index].type == 1)
 				isRotated = true;
 			
-			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 
 			int BigRoomAddX = 0;
 			int BigRoomAddZ = 0;
@@ -432,6 +424,8 @@ void RoomGenerator::_makeWalls()
 					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
 					tempLights.lights[k].translate[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
 				}
+				if (tempLights.lights[k].intensity < 10)
+					tempLights.lights[k].intensity = 10;
 				m_generated_pointLightVector.push_back(DBG_NEW PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
 
 				/*p_emit = DBG_NEW ParticleEmitter();
