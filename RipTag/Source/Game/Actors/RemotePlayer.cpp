@@ -215,13 +215,17 @@ void RemotePlayer::_lerpPosition(float dt)
 	if (!DirectX::XMVector3IsNaN(curr) && !DirectX::XMVector3IsNaN(next))
 	{
 
-		newPos = DirectX::XMVectorLerp(curr, next, dt);
+		newPos = DirectX::XMVectorLerp(curr, next, 0.5f);
 
 		DirectX::XMFLOAT4A _newPos;
 		DirectX::XMStoreFloat4A(&_newPos, newPos);
 
+		assert(!DirectX::XMVector3IsNaN(newPos));
 
-		this->setPosition(m_mostRecentPosition);
+		if (!DirectX::XMVector3IsNaN(newPos))
+			this->setPosition(_newPos);
+		else
+			this->setPosition(this->m_mostRecentPosition);
 	}
 }
 
