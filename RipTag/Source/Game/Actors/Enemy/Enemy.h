@@ -30,6 +30,8 @@ private:
 	const float REVERSE_SPEED = 0.5f;
 
 	bool doNotSendUpdates = false;
+	bool previouslyPossessed = false;
+	bool previouslyDisabled = false;
 private:
 	struct AudioVars
 	{

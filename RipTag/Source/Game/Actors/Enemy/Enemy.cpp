@@ -235,14 +235,12 @@ void Enemy::ClientUpdate(double deltaTime)
 		break;
 	}
 
-	static bool previouslyPossessed = false;
-	static bool previouslyDisabled = false;
-
+	if (uniqueID == 0)
+		std::cout << previouslyPossessed << std::endl;
 	switch (state)
 	{
 		case AIState::Possessed:
 		{
-			_disabled(deltaTime);
 			_possessed(deltaTime);
 			previouslyPossessed = true;
 			//I think we need to ensure that the State packet arrives before the Enemy update packet
