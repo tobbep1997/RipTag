@@ -186,7 +186,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes("WIN_BOX");
+	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
@@ -690,7 +690,7 @@ void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 
 
 	m_levelHandler = new LevelHandler(m_roomIndex);
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
+	m_levelHandler->Init(*RipExtern::g_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }
 

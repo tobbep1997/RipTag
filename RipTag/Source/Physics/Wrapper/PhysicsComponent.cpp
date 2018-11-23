@@ -254,6 +254,7 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 		h = DBG_NEW b3Hull();
 		h->SetAsBox(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
 		m_scales.push_back(b3Vec3(collisionBoxes.boxes[i].scale[0] / 2.0f, collisionBoxes.boxes[i].scale[1] / 2.0f, collisionBoxes.boxes[i].scale[2] / 2.0f));
+
 		m_hulls.push_back(h);
 
 		//-----------------------------------------------------
@@ -292,6 +293,7 @@ void PhysicsComponent::Init(b3World & world, const ImporterLibrary::CollisionBox
 		}
 		//b->SetUserData((void*)collisionBoxes.boxes[i].typeOfBox);
 		m_bodys.push_back(b);
+		
 		m_shapes.push_back(b->CreateShape(*m_shapeDefs[i]));
 		if (collisionBoxes.boxes[i].typeOfBox == 2)
 			m_shapes[m_shapes.size() - 1]->SetSensor(true);
@@ -551,12 +553,34 @@ void PhysicsComponent::setAwakeState(const bool& awa)
 
 void PhysicsComponent::setUserDataBody(void* self)
 {
-	this->m_body->SetUserData(self);
+	if (m_body)
+		this->m_body->SetUserData(self);
+	else
+	{
+		for (auto &lol : m_bodys)
+		{
+			lol->SetUserData(self);
+		}
+	}
 }
 
 void PhysicsComponent::setObjectTag(const char * type)
 {
-	m_body->SetObjectTag(type);
+	if (m_body)
+		m_body->SetObjectTag(type);
+	else
+	{
+		for (auto &lol : m_bodys)
+		{
+			lol->SetObjectTag(type);
+			auto lol2 = lol->GetShapeList();
+			while (lol2 != nullptr)
+			{
+				lol2->SetObjectTag(type);
+				lol2 = lol2->GetNext();
+			}
+		}
+	}
 	
 }
 

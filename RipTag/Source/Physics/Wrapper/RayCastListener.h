@@ -184,7 +184,7 @@ public:
 		float y = start.y + (length * direction.y);
 		float z = start.z + (length * direction.z);
 
-		body->GetScene()->RayCast(this, b3Vec3(start.x, start.y, start.z), b3Vec3(x, y, z));
+		RipExtern::g_world->RayCast(this, b3Vec3(start.x, start.y, start.z), b3Vec3(x, y, z));
 		
 
 		if (m_rayHit)

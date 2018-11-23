@@ -60,6 +60,11 @@ Tile Grid::WorldPosToTile(float x, float y)
 	return m_nodeMap.at(index).tile;
 }
 
+Node Grid::GetWorldPosFromIndex(int index)
+{
+	return m_nodeMap.at(index);
+}
+
 void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
 	

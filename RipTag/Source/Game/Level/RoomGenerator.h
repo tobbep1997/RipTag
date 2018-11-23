@@ -25,6 +25,8 @@ private:
 	std::vector<ParticleEmitter*> m_generated_Emitters;
 	std::vector<FMOD::Geometry*> m_generatedAudioBoxes;
 	
+	std::vector<DirectX::BoundingBox*> m_generated_boundingBoxes;
+
 	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
@@ -32,6 +34,8 @@ private:
 
 	EnemyHandler * m_generatedRoomEnemyHandler;
 	void dbgFuncSpawnAboveMap();
+
+	void createGridCheckBoxes(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes colBoxes, DirectX::XMFLOAT3 newPos);
 
 	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
@@ -46,6 +50,8 @@ private:
 	int returnRandomInGridWidth();
 	int returnRandomInGridDepth();
 	int returnRandomBetween(int min, int max);
+
+	void moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::CollisionBoxes &modCollisionBoxes);
 	
 public:
 	RoomGenerator();
