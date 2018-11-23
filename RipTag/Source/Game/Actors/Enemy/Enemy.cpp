@@ -150,39 +150,38 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	static double accumulatedTime = 0.0;
-	static const double SEND_AI_PACKET_FREQUENCY = 1.0 / 15.0; 
-
-
 	using namespace DirectX;
 
-	handleStates(deltaTime);
+	if (!doNotSendUpdates)
+	{
+		handleStates(deltaTime);
 
-	auto deltaX = getLiniearVelocity().x * deltaTime;
-	auto deltaZ = getLiniearVelocity().z * deltaTime;
-	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		m_sinWaver += deltaTime;
 
-	m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+
+		if (m_PlayerPtr->GetMapPicked())
+		{
+			m_nodeFootPrintsEnabled = true;
+		}
+	}
+
 
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
 	
-	m_sinWaver += deltaTime;
-
-	if (m_PlayerPtr->GetMapPicked())
-	{
-		m_nodeFootPrintsEnabled = true;
-	}
 }
 
 void Enemy::ClientUpdate(double deltaTime)
 {
 	using namespace Network;
 
-	_cameraPlacement(deltaTime);
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
-	setLiniearVelocity(0, 0, 0);
 
 	//Visibility update
 	{
@@ -218,6 +217,23 @@ void Enemy::ClientUpdate(double deltaTime)
 
 	//State dependencies
 	auto state = this->getAIState();
+	auto transState = this->getTransitionState();
+
+	switch (transState)
+	{
+	case AITransitionState::BeingPossessed:
+		_onBeingPossessed();
+		break;
+	case AITransitionState::BeingDisabled:
+		_onBeingDisabled();
+		break;
+	case AITransitionState::ExitingPossess:
+		_onExitingPossessed();
+		break;
+	case AITransitionState::ExitingDisable:
+		_onExitingDisabled();
+		break;
+	}
 
 	static bool previouslyPossessed = false;
 	static bool previouslyDisabled = false;
@@ -226,6 +242,8 @@ void Enemy::ClientUpdate(double deltaTime)
 	{
 		case AIState::Possessed:
 		{
+			_disabled(deltaTime);
+			_possessed(deltaTime);
 			previouslyPossessed = true;
 			//I think we need to ensure that the State packet arrives before the Enemy update packet
 			ENTITYSTATEPACKET statePacket(ID_ENEMY_POSSESSED, uniqueID, true);
@@ -241,6 +259,7 @@ void Enemy::ClientUpdate(double deltaTime)
 		break;
 		case AIState::Disabled:
 		{
+			_disabled(deltaTime);
 			previouslyDisabled = true;
 			//I think we need to ensure that the State packet arrives before the Enemy update packet
 			ENTITYSTATEPACKET statePacket(ID_ENEMY_DISABLED, uniqueID, true);
@@ -250,6 +269,8 @@ void Enemy::ClientUpdate(double deltaTime)
 		break;
 		default:
 		{
+			_cameraPlacement(deltaTime);
+			setLiniearVelocity(0, 0, 0);
 			//Notify the server that this enemy is no longer being possessed by the client
 			if (previouslyPossessed)
 			{
@@ -318,30 +339,44 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 {
 	if (packet->condition)
+	{
+		doNotSendUpdates = true;
 		this->setAIState(AIState::Possessed);
+	}
 	else
+	{
+		doNotSendUpdates = false;
 		this->setTransitionState(AITransitionState::ExitingPossess);
-
+	}
 }
 
 void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 {
 	if (packet->condition)
+	{
+		doNotSendUpdates = true;
 		this->setAIState(AIState::Disabled);
+	}
 	else
+	{
+		doNotSendUpdates = false;
 		this->setTransitionState(AITransitionState::ExitingDisable);
+	}
 }
 
 void Enemy::sendNetworkUpdate()
 {
-	Network::ENEMYUPDATEPACKET packet;
-	packet.uniqueID = uniqueID;
-	packet.pos = getPosition();
-	packet.rot = p_camera->getYRotationEuler();
-	packet.camDir = p_camera->getDirection();
-	packet.moveSpeed = m_currentMoveSpeed;
+	if (!doNotSendUpdates)
+	{
+		Network::ENEMYUPDATEPACKET packet;
+		packet.uniqueID = uniqueID;
+		packet.pos = getPosition();
+		packet.rot = p_camera->getYRotationEuler();
+		packet.camDir = p_camera->getDirection();
+		packet.moveSpeed = m_currentMoveSpeed;
 
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 float Enemy::getTotalVisibility()

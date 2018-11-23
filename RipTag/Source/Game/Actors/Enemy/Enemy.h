@@ -29,6 +29,7 @@ private:
 	const float TURN_SPEED = 2.0f;
 	const float REVERSE_SPEED = 0.5f;
 
+	bool doNotSendUpdates = false;
 private:
 	struct AudioVars
 	{

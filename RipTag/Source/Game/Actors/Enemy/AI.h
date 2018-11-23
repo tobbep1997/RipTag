@@ -115,6 +115,15 @@ public:
 
 	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
 
+public:
+	//I was too lazy to do a mini state machine in AI, so i did it in Enemy, this needed to be public
+	void _onBeingPossessed();
+	void _possessed(const double deltaTime);
+	void _onExitingPossessed();
+
+	void _onBeingDisabled();
+	void _disabled(const double deltaTime);
+	void _onExitingDisabled();
 private:
 
 	//Transistion States
@@ -124,10 +133,6 @@ private:
 	void _onObserve();
 	void _onSearchArea();
 	void _onReturnToPatrol();
-	void _onBeingPossessed();
-	void _onBeingDisabled();
-	void _onExitingPossessed();
-	void _onExitingDisabled();
 
 	//States
 	void _investigatingSight(const double deltaTime);
@@ -137,8 +142,6 @@ private:
 	void _suspicious(const double deltaTime);
 	void _scanningArea(const double deltaTime);
 	void _patrolling(const double deltaTime);
-	void _possessed(const double deltaTime);
-	void _disabled(const double deltaTime);
 
 	//Pathing
 	void _Move(Node * nextNode, double deltaTime);
