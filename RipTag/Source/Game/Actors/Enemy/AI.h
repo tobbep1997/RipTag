@@ -71,15 +71,6 @@ private:
 	float lastSearchDirY = 0;
 
 
-	//SoundLocation m_sl = SoundLocation();
-	//SoundLocation m_loudestSoundLocation = SoundLocation();
-
-	//DirectX::XMFLOAT4A m_clearestPlayerPos;
-	//float m_biggestVisCounter = 0.0f;
-
-	//float m_visCounter = 0.0f;
-	//float m_visabilityTimer = 1.6f;
-
 	//Pathing
 	Grid* m_grid;
 	int m_currentPathNode = 0;

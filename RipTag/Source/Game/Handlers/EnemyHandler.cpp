@@ -67,19 +67,32 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 {
 	switch (id)
 	{
-	case Network::ID_ENEMY_UPDATE:
-	{
-		Network::ENEMYUPDATEPACKET * pData = (Network::ENEMYUPDATEPACKET*)data;
-		//this is very unsafe
-		this->m_guards[pData->uniqueID]->onNetworkUpdate(pData);
-	}
+		case Network::ID_ENEMY_UPDATE:
+		{
+			Network::ENEMYUPDATEPACKET * pData = (Network::ENEMYUPDATEPACKET*)data;
+			//this is very unsafe
+			this->m_guards[pData->uniqueID]->onNetworkUpdate(pData);
+		}
 		break;
-	case Network::ID_ENEMY_VISIBILITY:
-	{
-		Network::VISIBILITYPACKET * pData = (Network::VISIBILITYPACKET*)data;
-		_onVisibilityPacket(pData);
-	}
+		case Network::ID_ENEMY_VISIBILITY:
+		{
+			Network::VISIBILITYPACKET * pData = (Network::VISIBILITYPACKET*)data;
+			_onVisibilityPacket(pData);
+		}
 		break;
+		case Network::ID_ENEMY_POSSESSED:
+		{
+			Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
+			_onPossessedPacket(pData);
+		}
+		break;
+		case Network::ID_ENEMY_DISABLED:
+		{
+			Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
+			_onDisabledPacket(pData);
+		}
+		break;
+
 	}
 }
 
@@ -214,5 +227,17 @@ void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 {
 	//unsafe lol
 	m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
-	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos});
+	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos}
+	);
+}
+
+void EnemyHandler::_onPossessedPacket(Network::ENTITYSTATEPACKET * data)
+{
+	//state is their uniqueID
+	m_guards[data->state]->onNetworkPossessed(data);
+}
+
+void EnemyHandler::_onDisabledPacket(Network::ENTITYSTATEPACKET * data)
+{
+	m_guards[data->state]->onNetworkDisabled(data);
 }
