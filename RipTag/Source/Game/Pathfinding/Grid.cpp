@@ -65,6 +65,11 @@ Node Grid::GetWorldPosFromIndex(int index)
 	return m_nodeMap.at(index);
 }
 
+void Grid::BlockGridTile(int index, bool pathable)
+{
+	m_nodeMap.at(index).tile.setPathable(pathable);
+}
+
 void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 {
 	

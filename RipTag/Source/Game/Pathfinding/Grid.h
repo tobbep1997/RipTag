@@ -87,6 +87,7 @@ public:
 
 	Tile WorldPosToTile(float x, float y);
 	Node GetWorldPosFromIndex(int index);
+	void BlockGridTile(int index, bool pathable);
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded = 0);
