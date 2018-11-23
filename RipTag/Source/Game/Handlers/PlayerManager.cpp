@@ -92,7 +92,7 @@ void PlayerManager::Init(b3World * physWorld)
 void PlayerManager::Update(float dt)
 {
 	static float accumulatedDT = 0;
-	static const float frequency = 1.0f / 25.f; //one update each 40 ms
+	static const float frequency = 1.0f / 100.f; //one update each 10 ms
 
 	accumulatedDT += dt;
 

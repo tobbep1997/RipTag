@@ -24,6 +24,11 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 	m_TimeAlreadyUpdatedThisFrame = false;
 	m_currentFrameDeltaTime = deltaTime;
 
+	DirectX::XMFLOAT4X4A identity{};
+	DirectX::XMStoreFloat4x4A(&identity, DirectX::XMMatrixIdentity());
+	std::fill(m_SkinningMatrices.begin(), m_SkinningMatrices.end(), identity);
+	return;
+
 	if (!m_IsPlaying)
 		return;
 
