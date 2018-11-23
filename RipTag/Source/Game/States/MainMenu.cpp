@@ -10,6 +10,11 @@ MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
 	m_music->setVolume(0.3f);
 
+	for (int i = 0; i < 100; i++)
+	{
+		std::cout << (rand() % 3) - 1 << std::endl;
+	}
+
 }
 
 MainMenu::~MainMenu()

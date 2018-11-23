@@ -88,6 +88,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		UINT32 vertexSize = sizeof(PostAniDynamicVertex);
 		UINT32 offset = 0;
 
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
 		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"), nullptr, 0);
 		DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 		DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
