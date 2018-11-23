@@ -336,3 +336,5 @@ ASALocalRun/
 Assets/**/*.txt
 
 imgui.ini
+
+Deploy/
