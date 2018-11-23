@@ -46,4 +46,6 @@ private:
 
 	//network
 	void _onVisibilityPacket(Network::VISIBILITYPACKET * data);
+	void _onPossessedPacket(Network::ENTITYSTATEPACKET * data);
+	void _onDisabledPacket(Network::ENTITYSTATEPACKET * data);
 };
