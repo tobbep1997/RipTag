@@ -293,6 +293,11 @@ void AI::_onBeingPossessed()
 
 void AI::_onBeingDisabled()
 {
+	///Set knocked animation
+	auto animationPlayer = m_owner->getAnimationPlayer();
+	if (animationPlayer)
+		animationPlayer->GetStateMachine()->SetState("knocked_state");
+
 	m_owner->DisableEnemy();
 	m_owner->m_knockOutType = Enemy::KnockOutType::Stoned;
 	this->m_state = AIState::Disabled;
@@ -312,6 +317,11 @@ void AI::_onExitingPossessed()
 
 void AI::_onExitingDisabled()
 {
+	///Exit knocked state
+	auto animationPlayer = m_owner->getAnimationPlayer();
+	if (animationPlayer)
+		animationPlayer->GetStateMachine()->SetState("walk_state");
+
 	m_owner->m_disabled = false;
 	m_owner->m_released = false;
 	m_owner->m_possesionRecoverTimer = 0;
