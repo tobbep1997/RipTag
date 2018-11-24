@@ -500,6 +500,7 @@ void Player::SetFirstPersonModel()
 	machine->SetState("idle");
 
 	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
+	throwFinishState->SetBlendTime(0.0f);
 
 	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
 	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
