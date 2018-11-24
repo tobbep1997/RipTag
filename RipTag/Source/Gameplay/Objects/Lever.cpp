@@ -47,7 +47,7 @@ void Lever::Update(double deltaTime)
 				
 					if (ray->getOriginBody()->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 					{
-						if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == k)
+						if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == i)
 						{
 							if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
 							{

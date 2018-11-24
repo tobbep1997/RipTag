@@ -746,7 +746,7 @@ void Enemy::_onInteract()
 		{
 			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 			{
-				RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
+				RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 				for (int i = 0; i < ray->getNrOfContacts(); i++)
 				{
 					RayCastListener::RayContact* con = ray->GetRayContact(m_rayId);
@@ -775,7 +775,6 @@ void Enemy::_onInteract()
 					}
 				}
 			}
-			m_rayId = -100;
 		}
 	}
 	else

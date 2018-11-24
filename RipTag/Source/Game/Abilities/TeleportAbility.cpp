@@ -197,24 +197,16 @@ void TeleportAbility::_inStateCharging(double dt)
 			m_tpState = TeleportState::Throwable;
 			m_canceled = true;
 		}
-		if (Input::OnAbilityReleased())
-		{
-			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
-			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
-			if(m_rayId == -100)
-				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1);
-		}
+
 		if (m_rayId != -100)
 		{
 			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 			{
-				RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
+				RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 				m_tpState = TeleportState::Teleportable;
 				DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 				DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
-
-
 
 				start.w = 1.0f;
 				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
@@ -230,9 +222,6 @@ void TeleportAbility::_inStateCharging(double dt)
 				DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
 				this->m_lastStart = start;
 
-
-
-
 				start.w = 1.0f;
 				direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
 				setPosition(start.x, start.y, start.z);
@@ -240,8 +229,16 @@ void TeleportAbility::_inStateCharging(double dt)
 				this->m_lastVelocity = direction;
 				m_charge = 0.0f;
 			}
-			m_rayId = -100;
 		}
+
+		if (Input::OnAbilityReleased())
+		{
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
+			if(m_rayId == -100)
+				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1);
+		}
+		
 	}
 
 }
@@ -254,6 +251,31 @@ void TeleportAbility::_inStateTeleportable()
 		{
 			m_tpState = TeleportAbility::Cooldown;
 		}
+
+		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
+		{
+			DirectX::XMFLOAT4A position = Transform::getPosition();
+			RayCastListener::RayContact* var;
+			RayCastListener::Ray* ray;
+			ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+			var = ray->getClosestContact();
+			position.x += var->normal.x;
+			position.y += var->normal.y;
+			position.z += var->normal.z;
+
+		}
+		else if (RipExtern::g_rayListener->hasRayHit(m_rayId2))
+		{
+			DirectX::XMFLOAT4A position = Transform::getPosition();
+			RayCastListener::RayContact* var;
+			RayCastListener::Ray* ray;
+			ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId2);
+			var = ray->getClosestContact();
+			position.x += var->normal.x;
+			position.y += var->normal.y;
+			position.z += var->normal.z;
+		}
+
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
@@ -276,33 +298,7 @@ void TeleportAbility::_inStateTeleportable()
 				m_rayId2 = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir2, 2);
 			}
 		}
-		if (m_rayId != -100 && m_rayId2 != -100)
-		{
-			DirectX::XMFLOAT4A position = Transform::getPosition();
-			RayCastListener::RayContact* var;
-			RayCastListener::Ray* ray;
-			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
-			{
-				ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
-				var = ray->getClosestContact();
-				position.x += var->normal.x;
-				position.y += var->normal.y;
-				position.z += var->normal.z;
-
-			}
-			else if (RipExtern::g_rayListener->hasRayHit(m_rayId2))
-			{
-				ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
-				var = ray->getClosestContact();
-				position.x += var->normal.x;
-				position.y += var->normal.y;
-				position.z += var->normal.z;
-			}
-			m_rayId = -100;
-			m_rayId2 = -100;
-		}
 	}
-
 }
 
 void TeleportAbility::_inStateCooldown(double dt)

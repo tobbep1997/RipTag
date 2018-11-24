@@ -291,6 +291,26 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
+
+							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
+							{
+								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+								RayCastListener::RayContact* c;
+								for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
+								{
+									c = ray->GetRayContact(i);
+									std::string tag = c->contactShape->GetBody()->GetObjectTag();
+									if (tag == "WORLD" || tag == "NULL")
+									{
+										occ *= 0.15f;
+									}
+									else if (tag == "BLINK_WALL")
+									{
+										occ *= 0.50f;
+									}
+								}
+							}
+
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
 								DirectX::XMFLOAT4A soundDirNormalized;
@@ -298,28 +318,6 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 
 								if(m_rayId == -100)
 									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
-								else 
-								{
-									if (RipExtern::g_rayListener->hasRayHit(m_rayId))
-									{
-										RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
-										RayCastListener::RayContact* c;
-										for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
-										{
-											c = ray->GetRayContact(i);
-											std::string tag = c->contactShape->GetBody()->GetObjectTag();
-											if (tag == "WORLD" || tag == "NULL")
-											{
-												occ *= 0.15f;
-											}
-											else if (tag == "BLINK_WALL")
-											{
-												occ *= 0.50f;
-											}
-										}
-									}
-									m_rayId = -100;
-								}
 							}
 							
 

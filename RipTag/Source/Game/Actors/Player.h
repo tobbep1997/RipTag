@@ -162,9 +162,9 @@ private:
 	unsigned int m_rockCounter = 0;
 	const unsigned int MAXROCKS = 5;
 
-	int m_rayId = -100; //HeadBob
-	int m_rayId2 = -100; //interact
-	int m_rayId3 = -100; // objectInfo
+	int m_headBobRayId = -100; //HeadBob
+	int m_interactRayId = -100; //interact
+	int m_objectInfoRayId = -100; // objectInfo
 
 public:
 	//Magic number

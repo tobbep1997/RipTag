@@ -31,21 +31,17 @@ double CameraHolder::p_viewBobbing(double deltaTime, double moveSpeed, b3Body * 
 
 	XMVECTOR lookAt = XMVectorAdd(XMLoadFloat4A(&cPos), XMVectorScale(XMLoadFloat4A(&cDir), 5.0f));
 	XMVECTOR vPoint = lookAt;
-	if(m_rayId == -100)
-		m_rayId = RipExtern::g_rayListener->PrepareRay(owner, cPos, cDir, 100);
-	else
-	{
-		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
-		{
-			RayCastListener::Ray * ray = RipExtern::g_rayListener->GetProcessedRay(m_rayId);
-			XMFLOAT4A point;
-			b3Vec3 vec = ray->getClosestContact()->contactPoint;
-			//std::cout << ray->getClosestContact()->originBody->GetObjectTag() << std::endl;
-			point = { vec.x, vec.y, vec.z, 1.0f };
-			vPoint = XMLoadFloat4A(&point);
-		}
-		m_rayId = -100;
-	}
+	//if (RipExtern::g_rayListener->hasRayHit(m_rayId))
+	//{
+	//	RayCastListener::Ray * ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+	//	XMFLOAT4A point;
+	//	b3Vec3 vec = ray->getClosestContact()->contactPoint;
+	//	//std::cout << ray->getClosestContact()->originBody->GetObjectTag() << std::endl;
+	//	point = { vec.x, vec.y, vec.z, 1.0f };
+	//	vPoint = XMLoadFloat4A(&point);
+	//}
+	//else
+	//	m_rayId = RipExtern::g_rayListener->PrepareRay(owner, cPos, cDir, 100);
 
 	cPos.y -= m_offsetY;
 	if (moveSpeed > 0.1f)

@@ -6,6 +6,13 @@ class RayCastListener : public b3RayCastListener
 public:
 	struct RayContact
 	{
+		friend class RayCastListener;
+		b3Shape* contactShape;
+		b3Vec3 contactPoint;
+		b3Vec3 normal;
+		r32 fraction = 0;
+		bool free = true;
+
 		RayContact()
 		{
 			contactShape = nullptr;
@@ -18,8 +25,8 @@ public:
 		{
 			contactShape = nullptr;
 		};
-
-		void clearGarbage()
+	private:
+		void _clearGarbage()
 		{
 			this->contactShape = nullptr;
 			this->contactPoint.SetZero();
@@ -27,7 +34,7 @@ public:
 			this->fraction = 0;
 			this->free = true;
 		}
-		void setData(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+		void _setData(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 		{
 			this->contactShape = contactShape;
 			this->contactPoint = point;	
@@ -35,13 +42,6 @@ public:
 			this->fraction = fraction;
 			this->free = false;
 		};
-
-		b3Shape* contactShape;
-		b3Vec3 contactPoint;
-		b3Vec3 normal;
-		r32 fraction = 0;
-		bool free = true;
-		//0 = unused, 1 = used once, 2 = used twice
 		
 	};
 
@@ -50,6 +50,7 @@ public:
 	public:
 		static const int MAX_CONTACTS = 50;
 	private:
+		friend class RayCastListener;
 		unsigned int id = -1;
 		std::vector<RayContact*> rayContacts;
 		b3Body* originBody;
@@ -78,29 +79,6 @@ public:
 			rayContacts.clear();
 		}
 
-		void setupRay(b3Body* origin, b3Vec3 start, b3Vec3 end)
-		{
-			this->originBody = origin;
-			this->startPos = start;
-			this->endPos = end;
-			this->free = false;
-		}
-
-		bool addRayContact(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
-		{
-			for (int i = 0; i < MAX_CONTACTS; i++)
-			{
-				if (rayContacts.at(i)->free)
-				{
-					rayContacts.at(i)->setData(contactShape, point, normal, fraction);
-					this->free = false;
-					this->m_nrOfContacts++;
-					return true;
-				}
-			}
-			return false; //Too many contacts
-		};
-
 		std::vector<RayContact*> GetRayContacts()
 		{
 			return this->rayContacts;
@@ -115,60 +93,55 @@ public:
 		{
 			if (m_nrOfContacts == 0)
 				return nullptr;
-			return this->rayContacts.at(m_nrOfContacts-1);
+			return this->rayContacts.at(m_nrOfContacts - 1);
 		}
 
 		int getNrOfContacts()
 		{
 			return this->m_nrOfContacts;
 		}
-		const b3Vec3 getStart()
-		{
-			return this->startPos;
-		}
-		const b3Vec3 getEnd()
-		{
-			return this->endPos;
-		}
+
 		b3Body* getOriginBody()
 		{
 			return this->originBody;
 		}
-		const unsigned int getID()
-		{
-			return this->id;
-		}
+
 		const bool isFree()
 		{
 			return this->free;
 		}
 
-		void setID(unsigned int id)
+	private:
+
+		void _setupRay(b3Body* origin, b3Vec3 start, b3Vec3 end)
 		{
-			this->id = id;
-		}
-		void setEnd(b3Vec3 end)
-		{
+			this->originBody = origin;
+			this->startPos = start;
 			this->endPos = end;
+			this->free = false;
 		}
 
-		void setBody(b3Body* body)
+		bool _addRayContact(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 		{
-			this->originBody = body;
-		}
+			for (int i = 0; i < MAX_CONTACTS; i++)
+			{
+				if (rayContacts.at(i)->free)
+				{
+					rayContacts.at(i)->_setData(contactShape, point, normal, fraction);
+					this->m_nrOfContacts++;
+					return true;
+				}
+			}
+			return false; //Too many contacts
+		};
 
-		const bool hasHit()
-		{
-			return this->m_nrOfContacts != 0;
-		}
-
-		void clearGarbage()
+		void _clearGarbage()
 		{
 			for (int i = 0; i < MAX_CONTACTS; i++)
 			{
 				if (!rayContacts[i]->free)
 				{
-					rayContacts[i]->clearGarbage();
+					rayContacts[i]->_clearGarbage();
 				}
 			}
 			this->originBody = nullptr;
@@ -194,7 +167,7 @@ private:
 	{
 		if (fraction != 0)
 		{
-			processedRays.at(tempID)->addRayContact(shape, point, normal, fraction);
+			processedRays.at(tempID)->_addRayContact(shape, point, normal, fraction);
 		}
 		return fraction;
 	}
@@ -206,7 +179,7 @@ public:
 		for (int i = 0; i < MAX_RAYS; i++)
 		{
 			rays.push_back(new Ray());
-			rays.at(i)->setID(i);
+			rays.at(i)->id = i;
 			processedRays.push_back(new Ray());
 		}
 	}
@@ -233,7 +206,7 @@ public:
 		{
 			if (!rays.at(i)->isFree())
 			{
-				rays.at(i)->clearGarbage();
+				rays.at(i)->_clearGarbage();
 			}
 		}
 		m_nrOfRays = 0;
@@ -245,8 +218,8 @@ public:
 		{
 			if (!processedRays.at(i)->isFree())
 			{
-				processedRays.at(i)->clearGarbage();
-				processedRays.at(i)->setID(-1);
+				processedRays.at(i)->_clearGarbage();
+				processedRays.at(i)->id = -1;
 			}
 		}
 		m_nrOfProcessedRays = 0;
@@ -267,6 +240,13 @@ public:
 		return this->processedRays.at(pos);
 	}
 
+	virtual Ray* ConsumeProcessedRay(int& pos)
+	{
+		const int rPos = pos;
+		pos = -100;
+		return this->processedRays.at(rPos);
+	}
+
 	virtual const unsigned int getNrOfProcessedRays()
 	{
 		return this->m_nrOfProcessedRays;
@@ -276,13 +256,17 @@ public:
 	{
 		return this->m_nrOfRays;
 	}
-	virtual const bool hasRayHit(int id)
+	virtual const bool hasRayHit(int &id)
 	{
+		bool result = true;
 		if (id < 0)
+			result = false;
+		else if (this->processedRays.at(id)->getNrOfContacts() == 0)
 		{
-			return false;
+			id = -100;
+			result = false;
 		}
-		return this->processedRays.at(id)->getNrOfContacts() != 0;
+		return result;
 	}
 
 
@@ -293,10 +277,11 @@ public:
 		for (int i = 0; i < m_nrOfRays; i++)
 		{
 			ray = rays.at(i);
-			tempID = ray->getID();
-			this->processedRays.at(tempID)->setID(tempID);
-			this->processedRays.at(tempID)->setBody(ray->getOriginBody());
-			RipExtern::g_world->RayCast(this, ray->getStart(), ray->getEnd());
+			tempID = ray->id;
+			this->processedRays.at(tempID)->id = tempID;
+			this->processedRays.at(tempID)->free = false;
+			this->processedRays.at(tempID)->originBody = ray->originBody;
+			RipExtern::g_world->RayCast(this, ray->startPos, ray->endPos);
 			m_nrOfProcessedRays++;
 		}
 		ClearRays();
@@ -312,42 +297,8 @@ public:
 		b3Vec3 startPos(start.x, start.y, start.z);
 		b3Vec3 endPos = startPos + (length * dir);
 
-		bool identical = false;
-		b3Vec3 dirOld;
-		b3Vec3 dirOldN;
-		b3Vec3 startOld;
-		unsigned int id = -1;
-		int identicalPos = -1;
-		int firstFreeSlot = -1;
-		/*for (int i = 0; i < MAX_RAYS; i++)
-		{
-			if (rays.at(i)->isFree() && firstFreeSlot == -1)
-				firstFreeSlot = i;
-
-			startOld = rays.at(i)->getStart();
-			dirOld = startOld - rays.at(i)->getEnd();
-			dirOldN = b3Normalize(dirOld);
-
-			if (!rays.at(i)->isFree() && !identical &&(dir.x == dirOldN.x && dir.y == dirOldN.y && dir.z == dirOldN.z) && (start.x == startOld.x && start.y == startOld.y && start.z == startOld.z))
-			{
-				identical = true;
-				id = rays.at(i)->getID();
-				if (b3Len(dirOld) < length)
-				{
-					rays.at(i)->setEnd(endPos);
-				}
-			}
-			
-			if (identical && firstFreeSlot != -1)
-				break;
-		}
-
-		if (!identical && firstFreeSlot != -1)
-		{*/
-			rays.at(m_nrOfRays)->setupRay(body, startPos, endPos);
-			//id = rays.at(firstFreeSlot)->getID();
-			m_nrOfRays++;
-		//}
+		rays.at(m_nrOfRays)->_setupRay(body, startPos, endPos);
+		m_nrOfRays++;
 
 		return m_nrOfRays-1;
 	}

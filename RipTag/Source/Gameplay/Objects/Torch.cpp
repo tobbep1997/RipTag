@@ -54,19 +54,22 @@ void Torch::Update(double deltaTime)
 
 				if (onPlayer || onEnemy)
 				{
-					Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-					if (ObjectPointer == this)
+					if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == i)
 					{
-						if (this->getTriggerState())
+						Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
+						if (ObjectPointer == this)
 						{
-							this->setTriggerState(false);
-							pPointLight->setLightOn(true);
-							pParticles = new ParticleEmitter();
-							pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-							m_hasChecked = true;
+							if (this->getTriggerState())
+							{
+								this->setTriggerState(false);
+								pPointLight->setLightOn(true);
+								pParticles = new ParticleEmitter();
+								pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+								m_hasChecked = true;
+							}
+							//SENDTriggerd here for network
+							this->SendOverNetwork();
 						}
-						//SENDTriggerd here for network
-						this->SendOverNetwork();
 					}
 				}
 			}
@@ -104,23 +107,26 @@ void Torch::Update(double deltaTime)
 
 				if (onPlayer || onEnemy)
 				{
-					Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-					if (ObjectPointer == this)
+					if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == i)
 					{
-						if (this->getTriggerState())
+						Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
+						if (ObjectPointer == this)
 						{
-							this->setTriggerState(false);
-							pPointLight->setLightOn(true);
+							if (this->getTriggerState())
+							{
+								this->setTriggerState(false);
+								pPointLight->setLightOn(true);
+							}
+							else if (!this->getTriggerState() && !m_hasChecked)
+							{
+								this->setTriggerState(true);
+								pPointLight->setLightOn(false);
+								delete pParticles;
+								pParticles = nullptr;
+							}
+							//SENDTriggerd here for network
+							this->SendOverNetwork();
 						}
-						else if(!this->getTriggerState() && !m_hasChecked)
-						{
-							this->setTriggerState(true);
-							pPointLight->setLightOn(false);
-							delete pParticles;
-							pParticles = nullptr;
-						}
-						//SENDTriggerd here for network
-						this->SendOverNetwork();
 					}
 				}
 			}
