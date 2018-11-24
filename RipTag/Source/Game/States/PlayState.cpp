@@ -149,7 +149,6 @@ void PlayState::Update(double deltaTime)
 		{
 			InputHandler::setShowCursor(true);
 		}
-		RipExtern::g_rayListener->ShotRays();
 		//Start Physics thread
 		if (RipExtern::g_kill == false)
 		{
@@ -248,7 +247,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		
+		RipExtern::g_rayListener->ShotRays();
 		m_physRunning = false;
 	}
 }
@@ -296,7 +295,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							{
 								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 								RayCastListener::RayContact* c;
-								for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
+								for (int i = 0; i < ray->getNrOfContacts(); i++)
 								{
 									c = ray->GetRayContact(i);
 									std::string tag = c->contactShape->GetBody()->GetObjectTag();

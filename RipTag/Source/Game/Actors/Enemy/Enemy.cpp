@@ -749,7 +749,7 @@ void Enemy::_onInteract()
 				RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 				for (int i = 0; i < ray->getNrOfContacts(); i++)
 				{
-					RayCastListener::RayContact* con = ray->GetRayContact(m_rayId);
+					RayCastListener::RayContact* con = ray->GetRayContact(i);
 					if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
 					{
 						if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")

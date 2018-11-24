@@ -795,7 +795,7 @@ void Player::_onMovement(double deltaTime)
 	{
 		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_headBobRayId);
 		RayCastListener::RayContact* con;
-		for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
+		for (int i = 0; i < ray->getNrOfContacts(); i++)
 		{
 			con = ray->GetRayContact(i);
 			if (con->contactShape->GetObjectTag() == "NULL")

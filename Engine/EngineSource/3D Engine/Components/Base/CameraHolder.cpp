@@ -31,6 +31,8 @@ double CameraHolder::p_viewBobbing(double deltaTime, double moveSpeed, b3Body * 
 
 	XMVECTOR lookAt = XMVectorAdd(XMLoadFloat4A(&cPos), XMVectorScale(XMLoadFloat4A(&cDir), 5.0f));
 	XMVECTOR vPoint = lookAt;
+	//CHECK WHAT THIS DOES BEFORE TRYING TO FIX
+
 	//if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 	//{
 	//	RayCastListener::Ray * ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
