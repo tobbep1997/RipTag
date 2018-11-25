@@ -64,7 +64,8 @@ private:
 	LightIndex m_lightIndex;
 
 	int m_runned = 0;
-	
+
+	unsigned int m_currentLight = 0;
 
 public:
 	ShadowMap();

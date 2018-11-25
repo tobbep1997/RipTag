@@ -36,13 +36,14 @@ namespace DX {
 	extern std::vector<Drawable*> g_wireFrameDrawQueue;
 
 	extern std::vector<PointLight*> g_lights;
+	extern std::vector<PointLight*> g_prevlights;
 	extern std::vector<VisibilityComponent*> g_visibilityComponentQueue;
 
 	extern std::vector<Quad*> g_2DQueue;
 
 	extern std::vector<ParticleEmitter*> g_emitters;
 
-	extern std::vector <Drawable*> al_qaeda_isis;
+	extern std::vector <Drawable*> g_cullQueue;
 
 	namespace INSTANCING
 	{

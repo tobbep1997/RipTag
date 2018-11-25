@@ -244,7 +244,7 @@ namespace Animation
 
 
 	public:
-		void UpdateLooping(Animation::AnimationClip* clip);
+		Animation::SkeletonPose UpdateLooping(Animation::AnimationClip* clip);
 		std::optional<Animation::SkeletonPose> UpdateOnce(Animation::AnimationClip* clip);
 	};
 

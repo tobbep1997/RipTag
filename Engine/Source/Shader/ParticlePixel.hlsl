@@ -15,17 +15,24 @@ Texture2D MRATexture : register(t3);
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
-	//return float4(0.5f,0.5f,0.5f, 1);
 	float4 color = diffuseTexture.Sample(defaultSampler, input.uv);
 	float temp = color.w;
-	if (input.tangent.x > 0.25f)
-	{
-		temp -= 0.1f;
-		color = MRATexture.Sample(defaultSampler, input.uv);
-		color.x -= input.tangent.x - 0.2f;
-		color.y -= input.tangent.x - 0.2f;
-		color.z -= input.tangent.x - 0.2f;
-	}
 
+	if(input.tangent.y == 1)
+	{
+		color = MRATexture.Sample(defaultSampler, input.uv);
+		if (input.tangent.x < 0.55f)
+		{
+			temp = color.w * (1.5 * input.tangent.x);
+		}
+	}
+	else
+	{
+		if (input.tangent.x < 0.55f)
+		{
+			color = MRATexture.Sample(defaultSampler, input.uv);
+			temp = color.w * (1 * input.tangent.x);
+		}
+	}
     return float4(color.xyz, temp);
 }

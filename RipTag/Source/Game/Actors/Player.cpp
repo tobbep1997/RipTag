@@ -57,21 +57,24 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		SetAbilitySet(1);
 	}
- 
-	HUDComponent::InitHUDFromFile("../PlayerHUD.txt"); 
+	
+	if(m_activeSetID == 1)
+		HUDComponent::InitHUDFromFile("../Assets/Player1HUD.txt"); 
+	else
+		HUDComponent::InitHUDFromFile("../Assets/Player2HUD.txt");
 
 	m_abilityCircle = new Circle*[2];
 	m_abilityCircle[0] = new Circle();
-	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05, .075), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
-	m_abilityCircle[0]->setRadie(.5);
-	m_abilityCircle[0]->setInnerRadie(.4f);
+	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[0]->setRadie(.53f);
+	m_abilityCircle[0]->setInnerRadie(.46f);
 	m_abilityCircle[0]->setUnpressedTexture("DAB");
 	m_abilityCircle[0]->setAngle(360);
 
 	m_abilityCircle[1] = new Circle();
-	m_abilityCircle[1]->init(DirectX::XMFLOAT2A(.125, .075), DirectX::XMFLOAT2A(2.f / 16.0f, 2.f / 9.0f));
-	m_abilityCircle[1]->setRadie(.5);
-	m_abilityCircle[1]->setInnerRadie(.4f);
+	m_abilityCircle[1]->init(DirectX::XMFLOAT2A(.1f, .08f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[1]->setRadie(.53f);
+	m_abilityCircle[1]->setInnerRadie(.46f);
 	m_abilityCircle[1]->setUnpressedTexture("DAB");
 	m_abilityCircle[1]->setAngle(360);
 
@@ -184,12 +187,12 @@ Player::~Player()
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
-	PhysicsComponent::Init(world, bodyType, x , y, z, false , 0);
+	PhysicsComponent::Init(world, bodyType, x/2.0f , y/2.0f, z/2.0f, false , 0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
-	CreateShape(0, (y*1.5)+0.1, 0, 0.5, 0.5, 0.1, "HEAD");
+	CreateShape(0, (y*1.5)+0.1, 0, 0.3, 0.3, 0.1, "HEAD");
 	m_standHeight = (y*1.5) + 0.1;
 	m_crouchHeight = y*1.1;
 	setUserDataBody(this);
@@ -485,8 +488,8 @@ void Player::SetFirstPersonModel()
 	{
 		delete m_FirstPersonModel;
 	}
-	
 	m_FirstPersonModel = new BaseActor();
+	m_FirstPersonModel->CastShadows(false);
 
 	auto fpsmodel = Manager::g_meshManager.getSkinnedMesh("ARMS");
 	m_FirstPersonModel->setModel(fpsmodel);
@@ -512,6 +515,7 @@ void Player::SetFirstPersonModel()
 	machine->SetState("idle");
 
 	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
+	throwFinishState->SetBlendTime(0.0f);
 
 	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
 	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);

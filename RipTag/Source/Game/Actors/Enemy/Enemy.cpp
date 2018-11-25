@@ -33,9 +33,12 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	{
 		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
 		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
-		auto& machine = getAnimationPlayer()->InitStateMachine(1);
-		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
-		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
+		auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
+		auto& machine = getAnimationPlayer()->InitStateMachine(2);
+		auto walkState = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
+		auto knockState = machine->AddLoopState("knocked_state", knockAnim);
+		knockState->SetBlendTime(.1f);
+		walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
 		machine->SetState("walk_state");
 		this->getAnimationPlayer()->Play();
 
@@ -174,6 +177,8 @@ void Enemy::Update(double deltaTime)
 
 void Enemy::ClientUpdate(double deltaTime)
 {
+	using namespace Network;
+
 	_cameraPlacement(deltaTime);
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
@@ -209,6 +214,57 @@ void Enemy::ClientUpdate(double deltaTime)
 				m_visCounter = 0;
 			}
 		}
+	}
+
+	//State dependencies
+	auto state = this->getAIState();
+
+	static bool previouslyPossessed = false;
+	static bool previouslyDisabled = false;
+
+	switch (state)
+	{
+		case AIState::Possessed:
+		{
+			previouslyPossessed = true;
+			//I think we need to ensure that the State packet arrives before the Enemy update packet
+			ENTITYSTATEPACKET statePacket(ID_ENEMY_POSSESSED, uniqueID, true);
+			Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
+			ENEMYUPDATEPACKET updatePacket;
+			updatePacket.uniqueID = this->uniqueID;
+			updatePacket.camDir = p_camera->getDirection();
+			updatePacket.pos = getPosition();
+			updatePacket.rot = p_camera->getYRotationEuler();
+			updatePacket.moveSpeed = this->m_currentMoveSpeed;
+			Multiplayer::SendPacket((const char*)&updatePacket, sizeof(updatePacket), LOW_PRIORITY);
+		}
+		break;
+		case AIState::Disabled:
+		{
+			previouslyDisabled = true;
+			//I think we need to ensure that the State packet arrives before the Enemy update packet
+			ENTITYSTATEPACKET statePacket(ID_ENEMY_DISABLED, uniqueID, true);
+			Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
+
+		}
+		break;
+		default:
+		{
+			//Notify the server that this enemy is no longer being possessed by the client
+			if (previouslyPossessed)
+			{
+				previouslyPossessed = false;
+				ENTITYSTATEPACKET statePacket(ID_ENEMY_POSSESSED, uniqueID, false);
+				Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
+			}
+			if (previouslyDisabled)
+			{
+				previouslyDisabled = false;
+				ENTITYSTATEPACKET statePacket(ID_ENEMY_DISABLED, uniqueID, false);
+				Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
+			}
+		}
+		break;
 	}
 }
 
@@ -257,6 +313,23 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
 	p_setRotation(0.0f, packet->rot.y, 0.0f);
 	p_camera->setDirection(packet->camDir);
+}
+
+void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
+{
+	if (packet->condition)
+		this->setAIState(AIState::Possessed);
+	else
+		this->setTransitionState(AITransitionState::ExitingPossess);
+
+}
+
+void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
+{
+	if (packet->condition)
+		this->setAIState(AIState::Disabled);
+	else
+		this->setTransitionState(AITransitionState::ExitingDisable);
 }
 
 void Enemy::sendNetworkUpdate()
@@ -480,7 +553,7 @@ void Enemy::removePossessor()
 
 void Enemy::setKnockOutType(KnockOutType knockOutType)
 {
-	m_knockOutType = knockOutType; 
+	m_knockOutType = knockOutType;
 }
 
 void Enemy::setSoundLocation(const SoundLocation & sl)

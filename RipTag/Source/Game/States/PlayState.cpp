@@ -55,7 +55,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	RipExtern::g_kill = false;
+	
 	if (runGame)
 	{
 		InputMapping::Call();
@@ -88,6 +88,8 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 
 		Network::Multiplayer::HandlePackets();
+		RipExtern::g_kill = false;
+
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 		m_playerManager->PhysicsUpdate();
@@ -121,6 +123,11 @@ void PlayState::Update(double deltaTime)
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
+			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
+			{
+				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+			}
+
 			if (isCoop && m_youlost)
 				_sendOnGameOver();
 
@@ -636,6 +643,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("FIRE");
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
+
 
 }
 

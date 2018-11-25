@@ -209,12 +209,24 @@ void RemotePlayer::_lerpPosition(float dt)
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
 
-	newPos = DirectX::XMVectorLerp(curr, next, dt*this->m_timeDiff);
+	if (DirectX::XMVector3IsNaN(curr) || DirectX::XMVector3IsNaN(next))
+		std::cout << "isNAN\n";
 
-	DirectX::XMFLOAT4A _newPos;
-	DirectX::XMStoreFloat4A(&_newPos, newPos);
+	if (!DirectX::XMVector3IsNaN(curr) && !DirectX::XMVector3IsNaN(next))
+	{
 
-	this->setPosition(_newPos);
+		newPos = DirectX::XMVectorLerp(curr, next, 0.5f);
+
+		DirectX::XMFLOAT4A _newPos;
+		DirectX::XMStoreFloat4A(&_newPos, newPos);
+
+		assert(!DirectX::XMVector3IsNaN(newPos));
+
+		if (!DirectX::XMVector3IsNaN(newPos))
+			this->setPosition(_newPos);
+		else
+			this->setPosition(this->m_mostRecentPosition);
+	}
 }
 
 void RemotePlayer::_registerAnimationStateMachine()
