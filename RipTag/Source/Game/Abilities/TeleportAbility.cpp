@@ -167,6 +167,7 @@ void TeleportAbility::_inStateThrowable()
 
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
 			m_tpState = TeleportAbility::Charging;
 			
 		}
@@ -201,6 +202,7 @@ void TeleportAbility::_inStateCharging(double dt)
 		{
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 
 			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1, true);
 			if (ray == nullptr)

@@ -34,11 +34,13 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent, publi
 {
 private: //stuff for state machine
 	friend class PlayState;
-	friend class Enemy; //#todoREMOVE
-	bool m_jumpedThisFrame = false;
+	friend class Enemy;
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
-	float m_currentDirection = 0.0; //[-1,1]
+	float m_currentDirection = 0.0; //[-180,180], relative to movement
+	float m_currentWorldDirection = 0.0f; //relative to world
+	float m_currentTurnSpeed = 0.0f;
+	float m_lastDirection = 0.0f;
 	static float m_currentPitch;
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
