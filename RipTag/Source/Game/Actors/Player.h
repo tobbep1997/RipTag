@@ -164,6 +164,7 @@ private:
 
 	int m_headBobRayId = -100; //HeadBob
 	int m_interactRayId = -100; //interact
+	int m_lastInteractRayId = -100;
 	int m_objectInfoRayId = -100; // objectInfo
 
 public:
@@ -221,6 +222,7 @@ public:
 	unsigned int getNrOfRocks();
 	bool GetMapPicked();
 	const int getInteractRayId();
+	const bool sameInteractRayId(int id);
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

@@ -219,16 +219,18 @@ void DisableAbility::_inStateMoving(double dt)
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
 	accumulatedTime += dt;
 	p_cooldown = accumulatedTime;
-	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
+	ContactListener::S_Contact contact;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		if (!m_hasHit)
 		{
-			if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
+			contact = RipExtern::g_contactListener->GetBeginContact(i);
+			if (contact.a->GetBody()->GetObjectTag() == "Disable")
 			{
-				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
+				if (contact.b->GetBody()->GetObjectTag() == "ENEMY")
 				{
 					m_hasHit = true; 
-					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
+					static_cast<Enemy*>(contact.b->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
 					m_dState = DisableState::Cooldown;
 					//Particle effects here before changing the position.  
 					m_particleEmitter = new ParticleEmitter();
