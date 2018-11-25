@@ -422,6 +422,16 @@ const int Player::getInteractRayId()
 	return m_interactRayId;
 }
 
+const bool Player::sameInteractRayId(int id)
+{
+	if (id == m_lastInteractRayId)
+	{
+		m_lastInteractRayId = m_interactRayId;
+		return true;
+	}
+	return false;
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
@@ -677,28 +687,28 @@ void Player::RegisterThisInstanceToNetwork()
 
 void Player::_collision()
 {
-	for (ContactListener::S_EndContact con : RipExtern::g_contactListener->GetEndContacts())
+	ContactListener::S_Contact con;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts();i++)
 	{
+		con = RipExtern::g_contactListener->GetEndContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-				if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
-				{
-					m_allowPeek = true;
-					m_recentHeadCollision = true;
-				}
+			if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+			{
+				m_allowPeek = true;
+				m_recentHeadCollision = true;
+			}
 	}
-	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		if (con)
-		{
-			if (con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
-					if (con->GetShapeA()->GetObjectTag() == "HEAD" || con->GetShapeB()->GetObjectTag() == "HEAD")
-					{
-						m_allowPeek = false;
-						peekDir = -LastPeekDir;
-						m_peekRangeA = m_peektimer;
-						m_peekRangeB = 0;
-					}
-		}
+		con = RipExtern::g_contactListener->GetBeginContact(i);
+		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
+			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+			{
+				m_allowPeek = false;
+				peekDir = -LastPeekDir;
+				m_peekRangeA = m_peektimer;
+				m_peekRangeB = 0;
+			}
 	}
 }
 
@@ -1048,9 +1058,9 @@ void Player::_onPeak(double deltaTime)
 
 void Player::_onInteract()
 {
-
 	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
 	{
+		const int tempRayId = m_interactRayId;
 		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_interactRayId);
 		RayCastListener::RayContact* con;
 		for (int i = 0; i < ray->getNrOfContacts(); i++)
@@ -1066,12 +1076,12 @@ void Player::_onInteract()
 				{
 					m_infoText->setString("");
 					m_objectInfoTime = 0;
+					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
-					PointLight * lol = static_cast<PointLight*>(con->contactShape->GetBody()->GetUserData());
-					lol->SwitchLightOn();
 					m_objectInfoTime = 0;
+					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
 					//Snuff out torches (example)
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
@@ -1133,6 +1143,7 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_tutorialActive)
 	{
+		const int tempId = m_objectInfoRayId;
 		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 		{
 			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
@@ -1144,13 +1155,11 @@ void Player::_objectInfo(double deltaTime)
 
 			if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
 			{
-				m_infoText->setString("Press X to pull");
 				m_cross->setUnpressedTexture("CROSSHAND");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 			}
 			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
 			{
-				m_infoText->setString("Press X to pull");
 				m_cross->setUnpressedTexture("CROSSHAND");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 			}
@@ -1162,13 +1171,11 @@ void Player::_objectInfo(double deltaTime)
 			}
 			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
 			{
-				//m_infoText->setString("Press X to pull");
 				m_cross->setUnpressedTexture("CROSSHAND");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 			}
 			else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
 			{
-				m_infoText->setString("Press LB to possess");
 				m_cross->setUnpressedTexture("CROSSHAND");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 			}
@@ -1181,18 +1188,19 @@ void Player::_objectInfo(double deltaTime)
 			}
 			else
 			{
+				m_infoText->setString("");
 				m_cross->setUnpressedTexture("CROSS");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
 		}
-		/*else
+		else if (tempId != m_objectInfoRayId)
 		{
 			m_infoText->setString("");
 			m_cross->setUnpressedTexture("CROSS");
 			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-		}*/
+		}
 
-		if (m_objectInfoTime >= 0.2f)
+		if (m_objectInfoTime >= 0.1f)
 		{
 			if(m_objectInfoRayId == -100)
 				m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
@@ -1388,10 +1396,11 @@ void Player::SendOnWinState()
 
 void Player::_hasWon()
 {
-	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
+	ContactListener::S_Contact con;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag();
-		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag();
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContact(i).a->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContact(i).b->GetBody()->GetObjectTag();
 
 		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
 		{
@@ -1403,10 +1412,10 @@ void Player::_hasWon()
 			}
 		}
 	}
-	for (int i = 0; i < RipExtern::g_contactListener->GetEndContacts().size(); i++)
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
-		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContacts()[i].a->GetBody()->GetObjectTag();
-		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContacts()[i].b->GetBody()->GetObjectTag();
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContact(i).a->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContact(i).b->GetBody()->GetObjectTag();
 
 		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
 		{

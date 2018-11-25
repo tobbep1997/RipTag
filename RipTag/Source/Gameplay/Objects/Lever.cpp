@@ -36,43 +36,38 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	RayCastListener::Ray* ray;
-	RayCastListener::RayContact* con;
-	for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
+
+	if (m_interacted)
 	{
-		ray = RipExtern::g_rayListener->GetProcessedRay(i);
-			for (int k = 0; k < ray->getNrOfContacts(); k++)
-			{
-				con = ray->GetRayContact(k);
-				
-					if (ray->getOriginBody()->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
-					{
-						if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == i)
-						{
-							if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this)
-							{
-								if (this->getTriggerState())
-								{
-									this->setTriggerState(false);
-								}
-								else
-								{
-									this->setTriggerState(true);
-								}
-								//SENDTriggerd here for network
-								this->SendOverNetwork();
-							}
-						}
-					}
-			}
+		if (this->getTriggerState())
+		{
+			this->setTriggerState(false);
+		}
+		else
+		{
+			this->setTriggerState(true);
+		}
+		//SENDTriggerd here for network
+		this->SendOverNetwork();
+		m_interacted = false;
 	}
+
 	this->getAnimationPlayer()->Update(deltaTime);
 }
 
 void Lever::BeginPlay()
 {
 }
-
+void Lever::handleContact(RayCastListener::RayContact * contact)
+{
+	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	{
+		if (static_cast<Lever*>(contact->contactShape->GetBody()->GetUserData()) == this)
+		{
+			m_interacted = true;
+		}
+	}
+}
 
 void Lever::_playSound(AudioEngine::SoundType st)
 {

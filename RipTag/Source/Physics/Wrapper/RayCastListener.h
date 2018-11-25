@@ -4,6 +4,8 @@
 class RayCastListener : public b3RayCastListener
 {	
 public:
+	struct Ray;
+
 	struct RayContact
 	{
 		friend class RayCastListener;
@@ -12,6 +14,7 @@ public:
 		b3Vec3 normal;
 		r32 fraction = 0;
 		bool free = true;
+		Ray* ray;
 
 		RayContact()
 		{
@@ -19,23 +22,27 @@ public:
 			contactPoint.SetZero();
 			normal.SetZero();
 			fraction = 0;
+			ray = nullptr;
 		};
 
 		~RayContact()
 		{
 			contactShape = nullptr;
+			ray = nullptr;
 		};
 	private:
 		void _clearGarbage()
 		{
 			this->contactShape = nullptr;
+			this->ray = nullptr;
 			this->contactPoint.SetZero();
 			this->normal.SetZero();
 			this->fraction = 0;
 			this->free = true;
 		}
-		void _setData(b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
+		void _setData(Ray* ray, b3Shape* contactShape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 		{
+			this->ray = ray;
 			this->contactShape = contactShape;
 			this->contactPoint = point;	
 			this->normal = normal;
@@ -51,7 +58,7 @@ public:
 		static const int MAX_CONTACTS = 50;
 	private:
 		friend class RayCastListener;
-		unsigned int id = -1;
+		unsigned int id = INT_MAX;
 		std::vector<RayContact*> rayContacts;
 		b3Body* originBody;
 		bool free = true;
@@ -127,7 +134,7 @@ public:
 			{
 				if (rayContacts.at(i)->free)
 				{
-					rayContacts.at(i)->_setData(contactShape, point, normal, fraction);
+					rayContacts.at(i)->_setData(this, contactShape, point, normal, fraction);
 					this->m_nrOfContacts++;
 					return true;
 				}
@@ -176,6 +183,7 @@ public:
 	RayCastListener() 
 	{ 
 		rays.reserve(MAX_RAYS);
+		processedRays.reserve(MAX_RAYS);
 		for (int i = 0; i < MAX_RAYS; i++)
 		{
 			rays.push_back(new Ray());
@@ -281,7 +289,8 @@ public:
 			this->processedRays.at(tempID)->id = tempID;
 			this->processedRays.at(tempID)->free = false;
 			this->processedRays.at(tempID)->originBody = ray->originBody;
-			RipExtern::g_world->RayCast(this, ray->startPos, ray->endPos);
+			if(!(ray->startPos.x == ray->endPos.x && ray->startPos.y == ray->endPos.y && ray->startPos.z == ray->endPos.z))
+				RipExtern::g_world->RayCast(this, ray->startPos, ray->endPos);
 			m_nrOfProcessedRays++;
 		}
 		ClearRays();

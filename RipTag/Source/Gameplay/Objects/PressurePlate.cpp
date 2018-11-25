@@ -38,15 +38,18 @@ void PressurePlate::Update(double deltaTime)
 {
 	p_updatePhysics(this);
 	bool previousState = this->getTriggerState();
-
-	for (ContactListener::S_EndContact con : RipExtern::g_contactListener->GetEndContacts())
+	ContactListener::S_Contact con;
+	for(int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
-		if ((con.a->GetBody()->GetObjectTag() == "PLAYER" || con.a->GetBody()->GetObjectTag() == "ENEMY") ||
-			(con.b->GetBody()->GetObjectTag() == "ENEMY" || con.b->GetBody()->GetObjectTag() == "PLAYER"))
-			if ((con.a->GetBody()->GetObjectTag() == "PressurePlate") || (con.b->GetBody()->GetObjectTag() == "PressurePlate"))
+		con = RipExtern::g_contactListener->GetEndContact(i);
+		b3Shape * shapeA = con.a;
+		b3Shape * shapeB = con.b;
+		if ((shapeA->GetBody()->GetObjectTag() == "PLAYER" || shapeA->GetBody()->GetObjectTag() == "ENEMY") ||
+			(shapeB->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "PLAYER"))
+			if ((shapeA->GetBody()->GetObjectTag() == "PressurePlate") || (shapeB->GetBody()->GetObjectTag() == "PressurePlate"))
 			{
-				if (static_cast<PressurePlate*>(con.a->GetBody()->GetUserData()) == this ||
-					static_cast<PressurePlate*>(con.b->GetBody()->GetUserData()) == this)
+				if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this ||
+					static_cast<PressurePlate*>(shapeB->GetBody()->GetUserData()) == this)
 				{
 					if (this->getTriggerState())
 					{
@@ -57,35 +60,33 @@ void PressurePlate::Update(double deltaTime)
 			}
 	}
 
-	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		if (con)
+		con = RipExtern::g_contactListener->GetBeginContact(i);
+		b3Shape * shapeA = con.a;
+		b3Shape * shapeB = con.b;
+		if (shapeA && shapeB)
 		{
-			b3Shape * shapeA = con->GetShapeA();
-			b3Shape * shapeB = con->GetShapeB();
-			if (shapeA && shapeB)
+			b3Body * bodyA = shapeA->GetBody();
+			b3Body * bodyB = shapeB->GetBody();
+
+			if (bodyA && bodyB)
 			{
-				b3Body * bodyA = shapeA->GetBody();
-				b3Body * bodyB = shapeB->GetBody();
+				std::string objectTagA = bodyA->GetObjectTag();
+				std::string objectTagB = bodyB->GetObjectTag();
 
-				if (bodyA && bodyB)
+				if ((objectTagA == "PLAYER" || objectTagA == "ENEMY") ||
+					(objectTagB == "PLAYER" || objectTagB == "ENEMY"))
 				{
-					std::string objectTagA = bodyA->GetObjectTag();
-					std::string objectTagB = bodyB->GetObjectTag();
-
-					if ((objectTagA == "PLAYER" || objectTagA == "ENEMY") ||
-						(objectTagB == "PLAYER" || objectTagB == "ENEMY"))
+					if (objectTagA == "PressurePlate" || objectTagB == "PressurePlate")
 					{
-						if (objectTagA == "PressurePlate" || objectTagB == "PressurePlate")
+						if (static_cast<PressurePlate*>(bodyA->GetUserData()) == this ||
+							static_cast<PressurePlate*>(bodyB->GetUserData()) == this)
 						{
-							if (static_cast<PressurePlate*>(bodyA->GetUserData()) == this ||
-								static_cast<PressurePlate*>(bodyB->GetUserData()) == this)
+							if (!this->getTriggerState())
 							{
-								if (!this->getTriggerState())
-								{
-									this->setTriggerState(true);
-									this->SendOverNetwork();
-								}
+								this->setTriggerState(true);
+								this->SendOverNetwork();
 							}
 						}
 					}

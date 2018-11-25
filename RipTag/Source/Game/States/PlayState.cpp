@@ -185,7 +185,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes("WIN_BOX");
+	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);

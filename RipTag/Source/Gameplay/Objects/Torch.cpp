@@ -36,112 +36,32 @@ Torch::~Torch()
 void Torch::Update(double deltaTime)
 {
 	//Check wether to crate new fire.
-	if (pParticles == nullptr)
-	{
-		std::string thisObject = getBody()->GetObjectTag();
-		RayCastListener::Ray* ray;
-		for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
-		{
-			ray = RipExtern::g_rayListener->GetProcessedRay(i);
-			for (int k = 0; k < ray->getNrOfContacts(); k++)
-			{
-				RayCastListener::RayContact* con = ray->GetRayContact(k);
-				std::string originObject = ray->getOriginBody()->GetObjectTag();
-				std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
-
-				bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
-				bool onEnemy = originObject == "ENEMY" && contactObject == thisObject;
-
-				if (onPlayer || onEnemy)
-				{
-					if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == i)
-					{
-						Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-						if (ObjectPointer == this)
-						{
-							if (this->getTriggerState())
-							{
-								this->setTriggerState(false);
-								pPointLight->setLightOn(true);
-								pParticles = new ParticleEmitter();
-								pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-								m_hasChecked = true;
-							}
-							//SENDTriggerd here for network
-							this->SendOverNetwork();
-						}
-					}
-				}
-			}
-		}
-		//this needs to be here because of over network state change
-		if (this->getTriggerState())
-		{
-			this->pPointLight->setLightOn(false);
-		}
-		else
-		{
-			this->pPointLight->setLightOn(true);
-		}
-	}
-	
-	p_updatePhysics(this);
-
-	if (pParticles != nullptr && !m_hasChecked)
+	if (pParticles)
 	{
 		pParticles->Update(deltaTime, pCamera);
+	}
 
-		std::string thisObject = getBody()->GetObjectTag();
-		RayCastListener::Ray* ray;
-		for (int i = 0; i < RipExtern::g_rayListener->getNrOfProcessedRays(); i++)
-		{
-			ray = RipExtern::g_rayListener->GetProcessedRay(i);
-			for (int k = 0; k < ray->getNrOfContacts(); k++)
-			{
-				RayCastListener::RayContact* con = ray->GetRayContact(k);
-				std::string originObject = ray->getOriginBody()->GetObjectTag();
-				std::string contactObject = con->contactShape->GetBody()->GetObjectTag();
-
-				bool onPlayer = originObject == "PLAYER" && contactObject == thisObject;
-				bool onEnemy = originObject == "ENEMY" && contactObject == thisObject;
-
-				if (onPlayer || onEnemy)
-				{
-					if (static_cast<Player*>(ray->getOriginBody()->GetUserData())->getInteractRayId() == i)
-					{
-						Torch* ObjectPointer = static_cast<Torch*>(con->contactShape->GetBody()->GetUserData());
-						if (ObjectPointer == this)
-						{
-							if (this->getTriggerState())
-							{
-								this->setTriggerState(false);
-								pPointLight->setLightOn(true);
-							}
-							else if (!this->getTriggerState() && !m_hasChecked)
-							{
-								this->setTriggerState(true);
-								pPointLight->setLightOn(false);
-								delete pParticles;
-								pParticles = nullptr;
-							}
-							//SENDTriggerd here for network
-							this->SendOverNetwork();
-						}
-					}
-				}
-			}
-		}
-		//this needs to be here because of over network state change
+	if (m_interacted)
+	{
 		if (this->getTriggerState())
 		{
-			this->pPointLight->setLightOn(false);
+			this->setTriggerState(false);
+			pPointLight->setLightOn(true);
+			pParticles = new ParticleEmitter();
+			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
 		}
 		else
 		{
-			this->pPointLight->setLightOn(true);
+			this->pPointLight->setLightOn(false);
+			this->setTriggerState(true);
+			delete pParticles;
+			pParticles = nullptr;
 		}
+		//SENDTriggerd here for network
+		this->SendOverNetwork();
+		m_interacted = false;
 	}
-	m_hasChecked = false; 
+	p_updatePhysics(this);
 }
 
 void Torch::Draw()
@@ -164,6 +84,18 @@ void Torch::QueueLight()
 
 void Torch::BeginPlay()
 {
+}
+
+void Torch::handleContact(RayCastListener::RayContact * contact)
+{
+	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	{
+		Torch* ObjectPointer = static_cast<Torch*>(contact->contactShape->GetBody()->GetUserData());
+		if (ObjectPointer == this)
+		{
+			m_interacted = true;
+		}
+	}
 }
 
 void Torch::_playSound(AudioEngine::SoundType st)
