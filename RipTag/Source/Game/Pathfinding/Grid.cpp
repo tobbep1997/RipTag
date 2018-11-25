@@ -342,6 +342,66 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 	return destination;
 }
 
+Tile Grid::_getNearestUnblockedTile(int x, int y)
+{
+	bool gotTile = false;
+	int stepSize = 1;
+
+	while (!gotTile)
+	{
+		/*---------- North ----------*/
+		//(0, -1);
+		if (m_nodeMap[x + (y - 1) * x].tile.getPathable())
+		{
+
+		}
+		/*---------- South ----------*/
+		//(0, 1);
+		if (m_nodeMap[x + (y + 1) * x].tile.getPathable())
+		{
+
+		}
+		/*---------- West ----------*/
+		//(-1, 0);
+		if (m_nodeMap[(x - 1) + y * x].tile.getPathable())
+		{
+
+		}
+		/*---------- East ----------*/
+		//(1, 0);
+		if (m_nodeMap[(x + 1) + y * x].tile.getPathable())
+		{
+
+		}
+		/*---------- Northwest ----------*/
+		//(-1, -1);
+		if (m_nodeMap[(x - 1) + (y - 1) * x].tile.getPathable())
+		{
+
+		}
+		/*---------- Northeast ----------*/
+		//(1, -1);
+		if (m_nodeMap[(x + 1) + (y - 1) * x].tile.getPathable())
+		{
+
+		}
+		/*---------- Southwest ----------*/
+		//(-1, 1);
+		if (m_nodeMap[(x - 1) + (y + 1) * x].tile.getPathable())
+		{
+
+		}
+		/*---------- Southeast ----------*/
+		//(1, 1);
+		if (m_nodeMap[(x + 1) + (y + 1) * x].tile.getPathable())
+		{
+
+		}
+	}
+
+	return Tile();
+}
+
 bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 {
 	using namespace DirectX;
