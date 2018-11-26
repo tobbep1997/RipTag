@@ -354,6 +354,16 @@ float Enemy::getMaxVisibility()
 	return m_visabilityTimer;
 }
 
+int Enemy::GetGuardUniqueIndex()
+{
+	return m_guardUniqueIndex;
+}
+
+void Enemy::SetGuardUniqueIndex(const int& index)
+{
+	m_guardUniqueIndex = index;
+}
+
 void Enemy::_handleInput(double deltaTime)
 {
 	if (Input::MouseLock() && !m_kp.unlockMouse)

@@ -219,6 +219,17 @@ void Room::LoadRoomToMemory()
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 
+			e->SetGuardUniqueIndex(-1/*TODO::GUSTAV INSERT*/);
+			//std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
+			/*for (unsigned int j = 0; j < m_pathIndexSize[i]; ++j)
+			{
+				std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+
+				
+			}*/
+			//e->SetPathVector(fullPath);
+
 			std::vector<Node*> path = m_pathfindingGrid->FindPath(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z), m_pathfindingGrid->GetRandomNearbyTile(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z)));
 			e->SetPathVector(path);
 
@@ -636,13 +647,13 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, false, isRandomRoom);	//set True
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, false, isRandomRoom); //set True
 			break;
 		case(23):
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);
