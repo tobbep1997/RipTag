@@ -803,7 +803,7 @@ void AI::_Move(Node * nextNode, double deltaTime)
 
 bool AI::_MoveTo(Node* nextNode, double deltaTime)
 {
-	
+	//std::cout << "\r" << m_owner->getPosition().x << " " << m_owner->getPosition().z << std::endl;
 	m_owner->_playFootsteps(deltaTime);
 	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.0f && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.0f)
 	{
