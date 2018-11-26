@@ -28,8 +28,10 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("PLATE"));
 	auto& stateMachine = getAnimationPlayer()->InitStateMachine(2);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
-	stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
-	stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
+	auto activateState = stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
+	auto deactivateState = stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
+	activateState->SetBlendTime(0.0f);
+	deactivateState->SetBlendTime(0.0f);
 	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
