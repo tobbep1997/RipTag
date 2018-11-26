@@ -38,5 +38,6 @@ public:
 private:
 
 	void _logic(double deltaTime);
+	void _sendOverNetwork(bool state, Enemy * ptr);
 };
 

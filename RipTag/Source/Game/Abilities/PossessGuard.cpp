@@ -74,6 +74,8 @@ void PossessGuard::_logic(double deltaTime)
 		case PossessGuard::Possessing:
 			if (!pPointer->IsInputLocked()) //Player is Returning to body
 			{
+				this->_sendOverNetwork(false, m_possessTarget);
+
 				this->m_possessTarget->LockEnemyInput();
 				pPointer->getBody()->SetType(e_dynamicBody);
 				pPointer->getBody()->SetAwake(true);
@@ -86,6 +88,7 @@ void PossessGuard::_logic(double deltaTime)
 				p_cooldown = 0; 
 				m_duration = 0;
 				//m_useFunctionCalled = false;
+
 			}
 			else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
 			{
@@ -134,6 +137,7 @@ void PossessGuard::_logic(double deltaTime)
 						m_pState = PossessGuard::Possessing;
 						p_cooldown = 0;
 						//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
+						this->_sendOverNetwork(true, m_possessTarget);
 					}
 				}
 			}
@@ -188,5 +192,18 @@ void PossessGuard::_logic(double deltaTime)
 			break;
 		}
 	
+	}
+}
+
+void PossessGuard::_sendOverNetwork(bool state, Enemy * ptr)
+{
+	if (Network::Multiplayer::GetInstance()->isConnected())
+	{
+		Network::ENTITYSTATEPACKET packet(0, 0, 0);
+		packet.id = Network::ID_ENEMY_POSSESSED;
+		packet.condition = state;
+		packet.state = ptr->getUniqueID();
+
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 	}
 }
