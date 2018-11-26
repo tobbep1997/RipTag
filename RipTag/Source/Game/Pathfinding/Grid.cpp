@@ -113,10 +113,15 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{
+		std::ofstream file;
+		file.open("LATESTPATH.txt");
+		file << source.getX() << ", " << source.getY() << " -> " << destination.getX() << ", " << destination.getY();
+		file.close();
 		std::vector<Node*> pathToDestination;
 		
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
+
 		_removeAllCenterTiles(roomNodePath);
 
 		// A* in each room to get to the next
@@ -138,7 +143,6 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		return _findPath(source, destination, m_nodeMap, m_width, m_height);
 	}
 }
-
 
 Tile Grid::GetRandomNearbyTile(Tile src, int dir)
 {
@@ -206,6 +210,18 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 			if (j < width - 1)
 				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
 		}
+	}
+
+	for (int i = 0; i < depth; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			if (m_roomNodeMap[j + i * width].tile.getPathable())
+				std::cout << green << 1 << white << " ";
+			else
+				std::cout << red << 0 << white << " ";
+		}
+		std::cout << std::endl;
 	}
 }
 
@@ -466,11 +482,9 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 	Tile roomSource = m_roomNodeMap[sIndex].tile;
 	Tile roomDest = m_roomNodeMap[dIndex].tile;
 
-	if (!roomSource.getPathable())
-		roomSource = _getCenterGridFromRoomGrid(roomSource, source);
-	if (!roomDest.getPathable())
-		roomDest = _getCenterGridFromRoomGrid(roomDest, destination);
+	roomSource = _getCenterGridFromRoomGrid(roomSource, source);
 
+	roomDest = _getCenterGridFromRoomGrid(roomDest, destination);
 
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
 }
@@ -479,7 +493,7 @@ void Grid::_removeAllCenterTiles(std::vector<Node*>& roomNodePath)
 {
 	int size = roomNodePath.size();
 
-	for (int i = 1; i < size - 1; i++)
+	for (int i = 0; i < size; i++)
 	{
 		if (roomNodePath[i]->tile.getX() % 2 == 0 && roomNodePath[i]->tile.getY() % 2 == 0 ||
 			!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
@@ -499,6 +513,10 @@ Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile
 
 	std::vector<Node*> potentialCenter;
 
+	if (Yroom % 2 == 0 && Xroom % 2 == 0)
+	{
+		return tileOnRoomNodeMap;
+	}
 	if (Yroom % 2 == 0)
 	{
 		// Center is either on Left or Right
@@ -555,7 +573,7 @@ Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile
 std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* roomNodes, const Tile & source, const Tile & destination)
 {
 	std::vector<Grid::TilePair> gtp;
-	
+
 	for (int i = 0; i < roomNodes->size() - 1; i++)
 	{
 		Grid::TilePair tp;
@@ -568,8 +586,11 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 		gtp.push_back(tp);
 	}
 
-	gtp[0].source = source;
-	gtp[gtp.size() - 1].destination = destination;
+	Grid::TilePair end;
+	auto endPos = roomNodes->at(roomNodes->size() - 1)->worldPos;
+	end.source = WorldPosToTile(endPos.x, endPos.y);
+	end.destination = destination;
+	gtp.push_back(end);
 
 	return gtp;
 }

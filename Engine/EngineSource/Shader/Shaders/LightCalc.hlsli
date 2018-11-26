@@ -127,8 +127,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 AORoughMet = float3(1, 1, 1); 
 
     input.uv.y = 1 - input.uv.y;
-	//ambient = float4(.2f, .2f, .2f, 1);
-    ambient = float4(1.f, 1.f, 1.f, 1.f);
+	ambient = float4(.2f, .2f, .2f, 1);
+    //ambient = float4(1.f, 1.f, 1.f, 1.f);
 	if (input.info.x)
     {
         albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;

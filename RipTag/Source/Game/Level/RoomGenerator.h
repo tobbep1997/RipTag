@@ -49,7 +49,7 @@ private:
 	int returnRandomBetween(int min, int max);
 
 	void moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::CollisionBoxes &modCollisionBoxes);
-	
+
 public:
 	RoomGenerator();
 	~RoomGenerator();

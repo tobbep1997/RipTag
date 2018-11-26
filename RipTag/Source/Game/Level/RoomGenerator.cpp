@@ -61,12 +61,15 @@ void RoomGenerator::applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatri
 
 void RoomGenerator::_generateGrid()
 {
+#define _HAS_ITERATOR_DEBUGGING 0
 	int iterationsDepth = m_roomDepth * 2 + 1;
 	int iterationsWidth = m_roomWidth * 2 + 1;
 	//m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
 	int counter = 0;
 	BaseActor * base = new BaseActor();
 	base->Init(*m_worldPtr, e_staticBody);
+	std::ofstream lol;
+	lol.open("LOL.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -83,7 +86,7 @@ void RoomGenerator::_generateGrid()
 				{
 					//placed = true;
 					m_generatedGrid->BlockGridTile(index, false);
-					Manager::g_meshManager.loadStaticMesh("FLOOR");
+					/*Manager::g_meshManager.loadStaticMesh("FLOOR");
 					Manager::g_textureManager.loadTextures("CANDLE");
 					asset = DBG_NEW BaseActor();
 					asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
@@ -91,14 +94,16 @@ void RoomGenerator::_generateGrid()
 					asset->setTextureTileMult(m_roomWidth, m_roomDepth);
 					asset->setPosition(node.worldPos.x, 1.5, node.worldPos.y, false);
 					asset->p_createBoundingBox(DirectX::XMFLOAT3(1, 1, 1));
-					m_generated_assetVector.push_back(asset);
+					m_generated_assetVector.push_back(asset);*/
+					col = true;
 					break;
 				}
-				if (col)
-				{
-					col = true;
-				}
 			}
+			if (col)
+				lol << "0";
+			else
+				lol << "1";
+			lol << " ";
 			/*bool col = false;
 			Node node = m_generatedGrid->GetWorldPosFromIndex(i + j * iterationsWidth);
 			float changeX = 0;
@@ -113,24 +118,14 @@ void RoomGenerator::_generateGrid()
 					col = false;
 					for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
 					{
-						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 1, node.worldPos.y + changeY))))
-						{
-							col = true;
-						}
-						if (col)
-						{
-							m_generatedGrid->BlockGridTile(index, false);
-							placed = true;
-							Manager::g_meshManager.loadStaticMesh("FLOOR");
-							Manager::g_textureManager.loadTextures("CANDLE");
-							asset = DBG_NEW BaseActor();
-							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-							asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
-							asset->setTextureTileMult(m_roomWidth, m_roomDepth);
-							asset->setPosition(node.worldPos.x, 1.5, node.worldPos.y, false);
-							asset->p_createBoundingBox(DirectX::XMFLOAT3(1, 1, 1));
-							m_generated_assetVector.push_back(asset);
-							break;
+							if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 1, node.worldPos.y + changeY))))
+							{
+								col = true;
+							}
+							if (col)
+							{
+								
+								break;
 
 						}
 					}
@@ -144,17 +139,11 @@ void RoomGenerator::_generateGrid()
 				changeX += 0.2;
 			}*/
 		}
+		lol << "\n";
 	}
-
+	lol.close();
 
 	delete base;
-
-	Tile s, d;
-	s = m_generatedGrid->WorldPosToTile(-49, -49);
-	d = m_generatedGrid->WorldPosToTile(49, 49);
-
-	m_generatedGrid->FindPath(s, d);
-
 }
 
 void RoomGenerator::_makeFloor()
@@ -178,8 +167,8 @@ void RoomGenerator::_makeWalls()
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct;
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 2; // change when small mods added
-	int MAX_LARGE_MODS = 1;
+	int MAX_SMALL_MODS = 8; // change when small mods added
+	int MAX_LARGE_MODS = 5;
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
@@ -195,7 +184,8 @@ void RoomGenerator::_makeWalls()
 	int iterationsWidth = m_roomWidth * 2 + 1;
 	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
 	m_generatedGrid->GenerateRoomNodeMap(&randomizer);
-
+	randomizer.DrawConnections();
+	
 	int widthCounter = 0;
 	int depthCounter = 0;
 	
@@ -239,6 +229,7 @@ void RoomGenerator::_makeWalls()
 			directions[2] = randomizer.m_rooms[index].south;
 			directions[3] = randomizer.m_rooms[index].west;
 
+			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 			if (randomizer.m_rooms[index].type == 2)
 			{
 				RANDOM_MOD_NR = rand() % MAX_SMALL_MODS;
@@ -251,18 +242,16 @@ void RoomGenerator::_makeWalls()
 			else
 			{
 				RANDOM_MOD_NR = rand() % MAX_LARGE_MODS;
+				MODNAMESTRING = "STORMOD" + std::to_string(RANDOM_MOD_NR);
 				if (alreadyPickedLargeMods[RANDOM_MOD_NR])
 					RANDOM_MOD_NR = rand() % MAX_LARGE_MODS;
 				alreadyPickedLargeMods[RANDOM_MOD_NR] = true;
-				// To pick the correct module from the assets
-				RANDOM_MOD_NR += MAX_SMALL_MODS + 1;
 			}
 
 			isRotated = false;
 			if (randomizer.m_rooms[index].type == 1)
 				isRotated = true;
 			
-			std::string MODNAMESTRING = "MOD" + std::to_string(RANDOM_MOD_NR);
 
 			int BigRoomAddX = 0;
 			int BigRoomAddZ = 0;
@@ -479,6 +468,8 @@ void RoomGenerator::_makeWalls()
 					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
 					tempLights.lights[k].translate[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
 				}
+				if (tempLights.lights[k].intensity < 10)
+					tempLights.lights[k].intensity = 10;
 				m_generated_pointLightVector.push_back(DBG_NEW PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
 
 				/*p_emit = DBG_NEW ParticleEmitter();
@@ -628,6 +619,7 @@ void RoomGenerator::_generateGuardPaths()
 				destination = m_generatedGrid->WorldPosToTile(x, z);
 			}
 		}
+		m_generatedGrid->FindPath(Tile(12, 8, true), Tile(80, 43, true));
 		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(destination)));
 	}
 }

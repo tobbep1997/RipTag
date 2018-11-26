@@ -647,7 +647,10 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):
-			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false, false);
+			break;
+		case(37):
+			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, true, false);
 			break;
 		default:
 			break;
@@ -660,8 +663,12 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	Manager::g_meshManager.loadStaticMesh(name);
 	Manager::g_textureManager.loadTextures(name);
-	tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
-	tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+	if (name != "INVISIBLEGRIDBLOCKER")
+	{
+		tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+	}
+
 	bool moveBox = false;
 	if (useBoundingBox == true)
 	{
