@@ -253,6 +253,11 @@ void Enemy::ClientUpdate(double deltaTime)
 			pEmitter = nullptr;
 		}
 	}
+
+	if (state == AIState::Possessed)
+	{
+		this->sendNetworkUpdate();
+	}
 	
 }
 

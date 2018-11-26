@@ -55,6 +55,8 @@ void EnemyHandler::Update(float deltaTime)
 			{
 				if (!enemy->ClientLocked())
 					enemy->sendNetworkUpdate();
+				if (enemy->ClientLocked())
+					int i = 0;
 			}
 		}
 	}
