@@ -148,7 +148,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 	{
 		hasLocalPlayer = true;
 		mLocalPlayer = new Player();
-		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 0.5f, 0.9f, 0.5f);
+		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 0.5f, 1.8f, 0.5f);
 		mLocalPlayer->setEntityType(EntityType::PlayerType);
 		mLocalPlayer->setColor(1.f, 1.f, 1.f, 1.f);
 		mLocalPlayer->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
