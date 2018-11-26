@@ -17,7 +17,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//7. Register animation state machine
 	
 	//1.
-	this->setModel(Manager::g_meshManager.getSkinnedMesh("STATE"));
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
 	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
@@ -232,16 +232,16 @@ void RemotePlayer::_lerpPosition(float dt)
 void RemotePlayer::_registerAnimationStateMachine()
 {
 	std::vector<SharedAnimation> sharedAnimations;
-	const char * collection = "STATE";
+	const char * collection = "PLAYER1";
 	int nrOfStates = 2;
 
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_FORWARD_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BACKWARD_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_LEFT2_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_RIGHT2_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BLEFT_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BRIGHT_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_F_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_B_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FL_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FR_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BL_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BR_ANIMATION"));
 
 	this->getAnimationPlayer()->Play();
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
