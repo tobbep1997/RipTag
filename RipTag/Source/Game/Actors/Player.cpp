@@ -254,8 +254,37 @@ void Player::Update(double deltaTime)
 				? -1.0
 				: 1.0;
 			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
-			///AssertNotNAN(m_currentDirection);
 
+			//Do first-person turn rate thing
+			{
+				//World dir
+				{
+					auto dotWorld = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(0.0, 0.0, 1.0, 0.0)), cameraDirNormalized));
+					dotWorld = std::clamp(dotWorld, -0.999999f, 0.999999f);
+					m_currentWorldDirection = XMConvertToDegrees(std::acos(dotWorld));
+					float worldInverter = (XMVectorGetY(XMVector3Cross(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0), cameraDirNormalized)));
+
+					m_currentWorldDirection *= (worldInverter > 0.0)
+						? -1.0
+						: 1.0;
+				}
+
+				float degreesPerSecond = 0.0f;
+
+				if (m_lastDirection < -145 && m_currentWorldDirection > 145)
+					degreesPerSecond = (m_currentWorldDirection - m_lastDirection - 360) / deltaTime;
+				else if (m_lastDirection > 145 && m_currentWorldDirection < -145)
+					degreesPerSecond = (m_currentWorldDirection - m_lastDirection + 360) / deltaTime;
+				else
+					degreesPerSecond = (m_lastDirection - m_currentWorldDirection) / deltaTime;
+
+				m_currentTurnSpeed = degreesPerSecond;
+
+
+
+				m_lastDirection = m_currentWorldDirection;
+
+			}
 		}
 	}
 	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
@@ -501,6 +530,8 @@ void Player::SetFirstPersonModel()
 	auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
 	auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
 	auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
+	auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+	auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
 	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
 
 	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
@@ -509,6 +540,7 @@ void Player::SetFirstPersonModel()
 	animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 
 	auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+	idleState->SetBlendTime(0.0f);
 	idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
 	auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 	auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
@@ -519,8 +551,10 @@ void Player::SetFirstPersonModel()
 
 	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
 	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
+	auto turnState = layerMachine->Add1DPoseLayer("turn", &m_currentTurnSpeed, -180.0f, 180.0f, { {turnLeftPose, -180.0f}, {turnRightPose, 180.0f} });
 	additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
 	layerMachine->ActivateLayer("bob");
+	layerMachine->ActivateLayer("turn");
 
 	animPlayer->Play();
 

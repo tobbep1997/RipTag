@@ -28,7 +28,7 @@ void RoomGenerator::applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatri
 	DirectX::XMVECTOR decomposeTranslation;
 	DirectX::XMVECTOR decomposeRotation;
 	DirectX::XMVECTOR decomposeScaling;
-	for (int k = 0; k < boxesToModify.nrOfBoxes && true; k++)
+	for (unsigned int k = 0; k < boxesToModify.nrOfBoxes && true; k++)
 	{
 		DirectX::XMFLOAT3 cPos = DirectX::XMFLOAT3(boxesToModify.boxes[k].translation);
 		DirectX::XMFLOAT3 cScl = DirectX::XMFLOAT3(boxesToModify.boxes[k].scale);
@@ -309,7 +309,6 @@ void RoomGenerator::_makeWalls()
 #pragma region LIGHTS
 
 			ImporterLibrary::PointLights tempLights = loader.readLightFile(MODNAMESTRING);
-			ParticleEmitter * p_emit;
 			for (int k = 0; k < tempLights.nrOf; k++)
 			{
 				if (isRotated == true)
@@ -444,7 +443,7 @@ void RoomGenerator::_makeWalls()
 			asset = DBG_NEW BaseActor();
 
 			ImporterLibrary::CollisionBoxes boxes = loader.readMeshCollisionBoxes(MODNAMESTRING);
-			for (int k = 0; k < boxes.nrOfBoxes; k++)
+			for (unsigned int k = 0; k < boxes.nrOfBoxes; k++)
 			{
 				if (isRotated == true)
 				{
