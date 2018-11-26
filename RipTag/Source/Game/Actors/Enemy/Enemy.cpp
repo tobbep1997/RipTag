@@ -158,19 +158,18 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	static double accumulatedTime = 0.0;
-	static const double SEND_AI_PACKET_FREQUENCY = 1.0 / 15.0; 
-
-
 	using namespace DirectX;
 
-	handleStates(deltaTime);
+	if (!m_lockedByClient)
+	{
+		handleStates(deltaTime);
 
-	auto deltaX = getLiniearVelocity().x * deltaTime;
-	auto deltaZ = getLiniearVelocity().z * deltaTime;
-	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
 
-	m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+	}
 
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
@@ -198,17 +197,16 @@ void Enemy::ClientUpdate(double deltaTime)
 {
 	using namespace Network;
 
-	_cameraPlacement(deltaTime);
 
-	if (getAnimationPlayer())
-		getAnimationPlayer()->Update(deltaTime);
-	setLiniearVelocity(0, 0, 0);
 
 	AIState state = getAIState();
 
+	if (state != AIState::Possessed)
+		_cameraPlacement(deltaTime);
 	//Visibility update
-	if (state != AIState::Possessed && state != AIState::Disabled)
+	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
 	{
+
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 		float lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
 
@@ -237,9 +235,13 @@ void Enemy::ClientUpdate(double deltaTime)
 				m_visCounter = 0;
 			}
 		}
+		setLiniearVelocity(0, 0, 0);
 	}
 
 	handleStatesClient(deltaTime);
+
+	if (getAnimationPlayer())
+		getAnimationPlayer()->Update(deltaTime);
 
 	if (pEmitter)
 	{
@@ -250,6 +252,17 @@ void Enemy::ClientUpdate(double deltaTime)
 			delete pEmitter;
 			pEmitter = nullptr;
 		}
+	}
+
+	if (state == AIState::Possessed)
+	{
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+
+		this->sendNetworkUpdate();
 	}
 	
 }
@@ -310,27 +323,30 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 
 void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 {
-	if (packet->condition)
-		this->setAIState(AIState::Possessed);
-	else
-		this->setTransitionState(AITransitionState::ExitingPossess);
-
+	m_lockedByClient = packet->condition;
+	if (!packet->condition)
+	{
+		setTransitionState(AITransitionState::ExitingPossess);
+	}
 }
 
 void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 {
-	if (packet->condition)
+	if (getAIState() != AIState::Possessed || m_lockedByClient)
 	{
-		this->setTransitionState(AITransitionState::BeingDisabled);
-		if (pEmitter)
+		if (packet->condition)
 		{
-			delete pEmitter;
-			pEmitter = nullptr;
+			this->setTransitionState(AITransitionState::BeingDisabled);
+			if (pEmitter)
+			{
+				delete pEmitter;
+				pEmitter = nullptr;
+			}
+			pEmitter = new ParticleEmitter();
+			pEmitter->setSmoke();
+			pEmitter->setEmmiterLife(1.5f);
+			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
 		}
-		pEmitter = new ParticleEmitter();
-		pEmitter->setSmoke();
-		pEmitter->setEmmiterLife(1.5f);
-		pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
 	}
 }
 

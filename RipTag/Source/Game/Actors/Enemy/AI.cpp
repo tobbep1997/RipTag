@@ -176,12 +176,21 @@ void AI::handleStatesClient(const double deltaTime)
 	case AITransitionState::ExitingDisable:
 		_onExitingDisabled();
 		break;
+	case AITransitionState::BeingPossessed:
+		_onBeingPossessed();
+		break;
+	case AITransitionState::ExitingPossess:
+		_onExitingPossessed();
+		break;
 	}
 
 	switch (m_state)
 	{
 	case AIState::Disabled:
 		_disabled(deltaTime);
+		break;
+	case AIState::Possessed:
+		_possessed(deltaTime);
 		break;
 	}
 }

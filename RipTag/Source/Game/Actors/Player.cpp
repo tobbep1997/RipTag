@@ -57,102 +57,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 		SetAbilitySet(1);
 	}
-	
-	if(m_activeSetID == 1)
-		HUDComponent::InitHUDFromFile("../Assets/Player1HUD.txt"); 
-	else
-		HUDComponent::InitHUDFromFile("../Assets/Player2HUD.txt");
 
-	m_abilityCircle = new Circle*[2];
-	m_abilityCircle[0] = new Circle();
-	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
-	m_abilityCircle[0]->setRadie(.53f);
-	m_abilityCircle[0]->setInnerRadie(.46f);
-	m_abilityCircle[0]->setUnpressedTexture("DAB");
-	m_abilityCircle[0]->setAngle(360);
-
-	m_abilityCircle[1] = new Circle();
-	m_abilityCircle[1]->init(DirectX::XMFLOAT2A(.1f, .08f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
-	m_abilityCircle[1]->setRadie(.53f);
-	m_abilityCircle[1]->setInnerRadie(.46f);
-	m_abilityCircle[1]->setUnpressedTexture("DAB");
-	m_abilityCircle[1]->setAngle(360);
-
-	{ // SoundHud
-		Quad * soundBack = new Quad;
-		Quad * soundfor = new Quad;
-		float outline = 5.0f;
-		DirectX::XMFLOAT2 scl = {50.0f, 200.0f};
-
-		soundBack->init({ 0.0f, 1.0f }, { scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
-		soundBack->setUnpressedTexture("WHITE");
-		soundBack->setType(Quad::QuadType::Outlined);
-		soundBack->setRadie(outline);
-		soundBack->setPivotPoint(Quad::PivotPoint::upperLeft);
-		soundBack->setOutlineColor(1, 1, 0, 0.5f);
-		soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
-		
-		soundfor->init(
-			{ outline / InputHandler::getViewportSize().x,
-			1.0f - (outline / InputHandler::getViewportSize().y)
-			},
-			{ (scl.x - (outline * 4.0f)) / InputHandler::getViewportSize().x, (scl.y - (outline * 4.0f)) / InputHandler::getViewportSize().y });
-
-		
-		soundfor->setUnpressedTexture("WHITE");
-		soundfor->setPivotPoint(Quad::PivotPoint::upperLeft);
-		soundfor->setColor(0, 0, 1);
-
-		m_soundLevelHUD.bckg = soundBack;
-		m_soundLevelHUD.forg = soundfor;
-	}
-
-	HUDComponent::AddQuad(m_abilityCircle[0]);
-	HUDComponent::AddQuad(m_abilityCircle[1]);
-
-	m_cross = HUDComponent::GetQuad("Cross");
-	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
-
-	m_infoText = HUDComponent::GetQuad("InfoText"); 
-
-	m_tutorialMessages.push("");
-	m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
-	m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
-	m_tutorialMessages.push("Select your abilities with DPAD and use with RB");
-	m_tutorialMessages.push("Peek to the sides with LT and RT");
-	m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
-
-
-	m_tutorialText = HUDComponent::GetQuad("TutorialText"); 
-
-	
-	if (m_tutorialActive)
-	{
-		m_tutorialText->setString(m_tutorialMessages.top());
-		m_tutorialMessages.pop();
-	}
-
-	m_abilityTutorialText = HUDComponent::GetQuad("AbilityTutorial"); 
-
-
-	m_HUDcircle = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewCircle")); 
-	m_HUDcircle->setScale(DirectX::XMFLOAT2A(m_HUDcircle->getScale().x / 16.0f, m_HUDcircle->getScale().y / 9.0f)); 
-	dynamic_cast<Circle*>(m_HUDcircle)->setInnerRadie(0.45f); 
-
-
-	m_HUDcircleFiller = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewFiller"));
-	m_HUDcircleFiller->setScale(DirectX::XMFLOAT2A(m_HUDcircleFiller->getScale().x / 16.0f, m_HUDcircleFiller->getScale().y / 9.0f));
-	dynamic_cast<Circle*>(m_HUDcircleFiller)->setInnerRadie(-1.0f);
-
-
-	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
-	{
-		Circle * c = new Circle();
-		c->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(.25f / 16.0f, .25f / 9.0f));
-		c->setRadie(.5f);
-		c->setUnpressedTexture("SPHERE");
-		m_enemyCircles.push_back(c);
-	}
+	_initSoundHUD();
 	
 	SetFirstPersonModel();
 
@@ -323,20 +229,6 @@ void Player::Update(double deltaTime)
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
-	
-
-
-	if (m_tutorialActive)
-	{
-		if (m_currentAbility == Ability::TELEPORT && m_activeSetID == 1)
-			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
-		else if (m_currentAbility == Ability::DISABLE && m_activeSetID == 1)
-			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
-		else if (m_currentAbility == Ability::BLINK && m_activeSetID == 2)
-			m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
-		else if (m_currentAbility == Ability::POSSESS && m_activeSetID == 2)
-			m_abilityTutorialText->setString("Possess:\nControl guards.");
-	}
 
 
 	HUDComponent::ResetStates();
@@ -397,6 +289,8 @@ void Player::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents2;
 
 	m_activeSetID = set;
+
+	_loadHUD();
 }
 
 void Player::setEnemyPositions(std::vector<Enemy*> enemys)
@@ -474,16 +368,26 @@ void Player::Draw()
 	}
 	Drawable::Draw();
 
-	HUDComponent::HUDDraw();
-	m_HUDcircleFiller->Draw();
-	m_HUDcircle->Draw();
-	for (unsigned short i = 0; i < m_currentEnemysVisable; i++)
-	{
-		m_enemyCircles[i]->Draw();
-	}
-	m_soundLevelHUD.Draw();
+	DrawHUDComponents();
+
 	m_FirstPersonModel->setEntityType(EntityType::FirstPersonPlayer);
 	m_FirstPersonModel->Draw();
+}
+
+void Player::DrawHUDComponents()
+{
+	//if our input is locked we are possessing a guard, do not draw the HUD then
+	if (!IsInputLocked())
+	{
+		HUDComponent::HUDDraw();
+		m_HUDcircleFiller->Draw();
+		m_HUDcircle->Draw();
+		for (unsigned short i = 0; i < m_currentEnemysVisable; i++)
+		{
+			m_enemyCircles[i]->Draw();
+		}
+		m_soundLevelHUD.Draw();
+	}
 }
 
 void Player::LockPlayerInput()
@@ -779,8 +683,7 @@ void Player::_handleInput(double deltaTime)
 	_onInteract();
 	_onPeak(deltaTime);
 	_onRotate(deltaTime);
-	_objectInfo(deltaTime);
-	_updateTutorial(deltaTime);
+	/*_objectInfo(deltaTime);*/
 }
 
 void Player::_onMovement(double deltaTime)
@@ -1116,21 +1019,16 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
 				{
-					m_infoText->setString("");
-					m_objectInfoTime = 0;
+
 					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
-					m_objectInfoTime = 0;
 					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
-					//Snuff out torches (example)
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
 
-					//std::cout << "Enemy Found!" << std::endl;
-					//Snuff out torches (example)
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 				{
@@ -1140,6 +1038,7 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
 				{
+					//lol wtf is dis
 					Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
 					if (m_rockCounter < MAXROCKS)
 					{
@@ -1149,6 +1048,7 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
 				{
+					//Mange vafan, autolol på dej
 					Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
 					autoLol->DeleteMap();
 					m_MapPicked = true;
@@ -1183,91 +1083,74 @@ void Player::_onAbility(double dt)
 //Sends a ray every second and check if there is relevant data for the object to show on the screen
 void Player::_objectInfo(double deltaTime)
 {
-	if (m_tutorialActive)
-	{
-		const int tempId = m_objectInfoRayId;
-		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
-		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
-			RayCastListener::RayContact* cContact = ray->getClosestContact();
-			RayCastListener::RayContact* cContact2 = cContact;
-			float interactFractionRange = Player::INTERACT_RANGE / 10;
-			if (ray->getNrOfContacts() >= 2)
-				cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+	//if (m_tutorialActive)
+	//{
+	//	const int tempId = m_objectInfoRayId;
+	//	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
+	//	{
+	//		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
+	//		RayCastListener::RayContact* cContact = ray->getClosestContact();
+	//		RayCastListener::RayContact* cContact2 = cContact;
+	//		float interactFractionRange = Player::INTERACT_RANGE / 10;
+	//		if (ray->getNrOfContacts() >= 2)
+	//			cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-			if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-				//Snuff out torches
-			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_activeSetID == 2)
-			{
-				if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-					m_infoText->setString("Press RB to pass");
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else
-			{
-				m_infoText->setString("");
-				m_cross->setUnpressedTexture("CROSS");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-			}
-		}
-		else if (tempId != m_objectInfoRayId)
-		{
-			m_infoText->setString("");
-			m_cross->setUnpressedTexture("CROSS");
-			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-		}
+	//		if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//			//Snuff out torches
+	//		}
+	//		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_activeSetID == 2)
+	//		{
+	//			if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+	//				m_infoText->setString("Press RB to pass");
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else
+	//		{
+	//			m_infoText->setString("");
+	//			m_cross->setUnpressedTexture("CROSS");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+	//		}
+	//	}
+	//	else if (tempId != m_objectInfoRayId)
+	//	{
+	//		m_infoText->setString("");
+	//		m_cross->setUnpressedTexture("CROSS");
+	//		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+	//	}
 
-		if (m_objectInfoTime >= 0.1f)
-		{
-			if(m_objectInfoRayId == -100)
-				m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
-			
-			m_objectInfoTime = 0;
-		}
-		m_objectInfoTime += deltaTime;
-	}
-}
-
-void Player::_updateTutorial(double deltaTime)
-{
-	if (m_tutorialActive)
-	{
-		if (!m_tutorialMessages.empty())
-		{
-			if (m_tutorialDuration >= 5)
-			{
-				m_tutorialDuration = 0;
-				m_tutorialText->setString(m_tutorialMessages.top());
-				m_tutorialMessages.pop();
-			}
-			m_tutorialDuration += deltaTime;
-		}
-	}
+	//	if (m_objectInfoTime >= 0.1f)
+	//	{
+	//		if(m_objectInfoRayId == -100)
+	//			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
+	//		
+	//		m_objectInfoTime = 0;
+	//	}
+	//	m_objectInfoTime += deltaTime;
+	//}
 }
 
 void Player::_updateFirstPerson(float deltaTime)
@@ -1509,6 +1392,94 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 	return (tempStart + tempRelativeVec);
 }
 
+void Player::_loadHUD()
+{
+	_unloadHUD();
+
+	if (m_activeSetID == 1)
+		HUDComponent::InitHUDFromFile(PlayerOneHUDPath);
+	else
+		HUDComponent::InitHUDFromFile(PlayerTwoHUDPath);
+
+	m_abilityCircle = new Circle*[2];
+	m_abilityCircle[0] = new Circle();
+	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[0]->setRadie(.53f);
+	m_abilityCircle[0]->setInnerRadie(.46f);
+	m_abilityCircle[0]->setUnpressedTexture("DAB");
+	m_abilityCircle[0]->setAngle(360);
+
+	m_abilityCircle[1] = new Circle();
+	m_abilityCircle[1]->init(DirectX::XMFLOAT2A(.1f, .08f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[1]->setRadie(.53f);
+	m_abilityCircle[1]->setInnerRadie(.46f);
+	m_abilityCircle[1]->setUnpressedTexture("DAB");
+	m_abilityCircle[1]->setAngle(360);
+
+	HUDComponent::AddQuad(m_abilityCircle[0]);
+	HUDComponent::AddQuad(m_abilityCircle[1]);
+
+	m_cross = HUDComponent::GetQuad("Cross");
+	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
+
+
+	m_HUDcircle = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewCircle"));
+	m_HUDcircle->setScale(DirectX::XMFLOAT2A(m_HUDcircle->getScale().x / 16.0f, m_HUDcircle->getScale().y / 9.0f));
+	dynamic_cast<Circle*>(m_HUDcircle)->setInnerRadie(0.45f);
+
+
+	m_HUDcircleFiller = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewFiller"));
+	m_HUDcircleFiller->setScale(DirectX::XMFLOAT2A(m_HUDcircleFiller->getScale().x / 16.0f, m_HUDcircleFiller->getScale().y / 9.0f));
+	dynamic_cast<Circle*>(m_HUDcircleFiller)->setInnerRadie(-1.0f);
+
+
+	m_enemyCircles.clear();
+
+	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
+	{
+		Circle * c = new Circle();
+		c->init(DirectX::XMFLOAT2A(0.95f, 0.15f), DirectX::XMFLOAT2A(.25f / 16.0f, .25f / 9.0f));
+		c->setRadie(.5f);
+		c->setUnpressedTexture("SPHERE");
+		m_enemyCircles.push_back(c);
+	}
+}
+
+void Player::_unloadHUD()
+{
+	HUDComponent::removeHUD();
+}
+
+void Player::_initSoundHUD()
+{
+	Quad * soundBack = new Quad;
+	Quad * soundfor = new Quad;
+	float outline = 5.0f;
+	DirectX::XMFLOAT2 scl = { 50.0f, 200.0f };
+
+	soundBack->init({ 0.0f, 1.0f }, { scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
+	soundBack->setUnpressedTexture("WHITE");
+	soundBack->setType(Quad::QuadType::Outlined);
+	soundBack->setRadie(outline);
+	soundBack->setPivotPoint(Quad::PivotPoint::upperLeft);
+	soundBack->setOutlineColor(1, 1, 0, 0.5f);
+	soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
+
+	soundfor->init(
+		{ outline / InputHandler::getViewportSize().x,
+		1.0f - (outline / InputHandler::getViewportSize().y)
+		},
+		{ (scl.x - (outline * 4.0f)) / InputHandler::getViewportSize().x, (scl.y - (outline * 4.0f)) / InputHandler::getViewportSize().y });
+
+
+	soundfor->setUnpressedTexture("WHITE");
+	soundfor->setPivotPoint(Quad::PivotPoint::upperLeft);
+	soundfor->setColor(0, 0, 1);
+
+	m_soundLevelHUD.bckg = soundBack;
+	m_soundLevelHUD.forg = soundfor;
+}
+
 void Player::_cheats()
 {
 	//Swap ability set cheat
@@ -1516,13 +1487,11 @@ void Player::_cheats()
 	{
 		if (m_activeSetID == 1)
 		{
-			m_activeSetID = 2;
-			m_activeSet = m_abilityComponents2;
+			SetAbilitySet(2);
 		}
 		else if (m_activeSetID == 2)
 		{
-			m_activeSetID = 1;
-			m_activeSet = m_abilityComponents1;
+			SetAbilitySet(1);
 		}
 	}
 }
