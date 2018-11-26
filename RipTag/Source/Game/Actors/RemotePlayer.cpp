@@ -22,7 +22,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
-	this->setScale(scale);
+	this->setScale(.3, .3, .3);
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
 	this->m_timeDiff = 0;
@@ -120,7 +120,7 @@ void RemotePlayer::Update(double dt)
 
 	//1.
 	this->_lerpPosition(dt);
-
+	std::cout << this->getPosition().x << std::endl;
 	//2.
 	for (size_t i = 0; i < m_nrOfAbilitys; i++)
 		m_activeSet[i]->Update(dt);
@@ -254,7 +254,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 			"walk_forward", //state name
 			&this->m_currentDirection, //x-axis driver
 			&this->m_currentSpeed, //y-axis driver
-			-90.f, 90.f, //x-axis bounds
+			-115.f, 115.f, //x-axis bounds
 			0.0f, 3.001f //y-axis bounds
 		);
 		SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
@@ -270,17 +270,17 @@ void RemotePlayer::_registerAnimationStateMachine()
 		blend_fwd->AddRow(
 			0.0f, //y placement
 			{	//uses a vector initializer list for "convinience"
-				{ sharedAnimations[IDLE].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[IDLE].get(), -115.f }, //the clip to use and x-placement
 				{ sharedAnimations[IDLE].get(), 0.f },
-				{ sharedAnimations[IDLE].get(), 90.f }
+				{ sharedAnimations[IDLE].get(), 115.f }
 			}
 		);
 		blend_fwd->AddRow(
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
-				{ sharedAnimations[RIGHT].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[RIGHT].get(), -115.f }, //the clip to use and x-placement
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[LEFT].get(), 90.f }
+				{ sharedAnimations[LEFT].get(), 115.f }
 			}
 		);
 		//
@@ -310,7 +310,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		//Add transition condition
 		fwd_bwd_outstate.AddTransition(
 			&this->m_currentDirection, //referenced variable for comparision
-			-90.f, 90.f, //bound range for comparision
+			-115.f, 115.f, //bound range for comparision
 			SM::COMPARISON_OUTSIDE_RANGE //comparision condition
 		);
 

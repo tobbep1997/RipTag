@@ -3,6 +3,13 @@
 #include "../../../Helper/AnimationHelpers.h"
 #include "../../Components/LayerMachine.h"
 
+void AssertNotNAN(float val)
+{
+	auto s = std::to_string(val);
+	auto it = s.find("nan");
+	assert(it == std::string::npos);
+}
+
 Animation::AnimationPlayer::AnimationPlayer(Drawable* owner)
 	: m_Owner(owner)
 {
@@ -160,10 +167,11 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateBlendspace2D(SM::Blend
 	{
 		speedScale = getSpeedScale(stateData.firstBottom->m_FrameCount, stateData.firstTop->m_FrameCount, stateData.weightY);		
 		indexAndProgressionBottom = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale, &m_CurrentNormalizedTime, stateData.firstBottom->m_FrameCount);
+		
 	}
 
 	///calc the actual frame index and progression towards the next frame
-	auto indexAndProgressionTop = _ComputeIndexAndProgressionNormalized(0.0 /*wont use delta time second time it's called*/, &m_CurrentNormalizedTime, stateData.firstTop->m_FrameCount);
+	auto indexAndProgressionTop = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime * speedScale /*wont use delta time second time it's called*/, &m_CurrentNormalizedTime, stateData.firstTop->m_FrameCount);
 
 	auto prevIndexTop = indexAndProgressionTop.first;
 	auto progressionTop = indexAndProgressionTop.second;
@@ -638,9 +646,14 @@ std::optional<std::pair<uint16_t, float>> Animation::AnimationPlayer::_ComputeIn
 
 std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressionNormalized(float deltaTime, float* currentTime, uint16_t frameCount)
 {
+	float passedInDeltaTime = deltaTime;
+
+	float passedInCurrentTime = *currentTime;
+	if (m_TimeAlreadyUpdatedThisFrame)
+		int i = 0;
 	if (!m_TimeAlreadyUpdatedThisFrame)
 	{
-		deltaTime /= (frameCount / ANIMATION_FRAMERATE);
+		deltaTime /= ((float)frameCount / ANIMATION_FRAMERATE);
 		*currentTime += deltaTime;
 		m_TimeAlreadyUpdatedThisFrame = true;
 	}
@@ -649,6 +662,7 @@ std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressi
 
 	float properTime = std::fmod(*currentTime, 1.0f);
 	*currentTime = properTime;
+	AssertNotNAN(*currentTime);
 	///calc the actual frame index and progression towards the next frame
 	float prevIndexFloat = (properTime * frameCount) ;
 	int prevIndexInt = (int)prevIndexFloat;
