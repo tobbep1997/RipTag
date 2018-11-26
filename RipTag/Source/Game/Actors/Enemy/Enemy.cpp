@@ -1157,28 +1157,6 @@ void Enemy::_detectTeleportSphere()
 				m_teleportBoundingSphere[i]->Center.z,
 				0.0f));
 
-			//std::cout << "HOLD OP THE PARTNER" << std::endl;
-
-			//TODO: Fix when ray is corrected
-
-			RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
-				direction.x,
-				direction.y,
-				direction.z,
-				direction.w),
-				getLenght(getPosition(), DirectX::XMFLOAT4A(
-					direction.x,
-					direction.y,
-					direction.z,
-					direction.w)));
-			if (r)
-			{
-				/*std::cout << "-------------------------------------------------" << std::endl;
-				for (int i = 0; i < r->getNrOfContacts(); i++)
-				{
-					std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
-				}*/
-			}
 		}
 
 	}
