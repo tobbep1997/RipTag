@@ -192,6 +192,9 @@ void DisableAbility::_inStateCharging(double dt)
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 			m_charge = 0.0;
 			m_dState = DisableState::Throwable;
 			m_canceled = true;
