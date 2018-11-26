@@ -172,6 +172,7 @@ void Room::LoadRoomToMemory()
 		}
 				
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
+
 		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
 
 		
