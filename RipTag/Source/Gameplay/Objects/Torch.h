@@ -8,6 +8,9 @@ private:
 	ParticleEmitter * pParticles = nullptr;
 	Camera * pCamera = nullptr;
 	bool m_interacted = false;
+
+	FMOD::Channel * m_channel;
+
 public:
 	Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId);
 	~Torch();
