@@ -156,7 +156,6 @@ void PlayState::Update(double deltaTime)
 		{
 			InputHandler::setShowCursor(true);
 		}
-
 		//Start Physics thread
 		if (RipExtern::g_kill == false)
 		{
@@ -193,7 +192,7 @@ void PlayState::Draw()
 	}
 
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes("WIN_BOX");
+	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
@@ -249,14 +248,13 @@ void PlayState::_PhyscisThread(double deltaTime)
 		m_timer += m_deltaTime;
 		
 		RipExtern::g_contactListener->ClearContactQueue();
-		RipExtern::g_rayListener->ClearConsumedContacts();
 
 		while (m_timer >= UPDATE_TIME)
 		{
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		
+		RipExtern::g_rayListener->ShotRays();
 		m_physRunning = false;
 	}
 }
@@ -299,27 +297,33 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
+
+							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
+							{
+								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+								RayCastListener::RayContact* c;
+								for (int i = 0; i < ray->getNrOfContacts(); i++)
+								{
+									c = ray->GetRayContact(i);
+									std::string tag = c->contactShape->GetBody()->GetObjectTag();
+									if (tag == "WORLD" || tag == "NULL")
+									{
+										occ *= 0.15f;
+									}
+									else if (tag == "BLINK_WALL")
+									{
+										occ *= 0.50f;
+									}
+								}
+							}
+
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
 								DirectX::XMFLOAT4A soundDirNormalized;
 								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 
-								RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
-								if (ray)
-								{
-									for (auto & c : ray->GetRayContacts())
-									{
-										std::string tag = c->contactShape->GetBody()->GetObjectTag();
-										if (tag == "WORLD" || tag == "NULL")
-										{
-											occ *= 0.15f;
-										}
-										else if (tag == "BLINK_WALL")
-										{
-											occ *= 0.50f;
-										}
-									}
-								}
+								if(m_rayId == -100)
+									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							}
 							
 

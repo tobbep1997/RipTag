@@ -72,7 +72,8 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
-			RipExtern::g_rayListener->ClearConsumedContacts();
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
 			RipExtern::g_contactListener->ClearContactQueue();
 			RipExtern::g_kill = true;
 		}
@@ -91,7 +92,8 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
 
-			RipExtern::g_rayListener->ClearConsumedContacts();
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
 			RipExtern::g_contactListener->ClearContactQueue();
 			RipExtern::g_kill = true;
 		}

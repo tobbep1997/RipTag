@@ -26,8 +26,10 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("SPAK"));//BYT TILL SPAK
 	auto& machine = getAnimationPlayer()->InitStateMachine(2);
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
-	machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
-	machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
+	auto activateState = machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
+	auto deactivateState = machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
+	activateState->SetBlendTime(0.0f);
+	deactivateState->SetBlendTime(0.0f);
 	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
@@ -36,36 +38,38 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::Ray* ray : RipExtern::g_rayListener->GetRays())
+
+	if (m_interacted)
 	{
-		for (RayCastListener::RayContact* con : ray->GetRayContacts())
+		if (this->getTriggerState())
 		{
-			if (con->originBody->GetObjectTag() == "PLAYER" && con->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
-			{
-				if (static_cast<Lever*>(con->contactShape->GetBody()->GetUserData()) == this && *con->consumeState != 2)
-				{
-					if (this->getTriggerState())
-					{
-						this->setTriggerState(false);
-					}
-					else
-					{
-						this->setTriggerState(true);
-					}
-					*(con->consumeState) += 1;
-					//SENDTriggerd here for network
-					this->SendOverNetwork();
-				}
-			}
+			this->setTriggerState(false);
 		}
+		else
+		{
+			this->setTriggerState(true);
+		}
+		//SENDTriggerd here for network
+		this->SendOverNetwork();
+		m_interacted = false;
 	}
+
 	this->getAnimationPlayer()->Update(deltaTime);
 }
 
 void Lever::BeginPlay()
 {
 }
-
+void Lever::handleContact(RayCastListener::RayContact * contact)
+{
+	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	{
+		if (static_cast<Lever*>(contact->contactShape->GetBody()->GetUserData()) == this)
+		{
+			m_interacted = true;
+		}
+	}
+}
 
 void Lever::_playSound(AudioEngine::SoundType st)
 {

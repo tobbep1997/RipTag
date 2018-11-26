@@ -21,6 +21,7 @@ private:
 	float			m_duration;
 	bool			m_useFunctionCalled;
 	Quad *			m_possessHud;
+	int m_rayId = -100;
 public:
 	PossessGuard(void * owner = nullptr);
 	~PossessGuard();

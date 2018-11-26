@@ -449,6 +449,21 @@ bool Player::GetMapPicked()
 	return m_MapPicked;
 }
 
+const int Player::getInteractRayId()
+{
+	return m_interactRayId;
+}
+
+const bool Player::sameInteractRayId(int id)
+{
+	if (id == m_lastInteractRayId)
+	{
+		m_lastInteractRayId = m_interactRayId;
+		return true;
+	}
+	return false;
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
@@ -710,28 +725,28 @@ void Player::RegisterThisInstanceToNetwork()
 
 void Player::_collision()
 {
-	for (ContactListener::S_EndContact con : RipExtern::g_contactListener->GetEndContacts())
+	ContactListener::S_Contact con;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts();i++)
 	{
+		con = RipExtern::g_contactListener->GetEndContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-				if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
-				{
-					m_allowPeek = true;
-					m_recentHeadCollision = true;
-				}
+			if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+			{
+				m_allowPeek = true;
+				m_recentHeadCollision = true;
+			}
 	}
-	for (b3Contact * con : RipExtern::g_contactListener->GetBeginContacts())
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		if (con)
-		{
-			if (con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER")
-					if (con->GetShapeA()->GetObjectTag() == "HEAD" || con->GetShapeB()->GetObjectTag() == "HEAD")
-					{
-						m_allowPeek = false;
-						peekDir = -LastPeekDir;
-						m_peekRangeA = m_peektimer;
-						m_peekRangeB = 0;
-					}
-		}
+		con = RipExtern::g_contactListener->GetBeginContact(i);
+		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
+			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+			{
+				m_allowPeek = false;
+				peekDir = -LastPeekDir;
+				m_peekRangeA = m_peektimer;
+				m_peekRangeB = 0;
+			}
 	}
 }
 
@@ -822,27 +837,30 @@ void Player::_onMovement(double deltaTime)
 			z = DirectX::XMVectorGetZ(m_VlastSpeed);
 	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
+	
 
-	RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.0f, false);
-
-	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	if (RipExtern::g_rayListener->hasRayHit(m_headBobRayId))
 	{
-		if (ray)
+		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_headBobRayId);
+		RayCastListener::RayContact* con;
+		for (int i = 0; i < ray->getNrOfContacts(); i++)
 		{
-			for (RayCastListener::RayContact* con : ray->GetRayContacts())
+			con = ray->GetRayContact(i);
+			if (con->contactShape->GetObjectTag() == "NULL")
 			{
-				if (con->contactShape->GetObjectTag() == "NULL")
+				if (fabs(con->normal.y) < 0.999f)
 				{
-					if (fabs(con->normal.y) < 0.999f)
-					{
-						p_setPosition(getPosition().x, getPosition().y, getPosition().z);
-						break;
-					}
+					p_setPosition(getPosition().x, getPosition().y, getPosition().z);
+					break;
 				}
 			}
 		}
 	}
-	
+	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
+	{
+		if(m_headBobRayId = -100)
+			m_headBobRayId = RipExtern::g_rayListener->PrepareRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.0f);
+	}	
 }
 
 void Player::_scrollMovementMod()
@@ -1078,72 +1096,74 @@ void Player::_onPeak(double deltaTime)
 
 void Player::_onInteract()
 {
+	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
+	{
+		const int tempRayId = m_interactRayId;
+		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_interactRayId);
+		RayCastListener::RayContact* con;
+		for (int i = 0; i < ray->getNrOfContacts(); i++)
+		{
+			con = ray->GetRayContact(i);
+			if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
+			{
+				if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+				{
+					//do the pickups
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+				{
+					m_infoText->setString("");
+					m_objectInfoTime = 0;
+					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				{
+					m_objectInfoTime = 0;
+					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					//Snuff out torches (example)
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				{
+
+					//std::cout << "Enemy Found!" << std::endl;
+					//Snuff out torches (example)
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+				{
+					//*con->consumeState += 1;
+					//std::cout << "illusory wall ahead" << std::endl;
+					//Snuff out torches (example)
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
+				{
+					Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
+					if (m_rockCounter < MAXROCKS)
+					{
+						rock->DeleteRock();
+						m_rockCounter++;
+					}
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
+				{
+					Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
+					autoLol->DeleteMap();
+					m_MapPicked = true;
+					//std::cout << "MAP" << std::endl;
+				}
+			}
+		}
+	}
+
 	if (Input::Interact())
 	{
 		if (m_kp.interact == false)
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE, false);
-			if (ray)
-			{
-				for (RayCastListener::RayContact* con : ray->GetRayContacts())
-				{
-					if (*con->consumeState != 2)
-					{
-						if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
-						{
-							if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
-							{
-								*con->consumeState += 1;
-								//do the pickups
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
-							{
-								*con->consumeState += 1;
-								m_infoText->setString("");
-								m_objectInfoTime = 0;
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
-							{
-								*con->consumeState += 1;
-								PointLight * lol = static_cast<PointLight*>(con->contactShape->GetBody()->GetUserData());
-								lol->SwitchLightOn();
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-							{
-
-								//std::cout << "Enemy Found!" << std::endl;
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
-							{
-								//*con->consumeState += 1;
-								//std::cout << "illusory wall ahead" << std::endl;
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
-							{
-								Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
-								if (m_rockCounter < MAXROCKS)
-								{
-									rock->DeleteRock();
-									m_rockCounter++;
-								}
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
-							{
-								Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
-								autoLol->DeleteMap();
-								m_MapPicked = true;
-								//std::cout << "MAP" << std::endl;
-							}
-						}
-					}
-				}
-			}
+			if(m_interactRayId == -100)
+				m_interactRayId = RipExtern::g_rayListener->PrepareRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
 			
 			m_kp.interact = true;
 		}
+
 	}
 	else
 	{
@@ -1161,62 +1181,48 @@ void Player::_objectInfo(double deltaTime)
 {
 	if (m_tutorialActive)
 	{
-		if (m_objectInfoTime >= 0.2f)
+		const int tempId = m_objectInfoRayId;
+		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
-			if (ray != nullptr)
-			{
-				RayCastListener::RayContact* cContact = ray->getClosestContact();
-				RayCastListener::RayContact* cContact2 = cContact;
-				float interactFractionRange = Player::INTERACT_RANGE / 10;
-				if(ray->getNrOfContacts() >= 2)
-					cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
+			RayCastListener::RayContact* cContact = ray->getClosestContact();
+			RayCastListener::RayContact* cContact2 = cContact;
+			float interactFractionRange = Player::INTERACT_RANGE / 10;
+			if (ray->getNrOfContacts() >= 2)
+				cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-				if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
-				{
-					m_infoText->setString("Press X to pull");
-					m_cross->setUnpressedTexture("CROSSHAND");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-				}
-				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
-				{
-					m_infoText->setString("Press X to pull");
-					m_cross->setUnpressedTexture("CROSSHAND");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
-				{
-					m_cross->setUnpressedTexture("CROSSHAND");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-					//Snuff out torches (example)
-				}
-				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
-				{
-					//m_infoText->setString("Press X to pull");
-					m_cross->setUnpressedTexture("CROSSHAND");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
-				{
-					m_infoText->setString("Press LB to possess");
-					m_cross->setUnpressedTexture("CROSSHAND");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-					//Snuff out torches (example)
-				}
-				else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")  && m_activeSetID == 2)
-				{
-					if(cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-						m_infoText->setString("Press RB to pass");
-					m_cross->setUnpressedTexture("CROSSHAND");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-					//m_infoText->setString("Illusory wall ahead");
-					//Snuff out torches (example)
-				}
-				else
-				{
-					m_cross->setUnpressedTexture("CROSS");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-				}
+			if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+				//Snuff out torches
+			}
+			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_activeSetID == 2)
+			{
+				if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+					m_infoText->setString("Press RB to pass");
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 			}
 			else
 			{
@@ -1224,9 +1230,21 @@ void Player::_objectInfo(double deltaTime)
 				m_cross->setUnpressedTexture("CROSS");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
-			m_objectInfoTime = 0;
+		}
+		else if (tempId != m_objectInfoRayId)
+		{
+			m_infoText->setString("");
+			m_cross->setUnpressedTexture("CROSS");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 		}
 
+		if (m_objectInfoTime >= 0.1f)
+		{
+			if(m_objectInfoRayId == -100)
+				m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
+			
+			m_objectInfoTime = 0;
+		}
 		m_objectInfoTime += deltaTime;
 	}
 }
@@ -1416,10 +1434,11 @@ void Player::SendOnWinState()
 
 void Player::_hasWon()
 {
-	for (int i = 0; i < RipExtern::g_contactListener->GetBeginContacts().size(); i++)
+	ContactListener::S_Contact con;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeA()->GetBody()->GetObjectTag();
-		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContacts()[i]->GetShapeB()->GetBody()->GetObjectTag();
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContact(i).a->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContact(i).b->GetBody()->GetObjectTag();
 
 		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
 		{
@@ -1431,10 +1450,10 @@ void Player::_hasWon()
 			}
 		}
 	}
-	for (int i = 0; i < RipExtern::g_contactListener->GetEndContacts().size(); i++)
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
-		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContacts()[i].a->GetBody()->GetObjectTag();
-		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContacts()[i].b->GetBody()->GetObjectTag();
+		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContact(i).a->GetBody()->GetObjectTag();
+		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContact(i).b->GetBody()->GetObjectTag();
 
 		if (Object_A_Tag == "PLAYER" || Object_A_Tag == "WIN_BOX")
 		{
