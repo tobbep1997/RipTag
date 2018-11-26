@@ -194,8 +194,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
-	CreateShape(0, (y*1.5)+0.1, 0, 0.3, 0.3, 0.1, "HEAD");
-	m_standHeight = (y*1.5) + 0.1;
+	CreateShape(0, (y*1.5), 0, 0.3, 0.3, 0.1, "HEAD");
+	m_standHeight = (y*1.5);
 	m_crouchHeight = y*1.1;
 	setUserDataBody(this);
 
@@ -1303,7 +1303,7 @@ void Player::_cameraPlacement(double deltaTime)
 	DirectX::XMFLOAT4A forward = p_camera->getDirection();
 
 	DirectX::XMFLOAT4 UP = DirectX::XMFLOAT4(0, 1, 0, 0);
-
+	DirectX::XMFLOAT4A right;
 	DirectX::XMVECTOR vForward = DirectX::XMLoadFloat4A(&forward);
 	DirectX::XMVECTOR vUP = DirectX::XMLoadFloat4(&UP);
 	DirectX::XMVECTOR vRight;
@@ -1312,17 +1312,20 @@ void Player::_cameraPlacement(double deltaTime)
 	vForward = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(vRight, vUP));
 
 	XMStoreFloat4A(&forward, vForward);
+	XMStoreFloat4(&right, vRight);
+	peekOffsetLeft.x = -1;
+	peekOffsetLeft.y = 0.;// +((upperBodyLocal.y*0.5)* (1 - fabs(m_peektimer)));
+	peekOffsetLeft.z = 1;
 
-	peekOffsetLeft.x = (upperBodyLocal.x - 1) * forward.z;
-	peekOffsetLeft.y = upperBodyLocal.y;
-	peekOffsetLeft.z = (upperBodyLocal.z + 1)* forward.x;
+	peekOffsetRight.x = 1;
+	peekOffsetRight.y = 0;// +((upperBodyLocal.y*0.5)* (1 - fabs(m_peektimer)));
+	peekOffsetRight.z = -1;
 
-	peekOffsetRight.x = (upperBodyLocal.x + 1) * forward.z;
-	peekOffsetRight.y = upperBodyLocal.y;
-	peekOffsetRight.z = (upperBodyLocal.z - 1) * forward.x;
-
-	headPosLocal += _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5) - headPosLocal;
-
+	headPosLocal = _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5);
+	headPosLocal.x *= forward.z;
+	//headPosLocal.y *= forward.y;
+	headPosLocal.z *= forward.x;
+	headPosLocal += upperBodyLocal;
 	//-------------------------------------------Crouch-------------------------------------------// 
 
 	m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
