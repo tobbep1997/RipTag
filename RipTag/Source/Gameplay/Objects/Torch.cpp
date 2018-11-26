@@ -41,7 +41,7 @@ void Torch::Update(double deltaTime)
 		pParticles->Update(deltaTime, pCamera);
 	}
 
-	if (m_interacted)
+	if (m_interacted || this->HasPacketReceived())
 	{
 		if (this->getTriggerState())
 		{
@@ -60,6 +60,7 @@ void Torch::Update(double deltaTime)
 		//SENDTriggerd here for network
 		this->SendOverNetwork();
 		m_interacted = false;
+		this->SetPacketReceived(false);
 	}
 	p_updatePhysics(this);
 }
@@ -70,11 +71,12 @@ void Torch::Draw()
 	if (!this->getTriggerState())
 	{
 		this->pPointLight->QueueLight();
-		pParticles->setEmmiterLife(0);
+		if (pParticles)
+			pParticles->setEmmiterLife(0);
 	}
 		
 	if(pParticles != nullptr)
-	pParticles->Queue(); 
+		pParticles->Queue(); 
 }
 
 void Torch::QueueLight()

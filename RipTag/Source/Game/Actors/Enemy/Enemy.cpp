@@ -197,11 +197,15 @@ void Enemy::ClientUpdate(double deltaTime)
 	using namespace Network;
 
 	_cameraPlacement(deltaTime);
+
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
 	setLiniearVelocity(0, 0, 0);
 
+	AIState state = getAIState();
+
 	//Visibility update
+	if (state != AIState::Possessed && state != AIState::Disabled)
 	{
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 		float lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
@@ -233,56 +237,19 @@ void Enemy::ClientUpdate(double deltaTime)
 		}
 	}
 
-	//State dependencies
-	auto state = this->getAIState();
+	handleStatesClient(deltaTime);
 
-	static bool previouslyPossessed = false;
-	static bool previouslyDisabled = false;
-
-	switch (state)
+	if (pEmitter)
 	{
-		case AIState::Possessed:
+		if (pEmitter->emitterActiv)
+			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
+		else
 		{
-			previouslyPossessed = true;
-			//I think we need to ensure that the State packet arrives before the Enemy update packet
-			ENTITYSTATEPACKET statePacket(ID_ENEMY_POSSESSED, uniqueID, true);
-			Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
-			ENEMYUPDATEPACKET updatePacket;
-			updatePacket.uniqueID = this->uniqueID;
-			updatePacket.camDir = p_camera->getDirection();
-			updatePacket.pos = getPosition();
-			updatePacket.rot = p_camera->getYRotationEuler();
-			updatePacket.moveSpeed = this->m_currentMoveSpeed;
-			Multiplayer::SendPacket((const char*)&updatePacket, sizeof(updatePacket), LOW_PRIORITY);
+			delete pEmitter;
+			pEmitter = nullptr;
 		}
-		break;
-		case AIState::Disabled:
-		{
-			previouslyDisabled = true;
-			//I think we need to ensure that the State packet arrives before the Enemy update packet
-			ENTITYSTATEPACKET statePacket(ID_ENEMY_DISABLED, uniqueID, true);
-			Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
-
-		}
-		break;
-		default:
-		{
-			//Notify the server that this enemy is no longer being possessed by the client
-			if (previouslyPossessed)
-			{
-				previouslyPossessed = false;
-				ENTITYSTATEPACKET statePacket(ID_ENEMY_POSSESSED, uniqueID, false);
-				Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
-			}
-			if (previouslyDisabled)
-			{
-				previouslyDisabled = false;
-				ENTITYSTATEPACKET statePacket(ID_ENEMY_DISABLED, uniqueID, false);
-				Multiplayer::SendPacket((const char*)&statePacket, sizeof(statePacket), IMMEDIATE_PRIORITY);
-			}
-		}
-		break;
 	}
+	
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)

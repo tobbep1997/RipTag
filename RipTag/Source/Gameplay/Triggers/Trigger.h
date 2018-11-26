@@ -12,6 +12,8 @@ private:
 	std::string activatedAnimation;
 	std::string deactivatedAnimation;
 
+	bool m_receivedPacket = false;
+
 protected:
 	void p_trigger(const bool & trigger);
 public:
@@ -32,6 +34,8 @@ public:
 	void Release();
 
 	void SendOverNetwork();
+	void SetPacketReceived(bool b) { m_receivedPacket = b; }
+	bool HasPacketReceived() { return m_receivedPacket; }
 private:
 	virtual void _playSound(AudioEngine::SoundType st = AudioEngine::Player) = 0;
 };

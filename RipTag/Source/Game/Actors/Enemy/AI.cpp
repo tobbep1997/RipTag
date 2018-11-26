@@ -166,6 +166,26 @@ void AI::handleStates(const double deltaTime)
 	}
 }
 
+void AI::handleStatesClient(const double deltaTime)
+{
+	switch (m_transState)
+	{
+	case AITransitionState::BeingDisabled:
+		_onBeingDisabled();
+		break;
+	case AITransitionState::ExitingDisable:
+		_onExitingDisabled();
+		break;
+	}
+
+	switch (m_state)
+	{
+	case AIState::Disabled:
+		_disabled(deltaTime);
+		break;
+	}
+}
+
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
