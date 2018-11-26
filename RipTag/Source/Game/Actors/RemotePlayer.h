@@ -16,7 +16,10 @@ private:
 		LEFT = 3,
 		RIGHT = 4,
 		BACK_LEFT = 5,
-		BACK_RIGHT = 6
+		BACK_RIGHT = 6,
+		RUN_FORWARD = 7,
+		RUN_FORWARD_LEFT = 8,
+		RUN_FORWARD_RIGHT = 9
 	};
 public:
 	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot);

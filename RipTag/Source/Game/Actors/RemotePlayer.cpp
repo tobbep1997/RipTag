@@ -242,6 +242,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FR_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BL_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BR_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_F_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FL_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FR_ANIMATION"));
 
 	this->getAnimationPlayer()->Play();
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
@@ -255,7 +258,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 			&this->m_currentDirection, //x-axis driver
 			&this->m_currentSpeed, //y-axis driver
 			-115.f, 115.f, //x-axis bounds
-			0.0f, 3.001f //y-axis bounds
+			0.0f, 6.0f //y-axis bounds
 		);
 		SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
 			"walk_backward", //state name
@@ -276,11 +279,19 @@ void RemotePlayer::_registerAnimationStateMachine()
 			}
 		);
 		blend_fwd->AddRow(
-			3.1f, //y placement
+			3.3f, //y placement
 			{	//uses a vector initializer list for "convinience"
 				{ sharedAnimations[RIGHT].get(), -115.f }, //the clip to use and x-placement
 				{ sharedAnimations[FORWARD].get(), 0.f },
 				{ sharedAnimations[LEFT].get(), 115.f }
+			}
+		);
+		blend_fwd->AddRow(
+			6.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[RUN_FORWARD_RIGHT].get(), -115.f }, //the clip to use and x-placement
+				{ sharedAnimations[RUN_FORWARD].get(), 0.f },
+				{ sharedAnimations[RUN_FORWARD_LEFT].get(), 115.f }
 			}
 		);
 		//
