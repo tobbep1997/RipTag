@@ -244,9 +244,9 @@ void PlayState::_PhyscisThread(double deltaTime)
 		RipExtern::g_contactListener->ClearContactQueue();
 		RipExtern::g_rayListener->ClearConsumedContacts();
 
-			m_world.Step(m_step);
 		while (m_timer >= UPDATE_TIME)
 		{
+			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
 		

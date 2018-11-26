@@ -67,8 +67,6 @@ void RoomGenerator::_generateGrid()
 	int counter = 0;
 	BaseActor * base = new BaseActor();
 	base->Init(*m_worldPtr, e_staticBody);
-	std::ofstream lol;
-	lol.open("GRID_NON_TRANSPOSED.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -81,99 +79,15 @@ void RoomGenerator::_generateGrid()
 			bool placed = false;
 			for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
 			{
-				if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 0.5f, node.worldPos.y + changeY))))
+				if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 1.0f, node.worldPos.y + changeY))))
 				{
-					//placed = true;
 					m_generatedGrid->BlockGridTile(index, false);
-					/*Manager::g_meshManager.loadStaticMesh("FLOOR");
-					Manager::g_textureManager.loadTextures("CANDLE");
-					asset = DBG_NEW BaseActor();
-					asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-					asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
-					asset->setTextureTileMult(m_roomWidth, m_roomDepth);
-					asset->setPosition(node.worldPos.x, 1.5, node.worldPos.y, false);
-					asset->p_createBoundingBox(DirectX::XMFLOAT3(1, 1, 1));
-					m_generated_assetVector.push_back(asset);*/
-					col = true;
 					break;
 				}
 			}
-			if (col)
-				lol << "0";
-			else
-				lol << "1";
-			lol << " ";
-			/*bool col = false;
-			Node node = m_generatedGrid->GetWorldPosFromIndex(i + j * iterationsWidth);
-			float changeX = 0;
-			float changeY = 0;
-			bool placed = false;
-			int index = i + j * iterationsWidth;
-			for (int a = 0; a < 5; a++)
-			{
-				changeY = 0.0f;
-				for (int b = 0; b < 5; b++)
-				{
-					col = false;
-					for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
-					{
-							if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 1, node.worldPos.y + changeY))))
-							{
-								col = true;
-							}
-							if (col)
-							{
-								
-								break;
-
-						}
-					}
-					changeY += 0.2;
-					if (col)
-						break;
-				}
-				if (col)
-					break;
-
-				changeX += 0.2;
-			}*/
-		}
-		lol << "\n";
-	}
-	lol.close();
-
-	Manager::g_textureManager.loadTextures("GREEN");
-	Manager::g_textureManager.loadTextures("RED");
-	////Manager::g_textureManager.loadTextures("CANDLE");
-	Manager::g_meshManager.loadStaticMesh("FLOOR");
-
-	asset = DBG_NEW BaseActor();
-	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-	asset->setTexture(Manager::g_textureManager.getTexture("RED"));
-	asset->setPosition(-50, 10, -50, false);
-	asset->setScale(1, 20, 1);
-	m_generated_assetVector.push_back(asset);
-	//
-	asset = DBG_NEW BaseActor();
-	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-	asset->setPosition(50, 10, 50, false);
-	asset->setTexture(Manager::g_textureManager.getTexture("GREEN"));
-	asset->setScale(1, 20, 1);
-	m_generated_assetVector.push_back(asset);
-	for (auto & t : *m_generatedGrid->getNodeMap())
-	{
-		if (!t.tile.getPathable())
-		{
-			asset = DBG_NEW BaseActor();
-			asset->setTexture(Manager::g_textureManager.getTexture("RED"));
-			asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-			//asset->setPosition(t.worldPos.x, 8, t.worldPos.y, false);
-			asset->setPosition(t.tile.getX() -50, 8, t.tile.getY() - 50, false);
-			//asset->setScale(1, 1, 1);
-			m_generated_assetVector.push_back(asset);
-
 		}
 	}
+	
 
 	delete base;
 }
@@ -216,27 +130,6 @@ void RoomGenerator::_makeWalls()
 	int iterationsWidth = m_roomWidth * 2 + 1;
 	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
 	m_generatedGrid->GenerateRoomNodeMap(&randomizer);
-
-	auto lol = m_generatedGrid->getRoomNodeMap();
-
-
-	Manager::g_textureManager.loadTextures("GREEN");
-	Manager::g_textureManager.loadTextures("RED");
-	Manager::g_meshManager.loadStaticMesh("FLOOR");
-	for (auto & t : *lol)
-	{
-		asset = DBG_NEW BaseActor();
-		if (t.tile.getPathable())
-			asset->setTexture(Manager::g_textureManager.getTexture("GREEN"));
-		else
-			asset->setTexture(Manager::g_textureManager.getTexture("RED"));
-		asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-		asset->setPosition(t.tile.getX() * 10 - 40, 10, t.tile.getY() * 10 - 40, false);
-		asset->setScale(2, 1, 2);
-		m_generated_assetVector.push_back(asset);
-	}
-
-	//randomizer.DrawConnections();
 
 	int widthCounter = 0;
 	int depthCounter = 0;
@@ -348,7 +241,7 @@ void RoomGenerator::_makeWalls()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
-				//this->m_generatedRoomEnemies.push_back(e);
+				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
 
@@ -562,9 +455,9 @@ void RoomGenerator::_makeWalls()
 						tempProps.props[k].transform_position[2] = i + tempProps.props[k].transform_position[2] + BigRoomAddZ;
 					}
 					DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(tempProps.props[k].transform_position), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO));
-					//m_generated_boundingBoxes.push_back(bb);
+					m_generated_boundingBoxes.push_back(bb);
 				}
-				//returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
+				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
 				delete tempProps.props;
 				randomizer.m_rooms[index].propsPlaced = true;
 				if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
@@ -671,8 +564,7 @@ void RoomGenerator::_generateGuardPaths()
 				destination = m_generatedGrid->WorldPosToTile(x, z);
 			}
 		}
-		//m_generatedGrid->FindPath(Tile(1, 1, true), Tile(99, 99, true));
-		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(destination)));
+		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, destination));
 	}
 }
 
