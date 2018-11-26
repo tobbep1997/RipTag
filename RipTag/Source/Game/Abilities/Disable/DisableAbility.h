@@ -74,7 +74,7 @@ public:
 private:
 	// Private functions
 	void _logicLocal(double deltaTime, Camera* camera);
-	void _logicRemote(double dt);
+	void _logicRemote(double dt, Camera * camera);
 
 	void _inStateThrowable();
 	void _inStateCharging(double dt);
@@ -82,5 +82,5 @@ private:
 	void _inStateCooldown(double dt);
 	void _inStateRemoteActive(double dt);
 
-	void _sendOnHitNotification();
+	void _sendOnHitNotification(Enemy * ptr);
 };

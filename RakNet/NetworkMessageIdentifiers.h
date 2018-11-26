@@ -100,6 +100,7 @@ namespace Network
 		unsigned char id;
 		unsigned int state;
 		bool condition;
+		DirectX::XMFLOAT4A pos;
 		ENTITYSTATEPACKET(unsigned char _id, unsigned int _state, bool _condition) : id(_id), state(_state), condition(_condition) {}
 	};
 

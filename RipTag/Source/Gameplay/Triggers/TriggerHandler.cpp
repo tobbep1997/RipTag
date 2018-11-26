@@ -139,6 +139,7 @@ void TriggerHandler::HandlePacket(unsigned char id, unsigned char * data)
 {
 	Network::TRIGGEREVENTPACKET * _data = (Network::TRIGGEREVENTPACKET*)data;
 	netWorkTriggers.at(_data->uniqueID)->setTriggerState(_data->state, false);
+	netWorkTriggers.at(_data->uniqueID)->SetPacketReceived(true);
 	//ifnetwork is tru -> false, vice versa
 	
 }

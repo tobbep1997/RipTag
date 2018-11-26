@@ -150,6 +150,8 @@ private:
 	int m_guardUniqueIndex = -1;
 
 	int m_interactRayId = -100;
+
+	ParticleEmitter * pEmitter = nullptr;
 public:
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
@@ -169,6 +171,8 @@ public:
 	virtual void Update(double deltaTime) override;
 	void ClientUpdate(double deltaTime);
 	virtual void PhysicsUpdate(double deltaTime);
+
+	void Draw() override;
 
 	//Depending on the culling, this can cancel the queue
 	void QueueForVisibility();

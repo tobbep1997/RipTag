@@ -63,6 +63,12 @@ void EnemyHandler::Update(float deltaTime)
 		return;
 }
 
+void EnemyHandler::Draw()
+{
+	for (auto e : m_guards)
+		e->Draw();
+}
+
 void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 {
 	switch (id)
@@ -207,6 +213,7 @@ void EnemyHandler::_registerThisInstanceToNetwork()
 
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_UPDATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_VISIBILITY, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_DISABLED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 }
 
 int EnemyHandler::_getPlayerVisibility(Enemy * guard)

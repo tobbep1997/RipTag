@@ -32,6 +32,8 @@ public:
 	//Types: 0 = Server; 1 = Client, 2 = SinglePlayer
 
 	void Update(float deltaTime);
+	void Draw();
+
 	void HandlePacket(unsigned char id, unsigned char * data);
 
 private:

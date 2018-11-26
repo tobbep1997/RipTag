@@ -49,6 +49,7 @@ void Torch::Update(double deltaTime)
 			pPointLight->setLightOn(true);
 			pParticles = new ParticleEmitter();
 			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+			pParticles->setEmmiterLife(0);
 		}
 		else
 		{
@@ -61,6 +62,25 @@ void Torch::Update(double deltaTime)
 		this->SendOverNetwork();
 		m_interacted = false;
 	}
+	if (this->HasPacketReceived())
+	{
+		if (!this->getTriggerState())
+		{
+			this->setTriggerState(false);
+			pPointLight->setLightOn(true);
+			pParticles = new ParticleEmitter();
+			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
+			pParticles->setEmmiterLife(0);
+		}
+		else
+		{
+			this->pPointLight->setLightOn(false);
+			this->setTriggerState(true);
+			delete pParticles;
+			pParticles = nullptr;
+		}
+		this->SetPacketReceived(false);
+	}
 	p_updatePhysics(this);
 }
 
@@ -70,11 +90,10 @@ void Torch::Draw()
 	if (!this->getTriggerState())
 	{
 		this->pPointLight->QueueLight();
-		pParticles->setEmmiterLife(0);
 	}
 		
 	if(pParticles != nullptr)
-	pParticles->Queue(); 
+		pParticles->Queue(); 
 }
 
 void Torch::QueueLight()
