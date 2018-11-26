@@ -51,6 +51,9 @@ public :
 	b3Shape* GetShapeB();
 	const b3Shape* GetShapeB() const;
 
+	b3Contact* GetNext() const;
+	b3Contact* GetPrev() const;
+
 	bool IsTouching() const;
 protected :
 	enum b3ContactFlags {
@@ -98,6 +101,16 @@ inline b3Shape* b3Contact::GetShapeB() {
 
 inline const b3Shape* b3Contact::GetShapeB() const {
 	return m_shapeB;
+}
+
+inline b3Contact * b3Contact::GetNext() const
+{
+	return m_next;
+}
+
+inline b3Contact * b3Contact::GetPrev() const
+{
+	return m_prev;
 }
 
 #endif

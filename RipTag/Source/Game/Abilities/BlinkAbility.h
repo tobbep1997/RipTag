@@ -13,7 +13,7 @@ private:
 	};
 	BlinkState	m_bState;
 	bool		m_useFunctionCalled;
-
+	int m_rayId = -100;
 public:
 	BlinkAbility();
 	~BlinkAbility();

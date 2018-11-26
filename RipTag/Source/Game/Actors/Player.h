@@ -163,6 +163,12 @@ private:
 	bool m_MapPicked = false;
 	unsigned int m_rockCounter = 0;
 	const unsigned int MAXROCKS = 5;
+
+	int m_headBobRayId = -100; //HeadBob
+	int m_interactRayId = -100; //interact
+	int m_lastInteractRayId = -100;
+	int m_objectInfoRayId = -100; // objectInfo
+
 public:
 	//Magic number
 	static const int g_fullVisability = 1300;
@@ -217,6 +223,8 @@ public:
 	TeleportAbility * getTeleportAbility();
 	unsigned int getNrOfRocks();
 	bool GetMapPicked();
+	const int getInteractRayId();
+	const bool sameInteractRayId(int id);
 private:
 	void _collision();
 	void _handleInput(double deltaTime);
