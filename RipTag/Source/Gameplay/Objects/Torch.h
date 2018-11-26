@@ -25,6 +25,6 @@ public:
 	void setUniqueID(int id) { Trigger::setUniqueId(id); }
 	void handleContact(RayCastListener::RayContact* contact);
 private:
-	void _playSound(AudioEngine::SoundType st = AudioEngine::Player) override;
+	void _playSound(AudioEngine::SoundType st = AudioEngine::Other) override;
 };
 
