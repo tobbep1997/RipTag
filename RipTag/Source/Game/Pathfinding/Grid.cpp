@@ -212,17 +212,19 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 		}
 	}
 
-	for (int i = 0; i < depth; i++)
+	// Transpose
+	/*for (int i = 0; i < depth; i++)
 	{
-		for (int j = 0; j < width; j++)
+		for (int j = i; j < width; j++)
 		{
-			if (m_roomNodeMap[j + i * width].tile.getPathable())
-				std::cout << green << 1 << white << " ";
-			else
-				std::cout << red << 0 << white << " ";
+			int currentIndex = j + i * width;
+			int transposeIndex = i + j * width;
+			Node temp = m_roomNodeMap[currentIndex];
+			m_roomNodeMap[currentIndex] = m_roomNodeMap[transposeIndex];
+			m_roomNodeMap[transposeIndex] = temp;
 		}
-		std::cout << std::endl;
-	}
+	}*/
+
 }
 
 void Grid::ThreadPath(Tile src, Tile dest)
@@ -251,6 +253,29 @@ int Grid::getGridWidth()
 int Grid::getGridHeight()
 {
 	return m_height;
+}
+
+void Grid::Transpose()
+{
+	for (int i = 0; i < m_height; i++)
+		for (int j = i; j < m_width; j++)
+		{
+			int currentIndex = j + i * m_width;
+			int transposeIndex = i + j * m_width;
+			Node temp = m_nodeMap[currentIndex];
+			m_nodeMap[currentIndex] = m_nodeMap[transposeIndex];
+			m_nodeMap[transposeIndex] = temp;
+		}
+}
+
+bool Grid::isBlocked(int index) const
+{
+	return !m_nodeMap.at(index).tile.getPathable();
+}
+
+const std::vector<Node>* Grid::getRoomNodeMap() const
+{
+	return &m_roomNodeMap;
 }
 
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList,

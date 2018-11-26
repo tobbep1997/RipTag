@@ -69,7 +69,7 @@ void RoomGenerator::_generateGrid()
 	BaseActor * base = new BaseActor();
 	base->Init(*m_worldPtr, e_staticBody);
 	std::ofstream lol;
-	lol.open("LOL.txt");
+	lol.open("GRID_NON_TRANSPOSED.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -142,7 +142,6 @@ void RoomGenerator::_generateGrid()
 		lol << "\n";
 	}
 	lol.close();
-
 	delete base;
 }
 
@@ -164,7 +163,7 @@ void RoomGenerator::_makeWalls()
 {
 	m_roomDepth = (incrementalValueY * m_roomGridDepth) / 2.0f;
 	m_roomWidth = (incrementalValueX * m_roomGridWidth) / 2.0f;
-	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct;
+	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
 	int MAX_SMALL_MODS = 8; // change when small mods added
@@ -184,8 +183,28 @@ void RoomGenerator::_makeWalls()
 	int iterationsWidth = m_roomWidth * 2 + 1;
 	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
 	m_generatedGrid->GenerateRoomNodeMap(&randomizer);
-	randomizer.DrawConnections();
-	
+
+	auto lol = m_generatedGrid->getRoomNodeMap();
+
+
+	Manager::g_textureManager.loadTextures("GREEN");
+	Manager::g_textureManager.loadTextures("RED");
+	Manager::g_meshManager.loadStaticMesh("FLOOR");
+	for (auto & t : *lol)
+	{
+		asset = DBG_NEW BaseActor();
+		if (t.tile.getPathable())
+			asset->setTexture(Manager::g_textureManager.getTexture("GREEN"));
+		else
+			asset->setTexture(Manager::g_textureManager.getTexture("RED"));
+		asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+		asset->setPosition(t.worldPos.x, 10, t.worldPos.y, false);
+		asset->setScale(2, 1, 2);
+		m_generated_assetVector.push_back(asset);
+	}
+
+	//randomizer.DrawConnections();
+
 	int widthCounter = 0;
 	int depthCounter = 0;
 	
@@ -296,7 +315,7 @@ void RoomGenerator::_makeWalls()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
-				this->m_generatedRoomEnemies.push_back(e);
+				//this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
 

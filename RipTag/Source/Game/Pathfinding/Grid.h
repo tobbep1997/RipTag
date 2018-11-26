@@ -110,7 +110,9 @@ public:
 	bool IsPathReady();
 	int getGridWidth();
 	int getGridHeight();
-
+	void Transpose();
+	bool isBlocked(int index) const;
+	const std::vector<Node> * getRoomNodeMap() const;
 private:
 	// Utility functions
 	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,

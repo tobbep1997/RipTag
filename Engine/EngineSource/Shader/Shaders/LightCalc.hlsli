@@ -138,7 +138,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     }
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
-
+    return albedo;
     ambient = ambient * albedo * ao;
    
     float4 finalColor = emptyFloat4;
