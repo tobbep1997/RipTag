@@ -285,7 +285,7 @@ void RoomGenerator::_makeWalls()
 			bool placeWall = true;
 			isWinRoom = false;
 			//PLACEWINROOM
-			if (index == winRoomIndexPlacement)
+			if (randomizer.m_rooms[index].type == WIN_ROOM)
 			{
 				isWinRoom = true;
 				MODNAMESTRING = "MOD" + std::to_string(99);
