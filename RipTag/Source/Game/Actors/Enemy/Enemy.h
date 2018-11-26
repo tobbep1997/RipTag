@@ -147,6 +147,8 @@ private:
 	Player * m_PlayerPtr		= nullptr;
 	RemotePlayer * m_RemotePtr	= nullptr;
 
+	int m_guardUniqueIndex = -1;
+
 	int m_interactRayId = -100;
 public:
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
@@ -232,6 +234,9 @@ public:
 
 	float getTotalVisibility();
 	float getMaxVisibility();
+
+	int GetGuardUniqueIndex();
+	void SetGuardUniqueIndex(const int & index);
 	const int getInteractRayId();
 private:
 

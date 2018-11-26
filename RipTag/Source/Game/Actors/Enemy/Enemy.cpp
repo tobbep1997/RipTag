@@ -356,6 +356,16 @@ float Enemy::getMaxVisibility()
 	return m_visabilityTimer;
 }
 
+int Enemy::GetGuardUniqueIndex()
+{
+	return m_guardUniqueIndex;
+}
+
+void Enemy::SetGuardUniqueIndex(const int& index)
+{
+	m_guardUniqueIndex = index;
+}
+
 const int Enemy::getInteractRayId()
 {
 	return m_interactRayId;
