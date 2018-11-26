@@ -117,9 +117,11 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
+		_removeAllCenterTiles(roomNodePath);
 
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
+		
 
 		for (auto & tp : tilePairs)
 		{
@@ -405,8 +407,8 @@ Tile Grid::_getNearestUnblockedTile(int x, int y)
 bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 {
 	using namespace DirectX;
-	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * source.getX()].worldPos;
-	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * destination.getX()].worldPos;
+	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
+	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
 
 	XMFLOAT2 sWposOff = { sWpos.x + 50.0f, sWpos.y + 50.0f };
 	XMFLOAT2 dWposOff = { dWpos.x + 50.0f, dWpos.y + 50.0f };
@@ -435,8 +437,8 @@ bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & destination)
 {
 	using namespace DirectX;
-	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * source.getX()].worldPos;
-	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * destination.getX()].worldPos;
+	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
+	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
 
 	XMFLOAT2 sWposOff = { sWpos.x + 40.0f, sWpos.y + 40.0f };
 	XMFLOAT2 dWposOff = { dWpos.x + 40.0f, dWpos.y + 40.0f };
@@ -471,6 +473,23 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 
 
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
+}
+
+void Grid::_removeAllCenterTiles(std::vector<Node*>& roomNodePath)
+{
+	int size = roomNodePath.size();
+
+	for (int i = 1; i < size - 1; i++)
+	{
+		if (roomNodePath[i]->tile.getX() % 2 == 0 && roomNodePath[i]->tile.getY() % 2 == 0 ||
+			!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
+		{
+			// This is a center tile
+			roomNodePath.erase(roomNodePath.begin() + i);
+		}
+		size = roomNodePath.size();
+	}
+
 }
 
 Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap)
@@ -512,7 +531,7 @@ Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile
 
 	float distance = 99999.9f;
 
-	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * tileInNodeMap.getX()].worldPos;
+	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * 9].worldPos;
 	DirectX::XMVECTOR vSWpos = DirectX::XMVectorSet(sWpos.x, sWpos.y, 0.0f, 0.0f);
 
 	Tile center;
@@ -542,15 +561,9 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 		Grid::TilePair tp;
 		auto wpS = roomNodes->at(i)->worldPos;
 		auto wpD = roomNodes->at(i + 1)->worldPos;
-		
-		
-		// TODO :: BOTH THIS MAY BE UN-PATH-ABLE due to props being in the middle of the room :(
+				
 		tp.source = WorldPosToTile(wpS.x, wpS.y);
 		tp.destination = WorldPosToTile(wpD.x, wpD.y);
-
-
-
-
 
 		gtp.push_back(tp);
 	}

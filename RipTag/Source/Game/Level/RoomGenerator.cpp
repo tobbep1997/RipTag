@@ -94,29 +94,54 @@ void RoomGenerator::_generateGrid()
 					m_generated_assetVector.push_back(asset);
 					break;
 				}
-				/*if (col)
+				if (col)
 				{
 					col = true;
-				}*/
+				}
 			}
-			/*for (int a = 0; a < 5; a++)
+			/*bool col = false;
+			Node node = m_generatedGrid->GetWorldPosFromIndex(i + j * iterationsWidth);
+			float changeX = 0;
+			float changeY = 0;
+			bool placed = false;
+			int index = i + j * iterationsWidth;
+			for (int a = 0; a < 5; a++)
 			{
 				changeY = 0.0f;
 				for (int b = 0; b < 5; b++)
 				{
 					col = false;
+					for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
+					{
+						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 1, node.worldPos.y + changeY))))
+						{
+							col = true;
+						}
+						if (col)
+						{
+							m_generatedGrid->BlockGridTile(index, false);
+							placed = true;
+							Manager::g_meshManager.loadStaticMesh("FLOOR");
+							Manager::g_textureManager.loadTextures("CANDLE");
+							asset = DBG_NEW BaseActor();
+							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+							asset->setTexture(Manager::g_textureManager.getTexture("CANDLE"));
+							asset->setTextureTileMult(m_roomWidth, m_roomDepth);
+							asset->setPosition(node.worldPos.x, 1.5, node.worldPos.y, false);
+							asset->p_createBoundingBox(DirectX::XMFLOAT3(1, 1, 1));
+							m_generated_assetVector.push_back(asset);
+							break;
+
+						}
+					}
 					changeY += 0.2;
 					if (col)
 						break;
 				}
 				if (col)
 					break;
-				
+
 				changeX += 0.2;
-			}
-			if (!node.tile.getPathable())
-			{
-				
 			}*/
 		}
 	}
@@ -125,8 +150,8 @@ void RoomGenerator::_generateGrid()
 	delete base;
 
 	Tile s, d;
-	s = m_generatedGrid->WorldPosToTile(-48, -48);
-	d = m_generatedGrid->WorldPosToTile(48, 48);
+	s = m_generatedGrid->WorldPosToTile(-49, -49);
+	d = m_generatedGrid->WorldPosToTile(49, 49);
 
 	m_generatedGrid->FindPath(s, d);
 
