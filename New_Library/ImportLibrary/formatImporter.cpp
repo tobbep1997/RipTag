@@ -494,11 +494,10 @@ namespace ImporterLibrary
 			//std::cout << gridPos->nrOf << std::endl;
 			for (int i = 0; i < gridPos->nrOf; i++)
 			{
-				
 				customGridFile.read((char*)&gridPos->gridPoints[i].pathable, sizeof(bool));
 				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float) * 3);
-				//autoLol.push_back(DirectX::XMFLOAT3(gridPos->gridPoints[i].translation));
-				//aut.push_back((int)gridPos->gridPoints[i].pathable);
+				customGridFile.read((char*)&gridPos->gridPoints[i].guardpathConnection, sizeof(int));
+				customGridFile.read((char*)&gridPos->gridPoints[i].guardPathIndex, sizeof(int));
 			}
 			customGridFile.close();
 		}

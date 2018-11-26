@@ -21,6 +21,8 @@ namespace ImporterLibrary
 	{
 		bool pathable;
 		float translation[3];
+		int guardpathConnection;
+		int guardPathIndex;
 	};
 	struct GuardStartingPositions {
 		int nrOf;
