@@ -38,7 +38,7 @@ public:
 
 	void Print();
 	void DrawConnections();
-
+	void drawEachRoom();
 private:
 	void _insertRooms(int count);
 	void _connectRooms();
