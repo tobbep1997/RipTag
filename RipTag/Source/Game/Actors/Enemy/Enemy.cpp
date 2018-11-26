@@ -235,13 +235,13 @@ void Enemy::ClientUpdate(double deltaTime)
 				m_visCounter = 0;
 			}
 		}
+		setLiniearVelocity(0, 0, 0);
 	}
 
 	handleStatesClient(deltaTime);
 
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
-	setLiniearVelocity(0, 0, 0);
 
 	if (pEmitter)
 	{
@@ -256,6 +256,12 @@ void Enemy::ClientUpdate(double deltaTime)
 
 	if (state == AIState::Possessed)
 	{
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+
 		this->sendNetworkUpdate();
 	}
 	

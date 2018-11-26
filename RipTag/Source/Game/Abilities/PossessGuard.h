@@ -39,5 +39,9 @@ private:
 
 	void _logic(double deltaTime);
 	void _sendOverNetwork(bool state, Enemy * ptr);
+
+	void _hitEnemy();
+	void _isPossessing(double dt);
+	void _onCooldown(double dt);
 };
 
