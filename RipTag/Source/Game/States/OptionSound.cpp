@@ -60,7 +60,10 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-
+						if (GamePadHandler::IsRightDpadPressed())
+							m_master++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_master--;
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -92,7 +95,10 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-
+						if (GamePadHandler::IsRightDpadPressed())
+							m_effects++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_effects--;
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -123,7 +129,10 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-
+						if (GamePadHandler::IsRightDpadPressed())
+							m_ambient++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_ambient--;
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -155,7 +164,10 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-
+						if (GamePadHandler::IsRightDpadPressed())
+							m_music++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_music--;
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -216,10 +228,10 @@ void OptionSound::_slide()
 
 void OptionSound::_initButtons()
 {
-	m_text.push_back(Quad::CreateButton("Master", 0.5f, 0.86f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("Master", 0.5f, 0.86f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderMaster]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderMaster]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderMaster]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderMaster]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderMaster]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderMaster]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderMaster]->setString("Master Volume: " + std::to_string(m_master));
@@ -232,10 +244,10 @@ void OptionSound::_initButtons()
 	m_buttons[ButtonOrder::SliderMaster]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("Effects", 0.5f, 0.71f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("Effects", 0.5f, 0.71f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderEffects]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderEffects]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderEffects]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderEffects]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderEffects]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderEffects]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderEffects]->setString("Effects Volume: " + std::to_string(m_effects));
@@ -247,10 +259,10 @@ void OptionSound::_initButtons()
 	m_buttons[ButtonOrder::SliderEffects]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("Ambient: ", 0.5f, 0.56f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("Ambient: ", 0.5f, 0.56f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderAmbient]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderAmbient]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderAmbient]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderAmbient]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderAmbient]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderAmbient]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderAmbient]->setString("Ambient Volume: " + std::to_string(m_ambient));
@@ -262,10 +274,10 @@ void OptionSound::_initButtons()
 	m_buttons[ButtonOrder::SliderAmbient]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("Music: ", 0.5f, 0.41f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("Music: ", 0.5f, 0.41f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderMusic]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderMusic]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderMusic]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderMusic]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderMusic]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderMusic]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderMusic]->setString("Music Volume: " + std::to_string(m_music));
@@ -311,12 +323,14 @@ void OptionSound::_handleGamePadInput(double dt)
 			m_liu = Gamepad;
 			dir = -1;
 			timer = 0.0;
+			m_sliderPressed = false;
 		}
 		else if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f))
 		{
 			m_liu = Gamepad;
 			dir = 1;
 			timer = 0.0;
+			m_sliderPressed = false;
 		}
 
 		m_currentButton += dir;
@@ -333,7 +347,15 @@ void OptionSound::_handleGamePadInput(double dt)
 		{
 			m_liu = Gamepad;
 			if (m_buttons[m_currentButton]->isSelected())
+			{
 				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+				m_buttonPressed = true;
+				if (m_currentButton != Return)
+				{
+					this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
+					m_sliderPressed = true;
+				}
+			}
 		}
 		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
 	}
@@ -378,8 +400,9 @@ void OptionSound::_handleKeyboardInput(double dt)
 		{
 			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
 			m_buttonPressed = true;
-			if (m_currentButton =! Return)
+			if (m_currentButton != Return)
 			{
+				this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
 				m_sliderPressed = true;
 			}
 		}
@@ -440,6 +463,23 @@ void OptionSound::_updateSelectionStates()
 	m_buttonPressed = false;
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
+		if (i == SliderMaster || i == SliderEffects || i == SliderAmbient || i == SliderMusic)
+		{
+			if (i != m_currentButton)
+			{
+				m_text[i]->Select(false);
+				m_text[i]->setState(ButtonStates::Normal);
+			}
+			else
+			{
+				if (!m_text[i]->isSelected()
+					&& (m_text[i]->getState() != (unsigned int)ButtonStates::Pressed)
+					)
+				{
+					m_text[i]->setState(ButtonStates::Hover);
+				}
+			}
+		}
 		if (i != m_currentButton)
 		{
 			m_buttons[i]->Select(false);
