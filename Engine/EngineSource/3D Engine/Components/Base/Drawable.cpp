@@ -282,7 +282,7 @@ void Drawable::Draw()
 		{
 		case Static:
 			if (m_staticMesh)
-				DX::al_qaeda_isis.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
+				DX::g_cullQueue.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
 			if (getEntityType() == EntityType::PlayerType)
 			{
 				DX::g_player = this;

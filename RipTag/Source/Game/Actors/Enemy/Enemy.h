@@ -48,6 +48,7 @@ private:
 		DirectX::XMFLOAT2 middleTarget = { 0.0f,0.0f };
 	};
 	unsigned int uniqueID;
+	int m_rayId = -100;
 
 	lerpVal m_lv;
 	AudioVars m_av;
@@ -59,6 +60,7 @@ private:
 	bool m_inputLocked = true;
 	bool m_disabled = false;
 	bool m_released = false; 
+	bool m_lockedByClient = false;
 
 	bool m_justReleased = false; 
 
@@ -145,6 +147,12 @@ private:
 
 	Player * m_PlayerPtr		= nullptr;
 	RemotePlayer * m_RemotePtr	= nullptr;
+
+	int m_guardUniqueIndex = -1;
+
+	int m_interactRayId = -100;
+
+	ParticleEmitter * pEmitter = nullptr;
 public:
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
@@ -165,6 +173,8 @@ public:
 	void ClientUpdate(double deltaTime);
 	virtual void PhysicsUpdate(double deltaTime);
 
+	void Draw() override;
+
 	//Depending on the culling, this can cancel the queue
 	void QueueForVisibility();
 
@@ -181,12 +191,11 @@ public:
 
 	void setPossessor(Player* possessor, float maxDuration, float delay);
 	void removePossessor();
-
 	//0 is Stoned, 1 is exit-possess cooldown
 	void setKnockOutType(KnockOutType knockOutType);
 
 	void setReleased(bool released);
-
+	bool ClientLocked() { return m_lockedByClient; }
 
 	void setSoundLocation(const SoundLocation & sl);
 	void setSoundLocationRemote(const SoundLocation & sl) { m_slRemote = sl; };
@@ -222,10 +231,17 @@ public:
 
 	//Network
 	void onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet);
+	void onNetworkPossessed(Network::ENTITYSTATEPACKET * packet);
+	void onNetworkDisabled(Network::ENTITYSTATEPACKET * packet);
+
 	void sendNetworkUpdate();
 
 	float getTotalVisibility();
 	float getMaxVisibility();
+
+	int GetGuardUniqueIndex();
+	void SetGuardUniqueIndex(const int & index);
+	const int getInteractRayId();
 private:
 
 	void _handleInput(double deltaTime);

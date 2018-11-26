@@ -21,6 +21,7 @@ private:
 	float			m_duration;
 	bool			m_useFunctionCalled;
 	Quad *			m_possessHud;
+	int m_rayId = -100;
 public:
 	PossessGuard(void * owner = nullptr);
 	~PossessGuard();
@@ -37,5 +38,10 @@ public:
 private:
 
 	void _logic(double deltaTime);
+	void _sendOverNetwork(bool state, Enemy * ptr);
+
+	void _hitEnemy();
+	void _isPossessing(double dt);
+	void _onCooldown(double dt);
 };
 

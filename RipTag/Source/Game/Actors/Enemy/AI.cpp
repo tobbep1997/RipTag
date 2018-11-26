@@ -166,6 +166,35 @@ void AI::handleStates(const double deltaTime)
 	}
 }
 
+void AI::handleStatesClient(const double deltaTime)
+{
+	switch (m_transState)
+	{
+	case AITransitionState::BeingDisabled:
+		_onBeingDisabled();
+		break;
+	case AITransitionState::ExitingDisable:
+		_onExitingDisabled();
+		break;
+	case AITransitionState::BeingPossessed:
+		_onBeingPossessed();
+		break;
+	case AITransitionState::ExitingPossess:
+		_onExitingPossessed();
+		break;
+	}
+
+	switch (m_state)
+	{
+	case AIState::Disabled:
+		_disabled(deltaTime);
+		break;
+	case AIState::Possessed:
+		_possessed(deltaTime);
+		break;
+	}
+}
+
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
@@ -298,6 +327,11 @@ void AI::_onBeingPossessed()
 
 void AI::_onBeingDisabled()
 {
+	///Set knocked animation
+	auto animationPlayer = m_owner->getAnimationPlayer();
+	if (animationPlayer)
+		animationPlayer->GetStateMachine()->SetState("knocked_state");
+
 	m_owner->DisableEnemy();
 	m_owner->m_knockOutType = Enemy::KnockOutType::Stoned;
 	this->m_state = AIState::Disabled;
@@ -317,6 +351,11 @@ void AI::_onExitingPossessed()
 
 void AI::_onExitingDisabled()
 {
+	///Exit knocked state
+	auto animationPlayer = m_owner->getAnimationPlayer();
+	if (animationPlayer)
+		animationPlayer->GetStateMachine()->SetState("walk_state");
+
 	m_owner->m_disabled = false;
 	m_owner->m_released = false;
 	m_owner->m_possesionRecoverTimer = 0;
@@ -423,7 +462,7 @@ void AI::_investigatingRoom(const double deltaTime)
 	{
 		//this->setTransitionState(EnemyTransitionState::Alerted);
 	}
-	else if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
+	if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
 	{
 		this->m_transState = AITransitionState::ReturnToPatrol;
 	}
@@ -522,6 +561,8 @@ void AI::_scanningArea(const double deltaTime)
 	//Do animation
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
+		if (m_searchTimer != 0)
+			m_searchTimer += m_actTimer;
 		this->m_transState = AITransitionState::SearchArea;
 	}
 }
@@ -796,7 +837,7 @@ void AI::_Move(Node * nextNode, double deltaTime)
 
 bool AI::_MoveTo(Node* nextNode, double deltaTime)
 {
-	
+	//std::cout << "\r" << m_owner->getPosition().x << " " << m_owner->getPosition().z << std::endl;
 	m_owner->_playFootsteps(deltaTime);
 	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.0f && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.0f)
 	{

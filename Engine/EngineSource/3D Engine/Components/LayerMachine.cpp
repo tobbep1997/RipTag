@@ -86,6 +86,13 @@ void LayerMachine::ActivateLayer( std::string layerName, float loopCount)
 	}
 }
 
+Pose1DLayer* LayerMachine::Add1DPoseLayer(std::string layerName, float* driver, float min, float max, std::vector<std::pair<Animation::SkeletonPose*, float>> poses)
+{
+	auto layer = new Pose1DLayer(layerName, driver, min, max, poses, this);
+	m_Layers.insert(std::make_pair(layerName, static_cast<LayerState*>(layer)));
+	return layer;
+}
+
 void LayerMachine::PopLayer(LayerState* state)
 {
 	auto it = std::find(m_ActiveLayers.begin(), m_ActiveLayers.end(), state);
@@ -300,4 +307,126 @@ void BasicLayer::_updateDriverWeight()
 		: 1.0f;
 
 	m_CurrentDriverWeight = std::clamp(m_CurrentDriverWeight, 0.0f, 1.0f);
+}
+
+PoseLayer::PoseLayer(std::string name, Animation::SkeletonPose* pose, LayerMachine* owner)
+	: LayerState(name, 0.0f, 0.0f, owner)
+{
+	m_Pose = new Animation::SkeletonPose();
+	*m_Pose = Animation::MakeSkeletonPose(*pose, m_OwnerMachine->GetSkeletonJointCount());
+}
+
+PoseLayer::~PoseLayer()
+{
+	if (m_Pose)
+		delete m_Pose;
+}
+
+std::optional<Animation::SkeletonPose> PoseLayer::UpdateAndGetFinalPose(float deltaTime)
+{
+	_updateDriverWeight();
+
+	if (!LayerState::IsPopped())
+	{
+		if (m_CurrentDriverWeight >= 0.0f || m_CurrentDriverWeight < 0.9999f)
+		{
+			auto pose = Animation::MakeSkeletonPose(*m_Pose, m_OwnerMachine->GetSkeletonJointCount());
+			Animation::AnimationPlayer::_ScalePose(&pose, m_CurrentDriverWeight, m_OwnerMachine->GetSkeletonJointCount());
+			return std::move(pose);
+		}
+		else return Animation::MakeSkeletonPose(m_CurrentDriverWeight, m_OwnerMachine->GetSkeletonJointCount());
+	}
+
+	return std::nullopt;
+}
+
+void PoseLayer::MakeDriven(float* driver, float min, float max)
+{
+	m_Driver = driver;
+	m_DriverMin = min;
+	m_DriverMax = max;
+}
+
+void PoseLayer::_updateDriverWeight()
+{
+	m_CurrentDriverWeight = m_Driver
+		? (*m_Driver - m_DriverMin) / (m_DriverMax - m_DriverMin)
+		: 1.0f;
+
+	m_CurrentDriverWeight = std::clamp(m_CurrentDriverWeight, 0.0f, 1.0f);
+}
+
+Pose1DLayer::Pose1DLayer(std::string name, float * driver, float min, float max, std::vector<std::pair<Animation::SkeletonPose*, float>> poses, LayerMachine * owner)
+	: LayerState(name, 0.0f, 0.0f, owner), m_Driver(driver), m_DriverMin(min), m_DriverMax(max)
+{
+	for (auto& pose : poses)
+	{
+		std::pair<Animation::SkeletonPose*, float> pair{};
+		pair.first = new Animation::SkeletonPose;
+		*pair.first = Animation::MakeSkeletonPose(*pose.first, m_OwnerMachine->GetSkeletonJointCount());
+		pair.second = pose.second;
+		m_Poses.push_back(pair);
+	}
+}
+
+Pose1DLayer::~Pose1DLayer()
+{
+	for (auto& pair : m_Poses)
+	{
+		if (pair.first)
+		{
+			delete pair.first;
+		}
+	}
+}
+
+std::optional<Animation::SkeletonPose> Pose1DLayer::UpdateAndGetFinalPose(float deltaTime)
+{
+	auto posesAndWeight = GetPosesAndWeight(deltaTime);
+
+	if (posesAndWeight.firstPose)
+		return Animation::AnimationPlayer::_BlendSkeletonPoses(
+			posesAndWeight.firstPose,
+			posesAndWeight.secondPose,
+			posesAndWeight.weight,
+			m_OwnerMachine->GetSkeletonJointCount());
+
+	else return Animation::MakeSkeletonPose(
+		*posesAndWeight.secondPose,
+		m_OwnerMachine->GetSkeletonJointCount());
+}
+
+float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
+
+Pose1DLayer::PosesAndWeight Pose1DLayer::GetPosesAndWeight(float deltaTime)
+{
+	float driverDelta = std::clamp(std::fabs(m_LastDriver - *m_Driver), .1f, 5.f);
+	float smoothDriver = lerp(m_LastDriver, *m_Driver, driverDelta * deltaTime);
+	m_LastDriver = smoothDriver;
+
+	auto secondPoseIt = std::find_if(m_Poses.begin(), m_Poses.end(),
+		[&](const auto& pair) { return pair.second >= smoothDriver; });
+
+	if (secondPoseIt == std::end(m_Poses))
+		return { nullptr, (m_Poses.end() - 1)->first, 1.0f };
+
+	else if (secondPoseIt == std::begin(m_Poses))
+		return { nullptr, m_Poses.begin()->first, 1.0f };
+
+	else
+	{
+		auto firstPoseIt = secondPoseIt - 1;
+		const float firstFloat = firstPoseIt->second;
+		const float secondFloat = secondPoseIt->second;
+
+		assert(firstFloat <= smoothDriver && secondFloat >= smoothDriver);
+
+		float weight = (smoothDriver - firstFloat) / (secondFloat - firstFloat);
+		m_LastDriver = smoothDriver;
+
+		return { firstPoseIt->first, secondPoseIt->first, weight };
+	}
 }

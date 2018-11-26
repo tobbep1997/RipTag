@@ -55,7 +55,7 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	RipExtern::g_kill = false;
+	
 	if (runGame)
 	{
 		InputMapping::Call();
@@ -88,6 +88,8 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 
 		Network::Multiplayer::HandlePackets();
+		RipExtern::g_kill = false;
+
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 		m_playerManager->PhysicsUpdate();
@@ -121,6 +123,11 @@ void PlayState::Update(double deltaTime)
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
+			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
+			{
+				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+			}
+
 			if (isCoop && m_youlost)
 				_sendOnGameOver();
 
@@ -149,7 +156,6 @@ void PlayState::Update(double deltaTime)
 		{
 			InputHandler::setShowCursor(true);
 		}
-
 		//Start Physics thread
 		if (RipExtern::g_kill == false)
 		{
@@ -242,14 +248,13 @@ void PlayState::_PhyscisThread(double deltaTime)
 		m_timer += m_deltaTime;
 		
 		RipExtern::g_contactListener->ClearContactQueue();
-		RipExtern::g_rayListener->ClearConsumedContacts();
 
 		while (m_timer >= UPDATE_TIME)
 		{
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		
+		RipExtern::g_rayListener->ShotRays();
 		m_physRunning = false;
 	}
 }
@@ -292,27 +297,33 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
+
+							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
+							{
+								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+								RayCastListener::RayContact* c;
+								for (int i = 0; i < ray->getNrOfContacts(); i++)
+								{
+									c = ray->GetRayContact(i);
+									std::string tag = c->contactShape->GetBody()->GetObjectTag();
+									if (tag == "WORLD" || tag == "NULL")
+									{
+										occ *= 0.15f;
+									}
+									else if (tag == "BLINK_WALL")
+									{
+										occ *= 0.50f;
+									}
+								}
+							}
+
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
 								DirectX::XMFLOAT4A soundDirNormalized;
 								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 
-								RayCastListener::Ray * ray = RipExtern::g_rayListener->ShotRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
-								if (ray)
-								{
-									for (auto & c : ray->GetRayContacts())
-									{
-										std::string tag = c->contactShape->GetBody()->GetObjectTag();
-										if (tag == "WORLD" || tag == "NULL")
-										{
-											occ *= 0.15f;
-										}
-										else if (tag == "BLINK_WALL")
-										{
-											occ *= 0.50f;
-										}
-									}
-								}
+								if(m_rayId == -100)
+									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							}
 							
 

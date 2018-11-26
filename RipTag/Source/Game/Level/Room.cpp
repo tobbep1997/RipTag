@@ -166,10 +166,16 @@ void Room::LoadRoomToMemory()
 		delete tempLights.lights;
 
 		if (m_grid)
+		{
 			delete m_grid;
+			m_grid = nullptr;
+		}
+
+		//Reading grid and converts it pathfinding grid
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
 		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
 
+		
 		m_roomLoaded = true;
 
 		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
@@ -178,48 +184,153 @@ void Room::LoadRoomToMemory()
 		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1] +1 , player1Start.startingPos[2], 1.0f);
 		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1] + 1, player2Start.startingPos[2], 1.0f);
 
-		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		
 
 		ImporterLibrary::PropItemToEngine tempProps = fileLoader.readPropsFile(this->getAssetFilePath());
 		
 		placeRoomProps(tempProps);
 		delete tempProps.props;
 
-		for (int i = 0; i < tempGuards.nrOf; i++)
+		//---------------------------------------------------------------------------------------------------------------------------------------------//
+		/*
+		 *	Start of creating guards and giving them paths
+		 */
+		 //---------------------------------------------------------------------------------------------------------------------------------------------//
+
+		//Takes all the grid points related to the pathfinding and push it into vector
+		//This will reduce the amount of nodes we need to search later
+		std::vector<ImporterLibrary::GridPointStruct> nodes;
+		for (unsigned int i = 0; i < m_grid->nrOf; ++i)
 		{
-			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+			if (m_grid->gridPoints[i].guardpathConnection != -1)
+			{
+				nodes.push_back(m_grid->gridPoints[i]);
+			}
+
+		}
+		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		std::vector<int> uniqueID;
+		for (unsigned int i = 0; i < nodes.size(); ++i)
+		{
+			//Make sure we only create guards of a unique id
+			bool noDupe = true;
+			for (unsigned int j = 0; j < uniqueID.size(); ++j)
+			{
+				if (nodes.at(i).guardpathConnection == uniqueID.at(j))
+				{
+					noDupe = false;
+					break;
+				}
+			}
+
+			//Push back non dublicates
+			if (noDupe == true)
+			{
+				uniqueID.push_back(nodes.at(i).guardpathConnection);
+			}
+
+		}
+
+
+		for (unsigned int i = 0; i < uniqueID.size(); ++i)
+		{
+			//Filling the vector with correct nodes.
+			//aka related to the guard
+			std::vector<ImporterLibrary::GridPointStruct> tempNodes;
+			for (unsigned int j = 0; j < nodes.size(); ++j)
+			{
+				if (uniqueID.at(i) == nodes.at(j).guardpathConnection)
+				{
+					tempNodes.push_back(nodes.at(j));
+				}
+			}
+			//Getting the first node in the path to set the position
+			//Edit: this could be done after bubble sort to avoid 1 for loop
+			float pos[3];
+			for (unsigned int j = 0; j < tempNodes.size(); ++j)
+			{
+				if (tempNodes.at(j).guardPathIndex == 0)
+				{
+					pos[0] = tempNodes.at(j).translation[0];
+					pos[1] = tempNodes.at(j).translation[1];
+					pos[2] = tempNodes.at(j).translation[2];
+				}
+			}
+
+			//Bubble sort the nodes.
+			//This is to ensure the integrity of the path
+			bool sorted = false;
+			while (false == sorted)
+			{
+				sorted = true;
+				for (int i = 0; i < tempNodes.size() - 1; ++i)
+				{
+					if (tempNodes[i].guardPathIndex > tempNodes[i + 1].guardPathIndex)
+					{
+						sorted = false;
+						ImporterLibrary::GridPointStruct swap = tempNodes[i];
+						tempNodes[i] = tempNodes[i + 1];
+						tempNodes[i + 1] = swap;
+
+					}
+				}
+
+			}
+
+			//Createing the guard in the world
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], tempGuards.startingPositions[i].startingPos[1], pos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
+			e->SetGuardUniqueIndex(uniqueID.at(i));
+
+			//Getting the first path length to fill fullPath
+			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
+			Tile temp2 = m_pathfindingGrid->WorldPosToTile(tempNodes.at(1).translation[0], tempNodes.at(1).translation[2]);
+			std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(temp,temp2);
+			for (unsigned int j = 1; j < tempNodes.size()-1; ++j)
+			{
+				//Gluing the rest of the paths.
+				Tile uno = m_pathfindingGrid->WorldPosToTile(tempNodes.at(j).translation[0], tempNodes.at(j).translation[2]);
+				Tile duo = m_pathfindingGrid->WorldPosToTile(tempNodes.at(j+1).translation[0], tempNodes.at(j+1).translation[2]);
+				std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(uno, duo);
+				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+			}
+			//Setting guard patrol path
+			e->SetPathVector(fullPath);
+			//Pushing guard to vector
 			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;
-
+		//---------------------------------------------------------------------------------------------------------------------------------------------//
 		/*
-			Test paths for guard on bottom floor
-		*/
-		// 0, 0 -> 5, 0
-		// 0, 0 -> 5, 0
-		std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
-		// 5, 0 -> 5, 10
-		std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-		// 5, 10 -> 0, 10
-		partOfPath = m_pathfindingGrid->FindPath(Tile(5, 10), Tile(0, 10));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
-		// 0, 10 -> 0, 0
-		partOfPath = m_pathfindingGrid->FindPath(Tile(0, 10), Tile(0, 0));
-		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-		partOfPath.clear();
+		 *	end of creating guards and giving them paths. 
+		 */
+		 //---------------------------------------------------------------------------------------------------------------------------------------------//
 
-		m_roomGuards.at(1)->SetPathVector(fullPath);
-
-		m_roomGuards.at(0)->SetPathVector(m_pathfindingGrid->FindPath(Tile(0, 0), Tile(0, 1)));
-
-		//getPath();
+		//DEBUG NODE 
+		//Manager::g_meshManager.loadStaticMesh("FLOOR");
+		//Manager::g_textureManager.loadTextures("FLOOR");
+		//Manager::g_meshManager.loadStaticMesh("FLOOR");
+			//Manager::g_textureManager.loadTextures("FLOOR");
+			//for (unsigned int i = 0; i < m_grid->maxY; ++i)
+			//{
+			//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
+			//	{
+			//		int index = i + j * m_grid->maxY;
+			//		if (m_grid->gridPoints[index].pathable == true)
+			//		{
+			//			BaseActor * b = DBG_NEW BaseActor();
+			//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+			//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
 
 
+			//			//m_pathfindingGrid->
+			//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
+			//			m_staticAssets.push_back(b);
+			//		}
+			//	}
+			//}
+	
 		//Tartillbaka Hela rum
 	/*	if (m_roomIndex != 8 && m_roomIndex != 0 && m_roomIndex != 1)
 		{
@@ -291,32 +402,7 @@ void Room::loadTriggerPairMap()
 
 void Room::Update(float deltaTime, Camera * camera)
 {
-	/*for (size_t i = 0; i < m_roomGuards.size(); i++)
-	{
-		this->m_roomGuards.at(i)->Update(deltaTime);
-		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
-		this->m_roomGuards.at(i)->QueueForVisibility();
-		this->m_roomGuards.at(i)->_IsInSight();
-		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
-		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
-	}
-	int endvis = 0;
-	
-	
 
-	for (int i = 0; i < vis.size(); ++i)
-	{
-		
-		if (vis.at(i)[0] >= 1)
-		{
-			endvis += vis.at(i)[0];
-		}
-	}
-	m_playerInRoomPtr->SetCurrentVisability(endvis);
-	
-	vis.clear();*/
-	
-	
 	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler->Update(deltaTime);
 
@@ -377,10 +463,8 @@ void Room::Draw()
 		m_staticAssets.at(i)->Draw();
 	}
 	
+	m_enemyHandler->Draw();
 
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
-		this->m_roomGuards.at(i)->Draw();
-	
 	triggerHandler->Draw();
 
 	if (m_youLost)
@@ -447,6 +531,7 @@ void Room::Release()
 		for (int i = 0; i < m_pointLights.size(); i++)
 		{
 			delete m_pointLights[i];
+			m_pointLights[i] = nullptr;
 		}
 
 		triggerHandler->Release();
@@ -602,13 +687,13 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);	//set True
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom); //set True
 			break;
 		case(23):
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);

@@ -32,6 +32,8 @@ public:
 	//Types: 0 = Server; 1 = Client, 2 = SinglePlayer
 
 	void Update(float deltaTime);
+	void Draw();
+
 	void HandlePacket(unsigned char id, unsigned char * data);
 
 private:
@@ -46,4 +48,6 @@ private:
 
 	//network
 	void _onVisibilityPacket(Network::VISIBILITYPACKET * data);
+	void _onPossessedPacket(Network::ENTITYSTATEPACKET * data);
+	void _onDisabledPacket(Network::ENTITYSTATEPACKET * data);
 };

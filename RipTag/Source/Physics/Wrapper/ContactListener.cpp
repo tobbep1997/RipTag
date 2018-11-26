@@ -4,59 +4,66 @@
 
 ContactListener::ContactListener()
 {
+	endContacts.reserve(MAX_CONTACTS);
+	endContacts.resize(MAX_CONTACTS);
+	startContacts.reserve(MAX_CONTACTS);
+	startContacts.resize(MAX_CONTACTS);
 }
 
 
 ContactListener::~ContactListener()
 {
+	startContacts.clear();
+	endContacts.clear();
 }
 
 void ContactListener::BeginContact(b3Contact* contact)
 {
-	m_beginContacts.push_back(contact);
+	startContacts.at(m_nrOfBeginContacts).Copy(contact);
+	m_nrOfBeginContacts++;
 }
 void ContactListener::EndContact(b3Contact* contact)
 {
-	m_endContacts.push_back(S_EndContact(contact));
-	m_endShapesA.push_back(contact->GetShapeA());
-	m_endShapesB.push_back(contact->GetShapeB());
+	endContacts.at(m_nrOfEndContacts).Copy(contact);
+	m_nrOfEndContacts++;
 }
 void ContactListener::Persisting(b3Contact* contact)
 {
-	m_persistingContacts.push_back(contact);
+
 }
 
-std::vector<b3Contact*> ContactListener::GetBeginContacts()
+ContactListener::S_Contact ContactListener::GetBeginContact(unsigned int pos)
 {
-	return m_beginContacts;
+	return startContacts.at(pos);
 }
 
-std::vector<ContactListener::S_EndContact> ContactListener::GetEndContacts()
+ContactListener::S_Contact ContactListener::GetEndContact(unsigned int pos)
 {
-	return m_endContacts;
+	return endContacts.at(pos);
 }
 
 
-std::vector<b3Contact*> ContactListener::GetPersistingContacts()
+unsigned int ContactListener::GetNrOfEndContacts()
 {
-	return m_persistingContacts;
+	return m_nrOfEndContacts;
 }
 
-std::vector<b3Shape*> ContactListener::GetEndShapesA()
+unsigned int ContactListener::GetNrOfBeginContacts()
 {
-	return m_endShapesA;
-}
-
-std::vector<b3Shape*> ContactListener::GetEndShapesB()
-{
-	return m_endShapesB;
+	return m_nrOfBeginContacts;
 }
 
 void ContactListener::ClearContactQueue()
 {
-	m_beginContacts.clear();
-	m_endContacts.clear();
-	m_persistingContacts.clear();
-	m_endShapesA.clear();
-	m_endShapesB.clear();
+	for (int i = 0; i < m_nrOfBeginContacts; i++)
+	{
+		startContacts.at(i).Empty();
+	}
+	m_nrOfBeginContacts = 0;
+
+	for (int i = 0; i < m_nrOfEndContacts; i++)
+	{
+		endContacts.at(i).Empty();
+	}
+	m_nrOfEndContacts = 0;
 }

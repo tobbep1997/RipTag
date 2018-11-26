@@ -3,9 +3,12 @@
 #pragma region "FwdDec"
 class LayerState;
 class BasicLayer;
+class PoseLayer;
+class Pose1DLayer;
 namespace Animation
 {
 	struct Skeleton;
+	struct SkeletonPose;
 	struct AnimationClip;
 }
 #pragma endregion "FwdDec"
@@ -23,6 +26,7 @@ public:
 	void ActivateLayer(std::string layerName);
 	void ActivateLayer(std::string layerName, float loopCount);
 	void Add1DLayer(std::string layerName, float* driver, std::vector<std::pair<float, Animation::AnimationClip*>> nodes);
+	Pose1DLayer* Add1DPoseLayer(std::string layerName, float* driver, float min, float max, std::vector<std::pair<Animation::SkeletonPose*, float>> poses);
 	void PopLayer(LayerState*);
 	void PopLayer(std::string layer);
 	uint16_t GetSkeletonJointCount();
@@ -52,7 +56,7 @@ public:
 		, m_BlendInTime(blendInTime), m_BlendOutTime(blendOutTime)
 	{}
 
-	~LayerState();
+	virtual ~LayerState();
 
 	void BlendOut();
 	void PopOnFinish();
@@ -95,7 +99,7 @@ class BasicLayer : public LayerState
 public:
 	BasicLayer(std::string name, Animation::AnimationClip* clip, float blendInTime, float blendOutTime, LayerMachine* owner);
 
-	~BasicLayer();
+	virtual ~BasicLayer();
 
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) override;
 
@@ -112,4 +116,57 @@ private:
 	void _updateDriverWeight();
 };
 
+class PoseLayer : public LayerState
+{
+public:
+	PoseLayer(std::string name, Animation::SkeletonPose* pose, LayerMachine* owner);
+	virtual ~PoseLayer();
+
+	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) override;
+
+	void MakeDriven(float* driver, float min, float max);
+private:
+	Animation::SkeletonPose* m_Pose{};
+
+	float* m_Driver{ nullptr };
+	float m_CurrentDriverWeight{ 1.0f };
+	float m_DriverMin{ 0.0f };
+	float m_DriverMax{ 0.0f };
+
+	void _updateDriverWeight();
+};
+
+
+class Pose1DLayer : public LayerState
+{
+public:
+	struct PosesAndWeight 
+	{
+		Animation::SkeletonPose* firstPose{ nullptr };
+		Animation::SkeletonPose* secondPose{ nullptr };
+		float weight = 0.0f;
+	};
+	Pose1DLayer(
+		std::string name,
+		float* driver,
+		float min,
+		float max,
+		std::vector<std::pair<Animation::SkeletonPose*, float>> poses,
+		LayerMachine* owner);
+
+	virtual ~Pose1DLayer();
+
+
+	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) override;
+
+private:
+	std::vector<std::pair<Animation::SkeletonPose*, float>> m_Poses{};
+
+	float* m_Driver{ nullptr };
+	float m_LastDriver{ 0.0f };
+	float m_DriverMin{ 0.0f };
+	float m_DriverMax{ 0.0f };
+
+	PosesAndWeight GetPosesAndWeight(float deltaTime);
+};
 #pragma endregion "States"

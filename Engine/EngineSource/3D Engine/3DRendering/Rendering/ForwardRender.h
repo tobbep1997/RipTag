@@ -130,7 +130,7 @@ private:
 	ID3D11DepthStencilState * m_OutlineState;
 	ID3D11DepthStencilState * m_NUKE2;
 
-
+	int shadowRun = 0;
 	
 public:
 	ForwardRender();
@@ -161,6 +161,7 @@ private:
 
 
 	void _GuardFrustumDraw();
+	void _DBG_DRAW_CAMERA(Camera & camera);
 
 	void _simpleLightCulling(Camera & cam);
 	void _GuardLightCulling();

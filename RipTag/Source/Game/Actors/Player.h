@@ -34,11 +34,13 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent, publi
 {
 private: //stuff for state machine
 	friend class PlayState;
-	friend class Enemy; //#todoREMOVE
-	bool m_jumpedThisFrame = false;
+	friend class Enemy;
 	bool m_isInAir = false;
 	float m_currentSpeed = 0.0f; //[0,1]
-	float m_currentDirection = 0.0; //[-1,1]
+	float m_currentDirection = 0.0; //[-180,180], relative to movement
+	float m_currentWorldDirection = 0.0f; //relative to world
+	float m_currentTurnSpeed = 0.0f;
+	float m_lastDirection = 0.0f;
 	static float m_currentPitch;
 private:
 	const DirectX::XMFLOAT4A DEFAULT_UP{ 0.0f, 1.0f, 0.0f, 0.0f };
@@ -46,6 +48,9 @@ private:
 	const float SPRINT_MULT = 2.0f;
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
+
+	const std::string PlayerOneHUDPath = "../Assets/Player1HUD.txt";
+	const std::string PlayerTwoHUDPath = "../Assets/Player2HUD.txt";
 
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
@@ -119,18 +124,10 @@ private:
 
 	int mouseX = 0;
 	int mouseY = 0;
-
-	Quad * m_infoText;
-	Quad * m_abilityTutorialText;
-	Quad * m_tutorialText;
 	
 	QuadPair m_soundLevelHUD;
 	
-
 	Quad * m_cross;
-	std::stack<std::string> m_tutorialMessages;
-	float m_tutorialDuration = 0.0f;
-	bool m_tutorialActive = true;
 	
 	DirectX::XMVECTOR m_VlastSpeed; 
 	DirectX::XMVECTOR m_VcurrentSpeed; 
@@ -161,6 +158,12 @@ private:
 	bool m_MapPicked = false;
 	unsigned int m_rockCounter = 0;
 	const unsigned int MAXROCKS = 5;
+
+	int m_headBobRayId = -100; //HeadBob
+	int m_interactRayId = -100; //interact
+	int m_lastInteractRayId = -100;
+	int m_objectInfoRayId = -100; // objectInfo
+
 public:
 	//Magic number
 	static const int g_fullVisability = 1300;
@@ -183,6 +186,7 @@ public:
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void Draw() override;
+	void DrawHUDComponents();
 
 	//Networking
 	void SendOnUpdateMessage();
@@ -215,6 +219,8 @@ public:
 	TeleportAbility * getTeleportAbility();
 	unsigned int getNrOfRocks();
 	bool GetMapPicked();
+	const int getInteractRayId();
+	const bool sameInteractRayId(int id);
 private:
 	void _collision();
 	void _handleInput(double deltaTime);
@@ -228,7 +234,6 @@ private:
 	void _onInteract();
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
-	void _updateTutorial(double deltaTime);
 	
 	void _updateFirstPerson(float deltaTime);
 	void _cameraPlacement(double deltaTime);
@@ -238,6 +243,10 @@ private:
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
 
+
+	void _loadHUD();
+	void _unloadHUD();
+	void _initSoundHUD();
 	//Cheats, like changing ability set
 	void _cheats();
 };

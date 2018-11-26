@@ -72,7 +72,8 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
-			RipExtern::g_rayListener->ClearConsumedContacts();
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
 			RipExtern::g_contactListener->ClearContactQueue();
 			RipExtern::g_kill = true;
 		}
@@ -91,7 +92,8 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
 
-			RipExtern::g_rayListener->ClearConsumedContacts();
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
 			RipExtern::g_contactListener->ClearContactQueue();
 			RipExtern::g_kill = true;
 		}
@@ -159,8 +161,16 @@ const unsigned short LevelHandler::getNextRoom() const
 
 void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
-	Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
-	room->setLoaded(true);
+	Room * room;
+	if (roomIndex == -1 || true)
+	{
+		room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
+		room->setLoaded(true);
+	}
+	else
+	{
+		room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	}
 	m_rooms.push_back(room);
 
 	//Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);

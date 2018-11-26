@@ -44,6 +44,7 @@ private:
 	RakNet::Time delay;
 
 	bool m_hasHit = false; 
+	bool m_isActive = false; 
 	float m_smokeTimer = 0.0f;
 
 public:
@@ -59,6 +60,8 @@ public:
 	void Update(double deltaTime) override;
 	void UpdateFromNetwork(Network::ENTITYABILITYPACKET * data) override;
 
+	bool getIsActive() const; 
+
 	/* This Function needs to be used before the Update() function */
 	void Use() override;
 
@@ -71,7 +74,7 @@ public:
 private:
 	// Private functions
 	void _logicLocal(double deltaTime, Camera* camera);
-	void _logicRemote(double dt);
+	void _logicRemote(double dt, Camera * camera);
 
 	void _inStateThrowable();
 	void _inStateCharging(double dt);
@@ -79,5 +82,5 @@ private:
 	void _inStateCooldown(double dt);
 	void _inStateRemoteActive(double dt);
 
-	void _sendOnHitNotification();
+	void _sendOnHitNotification(Enemy * ptr);
 };

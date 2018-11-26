@@ -33,9 +33,12 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	{
 		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
 		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
-		auto& machine = getAnimationPlayer()->InitStateMachine(1);
-		auto state = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
-		state->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
+		auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
+		auto& machine = getAnimationPlayer()->InitStateMachine(2);
+		auto walkState = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
+		auto knockState = machine->AddLoopState("knocked_state", knockAnim);
+		knockState->SetBlendTime(.1f);
+		walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
 		machine->SetState("walk_state");
 		this->getAnimationPlayer()->Play();
 
@@ -59,7 +62,9 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
-	
+
+	this->p_camera->setPerspectiv(Camera::Perspectiv::Enemy);
+
 	//setOutline(true);
 }
 
@@ -75,6 +80,12 @@ Enemy::~Enemy()
 		delete drawable;
 	}
 	m_pathNodes.clear();
+	if (pEmitter)
+	{
+		delete pEmitter;
+		pEmitter = nullptr;
+	}
+
 }
 
 void Enemy::setDir(const float & x, const float & y, const float & z)
@@ -147,19 +158,18 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	static double accumulatedTime = 0.0;
-	static const double SEND_AI_PACKET_FREQUENCY = 1.0 / 15.0; 
-
-
 	using namespace DirectX;
 
-	handleStates(deltaTime);
+	if (!m_lockedByClient)
+	{
+		handleStates(deltaTime);
 
-	auto deltaX = getLiniearVelocity().x * deltaTime;
-	auto deltaZ = getLiniearVelocity().z * deltaTime;
-	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
 
-	m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+	}
 
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
@@ -170,17 +180,33 @@ void Enemy::Update(double deltaTime)
 	{
 		m_nodeFootPrintsEnabled = true;
 	}
+
+	if (pEmitter)
+	{
+		if (pEmitter->emitterActiv)
+			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
+		else
+		{
+			delete pEmitter;
+			pEmitter = nullptr;
+		}
+	}
 }
 
 void Enemy::ClientUpdate(double deltaTime)
 {
-	_cameraPlacement(deltaTime);
-	if (getAnimationPlayer())
-		getAnimationPlayer()->Update(deltaTime);
-	setLiniearVelocity(0, 0, 0);
+	using namespace Network;
 
+
+
+	AIState state = getAIState();
+
+	if (state != AIState::Possessed)
+		_cameraPlacement(deltaTime);
 	//Visibility update
+	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
 	{
+
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 		float lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
 
@@ -209,12 +235,48 @@ void Enemy::ClientUpdate(double deltaTime)
 				m_visCounter = 0;
 			}
 		}
+		setLiniearVelocity(0, 0, 0);
 	}
+
+	handleStatesClient(deltaTime);
+
+	if (getAnimationPlayer())
+		getAnimationPlayer()->Update(deltaTime);
+
+	if (pEmitter)
+	{
+		if (pEmitter->emitterActiv)
+			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
+		else
+		{
+			delete pEmitter;
+			pEmitter = nullptr;
+		}
+	}
+
+	if (state == AIState::Possessed)
+	{
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+
+		this->sendNetworkUpdate();
+	}
+	
 }
 
 void Enemy::PhysicsUpdate(double deltaTime)
 {
 	p_updatePhysics(this);
+}
+
+void Enemy::Draw()
+{
+	Drawable::Draw();
+	if (pEmitter)
+		pEmitter->Queue();
 }
 
 void Enemy::QueueForVisibility()
@@ -259,6 +321,35 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 	p_camera->setDirection(packet->camDir);
 }
 
+void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
+{
+	m_lockedByClient = packet->condition;
+	if (!packet->condition)
+	{
+		setTransitionState(AITransitionState::ExitingPossess);
+	}
+}
+
+void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
+{
+	if (getAIState() != AIState::Possessed || m_lockedByClient)
+	{
+		if (packet->condition)
+		{
+			this->setTransitionState(AITransitionState::BeingDisabled);
+			if (pEmitter)
+			{
+				delete pEmitter;
+				pEmitter = nullptr;
+			}
+			pEmitter = new ParticleEmitter();
+			pEmitter->setSmoke();
+			pEmitter->setEmmiterLife(1.5f);
+			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
+		}
+	}
+}
+
 void Enemy::sendNetworkUpdate()
 {
 	Network::ENEMYUPDATEPACKET packet;
@@ -279,6 +370,21 @@ float Enemy::getTotalVisibility()
 float Enemy::getMaxVisibility()
 {
 	return m_visabilityTimer;
+}
+
+int Enemy::GetGuardUniqueIndex()
+{
+	return m_guardUniqueIndex;
+}
+
+void Enemy::SetGuardUniqueIndex(const int& index)
+{
+	m_guardUniqueIndex = index;
+}
+
+const int Enemy::getInteractRayId()
+{
+	return m_interactRayId;
 }
 
 void Enemy::_handleInput(double deltaTime)
@@ -475,7 +581,7 @@ void Enemy::removePossessor()
 
 void Enemy::setKnockOutType(KnockOutType knockOutType)
 {
-	m_knockOutType = knockOutType; 
+	m_knockOutType = knockOutType;
 }
 
 void Enemy::setSoundLocation(const SoundLocation & sl)
@@ -733,46 +839,48 @@ void Enemy::_onSprint()
 
 void Enemy::_onInteract()
 {
+	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
+	{
+		RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
+		RayCastListener::RayContact* con;
+		for (int i = 0; i < ray->getNrOfContacts(); i++)
+		{
+			con = ray->GetRayContact(i);
+			if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
+			{
+				if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+				{
+					//do the pickups
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+				{
+					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				{
+					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					//Snuff out torches (example)
+				}
+				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				{
+
+					//std::cout << "Enemy Found!" << std::endl;
+					//Snuff out torches (example)
+				}
+			}
+		}
+	}
+
 	if (Input::Interact())
 	{
 		if (m_kp.interact == false)
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ShotRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Enemy::INTERACT_RANGE, false);
-			if (ray)
-			{
-				for (RayCastListener::RayContact* con : ray->GetRayContacts())
-				{
-					if (*con->consumeState != 2)
-					{
-						if (con->originBody->GetObjectTag() == getBody()->GetObjectTag())
-						{
-							if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
-							{
-								*con->consumeState += 1;
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
-							{
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-							{
-
-								//std::cout << "Enemy Found!" << std::endl;
-								//Snuff out torches (example)
-							}
-							else if (con->contactShape->GetBody()->GetObjectTag() == "PLAYER")
-							{
-
-								//std::cout << "Player Found!" << std::endl;
-								//Snuff out torches (example)
-							}
-						}
-					}
-				}
-			}
+			if (m_interactRayId == -100)
+				m_interactRayId = RipExtern::g_rayListener->PrepareRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Enemy::INTERACT_RANGE);
 
 			m_kp.interact = true;
 		}
+
 	}
 	else
 	{
@@ -1083,29 +1191,6 @@ void Enemy::_detectTeleportSphere()
 				m_teleportBoundingSphere[i]->Center.y,
 				m_teleportBoundingSphere[i]->Center.z,
 				0.0f));
-
-			//std::cout << "HOLD OP THE PARTNER" << std::endl;
-
-			//TODO: Fix when ray is corrected
-
-			RayCastListener::Ray * r = RipExtern::g_rayListener->ShotRay(PhysicsComponent::getBody(), getPosition(), DirectX::XMFLOAT4A(
-				direction.x,
-				direction.y,
-				direction.z,
-				direction.w),
-				getLenght(getPosition(), DirectX::XMFLOAT4A(
-					direction.x,
-					direction.y,
-					direction.z,
-					direction.w)));
-			if (r)
-			{
-				/*std::cout << "-------------------------------------------------" << std::endl;
-				for (int i = 0; i < r->getNrOfContacts(); i++)
-				{
-					std::cout << r->GetRayContacts()[i]->contactShape->GetBody()->GetObjectTag() << std::endl;
-				}*/
-			}
 		}
 
 	}

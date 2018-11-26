@@ -7,7 +7,10 @@ private:
 	PointLight * pPointLight = nullptr;
 	ParticleEmitter * pParticles = nullptr;
 	Camera * pCamera = nullptr;
-	bool m_hasChecked = false; 
+	bool m_interacted = false;
+
+	FMOD::Channel * m_channel;
+
 public:
 	Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId);
 	~Torch();
@@ -20,7 +23,8 @@ public:
 
 	void setCamera(Camera * ptr) { this->pCamera = ptr; }
 	void setUniqueID(int id) { Trigger::setUniqueId(id); }
+	void handleContact(RayCastListener::RayContact* contact);
 private:
-	void _playSound(AudioEngine::SoundType st = AudioEngine::Player) override;
+	void _playSound(AudioEngine::SoundType st = AudioEngine::Other) override;
 };
 

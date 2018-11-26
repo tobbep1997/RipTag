@@ -40,6 +40,8 @@ private:
 	//for network
 	DirectX::XMFLOAT4A m_lastStart;
 	DirectX::XMFLOAT4A m_lastVelocity;
+	int m_rayId = -100;
+	int m_rayId2 = -100;
 
 	DirectX::BoundingSphere * m_boundingSphere;
 

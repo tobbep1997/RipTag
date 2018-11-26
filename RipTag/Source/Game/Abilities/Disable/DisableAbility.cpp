@@ -41,6 +41,7 @@ void DisableAbility::deleteEffect()
 	if (m_particleEmitter != nullptr)
 	{
 		delete m_particleEmitter;
+		m_particleEmitter = nullptr;
 	}
 }
 
@@ -57,7 +58,7 @@ void DisableAbility::Update(double deltaTime)
 	if (this->isLocal)
 		_logicLocal(deltaTime, camera);
 	else
-		_logicRemote(deltaTime);
+		_logicRemote(deltaTime, camera);
 }
 
 void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -86,12 +87,24 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 	case DisableState::RemoteActive:
 		if ((DisableState)data->state == DisableState::OnHit)
 		{
+			deleteEffect();
+
 			this->setPosition(-999.9f, -999.9f, -999.9f);
 			this->setLiniearVelocity(0.0f, 0.0f, 0.0f);
 			this->m_dState = DisableState::Throwable;
+
+			m_particleEmitter = new ParticleEmitter();
+			m_particleEmitter->setSmoke();
+			m_particleEmitter->setEmmiterLife(1.5f);
+			m_particleEmitter->setPosition(data->start.x, data->start.y + 0.5f, data->start.z);
 		}
 		break;
 	}
+}
+
+bool DisableAbility::getIsActive() const
+{
+	return m_isActive; 
 }
 
 void DisableAbility::Use()
@@ -149,10 +162,15 @@ void DisableAbility::_logicLocal(double deltaTime, Camera* camera)
 
 }
 
-void DisableAbility::_logicRemote(double dt)
+void DisableAbility::_logicRemote(double dt, Camera * camera)
 {
 	if (m_dState == DisableAbility::RemoteActive)
 		this->_inStateRemoteActive(dt);
+
+	if (m_particleEmitter != nullptr)
+	{
+		m_particleEmitter->Update(dt, camera);
+	}
 }
 
 void DisableAbility::_inStateThrowable()
@@ -165,6 +183,7 @@ void DisableAbility::_inStateThrowable()
 			m_dState = DisableAbility::Charging;
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
 		}
 		if (Input::OnAbility2Released())
 		{
@@ -194,6 +213,7 @@ void DisableAbility::_inStateCharging(double dt)
 			m_dState = DisableState::Moving;
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
@@ -219,27 +239,52 @@ void DisableAbility::_inStateMoving(double dt)
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
 	accumulatedTime += dt;
 	p_cooldown = accumulatedTime;
-	for (auto contact : RipExtern::g_contactListener->GetBeginContacts())
+	ContactListener::S_Contact contact;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		if (!m_hasHit)
 		{
-			if (contact->GetShapeA()->GetBody()->GetObjectTag() == "Disable")
+			contact = RipExtern::g_contactListener->GetBeginContact(i);
+			if (contact.a->GetBody()->GetObjectTag() == "Disable")
 			{
-				if (contact->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY")
+				if (contact.b->GetBody()->GetObjectTag() == "ENEMY")
 				{
-					m_hasHit = true; 
-					static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData())->setTransitionState(AITransitionState::BeingDisabled);
-					m_dState = DisableState::Cooldown;
-					//Particle effects here before changing the position.  
-					m_particleEmitter = new ParticleEmitter();
-					m_particleEmitter->setSmoke(); 
-					m_particleEmitter->setEmmiterLife(1.5f); 
-					Enemy* tempEnemy = static_cast<Enemy*>(contact->GetShapeB()->GetBody()->GetUserData()); 
-					m_particleEmitter->setPosition(tempEnemy->getPosition().x, tempEnemy->getPosition().y + 0.5f, tempEnemy->getPosition().z); 
-					this->setPosition(-999.9f, -999.9f, -999.9f);
-					p_cooldown = 0.0;
-					accumulatedTime = 0.0;
-					this->_sendOnHitNotification();
+					Enemy * ptr = static_cast<Enemy*>(contact.b->GetBody()->GetUserData());
+					if (ptr)
+					{
+						if (ptr->getAIState() != AIState::Possessed)
+						{
+							m_hasHit = true; 
+							m_isActive = true; 
+					
+							m_dState = DisableState::Cooldown;
+							//Particle effects here before changing the position.  
+							m_particleEmitter = new ParticleEmitter();
+							m_particleEmitter->setSmoke(); 
+							m_particleEmitter->setEmmiterLife(1.5f); 
+							m_particleEmitter->setPosition(ptr->getPosition().x, ptr->getPosition().y + 0.5f, ptr->getPosition().z); 
+							
+							ptr->setTransitionState(AITransitionState::BeingDisabled);
+
+							this->setPosition(-999.9f, -999.9f, -999.9f);
+							p_cooldown = 0.0;
+							accumulatedTime = 0.0;
+
+							this->_sendOnHitNotification(ptr);
+
+						}
+						else
+						{
+							m_hasHit = true;
+							m_isActive = false;
+
+							m_dState = DisableState::Cooldown;
+
+							this->setPosition(-999.9f, -999.9f, -999.9f);
+							p_cooldown = 0.0;
+							accumulatedTime = 0.0;
+						}
+					}
 				}
 			}
 		}
@@ -273,6 +318,7 @@ void DisableAbility::_inStateCooldown(double dt)
 		p_cooldown = 0;
 		m_dState = DisableState::Throwable;
 		m_hasHit = false;
+		m_isActive = false;
 	}
 
 	 
@@ -294,12 +340,12 @@ void DisableAbility::_inStateRemoteActive(double dt)
 	}
 }
 
-void DisableAbility::_sendOnHitNotification()
+void DisableAbility::_sendOnHitNotification(Enemy * ptr)
 {
-	Network::ENTITYABILITYPACKET packet;
-	packet.id = Network::ID_PLAYER_ABILITY;
-	packet.ability = (unsigned int)Ability::DISABLE;
-	packet.state = (unsigned int)DisableState::OnHit;
+	Network::ENTITYSTATEPACKET packet(0,0,true);
+	packet.id = Network::ID_ENEMY_DISABLED;
+	packet.state = ptr->getUniqueID();
+	packet.pos = ptr->getPosition();
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
 }

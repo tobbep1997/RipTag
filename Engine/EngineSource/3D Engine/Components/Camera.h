@@ -6,6 +6,13 @@
 
 class Camera : public Transform
 {
+public:
+	enum Perspectiv
+	{
+		Enemy,
+		Player
+	};
+private:
 	//-------------------------------------------------------------------------------------------	
 	/*
 		View and projection matrix
@@ -30,6 +37,8 @@ class Camera : public Transform
 	bool m_usingDir = true;
 
 
+	
+	Perspectiv m_perspectiv;
 public:
 	Camera(float fov = DirectX::XM_PI * 0.5f, float aspectRatio = 16.0f/9.0f, float nearPlane = 0.1f, float farPlane = 10.0f);
 	~Camera();
@@ -83,6 +92,8 @@ public:
 	DirectX::XMVECTOR getRotation();
 	//-------------------------------------------------------------------------------------------	
 
+	void setPerspectiv(Perspectiv perspectiv);
+	const Perspectiv & getPerspectiv() const;
 private:
 	//-------------------------------------------------------------------------------------------	
 	/*
@@ -96,6 +107,7 @@ private:
 		Help Functions, this might be added to a static math class if more classes needs this
 	*/
 	DirectX::XMFLOAT4A _add(const DirectX::XMFLOAT4A & a, const DirectX::XMFLOAT4A & b);
+
 public:
 	DirectX::XMMATRIX ForceRotation(const DirectX::XMFLOAT4X4A& rotMatrix);
 };

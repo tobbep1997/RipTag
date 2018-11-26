@@ -18,13 +18,14 @@ void main(
 	inout TriangleStream< GSOutput > output
 )
 {
+    [unroll]
     for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[LIGHT_POS.x].x; targetMatrix++)
     {
         if(sides[targetMatrix].x == 0)
             continue;
         GSOutput element;
         element.RTIndex = targetMatrix;
-
+        [unroll]
         for (int vertex = 0; vertex < 3; vertex++)
         {
             element.pos = mul(input[vertex], lightViewProjection[LIGHT_POS.x][targetMatrix]);
