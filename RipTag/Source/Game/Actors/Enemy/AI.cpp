@@ -428,7 +428,7 @@ void AI::_investigatingRoom(const double deltaTime)
 	{
 		//this->setTransitionState(EnemyTransitionState::Alerted);
 	}
-	else if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
+	if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
 	{
 		this->m_transState = AITransitionState::ReturnToPatrol;
 	}
@@ -527,6 +527,8 @@ void AI::_scanningArea(const double deltaTime)
 	//Do animation
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
+		if (m_searchTimer != 0)
+			m_searchTimer += m_actTimer;
 		this->m_transState = AITransitionState::SearchArea;
 	}
 }
