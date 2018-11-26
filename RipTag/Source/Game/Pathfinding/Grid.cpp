@@ -212,6 +212,18 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 		}
 	}
 
+	for (int i = 0; i < depth; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			if (m_roomNodeMap[j + i * width].tile.getPathable())
+				std::cout << green << 1 << white << " ";
+			else
+				std::cout << red << 0 << white << " ";
+		}
+		std::cout << "\n";
+	}
+
 	// Transpose
 	/*for (int i = 0; i < depth; i++)
 	{
@@ -255,8 +267,8 @@ int Grid::getGridHeight()
 	return m_height;
 }
 
-void Grid::Transpose()
-{/*
+/*void Grid::Transpose()
+{
 	for (int i = 0; i < m_height; i++)
 		for (int j = i; j < m_width; j++)
 		{
@@ -265,8 +277,8 @@ void Grid::Transpose()
 			Node temp = m_nodeMap[currentIndex];
 			m_nodeMap[currentIndex] = m_nodeMap[transposeIndex];
 			m_nodeMap[transposeIndex] = temp;
-		}*/
-}
+		}
+}*/
 
 bool Grid::isBlocked(int index) const
 {
@@ -374,9 +386,7 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 			destY += y;
 		}
 	}
-	/*destination = Tile(destination.getX() + x * count, destination.getY() + y * count);
-	destX = destination.getX();
-	destY = destination.getY();*/
+
 	if (destX < 0)
 		destX = 0;
 	if (destY < 0)
@@ -388,66 +398,6 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 	destination = Tile(destX, destY);
 
 	return destination;
-}
-
-Tile Grid::_getNearestUnblockedTile(int x, int y)
-{
-	bool gotTile = false;
-	int stepSize = 1;
-
-	while (!gotTile)
-	{
-		/*---------- North ----------*/
-		//(0, -1);
-		if (m_nodeMap[x + (y - 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- South ----------*/
-		//(0, 1);
-		if (m_nodeMap[x + (y + 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- West ----------*/
-		//(-1, 0);
-		if (m_nodeMap[(x - 1) + y * x].tile.getPathable())
-		{
-
-		}
-		/*---------- East ----------*/
-		//(1, 0);
-		if (m_nodeMap[(x + 1) + y * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Northwest ----------*/
-		//(-1, -1);
-		if (m_nodeMap[(x - 1) + (y - 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Northeast ----------*/
-		//(1, -1);
-		if (m_nodeMap[(x + 1) + (y - 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Southwest ----------*/
-		//(-1, 1);
-		if (m_nodeMap[(x - 1) + (y + 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Southeast ----------*/
-		//(1, 1);
-		if (m_nodeMap[(x + 1) + (y + 1) * x].tile.getPathable())
-		{
-
-		}
-	}
-
-	return Tile();
 }
 
 bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
@@ -506,8 +456,6 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 
 	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
 	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
-
-	// TODO :: Translate this to center point of the room (sIndex and dIndex)
 
 	Tile roomSource = m_roomNodeMap[sIndex].tile;
 	Tile roomDest = m_roomNodeMap[dIndex].tile;
@@ -604,6 +552,8 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 {
 	std::vector<Grid::TilePair> gtp;
 
+	std::ofstream tilePairs;
+
 	for (int i = 0; i < roomNodes->size() - 1; i++)
 	{
 		Grid::TilePair tp;
@@ -622,6 +572,14 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 	end.destination = destination;
 	gtp.push_back(end);
 
+	tilePairs.open("tp.txt");
+	for (int i = 0; i < gtp.size(); i++)
+	{
+		tilePairs << "Source: " << gtp[i].source.getX() << " " <<
+			gtp[i].source.getY() << "\n" <<
+			"Destination: " << gtp[i].destination.getX() << " " <<
+			gtp[i].destination.getY() << "\n";
+	}
 	return gtp;
 }
 

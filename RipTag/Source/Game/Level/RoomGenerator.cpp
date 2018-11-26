@@ -348,7 +348,7 @@ void RoomGenerator::_makeWalls()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
-				//this->m_generatedRoomEnemies.push_back(e);
+				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
 
@@ -672,7 +672,8 @@ void RoomGenerator::_generateGuardPaths()
 			}
 		}
 		//m_generatedGrid->FindPath(Tile(1, 1, true), Tile(99, 99, true));
-		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(destination)));
+		//currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(destination)));
+		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, destination));
 	}
 }
 
