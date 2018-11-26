@@ -60,6 +60,7 @@ private:
 	bool m_inputLocked = true;
 	bool m_disabled = false;
 	bool m_released = false; 
+	bool m_lockedByClient = false;
 
 	bool m_justReleased = false; 
 
@@ -190,12 +191,11 @@ public:
 
 	void setPossessor(Player* possessor, float maxDuration, float delay);
 	void removePossessor();
-
 	//0 is Stoned, 1 is exit-possess cooldown
 	void setKnockOutType(KnockOutType knockOutType);
 
 	void setReleased(bool released);
-
+	bool ClientLocked() { return m_lockedByClient; }
 
 	void setSoundLocation(const SoundLocation & sl);
 	void setSoundLocationRemote(const SoundLocation & sl) { m_slRemote = sl; };
