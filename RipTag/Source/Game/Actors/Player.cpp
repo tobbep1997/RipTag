@@ -229,20 +229,6 @@ void Player::Update(double deltaTime)
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
 	//HUDComponent::HUDUpdate(deltaTime);
-	
-
-
-	if (m_tutorialActive)
-	{
-		if (m_currentAbility == Ability::TELEPORT && m_activeSetID == 1)
-			m_abilityTutorialText->setString("Teleport Stone:\nHold button to throw further. \nPress again to teleport.");
-		else if (m_currentAbility == Ability::DISABLE && m_activeSetID == 1)
-			m_abilityTutorialText->setString("Rock:\nThrow to knock guards out.");
-		else if (m_currentAbility == Ability::BLINK && m_activeSetID == 2)
-			m_abilityTutorialText->setString("Phase:\nGo through cracks in walls.");
-		else if (m_currentAbility == Ability::POSSESS && m_activeSetID == 2)
-			m_abilityTutorialText->setString("Possess:\nControl guards.");
-	}
 
 
 	HUDComponent::ResetStates();
@@ -697,8 +683,7 @@ void Player::_handleInput(double deltaTime)
 	_onInteract();
 	_onPeak(deltaTime);
 	_onRotate(deltaTime);
-	_objectInfo(deltaTime);
-	_updateTutorial(deltaTime);
+	/*_objectInfo(deltaTime);*/
 }
 
 void Player::_onMovement(double deltaTime)
@@ -1034,21 +1019,16 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
 				{
-					m_infoText->setString("");
-					m_objectInfoTime = 0;
+
 					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
-					m_objectInfoTime = 0;
 					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
-					//Snuff out torches (example)
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
 
-					//std::cout << "Enemy Found!" << std::endl;
-					//Snuff out torches (example)
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 				{
@@ -1058,6 +1038,7 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
 				{
+					//lol wtf is dis
 					Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
 					if (m_rockCounter < MAXROCKS)
 					{
@@ -1067,6 +1048,7 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
 				{
+					//Mange vafan, autolol på dej
 					Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
 					autoLol->DeleteMap();
 					m_MapPicked = true;
@@ -1101,91 +1083,74 @@ void Player::_onAbility(double dt)
 //Sends a ray every second and check if there is relevant data for the object to show on the screen
 void Player::_objectInfo(double deltaTime)
 {
-	if (m_tutorialActive)
-	{
-		const int tempId = m_objectInfoRayId;
-		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
-		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
-			RayCastListener::RayContact* cContact = ray->getClosestContact();
-			RayCastListener::RayContact* cContact2 = cContact;
-			float interactFractionRange = Player::INTERACT_RANGE / 10;
-			if (ray->getNrOfContacts() >= 2)
-				cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+	//if (m_tutorialActive)
+	//{
+	//	const int tempId = m_objectInfoRayId;
+	//	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
+	//	{
+	//		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
+	//		RayCastListener::RayContact* cContact = ray->getClosestContact();
+	//		RayCastListener::RayContact* cContact2 = cContact;
+	//		float interactFractionRange = Player::INTERACT_RANGE / 10;
+	//		if (ray->getNrOfContacts() >= 2)
+	//			cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-			if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-				//Snuff out torches
-			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_activeSetID == 2)
-			{
-				if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-					m_infoText->setString("Press RB to pass");
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else
-			{
-				m_infoText->setString("");
-				m_cross->setUnpressedTexture("CROSS");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-			}
-		}
-		else if (tempId != m_objectInfoRayId)
-		{
-			m_infoText->setString("");
-			m_cross->setUnpressedTexture("CROSS");
-			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-		}
+	//		if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//			//Snuff out torches
+	//		}
+	//		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
+	//		{
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_activeSetID == 2)
+	//		{
+	//			if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+	//				m_infoText->setString("Press RB to pass");
+	//			m_cross->setUnpressedTexture("CROSSHAND");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+	//		}
+	//		else
+	//		{
+	//			m_infoText->setString("");
+	//			m_cross->setUnpressedTexture("CROSS");
+	//			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+	//		}
+	//	}
+	//	else if (tempId != m_objectInfoRayId)
+	//	{
+	//		m_infoText->setString("");
+	//		m_cross->setUnpressedTexture("CROSS");
+	//		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+	//	}
 
-		if (m_objectInfoTime >= 0.1f)
-		{
-			if(m_objectInfoRayId == -100)
-				m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
-			
-			m_objectInfoTime = 0;
-		}
-		m_objectInfoTime += deltaTime;
-	}
-}
-
-void Player::_updateTutorial(double deltaTime)
-{
-	if (m_tutorialActive)
-	{
-		if (!m_tutorialMessages.empty())
-		{
-			if (m_tutorialDuration >= 5)
-			{
-				m_tutorialDuration = 0;
-				m_tutorialText->setString(m_tutorialMessages.top());
-				m_tutorialMessages.pop();
-			}
-			m_tutorialDuration += deltaTime;
-		}
-	}
+	//	if (m_objectInfoTime >= 0.1f)
+	//	{
+	//		if(m_objectInfoRayId == -100)
+	//			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
+	//		
+	//		m_objectInfoTime = 0;
+	//	}
+	//	m_objectInfoTime += deltaTime;
+	//}
 }
 
 void Player::_updateFirstPerson(float deltaTime)
@@ -1454,25 +1419,6 @@ void Player::_loadHUD()
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
 
-	//TUTORIAL STUFF
-	{
-		m_tutorialMessages.push("");
-		m_tutorialMessages.push("Each player has unique abilities to assist with the escape");
-		m_tutorialMessages.push("Be on the lookout for pressure plates and levers \nto reach the exit");
-		m_tutorialMessages.push("Select your abilities with DPAD and use with RB");
-		m_tutorialMessages.push("Peek to the sides with LT and RT");
-		m_tutorialMessages.push("Rule number 1 of subterfuge:\navoid being seen!");
-
-		m_tutorialText = HUDComponent::GetQuad("TutorialText");
-
-		if (m_tutorialActive)
-		{
-			m_tutorialText->setString(m_tutorialMessages.top());
-			m_tutorialMessages.pop();
-		}
-
-		m_abilityTutorialText = HUDComponent::GetQuad("AbilityTutorial");
-	}
 
 	m_HUDcircle = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewCircle"));
 	m_HUDcircle->setScale(DirectX::XMFLOAT2A(m_HUDcircle->getScale().x / 16.0f, m_HUDcircle->getScale().y / 9.0f));

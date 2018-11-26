@@ -124,18 +124,10 @@ private:
 
 	int mouseX = 0;
 	int mouseY = 0;
-
-	Quad * m_infoText;
-	Quad * m_abilityTutorialText;
-	Quad * m_tutorialText;
 	
 	QuadPair m_soundLevelHUD;
 	
-
 	Quad * m_cross;
-	std::stack<std::string> m_tutorialMessages;
-	float m_tutorialDuration = 0.0f;
-	bool m_tutorialActive = false;
 	
 	DirectX::XMVECTOR m_VlastSpeed; 
 	DirectX::XMVECTOR m_VcurrentSpeed; 
@@ -242,7 +234,6 @@ private:
 	void _onInteract();
 	void _onAbility(double dt);
 	void _objectInfo(double deltaTime);
-	void _updateTutorial(double deltaTime);
 	
 	void _updateFirstPerson(float deltaTime);
 	void _cameraPlacement(double deltaTime);
