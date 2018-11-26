@@ -204,7 +204,7 @@ void Enemy::ClientUpdate(double deltaTime)
 	if (state != AIState::Possessed)
 		_cameraPlacement(deltaTime);
 	//Visibility update
-	if (state != AIState::Possessed && state != AIState::Disabled)
+	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
 	{
 
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
@@ -324,22 +324,29 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 {
 	m_lockedByClient = packet->condition;
+	if (!packet->condition)
+	{
+		setTransitionState(AITransitionState::ExitingPossess);
+	}
 }
 
 void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 {
-	if (packet->condition)
+	if (getAIState() != AIState::Possessed || m_lockedByClient)
 	{
-		this->setTransitionState(AITransitionState::BeingDisabled);
-		if (pEmitter)
+		if (packet->condition)
 		{
-			delete pEmitter;
-			pEmitter = nullptr;
+			this->setTransitionState(AITransitionState::BeingDisabled);
+			if (pEmitter)
+			{
+				delete pEmitter;
+				pEmitter = nullptr;
+			}
+			pEmitter = new ParticleEmitter();
+			pEmitter->setSmoke();
+			pEmitter->setEmmiterLife(1.5f);
+			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
 		}
-		pEmitter = new ParticleEmitter();
-		pEmitter->setSmoke();
-		pEmitter->setEmmiterLife(1.5f);
-		pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
 	}
 }
 
