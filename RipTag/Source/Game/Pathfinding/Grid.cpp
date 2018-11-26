@@ -113,10 +113,6 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{
-		std::ofstream file;
-		file.open("LATESTPATH.txt");
-		file << source.getX() << ", " << source.getY() << " -> " << destination.getX() << ", " << destination.getY();
-		file.close();
 		std::vector<Node*> pathToDestination;
 		
 		// A* through the "large" grid to find which rooms are connected in the path
@@ -136,6 +132,10 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		
 		// Merge the paths
 		
+		for (auto & p : roomNodePath)
+			delete p;
+		roomNodePath.clear();
+
 		return pathToDestination;
 	}
 	else
@@ -256,7 +256,7 @@ int Grid::getGridHeight()
 }
 
 void Grid::Transpose()
-{
+{/*
 	for (int i = 0; i < m_height; i++)
 		for (int j = i; j < m_width; j++)
 		{
@@ -265,7 +265,7 @@ void Grid::Transpose()
 			Node temp = m_nodeMap[currentIndex];
 			m_nodeMap[currentIndex] = m_nodeMap[transposeIndex];
 			m_nodeMap[transposeIndex] = temp;
-		}
+		}*/
 }
 
 bool Grid::isBlocked(int index) const
@@ -276,6 +276,11 @@ bool Grid::isBlocked(int index) const
 const std::vector<Node>* Grid::getRoomNodeMap() const
 {
 	return &m_roomNodeMap;
+}
+
+const std::vector<Node>* Grid::getNodeMap() const
+{
+	return &m_nodeMap;
 }
 
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList,
@@ -491,13 +496,13 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 
 	sIndex2D.x = max(sIndex2D.x, 0);
 	sIndex2D.y = max(sIndex2D.y, 0);
-	sIndex2D.x = min(sIndex2D.x, 9);
-	sIndex2D.y = min(sIndex2D.y, 9);
+	sIndex2D.x = min(sIndex2D.x, 8);
+	sIndex2D.y = min(sIndex2D.y, 8);
 
 	dIndex2D.x = max(dIndex2D.x, 0);
 	dIndex2D.y = max(dIndex2D.y, 0);
-	dIndex2D.x = min(dIndex2D.x, 9);
-	dIndex2D.y = min(dIndex2D.y, 9);
+	dIndex2D.x = min(dIndex2D.x, 8);
+	dIndex2D.y = min(dIndex2D.y, 8);
 
 	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
 	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
@@ -652,6 +657,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		{
 			std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
 			current = openList.at(0);
+			
 			openList.erase(openList.begin());
 		}
 

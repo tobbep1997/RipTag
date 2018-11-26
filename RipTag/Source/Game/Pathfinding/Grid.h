@@ -113,6 +113,7 @@ public:
 	void Transpose();
 	bool isBlocked(int index) const;
 	const std::vector<Node> * getRoomNodeMap() const;
+	const std::vector<Node> * getNodeMap() const;
 private:
 	// Utility functions
 	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,
