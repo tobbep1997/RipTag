@@ -47,7 +47,7 @@ void AudioEngine::UpdateListenerAttributes(const Listener & l)
 	s_system->set3DListenerAttributes(0, &l.pos, &l.vel, &l.forward, &l.up);
 }
 
-std::string AudioEngine::LoadSoundEffect(const std::string & path, bool loop)
+std::string AudioEngine::LoadSoundEffect(const std::string & path, float minDist, float maxDist, bool loop)
 {
 	FMOD::Sound * sound = nullptr;
 	FMOD_RESULT result;
@@ -61,7 +61,7 @@ std::string AudioEngine::LoadSoundEffect(const std::string & path, bool loop)
 		sound->getName(name, 256);
 		sName = std::string(name);
 
-		sound->set3DMinMaxDistance(5.0f, 10000.0f);
+		sound->set3DMinMaxDistance(minDist, maxDist);
 		if (loop)
 			sound->setMode(FMOD_LOOP_NORMAL);
 		s_soundEffects.push_back(sound);
@@ -174,7 +174,7 @@ void AudioEngine::UnloadMusicSound(const std::string & name)
 	}
 }
 
-FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTOR * from)
+FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTOR * from, SoundType type)
 {
 	int i = -1;
 	int size = (int)s_soundEffects.size();
@@ -193,13 +193,34 @@ FMOD::Channel * AudioEngine::PlaySoundEffect(const std::string &name, FMOD_VECTO
 	if (i != -1)
 	{
 		FMOD_RESULT res = s_system->playSound(s_soundEffects[i], s_soundEffectGroup, true, &c);
+		
 		if (from)
 		{
 			res = c->set3DAttributes(from, NULL);
-			res = c->set3DDopplerLevel(5);
+			res = c->set3DDopplerLevel(3);
+			
 		}
 
 		c->setPaused(false);
+
+		switch (type)
+		{
+		case AudioEngine::NONE:
+			c->setUserData((void*)&NONE_SOUND);
+			break;
+		case AudioEngine::Player:
+			c->setUserData((void*)&PLAYER_SOUND);
+			break;
+		case AudioEngine::RemotePlayer:
+			c->setUserData((void*)&REMOTE_SOUND);
+			break;
+		case AudioEngine::Enemy:
+			c->setUserData((void*)&ENEMY_SOUND);
+			break;
+		case AudioEngine::Other:
+			c->setUserData((void*)&OTHER_SOUND);
+			break;
+		}
 	}
 	return c;
 }
@@ -310,6 +331,34 @@ void AudioEngine::SetMasterVolume(float vol)
 	s_masterGroup->setVolume(vol);
 }
 
+float AudioEngine::GetEffectVolume()
+{
+	float v;
+	s_soundEffectGroup->getVolume(&v);
+	return v;
+}
+
+float AudioEngine::GetAmbientVolume()
+{
+	float v;
+	s_ambientSoundGroup->getVolume(&v);
+	return v;
+}
+
+float AudioEngine::GetMusicVolume()
+{
+	float v;
+	s_musicSoundGroup->getVolume(&v);
+	return v;
+}
+
+float AudioEngine::GetMasterVolume()
+{
+	float v;
+	s_masterGroup->getVolume(&v);
+	return v;
+}
+
 void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
 {
 	FMOD::Reverb3D * r;
@@ -375,11 +424,35 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	{
 		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, false, 3, &worldPosCube[i * 3], nullptr);
 #ifdef _DEBUG
-		std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";
+		/*std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";*/
 #endif
 	}
 	
 	return ReturnValue;
+}
+
+std::vector<FMOD::Channel*> AudioEngine::getAllPlayingChannels()
+{
+	int index = 0;
+	FMOD::Channel * c = nullptr;
+	std::vector<FMOD::Channel*> Channel;
+	while (FMOD_OK == s_soundEffectGroup->getChannel(index++, &c))
+	{
+		bool isPlaying = false;
+		c->isPlaying(&isPlaying);
+		if (isPlaying)
+			Channel.push_back(c);
+	}
+	index = 0;
+	while (FMOD_OK == s_ambientSoundGroup->getChannel(index++, &c))
+	{
+		bool isPlaying = false;
+		c->isPlaying(&isPlaying);
+		if (isPlaying)
+			Channel.push_back(c);
+	}
+
+	return Channel;
 }
 
 void AudioEngine::_createSystem()
@@ -430,6 +503,9 @@ void AudioEngine::_createChannelGroups()
 	s_ambientSoundGroup->setVolume(1.0f);
 	s_system->createChannelGroup("Music", &s_musicSoundGroup);
 	s_musicSoundGroup->setVolume(1.0f);
+
+
+	
 
 	FMOD_RESULT res = s_masterGroup->addGroup(s_soundEffectGroup);
 	res = s_masterGroup->addGroup(s_ambientSoundGroup);

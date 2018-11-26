@@ -1,12 +1,15 @@
 #include "RipTagPCH.h"
 #include "VisabilityAbility.h"
 
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "EngineSource/3D Engine/Components/Camera.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-#include "EngineSource/3D Engine/Components/Base/Drawable.h"
+float constexpr getNewValueInNewRange(float value, float rangeMin, float rangeMax, float newRangeMin , float newRangeMax)
+{
+	return ((value - rangeMin) * ((newRangeMax - newRangeMin) / (rangeMax - rangeMin))) + newRangeMin;
+}
 
+float constexpr valueInRange(float value, float min, float max)
+{
+	return ((value - min) / (max - min));
+}
 
 VisabilityAbility::VisabilityAbility()
 {
@@ -99,13 +102,11 @@ void VisabilityAbility::_remoteUpdate(double dt)
 
 void VisabilityAbility::_inStateInactive()
 {
-	if (Input::OnAbilityPressed())
+	if ((((Player *)p_owner)->getCurrentAbility() == Ability::VISIBILITY || ((Player *)p_owner)->getCurrentAbility() == Ability::VIS2)
+		&& Input::OnAbilityPressed())
 	{
-		if (((Player*)p_owner)->CheckManaCost(getManaCost()))
-		{
-			((Player*)p_owner)->DrainMana(getManaCost());
-			m_vState = Active;
-		}
+		m_vState = Active;
+		
 	}
 	else
 		m_vState = Inactive;
@@ -128,29 +129,35 @@ void VisabilityAbility::_inStateActive()
 
 		m_visSphere->setPosition(po);
 
-		DirectX::XMFLOAT4A color;
+		
 
-		float x = /*color.x **/ 3.0f * player->getVisability();
-		x = std::clamp(x, (float)1, (float)6);
-		float y = /*color.y **/ 3.0f * player->getVisability();
-		y = std::clamp(y, (float)1, (float)6);
-		float z = /*color.z **/ 3.0f * player->getVisability();
-		z = std::clamp(z, (float)1, (float)6);
 
+		//float newCol = valueInRange(player->getVisability(), 0.1,6);
+		float newCol = getNewValueInNewRange(player->getVisability(), 0,player->getFullVisability()+ 1000,0,50);
+		//newCol *= 2;
+		//float newCol = player->getVisability();
 		//color.x = color.y = color.z = 2.0f * player->getVisability();
-		color.x = x;
-		color.y = y;
-		color.z = z;
+		color.x = newCol;
+		color.y = newCol;
+		color.z = newCol;
 
-		m_lastColor = color;
+		//m_lastColor = color;
 
 		#if _DEBUG
 			ImGui::Begin("vis");
 			ImGui::Text("visa, %f", player->getVisability());
 			ImGui::End();
 		#endif
+		#if _DEBUG
+			ImGui::Begin("vis");
+			ImGui::Text("color.x, %f", color.x);
+			ImGui::Text("color.y, %f", color.y);
+			ImGui::Text("color.z, %f", color.z);
+			ImGui::End();
+		#endif
 
 		m_visSphere->setColor(color.x, color.y, color.z, 1.0f);
+		//m_visSphere->setColor(5, 5, 5, 1.0f);
 	}
 }
 

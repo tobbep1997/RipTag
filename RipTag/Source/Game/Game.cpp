@@ -1,14 +1,6 @@
 #include "RipTagPCH.h"
 #include "Game.h"
-
-#include <Multiplayer.h>
-
-#include "EngineSource/Helper/Timer.h"
-#include "EngineSource/3D Engine/Extern.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "EngineSource/3D Engine/Model/Managers/ModelManager.h"
-
-#include "InputManager/XboxInput/GamePadHandler.h"
+#include <filesystem>
 
 Game::Game()
 {
@@ -26,9 +18,12 @@ Game::~Game()
 	}
 }
 
-void Game::Init(_In_ HINSTANCE hInstance)
+void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
-	
+#ifdef _SHOWSYSTEMINFO
+	system("systeminfo /fo list");
+#endif // _SHOWSYSTEMINFO
+
 	//Rendering Manager Start
 	{
 		m_renderingManager = RenderingManager::GetInstance();
@@ -38,6 +33,11 @@ void Game::Init(_In_ HINSTANCE hInstance)
 	//Input handler and mapping
 	{
 		GamePadHandler::Instance();
+		Input::Instance();
+		//Reading player settings file
+		Input::ReadSettingsFile();
+		//Input::WriteSettingsToFile();
+		//----------------------------
 		InputMapping::Init();
 	}
 	Timer::Instance();
@@ -48,7 +48,11 @@ void Game::Init(_In_ HINSTANCE hInstance)
 		pNetworkInstance->Init();
 	}
 
-	m_gameStack.push(new MainMenu(m_renderingManager));
+	if (dbg)
+		m_gameStack.push(new DBGState(m_renderingManager));
+	else
+		m_gameStack.push(new MainMenu(m_renderingManager));
+	m_gameStack.top()->Load();
 }
 
 bool Game::isRunning()
@@ -75,18 +79,24 @@ void Game::Clear()
 
 void Game::Update(double deltaTime)
 {
+
+
 #if _DEBUG
 	_restartGameIf();
 #endif
-	if (m_gameStack.top()->getNewState() != nullptr)
-		m_gameStack.push(m_gameStack.top()->getNewState());
-
 	_handleStateSwaps();
-	GamePadHandler::UpdateState();
-	m_gameStack.top()->Update(deltaTime);
-	InputMapping::Call();
-	pNetworkInstance->Update();
-	
+	if (!m_justSwaped)
+	{
+		
+		GamePadHandler::UpdateState();
+		m_gameStack.top()->Update(deltaTime);
+		pNetworkInstance->Update();
+	}
+	else
+		m_justSwaped = false;
+
+
+	InputHandler::getRawInput();
 }
 
 void Game::Draw()
@@ -106,17 +116,73 @@ void Game::ImGuiPoll()
 
 void Game::_handleStateSwaps()
 {
-	if (m_gameStack.top()->getKillState())
+
+	if (m_gameStack.top()->getNewState() != nullptr)
 	{
+		m_gameStack.top()->unLoad();
+		m_gameStack.push(m_gameStack.top()->getNewState());
+		m_gameStack.top()->Load();
+		m_justSwaped = true;
+	}
+	if (m_gameStack.top()->GetReset() != nullptr)
+	{
+		State * ss = m_gameStack.top()->GetReset();
+		m_gameStack.top()->resetState(nullptr);
+		m_gameStack.top()->unLoad();
+		delete m_gameStack.top();
+		m_gameStack.pop();
+		m_gameStack.top()->resetState(nullptr);
+		m_gameStack.push(ss);
+		m_gameStack.top()->Load();
+		m_justSwaped = true;
+
+	}
+	if (m_gameStack.top()->getPushNPop() != nullptr)
+	{
+		State::pushNpop * pnp = m_gameStack.top()->getPushNPop();
+		State * s = pnp->state;
+		for (int i = 0; i < pnp->i; i++)
+		{
+			m_gameStack.top()->unLoad();
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+		m_gameStack.push(pnp->state);
+		m_gameStack.top()->Load();
+		delete pnp;
+		m_justSwaped = true;
+
+	}
+	else if (m_gameStack.top()->getKillState())
+	{
+		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
+		m_gameStack.top()->Load();
+		m_justSwaped = true;
+
+	}
+
+	if (m_gameStack.top()->getBackToMenu())
+	{
+		while (m_gameStack.size() > 1)
+		{
+			m_gameStack.top()->unLoad();
+			delete m_gameStack.top();
+			m_gameStack.pop();
+			m_gameStack.top()->pushNewState(nullptr);
+		}
+		m_gameStack.top()->Load();
+		m_justSwaped = true;
+
 	}
 }
 
 void Game::_restartGameIf()
 {
-	if (InputHandler::isKeyPressed('B'))
+	/*if (InputHandler::isKeyPressed('B'))
 	{
 		if (isPressed == false)
 		{
@@ -130,5 +196,5 @@ void Game::_restartGameIf()
 	else
 	{
 		isPressed = false;
-	}
+	}*/
 }

@@ -3,7 +3,6 @@
 #include <thread>
 #include <d3d11_1.h>
 #include <DirectXMath.h>
-#include "VisabilityPass/VisabilityPass.h"
 
 
 enum ObjectType;
@@ -18,6 +17,8 @@ class VisibilityComponent;
 class PointLight;
 class ShadowMap;
 class Render2D;
+
+class VisabilityPass;
 
 namespace Animation
 {
@@ -60,6 +61,10 @@ class ForwardRender
 		DirectX::XMFLOAT4A	color;
 	};
 
+	struct OutLineBuffer
+	{
+		DirectX::XMFLOAT4A outLineColor;
+	};
 private:
 
 	struct sortStruct
@@ -78,6 +83,8 @@ private:
 	ID3D11Texture2D*			m_depthBufferTex;
 	ID3D11SamplerState*			m_samplerState;
 	ID3D11SamplerState*			m_shadowSampler;
+	ID3D11DepthStencilState*	m_depthStencilState;
+	ID3D11DepthStencilState*	m_particleDepthStencilState;
 	
 
 	D3D11_VIEWPORT				m_viewport;
@@ -99,13 +106,13 @@ private:
 	Render2D * m_2DRender;
 
 
-	VisabilityPass m_visabilityPass;
+	VisabilityPass * m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;
 
 	
 
-	float m_lightCullingDistance = 100;	
-	float m_forceCullingLimit = 7;		
+	float m_lightCullingDistance = 50;	
+	float m_forceCullingLimit = 5;		
 	std::thread m_shaderThreads[3];
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
@@ -113,7 +120,18 @@ private:
 	ID3D11RasterizerState * m_standardRast;
 	ID3D11RasterizerState * m_wireFrame;
 	ID3D11RasterizerState * m_disableBackFace;
+	ID3D11RasterizerState * m_NUKE;
 
+	ID3D11Buffer * m_outlineBuffer;
+	OutLineBuffer m_outLineValues;
+
+	ID3D11DepthStencilState * m_write0State;
+	ID3D11DepthStencilState * m_write1State;
+	ID3D11DepthStencilState * m_OutlineState;
+	ID3D11DepthStencilState * m_NUKE2;
+
+	int shadowRun = 0;
+	
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -121,19 +139,29 @@ public:
 	void Init(IDXGISwapChain*				swapChain,
 		ID3D11RenderTargetView*		backBufferRTV,
 		ID3D11DepthStencilView*		depthStencilView,
+		ID3D11DepthStencilState*	m_depthStencilState,
 		ID3D11Texture2D*			depthBufferTex,
 		ID3D11SamplerState*			samplerState,
-		D3D11_VIEWPORT				viewport);
+		D3D11_VIEWPORT				viewport,
+		const WindowContext &		windowContext);
 
 
-	void GeometryPass();
-	void AnimatedGeometryPass();
+	void GeometryPass(Camera & camera);
+	void PrePass(Camera & camera);
+
+	void AnimationPrePass(Camera & camera);
+	void AnimatedGeometryPass(Camera & camera);
 	void Flush(Camera & camera);
 	void Clear();
 
 	void Release();
+	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
+	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
 private:
+
+
 	void _GuardFrustumDraw();
+	void _DBG_DRAW_CAMERA(Camera & camera);
 
 	void _simpleLightCulling(Camera & cam);
 	void _GuardLightCulling();
@@ -141,11 +169,17 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
+
+
+	void _mapObjectOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
+	void _mapObjectInsideOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
+
 	void _mapCameraBuffer(Camera & camera);
 	void _mapSkinningBuffer(Drawable * drawable);
 	void _mapLightInfoNoMatrix();
 
-
+	void _OutliningPass(Camera & cam);
+	void _OutlineDepthCreate();
 
 	//For visability
 
@@ -154,12 +188,15 @@ private:
 	void _setStaticShaders();
 
 	//VisabilityPass
-	void VisabilityPass();
+	void _visabilityPass();
+
+	//ParticlePass
+	void _particlePass();
 
 	void _createShaders();
 	void _createShadersInput();
 
-	void _wireFramePass();
+	void _wireFramePass(Camera * camera);
 
-
+	int run = 0;
 };

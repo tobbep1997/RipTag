@@ -5,15 +5,84 @@
 
 #include "EngineSource/Shader/ShaderManager.h"
 
-#if _DEBUG
 //Allocates memory to the console
+
 void _alocConsole() {
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	AllocConsole();
 	FILE* fp;
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 }
-#endif
+
+void _CrtSetDbg() {
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+}
+
+
+struct SoundSettings {
+	float master, effects, ambient, music;
+};
+
+SoundSettings _ReadSettingsFromFile()
+{
+	SoundSettings ss = {100,100,100,100};
+	std::string file[1] = { "../Configuration/AudioSettings.ini" };
+	std::string names[1] = { "Audio" };
+	for (int k = 0; k < 1; k++)
+	{
+		const int bufferSize = 1024;
+		char buffer[bufferSize];
+
+		//Load in Keyboard section
+		if (GetPrivateProfileStringA(names[k].c_str(), NULL, NULL, buffer, bufferSize, file[k].c_str()))
+		{
+			std::vector<std::string> nameList;
+			std::istringstream nameStream;
+			nameStream.str(std::string(buffer, bufferSize));
+
+			std::string name = "";
+			while (std::getline(nameStream, name, '\0'))
+			{
+				if (name == "")
+					break;
+				nameList.push_back(name);
+			}
+
+			for (size_t i = 0; i < nameList.size(); i++)
+			{
+				int key = -1;
+				key = GetPrivateProfileIntA(names[k].c_str(), nameList[i].c_str(), -1, file[k].c_str());
+				if (key != -1)
+				{
+					if (nameList[i] == "Master")
+					{
+						ss.master = key;
+					}
+					else if (nameList[i] == "Effects")
+					{
+						ss.effects = key;
+					}
+					else if (nameList[i] == "Ambient")
+					{
+						ss.ambient = key;
+					}
+					else if (nameList[i] == "Music")
+					{
+						ss.music = key;
+					}
+				}
+
+			}
+			//Clear buffer for reuse
+			ZeroMemory(buffer, bufferSize);
+
+		}
+		else
+			std::cout << GetLastError() << std::endl;
+	}
+	return ss;
+}
+
 
 void GameLoop(Game * game)
 {
@@ -22,7 +91,7 @@ void GameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
-
+		InputHandler::Reset();
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
@@ -31,6 +100,7 @@ void GameLoop(Game * game)
 		game->Clear();
 
 		//Pollevents
+		
 
 		//Draw and update
 		game->ImGuiFrameStart();
@@ -47,6 +117,8 @@ void SingleGameLoop(Game * game)
 	float deltaNega = 0;
 	while (game->isRunning())
 	{
+		InputHandler::Reset();
+	
 		deltaTime = dt.getDeltaTimeInSeconds();
 		if (deltaTime > 1.0f)
 			deltaTime = 1 / 60.0f;
@@ -54,7 +126,6 @@ void SingleGameLoop(Game * game)
 
 		//This is to avoid Pollevents from fucking with the game
 		game->Clear();
-
 		///-------------------
 
 
@@ -75,45 +146,30 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 {
 #if _DEBUG
 	_alocConsole();
+	_CrtSetDbg();
 #endif
+#if _RELEASE_DBG
+	_alocConsole();
+	_CrtSetDbg();
+#endif
+
+
     AudioEngine::Init();
-	
+	SoundSettings ss = _ReadSettingsFromFile();
+	AudioEngine::SetMasterVolume(ss.master / 100.0f);
+	AudioEngine::SetEffectVolume(ss.effects / 100.0f);
+	AudioEngine::SetAmbientVolume(ss.ambient / 100.0f);
+	AudioEngine::SetMusicVolume(ss.music / 100.0f);
+	srand(time(0));
+
 
 	Game game;
 	game.Init(hInstance);
-	std::cout << "hello";
-
-	/*std::thread gameLoop;
-	gameLoop = std::thread(&GameLoop, &game);
-	game.PollEvents();
-
-	//gameLoop.join();*/
 
 	SingleGameLoop(&game);
-	
-	/*Grid grid = Grid(300, 300);
-	std::vector<Node*> path;
-	
-	dt.getDeltaTimeInSeconds();
-
-	std::cout << "Printing path..." << std::endl << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-	}
-	std::cout << std::endl << "Path is finished printing..." << std::endl;
-
-	system("pause");
-
-	for (int i = 0; i < path.size(); i++)
-	{
-		delete path.at(i);
-		path.at(i) = nullptr;
-	}*/
-
-	
 
 	DX::g_shaderManager.Release();
+	FontHandler::Release();
 	AudioEngine::Release();
 	return 0;
 	

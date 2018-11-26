@@ -1,54 +1,81 @@
 #include "RipTagPCH.h"
 #include "Lever.h"
 
+#include <AudioEngine.h>
 Lever::Lever()
 {
+}
+
+Lever::Lever(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "activate", "deactivate")
+{
+	
 }
 
 
 Lever::~Lever()
 {
+	//PhysicsComponent::Release(*RipExtern::g_world);
 }
 
-void Lever::Init()
+void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll)
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
-	p_setPosition(getPosition().x, getPosition().y, getPosition().z);
-	setObjectTag("LEVER");
-	setUserDataBody(this);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setObjectTag("LEVER");
+	setTexture(Manager::g_textureManager.getTexture("SPAK"));
+	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("SPAK"));//BYT TILL SPAK
+	auto& machine = getAnimationPlayer()->InitStateMachine(2);
+	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
+	auto activateState = machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
+	auto deactivateState = machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
+	activateState->SetBlendTime(0.0f);
+	deactivateState->SetBlendTime(0.0f);
+	getAnimationPlayer()->Pause();
+	BaseActor::setUserDataBody(this);
 }
 
-void Lever::BeginPlay()
-{
-
-}
 
 void Lever::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-	for (RayCastListener::RayContact con : RipExtern::m_rayListener->GetContacts())
+
+	if (m_interacted)
 	{
-		if (con.originBody->GetObjectTag() == "PLAYER")
+		if (this->getTriggerState())
 		{
-			if (con.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
-			{
-				if (static_cast<Lever*>(con.contactShape->GetBody()->GetUserData()) == this)
-				{
-					p_trigger(!Triggerd());			
-					*con.consumeState +=1;
-				}
-			}
+			this->setTriggerState(false);
 		}
+		else
+		{
+			this->setTriggerState(true);
+		}
+		//SENDTriggerd here for network
+		this->SendOverNetwork();
+		m_interacted = false;
 	}
-	//std::cout << Triggerd() << std::endl;
+
+	this->getAnimationPlayer()->Update(deltaTime);
 }
 
-bool Lever::isEqual(Lever * target)
+void Lever::BeginPlay()
 {
-	if (this->getPosition().x == target->getPosition().x && 
-		this->getPosition().y == target->getPosition().y && 
-		this->getPosition().z == target->getPosition().z)
-		return true;
+}
+void Lever::handleContact(RayCastListener::RayContact * contact)
+{
+	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	{
+		if (static_cast<Lever*>(contact->contactShape->GetBody()->GetUserData()) == this)
+		{
+			m_interacted = true;
+		}
+	}
+}
 
-	return false;
+void Lever::_playSound(AudioEngine::SoundType st)
+{
+	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
+	if (this->getTriggerState())
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &at, st);
+	else
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &at, st);
 }

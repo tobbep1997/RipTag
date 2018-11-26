@@ -2,39 +2,124 @@
 #include "CameraHolder.h"
 
 
+
 void CameraHolder::p_initCamera(Camera * camera)
 {
 	this->p_camera = camera;
 }
 
-double CameraHolder::p_viewBobbing(double deltaTime, double velocity, double moveSpeed, MoveState moveState)
+double CameraHolder::p_viewBobbing(double deltaTime, double moveSpeed, b3Body * owner)
 {
-	if (this->p_moveState == Walking)
+	using namespace DirectX;
+
+	XMFLOAT4A cPos = p_camera->getPosition();
+	
+	//Remove all m_offsetY so we get the real point
+	//std::cout << cPos.x << ", " << cPos.y << ", " << cPos.z << std::endl;
+	XMFLOAT4A cDir = p_camera->getDirection();
+	XMFLOAT4A cRight = p_camera->getRight();
+	
+	cPos.y += m_offsetY;
+
+	XMFLOAT2 xmHorizontal = { cRight.x * m_offsetX, cRight.z * m_offsetX };
+
+	if (moveSpeed > 0.1f)
 	{
-		m_moveBob += (float)(velocity * (moveSpeed * deltaTime)); 
-		m_offset = m_moveAmp * sin(m_moveFreq * m_moveBob); 
+		cPos.x += xmHorizontal.x;
+		cPos.z += xmHorizontal.y;
 	}
-	else if (this->p_moveState == Sprinting)
+
+	XMVECTOR lookAt = XMVectorAdd(XMLoadFloat4A(&cPos), XMVectorScale(XMLoadFloat4A(&cDir), 5.0f));
+	XMVECTOR vPoint = lookAt;
+	//CHECK WHAT THIS DOES BEFORE TRYING TO FIX
+
+	if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 	{
-		m_sprintBob += (float)(velocity * (moveSpeed * deltaTime));
-		m_offset = m_sprintAmp * sin(m_sprintFreq * m_sprintBob);
+		RayCastListener::Ray * ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+		XMFLOAT4A point;
+		b3Vec3 vec = ray->getClosestContact()->contactPoint;
+		if (!(vec.x == 0 && vec.y == 0 && vec.z == 0))
+		{
+			point = { vec.x, vec.y, vec.z, 1.0f };
+			vPoint = XMLoadFloat4A(&point);
+		}
 	}
+	
+	if(m_rayId != -100)
+		m_rayId = RipExtern::g_rayListener->PrepareRay(owner, cPos, cDir, 100);
+
+	cPos.y -= m_offsetY;
+	if (moveSpeed > 0.1f)
+	{
+		cPos.x -= xmHorizontal.x;
+		cPos.z -= xmHorizontal.y;
+	}
+
+	if (m_horAdder)
+		m_horizontalBob += (moveSpeed * SPEED_CONSTANT + IDLE_CONSTANT) * deltaTime;
+	else
+		m_horizontalBob -= (moveSpeed * SPEED_CONSTANT + IDLE_CONSTANT) * deltaTime;
+	
+	if (m_verAdder)
+		m_verticalBob += (moveSpeed * SPEED_CONSTANT + IDLE_CONSTANT) * deltaTime;
+	else
+		m_verticalBob -= (moveSpeed * SPEED_CONSTANT + IDLE_CONSTANT) * deltaTime;
+
+	if (m_verticalBob > XM_PI + (moveSpeed <= 0.01f) * XM_PIDIV2)
+		m_verAdder = false;
+	else if (m_verticalBob < 0)
+		m_verAdder = true;
+
+	if (m_horizontalBob > XM_PI * 1.5f)
+		m_horAdder = false;
+	else if (m_horizontalBob < DirectX::XM_PIDIV2)
+		m_horAdder = true;
+
+
+
+
+	float verCurve = sin(m_verticalBob); 
+	float horCurve = sin(m_horizontalBob);
+
+	if (moveSpeed > 0.01f)
+		m_offsetY = verCurve * VERTICAL_AMPLIFIER;
 	else
 	{
-		m_stopBob += (float)deltaTime * 1.5f; 
-		m_offset = m_stopAmp * sin(m_stopFreq * m_stopBob);
+		m_offsetY = verCurve * VERTICAL_AMPLIFIER * 0.1f;
 	}
 
-	return m_offset;
+	
+	if (moveSpeed > 0.01f)
+	{
+		m_offsetX = horCurve * HORIZONTAL_AMPLIFIER;
+		xmHorizontal = { cRight.x * m_offsetX, cRight.z * m_offsetX };
+		cPos.x += xmHorizontal.x;
+		cPos.z += xmHorizontal.y;
+	}
+	cPos.y += m_offsetY;
+
+	XMVECTOR vPos = XMLoadFloat4(&cPos);
+	XMVECTOR newDir = XMVectorSubtract(vPoint, vPos);
+	if (XMVectorGetX(XMVector3Length(newDir)) < 5.0f)
+	{
+		newDir = XMVectorSubtract(lookAt, XMLoadFloat4(&cPos));
+	}
+
+	XMFLOAT4A xmDir;
+	XMStoreFloat4A(&xmDir, XMVector3Normalize(newDir));
+	xmDir.w = 0.0f;
+	p_camera->setDirection(xmDir);
+	p_camera->setPosition(cPos);
+	return m_offsetY;
 }
 
-DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetPeek, const DirectX::XMFLOAT4A & pos)
+DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetPeek)
 {
 	using namespace DirectX;
 
 	XMFLOAT4A forward = p_camera->getDirection();
 	XMFLOAT4 UP = XMFLOAT4(0, 1, 0, 0);
-	XMFLOAT4 RIGHT;
+	XMFLOAT4A RIGHT;
 
 	XMVECTOR vForward = XMLoadFloat4A(&forward);
 	XMVECTOR vUP = XMLoadFloat4(&UP);
@@ -52,12 +137,13 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 
 	XMMATRIX rot = DirectX::XMMatrixRotationAxis(vForward, (targetPeek * XM_PI / 8.0f));
 	target = XMVector4Transform(target, rot);
-	XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed + std::abs(targetPeek)), 1.0f));
+	//XMVECTOR out = XMVectorLerp(in, target, min((float)deltaTime * (m_peekSpeed*2 + std::abs(targetPeek)), 1.0f));
 
-	XMStoreFloat4A(&m_lastPeek, out);
+	XMStoreFloat4A(&m_lastPeek, target);
 	p_camera->setUP(m_lastPeek);
-	XMFLOAT4A cPos = p_camera->getPosition();
-	XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&pos));
+
+	//XMFLOAT4A cPos = p_camera->getPosition(); 
+	/*XMVECTOR vToCam = XMVectorSubtract(DirectX::XMLoadFloat4A(&cPos), DirectX::XMLoadFloat4A(&pos));
 
 	vToCam = XMVector4Transform(vToCam, rot);
 	out = vToCam;
@@ -70,8 +156,8 @@ DirectX::XMFLOAT4A CameraHolder::p_CameraTilting(double deltaTime, float targetP
 	XMVECTOR sideStep = XMVectorLerp(DirectX::XMLoadFloat4A(&m_lastSideStep), XMVectorScale(vRight, -targetPeek * MAX_PEEK), min((float)deltaTime * (m_peekSpeed + abs(targetPeek)), 1.0f));
 	XMStoreFloat4A(&m_lastSideStep, sideStep);
 	out = XMVectorAdd(out, sideStep);
-	XMStoreFloat4(&cPos, out);
-	return cPos;
+	XMStoreFloat4(&cPos, out);*/
+	return RIGHT;
 }
 
 double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const DirectX::XMFLOAT4A & pos)
@@ -103,6 +189,13 @@ double CameraHolder::p_Crouching(double deltaTime, float& startHeight, const Dir
 	return 0;
 }
 
+DirectX::XMFLOAT4A CameraHolder::getForward() const
+{
+	
+	return p_camera->getForward();
+
+}
+
 CameraHolder::CameraHolder()
 {
 }
@@ -111,6 +204,16 @@ CameraHolder::CameraHolder()
 CameraHolder::~CameraHolder()
 {
 	delete this->p_camera;
+}
+
+DirectX::XMFLOAT4A CameraHolder::getLastPeek() const
+{
+	return m_lastPeek;
+}
+
+void CameraHolder::setLastPeek(DirectX::XMFLOAT4A peek)
+{
+	m_lastPeek = peek;
 }
 
 Camera * CameraHolder::getCamera() const

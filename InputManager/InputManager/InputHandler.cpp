@@ -1,6 +1,9 @@
+#include "InputPCH.h"
 #include "InputHandler.h"
 
 bool InputHandler::m_keys[256];
+bool InputHandler::m_keysReleased[256];
+bool InputHandler::m_keysPressed[256];
 
 bool InputHandler::m_mouseKeys[3];
 bool InputHandler::m_mouseWasPressed[3];
@@ -23,9 +26,37 @@ bool InputHandler::m_update;
 
 bool InputHandler::m_closeGame;
 
+void InputHandler::Reset()
+{
+	for (int i = 0; i < 256; i++)
+	{
+		m_keysReleased[i] = false;
+	}
+}
+
+std::vector<unsigned int> InputHandler::m_rawInput;
+
 bool InputHandler::isKeyPressed(int keyCode)
 {
 	return m_keys[keyCode]; 
+}
+
+bool InputHandler::isKeyReleased(int keyCode)
+{
+	return m_keysReleased[keyCode];
+}
+
+bool InputHandler::wasKeyPressed(int keyCode)
+{
+	bool value = false;
+	if (m_keysPressed[keyCode] && m_keys[keyCode])
+	{
+		value = true;
+		m_keysPressed[keyCode] = false;
+	}
+
+
+	return value;
 }
 
 bool InputHandler::isMLeftPressed(bool repeat)
@@ -47,6 +78,27 @@ bool InputHandler::isMLeftPressed(bool repeat)
 	return result; 
 }
 
+bool InputHandler::isMouseLeftPressed()
+{
+	return m_mouseKeys[0];
+}
+
+bool InputHandler::isMLeftReleased()
+{
+	static bool lastFrame = false;
+	if (InputHandler::isMouseLeftPressed())
+	{
+		lastFrame = true;
+		return false;
+	}
+	else if (!InputHandler::isMouseLeftPressed() && lastFrame)
+	{
+		lastFrame = true;
+		return true;
+	}
+	return false;
+}
+
 bool InputHandler::isMMiddlePressed()
 {
 	return m_mouseKeys[1];
@@ -55,6 +107,22 @@ bool InputHandler::isMMiddlePressed()
 bool InputHandler::isMRightPressed()
 {
 	return m_mouseKeys[2]; 
+}
+
+bool InputHandler::isMRightReleased()
+{
+	static bool lastFrame = false;
+	if (InputHandler::isMRightPressed())
+	{
+		lastFrame = true;
+		return false;
+	}
+	else if (!InputHandler::isMRightPressed() && lastFrame)
+	{
+		lastFrame = true;
+		return true;
+	}
+	return false;
 }
 
 int InputHandler::getLastPressed()
@@ -197,4 +265,11 @@ void InputHandler::CloseGame()
 bool InputHandler::GetClosedGame()
 {
 	return m_closeGame;  
+}
+
+std::vector<unsigned int> InputHandler::getRawInput()
+{
+	std::vector<unsigned int> returnValue = std::vector<unsigned int>(m_rawInput);
+	m_rawInput.clear();
+	return returnValue;
 }

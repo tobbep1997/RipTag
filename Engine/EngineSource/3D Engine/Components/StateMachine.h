@@ -8,7 +8,8 @@
 namespace Animation
 {
 	struct AnimationClip;
-	class AnimatedModel;
+	class AnimationPlayer;
+	struct SkeletonPose;
 }
 #pragma endregion "FwdDec"
 
@@ -35,7 +36,7 @@ namespace SM
 		virtual bool Evaluate() const = 0;
 
 	};
-	typedef std::unique_ptr<TransitionBase> UniqueTransition;
+	using UniqueTransition = std::unique_ptr<TransitionBase>;
 
 	template <typename T>
 	class TransitionCondition : public TransitionBase
@@ -92,8 +93,8 @@ namespace SM
 		: m_Reference(reference), m_Value(value), m_Type(type)
 	{}
 
-	typedef std::vector<std::unique_ptr<TransitionBase>> TransitionVector;
-	typedef std::unordered_map<std::string, TransitionVector> TransitionMap;
+	using TransitionVector = std::vector<std::unique_ptr<TransitionBase>>;
+	using TransitionMap = std::unordered_map<std::string, TransitionVector>;
 	
 	class AnimationState;
 
@@ -108,16 +109,21 @@ namespace SM
 		void AddTransition(T* ref, const T min, const T max, COMPARISON_TYPE type);
 	};
 
+	//Add transition with a reference, value to compare with and comparison type
 	template <class T>
 	void SM::OutState::AddTransition(T* ref, const T value, COMPARISON_TYPE type)
 	{
 		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, value, type));
 	}
+
+	//Add transition consisting of two values; comparison type is expected to be
+	//COMPARISON_OUTSIDE_RANGE or COMPARISON_INSIDE_RANGE.
 	template <class T>
 	void SM::OutState::AddTransition(T* ref, const T min, const T max, COMPARISON_TYPE type)
 	{
 		transitions.push_back(std::make_unique<TransitionCondition<T>>(ref, min, max, type));
 	}
+
 #pragma endregion "Transition"
 
 #pragma region "AnimationState"
@@ -140,27 +146,47 @@ namespace SM
 		//Returns true if all transition conditions
 		//for the given out state are met; false otherwise.
 		std::optional<AnimationState*> EvaluateAllTransitions(std::string key);
-		std::string GetName();
+
+		//Returns the name of this state
+		std::string Name();
+
+		//Locks the current X,Y driver values
+		virtual void Lock() = 0;
+
+		//Set blend time for this state
+		void SetBlendTime(float blendTime);
+
+		float BlendTime();
+
+		//Resets the state
+		virtual void Reset() {};
+
 		AnimationState(const AnimationState& other) = delete;
-		virtual STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) = 0;
+		virtual std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) = 0;
 		bool operator=(const std::string name) { return m_Name == name; }
 		std::pair<AnimationState*, float> EvaluateAll();
 	private:
 		std::string m_Name = "";
-
+		float m_BlendTime = 0.2f;
 		std::unordered_map<std::string, OutState> m_OutStates;
 	};
 
 	class BlendSpace1D;
+	class BlendSpace1DAdditive;
 	class BlendSpace2D;
 	class LoopState;
 	class AutoTransitionState;
+	class PlayOnceState;
+
 	class StateVisitorBase{
 	public:
-		virtual void dispatch(BlendSpace1D& state) = 0;
-		virtual void dispatch(BlendSpace2D& state) = 0;
-		virtual void dispatch(LoopState& state) = 0;
-		virtual void dispatch(AutoTransitionState& state) = 0;
+		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state);
+		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state);
+		virtual Animation::SkeletonPose dispatch(LoopState& state);
+		virtual Animation::SkeletonPose dispatch(PlayOnceState& state);
+		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state);
+
+		virtual std::optional<Animation::SkeletonPose> dispatch(BlendSpace1DAdditive& state);
 	};
 
 #pragma endregion "AnimationState"
@@ -189,19 +215,52 @@ namespace SM
 
 		//Assumes arguments are sorted from lowest to highest
 		void AddBlendNodes(const std::vector<BlendSpaceClipData> nodes);
-		
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override {
-			visitor.dispatch(*this);
-			return BLEND_1D;
-		}
+	
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		Current1DStateData CalculateCurrentClips();
+
+		virtual void Lock() override;
+
 	private:
 		std::vector<BlendSpaceClipData> m_Clips;
 		float m_Min = 0.0f;
 		float m_Max = 1.0f;
 		float* m_Current = nullptr;
+		std::optional<float> m_LockedValue = std::nullopt;
 	};
+
+	class BlendSpace1DAdditive : public AnimationState
+	{
+	public:
+		struct BlendSpaceLayerData
+		{
+			Animation::AnimationClip* clip;
+			float location;
+
+			float weight;
+			float currentTime;
+		};
+		BlendSpace1DAdditive(std::string name, float* blendSpaceDriver, float min, float max)
+			: m_Current(blendSpaceDriver), m_Min(min), m_Max(max), AnimationState(name)
+		{}
+		
+		void AddBlendNodes(const std::vector<BlendSpaceLayerData> nodes);
+		virtual void Lock() override;
+
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
+
+		BlendSpace1D::Current1DStateData CalculateCurrent(float deltaTime);
+
+	private:
+		std::vector<BlendSpaceLayerData> m_Layers;
+		float m_Min = 0.0f;
+		float m_Max = 1.0f;
+		float* m_Current = nullptr;
+		//std::optional<float> m_LockedValue = std::nullopt;
+	};
+
+
 #pragma endregion "BlendSpace1D"
 
 #pragma region "BlendSpace2D"
@@ -223,6 +282,7 @@ namespace SM
 			float weightTop = 0.0f;
 			float weightBottom = 0.0f;
 			float weightY = 0.0f;
+
 		};
 
 		BlendSpace2D(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY)
@@ -232,17 +292,17 @@ namespace SM
 		//Assumes arguments are sorted from lowest to highest
 		void AddRow(float y, std::vector<BlendSpaceClipData2D>&& nodes);
 
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override {
-			visitor.dispatch(static_cast<BlendSpace2D&>(*this));
-			return BLEND_2D;
-		}
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		Current2DStateData CalculateCurrentClips();
+
+		virtual void Lock() override;
+
 	private:
 		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
 		std::pair<std::optional<size_t>, std::optional<size_t>> GetTopAndBottomRows();
 	private:
-		typedef std::vector<BlendSpaceClipData2D> Row;
+		using Row = std::vector<BlendSpaceClipData2D>;
 		std::vector<std::pair<float, Row>> m_Rows;
 		float m_Min_X = -1.0f;
 		float m_Max_X = 1.0f;
@@ -250,6 +310,8 @@ namespace SM
 		float m_Max_Y = 1.0f;
 		float* m_Current_X = nullptr;
 		float* m_Current_Y = nullptr;
+		std::optional<float> m_LockedX = std::nullopt;
+		std::optional<float> m_LockedY = std::nullopt;
 	};
 #pragma endregion "BlendSpace2D"
 
@@ -263,7 +325,8 @@ namespace SM
 
 		void SetClip(Animation::AnimationClip* clip);
 		Animation::AnimationClip* GetClip();
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override;
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
+		virtual void Lock() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
 	};
@@ -275,27 +338,69 @@ namespace SM
 	class AutoTransitionState : public AnimationState
 	{
 	public:
-		AutoTransitionState(std::string name);
+		friend class StateVisitor;
+
+		AutoTransitionState(std::string name, Animation::AnimationClip* clip, AnimationState* outState);
 		~AutoTransitionState();
-	
-		STATE_TYPE recieveStateVisitor(StateVisitorBase& visitor) override;
+
+		Animation::AnimationClip* GetClip();
+		
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
+
+		virtual void Lock() override;
+
+		virtual void Reset() override;
+
 	private:
+		Animation::AnimationClip* m_Clip{ nullptr };
+		bool m_ShouldTransition = false;
+		bool m_PoseIsLocked = false;
 	};
 
 #pragma endregion "AutoTransState"
 
+#pragma region "PlayOnceState"
+
+	class PlayOnceState : public AnimationState
+	{
+	public:
+		PlayOnceState(std::string name);
+		~PlayOnceState() {}
+
+		void SetClip(Animation::AnimationClip* clip);
+		Animation::AnimationClip* GetClip();
+		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
+		virtual void Lock() override {};
+	private:
+		Animation::AnimationClip* m_Clip{};
+	};
+
+#pragma endregion "PlayOnceState"
+
 #pragma region "Visitors"
 	class StateVisitor : public StateVisitorBase{
 	public:
-		StateVisitor(Animation::AnimatedModel* model) : m_AnimatedModel(model)
+		StateVisitor(Animation::AnimationPlayer* player) : m_AnimationPlayer(player)
 		{}
-		virtual void dispatch(BlendSpace1D& state) override;
-		virtual void dispatch(BlendSpace2D& state) override;
-		virtual void dispatch(LoopState& state) override;
-		virtual void dispatch(AutoTransitionState& state) override;
+		virtual Animation::SkeletonPose dispatch(BlendSpace1D& state) override;
+		virtual Animation::SkeletonPose dispatch(BlendSpace2D& state) override;
+		virtual Animation::SkeletonPose dispatch(LoopState& state) override;
+		virtual Animation::SkeletonPose dispatch(PlayOnceState& state) override;
+		virtual Animation::SkeletonPose dispatch(AutoTransitionState& state) override;
 	private:
-		Animation::AnimatedModel* m_AnimatedModel = nullptr;
+		Animation::AnimationPlayer* m_AnimationPlayer = nullptr;
 	};
+
+	class LayerVisitor : public StateVisitorBase {
+	public:
+		LayerVisitor(Animation::AnimationPlayer* player) : m_AnimationPlayer(player)
+		{}
+		virtual std::optional<Animation::SkeletonPose> dispatch(BlendSpace1DAdditive& state) override;
+
+	private:
+		Animation::AnimationPlayer* m_AnimationPlayer = nullptr;
+	};
+
 #pragma endregion "Visitors"
 
 #pragma region "StateMachine"
@@ -315,24 +420,32 @@ namespace SM
 		///AnimationState* AddState(std::string name);
 		BlendSpace1D* AddBlendSpace1DState
 			(std::string name, float* blendSpaceDriver, float min, float max);
+		BlendSpace1DAdditive* AddBlendSpace1DAdditiveState
+			(std::string name, float* blendSpaceDriver, float min, float max);
 		BlendSpace2D* AddBlendSpace2DState
 			(std::string name, float* blendSpaceDriverX, float* blendSpaceDriverY, float minX, float maxX, float minY, float maxY);
+		AutoTransitionState* AddAutoTransitionState
+			(std::string name, Animation::AnimationClip* clip, AnimationState* outState);
 		LoopState* AddLoopState
+			(std::string name, Animation::AnimationClip* clip);
+		PlayOnceState* AddPlayOnceState
 			(std::string name, Animation::AnimationClip* clip);
 
 		void SetState(std::string stateName);
 		void SetStateIfAllowed(std::string stateName);
-		void SetModel(Animation::AnimatedModel* model);
+		void SetModel(Animation::AnimationPlayer* model);
 		AnimationState& GetCurrentState();
-		void UpdateCurrentState();
-		void UpdateBlendFactor(float deltaTime);
+		AnimationState* GetPreviousState();
+		bool UpdateCurrentState();
+		float UpdateBlendFactor(float deltaTime);
 	private:
-		//The animated model to set the clip to when we enter a state
-		Animation::AnimatedModel* m_AnimatedModel;
+		//The animation playher to set the clip to when we enter a state
+		Animation::AnimationPlayer* m_AnimationPlayer;
 
 		//The current state(s)
 		AnimationState* m_CurrentState = nullptr;
 		AnimationState* m_BlendFromState = nullptr;
+
 		float m_TotalBlendTime = 0.0f;
 		float m_RemainingBlendTime = 0.0f;
 

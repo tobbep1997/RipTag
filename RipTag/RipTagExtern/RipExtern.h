@@ -1,14 +1,42 @@
 #pragma once
 #include <DirectXMath.h>
-#include "../Source/Physics/Bounce.h"
-#include "../RipTag/Source/Physics/Wrapper/ContactListener.h"
-#include "../RipTag/Source/Physics/Wrapper/RayCastListener.h"
-#include "../RipTag/Source/Game/Actors/Enemy/Enemy.h"
+
+class b3World;
+class ContactListener;
+class RayCastListener;
+
+namespace RipSounds
+{
+	extern std::vector<std::string> g_stepsStone;
+	extern std::string				g_leverActivate;
+	extern std::string				g_leverDeactivate;
+	extern std::string				g_pressurePlateActivate;
+	extern std::string				g_pressurePlateDeactivate;
+	extern std::string				g_torch;
+	extern std::string				g_windAndDrip;
+	extern std::string				g_phase;
+	extern std::string				g_music1;
+	extern std::string				g_grunt;
+}
+
 namespace RipExtern
 {
 	extern b3World * g_world;
-	extern ContactListener * m_contactListener;
-	extern RayCastListener * m_rayListener;
+	extern ContactListener	* g_contactListener;
+	extern RayCastListener	* g_rayListener;
+	extern bool g_kill;
+
+	static bool BoolReverser(const bool & first)
+	{
+		if (first)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	};
 }
 
 class XMMATH

@@ -87,6 +87,7 @@ public :
 	// Call the function below to debug the physics world.
 	// The user must implement the b3Draw interface.
 	void Draw(const b3Draw* draw, u32 flags) const;
+	const b3Body* getBodyList() const;
 protected :
 	enum b3WorldFlags {
 		e_bodyAddedFlag = 0x0001,
@@ -131,6 +132,10 @@ inline u32 b3World::GetJointCount() const {
 
 inline u32 b3World::GetContactCount() const {
 	return m_contactGraph.m_contactCount;
+}
+
+inline const b3Body* b3World::getBodyList() const {
+	return m_bodyList;
 }
 
 #endif

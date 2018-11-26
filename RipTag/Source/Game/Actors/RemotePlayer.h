@@ -26,23 +26,32 @@ private:
 	//PRIVATE MEMBERS
 	std::stack<PlayerState> m_stateStack;
 	bool handleTransition = false;
-	AbilityComponent ** m_abilityComponents;
+	AbilityComponent ** m_abilityComponents1;
+	AbilityComponent ** m_abilityComponents2;
+	AbilityComponent ** m_activeSet;
 	Ability m_currentAbility;// = Ability::TELEPORT;
-	const unsigned short int m_nrOfAbilitys = 4;
+	const unsigned short int m_nrOfAbilitys = 2;
 	DirectX::XMFLOAT4A m_mostRecentPosition;
 	RakNet::Time m_timeDiff;
 
 	//ANIMATION
 	float m_currentDirection = 0.0f;
 	float m_currentSpeed = 0.0f;
+	float m_currentPitch = 0.0f;
 
+	//Visibility data
+	float m_currentVisibility = 0.0f;
+	float m_soundPercentage = 0.0f;
 public:
 	//PUBLIC MEMBER FUNCTIONS
 	void BeginPlay();
 	void HandlePacket(unsigned char id, unsigned char * data);
 	void Update(double dt);
 	void Draw() override;
-
+	bool hasWon = false;
+	void SetAbilitySet(int);
+	void SetVisibility(const float & value) { m_currentVisibility = value; }
+	void SetSoundPercentage(const float & value) { m_soundPercentage = value; }
 private:
 	//PRIVATE FUNCTIONS
 
@@ -50,6 +59,7 @@ private:
 	void _onNetworkUpdate(Network::ENTITYUPDATEPACKET * data);
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
+	void _sendVisibilityPacket();
 
 	void _lerpPosition(float dt);
 

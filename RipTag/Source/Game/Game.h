@@ -13,6 +13,7 @@ namespace Network
 class Game
 {
 private:
+	bool m_justSwaped = false;
 	RenderingManager * m_renderingManager = 0;
 	Network::Multiplayer * pNetworkInstance = 0;
 
@@ -24,7 +25,7 @@ public:
 	~Game();
 
 	//Init
-	void Init(_In_ HINSTANCE hInstance);
+	void Init(_In_ HINSTANCE hInstance, bool dbg = false);
 	//------------------------------------
 	//VitalFunctions to make the game work
 	bool isRunning();			//Is game running

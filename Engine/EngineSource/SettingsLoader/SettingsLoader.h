@@ -6,6 +6,7 @@ struct WindowContext;
 
 namespace SettingLoader
 {
-	void LoadWindowSettings(WindowContext & wind, std::string path = "defultEngineSettings.ini");
-	void SaveWindowSettings(std::string path = "defultEngineSettings.ini");
+	extern WindowContext * g_windowContext;
+	void LoadWindowSettings(WindowContext & wind, std::string path = "../Configuration/defultEngineSettings.ini");
+	void SaveWindowSettings(std::string path = "../Configuration/defultEngineSettings.ini");
 }

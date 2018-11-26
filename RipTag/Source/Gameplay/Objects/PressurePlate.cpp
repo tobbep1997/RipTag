@@ -2,7 +2,12 @@
 #include "PressurePlate.h"
 
 
-PressurePlate::PressurePlate() : Trigger(), BaseActor()
+PressurePlate::PressurePlate() : Trigger()
+{
+	
+}
+
+PressurePlate::PressurePlate(int uniqueId, int linkedID, bool isTrigger) : Trigger(uniqueId, linkedID, isTrigger, "activate", "deactivate")
 {
 	
 }
@@ -10,52 +15,103 @@ PressurePlate::PressurePlate() : Trigger(), BaseActor()
 
 PressurePlate::~PressurePlate()
 {
+	//PhysicsComponent::Release(*RipExtern::g_world);
 }
 
-void PressurePlate::Init()
+void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, 1.0f, 1.0f, 1.0f, true);
-	setObjectTag("PressurePlate");
-	setUserDataBody(this);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, true);
+	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
+	BaseActor::setScale(scaleX, scaleY, scaleZ);
+	BaseActor::setObjectTag("PressurePlate");
+	setTexture(Manager::g_textureManager.getTexture("PLATE"));
+	BaseActor::setModel(Manager::g_meshManager.getSkinnedMesh("PLATE"));
+	auto& stateMachine = getAnimationPlayer()->InitStateMachine(2);
+	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
+	auto activateState = stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
+	auto deactivateState = stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
+	activateState->SetBlendTime(0.0f);
+	deactivateState->SetBlendTime(0.0f);
+	getAnimationPlayer()->Pause();
+	BaseActor::setUserDataBody(this);
 }
 
-void PressurePlate::BeginPlay()
-{
-	
-}
 void PressurePlate::Update(double deltaTime)
 {
 	p_updatePhysics(this);
-
-	for (ContactListener::S_EndContact con : RipExtern::m_contactListener->GetEndContacts())
+	bool previousState = this->getTriggerState();
+	ContactListener::S_Contact con;
+	for(int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
-		if ((con.a->GetBody()->GetObjectTag() == "PLAYER" || con.a->GetBody()->GetObjectTag() == "ENEMY") ||
-			(con.b->GetBody()->GetObjectTag() == "ENEMY" || con.b->GetBody()->GetObjectTag() == "PLAYER"))
-			if ((con.a->GetBody()->GetObjectTag() == "PressurePlate") || (con.b->GetBody()->GetObjectTag() == "PressurePlate"))
+		con = RipExtern::g_contactListener->GetEndContact(i);
+		b3Shape * shapeA = con.a;
+		b3Shape * shapeB = con.b;
+		if ((shapeA->GetBody()->GetObjectTag() == "PLAYER" || shapeA->GetBody()->GetObjectTag() == "ENEMY") ||
+			(shapeB->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "PLAYER"))
+			if ((shapeA->GetBody()->GetObjectTag() == "PressurePlate") || (shapeB->GetBody()->GetObjectTag() == "PressurePlate"))
 			{
-				p_trigger(false);
+				if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this ||
+					static_cast<PressurePlate*>(shapeB->GetBody()->GetUserData()) == this)
+				{
+					if (this->getTriggerState())
+					{
+						this->setTriggerState(false);
+						this->SendOverNetwork();
+					}
+				}
 			}
 	}
-	for (b3Contact * con : RipExtern::m_contactListener->GetBeginContacts())
+
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		if ((con->GetShapeA()->GetBody()->GetObjectTag() == "PLAYER" || con->GetShapeA()->GetBody()->GetObjectTag() == "ENEMY") || 
-			(con->GetShapeB()->GetBody()->GetObjectTag() == "ENEMY" || con->GetShapeB()->GetBody()->GetObjectTag() == "PLAYER"))
-			if ((con->GetShapeB()->GetBody()->GetObjectTag() == "PressurePlate") || (con->GetShapeA()->GetBody()->GetObjectTag() == "PressurePlate"))
+		con = RipExtern::g_contactListener->GetBeginContact(i);
+		b3Shape * shapeA = con.a;
+		b3Shape * shapeB = con.b;
+		if (shapeA && shapeB)
+		{
+			b3Body * bodyA = shapeA->GetBody();
+			b3Body * bodyB = shapeB->GetBody();
+
+			if (bodyA && bodyB)
 			{
+				std::string objectTagA = bodyA->GetObjectTag();
+				std::string objectTagB = bodyB->GetObjectTag();
 
-				p_trigger(true);
+				if ((objectTagA == "PLAYER" || objectTagA == "ENEMY") ||
+					(objectTagB == "PLAYER" || objectTagB == "ENEMY"))
+				{
+					if (objectTagA == "PressurePlate" || objectTagB == "PressurePlate")
+					{
+						if (static_cast<PressurePlate*>(bodyA->GetUserData()) == this ||
+							static_cast<PressurePlate*>(bodyB->GetUserData()) == this)
+						{
+							if (!this->getTriggerState())
+							{
+								this->setTriggerState(true);
+								this->SendOverNetwork();
+							}
+						}
+					}
+				}
 			}
-	}	
+		}
+	}
+	
 
-	if (Triggerd())
-		BaseActor::setPosition(pos2.x, pos2.y, pos2.z);
-	else
-		BaseActor::setPosition(pos1.x, pos1.y, pos1.z);
+	//If previous state was true, but the new state is false no one is one the plate locally
+	//if (previousState && !this->getTriggerState())
+		//this->SendOverNetwork();
 
+	this->getAnimationPlayer()->Update(deltaTime);
 }
 
-void PressurePlate::setPos(DirectX::XMFLOAT4A trigg, DirectX::XMFLOAT4A unTrigg)
+void PressurePlate::_playSound(AudioEngine::SoundType st)
 {
-	pos1 = trigg;
-	pos2 = unTrigg;
+	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
+	if (!this->getTriggerState())
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateDeactivate, &at, st);
+	else
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateActivate, &at, st);
 }
+
+

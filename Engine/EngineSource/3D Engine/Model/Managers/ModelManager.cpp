@@ -2,7 +2,6 @@
 #include "ModelManager.h"
 
 
-#include "ImportLibrary/formatImporter.h"
 
 
 ModelManager::ModelManager()
@@ -43,7 +42,7 @@ void ModelManager::addNewModel(StaticMesh* mesh, Texture* texture)
 	tempModel->setTexture(texture);
 	m_staticModel.push_back(tempModel);
 }
-void ModelManager::addNewModel(DynamicMesh* mesh, Texture* texture)
+void ModelManager::addNewModel(SkinnedMesh* mesh, Texture* texture)
 {
 	Drawable *tempModel = new Drawable();
 	tempModel->setModel(mesh);

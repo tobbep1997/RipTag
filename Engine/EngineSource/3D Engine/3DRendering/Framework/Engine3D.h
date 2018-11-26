@@ -17,7 +17,7 @@ private:
 	ID3D11DepthStencilView*		m_depthStencilView;
 	ID3D11Texture2D*			m_depthBufferTex;
 	ID3D11SamplerState*			m_samplerState;
-
+	ID3D11DepthStencilState*	m_depthStencilState;
 	D3D11_VIEWPORT				m_viewport;
 
 
@@ -30,7 +30,7 @@ public:
 	Engine3D();
 	~Engine3D();
 
-	HRESULT Init(HWND hwnd, bool fullscreen, UINT width = 0, UINT hight = 0);
+	HRESULT Init(HWND hwnd, const WindowContext & windContext);
 
 	void Flush(Camera & camera);
 	void Clear();

@@ -3,7 +3,6 @@
 
 #include <Windows.h>
 #include <string>
-#include "../InputManager/InputManager/InputHandler.h"
 
 struct WindowContext
 {
@@ -16,6 +15,8 @@ struct WindowContext
 
 	HINSTANCE windowInstance;
 	WNDCLASSEX wcex;
+
+	UINT graphicsQuality;
 };
 
 struct ProcMsg

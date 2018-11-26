@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 
 
+
 enum ObjectType;
 enum EntityType;
 
@@ -16,7 +17,7 @@ class VisibilityComponent;
 
 namespace Animation {
 	class AnimationCBuffer;
-	class AnimatedModel;
+	class AnimationPlayer;
 };
 
 class VisabilityPass
@@ -66,7 +67,7 @@ public:
 	VisabilityPass();
 	~VisabilityPass();
 	void Init();
-	void GuardDepthPrePassFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
+	void GuardDepthPrePassFor(VisibilityComponent * target, ForwardRender * forwardRender, Animation::AnimationCBuffer * animBuffer = nullptr);
 	void CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer = nullptr);
 	void SetViewportAndRenderTarget();
 private:
@@ -86,4 +87,6 @@ private:
 	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
 
 	void _mapObjectBuffer(Drawable * target);
+
+	void _drawForPlayer(Drawable * player, VisibilityComponent * enemy, int playerIndex);
 };

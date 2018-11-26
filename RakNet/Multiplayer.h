@@ -15,16 +15,23 @@
 #include <map>
 #include <functional>
 
-
+struct CoopData
+{
+	int seed;
+	int localPlayerCharacter;
+	int remotePlayerCharacter;
+	RakNet::NetworkID remoteID;
+	int role;
+};
 
 namespace Network
 {
 
 	//Network constants
 	const unsigned short PEER_PORT = 60005;
-	const short MAX_CONNECTIONS = 2;
+	const short MAX_CONNECTIONS = 1;
 	const std::string LAN_IP = "255.255.255.255";
-	const double ADVERTISEMENT_FREQUENCE = 1 / 5.0;
+	const double ADVERTISEMENT_FREQUENCE = 1 / 0.5;
 
 	class Multiplayer : public RakNet::NetworkIDObject
 	{
@@ -34,23 +41,33 @@ namespace Network
 		void Init();
 		void Destroy();
 		
+		//---- MAPS ----
 		static std::map<std::string, std::function<void()>> LocalPlayerOnSendMap;
 		static std::map<unsigned char, std::function<void(unsigned char, unsigned char *)>> RemotePlayerOnReceiveMap;
+		static std::map<unsigned char, std::function<void(unsigned char, RakNet::Packet*)>> LobbyOnReceiveMap;
+		//--------------
 
 		static void addToOnSendFuncMap(std::string key, std::function<void()> func);
 		static void addToOnReceiveFuncMap(unsigned char key, std::function<void(unsigned char, unsigned char *)> func);
+		static void addToLobbyOnReceiveMap(unsigned char key, std::function<void(unsigned char, RakNet::Packet*)> func);
 
+		static bool inPlayState;
 
+		int GenerateSeed();
+		int GetSeed() { return m_seed; }
 
 		RakNet::NetworkIDManager * pNetworkIDManager = 0;
 		
-		void StartUpServer();
-		void StartUpClient();
+		void SetupServer();
+		void CloseServer(RakNet::SystemAddress ip);
 
-		void AdvertiseHost();
-		void SearchLANHost();
-		void SearchLANClient();
-		void Disconnect();
+		void StartUpPeer();
+		void ShutdownPeer();
+
+		void AdvertiseHost(const char * additionalData = nullptr, size_t length = 0);
+		bool ConnectTo(RakNet::SystemAddress ip);
+
+		void Disconnect(RakNet::SystemAddress);
 
 		void ReadPackets();
 		void EndConnectionAttempt();
@@ -62,12 +79,19 @@ namespace Network
 		bool isConnected() { return m_isConnected; }
 		bool isGameRunning() { return m_isGameRunning; }
 
+		void setIsConnected(bool b) { this->m_isConnected = b; }
+		void setRole(int role = -1);
+
 		std::string GetNetworkStatistics();
 		std::string GetNID();
 		std::string GetNetworkInfo();
+		RakNet::SystemAddress GetMySysAdress();
+		RakNet::RakNetGUID GetMyGUID();
 
 		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
+		void setOccasionalPing();
 
+		static void HandlePackets();
 		static void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void _send_packet(const char* message, size_t length, PacketPriority priority);
 		//unsafe, find a better way
@@ -84,12 +108,15 @@ namespace Network
 		bool m_isConnected = false;
 		bool m_isGameRunning = false;
 
+		int m_seed = 0;
+
 		RakNet::RakPeerInterface * pPeer = 0;
 		RakNet::SystemAddress m_rIP;
 
 		unsigned char GetPacketIdentifier(unsigned char * data);
 		void HandleRakNetMessages(unsigned char mID);
 		void HandleGameMessages(unsigned char mID, unsigned char * data);
+		void HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet);
 
 		//functions to handle RakNet internal messages
 		void _onDisconnect();

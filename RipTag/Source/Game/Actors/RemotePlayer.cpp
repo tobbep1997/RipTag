@@ -1,14 +1,12 @@
 #include "RipTagPCH.h"
 #include "RemotePlayer.h"
 
-#include "EngineSource/3D Engine/Extern.h"
-#include "EngineSource/3D Engine/Components/Camera.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Meshes/AnimatedModel.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+//#todoREMOVE
+#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
 
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
+	using namespace DirectX;
 	//TODO:
 	//1. Load the correct mesh and configure it
 	//2. Set the transform
@@ -19,9 +17,9 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//7. Register animation state machine
 	
 	//1.
-	this->setModel(Manager::g_meshManager.getDynamicMesh("STATE"));
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("STATE"));
 	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
-	
+	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
 	this->setScale(scale);
@@ -39,32 +37,41 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	this->m_stateStack.push(PlayerState::Idle);
 
 	//6.
-	VisabilityAbility * visAbl = new VisabilityAbility();
-	visAbl->setOwner(this);
-	visAbl->setIsLocal(false);
-	visAbl->Init();
+	//Ability stuff
+	{
+		TeleportAbility * m_teleport = new TeleportAbility();
+		m_teleport->setOwner(this);
+		m_teleport->setIsLocal(false);
+		m_teleport->Init();
 
-	VisabilityAbility * visAbl2 = new VisabilityAbility();
-	visAbl2->setOwner(this);
-	visAbl2->setIsLocal(false);
-	visAbl2->Init();
+		DisableAbility * m_dis = new DisableAbility();
+		m_dis->setOwner(this);
+		m_dis->setIsLocal(false);
+		m_dis->Init();
 
-	TeleportAbility * m_teleport = new TeleportAbility();
-	m_teleport->setOwner(this);
-	m_teleport->setIsLocal(false);
-	m_teleport->Init();
+		BlinkAbility * m_blink = new BlinkAbility();
+		m_blink->setOwner(this);
+		m_blink->setIsLocal(false);
+		m_blink->Init();
 
-	DisableAbility * m_dis = new DisableAbility();
-	m_dis->setOwner(this);
-	m_dis->setIsLocal(false);
-	m_dis->Init();
+		PossessGuard * m_possess = new PossessGuard();
+		m_possess->setOwner(this);
+		m_possess->setIsLocal(false);
+		m_possess->Init();
 
-	m_abilityComponents = new AbilityComponent*[m_nrOfAbilitys];
-	m_abilityComponents[0] = m_teleport;
-	m_abilityComponents[1] = visAbl;
-	m_abilityComponents[2] = m_dis;
-	m_abilityComponents[3] = visAbl2;
-	m_currentAbility = Ability::TELEPORT;
+		m_abilityComponents1 = new AbilityComponent*[m_nrOfAbilitys];
+		m_abilityComponents1[0] = m_teleport;
+		m_abilityComponents1[1] = m_dis;
+
+		m_abilityComponents2 = new AbilityComponent*[m_nrOfAbilitys];
+		m_abilityComponents2[0] = m_blink;
+		m_abilityComponents2[1] = m_possess;
+
+		m_currentAbility = (Ability)0;
+
+		//By default always this set
+		m_activeSet = m_abilityComponents1;
+	}
 
 	//7.
 	this->_registerAnimationStateMachine();
@@ -73,9 +80,12 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 
 RemotePlayer::~RemotePlayer()
 {
-	for (int i = 0; i < m_nrOfAbilitys; i++)
-		delete m_abilityComponents[i];
-	delete[] m_abilityComponents;
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents1[i];
+	delete[] m_abilityComponents1;
+	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
+		delete m_abilityComponents2[i];
+	delete[] m_abilityComponents2;
 }
 
 void RemotePlayer::BeginPlay()
@@ -101,26 +111,41 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 
 void RemotePlayer::Update(double dt)
 {
+	static Network::Multiplayer * pNetwork = Network::Multiplayer::GetInstance();
 	//TODO:
 	//1. Update position
 	//2. Update the ability compononent
 	//3. Update animation
+	//4. send visibility data is we are server
 
 	//1.
 	this->_lerpPosition(dt);
 
 	//2.
-	m_abilityComponents[m_currentAbility]->Update(dt);
+	for (size_t i = 0; i < m_nrOfAbilitys; i++)
+		m_activeSet[i]->Update(dt);
 
 	//3.
-	this->getAnimatedModel()->Update(dt);
+	this->getAnimationPlayer()->Update(dt);
+
+	//4.
+	if (pNetwork->isServer())
+		_sendVisibilityPacket();
 }
 
 void RemotePlayer::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
-		m_abilityComponents[i]->Draw();
+		m_activeSet[i]->Draw();
 	Drawable::Draw();
+}
+
+void RemotePlayer::SetAbilitySet(int set)
+{
+	if (set == 1)
+		m_activeSet = m_abilityComponents1;
+	else if (set == 2)
+		m_activeSet = m_abilityComponents2;
 }
 
 void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
@@ -147,8 +172,15 @@ void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
 
 void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 {
-	m_currentAbility = (Ability)data->ability;
-	m_abilityComponents[m_currentAbility]->UpdateFromNetwork(data);
+	if ((Ability)data->ability != Ability::NONE && !data->isCommonUpadate)
+	{
+		m_currentAbility = (Ability)data->ability;
+		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
+	}
+	else if (data->isCommonUpadate)
+	{
+		m_abilityComponents1[data->ability]->UpdateFromNetwork(data);
+	}
 }
 
 void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
@@ -157,8 +189,16 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 	{
 		this->m_currentDirection = data->direction;
 		this->m_currentSpeed = data->speed;
+		this->m_currentPitch = data->pitch;
 		this->setRotation(data->rot);
 	}
+}
+
+void RemotePlayer::_sendVisibilityPacket()
+{
+	//Network::VISIBILITYPACKET packet;
+	//packet.value = m_currentVisibility;
+	/*Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);*/
 }
 
 
@@ -169,12 +209,24 @@ void RemotePlayer::_lerpPosition(float dt)
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
 
-	newPos = DirectX::XMVectorLerp(curr, next, dt*this->m_timeDiff);
+	if (DirectX::XMVector3IsNaN(curr) || DirectX::XMVector3IsNaN(next))
+		std::cout << "isNAN\n";
 
-	DirectX::XMFLOAT4A _newPos;
-	DirectX::XMStoreFloat4A(&_newPos, newPos);
+	if (!DirectX::XMVector3IsNaN(curr) && !DirectX::XMVector3IsNaN(next))
+	{
 
-	this->setPosition(_newPos);
+		newPos = DirectX::XMVectorLerp(curr, next, 0.5f);
+
+		DirectX::XMFLOAT4A _newPos;
+		DirectX::XMStoreFloat4A(&_newPos, newPos);
+
+		assert(!DirectX::XMVector3IsNaN(newPos));
+
+		if (!DirectX::XMVector3IsNaN(newPos))
+			this->setPosition(_newPos);
+		else
+			this->setPosition(this->m_mostRecentPosition);
+	}
 }
 
 void RemotePlayer::_registerAnimationStateMachine()
@@ -191,11 +243,10 @@ void RemotePlayer::_registerAnimationStateMachine()
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BLEFT_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BRIGHT_ANIMATION"));
 
-	this->getAnimatedModel()->SetPlayingClip(sharedAnimations[IDLE].get());
-	this->getAnimatedModel()->Play();
-	this->getAnimatedModel()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
+	this->getAnimationPlayer()->Play();
+	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
 
-	std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimatedModel()->InitStateMachine(nrOfStates);
+	std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimationPlayer()->InitStateMachine(nrOfStates);
 
 	{
 		//Blend spaces - forward&backward
@@ -227,9 +278,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		blend_fwd->AddRow(
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
-				{ sharedAnimations[LEFT].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[RIGHT].get(), -90.f }, //the clip to use and x-placement
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[RIGHT].get(), 90.f }
+				{ sharedAnimations[LEFT].get(), 90.f }
 			}
 		);
 		//
@@ -247,9 +298,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
 				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
-				{ sharedAnimations[BACK_LEFT].get(), -90.f },
+				{ sharedAnimations[BACK_RIGHT].get(), -90.f },
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[BACK_RIGHT].get(), 90.f },
+				{ sharedAnimations[BACK_LEFT].get(), 90.f },
 				{ sharedAnimations[BACKWARD].get(), 180.f }
 			}
 		);
@@ -275,4 +326,24 @@ void RemotePlayer::_registerAnimationStateMachine()
 		stateMachine->SetState("walk_forward");
 	}
 
+	//#todoREMOVE
+	auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
+	auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
+	
+	std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
+	SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
+	up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
+	up.location = .90f;
+	up.weight = 1.0f;
+	SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
+	down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
+	down.location = -.9f;
+	down.weight = 1.0f;
+
+	layerData.push_back(down);
+	layerData.push_back(up);
+
+	state->AddBlendNodes(layerData);
+
+	layerMachine->SetState("pitch_state");
 }

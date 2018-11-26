@@ -1,9 +1,9 @@
 #include "RipTagPCH.h"
 #include "Input.h"
-#include "InputManager/InputHandler.h"
-#include "InputManager/XboxInput/GamePadHandler.h"
 
 bool Input::m_deactivate = false;
+DirectX::XMFLOAT2 Input::m_mouseSensitivity = {0,0};
+float Input::m_playerFOV = 0;
 
 Input::Input()
 {
@@ -11,6 +11,12 @@ Input::Input()
 
 Input::~Input()
 {
+}
+
+Input* Input::Instance()
+{
+	static Input instance;
+	return &instance;
 }
 
 void Input::ForceDeactivateGamepad()
@@ -30,11 +36,12 @@ void Input::SetActivateGamepad(const bool & b)
 
 bool Input::Jump()
 {
+	bool result = false;
+
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsAPressed();
-	}
-	else
+		result = GamePadHandler::IsAPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -43,21 +50,22 @@ bool Input::Jump()
 			{
 				if (keyIterator->second == "Jump")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	
+	return result;
 }
 
 bool Input::CheckVisability()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsLeftShoulderPressed();
-	}
-	else
+		result = GamePadHandler::IsLeftShoulderPressed();
+
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -66,21 +74,21 @@ bool Input::CheckVisability()
 			{
 				if (keyIterator->second == "Visibility")
 				{
-					return true;
+					result =  true;
 				}
 			}
 		}
 	}
-	return false;
+	return result;
 }
 
 bool Input::Crouch()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsRightStickPressed();
-	}
-	else
+		result = GamePadHandler::IsRightStickPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -89,21 +97,23 @@ bool Input::Crouch()
 			{
 				if (keyIterator->second == "Crouch")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	
+	return result;
 }
+
 
 bool Input::Interact()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsXPressed();
-	}
-	else
+		result = GamePadHandler::IsXPressed();
+	
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -112,21 +122,22 @@ bool Input::Interact()
 			{
 				if (keyIterator->second == "Interact")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
-	return false;
+	
+	return result;
 }
 
 float Input::MoveForward()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::GetLeftStickYPosition();
-	}
-	else
+		result = GamePadHandler::GetLeftStickYPosition();
+	
+	if (result == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -135,25 +146,26 @@ float Input::MoveForward()
 			{
 				if (keyIterator->second == "MoveForward")
 				{
-					return 1;
+					result = 1.1;
 				}
 				else if (keyIterator->second == "MoveBackward")
 				{
-					return -1;
+					result = -1.1;
 				}
 			}
 		}
 	}
-	return 0;
+	
+	return result;
 }
 
 float Input::MoveRight()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::GetLeftStickXPosition();
-	}
-	else
+		result = GamePadHandler::GetLeftStickXPosition();
+
+	if (result == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -162,29 +174,35 @@ float Input::MoveRight()
 			{
 				if (keyIterator->second == "MoveRight")
 				{
-					return 1;
+					result = 1.1;
 				}
 				else if (keyIterator->second == "MoveLeft")
 				{
-					return -1;
+					result = -1.1;
 				}
 			}
 		}
 	}
-	return 0;
+	return result;
+}
+
+float Input::MouseMovementModifier()
+{
+	return InputHandler::getMouseDelta();
+}
+
+bool Input::ResetMouseMovementModifier()
+{
+	return InputHandler::isMMiddlePressed();
 }
 
 float Input::PeekRight()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		float delta = 0.0f;
+		result = GamePadHandler::LeftTrigger() - GamePadHandler::RightTrigger();
 
-		delta = GamePadHandler::LeftTrigger() - GamePadHandler::RightTrigger();
-
-		return delta;
-	}
-	else
+	if (result == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -193,23 +211,25 @@ float Input::PeekRight()
 			{
 				if (keyIterator->second == "PeekRight")
 				{
-					return -1;
+					result = -1;
 				}
 				else if (keyIterator->second == "PeekLeft")
 				{
-					return 1;
+					result = 1;
 				}
 			}
 		}
 	}
-	return 0;
+	return result;
 }
 
 bool Input::Sprinting()
 {
+	bool result = false;
 	if (isUsingGamepad())
-		return GamePadHandler::IsLeftStickPressed();
-	else
+		result = GamePadHandler::IsLeftStickPressed();
+
+	if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -218,35 +238,39 @@ bool Input::Sprinting()
 			{
 				if (keyIterator->second == "Sprint")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
 	}
 	
-	return false;
+	return result;
 }
 
 bool Input::OnAbilityPressed()
 {
+	bool result = false;
 	if (isUsingGamepad())
-		return GamePadHandler::IsRightShoulderPressed();
-	else
+		result = GamePadHandler::IsRightShoulderPressed();
+	
+	if (!result)
+		result = InputHandler::isMouseLeftPressed();
+	/*if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
 			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
-				if (keyIterator->second == "UseAbility")
+				if (keyIterator->second == "AbilityPressed")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
-	}
+	}*/
 
-	return false;
+	return result;
 }
 
 bool Input::OnAbilityReleased()
@@ -262,41 +286,78 @@ bool Input::OnAbilityReleased()
 	return false;
 }
 
-bool Input::Blink()
+bool Input::OnAbility2Pressed()
 {
+	bool result = false;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::IsYPressed();
-	}
-	else
+		result = GamePadHandler::IsLeftShoulderPressed();
+
+	if (!result)
+		result = InputHandler::isMRightPressed();
+	/*if (!result)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
 			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
-				if (keyIterator->second == "Blink")
+				if (keyIterator->second == "AbilityPressed")
 				{
-					return true;
+					result = true;
 				}
 			}
 		}
+	}*/
+
+	return result;
+}
+
+bool Input::OnAbility2Released()
+{
+	static bool previousFrame = false;
+	if (Input::OnAbility2Pressed())
+		previousFrame = true;
+	if (!Input::OnAbility2Pressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
 	}
 	return false;
 }
 
-bool Input::Possess()
+bool Input::OnCancelAbilityPressed()
 {
-	std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
-	for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
+	bool result = false;
+	if (isUsingGamepad())
+		result = GamePadHandler::IsBPressed();
+
+	if (!result)
 	{
-		if (InputHandler::isKeyPressed(keyIterator->first))
+		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
+		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
 		{
-			if (keyIterator->second == "Possess")
+			if (InputHandler::isKeyPressed(keyIterator->first))
 			{
-				return true;
+				if (keyIterator->second == "CancelAbility")
+				{
+					result = true;
+				}
 			}
 		}
+	}
+
+	return result;
+}
+
+bool Input::OnCancelAbilityReleased()
+{
+	static bool previousFrame = false;
+	if (Input::OnCancelAbilityPressed())
+		previousFrame = true;
+	if (!Input::OnCancelAbilityPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
 	}
 	return false;
 }
@@ -335,31 +396,29 @@ bool Input::MouseLock()
 
 float Input::TurnUp()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return -1.0f * GamePadHandler::GetRightStickYPosition();
-	}
-	else
+		result = -1.0f * GamePadHandler::GetRightStickYPosition();
+	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-		return -1.0f * (((InputHandler::getWindowSize().y / 2)) - poss.y) / 40.0f;
+		result = -1.0f * (((InputHandler::getWindowSize().y / 2)) - poss.y) / 40.0f;
 	}
-	return 0;
+	return result;
 }
 
 float Input::TurnRight()
 {
+	float result = 0;
 	if (isUsingGamepad())
-	{
-		return GamePadHandler::GetRightStickXPosition();
-	}
-	else
+		result = GamePadHandler::GetRightStickXPosition();
+
+	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-		return -1.0f * (((InputHandler::getWindowSize().x / 2.0f)) - poss.x) / 40.0f;
-		
+		result = -1.0f * (((InputHandler::getWindowSize().x / 2.0f)) - poss.x) / 40.0f;
 	}
-	return 0;
+	return result;
 }
 
 bool Input::isUsingGamepad()
@@ -373,6 +432,7 @@ std::map<int, std::string> InputMapping::keyMap;
 std::map<int, std::string> InputMapping::devKeyMap;
 std::map<std::string, std::function<float()>> InputMapping::gamePadFunctionMapFloat;
 std::map<std::string, std::function<bool()>> InputMapping::gamePadFunctionMapBool;
+std::map<std::string, std::function<bool()>> InputMapping::mouseFunctionMap;
 
 bool InputMapping::isInitialized = false;
 
@@ -382,6 +442,7 @@ void InputMapping::Init()
 	if (!isInitialized)
 	{
 		InputMapping::_LoadGamePadMapping();
+		InputMapping::_LoadMouseMapping();
 
 		std::string file = "..\\Configuration\\KeyMapping.ini";
 		const int bufferSize = 1024;
@@ -468,6 +529,7 @@ void InputMapping::Call()
 	_ReloadKeyMapping();
 	_KeyboardCalls();
 	_GamePadCalls();
+	_MouseCalls();
 }
 
 void InputMapping::_ReloadKeyMapping()
@@ -504,7 +566,17 @@ void InputMapping::_LoadGamePadMapping()
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Jump", std::bind(&GamePadHandler::IsAPressed)));
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&GamePadHandler::IsRightShoulderPressed)));
 		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&GamePadHandler::IsRightShoulderReleased)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Ability2Pressed", std::bind(&GamePadHandler::IsLeftShoulderPressed)));
+		gamePadFunctionMapBool.insert(std::pair<std::string, std::function<bool()>>("Ability2Released", std::bind(&GamePadHandler::IsLeftShoulderReleased)));
 	}
+}
+
+void InputMapping::_LoadMouseMapping()
+{
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("AbilityPressed", std::bind(&InputHandler::isMouseLeftPressed)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("AbilityReleased", std::bind(&InputHandler::isMLeftReleased)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("Ability2Pressed", std::bind(&InputHandler::isMRightPressed)));
+	mouseFunctionMap.insert(std::pair<std::string, std::function<bool()>>("Ability2Released", std::bind(&InputHandler::isMRightReleased)));
 }
 
 void InputMapping::_KeyboardCalls()
@@ -542,6 +614,22 @@ void InputMapping::_GamePadCalls()
 	//do the same thing for the bool map
 	std::map<std::string, std::function<bool()>>::iterator boolMapIterator = gamePadFunctionMapBool.begin();
 	for (boolMapIterator; boolMapIterator != gamePadFunctionMapBool.end(); boolMapIterator++)
+	{
+		if (boolMapIterator->second())
+		{
+			std::map<std::string, std::function<void()>>::iterator networkFuncIterator;
+			networkFuncIterator = Network::Multiplayer::LocalPlayerOnSendMap.find(boolMapIterator->first);
+
+			if (networkFuncIterator != Network::Multiplayer::LocalPlayerOnSendMap.end())
+				networkFuncIterator->second();
+		}
+	}
+}
+
+void InputMapping::_MouseCalls()
+{
+	std::map<std::string, std::function<bool()>>::iterator boolMapIterator = mouseFunctionMap.begin();
+	for (boolMapIterator; boolMapIterator != mouseFunctionMap.end(); boolMapIterator++)
 	{
 		if (boolMapIterator->second())
 		{
@@ -629,7 +717,70 @@ bool Input::SelectAbility4()
 	return false;
 }
 
+const DirectX::XMFLOAT2 & Input::GetPlayerMouseSensitivity()
+{
+	return m_mouseSensitivity;
+}
 
+int Input::GetPlayerFOV()
+{
+	return m_playerFOV;
+}
+
+void Input::ReadSettingsFile()
+{
+	std::string file = "..\\Configuration\\PlayerMapping.ini";
+	const int bufferSize = 1024;
+	char buffer[bufferSize];
+
+	//Load in Keyboard section
+	if (GetPrivateProfileStringA("Player", NULL, NULL, buffer, bufferSize, file.c_str()))
+	{
+		std::vector<std::string> nameList;
+		std::istringstream nameStream;
+		nameStream.str(std::string(buffer, bufferSize));
+
+		std::string name = "";
+		while (std::getline(nameStream, name, '\0'))
+		{
+			if (name == "")
+				break;
+			nameList.push_back(name);
+		}
+
+		for (size_t i = 0; i < nameList.size(); i++)
+		{
+			int key = -1;
+			key = GetPrivateProfileIntA("Player", nameList[i].c_str(), -1, file.c_str());
+			if (key != -1)
+			{
+				_ParseFileInputInt(nameList[i], key);
+			}
+				
+		}
+		//Clear buffer for reuse
+		ZeroMemory(buffer, bufferSize);
+
+	}
+	else
+		std::cout << GetLastError() << std::endl;
+}
+
+void Input::_ParseFileInputInt(const std::string& name, int key)
+{
+	if (name == "XAXIS")
+	{
+		m_mouseSensitivity.x = key;
+	}
+	else if (name == "YAXIS")
+	{
+		m_mouseSensitivity.y = key;
+	}
+	else if (name == "PlayerFOV")
+	{
+		m_playerFOV = key;
+	}
+}
 
 
 //DEFINITIONS FOR INPUTMAPPING STATICS

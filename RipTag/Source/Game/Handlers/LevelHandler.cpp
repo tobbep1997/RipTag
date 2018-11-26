@@ -1,12 +1,11 @@
 #include "RipTagPCH.h"
 #include "LevelHandler.h"
 
-#include <AudioEngine.h>
 
-#include "InputManager/InputHandler.h"
 
-LevelHandler::LevelHandler()
+LevelHandler::LevelHandler(const unsigned short & roomIndex)
 {
+	m_roomIndex = roomIndex;
 }
 
 LevelHandler::~LevelHandler()
@@ -17,17 +16,17 @@ LevelHandler::~LevelHandler()
 	}
 }
 
-void LevelHandler::Init(b3World& worldPtr, Player * playerPtr)
+void LevelHandler::Init(b3World& worldPtr, Player * playerPtr, const int & seed, const int & roomIndex)
 {
 	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
-
-	_LoadPreFabs();
-	_GenerateLevelStruct(1, 1);
+	_LoadCorrectRoom(seed,roomIndex);
+	
 
 	_RoomLoadingManager();
 	m_rooms[m_activeRoom]->SetActive(true);
+	m_rooms[m_activeRoom]->GiveCameraToParticles(playerPtr->getCamera());
 
 	this->m_playerPtr->setPosition(m_rooms.at(0)->getPlayer1StartPos().x,
 		m_rooms.at(0)->getPlayer1StartPos().y,
@@ -47,48 +46,56 @@ void LevelHandler::Release()
 	}
 }
 
-void LevelHandler::Update(float deltaTime)
+void LevelHandler::Update(float deltaTime, Camera * camera)
 {
 	using namespace std::chrono_literals;
 	if (future.valid())
 	{
 		auto status = future.wait_for(0s);
 		if (status == std::future_status::ready) {
-			std::cout << "Thread finished" << std::endl;
 			future.get();
 		}
 		else {
-			//std::cout << "Thread still running" << std::endl;
 		}
 	}
 
-	m_rooms.at(m_activeRoom)->Update(deltaTime);
+	
 	if (InputHandler::isKeyPressed('N'))
 	{
 		if (pressed == false)
 		{
 			m_rooms[m_activeRoom]->SetActive(false);
-			m_activeRoom--;
-			std::cout << m_activeRoom << std::endl;
+			//m_activeRoom--;
+			m_activeRoom = 0;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
+			RipExtern::g_contactListener->ClearContactQueue();
+			RipExtern::g_kill = true;
 		}
 	}
 	else if (InputHandler::isKeyPressed('M'))
 	{
+		
 		if (pressed == false)
 		{
 			m_rooms[m_activeRoom]->SetActive(false);
-			m_activeRoom++;
-			std::cout << m_activeRoom << std::endl;
+			//m_activeRoom++;
+			m_activeRoom = 0;
 			_RoomLoadingManager();
 			pressed = true;
 			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
 			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
 			m_rooms[m_activeRoom]->SetActive(true);
+
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
+			RipExtern::g_contactListener->ClearContactQueue();
+			RipExtern::g_kill = true;
 		}
 	}
 	else if (InputHandler::isKeyPressed('H'))
@@ -101,8 +108,11 @@ void LevelHandler::Update(float deltaTime)
 	}
 	else
 	{
+	
 		pressed = false;
 	}
+	if (RipExtern::g_kill == false)
+		m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
 }
 
 void LevelHandler::Draw()
@@ -123,25 +133,85 @@ void LevelHandler::setPlayer(Player * playerPtr)
 
 }
 
-void LevelHandler::_LoadPreFabs()
+const std::vector<Enemy*>* LevelHandler::getEnemies() const
 {
-	
+	return m_rooms[m_activeRoom]->getEnemies();
+}
+
+TriggerHandler * LevelHandler::getTriggerHandler()
+{
+	return m_rooms[m_activeRoom]->getTriggerHandler();
+}
+
+EnemyHandler * LevelHandler::getEnemyHandler()
+{
+	return m_rooms[m_activeRoom]->getEnemyHandler();
+}
+
+
+std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
+{
+	return std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4>(this->m_rooms[0]->getPlayer1StartPos(), this->m_rooms[0]->getPlayer2StartPos());
+}
+
+const unsigned short LevelHandler::getNextRoom() const
+{
+	return this->m_nextRoomIndex;
+}
+
+void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
+{
+	Room * room;
+	if (roomIndex == -1)
+	{
+		room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
+		room->setLoaded(true);
+	}
+	else
+	{
+		room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	}
+	m_rooms.push_back(room);
+
+	m_rooms.at(0)->loadTextures();
+	int x = m_rooms.at(0)->getRoomIndex();
+	if (m_rooms.at(0)->getRoomIndex() != -1)
+		m_rooms.at(0)->LoadRoomToMemory();
 }
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 {
-	srand(seed);
+	//srand(seed);
 	//std::vector<int> usedRooms;
-	for (short unsigned int i = 0; i < amountOfRooms; i++)
-	{
-		//Create a room
-		//Get a random int
-		int randomRoom = rand() % amountOfRooms;
-		Room * room = new Room(1, m_worldPtr, i, m_playerPtr);//TODO
+	////LoadTuTorialRoomFirst
+	//Room * room = new Room(m_roomIndex, m_worldPtr, 0, m_playerPtr);
+	//m_rooms.push_back(room);
+	////room = new Room(1, m_worldPtr, 1, m_playerPtr);
+	////m_rooms.push_back(room);
+	////room = new Room(0, m_worldPtr, 2, m_playerPtr);
+	////m_rooms.push_back(room);
+	//m_rooms.at(0)->loadTextures();
+	//int x = m_rooms.at(0)->getRoomIndex();
+	//if(m_rooms.at(0)->getRoomIndex() != -1)
+	//m_rooms.at(0)->LoadRoomToMemory();
+
+	//                               //Byt i < 1 till amountOfRooms
+	//for (short unsigned int i = 0; i < 1; i++)
+	//{
+	//	//Create a room
+	//	//Get a random int					//VERY NECCESSARY TO COMMENT BACK IN
+	//	int randomRoom = rand() % amountOfRooms;
+	//	Room * room = new Room(1, m_worldPtr, i+3, m_playerPtr);//TODO
 
 
-		m_rooms.push_back(room);
-	}
+	//	m_rooms.push_back(room);
+	//}
+	//add to loop -> 1 0 i;
+	//Room * room = new Room(0, m_worldPtr, 0, m_playerPtr);
+	//m_rooms.push_back(room);
+
+	//Room * room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
+	//m_rooms.push_back(room);
 }
 
 void LevelHandler::_RoomLoadingManager(short int room)
@@ -155,7 +225,6 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	{
 		current = room;
 	}
-
 	//Room Unload and Load
 	//if ((current - 2) >= 0)
 	//{
@@ -165,7 +234,6 @@ void LevelHandler::_RoomLoadingManager(short int room)
 	//	m_unloadingQueue.push_back(current- 2);
 	//	m_unloadMutex.unlock();
 	//}
-
 	if ((current - 1) >= 0)
 	{
 		//m_rooms.at(current)->LoadRoomToMemory();
@@ -173,17 +241,15 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		/*m_loadMutex.lock();
 		m_loadingQueue.push_back(current - 1);
 		m_loadMutex.unlock();*/
-		if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
+		/*if (m_rooms.at(current - 1)->getAssetFilePath() != "RUM3")
 		{
-			m_rooms.at(current - 1)->UnloadRoomFromMemory();
-		}
-		
+
+		}*/
+		const b3Body * world = RipExtern::g_world->getBodyList();
+		u32 wc = RipExtern::g_world->GetBodyCount();
+		//m_rooms.at(current - 1)->UnloadRoomFromMemory();
+		//m_nextRoomIndex = m_roomIndex + 1; //TODO::THIS
 	}
-	
-
-	m_rooms.at(current)->loadTextures();
-	m_rooms.at(current)->LoadRoomToMemory();
-
 	if ((current + 1) < m_rooms.size())
 	{
 		//m_rooms.at(current + 1)->LoadRoomToMemory();
@@ -191,12 +257,33 @@ void LevelHandler::_RoomLoadingManager(short int room)
 		//m_loadMutex.lock();
 		//m_loadingQueue.push_back(current + 1);
 		//m_loadMutex.unlock();
-		if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
+		/*if (m_rooms.at(current + 1)->getAssetFilePath() != "RUM3")
 		{
-			m_rooms.at(current + 1)->UnloadRoomFromMemory();
-		}
-		
+
+		}*/
+		const b3Body * world = RipExtern::g_world->getBodyList();
+		u32 wc = RipExtern::g_world->GetBodyCount();
+
+		//m_rooms.at(current + 1)->UnloadRoomFromMemory();
 	}
+	m_nextRoomIndex = m_roomIndex + 1;
+	/*
+	if (m_roomIndex == 0)
+		m_nextRoomIndex = 1;
+	else if (m_roomIndex == 1)
+		m_nextRoomIndex = 0;
+	*/
+
+	const b3Body * world = RipExtern::g_world->getBodyList();
+	u32 wc = RipExtern::g_world->GetBodyCount();
+	//if (current > 0)
+	//	current = 0;
+	//m_rooms.at(current)->loadTextures();
+	//int x = m_rooms.at(current)->getRoomIndex();
+	//if(m_rooms.at(current)->getRoomIndex() != -1)
+	//m_rooms.at(current)->LoadRoomToMemory();
+
+	wc = RipExtern::g_world->GetBodyCount();
 
 	//if ((current + 2) < m_rooms.size())
 	//{

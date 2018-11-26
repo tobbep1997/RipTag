@@ -1,16 +1,14 @@
 #include "RipTagPCH.h"
 #include "Room.h"
 
-#include "EngineSource/Light/PointLight.h"
-#include "EngineSource/3D Engine/RenderingManager.h"
-#include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
-#include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
-
-#include "ImportLibrary/FormatHeader.h"
-#include "ImportLibrary/formatImporter.h"
-
-#include "2D Engine/Quad/Quad.h"
-
+void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
+{
+	
+	std::pair<Trigger*, Door> doorLeverPair;
+	
+	addPropsAndAssets(propsToPlace, triggerHandler, &m_staticAssets);
+	loadTriggerPairMap();
+}
 
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 {
@@ -18,10 +16,12 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr)
 	this->m_worldPtr = worldPtr;
 
 	m_grid = nullptr;
-	m_pathfindingGrid = new Grid();
+	m_pathfindingGrid = DBG_NEW Grid();
 }
 Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayIndex, Player *  playerPtr) : HUDComponent()
 {
+	std::cout << blue << "ROOM INIT" << white << std::endl;
+
 	std::string filePath = "RUM";
 	filePath += std::to_string(roomIndex);
 	this->m_arrayIndex = arrayIndex;
@@ -30,63 +30,59 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
-	triggerHandler = new TriggerHandler();
+	triggerHandler = DBG_NEW TriggerHandler();
+	triggerHandler->RegisterThisInstanceToNetwork();
 
-
-
-	door = new Door();
-	Manager::g_meshManager.loadStaticMesh("DOOR");
-	Manager::g_textureManager.loadTextures("DOOR");
-	door->setModel(Manager::g_meshManager.getStaticMesh("DOOR"));
-	door->setTexture(Manager::g_textureManager.getTexture("DOOR"));
-	door->Init(*m_worldPtr, e_staticBody, .5f, 3.0f, 1.5f);
-	door->setPos(DirectX::XMFLOAT4A(-10.559f, 5.174f, -4.692f,1.0f), DirectX::XMFLOAT4A(-10.559f, 5.174f, -7.246f, 1.0f));
-	pressurePlate = new PressurePlate();
-	Manager::g_meshManager.loadStaticMesh("PRESSUREPLATE");
-	Manager::g_textureManager.loadTextures("PRESSUREPLATE");
-	pressurePlate->setScale(2, 1, 2);
-	pressurePlate->setModel(Manager::g_meshManager.getStaticMesh("PRESSUREPLATE"));
-	pressurePlate->setTexture(Manager::g_textureManager.getTexture("PRESSUREPLATE"));
-	pressurePlate->Init();
-	pressurePlate->setPos(DirectX::XMFLOAT4A(7.327f, 4.294f, 13.764f, 1), DirectX::XMFLOAT4A(7.327f, 4.2f, 13.764f, 1));
+	m_lose = new Quad();
+	m_lose->init();
+	m_lose->setPosition(0.5f, 0.8f);
+	m_lose->setScale(0.5f, 0.25f);
 	
-	lever = new Lever();
-	lever->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	lever->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	lever->Init();
-	lever->setPosition(5, 10, 5);
-	
-	std::vector<Trigger*> t0;
-	std::vector<Triggerble*> t1;
-	t0.push_back(pressurePlate);
-	t0.push_back(lever);
-	t1.push_back(door);
+	m_lose->setString("YOU LOST");
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
+	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_lose->setFont(FontHandler::getFont("consolas32"));
 
-	triggerHandler->AddPair(t0, t1, false);
+	HUDComponent::AddQuad(m_lose);
 
+	m_grid = nullptr;
+	m_pathfindingGrid = DBG_NEW Grid();
+}
+Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
+{
+	//GeneratedRoom
+	std::cout << green << "ROOM INIT" << white << std::endl;
 
-	
+	this->m_roomIndex = -1;
+	this->m_playerInRoomPtr = playerPtr;
+	this->m_arrayIndex = arrayIndex;
+	this->m_worldPtr = worldPtr;
+
+	triggerHandler = DBG_NEW TriggerHandler();
+	triggerHandler->RegisterThisInstanceToNetwork();
 
 	m_lose = new Quad();
 	m_lose->init();
 	m_lose->setPosition(0.5f, 0.5f);
 	m_lose->setScale(0.5f, 0.25f);
-	
+
 	m_lose->setString("YOU LOST");
-	m_lose->setUnpressedTexture(Manager::g_textureManager.getTexture("SPHERE"));
-	m_lose->setPressedTexture(Manager::g_textureManager.getTexture("DAB"));
-	m_lose->setHoverTexture(Manager::g_textureManager.getTexture("PIRASRUM"));
+	m_lose->setUnpressedTexture("gui_transparent_pixel");
+	m_lose->setPressedTexture("gui_transparent_pixel");
+	m_lose->setHoverTexture("gui_transparent_pixel");
 	m_lose->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_lose->setFont(new DirectX::SpriteFont(DX::g_device, L"../2DEngine/Fonts/consolas32.spritefont"));
+	m_lose->setFont(FontHandler::getFont("consolas16"));
 
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
-	m_pathfindingGrid = new Grid();
+
 }
 Room::~Room()
 {
-	delete m_pathfindingGrid;
+	
 }
 
 void Room::setRoomIndex(const short unsigned int roomIndex)
@@ -94,7 +90,7 @@ void Room::setRoomIndex(const short unsigned int roomIndex)
 	this->m_roomIndex = roomIndex;
 }
 
-unsigned short int Room::getRoomIndex()
+short int Room::getRoomIndex()
 {
 	return this->m_roomIndex;
 }
@@ -123,94 +119,236 @@ DirectX::XMFLOAT4 Room::getPlayer2StartPos()
 	return this->m_player2StartPos;
 }
 
+const std::vector<Enemy*>* Room::getEnemies() const
+{
+	return &m_roomGuards;
+}
+
+void Room::GiveCameraToParticles(Camera * ptr)
+{
+	for (auto torch : m_Torches)
+		torch->setCamera(ptr);
+}
+
 void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		for (auto asset : m_staticAssets)
-		{
-			asset->Release(*m_worldPtr);
-		}
-		for (auto asset : m_staticAssets)
-		{
-			delete asset;
-		}
-		for (int i = 0; i < m_pointLights.size(); i++)
-			delete m_pointLights[i];
-		m_staticAssets.clear();
-		m_pointLights.clear();
-
-		CollisionBoxes->Release(*RipExtern::g_world);
-		delete CollisionBoxes;
-
-		for (auto & ab : m_audioBoxes)
-			ab->release();
-		m_audioBoxes.clear();
-		delete m_grid->gridPoints;
-		delete m_grid;
-		m_roomLoaded = false;
-
-
+		
+		Release();
 	}
-
 }
 
 void Room::LoadRoomToMemory()
 {
+	
 	//TODO:: add all the assets to whatever
-	std::cout << m_assetFilePath << std::endl;
 	if (m_roomLoaded == false)
 	{
-		MyLibrary::Loadera fileLoader;
-		MyLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
+		ImporterLibrary::CustomFileLoader fileLoader;
+		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
 		for (int i = 0; i < tempLights.nrOf; i++)
 		{
-			this->m_pointLights.push_back(new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity));
+			PointLight * p_pointLight = nullptr;
+			ParticleEmitter * p_emit = nullptr;
+
+			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
+			p_pointLight->setColor(90, 112.0f, 130.0f);
+
+			p_emit = new ParticleEmitter();
+			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);
+
+			m_Torches.push_back( new Torch(p_pointLight, p_emit, 0));
+			
+			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
+			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
 		delete tempLights.lights;
 
 		if (m_grid)
+		{
 			delete m_grid;
+			m_grid = nullptr;
+		}
+
+		//Reading grid and converts it pathfinding grid
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
-		m_pathfindingGrid->CreateGridWithWorldPosValues(m_grid->maxX, m_grid->maxY, *m_grid);
-		//
+		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
+
+		
 		m_roomLoaded = true;
 
-		MyLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
-		MyLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
+		ImporterLibrary::StartingPos player1Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 1);
+		ImporterLibrary::StartingPos player2Start = fileLoader.readPlayerStartFile(this->getAssetFilePath(), 2);
 
-		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1], player1Start.startingPos[2], 1.0f);
-		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1], player2Start.startingPos[2], 1.0f);
+		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1] +1 , player1Start.startingPos[2], 1.0f);
+		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1] + 1, player2Start.startingPos[2], 1.0f);
 
-		MyLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		
 
-		for (int i = 0; i < tempGuards.nrOf; i++)
+		ImporterLibrary::PropItemToEngine tempProps = fileLoader.readPropsFile(this->getAssetFilePath());
+		
+		placeRoomProps(tempProps);
+		delete tempProps.props;
+
+		//---------------------------------------------------------------------------------------------------------------------------------------------//
+		/*
+		 *	Start of creating guards and giving them paths
+		 */
+		 //---------------------------------------------------------------------------------------------------------------------------------------------//
+
+		//Takes all the grid points related to the pathfinding and push it into vector
+		//This will reduce the amount of nodes we need to search later
+		std::vector<ImporterLibrary::GridPointStruct> nodes;
+		for (unsigned int i = 0; i < m_grid->nrOf; ++i)
 		{
-			this->m_roomGuards.push_back(new Enemy(m_worldPtr, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]));
+			if (m_grid->gridPoints[i].guardpathConnection != -1)
+			{
+				nodes.push_back(m_grid->gridPoints[i]);
+			}
 
-			/*std::vector<Node*> path = m_pathfindingGrid.FindPath(Tile(0, 0), Tile(24, 13));
-			this->m_roomGuards.at(i)->SetPathVector(path);*/
-			//this->m_roomGuards.at(i)->setPosition(-10, 0, -10);
+		}
+		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		std::vector<int> uniqueID;
+		for (unsigned int i = 0; i < nodes.size(); ++i)
+		{
+			//Make sure we only create guards of a unique id
+			bool noDupe = true;
+			for (unsigned int j = 0; j < uniqueID.size(); ++j)
+			{
+				if (nodes.at(i).guardpathConnection == uniqueID.at(j))
+				{
+					noDupe = false;
+					break;
+				}
+			}
+
+			//Push back non dublicates
+			if (noDupe == true)
+			{
+				uniqueID.push_back(nodes.at(i).guardpathConnection);
+			}
+
+		}
+
+
+		for (unsigned int i = 0; i < uniqueID.size(); ++i)
+		{
+			//Filling the vector with correct nodes.
+			//aka related to the guard
+			std::vector<ImporterLibrary::GridPointStruct> tempNodes;
+			for (unsigned int j = 0; j < nodes.size(); ++j)
+			{
+				if (uniqueID.at(i) == nodes.at(j).guardpathConnection)
+				{
+					tempNodes.push_back(nodes.at(j));
+				}
+			}
+			//Getting the first node in the path to set the position
+			//Edit: this could be done after bubble sort to avoid 1 for loop
+			float pos[3];
+			for (unsigned int j = 0; j < tempNodes.size(); ++j)
+			{
+				if (tempNodes.at(j).guardPathIndex == 0)
+				{
+					pos[0] = tempNodes.at(j).translation[0];
+					pos[1] = tempNodes.at(j).translation[1];
+					pos[2] = tempNodes.at(j).translation[2];
+				}
+			}
+
+			//Bubble sort the nodes.
+			//This is to ensure the integrity of the path
+			bool sorted = false;
+			while (false == sorted)
+			{
+				sorted = true;
+				for (int i = 0; i < tempNodes.size() - 1; ++i)
+				{
+					if (tempNodes[i].guardPathIndex > tempNodes[i + 1].guardPathIndex)
+					{
+						sorted = false;
+						ImporterLibrary::GridPointStruct swap = tempNodes[i];
+						tempNodes[i] = tempNodes[i + 1];
+						tempNodes[i + 1] = swap;
+
+					}
+				}
+
+			}
+
+			//Createing the guard in the world
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], tempGuards.startingPositions[i].startingPos[1], pos[2]);
+			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+			e->SetPlayerPointer(m_playerInRoomPtr);
+			e->SetGuardUniqueIndex(uniqueID.at(i));
+
+			//Getting the first path length to fill fullPath
+			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
+			Tile temp2 = m_pathfindingGrid->WorldPosToTile(tempNodes.at(1).translation[0], tempNodes.at(1).translation[2]);
+			std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(temp,temp2);
+			for (unsigned int j = 1; j < tempNodes.size()-1; ++j)
+			{
+				//Gluing the rest of the paths.
+				Tile uno = m_pathfindingGrid->WorldPosToTile(tempNodes.at(j).translation[0], tempNodes.at(j).translation[2]);
+				Tile duo = m_pathfindingGrid->WorldPosToTile(tempNodes.at(j+1).translation[0], tempNodes.at(j+1).translation[2]);
+				std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(uno, duo);
+				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+			}
+			//Setting guard patrol path
+			e->SetPathVector(fullPath);
+			//Pushing guard to vector
+			this->m_roomGuards.push_back(e);
 		}
 		delete tempGuards.startingPositions;
+		//---------------------------------------------------------------------------------------------------------------------------------------------//
+		/*
+		 *	end of creating guards and giving them paths. 
+		 */
+		 //---------------------------------------------------------------------------------------------------------------------------------------------//
 
-		//getPath();
+		//DEBUG NODE 
+		//Manager::g_meshManager.loadStaticMesh("FLOOR");
+		//Manager::g_textureManager.loadTextures("FLOOR");
+		//Manager::g_meshManager.loadStaticMesh("FLOOR");
+			//Manager::g_textureManager.loadTextures("FLOOR");
+			//for (unsigned int i = 0; i < m_grid->maxY; ++i)
+			//{
+			//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
+			//	{
+			//		int index = i + j * m_grid->maxY;
+			//		if (m_grid->gridPoints[index].pathable == true)
+			//		{
+			//			BaseActor * b = DBG_NEW BaseActor();
+			//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+			//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
 
 
-		StaticAsset * temp = new StaticAsset();
-		temp->Init(*m_worldPtr, 1, 1, 1);
-		//te->p.Init(*m_worldPtr, e_dynamicBody, 1.0f, 1.0f, 1.0f);
-		temp->setPosition(0, 0, 0);
-		Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
-		temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
-		temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
+			//			//m_pathfindingGrid->
+			//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
+			//			m_staticAssets.push_back(b);
+			//		}
+			//	}
+			//}
+	
+		//Tartillbaka Hela rum
+	/*	if (m_roomIndex != 8 && m_roomIndex != 0 && m_roomIndex != 1)
+		{
 
-		CollisionBoxes = new BaseActor();
-		auto boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+			Manager::g_textureManager.loadTextures(this->getAssetFilePath());
+			Manager::g_meshManager.loadStaticMesh(this->getAssetFilePath());
+			BaseActor * temp = DBG_NEW BaseActor();
+			temp->Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
+			temp->setModel(Manager::g_meshManager.getStaticMesh(this->getAssetFilePath()));
+			temp->setTexture(Manager::g_textureManager.getTexture(this->getAssetFilePath()));
+			m_staticAssets.push_back(temp);
+
+		}*/
+
+		CollisionBoxes = DBG_NEW BaseActor();
+	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
+		ImporterLibrary::CollisionBoxes boxes = fileLoader.readMeshCollisionBoxes(this->getAssetFilePath());
 		CollisionBoxes->Init(*m_worldPtr, boxes);
-		CollisionBoxes->addCollisionBox(b3Vec3(0.066f, 5.35f, -0.644f), b3Vec3(0.798f, 3.052f, 3.052f), b3Quaternion(0, 0, 0, 0), "BLINK_WALL", false, m_worldPtr);
-		CollisionBoxes->addCollisionBox(b3Vec3(-5.502f, 6.35f, -9.57f), b3Vec3(9.5f, 4.036f, 0.968f), b3Quaternion(0,0,0,0), "BLINK_WALL", false, m_worldPtr);
-
 		for (unsigned int i = 0; i < boxes.nrOfBoxes; i++)
 		{
 			float * f4Rot = boxes.boxes[i].rotation;
@@ -223,88 +361,78 @@ void Room::LoadRoomToMemory()
 			ge->setActive(false);
 			m_audioBoxes.push_back(ge);
 		}
-
-		m_staticAssets.push_back(temp);
-		 
-
-	
+		delete [] boxes.boxes;
 		
-		m_roomLoaded = true;
-	
-		//std::cout << "Room " << m_roomIndex << " Loaded" << std::endl;
+		m_roomLoaded = true;	
 	}
-	else
-	{
-		//std::cout << "Room " << m_roomIndex << " Already Loaded" << std::endl;
-	}
+	m_enemyHandler = DBG_NEW EnemyHandler();
+	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
 
-	for (auto light : m_pointLights)
+	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
+	for (int i = 0; i < m_Torches.size(); i++)
 	{
-		light->setColor(200, 102, 50);
+		m_Torches[i]->setUniqueID(nrOfTriggers + i);
+		triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(m_Torches[i]->getUniqueID(), m_Torches[i]));
 	}
 }
 
 void Room::getPath()
 {
-	std::vector<Node*> path = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(24, 13));
-	std::cout << "Printing path..." << std::endl << std::endl;
-	for (int i = 0; i < path.size(); i++)
+	Tile t = m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z);
+	if (t.getX() != -1)
 	{
-		std::cout << "x: " << path.at(i)->tile.getX() << " y: " << path.at(i)->tile.getY() << std::endl;
-		std::cout << "World x: " << path.at(i)->worldPos.x << " World y: " << path.at(i)->worldPos.y << std::endl;
-	}
-	std::cout << std::endl << "Path is finished printing..." << std::endl;
-	for (int i = 0; i < path.size(); i++)
-	{
-		delete path.at(i);
-		path.at(i) = nullptr;
+		for (int i = 0; i < m_roomGuards.size(); i++)
+		{
+			DirectX::XMFLOAT4A pos = m_roomGuards.at(i)->getPosition();
+			Tile tile = m_pathfindingGrid->WorldPosToTile(pos.x, pos.z);
+			m_roomGuards.at(i)->SetAlertVector(m_pathfindingGrid->FindPath(tile,
+				m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z)));
+		}
 	}
 }
 
-void Room::Update(float deltaTime)
+void Room::loadTriggerPairMap()
 {
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
-	{
-		this->m_roomGuards.at(i)->Update(deltaTime);
-		this->m_roomGuards.at(i)->CullingForVisability(*m_playerInRoomPtr->getTransform());
-		this->m_roomGuards.at(i)->QueueForVisibility();
-		this->m_roomGuards.at(i)->_IsInSight();
-		this->m_roomGuards.at(i)->PhysicsUpdate(deltaTime);
-		vis.push_back(this->m_roomGuards.at(i)->getPlayerVisibility());
+	triggerHandler->LoadTriggerPairMap();
+}
 
-	}
-	int endvis = 0;
-	
-	for (int i = 0; i < vis.size(); ++i)
-	{
-		
-		if (vis.at(i)[0] >= 1)
-		{
-			endvis += vis.at(i)[0];
-		}
-	}
-	m_playerInRoomPtr->SetCurrentVisability(endvis);
-	
-	vis.clear();
 
-	for (auto light : m_pointLights)
+
+
+
+void Room::Update(float deltaTime, Camera * camera)
+{
+
+	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
+	m_enemyHandler->Update(deltaTime);
+
+	for (auto torch : m_Torches)
 	{
-		
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 0.1f, 1));
+		torch->Update(deltaTime);
+		auto light = torch->getPointLightPtr();
+		light->setDropOff(2.0425345f);
+		light->setPower(2.0f);
+		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
 	}
+
 	triggerHandler->Update(deltaTime);
-	door->Update(deltaTime);
-	lever->Update(deltaTime);
-	pressurePlate->Update(deltaTime);
+
 	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
 		{
 			m_youLost = true;
+			break;
 		}
 	}
 	if (m_youLost)
 	{
+#if _DEBUG
+		PlayState::setYouLost(false);
+#else
+		PlayState::setYouLost(true);
+#endif
+
 		HUDComponent::HUDUpdate(deltaTime);
 	}
 
@@ -312,7 +440,6 @@ void Room::Update(float deltaTime)
 	{
 		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
 	}
-	
 }
 
 void Room::SetActive(bool state)
@@ -323,66 +450,96 @@ void Room::SetActive(bool state)
 
 void Room::Draw()
 {
+	for (auto torch : m_Torches)
+	{
+		torch->Draw();
+	}
+	for (auto lights : m_pointLights)
+	{
+		lights->QueueLight();
+	}
 	for (int i = 0; i < m_staticAssets.size(); ++i)
 	{
 		m_staticAssets.at(i)->Draw();
 	}
-	for (auto light : m_pointLights)
-	{
-		
-		light->QueueLight();
-	}
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
-		this->m_roomGuards.at(i)->Draw();
-	door->Draw();
-	lever->Draw();
-	pressurePlate->Draw();
-
 	
+	m_enemyHandler->Draw();
+
+	triggerHandler->Draw();
+
 	if (m_youLost)
 	{
 		HUDComponent::HUDDraw();
 	}
-	
 
+	for (auto guard : m_roomGuards)
+	{
+		guard->DrawGuardPath();
+	}
 }
 
 void Room::Release()
 {
-	for (auto asset : m_staticAssets)
+	if (m_roomLoaded == true)
 	{
-		asset->Release(*m_worldPtr);
-	}
-	for (auto asset : m_staticAssets)
-	{
-		delete asset;
-	}
-	if (CollisionBoxes)
-	{
-		CollisionBoxes->Release(*m_worldPtr);
-		delete CollisionBoxes;
-		CollisionBoxes = nullptr;
-	}
-	for (auto light : m_pointLights)
-	{
-		delete light;
-	}
-	for (auto enemy : m_roomGuards)
-	{
-		delete enemy;
-	}
-	for (auto ab : m_audioBoxes)
-		ab->release();
-	delete m_grid->gridPoints;
-	delete m_grid;
+		m_roomLoaded = false;
+		for (auto asset : m_staticAssets)
+		{
+			if (asset)
+			{
+				asset->Release(*m_worldPtr);
+			}
+			
+		}
+		for (auto asset : m_staticAssets)
+		{
+			if (asset)
+			{
+				
+				delete asset;
+			}
+		}
+		m_staticAssets.clear();
+		if (CollisionBoxes)
+		{
+			CollisionBoxes->Release(*RipExtern::g_world);
+			delete CollisionBoxes;
+			CollisionBoxes = nullptr;
+		}
+		for (auto enemy : m_roomGuards)
+		{
+			delete enemy;
+		}
+		for (auto ab : m_audioBoxes)
+		{
+			ab->release();
+		}
+		if (m_grid)
+		{
+			delete m_grid->gridPoints;
 
-	door->Release(*m_worldPtr);
-	delete door;
-	lever->Release(*m_worldPtr);
-	delete lever;
-	pressurePlate->Release(*m_worldPtr);
-	delete pressurePlate;
-	delete triggerHandler;
+			delete m_grid;
+		}
+
+		for (int i = 0; i < m_Torches.size(); i++)
+		{
+			delete m_Torches[i];
+			m_Torches[i] = nullptr; 
+		}
+		m_Torches.clear();
+
+		for (int i = 0; i < m_pointLights.size(); i++)
+		{
+			delete m_pointLights[i];
+			m_pointLights[i] = nullptr;
+		}
+
+		triggerHandler->Release();
+		delete triggerHandler;
+		delete m_enemyHandler;
+		delete m_pathfindingGrid;
+	
+	}
 	
 }
 
@@ -390,3 +547,240 @@ void Room::loadTextures()
 {
 	Manager::g_textureManager.loadTextures(this->getAssetFilePath());
 }
+
+
+#pragma region LoadPropsAndAssets
+void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom)
+{
+	std::pair<Trigger*, Door> doorLeverPair;
+	Lever * tempLever = nullptr;
+	Door * tempDoor = nullptr;
+	PressurePlate * tempPressurePlate = nullptr;
+	Bars * tempBars = nullptr;
+
+	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
+	{
+		switch (propsAndAssets.props[i].typeOfProp)
+		{
+		case(1):
+			break;
+		case(2):
+			Manager::g_meshManager.loadSkinnedMesh("PLATE");
+			Manager::g_textureManager.loadTextures("PLATE");
+			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
+			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
+			tempPressurePlate = DBG_NEW PressurePlate(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+
+			tempPressurePlate->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2],
+				propsAndAssets.props[i].BBOX_INFO[0],
+				propsAndAssets.props[i].BBOX_INFO[1],
+				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].transform_scale[2]);
+			triggerHandler->Triggers.push_back(tempPressurePlate);
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			tempPressurePlate = nullptr;
+
+			break;
+		case(3):
+			Manager::g_meshManager.loadStaticMesh("DOOR");
+			Manager::g_textureManager.loadTextures("DOOR");
+			tempDoor = DBG_NEW Door(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempDoor->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2],
+				propsAndAssets.props[i].BBOX_INFO[0],
+				propsAndAssets.props[i].BBOX_INFO[1],
+				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].transform_scale[2]);
+			triggerHandler->Triggerables.push_back(tempDoor);
+			tempDoor = nullptr;
+			break;
+		case(4):
+			//Manager::g_meshManager.loadStaticMesh("SPAK");
+			//Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_meshManager.loadSkinnedMesh("SPAK");
+			Manager::g_textureManager.loadTextures("SPAK");
+			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
+			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
+			tempLever = DBG_NEW Lever(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempLever->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2]);
+			triggerHandler->Triggers.push_back(tempLever);
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
+			tempLever = nullptr;
+			break;
+		case(5):
+			Manager::g_meshManager.loadStaticMesh("BARS");
+			Manager::g_textureManager.loadTextures("BARS");
+			tempBars = DBG_NEW Bars(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempBars->Init(propsAndAssets.props[i].transform_position[0],
+				propsAndAssets.props[i].transform_position[1],
+				propsAndAssets.props[i].transform_position[2],
+				propsAndAssets.props[i].transform_rotation[0],
+				propsAndAssets.props[i].transform_rotation[1],
+				propsAndAssets.props[i].transform_rotation[2],
+				propsAndAssets.props[i].BBOX_INFO[0],
+				propsAndAssets.props[i].BBOX_INFO[1],
+				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].transform_scale[2]);
+			triggerHandler->Triggerables.push_back(tempBars);
+			tempDoor = nullptr;
+			break;
+		case(6):
+			_setPropAttributes(propsAndAssets.props[i], "CRATE", assetVector, true, isRandomRoom);
+			break;
+		case(7):
+			_setPropAttributes(propsAndAssets.props[i], "BARREL", assetVector, true, isRandomRoom);
+			break;
+		case(8):
+			_setPropAttributes(propsAndAssets.props[i], "BANNER", assetVector, true, isRandomRoom);
+			break;
+		case(9):
+			_setPropAttributes(propsAndAssets.props[i], "CHAIR", assetVector, true, isRandomRoom);
+			break;
+		case(10):
+			_setPropAttributes(propsAndAssets.props[i], "TABLE", assetVector, true, isRandomRoom);
+			break;
+		case(11):
+			_setPropAttributes(propsAndAssets.props[i], "CARPET", assetVector, false, isRandomRoom);
+			break;
+		case(12):
+			_setPropAttributes(propsAndAssets.props[i], "BUCKET", assetVector, true, isRandomRoom);
+			break;
+		case(13):
+			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", assetVector, true, isRandomRoom);
+			break;
+		case(14):
+			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", assetVector, false, isRandomRoom);
+			break;
+		case(15):
+			_setPropAttributes(propsAndAssets.props[i], "TORCH", assetVector, false, isRandomRoom);
+			break;
+		case(16):
+			_setPropAttributes(propsAndAssets.props[i], "GIANTPILLAR", assetVector, false, isRandomRoom);
+			break;
+		case(17):
+			_setPropAttributes(propsAndAssets.props[i], "BOOK", assetVector, true, isRandomRoom);
+			break;
+		case(18):
+			_setPropAttributes(propsAndAssets.props[i], "SMALLCEILING", assetVector, true, isRandomRoom);
+			break;
+		case(19):
+			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
+			break;
+		case(20):
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);	//set True
+			break;
+		case(21):
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
+			break;
+		case(22):
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom); //set True
+			break;
+		case(23):
+			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);
+			break;
+		case(24):
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, true, isRandomRoom);
+			break;
+		case(25):
+			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom);
+			break;
+		case(26):
+			_setPropAttributes(propsAndAssets.props[i], "CANDLE", assetVector, false, isRandomRoom);
+			break;
+		case(27):
+			_setPropAttributes(propsAndAssets.props[i], "TANKARD", assetVector, false, isRandomRoom);
+			break;
+		case(28):
+			_setPropAttributes(propsAndAssets.props[i], "SPEAR", assetVector, false, isRandomRoom);
+			break;
+		case(29):
+			_setPropAttributes(propsAndAssets.props[i], "KEG", assetVector, true, isRandomRoom);
+			break;
+		case(30):
+			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", assetVector, true, isRandomRoom);
+			break;
+		case(31):
+			_setPropAttributes(propsAndAssets.props[i], "WALLCHAIN", assetVector, false, isRandomRoom);
+			break;
+		case(32):
+			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", assetVector, true, isRandomRoom);
+			break;
+		case(33):
+			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom);
+			break;
+		case(35):
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
+			break;
+		case(36):
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox, bool isRandomRoom)
+{
+	BaseActor * tempAsset = DBG_NEW BaseActor();
+	Manager::g_meshManager.loadStaticMesh(name);
+	Manager::g_textureManager.loadTextures(name);
+	tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+	tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+	bool moveBox = false;
+	if (useBoundingBox == true)
+	{
+		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		moveBox = true;
+	}
+
+	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
+		tempAsset->CastShadows(false);
+	else if (name == "FLOOR")
+		tempAsset->setTextureTileMult(prop.transform_scale[0] / 2.0f, prop.transform_scale[2] / 2.0f);
+	else if (name == "BLINKWALL")
+		tempAsset->setObjectTag("BLINK_WALL");
+	else if(name == "THICKWALL")
+		tempAsset->setTextureTileMult(prop.transform_scale[1], prop.transform_scale[0]);
+	else if (name == "BARS")
+		tempAsset->setObjectTag("BLINK_WALL");
+
+	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
+	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	
+	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2]),
+		DirectX::XMFLOAT3(prop.BBOX_INFO[0] * 1.0f, prop.BBOX_INFO[1] * 1.0f, prop.BBOX_INFO[2] * 1.0f));
+	
+	if(moveBox == true && isRandomRoom == true)
+		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
+	if(name == "BANNER")
+		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1] - 90, prop.transform_rotation[2]);
+
+	assetVector->push_back(tempAsset);
+}
+
+
+
+	
+	

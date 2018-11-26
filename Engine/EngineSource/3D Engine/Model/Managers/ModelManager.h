@@ -3,7 +3,7 @@
 class Drawable;
 class Texture;
 class StaticMesh;
-class DynamicMesh;
+class SkinnedMesh;
 
 class ModelManager
 {
@@ -19,7 +19,7 @@ public:
 	
 	void DrawMeshes();
 	void addNewModel(StaticMesh* mesh, Texture* texture);
-	void addNewModel(DynamicMesh* mesh, Texture* texture);
+	void addNewModel(SkinnedMesh* mesh, Texture* texture);
 
 
 };

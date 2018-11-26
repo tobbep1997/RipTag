@@ -1,10 +1,15 @@
 #pragma once
-#include "../Debugg/ImGui/ImGuiManager.h"
+#include <Windows.h>
 
+struct ProcMsg;
+struct WindowContext;
 
 class Window;
 class Engine3D;
 class Camera;
+class ImGuiManager;
+
+
 
 class RenderingManager
 {
@@ -12,9 +17,10 @@ private:
 	bool	DEBUG = false;
 	Window*		m_wnd;
 	Engine3D*	m_engine;
-
+	HINSTANCE m_hInstance;
 	//IMGUI onlt take 1 mb in debug mode
-	ImGuiManager m_ImGuiManager;
+	ImGuiManager * m_ImGuiManager;
+	WindowContext * m_wind;
 public:
 	RenderingManager();
 	~RenderingManager();
@@ -39,6 +45,8 @@ public:
 	ProcMsg getWindowProcMsg();
 
 	void ImGuiProc();
+
+	void Reset();
 
 private:
 	void _reloadShaders();

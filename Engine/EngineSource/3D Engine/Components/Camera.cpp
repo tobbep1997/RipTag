@@ -7,7 +7,7 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	using namespace DirectX;
 
 	XMVECTOR XZcameraDirection = XMVector3Normalize(XMVectorSet(m_direction.x, 0.0, m_direction.z, 0.0));
-	XMVECTOR defaultDir = XMVectorSet(0.0, 0.0, -1.0, 0.0);
+	XMVECTOR defaultDir = XMVectorSet(0.0, 0.0, 1.0, 0.0);
 	float dot = XMVectorGetX(XMVector3Dot(defaultDir, XZcameraDirection));
 
 	dot = std::clamp(dot, -0.999999f, 0.999999f);
@@ -22,6 +22,23 @@ const DirectX::XMFLOAT4A Camera::getYRotationEuler()
 	r = std::clamp(r, -XM_PI, XM_PI);
 
 	return {0.0, r, 0.0, 0.0};
+}
+
+const DirectX::XMFLOAT4A Camera::getPitch()
+{
+	using namespace DirectX;
+
+	return { m_direction.y, 0.0, 0.0, 0.0 };
+}
+
+DirectX::XMFLOAT4A Camera::getForward() const
+{
+	DirectX::XMFLOAT4A forward = this->m_direction;
+	forward.y = 0.0f;
+
+	DirectX::XMStoreFloat4A(&forward, DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&forward)));
+
+	return forward;
 }
 
 void Camera::_calcViewMatrix(bool dir)
@@ -134,11 +151,15 @@ void Camera::Rotate(const DirectX::XMFLOAT4A & rotation)
 	vDir = DirectX::XMLoadFloat4A(&this->m_direction);
 
 	DirectX::XMVECTOR vNewDir = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(vLastDir, mRot));
+	vUp = DirectX::XMLoadFloat4A(&m_UP);
 
 	DirectX::XMVECTOR vDot = DirectX::XMVector3Dot(vNewDir, vUp);
 	float dot = DirectX::XMVectorGetX(vDot);
 	if (fabs(dot) < 0.90)
+	{
 		DirectX::XMStoreFloat4A(&this->m_direction, DirectX::XMVector3Normalize(vNewDir));
+		m_direction.w = 0.0f;
+	}
 }
 
 void Camera::Rotate(float x, float y, float z, float w)
@@ -187,6 +208,12 @@ void Camera::setNearPlane(float nearPlane)
 void Camera::setFarPlane(float farPlane)
 {
 	this->m_farPlane = farPlane;
+	_calcProjectionMatrix();
+}
+
+void Camera::setFOV(float fov)
+{
+	this->m_fov = fov;
 	_calcProjectionMatrix();
 }
 
@@ -242,6 +269,17 @@ const DirectX::XMFLOAT4X4A & Camera::getViewProjection()
 	return this->m_viewProjection;
 }
 
+DirectX::XMVECTOR Camera::getRotation()
+{
+	using namespace DirectX;
+	XMVECTOR s{};
+	XMVECTOR r{};
+	XMVECTOR t{};
+
+	XMMatrixDecompose(&s, &r, &t, DirectX::XMLoadFloat4x4A(&getView()));
+	return r;
+}
+
 DirectX::XMFLOAT4A Camera::_add(const DirectX::XMFLOAT4A & a, const DirectX::XMFLOAT4A & b)
 {
 	DirectX::XMVECTOR vA, vB;
@@ -251,6 +289,16 @@ DirectX::XMFLOAT4A Camera::_add(const DirectX::XMFLOAT4A & a, const DirectX::XMF
 	DirectX::XMFLOAT4A sum;
 	DirectX::XMStoreFloat4A(&sum, vSum);
 	return sum;
+}
+
+void Camera::setPerspectiv(Perspectiv perspectiv)
+{
+	this->m_perspectiv = perspectiv;
+}
+
+const Camera::Perspectiv& Camera::getPerspectiv() const
+{
+	return this->m_perspectiv;
 }
 
 DirectX::XMMATRIX Camera::ForceRotation(const DirectX::XMFLOAT4X4A& rotMatrix)

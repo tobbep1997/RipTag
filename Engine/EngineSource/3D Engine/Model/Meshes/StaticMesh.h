@@ -3,7 +3,7 @@
 
 struct StaticVertex;
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
 	struct CollisionBoxes;
 };
@@ -11,9 +11,12 @@ namespace MyLibrary
 class StaticMesh
 {
 private:
+	ID3D11Buffer * m_vertexBuffer = nullptr;
+	void _createVertexBuffer();
+private:
 	std::string m_meshName;
 	std::vector<StaticVertex> m_staticVertex;
-	MyLibrary::CollisionBoxes * m_collisionBox;
+	ImporterLibrary::CollisionBoxes * m_collisionBox;
 public:
 	StaticMesh();
 	~StaticMesh();
@@ -22,7 +25,7 @@ public:
 	const std::vector<StaticVertex> & getVertice() const;
 	void setVertices(std::vector<StaticVertex>& input);
 
-	const MyLibrary::CollisionBoxes & getCollisionBoxes() const;
+	const ImporterLibrary::CollisionBoxes & getCollisionBoxes() const;
 
 	void SET_DEFAULT();
 
@@ -31,5 +34,8 @@ public:
 
 	void LoadMesh(const std::string & path);
 	void LoadCollision(const std::string & path);
+
+	ID3D11Buffer * getBuffer();
+
 };
 

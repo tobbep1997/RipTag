@@ -10,29 +10,64 @@ public:
 			a = contact->GetShapeA();
 			b = contact->GetShapeB();
 		}
-		b3Shape * a;
-		b3Shape * b;
-	};
-private:
+		b3Shape * a = nullptr;
+		b3Shape * b = nullptr;
 
-	std::vector<b3Contact*> m_beginContacts;
-	std::vector<S_EndContact> m_endContacts;
-	std::vector<b3Contact*> m_persistingContacts;
-	std::vector<b3Shape*> m_endShapesA;
-	std::vector<b3Shape*> m_endShapesB;
+	};
+
+	struct S_Contact
+	{
+		S_Contact()
+		{
+			a = nullptr;
+			b = nullptr;
+			free = true;
+		}
+		S_Contact(b3Contact * contact)
+		{
+			a = contact->GetShapeA();
+			b = contact->GetShapeB();
+			free = false;
+		}
+
+		void Copy(b3Contact * contact)
+		{
+			a = contact->GetShapeA();
+			b = contact->GetShapeB();
+			free = false;
+		}
+
+		void Empty()
+		{
+			a = nullptr;
+			b = nullptr;
+			free = true;
+		}
+		b3Shape * a = nullptr;
+		b3Shape * b = nullptr;
+		bool free = true;
+	};
+
+private:
+	const int MAX_CONTACTS = 50;
+	unsigned int m_nrOfBeginContacts;
+	unsigned int m_nrOfEndContacts;
+	std::vector<S_Contact> startContacts;
+	std::vector<S_Contact> endContacts;
 
 public:
 	ContactListener();
 	virtual ~ContactListener();
+
 	virtual void BeginContact(b3Contact* contact);
 	virtual void EndContact(b3Contact* contact);
 	virtual void Persisting(b3Contact* contact);
 
-	virtual std::vector<b3Contact*> GetBeginContacts();
-	virtual std::vector<S_EndContact> GetEndContacts();
-	virtual std::vector<b3Contact*> GetPersistingContacts();
-	virtual std::vector<b3Shape*> GetEndShapesA();
-	virtual std::vector<b3Shape*> GetEndShapesB();
+	S_Contact GetBeginContact(unsigned int pos);
+	S_Contact GetEndContact(unsigned int pos);
+
+	unsigned int GetNrOfEndContacts();
+	unsigned int GetNrOfBeginContacts();
 
 	void ClearContactQueue();
 };

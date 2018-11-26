@@ -10,7 +10,7 @@ StaticAsset::~StaticAsset()
 {
 }
 
-void StaticAsset::Init(b3World& world, const MyLibrary::CollisionBoxes& collisionBoxes)
+void StaticAsset::Init(b3World& world, const ImporterLibrary::CollisionBoxes& collisionBoxes)
 {
 	PhysicsComponent::Init(world, collisionBoxes);
 }
@@ -31,6 +31,7 @@ void StaticAsset::Update(double deltaTime)
 void StaticAsset::setPosition(const float& x, const float& y, const float& z)
 {
 	Transform::setPosition(x, y, z);
+
 }
 
 

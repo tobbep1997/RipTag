@@ -1,8 +1,25 @@
 #include "EnginePCH.h"
 #include "StaticMesh.h"
 
-#include "ImportLibrary/formatImporter.h"
 
+void StaticMesh::_createVertexBuffer()
+{
+	DX::SafeRelease(m_vertexBuffer);
+
+	UINT32 vertexSize = sizeof(StaticVertex);
+	UINT32 offset = 0;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(StaticVertex) * (UINT)getVertice().size();
+
+
+	D3D11_SUBRESOURCE_DATA vertexData;
+	vertexData.pSysMem = getRawVertice();
+	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+}
 
 StaticMesh::StaticMesh()
 {
@@ -11,8 +28,13 @@ StaticMesh::StaticMesh()
 
 StaticMesh::~StaticMesh()
 {
-	delete [] m_collisionBox->boxes;
-	delete m_collisionBox;
+	if (m_collisionBox)
+	{
+		delete[] m_collisionBox->boxes;
+		delete m_collisionBox;
+	}
+	if (m_vertexBuffer)
+		m_vertexBuffer->Release();
 }
 
 const StaticVertex * StaticMesh::getRawVertice() const
@@ -29,9 +51,10 @@ void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 {
 	m_staticVertex.clear();
 	m_staticVertex = input;
+	_createVertexBuffer();
 }
 
-const MyLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const
+const ImporterLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const
 {
 	return *m_collisionBox;
 }
@@ -40,8 +63,8 @@ void StaticMesh::SET_DEFAULT()
 {
 	using namespace DirectX;
 
-	MyLibrary::Loadera meshloader;
-	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
+	ImporterLibrary::CustomFileLoader meshloader;
+	ImporterLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
 
 	StaticVertex tempvertex;
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
@@ -69,6 +92,7 @@ void StaticMesh::SET_DEFAULT()
 
 	}
 	delete newMesh.mesh_vertices;
+	_createVertexBuffer();
 }
 
 void StaticMesh::setName(const std::string & name)
@@ -85,8 +109,8 @@ void StaticMesh::LoadMesh(const std::string & path)
 {
 	using namespace DirectX;
 
-	MyLibrary::Loadera meshloader;
-	MyLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
+	ImporterLibrary::CustomFileLoader meshloader;
+	ImporterLibrary::MeshFromFile newMesh = meshloader.readMeshFile(path);
 
 	StaticVertex tempvertex;
 	//m_meshName = newMesh.mesh_meshID;
@@ -103,23 +127,31 @@ void StaticMesh::LoadMesh(const std::string & path)
 		tempvertex.normal.z = newMesh.mesh_vertices[i].vertex_normal[2];
 		tempvertex.normal.w = 0.0f;
 
-		tempvertex.uvPos.x = newMesh.mesh_vertices[i].vertex_UVCoord[0];
-		tempvertex.uvPos.y = newMesh.mesh_vertices[i].vertex_UVCoord[1];
-
 		tempvertex.tangent.x = newMesh.mesh_vertices[i].vertex_tangent[0];
 		tempvertex.tangent.y = newMesh.mesh_vertices[i].vertex_tangent[1];
 		tempvertex.tangent.z = newMesh.mesh_vertices[i].vertex_tangent[2];
 		tempvertex.tangent.w = 0.0f;
 
+		tempvertex.uvPos.x = newMesh.mesh_vertices[i].vertex_UVCoord[0];
+		tempvertex.uvPos.y = newMesh.mesh_vertices[i].vertex_UVCoord[1];
+		tempvertex.uvPos.z = 0; 
+		tempvertex.uvPos.w = 0;
+
 		m_staticVertex.push_back(tempvertex);
 
 	}
 	delete newMesh.mesh_vertices;
+	_createVertexBuffer();
 }
 
 void StaticMesh::LoadCollision(const std::string & path)
 {
-	MyLibrary::Loadera meshloader;
-	m_collisionBox = new MyLibrary::CollisionBoxes();
+	ImporterLibrary::CustomFileLoader meshloader;
+	m_collisionBox = new ImporterLibrary::CollisionBoxes();
 	*m_collisionBox = meshloader.readMeshCollisionBoxes(path);
+}
+
+ID3D11Buffer* StaticMesh::getBuffer()
+{
+	return this->m_vertexBuffer;
 }

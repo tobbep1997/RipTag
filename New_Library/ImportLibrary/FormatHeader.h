@@ -4,14 +4,15 @@
 #include <fstream>
 #define MAX_FILENAME 100
 
-namespace MyLibrary
+namespace ImporterLibrary
 {
-#pragma region OriginalMyLibraryStructs
+#pragma region OriginalImporterLibraryStructs
 
 	
 	struct StartingPos
 	{
 		float startingPos[3];
+		int guardIndex;
 	};
 	struct GridHeader
 	{
@@ -21,6 +22,8 @@ namespace MyLibrary
 	{
 		bool pathable;
 		float translation[3];
+		int guardpathConnection;
+		int guardPathIndex;
 	};
 	struct GuardStartingPositions {
 		int nrOf;
@@ -66,12 +69,34 @@ namespace MyLibrary
 			std::fill(transform_scale, transform_scale + 3, 1.0f);
 		};
 	};
+	struct PropItem
+	{
+		int typeOfProp;
+		int linkedItem;
+		bool isTrigger;
+		float transform_position[3];
+		float transform_rotation[3];
+		float transform_scale[3];
+		float BBOX_INFO[3];
+	};
+	struct propsHeader
+	{
+		int nrOfItems;
+	};
+	struct PropItemToEngine
+	{
+		int nrOfItems;
+		PropItem * props;
+		
+	};
 	struct GridStruct
 	{
-		GridPointStruct * gridPoints;
+		GridPointStruct * gridPoints = nullptr;
 		int nrOf;
 		int maxX;
 		int maxY;
+
+		GridStruct() { gridPoints = nullptr; }
 	};
 	struct CollisionBox
 	{
@@ -154,7 +179,7 @@ namespace MyLibrary
 		};
 	};
 
-	struct AnimatedMeshFromFile
+	struct SkinnedMeshFromFile
 	{
 		unsigned int mesh_nrOfVertices;
 		char mesh_meshID[MAX_FILENAME];
@@ -184,7 +209,7 @@ namespace MyLibrary
 		unsigned int nr_of_keyframes;
 		std::unique_ptr<Transform[]> keyframe_transformations;
 	};
-#pragma endregion OriginalMyLibraryStructs
+#pragma endregion OriginalImporterLibraryStructs
 #pragma region HelperStructs
 	struct Vec4
 	{
