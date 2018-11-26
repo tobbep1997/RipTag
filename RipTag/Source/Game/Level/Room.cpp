@@ -672,7 +672,8 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	bool moveBox = false;
 	if (useBoundingBox == true)
 	{
-		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		//tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0] * prop.transform_scale[0], prop.BBOX_INFO[1] * prop.transform_scale[1], prop.BBOX_INFO[2] * prop.transform_scale[2]);
 		moveBox = true;
 	}
 
@@ -689,7 +690,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
-	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], moveBox);
 	
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	

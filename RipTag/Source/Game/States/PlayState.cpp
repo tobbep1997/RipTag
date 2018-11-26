@@ -185,8 +185,8 @@ void PlayState::Draw()
 
 	}
 
+	DrawWorldCollisionboxes();
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
@@ -405,7 +405,7 @@ void PlayState::thread(std::string s)
 	Manager::g_meshManager.loadStaticMesh(s);
 }
 
-#ifdef _DEBUG
+
 #include "EngineSource\Structs.h"
 #include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
 
@@ -546,7 +546,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	for (auto & d : _drawables)
 		d->DrawWireFrame();
 }
-#endif
+
 
 void PlayState::unLoad()
 {
