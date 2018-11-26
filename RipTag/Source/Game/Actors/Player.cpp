@@ -93,7 +93,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 		soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
 		
 		soundfor->init(
-			{ 0.05f, 0.87f },
+			{ 0.025f, 0.91f },
 			{ scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
 
 		
