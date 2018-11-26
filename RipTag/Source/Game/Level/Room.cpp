@@ -463,10 +463,8 @@ void Room::Draw()
 		m_staticAssets.at(i)->Draw();
 	}
 	
+	m_enemyHandler->Draw();
 
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
-		this->m_roomGuards.at(i)->Draw();
-	
 	triggerHandler->Draw();
 
 	if (m_youLost)
@@ -689,13 +687,13 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, false, isRandomRoom);	//set True
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);	//set True
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, false, isRandomRoom); //set True
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom); //set True
 			break;
 		case(23):
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);

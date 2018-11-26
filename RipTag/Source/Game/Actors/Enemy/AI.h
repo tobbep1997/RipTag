@@ -95,6 +95,7 @@ public:
 	virtual ~AI();
 
 	void handleStates(const double deltaTime);
+	void handleStatesClient(const double deltaTime);
 
 	void SetPathVector(std::vector<Node*>  path);
 	Node * GetCurrentPathNode() const;
@@ -145,5 +146,7 @@ private:
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
+
+
 };
 
