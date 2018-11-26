@@ -61,11 +61,7 @@ void PlayState::Update(double deltaTime)
 		InputMapping::Call();
 
 		m_firstRun = false;
-		
-		while (m_physRunning)
-		{
-			int i = 0;
-		}
+
 
 		if (RipExtern::g_kill == true)
 		{
