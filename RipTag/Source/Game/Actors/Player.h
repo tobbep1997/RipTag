@@ -49,6 +49,9 @@ private:
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
 
+	const std::string PlayerOneHUDPath = "../Assets/Player1HUD.txt";
+	const std::string PlayerTwoHUDPath = "../Assets/Player2HUD.txt";
+
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 private:
@@ -132,7 +135,7 @@ private:
 	Quad * m_cross;
 	std::stack<std::string> m_tutorialMessages;
 	float m_tutorialDuration = 0.0f;
-	bool m_tutorialActive = true;
+	bool m_tutorialActive = false;
 	
 	DirectX::XMVECTOR m_VlastSpeed; 
 	DirectX::XMVECTOR m_VcurrentSpeed; 
@@ -191,6 +194,7 @@ public:
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 
 	void Draw() override;
+	void DrawHUDComponents();
 
 	//Networking
 	void SendOnUpdateMessage();
@@ -248,6 +252,10 @@ private:
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
 
+
+	void _loadHUD();
+	void _unloadHUD();
+	void _initSoundHUD();
 	//Cheats, like changing ability set
 	void _cheats();
 };
