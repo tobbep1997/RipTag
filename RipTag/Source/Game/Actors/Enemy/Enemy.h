@@ -147,6 +147,8 @@ private:
 	Player * m_PlayerPtr		= nullptr;
 	RemotePlayer * m_RemotePtr	= nullptr;
 
+	int m_guardUniqueIndex = -1;
+
 	int m_interactRayId = -100;
 
 	ParticleEmitter * pEmitter = nullptr;
@@ -236,6 +238,9 @@ public:
 
 	float getTotalVisibility();
 	float getMaxVisibility();
+
+	int GetGuardUniqueIndex();
+	void SetGuardUniqueIndex(const int & index);
 	const int getInteractRayId();
 private:
 

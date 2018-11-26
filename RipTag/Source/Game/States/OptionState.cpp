@@ -71,7 +71,10 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
-
+						if (GamePadHandler::IsRightDpadPressed())
+							m_fov++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_fov--;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -102,7 +105,10 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
-
+						if (GamePadHandler::IsRightDpadPressed())
+							m_sens.x++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_sens.x--;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -132,7 +138,10 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
-						
+						if (GamePadHandler::IsRightDpadPressed())
+							m_sens.y++;
+						if (GamePadHandler::IsLeftDpadPressed())
+							m_sens.y--;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -230,10 +239,10 @@ void OptionState::_slide()
 
 void OptionState::_initButtons()
 {
-	m_text.push_back(Quad::CreateButton("Field of View", 0.5f, 0.86f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("Field of View", 0.5f, 0.86f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderFov]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderFov]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderFov]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderFov]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderFov]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderFov]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
@@ -246,10 +255,10 @@ void OptionState::_initButtons()
 	m_buttons[ButtonOrder::SliderFov]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("X-Axis: ", 0.5f, 0.71f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("X-Axis: ", 0.5f, 0.71f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderSensitivityX]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
@@ -261,10 +270,10 @@ void OptionState::_initButtons()
 	m_buttons[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_text.push_back(Quad::CreateButton("Y-Axis: ", 0.5f, 0.56f, 0.70f, 0.17f));
+	m_text.push_back(Quad::CreateButton("Y-Axis: ", 0.5f, 0.56f, 0.73f, 0.12f));
 	m_text[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderSensitivityY]->setHoverTexture("gui_transparent_pixel");
+	m_text[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_pressed_pixel");
+	m_text[ButtonOrder::SliderSensitivityY]->setHoverTexture("gui_hover_pixel");
 	m_text[ButtonOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[ButtonOrder::SliderSensitivityY]->setFont(FontHandler::getFont("consolas16"));
 	m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
@@ -351,12 +360,14 @@ void OptionState::_handleGamePadInput(double dt)
 			m_liu = Gamepad;
 			dir = -1;
 			timer = 0.0;
+			m_sliderPressed = false;
 		}
 		else if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f))
 		{
 			m_liu = Gamepad;
 			dir = 1;
 			timer = 0.0;
+			m_sliderPressed = false;
 		}
 
 		m_currentButton += dir;
@@ -373,8 +384,17 @@ void OptionState::_handleGamePadInput(double dt)
 		{
 			m_liu = Gamepad;
 			if (m_buttons[m_currentButton]->isSelected())
+			{
 				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+				m_buttonPressed = true;
+				if (m_currentButton == SliderFov || m_currentButton == SliderSensitivityX || m_currentButton == SliderSensitivityY)
+				{
+					this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
+					m_sliderPressed = true;
+				}
+			}
 		}
+
 		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
 	}
 }
@@ -420,6 +440,7 @@ void OptionState::_handleKeyboardInput(double dt)
 			m_buttonPressed = true;
 			if (m_currentButton == SliderFov || m_currentButton == SliderSensitivityX || m_currentButton == SliderSensitivityY)
 			{
+				this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
 				m_sliderPressed = true;
 			}
 		}
@@ -480,6 +501,23 @@ void OptionState::_updateSelectionStates()
 	m_buttonPressed = false;
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
+		if (i == SliderFov || i == SliderSensitivityX || i == SliderSensitivityY)
+		{
+			if (i != m_currentButton)
+			{
+				m_text[i]->Select(false);
+				m_text[i]->setState(ButtonStates::Normal);
+			}
+			else
+			{
+				if (!m_text[i]->isSelected()
+					&& (m_text[i]->getState() != (unsigned int)ButtonStates::Pressed)
+					)
+				{
+					m_text[i]->setState(ButtonStates::Hover);
+				}
+			}
+		}
 		if (i != m_currentButton)
 		{
 			m_buttons[i]->Select(false);

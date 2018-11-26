@@ -12,6 +12,7 @@ namespace ImporterLibrary
 	struct StartingPos
 	{
 		float startingPos[3];
+		int guardIndex;
 	};
 	struct GridHeader
 	{
@@ -21,6 +22,8 @@ namespace ImporterLibrary
 	{
 		bool pathable;
 		float translation[3];
+		int guardpathConnection;
+		int guardPathIndex;
 	};
 	struct GuardStartingPositions {
 		int nrOf;

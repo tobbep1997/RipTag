@@ -155,6 +155,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	}
 	
 	SetFirstPersonModel();
+
+	this->p_camera->setPerspectiv(Camera::Perspectiv::Player);
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -480,6 +482,7 @@ void Player::Draw()
 		m_enemyCircles[i]->Draw();
 	}
 	m_soundLevelHUD.Draw();
+	m_FirstPersonModel->setEntityType(EntityType::FirstPersonPlayer);
 	m_FirstPersonModel->Draw();
 }
 
@@ -519,6 +522,7 @@ void Player::SetFirstPersonModel()
 	}
 	m_FirstPersonModel = new BaseActor();
 	m_FirstPersonModel->CastShadows(false);
+	m_FirstPersonModel->setEntityType(EntityType::FirstPersonPlayer);
 
 	auto fpsmodel = Manager::g_meshManager.getSkinnedMesh("ARMS");
 	m_FirstPersonModel->setModel(fpsmodel);

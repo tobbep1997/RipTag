@@ -151,17 +151,33 @@ void ForwardRender::GeometryPass(Camera & camera)
 		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
 		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
 		boundingFrustum.Transform(boundingFrustum, viewInv);
-		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType)
-		{
-			if (DX::g_cullQueue[i]->getBoundingBox())
-			{
-				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
-			}
-			else
-				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 
+		switch (camera.getPerspectiv())
+		{
+			
 		}
+
+		switch (camera.getPerspectiv())
+		{
+		case Camera::Perspectiv::Player:
+			if (DX::g_cullQueue[i]->getEntityType() == EntityType::PlayerType)						
+				continue;			
+			break;
+		case Camera::Perspectiv::Enemy:
+			if (DX::g_cullQueue[i]->getEntityType() == EntityType::GuarddType && DX::g_cullQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+				continue;
+			break;
+		default:
+			break;
+		}
+
+		if (DX::g_cullQueue[i]->getBoundingBox())
+		{
+			if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
+				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
+		}
+		else
+			DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 	}
 	DrawInstancedCull(&camera, true);
 
@@ -314,9 +330,24 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getHidden() != true )
+
+
+		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 		{
 			//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+			switch (camera.getPerspectiv())
+			{
+			case Camera::Perspectiv::Player:
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
+					continue;
+				break;
+			case Camera::Perspectiv::Enemy:
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::GuarddType || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+					continue;
+				break;
+			}
+
 			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
 
 			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);

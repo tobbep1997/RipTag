@@ -103,6 +103,7 @@ void Torch::QueueLight()
 
 void Torch::BeginPlay()
 {
+	_playSound();
 }
 
 void Torch::handleContact(RayCastListener::RayContact * contact)
@@ -120,9 +121,9 @@ void Torch::handleContact(RayCastListener::RayContact * contact)
 void Torch::_playSound(AudioEngine::SoundType st)
 {
 	//UNCOMMENT WHEN READY
-	/*FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
-	if (this->getTriggerState())
-		AudioEngine::PlaySoundEffect(RipSounds::g_torchLit, &at, st);
+	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
+	if (!this->getTriggerState())
+		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, st);
 	else
-		AudioEngine::PlaySoundEffect(RipSounds::g_torchPutOut, &at, st);*/
+		m_channel->stop();
 }
