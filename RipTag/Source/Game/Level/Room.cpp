@@ -173,6 +173,74 @@ void Room::LoadRoomToMemory()
 				
 		m_grid = fileLoader.readGridFile(this->getAssetFilePath());
 
+		std::vector<ImporterLibrary::GridPointStruct> nodes;
+		for (unsigned int i = 0; i < m_grid->nrOf; ++i)
+		{
+			
+			if (m_grid->gridPoints[i].guardpathConnection != -1)
+			{
+				nodes.push_back(m_grid->gridPoints[i]);
+		
+			}
+			
+		}
+		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		std::vector<int> uniqueID;
+		for (unsigned int i = 0; i < nodes.size(); ++i)
+		{
+			//nodes.at(i).translation[0];
+			//std::cout << nodes.at(i).translation[0] << " " << nodes.at(i).translation[2] << " " << nodes.at(i).guardPathIndex  << " " <<nodes.at(i).guardpathConnection << std::endl;
+			bool noDupe = true;
+			for (unsigned int j = 0; j < uniqueID.size(); ++j)
+			{
+				if (nodes.at(i).guardpathConnection == uniqueID.at(j))
+				{
+					noDupe = false;
+					break;
+				}
+			}
+
+			if (noDupe == true)
+			{
+				uniqueID.push_back(nodes.at(i).guardpathConnection);
+			}
+
+		}
+
+
+		for (unsigned int i = 0; i < uniqueID.size(); ++i)
+		{
+			std::vector<ImporterLibrary::GridPointStruct> tempNodes;
+			for (unsigned int j = 0; j < nodes.size(); ++j)
+			{
+				if (uniqueID.at(i) == nodes.at(j).guardpathConnection)
+				{
+					tempNodes.push_back(nodes.at(j));
+				}
+			}
+			float pos[3];
+			for (unsigned int j = 0; j < tempNodes.size(); ++j)
+			{
+				if(tempNodes.at(j).guardPathIndex == 0)
+				{
+					pos[0] = tempNodes.at(j).translation[0];
+					pos[1] = tempNodes.at(j).translation[1];
+					pos[2] = tempNodes.at(j).translation[2];
+				}
+			}
+
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], pos[1], pos[2]);
+			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+			e->SetPlayerPointer(m_playerInRoomPtr);
+
+			e->SetGuardUniqueIndex(uniqueID.at(i));
+
+
+
+			this->m_roomGuards.push_back(e);
+		}
+
+
 		m_pathfindingGrid->CreateGridWithWorldPosValues(*m_grid);
 
 		
@@ -184,7 +252,7 @@ void Room::LoadRoomToMemory()
 		m_player1StartPos = DirectX::XMFLOAT4(player1Start.startingPos[0], player1Start.startingPos[1] +1 , player1Start.startingPos[2], 1.0f);
 		m_player2StartPos = DirectX::XMFLOAT4(player2Start.startingPos[0], player2Start.startingPos[1] + 1, player2Start.startingPos[2], 1.0f);
 
-		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
+		
 
 		ImporterLibrary::PropItemToEngine tempProps = fileLoader.readPropsFile(this->getAssetFilePath());
 		
@@ -214,28 +282,28 @@ void Room::LoadRoomToMemory()
 		//}
 
 
-		for (int i = 0; i < tempGuards.nrOf; i++)
-		{
-			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
-			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
-			e->SetPlayerPointer(m_playerInRoomPtr);
+		//for (int i = 0; i < tempGuards.nrOf; i++)
+		//{
+		//	Enemy * e = DBG_NEW Enemy(m_worldPtr, i, tempGuards.startingPositions[i].startingPos[0], tempGuards.startingPositions[i].startingPos[1], tempGuards.startingPositions[i].startingPos[2]);
+		//	e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
+		//	e->SetPlayerPointer(m_playerInRoomPtr);
 
-			e->SetGuardUniqueIndex(-1/*TODO::GUSTAV INSERT*/);
-			//std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
-			/*for (unsigned int j = 0; j < m_pathIndexSize[i]; ++j)
-			{
-				std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
-				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
+		//	e->SetGuardUniqueIndex(-1/*TODO::GUSTAV INSERT*/);
+		//	//std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(Tile(0, 0), Tile(5, 0));
+		//	/*for (unsigned int j = 0; j < m_pathIndexSize[i]; ++j)
+		//	{
+		//		std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(Tile(5, 0), Tile(5, 10));
+		//		fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
 
-				
-			}*/
-			//e->SetPathVector(fullPath);
+		//		
+		//	}*/
+		//	//e->SetPathVector(fullPath);
 
-			std::vector<Node*> path = m_pathfindingGrid->FindPath(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z), m_pathfindingGrid->GetRandomNearbyTile(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z)));
-			e->SetPathVector(path);
+		//	std::vector<Node*> path = m_pathfindingGrid->FindPath(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z), m_pathfindingGrid->GetRandomNearbyTile(m_pathfindingGrid->WorldPosToTile(e->getPosition().x, e->getPosition().z)));
+		//	e->SetPathVector(path);
 
-			this->m_roomGuards.push_back(e);
-		}
+		//	this->m_roomGuards.push_back(e);
+		//}
 		delete tempGuards.startingPositions;
 
 		/*

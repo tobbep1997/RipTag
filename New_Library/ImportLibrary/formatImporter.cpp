@@ -498,6 +498,8 @@ namespace ImporterLibrary
 				customGridFile.read((char*)&gridPos->gridPoints[i].translation, sizeof(float) * 3);
 				customGridFile.read((char*)&gridPos->gridPoints[i].guardpathConnection, sizeof(int));
 				customGridFile.read((char*)&gridPos->gridPoints[i].guardPathIndex, sizeof(int));
+
+			
 			}
 			customGridFile.close();
 		}
