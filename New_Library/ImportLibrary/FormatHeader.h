@@ -12,6 +12,7 @@ namespace ImporterLibrary
 	struct StartingPos
 	{
 		float startingPos[3];
+		int guardIndex;
 	};
 	struct GridHeader
 	{
