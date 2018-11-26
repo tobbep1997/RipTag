@@ -155,6 +155,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	}
 	
 	SetFirstPersonModel();
+
+	this->p_camera->setPerspectiv(Camera::Perspectiv::Player);
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()

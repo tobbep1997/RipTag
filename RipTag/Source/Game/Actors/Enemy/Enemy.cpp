@@ -62,7 +62,9 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
-	
+
+	this->p_camera->setPerspectiv(Camera::Perspectiv::Enemy);
+
 	//setOutline(true);
 }
 

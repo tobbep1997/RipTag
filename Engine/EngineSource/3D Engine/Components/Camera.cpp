@@ -291,6 +291,16 @@ DirectX::XMFLOAT4A Camera::_add(const DirectX::XMFLOAT4A & a, const DirectX::XMF
 	return sum;
 }
 
+void Camera::setPerspectiv(Perspectiv perspectiv)
+{
+	this->m_perspectiv = perspectiv;
+}
+
+const Camera::Perspectiv& Camera::getPerspectiv() const
+{
+	return this->m_perspectiv;
+}
+
 DirectX::XMMATRIX Camera::ForceRotation(const DirectX::XMFLOAT4X4A& rotMatrix)
 {
 	using namespace DirectX;
