@@ -270,7 +270,7 @@ void DisableAbility::_inStateMoving(double dt)
 							p_cooldown = 0.0;
 							accumulatedTime = 0.0;
 
-							this->_sendOnHitNotification(ptr->getPosition());
+							this->_sendOnHitNotification(ptr);
 
 						}
 						else
@@ -340,13 +340,12 @@ void DisableAbility::_inStateRemoteActive(double dt)
 	}
 }
 
-void DisableAbility::_sendOnHitNotification(const DirectX::XMFLOAT4A & pos)
+void DisableAbility::_sendOnHitNotification(Enemy * ptr)
 {
-	Network::ENTITYABILITYPACKET packet;
-	packet.id = Network::ID_PLAYER_ABILITY;
-	packet.ability = (unsigned int)Ability::DISABLE;
-	packet.state = (unsigned int)DisableState::OnHit;
-	packet.start = pos;
+	Network::ENTITYSTATEPACKET packet(0,0,true);
+	packet.id = Network::ID_ENEMY_DISABLED;
+	packet.state = ptr->getUniqueID();
+	packet.pos = ptr->getPosition();
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
 }

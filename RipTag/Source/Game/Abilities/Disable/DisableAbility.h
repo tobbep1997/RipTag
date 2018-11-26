@@ -82,5 +82,5 @@ private:
 	void _inStateCooldown(double dt);
 	void _inStateRemoteActive(double dt);
 
-	void _sendOnHitNotification(const DirectX::XMFLOAT4A & pos);
+	void _sendOnHitNotification(Enemy * ptr);
 };

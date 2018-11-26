@@ -410,10 +410,8 @@ void Room::Draw()
 		m_staticAssets.at(i)->Draw();
 	}
 	
+	m_enemyHandler->Draw();
 
-	for (size_t i = 0; i < m_roomGuards.size(); i++)
-		this->m_roomGuards.at(i)->Draw();
-	
 	triggerHandler->Draw();
 
 	if (m_youLost)

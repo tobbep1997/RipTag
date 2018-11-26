@@ -63,6 +63,12 @@ void EnemyHandler::Update(float deltaTime)
 		return;
 }
 
+void EnemyHandler::Draw()
+{
+	for (auto e : m_guards)
+		e->Draw();
+}
+
 void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 {
 	switch (id)
