@@ -85,8 +85,14 @@ void RoomGenerator::_generateGrid()
 						float offY = 0.1 * (float)b;
 
 						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(
-							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
+							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.5, node.worldPos.y - 0.5 + offY))))
 						{
+
+							asset = DBG_NEW BaseActor();
+							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
+							asset->setPosition(node.worldPos.x, 1, node.worldPos.y, false);
+							m_generated_assetVector.push_back(asset);
 							m_generatedGrid->BlockGridTile(index, false);
 							col = true;
 							break;
@@ -439,6 +445,7 @@ void RoomGenerator::_createEntireWorld()
 			{
 				returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(j +2, 3, i, 1));
 				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 3, i, 1));
+
 			}
 
 
@@ -485,7 +492,7 @@ void RoomGenerator::_createEntireWorld()
 #pragma region PROPS
 
 	
-			if (!randomizer.m_rooms[index].propsPlaced)
+			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
 			{
 				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile(MODNAMESTRING); 
 				for (int k = 0; k < tempProps.nrOfItems; k++)
@@ -525,21 +532,13 @@ void RoomGenerator::_createEntireWorld()
 				ImporterLibrary::CollisionBoxes boxes = loader.readMeshCollisionBoxes(MODNAMESTRING);
 				for (unsigned int k = 0; k < boxes.nrOfBoxes; k++)
 				{
-					if (isRotated == true)
-					{
-						float tempPosX = tempLights.lights[k].translate[0];
-						boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[2];
-						boxes.boxes[k].translation[2] = i + 10 + tempPosX;
-					}
-					else
-					{
-						boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[0] + BigRoomAddX;
-						boxes.boxes[k].translation[2] = i + boxes.boxes[k].translation[2] + BigRoomAddZ;
-					}
-
-					DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(
-						DirectX::XMFLOAT3(boxes.boxes[k].translation),
-						DirectX::XMFLOAT3(boxes.boxes[k].scale));
+					float xPos = boxes.boxes[k].translation[0] + j - 10;
+					float yPos = boxes.boxes[k].translation[1] + 2.5;
+					float zPos = boxes.boxes[k].translation[2] + i;
+					DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(boxes.boxes[k].scale[2] * 0.5, boxes.boxes[k].scale[1] * 0.5, boxes.boxes[k].scale[0] * 0.5));
+					boxes.boxes[k].translation[0] = xPos;
+					boxes.boxes[k].translation[1] = yPos;
+					boxes.boxes[k].translation[2] = zPos;
 					m_generated_boundingBoxes.push_back(bb);
 				}
 				asset->Init(*m_worldPtr, boxes);
@@ -680,14 +679,14 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
-	_makeRoof();
+	//_makeRoof();
 	
 	returnableRoom->setGrid(this->m_generatedGrid);
 
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	//dbgFuncSpawnAboveMap();
+	dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);

@@ -163,7 +163,7 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
 	Room * room;
 	//srand(seed);
-	if (roomIndex == -1)
+	if (roomIndex == -1 || true)
 	{
 		room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
 		room->setLoaded(true);

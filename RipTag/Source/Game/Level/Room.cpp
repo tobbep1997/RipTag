@@ -693,7 +693,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(24):
-			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(25):
 			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom);
