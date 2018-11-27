@@ -209,7 +209,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     
     float zDepth = input.pos.z / input.pos.w;
     float fogend = 0.9;
-    float fogMul = saturate((zDepth) / (fogend - 0.6f));
+	float fogMul = saturate((zDepth) / (fogend - 0.6f));
     finalColor = fogMul * (ambient + lightCal) + ((1.0f - fogMul) * float4(.5,.5,.5,0.6f));
 	//finalColor = (ambient + lightCal);
     finalColor.a = albedo.a;

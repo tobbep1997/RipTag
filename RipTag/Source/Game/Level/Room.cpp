@@ -715,6 +715,9 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 		case(38):
 			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", assetVector, true, isRandomRoom);
 			break;
+		case(39):
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom);
+			break;
 		default:
 			break;
 		}

@@ -85,16 +85,14 @@ void RoomGenerator::_generateGrid()
 						float offY = 0.1 * (float)b;
 
 						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(
-							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.5, node.worldPos.y - 0.5 + offY))))
+							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
 						{
-
-							asset = DBG_NEW BaseActor();
+                            m_generatedGrid->BlockGridTile(index, false);
+							/*asset = DBG_NEW BaseActor();
 							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
 							asset->setPosition(node.worldPos.x, 1, node.worldPos.y, false);
-							m_generated_assetVector.push_back(asset);
-							m_generatedGrid->BlockGridTile(index, false);
-							col = true;
+							col = true;*/
 							break;
 						}
 					}
@@ -147,8 +145,8 @@ void RoomGenerator::_createEntireWorld()
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 8; // change when small mods added
-	int MAX_LARGE_MODS = 5;
+	int MAX_SMALL_MODS = 11; //8
+	int MAX_LARGE_MODS = 6; // 5
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
@@ -288,6 +286,7 @@ void RoomGenerator::_createEntireWorld()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, m_generatedRoomEnemies.size(), tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
+				
 				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
@@ -500,9 +499,9 @@ void RoomGenerator::_createEntireWorld()
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
 			{
 				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile(MODNAMESTRING); 
+				
 				for (int k = 0; k < tempProps.nrOfItems; k++)
 				{
-					
 					if (isRotated == true)
 					{
 						float tempPosX = tempProps.props[k].transform_position[0];
@@ -683,7 +682,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
 	_createEntireWorld();
-	//_generateGrid();
+	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
 	//_makeRoof();

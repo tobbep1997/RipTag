@@ -164,6 +164,8 @@ void Enemy::Update(double deltaTime)
 	{
 		handleStates(deltaTime);
 
+		_cameraPlacement(deltaTime);
+
 		auto deltaX = getLiniearVelocity().x * deltaTime;
 		auto deltaZ = getLiniearVelocity().z * deltaTime;
 		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
