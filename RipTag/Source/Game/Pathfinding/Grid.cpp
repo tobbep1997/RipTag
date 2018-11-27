@@ -131,7 +131,11 @@ void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	static int count = 0;
-	
+	if (!source.getPathable())
+		source = _getNearbyUnblockedTile(source);
+	if (!destination.getPathable())
+		destination = _getNearbyUnblockedTile(destination);
+
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{
 		/*std::cout << count << std::endl;
@@ -385,9 +389,10 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 	int x = src.getX();
 	int y = src.getY();
 	int count = 0;
-	bool blockedDirections[4];
+	bool blockedDirections[8];
 
 	// North -> East -> South -> West
+	// Northeast -> Northwest -> Southeast -> Southwest
 	for (int i = 0; i < 4; i++)
 		blockedDirections[i] = false;
 
@@ -404,12 +409,14 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 			{
 				blockedDirections[0] = true;
 				if (blockedDirections[0] && blockedDirections[1] &&
-					blockedDirections[2] && blockedDirections[3])
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
 					unblocked = true;
 			}
-			if (m_nodeMap[x + tempY * x].tile.getPathable())
+			if (m_nodeMap[x + tempY * m_width].tile.getPathable())
 			{
-				returnTile = m_nodeMap[x + tempY * x].tile;
+				returnTile = m_nodeMap[x + tempY * m_width].tile;
 				unblocked = true;
 			}
 		}
@@ -421,12 +428,14 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 			{
 				blockedDirections[1] = true;
 				if (blockedDirections[0] && blockedDirections[1] &&
-					blockedDirections[2] && blockedDirections[3])
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
 					unblocked = true;
 			}
-			if (m_nodeMap[tempX + y * x].tile.getPathable())
+			if (m_nodeMap[tempX + y * m_width].tile.getPathable())
 			{
-				returnTile = m_nodeMap[tempX + y * x].tile;
+				returnTile = m_nodeMap[tempX + y * m_width].tile;
 				unblocked = true;
 			}
 		}
@@ -438,12 +447,14 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 			{
 				blockedDirections[2] = true;
 				if (blockedDirections[0] && blockedDirections[1] &&
-					blockedDirections[2] && blockedDirections[3])
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
 					unblocked = true;
 			}
-			if (m_nodeMap[x + tempY * x].tile.getPathable())
+			if (m_nodeMap[x + tempY * m_width].tile.getPathable())
 			{
-				returnTile = m_nodeMap[x + tempY * x].tile;
+				returnTile = m_nodeMap[x + tempY * m_width].tile;
 				unblocked = true;
 			}
 		}
@@ -455,12 +466,94 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 			{
 				blockedDirections[3] = true;
 				if (blockedDirections[0] && blockedDirections[1] &&
-					blockedDirections[2] && blockedDirections[3])
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
 					unblocked = true;
 			}
-			if (m_nodeMap[tempX + y * x].tile.getPathable())
+			if (m_nodeMap[tempX + y * m_width].tile.getPathable())
 			{
-				returnTile = m_nodeMap[tempX + y * x].tile;
+				returnTile = m_nodeMap[tempX + y * m_width].tile;
+				unblocked = true;
+			}
+		}
+		// Northeast (1, -1)
+		if (!blockedDirections[4])
+		{
+			tempY = max(y - 1 * count, 0);
+			tempX = min(x + 1 * count, m_width - 1);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+			{
+				blockedDirections[4] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+				unblocked = true;
+			}
+		}
+		// Northwest (-1, -1)
+		if (!blockedDirections[5])
+		{
+			tempY = max(y - 1 * count, 0);
+			tempX = min(x - 1 * count, 0);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+			{
+				blockedDirections[5] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+				unblocked = true;
+			}
+		}
+		// Southeast (1, 1)
+		if (!blockedDirections[6])
+		{
+			tempY = min(y + 1 * count, m_height - 1);
+			tempX = min(x + 1 * count, m_width - 1);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+			{
+				blockedDirections[6] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+				unblocked = true;
+			}
+		}
+		// Southwest (-1, 1)
+		if (!blockedDirections[7])
+		{
+			tempY = min(y + 1 * count, m_height - 1);
+			tempX = min(x - 1 * count, 0);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+			{
+				blockedDirections[7] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3] &&
+					blockedDirections[4] && blockedDirections[5] &&
+					blockedDirections[6] && blockedDirections[7])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
 				unblocked = true;
 			}
 		}
@@ -484,10 +577,10 @@ bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 
 	const int ROOM_WIDTH = 5;
 
-	sIndex2D.x = std::clamp(sIndex2D.x, 0, 5);
-	sIndex2D.y = std::clamp(sIndex2D.y, 0, 5);
-	dIndex2D.x = std::clamp(dIndex2D.x, 0, 5);
-	dIndex2D.y = std::clamp(dIndex2D.y, 0, 5);
+	sIndex2D.x = std::clamp(sIndex2D.x, 0, 4);
+	sIndex2D.y = std::clamp(sIndex2D.y, 0, 4);
+	dIndex2D.x = std::clamp(dIndex2D.x, 0, 4);
+	dIndex2D.y = std::clamp(dIndex2D.y, 0, 4);
 	//sIndex2D.x = max(sIndex2D.x, 0);
 	//sIndex2D.y = max(sIndex2D.y, 0);
 	//sIndex2D.x = min(sIndex2D.x, 5);

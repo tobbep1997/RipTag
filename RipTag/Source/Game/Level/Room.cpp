@@ -488,16 +488,9 @@ void Room::Release()
 			if (asset)
 			{
 				asset->Release(*m_worldPtr);
-			}
-			
-		}
-		for (auto asset : m_staticAssets)
-		{
-			if (asset)
-			{
-				
 				delete asset;
 			}
+			
 		}
 		m_staticAssets.clear();
 		if (CollisionBoxes)
@@ -516,7 +509,7 @@ void Room::Release()
 		}
 		if (m_grid)
 		{
-			delete m_grid->gridPoints;
+			delete [] m_grid->gridPoints;
 
 			delete m_grid;
 		}
@@ -533,6 +526,7 @@ void Room::Release()
 			delete m_pointLights[i];
 			m_pointLights[i] = nullptr;
 		}
+		m_pointLights.clear();
 
 		triggerHandler->Release();
 		delete triggerHandler;
