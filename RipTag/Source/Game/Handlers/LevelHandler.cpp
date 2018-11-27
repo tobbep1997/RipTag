@@ -98,14 +98,6 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			RipExtern::g_kill = true;
 		}
 	}
-	else if (InputHandler::isKeyPressed('H'))
-	{
-		if (pressed == false)
-		{
-			pressed = true;
-			m_rooms.at(m_activeRoom)->getPath();
-		}
-	}
 	else
 	{
 	

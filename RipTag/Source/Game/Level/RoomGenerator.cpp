@@ -259,6 +259,11 @@ void RoomGenerator::_createEntireWorld()
 				MODNAMESTRING = "MOD" + std::to_string(98);
 				isStartRoom = true;
 			}
+			else if (randomizer.m_rooms[index].type == START_ROOM)
+			{
+				isStartRoom = true;
+				MODNAMESTRING = "MOD" + std::to_string(66);
+			}
 #pragma region Guards
 
 			Manager::g_meshManager.loadSkinnedMesh("STATE");

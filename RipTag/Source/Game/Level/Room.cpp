@@ -376,29 +376,10 @@ void Room::LoadRoomToMemory()
 	}
 }
 
-void Room::getPath()
-{
-	Tile t = m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z);
-	if (t.getX() != -1)
-	{
-		for (int i = 0; i < m_roomGuards.size(); i++)
-		{
-			DirectX::XMFLOAT4A pos = m_roomGuards.at(i)->getPosition();
-			Tile tile = m_pathfindingGrid->WorldPosToTile(pos.x, pos.z);
-			m_roomGuards.at(i)->SetAlertVector(m_pathfindingGrid->FindPath(tile,
-				m_pathfindingGrid->WorldPosToTile(m_playerInRoomPtr->getPosition().x, m_playerInRoomPtr->getPosition().z)));
-		}
-	}
-}
-
 void Room::loadTriggerPairMap()
 {
 	triggerHandler->LoadTriggerPairMap();
 }
-
-
-
-
 
 void Room::Update(float deltaTime, Camera * camera)
 {

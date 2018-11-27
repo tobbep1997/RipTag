@@ -114,9 +114,6 @@ public:
 	void UnloadRoomFromMemory();
 	void LoadRoomToMemory();
 
-	// Test section
-	void getPath();
-
 	//RoomGeneration
 	void loadTriggerPairMap();
 	void setGrid(Grid * gridToset) { this->m_pathfindingGrid = gridToset; };
