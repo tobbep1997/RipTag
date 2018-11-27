@@ -278,16 +278,16 @@ void RemotePlayer::_registerAnimationStateMachine()
 				{ sharedAnimations[IDLE].get(), 115.f }
 			}
 		);
-		//blend_fwd->AddRow(
-		//	3.3f, //y placement
-		//	{	//uses a vector initializer list for "convinience"
-		//		{ sharedAnimations[RIGHT].get(), -115.f }, //the clip to use and x-placement
-		//		{ sharedAnimations[FORWARD].get(), 0.f },
-		//		{ sharedAnimations[LEFT].get(), 115.f }
-		//	}
-		//);
 		blend_fwd->AddRow(
-			3.0f, //y placement
+			3.1f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[RIGHT].get(), -115.f }, //the clip to use and x-placement
+				{ sharedAnimations[FORWARD].get(), 0.f },
+				{ sharedAnimations[LEFT].get(), 115.f }
+			}
+		);
+		blend_fwd->AddRow(
+			6.0f, //y placement
 			{	//uses a vector initializer list for "convinience"
 				{ sharedAnimations[RUN_FORWARD_RIGHT].get(), -115.f }, //the clip to use and x-placement
 				{ sharedAnimations[RUN_FORWARD].get(), 0.f },

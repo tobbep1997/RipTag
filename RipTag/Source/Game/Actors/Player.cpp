@@ -135,7 +135,7 @@ void Player::Update(double deltaTime)
 			///Speed
 			auto physSpeed = this->getLiniearVelocity();
 			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 8.0f);
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
 			std::cout << m_currentSpeed << std::endl;
 			///Walk dir
 				//Get camera direction and normalize on X,Z plane
