@@ -295,6 +295,10 @@ void Drawable::Draw()
 		case Dynamic:
 			if (m_skinnedMesh)
 				DX::g_animatedGeometryQueue.push_back(this);
+			if (getEntityType() == EntityType::PlayerType)
+			{
+				DX::g_player = this;
+			}
 			break;
 		}	
 }

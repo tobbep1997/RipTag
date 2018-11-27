@@ -153,8 +153,19 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 0.5f, 1.8f, 0.5f);
 		mLocalPlayer->setEntityType(EntityType::PlayerType);
 		mLocalPlayer->setColor(1.f, 1.f, 1.f, 1.f);
-		mLocalPlayer->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-		mLocalPlayer->setScale(1.0f, 1.0f, 1.0f);
+		//this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		//mLocalPlayer->setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+		mLocalPlayer->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		{
+			auto animationPlayer = mLocalPlayer->getAnimationPlayer();
+
+			animationPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("PLAYER1"));
+			auto& stateMachine = animationPlayer->InitStateMachine(1);
+			stateMachine->AddLoopState("temp", Manager::g_animationManager.getAnimation("PLAYER1", "IDLE_ANIMATION").get());
+			stateMachine->SetState("temp");
+			animationPlayer->Play();
+		}
+		mLocalPlayer->setScale(1.0f * 0.5625f, 1.0f* 0.5625f, 1.0f* 0.5625f);
 		mLocalPlayer->setPosition(0.0f, 0.0f, 0.0f);
 		mLocalPlayer->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 		mLocalPlayer->setTextureTileMult(2, 2);
