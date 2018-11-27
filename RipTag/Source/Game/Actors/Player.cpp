@@ -636,7 +636,7 @@ void Player::RegisterThisInstanceToNetwork()
 void Player::_collision()
 {
 	ContactListener::S_Contact con;
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts();i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts();i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
@@ -646,7 +646,7 @@ void Player::_collision()
 				m_recentHeadCollision = true;
 			}
 	}
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
@@ -1343,7 +1343,7 @@ void Player::SendOnWinState()
 void Player::_hasWon()
 {
 	ContactListener::S_Contact con;
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContact(i).a->GetBody()->GetObjectTag();
 		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContact(i).b->GetBody()->GetObjectTag();
@@ -1358,7 +1358,7 @@ void Player::_hasWon()
 			}
 		}
 	}
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContact(i).a->GetBody()->GetObjectTag();
 		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContact(i).b->GetBody()->GetObjectTag();

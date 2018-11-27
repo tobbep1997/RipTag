@@ -121,8 +121,9 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float4 specular;
     float normDotLight;
     float finalShadowCoeff;
-
-    float4 albedo = input.color; 
+	
+    
+	float4 albedo = input.color; 
     float3 normal = input.normal.xyz;
     float3 AORoughMet = float3(1, 1, 1); 
 
@@ -138,7 +139,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     }
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
-
+    //return albedo;
     ambient = ambient * albedo * ao;
    
     float4 finalColor = emptyFloat4;
@@ -212,5 +213,6 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     finalColor = fogMul * (ambient + lightCal) + ((1.0f - fogMul) * float4(.5,.5,.5,0.6f));
 	//finalColor = (ambient + lightCal);
     finalColor.a = albedo.a;
+
     return min(finalColor, float4(1, 1, 1, 1));
 }

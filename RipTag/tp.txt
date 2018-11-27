@@ -1,0 +1,24 @@
+Source: 18 54
+Destination: 10 40
+WorldX: -32 WorldY: 4
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 10 40
+Destination: 10 30
+WorldX: -40 WorldY: -10
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 10 30
+Destination: 10 20
+WorldX: -40 WorldY: -20
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 10 20
+Destination: 4 4
+WorldX: -40 WorldY: -30
+Source is pathable: 1
+Dest is pathable: 1
+

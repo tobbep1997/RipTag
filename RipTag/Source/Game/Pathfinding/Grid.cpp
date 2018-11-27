@@ -50,14 +50,29 @@ Grid::~Grid()
 
 Tile Grid::WorldPosToTile(float x, float y)
 {
-	int approximateWorldPosX = (int)x;
+	/*int approximateWorldPosX = (int)x;
 	int approximateWorldPosY = (int)y;
-	int index = _worldPosInNodeMap(0, m_height * m_width - 1, approximateWorldPosX, approximateWorldPosY);
+	int index = _worldPosInNodeMap(0, m_height * m_width - 1, approximateWorldPosX, approximateWorldPosY);*/
 
-	if (index == -1)
-		return Tile();
+	using namespace DirectX;
 
-	return m_nodeMap.at(index).tile;
+	XMFLOAT2 sWposOff = { x + 50.0f, y + 50.0f };
+
+	XMINT2 sIndex2D = { (int)sWposOff.x, (int)sWposOff.y};
+
+	const int GRID_WIDTH = 101;
+
+	sIndex2D.x = max(sIndex2D.x, 0);
+	sIndex2D.y = max(sIndex2D.y, 0);
+	sIndex2D.x = min(sIndex2D.x, 100);
+	sIndex2D.y = min(sIndex2D.y, 100);
+
+	int sIndex = sIndex2D.y * GRID_WIDTH + sIndex2D.x;
+
+	/*if (index == -1)
+		return Tile();*/
+
+	return m_nodeMap.at(sIndex).tile;
 }
 
 Node Grid::GetWorldPosFromIndex(int index)
@@ -113,12 +128,12 @@ void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int 
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
+	static int count = 0;
+	
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{
-		std::ofstream file;
-		file.open("LATESTPATH.txt");
-		file << source.getX() << ", " << source.getY() << " -> " << destination.getX() << ", " << destination.getY();
-		file.close();
+		/*std::cout << count << std::endl;
+		Timer::StartTimer();*/
 		std::vector<Node*> pathToDestination;
 		
 		// A* through the "large" grid to find which rooms are connected in the path
@@ -129,15 +144,18 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
-
+		int partCount = 0;
+		
 		for (auto & tp : tilePairs)
 		{
-			auto partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
+			auto partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);	
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
 		}
 		
-		// Merge the paths
-		
+		for (auto & p : roomNodePath)
+			delete p;
+		roomNodePath.clear();
+
 		return pathToDestination;
 	}
 	else
@@ -194,10 +212,9 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 	{
 		for (int j = 0; j < width; j++)
 		{
-			bool pathable = true;
-			if (i % 2 == 1)
-				if (j % 2 == 1)
-					pathable = false;
+			bool pathable = false;
+			if (i % 2 == 0 && j % 2 == 0)
+				pathable = true;
 			m_roomNodeMap.push_back(Node(Tile(j, i, pathable), NodeWorldPos(worldX + j * 10.0f, worldY + i * 10.0f)));
 		}
 	}
@@ -223,7 +240,7 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 			else
 				std::cout << red << 0 << white << " ";
 		}
-		std::cout << std::endl;
+		std::cout << "\n";
 	}
 }
 
@@ -346,9 +363,7 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 			destY += y;
 		}
 	}
-	/*destination = Tile(destination.getX() + x * count, destination.getY() + y * count);
-	destX = destination.getX();
-	destY = destination.getY();*/
+
 	if (destX < 0)
 		destX = 0;
 	if (destY < 0)
@@ -362,64 +377,95 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 	return destination;
 }
 
-Tile Grid::_getNearestUnblockedTile(int x, int y)
+Tile Grid::_getNearbyUnblockedTile(Tile src)
 {
-	bool gotTile = false;
-	int stepSize = 1;
+	bool unblocked = false;
+	int x = src.getX();
+	int y = src.getY();
+	int count = 0;
+	bool blockedDirections[4];
 
-	while (!gotTile)
+	// North -> East -> South -> West
+	for (int i = 0; i < 4; i++)
+		blockedDirections[i] = false;
+
+	Tile returnTile;
+	int tempX = 0;
+	int tempY = 0;
+	while (!unblocked)
 	{
-		/*---------- North ----------*/
-		//(0, -1);
-		if (m_nodeMap[x + (y - 1) * x].tile.getPathable())
+		// North (0, -1)
+		if (!blockedDirections[0])
 		{
-
+			tempY = max(y - 1 * count, 0);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
+			{
+				blockedDirections[0] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[x + tempY * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[x + tempY * x].tile;
+				unblocked = true;
+			}
 		}
-		/*---------- South ----------*/
-		//(0, 1);
-		if (m_nodeMap[x + (y + 1) * x].tile.getPathable())
+		// East (1, 0)
+		if (!blockedDirections[1])
 		{
-
+			tempX = min(x + 1 * count , m_width -1);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
+			{
+				blockedDirections[1] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + y * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + y * x].tile;
+				unblocked = true;
+			}
 		}
-		/*---------- West ----------*/
-		//(-1, 0);
-		if (m_nodeMap[(x - 1) + y * x].tile.getPathable())
+		// South (0, 1)
+		if (!blockedDirections[2])
 		{
-
+			tempY = min(y + 1 * count, m_height - 1);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
+			{
+				blockedDirections[2] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[x + tempY * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[x + tempY * x].tile;
+				unblocked = true;
+			}
 		}
-		/*---------- East ----------*/
-		//(1, 0);
-		if (m_nodeMap[(x + 1) + y * x].tile.getPathable())
+		// West (-1, 0)
+		if (!blockedDirections[3])
 		{
-
+			tempX = min(x - 1 * count, 0);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
+			{
+				blockedDirections[3] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + y * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + y * x].tile;
+				unblocked = true;
+			}
 		}
-		/*---------- Northwest ----------*/
-		//(-1, -1);
-		if (m_nodeMap[(x - 1) + (y - 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Northeast ----------*/
-		//(1, -1);
-		if (m_nodeMap[(x + 1) + (y - 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Southwest ----------*/
-		//(-1, 1);
-		if (m_nodeMap[(x - 1) + (y + 1) * x].tile.getPathable())
-		{
-
-		}
-		/*---------- Southeast ----------*/
-		//(1, 1);
-		if (m_nodeMap[(x + 1) + (y + 1) * x].tile.getPathable())
-		{
-
-		}
+		count++;
 	}
 
-	return Tile();
+	return returnTile;
 }
 
 bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
@@ -436,15 +482,19 @@ bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 
 	const int ROOM_WIDTH = 5;
 
-	sIndex2D.x = max(sIndex2D.x, 0);
-	sIndex2D.y = max(sIndex2D.y, 0);
-	sIndex2D.x = min(sIndex2D.x, 5);
-	sIndex2D.y = min(sIndex2D.y, 5);
+	sIndex2D.x = std::clamp(sIndex2D.x, 0, 5);
+	sIndex2D.y = std::clamp(sIndex2D.y, 0, 5);
+	dIndex2D.x = std::clamp(dIndex2D.x, 0, 5);
+	dIndex2D.y = std::clamp(dIndex2D.y, 0, 5);
+	//sIndex2D.x = max(sIndex2D.x, 0);
+	//sIndex2D.y = max(sIndex2D.y, 0);
+	//sIndex2D.x = min(sIndex2D.x, 5);
+	//sIndex2D.y = min(sIndex2D.y, 5);
 
-	dIndex2D.x = max(dIndex2D.x, 0);
-	dIndex2D.y = max(dIndex2D.y, 0);
-	dIndex2D.x = min(dIndex2D.x, 5);
-	dIndex2D.y = min(dIndex2D.y, 5);
+	//dIndex2D.x = max(dIndex2D.x, 0);
+	//dIndex2D.y = max(dIndex2D.y, 0);
+	//dIndex2D.x = min(dIndex2D.x, 5);
+	//dIndex2D.y = min(dIndex2D.y, 5);
 
 	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
 	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
@@ -455,6 +505,7 @@ bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & destination)
 {
 	using namespace DirectX;
+
 	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
 	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
 
@@ -468,18 +519,16 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 
 	sIndex2D.x = max(sIndex2D.x, 0);
 	sIndex2D.y = max(sIndex2D.y, 0);
-	sIndex2D.x = min(sIndex2D.x, 9);
-	sIndex2D.y = min(sIndex2D.y, 9);
+	sIndex2D.x = min(sIndex2D.x, 8);
+	sIndex2D.y = min(sIndex2D.y, 8);
 
 	dIndex2D.x = max(dIndex2D.x, 0);
 	dIndex2D.y = max(dIndex2D.y, 0);
-	dIndex2D.x = min(dIndex2D.x, 9);
-	dIndex2D.y = min(dIndex2D.y, 9);
+	dIndex2D.x = min(dIndex2D.x, 8);
+	dIndex2D.y = min(dIndex2D.y, 8);
 
 	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
 	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
-
-	// TODO :: Translate this to center point of the room (sIndex and dIndex)
 
 	Tile roomSource = m_roomNodeMap[sIndex].tile;
 	Tile roomDest = m_roomNodeMap[dIndex].tile;
@@ -491,19 +540,30 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
 }
 
+
+
 void Grid::_removeAllCenterTiles(std::vector<Node*>& roomNodePath)
 {
 	int size = roomNodePath.size();
 
+	using namespace DirectX;
+
 	for (int i = 0; i < size; i++)
 	{
-		if (roomNodePath[i]->tile.getX() % 2 == 0 && roomNodePath[i]->tile.getY() % 2 == 0 ||
-			!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
+		if (!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
 		{
-			// This is a center tile
 			roomNodePath.erase(roomNodePath.begin() + i);
+			size = roomNodePath.size();
+			i--;
 		}
-		size = roomNodePath.size();
+		//if ((roomNodePath[i]->tile.getX() % 2 == 0 && roomNodePath[i]->tile.getY() % 2 == 0) ||
+		//	!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
+		//{
+		//	// This is a center tile
+		//	roomNodePath.erase(roomNodePath.begin() + i);
+		//	size = roomNodePath.size();
+		//	i--;
+		//}
 	}
 
 }
@@ -551,7 +611,7 @@ Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile
 
 	float distance = 99999.9f;
 
-	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * 9].worldPos;
+	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * 101].worldPos;
 	DirectX::XMVECTOR vSWpos = DirectX::XMVectorSet(sWpos.x, sWpos.y, 0.0f, 0.0f);
 
 	Tile center;
@@ -575,6 +635,12 @@ Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile
 std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* roomNodes, const Tile & source, const Tile & destination)
 {
 	std::vector<Grid::TilePair> gtp;
+
+	Grid::TilePair start;
+	start.source = source;
+	auto startPos = roomNodes->at(0)->worldPos;
+	start.destination = WorldPosToTile(startPos.x, startPos.y);
+	gtp.push_back(start);
 
 	for (int i = 0; i < roomNodes->size() - 1; i++)
 	{
@@ -629,6 +695,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		{
 			std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
 			current = openList.at(0);
+			
 			openList.erase(openList.begin());
 		}
 

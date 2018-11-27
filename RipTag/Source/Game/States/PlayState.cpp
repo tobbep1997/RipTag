@@ -55,13 +55,17 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
-	
+	int counter = 0;
 	if (runGame)
 	{
 		InputMapping::Call();
 
 		m_firstRun = false;
-
+		
+		while (m_physRunning)
+		{
+			int i = 0;
+		}
 
 		if (RipExtern::g_kill == true)
 		{
@@ -82,10 +86,9 @@ void PlayState::Update(double deltaTime)
 		}
 		
 		//Handle all packets
-
-		Network::Multiplayer::HandlePackets();
 		RipExtern::g_kill = false;
 
+		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 		m_playerManager->PhysicsUpdate();
@@ -234,7 +237,6 @@ void PlayState::_PhyscisThread(double deltaTime)
 		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
 	}
 
-	static int counter = 0;
 	while (m_destoryPhysicsThread == false)
 	{
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
@@ -248,14 +250,12 @@ void PlayState::_PhyscisThread(double deltaTime)
 		}
 		
 		m_timer += m_deltaTime;
-		
 		RipExtern::g_contactListener->ClearContactQueue();
-
+		
 		while (m_timer >= UPDATE_TIME)
 		{
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
-			
 		}
 		RipExtern::g_rayListener->ShotRays();
 		m_physRunning = false;

@@ -120,7 +120,8 @@ private:
 	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
 	int _findXInYRow(int begin, int end, int x, int y) const;
 	Tile _nearbyTile(Tile src, int x, int y);
-	Tile _getNearestUnblockedTile(int x, int y);
+	// Should theoretically always return a valid tile in the same room as the source
+	Tile _getNearbyUnblockedTile(Tile src);
 
 	bool _tilesAreInTheSameRoom(const Tile & source, const Tile & destination);
 

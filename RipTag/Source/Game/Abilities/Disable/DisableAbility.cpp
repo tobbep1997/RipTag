@@ -258,7 +258,7 @@ void DisableAbility::_inStateMoving(double dt)
 	accumulatedTime += dt;
 	p_cooldown = accumulatedTime;
 	ContactListener::S_Contact contact;
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		if (!m_hasHit)
 		{
