@@ -160,10 +160,17 @@ void TeleportAbility::_logicLocal(double deltaTime)
 
 void TeleportAbility::_inStateThrowable()
 {
+	using namespace Network;
+
 	if (isLocal)
 	{
 		if (!m_canceled && ((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
 
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
@@ -180,6 +187,7 @@ void TeleportAbility::_inStateThrowable()
 
 void TeleportAbility::_inStateCharging(double dt)
 {
+	using namespace Network;
 	if (isLocal)
 	{
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
@@ -220,6 +228,12 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		else if (Input::OnAbilityReleased())
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");

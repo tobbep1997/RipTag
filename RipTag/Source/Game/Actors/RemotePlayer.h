@@ -62,10 +62,12 @@ private:
 	void _onNetworkUpdate(Network::ENTITYUPDATEPACKET * data);
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
+	void _onNetworkRemoteThrow(unsigned char id);
 	void _sendVisibilityPacket();
 
 	void _lerpPosition(float dt);
 
 	void _registerAnimationStateMachine();
+public:
 };
 

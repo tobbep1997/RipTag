@@ -106,6 +106,14 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_ANIMATION:
 		this->_onNetworkAnimation((Network::ENTITYANIMATIONPACKET*)data);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN:
+		this->_onNetworkRemoteThrow(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
+		this->_onNetworkRemoteThrow(id);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -235,7 +243,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 {
 	std::vector<SharedAnimation> sharedAnimations;
 	const char * collection = "PLAYER1";
-	int nrOfStates = 2;
+	int nrOfStates = 5;
 
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_F_ANIMATION"));
@@ -317,6 +325,16 @@ void RemotePlayer::_registerAnimationStateMachine()
 				{ sharedAnimations[BACKWARD].get(), 180.f }
 			}
 		);
+		blend_bwd->AddRow(
+			6.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
+				{ sharedAnimations[BACK_RIGHT].get(), -90.f },
+				{ sharedAnimations[FORWARD].get(), 0.f },
+				{ sharedAnimations[BACK_LEFT].get(), 90.f },
+				{ sharedAnimations[BACKWARD].get(), 180.f }
+			}
+		);
 
 		//Adding out state / transitions
 		SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
@@ -335,6 +353,13 @@ void RemotePlayer::_registerAnimationStateMachine()
 			SM::COMPARISON_INSIDE_RANGE //comparision condition
 		);
 
+		auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_READY_ANIMATION").get();
+		auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
+		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
+
+		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
+		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
+		stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
 		//set initial state
 		stateMachine->SetState("walk_forward");
 	}
@@ -359,4 +384,19 @@ void RemotePlayer::_registerAnimationStateMachine()
 	//state->AddBlendNodes(layerData);
 
 	//layerMachine->SetState("pitch_state");
+}
+
+void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
+{
+	using namespace Network;
+
+	switch (id)
+	{
+	case NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_begin");
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_end");
+		break;
+	}
 }
