@@ -25,7 +25,7 @@ public:
 	int getUniqueID() { return this->m_uniqueID; };
 	bool getIsTriggerable() { return this->m_isTrigger; };
 	const bool & Triggered() const;
-	void setTriggerState(bool state, bool isLocal = true);
+	void setTriggerState(bool state, bool isLocal = true, const std::string & triggerer = "PLAYER");
 	bool getTriggerState() { return m_triggerState; }
 
 	void BeginPlay() override;
@@ -37,6 +37,6 @@ public:
 	void SetPacketReceived(bool b) { m_receivedPacket = b; }
 	bool HasPacketReceived() { return m_receivedPacket; }
 private:
-	virtual void _playSound(AudioEngine::SoundType st = AudioEngine::Player) = 0;
+	virtual void _playSound(AudioEngine::SoundType st = AudioEngine::Other) = 0;
 };
 

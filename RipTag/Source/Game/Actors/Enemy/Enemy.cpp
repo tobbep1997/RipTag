@@ -43,7 +43,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 		this->getAnimationPlayer()->Play();
 
 	}
-	b3Vec3 pos(1, 0.9, 1);
+	b3Vec3 pos(0.5f, 0.9, 0.5f);
 	PhysicsComponent::Init(*world, e_dynamicBody, pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
@@ -163,6 +163,8 @@ void Enemy::Update(double deltaTime)
 	if (!m_lockedByClient)
 	{
 		handleStates(deltaTime);
+
+		_cameraPlacement(deltaTime);
 
 		auto deltaX = getLiniearVelocity().x * deltaTime;
 		auto deltaZ = getLiniearVelocity().z * deltaTime;

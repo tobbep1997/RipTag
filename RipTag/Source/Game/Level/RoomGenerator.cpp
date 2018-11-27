@@ -87,14 +87,12 @@ void RoomGenerator::_generateGrid()
 						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(
 							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.5, node.worldPos.y - 0.5 + offY))))
 						{
-
-							asset = DBG_NEW BaseActor();
+                            m_generatedGrid->BlockGridTile(index, false);
+							/*asset = DBG_NEW BaseActor();
 							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
 							asset->setPosition(node.worldPos.x, 1, node.worldPos.y, false);
-							m_generated_assetVector.push_back(asset);
-							m_generatedGrid->BlockGridTile(index, false);
-							col = true;
+							col = true;*/
 							break;
 						}
 					}
@@ -288,6 +286,7 @@ void RoomGenerator::_createEntireWorld()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, m_generatedRoomEnemies.size(), tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
+				
 				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
@@ -500,9 +499,9 @@ void RoomGenerator::_createEntireWorld()
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
 			{
 				ImporterLibrary::PropItemToEngine tempProps = loader.readPropsFile(MODNAMESTRING); 
+				
 				for (int k = 0; k < tempProps.nrOfItems; k++)
 				{
-					
 					if (isRotated == true)
 					{
 						float tempPosX = tempProps.props[k].transform_position[0];
