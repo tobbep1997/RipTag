@@ -110,10 +110,7 @@ public:
 	bool IsPathReady();
 	int getGridWidth();
 	int getGridHeight();
-	//void Transpose();
-	bool isBlocked(int index) const;
-	const std::vector<Node> * getRoomNodeMap() const;
-	const std::vector<Node> * getNodeMap() const;
+
 private:
 	// Utility functions
 	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,
@@ -123,7 +120,9 @@ private:
 	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
 	int _findXInYRow(int begin, int end, int x, int y) const;
 	Tile _nearbyTile(Tile src, int x, int y);
-	
+	// Should theoretically always return a valid tile in the same room as the source
+	Tile _getNearbyUnblockedTile(Tile src);
+
 	bool _tilesAreInTheSameRoom(const Tile & source, const Tile & destination);
 
 	std::vector<Node*> _findRoomNodePath(const Tile & source, const Tile & destination);

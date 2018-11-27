@@ -63,7 +63,6 @@ void RoomGenerator::_generateGrid()
 {
 	int iterationsDepth = m_roomDepth * 2 + 1;
 	int iterationsWidth = m_roomWidth * 2 + 1;
-	//m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
 	int counter = 0;
 	BaseActor * base = new BaseActor();
 	base->Init(*m_worldPtr, e_staticBody);
@@ -94,24 +93,6 @@ void RoomGenerator::_generateGrid()
 			}
 		}
 	}
-	
-	std::ofstream map;
-	map.open("MAP.TXT");
-
-	for (int i = 0; i < iterationsDepth; i++)
-	{
-		for (int j = 0; j < iterationsWidth; j++)
-		{
-			if (m_generatedGrid->getNodeMap()->at(j + i * iterationsDepth).tile.getPathable())
-				map << " ";
-			else
-				map << "#";
-			map << " ";
-		}
-		map << "\n";
-	}
-
-	map.close();
 
 	delete base;
 }
@@ -132,8 +113,8 @@ void RoomGenerator::_makeFloor()
 
 void RoomGenerator::_createEntireWorld()
 {
-	m_roomDepth = (incrementalValueY * m_roomGridDepth) / 2.0f;
-	m_roomWidth = (incrementalValueX * m_roomGridWidth) / 2.0f;
+	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
+	m_roomWidth = (m_incrementalValueX * m_roomGridWidth) / 2.0f;
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
@@ -184,11 +165,11 @@ void RoomGenerator::_createEntireWorld()
 		}
 	}
 	
-	for (int i = -depth + 10; i <= depth - 10; i += 20)
+	for (int i = -depth + 10; i <= depth - 10; i += m_incrementalValueY)
 	{
 
 		widthCounter = 0;
-		for (int j = -width + 10; j <= width - 10; j += 20)
+		for (int j = -width + 10; j <= width - 10; j += m_incrementalValueX)
 		{
 
 			bool directions[4];
@@ -240,7 +221,7 @@ void RoomGenerator::_createEntireWorld()
 			{
 				isWinRoom = true;
 				MODNAMESTRING = "MOD" + std::to_string(99);
-
+				 
 			}
 #pragma region Guards
 
@@ -525,46 +506,6 @@ void RoomGenerator::_createEntireWorld()
 		}
 		depthCounter++;
 	}
-}
-
-void RoomGenerator::_createEnemies(Player * playerPtr)
-{
-	//Enemy * enemy;
-	//
-	//Manager::g_meshManager.loadSkinnedMesh("STATE");
-	//Manager::g_meshManager.loadSkinnedMesh("GUARD");
-	//Manager::g_textureManager.loadTextures("SPHERE");
-	//for (int i = 0; i < m_nrOfEnemies; i++)
-	//{
-	//	int x = returnRandomInGridWidth();
-	//	int z = returnRandomInGridDepth();
-	//	Tile enemyPos = m_generatedGrid->WorldPosToTile(x, z);
-	//	bool gotPos = false;
-
-	//	if (enemyPos.getX() != -1)
-	//		gotPos = true;
-	//	while (!gotPos)
-	//	{
-	//		x = returnRandomInGridWidth();
-	//		z = returnRandomInGridDepth();
-	//		enemyPos = m_generatedGrid->WorldPosToTile(x, z);
-	//		if (enemyPos.getX() != -1 && enemyPos.getPathable())
-	//			gotPos = true;
-	//	}
-	//	//enemy = DBG_NEW Enemy(m_worldPtr, x, 15 , z);
-	//	enemy->addTeleportAbility(*playerPtr->getTeleportAbility());
-	//	enemy->SetPlayerPointer(playerPtr);
-	//	
-
-	//	bool gotPath = false;
-	//	while (!gotPath)
-	//	{
-	//		enemy->SetPathVector(this->m_generatedGrid->FindPath(enemyPos, m_generatedGrid->GetRandomNearbyTile(enemyPos)));
-	//		if (!enemy->GetPathEmpty())
-	//			gotPath = true;
-	//	}
-	//	m_generatedRoomEnemies.push_back(enemy);
-	//}
 }
 
 void RoomGenerator::_generateGuardPaths()
