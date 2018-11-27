@@ -88,6 +88,23 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 	
+	std::ofstream map;
+	map.open("MAP.TXT");
+
+	for (int i = 0; i < iterationsDepth; i++)
+	{
+		for (int j = 0; j < iterationsWidth; j++)
+		{
+			if (m_generatedGrid->getNodeMap()->at(j + i * iterationsDepth).tile.getPathable())
+				map << " ";
+			else
+				map << "#";
+			map << " ";
+		}
+		map << "\n";
+	}
+
+	map.close();
 
 	delete base;
 }
@@ -623,7 +640,6 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom = DBG_NEW Room(worldPtr, arrayIndex, playerPtr);
 	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
-
 
 	_makeWalls();
 	_generateGrid();

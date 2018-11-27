@@ -1,0 +1,90 @@
+Source: 91 87
+Destination: 90 80
+WorldX: 41 WorldY: 37
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 90 80
+Destination: 90 60
+WorldX: 40 WorldY: 30
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 90 60
+Destination: 90 40
+WorldX: 40 WorldY: 10
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 90 40
+Destination: 90 30
+WorldX: 40 WorldY: -10
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 90 30
+Destination: 90 20
+WorldX: 40 WorldY: -20
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 90 20
+Destination: 80 10
+WorldX: 40 WorldY: -30
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 80 10
+Destination: 70 10
+WorldX: 30 WorldY: -40
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 70 10
+Destination: 60 10
+WorldX: 20 WorldY: -40
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 60 10
+Destination: 50 20
+WorldX: 10 WorldY: -40
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 50 20
+Destination: 40 30
+WorldX: 0 WorldY: -30
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 40 30
+Destination: 30 40
+WorldX: -10 WorldY: -20
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 30 40
+Destination: 30 50
+WorldX: -20 WorldY: -10
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 30 50
+Destination: 30 60
+WorldX: -20 WorldY: 0
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 30 60
+Destination: 30 70
+WorldX: -20 WorldY: 10
+Source is pathable: 1
+Dest is pathable: 1
+
+Source: 30 70
+Destination: 39 65
+WorldX: -20 WorldY: 20
+Source is pathable: 1
+Dest is pathable: 1
+

@@ -29,6 +29,7 @@ void Timer::StopTimer()
 
 float Timer::GetDurationInSeconds()
 {
+	stopTime = std::chrono::high_resolution_clock::now();
 	float dur = std::chrono::duration_cast<std::chrono::milliseconds>(stopTime - startTime).count();
 	dur = dur / 1000;
 	return dur;

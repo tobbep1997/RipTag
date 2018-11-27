@@ -9,6 +9,8 @@
 #include "Source/Game/Item/Rock.h"
 #include "Helper/RandomRoomPicker.h"
 
+#include <fstream>
+
 namespace FMOD
 {
 	class Channel;
@@ -27,6 +29,10 @@ class ParticleEmitter;
 
 class PlayState : public State
 {
+private: // SUPER TEMP, Please remove!!!
+	std::ofstream temp_spinlock_output;
+	std::ofstream temp_pthread_output;
+
 private:
 	LevelHandler * m_levelHandler;		//Released
 	PlayerManager * m_playerManager;	//Released
