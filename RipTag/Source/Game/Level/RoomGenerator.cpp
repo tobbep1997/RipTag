@@ -260,7 +260,7 @@ void RoomGenerator::_createEntireWorld()
 					tempGuards.startingPositions[k].startingPos[2] = i + tempGuards.startingPositions[k].startingPos[2] + BigRoomAddZ;
 				}
 
-				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
+				Enemy * e = DBG_NEW Enemy(m_worldPtr, m_generatedRoomEnemies.size(), tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
 				this->m_generatedRoomEnemies.push_back(e);
