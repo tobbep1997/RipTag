@@ -154,11 +154,6 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 		switch (camera.getPerspectiv())
 		{
-			
-		}
-
-		switch (camera.getPerspectiv())
-		{
 		case Camera::Perspectiv::Player:
 			if (DX::g_cullQueue[i]->getEntityType() == EntityType::PlayerType)						
 				continue;			

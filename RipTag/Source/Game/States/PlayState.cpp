@@ -187,7 +187,7 @@ void PlayState::Draw()
 
 	}
 
-	DrawWorldCollisionboxes();
+	//DrawWorldCollisionboxes();
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
