@@ -34,10 +34,11 @@ public:
 	~RandomRoomGrid();
 
 	void GenerateRoomLayout();
+	DirectX::XMINT2 GetSize() const;
 
 	void Print();
 	void DrawConnections();
-
+	void drawEachRoom();
 private:
 	void _insertRooms(int count);
 	void _connectRooms();

@@ -198,7 +198,6 @@ void AI::handleStatesClient(const double deltaTime)
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
-
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
 #endif
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
@@ -219,12 +218,18 @@ void AI::_onInvestigateSound()
 	Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
+	// Start Pathfinding thread
 	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
-	this->m_state = Investigating_Sound;
-#ifdef _DEBUG
+	
 
+
+
+
+	// If pathfindingThread is finnished
+#ifdef _DEBUG
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
+	this->m_state = Investigating_Sound;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 

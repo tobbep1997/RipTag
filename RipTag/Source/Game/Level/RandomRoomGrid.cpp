@@ -9,8 +9,22 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 	m_roomGrid = new int[m_gridSize];
 	m_rooms = new RandomRoom[m_gridSize];
 
+	int randPlaceWinRoom = rand() % m_width;
+	randPlaceWinRoom *= m_depth;
+
 	for (int i = 0; i < m_gridSize; i++)
-		m_roomGrid[i] = 2;
+	{
+		if (i != randPlaceWinRoom)
+			m_roomGrid[i] = 2;
+		else
+		{
+			m_roomGrid[i] = 3;
+			m_rooms[i].type = WIN_ROOM;
+		}
+
+	}
+	drawEachRoom();
+	
 }
 
 RandomRoomGrid::~RandomRoomGrid()
@@ -44,10 +58,12 @@ void RandomRoomGrid::GenerateRoomLayout()
 	_insertRooms(nrOfBigRooms);
 	_connectRooms();
 	_checkConnections();
+	drawEachRoom();
+}
 
-	Print();
-	std::cout << "\n\n\n";
-	DrawConnections();
+DirectX::XMINT2 RandomRoomGrid::GetSize() const
+{
+	return DirectX::XMINT2(m_width, m_depth);
 }
 
 void RandomRoomGrid::Print()
@@ -59,6 +75,7 @@ void RandomRoomGrid::Print()
 		std::cout << "\n";
 	}
 }
+
 
 void RandomRoomGrid::DrawConnections()
 {
@@ -73,6 +90,18 @@ void RandomRoomGrid::DrawConnections()
 		for (int j = 0; j < m_width; j++)
 			std::cout << " " << m_rooms[j + i * m_width].south << "    ";
 		std::cout << "\n\n";
+	}
+}
+
+void RandomRoomGrid::drawEachRoom()
+{
+	for (int i = 0; i < m_width; i++)
+	{
+		for (int j = 0; j < m_width; j++)
+		{
+			std::cout << m_rooms[i + j * m_width].type << " ";
+		}
+		std::cout << std::endl;
 	}
 }
 

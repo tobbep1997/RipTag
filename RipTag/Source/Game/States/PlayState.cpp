@@ -191,6 +191,7 @@ void PlayState::Draw()
 
 	}
 
+	DrawWorldCollisionboxes();
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
@@ -249,9 +250,9 @@ void PlayState::_PhyscisThread(double deltaTime)
 		
 		RipExtern::g_contactListener->ClearContactQueue();
 
+			m_world.Step(m_step);
 		while (m_timer >= UPDATE_TIME)
 		{
-			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
 		RipExtern::g_rayListener->ShotRays();
@@ -416,7 +417,7 @@ void PlayState::thread(std::string s)
 	Manager::g_meshManager.loadStaticMesh(s);
 }
 
-#ifdef _DEBUG
+
 #include "EngineSource\Structs.h"
 #include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
 
@@ -557,7 +558,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	for (auto & d : _drawables)
 		d->DrawWireFrame();
 }
-#endif
+
 
 void PlayState::unLoad()
 {
@@ -702,7 +703,7 @@ void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
 
 
 	m_levelHandler = new LevelHandler(m_roomIndex);
-	m_levelHandler->Init(m_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
+	m_levelHandler->Init(*RipExtern::g_world, m_playerManager->getLocalPlayer(), rooms.at(m_roomIndex).seedNumber, rooms.at(m_roomIndex).roomNumber);
 	CameraHandler::setActiveCamera(m_playerManager->getLocalPlayer()->getCamera());
 }
 

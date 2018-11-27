@@ -732,7 +732,10 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):
-			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false);
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false, false);
+			break;
+		case(37):
+			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, true, false);
 			break;
 		default:
 			break;
@@ -745,12 +748,17 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	Manager::g_meshManager.loadStaticMesh(name);
 	Manager::g_textureManager.loadTextures(name);
-	tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
-	tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+	if (name != "INVISIBLEGRIDBLOCKER")
+	{
+		tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+	}
+
 	bool moveBox = false;
 	if (useBoundingBox == true)
 	{
-		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		//tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0] * prop.transform_scale[0], prop.BBOX_INFO[1] * prop.transform_scale[1], prop.BBOX_INFO[2] * prop.transform_scale[2]);
 		moveBox = true;
 	}
 
@@ -767,10 +775,9 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
-	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], moveBox);
 	
-	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2]),
-		DirectX::XMFLOAT3(prop.BBOX_INFO[0] * 1.0f, prop.BBOX_INFO[1] * 1.0f, prop.BBOX_INFO[2] * 1.0f));
+	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	
 	if(moveBox == true && isRandomRoom == true)
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
