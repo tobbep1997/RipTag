@@ -101,10 +101,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
-	CreateShape(0, (y*1.5), 0, 0.3, 0.3, 0.1, "HEAD");
-	m_standHeight = (y*1.5);
-	m_crouchHeight = y*1.1;
+	CreateShape(0, 0.5 + 0.75, 0, 0.25, 1, 0.25, "UPPERBODY");
+	CreateShape(0, 3.25, 0, 0.25, 0.25, 0.25, "HEAD");
+	m_standHeight = (y*1.4);
+	m_crouchHeight = y*.5;
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -1244,7 +1244,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	//--------------------------------------Camera movement---------------------------------------// 
 	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y + 0.75f, headPosWorld.z, 1.0f);
 	p_camera->setPosition(pos);
 	//Camera Tilt
 	p_CameraTilting(deltaTime, m_peektimer);
