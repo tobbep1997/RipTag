@@ -111,6 +111,7 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		InputHandler::m_mousePos.x = LOWORD(lParam); 
 		InputHandler::m_mousePos.y = HIWORD(lParam); 
+		InputHandler::m_mouseMoved = true;
 		break;
 
 		//1 or -1

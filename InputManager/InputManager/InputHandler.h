@@ -32,7 +32,7 @@ private:
 	static bool m_update;
 
 	static bool m_closeGame;
-
+	static bool m_mouseMoved;
 	static std::vector<unsigned int> m_rawInput;
 
 public:
@@ -59,6 +59,7 @@ public:
 	static bool isMRightReleased();
 	static int getLastPressed(); 
 	static float getMouseDelta(); 
+	static bool mouseMoved();
 	static DirectX::XMFLOAT2 getMousePositionLH(); 
 	static DirectX::XMINT2 getWindowSize(); 
 	static DirectX::XMINT2 getViewportSize();
