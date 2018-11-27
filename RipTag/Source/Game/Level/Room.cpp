@@ -704,6 +704,12 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom);
 			break;
 		case(35):
+			//TEMPFIX
+
+			if(m_roomIndex == 0)
+				_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom);
+
+			//
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):

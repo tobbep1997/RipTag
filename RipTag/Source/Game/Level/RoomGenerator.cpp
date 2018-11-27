@@ -85,7 +85,7 @@ void RoomGenerator::_generateGrid()
 						float offY = 0.1 * (float)b;
 
 						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(
-							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.5, node.worldPos.y - 0.5 + offY))))
+							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
 						{
 
 							asset = DBG_NEW BaseActor();
@@ -147,8 +147,8 @@ void RoomGenerator::_createEntireWorld()
 	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 8; // change when small mods added
-	int MAX_LARGE_MODS = 5;
+	int MAX_SMALL_MODS = 11; //8
+	int MAX_LARGE_MODS = 6; // 5
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
@@ -683,7 +683,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
 	_createEntireWorld();
-	//_generateGrid();
+	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
 	//_makeRoof();
