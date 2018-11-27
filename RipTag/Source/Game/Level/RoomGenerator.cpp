@@ -519,9 +519,11 @@ void RoomGenerator::_createEntireWorld()
 					if(tempProps.props[k].typeOfProp != 11 
 						&& tempProps.props[k].typeOfProp != 16)
 						_modifyPropBoundingBoxes(tempProps.props[k]);
+					
 				}
+			
 				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
-				delete tempProps.props;
+				delete[] tempProps.props;
 				randomizer.m_rooms[index].propsPlaced = true;
 				if (randomizer.m_rooms[index].type == 0 || randomizer.m_rooms[index].type == 1)
 					randomizer.m_rooms[randomizer.m_rooms[index].pairedWith].propsPlaced = true;
@@ -681,7 +683,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
 	_createEntireWorld();
-	_generateGrid();
+	//_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
 	//_makeRoof();
