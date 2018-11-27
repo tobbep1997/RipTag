@@ -79,6 +79,8 @@ Texture * TextureManager::getTexture(const std::string & path)
 		}
 	}
 	
+
+
 	//This will be spammed because of the Draw calls each frame
 	//std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
 	

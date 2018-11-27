@@ -159,7 +159,7 @@ public:
 		}
 	};
 public:
-	static const int MAX_RAYS = 50;
+	static const int MAX_RAYS = 500;
 private:
 	std::vector<Ray*> rays;
 	std::vector<Ray*> processedRays;

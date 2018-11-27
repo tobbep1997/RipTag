@@ -40,7 +40,7 @@ private:
 	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
 	void _makeFloor();
-	void _makeWalls();
+	void _createEntireWorld();
 	void _createEnemies(Player * playerPtr);
 	void _generateGuardPaths();
 

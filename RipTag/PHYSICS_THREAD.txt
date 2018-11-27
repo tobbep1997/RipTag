@@ -1,1527 +1,6673 @@
-Func Called: 6
-Loop count: 2091
+Func Called: 0
+Loop count: 0
 DeltaTime: 0
 timer: 0
 timer + deltaTime: 0
 Going inside while: 0
 -----------------------------------------------------
-Loop count: 2092
-DeltaTime: 0.0232537
+Loop count: 1
+DeltaTime: 0.0405012
 timer: 0
-timer + deltaTime: 0.0232537
+timer + deltaTime: 0.0405012
 Going inside while: 1
-Entered stepMode at: 0.038
+Entered stepMode at: 0.081
 Count: 0
-timer: 0.00658705
-Left stepMode at: 0.04
------------------------------------------------------
-Loop count: 2093
-DeltaTime: 0.018007
-timer: 0.00658705
-timer + deltaTime: 0.0245941
-Going inside while: 1
-Entered stepMode at: 0.057
-Count: 0
-timer: 0.00792741
-Left stepMode at: 0.058
------------------------------------------------------
-Loop count: 2094
-DeltaTime: 0.0201021
-timer: 0.00792741
-timer + deltaTime: 0.0280295
-Going inside while: 1
-Entered stepMode at: 0.076
-Count: 0
-timer: 0.0113629
-Left stepMode at: 0.077
------------------------------------------------------
-Loop count: 2095
-DeltaTime: 0.0183489
-timer: 0.0113629
-timer + deltaTime: 0.0297118
-Going inside while: 1
-Entered stepMode at: 0.095
-Count: 0
-timer: 0.0130451
-Left stepMode at: 0.095
------------------------------------------------------
-Loop count: 2096
-DeltaTime: 0.0211933
-timer: 0.0130451
-timer + deltaTime: 0.0342384
-Going inside while: 1
-Entered stepMode at: 0.116
-Count: 0
-timer: 0.0175717
+timer: 0.0238346
 Count: 1
-timer: 0.000905068
-Left stepMode at: 0.117
+timer: 0.0071679
+Left stepMode at: 0.083
 -----------------------------------------------------
-Loop count: 2097
-DeltaTime: 0.0235071
-timer: 0.000905068
-timer + deltaTime: 0.0244122
+Loop count: 2
+DeltaTime: 0.0538389
+timer: 0.0071679
+timer + deltaTime: 0.0610068
 Going inside while: 1
-Entered stepMode at: 0.14
+Entered stepMode at: 0.135
 Count: 0
-timer: 0.0077455
-Left stepMode at: 0.14
------------------------------------------------------
-Loop count: 2098
-DeltaTime: 0.0230202
-timer: 0.0077455
-timer + deltaTime: 0.0307657
-Going inside while: 1
-Entered stepMode at: 0.163
-Count: 0
-timer: 0.014099
-Left stepMode at: 0.164
------------------------------------------------------
-Loop count: 2099
-DeltaTime: 0.0193952
-timer: 0.014099
-timer + deltaTime: 0.0334942
-Going inside while: 1
-Entered stepMode at: 0.182
-Count: 0
-timer: 0.0168276
+timer: 0.0443401
 Count: 1
-timer: 0.000160908
-Left stepMode at: 0.183
+timer: 0.0276735
+Count: 2
+timer: 0.0110068
+Left stepMode at: 0.136
 -----------------------------------------------------
-Loop count: 2100
-DeltaTime: 0.0223345
-timer: 0.000160908
-timer + deltaTime: 0.0224954
+Loop count: 3
+DeltaTime: 0.0213492
+timer: 0.0110068
+timer + deltaTime: 0.032356
 Going inside while: 1
-Entered stepMode at: 0.204
+Entered stepMode at: 0.157
 Count: 0
-timer: 0.00582871
-Left stepMode at: 0.205
+timer: 0.0156893
+Left stepMode at: 0.157
 -----------------------------------------------------
-Loop count: 2101
-DeltaTime: 0.0222517
-timer: 0.00582871
-timer + deltaTime: 0.0280804
+Loop count: 4
+DeltaTime: 0.0612852
+timer: 0.0156893
+timer + deltaTime: 0.0769745
 Going inside while: 1
-Entered stepMode at: 0.227
+Entered stepMode at: 0.217
 Count: 0
-timer: 0.0114138
-Left stepMode at: 0.227
------------------------------------------------------
-Loop count: 2102
-DeltaTime: 0.0244732
-timer: 0.0114138
-timer + deltaTime: 0.0358869
-Going inside while: 1
-Entered stepMode at: 0.252
-Count: 0
-timer: 0.0192203
+timer: 0.0603079
 Count: 1
-timer: 0.00255359
-Left stepMode at: 0.252
+timer: 0.0436412
+Count: 2
+timer: 0.0269745
+Count: 3
+timer: 0.0103079
+Left stepMode at: 0.218
 -----------------------------------------------------
-Loop count: 2103
-DeltaTime: 0.0197114
-timer: 0.00255359
-timer + deltaTime: 0.022265
+Loop count: 5
+DeltaTime: 0.0401612
+timer: 0.0103079
+timer + deltaTime: 0.0504691
 Going inside while: 1
-Entered stepMode at: 0.271
+Entered stepMode at: 0.258
 Count: 0
-timer: 0.00559837
-Left stepMode at: 0.272
------------------------------------------------------
-Loop count: 2104
-DeltaTime: 0.0255553
-timer: 0.00559837
-timer + deltaTime: 0.0311537
-Going inside while: 1
-Entered stepMode at: 0.296
-Count: 0
-timer: 0.0144871
-Left stepMode at: 0.296
------------------------------------------------------
-Loop count: 2105
-DeltaTime: 0.0250973
-timer: 0.0144871
-timer + deltaTime: 0.0395844
-Going inside while: 1
-Entered stepMode at: 0.323
-Count: 0
-timer: 0.0229177
+timer: 0.0338024
 Count: 1
-timer: 0.00625105
-Left stepMode at: 0.323
+timer: 0.0171358
+Count: 2
+timer: 0.000469107
+Left stepMode at: 0.259
 -----------------------------------------------------
-Loop count: 2106
-DeltaTime: 0.0374535
-timer: 0.00625105
-timer + deltaTime: 0.0437046
+Loop count: 6
+DeltaTime: 0.0395332
+timer: 0.000469107
+timer + deltaTime: 0.0400023
 Going inside while: 1
-Entered stepMode at: 0.359
+Entered stepMode at: 0.297
 Count: 0
-timer: 0.0270379
+timer: 0.0233357
 Count: 1
-timer: 0.0103713
-Left stepMode at: 0.36
+timer: 0.00666901
+Left stepMode at: 0.297
 -----------------------------------------------------
-Loop count: 2107
-DeltaTime: 0.0210759
-timer: 0.0103713
-timer + deltaTime: 0.0314471
+Loop count: 7
+DeltaTime: 0.023475
+timer: 0.00666901
+timer + deltaTime: 0.030144
 Going inside while: 1
-Entered stepMode at: 0.38
+Entered stepMode at: 0.321
 Count: 0
-timer: 0.0147805
-Left stepMode at: 0.38
+timer: 0.0134774
+Left stepMode at: 0.321
 -----------------------------------------------------
-Loop count: 2108
-DeltaTime: 0.0190013
-timer: 0.0147805
-timer + deltaTime: 0.0337818
+Loop count: 8
+DeltaTime: 0.0494441
+timer: 0.0134774
+timer + deltaTime: 0.0629215
 Going inside while: 1
-Entered stepMode at: 0.399
+Entered stepMode at: 0.37
 Count: 0
-timer: 0.0171151
+timer: 0.0462548
 Count: 1
-timer: 0.00044847
-Left stepMode at: 0.4
+timer: 0.0295882
+Count: 2
+timer: 0.0129215
+Left stepMode at: 0.371
 -----------------------------------------------------
-Loop count: 2109
-DeltaTime: 0.0202913
-timer: 0.00044847
-timer + deltaTime: 0.0207398
+Loop count: 9
+DeltaTime: 0.0517195
+timer: 0.0129215
+timer + deltaTime: 0.0646409
 Going inside while: 1
-Entered stepMode at: 0.419
+Entered stepMode at: 0.422
 Count: 0
-timer: 0.00407315
-Left stepMode at: 0.419
------------------------------------------------------
-Loop count: 2110
-DeltaTime: 0.0191598
-timer: 0.00407315
-timer + deltaTime: 0.0232329
-Going inside while: 1
-Entered stepMode at: 0.438
-Count: 0
-timer: 0.00656626
-Left stepMode at: 0.439
------------------------------------------------------
-Loop count: 2111
-DeltaTime: 0.0135378
-timer: 0.00656626
-timer + deltaTime: 0.0201041
-Going inside while: 1
-Entered stepMode at: 0.451
-Count: 0
-timer: 0.00343742
-Left stepMode at: 0.452
------------------------------------------------------
-Loop count: 2112
-DeltaTime: 0.017329
-timer: 0.00343742
-timer + deltaTime: 0.0207664
-Going inside while: 1
-Entered stepMode at: 0.469
-Count: 0
-timer: 0.00409974
-Left stepMode at: 0.469
------------------------------------------------------
-Loop count: 2113
-DeltaTime: 0.0191566
-timer: 0.00409974
-timer + deltaTime: 0.0232563
-Going inside while: 1
-Entered stepMode at: 0.488
-Count: 0
-timer: 0.00658964
-Left stepMode at: 0.489
------------------------------------------------------
-Loop count: 2114
-DeltaTime: 0.0191566
-timer: 0.00658964
-timer + deltaTime: 0.0257462
-Going inside while: 1
-Entered stepMode at: 0.508
-Count: 0
-timer: 0.00907955
-Left stepMode at: 0.508
------------------------------------------------------
-Loop count: 2115
-DeltaTime: 0.0124467
-timer: 0.00907955
-timer + deltaTime: 0.0215262
-Going inside while: 1
-Entered stepMode at: 0.52
-Count: 0
-timer: 0.00485955
-Left stepMode at: 0.52
------------------------------------------------------
-Loop count: 2116
-DeltaTime: 0.0158273
-timer: 0.00485955
-timer + deltaTime: 0.0206868
-Going inside while: 1
-Entered stepMode at: 0.535
-Count: 0
-timer: 0.00402016
-Left stepMode at: 0.536
------------------------------------------------------
-Loop count: 2117
-DeltaTime: 0.0168421
-timer: 0.00402016
-timer + deltaTime: 0.0208623
-Going inside while: 1
-Entered stepMode at: 0.552
-Count: 0
-timer: 0.00419559
-Left stepMode at: 0.553
------------------------------------------------------
-Loop count: 2118
-DeltaTime: 0.0188378
-timer: 0.00419559
-timer + deltaTime: 0.0230333
-Going inside while: 1
-Entered stepMode at: 0.571
-Count: 0
-timer: 0.00636668
-Left stepMode at: 0.572
------------------------------------------------------
-Loop count: 2119
-DeltaTime: 0.0126686
-timer: 0.00636668
-timer + deltaTime: 0.0190353
-Going inside while: 1
-Entered stepMode at: 0.584
-Count: 0
-timer: 0.00236863
-Left stepMode at: 0.585
------------------------------------------------------
-Loop count: 2120
-DeltaTime: 0.0160845
-timer: 0.00236863
-timer + deltaTime: 0.0184531
-Going inside while: 1
-Entered stepMode at: 0.6
-Count: 0
-timer: 0.00178648
-Left stepMode at: 0.6
------------------------------------------------------
-Loop count: 2121
-DeltaTime: 0.0185696
-timer: 0.00178648
-timer + deltaTime: 0.0203561
-Going inside while: 1
-Entered stepMode at: 0.619
-Count: 0
-timer: 0.00368942
-Left stepMode at: 0.619
------------------------------------------------------
-Loop count: 2122
-DeltaTime: 0.0197859
-timer: 0.00368942
-timer + deltaTime: 0.0234753
-Going inside while: 1
-Entered stepMode at: 0.638
-Count: 0
-timer: 0.00680862
-Left stepMode at: 0.639
------------------------------------------------------
-Loop count: 2123
-DeltaTime: 0.0128065
-timer: 0.00680862
-timer + deltaTime: 0.0196152
-Going inside while: 1
-Entered stepMode at: 0.651
-Count: 0
-timer: 0.00294849
-Left stepMode at: 0.652
------------------------------------------------------
-Loop count: 2124
-DeltaTime: 0.0253013
-timer: 0.00294849
-timer + deltaTime: 0.0282498
-Going inside while: 1
-Entered stepMode at: 0.677
-Count: 0
-timer: 0.0115831
-Left stepMode at: 0.677
------------------------------------------------------
-Loop count: 2125
-DeltaTime: 0.024214
-timer: 0.0115831
-timer + deltaTime: 0.0357972
-Going inside while: 1
-Entered stepMode at: 0.701
-Count: 0
-timer: 0.0191305
+timer: 0.0479743
 Count: 1
-timer: 0.00246382
-Left stepMode at: 0.701
+timer: 0.0313076
+Count: 2
+timer: 0.0146409
+Left stepMode at: 0.423
 -----------------------------------------------------
-Loop count: 2126
-DeltaTime: 0.0235186
-timer: 0.00246382
-timer + deltaTime: 0.0259825
+Loop count: 10
+DeltaTime: 0.0423865
+timer: 0.0146409
+timer + deltaTime: 0.0570275
 Going inside while: 1
-Entered stepMode at: 0.724
+Entered stepMode at: 0.464
 Count: 0
-timer: 0.00931579
-Left stepMode at: 0.725
------------------------------------------------------
-Loop count: 2127
-DeltaTime: 0.0214986
-timer: 0.00931579
-timer + deltaTime: 0.0308144
-Going inside while: 1
-Entered stepMode at: 0.746
-Count: 0
-timer: 0.0141477
-Left stepMode at: 0.746
------------------------------------------------------
-Loop count: 2128
-DeltaTime: 0.0234231
-timer: 0.0141477
-timer + deltaTime: 0.0375708
-Going inside while: 1
-Entered stepMode at: 0.77
-Count: 0
-timer: 0.0209041
+timer: 0.0403608
 Count: 1
-timer: 0.00423747
-Left stepMode at: 0.77
+timer: 0.0236942
+Count: 2
+timer: 0.00702749
+Left stepMode at: 0.464
 -----------------------------------------------------
-Loop count: 2129
-DeltaTime: 0.0265368
-timer: 0.00423747
-timer + deltaTime: 0.0307743
+Loop count: 11
+DeltaTime: 0.0159453
+timer: 0.00702749
+timer + deltaTime: 0.0229728
 Going inside while: 1
-Entered stepMode at: 0.796
+Entered stepMode at: 0.48
 Count: 0
-timer: 0.0141076
-Left stepMode at: 0.797
+timer: 0.00630613
+Left stepMode at: 0.48
 -----------------------------------------------------
-Loop count: 2130
-DeltaTime: 0.0259563
-timer: 0.0141076
-timer + deltaTime: 0.0400639
+Loop count: 12
+DeltaTime: 0.0351423
+timer: 0.00630613
+timer + deltaTime: 0.0414484
 Going inside while: 1
-Entered stepMode at: 0.823
+Entered stepMode at: 0.515
 Count: 0
-timer: 0.0233972
+timer: 0.0247818
 Count: 1
-timer: 0.00673056
-Left stepMode at: 0.824
+timer: 0.00811508
+Left stepMode at: 0.515
 -----------------------------------------------------
-Loop count: 2131
-DeltaTime: 0.0241101
-timer: 0.00673056
-timer + deltaTime: 0.0308406
+Loop count: 13
+DeltaTime: 0.0394248
+timer: 0.00811508
+timer + deltaTime: 0.0475399
 Going inside while: 1
-Entered stepMode at: 0.847
+Entered stepMode at: 0.554
 Count: 0
-timer: 0.014174
-Left stepMode at: 0.847
------------------------------------------------------
-Loop count: 2132
-DeltaTime: 0.0269332
-timer: 0.014174
-timer + deltaTime: 0.0411072
-Going inside while: 1
-Entered stepMode at: 0.874
-Count: 0
-timer: 0.0244406
+timer: 0.0308732
 Count: 1
-timer: 0.00777389
-Left stepMode at: 0.874
+timer: 0.0142066
+Left stepMode at: 0.555
 -----------------------------------------------------
-Loop count: 2133
-DeltaTime: 0.0265176
-timer: 0.00777389
-timer + deltaTime: 0.0342915
+Loop count: 14
+DeltaTime: 0.0379571
+timer: 0.0142066
+timer + deltaTime: 0.0521637
 Going inside while: 1
-Entered stepMode at: 0.899
+Entered stepMode at: 0.593
 Count: 0
-timer: 0.0176248
+timer: 0.035497
 Count: 1
-timer: 0.000958126
-Left stepMode at: 0.9
+timer: 0.0188304
+Count: 2
+timer: 0.00216369
+Left stepMode at: 0.593
 -----------------------------------------------------
-Loop count: 2134
-DeltaTime: 0.0262507
-timer: 0.000958126
-timer + deltaTime: 0.0272088
+Loop count: 15
+DeltaTime: 0.0224397
+timer: 0.00216369
+timer + deltaTime: 0.0246034
 Going inside while: 1
-Entered stepMode at: 0.926
+Entered stepMode at: 0.616
 Count: 0
-timer: 0.0105422
-Left stepMode at: 0.926
+timer: 0.00793669
+Left stepMode at: 0.616
 -----------------------------------------------------
-Loop count: 2135
-DeltaTime: 0.0261096
-timer: 0.0105422
-timer + deltaTime: 0.0366518
+Loop count: 16
+DeltaTime: 0.0544733
+timer: 0.00793669
+timer + deltaTime: 0.06241
 Going inside while: 1
-Entered stepMode at: 0.952
+Entered stepMode at: 0.67
 Count: 0
-timer: 0.0199851
+timer: 0.0457434
 Count: 1
-timer: 0.00331843
-Left stepMode at: 0.953
+timer: 0.0290767
+Count: 2
+timer: 0.01241
+Left stepMode at: 0.67
 -----------------------------------------------------
-Loop count: 2136
-DeltaTime: 0.0265189
-timer: 0.00331843
-timer + deltaTime: 0.0298373
+Loop count: 17
+DeltaTime: 0.0422505
+timer: 0.01241
+timer + deltaTime: 0.0546606
 Going inside while: 1
-Entered stepMode at: 0.978
+Entered stepMode at: 0.711
 Count: 0
-timer: 0.0131706
-Left stepMode at: 0.979
+timer: 0.0379939
+Count: 1
+timer: 0.0213272
+Count: 2
+timer: 0.00466058
+Left stepMode at: 0.712
 -----------------------------------------------------
-Loop count: 2137
-DeltaTime: 0.0261801
-timer: 0.0131706
-timer + deltaTime: 0.0393508
+Loop count: 18
+DeltaTime: 0.0511389
+timer: 0.00466058
+timer + deltaTime: 0.0557995
+Going inside while: 1
+Entered stepMode at: 0.763
+Count: 0
+timer: 0.0391328
+Count: 1
+timer: 0.0224662
+Count: 2
+timer: 0.0057995
+Left stepMode at: 0.764
+-----------------------------------------------------
+Loop count: 19
+DeltaTime: 0.0222453
+timer: 0.0057995
+timer + deltaTime: 0.0280448
+Going inside while: 1
+Entered stepMode at: 0.785
+Count: 0
+timer: 0.0113781
+Left stepMode at: 0.785
+-----------------------------------------------------
+Loop count: 20
+DeltaTime: 0.0430287
+timer: 0.0113781
+timer + deltaTime: 0.0544068
+Going inside while: 1
+Entered stepMode at: 0.828
+Count: 0
+timer: 0.0377401
+Count: 1
+timer: 0.0210735
+Count: 2
+timer: 0.0044068
+Left stepMode at: 0.828
+-----------------------------------------------------
+Loop count: 21
+DeltaTime: 0.0439036
+timer: 0.0044068
+timer + deltaTime: 0.0483104
+Going inside while: 1
+Entered stepMode at: 0.872
+Count: 0
+timer: 0.0316438
+Count: 1
+timer: 0.0149771
+Left stepMode at: 0.872
+-----------------------------------------------------
+Loop count: 22
+DeltaTime: 0.0363047
+timer: 0.0149771
+timer + deltaTime: 0.0512818
+Going inside while: 1
+Entered stepMode at: 0.908
+Count: 0
+timer: 0.0346151
+Count: 1
+timer: 0.0179484
+Count: 2
+timer: 0.00128177
+Left stepMode at: 0.909
+-----------------------------------------------------
+Loop count: 23
+DeltaTime: 0.0156778
+timer: 0.00128177
+timer + deltaTime: 0.0169596
+Going inside while: 1
+Entered stepMode at: 0.924
+Count: 0
+timer: 0.000292913
+Left stepMode at: 0.924
+-----------------------------------------------------
+Loop count: 24
+DeltaTime: 0.041568
+timer: 0.000292913
+timer + deltaTime: 0.0418609
+Going inside while: 1
+Entered stepMode at: 0.967
+Count: 0
+timer: 0.0251943
+Count: 1
+timer: 0.00852759
+Left stepMode at: 0.967
+-----------------------------------------------------
+Loop count: 25
+DeltaTime: 0.0399175
+timer: 0.00852759
+timer + deltaTime: 0.0484451
 Going inside while: 1
 Entered stepMode at: 1.006
 Count: 0
-timer: 0.0226841
+timer: 0.0317784
 Count: 1
-timer: 0.00601743
-Left stepMode at: 1.007
+timer: 0.0151117
+Left stepMode at: 1.006
 -----------------------------------------------------
-Loop count: 2138
-DeltaTime: 0.0243571
-timer: 0.00601743
-timer + deltaTime: 0.0303745
+Loop count: 26
+DeltaTime: 0.0373811
+timer: 0.0151117
+timer + deltaTime: 0.0524928
 Going inside while: 1
-Entered stepMode at: 1.029
+Entered stepMode at: 1.043
 Count: 0
-timer: 0.0137078
-Left stepMode at: 1.03
------------------------------------------------------
-Loop count: 2139
-DeltaTime: 0.0243404
-timer: 0.0137078
-timer + deltaTime: 0.0380482
-Going inside while: 1
-Entered stepMode at: 1.053
-Count: 0
-timer: 0.0213815
+timer: 0.0358261
 Count: 1
-timer: 0.00471487
-Left stepMode at: 1.054
+timer: 0.0191595
+Count: 2
+timer: 0.0024928
+Left stepMode at: 1.043
 -----------------------------------------------------
-Loop count: 2140
-DeltaTime: 0.0248061
-timer: 0.00471487
-timer + deltaTime: 0.029521
+Loop count: 27
+DeltaTime: 0.0168196
+timer: 0.0024928
+timer + deltaTime: 0.0193124
 Going inside while: 1
-Entered stepMode at: 1.078
+Entered stepMode at: 1.061
 Count: 0
-timer: 0.0128543
-Left stepMode at: 1.079
+timer: 0.00264578
+Left stepMode at: 1.061
 -----------------------------------------------------
-Loop count: 2141
-DeltaTime: 0.0246727
-timer: 0.0128543
-timer + deltaTime: 0.037527
+Loop count: 28
+DeltaTime: 0.0359364
+timer: 0.00264578
+timer + deltaTime: 0.0385822
 Going inside while: 1
-Entered stepMode at: 1.103
+Entered stepMode at: 1.095
 Count: 0
-timer: 0.0208603
+timer: 0.0219156
 Count: 1
-timer: 0.00419363
-Left stepMode at: 1.104
+timer: 0.00524889
+Left stepMode at: 1.096
 -----------------------------------------------------
-Loop count: 2142
-DeltaTime: 0.024867
-timer: 0.00419363
-timer + deltaTime: 0.0290607
+Loop count: 29
+DeltaTime: 0.0371848
+timer: 0.00524889
+timer + deltaTime: 0.0424337
 Going inside while: 1
-Entered stepMode at: 1.128
+Entered stepMode at: 1.133
 Count: 0
-timer: 0.012394
-Left stepMode at: 1.128
------------------------------------------------------
-Loop count: 2143
-DeltaTime: 0.0237329
-timer: 0.012394
-timer + deltaTime: 0.0361269
-Going inside while: 1
-Entered stepMode at: 1.152
-Count: 0
-timer: 0.0194602
+timer: 0.025767
 Count: 1
-timer: 0.00279357
-Left stepMode at: 1.152
+timer: 0.00910033
+Left stepMode at: 1.133
 -----------------------------------------------------
-Loop count: 2144
-DeltaTime: 0.0256176
-timer: 0.00279357
-timer + deltaTime: 0.0284111
+Loop count: 30
+DeltaTime: 0.0405596
+timer: 0.00910033
+timer + deltaTime: 0.0496599
 Going inside while: 1
-Entered stepMode at: 1.178
+Entered stepMode at: 1.173
 Count: 0
-timer: 0.0117445
-Left stepMode at: 1.179
------------------------------------------------------
-Loop count: 2145
-DeltaTime: 0.0279295
-timer: 0.0117445
-timer + deltaTime: 0.0396739
-Going inside while: 1
-Entered stepMode at: 1.206
-Count: 0
-timer: 0.0230073
+timer: 0.0329933
 Count: 1
-timer: 0.00634061
-Left stepMode at: 1.207
+timer: 0.0163266
+Left stepMode at: 1.173
 -----------------------------------------------------
-Loop count: 2146
-DeltaTime: 0.0250614
-timer: 0.00634061
-timer + deltaTime: 0.031402
+Loop count: 31
+DeltaTime: 0.0186132
+timer: 0.0163266
+timer + deltaTime: 0.0349398
 Going inside while: 1
-Entered stepMode at: 1.231
+Entered stepMode at: 1.192
 Count: 0
-timer: 0.0147353
-Left stepMode at: 1.231
------------------------------------------------------
-Loop count: 2147
-DeltaTime: 0.0247105
-timer: 0.0147353
-timer + deltaTime: 0.0394459
-Going inside while: 1
-Entered stepMode at: 1.255
-Count: 0
-timer: 0.0227792
+timer: 0.0182732
 Count: 1
-timer: 0.00611253
-Left stepMode at: 1.256
+timer: 0.0016065
+Left stepMode at: 1.194
 -----------------------------------------------------
-Loop count: 2148
-DeltaTime: 0.0259903
-timer: 0.00611253
-timer + deltaTime: 0.0321028
+Loop count: 32
+DeltaTime: 0.0358466
+timer: 0.0016065
+timer + deltaTime: 0.0374531
 Going inside while: 1
-Entered stepMode at: 1.281
+Entered stepMode at: 1.228
 Count: 0
-timer: 0.0154361
-Left stepMode at: 1.282
------------------------------------------------------
-Loop count: 2149
-DeltaTime: 0.0251615
-timer: 0.0154361
-timer + deltaTime: 0.0405976
-Going inside while: 1
-Entered stepMode at: 1.307
-Count: 0
-timer: 0.0239309
+timer: 0.0207865
 Count: 1
-timer: 0.00726428
-Left stepMode at: 1.307
+timer: 0.0041198
+Left stepMode at: 1.228
 -----------------------------------------------------
-Loop count: 2150
-DeltaTime: 0.0269288
-timer: 0.00726428
-timer + deltaTime: 0.034193
+Loop count: 33
+DeltaTime: 0.0355028
+timer: 0.0041198
+timer + deltaTime: 0.0396226
 Going inside while: 1
-Entered stepMode at: 1.333
+Entered stepMode at: 1.263
 Count: 0
-timer: 0.0175264
+timer: 0.0229559
 Count: 1
-timer: 0.000859703
-Left stepMode at: 1.334
+timer: 0.00628927
+Left stepMode at: 1.263
 -----------------------------------------------------
-Loop count: 2151
-DeltaTime: 0.0245906
-timer: 0.000859703
-timer + deltaTime: 0.0254503
+Loop count: 34
+DeltaTime: 0.0362148
+timer: 0.00628927
+timer + deltaTime: 0.0425041
 Going inside while: 1
-Entered stepMode at: 1.358
+Entered stepMode at: 1.299
 Count: 0
-timer: 0.00878359
-Left stepMode at: 1.358
------------------------------------------------------
-Loop count: 2152
-DeltaTime: 0.028936
-timer: 0.00878359
-timer + deltaTime: 0.0377195
-Going inside while: 1
-Entered stepMode at: 1.387
-Count: 0
-timer: 0.0210529
+timer: 0.0258374
 Count: 1
-timer: 0.00438622
-Left stepMode at: 1.387
+timer: 0.00917078
+Left stepMode at: 1.3
 -----------------------------------------------------
-Loop count: 2153
-DeltaTime: 0.0285196
-timer: 0.00438622
-timer + deltaTime: 0.0329059
+Loop count: 35
+DeltaTime: 0.0371251
+timer: 0.00917078
+timer + deltaTime: 0.0462959
 Going inside while: 1
-Entered stepMode at: 1.415
+Entered stepMode at: 1.337
 Count: 0
-timer: 0.0162392
-Left stepMode at: 1.415
------------------------------------------------------
-Loop count: 2154
-DeltaTime: 0.0247073
-timer: 0.0162392
-timer + deltaTime: 0.0409465
-Going inside while: 1
-Entered stepMode at: 1.44
-Count: 0
-timer: 0.0242798
+timer: 0.0296292
 Count: 1
-timer: 0.00761316
-Left stepMode at: 1.441
+timer: 0.0129626
+Left stepMode at: 1.337
 -----------------------------------------------------
-Loop count: 2155
-DeltaTime: 0.0202817
-timer: 0.00761316
-timer + deltaTime: 0.0278949
+Loop count: 36
+DeltaTime: 0.0377095
+timer: 0.0129626
+timer + deltaTime: 0.0506721
 Going inside while: 1
-Entered stepMode at: 1.46
+Entered stepMode at: 1.374
 Count: 0
-timer: 0.0112282
-Left stepMode at: 1.46
------------------------------------------------------
-Loop count: 2156
-DeltaTime: 0.0190956
-timer: 0.0112282
-timer + deltaTime: 0.0303238
-Going inside while: 1
-Entered stepMode at: 1.478
-Count: 0
-timer: 0.0136572
-Left stepMode at: 1.479
------------------------------------------------------
-Loop count: 2157
-DeltaTime: 0.0196499
-timer: 0.0136572
-timer + deltaTime: 0.033307
-Going inside while: 1
-Entered stepMode at: 1.498
-Count: 0
-timer: 0.0166404
-Left stepMode at: 1.499
------------------------------------------------------
-Loop count: 2158
-DeltaTime: 0.020242
-timer: 0.0166404
-timer + deltaTime: 0.0368823
-Going inside while: 1
-Entered stepMode at: 1.518
-Count: 0
-timer: 0.0202157
+timer: 0.0340054
 Count: 1
-timer: 0.003549
-Left stepMode at: 1.519
+timer: 0.0173387
+Count: 2
+timer: 0.00067206
+Left stepMode at: 1.375
 -----------------------------------------------------
-Loop count: 2159
-DeltaTime: 0.0195915
-timer: 0.003549
-timer + deltaTime: 0.0231405
+Loop count: 37
+DeltaTime: 0.0419568
+timer: 0.00067206
+timer + deltaTime: 0.0426288
 Going inside while: 1
-Entered stepMode at: 1.538
+Entered stepMode at: 1.416
 Count: 0
-timer: 0.00647382
-Left stepMode at: 1.539
------------------------------------------------------
-Loop count: 2160
-DeltaTime: 0.0197159
-timer: 0.00647382
-timer + deltaTime: 0.0261898
-Going inside while: 1
-Entered stepMode at: 1.558
-Count: 0
-timer: 0.00952309
-Left stepMode at: 1.558
------------------------------------------------------
-Loop count: 2161
-DeltaTime: 0.0198038
-timer: 0.00952309
-timer + deltaTime: 0.0293269
-Going inside while: 1
-Entered stepMode at: 1.578
-Count: 0
-timer: 0.0126602
-Left stepMode at: 1.579
------------------------------------------------------
-Loop count: 2162
-DeltaTime: 0.0227501
-timer: 0.0126602
-timer + deltaTime: 0.0354104
-Going inside while: 1
-Entered stepMode at: 1.601
-Count: 0
-timer: 0.0187437
+timer: 0.0259621
 Count: 1
-timer: 0.00207707
-Left stepMode at: 1.602
+timer: 0.00929548
+Left stepMode at: 1.416
 -----------------------------------------------------
-Loop count: 2163
-DeltaTime: 0.0228509
-timer: 0.00207707
-timer + deltaTime: 0.0249279
+Loop count: 38
+DeltaTime: 0.0372252
+timer: 0.00929548
+timer + deltaTime: 0.0465207
 Going inside while: 1
-Entered stepMode at: 1.625
+Entered stepMode at: 1.453
 Count: 0
-timer: 0.00826126
-Left stepMode at: 1.625
------------------------------------------------------
-Loop count: 2164
-DeltaTime: 0.022797
-timer: 0.00826126
-timer + deltaTime: 0.0310582
-Going inside while: 1
-Entered stepMode at: 1.646
-Count: 0
-timer: 0.0143916
-Left stepMode at: 1.646
------------------------------------------------------
-Loop count: 2165
-DeltaTime: 0.0201624
-timer: 0.0143916
-timer + deltaTime: 0.034554
-Going inside while: 1
-Entered stepMode at: 1.666
-Count: 0
-timer: 0.0178873
+timer: 0.029854
 Count: 1
-timer: 0.00122064
-Left stepMode at: 1.667
+timer: 0.0131873
+Left stepMode at: 1.454
 -----------------------------------------------------
-Loop count: 2166
-DeltaTime: 0.0211503
-timer: 0.00122064
-timer + deltaTime: 0.0223709
+Loop count: 39
+DeltaTime: 0.0367729
+timer: 0.0131873
+timer + deltaTime: 0.0499603
 Going inside while: 1
-Entered stepMode at: 1.688
+Entered stepMode at: 1.49
 Count: 0
-timer: 0.00570427
-Left stepMode at: 1.688
------------------------------------------------------
-Loop count: 2167
-DeltaTime: 0.0205736
-timer: 0.00570427
-timer + deltaTime: 0.0262779
-Going inside while: 1
-Entered stepMode at: 1.708
-Count: 0
-timer: 0.0096112
-Left stepMode at: 1.708
------------------------------------------------------
-Loop count: 2168
-DeltaTime: 0.0211035
-timer: 0.0096112
-timer + deltaTime: 0.0307147
-Going inside while: 1
-Entered stepMode at: 1.73
-Count: 0
-timer: 0.014048
-Left stepMode at: 1.73
------------------------------------------------------
-Loop count: 2169
-DeltaTime: 0.0234442
-timer: 0.014048
-timer + deltaTime: 0.0374922
-Going inside while: 1
-Entered stepMode at: 1.753
-Count: 0
-timer: 0.0208256
+timer: 0.0332936
 Count: 1
-timer: 0.0041589
-Left stepMode at: 1.754
+timer: 0.0166269
+Left stepMode at: 1.49
 -----------------------------------------------------
-Loop count: 2170
-DeltaTime: 0.0227258
-timer: 0.0041589
-timer + deltaTime: 0.0268847
+Loop count: 40
+DeltaTime: 0.0305345
+timer: 0.0166269
+timer + deltaTime: 0.0471615
 Going inside while: 1
-Entered stepMode at: 1.775
+Entered stepMode at: 1.521
 Count: 0
-timer: 0.010218
-Left stepMode at: 1.776
------------------------------------------------------
-Loop count: 2171
-DeltaTime: 0.0244597
-timer: 0.010218
-timer + deltaTime: 0.0346777
-Going inside while: 1
-Entered stepMode at: 1.8
-Count: 0
-timer: 0.018011
+timer: 0.0304948
 Count: 1
-timer: 0.00134436
-Left stepMode at: 1.801
+timer: 0.0138281
+Left stepMode at: 1.521
 -----------------------------------------------------
-Loop count: 2172
-DeltaTime: 0.0223069
-timer: 0.00134436
-timer + deltaTime: 0.0236512
+Loop count: 41
+DeltaTime: 0.034921
+timer: 0.0138281
+timer + deltaTime: 0.0487491
 Going inside while: 1
-Entered stepMode at: 1.823
+Entered stepMode at: 1.555
 Count: 0
-timer: 0.00698458
-Left stepMode at: 1.823
------------------------------------------------------
-Loop count: 2173
-DeltaTime: 0.0242968
-timer: 0.00698458
-timer + deltaTime: 0.0312813
-Going inside while: 1
-Entered stepMode at: 1.846
-Count: 0
-timer: 0.0146147
-Left stepMode at: 1.847
------------------------------------------------------
-Loop count: 2174
-DeltaTime: 0.0225994
-timer: 0.0146147
-timer + deltaTime: 0.0372141
-Going inside while: 1
-Entered stepMode at: 1.869
-Count: 0
-timer: 0.0205474
+timer: 0.0320824
 Count: 1
-timer: 0.00388074
-Left stepMode at: 1.87
+timer: 0.0154158
+Left stepMode at: 1.556
 -----------------------------------------------------
-Loop count: 2175
-DeltaTime: 0.0236681
-timer: 0.00388074
-timer + deltaTime: 0.0275488
+Loop count: 42
+DeltaTime: 0.0424077
+timer: 0.0154158
+timer + deltaTime: 0.0578235
 Going inside while: 1
-Entered stepMode at: 1.893
+Entered stepMode at: 1.598
 Count: 0
-timer: 0.0108822
-Left stepMode at: 1.894
------------------------------------------------------
-Loop count: 2176
-DeltaTime: 0.0195607
-timer: 0.0108822
-timer + deltaTime: 0.0304429
-Going inside while: 1
-Entered stepMode at: 1.913
-Count: 0
-timer: 0.0137762
-Left stepMode at: 1.913
------------------------------------------------------
-Loop count: 2177
-DeltaTime: 0.0227989
-timer: 0.0137762
-timer + deltaTime: 0.0365751
-Going inside while: 1
-Entered stepMode at: 1.935
-Count: 0
-timer: 0.0199084
+timer: 0.0411568
 Count: 1
-timer: 0.00324178
-Left stepMode at: 1.936
+timer: 0.0244902
+Count: 2
+timer: 0.00782349
+Left stepMode at: 1.6
 -----------------------------------------------------
-Loop count: 2178
-DeltaTime: 0.0219246
-timer: 0.00324178
-timer + deltaTime: 0.0251663
+Loop count: 43
+DeltaTime: 0.0430652
+timer: 0.00782349
+timer + deltaTime: 0.0508887
 Going inside while: 1
-Entered stepMode at: 1.957
+Entered stepMode at: 1.641
 Count: 0
-timer: 0.00849968
-Left stepMode at: 1.958
------------------------------------------------------
-Loop count: 2179
-DeltaTime: 0.0223159
-timer: 0.00849968
-timer + deltaTime: 0.0308155
-Going inside while: 1
-Entered stepMode at: 1.98
-Count: 0
-timer: 0.0141489
-Left stepMode at: 1.98
------------------------------------------------------
-Loop count: 2180
-DeltaTime: 0.0220946
-timer: 0.0141489
-timer + deltaTime: 0.0362434
-Going inside while: 1
-Entered stepMode at: 2.002
-Count: 0
-timer: 0.0195768
+timer: 0.0342221
 Count: 1
-timer: 0.00291009
-Left stepMode at: 2.002
+timer: 0.0175554
+Count: 2
+timer: 0.000888718
+Left stepMode at: 1.642
 -----------------------------------------------------
-Loop count: 2181
-DeltaTime: 0.0274169
-timer: 0.00291009
-timer + deltaTime: 0.030327
+Loop count: 44
+DeltaTime: 0.0272745
+timer: 0.000888718
+timer + deltaTime: 0.0281632
 Going inside while: 1
-Entered stepMode at: 2.03
+Entered stepMode at: 1.668
 Count: 0
-timer: 0.0136603
-Left stepMode at: 2.03
+timer: 0.0114966
+Left stepMode at: 1.669
 -----------------------------------------------------
-Loop count: 2182
-DeltaTime: 0.0253558
-timer: 0.0136603
-timer + deltaTime: 0.0390162
+Loop count: 45
+DeltaTime: 0.0345367
+timer: 0.0114966
+timer + deltaTime: 0.0460333
 Going inside while: 1
-Entered stepMode at: 2.055
+Entered stepMode at: 1.703
 Count: 0
-timer: 0.0223495
+timer: 0.0293666
 Count: 1
-timer: 0.00568286
-Left stepMode at: 2.055
+timer: 0.0127
+Left stepMode at: 1.703
 -----------------------------------------------------
-Loop count: 2183
-DeltaTime: 0.0243648
-timer: 0.00568286
-timer + deltaTime: 0.0300476
+Loop count: 46
+DeltaTime: 0.0311164
+timer: 0.0127
+timer + deltaTime: 0.0438163
 Going inside while: 1
-Entered stepMode at: 2.078
+Entered stepMode at: 1.734
 Count: 0
-timer: 0.013381
-Left stepMode at: 2.079
------------------------------------------------------
-Loop count: 2184
-DeltaTime: 0.0218534
-timer: 0.013381
-timer + deltaTime: 0.0352343
-Going inside while: 1
-Entered stepMode at: 2.1
-Count: 0
-timer: 0.0185676
+timer: 0.0271496
 Count: 1
-timer: 0.00190097
-Left stepMode at: 2.101
+timer: 0.010483
+Left stepMode at: 1.734
 -----------------------------------------------------
-Loop count: 2185
-DeltaTime: 0.0224268
-timer: 0.00190097
-timer + deltaTime: 0.0243278
+Loop count: 47
+DeltaTime: 0.0355426
+timer: 0.010483
+timer + deltaTime: 0.0460256
 Going inside while: 1
-Entered stepMode at: 2.123
+Entered stepMode at: 1.769
 Count: 0
-timer: 0.00766115
-Left stepMode at: 2.123
------------------------------------------------------
-Loop count: 2186
-DeltaTime: 0.0228188
-timer: 0.00766115
-timer + deltaTime: 0.0304799
-Going inside while: 1
-Entered stepMode at: 2.145
-Count: 0
-timer: 0.0138133
-Left stepMode at: 2.146
------------------------------------------------------
-Loop count: 2187
-DeltaTime: 0.0209162
-timer: 0.0138133
-timer + deltaTime: 0.0347294
-Going inside while: 1
-Entered stepMode at: 2.166
-Count: 0
-timer: 0.0180628
+timer: 0.0293589
 Count: 1
-timer: 0.00139608
-Left stepMode at: 2.167
+timer: 0.0126922
+Left stepMode at: 1.77
 -----------------------------------------------------
-Loop count: 2188
-DeltaTime: 0.0191367
-timer: 0.00139608
-timer + deltaTime: 0.0205328
+Loop count: 48
+DeltaTime: 0.0266805
+timer: 0.0126922
+timer + deltaTime: 0.0393727
 Going inside while: 1
-Entered stepMode at: 2.186
+Entered stepMode at: 1.797
 Count: 0
-timer: 0.0038661
-Left stepMode at: 2.186
------------------------------------------------------
-Loop count: 2189
-DeltaTime: 0.0216032
-timer: 0.0038661
-timer + deltaTime: 0.0254693
-Going inside while: 1
-Entered stepMode at: 2.207
-Count: 0
-timer: 0.00880261
-Left stepMode at: 2.208
------------------------------------------------------
-Loop count: 2190
-DeltaTime: 0.0236559
-timer: 0.00880261
-timer + deltaTime: 0.0324585
-Going inside while: 1
-Entered stepMode at: 2.231
-Count: 0
-timer: 0.0157919
-Left stepMode at: 2.232
------------------------------------------------------
-Loop count: 2191
-DeltaTime: 0.024597
-timer: 0.0157919
-timer + deltaTime: 0.0403888
-Going inside while: 1
-Entered stepMode at: 2.256
-Count: 0
-timer: 0.0237222
+timer: 0.0227061
 Count: 1
-timer: 0.0070555
-Left stepMode at: 2.257
+timer: 0.0060394
+Left stepMode at: 1.798
 -----------------------------------------------------
-Loop count: 2192
-DeltaTime: 0.0237669
-timer: 0.0070555
-timer + deltaTime: 0.0308224
+Loop count: 49
+DeltaTime: 0.0425347
+timer: 0.0060394
+timer + deltaTime: 0.0485741
 Going inside while: 1
-Entered stepMode at: 2.28
+Entered stepMode at: 1.839
 Count: 0
-timer: 0.0141557
-Left stepMode at: 2.28
------------------------------------------------------
-Loop count: 2193
-DeltaTime: 0.0236264
-timer: 0.0141557
-timer + deltaTime: 0.0377821
-Going inside while: 1
-Entered stepMode at: 2.303
-Count: 0
-timer: 0.0211155
+timer: 0.0319075
 Count: 1
-timer: 0.00444881
-Left stepMode at: 2.303
+timer: 0.0152408
+Left stepMode at: 1.839
 -----------------------------------------------------
-Loop count: 2194
-DeltaTime: 0.0211471
-timer: 0.00444881
-timer + deltaTime: 0.0255959
+Loop count: 50
+DeltaTime: 0.0344745
+timer: 0.0152408
+timer + deltaTime: 0.0497153
 Going inside while: 1
-Entered stepMode at: 2.325
+Entered stepMode at: 1.873
 Count: 0
-timer: 0.00892922
-Left stepMode at: 2.326
+timer: 0.0330486
+Count: 1
+timer: 0.016382
+Left stepMode at: 1.874
 -----------------------------------------------------
-Loop count: 2195
-DeltaTime: 0.0229766
-timer: 0.00892922
-timer + deltaTime: 0.0319058
+Loop count: 51
+DeltaTime: 0.0359063
+timer: 0.016382
+timer + deltaTime: 0.0522883
 Going inside while: 1
-Entered stepMode at: 2.347
+Entered stepMode at: 1.909
 Count: 0
-timer: 0.0152392
-Left stepMode at: 2.348
+timer: 0.0356216
+Count: 1
+timer: 0.0189549
+Count: 2
+timer: 0.00228826
+Left stepMode at: 1.91
 -----------------------------------------------------
-Loop count: 2196
-DeltaTime: 0.0189096
-timer: 0.0152392
-timer + deltaTime: 0.0341487
+Loop count: 52
+DeltaTime: 0.0325507
+timer: 0.00228826
+timer + deltaTime: 0.034839
+Going inside while: 1
+Entered stepMode at: 1.942
+Count: 0
+timer: 0.0181723
+Count: 1
+timer: 0.00150563
+Left stepMode at: 1.942
+-----------------------------------------------------
+Loop count: 53
+DeltaTime: 0.014237
+timer: 0.00150563
+timer + deltaTime: 0.0157427
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 54
+DeltaTime: 0.031974
+timer: 0.0157427
+timer + deltaTime: 0.0477167
+Going inside while: 1
+Entered stepMode at: 1.988
+Count: 0
+timer: 0.03105
+Count: 1
+timer: 0.0143834
+Left stepMode at: 1.988
+-----------------------------------------------------
+Loop count: 55
+DeltaTime: 0.0378397
+timer: 0.0143834
+timer + deltaTime: 0.0522231
+Going inside while: 1
+Entered stepMode at: 2.026
+Count: 0
+timer: 0.0355564
+Count: 1
+timer: 0.0188897
+Count: 2
+timer: 0.00222307
+Left stepMode at: 2.026
+-----------------------------------------------------
+Loop count: 56
+DeltaTime: 0.0344213
+timer: 0.00222307
+timer + deltaTime: 0.0366443
+Going inside while: 1
+Entered stepMode at: 2.06
+Count: 0
+timer: 0.0199777
+Count: 1
+timer: 0.003311
+Left stepMode at: 2.061
+-----------------------------------------------------
+Loop count: 57
+DeltaTime: 0.0147996
+timer: 0.003311
+timer + deltaTime: 0.0181106
+Going inside while: 1
+Entered stepMode at: 2.075
+Count: 0
+timer: 0.00144396
+Left stepMode at: 2.075
+-----------------------------------------------------
+Loop count: 58
+DeltaTime: 0.0278191
+timer: 0.00144396
+timer + deltaTime: 0.0292631
+Going inside while: 1
+Entered stepMode at: 2.103
+Count: 0
+timer: 0.0125964
+Left stepMode at: 2.103
+-----------------------------------------------------
+Loop count: 59
+DeltaTime: 0.0360718
+timer: 0.0125964
+timer + deltaTime: 0.0486682
+Going inside while: 1
+Entered stepMode at: 2.139
+Count: 0
+timer: 0.0320016
+Count: 1
+timer: 0.0153349
+Left stepMode at: 2.139
+-----------------------------------------------------
+Loop count: 60
+DeltaTime: 0.0366895
+timer: 0.0153349
+timer + deltaTime: 0.0520244
+Going inside while: 1
+Entered stepMode at: 2.176
+Count: 0
+timer: 0.0353578
+Count: 1
+timer: 0.0186911
+Count: 2
+timer: 0.00202443
+Left stepMode at: 2.176
+-----------------------------------------------------
+Loop count: 61
+DeltaTime: 0.0197166
+timer: 0.00202443
+timer + deltaTime: 0.021741
+Going inside while: 1
+Entered stepMode at: 2.196
+Count: 0
+timer: 0.00507434
+Left stepMode at: 2.196
+-----------------------------------------------------
+Loop count: 62
+DeltaTime: 0.0281617
+timer: 0.00507434
+timer + deltaTime: 0.033236
+Going inside while: 1
+Entered stepMode at: 2.224
+Count: 0
+timer: 0.0165694
+Left stepMode at: 2.224
+-----------------------------------------------------
+Loop count: 63
+DeltaTime: 0.0356484
+timer: 0.0165694
+timer + deltaTime: 0.0522178
+Going inside while: 1
+Entered stepMode at: 2.259
+Count: 0
+timer: 0.0355511
+Count: 1
+timer: 0.0188845
+Count: 2
+timer: 0.00221778
+Left stepMode at: 2.259
+-----------------------------------------------------
+Loop count: 64
+DeltaTime: 0.0316116
+timer: 0.00221778
+timer + deltaTime: 0.0338294
+Going inside while: 1
+Entered stepMode at: 2.291
+Count: 0
+timer: 0.0171627
+Count: 1
+timer: 0.000496028
+Left stepMode at: 2.291
+-----------------------------------------------------
+Loop count: 65
+DeltaTime: 0.0285331
+timer: 0.000496028
+timer + deltaTime: 0.0290291
+Going inside while: 1
+Entered stepMode at: 2.319
+Count: 0
+timer: 0.0123625
+Left stepMode at: 2.319
+-----------------------------------------------------
+Loop count: 66
+DeltaTime: 0.015944
+timer: 0.0123625
+timer + deltaTime: 0.0283065
+Going inside while: 1
+Entered stepMode at: 2.335
+Count: 0
+timer: 0.0116398
+Left stepMode at: 2.335
+-----------------------------------------------------
+Loop count: 67
+DeltaTime: 0.0314339
+timer: 0.0116398
+timer + deltaTime: 0.0430737
 Going inside while: 1
 Entered stepMode at: 2.366
 Count: 0
-timer: 0.0174821
+timer: 0.026407
 Count: 1
-timer: 0.000815413
+timer: 0.00974038
 Left stepMode at: 2.367
 -----------------------------------------------------
-Loop count: 2197
-DeltaTime: 0.0245303
-timer: 0.000815413
-timer + deltaTime: 0.0253457
+Loop count: 68
+DeltaTime: 0.0329908
+timer: 0.00974038
+timer + deltaTime: 0.0427311
 Going inside while: 1
-Entered stepMode at: 2.39
+Entered stepMode at: 2.399
 Count: 0
-timer: 0.00867901
-Left stepMode at: 2.391
------------------------------------------------------
-Loop count: 2198
-DeltaTime: 0.0239619
-timer: 0.00867901
-timer + deltaTime: 0.0326409
-Going inside while: 1
-Entered stepMode at: 2.414
-Count: 0
-timer: 0.0159742
-Left stepMode at: 2.415
------------------------------------------------------
-Loop count: 2199
-DeltaTime: 0.025386
-timer: 0.0159742
-timer + deltaTime: 0.0413602
-Going inside while: 1
-Entered stepMode at: 2.439
-Count: 0
-timer: 0.0246936
+timer: 0.0260645
 Count: 1
-timer: 0.00802691
-Left stepMode at: 2.441
+timer: 0.0093978
+Left stepMode at: 2.4
 -----------------------------------------------------
-Loop count: 2200
-DeltaTime: 0.0236219
-timer: 0.00802691
-timer + deltaTime: 0.0316488
+Loop count: 69
+DeltaTime: 0.0265079
+timer: 0.0093978
+timer + deltaTime: 0.0359058
 Going inside while: 1
-Entered stepMode at: 2.463
+Entered stepMode at: 2.426
 Count: 0
-timer: 0.0149822
-Left stepMode at: 2.464
------------------------------------------------------
-Loop count: 2201
-DeltaTime: 0.0243243
-timer: 0.0149822
-timer + deltaTime: 0.0393065
-Going inside while: 1
-Entered stepMode at: 2.487
-Count: 0
-timer: 0.0226398
+timer: 0.0192391
 Count: 1
-timer: 0.00597317
-Left stepMode at: 2.488
+timer: 0.00257242
+Left stepMode at: 2.426
 -----------------------------------------------------
-Loop count: 2202
-DeltaTime: 0.0234147
-timer: 0.00597317
-timer + deltaTime: 0.0293879
+Loop count: 70
+DeltaTime: 0.0167895
+timer: 0.00257242
+timer + deltaTime: 0.0193619
 Going inside while: 1
-Entered stepMode at: 2.511
+Entered stepMode at: 2.443
 Count: 0
-timer: 0.0127212
-Left stepMode at: 2.511
+timer: 0.00269525
+Left stepMode at: 2.443
 -----------------------------------------------------
-Loop count: 2203
-DeltaTime: 0.0208174
-timer: 0.0127212
-timer + deltaTime: 0.0335386
+Loop count: 71
+DeltaTime: 0.0324904
+timer: 0.00269525
+timer + deltaTime: 0.0351857
 Going inside while: 1
-Entered stepMode at: 2.532
+Entered stepMode at: 2.476
 Count: 0
-timer: 0.0168719
+timer: 0.018519
 Count: 1
-timer: 0.000205258
-Left stepMode at: 2.533
+timer: 0.00185232
+Left stepMode at: 2.476
 -----------------------------------------------------
-Loop count: 2204
-DeltaTime: 0.0178479
-timer: 0.000205258
-timer + deltaTime: 0.0180532
+Loop count: 72
+DeltaTime: 0.0336553
+timer: 0.00185232
+timer + deltaTime: 0.0355077
+Going inside while: 1
+Entered stepMode at: 2.509
+Count: 0
+timer: 0.018841
+Count: 1
+timer: 0.00217433
+Left stepMode at: 2.509
+-----------------------------------------------------
+Loop count: 73
+DeltaTime: 0.0256657
+timer: 0.00217433
+timer + deltaTime: 0.02784
+Going inside while: 1
+Entered stepMode at: 2.535
+Count: 0
+timer: 0.0111733
+Left stepMode at: 2.535
+-----------------------------------------------------
+Loop count: 74
+DeltaTime: 0.0144276
+timer: 0.0111733
+timer + deltaTime: 0.0256009
 Going inside while: 1
 Entered stepMode at: 2.549
 Count: 0
-timer: 0.00138654
-Left stepMode at: 2.55
+timer: 0.00893424
+Left stepMode at: 2.549
 -----------------------------------------------------
-Loop count: 2205
-DeltaTime: 0.0152814
-timer: 0.00138654
-timer + deltaTime: 0.0166679
+Loop count: 75
+DeltaTime: 0.0147586
+timer: 0.00893424
+timer + deltaTime: 0.0236928
 Going inside while: 1
-Entered stepMode at: 2.565
+Entered stepMode at: 2.564
 Count: 0
-timer: 1.24499e-06
-Left stepMode at: 2.565
+timer: 0.00702614
+Left stepMode at: 2.564
 -----------------------------------------------------
-Loop count: 2206
-DeltaTime: 0.0161525
-timer: 1.24499e-06
-timer + deltaTime: 0.0161538
-Going inside while: 0
------------------------------------------------------
-Loop count: 2207
-DeltaTime: 0.0162641
-timer: 0.0161538
-timer + deltaTime: 0.0324179
+Loop count: 76
+DeltaTime: 0.0324808
+timer: 0.00702614
+timer + deltaTime: 0.0395069
 Going inside while: 1
-Entered stepMode at: 2.597
+Entered stepMode at: 2.596
 Count: 0
-timer: 0.0157512
+timer: 0.0228403
+Count: 1
+timer: 0.00617359
 Left stepMode at: 2.597
 -----------------------------------------------------
-Loop count: 2208
-DeltaTime: 0.0132902
-timer: 0.0157512
-timer + deltaTime: 0.0290414
+Loop count: 77
+DeltaTime: 0.0257818
+timer: 0.00617359
+timer + deltaTime: 0.0319554
 Going inside while: 1
-Entered stepMode at: 2.61
+Entered stepMode at: 2.622
 Count: 0
-timer: 0.0123748
-Left stepMode at: 2.61
+timer: 0.0152887
+Left stepMode at: 2.623
 -----------------------------------------------------
-Loop count: 2209
+Loop count: 78
+DeltaTime: 0.0167574
+timer: 0.0152887
+timer + deltaTime: 0.0320461
+Going inside while: 1
+Entered stepMode at: 2.639
+Count: 0
+timer: 0.0153795
+Left stepMode at: 2.639
+-----------------------------------------------------
+Loop count: 79
 DeltaTime: 0.0173136
-timer: 0.0123748
-timer + deltaTime: 0.0296884
+timer: 0.0153795
+timer + deltaTime: 0.0326931
 Going inside while: 1
-Entered stepMode at: 2.627
+Entered stepMode at: 2.656
 Count: 0
-timer: 0.0130217
-Left stepMode at: 2.628
+timer: 0.0160264
+Left stepMode at: 2.656
 -----------------------------------------------------
-Loop count: 2210
-DeltaTime: 0.0190712
-timer: 0.0130217
-timer + deltaTime: 0.0320929
+Loop count: 80
+DeltaTime: 0.0274561
+timer: 0.0160264
+timer + deltaTime: 0.0434825
 Going inside while: 1
-Entered stepMode at: 2.647
+Entered stepMode at: 2.684
 Count: 0
-timer: 0.0154263
-Left stepMode at: 2.647
------------------------------------------------------
-Loop count: 2211
-DeltaTime: 0.022439
-timer: 0.0154263
-timer + deltaTime: 0.0378653
-Going inside while: 1
-Entered stepMode at: 2.669
-Count: 0
-timer: 0.0211986
+timer: 0.0268158
 Count: 1
-timer: 0.00453197
-Left stepMode at: 2.67
+timer: 0.0101491
+Left stepMode at: 2.684
 -----------------------------------------------------
-Loop count: 2212
-DeltaTime: 0.0134422
-timer: 0.00453197
-timer + deltaTime: 0.0179742
-Going inside while: 1
-Entered stepMode at: 2.682
-Count: 0
-timer: 0.00130755
-Left stepMode at: 2.683
------------------------------------------------------
-Loop count: 2213
-DeltaTime: 0.0195876
-timer: 0.00130755
-timer + deltaTime: 0.0208952
-Going inside while: 1
-Entered stepMode at: 2.702
-Count: 0
-timer: 0.00422852
-Left stepMode at: 2.703
------------------------------------------------------
-Loop count: 2214
-DeltaTime: 0.0160941
-timer: 0.00422852
-timer + deltaTime: 0.0203227
+Loop count: 81
+DeltaTime: 0.0346586
+timer: 0.0101491
+timer + deltaTime: 0.0448077
 Going inside while: 1
 Entered stepMode at: 2.718
 Count: 0
-timer: 0.00365599
+timer: 0.0281411
+Count: 1
+timer: 0.0114744
 Left stepMode at: 2.718
 -----------------------------------------------------
-Loop count: 2215
-DeltaTime: 0.0159087
-timer: 0.00365599
-timer + deltaTime: 0.0195647
+Loop count: 82
+DeltaTime: 0.0150447
+timer: 0.0114744
+timer + deltaTime: 0.0265191
 Going inside while: 1
-Entered stepMode at: 2.734
+Entered stepMode at: 2.733
 Count: 0
-timer: 0.00289807
-Left stepMode at: 2.735
+timer: 0.0098524
+Left stepMode at: 2.733
 -----------------------------------------------------
-Loop count: 2216
-DeltaTime: 0.0129361
-timer: 0.00289807
-timer + deltaTime: 0.0158342
-Going inside while: 0
------------------------------------------------------
-Loop count: 2217
-DeltaTime: 0.0164117
-timer: 0.0158342
-timer + deltaTime: 0.0322459
+Loop count: 83
+DeltaTime: 0.0188454
+timer: 0.0098524
+timer + deltaTime: 0.0286978
 Going inside while: 1
-Entered stepMode at: 2.763
+Entered stepMode at: 2.752
 Count: 0
-timer: 0.0155792
-Left stepMode at: 2.763
+timer: 0.0120312
+Left stepMode at: 2.752
 -----------------------------------------------------
-Loop count: 2218
-DeltaTime: 0.0153359
-timer: 0.0155792
-timer + deltaTime: 0.0309151
+Loop count: 84
+DeltaTime: 0.0254957
+timer: 0.0120312
+timer + deltaTime: 0.0375269
 Going inside while: 1
-Entered stepMode at: 2.779
+Entered stepMode at: 2.778
 Count: 0
-timer: 0.0142484
-Left stepMode at: 2.779
+timer: 0.0208602
+Count: 1
+timer: 0.00419354
+Left stepMode at: 2.778
 -----------------------------------------------------
-Loop count: 2219
-DeltaTime: 0.0157195
-timer: 0.0142484
-timer + deltaTime: 0.0299679
+Loop count: 85
+DeltaTime: 0.0348742
+timer: 0.00419354
+timer + deltaTime: 0.0390677
 Going inside while: 1
-Entered stepMode at: 2.794
+Entered stepMode at: 2.813
 Count: 0
-timer: 0.0133013
-Left stepMode at: 2.795
+timer: 0.022401
+Count: 1
+timer: 0.00573435
+Left stepMode at: 2.813
 -----------------------------------------------------
-Loop count: 2220
-DeltaTime: 0.0120804
-timer: 0.0133013
-timer + deltaTime: 0.0253816
+Loop count: 86
+DeltaTime: 0.0143795
+timer: 0.00573435
+timer + deltaTime: 0.0201138
 Going inside while: 1
-Entered stepMode at: 2.806
+Entered stepMode at: 2.827
 Count: 0
-timer: 0.00871498
-Left stepMode at: 2.807
+timer: 0.00344714
+Left stepMode at: 2.827
 -----------------------------------------------------
-Loop count: 2221
-DeltaTime: 0.0170153
-timer: 0.00871498
-timer + deltaTime: 0.0257303
+Loop count: 87
+DeltaTime: 0.014756
+timer: 0.00344714
+timer + deltaTime: 0.0182031
 Going inside while: 1
-Entered stepMode at: 2.823
+Entered stepMode at: 2.842
 Count: 0
-timer: 0.00906362
-Left stepMode at: 2.824
+timer: 0.00153648
+Left stepMode at: 2.842
 -----------------------------------------------------
-Loop count: 2222
-DeltaTime: 0.0179185
-timer: 0.00906362
-timer + deltaTime: 0.0269821
+Loop count: 88
+DeltaTime: 0.0246367
+timer: 0.00153648
+timer + deltaTime: 0.0261732
 Going inside while: 1
-Entered stepMode at: 2.843
+Entered stepMode at: 2.866
 Count: 0
-timer: 0.0103155
-Left stepMode at: 2.843
+timer: 0.00950655
+Left stepMode at: 2.867
 -----------------------------------------------------
-Loop count: 2223
-DeltaTime: 0.0158093
-timer: 0.0103155
-timer + deltaTime: 0.0261248
+Loop count: 89
+DeltaTime: 0.0356548
+timer: 0.00950655
+timer + deltaTime: 0.0451614
 Going inside while: 1
-Entered stepMode at: 2.858
+Entered stepMode at: 2.902
 Count: 0
-timer: 0.00945811
-Left stepMode at: 2.858
+timer: 0.0284947
+Count: 1
+timer: 0.0118281
+Left stepMode at: 2.902
 -----------------------------------------------------
-Loop count: 2224
-DeltaTime: 0.0163732
-timer: 0.00945811
-timer + deltaTime: 0.0258313
-Going inside while: 1
-Entered stepMode at: 2.875
-Count: 0
-timer: 0.00916462
-Left stepMode at: 2.876
------------------------------------------------------
-Loop count: 2225
-DeltaTime: 0.0225468
-timer: 0.00916462
-timer + deltaTime: 0.0317114
-Going inside while: 1
-Entered stepMode at: 2.897
-Count: 0
-timer: 0.0150447
-Left stepMode at: 2.897
------------------------------------------------------
-Loop count: 2226
-DeltaTime: 0.0205877
-timer: 0.0150447
-timer + deltaTime: 0.0356325
+Loop count: 90
+DeltaTime: 0.0147817
+timer: 0.0118281
+timer + deltaTime: 0.0266097
 Going inside while: 1
 Entered stepMode at: 2.917
 Count: 0
-timer: 0.0189658
-Count: 1
-timer: 0.00229913
-Left stepMode at: 2.918
+timer: 0.00994305
+Left stepMode at: 2.917
 -----------------------------------------------------
-Loop count: 2227
-DeltaTime: 0.0179724
-timer: 0.00229913
-timer + deltaTime: 0.0202715
+Loop count: 91
+DeltaTime: 0.0135218
+timer: 0.00994305
+timer + deltaTime: 0.0234648
 Going inside while: 1
-Entered stepMode at: 2.935
+Entered stepMode at: 2.93
 Count: 0
-timer: 0.00360485
-Left stepMode at: 2.935
+timer: 0.00679817
+Left stepMode at: 2.931
 -----------------------------------------------------
-Loop count: 2228
-DeltaTime: 0.0127142
-timer: 0.00360485
-timer + deltaTime: 0.016319
+Loop count: 92
+DeltaTime: 0.021131
+timer: 0.00679817
+timer + deltaTime: 0.0279292
+Going inside while: 1
+Entered stepMode at: 2.951
+Count: 0
+timer: 0.0112626
+Left stepMode at: 2.952
+-----------------------------------------------------
+Loop count: 93
+DeltaTime: 0.0338606
+timer: 0.0112626
+timer + deltaTime: 0.0451232
+Going inside while: 1
+Entered stepMode at: 2.985
+Count: 0
+timer: 0.0284565
+Count: 1
+timer: 0.0117898
+Left stepMode at: 2.985
+-----------------------------------------------------
+Loop count: 94
+DeltaTime: 0.0151114
+timer: 0.0117898
+timer + deltaTime: 0.0269012
+Going inside while: 1
+Entered stepMode at: 3.001
+Count: 0
+timer: 0.0102345
+Left stepMode at: 3.001
+-----------------------------------------------------
+Loop count: 95
+DeltaTime: 0.0143159
+timer: 0.0102345
+timer + deltaTime: 0.0245505
+Going inside while: 1
+Entered stepMode at: 3.015
+Count: 0
+timer: 0.00788383
+Left stepMode at: 3.015
+-----------------------------------------------------
+Loop count: 96
+DeltaTime: 0.0223653
+timer: 0.00788383
+timer + deltaTime: 0.0302491
+Going inside while: 1
+Entered stepMode at: 3.037
+Count: 0
+timer: 0.0135824
+Left stepMode at: 3.037
+-----------------------------------------------------
+Loop count: 97
+DeltaTime: 0.0475774
+timer: 0.0135824
+timer + deltaTime: 0.0611598
+Going inside while: 1
+Entered stepMode at: 3.085
+Count: 0
+timer: 0.0444932
+Count: 1
+timer: 0.0278265
+Count: 2
+timer: 0.0111598
+Left stepMode at: 3.085
+-----------------------------------------------------
+Loop count: 98
+DeltaTime: 0.0195902
+timer: 0.0111598
+timer + deltaTime: 0.03075
+Going inside while: 1
+Entered stepMode at: 3.104
+Count: 0
+timer: 0.0140834
+Left stepMode at: 3.104
+-----------------------------------------------------
+Loop count: 99
+DeltaTime: 0.0224198
+timer: 0.0140834
+timer + deltaTime: 0.0365032
+Going inside while: 1
+Entered stepMode at: 3.127
+Count: 0
+timer: 0.0198365
+Count: 1
+timer: 0.00316982
+Left stepMode at: 3.127
+-----------------------------------------------------
+Loop count: 100
+DeltaTime: 0.021906
+timer: 0.00316982
+timer + deltaTime: 0.0250758
+Going inside while: 1
+Entered stepMode at: 3.149
+Count: 0
+timer: 0.00840911
+Left stepMode at: 3.149
+-----------------------------------------------------
+Loop count: 101
+DeltaTime: 0.033461
+timer: 0.00840911
+timer + deltaTime: 0.0418701
+Going inside while: 1
+Entered stepMode at: 3.182
+Count: 0
+timer: 0.0252034
+Count: 1
+timer: 0.00853675
+Left stepMode at: 3.182
+-----------------------------------------------------
+Loop count: 102
+DeltaTime: 0.0155963
+timer: 0.00853675
+timer + deltaTime: 0.0241331
+Going inside while: 1
+Entered stepMode at: 3.198
+Count: 0
+timer: 0.00746642
+Left stepMode at: 3.198
+-----------------------------------------------------
+Loop count: 103
+DeltaTime: 0.0229561
+timer: 0.00746642
+timer + deltaTime: 0.0304225
+Going inside while: 1
+Entered stepMode at: 3.221
+Count: 0
+timer: 0.0137558
+Left stepMode at: 3.221
+-----------------------------------------------------
+Loop count: 104
+DeltaTime: 0.0266767
+timer: 0.0137558
+timer + deltaTime: 0.0404325
+Going inside while: 1
+Entered stepMode at: 3.247
+Count: 0
+timer: 0.0237658
+Count: 1
+timer: 0.00709914
+Left stepMode at: 3.248
+-----------------------------------------------------
+Loop count: 105
+DeltaTime: 0.0392369
+timer: 0.00709914
+timer + deltaTime: 0.046336
+Going inside while: 1
+Entered stepMode at: 3.287
+Count: 0
+timer: 0.0296693
+Count: 1
+timer: 0.0130027
+Left stepMode at: 3.287
+-----------------------------------------------------
+Loop count: 106
+DeltaTime: 0.0321568
+timer: 0.0130027
+timer + deltaTime: 0.0451595
+Going inside while: 1
+Entered stepMode at: 3.319
+Count: 0
+timer: 0.0284928
+Count: 1
+timer: 0.0118262
+Left stepMode at: 3.319
+-----------------------------------------------------
+Loop count: 107
+DeltaTime: 0.0176574
+timer: 0.0118262
+timer + deltaTime: 0.0294836
+Going inside while: 1
+Entered stepMode at: 3.336
+Count: 0
+timer: 0.0128169
+Left stepMode at: 3.336
+-----------------------------------------------------
+Loop count: 108
+DeltaTime: 0.0277993
+timer: 0.0128169
+timer + deltaTime: 0.0406162
+Going inside while: 1
+Entered stepMode at: 3.364
+Count: 0
+timer: 0.0239495
+Count: 1
+timer: 0.00728286
+Left stepMode at: 3.364
+-----------------------------------------------------
+Loop count: 109
+DeltaTime: 0.035533
+timer: 0.00728286
+timer + deltaTime: 0.0428158
+Going inside while: 1
+Entered stepMode at: 3.4
+Count: 0
+timer: 0.0261491
+Count: 1
+timer: 0.00948247
+Left stepMode at: 3.4
+-----------------------------------------------------
+Loop count: 110
+DeltaTime: 0.0336047
+timer: 0.00948247
+timer + deltaTime: 0.0430871
+Going inside while: 1
+Entered stepMode at: 3.433
+Count: 0
+timer: 0.0264205
+Count: 1
+timer: 0.0097538
+Left stepMode at: 3.433
+-----------------------------------------------------
+Loop count: 111
+DeltaTime: 0.0119335
+timer: 0.0097538
+timer + deltaTime: 0.0216873
+Going inside while: 1
+Entered stepMode at: 3.446
+Count: 0
+timer: 0.00502062
+Left stepMode at: 3.446
+-----------------------------------------------------
+Loop count: 112
+DeltaTime: 0.0299277
+timer: 0.00502062
+timer + deltaTime: 0.0349483
+Going inside while: 1
+Entered stepMode at: 3.475
+Count: 0
+timer: 0.0182816
+Count: 1
+timer: 0.00161497
+Left stepMode at: 3.475
+-----------------------------------------------------
+Loop count: 113
+DeltaTime: 0.0385755
+timer: 0.00161497
+timer + deltaTime: 0.0401905
+Going inside while: 1
+Entered stepMode at: 3.514
+Count: 0
+timer: 0.0235238
+Count: 1
+timer: 0.00685714
+Left stepMode at: 3.514
+-----------------------------------------------------
+Loop count: 114
+DeltaTime: 0.030269
+timer: 0.00685714
+timer + deltaTime: 0.0371261
+Going inside while: 1
+Entered stepMode at: 3.544
+Count: 0
+timer: 0.0204594
+Count: 1
+timer: 0.00379276
+Left stepMode at: 3.544
+-----------------------------------------------------
+Loop count: 115
+DeltaTime: 0.0145276
+timer: 0.00379276
+timer + deltaTime: 0.0183204
+Going inside while: 1
+Entered stepMode at: 3.558
+Count: 0
+timer: 0.00165373
+Left stepMode at: 3.559
+-----------------------------------------------------
+Loop count: 116
+DeltaTime: 0.0282316
+timer: 0.00165373
+timer + deltaTime: 0.0298853
+Going inside while: 1
+Entered stepMode at: 3.587
+Count: 0
+timer: 0.0132187
+Left stepMode at: 3.587
+-----------------------------------------------------
+Loop count: 117
+DeltaTime: 0.0338054
+timer: 0.0132187
+timer + deltaTime: 0.0470241
+Going inside while: 1
+Entered stepMode at: 3.62
+Count: 0
+timer: 0.0303574
+Count: 1
+timer: 0.0136908
+Left stepMode at: 3.621
+-----------------------------------------------------
+Loop count: 118
+DeltaTime: 0.0302965
+timer: 0.0136908
+timer + deltaTime: 0.0439873
+Going inside while: 1
+Entered stepMode at: 3.651
+Count: 0
+timer: 0.0273206
+Count: 1
+timer: 0.010654
+Left stepMode at: 3.651
+-----------------------------------------------------
+Loop count: 119
+DeltaTime: 0.0158901
+timer: 0.010654
+timer + deltaTime: 0.0265441
+Going inside while: 1
+Entered stepMode at: 3.667
+Count: 0
+timer: 0.00987746
+Left stepMode at: 3.667
+-----------------------------------------------------
+Loop count: 120
+DeltaTime: 0.0399002
+timer: 0.00987746
+timer + deltaTime: 0.0497776
+Going inside while: 1
+Entered stepMode at: 3.707
+Count: 0
+timer: 0.033111
+Count: 1
+timer: 0.0164443
+Left stepMode at: 3.707
+-----------------------------------------------------
+Loop count: 121
+DeltaTime: 0.0282714
+timer: 0.0164443
+timer + deltaTime: 0.0447157
+Going inside while: 1
+Entered stepMode at: 3.735
+Count: 0
+timer: 0.028049
+Count: 1
+timer: 0.0113823
+Left stepMode at: 3.735
+-----------------------------------------------------
+Loop count: 122
+DeltaTime: 0.0318316
+timer: 0.0113823
+timer + deltaTime: 0.0432139
+Going inside while: 1
+Entered stepMode at: 3.767
+Count: 0
+timer: 0.0265473
+Count: 1
+timer: 0.0098806
+Left stepMode at: 3.767
+-----------------------------------------------------
+Loop count: 123
+DeltaTime: 0.0147143
+timer: 0.0098806
+timer + deltaTime: 0.0245949
+Going inside while: 1
+Entered stepMode at: 3.781
+Count: 0
+timer: 0.00792824
+Left stepMode at: 3.782
+-----------------------------------------------------
+Loop count: 124
+DeltaTime: 0.0324615
+timer: 0.00792824
+timer + deltaTime: 0.0403898
+Going inside while: 1
+Entered stepMode at: 3.814
+Count: 0
+timer: 0.0237231
+Count: 1
+timer: 0.00705645
+Left stepMode at: 3.814
+-----------------------------------------------------
+Loop count: 125
+DeltaTime: 0.0206191
+timer: 0.00705645
+timer + deltaTime: 0.0276756
+Going inside while: 1
+Entered stepMode at: 3.834
+Count: 0
+timer: 0.0110089
+Left stepMode at: 3.835
+-----------------------------------------------------
+Loop count: 126
+DeltaTime: 0.0302651
+timer: 0.0110089
+timer + deltaTime: 0.041274
+Going inside while: 1
+Entered stepMode at: 3.865
+Count: 0
+timer: 0.0246074
+Count: 1
+timer: 0.0079407
+Left stepMode at: 3.865
+-----------------------------------------------------
+Loop count: 127
+DeltaTime: 0.0155662
+timer: 0.0079407
+timer + deltaTime: 0.0235069
+Going inside while: 1
+Entered stepMode at: 3.88
+Count: 0
+timer: 0.00684022
+Left stepMode at: 3.881
+-----------------------------------------------------
+Loop count: 128
+DeltaTime: 0.0367697
+timer: 0.00684022
+timer + deltaTime: 0.04361
+Going inside while: 1
+Entered stepMode at: 3.917
+Count: 0
+timer: 0.0269433
+Count: 1
+timer: 0.0102766
+Left stepMode at: 3.917
+-----------------------------------------------------
+Loop count: 129
+DeltaTime: 0.0201105
+timer: 0.0102766
+timer + deltaTime: 0.0303871
+Going inside while: 1
+Entered stepMode at: 3.937
+Count: 0
+timer: 0.0137204
+Left stepMode at: 3.937
+-----------------------------------------------------
+Loop count: 130
+DeltaTime: 0.0297494
+timer: 0.0137204
+timer + deltaTime: 0.0434698
+Going inside while: 1
+Entered stepMode at: 3.967
+Count: 0
+timer: 0.0268031
+Count: 1
+timer: 0.0101364
+Left stepMode at: 3.967
+-----------------------------------------------------
+Loop count: 131
+DeltaTime: 0.0143461
+timer: 0.0101364
+timer + deltaTime: 0.0244825
+Going inside while: 1
+Entered stepMode at: 3.981
+Count: 0
+timer: 0.00781585
+Left stepMode at: 3.981
+-----------------------------------------------------
+Loop count: 132
+DeltaTime: 0.0320375
+timer: 0.00781585
+timer + deltaTime: 0.0398534
+Going inside while: 1
+Entered stepMode at: 4.013
+Count: 0
+timer: 0.0231867
+Count: 1
+timer: 0.00652004
+Left stepMode at: 4.013
+-----------------------------------------------------
+Loop count: 133
+DeltaTime: 0.0143269
+timer: 0.00652004
+timer + deltaTime: 0.0208469
+Going inside while: 1
+Entered stepMode at: 4.028
+Count: 0
+timer: 0.00418022
+Left stepMode at: 4.028
+-----------------------------------------------------
+Loop count: 134
+DeltaTime: 0.029614
+timer: 0.00418022
+timer + deltaTime: 0.0337942
+Going inside while: 1
+Entered stepMode at: 4.057
+Count: 0
+timer: 0.0171276
+Count: 1
+timer: 0.000460893
+Left stepMode at: 4.057
+-----------------------------------------------------
+Loop count: 135
+DeltaTime: 0.0343199
+timer: 0.000460893
+timer + deltaTime: 0.0347808
+Going inside while: 1
+Entered stepMode at: 4.092
+Count: 0
+timer: 0.0181141
+Count: 1
+timer: 0.00144747
+Left stepMode at: 4.092
+-----------------------------------------------------
+Loop count: 136
+DeltaTime: 0.0389816
+timer: 0.00144747
+timer + deltaTime: 0.040429
+Going inside while: 1
+Entered stepMode at: 4.131
+Count: 0
+timer: 0.0237624
+Count: 1
+timer: 0.0070957
+Left stepMode at: 4.131
+-----------------------------------------------------
+Loop count: 137
+DeltaTime: 0.0139112
+timer: 0.0070957
+timer + deltaTime: 0.0210069
+Going inside while: 1
+Entered stepMode at: 4.145
+Count: 0
+timer: 0.0043402
+Left stepMode at: 4.145
+-----------------------------------------------------
+Loop count: 138
+DeltaTime: 0.0306442
+timer: 0.0043402
+timer + deltaTime: 0.0349844
+Going inside while: 1
+Entered stepMode at: 4.175
+Count: 0
+timer: 0.0183178
+Count: 1
+timer: 0.00165109
+Left stepMode at: 4.175
+-----------------------------------------------------
+Loop count: 139
+DeltaTime: 0.0321998
+timer: 0.00165109
+timer + deltaTime: 0.0338509
+Going inside while: 1
+Entered stepMode at: 4.207
+Count: 0
+timer: 0.0171842
+Count: 1
+timer: 0.000517571
+Left stepMode at: 4.208
+-----------------------------------------------------
+Loop count: 140
+DeltaTime: 0.0329766
+timer: 0.000517571
+timer + deltaTime: 0.0334942
+Going inside while: 1
+Entered stepMode at: 4.24
+Count: 0
+timer: 0.0168276
+Count: 1
+timer: 0.000160887
+Left stepMode at: 4.241
+-----------------------------------------------------
+Loop count: 141
+DeltaTime: 0.0144956
+timer: 0.000160887
+timer + deltaTime: 0.0146564
 Going inside while: 0
 -----------------------------------------------------
-Loop count: 2229
-DeltaTime: 0.0183983
-timer: 0.016319
-timer + deltaTime: 0.0347174
+Loop count: 142
+DeltaTime: 0.0317213
+timer: 0.0146564
+timer + deltaTime: 0.0463777
 Going inside while: 1
-Entered stepMode at: 2.966
+Entered stepMode at: 4.287
 Count: 0
-timer: 0.0180507
+timer: 0.029711
 Count: 1
-timer: 0.00138402
-Left stepMode at: 2.967
+timer: 0.0130444
+Left stepMode at: 4.287
 -----------------------------------------------------
-Loop count: 2230
-DeltaTime: 0.0169159
-timer: 0.00138402
-timer + deltaTime: 0.0182999
+Loop count: 143
+DeltaTime: 0.0395717
+timer: 0.0130444
+timer + deltaTime: 0.0526161
 Going inside while: 1
-Entered stepMode at: 2.983
+Entered stepMode at: 4.326
 Count: 0
-timer: 0.00163323
-Left stepMode at: 2.983
+timer: 0.0359494
+Count: 1
+timer: 0.0192828
+Count: 2
+timer: 0.0026161
+Left stepMode at: 4.326
 -----------------------------------------------------
-Loop count: 2231
-DeltaTime: 0.0187069
-timer: 0.00163323
-timer + deltaTime: 0.0203401
+Loop count: 144
+DeltaTime: 0.0336451
+timer: 0.0026161
+timer + deltaTime: 0.0362612
 Going inside while: 1
-Entered stepMode at: 3.002
+Entered stepMode at: 4.36
 Count: 0
-timer: 0.00367345
-Left stepMode at: 3.002
+timer: 0.0195945
+Count: 1
+timer: 0.00292784
+Left stepMode at: 4.36
 -----------------------------------------------------
-Loop count: 2232
-DeltaTime: 0.0122234
-timer: 0.00367345
-timer + deltaTime: 0.0158969
+Loop count: 145
+DeltaTime: 0.016216
+timer: 0.00292784
+timer + deltaTime: 0.0191439
+Going inside while: 1
+Entered stepMode at: 4.376
+Count: 0
+timer: 0.00247719
+Left stepMode at: 4.376
+-----------------------------------------------------
+Loop count: 146
+DeltaTime: 0.0337907
+timer: 0.00247719
+timer + deltaTime: 0.0362679
+Going inside while: 1
+Entered stepMode at: 4.41
+Count: 0
+timer: 0.0196012
+Count: 1
+timer: 0.00293455
+Left stepMode at: 4.41
+-----------------------------------------------------
+Loop count: 147
+DeltaTime: 0.0279308
+timer: 0.00293455
+timer + deltaTime: 0.0308653
+Going inside while: 1
+Entered stepMode at: 4.438
+Count: 0
+timer: 0.0141986
+Left stepMode at: 4.438
+-----------------------------------------------------
+Loop count: 148
+DeltaTime: 0.0362758
+timer: 0.0141986
+timer + deltaTime: 0.0504744
+Going inside while: 1
+Entered stepMode at: 4.474
+Count: 0
+timer: 0.0338078
+Count: 1
+timer: 0.0171411
+Count: 2
+timer: 0.000474422
+Left stepMode at: 4.474
+-----------------------------------------------------
+Loop count: 149
+DeltaTime: 0.0257151
+timer: 0.000474422
+timer + deltaTime: 0.0261895
+Going inside while: 1
+Entered stepMode at: 4.5
+Count: 0
+timer: 0.00952283
+Left stepMode at: 4.5
+-----------------------------------------------------
+Loop count: 150
+DeltaTime: 0.0383548
+timer: 0.00952283
+timer + deltaTime: 0.0478777
+Going inside while: 1
+Entered stepMode at: 4.538
+Count: 0
+timer: 0.031211
+Count: 1
+timer: 0.0145443
+Left stepMode at: 4.538
+-----------------------------------------------------
+Loop count: 151
+DeltaTime: 0.0446112
+timer: 0.0145443
+timer + deltaTime: 0.0591555
+Going inside while: 1
+Entered stepMode at: 4.583
+Count: 0
+timer: 0.0424889
+Count: 1
+timer: 0.0258222
+Count: 2
+timer: 0.00915553
+Left stepMode at: 4.583
+-----------------------------------------------------
+Loop count: 152
+DeltaTime: 0.034361
+timer: 0.00915553
+timer + deltaTime: 0.0435165
+Going inside while: 1
+Entered stepMode at: 4.617
+Count: 0
+timer: 0.0268498
+Count: 1
+timer: 0.0101832
+Left stepMode at: 4.617
+-----------------------------------------------------
+Loop count: 153
+DeltaTime: 0.0258761
+timer: 0.0101832
+timer + deltaTime: 0.0360593
+Going inside while: 1
+Entered stepMode at: 4.643
+Count: 0
+timer: 0.0193926
+Count: 1
+timer: 0.00272592
+Left stepMode at: 4.643
+-----------------------------------------------------
+Loop count: 154
+DeltaTime: 0.0234846
+timer: 0.00272592
+timer + deltaTime: 0.0262106
+Going inside while: 1
+Entered stepMode at: 4.666
+Count: 0
+timer: 0.0095439
+Left stepMode at: 4.667
+-----------------------------------------------------
+Loop count: 155
+DeltaTime: 0.0376806
+timer: 0.0095439
+timer + deltaTime: 0.0472245
+Going inside while: 1
+Entered stepMode at: 4.704
+Count: 0
+timer: 0.0305579
+Count: 1
+timer: 0.0138912
+Left stepMode at: 4.704
+-----------------------------------------------------
+Loop count: 156
+DeltaTime: 0.043835
+timer: 0.0138912
+timer + deltaTime: 0.0577262
+Going inside while: 1
+Entered stepMode at: 4.748
+Count: 0
+timer: 0.0410595
+Count: 1
+timer: 0.0243929
+Count: 2
+timer: 0.0077262
+Left stepMode at: 4.748
+-----------------------------------------------------
+Loop count: 157
+DeltaTime: 0.0222588
+timer: 0.0077262
+timer + deltaTime: 0.029985
+Going inside while: 1
+Entered stepMode at: 4.77
+Count: 0
+timer: 0.0133183
+Left stepMode at: 4.77
+-----------------------------------------------------
+Loop count: 158
+DeltaTime: 0.022049
+timer: 0.0133183
+timer + deltaTime: 0.0353673
+Going inside while: 1
+Entered stepMode at: 4.792
+Count: 0
+timer: 0.0187006
+Count: 1
+timer: 0.00203398
+Left stepMode at: 4.792
+-----------------------------------------------------
+Loop count: 159
+DeltaTime: 0.0238888
+timer: 0.00203398
+timer + deltaTime: 0.0259228
+Going inside while: 1
+Entered stepMode at: 4.816
+Count: 0
+timer: 0.00925609
+Left stepMode at: 4.816
+-----------------------------------------------------
+Loop count: 160
+DeltaTime: 0.0348517
+timer: 0.00925609
+timer + deltaTime: 0.0441078
+Going inside while: 1
+Entered stepMode at: 4.851
+Count: 0
+timer: 0.0274411
+Count: 1
+timer: 0.0107745
+Left stepMode at: 4.851
+-----------------------------------------------------
+Loop count: 161
+DeltaTime: 0.0214941
+timer: 0.0107745
+timer + deltaTime: 0.0322686
+Going inside while: 1
+Entered stepMode at: 4.872
+Count: 0
+timer: 0.0156019
+Left stepMode at: 4.873
+-----------------------------------------------------
+Loop count: 162
+DeltaTime: 0.0358056
+timer: 0.0156019
+timer + deltaTime: 0.0514075
+Going inside while: 1
+Entered stepMode at: 4.908
+Count: 0
+timer: 0.0347408
+Count: 1
+timer: 0.0180742
+Count: 2
+timer: 0.0014075
+Left stepMode at: 4.909
+-----------------------------------------------------
+Loop count: 163
+DeltaTime: 0.028256
+timer: 0.0014075
+timer + deltaTime: 0.0296635
+Going inside while: 1
+Entered stepMode at: 4.937
+Count: 0
+timer: 0.0129968
+Left stepMode at: 4.937
+-----------------------------------------------------
+Loop count: 164
+DeltaTime: 0.0331306
+timer: 0.0129968
+timer + deltaTime: 0.0461274
+Going inside while: 1
+Entered stepMode at: 4.97
+Count: 0
+timer: 0.0294608
+Count: 1
+timer: 0.0127941
+Left stepMode at: 4.97
+-----------------------------------------------------
+Loop count: 165
+DeltaTime: 0.0211317
+timer: 0.0127941
+timer + deltaTime: 0.0339258
+Going inside while: 1
+Entered stepMode at: 4.991
+Count: 0
+timer: 0.0172591
+Count: 1
+timer: 0.000592447
+Left stepMode at: 4.991
+-----------------------------------------------------
+Loop count: 166
+DeltaTime: 0.034148
+timer: 0.000592447
+timer + deltaTime: 0.0347404
+Going inside while: 1
+Entered stepMode at: 5.025
+Count: 0
+timer: 0.0180738
+Count: 1
+timer: 0.00140711
+Left stepMode at: 5.025
+-----------------------------------------------------
+Loop count: 167
+DeltaTime: 0.0233948
+timer: 0.00140711
+timer + deltaTime: 0.0248019
+Going inside while: 1
+Entered stepMode at: 5.048
+Count: 0
+timer: 0.00813528
+Left stepMode at: 5.048
+-----------------------------------------------------
+Loop count: 168
+DeltaTime: 0.0344129
+timer: 0.00813528
+timer + deltaTime: 0.0425482
+Going inside while: 1
+Entered stepMode at: 5.083
+Count: 0
+timer: 0.0258815
+Count: 1
+timer: 0.00921487
+Left stepMode at: 5.083
+-----------------------------------------------------
+Loop count: 169
+DeltaTime: 0.0229683
+timer: 0.00921487
+timer + deltaTime: 0.0321831
+Going inside while: 1
+Entered stepMode at: 5.106
+Count: 0
+timer: 0.0155165
+Left stepMode at: 5.106
+-----------------------------------------------------
+Loop count: 170
+DeltaTime: 0.0380963
+timer: 0.0155165
+timer + deltaTime: 0.0536128
+Going inside while: 1
+Entered stepMode at: 5.144
+Count: 0
+timer: 0.0369461
+Count: 1
+timer: 0.0202794
+Count: 2
+timer: 0.00361276
+Left stepMode at: 5.144
+-----------------------------------------------------
+Loop count: 171
+DeltaTime: 0.033289
+timer: 0.00361276
+timer + deltaTime: 0.0369018
+Going inside while: 1
+Entered stepMode at: 5.177
+Count: 0
+timer: 0.0202351
+Count: 1
+timer: 0.00356848
+Left stepMode at: 5.177
+-----------------------------------------------------
+Loop count: 172
+DeltaTime: 0.0334635
+timer: 0.00356848
+timer + deltaTime: 0.037032
+Going inside while: 1
+Entered stepMode at: 5.21
+Count: 0
+timer: 0.0203653
+Count: 1
+timer: 0.00369868
+Left stepMode at: 5.211
+-----------------------------------------------------
+Loop count: 173
+DeltaTime: 0.022414
+timer: 0.00369868
+timer + deltaTime: 0.0261127
+Going inside while: 1
+Entered stepMode at: 5.233
+Count: 0
+timer: 0.00944602
+Left stepMode at: 5.233
+-----------------------------------------------------
+Loop count: 174
+DeltaTime: 0.0339049
+timer: 0.00944602
+timer + deltaTime: 0.0433509
+Going inside while: 1
+Entered stepMode at: 5.267
+Count: 0
+timer: 0.0266842
+Count: 1
+timer: 0.0100176
+Left stepMode at: 5.267
+-----------------------------------------------------
+Loop count: 175
+DeltaTime: 0.0234827
+timer: 0.0100176
+timer + deltaTime: 0.0335003
+Going inside while: 1
+Entered stepMode at: 5.29
+Count: 0
+timer: 0.0168336
+Count: 1
+timer: 0.000166947
+Left stepMode at: 5.291
+-----------------------------------------------------
+Loop count: 176
+DeltaTime: 0.0435823
+timer: 0.000166947
+timer + deltaTime: 0.0437492
+Going inside while: 1
+Entered stepMode at: 5.334
+Count: 0
+timer: 0.0270825
+Count: 1
+timer: 0.0104159
+Left stepMode at: 5.334
+-----------------------------------------------------
+Loop count: 177
+DeltaTime: 0.0354059
+timer: 0.0104159
+timer + deltaTime: 0.0458218
+Going inside while: 1
+Entered stepMode at: 5.369
+Count: 0
+timer: 0.0291552
+Count: 1
+timer: 0.0124885
+Left stepMode at: 5.369
+-----------------------------------------------------
+Loop count: 178
+DeltaTime: 0.021199
+timer: 0.0124885
+timer + deltaTime: 0.0336875
+Going inside while: 1
+Entered stepMode at: 5.39
+Count: 0
+timer: 0.0170209
+Count: 1
+timer: 0.000354197
+Left stepMode at: 5.391
+-----------------------------------------------------
+Loop count: 179
+DeltaTime: 0.0218392
+timer: 0.000354197
+timer + deltaTime: 0.0221934
+Going inside while: 1
+Entered stepMode at: 5.413
+Count: 0
+timer: 0.00552677
+Left stepMode at: 5.413
+-----------------------------------------------------
+Loop count: 180
+DeltaTime: 0.0331005
+timer: 0.00552677
+timer + deltaTime: 0.0386272
+Going inside while: 1
+Entered stepMode at: 5.445
+Count: 0
+timer: 0.0219606
+Count: 1
+timer: 0.00529389
+Left stepMode at: 5.446
+-----------------------------------------------------
+Loop count: 181
+DeltaTime: 0.033035
+timer: 0.00529389
+timer + deltaTime: 0.0383289
+Going inside while: 1
+Entered stepMode at: 5.478
+Count: 0
+timer: 0.0216623
+Count: 1
+timer: 0.00499558
+Left stepMode at: 5.479
+-----------------------------------------------------
+Loop count: 182
+DeltaTime: 0.0233666
+timer: 0.00499558
+timer + deltaTime: 0.0283622
+Going inside while: 1
+Entered stepMode at: 5.502
+Count: 0
+timer: 0.0116955
+Left stepMode at: 5.502
+-----------------------------------------------------
+Loop count: 183
+DeltaTime: 0.0238022
+timer: 0.0116955
+timer + deltaTime: 0.0354977
+Going inside while: 1
+Entered stepMode at: 5.526
+Count: 0
+timer: 0.018831
+Count: 1
+timer: 0.00216437
+Left stepMode at: 5.526
+-----------------------------------------------------
+Loop count: 184
+DeltaTime: 0.038621
+timer: 0.00216437
+timer + deltaTime: 0.0407854
+Going inside while: 1
+Entered stepMode at: 5.564
+Count: 0
+timer: 0.0241188
+Count: 1
+timer: 0.00745209
+Left stepMode at: 5.565
+-----------------------------------------------------
+Loop count: 185
+DeltaTime: 0.0327476
+timer: 0.00745209
+timer + deltaTime: 0.0401997
+Going inside while: 1
+Entered stepMode at: 5.597
+Count: 0
+timer: 0.0235331
+Count: 1
+timer: 0.0068664
+Left stepMode at: 5.597
+-----------------------------------------------------
+Loop count: 186
+DeltaTime: 0.0139881
+timer: 0.0068664
+timer + deltaTime: 0.0208545
+Going inside while: 1
+Entered stepMode at: 5.611
+Count: 0
+timer: 0.00418788
+Left stepMode at: 5.611
+-----------------------------------------------------
+Loop count: 187
+DeltaTime: 0.0239645
+timer: 0.00418788
+timer + deltaTime: 0.0281524
+Going inside while: 1
+Entered stepMode at: 5.635
+Count: 0
+timer: 0.0114857
+Left stepMode at: 5.635
+-----------------------------------------------------
+Loop count: 188
+DeltaTime: 0.0333436
+timer: 0.0114857
+timer + deltaTime: 0.0448293
+Going inside while: 1
+Entered stepMode at: 5.668
+Count: 0
+timer: 0.0281626
+Count: 1
+timer: 0.0114959
+Left stepMode at: 5.669
+-----------------------------------------------------
+Loop count: 189
+DeltaTime: 0.0357023
+timer: 0.0114959
+timer + deltaTime: 0.0471982
+Going inside while: 1
+Entered stepMode at: 5.704
+Count: 0
+timer: 0.0305316
+Count: 1
+timer: 0.0138649
+Left stepMode at: 5.704
+-----------------------------------------------------
+Loop count: 190
+DeltaTime: 0.014434
+timer: 0.0138649
+timer + deltaTime: 0.0282989
+Going inside while: 1
+Entered stepMode at: 5.719
+Count: 0
+timer: 0.0116322
+Left stepMode at: 5.719
+-----------------------------------------------------
+Loop count: 191
+DeltaTime: 0.0236906
+timer: 0.0116322
+timer + deltaTime: 0.0353228
+Going inside while: 1
+Entered stepMode at: 5.742
+Count: 0
+timer: 0.0186561
+Count: 1
+timer: 0.00198944
+Left stepMode at: 5.742
+-----------------------------------------------------
+Loop count: 192
+DeltaTime: 0.0387872
+timer: 0.00198944
+timer + deltaTime: 0.0407766
+Going inside while: 1
+Entered stepMode at: 5.781
+Count: 0
+timer: 0.02411
+Count: 1
+timer: 0.00744329
+Left stepMode at: 5.781
+-----------------------------------------------------
+Loop count: 193
+DeltaTime: 0.0345688
+timer: 0.00744329
+timer + deltaTime: 0.0420121
+Going inside while: 1
+Entered stepMode at: 5.816
+Count: 0
+timer: 0.0253454
+Count: 1
+timer: 0.00867876
+Left stepMode at: 5.816
+-----------------------------------------------------
+Loop count: 194
+DeltaTime: 0.0151762
+timer: 0.00867876
+timer + deltaTime: 0.0238549
+Going inside while: 1
+Entered stepMode at: 5.831
+Count: 0
+timer: 0.00718827
+Left stepMode at: 5.832
+-----------------------------------------------------
+Loop count: 195
+DeltaTime: 0.0226911
+timer: 0.00718827
+timer + deltaTime: 0.0298794
+Going inside while: 1
+Entered stepMode at: 5.853
+Count: 0
+timer: 0.0132127
+Left stepMode at: 5.854
+-----------------------------------------------------
+Loop count: 196
+DeltaTime: 0.0331255
+timer: 0.0132127
+timer + deltaTime: 0.0463382
+Going inside while: 1
+Entered stepMode at: 5.886
+Count: 0
+timer: 0.0296715
+Count: 1
+timer: 0.0130049
+Left stepMode at: 5.887
+-----------------------------------------------------
+Loop count: 197
+DeltaTime: 0.0325648
+timer: 0.0130049
+timer + deltaTime: 0.0455697
+Going inside while: 1
+Entered stepMode at: 5.919
+Count: 0
+timer: 0.028903
+Count: 1
+timer: 0.0122364
+Left stepMode at: 5.919
+-----------------------------------------------------
+Loop count: 198
+DeltaTime: 0.0153571
+timer: 0.0122364
+timer + deltaTime: 0.0275934
+Going inside while: 1
+Entered stepMode at: 5.935
+Count: 0
+timer: 0.0109268
+Left stepMode at: 5.935
+-----------------------------------------------------
+Loop count: 199
+DeltaTime: 0.0397475
+timer: 0.0109268
+timer + deltaTime: 0.0506742
+Going inside while: 1
+Entered stepMode at: 5.974
+Count: 0
+timer: 0.0340076
+Count: 1
+timer: 0.0173409
+Count: 2
+timer: 0.000674249
+Left stepMode at: 5.974
+-----------------------------------------------------
+Loop count: 200
+DeltaTime: 0.0387404
+timer: 0.000674249
+timer + deltaTime: 0.0394146
+Going inside while: 1
+Entered stepMode at: 6.013
+Count: 0
+timer: 0.0227479
+Count: 1
+timer: 0.00608127
+Left stepMode at: 6.013
+-----------------------------------------------------
+Loop count: 201
+DeltaTime: 0.0325623
+timer: 0.00608127
+timer + deltaTime: 0.0386435
+Going inside while: 1
+Entered stepMode at: 6.046
+Count: 0
+timer: 0.0219769
+Count: 1
+timer: 0.00531019
+Left stepMode at: 6.046
+-----------------------------------------------------
+Loop count: 202
+DeltaTime: 0.0317687
+timer: 0.00531019
+timer + deltaTime: 0.0370789
+Going inside while: 1
+Entered stepMode at: 6.077
+Count: 0
+timer: 0.0204123
+Count: 1
+timer: 0.0037456
+Left stepMode at: 6.077
+-----------------------------------------------------
+Loop count: 203
+DeltaTime: 0.0111419
+timer: 0.0037456
+timer + deltaTime: 0.0148875
 Going inside while: 0
 -----------------------------------------------------
-Loop count: 2233
-DeltaTime: 0.0181475
-timer: 0.0158969
-timer + deltaTime: 0.0340444
+Loop count: 204
+DeltaTime: 0.0323294
+timer: 0.0148875
+timer + deltaTime: 0.0472169
 Going inside while: 1
-Entered stepMode at: 3.032
+Entered stepMode at: 6.121
 Count: 0
-timer: 0.0173777
+timer: 0.0305502
 Count: 1
-timer: 0.000711064
-Left stepMode at: 3.033
+timer: 0.0138836
+Left stepMode at: 6.121
 -----------------------------------------------------
-Loop count: 2234
-DeltaTime: 0.020571
-timer: 0.000711064
-timer + deltaTime: 0.0212821
+Loop count: 205
+DeltaTime: 0.0387019
+timer: 0.0138836
+timer + deltaTime: 0.0525854
 Going inside while: 1
-Entered stepMode at: 3.053
+Entered stepMode at: 6.159
 Count: 0
-timer: 0.00461543
-Left stepMode at: 3.053
+timer: 0.0359188
+Count: 1
+timer: 0.0192521
+Count: 2
+timer: 0.00258543
+Left stepMode at: 6.16
 -----------------------------------------------------
-Loop count: 2235
-DeltaTime: 0.0163417
-timer: 0.00461543
-timer + deltaTime: 0.0209572
+Loop count: 206
+DeltaTime: 0.040056
+timer: 0.00258543
+timer + deltaTime: 0.0426415
 Going inside while: 1
-Entered stepMode at: 3.069
+Entered stepMode at: 6.2
 Count: 0
-timer: 0.00429051
-Left stepMode at: 3.069
+timer: 0.0259748
+Count: 1
+timer: 0.00930813
+Left stepMode at: 6.2
 -----------------------------------------------------
-Loop count: 2236
-DeltaTime: 0.0163417
-timer: 0.00429051
-timer + deltaTime: 0.0206323
+Loop count: 207
+DeltaTime: 0.0232935
+timer: 0.00930813
+timer + deltaTime: 0.0326016
 Going inside while: 1
-Entered stepMode at: 3.088
+Entered stepMode at: 6.223
 Count: 0
-timer: 0.00396559
-Left stepMode at: 3.089
+timer: 0.0159349
+Left stepMode at: 6.223
+-----------------------------------------------------
+Loop count: 208
+DeltaTime: 0.0327573
+timer: 0.0159349
+timer + deltaTime: 0.0486922
+Going inside while: 1
+Entered stepMode at: 6.256
+Count: 0
+timer: 0.0320255
+Count: 1
+timer: 0.0153589
+Left stepMode at: 6.256
+-----------------------------------------------------
+Loop count: 209
+DeltaTime: 0.0337881
+timer: 0.0153589
+timer + deltaTime: 0.049147
+Going inside while: 1
+Entered stepMode at: 6.289
+Count: 0
+timer: 0.0324803
+Count: 1
+timer: 0.0158137
+Left stepMode at: 6.289
+-----------------------------------------------------
+Loop count: 210
+DeltaTime: 0.0301586
+timer: 0.0158137
+timer + deltaTime: 0.0459723
+Going inside while: 1
+Entered stepMode at: 6.32
+Count: 0
+timer: 0.0293056
+Count: 1
+timer: 0.0126389
+Left stepMode at: 6.32
+-----------------------------------------------------
+Loop count: 211
+DeltaTime: 0.0222222
+timer: 0.0126389
+timer + deltaTime: 0.0348612
+Going inside while: 1
+Entered stepMode at: 6.342
+Count: 0
+timer: 0.0181945
+Count: 1
+timer: 0.00152782
+Left stepMode at: 6.342
+-----------------------------------------------------
+Loop count: 212
+DeltaTime: 0.0344181
+timer: 0.00152782
+timer + deltaTime: 0.0359459
+Going inside while: 1
+Entered stepMode at: 6.376
+Count: 0
+timer: 0.0192792
+Count: 1
+timer: 0.00261255
+Left stepMode at: 6.376
+-----------------------------------------------------
+Loop count: 213
+DeltaTime: 0.0401606
+timer: 0.00261255
+timer + deltaTime: 0.0427731
+Going inside while: 1
+Entered stepMode at: 6.416
+Count: 0
+timer: 0.0261065
+Count: 1
+timer: 0.00943982
+Left stepMode at: 6.416
+-----------------------------------------------------
+Loop count: 214
+DeltaTime: 0.0304466
+timer: 0.00943982
+timer + deltaTime: 0.0398865
+Going inside while: 1
+Entered stepMode at: 6.447
+Count: 0
+timer: 0.0232198
+Count: 1
+timer: 0.00655313
+Left stepMode at: 6.447
+-----------------------------------------------------
+Loop count: 215
+DeltaTime: 0.0224634
+timer: 0.00655313
+timer + deltaTime: 0.0290165
+Going inside while: 1
+Entered stepMode at: 6.469
+Count: 0
+timer: 0.0123499
+Left stepMode at: 6.469
+-----------------------------------------------------
+Loop count: 216
+DeltaTime: 0.0263829
+timer: 0.0123499
+timer + deltaTime: 0.0387327
+Going inside while: 1
+Entered stepMode at: 6.496
+Count: 0
+timer: 0.0220661
+Count: 1
+timer: 0.00539939
+Left stepMode at: 6.496
+-----------------------------------------------------
+Loop count: 217
+DeltaTime: 0.0342808
+timer: 0.00539939
+timer + deltaTime: 0.0396802
+Going inside while: 1
+Entered stepMode at: 6.53
+Count: 0
+timer: 0.0230135
+Count: 1
+timer: 0.00634684
+Left stepMode at: 6.53
+-----------------------------------------------------
+Loop count: 218
+DeltaTime: 0.025955
+timer: 0.00634684
+timer + deltaTime: 0.0323018
+Going inside while: 1
+Entered stepMode at: 6.556
+Count: 0
+timer: 0.0156352
+Left stepMode at: 6.556
+-----------------------------------------------------
+Loop count: 219
+DeltaTime: 0.0173514
+timer: 0.0156352
+timer + deltaTime: 0.0329866
+Going inside while: 1
+Entered stepMode at: 6.573
+Count: 0
+timer: 0.0163199
+Left stepMode at: 6.573
+-----------------------------------------------------
+Loop count: 220
+DeltaTime: 0.0346131
+timer: 0.0163199
+timer + deltaTime: 0.050933
+Going inside while: 1
+Entered stepMode at: 6.608
+Count: 0
+timer: 0.0342663
+Count: 1
+timer: 0.0175997
+Count: 2
+timer: 0.000932997
+Left stepMode at: 6.608
+-----------------------------------------------------
+Loop count: 221
+DeltaTime: 0.0269422
+timer: 0.000932997
+timer + deltaTime: 0.0278752
+Going inside while: 1
+Entered stepMode at: 6.635
+Count: 0
+timer: 0.0112086
+Left stepMode at: 6.635
+-----------------------------------------------------
+Loop count: 222
+DeltaTime: 0.0339119
+timer: 0.0112086
+timer + deltaTime: 0.0451205
+Going inside while: 1
+Entered stepMode at: 6.668
+Count: 0
+timer: 0.0284538
+Count: 1
+timer: 0.0117872
+Left stepMode at: 6.669
+-----------------------------------------------------
+Loop count: 223
+DeltaTime: 0.0151281
+timer: 0.0117872
+timer + deltaTime: 0.0269152
+Going inside while: 1
+Entered stepMode at: 6.684
+Count: 0
+timer: 0.0102486
+Left stepMode at: 6.684
+-----------------------------------------------------
+Loop count: 224
+DeltaTime: 0.0361898
+timer: 0.0102486
+timer + deltaTime: 0.0464384
+Going inside while: 1
+Entered stepMode at: 6.72
+Count: 0
+timer: 0.0297717
+Count: 1
+timer: 0.0131051
+Left stepMode at: 6.72
+-----------------------------------------------------
+Loop count: 225
+DeltaTime: 0.0250062
+timer: 0.0131051
+timer + deltaTime: 0.0381113
+Going inside while: 1
+Entered stepMode at: 6.745
+Count: 0
+timer: 0.0214446
+Count: 1
+timer: 0.00477796
+Left stepMode at: 6.745
+-----------------------------------------------------
+Loop count: 226
+DeltaTime: 0.0155938
+timer: 0.00477796
+timer + deltaTime: 0.0203717
+Going inside while: 1
+Entered stepMode at: 6.761
+Count: 0
+timer: 0.00370507
+Left stepMode at: 6.761
+-----------------------------------------------------
+Loop count: 227
+DeltaTime: 0.0344379
+timer: 0.00370507
+timer + deltaTime: 0.038143
+Going inside while: 1
+Entered stepMode at: 6.795
+Count: 0
+timer: 0.0214763
+Count: 1
+timer: 0.00480968
+Left stepMode at: 6.795
+-----------------------------------------------------
+Loop count: 228
+DeltaTime: 0.0390329
+timer: 0.00480968
+timer + deltaTime: 0.0438426
+Going inside while: 1
+Entered stepMode at: 6.834
+Count: 0
+timer: 0.0271759
+Count: 1
+timer: 0.0105092
+Left stepMode at: 6.834
+-----------------------------------------------------
+Loop count: 229
+DeltaTime: 0.0265118
+timer: 0.0105092
+timer + deltaTime: 0.037021
+Going inside while: 1
+Entered stepMode at: 6.861
+Count: 0
+timer: 0.0203543
+Count: 1
+timer: 0.00368768
+Left stepMode at: 6.861
+-----------------------------------------------------
+Loop count: 230
+DeltaTime: 0.0163636
+timer: 0.00368768
+timer + deltaTime: 0.0200512
+Going inside while: 1
+Entered stepMode at: 6.877
+Count: 0
+timer: 0.00338457
+Left stepMode at: 6.877
+-----------------------------------------------------
+Loop count: 231
+DeltaTime: 0.0341108
+timer: 0.00338457
+timer + deltaTime: 0.0374954
+Going inside while: 1
+Entered stepMode at: 6.911
+Count: 0
+timer: 0.0208287
+Count: 1
+timer: 0.00416203
+Left stepMode at: 6.911
+-----------------------------------------------------
+Loop count: 232
+DeltaTime: 0.0296615
+timer: 0.00416203
+timer + deltaTime: 0.0338235
+Going inside while: 1
+Entered stepMode at: 6.941
+Count: 0
+timer: 0.0171568
+Count: 1
+timer: 0.000490166
+Left stepMode at: 6.941
+-----------------------------------------------------
+Loop count: 233
+DeltaTime: 0.0284273
+timer: 0.000490166
+timer + deltaTime: 0.0289174
+Going inside while: 1
+Entered stepMode at: 6.969
+Count: 0
+timer: 0.0122508
+Left stepMode at: 6.969
+-----------------------------------------------------
+Loop count: 234
+DeltaTime: 0.017669
+timer: 0.0122508
+timer + deltaTime: 0.0299197
+Going inside while: 1
+Entered stepMode at: 6.987
+Count: 0
+timer: 0.0132531
+Left stepMode at: 6.987
+-----------------------------------------------------
+Loop count: 235
+DeltaTime: 0.0435451
+timer: 0.0132531
+timer + deltaTime: 0.0567981
+Going inside while: 1
+Entered stepMode at: 7.03
+Count: 0
+timer: 0.0401315
+Count: 1
+timer: 0.0234648
+Count: 2
+timer: 0.00679812
+Left stepMode at: 7.03
+-----------------------------------------------------
+Loop count: 236
+DeltaTime: 0.0430556
+timer: 0.00679812
+timer + deltaTime: 0.0498537
+Going inside while: 1
+Entered stepMode at: 7.073
+Count: 0
+timer: 0.0331871
+Count: 1
+timer: 0.0165204
+Left stepMode at: 7.074
+-----------------------------------------------------
+Loop count: 237
+DeltaTime: 0.0323525
+timer: 0.0165204
+timer + deltaTime: 0.0488729
+Going inside while: 1
+Entered stepMode at: 7.106
+Count: 0
+timer: 0.0322062
+Count: 1
+timer: 0.0155396
+Left stepMode at: 7.106
+-----------------------------------------------------
+Loop count: 238
+DeltaTime: 0.0179576
+timer: 0.0155396
+timer + deltaTime: 0.0334972
+Going inside while: 1
+Entered stepMode at: 7.124
+Count: 0
+timer: 0.0168305
+Count: 1
+timer: 0.000163858
+Left stepMode at: 7.124
+-----------------------------------------------------
+Loop count: 239
+DeltaTime: 0.0319355
+timer: 0.000163858
+timer + deltaTime: 0.0320994
+Going inside while: 1
+Entered stepMode at: 7.155
+Count: 0
+timer: 0.0154327
+Left stepMode at: 7.156
+-----------------------------------------------------
+Loop count: 240
+DeltaTime: 0.0306032
+timer: 0.0154327
+timer + deltaTime: 0.0460359
+Going inside while: 1
+Entered stepMode at: 7.186
+Count: 0
+timer: 0.0293692
+Count: 1
+timer: 0.0127025
+Left stepMode at: 7.186
+-----------------------------------------------------
+Loop count: 241
+DeltaTime: 0.0287409
+timer: 0.0127025
+timer + deltaTime: 0.0414435
+Going inside while: 1
+Entered stepMode at: 7.215
+Count: 0
+timer: 0.0247768
+Count: 1
+timer: 0.00811016
+Left stepMode at: 7.215
+-----------------------------------------------------
+Loop count: 242
+DeltaTime: 0.0177966
+timer: 0.00811016
+timer + deltaTime: 0.0259068
+Going inside while: 1
+Entered stepMode at: 7.233
+Count: 0
+timer: 0.00924012
+Left stepMode at: 7.233
+-----------------------------------------------------
+Loop count: 243
+DeltaTime: 0.0274586
+timer: 0.00924012
+timer + deltaTime: 0.0366987
+Going inside while: 1
+Entered stepMode at: 7.26
+Count: 0
+timer: 0.0200321
+Count: 1
+timer: 0.00336541
+Left stepMode at: 7.26
+-----------------------------------------------------
+Loop count: 244
+DeltaTime: 0.0317719
+timer: 0.00336541
+timer + deltaTime: 0.0351374
+Going inside while: 1
+Entered stepMode at: 7.292
+Count: 0
+timer: 0.0184707
+Count: 1
+timer: 0.00180402
+Left stepMode at: 7.292
+-----------------------------------------------------
+Loop count: 245
+DeltaTime: 0.0204908
+timer: 0.00180402
+timer + deltaTime: 0.0222949
+Going inside while: 1
+Entered stepMode at: 7.312
+Count: 0
+timer: 0.0056282
+Left stepMode at: 7.313
+-----------------------------------------------------
+Loop count: 246
+DeltaTime: 0.0137123
+timer: 0.0056282
+timer + deltaTime: 0.0193405
+Going inside while: 1
+Entered stepMode at: 7.326
+Count: 0
+timer: 0.00267385
+Left stepMode at: 7.326
+-----------------------------------------------------
+Loop count: 247
+DeltaTime: 0.0255278
+timer: 0.00267385
+timer + deltaTime: 0.0282016
+Going inside while: 1
+Entered stepMode at: 7.352
+Count: 0
+timer: 0.0115349
+Left stepMode at: 7.352
+-----------------------------------------------------
+Loop count: 248
+DeltaTime: 0.0308694
+timer: 0.0115349
+timer + deltaTime: 0.0424043
+Going inside while: 1
+Entered stepMode at: 7.382
+Count: 0
+timer: 0.0257377
+Count: 1
+timer: 0.00907099
+Left stepMode at: 7.383
+-----------------------------------------------------
+Loop count: 249
+DeltaTime: 0.0219605
+timer: 0.00907099
+timer + deltaTime: 0.0310315
+Going inside while: 1
+Entered stepMode at: 7.405
+Count: 0
+timer: 0.0143648
+Left stepMode at: 7.405
+-----------------------------------------------------
+Loop count: 250
+DeltaTime: 0.017184
+timer: 0.0143648
+timer + deltaTime: 0.0315488
+Going inside while: 1
+Entered stepMode at: 7.422
+Count: 0
+timer: 0.0148822
+Left stepMode at: 7.422
+-----------------------------------------------------
+Loop count: 251
+DeltaTime: 0.0329022
+timer: 0.0148822
+timer + deltaTime: 0.0477844
+Going inside while: 1
+Entered stepMode at: 7.455
+Count: 0
+timer: 0.0311177
+Count: 1
+timer: 0.0144511
+Left stepMode at: 7.455
+-----------------------------------------------------
+Loop count: 252
+DeltaTime: 0.0342987
+timer: 0.0144511
+timer + deltaTime: 0.0487498
+Going inside while: 1
+Entered stepMode at: 7.489
+Count: 0
+timer: 0.0320831
+Count: 1
+timer: 0.0154165
+Left stepMode at: 7.489
+-----------------------------------------------------
+Loop count: 253
+DeltaTime: 0.0233923
+timer: 0.0154165
+timer + deltaTime: 0.0388087
+Going inside while: 1
+Entered stepMode at: 7.512
+Count: 0
+timer: 0.0221421
+Count: 1
+timer: 0.0054754
+Left stepMode at: 7.513
+-----------------------------------------------------
+Loop count: 254
+DeltaTime: 0.0146668
+timer: 0.0054754
+timer + deltaTime: 0.0201422
+Going inside while: 1
+Entered stepMode at: 7.527
+Count: 0
+timer: 0.00347557
+Left stepMode at: 7.527
+-----------------------------------------------------
+Loop count: 255
+DeltaTime: 0.0291906
+timer: 0.00347557
+timer + deltaTime: 0.0326662
+Going inside while: 1
+Entered stepMode at: 7.556
+Count: 0
+timer: 0.0159995
+Left stepMode at: 7.556
+-----------------------------------------------------
+Loop count: 256
+DeltaTime: 0.0340742
+timer: 0.0159995
+timer + deltaTime: 0.0500738
+Going inside while: 1
+Entered stepMode at: 7.59
+Count: 0
+timer: 0.0334071
+Count: 1
+timer: 0.0167404
+Count: 2
+timer: 7.3754e-05
+Left stepMode at: 7.59
+-----------------------------------------------------
+Loop count: 257
+DeltaTime: 0.014135
+timer: 7.3754e-05
+timer + deltaTime: 0.0142088
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 258
+DeltaTime: 0.0136097
+timer: 0.0142088
+timer + deltaTime: 0.0278185
+Going inside while: 1
+Entered stepMode at: 7.618
+Count: 0
+timer: 0.0111518
+Left stepMode at: 7.618
+-----------------------------------------------------
+Loop count: 259
+DeltaTime: 0.0323583
+timer: 0.0111518
+timer + deltaTime: 0.0435101
+Going inside while: 1
+Entered stepMode at: 7.651
+Count: 0
+timer: 0.0268434
+Count: 1
+timer: 0.0101767
+Left stepMode at: 7.651
+-----------------------------------------------------
+Loop count: 260
+DeltaTime: 0.0353469
+timer: 0.0101767
+timer + deltaTime: 0.0455237
+Going inside while: 1
+Entered stepMode at: 7.686
+Count: 0
+timer: 0.028857
+Count: 1
+timer: 0.0121903
+Left stepMode at: 7.686
+-----------------------------------------------------
+Loop count: 261
+DeltaTime: 0.0165624
+timer: 0.0121903
+timer + deltaTime: 0.0287527
+Going inside while: 1
+Entered stepMode at: 7.702
+Count: 0
+timer: 0.0120861
+Left stepMode at: 7.703
+-----------------------------------------------------
+Loop count: 262
+DeltaTime: 0.0159171
+timer: 0.0120861
+timer + deltaTime: 0.0280032
+Going inside while: 1
+Entered stepMode at: 7.718
+Count: 0
+timer: 0.0113365
+Left stepMode at: 7.718
+-----------------------------------------------------
+Loop count: 263
+DeltaTime: 0.0290918
+timer: 0.0113365
+timer + deltaTime: 0.0404283
+Going inside while: 1
+Entered stepMode at: 7.747
+Count: 0
+timer: 0.0237617
+Count: 1
+timer: 0.007095
+Left stepMode at: 7.747
+-----------------------------------------------------
+Loop count: 264
+DeltaTime: 0.0314435
+timer: 0.007095
+timer + deltaTime: 0.0385385
+Going inside while: 1
+Entered stepMode at: 7.779
+Count: 0
+timer: 0.0218718
+Count: 1
+timer: 0.00520517
+Left stepMode at: 7.779
+-----------------------------------------------------
+Loop count: 265
+DeltaTime: 0.0143936
+timer: 0.00520517
+timer + deltaTime: 0.0195987
+Going inside while: 1
+Entered stepMode at: 7.793
+Count: 0
+timer: 0.00293207
+Left stepMode at: 7.793
+-----------------------------------------------------
+Loop count: 266
+DeltaTime: 0.0140472
+timer: 0.00293207
+timer + deltaTime: 0.0169792
+Going inside while: 1
+Entered stepMode at: 7.807
+Count: 0
+timer: 0.00031257
+Left stepMode at: 7.807
+-----------------------------------------------------
+Loop count: 267
+DeltaTime: 0.0199956
+timer: 0.00031257
+timer + deltaTime: 0.0203082
+Going inside while: 1
+Entered stepMode at: 7.828
+Count: 0
+timer: 0.00364153
+Left stepMode at: 7.828
+-----------------------------------------------------
+Loop count: 268
+DeltaTime: 0.0350756
+timer: 0.00364153
+timer + deltaTime: 0.0387171
+Going inside while: 1
+Entered stepMode at: 7.862
+Count: 0
+timer: 0.0220504
+Count: 1
+timer: 0.00538377
+Left stepMode at: 7.862
+-----------------------------------------------------
+Loop count: 269
+DeltaTime: 0.0175509
+timer: 0.00538377
+timer + deltaTime: 0.0229347
+Going inside while: 1
+Entered stepMode at: 7.88
+Count: 0
+timer: 0.00626804
+Left stepMode at: 7.88
+-----------------------------------------------------
+Loop count: 270
+DeltaTime: 0.0156727
+timer: 0.00626804
+timer + deltaTime: 0.0219407
+Going inside while: 1
+Entered stepMode at: 7.896
+Count: 0
+timer: 0.00527406
+Left stepMode at: 7.896
+-----------------------------------------------------
+Loop count: 271
+DeltaTime: 0.021464
+timer: 0.00527406
+timer + deltaTime: 0.026738
+Going inside while: 1
+Entered stepMode at: 7.917
+Count: 0
+timer: 0.0100714
+Left stepMode at: 7.917
+-----------------------------------------------------
+Loop count: 272
+DeltaTime: 0.0286293
+timer: 0.0100714
+timer + deltaTime: 0.0387007
+Going inside while: 1
+Entered stepMode at: 7.945
+Count: 0
+timer: 0.022034
+Count: 1
+timer: 0.00536736
+Left stepMode at: 7.946
+-----------------------------------------------------
+Loop count: 273
+DeltaTime: 0.0125012
+timer: 0.00536736
+timer + deltaTime: 0.0178686
+Going inside while: 1
+Entered stepMode at: 7.958
+Count: 0
+timer: 0.00120189
+Left stepMode at: 7.958
+-----------------------------------------------------
+Loop count: 274
+DeltaTime: 0.0132248
+timer: 0.00120189
+timer + deltaTime: 0.0144267
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 275
+DeltaTime: 0.019519
+timer: 0.0144267
+timer + deltaTime: 0.0339457
+Going inside while: 1
+Entered stepMode at: 7.991
+Count: 0
+timer: 0.017279
+Count: 1
+timer: 0.000612341
+Left stepMode at: 7.991
+-----------------------------------------------------
+Loop count: 276
+DeltaTime: 0.0294536
+timer: 0.000612341
+timer + deltaTime: 0.030066
+Going inside while: 1
+Entered stepMode at: 8.02
+Count: 0
+timer: 0.0133993
+Left stepMode at: 8.02
+-----------------------------------------------------
+Loop count: 277
+DeltaTime: 0.0206923
+timer: 0.0133993
+timer + deltaTime: 0.0340916
+Going inside while: 1
+Entered stepMode at: 8.041
+Count: 0
+timer: 0.0174249
+Count: 1
+timer: 0.000758247
+Left stepMode at: 8.041
+-----------------------------------------------------
+Loop count: 278
+DeltaTime: 0.0161564
+timer: 0.000758247
+timer + deltaTime: 0.0169146
+Going inside while: 1
+Entered stepMode at: 8.057
+Count: 0
+timer: 0.000247938
+Left stepMode at: 8.057
+-----------------------------------------------------
+Loop count: 279
+DeltaTime: 0.0221286
+timer: 0.000247938
+timer + deltaTime: 0.0223765
+Going inside while: 1
+Entered stepMode at: 8.08
+Count: 0
+timer: 0.00570982
+Left stepMode at: 8.08
+-----------------------------------------------------
+Loop count: 280
+DeltaTime: 0.033833
+timer: 0.00570982
+timer + deltaTime: 0.0395429
+Going inside while: 1
+Entered stepMode at: 8.113
+Count: 0
+timer: 0.0228762
+Count: 1
+timer: 0.00620952
+Left stepMode at: 8.113
+-----------------------------------------------------
+Loop count: 281
+DeltaTime: 0.0222472
+timer: 0.00620952
+timer + deltaTime: 0.0284567
+Going inside while: 1
+Entered stepMode at: 8.135
+Count: 0
+timer: 0.0117901
+Left stepMode at: 8.135
+-----------------------------------------------------
+Loop count: 282
+DeltaTime: 0.0139234
+timer: 0.0117901
+timer + deltaTime: 0.0257134
+Going inside while: 1
+Entered stepMode at: 8.149
+Count: 0
+timer: 0.00904677
+Left stepMode at: 8.15
+-----------------------------------------------------
+Loop count: 283
+DeltaTime: 0.0225045
+timer: 0.00904677
+timer + deltaTime: 0.0315512
+Going inside while: 1
+Entered stepMode at: 8.172
+Count: 0
+timer: 0.0148846
+Left stepMode at: 8.172
+-----------------------------------------------------
+Loop count: 284
+DeltaTime: 0.0295396
+timer: 0.0148846
+timer + deltaTime: 0.0444241
+Going inside while: 1
+Entered stepMode at: 8.201
+Count: 0
+timer: 0.0277575
+Count: 1
+timer: 0.0110908
+Left stepMode at: 8.201
+-----------------------------------------------------
+Loop count: 285
+DeltaTime: 0.0208315
+timer: 0.0110908
+timer + deltaTime: 0.0319223
+Going inside while: 1
+Entered stepMode at: 8.222
+Count: 0
+timer: 0.0152556
+Left stepMode at: 8.222
+-----------------------------------------------------
+Loop count: 286
+DeltaTime: 0.0254187
+timer: 0.0152556
+timer + deltaTime: 0.0406743
+Going inside while: 1
+Entered stepMode at: 8.248
+Count: 0
+timer: 0.0240077
+Count: 1
+timer: 0.00734101
+Left stepMode at: 8.248
+-----------------------------------------------------
+Loop count: 287
+DeltaTime: 0.016531
+timer: 0.00734101
+timer + deltaTime: 0.023872
+Going inside while: 1
+Entered stepMode at: 8.264
+Count: 0
+timer: 0.00720532
+Left stepMode at: 8.264
+-----------------------------------------------------
+Loop count: 288
+DeltaTime: 0.0323948
+timer: 0.00720532
+timer + deltaTime: 0.0396001
+Going inside while: 1
+Entered stepMode at: 8.296
+Count: 0
+timer: 0.0229335
+Count: 1
+timer: 0.00626681
+Left stepMode at: 8.297
+-----------------------------------------------------
+Loop count: 289
+DeltaTime: 0.0204139
+timer: 0.00626681
+timer + deltaTime: 0.0266807
+Going inside while: 1
+Entered stepMode at: 8.317
+Count: 0
+timer: 0.010014
+Left stepMode at: 8.318
+-----------------------------------------------------
+Loop count: 290
+DeltaTime: 0.0228784
+timer: 0.010014
+timer + deltaTime: 0.0328925
+Going inside while: 1
+Entered stepMode at: 8.34
+Count: 0
+timer: 0.0162258
+Left stepMode at: 8.34
+-----------------------------------------------------
+Loop count: 291
+DeltaTime: 0.0151127
+timer: 0.0162258
+timer + deltaTime: 0.0313385
+Going inside while: 1
+Entered stepMode at: 8.355
+Count: 0
+timer: 0.0146718
+Left stepMode at: 8.355
+-----------------------------------------------------
+Loop count: 292
+DeltaTime: 0.021904
+timer: 0.0146718
+timer + deltaTime: 0.0365758
+Going inside while: 1
+Entered stepMode at: 8.377
+Count: 0
+timer: 0.0199092
+Count: 1
+timer: 0.00324249
+Left stepMode at: 8.377
+-----------------------------------------------------
+Loop count: 293
+DeltaTime: 0.0302022
+timer: 0.00324249
+timer + deltaTime: 0.0334447
+Going inside while: 1
+Entered stepMode at: 8.407
+Count: 0
+timer: 0.0167781
+Count: 1
+timer: 0.000111399
+Left stepMode at: 8.407
+-----------------------------------------------------
+Loop count: 294
+DeltaTime: 0.0219945
+timer: 0.000111399
+timer + deltaTime: 0.0221059
+Going inside while: 1
+Entered stepMode at: 8.429
+Count: 0
+timer: 0.00543921
+Left stepMode at: 8.429
+-----------------------------------------------------
+Loop count: 295
+DeltaTime: 0.0136328
+timer: 0.00543921
+timer + deltaTime: 0.019072
+Going inside while: 1
+Entered stepMode at: 8.443
+Count: 0
+timer: 0.00240532
+Left stepMode at: 8.443
+-----------------------------------------------------
+Loop count: 296
+DeltaTime: 0.0229766
+timer: 0.00240532
+timer + deltaTime: 0.0253819
+Going inside while: 1
+Entered stepMode at: 8.465
+Count: 0
+timer: 0.00871524
+Left stepMode at: 8.466
+-----------------------------------------------------
+Loop count: 297
+DeltaTime: 0.0330062
+timer: 0.00871524
+timer + deltaTime: 0.0417214
+Going inside while: 1
+Entered stepMode at: 8.498
+Count: 0
+timer: 0.0250547
+Count: 1
+timer: 0.00838806
+Left stepMode at: 8.499
+-----------------------------------------------------
+Loop count: 298
+DeltaTime: 0.0209008
+timer: 0.00838806
+timer + deltaTime: 0.0292888
+Going inside while: 1
+Entered stepMode at: 8.519
+Count: 0
+timer: 0.0126222
+Left stepMode at: 8.52
+-----------------------------------------------------
+Loop count: 299
+DeltaTime: 0.0126173
+timer: 0.0126222
+timer + deltaTime: 0.0252395
+Going inside while: 1
+Entered stepMode at: 8.532
+Count: 0
+timer: 0.00857279
+Left stepMode at: 8.532
+-----------------------------------------------------
+Loop count: 300
+DeltaTime: 0.0227161
+timer: 0.00857279
+timer + deltaTime: 0.0312889
+Going inside while: 1
+Entered stepMode at: 8.555
+Count: 0
+timer: 0.0146223
+Left stepMode at: 8.555
+-----------------------------------------------------
+Loop count: 301
+DeltaTime: 0.0300194
+timer: 0.0146223
+timer + deltaTime: 0.0446417
+Going inside while: 1
+Entered stepMode at: 8.585
+Count: 0
+timer: 0.027975
+Count: 1
+timer: 0.0113084
+Left stepMode at: 8.585
+-----------------------------------------------------
+Loop count: 302
+DeltaTime: 0.0206301
+timer: 0.0113084
+timer + deltaTime: 0.0319384
+Going inside while: 1
+Entered stepMode at: 8.605
+Count: 0
+timer: 0.0152717
+Left stepMode at: 8.606
+-----------------------------------------------------
+Loop count: 303
+DeltaTime: 0.014511
+timer: 0.0152717
+timer + deltaTime: 0.0297827
+Going inside while: 1
+Entered stepMode at: 8.62
+Count: 0
+timer: 0.013116
+Left stepMode at: 8.62
+-----------------------------------------------------
+Loop count: 304
+DeltaTime: 0.0205723
+timer: 0.013116
+timer + deltaTime: 0.0336883
+Going inside while: 1
+Entered stepMode at: 8.64
+Count: 0
+timer: 0.0170217
+Count: 1
+timer: 0.000355012
+Left stepMode at: 8.641
+-----------------------------------------------------
+Loop count: 305
+DeltaTime: 0.0316975
+timer: 0.000355012
+timer + deltaTime: 0.0320525
+Going inside while: 1
+Entered stepMode at: 8.672
+Count: 0
+timer: 0.0153859
+Left stepMode at: 8.672
+-----------------------------------------------------
+Loop count: 306
+DeltaTime: 0.024758
+timer: 0.0153859
+timer + deltaTime: 0.0401439
+Going inside while: 1
+Entered stepMode at: 8.697
+Count: 0
+timer: 0.0234772
+Count: 1
+timer: 0.00681053
+Left stepMode at: 8.697
+-----------------------------------------------------
+Loop count: 307
+DeltaTime: 0.0143025
+timer: 0.00681053
+timer + deltaTime: 0.021113
+Going inside while: 1
+Entered stepMode at: 8.711
+Count: 0
+timer: 0.00444634
+Left stepMode at: 8.711
+-----------------------------------------------------
+Loop count: 308
+DeltaTime: 0.0215499
+timer: 0.00444634
+timer + deltaTime: 0.0259963
+Going inside while: 1
+Entered stepMode at: 8.733
+Count: 0
+timer: 0.00932961
+Left stepMode at: 8.733
+-----------------------------------------------------
+Loop count: 309
+DeltaTime: 0.0387667
+timer: 0.00932961
+timer + deltaTime: 0.0480963
+Going inside while: 1
+Entered stepMode at: 8.771
+Count: 0
+timer: 0.0314296
+Count: 1
+timer: 0.0147629
+Left stepMode at: 8.772
+-----------------------------------------------------
+Loop count: 310
+DeltaTime: 0.0201855
+timer: 0.0147629
+timer + deltaTime: 0.0349484
+Going inside while: 1
+Entered stepMode at: 8.792
+Count: 0
+timer: 0.0182818
+Count: 1
+timer: 0.00161511
+Left stepMode at: 8.792
+-----------------------------------------------------
+Loop count: 311
+DeltaTime: 0.0141729
+timer: 0.00161511
+timer + deltaTime: 0.015788
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 312
+DeltaTime: 0.0201355
+timer: 0.015788
+timer + deltaTime: 0.0359235
+Going inside while: 1
+Entered stepMode at: 8.826
+Count: 0
+timer: 0.0192568
+Count: 1
+timer: 0.00259014
+Left stepMode at: 8.826
+-----------------------------------------------------
+Loop count: 313
+DeltaTime: 0.0329997
+timer: 0.00259014
+timer + deltaTime: 0.0355899
+Going inside while: 1
+Entered stepMode at: 8.859
+Count: 0
+timer: 0.0189232
+Count: 1
+timer: 0.00225654
+Left stepMode at: 8.859
+-----------------------------------------------------
+Loop count: 314
+DeltaTime: 0.0259813
+timer: 0.00225654
+timer + deltaTime: 0.0282378
+Going inside while: 1
+Entered stepMode at: 8.885
+Count: 0
+timer: 0.0115712
+Left stepMode at: 8.886
+-----------------------------------------------------
+Loop count: 315
+DeltaTime: 0.019757
+timer: 0.0115712
+timer + deltaTime: 0.0313282
+Going inside while: 1
+Entered stepMode at: 8.905
+Count: 0
+timer: 0.0146615
+Left stepMode at: 8.906
+-----------------------------------------------------
+Loop count: 316
+DeltaTime: 0.0176933
+timer: 0.0146615
+timer + deltaTime: 0.0323548
+Going inside while: 1
+Entered stepMode at: 8.922
+Count: 0
+timer: 0.0156882
+Left stepMode at: 8.923
+-----------------------------------------------------
+Loop count: 317
+DeltaTime: 0.032942
+timer: 0.0156882
+timer + deltaTime: 0.0486302
+Going inside while: 1
+Entered stepMode at: 8.955
+Count: 0
+timer: 0.0319635
+Count: 1
+timer: 0.0152969
+Left stepMode at: 8.956
+-----------------------------------------------------
+Loop count: 318
+DeltaTime: 0.0207731
+timer: 0.0152969
+timer + deltaTime: 0.03607
+Going inside while: 1
+Entered stepMode at: 8.976
+Count: 0
+timer: 0.0194033
+Count: 1
+timer: 0.00273662
+Left stepMode at: 8.977
+-----------------------------------------------------
+Loop count: 319
+DeltaTime: 0.0140433
+timer: 0.00273662
+timer + deltaTime: 0.0167799
+Going inside while: 1
+Entered stepMode at: 8.99
+Count: 0
+timer: 0.00011327
+Left stepMode at: 8.991
+-----------------------------------------------------
+Loop count: 320
+DeltaTime: 0.0134083
+timer: 0.00011327
+timer + deltaTime: 0.0135215
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 321
+DeltaTime: 0.0286928
+timer: 0.0135215
+timer + deltaTime: 0.0422144
+Going inside while: 1
+Entered stepMode at: 9.032
+Count: 0
+timer: 0.0255477
+Count: 1
+timer: 0.00888102
+Left stepMode at: 9.032
+-----------------------------------------------------
+Loop count: 322
+DeltaTime: 0.020836
+timer: 0.00888102
+timer + deltaTime: 0.029717
+Going inside while: 1
+Entered stepMode at: 9.053
+Count: 0
+timer: 0.0130503
+Left stepMode at: 9.053
+-----------------------------------------------------
+Loop count: 323
+DeltaTime: 0.0130323
+timer: 0.0130503
+timer + deltaTime: 0.0260827
+Going inside while: 1
+Entered stepMode at: 9.066
+Count: 0
+timer: 0.00941599
+Left stepMode at: 9.066
+-----------------------------------------------------
+Loop count: 324
+DeltaTime: 0.0150851
+timer: 0.00941599
+timer + deltaTime: 0.0245011
+Going inside while: 1
+Entered stepMode at: 9.081
+Count: 0
+timer: 0.00783441
+Left stepMode at: 9.082
+-----------------------------------------------------
+Loop count: 325
+DeltaTime: 0.0392048
+timer: 0.00783441
+timer + deltaTime: 0.0470392
+Going inside while: 1
+Entered stepMode at: 9.121
+Count: 0
+timer: 0.0303725
+Count: 1
+timer: 0.0137059
+Left stepMode at: 9.121
+-----------------------------------------------------
+Loop count: 326
+DeltaTime: 0.0222755
+timer: 0.0137059
+timer + deltaTime: 0.0359813
+Going inside while: 1
+Entered stepMode at: 9.143
+Count: 0
+timer: 0.0193147
+Count: 1
+timer: 0.00264799
+Left stepMode at: 9.143
+-----------------------------------------------------
+Loop count: 327
+DeltaTime: 0.0134827
+timer: 0.00264799
+timer + deltaTime: 0.0161306
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 328
+DeltaTime: 0.0133486
+timer: 0.0161306
+timer + deltaTime: 0.0294792
+Going inside while: 1
+Entered stepMode at: 9.17
+Count: 0
+timer: 0.0128126
+Left stepMode at: 9.17
+-----------------------------------------------------
+Loop count: 329
+DeltaTime: 0.0125044
+timer: 0.0128126
+timer + deltaTime: 0.025317
+Going inside while: 1
+Entered stepMode at: 9.182
+Count: 0
+timer: 0.00865031
+Left stepMode at: 9.182
+-----------------------------------------------------
+Loop count: 330
+DeltaTime: 0.0296891
+timer: 0.00865031
+timer + deltaTime: 0.0383394
+Going inside while: 1
+Entered stepMode at: 9.212
+Count: 0
+timer: 0.0216727
+Count: 1
+timer: 0.00500603
+Left stepMode at: 9.212
+-----------------------------------------------------
+Loop count: 331
+DeltaTime: 0.0131722
+timer: 0.00500603
+timer + deltaTime: 0.0181782
+Going inside while: 1
+Entered stepMode at: 9.225
+Count: 0
+timer: 0.00151155
+Left stepMode at: 9.225
+-----------------------------------------------------
+Loop count: 332
+DeltaTime: 0.0139298
+timer: 0.00151155
+timer + deltaTime: 0.0154413
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 333
+DeltaTime: 0.0128482
+timer: 0.0154413
+timer + deltaTime: 0.0282896
+Going inside while: 1
+Entered stepMode at: 9.252
+Count: 0
+timer: 0.0116229
+Left stepMode at: 9.252
+-----------------------------------------------------
+Loop count: 334
+DeltaTime: 0.0284292
+timer: 0.0116229
+timer + deltaTime: 0.0400521
+Going inside while: 1
+Entered stepMode at: 9.28
+Count: 0
+timer: 0.0233854
+Count: 1
+timer: 0.00671875
+Left stepMode at: 9.28
+-----------------------------------------------------
+Loop count: 335
+DeltaTime: 0.0163065
+timer: 0.00671875
+timer + deltaTime: 0.0230252
+Going inside while: 1
+Entered stepMode at: 9.297
+Count: 0
+timer: 0.00635854
+Left stepMode at: 9.297
+-----------------------------------------------------
+Loop count: 336
+DeltaTime: 0.0167818
+timer: 0.00635854
+timer + deltaTime: 0.0231403
+Going inside while: 1
+Entered stepMode at: 9.314
+Count: 0
+timer: 0.00647368
+Left stepMode at: 9.314
+-----------------------------------------------------
+Loop count: 337
+DeltaTime: 0.0128104
+timer: 0.00647368
+timer + deltaTime: 0.0192841
+Going inside while: 1
+Entered stepMode at: 9.326
+Count: 0
+timer: 0.0026174
+Left stepMode at: 9.326
+-----------------------------------------------------
+Loop count: 338
+DeltaTime: 0.0290456
+timer: 0.0026174
+timer + deltaTime: 0.031663
+Going inside while: 1
+Entered stepMode at: 9.355
+Count: 0
+timer: 0.0149964
+Left stepMode at: 9.355
+-----------------------------------------------------
+Loop count: 339
+DeltaTime: 0.0143827
+timer: 0.0149964
+timer + deltaTime: 0.029379
+Going inside while: 1
+Entered stepMode at: 9.37
+Count: 0
+timer: 0.0127124
+Left stepMode at: 9.37
+-----------------------------------------------------
+Loop count: 340
+DeltaTime: 0.0121734
+timer: 0.0127124
+timer + deltaTime: 0.0248858
+Going inside while: 1
+Entered stepMode at: 9.382
+Count: 0
+timer: 0.00821911
+Left stepMode at: 9.382
+-----------------------------------------------------
+Loop count: 341
+DeltaTime: 0.0135436
+timer: 0.00821911
+timer + deltaTime: 0.0217627
+Going inside while: 1
+Entered stepMode at: 9.395
+Count: 0
+timer: 0.00509604
+Left stepMode at: 9.395
+-----------------------------------------------------
+Loop count: 342
+DeltaTime: 0.0299469
+timer: 0.00509604
+timer + deltaTime: 0.035043
+Going inside while: 1
+Entered stepMode at: 9.425
+Count: 0
+timer: 0.0183763
+Count: 1
+timer: 0.00170964
+Left stepMode at: 9.425
+-----------------------------------------------------
+Loop count: 343
+DeltaTime: 0.0155656
+timer: 0.00170964
+timer + deltaTime: 0.0172752
+Going inside while: 1
+Entered stepMode at: 9.441
+Count: 0
+timer: 0.000608526
+Left stepMode at: 9.441
+-----------------------------------------------------
+Loop count: 344
+DeltaTime: 0.0140016
+timer: 0.000608526
+timer + deltaTime: 0.0146101
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 345
+DeltaTime: 0.0130477
+timer: 0.0146101
+timer + deltaTime: 0.0276579
+Going inside while: 1
+Entered stepMode at: 9.469
+Count: 0
+timer: 0.0109912
+Left stepMode at: 9.47
+-----------------------------------------------------
+Loop count: 346
+DeltaTime: 0.0341621
+timer: 0.0109912
+timer + deltaTime: 0.0451533
+Going inside while: 1
+Entered stepMode at: 9.502
+Count: 0
+timer: 0.0284867
+Count: 1
+timer: 0.01182
+Left stepMode at: 9.503
+-----------------------------------------------------
+Loop count: 347
+DeltaTime: 0.0191989
+timer: 0.01182
+timer + deltaTime: 0.0310189
+Going inside while: 1
+Entered stepMode at: 9.521
+Count: 0
+timer: 0.0143522
+Left stepMode at: 9.522
+-----------------------------------------------------
+Loop count: 348
+DeltaTime: 0.0149074
+timer: 0.0143522
+timer + deltaTime: 0.0292596
+Going inside while: 1
+Entered stepMode at: 9.537
+Count: 0
+timer: 0.0125929
+Left stepMode at: 9.537
+-----------------------------------------------------
+Loop count: 349
+DeltaTime: 0.0141671
+timer: 0.0125929
+timer + deltaTime: 0.0267601
+Going inside while: 1
+Entered stepMode at: 9.55
+Count: 0
+timer: 0.0100934
+Left stepMode at: 9.551
+-----------------------------------------------------
+Loop count: 350
+DeltaTime: 0.0311696
+timer: 0.0100934
+timer + deltaTime: 0.041263
+Going inside while: 1
+Entered stepMode at: 9.581
+Count: 0
+timer: 0.0245963
+Count: 1
+timer: 0.00792967
+Left stepMode at: 9.582
+-----------------------------------------------------
+Loop count: 351
+DeltaTime: 0.0141081
+timer: 0.00792967
+timer + deltaTime: 0.0220378
+Going inside while: 1
+Entered stepMode at: 9.596
+Count: 0
+timer: 0.00537111
+Left stepMode at: 9.596
+-----------------------------------------------------
+Loop count: 352
+DeltaTime: 0.0139131
+timer: 0.00537111
+timer + deltaTime: 0.0192842
+Going inside while: 1
+Entered stepMode at: 9.609
+Count: 0
+timer: 0.00261753
+Left stepMode at: 9.61
+-----------------------------------------------------
+Loop count: 353
+DeltaTime: 0.0137008
+timer: 0.00261753
+timer + deltaTime: 0.0163183
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 354
+DeltaTime: 0.033298
+timer: 0.0163183
+timer + deltaTime: 0.0496163
+Going inside while: 1
+Entered stepMode at: 9.656
+Count: 0
+timer: 0.0329497
+Count: 1
+timer: 0.016283
+Left stepMode at: 9.657
+-----------------------------------------------------
+Loop count: 355
+DeltaTime: 0.0151704
+timer: 0.016283
+timer + deltaTime: 0.0314534
+Going inside while: 1
+Entered stepMode at: 9.672
+Count: 0
+timer: 0.0147867
+Left stepMode at: 9.672
+-----------------------------------------------------
+Loop count: 356
+DeltaTime: 0.0131151
+timer: 0.0147867
+timer + deltaTime: 0.0279018
+Going inside while: 1
+Entered stepMode at: 9.685
+Count: 0
+timer: 0.0112352
+Left stepMode at: 9.685
+-----------------------------------------------------
+Loop count: 357
+DeltaTime: 0.0162782
+timer: 0.0112352
+timer + deltaTime: 0.0275134
+Going inside while: 1
+Entered stepMode at: 9.702
+Count: 0
+timer: 0.0108467
+Left stepMode at: 9.702
+-----------------------------------------------------
+Loop count: 358
+DeltaTime: 0.0370526
+timer: 0.0108467
+timer + deltaTime: 0.0478994
+Going inside while: 1
+Entered stepMode at: 9.738
+Count: 0
+timer: 0.0312327
+Count: 1
+timer: 0.014566
+Left stepMode at: 9.738
+-----------------------------------------------------
+Loop count: 359
+DeltaTime: 0.0164142
+timer: 0.014566
+timer + deltaTime: 0.0309803
+Going inside while: 1
+Entered stepMode at: 9.754
+Count: 0
+timer: 0.0143136
+Left stepMode at: 9.755
+-----------------------------------------------------
+Loop count: 360
+DeltaTime: 0.0146405
+timer: 0.0143136
+timer + deltaTime: 0.0289541
+Going inside while: 1
+Entered stepMode at: 9.77
+Count: 0
+timer: 0.0122875
+Left stepMode at: 9.77
+-----------------------------------------------------
+Loop count: 361
+DeltaTime: 0.0128508
+timer: 0.0122875
+timer + deltaTime: 0.0251383
+Going inside while: 1
+Entered stepMode at: 9.782
+Count: 0
+timer: 0.00847159
+Left stepMode at: 9.782
+-----------------------------------------------------
+Loop count: 362
+DeltaTime: 0.0340056
+timer: 0.00847159
+timer + deltaTime: 0.0424772
+Going inside while: 1
+Entered stepMode at: 9.816
+Count: 0
+timer: 0.0258105
+Count: 1
+timer: 0.00914384
+Left stepMode at: 9.816
+-----------------------------------------------------
+Loop count: 363
+DeltaTime: 0.0158465
+timer: 0.00914384
+timer + deltaTime: 0.0249904
+Going inside while: 1
+Entered stepMode at: 9.832
+Count: 0
+timer: 0.00832369
+Left stepMode at: 9.832
+-----------------------------------------------------
+Loop count: 364
+DeltaTime: 0.0140876
+timer: 0.00832369
+timer + deltaTime: 0.0224113
+Going inside while: 1
+Entered stepMode at: 9.846
+Count: 0
+timer: 0.00574461
+Left stepMode at: 9.846
+-----------------------------------------------------
+Loop count: 365
+DeltaTime: 0.0150639
+timer: 0.00574461
+timer + deltaTime: 0.0208085
+Going inside while: 1
+Entered stepMode at: 9.861
+Count: 0
+timer: 0.00414185
+Left stepMode at: 9.861
+-----------------------------------------------------
+Loop count: 366
+DeltaTime: 0.0340107
+timer: 0.00414185
+timer + deltaTime: 0.0381526
+Going inside while: 1
+Entered stepMode at: 9.895
+Count: 0
+timer: 0.0214859
+Count: 1
+timer: 0.00481924
+Left stepMode at: 9.895
+-----------------------------------------------------
+Loop count: 367
+DeltaTime: 0.0167709
+timer: 0.00481924
+timer + deltaTime: 0.0215901
+Going inside while: 1
+Entered stepMode at: 9.912
+Count: 0
+timer: 0.00492347
+Left stepMode at: 9.912
+-----------------------------------------------------
+Loop count: 368
+DeltaTime: 0.0274118
+timer: 0.00492347
+timer + deltaTime: 0.0323353
+Going inside while: 1
+Entered stepMode at: 9.939
+Count: 0
+timer: 0.0156686
+Left stepMode at: 9.939
+-----------------------------------------------------
+Loop count: 369
+DeltaTime: 0.0155809
+timer: 0.0156686
+timer + deltaTime: 0.0312495
+Going inside while: 1
+Entered stepMode at: 9.955
+Count: 0
+timer: 0.0145829
+Left stepMode at: 9.955
+-----------------------------------------------------
+Loop count: 370
+DeltaTime: 0.0342205
+timer: 0.0145829
+timer + deltaTime: 0.0488034
+Going inside while: 1
+Entered stepMode at: 9.989
+Count: 0
+timer: 0.0321367
+Count: 1
+timer: 0.01547
+Left stepMode at: 9.989
+-----------------------------------------------------
+Loop count: 371
+DeltaTime: 0.0153911
+timer: 0.01547
+timer + deltaTime: 0.0308611
+Going inside while: 1
+Entered stepMode at: 10.004
+Count: 0
+timer: 0.0141944
+Left stepMode at: 10.005
+-----------------------------------------------------
+Loop count: 372
+DeltaTime: 0.0224435
+timer: 0.0141944
+timer + deltaTime: 0.0366379
+Going inside while: 1
+Entered stepMode at: 10.027
+Count: 0
+timer: 0.0199713
+Count: 1
+timer: 0.00330461
+Left stepMode at: 10.027
+-----------------------------------------------------
+Loop count: 373
+DeltaTime: 0.0157413
+timer: 0.00330461
+timer + deltaTime: 0.0190459
+Going inside while: 1
+Entered stepMode at: 10.042
+Count: 0
+timer: 0.00237927
+Left stepMode at: 10.043
+-----------------------------------------------------
+Loop count: 374
+DeltaTime: 0.0332595
+timer: 0.00237927
+timer + deltaTime: 0.0356388
+Going inside while: 1
+Entered stepMode at: 10.076
+Count: 0
+timer: 0.0189721
+Count: 1
+timer: 0.00230547
+Left stepMode at: 10.076
+-----------------------------------------------------
+Loop count: 375
+DeltaTime: 0.0150447
+timer: 0.00230547
+timer + deltaTime: 0.0173501
+Going inside while: 1
+Entered stepMode at: 10.091
+Count: 0
+timer: 0.000683476
+Left stepMode at: 10.091
+-----------------------------------------------------
+Loop count: 376
+DeltaTime: 0.027601
+timer: 0.000683476
+timer + deltaTime: 0.0282845
+Going inside while: 1
+Entered stepMode at: 10.119
+Count: 0
+timer: 0.0116178
+Left stepMode at: 10.119
+-----------------------------------------------------
+Loop count: 377
+DeltaTime: 0.0163488
+timer: 0.0116178
+timer + deltaTime: 0.0279666
+Going inside while: 1
+Entered stepMode at: 10.136
+Count: 0
+timer: 0.0113
+Left stepMode at: 10.136
+-----------------------------------------------------
+Loop count: 378
+DeltaTime: 0.0395121
+timer: 0.0113
+timer + deltaTime: 0.050812
+Going inside while: 1
+Entered stepMode at: 10.175
+Count: 0
+timer: 0.0341454
+Count: 1
+timer: 0.0174787
+Count: 2
+timer: 0.00081204
+Left stepMode at: 10.175
+-----------------------------------------------------
+Loop count: 379
+DeltaTime: 0.0152724
+timer: 0.00081204
+timer + deltaTime: 0.0160844
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 380
+DeltaTime: 0.0152288
+timer: 0.0160844
+timer + deltaTime: 0.0313132
+Going inside while: 1
+Entered stepMode at: 10.205
+Count: 0
+timer: 0.0146465
+Left stepMode at: 10.205
+-----------------------------------------------------
+Loop count: 381
+DeltaTime: 0.0127623
+timer: 0.0146465
+timer + deltaTime: 0.0274088
+Going inside while: 1
+Entered stepMode at: 10.219
+Count: 0
+timer: 0.0107422
+Left stepMode at: 10.219
+-----------------------------------------------------
+Loop count: 382
+DeltaTime: 0.0331428
+timer: 0.0107422
+timer + deltaTime: 0.0438849
+Going inside while: 1
+Entered stepMode at: 10.251
+Count: 0
+timer: 0.0272183
+Count: 1
+timer: 0.0105516
+Left stepMode at: 10.251
+-----------------------------------------------------
+Loop count: 383
+DeltaTime: 0.0346612
+timer: 0.0105516
+timer + deltaTime: 0.0452128
+Going inside while: 1
+Entered stepMode at: 10.286
+Count: 0
+timer: 0.0285461
+Count: 1
+timer: 0.0118795
+Left stepMode at: 10.286
+-----------------------------------------------------
+Loop count: 384
+DeltaTime: 0.0140561
+timer: 0.0118795
+timer + deltaTime: 0.0259356
+Going inside while: 1
+Entered stepMode at: 10.3
+Count: 0
+timer: 0.00926894
+Left stepMode at: 10.3
+-----------------------------------------------------
+Loop count: 385
+DeltaTime: 0.0154219
+timer: 0.00926894
+timer + deltaTime: 0.0246908
+Going inside while: 1
+Entered stepMode at: 10.315
+Count: 0
+timer: 0.00802413
+Left stepMode at: 10.315
+-----------------------------------------------------
+Loop count: 386
+DeltaTime: 0.019977
+timer: 0.00802413
+timer + deltaTime: 0.0280012
+Going inside while: 1
+Entered stepMode at: 10.336
+Count: 0
+timer: 0.0113345
+Left stepMode at: 10.337
+-----------------------------------------------------
+Loop count: 387
+DeltaTime: 0.0452283
+timer: 0.0113345
+timer + deltaTime: 0.0565628
+Going inside while: 1
+Entered stepMode at: 10.38
+Count: 0
+timer: 0.0398961
+Count: 1
+timer: 0.0232295
+Count: 2
+timer: 0.0065628
+Left stepMode at: 10.38
+-----------------------------------------------------
+Loop count: 388
+DeltaTime: 0.015103
+timer: 0.0065628
+timer + deltaTime: 0.0216658
+Going inside while: 1
+Entered stepMode at: 10.395
+Count: 0
+timer: 0.00499917
+Left stepMode at: 10.396
+-----------------------------------------------------
+Loop count: 389
+DeltaTime: 0.0140927
+timer: 0.00499917
+timer + deltaTime: 0.0190919
+Going inside while: 1
+Entered stepMode at: 10.409
+Count: 0
+timer: 0.00242522
+Left stepMode at: 10.41
+-----------------------------------------------------
+Loop count: 390
+DeltaTime: 0.0145674
+timer: 0.00242522
+timer + deltaTime: 0.0169926
+Going inside while: 1
+Entered stepMode at: 10.424
+Count: 0
+timer: 0.000325957
+Left stepMode at: 10.424
+-----------------------------------------------------
+Loop count: 391
+DeltaTime: 0.0338163
+timer: 0.000325957
+timer + deltaTime: 0.0341423
+Going inside while: 1
+Entered stepMode at: 10.458
+Count: 0
+timer: 0.0174756
+Count: 1
+timer: 0.000808972
+Left stepMode at: 10.458
+-----------------------------------------------------
+Loop count: 392
+DeltaTime: 0.0145007
+timer: 0.000808972
+timer + deltaTime: 0.0153097
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 393
+DeltaTime: 0.0122286
+timer: 0.0153097
+timer + deltaTime: 0.0275382
+Going inside while: 1
+Entered stepMode at: 10.485
+Count: 0
+timer: 0.0108716
+Left stepMode at: 10.485
+-----------------------------------------------------
+Loop count: 394
+DeltaTime: 0.0396525
+timer: 0.0108716
+timer + deltaTime: 0.0505241
+Going inside while: 1
+Entered stepMode at: 10.524
+Count: 0
+timer: 0.0338574
+Count: 1
+timer: 0.0171908
+Count: 2
+timer: 0.000524113
+Left stepMode at: 10.525
+-----------------------------------------------------
+Loop count: 395
+DeltaTime: 0.0180404
+timer: 0.000524113
+timer + deltaTime: 0.0185645
+Going inside while: 1
+Entered stepMode at: 10.542
+Count: 0
+timer: 0.00189784
+Left stepMode at: 10.543
+-----------------------------------------------------
+Loop count: 396
+DeltaTime: 0.016862
+timer: 0.00189784
+timer + deltaTime: 0.0187598
+Going inside while: 1
+Entered stepMode at: 10.56
+Count: 0
+timer: 0.00209316
+Left stepMode at: 10.56
+-----------------------------------------------------
+Loop count: 397
+DeltaTime: 0.0146643
+timer: 0.00209316
+timer + deltaTime: 0.0167574
+Going inside while: 1
+Entered stepMode at: 10.573
+Count: 0
+timer: 9.0761e-05
+Left stepMode at: 10.574
+-----------------------------------------------------
+Loop count: 398
+DeltaTime: 0.0334263
+timer: 9.0761e-05
+timer + deltaTime: 0.0335171
+Going inside while: 1
+Entered stepMode at: 10.607
+Count: 0
+timer: 0.0168504
+Count: 1
+timer: 0.000183757
+Left stepMode at: 10.607
+-----------------------------------------------------
+Loop count: 399
+DeltaTime: 0.0147752
+timer: 0.000183757
+timer + deltaTime: 0.014959
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 400
+DeltaTime: 0.0130529
+timer: 0.014959
+timer + deltaTime: 0.0280119
+Going inside while: 1
+Entered stepMode at: 10.635
+Count: 0
+timer: 0.0113452
+Left stepMode at: 10.635
+-----------------------------------------------------
+Loop count: 401
+DeltaTime: 0.0336059
+timer: 0.0113452
+timer + deltaTime: 0.0449511
+Going inside while: 1
+Entered stepMode at: 10.668
+Count: 0
+timer: 0.0282845
+Count: 1
+timer: 0.0116178
+Left stepMode at: 10.669
+-----------------------------------------------------
+Loop count: 402
+DeltaTime: 0.014051
+timer: 0.0116178
+timer + deltaTime: 0.0256688
+Going inside while: 1
+Entered stepMode at: 10.683
+Count: 0
+timer: 0.00900216
+Left stepMode at: 10.683
+-----------------------------------------------------
+Loop count: 403
+DeltaTime: 0.0129971
+timer: 0.00900216
+timer + deltaTime: 0.0219992
+Going inside while: 1
+Entered stepMode at: 10.695
+Count: 0
+timer: 0.00533256
+Left stepMode at: 10.696
+-----------------------------------------------------
+Loop count: 404
+DeltaTime: 0.0370699
+timer: 0.00533256
+timer + deltaTime: 0.0424025
+Going inside while: 1
+Entered stepMode at: 10.732
+Count: 0
+timer: 0.0257358
+Count: 1
+timer: 0.00906916
+Left stepMode at: 10.733
+-----------------------------------------------------
+Loop count: 405
+DeltaTime: 0.0129137
+timer: 0.00906916
+timer + deltaTime: 0.0219828
+Going inside while: 1
+Entered stepMode at: 10.746
+Count: 0
+timer: 0.00531616
+Left stepMode at: 10.746
+-----------------------------------------------------
+Loop count: 406
+DeltaTime: 0.0128341
+timer: 0.00531616
+timer + deltaTime: 0.0181503
+Going inside while: 1
+Entered stepMode at: 10.758
+Count: 0
+timer: 0.00148362
+Left stepMode at: 10.758
+-----------------------------------------------------
+Loop count: 407
+DeltaTime: 0.0147226
+timer: 0.00148362
+timer + deltaTime: 0.0162063
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 408
+DeltaTime: 0.0325789
+timer: 0.0162063
+timer + deltaTime: 0.0487852
+Going inside while: 1
+Entered stepMode at: 10.806
+Count: 0
+timer: 0.0321185
+Count: 1
+timer: 0.0154519
+Left stepMode at: 10.806
+-----------------------------------------------------
+Loop count: 409
+DeltaTime: 0.0148503
+timer: 0.0154519
+timer + deltaTime: 0.0303022
+Going inside while: 1
+Entered stepMode at: 10.82
+Count: 0
+timer: 0.0136355
+Left stepMode at: 10.821
+-----------------------------------------------------
+Loop count: 410
+DeltaTime: 0.0122934
+timer: 0.0136355
+timer + deltaTime: 0.0259289
+Going inside while: 1
+Entered stepMode at: 10.833
+Count: 0
+timer: 0.00926218
+Left stepMode at: 10.833
+-----------------------------------------------------
+Loop count: 411
+DeltaTime: 0.0135795
+timer: 0.00926218
+timer + deltaTime: 0.0228417
+Going inside while: 1
+Entered stepMode at: 10.846
+Count: 0
+timer: 0.00617504
+Left stepMode at: 10.847
+-----------------------------------------------------
+Loop count: 412
+DeltaTime: 0.0323185
+timer: 0.00617504
+timer + deltaTime: 0.0384935
+Going inside while: 1
+Entered stepMode at: 10.879
+Count: 0
+timer: 0.0218269
+Count: 1
+timer: 0.0051602
+Left stepMode at: 10.879
+-----------------------------------------------------
+Loop count: 413
+DeltaTime: 0.0150921
+timer: 0.0051602
+timer + deltaTime: 0.0202523
+Going inside while: 1
+Entered stepMode at: 10.894
+Count: 0
+timer: 0.00358567
+Left stepMode at: 10.894
+-----------------------------------------------------
+Loop count: 414
+DeltaTime: 0.013212
+timer: 0.00358567
+timer + deltaTime: 0.0167976
+Going inside while: 1
+Entered stepMode at: 10.907
+Count: 0
+timer: 0.000130959
+Left stepMode at: 10.907
+-----------------------------------------------------
+Loop count: 415
+DeltaTime: 0.0144141
+timer: 0.000130959
+timer + deltaTime: 0.0145451
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 416
+DeltaTime: 0.0370661
+timer: 0.0145451
+timer + deltaTime: 0.0516111
+Going inside while: 1
+Entered stepMode at: 10.958
+Count: 0
+timer: 0.0349445
+Count: 1
+timer: 0.0182778
+Count: 2
+timer: 0.00161114
+Left stepMode at: 10.959
+-----------------------------------------------------
+Loop count: 417
+DeltaTime: 0.0148618
+timer: 0.00161114
+timer + deltaTime: 0.016473
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 418
+DeltaTime: 0.0126436
+timer: 0.016473
+timer + deltaTime: 0.0291166
+Going inside while: 1
+Entered stepMode at: 10.986
+Count: 0
+timer: 0.0124499
+Left stepMode at: 10.987
+-----------------------------------------------------
+Loop count: 419
+DeltaTime: 0.0130926
+timer: 0.0124499
+timer + deltaTime: 0.0255426
+Going inside while: 1
+Entered stepMode at: 10.999
+Count: 0
+timer: 0.0088759
+Left stepMode at: 10.999
+-----------------------------------------------------
+Loop count: 420
+DeltaTime: 0.0331877
+timer: 0.0088759
+timer + deltaTime: 0.0420636
+Going inside while: 1
+Entered stepMode at: 11.032
+Count: 0
+timer: 0.0253969
+Count: 1
+timer: 0.00873026
+Left stepMode at: 11.032
+-----------------------------------------------------
+Loop count: 421
+DeltaTime: 0.0131369
+timer: 0.00873026
+timer + deltaTime: 0.0218672
+Going inside while: 1
+Entered stepMode at: 11.046
+Count: 0
+timer: 0.0052005
+Left stepMode at: 11.046
+-----------------------------------------------------
+Loop count: 422
+DeltaTime: 0.0128893
+timer: 0.0052005
+timer + deltaTime: 0.0180898
+Going inside while: 1
+Entered stepMode at: 11.058
+Count: 0
+timer: 0.00142312
+Left stepMode at: 11.058
+-----------------------------------------------------
+Loop count: 423
+DeltaTime: 0.012736
+timer: 0.00142312
+timer + deltaTime: 0.0141591
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 424
+DeltaTime: 0.0324673
+timer: 0.0141591
+timer + deltaTime: 0.0466264
+Going inside while: 1
+Entered stepMode at: 11.104
+Count: 0
+timer: 0.0299597
+Count: 1
+timer: 0.0132931
+Left stepMode at: 11.104
+-----------------------------------------------------
+Loop count: 425
+DeltaTime: 0.0132556
+timer: 0.0132931
+timer + deltaTime: 0.0265487
+Going inside while: 1
+Entered stepMode at: 11.117
+Count: 0
+timer: 0.00988199
+Left stepMode at: 11.118
+-----------------------------------------------------
+Loop count: 426
+DeltaTime: 0.0156412
+timer: 0.00988199
+timer + deltaTime: 0.0255232
+Going inside while: 1
+Entered stepMode at: 11.133
+Count: 0
+timer: 0.00885657
+Left stepMode at: 11.133
+-----------------------------------------------------
+Loop count: 427
+DeltaTime: 0.0136257
+timer: 0.00885657
+timer + deltaTime: 0.0224823
+Going inside while: 1
+Entered stepMode at: 11.146
+Count: 0
+timer: 0.00581562
+Left stepMode at: 11.147
+-----------------------------------------------------
+Loop count: 428
+DeltaTime: 0.0355721
+timer: 0.00581562
+timer + deltaTime: 0.0413877
+Going inside while: 1
+Entered stepMode at: 11.182
+Count: 0
+timer: 0.024721
+Count: 1
+timer: 0.00805437
+Left stepMode at: 11.182
+-----------------------------------------------------
+Loop count: 429
+DeltaTime: 0.0135147
+timer: 0.00805437
+timer + deltaTime: 0.0215691
+Going inside while: 1
+Entered stepMode at: 11.195
+Count: 0
+timer: 0.00490244
+Left stepMode at: 11.195
+-----------------------------------------------------
+Loop count: 430
+DeltaTime: 0.0123395
+timer: 0.00490244
+timer + deltaTime: 0.017242
+Going inside while: 1
+Entered stepMode at: 11.208
+Count: 0
+timer: 0.000575313
+Left stepMode at: 11.208
+-----------------------------------------------------
+Loop count: 431
+DeltaTime: 0.0127623
+timer: 0.000575313
+timer + deltaTime: 0.0133376
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 432
+DeltaTime: 0.0317675
+timer: 0.0133376
+timer + deltaTime: 0.045105
+Going inside while: 1
+Entered stepMode at: 11.252
+Count: 0
+timer: 0.0284384
+Count: 1
+timer: 0.0117717
+Left stepMode at: 11.252
+-----------------------------------------------------
+Loop count: 433
+DeltaTime: 0.0126834
+timer: 0.0117717
+timer + deltaTime: 0.0244551
+Going inside while: 1
+Entered stepMode at: 11.265
+Count: 0
+timer: 0.00778842
+Left stepMode at: 11.265
+-----------------------------------------------------
+Loop count: 434
+DeltaTime: 0.0313357
+timer: 0.00778842
+timer + deltaTime: 0.0391242
+Going inside while: 1
+Entered stepMode at: 11.296
+Count: 0
+timer: 0.0224575
+Count: 1
+timer: 0.00579083
+Left stepMode at: 11.296
+-----------------------------------------------------
+Loop count: 435
+DeltaTime: 0.0128065
+timer: 0.00579083
+timer + deltaTime: 0.0185974
+Going inside while: 1
+Entered stepMode at: 11.309
+Count: 0
+timer: 0.00193071
+Left stepMode at: 11.309
+-----------------------------------------------------
+Loop count: 436
+DeltaTime: 0.0340434
+timer: 0.00193071
+timer + deltaTime: 0.0359741
+Going inside while: 1
+Entered stepMode at: 11.343
+Count: 0
+timer: 0.0193075
+Count: 1
+timer: 0.0026408
+Left stepMode at: 11.343
+-----------------------------------------------------
+Loop count: 437
+DeltaTime: 0.0161718
+timer: 0.0026408
+timer + deltaTime: 0.0188126
+Going inside while: 1
+Entered stepMode at: 11.36
+Count: 0
+timer: 0.00214589
+Left stepMode at: 11.36
+-----------------------------------------------------
+Loop count: 438
+DeltaTime: 0.022915
+timer: 0.00214589
+timer + deltaTime: 0.0250609
+Going inside while: 1
+Entered stepMode at: 11.382
+Count: 0
+timer: 0.00839423
+Left stepMode at: 11.382
+-----------------------------------------------------
+Loop count: 439
+DeltaTime: 0.0128219
+timer: 0.00839423
+timer + deltaTime: 0.0212162
+Going inside while: 1
+Entered stepMode at: 11.395
+Count: 0
+timer: 0.0045495
+Left stepMode at: 11.395
+-----------------------------------------------------
+Loop count: 440
+DeltaTime: 0.0316148
+timer: 0.0045495
+timer + deltaTime: 0.0361643
+Going inside while: 1
+Entered stepMode at: 11.426
+Count: 0
+timer: 0.0194976
+Count: 1
+timer: 0.00283095
+Left stepMode at: 11.426
+-----------------------------------------------------
+Loop count: 441
+DeltaTime: 0.0194112
+timer: 0.00283095
+timer + deltaTime: 0.0222422
+Going inside while: 1
+Entered stepMode at: 11.446
+Count: 0
+timer: 0.00557552
+Left stepMode at: 11.446
+-----------------------------------------------------
+Loop count: 442
+DeltaTime: 0.0123318
+timer: 0.00557552
+timer + deltaTime: 0.0179074
+Going inside while: 1
+Entered stepMode at: 11.458
+Count: 0
+timer: 0.0012407
+Left stepMode at: 11.458
+-----------------------------------------------------
+Loop count: 443
+DeltaTime: 0.0105768
+timer: 0.0012407
+timer + deltaTime: 0.0118174
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 444
+DeltaTime: 0.0331685
+timer: 0.0118174
+timer + deltaTime: 0.0449859
+Going inside while: 1
+Entered stepMode at: 11.502
+Count: 0
+timer: 0.0283192
+Count: 1
+timer: 0.0116526
+Left stepMode at: 11.502
+-----------------------------------------------------
+Loop count: 445
+DeltaTime: 0.0215782
+timer: 0.0116526
+timer + deltaTime: 0.0332307
+Going inside while: 1
+Entered stepMode at: 11.523
+Count: 0
+timer: 0.0165641
+Left stepMode at: 11.524
+-----------------------------------------------------
+Loop count: 446
+DeltaTime: 0.014475
+timer: 0.0165641
+timer + deltaTime: 0.0310391
+Going inside while: 1
+Entered stepMode at: 11.538
+Count: 0
+timer: 0.0143724
+Left stepMode at: 11.538
+-----------------------------------------------------
+Loop count: 447
+DeltaTime: 0.0115864
+timer: 0.0143724
+timer + deltaTime: 0.0259589
+Going inside while: 1
+Entered stepMode at: 11.55
+Count: 0
+timer: 0.0092922
+Left stepMode at: 11.55
+-----------------------------------------------------
+Loop count: 448
+DeltaTime: 0.0354464
+timer: 0.0092922
+timer + deltaTime: 0.0447386
+Going inside while: 1
+Entered stepMode at: 11.585
+Count: 0
+timer: 0.0280719
+Count: 1
+timer: 0.0114052
+Left stepMode at: 11.585
+-----------------------------------------------------
+Loop count: 449
+DeltaTime: 0.0221042
+timer: 0.0114052
+timer + deltaTime: 0.0335094
+Going inside while: 1
+Entered stepMode at: 11.607
+Count: 0
+timer: 0.0168427
+Count: 1
+timer: 0.000176064
+Left stepMode at: 11.607
+-----------------------------------------------------
+Loop count: 450
+DeltaTime: 0.0120785
+timer: 0.000176064
+timer + deltaTime: 0.0122545
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 451
+DeltaTime: 0.013092
+timer: 0.0122545
+timer + deltaTime: 0.0253465
+Going inside while: 1
+Entered stepMode at: 11.632
+Count: 0
+timer: 0.00867986
+Left stepMode at: 11.633
+-----------------------------------------------------
+Loop count: 452
+DeltaTime: 0.0315808
+timer: 0.00867986
+timer + deltaTime: 0.0402606
+Going inside while: 1
+Entered stepMode at: 11.664
+Count: 0
+timer: 0.023594
+Count: 1
+timer: 0.00692731
+Left stepMode at: 11.664
+-----------------------------------------------------
+Loop count: 453
+DeltaTime: 0.0204767
+timer: 0.00692731
+timer + deltaTime: 0.027404
+Going inside while: 1
+Entered stepMode at: 11.684
+Count: 0
+timer: 0.0107374
+Left stepMode at: 11.684
+-----------------------------------------------------
+Loop count: 454
+DeltaTime: 0.0132581
+timer: 0.0107374
+timer + deltaTime: 0.0239955
+Going inside while: 1
+Entered stepMode at: 11.698
+Count: 0
+timer: 0.00732885
+Left stepMode at: 11.698
+-----------------------------------------------------
+Loop count: 455
+DeltaTime: 0.012276
+timer: 0.00732885
+timer + deltaTime: 0.0196049
+Going inside while: 1
+Entered stepMode at: 11.71
+Count: 0
+timer: 0.00293822
+Left stepMode at: 11.71
+-----------------------------------------------------
+Loop count: 456
+DeltaTime: 0.0312562
+timer: 0.00293822
+timer + deltaTime: 0.0341944
+Going inside while: 1
+Entered stepMode at: 11.741
+Count: 0
+timer: 0.0175277
+Count: 1
+timer: 0.000861081
+Left stepMode at: 11.741
+-----------------------------------------------------
+Loop count: 457
+DeltaTime: 0.0257587
+timer: 0.000861081
+timer + deltaTime: 0.0266198
+Going inside while: 1
+Entered stepMode at: 11.767
+Count: 0
+timer: 0.00995311
+Left stepMode at: 11.767
+-----------------------------------------------------
+Loop count: 458
+DeltaTime: 0.016005
+timer: 0.00995311
+timer + deltaTime: 0.0259581
+Going inside while: 1
+Entered stepMode at: 11.783
+Count: 0
+timer: 0.00929141
+Left stepMode at: 11.784
+-----------------------------------------------------
+Loop count: 459
+DeltaTime: 0.0170467
+timer: 0.00929141
+timer + deltaTime: 0.0263381
+Going inside while: 1
+Entered stepMode at: 11.8
+Count: 0
+timer: 0.00967148
+Left stepMode at: 11.801
+-----------------------------------------------------
+Loop count: 460
+DeltaTime: 0.0468423
+timer: 0.00967148
+timer + deltaTime: 0.0565138
+Going inside while: 1
+Entered stepMode at: 11.847
+Count: 0
+timer: 0.0398471
+Count: 1
+timer: 0.0231804
+Count: 2
+timer: 0.00651375
+Left stepMode at: 11.847
+-----------------------------------------------------
+Loop count: 461
+DeltaTime: 0.0310759
+timer: 0.00651375
+timer + deltaTime: 0.0375897
+Going inside while: 1
+Entered stepMode at: 11.878
+Count: 0
+timer: 0.020923
+Count: 1
+timer: 0.00425636
+Left stepMode at: 11.878
+-----------------------------------------------------
+Loop count: 462
+DeltaTime: 0.0308033
+timer: 0.00425636
+timer + deltaTime: 0.0350597
+Going inside while: 1
+Entered stepMode at: 11.909
+Count: 0
+timer: 0.018393
+Count: 1
+timer: 0.00172633
+Left stepMode at: 11.909
+-----------------------------------------------------
+Loop count: 463
+DeltaTime: 0.0128444
+timer: 0.00172633
+timer + deltaTime: 0.0145707
+Going inside while: 0
+-----------------------------------------------------
+Loop count: 464
+DeltaTime: 0.0339106
+timer: 0.0145707
+timer + deltaTime: 0.0484814
+Going inside while: 1
+Entered stepMode at: 11.955
+Count: 0
+timer: 0.0318147
+Count: 1
+timer: 0.015148
+Left stepMode at: 11.956
+-----------------------------------------------------
+Loop count: 465
+DeltaTime: 0.0252667
+timer: 0.015148
+timer + deltaTime: 0.0404147
+Going inside while: 1
+Entered stepMode at: 11.981
+Count: 0
+timer: 0.023748
+Count: 1
+timer: 0.00708138
+Left stepMode at: 11.981
+-----------------------------------------------------
+Loop count: 466
+DeltaTime: 0.0373977
+timer: 0.00708138
+timer + deltaTime: 0.0444791
+Going inside while: 1
+Entered stepMode at: 12.018
+Count: 0
+timer: 0.0278125
+Count: 1
+timer: 0.0111458
+Left stepMode at: 12.018
+-----------------------------------------------------
+Loop count: 467
+DeltaTime: 0.0130849
+timer: 0.0111458
+timer + deltaTime: 0.0242307
+Going inside while: 1
+Entered stepMode at: 12.031
+Count: 0
+timer: 0.00756406
+Left stepMode at: 12.031
+-----------------------------------------------------
+Loop count: 468
+DeltaTime: 0.0340518
+timer: 0.00756406
+timer + deltaTime: 0.0416158
+Going inside while: 1
+Entered stepMode at: 12.065
+Count: 0
+timer: 0.0249492
+Count: 1
+timer: 0.0082825
+Left stepMode at: 12.065
+-----------------------------------------------------
+Loop count: 469
+DeltaTime: 0.0339947
+timer: 0.0082825
+timer + deltaTime: 0.0422772
+Going inside while: 1
+Entered stepMode at: 12.099
+Count: 0
+timer: 0.0256105
+Count: 1
+timer: 0.00894385
+Left stepMode at: 12.1
+-----------------------------------------------------
+Loop count: 470
+DeltaTime: 0.0353097
+timer: 0.00894385
+timer + deltaTime: 0.0442536
+Going inside while: 1
+Entered stepMode at: 12.134
+Count: 0
+timer: 0.0275869
+Count: 1
+timer: 0.0109202
+Left stepMode at: 12.135
+-----------------------------------------------------
+Loop count: 471
+DeltaTime: 0.0319297
+timer: 0.0109202
+timer + deltaTime: 0.04285
+Going inside while: 1
+Entered stepMode at: 12.166
+Count: 0
+timer: 0.0261833
+Count: 1
+timer: 0.00951665
+Left stepMode at: 12.167
+-----------------------------------------------------
+Loop count: 472
+DeltaTime: 0.0401587
+timer: 0.00951665
+timer + deltaTime: 0.0496753
+Going inside while: 1
+Entered stepMode at: 12.206
+Count: 0
+timer: 0.0330087
+Count: 1
+timer: 0.016342
+Left stepMode at: 12.207
+-----------------------------------------------------
+Loop count: 473
+DeltaTime: 0.0367312
+timer: 0.016342
+timer + deltaTime: 0.0530732
+Going inside while: 1
+Entered stepMode at: 12.243
+Count: 0
+timer: 0.0364066
+Count: 1
+timer: 0.0197399
+Count: 2
+timer: 0.00307323
+Left stepMode at: 12.244
+-----------------------------------------------------
+Loop count: 474
+DeltaTime: 0.0344828
+timer: 0.00307323
+timer + deltaTime: 0.0375561
+Going inside while: 1
+Entered stepMode at: 12.278
+Count: 0
+timer: 0.0208894
+Count: 1
+timer: 0.00422274
+Left stepMode at: 12.278
+-----------------------------------------------------
+Loop count: 475
+DeltaTime: 0.0279166
+timer: 0.00422274
+timer + deltaTime: 0.0321394
+Going inside while: 1
+Entered stepMode at: 12.306
+Count: 0
+timer: 0.0154727
+Left stepMode at: 12.306
+-----------------------------------------------------
+Loop count: 476
+DeltaTime: 0.0346355
+timer: 0.0154727
+timer + deltaTime: 0.0501082
+Going inside while: 1
+Entered stepMode at: 12.34
+Count: 0
+timer: 0.0334416
+Count: 1
+timer: 0.0167749
+Count: 2
+timer: 0.000108239
+Left stepMode at: 12.34
+-----------------------------------------------------
+Loop count: 477
+DeltaTime: 0.0390765
+timer: 0.000108239
+timer + deltaTime: 0.0391847
+Going inside while: 1
+Entered stepMode at: 12.38
+Count: 0
+timer: 0.0225181
+Count: 1
+timer: 0.0058514
+Left stepMode at: 12.38
+-----------------------------------------------------
+Loop count: 478
+DeltaTime: 0.0341217
+timer: 0.0058514
+timer + deltaTime: 0.0399731
+Going inside while: 1
+Entered stepMode at: 12.414
+Count: 0
+timer: 0.0233064
+Count: 1
+timer: 0.00663976
+Left stepMode at: 12.414
+-----------------------------------------------------
+Loop count: 479
+DeltaTime: 0.0362367
+timer: 0.00663976
+timer + deltaTime: 0.0428764
+Going inside while: 1
+Entered stepMode at: 12.45
+Count: 0
+timer: 0.0262097
+Count: 1
+timer: 0.00954308
+Left stepMode at: 12.45
+-----------------------------------------------------
+Loop count: 480
+DeltaTime: 0.0267209
+timer: 0.00954308
+timer + deltaTime: 0.036264
+Going inside while: 1
+Entered stepMode at: 12.477
+Count: 0
+timer: 0.0195973
+Count: 1
+timer: 0.00293067
+Left stepMode at: 12.477
+-----------------------------------------------------
+Loop count: 481
+DeltaTime: 0.0335437
+timer: 0.00293067
+timer + deltaTime: 0.0364744
+Going inside while: 1
+Entered stepMode at: 12.51
+Count: 0
+timer: 0.0198077
+Count: 1
+timer: 0.00314105
+Left stepMode at: 12.51
+-----------------------------------------------------
+Loop count: 482
+DeltaTime: 0.0240312
+timer: 0.00314105
+timer + deltaTime: 0.0271722
+Going inside while: 1
+Entered stepMode at: 12.534
+Count: 0
+timer: 0.0105056
+Left stepMode at: 12.534
+-----------------------------------------------------
+Loop count: 483
+DeltaTime: 0.0343789
+timer: 0.0105056
+timer + deltaTime: 0.0448845
+Going inside while: 1
+Entered stepMode at: 12.568
+Count: 0
+timer: 0.0282178
+Count: 1
+timer: 0.0115512
+Left stepMode at: 12.569
+-----------------------------------------------------
+Loop count: 484
+DeltaTime: 0.0256137
+timer: 0.0115512
+timer + deltaTime: 0.0371649
+Going inside while: 1
+Entered stepMode at: 12.594
+Count: 0
+timer: 0.0204982
+Count: 1
+timer: 0.00383155
+Left stepMode at: 12.594
+-----------------------------------------------------
+Loop count: 485
+DeltaTime: 0.0377871
+timer: 0.00383155
+timer + deltaTime: 0.0416187
+Going inside while: 1
+Entered stepMode at: 12.632
+Count: 0
+timer: 0.024952
+Count: 1
+timer: 0.00828534
+Left stepMode at: 12.632
+-----------------------------------------------------
+Loop count: 486
+DeltaTime: 0.0264906
+timer: 0.00828534
+timer + deltaTime: 0.034776
+Going inside while: 1
+Entered stepMode at: 12.658
+Count: 0
+timer: 0.0181093
+Count: 1
+timer: 0.00144264
+Left stepMode at: 12.658
+-----------------------------------------------------
+Loop count: 487
+DeltaTime: 0.0332243
+timer: 0.00144264
+timer + deltaTime: 0.0346669
+Going inside while: 1
+Entered stepMode at: 12.691
+Count: 0
+timer: 0.0180002
+Count: 1
+timer: 0.00133356
+Left stepMode at: 12.692
+-----------------------------------------------------
+Loop count: 488
+DeltaTime: 0.0213684
+timer: 0.00133356
+timer + deltaTime: 0.022702
+Going inside while: 1
+Entered stepMode at: 12.713
+Count: 0
+timer: 0.00603529
+Left stepMode at: 12.713
+-----------------------------------------------------
+Loop count: 489
+DeltaTime: 0.0340011
+timer: 0.00603529
+timer + deltaTime: 0.0400364
+Going inside while: 1
+Entered stepMode at: 12.747
+Count: 0
+timer: 0.0233697
+Count: 1
+timer: 0.00670306
+Left stepMode at: 12.747
+-----------------------------------------------------
+Loop count: 490
+DeltaTime: 0.0265772
+timer: 0.00670306
+timer + deltaTime: 0.0332803
+Going inside while: 1
+Entered stepMode at: 12.773
+Count: 0
+timer: 0.0166136
+Left stepMode at: 12.773
+-----------------------------------------------------
+Loop count: 491
+DeltaTime: 0.0370225
+timer: 0.0166136
+timer + deltaTime: 0.0536361
+Going inside while: 1
+Entered stepMode at: 12.81
+Count: 0
+timer: 0.0369694
+Count: 1
+timer: 0.0203028
+Count: 2
+timer: 0.00363609
+Left stepMode at: 12.811
+-----------------------------------------------------
+Loop count: 492
+DeltaTime: 0.0270429
+timer: 0.00363609
+timer + deltaTime: 0.030679
+Going inside while: 1
+Entered stepMode at: 12.838
+Count: 0
+timer: 0.0140124
+Left stepMode at: 12.838
+-----------------------------------------------------
+Loop count: 493
+DeltaTime: 0.0344591
+timer: 0.0140124
+timer + deltaTime: 0.0484715
+Going inside while: 1
+Entered stepMode at: 12.872
+Count: 0
+timer: 0.0318048
+Count: 1
+timer: 0.0151381
+Left stepMode at: 12.872
+-----------------------------------------------------
+Loop count: 494
+DeltaTime: 0.025005
+timer: 0.0151381
+timer + deltaTime: 0.0401431
+Going inside while: 1
+Entered stepMode at: 12.897
+Count: 0
+timer: 0.0234764
+Count: 1
+timer: 0.00680977
+Left stepMode at: 12.897
+-----------------------------------------------------
+Loop count: 495
+DeltaTime: 0.0330857
+timer: 0.00680977
+timer + deltaTime: 0.0398955
+Going inside while: 1
+Entered stepMode at: 12.93
+Count: 0
+timer: 0.0232288
+Count: 1
+timer: 0.00656213
+Left stepMode at: 12.93
+-----------------------------------------------------
+Loop count: 496
+DeltaTime: 0.0216128
+timer: 0.00656213
+timer + deltaTime: 0.0281749
+Going inside while: 1
+Entered stepMode at: 12.952
+Count: 0
+timer: 0.0115083
+Left stepMode at: 12.952
+-----------------------------------------------------
+Loop count: 497
+DeltaTime: 0.0339318
+timer: 0.0115083
+timer + deltaTime: 0.0454401
+Going inside while: 1
+Entered stepMode at: 12.985
+Count: 0
+timer: 0.0287734
+Count: 1
+timer: 0.0121068
+Left stepMode at: 12.986
+-----------------------------------------------------
+Loop count: 498
+DeltaTime: 0.0240312
+timer: 0.0121068
+timer + deltaTime: 0.0361379
+Going inside while: 1
+Entered stepMode at: 13.01
+Count: 0
+timer: 0.0194713
+Count: 1
+timer: 0.0028046
+Left stepMode at: 13.01
+-----------------------------------------------------
+Loop count: 499
+DeltaTime: 0.0380225
+timer: 0.0028046
+timer + deltaTime: 0.0408271
+Going inside while: 1
+Entered stepMode at: 13.048
+Count: 0
+timer: 0.0241605
+Count: 1
+timer: 0.00749381
+Left stepMode at: 13.048
+-----------------------------------------------------
+Loop count: 500
+DeltaTime: 0.0343167
+timer: 0.00749381
+timer + deltaTime: 0.0418105
+Going inside while: 1
+Entered stepMode at: 13.082
+Count: 0
+timer: 0.0251439
+Count: 1
+timer: 0.00847718
+Left stepMode at: 13.082
+-----------------------------------------------------
+Loop count: 501
+DeltaTime: 0.0251769
+timer: 0.00847718
+timer + deltaTime: 0.0336541
+Going inside while: 1
+Entered stepMode at: 13.107
+Count: 0
+timer: 0.0169874
+Count: 1
+timer: 0.000320723
+Left stepMode at: 13.107
+-----------------------------------------------------
+Loop count: 502
+DeltaTime: 0.018857
+timer: 0.000320723
+timer + deltaTime: 0.0191777
+Going inside while: 1
+Entered stepMode at: 13.126
+Count: 0
+timer: 0.00251105
+Left stepMode at: 13.126
+-----------------------------------------------------
+Loop count: 503
+DeltaTime: 0.034633
+timer: 0.00251105
+timer + deltaTime: 0.037144
+Going inside while: 1
+Entered stepMode at: 13.161
+Count: 0
+timer: 0.0204773
+Count: 1
+timer: 0.00381067
+Left stepMode at: 13.161
+-----------------------------------------------------
+Loop count: 504
+DeltaTime: 0.0339613
+timer: 0.00381067
+timer + deltaTime: 0.037772
+Going inside while: 1
+Entered stepMode at: 13.194
+Count: 0
+timer: 0.0211053
+Count: 1
+timer: 0.00443866
+Left stepMode at: 13.195
+-----------------------------------------------------
+Loop count: 505
+DeltaTime: 0.0277242
+timer: 0.00443866
+timer + deltaTime: 0.0321629
+Going inside while: 1
+Entered stepMode at: 13.223
+Count: 0
+timer: 0.0154962
+Left stepMode at: 13.223
+-----------------------------------------------------
+Loop count: 506
+DeltaTime: 0.0542212
+timer: 0.0154962
+timer + deltaTime: 0.0697174
+Going inside while: 1
+Entered stepMode at: 13.277
+Count: 0
+timer: 0.0530508
+Count: 1
+timer: 0.0363841
+Count: 2
+timer: 0.0197174
+Count: 3
+timer: 0.00305076
+Left stepMode at: 13.277
+-----------------------------------------------------
+Loop count: 507
+DeltaTime: 0.0192143
+timer: 0.00305076
+timer + deltaTime: 0.0222651
+Going inside while: 1
+Entered stepMode at: 13.296
+Count: 0
+timer: 0.00559839
+Left stepMode at: 13.296
+-----------------------------------------------------
+Loop count: 508
+DeltaTime: 0.0394851
+timer: 0.00559839
+timer + deltaTime: 0.0450835
+Going inside while: 1
+Entered stepMode at: 13.335
+Count: 0
+timer: 0.0284168
+Count: 1
+timer: 0.0117502
+Left stepMode at: 13.335
+-----------------------------------------------------
+Loop count: 509
+DeltaTime: 0.0247573
+timer: 0.0117502
+timer + deltaTime: 0.0365075
+Going inside while: 1
+Entered stepMode at: 13.36
+Count: 0
+timer: 0.0198409
+Count: 1
+timer: 0.00317419
+Left stepMode at: 13.36
+-----------------------------------------------------
+Loop count: 510
+DeltaTime: 0.0366594
+timer: 0.00317419
+timer + deltaTime: 0.0398336
+Going inside while: 1
+Entered stepMode at: 13.397
+Count: 0
+timer: 0.0231669
+Count: 1
+timer: 0.00650025
+Left stepMode at: 13.397
+-----------------------------------------------------
+Loop count: 511
+DeltaTime: 0.0171667
+timer: 0.00650025
+timer + deltaTime: 0.0236669
+Going inside while: 1
+Entered stepMode at: 13.414
+Count: 0
+timer: 0.00700027
+Left stepMode at: 13.414
+-----------------------------------------------------
+Loop count: 512
+DeltaTime: 0.0498726
+timer: 0.00700027
+timer + deltaTime: 0.0568729
+Going inside while: 1
+Entered stepMode at: 13.464
+Count: 0
+timer: 0.0402062
+Count: 1
+timer: 0.0235396
+Count: 2
+timer: 0.00687291
+Left stepMode at: 13.464
+-----------------------------------------------------
+Loop count: 513
+DeltaTime: 0.0294331
+timer: 0.00687291
+timer + deltaTime: 0.036306
+Going inside while: 1
+Entered stepMode at: 13.493
+Count: 0
+timer: 0.0196393
+Count: 1
+timer: 0.00297268
+Left stepMode at: 13.494
+-----------------------------------------------------
+Loop count: 514
+DeltaTime: 0.0356401
+timer: 0.00297268
+timer + deltaTime: 0.0386128
+Going inside while: 1
+Entered stepMode at: 13.529
+Count: 0
+timer: 0.0219461
+Count: 1
+timer: 0.00527942
+Left stepMode at: 13.529
+-----------------------------------------------------
+Loop count: 515
+DeltaTime: 0.0216622
+timer: 0.00527942
+timer + deltaTime: 0.0269416
+Going inside while: 1
+Entered stepMode at: 13.55
+Count: 0
+timer: 0.010275
+Left stepMode at: 13.551
+-----------------------------------------------------
+Loop count: 516
+DeltaTime: 0.0346034
+timer: 0.010275
+timer + deltaTime: 0.0448784
+Going inside while: 1
+Entered stepMode at: 13.585
+Count: 0
+timer: 0.0282117
+Count: 1
+timer: 0.0115451
+Left stepMode at: 13.585
+-----------------------------------------------------
+Loop count: 517
+DeltaTime: 0.0263367
+timer: 0.0115451
+timer + deltaTime: 0.0378817
+Going inside while: 1
+Entered stepMode at: 13.611
+Count: 0
+timer: 0.0212151
+Count: 1
+timer: 0.0045484
+Left stepMode at: 13.612
+-----------------------------------------------------
+Loop count: 518
+DeltaTime: 0.0375947
+timer: 0.0045484
+timer + deltaTime: 0.0421431
+Going inside while: 1
+Entered stepMode at: 13.649
+Count: 0
+timer: 0.0254764
+Count: 1
+timer: 0.00880974
+Left stepMode at: 13.649
+-----------------------------------------------------
+Loop count: 519
+DeltaTime: 0.0283375
+timer: 0.00880974
+timer + deltaTime: 0.0371472
+Going inside while: 1
+Entered stepMode at: 13.677
+Count: 0
+timer: 0.0204805
+Count: 1
+timer: 0.00381386
+Left stepMode at: 13.678
+-----------------------------------------------------
+Loop count: 520
+DeltaTime: 0.0356228
+timer: 0.00381386
+timer + deltaTime: 0.0394366
+Going inside while: 1
+Entered stepMode at: 13.713
+Count: 0
+timer: 0.02277
+Count: 1
+timer: 0.00610329
+Left stepMode at: 13.713
+-----------------------------------------------------
+Loop count: 521
+DeltaTime: 0.0267998
+timer: 0.00610329
+timer + deltaTime: 0.0329031
+Going inside while: 1
+Entered stepMode at: 13.74
+Count: 0
+timer: 0.0162364
+Left stepMode at: 13.74
+-----------------------------------------------------
+Loop count: 522
+DeltaTime: 0.0349062
+timer: 0.0162364
+timer + deltaTime: 0.0511427
+Going inside while: 1
+Entered stepMode at: 13.775
+Count: 0
+timer: 0.034476
+Count: 1
+timer: 0.0178093
+Count: 2
+timer: 0.00114266
+Left stepMode at: 13.775
+-----------------------------------------------------
+Loop count: 523
+DeltaTime: 0.0220856
+timer: 0.00114266
+timer + deltaTime: 0.0232282
+Going inside while: 1
+Entered stepMode at: 13.797
+Count: 0
+timer: 0.00656157
+Left stepMode at: 13.797
+-----------------------------------------------------
+Loop count: 524
+DeltaTime: 0.0333756
+timer: 0.00656157
+timer + deltaTime: 0.0399372
+Going inside while: 1
+Entered stepMode at: 13.83
+Count: 0
+timer: 0.0232705
+Count: 1
+timer: 0.00660388
+Left stepMode at: 13.83
+-----------------------------------------------------
+Loop count: 525
+DeltaTime: 0.035259
+timer: 0.00660388
+timer + deltaTime: 0.0418629
+Going inside while: 1
+Entered stepMode at: 13.865
+Count: 0
+timer: 0.0251963
+Count: 1
+timer: 0.00852959
+Left stepMode at: 13.865
+-----------------------------------------------------
+Loop count: 526
+DeltaTime: 0.0358203
+timer: 0.00852959
+timer + deltaTime: 0.0443499
+Going inside while: 1
+Entered stepMode at: 13.901
+Count: 0
+timer: 0.0276833
+Count: 1
+timer: 0.0110166
+Left stepMode at: 13.901
+-----------------------------------------------------
+Loop count: 527
+DeltaTime: 0.0244411
+timer: 0.0110166
+timer + deltaTime: 0.0354577
+Going inside while: 1
+Entered stepMode at: 13.926
+Count: 0
+timer: 0.018791
+Count: 1
+timer: 0.00212435
+Left stepMode at: 13.926
+-----------------------------------------------------
+Loop count: 528
+DeltaTime: 0.0329632
+timer: 0.00212435
+timer + deltaTime: 0.0350875
+Going inside while: 1
+Entered stepMode at: 13.958
+Count: 0
+timer: 0.0184209
+Count: 1
+timer: 0.00175419
+Left stepMode at: 13.959
+-----------------------------------------------------
+Loop count: 529
+DeltaTime: 0.0261141
+timer: 0.00175419
+timer + deltaTime: 0.0278683
+Going inside while: 1
+Entered stepMode at: 13.985
+Count: 0
+timer: 0.0112016
+Left stepMode at: 13.985
+-----------------------------------------------------
+Loop count: 530
+DeltaTime: 0.0349409
+timer: 0.0112016
+timer + deltaTime: 0.0461425
+Going inside while: 1
+Entered stepMode at: 14.02
+Count: 0
+timer: 0.0294758
+Count: 1
+timer: 0.0128091
+Left stepMode at: 14.02
+-----------------------------------------------------
+Loop count: 531
+DeltaTime: 0.0172828
+timer: 0.0128091
+timer + deltaTime: 0.0300919
+Going inside while: 1
+Entered stepMode at: 14.037
+Count: 0
+timer: 0.0134253
+Left stepMode at: 14.038
+-----------------------------------------------------
+Loop count: 532
+DeltaTime: 0.0367967
+timer: 0.0134253
+timer + deltaTime: 0.0502219
+Going inside while: 1
+Entered stepMode at: 14.074
+Count: 0
+timer: 0.0335553
+Count: 1
+timer: 0.0168886
+Count: 2
+timer: 0.000221934
+Left stepMode at: 14.074
+-----------------------------------------------------
+Loop count: 533
+DeltaTime: 0.0344809
+timer: 0.000221934
+timer + deltaTime: 0.0347029
+Going inside while: 1
+Entered stepMode at: 14.108
+Count: 0
+timer: 0.0180362
+Count: 1
+timer: 0.00136952
+Left stepMode at: 14.108
+-----------------------------------------------------
+Loop count: 534
+DeltaTime: 0.025633
+timer: 0.00136952
+timer + deltaTime: 0.0270025
+Going inside while: 1
+Entered stepMode at: 14.134
+Count: 0
+timer: 0.0103358
+Left stepMode at: 14.134
+-----------------------------------------------------
+Loop count: 535
+DeltaTime: 0.0347516
+timer: 0.0103358
+timer + deltaTime: 0.0450874
+Going inside while: 1
+Entered stepMode at: 14.168
+Count: 0
+timer: 0.0284208
+Count: 1
+timer: 0.0117541
+Left stepMode at: 14.169
+-----------------------------------------------------
+Loop count: 536
+DeltaTime: 0.0311991
+timer: 0.0117541
+timer + deltaTime: 0.0429532
+Going inside while: 1
+Entered stepMode at: 14.2
+Count: 0
+timer: 0.0262865
+Count: 1
+timer: 0.00961988
+Left stepMode at: 14.2
+-----------------------------------------------------
+Loop count: 537
+DeltaTime: 0.033826
+timer: 0.00961988
+timer + deltaTime: 0.0434459
+Going inside while: 1
+Entered stepMode at: 14.233
+Count: 0
+timer: 0.0267792
+Count: 1
+timer: 0.0101125
+Left stepMode at: 14.234
+-----------------------------------------------------
+Loop count: 538
+DeltaTime: 0.0320375
+timer: 0.0101125
+timer + deltaTime: 0.04215
+Going inside while: 1
+Entered stepMode at: 14.266
+Count: 0
+timer: 0.0254834
+Count: 1
+timer: 0.0088167
+Left stepMode at: 14.266
+-----------------------------------------------------
+Loop count: 539
+DeltaTime: 0.0372707
+timer: 0.0088167
+timer + deltaTime: 0.0460874
+Going inside while: 1
+Entered stepMode at: 14.303
+Count: 0
+timer: 0.0294208
+Count: 1
+timer: 0.0127541
+Left stepMode at: 14.303
+-----------------------------------------------------
+Loop count: 540
+DeltaTime: 0.0323217
+timer: 0.0127541
+timer + deltaTime: 0.0450758
+Going inside while: 1
+Entered stepMode at: 14.335
+Count: 0
+timer: 0.0284091
+Count: 1
+timer: 0.0117425
+Left stepMode at: 14.335
+-----------------------------------------------------
+Loop count: 541
+DeltaTime: 0.0348049
+timer: 0.0117425
+timer + deltaTime: 0.0465473
+Going inside while: 1
+Entered stepMode at: 14.37
+Count: 0
+timer: 0.0298807
+Count: 1
+timer: 0.013214
+Left stepMode at: 14.37
+-----------------------------------------------------
+Loop count: 542
+DeltaTime: 0.0269397
+timer: 0.013214
+timer + deltaTime: 0.0401537
+Going inside while: 1
+Entered stepMode at: 14.397
+Count: 0
+timer: 0.023487
+Count: 1
+timer: 0.00682033
+Left stepMode at: 14.397
+-----------------------------------------------------
+Loop count: 543
+DeltaTime: 0.035828
+timer: 0.00682033
+timer + deltaTime: 0.0426484
+Going inside while: 1
+Entered stepMode at: 14.433
+Count: 0
+timer: 0.0259817
+Count: 1
+timer: 0.00931503
+Left stepMode at: 14.433
+-----------------------------------------------------
+Loop count: 544
+DeltaTime: 0.034037
+timer: 0.00931503
+timer + deltaTime: 0.043352
+Going inside while: 1
+Entered stepMode at: 14.467
+Count: 0
+timer: 0.0266854
+Count: 1
+timer: 0.0100187
+Left stepMode at: 14.467
+-----------------------------------------------------
+Loop count: 545
+DeltaTime: 0.0357818
+timer: 0.0100187
+timer + deltaTime: 0.0458006
+Going inside while: 1
+Entered stepMode at: 14.503
+Count: 0
+timer: 0.0291339
+Count: 1
+timer: 0.0124672
+Left stepMode at: 14.503
+-----------------------------------------------------
+Loop count: 546
+DeltaTime: 0.0309117
+timer: 0.0124672
+timer + deltaTime: 0.043379
+Going inside while: 1
+Entered stepMode at: 14.534
+Count: 0
+timer: 0.0267123
+Count: 1
+timer: 0.0100456
+Left stepMode at: 14.534
+-----------------------------------------------------
+Loop count: 547
+DeltaTime: 0.0347702
+timer: 0.0100456
+timer + deltaTime: 0.0448158
+Going inside while: 1
+Entered stepMode at: 14.568
+Count: 0
+timer: 0.0281492
+Count: 1
+timer: 0.0114825
+Left stepMode at: 14.568
+-----------------------------------------------------
+Loop count: 548
+DeltaTime: 0.0273598
+timer: 0.0114825
+timer + deltaTime: 0.0388424
+Going inside while: 1
+Entered stepMode at: 14.596
+Count: 0
+timer: 0.0221757
+Count: 1
+timer: 0.00550902
+Left stepMode at: 14.596
+-----------------------------------------------------
+Loop count: 549
+DeltaTime: 0.0354143
+timer: 0.00550902
+timer + deltaTime: 0.0409233
+Going inside while: 1
+Entered stepMode at: 14.631
+Count: 0
+timer: 0.0242566
+Count: 1
+timer: 0.00758996
+Left stepMode at: 14.631
+-----------------------------------------------------
+Loop count: 550
+DeltaTime: 0.0370821
+timer: 0.00758996
+timer + deltaTime: 0.0446721
+Going inside while: 1
+Entered stepMode at: 14.668
+Count: 0
+timer: 0.0280054
+Count: 1
+timer: 0.0113388
+Left stepMode at: 14.669
+-----------------------------------------------------
+Loop count: 551
+DeltaTime: 0.0466242
+timer: 0.0113388
+timer + deltaTime: 0.0579629
+Going inside while: 1
+Entered stepMode at: 14.715
+Count: 0
+timer: 0.0412963
+Count: 1
+timer: 0.0246296
+Count: 2
+timer: 0.00796293
+Left stepMode at: 14.715
+-----------------------------------------------------
+Loop count: 552
+DeltaTime: 0.0331454
+timer: 0.00796293
+timer + deltaTime: 0.0411083
+Going inside while: 1
+Entered stepMode at: 14.748
+Count: 0
+timer: 0.0244416
+Count: 1
+timer: 0.00777496
+Left stepMode at: 14.748
+-----------------------------------------------------
+Loop count: 553
+DeltaTime: 0.0321568
+timer: 0.00777496
+timer + deltaTime: 0.0399318
+Going inside while: 1
+Entered stepMode at: 14.78
+Count: 0
+timer: 0.0232651
+Count: 1
+timer: 0.00659846
+Left stepMode at: 14.78
+-----------------------------------------------------
+Loop count: 554
+DeltaTime: 0.0321459
+timer: 0.00659846
+timer + deltaTime: 0.0387444
+Going inside while: 1
+Entered stepMode at: 14.812
+Count: 0
+timer: 0.0220777
+Count: 1
+timer: 0.00541106
+Left stepMode at: 14.812
+-----------------------------------------------------
+Loop count: 555
+DeltaTime: 0.0325308
+timer: 0.00541106
+timer + deltaTime: 0.0379419
+Going inside while: 1
+Entered stepMode at: 14.845
+Count: 0
+timer: 0.0212752
+Count: 1
+timer: 0.00460854
+Left stepMode at: 14.845
+-----------------------------------------------------
+Loop count: 556
+DeltaTime: 0.0433776
+timer: 0.00460854
+timer + deltaTime: 0.0479862
+Going inside while: 1
+Entered stepMode at: 14.888
+Count: 0
+timer: 0.0313195
+Count: 1
+timer: 0.0146528
+Left stepMode at: 14.888
+-----------------------------------------------------
+Loop count: 557
+DeltaTime: 0.0369301
+timer: 0.0146528
+timer + deltaTime: 0.0515829
+Going inside while: 1
+Entered stepMode at: 14.925
+Count: 0
+timer: 0.0349163
+Count: 1
+timer: 0.0182496
+Count: 2
+timer: 0.00158294
+Left stepMode at: 14.925
+-----------------------------------------------------
+Loop count: 558
+DeltaTime: 0.0333134
+timer: 0.00158294
+timer + deltaTime: 0.0348964
+Going inside while: 1
+Entered stepMode at: 14.958
+Count: 0
+timer: 0.0182297
+Count: 1
+timer: 0.00156303
+Left stepMode at: 14.958
+-----------------------------------------------------
+Loop count: 559
+DeltaTime: 0.0320779
+timer: 0.00156303
+timer + deltaTime: 0.033641
+Going inside while: 1
+Entered stepMode at: 14.99
+Count: 0
+timer: 0.0169743
+Count: 1
+timer: 0.000307632
+Left stepMode at: 14.991
+-----------------------------------------------------
+Loop count: 560
+DeltaTime: 0.0298789
+timer: 0.000307632
+timer + deltaTime: 0.0301866
+Going inside while: 1
+Entered stepMode at: 15.02
+Count: 0
+timer: 0.0135199
+Left stepMode at: 15.02
+-----------------------------------------------------
+Loop count: 561
+DeltaTime: 0.032026
+timer: 0.0135199
+timer + deltaTime: 0.0455459
+Going inside while: 1
+Entered stepMode at: 15.052
+Count: 0
+timer: 0.0288792
+Count: 1
+timer: 0.0122125
+Left stepMode at: 15.053
+-----------------------------------------------------
+Loop count: 562
+DeltaTime: 0.0338305
+timer: 0.0122125
+timer + deltaTime: 0.046043
+Going inside while: 1
+Entered stepMode at: 15.086
+Count: 0
+timer: 0.0293763
+Count: 1
+timer: 0.0127097
+Left stepMode at: 15.086
+-----------------------------------------------------
+Loop count: 563
+DeltaTime: 0.037231
+timer: 0.0127097
+timer + deltaTime: 0.0499406
+Going inside while: 1
+Entered stepMode at: 15.123
+Count: 0
+timer: 0.033274
+Count: 1
+timer: 0.0166073
+Left stepMode at: 15.124
+-----------------------------------------------------
+Loop count: 564
+DeltaTime: 0.0307712
+timer: 0.0166073
+timer + deltaTime: 0.0473785
+Going inside while: 1
+Entered stepMode at: 15.154
+Count: 0
+timer: 0.0307119
+Count: 1
+timer: 0.0140452
+Left stepMode at: 15.154
+-----------------------------------------------------
+Loop count: 565
+DeltaTime: 0.0334308
+timer: 0.0140452
+timer + deltaTime: 0.047476
+Going inside while: 1
+Entered stepMode at: 15.188
+Count: 0
+timer: 0.0308093
+Count: 1
+timer: 0.0141427
+Left stepMode at: 15.188
+-----------------------------------------------------
+Loop count: 566
+DeltaTime: 0.0332345
+timer: 0.0141427
+timer + deltaTime: 0.0473772
+Going inside while: 1
+Entered stepMode at: 15.221
+Count: 0
+timer: 0.0307105
+Count: 1
+timer: 0.0140439
+Left stepMode at: 15.221
+-----------------------------------------------------
+Loop count: 567
+DeltaTime: 0.0330536
+timer: 0.0140439
+timer + deltaTime: 0.0470975
+Going inside while: 1
+Entered stepMode at: 15.254
+Count: 0
+timer: 0.0304308
+Count: 1
+timer: 0.0137641
+Left stepMode at: 15.254
+-----------------------------------------------------
+Loop count: 568
+DeltaTime: 0.0324449
+timer: 0.0137641
+timer + deltaTime: 0.046209
+Going inside while: 1
+Entered stepMode at: 15.286
+Count: 0
+timer: 0.0295423
+Count: 1
+timer: 0.0128757
+Left stepMode at: 15.286
+-----------------------------------------------------
+Loop count: 569
+DeltaTime: 0.0364445
+timer: 0.0128757
+timer + deltaTime: 0.0493202
+Going inside while: 1
+Entered stepMode at: 15.323
+Count: 0
+timer: 0.0326535
+Count: 1
+timer: 0.0159868
+Left stepMode at: 15.323
+-----------------------------------------------------
+Loop count: 570
+DeltaTime: 0.0353367
+timer: 0.0159868
+timer + deltaTime: 0.0513235
+Going inside while: 1
+Entered stepMode at: 15.358
+Count: 0
+timer: 0.0346568
+Count: 1
+timer: 0.0179902
+Count: 2
+timer: 0.0013235
+Left stepMode at: 15.358
+-----------------------------------------------------
+Loop count: 571
+DeltaTime: 0.0330876
+timer: 0.0013235
+timer + deltaTime: 0.0344111
+Going inside while: 1
+Entered stepMode at: 15.391
+Count: 0
+timer: 0.0177445
+Count: 1
+timer: 0.00107779
+Left stepMode at: 15.391
+-----------------------------------------------------
+Loop count: 572
+DeltaTime: 0.0302356
+timer: 0.00107779
+timer + deltaTime: 0.0313134
+Going inside while: 1
+Entered stepMode at: 15.421
+Count: 0
+timer: 0.0146467
+Left stepMode at: 15.421
+-----------------------------------------------------
+Loop count: 573
+DeltaTime: 0.0331441
+timer: 0.0146467
+timer + deltaTime: 0.0477908
+Going inside while: 1
+Entered stepMode at: 15.455
+Count: 0
+timer: 0.0311241
+Count: 1
+timer: 0.0144575
+Left stepMode at: 15.455
+-----------------------------------------------------
+Loop count: 574
+DeltaTime: 0.0348177
+timer: 0.0144575
+timer + deltaTime: 0.0492752
+Going inside while: 1
+Entered stepMode at: 15.489
+Count: 0
+timer: 0.0326085
+Count: 1
+timer: 0.0159418
+Left stepMode at: 15.49
+-----------------------------------------------------
+Loop count: 575
+DeltaTime: 0.0364034
+timer: 0.0159418
+timer + deltaTime: 0.0523453
+Going inside while: 1
+Entered stepMode at: 15.526
+Count: 0
+timer: 0.0356786
+Count: 1
+timer: 0.0190119
+Count: 2
+timer: 0.00234527
+Left stepMode at: 15.526
+-----------------------------------------------------
+Loop count: 576
+DeltaTime: 0.0307398
+timer: 0.00234527
+timer + deltaTime: 0.0330851
+Going inside while: 1
+Entered stepMode at: 15.557
+Count: 0
+timer: 0.0164184
+Left stepMode at: 15.557
+-----------------------------------------------------
+Loop count: 577
+DeltaTime: 0.0328817
+timer: 0.0164184
+timer + deltaTime: 0.0493001
+Going inside while: 1
+Entered stepMode at: 15.589
+Count: 0
+timer: 0.0326334
+Count: 1
+timer: 0.0159668
+Left stepMode at: 15.59
+-----------------------------------------------------
+Loop count: 578
+DeltaTime: 0.0323704
+timer: 0.0159668
+timer + deltaTime: 0.0483372
+Going inside while: 1
+Entered stepMode at: 15.622
+Count: 0
+timer: 0.0316706
+Count: 1
+timer: 0.0150039
+Left stepMode at: 15.622
+-----------------------------------------------------
+Loop count: 579
+DeltaTime: 0.0321042
+timer: 0.0150039
+timer + deltaTime: 0.0471081
+Going inside while: 1
+Entered stepMode at: 15.654
+Count: 0
+timer: 0.0304415
+Count: 1
+timer: 0.0137748
+Left stepMode at: 15.654
+-----------------------------------------------------
+Loop count: 580
+DeltaTime: 0.0302016
+timer: 0.0137748
+timer + deltaTime: 0.0439764
+Going inside while: 1
+Entered stepMode at: 15.684
+Count: 0
+timer: 0.0273097
+Count: 1
+timer: 0.0106431
+Left stepMode at: 15.684
+-----------------------------------------------------
+Loop count: 581
+DeltaTime: 0.0366799
+timer: 0.0106431
+timer + deltaTime: 0.047323
+Going inside while: 1
+Entered stepMode at: 15.721
+Count: 0
+timer: 0.0306563
+Count: 1
+timer: 0.0139896
+Left stepMode at: 15.721
+-----------------------------------------------------
+Loop count: 582
+DeltaTime: 0.0357421
+timer: 0.0139896
+timer + deltaTime: 0.0497317
+Going inside while: 1
+Entered stepMode at: 15.757
+Count: 0
+timer: 0.033065
+Count: 1
+timer: 0.0163984
+Left stepMode at: 15.757
+-----------------------------------------------------
+Loop count: 583
+DeltaTime: 0.0320773
+timer: 0.0163984
+timer + deltaTime: 0.0484757
+Going inside while: 1
+Entered stepMode at: 15.789
+Count: 0
+timer: 0.031809
+Count: 1
+timer: 0.0151423
+Left stepMode at: 15.789
+-----------------------------------------------------
+Loop count: 584
+DeltaTime: 0.0293664
+timer: 0.0151423
+timer + deltaTime: 0.0445087
+Going inside while: 1
+Entered stepMode at: 15.818
+Count: 0
+timer: 0.0278421
+Count: 1
+timer: 0.0111754
+Left stepMode at: 15.818
+-----------------------------------------------------
+Loop count: 585
+DeltaTime: 0.032212
+timer: 0.0111754
+timer + deltaTime: 0.0433874
+Going inside while: 1
+Entered stepMode at: 15.85
+Count: 0
+timer: 0.0267207
+Count: 1
+timer: 0.0100541
+Left stepMode at: 15.85
+-----------------------------------------------------
+Loop count: 586
+DeltaTime: 0.0358672
+timer: 0.0100541
+timer + deltaTime: 0.0459212
+Going inside while: 1
+Entered stepMode at: 15.886
+Count: 0
+timer: 0.0292546
+Count: 1
+timer: 0.0125879
+Left stepMode at: 15.886
+-----------------------------------------------------
+Loop count: 587
+DeltaTime: 0.0370802
+timer: 0.0125879
+timer + deltaTime: 0.0496681
+Going inside while: 1
+Entered stepMode at: 15.923
+Count: 0
+timer: 0.0330014
+Count: 1
+timer: 0.0163348
+Left stepMode at: 15.923
+-----------------------------------------------------
+Loop count: 588
+DeltaTime: 0.0284484
+timer: 0.0163348
+timer + deltaTime: 0.0447832
+Going inside while: 1
+Entered stepMode at: 15.952
+Count: 0
+timer: 0.0281165
+Count: 1
+timer: 0.0114499
+Left stepMode at: 15.952
+-----------------------------------------------------
+Loop count: 589
+DeltaTime: 0.0317694
+timer: 0.0114499
+timer + deltaTime: 0.0432193
+Going inside while: 1
+Entered stepMode at: 15.983
+Count: 0
+timer: 0.0265526
+Count: 1
+timer: 0.00988592
+Left stepMode at: 15.983
+-----------------------------------------------------
+Loop count: 590
+DeltaTime: 0.0319336
+timer: 0.00988592
+timer + deltaTime: 0.0418195
+Going inside while: 1
+Entered stepMode at: 16.015
+Count: 0
+timer: 0.0251528
+Count: 1
+timer: 0.00848618
+Left stepMode at: 16.016
+-----------------------------------------------------
+Loop count: 591
+DeltaTime: 0.0326104
+timer: 0.00848618
+timer + deltaTime: 0.0410965
+Going inside while: 1
+Entered stepMode at: 16.048
+Count: 0
+timer: 0.0244299
+Count: 1
+timer: 0.00776321
+Left stepMode at: 16.048
+-----------------------------------------------------
+Loop count: 592
+DeltaTime: 0.0296858
+timer: 0.00776321
+timer + deltaTime: 0.0374491
+Going inside while: 1
+Entered stepMode at: 16.077
+Count: 0
+timer: 0.0207824
+Count: 1
+timer: 0.00411572
+Left stepMode at: 16.078
+-----------------------------------------------------
+Loop count: 593
+DeltaTime: 0.0356805
+timer: 0.00411572
+timer + deltaTime: 0.0397962
+Going inside while: 1
+Entered stepMode at: 16.113
+Count: 0
+timer: 0.0231296
+Count: 1
+timer: 0.00646288
+Left stepMode at: 16.114
+-----------------------------------------------------
+Loop count: 594
+DeltaTime: 0.0444964
+timer: 0.00646288
+timer + deltaTime: 0.0509593
+Going inside while: 1
+Entered stepMode at: 16.158
+Count: 0
+timer: 0.0342926
+Count: 1
+timer: 0.0176259
+Count: 2
+timer: 0.000959261
+Left stepMode at: 16.158
+-----------------------------------------------------
+Loop count: 595
+DeltaTime: 0.0354348
+timer: 0.000959261
+timer + deltaTime: 0.0363941
+Going inside while: 1
+Entered stepMode at: 16.193
+Count: 0
+timer: 0.0197274
+Count: 1
+timer: 0.00306074
+Left stepMode at: 16.193
+-----------------------------------------------------
+Loop count: 596
+DeltaTime: 0.0354348
+timer: 0.00306074
+timer + deltaTime: 0.0384955
+Going inside while: 1
+Entered stepMode at: 16.222
+Count: 0
+timer: 0.0218289
+Count: 1
+timer: 0.00516221
+Left stepMode at: 16.222
 -----------------------------------------------------
