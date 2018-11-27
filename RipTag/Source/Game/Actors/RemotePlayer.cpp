@@ -359,7 +359,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
-		stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
+		auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
+		throwEndState->SetBlendTime(0.05);
 		//set initial state
 		stateMachine->SetState("walk_forward");
 	}

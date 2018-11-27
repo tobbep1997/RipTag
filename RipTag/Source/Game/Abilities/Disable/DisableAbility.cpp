@@ -175,11 +175,18 @@ void DisableAbility::_logicRemote(double dt, Camera * camera)
 
 void DisableAbility::_inStateThrowable()
 {
+	using namespace Network;
 	if (isLocal)
 	{
 		if (!m_canceled && ((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
 		{
-			
+
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			m_dState = DisableAbility::Charging;
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
@@ -194,6 +201,7 @@ void DisableAbility::_inStateThrowable()
 
 void DisableAbility::_inStateCharging(double dt)
 {
+	using namespace Network;
 	if (isLocal)
 	{
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
@@ -214,6 +222,13 @@ void DisableAbility::_inStateCharging(double dt)
 		if (Input::OnAbility2Released())
 		{
 			m_dState = DisableState::Moving;
+
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
