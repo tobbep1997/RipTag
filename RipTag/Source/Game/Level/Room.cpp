@@ -635,9 +635,9 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 				propsAndAssets.props[i].transform_rotation[0],
 				propsAndAssets.props[i].transform_rotation[1],
 				propsAndAssets.props[i].transform_rotation[2],
-				propsAndAssets.props[i].BBOX_INFO[0],
-				propsAndAssets.props[i].BBOX_INFO[1],
-				propsAndAssets.props[i].BBOX_INFO[2],
+				propsAndAssets.props[i].BBOX_INFO[0] * propsAndAssets.props[i].transform_scale[0],
+				propsAndAssets.props[i].BBOX_INFO[1] * propsAndAssets.props[i].transform_scale[1],
+				propsAndAssets.props[i].BBOX_INFO[2] * propsAndAssets.props[i].transform_scale[2],
 				propsAndAssets.props[i].transform_scale[0],
 				propsAndAssets.props[i].transform_scale[1],
 				propsAndAssets.props[i].transform_scale[2]);
@@ -735,7 +735,10 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false, false);
 			break;
 		case(37):
-			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, true, false);
+			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, false, false);
+			break;
+		case(38):
+			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", &m_staticAssets, true, false);
 			break;
 		default:
 			break;
@@ -746,9 +749,12 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox, bool isRandomRoom)
 {
 	BaseActor * tempAsset = DBG_NEW BaseActor();
-	Manager::g_meshManager.loadStaticMesh(name);
-	Manager::g_textureManager.loadTextures(name);
-	if (name != "INVISIBLEGRIDBLOCKER")
+	if (name != "COLLISIONBOXASPROP")
+	{
+		Manager::g_meshManager.loadStaticMesh(name);
+		Manager::g_textureManager.loadTextures(name);
+	}
+	if (name != "INVISIBLEGRIDBLOCKER" && name != "COLLISIONBOXASPROP")
 	{
 		tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
 		tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
@@ -777,6 +783,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
 	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
 	
+
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	
 	if(moveBox == true && isRandomRoom == true)

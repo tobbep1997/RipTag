@@ -69,6 +69,7 @@ void RoomGenerator::_generateGrid()
 	base->Init(*m_worldPtr, e_staticBody);
 	Manager::g_textureManager.loadTextures("RED");
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
+
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -76,22 +77,34 @@ void RoomGenerator::_generateGrid()
 			bool col = false;
 			int index = i + j * iterationsWidth;
 			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
-			float changeX = 0;
-			float changeY = 0;
 			bool placed = false;
-			for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
+			for (size_t a = 0; a < 10; a++)
 			{
-				if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x + changeX, 0.8, node.worldPos.y + changeY))))
+				for (size_t b = 0; b < 10; b++)
 				{
-					m_generatedGrid->BlockGridTile(index, false);
-					asset = new BaseActor();
-					asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-					asset->setTexture(Manager::g_textureManager.getTexture("RED"));
-					asset->setPosition(node.worldPos.x, 8, node.worldPos.y, false);
-					m_generated_assetVector.push_back(asset);
-					break;
+					for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
+					{
+						float offX = 0.1 * (float)a;
+						float offY = 0.1 * (float)b;
+
+						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
+						{
+							m_generatedGrid->BlockGridTile(index, false);
+							asset = new BaseActor();
+							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
+							asset->setPosition(node.worldPos.x, 1, node.worldPos.y, false);
+							m_generated_assetVector.push_back(asset);
+							col = true;
+							break;
+						}
+					}
+					if (col == true)
+						break;
 				}
-			}
+				if (col == true)
+					break;
+			}		
 		}
 	}
 	
@@ -119,13 +132,15 @@ void RoomGenerator::_generateGrid()
 void RoomGenerator::_makeFloor()
 {
 	asset = DBG_NEW BaseActor();
+		m_roomDepth = (incrementalValueY * m_roomGridDepth) / 2.0f;
+	m_roomWidth = (incrementalValueX * m_roomGridWidth) / 2.0f;
 	asset->Init(*m_worldPtr, e_staticBody, m_roomWidth * 2, 0.5, m_roomDepth * 2);
 	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 	asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
 	asset->setTextureTileMult(m_roomWidth, m_roomDepth);
 	asset->setPosition(0, 0, 0);
 	
-	asset->setScale(abs(m_roomWidth*2), 1, abs(m_roomDepth* 2));
+	asset->setScale(m_roomWidth * 2, 1, m_roomDepth * 2);
 	asset->setObjectTag("FLOOOOOOR");
 	m_generated_assetVector.push_back(asset);
 }
@@ -478,10 +493,9 @@ void RoomGenerator::_createEntireWorld()
 						tempProps.props[k].transform_position[0] = j + tempProps.props[k].transform_position[0] + BigRoomAddX;
 						tempProps.props[k].transform_position[2] = i + tempProps.props[k].transform_position[2] + BigRoomAddZ;
 					}
-
-					_modifyPropBoundingBoxes(tempProps.props[k]);
-					/*DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(tempProps.props[k].transform_position), DirectX::XMFLOAT3(tempProps.props[k].BBOX_INFO));
-					m_generated_boundingBoxes.push_back(bb);*/
+					if(tempProps.props[k].typeOfProp != 11 
+						&& tempProps.props[k].typeOfProp != 16)
+						_modifyPropBoundingBoxes(tempProps.props[k]);
 				}
 				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
 				delete tempProps.props;
@@ -495,27 +509,42 @@ void RoomGenerator::_createEntireWorld()
 
 #pragma region ColissionBoxes
 
-			asset = DBG_NEW BaseActor();
+			
+				asset = DBG_NEW BaseActor();
 
-			ImporterLibrary::CollisionBoxes boxes = loader.readMeshCollisionBoxes(MODNAMESTRING);
-			for (unsigned int k = 0; k < boxes.nrOfBoxes; k++)
-			{
-				if (isRotated == true)
+				ImporterLibrary::CollisionBoxes boxes = loader.readMeshCollisionBoxes(MODNAMESTRING);
+				for (unsigned int k = 0; k < boxes.nrOfBoxes; k++)
 				{
-					float tempPosX = tempLights.lights[k].translate[0];
-					boxes.boxes[k].translation[1] += 90.f;
-					boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[2];
-					boxes.boxes[k].translation[2] = i + 10 + tempPosX;
+				/*	for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+					{
+						float xPos = modCollisionBoxes.boxes[h].translation[0] + j;
+						float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
+						float zPos = modCollisionBoxes.boxes[h].translation[2] + i + 10.f;
+						DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[0] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[2] * 0.5));
+
+						m_generated_boundingBoxes.push_back(bb);
+					}
+*/
+					if (isRotated == true)
+					{
+						float tempPosX = tempLights.lights[k].translate[0];
+						boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[2];
+						boxes.boxes[k].translation[2] = i + 10 + tempPosX;
+					}
+					else
+					{
+						boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[0] + BigRoomAddX;
+						boxes.boxes[k].translation[2] = i + boxes.boxes[k].translation[2] + BigRoomAddZ;
+					}
+
+					//DirectX::XMMATRIX worldMatrix = DirectX::xmmatrixt;
+					DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(boxes.boxes[k].translation), DirectX::XMFLOAT3(boxes.boxes[k].scale));
+
+					m_generated_boundingBoxes.push_back(bb);
 				}
-				else
-				{
-					boxes.boxes[k].translation[0] = j + boxes.boxes[k].translation[0] + BigRoomAddX;
-					boxes.boxes[k].translation[2] = i + boxes.boxes[k].translation[2] + BigRoomAddZ;
-				}
-			}
-			asset->Init(*m_worldPtr, boxes);
-			m_generated_assetVector.push_back(asset);
-			delete[] boxes.boxes;
+				asset->Init(*m_worldPtr, boxes);
+				m_generated_assetVector.push_back(asset);
+				delete[] boxes.boxes;
 			
 
 
@@ -627,16 +656,25 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 	DirectX::XMMATRIX matrixRotation;
 	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_rotation));
 	matrixRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
-	
 
+	float newScale[3];
 	DirectX::XMMATRIX matrixScale;
-	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_scale));
+	for (int i = 0; i < 3; i++)
+	{
+		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
+	}
+	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
 	matrixScale = DirectX::XMMatrixScalingFromVector(scale);
 
 	DirectX::XMMATRIX worldMatrix = matrixScale * matrixRotation* matrixTranslation;
+
+	DirectX::XMMatrixDecompose(&scale, &rotation, &translation, worldMatrix);
+
+	
+	
 	//DirectX::XMMATRIX worldMatrix = DirectX::xmmatrixt;
-	DirectX::BoundingBox * bb = new DirectX::BoundingBox;// = new DirectX::BoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1));
-	bb->Transform(*bb, worldMatrix);
+	DirectX::BoundingBox * bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(newScale[0], newScale[1], newScale[2]));// = new DirectX::BoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1));
+	bb->Transform(*bb, 1, rotation, translation);
 	m_generated_boundingBoxes.push_back(bb);
 
 }
