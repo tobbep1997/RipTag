@@ -661,6 +661,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("FIRE");
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
+	Manager::g_textureManager.loadTextures("PLAYER1");
 
 
 }
