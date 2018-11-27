@@ -273,10 +273,7 @@ void LobbyState::Update(double deltaTime)
 
 						pNetwork->setRole((int)Role::Server);
 						srand(pCoopData->seed);
-						std::ofstream lol;
-						lol.open("SEEED_SERVER.txt");
-						lol << pCoopData->seed << std::endl;
-						lol.close();
+						
 						isReady = false;
 						isRemoteReady = false;
 
@@ -1300,10 +1297,6 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	pNetwork->setRole((int)Role::Client);
 
 	srand(pCoopData->seed);
-	std::ofstream lol;
-	lol.open("SEEED_CLIENT.txt");
-	lol << pCoopData->seed << std::endl;
-	lol.close();
 
 	isReady = false;
 	isRemoteReady = false;

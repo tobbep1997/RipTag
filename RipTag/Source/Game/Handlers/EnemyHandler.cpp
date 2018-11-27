@@ -237,9 +237,20 @@ int EnemyHandler::_getRemotePlayerVisibility(Enemy * guard)
 void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 {
 	//unsafe lol
-	m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
+	
+	for (auto & g : m_guards)
+	{
+		if (g->getUniqueID() == data->uniqueID)
+		{
+			g->setCalculatedVisibilityFor(1, data->visibilityValue);
+			g->setSoundLocationRemote({ data->soundValue, data->soundPos });
+			break;
+		}
+	}
+
+	/*m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
 	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos}
-	);
+	);*/
 }
 
 void EnemyHandler::_onPossessedPacket(Network::ENTITYSTATEPACKET * data)
