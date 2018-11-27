@@ -1,0 +1,108 @@
+Entered spinlock at: 56.282
+Spinlock: 0 times spun
+timer: 0.0263296
+Spinlock: 1 times spun
+timer: 0.0263296
+Spinlock: 2 times spun
+timer: 0.0263296
+Spinlock: 3 times spun
+timer: 0.0263296
+Spinlock: 4 times spun
+timer: 0.0263296
+Spinlock: 5 times spun
+timer: 0.0263296
+Spinlock: 6 times spun
+timer: 0.0263296
+Spinlock: 7 times spun
+timer: 0.0263296
+Spinlock: 8 times spun
+timer: 0.0263296
+Spinlock: 9 times spun
+timer: 0.0263296
+Spinlock: 10 times spun
+timer: 0.0263296
+Spinlock: 11 times spun
+timer: 0.0263296
+Spinlock: 12 times spun
+timer: 0.0263296
+Spinlock: 13 times spun
+timer: 0.0263296
+Spinlock: 14 times spun
+timer: 0.0263296
+Spinlock: 15 times spun
+timer: 0.0263296
+Spinlock: 16 times spun
+timer: 0.0263296
+Spinlock: 17 times spun
+timer: 0.0263296
+Spinlock: 18 times spun
+timer: 0.0263296
+Spinlock: 19 times spun
+timer: 0.0263296
+Spinlock: 20 times spun
+timer: 0.0263296
+Spinlock: 21 times spun
+timer: 0.0263296
+Spinlock: 22 times spun
+timer: 0.0263296
+Spinlock: 23 times spun
+timer: 0.0263296
+Spinlock: 24 times spun
+timer: 0.0263296
+Spinlock: 25 times spun
+timer: 0.0263296
+Spinlock: 26 times spun
+timer: 0.0263296
+Spinlock: 27 times spun
+timer: 0.0263296
+Spinlock: 28 times spun
+timer: 0.0263296
+Spinlock: 29 times spun
+timer: 0.0263296
+Spinlock: 30 times spun
+timer: 0.00966296
+Spinlock: 31 times spun
+timer: 0.00966296
+Spinlock: 32 times spun
+timer: 0.00966296
+Spinlock: 33 times spun
+timer: 0.00966296
+Spinlock: 34 times spun
+timer: 0.00966296
+Spinlock: 35 times spun
+timer: 0.00966296
+Spinlock: 36 times spun
+timer: 0.00966296
+Spinlock: 37 times spun
+timer: 0.00966296
+Spinlock: 38 times spun
+timer: 0.00966296
+Spinlock: 39 times spun
+timer: 0.00966296
+Spinlock: 40 times spun
+timer: 0.00966296
+Spinlock: 41 times spun
+timer: 0.00966296
+Spinlock: 42 times spun
+timer: 0.00966296
+Spinlock: 43 times spun
+timer: 0.00966296
+Spinlock: 44 times spun
+timer: 0.00966296
+Spinlock: 45 times spun
+timer: 0.00966296
+Spinlock: 46 times spun
+timer: 0.00966296
+Spinlock: 47 times spun
+timer: 0.00966296
+Spinlock: 48 times spun
+timer: 0.00966296
+Spinlock: 49 times spun
+timer: 0.00966296
+Spinlock: 50 times spun
+timer: 0.00966296
+Spinlock: 51 times spun
+timer: 0.00966296
+Spinlock: 52 times spun
+timer: 0.00966296
+Left spinlock at: 56.292
