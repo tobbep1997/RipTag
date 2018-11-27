@@ -118,6 +118,19 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
 
+		std::ofstream nodePath;
+		nodePath.open("nP.txt");
+		nodePath << "Original source: " << source.getX() << " : " << source.getY() <<
+			" Original destination " << destination.getX() << " : " << destination.getY() << "\n";
+		for (int i = 0; i < roomNodePath.size(); i++)
+		{
+			nodePath << "TileX: " << roomNodePath[i]->tile.getX() <<
+				" TileY: " << roomNodePath[i]->tile.getY() <<
+				"\nWorldX: " << roomNodePath[i]->worldPos.x <<
+				" WorldY: " << roomNodePath[i]->worldPos.y << "\n\n";
+		}
+		nodePath.close();
+
 		_removeAllCenterTiles(roomNodePath);
 
 		// A* in each room to get to the next
@@ -578,8 +591,14 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 		tilePairs << "Source: " << gtp[i].source.getX() << " " <<
 			gtp[i].source.getY() << "\n" <<
 			"Destination: " << gtp[i].destination.getX() << " " <<
-			gtp[i].destination.getY() << "\n";
+			gtp[i].destination.getY() << "\nWorldX: " <<
+			m_nodeMap[gtp[i].source.getX() + gtp[i].source.getY() * m_width].worldPos.x <<
+			" WorldY: " <<
+			m_nodeMap[gtp[i].source.getX() + gtp[i].source.getY() * m_width].worldPos.y
+			<< "\n\n";
 	}
+	tilePairs.close();
+
 	return gtp;
 }
 
