@@ -32,6 +32,11 @@ public:
 	static bool IsYPressed();
 	static bool IsXPressed();
 
+	static bool IsAReleased();
+	static bool IsBReleased();
+	static bool IsYReleased();
+	static bool IsXReleased();
+
 	static float GetLeftStickYPosition();
 	static float GetLeftStickXPosition();
 
