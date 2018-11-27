@@ -780,8 +780,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	
-	if(moveBox == true && isRandomRoom == true)
-		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
+
 	if(name == "BANNER")
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 
