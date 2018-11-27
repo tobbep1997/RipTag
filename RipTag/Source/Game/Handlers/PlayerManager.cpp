@@ -88,7 +88,6 @@ void PlayerManager::_onRemotePlayerDisconnect(unsigned char id, unsigned char * 
 	}
 }
 
-
 void PlayerManager::Init(b3World * physWorld)
 {
 	this->mWorld = physWorld;
@@ -153,7 +152,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 	{
 		hasLocalPlayer = true;
 		mLocalPlayer = new Player();
-		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 0.5f, 1.52f, 0.5f);
+		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 0.5f, 1.0f, 0.5f);
 		mLocalPlayer->setEntityType(EntityType::PlayerType);
 		mLocalPlayer->setColor(1.f, 1.f, 1.f, 1.f);
 		//this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
