@@ -20,7 +20,7 @@ ParticleEmitter::ParticleEmitter()
 	minMaxLife = DirectX::XMINT2{ 0, 1 };
 	spawnSpread = DirectX::XMINT2{ 0, 0 };
 
-	setSmoke();
+	//setSmoke();
 	InitializeBuffer();
 }
 
