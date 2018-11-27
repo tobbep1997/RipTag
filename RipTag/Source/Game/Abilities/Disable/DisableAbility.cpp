@@ -270,7 +270,7 @@ void DisableAbility::_inStateMoving(double dt)
 					Enemy * ptr = static_cast<Enemy*>(contact.b->GetBody()->GetUserData());
 					if (ptr)
 					{
-						if (ptr->getAIState() != AIState::Possessed)
+						if (ptr->getAIState() != AIState::Possessed && !ptr->ClientLocked())
 						{
 							m_hasHit = true; 
 							m_isActive = true; 
