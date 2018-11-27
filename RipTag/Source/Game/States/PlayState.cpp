@@ -65,6 +65,7 @@ void PlayState::Update(double deltaTime)
 		while (m_physRunning)
 		{
 			int i = 0;
+			phy << "SPIN LOCK" << std::endl;
 		}
 
 		if (RipExtern::g_kill == true)
@@ -254,10 +255,12 @@ void PlayState::_PhyscisThread(double deltaTime)
 		while (m_timer >= UPDATE_TIME)
 		{
 			m_timer -= UPDATE_TIME;
+			phy << m_timer << std::endl;
 		}
 		RipExtern::g_rayListener->ShotRays();
 		m_physRunning = false;
 	}
+	phy.close();
 }
 
 void PlayState::_audioAgainstGuards(double deltaTime)
@@ -600,6 +603,8 @@ void PlayState::Load()
 	std::cout << "PlayState Load" << std::endl;
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
+
+	phy.open("physData.txt");
 	
 	if (isCoop)
 	{
