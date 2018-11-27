@@ -90,9 +90,13 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	_handleMouseInput();
-	_handleKeyboardInput();
-	_handleGamePadInput();
+	if (InputHandler::mouseMoved() || InputHandler::isMouseLeftPressed())
+		_handleMouseInput();
+	else
+	{
+		_handleKeyboardInput();
+		_handleGamePadInput();
+	}
 
 	
 
@@ -995,9 +999,12 @@ void LobbyState::_mouseMainLobby()
 				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
 				m_currentButton = i;
 			}
-			//set this button to current and on hover state
-			m_lobbyButtons[i]->Select(true);
-			m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			else
+			{
+				//set this button to current and on hover state
+				m_lobbyButtons[i]->Select(true);
+				m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			}
 			//check if we released this button
 			if (m_lobbyButtons[i]->isReleased(mousePos))
 			{

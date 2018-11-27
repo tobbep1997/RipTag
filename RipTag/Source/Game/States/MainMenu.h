@@ -39,7 +39,7 @@ private:
 	void _initButtons();
 	void _handleGamePadInput();
 	void _handleKeyboardInput();
-	void _handleMouseInput();
+	bool _handleMouseInput();
 	void _updateSelectionStates();
 	void _resetButtons();
 
