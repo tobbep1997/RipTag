@@ -94,6 +94,8 @@ void LobbyState::Update(double deltaTime)
 	_handleKeyboardInput();
 	_handleGamePadInput();
 
+	
+
 	if (!isHosting && !hasJoined && !inServerList)
 	{
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
@@ -273,7 +275,7 @@ void LobbyState::Update(double deltaTime)
 
 						pNetwork->setRole((int)Role::Server);
 						srand(pCoopData->seed);
-
+						
 						isReady = false;
 						isRemoteReady = false;
 
@@ -549,7 +551,14 @@ void LobbyState::_handleGamePadInput()
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
 			this->_gamePadCharSelection();
+
+		if (GamePadHandler::IsBPressed())
+		{
+			this->setKillState(true);
+		}
 	}
+
+
 }
 
 void LobbyState::_handleKeyboardInput()
@@ -1413,7 +1422,7 @@ void LobbyState::Load()
 	this->pNetwork->StartUpPeer();
 	this->m_MySysAdress = pNetwork->GetMySysAdress();
 	//INITIAL RANDOM HOST NAME
-	srand(time(0));
+	//srand(time(0));
 	this->m_MyHostName = "Host:" + std::to_string(rand());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 

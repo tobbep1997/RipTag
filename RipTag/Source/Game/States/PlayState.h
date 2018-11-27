@@ -9,6 +9,8 @@
 #include "Source/Game/Item/Rock.h"
 #include "Helper/RandomRoomPicker.h"
 #include <fstream>
+#include "Source/Timer/DeltaTime.h"
+#include <mutex>
 namespace FMOD
 {
 	class Channel;
@@ -71,6 +73,8 @@ private:
 	const double	UPDATE_TIME = 1.0 / 60.0;
 	double			m_timer = 0.0f;
 	int m_rayId = -100;
+
+	std::mutex m_physThreadRun;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();

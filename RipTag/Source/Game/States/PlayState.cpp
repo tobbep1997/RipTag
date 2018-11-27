@@ -61,11 +61,14 @@ void PlayState::Update(double deltaTime)
 		InputMapping::Call();
 
 		m_firstRun = false;
-		
-		while (m_physRunning)
+
+		//m_physRunning
+		m_physThreadRun.lock();
+		m_physThreadRun.unlock();
+		/*while (m_physRunning)
 		{
 			int i = 0;
-		}
+		}*/
 
 		if (RipExtern::g_kill == true)
 		{
@@ -84,6 +87,9 @@ void PlayState::Update(double deltaTime)
 			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
 			return;
 		}
+		/*
+		 * Fake Spin Lock
+		 */
 		
 		//Handle all packets
 		RipExtern::g_kill = false;
@@ -232,24 +238,29 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
+	static DeltaTime dt;
 	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
 	{
 		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
 	}
 
+	static int counter = 0;
+	dt.Init();
 	while (m_destoryPhysicsThread == false)
 	{
+		
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 
-		m_physRunning = true;
-
+		//m_physRunning = true;
+		m_physThreadRun.lock();
 		if (RipExtern::g_kill == true)
 		{
 			return;
 		}
 		
-		m_timer += m_deltaTime;
+		m_timer += dt.getDeltaTimeInSeconds();
+		
 		RipExtern::g_contactListener->ClearContactQueue();
 		
 		while (m_timer >= UPDATE_TIME)
@@ -258,7 +269,8 @@ void PlayState::_PhyscisThread(double deltaTime)
 			m_timer -= UPDATE_TIME;
 		}
 		RipExtern::g_rayListener->ShotRays();
-		m_physRunning = false;
+		m_physThreadRun.unlock();
+		//m_physRunning = false;
 	}
 	
 }
