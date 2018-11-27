@@ -181,6 +181,34 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	{
+		ContactListener::S_Contact con = RipExtern::g_contactListener->GetBeginContact(i);
+		b3Shape * shapeA = con.a;
+		b3Shape * shapeB = con.b;
+		if (shapeA && shapeB)
+		{
+			b3Body * bodyA = shapeA->GetBody();
+			b3Body * bodyB = shapeB->GetBody();
+
+			if (bodyA && bodyB)
+			{
+				std::string objectTagA = bodyA->GetObjectTag();
+				std::string objectTagB = bodyB->GetObjectTag();
+
+				if ((objectTagA == "PLAYER" && objectTagB == "ENEMY") || (objectTagA == "ENEMY" && objectTagB == "PLAYER"))
+				{
+
+					{
+						m_visCounter = 100000.0f;
+						m_found = true;
+
+					}
+				}
+			}
+		}
+	}
+
 	if (pEmitter)
 	{
 		if (pEmitter->emitterActiv)
