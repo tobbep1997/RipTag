@@ -181,7 +181,7 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		ContactListener::S_Contact con = RipExtern::g_contactListener->GetBeginContact(i);
 		b3Shape * shapeA = con.a;
