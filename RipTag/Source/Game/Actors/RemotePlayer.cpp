@@ -353,7 +353,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 			SM::COMPARISON_INSIDE_RANGE //comparision condition
 		);
 
-		auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_READY_ANIMATION").get();
+		auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_BEGIN_ANIMATION").get();
 		auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
 
