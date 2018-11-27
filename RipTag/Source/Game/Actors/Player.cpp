@@ -8,6 +8,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 {
 	Manager::g_textureManager.loadTextures("CROSS");
 	Manager::g_textureManager.loadTextures("CROSSHAND");
+	Manager::g_textureManager.loadTextures("CROSSPHASE");
+	Manager::g_textureManager.loadTextures("CROSSPOSSESS");
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("WHITE");
@@ -683,7 +685,7 @@ void Player::_handleInput(double deltaTime)
 	_onInteract();
 	_onPeak(deltaTime);
 	_onRotate(deltaTime);
-	/*_objectInfo(deltaTime);*/
+	_objectInfo(deltaTime);
 }
 
 void Player::_onMovement(double deltaTime)
@@ -1085,71 +1087,81 @@ void Player::_objectInfo(double deltaTime)
 {
 	//if (m_tutorialActive)
 	//{
-	//	const int tempId = m_objectInfoRayId;
-	//	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
-	//	{
-	//		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
-	//		RayCastListener::RayContact* cContact = ray->getClosestContact();
-	//		RayCastListener::RayContact* cContact2 = cContact;
-	//		float interactFractionRange = Player::INTERACT_RANGE / 10;
-	//		if (ray->getNrOfContacts() >= 2)
-	//			cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+		const int tempId = m_objectInfoRayId;
+		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
+		{
+			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
+			RayCastListener::RayContact* cContact = ray->getClosestContact();
+			RayCastListener::RayContact* cContact2 = cContact;
+			float interactFractionRange = Player::INTERACT_RANGE / 10;
+			if (ray->getNrOfContacts() >= 2)
+				cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-	//		if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
-	//		{
-	//			m_cross->setUnpressedTexture("CROSSHAND");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-	//		}
-	//		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
-	//		{
-	//			m_cross->setUnpressedTexture("CROSSHAND");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-	//		}
-	//		else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH")
-	//		{
-	//			m_cross->setUnpressedTexture("CROSSHAND");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-	//			//Snuff out torches
-	//		}
-	//		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
-	//		{
-	//			m_cross->setUnpressedTexture("CROSSHAND");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-	//		}
-	//		else if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY"  && m_activeSetID == 2)
-	//		{
-	//			m_cross->setUnpressedTexture("CROSSHAND");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-	//		}
-	//		else if ((cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" || cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL") && m_activeSetID == 2)
-	//		{
-	//			if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-	//				m_infoText->setString("Press RB to pass");
-	//			m_cross->setUnpressedTexture("CROSSHAND");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-	//		}
-	//		else
-	//		{
-	//			m_infoText->setString("");
-	//			m_cross->setUnpressedTexture("CROSS");
-	//			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-	//		}
-	//	}
-	//	else if (tempId != m_objectInfoRayId)
-	//	{
-	//		m_infoText->setString("");
-	//		m_cross->setUnpressedTexture("CROSS");
-	//		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-	//	}
+			if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH"&& cContact->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+				//Snuff out torches
+			}
+			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+			{
+				m_cross->setUnpressedTexture("CROSSHAND");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			}
+			else if (m_activeSetID == 2)
+			{
+				if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				{
+					m_cross->setUnpressedTexture("CROSSPOSSESS");
+					m_cross->setScale(DirectX::XMFLOAT2A(1.2f / 16.0, 1.2f / 9.0f));
+				}
+				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= interactFractionRange)
+				{
+					//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+						//m_infoText->setString("Press RB to pass");
+					m_cross->setUnpressedTexture("CROSSPHASE");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
+				}
+				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact2->fraction <= interactFractionRange)
+				{
+					//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+						//m_infoText->setString("Press RB to pass");
+					m_cross->setUnpressedTexture("CROSSPHASE");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
+				}
+			}
+			else
+			{
+				//m_infoText->setString("");
+				m_cross->setUnpressedTexture("CROSS");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+			}
+		}
+		else if (tempId != m_objectInfoRayId)
+		{
+			//m_infoText->setString("");
+			m_cross->setUnpressedTexture("CROSS");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+		}
 
-	//	if (m_objectInfoTime >= 0.1f)
-	//	{
-	//		if(m_objectInfoRayId == -100)
-	//			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 5);
-	//		
-	//		m_objectInfoTime = 0;
-	//	}
-	//	m_objectInfoTime += deltaTime;
+		if (m_objectInfoTime >= 0.1f)
+		{
+			if(m_objectInfoRayId == -100)
+				m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+			
+			m_objectInfoTime = 0;
+		}
+		m_objectInfoTime += deltaTime;
 	//}
 }
 
