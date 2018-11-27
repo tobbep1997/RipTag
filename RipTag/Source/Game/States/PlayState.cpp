@@ -61,11 +61,7 @@ void PlayState::Update(double deltaTime)
 		InputMapping::Call();
 
 		m_firstRun = false;
-		
-		while (m_physRunning)
-		{
-			int i = 0;
-		}
+
 
 		if (RipExtern::g_kill == true)
 		{
@@ -676,6 +672,7 @@ void PlayState::_loadMeshes()
 	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("PLAYER1");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
@@ -698,6 +695,10 @@ void PlayState::_loadAnimations()
 	//Guard
 	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
 	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
+
+	//Player1
+	Manager::g_animationManager.loadSkeleton("../Assets/PLAYER1FOLDER/PLAYER1_SKELETON.bin", "PLAYER1");
+	Manager::g_animationManager.loadClipCollection("PLAYER1", "PLAYER1", "../Assets/PLAYER1FOLDER", Manager::g_animationManager.getSkeleton("PLAYER1"));
 }
 
 void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)
