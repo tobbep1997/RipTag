@@ -200,7 +200,7 @@ void Room::LoadRoomToMemory()
 		//Takes all the grid points related to the pathfinding and push it into vector
 		//This will reduce the amount of nodes we need to search later
 		std::vector<ImporterLibrary::GridPointStruct> nodes;
-		for (unsigned int i = 0; i < m_grid->nrOf; ++i)
+		for (int i = 0; i < m_grid->nrOf; ++i)
 		{
 			if (m_grid->gridPoints[i].guardpathConnection != -1)
 			{

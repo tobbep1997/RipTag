@@ -282,7 +282,7 @@ public:
 	{
 		ClearProcessedRays();
 		Ray* ray;
-		for (int i = 0; i < m_nrOfRays; i++)
+		for (unsigned int i = 0; i < m_nrOfRays; i++)
 		{
 			ray = rays.at(i);
 			tempID = ray->id;

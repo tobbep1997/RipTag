@@ -62,24 +62,10 @@ void PlayState::Update(double deltaTime)
 
 		m_firstRun = false;
 		
-		bool hitSpinlock = false;
 		while (m_physRunning)
 		{
-			if (!hitSpinlock)
-				temp_spinlock_output << "Entered spinlock at: " << Timer::GetDurationInSeconds() << std::endl;
-			hitSpinlock = true;
-			temp_spinlock_output << "Spinlock: " << counter << " times spun\n";
-			temp_spinlock_output << "timer: " << m_timer << "\n";
-			counter++;
 			int i = 0;
 		}
-		if (hitSpinlock)
-		{
-			temp_spinlock_output << "Left spinlock at: " << Timer::GetDurationInSeconds() << std::endl;
-			std::cout << "------------------------------------------\n";
-		}
-
-
 
 		if (RipExtern::g_kill == true)
 		{
@@ -204,7 +190,7 @@ void PlayState::Draw()
 
 	}
 
-	DrawWorldCollisionboxes();
+	//DrawWorldCollisionboxes();
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
@@ -246,16 +232,13 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
-	static int functionCalled = 0;
-	temp_pthread_output << "Func Called: " << functionCalled++ << std::endl;
-
-	static int numberOfTimesInsideFirstWhile = 0;
+	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
+	{
+		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
+	}
 
 	while (m_destoryPhysicsThread == false)
 	{
-		temp_pthread_output << "Loop count: " << numberOfTimesInsideFirstWhile++ << std::endl;
-
-
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 
@@ -266,35 +249,18 @@ void PlayState::_PhyscisThread(double deltaTime)
 			return;
 		}
 		
-		temp_pthread_output << "DeltaTime: " << m_deltaTime << std::endl;
-		temp_pthread_output << "timer: " << m_timer << std::endl;
-		temp_pthread_output << "timer + deltaTime: " << m_timer + m_deltaTime << std::endl;
-
 		m_timer += m_deltaTime;
 		RipExtern::g_contactListener->ClearContactQueue();
-		int whileCount = 0;
-		temp_pthread_output << "Going inside while: " << (m_timer >= UPDATE_TIME) << std::endl;
-
-		bool enteredStepMode = false;
-
+		
 		while (m_timer >= UPDATE_TIME)
 		{
-			if (!enteredStepMode)
-				temp_pthread_output << "Entered stepMode at: " << Timer::GetDurationInSeconds() << std::endl;
-			enteredStepMode = true;
-			temp_pthread_output << "Count: " << whileCount++ << std::endl;
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
-			temp_pthread_output << "timer: " << m_timer << std::endl;
-		}
-		if (enteredStepMode)
-		{
-			temp_pthread_output << "Left stepMode at: " << Timer::GetDurationInSeconds() << std::endl;
 		}
 		RipExtern::g_rayListener->ShotRays();
 		m_physRunning = false;
-		temp_pthread_output << "-----------------------------------------------------" << std::endl;
 	}
+	
 }
 
 void PlayState::_audioAgainstGuards(double deltaTime)
@@ -629,22 +595,16 @@ void PlayState::unLoad()
 	Network::Multiplayer::inPlayState = false;
 
 	dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
-
-	temp_spinlock_output.close();
-	temp_pthread_output.close();
 }
 
 void PlayState::Load()
 {
-	// TEMP
-	this->temp_spinlock_output.open("SPIN_LOCK.txt");
-	this->temp_pthread_output.open("PHYSICS_THREAD.txt");
-	// TEMP
-
 	m_loadingScreen.Init();
 	std::cout << "PlayState Load" << std::endl;
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
+
+	//phy.open("physData.txt");
 	
 	if (isCoop)
 	{
@@ -670,11 +630,6 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
-
-	// TEMP
-	Timer::StartTimer();
-	// TEMP
-
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }
@@ -722,6 +677,7 @@ void PlayState::_loadMeshes()
 	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
+	Manager::g_meshManager.loadSkinnedMesh("PLAYER1");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
@@ -744,6 +700,10 @@ void PlayState::_loadAnimations()
 	//Guard
 	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
 	Manager::g_animationManager.loadClipCollection("GUARD", "GUARD", "../Assets/GUARDFOLDER", Manager::g_animationManager.getSkeleton("GUARD"));
+
+	//Player1
+	Manager::g_animationManager.loadSkeleton("../Assets/PLAYER1FOLDER/PLAYER1_SKELETON.bin", "PLAYER1");
+	Manager::g_animationManager.loadClipCollection("PLAYER1", "PLAYER1", "../Assets/PLAYER1FOLDER", Manager::g_animationManager.getSkeleton("PLAYER1"));
 }
 
 void PlayState::_loadPlayers(std::vector<RandomRoomPicker::RoomPicker> rooms)

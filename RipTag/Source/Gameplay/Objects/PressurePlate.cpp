@@ -41,7 +41,7 @@ void PressurePlate::Update(double deltaTime)
 	p_updatePhysics(this);
 	bool previousState = this->getTriggerState();
 	ContactListener::S_Contact con;
-	for(int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
+	for(int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
 		b3Shape * shapeA = con.a;
@@ -62,7 +62,7 @@ void PressurePlate::Update(double deltaTime)
 			}
 	}
 
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
 		b3Shape * shapeA = con.a;

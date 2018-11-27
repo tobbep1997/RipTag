@@ -90,11 +90,11 @@ void RoomGenerator::_generateGrid()
 						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
 						{
 							m_generatedGrid->BlockGridTile(index, false);
-							asset = new BaseActor();
+							/*asset = new BaseActor();
 							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
 							asset->setPosition(node.worldPos.x, 1, node.worldPos.y, false);
-							m_generated_assetVector.push_back(asset);
+							m_generated_assetVector.push_back(asset);*/
 							col = true;
 							break;
 						}
@@ -108,24 +108,6 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 	
-	std::ofstream map;
-	map.open("MAP.TXT");
-
-	for (int i = 0; i < iterationsDepth; i++)
-	{
-		for (int j = 0; j < iterationsWidth; j++)
-		{
-			if (m_generatedGrid->getNodeMap()->at(j + i * iterationsDepth).tile.getPathable())
-				map << " ";
-			else
-				map << "#";
-			map << " ";
-		}
-		map << "\n";
-	}
-
-	map.close();
-
 	delete base;
 }
 
@@ -281,7 +263,7 @@ void RoomGenerator::_createEntireWorld()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
-				//this->m_generatedRoomEnemies.push_back(e);
+				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
 
@@ -322,7 +304,7 @@ void RoomGenerator::_createEntireWorld()
 						asset->setObjectTag("WALL");
 						asset->setUserDataBody(asset);
 						m_generated_assetVector.push_back(asset);
-						for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
 							float xPos = modCollisionBoxes.boxes[h].translation[0] + j;
 							float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
@@ -341,7 +323,7 @@ void RoomGenerator::_createEntireWorld()
 						asset->Init(*RipExtern::g_world, modCollisionBoxes);
 						asset->setPosition(j + 10.f, 2.5, i);
 						roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
-						for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
 							float xPos = modCollisionBoxes.boxes[h].translation[0] + j + 10;
 							float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
@@ -365,7 +347,7 @@ void RoomGenerator::_createEntireWorld()
 						m_generated_assetVector.push_back(asset);
 						roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
 
-						for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
 							float xPos = modCollisionBoxes.boxes[h].translation[0] + j;
 							float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
@@ -397,9 +379,9 @@ void RoomGenerator::_createEntireWorld()
 							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
 							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL"); 
 						}
-						for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
-							for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+							for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 							{
 								float xPos = modCollisionBoxes.boxes[h].translation[0] + j - 10;
 								float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
@@ -681,7 +663,7 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 
 void RoomGenerator::moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::CollisionBoxes & modCollisionBoxes)
 {
-	for (int h = 0; h < modCollisionBoxes.nrOfBoxes; h++)
+	for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 	{
 		using namespace DirectX;
 		DirectX::XMVECTOR translation, rotation, scale;
@@ -724,7 +706,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);

@@ -135,7 +135,7 @@ void Player::Update(double deltaTime)
 			///Speed
 			auto physSpeed = this->getLiniearVelocity();
 			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
 
 			///Walk dir
 				//Get camera direction and normalize on X,Z plane
@@ -578,7 +578,7 @@ void Player::SendOnAnimationUpdate(double dt)
 				m_isInAir = false;
 
 			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 3.0f);
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
 
 			///Walk dir
 				//Get camera direction and normalize on X,Z plane
@@ -634,7 +634,7 @@ void Player::RegisterThisInstanceToNetwork()
 void Player::_collision()
 {
 	ContactListener::S_Contact con;
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts();i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts();i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
@@ -644,7 +644,7 @@ void Player::_collision()
 				m_recentHeadCollision = true;
 			}
 	}
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
@@ -1048,7 +1048,7 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
 				{
-					//Mange vafan, autolol på dej
+					//Mange vafan, autolol pï¿½ dej
 					Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
 					autoLol->DeleteMap();
 					m_MapPicked = true;
@@ -1325,7 +1325,7 @@ void Player::SendOnWinState()
 void Player::_hasWon()
 {
 	ContactListener::S_Contact con;
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		std::string Object_A_Tag = RipExtern::g_contactListener->GetBeginContact(i).a->GetBody()->GetObjectTag();
 		std::string Object_B_Tag = RipExtern::g_contactListener->GetBeginContact(i).b->GetBody()->GetObjectTag();
@@ -1340,7 +1340,7 @@ void Player::_hasWon()
 			}
 		}
 	}
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		std::string Object_A_Tag = RipExtern::g_contactListener->GetEndContact(i).a->GetBody()->GetObjectTag();
 		std::string Object_B_Tag = RipExtern::g_contactListener->GetEndContact(i).b->GetBody()->GetObjectTag();

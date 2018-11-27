@@ -55,13 +55,13 @@ unsigned int ContactListener::GetNrOfBeginContacts()
 
 void ContactListener::ClearContactQueue()
 {
-	for (int i = 0; i < m_nrOfBeginContacts; i++)
+	for (int i = 0; i < (int)m_nrOfBeginContacts; i++)
 	{
 		startContacts.at(i).Empty();
 	}
 	m_nrOfBeginContacts = 0;
 
-	for (int i = 0; i < m_nrOfEndContacts; i++)
+	for (int i = 0; i < (int)m_nrOfEndContacts; i++)
 	{
 		endContacts.at(i).Empty();
 	}

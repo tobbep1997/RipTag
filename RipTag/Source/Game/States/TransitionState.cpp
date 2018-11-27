@@ -42,6 +42,13 @@ TransitionState::~TransitionState()
 		delete m_background;
 		m_background = nullptr;
 	}
+	if (m_victory)
+	{
+		m_victory->Release();
+		delete m_victory;
+		m_victory = nullptr;
+	}
+
 }
 
 void TransitionState::Update(double deltaTime)

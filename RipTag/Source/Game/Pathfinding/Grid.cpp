@@ -139,158 +139,18 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
 
-		std::ofstream nodePath;
-		nodePath.open("nP.txt");
-		nodePath << "Original source: " << source.getX() << " : " << source.getY() <<
-			" Original destination " << destination.getX() << " : " << destination.getY() << "\n";
-		for (int i = 0; i < roomNodePath.size(); i++)
-		{
-			nodePath << "TileX: " << roomNodePath[i]->tile.getX() <<
-				" TileY: " << roomNodePath[i]->tile.getY() <<
-				"\nWorldX: " << roomNodePath[i]->worldPos.x <<
-				" WorldY: " << roomNodePath[i]->worldPos.y << "\n\n";
-		}
-		nodePath.close();
-
 		_removeAllCenterTiles(roomNodePath);
 
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
 		int partCount = 0;
-		std::ofstream map;
-		map.open("paths" + std::to_string(count++) + ".txt");
-		int tpCount = 0;
-		for (int i = 0; i < 101; i++)
-		{
-			for (int j = 0; j < 101; j++)
-			{
-				bool found = false;
-
-				if (getNodeMap()->at(j + i * 101).tile == source)
-				{
-					found = true;
-					map << "O";
-				}
-				else if (getNodeMap()->at(j + i * 101).tile == destination)
-				{
-					found = true;
-					map << "D";
-				}
-				if (!found)
-					for (auto & p : tilePairs)
-					{
-						if (getNodeMap()->at(j + i * 101).tile == p.destination)
-						{
-							found = true;
-							map << tpCount++;
-							break;
-						}
-						else if (getNodeMap()->at(j + i * 101).tile == p.source)
-						{
-							found = true;
-							map << tpCount++;
-							break;
-						}
-					}
-				if (!found)
-				{
-					if (getNodeMap()->at(j + i * 101).tile.getPathable())
-						map << " ";
-					else
-						map << "#";
-				}
-				map << " ";
-			}
-			map << "\n";
-		}
-
-		map << "\n";
-
+		
 		for (auto & tp : tilePairs)
 		{
-			map << "Part: " << partCount++ << std::endl;
 			auto partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);	
-
-			for (int i = 0; i < 101; i++)
-			{
-				for (int j = 0; j < 101; j++)
-				{
-					bool found = false;
-
-					if (getNodeMap()->at(j + i * 101).tile == source)
-					{
-						found = true;
-						map << "O";
-					}
-					else if (getNodeMap()->at(j + i * 101).tile == destination)
-					{
-						found = true;
-						map << "D";
-					}
-					if (!found)
-						for (auto & p : partOfPath)
-						{
-							if (getNodeMap()->at(j + i * 101).tile == p->tile)
-							{
-								found = true;
-								map << "X";
-								break;
-							}
-						}
-						if (!found)
-						{
-							if (getNodeMap()->at(j + i * 101).tile.getPathable())
-								map << " ";
-							else
-								map << "#";
-						}
-					map << " ";
-				}
-				map << "\n";
-			}
-
-			map << "\n";
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
 		}
-		map.close();
-		/*float sec = Timer::GetDurationInSeconds();
-		Timer::StopTimer();
-		std::ofstream lol;
-		lol.open("GRID_WITH_PATH" + std::to_string(count++) + ".txt");
-		for (int i = 0; i < 101; i++)
-		{
-			for (int j = 0; j < 101; j++)
-			{
-				bool found = false;
-				int index = i + j * 101;
-				float changeX = 0;
-				float changeY = 0;
-				bool placed = false;
-				
-				for (auto & p : pathToDestination)
-				{
-					if (m_nodeMap.at(index).tile == p->tile)
-					{
-						found = true;
-						lol << "X";
-						break;
-					}
-				}
-				if (m_nodeMap.at(index).tile.getPathable() && !found)
-				{
-					lol << 1;
-				}
-				else if (!found)
-					lol << 0;
-			
-				lol << " ";
-			}
-			lol << "\n";
-		}
-		lol << "\n" << sec << " s";
-		lol.close();*/
-
 		
 		for (auto & p : roomNodePath)
 			delete p;
@@ -723,8 +583,6 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 {
 	std::vector<Grid::TilePair> gtp;
 
-	std::ofstream tilePairs;
-
 	Grid::TilePair start;
 	start.source = source;
 	auto startPos = roomNodes->at(0)->worldPos;
@@ -748,22 +606,6 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*>* r
 	end.source = WorldPosToTile(endPos.x, endPos.y);
 	end.destination = destination;
 	gtp.push_back(end);
-
-	tilePairs.open("tp.txt");
-	for (int i = 0; i < gtp.size(); i++)
-	{
-		tilePairs << "Source: " << gtp[i].source.getX() << " " <<
-			gtp[i].source.getY() << "\n" <<
-			"Destination: " << gtp[i].destination.getX() << " " <<
-			gtp[i].destination.getY() << "\nWorldX: " <<
-			m_nodeMap[gtp[i].source.getX() + gtp[i].source.getY() * m_width].worldPos.x <<
-			" WorldY: " <<
-			m_nodeMap[gtp[i].source.getX() + gtp[i].source.getY() * m_width].worldPos.y << 
-			"\nSource is pathable: " <<  gtp[i].source.getPathable() <<
-			"\nDest is pathable: " << gtp[i].destination.getPathable()
-			<< "\n\n";
-	}
-	tilePairs.close();
 
 	return gtp;
 }
