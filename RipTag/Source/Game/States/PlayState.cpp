@@ -204,6 +204,7 @@ void PlayState::Draw()
 
 	}
 
+	DrawWorldCollisionboxes();
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
@@ -453,7 +454,7 @@ void PlayState::thread(std::string s)
 	Manager::g_meshManager.loadStaticMesh(s);
 }
 
-#ifdef _DEBUG
+
 #include "EngineSource\Structs.h"
 #include "EngineSource\3D Engine\Model\Meshes\StaticMesh.h"
 
@@ -594,7 +595,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	for (auto & d : _drawables)
 		d->DrawWireFrame();
 }
-#endif
+
 
 void PlayState::unLoad()
 {

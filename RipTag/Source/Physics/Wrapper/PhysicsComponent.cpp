@@ -422,7 +422,9 @@ void PhysicsComponent::CreateBox(float x, float y, float z)
 void PhysicsComponent::CreateBodyAndShape(b3World& world)
 {
 	m_body = world.CreateBody(*m_bodyDef);
+
 	m_shape = m_body->CreateShape(*m_bodyBoxDef);
+
 }
 
 void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, std::string objectTag)

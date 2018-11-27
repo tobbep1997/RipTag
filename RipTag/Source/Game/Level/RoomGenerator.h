@@ -48,6 +48,8 @@ private:
 	int returnRandomInGridDepth();
 	int returnRandomBetween(int min, int max);
 
+	void _modifyPropBoundingBoxes(ImporterLibrary::PropItem prop);
+
 	void moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::CollisionBoxes &modCollisionBoxes);
 
 public:

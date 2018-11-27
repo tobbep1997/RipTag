@@ -757,7 +757,8 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	bool moveBox = false;
 	if (useBoundingBox == true)
 	{
-		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		//tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0], prop.BBOX_INFO[1], prop.BBOX_INFO[2]);
+		tempAsset->Init(*RipExtern::g_world, e_staticBody, prop.BBOX_INFO[0] * prop.transform_scale[0], prop.BBOX_INFO[1] * prop.transform_scale[1], prop.BBOX_INFO[2] * prop.transform_scale[2]);
 		moveBox = true;
 	}
 
@@ -781,7 +782,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	if(moveBox == true && isRandomRoom == true)
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 	if(name == "BANNER")
-		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1] - 90, prop.transform_rotation[2]);
+		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 
 	assetVector->push_back(tempAsset);
 }
