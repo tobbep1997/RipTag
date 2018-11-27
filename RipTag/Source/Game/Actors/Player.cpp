@@ -1139,6 +1139,12 @@ void Player::_objectInfo(double deltaTime)
 					m_cross->setUnpressedTexture("CROSSPHASE");
 					m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
 				}
+				else
+				{
+					//m_infoText->setString("");
+					m_cross->setUnpressedTexture("CROSS");
+					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+				}
 			}
 			else
 			{
