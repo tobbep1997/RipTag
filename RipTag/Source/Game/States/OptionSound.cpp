@@ -47,6 +47,7 @@ void OptionSound::Update(double deltaTime)
 	if (GamePadHandler::IsBPressed())
 	{
 		m_currentButton = Return;
+		m_buttonPressed = true;
 	}
 
 	if (m_currentButton != -1)
