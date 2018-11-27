@@ -80,6 +80,9 @@ void PlayState::Update(double deltaTime)
 			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
 			return;
 		}
+		/*
+		 * Fake Spin Lock
+		 */
 		
 		//Handle all packets
 
@@ -229,14 +232,17 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
+	static DeltaTime dt;
 	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
 	{
 		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
 	}
 
 	static int counter = 0;
+	dt.Init();
 	while (m_destoryPhysicsThread == false)
 	{
+		
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 
@@ -247,7 +253,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			return;
 		}
 		
-		m_timer += m_deltaTime;
+		m_timer += dt.getDeltaTimeInSeconds();
 		
 		RipExtern::g_contactListener->ClearContactQueue();
 

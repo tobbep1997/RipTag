@@ -198,7 +198,6 @@ void Enemy::Update(double deltaTime)
 
 				if ((objectTagA == "PLAYER" && objectTagB == "ENEMY") || (objectTagA == "ENEMY" && objectTagB == "PLAYER"))
 				{
-
 					{
 						m_visCounter = 100000.0f;
 						m_found = true;
