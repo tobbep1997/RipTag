@@ -113,8 +113,8 @@ void RoomGenerator::_generateGrid()
 void RoomGenerator::_makeFloor()
 {
 	asset = DBG_NEW BaseActor();
-		m_roomDepth = (incrementalValueY * m_roomGridDepth) / 2.0f;
-	m_roomWidth = (incrementalValueX * m_roomGridWidth) / 2.0f;
+	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
+	m_roomWidth = (m_incrementalValueX * m_roomGridWidth) / 2.0f;
 	asset->Init(*m_worldPtr, e_staticBody, m_roomWidth * 2, 0.5, m_roomDepth * 2);
 	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 	asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
@@ -262,7 +262,7 @@ void RoomGenerator::_createEntireWorld()
 				Enemy * e = DBG_NEW Enemy(m_worldPtr, k, tempGuards.startingPositions[k].startingPos[0], tempGuards.startingPositions[k].startingPos[1], tempGuards.startingPositions[k].startingPos[2]);
 				e->addTeleportAbility(*this->returnableRoom->getPLayerInRoomPtr()->getTeleportAbility());
 				e->SetPlayerPointer(this->returnableRoom->getPLayerInRoomPtr());
-				//this->m_generatedRoomEnemies.push_back(e);
+				this->m_generatedRoomEnemies.push_back(e);
 			}
 			delete tempGuards.startingPositions;
 
