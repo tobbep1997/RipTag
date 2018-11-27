@@ -439,39 +439,39 @@ void Player::SetFirstPersonModel()
 	m_FirstPersonModel->setTexture(Manager::g_textureManager.getTexture("ARMS"));
 
 	//Animation stuff
-	auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
-	auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
-	auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
-	auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
-	auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
-	auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
-	auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
-	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
+	{
+		auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
+		auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
+		auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
+		auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
+		auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
+		auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+		auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
 
-	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
+		auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
 
-	auto& machine = animPlayer->InitStateMachine(3);
-	animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
+		auto& machine = animPlayer->InitStateMachine(3);
+		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 
-	auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
-	idleState->SetBlendTime(0.0f);
-	idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
-	auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
-	auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
-	machine->SetState("idle");
+		auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+		idleState->SetBlendTime(0.2f);
+		idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
+		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
+		machine->SetState("idle");
 
-	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
-	throwFinishState->SetBlendTime(0.0f);
+		auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
+		throwFinishState->SetBlendTime(0.0f);
 
-	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
-	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
-	auto turnState = layerMachine->Add1DPoseLayer("turn", &m_currentTurnSpeed, -180.0f, 180.0f, { {turnLeftPose, -180.0f}, {turnRightPose, 180.0f} });
-	additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
-	layerMachine->ActivateLayer("bob");
-	layerMachine->ActivateLayer("turn");
+		auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
+		auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
+		auto turnState = layerMachine->Add1DPoseLayer("turn", &m_currentTurnSpeed, -180.0f, 180.0f, { {turnLeftPose, -180.0f}, {turnRightPose, 180.0f} });
+		additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
+		layerMachine->ActivateLayer("bob");
+		layerMachine->ActivateLayer("turn");
 
-	animPlayer->Play();
-
+		animPlayer->Play();
+	}
 }
 
 void Player::SendOnUpdateMessage()
