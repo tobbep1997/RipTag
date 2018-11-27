@@ -197,6 +197,7 @@ void PlayState::Draw()
 	}
 
 	//DrawWorldCollisionboxes("BLINK_WALL");
+	DrawWorldCollisionboxes("PLAYER");
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
