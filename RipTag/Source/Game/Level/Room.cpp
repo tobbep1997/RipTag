@@ -726,13 +726,13 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):
-			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false, false);
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false, isRandomRoom);
 			break;
 		case(37):
-			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, false, false);
+			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, false, isRandomRoom);
 			break;
 		case(38):
-			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", &m_staticAssets, true, false);
+			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", &m_staticAssets, true, isRandomRoom);
 			break;
 		default:
 			break;
