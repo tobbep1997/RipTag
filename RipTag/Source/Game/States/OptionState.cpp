@@ -75,10 +75,15 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_fov++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_fov--;
+
+						if (m_fov < MIN_MAX_FOV.x)
+							m_fov = MIN_MAX_FOV.x;
+						if (m_fov > MIN_MAX_FOV.y)
+							m_fov = MIN_MAX_FOV.y;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -109,10 +114,15 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_sens.x++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_sens.x--;
+						
+						if (m_sens.x < MIN_MAX_SENSITIVITY.x)
+							m_sens.x = MIN_MAX_SENSITIVITY.x;
+						if (m_sens.x > MIN_MAX_SENSITIVITY.y)
+							m_sens.x = MIN_MAX_SENSITIVITY.y;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -142,10 +152,16 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_sens.y++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_sens.y--;
+
+						if (m_sens.y < MIN_MAX_SENSITIVITY.x)
+							m_sens.y = MIN_MAX_SENSITIVITY.x;
+						if (m_sens.y > MIN_MAX_SENSITIVITY.y)
+							m_sens.y = MIN_MAX_SENSITIVITY.y;
+
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
