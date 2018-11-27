@@ -52,7 +52,10 @@ void EnemyHandler::Update(float deltaTime)
 		{
 			accumulatedTime -= SEND_UPDATES_FREQUENCY;
 			for (auto enemy : m_guards)
-				enemy->sendNetworkUpdate();
+			{
+				if (!enemy->ClientLocked())
+					enemy->sendNetworkUpdate();
+			}
 		}
 	}
 	else if (m_type == 1)
@@ -214,6 +217,7 @@ void EnemyHandler::_registerThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_UPDATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_VISIBILITY, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_DISABLED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_POSSESSED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 }
 
 int EnemyHandler::_getPlayerVisibility(Enemy * guard)

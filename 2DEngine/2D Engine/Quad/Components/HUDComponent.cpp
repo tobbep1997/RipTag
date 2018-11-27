@@ -256,6 +256,13 @@ void HUDComponent::removeHUD()
 		delete m_quads[i];
 	}
 	m_quads.clear(); 
+	for (int i = 0; i < m_circles.size(); i++)
+	{
+		m_circles[i]->Release();
+		delete m_circles[i];
+		m_circles[i] = nullptr;
+	}
+	m_circles.clear();
 }
 
 void HUDComponent::ResetStates()
