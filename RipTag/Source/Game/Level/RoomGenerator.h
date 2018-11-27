@@ -17,8 +17,8 @@ private:
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;
-	int incrementalValueX = 20;
-	int incrementalValueY = 20; // add these instead of 20
+	int m_incrementalValueX = 20;
+	int m_incrementalValueY = 20;
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;
@@ -35,13 +35,10 @@ private:
 	EnemyHandler * m_generatedRoomEnemyHandler;
 	void dbgFuncSpawnAboveMap();
 
-	void createGridCheckBoxes(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes colBoxes, DirectX::XMFLOAT3 newPos);
-
 	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
 	void _makeFloor();
 	void _createEntireWorld();
-	void _createEnemies(Player * playerPtr);
 	void _generateGuardPaths();
 
 	int returnRandomInGridWidth();

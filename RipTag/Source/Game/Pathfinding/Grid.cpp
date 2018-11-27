@@ -242,20 +242,6 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 		}
 		std::cout << "\n";
 	}
-
-	// Transpose
-	/*for (int i = 0; i < depth; i++)
-	{
-		for (int j = i; j < width; j++)
-		{
-			int currentIndex = j + i * width;
-			int transposeIndex = i + j * width;
-			Node temp = m_roomNodeMap[currentIndex];
-			m_roomNodeMap[currentIndex] = m_roomNodeMap[transposeIndex];
-			m_roomNodeMap[transposeIndex] = temp;
-		}
-	}*/
-
 }
 
 void Grid::ThreadPath(Tile src, Tile dest)
@@ -284,34 +270,6 @@ int Grid::getGridWidth()
 int Grid::getGridHeight()
 {
 	return m_height;
-}
-
-/*void Grid::Transpose()
-{
-	for (int i = 0; i < m_height; i++)
-		for (int j = i; j < m_width; j++)
-		{
-			int currentIndex = j + i * m_width;
-			int transposeIndex = i + j * m_width;
-			Node temp = m_nodeMap[currentIndex];
-			m_nodeMap[currentIndex] = m_nodeMap[transposeIndex];
-			m_nodeMap[transposeIndex] = temp;
-		}
-}*/
-
-bool Grid::isBlocked(int index) const
-{
-	return !m_nodeMap.at(index).tile.getPathable();
-}
-
-const std::vector<Node>* Grid::getRoomNodeMap() const
-{
-	return &m_roomNodeMap;
-}
-
-const std::vector<Node>* Grid::getNodeMap() const
-{
-	return &m_nodeMap;
 }
 
 void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList,
@@ -419,6 +377,97 @@ Tile Grid::_nearbyTile(Tile src, int x, int y)
 	return destination;
 }
 
+Tile Grid::_getNearbyUnblockedTile(Tile src)
+{
+	bool unblocked = false;
+	int x = src.getX();
+	int y = src.getY();
+	int count = 0;
+	bool blockedDirections[4];
+
+	// North -> East -> South -> West
+	for (int i = 0; i < 4; i++)
+		blockedDirections[i] = false;
+
+	Tile returnTile;
+	int tempX = 0;
+	int tempY = 0;
+	while (!unblocked)
+	{
+		// North (0, -1)
+		if (!blockedDirections[0])
+		{
+			tempY = max(y - 1 * count, 0);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
+			{
+				blockedDirections[0] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[x + tempY * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[x + tempY * x].tile;
+				unblocked = true;
+			}
+		}
+		// East (1, 0)
+		if (!blockedDirections[1])
+		{
+			tempX = min(x + 1 * count , m_width -1);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
+			{
+				blockedDirections[1] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + y * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + y * x].tile;
+				unblocked = true;
+			}
+		}
+		// South (0, 1)
+		if (!blockedDirections[2])
+		{
+			tempY = min(y + 1 * count, m_height - 1);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
+			{
+				blockedDirections[2] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[x + tempY * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[x + tempY * x].tile;
+				unblocked = true;
+			}
+		}
+		// West (-1, 0)
+		if (!blockedDirections[3])
+		{
+			tempX = min(x - 1 * count, 0);
+			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
+			{
+				blockedDirections[3] = true;
+				if (blockedDirections[0] && blockedDirections[1] &&
+					blockedDirections[2] && blockedDirections[3])
+					unblocked = true;
+			}
+			if (m_nodeMap[tempX + y * x].tile.getPathable())
+			{
+				returnTile = m_nodeMap[tempX + y * x].tile;
+				unblocked = true;
+			}
+		}
+		count++;
+	}
+
+	return returnTile;
+}
+
 bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 {
 	using namespace DirectX;
@@ -433,15 +482,19 @@ bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 
 	const int ROOM_WIDTH = 5;
 
-	sIndex2D.x = max(sIndex2D.x, 0);
-	sIndex2D.y = max(sIndex2D.y, 0);
-	sIndex2D.x = min(sIndex2D.x, 5);
-	sIndex2D.y = min(sIndex2D.y, 5);
+	sIndex2D.x = std::clamp(sIndex2D.x, 0, 5);
+	sIndex2D.y = std::clamp(sIndex2D.y, 0, 5);
+	dIndex2D.x = std::clamp(dIndex2D.x, 0, 5);
+	dIndex2D.y = std::clamp(dIndex2D.y, 0, 5);
+	//sIndex2D.x = max(sIndex2D.x, 0);
+	//sIndex2D.y = max(sIndex2D.y, 0);
+	//sIndex2D.x = min(sIndex2D.x, 5);
+	//sIndex2D.y = min(sIndex2D.y, 5);
 
-	dIndex2D.x = max(dIndex2D.x, 0);
-	dIndex2D.y = max(dIndex2D.y, 0);
-	dIndex2D.x = min(dIndex2D.x, 5);
-	dIndex2D.y = min(dIndex2D.y, 5);
+	//dIndex2D.x = max(dIndex2D.x, 0);
+	//dIndex2D.y = max(dIndex2D.y, 0);
+	//dIndex2D.x = min(dIndex2D.x, 5);
+	//dIndex2D.y = min(dIndex2D.y, 5);
 
 	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
 	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
