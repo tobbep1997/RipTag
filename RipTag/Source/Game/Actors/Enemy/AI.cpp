@@ -260,6 +260,7 @@ void AI::_onInvestigateSight()
 
 void AI::_onObserve()
 {
+	m_owner->setLiniearVelocity();
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 	this->m_actTimer = 0;
@@ -314,6 +315,10 @@ void AI::_onReturnToPatrol()
 {
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
+	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
+	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+	Tile lastPatrolPos = m_grid->WorldPosToTile(m_path.at(m_currentPathNode)->worldPos.x, m_path.at(m_currentPathNode)->worldPos.y);
+	this->SetAlertVector(m_grid->FindPath(guardTile, lastPatrolPos));
 	this->m_state = Patrolling;
 #ifdef _DEBUG
 
@@ -370,7 +375,7 @@ void AI::_onExitingDisabled()
 	m_owner->m_possesionRecoverTimer = 0;
 	m_owner->m_knockOutTimer = 0;
 	this->m_state = AIState::NoState;
-	this->m_transState = AITransitionState::SearchArea;
+	this->m_transState = AITransitionState::Observe;
 }
 
 
@@ -501,7 +506,7 @@ void AI::_suspicious(const double deltaTime)
 	m_owner->getBody()->SetType(e_dynamicBody);
 	m_owner->_cameraPlacement(deltaTime);
 	m_owner->_CheckPlayer(deltaTime);
-
+	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
 	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT / 3)
@@ -572,7 +577,8 @@ void AI::_scanningArea(const double deltaTime)
 	{
 		if (m_searchTimer != 0)
 			m_searchTimer += m_actTimer;
-		this->m_transState = AITransitionState::SearchArea;
+		//CHANGE WHEN WE WANT TO CONNECT MORE TRANSITIONS
+		this->m_transState = AITransitionState::ReturnToPatrol;  //this->m_transState = AITransitionState::SearchArea;
 	}
 }
 void AI::_patrolling(const double deltaTime)
@@ -581,7 +587,11 @@ void AI::_patrolling(const double deltaTime)
 	m_owner->_cameraPlacement(deltaTime);
 	m_owner->_CheckPlayer(deltaTime);
 
-	if (m_path.size() > 0)
+	if (m_alertPath.size() > 0)
+	{
+		_MoveToAlert(m_alertPath.at(0), deltaTime);
+	}
+	else if (m_path.size() > 0)
 	{
 		if (m_owner->m_pathNodes.size() == 0)
 		{

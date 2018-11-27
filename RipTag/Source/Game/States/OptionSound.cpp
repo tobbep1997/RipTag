@@ -44,6 +44,11 @@ void OptionSound::Update(double deltaTime)
 		_handleKeyboardInput(deltaTime);
 	}
 
+	if (GamePadHandler::IsBPressed())
+	{
+		m_currentButton = Return;
+	}
+
 	if (m_currentButton != -1)
 		if (m_sliderPressed || m_buttonPressed)
 		{
