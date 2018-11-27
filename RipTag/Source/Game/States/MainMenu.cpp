@@ -22,9 +22,11 @@ void MainMenu::Update(double deltaTime)
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
-	_handleMouseInput();
-	_handleGamePadInput();
-	_handleKeyboardInput();
+	if (!_handleMouseInput())
+	{
+		_handleGamePadInput();
+		_handleKeyboardInput();
+	}
 
 	//Check if we have the current button pressed, if so determine which one and do the thing
 	if (m_buttons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
@@ -124,8 +126,11 @@ void MainMenu::_initButtons()
 
 }
 
-void MainMenu::_handleMouseInput()
+bool MainMenu::_handleMouseInput()
 {
+	if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
+		return false;
+
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
 
@@ -155,6 +160,7 @@ void MainMenu::_handleMouseInput()
 			break;
 		}
 	}
+	return true;
 }
 
 void MainMenu::_handleGamePadInput()

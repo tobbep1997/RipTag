@@ -118,6 +118,22 @@ void RoomGenerator::_makeFloor()
 	m_generated_assetVector.push_back(asset);
 }
 
+void RoomGenerator::_makeRoof()
+{
+	asset = DBG_NEW BaseActor();
+	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
+	m_roomWidth = (m_incrementalValueX * m_roomGridWidth) / 2.0f;
+	asset->Init(*m_worldPtr, e_staticBody, m_roomWidth * 2, 0.5, m_roomDepth * 2);
+	asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+	asset->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
+	asset->setTextureTileMult(m_roomWidth, m_roomDepth);
+	asset->setPosition(0, 5.5, 0);
+
+	asset->setScale(m_roomWidth * 2, 1, m_roomDepth * 2);
+	asset->setObjectTag("FLOOOOOOR");
+	m_generated_assetVector.push_back(asset);
+}
+
 void RoomGenerator::_createEntireWorld()
 {
 	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
@@ -226,11 +242,16 @@ void RoomGenerator::_createEntireWorld()
 			isWinRoom = false;
 			isStartRoom = false;
 			//PLACEWINROOM
+			
 			if (randomizer.m_rooms[index].type == WIN_ROOM)
 			{
 				isWinRoom = true;
 				MODNAMESTRING = "MOD" + std::to_string(99);
-				 
+			}
+			else if (randomizer.m_rooms[index].type == START_ROOM)
+			{
+				MODNAMESTRING = "MOD" + std::to_string(98);
+				isStartRoom = true;
 			}
 			else if (randomizer.m_rooms[index].type == START_ROOM)
 			{
@@ -283,13 +304,15 @@ void RoomGenerator::_createEntireWorld()
 					{
 						asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
 						modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
+						asset->setTexture(Manager::g_textureManager.getTexture("OPENWALL"));
+
 					}
 					else
 					{
 						asset->setModel(Manager::g_meshManager.getStaticMesh("CLOSEDWALL"));
 						modCollisionBoxes = loader.readMeshCollisionBoxes("CLOSEDWALL");
+						asset->setTexture(Manager::g_textureManager.getTexture("CLOSEDWALL"));
 					}
-					asset->setTexture(Manager::g_textureManager.getTexture("WALL"));
 	
 
 					if (x == 0)
@@ -372,6 +395,8 @@ void RoomGenerator::_createEntireWorld()
 								delete[] modCollisionBoxes.boxes;
 							asset->setModel(Manager::g_meshManager.getStaticMesh("OPENWALL"));
 							modCollisionBoxes = loader.readMeshCollisionBoxes("OPENWALL");
+							asset->setTexture(Manager::g_textureManager.getTexture("OPENWALL"));
+
 							applyTransformationToBoundingBox(roomSpace, modCollisionBoxes);
 							asset->Init(*RipExtern::g_world, modCollisionBoxes);
 							asset->setPosition(j - 10.f, 2.5, i);
@@ -414,6 +439,11 @@ void RoomGenerator::_createEntireWorld()
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
 				}
+			}
+			if (isStartRoom)
+			{
+				returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(j +2, 3, i, 1));
+				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 3, i, 1));
 			}
 
 
@@ -644,16 +674,18 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
 	Manager::g_textureManager.loadTextures("FLOOR");
 	Manager::g_meshManager.loadStaticMesh("WALL");
-	Manager::g_textureManager.loadTextures("WALL");
+	Manager::g_textureManager.loadTextures("OPENWALL");
+	Manager::g_textureManager.loadTextures("CLOSEDWALL");
 
 	returnableRoom = DBG_NEW Room(worldPtr, arrayIndex, playerPtr);
 	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
 	_createEntireWorld();
-	//_generateGrid();
+	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
+	_makeRoof();
 	
 	returnableRoom->setGrid(this->m_generatedGrid);
 

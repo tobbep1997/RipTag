@@ -38,6 +38,7 @@ private:
 	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
 	void _makeFloor();
+	void _makeRoof();
 	void _createEntireWorld();
 	void _generateGuardPaths();
 

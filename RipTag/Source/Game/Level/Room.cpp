@@ -710,10 +710,10 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", &m_staticAssets, false, isRandomRoom);
 			break;
 		case(37):
-			//_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, false, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", &m_staticAssets, false, isRandomRoom);
 			break;
 		case(38):
-			//_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", &m_staticAssets, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", &m_staticAssets, true, isRandomRoom);
 			break;
 		default:
 			break;
@@ -756,15 +756,15 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
-	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], moveBox);
 	
 
-	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
+	//tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	
 
 	if(name == "BANNER")
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
-
+	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	assetVector->push_back(tempAsset);
 }
 

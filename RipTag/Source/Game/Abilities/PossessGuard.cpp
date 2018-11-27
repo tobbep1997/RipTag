@@ -226,6 +226,7 @@ void PossessGuard::_sendOverNetwork(bool state, Enemy * ptr)
 
 void PossessGuard::_hitEnemy()
 {
+	using namespace Network;
 	Player* pPointer = static_cast<Player*>(p_owner);
 
 	if (RipExtern::g_rayListener->hasRayHit(m_rayId))
@@ -250,6 +251,12 @@ void PossessGuard::_hitEnemy()
 				Enemy * e = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
 				if (e->getAIState() != AIState::Disabled)
 				{
+					if (Multiplayer::GetInstance()->isConnected())
+					{
+						COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN);
+						Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+					}
+
 					pPointer->getBody()->SetType(e_staticBody);
 					pPointer->getBody()->SetAwake(false);
 					pPointer->setHidden(false);
@@ -274,10 +281,18 @@ void PossessGuard::_hitEnemy()
 
 void PossessGuard::_isPossessing(double dt)
 {
+	using namespace Network;
+
 	Player* pPointer = static_cast<Player*>(p_owner);
 
 	if (!pPointer->IsInputLocked() || Input::OnCancelAbilityPressed()) //Player is Returning to body
 	{
+		if (Multiplayer::GetInstance()->isConnected())
+		{
+			COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_POSESS_END);
+			Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+		}
+
 		this->_sendOverNetwork(false, m_possessTarget);
 
 		pPointer->getBody()->SetType(e_dynamicBody);

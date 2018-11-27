@@ -90,14 +90,21 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	_handleMouseInput();
-	_handleKeyboardInput();
-	_handleGamePadInput();
+	if (InputHandler::mouseMoved() || InputHandler::isMouseLeftPressed())
+		_handleMouseInput();
+	else
+	{
+		_handleKeyboardInput();
+		_handleGamePadInput();
+	}
 
 	
 
 	if (!isHosting && !hasJoined && !inServerList)
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+			this->setKillState(true);
+
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
 			if (m_ServerName != "None")
@@ -142,6 +149,9 @@ void LobbyState::Update(double deltaTime)
 	}
 	else if (!isHosting && !hasJoined && inServerList)
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+			this->setKillState(true);
+
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
 			if (m_ServerName != "None")
@@ -184,6 +194,12 @@ void LobbyState::Update(double deltaTime)
 	}
 	else
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+		{
+			m_currentButton = CharacterSelection::Back;
+			m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+
 		if (hasCharSelected && hasRemoteCharSelected && !isReady && hasJoined)
 		{
 			m_charSelectButtons[Ready]->setTextColor(DefaultColor);
@@ -551,11 +567,6 @@ void LobbyState::_handleGamePadInput()
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
 			this->_gamePadCharSelection();
-
-		if (GamePadHandler::IsBPressed())
-		{
-			this->setKillState(true);
-		}
 	}
 
 
@@ -588,7 +599,7 @@ void LobbyState::_updateSelectionStates()
 	{
 		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
 		{
-			if (i != m_currentButton && !m_lobbyButtons[i]->isSelected())
+			if (i != m_currentButton)
 			{
 				m_lobbyButtons[i]->Select(false);
 				m_lobbyButtons[i]->setState(ButtonStates::Normal);
@@ -988,9 +999,12 @@ void LobbyState::_mouseMainLobby()
 				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
 				m_currentButton = i;
 			}
-			//set this button to current and on hover state
-			m_lobbyButtons[i]->Select(true);
-			m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			else
+			{
+				//set this button to current and on hover state
+				m_lobbyButtons[i]->Select(true);
+				m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			}
 			//check if we released this button
 			if (m_lobbyButtons[i]->isReleased(mousePos))
 			{
@@ -1009,11 +1023,6 @@ void LobbyState::_mouseMainLobby()
 				}
 			}
 			break;
-		}
-		else
-		{
-			m_lobbyButtons[i]->Select(false);
-			m_lobbyButtons[i]->setState(ButtonStates::Normal);
 		}
 	}
 }
@@ -1047,11 +1056,6 @@ void LobbyState::_mouseCharSelection()
 				}
 			}
 			break;
-		}
-		else
-		{
-			m_charSelectButtons[i]->Select(false);
-			m_charSelectButtons[i]->setState(ButtonStates::Normal);
 		}
 	}
 
