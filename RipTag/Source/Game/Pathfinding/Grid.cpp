@@ -39,13 +39,11 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 
 Grid::~Grid()
 {
-	for (auto asset : m_path)
+	for (auto node : m_path)
 	{
-		delete asset;
+		delete node;
 	}
 	m_path.clear();
-
-
 }
 
 Tile Grid::WorldPosToTile(float x, float y)
@@ -154,7 +152,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		
 		for (auto & tp : tilePairs)
 		{
-			auto partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);	
+			std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
 		}
 		
@@ -647,20 +645,12 @@ void Grid::_removeAllCenterTiles(std::vector<Node*>& roomNodePath)
 	{
 		if (!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
 		{
+			delete roomNodePath.at(i);
 			roomNodePath.erase(roomNodePath.begin() + i);
 			size = roomNodePath.size();
 			i--;
 		}
-		//if ((roomNodePath[i]->tile.getX() % 2 == 0 && roomNodePath[i]->tile.getY() % 2 == 0) ||
-		//	!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
-		//{
-		//	// This is a center tile
-		//	roomNodePath.erase(roomNodePath.begin() + i);
-		//	size = roomNodePath.size();
-		//	i--;
-		//}
 	}
-
 }
 
 Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap)
@@ -764,8 +754,9 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		return std::vector<Node*>();
 
 	Tile dest = nodeMap.at(destination.getX() + destination.getY() * width).tile;
+	Tile src = nodeMap.at(source.getX() + source.getY() * width).tile;
 
-	if (!dest.getPathable())
+	if (!dest.getPathable() || !src.getPathable())
 		return std::vector<Node*>();
 
 	bool * closedList = new bool[height * width];
@@ -776,7 +767,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	std::vector<Node*> earlyExploration;
 
 	Node * earlyExplorationNode = nullptr;
-	Node * current = new Node(source, NodeWorldPos(), nullptr, 0.0f, _calcHValue(source, dest));
+	Node * current = new Node(src, NodeWorldPos(), nullptr, 0.0f, _calcHValue(src, dest));
 	openList.push_back(current);
 
 	while (!openList.empty() || earlyExplorationNode != nullptr)
@@ -790,7 +781,6 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		{
 			std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
 			current = openList.at(0);
-			
 			openList.erase(openList.begin());
 		}
 

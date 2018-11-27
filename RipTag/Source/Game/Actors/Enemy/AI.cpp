@@ -939,6 +939,12 @@ void AI::setGrid(Grid * grid)
 
 void AI::SetPathVector(std::vector<Node*> path)
 {
+	if (m_path.size() > 0)
+	{
+		for (int i = 0; i < m_path.size(); i++)
+			delete m_path.at(i);
+		m_path.clear();
+	}
 	m_path = path;
 }
 

@@ -98,14 +98,6 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			RipExtern::g_kill = true;
 		}
 	}
-	else if (InputHandler::isKeyPressed('H'))
-	{
-		if (pressed == false)
-		{
-			pressed = true;
-			m_rooms.at(m_activeRoom)->getPath();
-		}
-	}
 	else
 	{
 	
@@ -163,7 +155,7 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
 	Room * room;
 	//srand(seed);
-	if (roomIndex == -1 )
+	if (roomIndex == -1 || true)
 	{
 		room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
 		room->setLoaded(true);

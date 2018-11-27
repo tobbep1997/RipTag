@@ -157,6 +157,7 @@ void RoomGenerator::_createEntireWorld()
 
 	int winRoomIndexPlacement = rand () % 5;
 	bool isWinRoom = false;
+	bool isStartRoom = false;
 	winRoomIndexPlacement *= m_roomGridWidth;
 
 	
@@ -223,12 +224,18 @@ void RoomGenerator::_createEntireWorld()
 			
 			bool placeWall = true;
 			isWinRoom = false;
+			isStartRoom = false;
 			//PLACEWINROOM
 			if (randomizer.m_rooms[index].type == WIN_ROOM)
 			{
 				isWinRoom = true;
 				MODNAMESTRING = "MOD" + std::to_string(99);
 				 
+			}
+			else if (randomizer.m_rooms[index].type == START_ROOM)
+			{
+				isStartRoom = true;
+				MODNAMESTRING = "MOD" + std::to_string(66);
 			}
 #pragma region Guards
 
