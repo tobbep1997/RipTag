@@ -461,14 +461,14 @@ void LobbyState::_initButtons()
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setTextColor(DefaultColor);
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setFont(FontHandler::getFont("consolas16"));
 		//Ready
-		this->m_charSelectButtons.push_back(Quad::CreateButton("Ready", 0.4f, 0.12f, 0.3f, 0.11f));
+		this->m_charSelectButtons.push_back(Quad::CreateButton("Ready", 0.384f, 0.113f, 0.29f, 0.11f));
 		this->m_charSelectButtons[CharacterSelection::Ready]->setUnpressedTexture("gui_transparent_pixel");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setPressedTexture("gui_pressed_pixel");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setHoverTexture("gui_hover_pixel");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setTextColor(DefaultColor);
 		this->m_charSelectButtons[CharacterSelection::Ready]->setFont(FontHandler::getFont("consolas32"));
 		//Return
-		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.6f, 0.12f, 0.3f, 0.11f));
+		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.617f, 0.113f, 0.29f, 0.11f));
 		this->m_charSelectButtons[CharacterSelection::Back]->setUnpressedTexture("gui_transparent_pixel");
 		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture("gui_pressed_pixelini");
 		this->m_charSelectButtons[CharacterSelection::Back]->setHoverTexture("gui_hover_pixel");
