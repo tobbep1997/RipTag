@@ -98,6 +98,9 @@ void LobbyState::Update(double deltaTime)
 
 	if (!isHosting && !hasJoined && !inServerList)
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+			this->setKillState(true);
+
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
 			if (m_ServerName != "None")
@@ -142,6 +145,9 @@ void LobbyState::Update(double deltaTime)
 	}
 	else if (!isHosting && !hasJoined && inServerList)
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+			this->setKillState(true);
+
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
 			if (m_ServerName != "None")
@@ -184,6 +190,12 @@ void LobbyState::Update(double deltaTime)
 	}
 	else
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+		{
+			m_currentButton = CharacterSelection::Back;
+			m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+
 		if (hasCharSelected && hasRemoteCharSelected && !isReady && hasJoined)
 		{
 			m_charSelectButtons[Ready]->setTextColor(DefaultColor);
@@ -551,11 +563,6 @@ void LobbyState::_handleGamePadInput()
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
 			this->_gamePadCharSelection();
-
-		if (GamePadHandler::IsBPressed())
-		{
-			this->setKillState(true);
-		}
 	}
 
 
