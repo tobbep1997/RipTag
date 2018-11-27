@@ -238,14 +238,14 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
-	static DeltaTime dt;
+	//static DeltaTime dt;
 	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
 	{
 		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
 	}
 
 	static int counter = 0;
-	dt.Init();
+	//dt.Init();
 	while (m_destoryPhysicsThread == false)
 	{
 		
@@ -259,7 +259,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			return;
 		}
 		
-		m_timer += dt.getDeltaTimeInSeconds();
+		m_timer += m_deltaTime;
 		
 		RipExtern::g_contactListener->ClearContactQueue();
 		
@@ -345,9 +345,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 
 							float volume = 0;
 							c->getVolume(&volume);
+							
 							volume *= 100.0f;
+							
 							volume *= occ;
 							float addThis = (volume / (lengthSquared * 3));
+							
 
 							//Pro Tip: Not putting break in a case will not stop execution, 
 							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases

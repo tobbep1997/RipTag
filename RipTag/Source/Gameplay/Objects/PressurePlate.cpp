@@ -46,6 +46,7 @@ void PressurePlate::Update(double deltaTime)
 		con = RipExtern::g_contactListener->GetEndContact(i);
 		b3Shape * shapeA = con.a;
 		b3Shape * shapeB = con.b;
+
 		if ((shapeA->GetBody()->GetObjectTag() == "PLAYER" || shapeA->GetBody()->GetObjectTag() == "ENEMY") ||
 			(shapeB->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "PLAYER"))
 			if ((shapeA->GetBody()->GetObjectTag() == "PressurePlate") || (shapeB->GetBody()->GetObjectTag() == "PressurePlate"))
@@ -55,7 +56,10 @@ void PressurePlate::Update(double deltaTime)
 				{
 					if (this->getTriggerState())
 					{
-						this->setTriggerState(false);
+						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
+							this->setTriggerState(false, "ENEMY");
+						else
+							this->setTriggerState(false);
 						this->SendOverNetwork();
 					}
 				}
@@ -87,7 +91,10 @@ void PressurePlate::Update(double deltaTime)
 						{
 							if (!this->getTriggerState())
 							{
-								this->setTriggerState(true);
+								if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
+									this->setTriggerState(true, "ENEMY");
+								else
+									this->setTriggerState(true);
 								this->SendOverNetwork();
 							}
 						}
