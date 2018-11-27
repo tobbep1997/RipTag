@@ -43,13 +43,13 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 		this->getAnimationPlayer()->Play();
 
 	}
-	b3Vec3 pos(0.5f, 0.9, 0.5f);
+	b3Vec3 pos(0.25, 0.5, 0.25);
 	PhysicsComponent::Init(*world, e_dynamicBody, pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
-	CreateShape(0, pos.y, 0, pos.x, pos.y, pos.z, "UPPERBODY");
-	CreateShape(0, (pos.y*1.5) + 0.25, 0, 0.5, 0.5, 0.1, "HEAD");
+	CreateShape(0, pos.y + .75f, 0, 0.5, 1, 0.25, "UPPERBODY");
+	CreateShape(0, pos.y + 1.75f, 0, 0.25, 0.25, 0.25, "HEAD");
 	m_standHeight = (pos.y*1.5) + 0.25;
 	m_crouchHeight = pos.y * 1.1;
 	setUserDataBody(this);
@@ -58,7 +58,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.9, 0.0));
-	setScale(.5, .5, .5);
+	setScale(.4, .4, .4);
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
@@ -962,7 +962,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 
 		//--------------------------------------Camera movement---------------------------------------// 
 		b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-		DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
+		DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y + .75, headPosWorld.z, 1.0f);
 		p_camera->setPosition(pos);
 		//Camera Tilt
 		p_CameraTilting(deltaTime, m_peektimer);

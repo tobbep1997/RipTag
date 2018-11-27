@@ -101,10 +101,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, y, 0, x,y,z, "UPPERBODY");
-	CreateShape(0, (y*1.5), 0, 0.3, 0.3, 0.1, "HEAD");
-	m_standHeight = (y*1.5);
-	m_crouchHeight = y*1.1;
+	CreateShape(0, 0.5 + 0.75, 0, 0.25, 1, 0.25, "UPPERBODY");
+	CreateShape(0, 3.25, 0, 0.25, 0.25, 0.25, "HEAD");
+	m_standHeight = (y*1.4);
+	m_crouchHeight = y*.5;
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -904,66 +904,89 @@ void Player::_onCrouch()
 
 void Player::_onRotate(double deltaTime)
 {
+	static DirectX::XMFLOAT2 s_rot = { 0.0f, 0.0f };
+
 	if (!unlockMouse)
 	{	
 		float deltaY = Input::TurnUp();
 		float deltaX = Input::TurnRight();
-		if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		{
-			
-		}
-		else
-		{
-			if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
-			{
-				if (m_peekRotate > 0)
-				{
-					p_camera->Rotate(0.0f, -0.05f, 0.0f);
-					m_peekRotate -= 0.05;
-				}
-				else
-				{
-					p_camera->Rotate(0.0f, +0.05f, 0.0f);
-					m_peekRotate += 0.05;
-				}
 
-			}
-			else
-			{
-				m_peekRotate = 0;
-			}
-			//m_peekRotate = 0;
+		if (deltaY || deltaX)
+		{
+			s_rot.x -= deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
+			s_rot.y -= deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime;
+
+			if (s_rot.y > 88.0f)
+				s_rot.y = 88.0f;
+			else if (s_rot.y < -88.0f)
+				s_rot.y = -88.0f;
+
+			float radX = DirectX::XMConvertToRadians(s_rot.x);
+			float radY = DirectX::XMConvertToRadians(s_rot.y);
+
+			DirectX::XMFLOAT4A lookTo = { 0.0f,0.0f,0.0f,0.0f };
+			lookTo.x = cos(radX) * cos(radY);
+			lookTo.y = sin(radY);
+			lookTo.z = sin(radX) * cos(radY);
+			p_camera->setLookTo(lookTo);
 		}
 
-		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >=-0.5)
-		{
-			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
-			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-			{
-				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
-			}
-		}
-		if (deltaY) 
-		{
-			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
-			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
-			}
-			else if (p_camera->getDirection().y >= 0.90f)
-			{
-				p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
-			}
-			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) > -0.90f)
-			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
-			}
-			else if (p_camera->getDirection().y <= -0.90f)
-			{
-				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
-			}
-		
-			
-		}
+		//if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+		//{
+		//	
+		//}
+		//else
+		//{
+		//	/*if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
+		//	{
+		//		if (m_peekRotate > 0)
+		//		{
+		//			p_camera->Rotate(0.0f, -0.05f, 0.0f);
+		//			m_peekRotate -= 0.05;
+		//		}
+		//		else
+		//		{
+		//			p_camera->Rotate(0.0f, +0.05f, 0.0f);
+		//			m_peekRotate += 0.05;
+		//		}
+
+		//	}
+		//	else
+		//	{
+		//		m_peekRotate = 0;
+		//	}*/
+		//	//m_peekRotate = 0;
+		//}
+
+		//if (((deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >=-0.5)) || deltaX)
+		//{
+		//	p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
+		//	if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
+		//	{
+		//		m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
+		//	}
+		//}
+		//if (deltaY) 
+		//{
+		//	if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
+		//	{
+		//		p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
+		//	}
+		//	else if (p_camera->getDirection().y >= 0.90f)
+		//	{
+		//		p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
+		//	}
+		//	if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) > -0.90f)
+		//	{
+		//		p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
+		//	}
+		//	else if (p_camera->getDirection().y <= -0.90f)
+		//	{
+		//		p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
+		//	}
+		//
+		//	
+		//}
 		
 	}
 	//#todoREMOVE
@@ -1244,7 +1267,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	//--------------------------------------Camera movement---------------------------------------// 
 	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y + 0.75f, headPosWorld.z, 1.0f);
 	p_camera->setPosition(pos);
 	//Camera Tilt
 	p_CameraTilting(deltaTime, m_peektimer);
