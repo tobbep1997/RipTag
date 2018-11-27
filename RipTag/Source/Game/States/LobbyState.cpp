@@ -94,6 +94,8 @@ void LobbyState::Update(double deltaTime)
 	_handleKeyboardInput();
 	_handleGamePadInput();
 
+	
+
 	if (!isHosting && !hasJoined && !inServerList)
 	{
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
@@ -549,7 +551,14 @@ void LobbyState::_handleGamePadInput()
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
 			this->_gamePadCharSelection();
+
+		if (GamePadHandler::IsBPressed())
+		{
+			this->setKillState(true);
+		}
 	}
+
+
 }
 
 void LobbyState::_handleKeyboardInput()
