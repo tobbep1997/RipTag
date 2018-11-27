@@ -214,7 +214,7 @@ void Player::Update(double deltaTime)
 
 	m_HUDcircleFiller->setRadie((totVis)*.5f);
 
-	
+	this->getAnimationPlayer()->Update(deltaTime);
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 	
@@ -245,6 +245,9 @@ void Player::Update(double deltaTime)
 		else
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
+
+	p_addRotation(0, p_camera->getYRotationEuler().y + DirectX::XM_PI * .5f, 0);
+
 	_updateFirstPerson(deltaTime);
 }
 
@@ -252,8 +255,9 @@ void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
 	_collision();
-	//PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x, p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
 	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y , 0);
+	p_addRotation(0, DirectX::XM_PI * 1.5f, 0);
+	
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
