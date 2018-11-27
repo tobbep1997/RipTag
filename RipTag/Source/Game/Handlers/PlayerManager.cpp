@@ -163,7 +163,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 
 			animationPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("PLAYER1"));
 			auto& stateMachine = animationPlayer->InitStateMachine(1);
-			stateMachine->AddLoopState("temp", Manager::g_animationManager.getAnimation("PLAYER1", "IDLE_ANIMATION").get());
+			stateMachine->AddLoopState("temp", Manager::g_animationManager.getAnimation("PLAYER1", "POSESSING_ANIMATION").get());
 			stateMachine->SetState("temp");
 			animationPlayer->Play();
 		}
