@@ -54,6 +54,11 @@ void OptionState::Update(double deltaTime)
 		_handleGamePadInput(deltaTime);
 		_handleKeyboardInput(deltaTime);
 	}
+	if (GamePadHandler::IsBPressed())
+	{
+		m_currentButton = Return;
+		m_buttonPressed = true;
+	}
 
 	if (m_currentButton != -1)
 		if (m_sliderPressed || m_buttonPressed)

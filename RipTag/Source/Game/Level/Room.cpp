@@ -775,16 +775,17 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	tempAsset->setScale(prop.transform_scale[0], prop.transform_scale[1], prop.transform_scale[2]);
 	tempAsset->setPosition(prop.transform_position[0], prop.transform_position[1], prop.transform_position[2], moveBox);
-	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], false);
+	tempAsset->setRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2], moveBox);
 	
 
-	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO));
+	//tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(prop.transform_position), DirectX::XMFLOAT3(prop.BBOX_INFO[0] * prop.transform_scale[0] * 2.0f, prop.BBOX_INFO[1] * prop.transform_scale[1] * 2.0f, prop.BBOX_INFO[2] * prop.transform_scale[2] * 2.0f));
 	
 	if(moveBox == true && isRandomRoom == true)
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 	if(name == "BANNER")
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 
+	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(prop.BBOX_INFO));// MUST NOT BE MOVED
 	assetVector->push_back(tempAsset);
 }
 

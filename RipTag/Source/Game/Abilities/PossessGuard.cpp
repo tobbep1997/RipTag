@@ -244,22 +244,27 @@ void PossessGuard::_hitEnemy()
 				}
 			}
 
+
 			if (objectTag == "ENEMY")
 			{
-				pPointer->getBody()->SetType(e_staticBody);
-				pPointer->getBody()->SetAwake(false);
-				pPointer->setHidden(false);
-				pPointer->LockPlayerInput();
+				Enemy * e = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+				if (e->getAIState() != AIState::Disabled)
+				{
+					pPointer->getBody()->SetType(e_staticBody);
+					pPointer->getBody()->SetAwake(false);
+					pPointer->setHidden(false);
+					pPointer->LockPlayerInput();
 
-				contact->contactShape->GetBody()->SetType(e_dynamicBody);
-				contact->contactShape->GetBody()->SetAwake(true);
-				this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
-				this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
-				this->m_possessTarget->setPossessor(pPointer, 20, 1);
-				m_pState = PossessGuard::Possessing;
-				p_cooldown = 0;
-				//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
-				this->_sendOverNetwork(true, m_possessTarget);
+					contact->contactShape->GetBody()->SetType(e_dynamicBody);
+					contact->contactShape->GetBody()->SetAwake(true);
+					this->m_possessTarget = e;
+					this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
+					this->m_possessTarget->setPossessor(pPointer, 20, 1);
+					m_pState = PossessGuard::Possessing;
+					p_cooldown = 0;
+					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
+					this->_sendOverNetwork(true, m_possessTarget);
+				}
 			}
 		}
 	}

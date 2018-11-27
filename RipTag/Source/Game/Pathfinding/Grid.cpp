@@ -50,11 +50,16 @@ Grid::~Grid()
 
 Tile Grid::WorldPosToTile(float x, float y)
 {
-	/*int approximateWorldPosX = (int)x;
+	int approximateWorldPosX = (int)x;
 	int approximateWorldPosY = (int)y;
-	int index = _worldPosInNodeMap(0, m_height * m_width - 1, approximateWorldPosX, approximateWorldPosY);*/
+	int index = _worldPosInNodeMap(0, m_height * m_width - 1, approximateWorldPosX, approximateWorldPosY);
 
-	using namespace DirectX;
+	if (index == -1)
+		return Tile();
+	
+	return m_nodeMap[index].tile;
+
+	/*using namespace DirectX;
 
 	XMFLOAT2 sWposOff = { x + 50.0f, y + 50.0f };
 
@@ -69,10 +74,7 @@ Tile Grid::WorldPosToTile(float x, float y)
 
 	int sIndex = sIndex2D.y * GRID_WIDTH + sIndex2D.x;
 
-	/*if (index == -1)
-		return Tile();*/
-
-	return m_nodeMap.at(sIndex).tile;
+	return m_nodeMap.at(sIndex).tile;*/
 }
 
 Node Grid::GetWorldPosFromIndex(int index)
