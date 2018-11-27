@@ -8,6 +8,7 @@ private:
 	ParticleEmitter * pParticles = nullptr;
 	Camera * pCamera = nullptr;
 	bool m_interacted = false;
+	bool m_preState = false;
 
 	FMOD::Channel * m_channel;
 
