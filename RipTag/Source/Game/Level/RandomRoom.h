@@ -5,7 +5,8 @@ enum RoomType
 	HORIZONTAL_ROOM,
 	VERTICAL_ROOM,
 	NORMAL_ROOM,
-	WIN_ROOM
+	WIN_ROOM,
+	START_ROOM
 };
 
 class RandomRoom
