@@ -113,6 +113,12 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
 		this->_onNetworkRemoteThrow(id);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
+		this->_onNetworkRemotePosess(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_END:
+		this->_onNetworkRemotePosess(id);
+		break;
 	default:
 		break;
 	}
@@ -357,11 +363,14 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_BEGIN_ANIMATION").get();
 		auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
+		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
 		auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
-		throwEndState->SetBlendTime(0.05);
+		throwEndState->SetBlendTime(0.05f);
+		auto posessState = stateMachine->AddLoopState("posessing", posessClip);
+		posessState->SetBlendTime(0.3f);
 		//set initial state
 		stateMachine->SetState("walk_forward");
 	}
@@ -399,6 +408,21 @@ void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
 		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_end");
+		break;
+	}
+}
+
+void RemotePlayer::_onNetworkRemotePosess(unsigned char id)
+{
+	using namespace Network;
+
+	switch (id)
+	{
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("posessing");
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_END:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
 		break;
 	}
 }

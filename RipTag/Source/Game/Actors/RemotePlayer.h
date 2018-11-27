@@ -63,6 +63,7 @@ private:
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
 	void _onNetworkRemoteThrow(unsigned char id);
+	void _onNetworkRemotePosess(unsigned char id);
 	void _sendVisibilityPacket();
 
 	void _lerpPosition(float dt);
