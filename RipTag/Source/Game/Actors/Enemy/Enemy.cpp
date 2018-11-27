@@ -48,10 +48,10 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
-	CreateShape(0, pos.y + .75f, 0, 0.5, 1, 0.25, "UPPERBODY");
-	CreateShape(0, pos.y + 1.75f, 0, 0.25, 0.25, 0.25, "HEAD");
-	m_standHeight = (pos.y*1.5) + 0.25;
-	m_crouchHeight = pos.y * 1.1;
+	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
+	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
+	m_standHeight = (pos.y*1.4);
+	m_crouchHeight = pos.y * .5;
 	setUserDataBody(this);
 
 	this->setEntityType(EntityType::GuarddType);
@@ -501,34 +501,9 @@ void Enemy::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
 	{
-		float deltaY = Input::TurnUp();
-		float deltaX = Input::TurnRight();
-		//if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		//{
-
-		//}
-		//else
-		//{
-		//	if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
-		//	{
-		//		if (m_peekRotate > 0)
-		//		{
-		//			p_camera->Rotate(0.0f, -0.05f, 0.0f);
-		//			m_peekRotate -= 0.05;
-		//		}
-		//		else
-		//		{
-		//			p_camera->Rotate(0.0f, +0.05f, 0.0f);
-		//			m_peekRotate += 0.05;
-		//		}
-
-		//	}
-		//	else
-		//	{
-		//		m_peekRotate = 0;
-		//	}
-		//	//
-		//}
+		const float deltaY = Input::TurnUp();
+		const float deltaX = Input::TurnRight();
+		
 		m_peekRotate = 0;
 		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
 		{
@@ -556,10 +531,7 @@ void Enemy::_onRotate(double deltaTime)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
 			}
-
-
 		}
-
 	}
 }
 
@@ -718,7 +690,6 @@ void Enemy::SetPlayerPointer(Player* player)
 {
 	m_PlayerPtr = player;
 }
-
 
 void Enemy::_onReleasePossessed(double deltaTime)
 {
