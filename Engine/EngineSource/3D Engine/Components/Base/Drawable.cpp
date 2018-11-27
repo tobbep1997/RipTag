@@ -220,7 +220,7 @@ void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & center, const Direc
 		delete m_bb;
 	m_bb = nullptr;
 	this->m_bb = new DirectX::BoundingBox(center, extens);
-	//this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
+	this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
 	
 }
 
