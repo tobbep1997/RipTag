@@ -229,6 +229,11 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
+	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
+	{
+		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
+	}
+
 	static int counter = 0;
 	while (m_destoryPhysicsThread == false)
 	{
