@@ -76,7 +76,6 @@ void RandomRoomGrid::Print()
 	}
 }
 
-
 void RandomRoomGrid::DrawConnections()
 {
 	for (int i = 0; i < m_depth; i++)

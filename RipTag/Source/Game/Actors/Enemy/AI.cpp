@@ -533,9 +533,7 @@ void AI::_suspicious(const double deltaTime)
 
 		m_owner->setClearestPlayerLocation(playerPos);
 		m_owner->setBiggestVisCounter(vis[0]*attentionMultiplier);
-		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
-		b3Normalize(dir);
-		guard->setDir(dir.x, dir.y, dir.y);*/
+	
 	}
 
 	SoundLocation target = m_owner->m_sl;
@@ -548,9 +546,6 @@ void AI::_suspicious(const double deltaTime)
 		Enemy::SoundLocation temp = target;
 		temp.percentage *= attentionMultiplier;
 		m_owner->m_loudestSoundLocation = temp;
-		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
-		b3Normalize(dir);
-		guard->setDir(dir.x, dir.y, dir.y);*/
 	}
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
@@ -570,7 +565,7 @@ void AI::_scanningArea(const double deltaTime)
 	m_owner->getBody()->SetType(e_dynamicBody);
 	m_owner->_cameraPlacement(deltaTime);
 	m_owner->_CheckPlayer(deltaTime);
-
+	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
 	//Do animation
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
@@ -680,7 +675,6 @@ void AI::_disabled(const double deltaTime)
 
 void AI::_Move(Node * nextNode, double deltaTime)
 {
-	
 	// Get dirction to target
 	float x = nextNode->worldPos.x - m_owner->getPosition().x;
 	float y = nextNode->worldPos.y - m_owner->getPosition().z;
@@ -845,20 +839,16 @@ void AI::_Move(Node * nextNode, double deltaTime)
 	}
 
 	m_owner->_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
-	auto lol = m_owner->getLiniearVelocity();
-	vel.x *= !m_lv.turnState;
-	vel.y *= !m_lv.turnState;
-
 	DirectX::XMStoreFloat2(&vel, DirectX::XMVector2Normalize(DirectX::XMLoadFloat2(&vel)));
-
 	m_owner->setLiniearVelocity(vel.x * m_owner->m_guardSpeed, m_owner->getLiniearVelocity().y, vel.y * m_owner->m_guardSpeed);
+	m_owner->_cameraPlacement(deltaTime);
 }
 
 bool AI::_MoveTo(Node* nextNode, double deltaTime)
 {
 	//std::cout << "\r" << m_owner->getPosition().x << " " << m_owner->getPosition().z << std::endl;
 	m_owner->_playFootsteps(deltaTime);
-	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.0f && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.0f)
+	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.5f && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.5f)
 	{
 		m_lv.newNode = true;
 		m_lv.timer = 0.0f;
@@ -888,7 +878,7 @@ bool AI::_MoveTo(Node* nextNode, double deltaTime)
 bool AI::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	m_owner->_playFootsteps(deltaTime);
-	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1 && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1)
+	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.5 && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.5)
 	{
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
@@ -939,6 +929,7 @@ void AI::setGrid(Grid * grid)
 
 void AI::SetPathVector(std::vector<Node*> path)
 {
+	m_currentPathNode = 0;
 	m_path = path;
 }
 
