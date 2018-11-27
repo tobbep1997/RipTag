@@ -599,7 +599,7 @@ void LobbyState::_updateSelectionStates()
 	{
 		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
 		{
-			if (i != m_currentButton && !m_lobbyButtons[i]->isSelected())
+			if (i != m_currentButton)
 			{
 				m_lobbyButtons[i]->Select(false);
 				m_lobbyButtons[i]->setState(ButtonStates::Normal);
@@ -1024,11 +1024,6 @@ void LobbyState::_mouseMainLobby()
 			}
 			break;
 		}
-		else
-		{
-			m_lobbyButtons[i]->Select(false);
-			m_lobbyButtons[i]->setState(ButtonStates::Normal);
-		}
 	}
 }
 
@@ -1061,11 +1056,6 @@ void LobbyState::_mouseCharSelection()
 				}
 			}
 			break;
-		}
-		else
-		{
-			m_charSelectButtons[i]->Select(false);
-			m_charSelectButtons[i]->setState(ButtonStates::Normal);
 		}
 	}
 
