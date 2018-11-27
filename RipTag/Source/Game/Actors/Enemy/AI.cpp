@@ -198,7 +198,6 @@ void AI::handleStatesClient(const double deltaTime)
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
-
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
 #endif
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
@@ -219,12 +218,22 @@ void AI::_onInvestigateSound()
 	Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
-	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
-	this->m_state = Investigating_Sound;
-#ifdef _DEBUG
+	if (soundTile.getX() == -1 && soundTile.getY() == -1)
+	{
+		soundTile = m_grid->GetRandomNearbyTile(guardTile, 0);
+	}
 
+	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
+	
+
+
+
+
+	// If pathfindingThread is finnished
+#ifdef _DEBUG
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
+	this->m_state = Investigating_Sound;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 
@@ -234,6 +243,11 @@ void AI::_onInvestigateSight()
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+
+	if (playerTile.getX() == -1 && playerTile.getY() == -1)
+	{
+		playerTile = m_grid->GetRandomNearbyTile(guardTile, 0);
+	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 	this->m_state = Investigating_Sight;

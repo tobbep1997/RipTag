@@ -25,6 +25,8 @@ private:
 	std::vector<ParticleEmitter*> m_generated_Emitters;
 	std::vector<FMOD::Geometry*> m_generatedAudioBoxes;
 	
+	std::vector<DirectX::BoundingBox*> m_generated_boundingBoxes;
+
 	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
@@ -33,20 +35,23 @@ private:
 	EnemyHandler * m_generatedRoomEnemyHandler;
 	void dbgFuncSpawnAboveMap();
 
+	void createGridCheckBoxes(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes colBoxes, DirectX::XMFLOAT3 newPos);
+
 	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
 	void _makeFloor();
 	void _makeWalls();
-	void _unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex);
-	//void _placeProps();
 	void _createEnemies(Player * playerPtr);
-	void _FindWinnableAndGuardPaths();
-	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);
+	void _generateGuardPaths();
 
 	int returnRandomInGridWidth();
 	int returnRandomInGridDepth();
 	int returnRandomBetween(int min, int max);
-	
+
+	void _modifyPropBoundingBoxes(ImporterLibrary::PropItem prop);
+
+	void moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::CollisionBoxes &modCollisionBoxes);
+
 public:
 	RoomGenerator();
 	~RoomGenerator();

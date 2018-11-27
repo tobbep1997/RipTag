@@ -343,7 +343,7 @@ void b3World::RayCast(b3RayCastListener* listener, const b3Vec3& p1, const b3Vec
 	b3RayCastInput input;
 	input.p1 = p1;
 	input.p2 = p2;
-	input.maxFraction = B3_ONE;// Use B3_MAX_FLOAT for a ray.
+	input.maxFraction = B3_MAX_FLOAT;// Use B3_MAX_FLOAT for a ray.
 
 	b3RayCastCallback callback;
 	callback.listener = listener;

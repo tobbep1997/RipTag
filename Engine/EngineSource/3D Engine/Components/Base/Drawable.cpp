@@ -224,6 +224,15 @@ void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & center, const Direc
 	
 }
 
+void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & extens)
+{
+	if (m_bb)
+		delete m_bb;
+	m_bb = nullptr;
+	this->m_bb = new DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), extens);	
+	this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
+}
+
 void Drawable::setTexture(Texture * texture)
 {
 	this->p_texture = texture;

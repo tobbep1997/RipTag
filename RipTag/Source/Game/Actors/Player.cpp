@@ -15,7 +15,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 30.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 100.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
@@ -1048,7 +1048,7 @@ void Player::_onInteract()
 				}
 				else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
 				{
-					//Mange vafan, autolol på dej
+					//Mange vafan, autolol pï¿½ dej
 					Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
 					autoLol->DeleteMap();
 					m_MapPicked = true;

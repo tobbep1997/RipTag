@@ -39,7 +39,7 @@ void Transform::p_calcWorldMatrix()
 	}
 	XMMATRIX worldMatrix;
 	if (DirectX::XMMatrixIsIdentity(p_forcedWorld))
-		worldMatrix = XMMatrixTranspose(XMMatrixMultiply(scaling * rotation * translation, m_modelTransform));
+		worldMatrix = XMMatrixTranspose(XMMatrixMultiply(m_modelTransform, scaling * rotation * translation));
 	else
 		worldMatrix = p_forcedWorld;
 	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);

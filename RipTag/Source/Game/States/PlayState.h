@@ -8,7 +8,7 @@
 #include "Source/Game/Item/Map.h"
 #include "Source/Game/Item/Rock.h"
 #include "Helper/RandomRoomPicker.h"
-
+#include <fstream>
 namespace FMOD
 {
 	class Channel;
@@ -32,6 +32,8 @@ private:
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
+
+	std::ofstream phy;
 
 	//TriggerHandler *	triggerHandler; //Released
 	b3TimeStep m_step;
