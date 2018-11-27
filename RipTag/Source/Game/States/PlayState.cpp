@@ -238,14 +238,14 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 
 void PlayState::_PhyscisThread(double deltaTime)
 {
-	static DeltaTime dt;
+	//static DeltaTime dt;
 	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
 	{
 		std::cout << "FAILED TO SET PRIORITY LEVEL OF THREAD" << std::endl;
 	}
 
 	static int counter = 0;
-	dt.Init();
+	//dt.Init();
 	while (m_destoryPhysicsThread == false)
 	{
 		
@@ -259,7 +259,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			return;
 		}
 		
-		m_timer += dt.getDeltaTimeInSeconds();
+		m_timer += m_deltaTime;
 		
 		RipExtern::g_contactListener->ClearContactQueue();
 		
