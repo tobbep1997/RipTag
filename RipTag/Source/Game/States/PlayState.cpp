@@ -61,11 +61,14 @@ void PlayState::Update(double deltaTime)
 		InputMapping::Call();
 
 		m_firstRun = false;
-		
-		while (m_physRunning)
+
+		//m_physRunning
+		m_physThreadRun.lock();
+		m_physThreadRun.unlock();
+		/*while (m_physRunning)
 		{
 			int i = 0;
-		}
+		}*/
 
 		if (RipExtern::g_kill == true)
 		{
@@ -249,8 +252,8 @@ void PlayState::_PhyscisThread(double deltaTime)
 		std::unique_lock<std::mutex> lock(m_physicsMutex);
 		m_physicsCondition.wait(lock);
 
-		m_physRunning = true;
-
+		//m_physRunning = true;
+		m_physThreadRun.lock();
 		if (RipExtern::g_kill == true)
 		{
 			return;
@@ -266,7 +269,8 @@ void PlayState::_PhyscisThread(double deltaTime)
 			m_timer -= UPDATE_TIME;
 		}
 		RipExtern::g_rayListener->ShotRays();
-		m_physRunning = false;
+		m_physThreadRun.unlock();
+		//m_physRunning = false;
 	}
 	
 }

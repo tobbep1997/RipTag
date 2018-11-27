@@ -10,7 +10,7 @@
 #include "Helper/RandomRoomPicker.h"
 #include <fstream>
 #include "Source/Timer/DeltaTime.h"
-
+#include <mutex>
 namespace FMOD
 {
 	class Channel;
@@ -74,7 +74,7 @@ private:
 	double			m_timer = 0.0f;
 	int m_rayId = -100;
 
-	
+	std::mutex m_physThreadRun;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
