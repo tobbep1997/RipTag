@@ -150,6 +150,7 @@ void PlayerManager::isCoop(bool coop)
 
 void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 {
+
 	if (!mLocalPlayer)
 	{
 		hasLocalPlayer = true;
@@ -164,13 +165,145 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 		mLocalPlayer->setModelTransform(DirectX::XMMatrixTranslation(0.0, -1.7f, 0.0f));
 		mLocalPlayer->CastShadows(true);
 		{
-			auto animationPlayer = mLocalPlayer->getAnimationPlayer();
+			std::vector<SharedAnimation> sharedAnimations;
+			const char * collection = "PLAYER1";
+			int nrOfStates = 5;
+
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_F_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_B_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FR_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BR_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_F_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FR_ANIMATION"));
+
+			mLocalPlayer->getAnimationPlayer()->Play();
+			mLocalPlayer->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
+
+			std::unique_ptr<SM::AnimationStateMachine>& stateMachine = mLocalPlayer->getAnimationPlayer()->InitStateMachine(nrOfStates);
+
+			{
+				//Blend spaces - forward&backward
+				SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
+					"walk_forward", //state name
+					&mLocalPlayer->m_currentDirection, //x-axis driver
+					&mLocalPlayer->m_currentSpeed, //y-axis driver
+					-115.f, 115.f, //x-axis bounds
+					0.0f, 6.0f //y-axis bounds
+				);
+				SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
+					"walk_backward", //state name
+					&mLocalPlayer->m_currentDirection, //x-axis driver
+					&mLocalPlayer->m_currentSpeed, //y-axis driver
+					-180.f, 180.f, //x-axis bounds
+					0.0f, 3.001f //y-axis bounds
+				);
+
+				//Add blendspace rows 
+				//forward
+				blend_fwd->AddRow(
+					0.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 115.f }
+					}
+				);
+				blend_fwd->AddRow(
+					3.1f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::RIGHT].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::LEFT].get(), 115.f }
+					}
+				);
+				blend_fwd->AddRow(
+					6.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD_RIGHT].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD_LEFT].get(), 115.f }
+					}
+				);
+				//
+				blend_bwd->AddRow(
+					0.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 180.f }
+					}
+				);
+				blend_bwd->AddRow(
+					3.1f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_LEFT].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), 180.f }
+					}
+				);
+				blend_bwd->AddRow(
+					6.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_LEFT].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), 180.f }
+					}
+				);
+
+				//Adding out state / transitions
+				SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
+				//Add transition condition
+				fwd_bwd_outstate.AddTransition(
+					&mLocalPlayer->m_currentDirection, //referenced variable for comparision
+					-115.f, 115.f, //bound range for comparision
+					SM::COMPARISON_OUTSIDE_RANGE //comparision condition
+				);
+
+				SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
+				//Add transition condition
+				bwd_fwd_outstate.AddTransition(
+					&mLocalPlayer->m_currentDirection, //referenced variable for comparision
+					-90.f, 90.f, //bound range for comparision
+					SM::COMPARISON_INSIDE_RANGE //comparision condition
+				);
+
+				auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_BEGIN_ANIMATION").get();
+				auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
+				auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
+				auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
+				auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+
+				auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
+				stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
+				auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
+				throwEndState->SetBlendTime(0.05f);
+				auto posessState = stateMachine->AddLoopState("posessing", posessClip);
+				posessState->SetBlendTime(0.3f);
+				//set initial state
+				stateMachine->SetState("walk_forward");
+
+				auto& layerMachine = mLocalPlayer->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
+				auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
+				crouchState->UseFirstPoseOnly(true);
+			}
+
+			/*auto animationPlayer = mLocalPlayer->getAnimationPlayer();
 
 			animationPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("PLAYER1"));
 			auto& stateMachine = animationPlayer->InitStateMachine(1);
 			stateMachine->AddLoopState("temp", Manager::g_animationManager.getAnimation("PLAYER1", "POSESSING_ANIMATION").get());
 			stateMachine->SetState("temp");
-			animationPlayer->Play();
+			animationPlayer->Play();*/
 		}
 		mLocalPlayer->setScale(1.0f * 0.5625f, 1.0f* 0.5625f, 1.0f* 0.5625f);
 		mLocalPlayer->setPosition(0.0f, 0.0f, 0.0f);
