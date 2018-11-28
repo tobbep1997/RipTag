@@ -222,42 +222,58 @@ void PlayState::Update(double deltaTime)
 		if (m_transitionState)
 		{
 			m_transitionState->Update(deltaTime);
+
 			if (m_transitionState->BackToMenuBool())
 				this->BackToMenu();
-		}
-		
 
-		if (m_transitionState->ReadyToLoadNextRoom())
-		{
-			//load next room when we still have one available, otherwise push a Game Over Victory on the stack
-			if (m_levelHandler->HasMoreRooms())
+			if (m_transitionState->ReadyToLoadNextRoom())
 			{
-				int player = 1;
-				if (pCoopData)
+				//load next room when we still have one available, otherwise push a Game Over Victory on the stack
+				if (m_levelHandler->HasMoreRooms())
 				{
-					player = pCoopData->localPlayerCharacter;
-				}
-				
-				m_levelHandler->LoadNextRoom(player);
-
-				//The critical zone
-				{
-					m_destoryPhysicsThread = true;
-					m_physicsCondition.notify_all();
-
-					if (m_physicsThread.joinable())
+					int player = 1;
+					if (pCoopData)
 					{
-						m_physicsThread.join();
+						player = pCoopData->localPlayerCharacter;
 					}
-					//this->pushNewState();
-					m_loadingScreen.draw();
-					RipExtern::g_kill = false;
-					m_removeHud = true;
-					this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
-					return;
+				
+					m_levelHandler->LoadNextRoom(player);
+
+					//The critical zone
+					{
+						m_destoryPhysicsThread = true;
+						m_physicsCondition.notify_all();
+
+						if (m_physicsThread.joinable())
+						{
+							m_physicsThread.join();
+						}
+						//this->pushNewState();
+						m_loadingScreen.draw();
+						RipExtern::g_kill = false;
+						m_removeHud = true;
+						this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+						return;
+					}
+				}
+				else
+				{
+					//If no more rooms are available - we thank the Player for playing our Game
+					if (!m_destoryPhysicsThread)
+					{
+						m_destoryPhysicsThread = true;
+						m_physicsCondition.notify_all();
+
+						if (m_physicsThread.joinable())
+						{
+							m_physicsThread.join();
+						}
+					}
+
+					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
 				}
 			}
-			else
+			else if (!m_levelHandler->HasMoreRooms())
 			{
 				//If no more rooms are available - we thank the Player for playing our Game
 				if (!m_destoryPhysicsThread)
@@ -273,6 +289,8 @@ void PlayState::Update(double deltaTime)
 
 				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
 			}
+		
+
 		}
 	}
 	
