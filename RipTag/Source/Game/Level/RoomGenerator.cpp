@@ -576,9 +576,12 @@ void RoomGenerator::_createEntireWorld()
 		}
 		depthCounter++;
 	}
-
-	delete [] alreadyPickedSmallMods;
-	delete [] alreadyPickedLargeMods;
+	if (alreadyPickedSmallMods)
+		delete [] alreadyPickedSmallMods;
+	alreadyPickedSmallMods = nullptr;
+	if (alreadyPickedLargeMods)
+		delete [] alreadyPickedLargeMods;
+	alreadyPickedLargeMods = nullptr;
 }
 
 void RoomGenerator::_generateGuardPaths()
