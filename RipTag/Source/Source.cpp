@@ -169,13 +169,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	Game game;
 	game.Init(hInstance);
 
-#ifdef _DEBUG
 	SingleGameLoop(&game);
+#ifdef _DEBUG
 #else
-	std::thread gameLooop = std::thread(&GameLoop, &game);
+	/*std::thread gameLooop = std::thread(&GameLoop, &game);
 	game.PollEvents();
 	if (gameLooop.joinable())
-		gameLooop.join();
+		gameLooop.join();*/
 #endif
 
 	
