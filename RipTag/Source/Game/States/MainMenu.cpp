@@ -128,14 +128,27 @@ void MainMenu::_initButtons()
 
 bool MainMenu::_handleMouseInput()
 {
-	if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
-		return false;
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
 
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
 
+	bool returnIfTrue = true;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		returnIfTrue = false;
+	}
+
+	s_mouseLastFrame = mousePos;
+
+	if (returnIfTrue)
+		return false;
+
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
+	/*if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
+		return false;*/
+
 
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{

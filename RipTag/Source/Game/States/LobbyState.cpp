@@ -90,7 +90,20 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	if (InputHandler::mouseMoved() || InputHandler::isMouseLeftPressed())
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	bool mouseMoved = false;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		mouseMoved = true;
+	}
+
+	s_mouseLastFrame = mousePos;
+
+	if (mouseMoved || InputHandler::isMouseLeftPressed())
 		_handleMouseInput();
 	else
 	{
