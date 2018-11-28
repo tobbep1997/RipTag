@@ -128,14 +128,15 @@ void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int 
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
-	static int count = 0;
-	if (!source.getPathable())
-		source = _getNearbyUnblockedTile(source);
-	if (!destination.getPathable())
-		destination = _getNearbyUnblockedTile(destination);
+	
 
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{
+		static int count = 0;
+		if (!source.getPathable())
+			source = _getNearbyUnblockedTile(source);
+		if (!destination.getPathable())
+			destination = _getNearbyUnblockedTile(destination);
 		/*std::cout << count << std::endl;
 		Timer::StartTimer();*/
 		std::vector<Node*> pathToDestination;
