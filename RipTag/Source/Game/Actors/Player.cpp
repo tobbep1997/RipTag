@@ -1441,24 +1441,22 @@ void Player::_initSoundHUD()
 	Quad * soundBack = new Quad;
 	Quad * soundfor = new Quad;
 	float outline = 5.0f;
-	DirectX::XMFLOAT2 scl = { 50.0f, 200.0f };
+	DirectX::XMFLOAT2 scl = { 105.0f, 247.0f };
 
-	soundBack->init({ 0.0f, 1.0f }, { scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
-	soundBack->setUnpressedTexture("WHITE");
-	soundBack->setType(Quad::QuadType::Outlined);
-	soundBack->setRadie(outline);
-	soundBack->setPivotPoint(Quad::PivotPoint::upperLeft);
-	soundBack->setOutlineColor(1, 1, 0, 0.5f);
-	soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
-
+	/*	soundBack->init({ 0.025f, 0.97f }, { scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
+		soundBack->setUnpressedTexture("WHITE");
+		soundBack->setType(Quad::QuadType::Outlined);
+		soundBack->setRadie(outline);
+		soundBack->setPivotPoint(Quad::PivotPoint::upperLeft);
+		soundBack->setOutlineColor(1, 1, 0, 0.5f);
+		soundBack->setColor(0.2f, 0.0f, 0.8f, 0.3f);
+		*/
 	soundfor->init(
-		{ outline / InputHandler::getViewportSize().x,
-		1.0f - (outline / InputHandler::getViewportSize().y)
-		},
-		{ (scl.x - (outline * 4.0f)) / InputHandler::getViewportSize().x, (scl.y - (outline * 4.0f)) / InputHandler::getViewportSize().y });
+		{ 0.031f, 0.965f },
+		{ scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
 
 
-	soundfor->setUnpressedTexture("WHITE");
+	soundfor->setUnpressedTexture("DAB");
 	soundfor->setPivotPoint(Quad::PivotPoint::upperLeft);
 	soundfor->setColor(0, 0, 1);
 
