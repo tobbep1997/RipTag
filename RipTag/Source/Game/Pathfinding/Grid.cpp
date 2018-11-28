@@ -128,8 +128,6 @@ void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int 
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
-	
-
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{
 		static int count = 0;
@@ -137,12 +135,17 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			source = _getNearbyUnblockedTile(source);
 		if (!destination.getPathable())
 			destination = _getNearbyUnblockedTile(destination);
-		/*std::cout << count << std::endl;
-		Timer::StartTimer();*/
+
+		
 		std::vector<Node*> pathToDestination;
 		
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
+
+		if (roomNodePath.size() == 0)
+		{
+			return _findPath(source, destination, m_nodeMap, m_width, m_height);
+		}
 
 		_removeAllCenterTiles(roomNodePath);
 
