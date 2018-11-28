@@ -679,7 +679,9 @@ void Player::_handleInput(double deltaTime)
 	else if (Input::OnAbility2Pressed() && !Input::OnAbilityPressed())
 		m_currentAbility = (Ability)1;
 
-	static bool pressed = false;
+
+	//Render Controller Layout on screen
+	/*static bool pressed = false;
 	if (GamePadHandler::IsSelectPressed() && !pressed)
 	{
 		if (m_controlLayoutShown)
@@ -701,7 +703,7 @@ void Player::_handleInput(double deltaTime)
 	if(pressed && GamePadHandler::IsSelectReleased())
 	{
 		pressed = false;
-	}
+	}*/
 
 	_onSprint();
 	_onCrouch();
