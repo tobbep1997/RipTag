@@ -975,8 +975,15 @@ void PlayState::_sendOnDisconnect()
 
 void PlayState::_onGameOverPacket()
 {
-	m_coopState.gameOver = true;
-	runGame = false;
+	m_destoryPhysicsThread = true;
+	m_physicsCondition.notify_all();
+
+
+	if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
 }
 
 void PlayState::_onGameWonPacket()
@@ -987,8 +994,15 @@ void PlayState::_onGameWonPacket()
 
 void PlayState::_onDisconnectPacket()
 {
-	m_coopState.remoteDisconnected = true;
-	runGame = false;
+	m_destoryPhysicsThread = true;
+	m_physicsCondition.notify_all();
+
+
+	if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)
@@ -1029,14 +1043,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 
 				runGame = false;
 			}
-			else if (m_coopState.gameOver)
-			{
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
-			}
-			else if (m_coopState.remoteDisconnected)
-			{
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
-			}
+		
 		}
 	}
 }
