@@ -54,10 +54,11 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 			{
 				auto finalPosePrevious = previousState->recieveStateVisitor(*m_Visitor);
 				auto finalPose = _BlendSkeletonPoses(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor, m_Skeleton->m_JointCount);
+				
 				_ComputeSkinningMatrices(&finalPose);
 				return;
 			}
-			if (finalPoseCurrent.value().m_JointPoses)
+			else if (finalPoseCurrent.value().m_JointPoses)
 				_ComputeSkinningMatrices(&finalPoseCurrent.value());
 
 			return;
@@ -70,7 +71,7 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 				auto finalPose = _BlendSkeletonPoses(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor, m_Skeleton->m_JointCount);
 				_ComputeSkinningMatrices(&finalPose);
 			}
-			if (finalPoseCurrent.value().m_JointPoses)
+			else if (finalPoseCurrent.value().m_JointPoses)
 				_ComputeSkinningMatrices(&finalPoseCurrent.value());
 			return;
 		}
@@ -503,10 +504,11 @@ void Animation::AnimationPlayer::_ComputeSkinningMatrices(SkeletonPose* firstPos
 
 void Animation::AnimationPlayer::_ComputeSkinningMatrices(SkeletonPose * pose)
 {
+	using namespace DirectX;
+
 	if (m_LayerMachine)
 		m_LayerMachine->UpdatePoseWithLayers(*pose, m_currentFrameDeltaTime);
 
-	using namespace DirectX;
 	_ComputeModelMatrices(pose);
 
 	for (int i = 0; i < m_Skeleton->m_JointCount; i++)
