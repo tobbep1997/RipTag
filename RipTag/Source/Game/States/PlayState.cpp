@@ -34,6 +34,16 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 
 PlayState::~PlayState()
 {
+	if (!m_destoryPhysicsThread)
+	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
+	}
 
 	m_levelHandler->Release();
 	delete m_levelHandler;
