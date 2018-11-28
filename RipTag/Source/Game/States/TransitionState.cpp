@@ -177,13 +177,13 @@ void TransitionState::_initButtons()
 	{
 		if (m_type == Transition::Lose)
 		{
-			this->m_header = Quad::CreateButton("Game Over", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header = Quad::CreateButton("", 0.5f, 0.7f, 0.5f, 0.25f);
 			this->m_header->setTextColor(Colors::Red);
 			
 		}
 		else
 		{
-			this->m_header = Quad::CreateButton("Victory", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header = Quad::CreateButton("", 0.5f, 0.7f, 0.5f, 0.25f);
 			this->m_header->setTextColor(Colors::Green);
 		}
 		this->m_header->setUnpressedTexture("gui_transparent_pixel");
@@ -227,9 +227,9 @@ void TransitionState::_initButtons()
 		}
 		else
 		{
-			this->m_background->setUnpressedTexture("gui_temp_bg");
-			this->m_background->setPressedTexture("gui_temp_bg");
-			this->m_background->setHoverTexture("gui_temp_bg");
+			this->m_background->setUnpressedTexture("gui_temp_bg1");
+			this->m_background->setPressedTexture("gui_temp_bg1");
+			this->m_background->setHoverTexture("gui_temp_bg1");
 		}
 	}
 }
