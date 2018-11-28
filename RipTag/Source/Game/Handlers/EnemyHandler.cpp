@@ -80,7 +80,14 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 		{
 			Network::ENEMYUPDATEPACKET * pData = (Network::ENEMYUPDATEPACKET*)data;
 			//this is very unsafe
-			this->m_guards[pData->uniqueID]->onNetworkUpdate(pData);
+			for (unsigned int i = 0; i < m_guards.size(); ++i)
+			{
+				if (m_guards.at(i)->getUniqueID() == pData->uniqueID)
+				{
+					this->m_guards[i]->onNetworkUpdate(pData);
+				}
+				
+			}
 		}
 		break;
 		case Network::ID_ENEMY_VISIBILITY:
@@ -258,10 +265,16 @@ void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 void EnemyHandler::_onPossessedPacket(Network::ENTITYSTATEPACKET * data)
 {
 	//state is their uniqueID
-	m_guards[data->state]->onNetworkPossessed(data);
+	if (data->state <= m_guards.size())
+	{
+		m_guards[data->state]->onNetworkPossessed(data);
+	}
 }
 
 void EnemyHandler::_onDisabledPacket(Network::ENTITYSTATEPACKET * data)
 {
-	m_guards[data->state]->onNetworkDisabled(data);
+	if (data->state <= m_guards.size())
+	{
+		m_guards[data->state]->onNetworkDisabled(data);
+	}
 }
