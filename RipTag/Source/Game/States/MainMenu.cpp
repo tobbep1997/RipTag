@@ -24,7 +24,7 @@ void MainMenu::Update(double deltaTime)
 
 	if (!_handleMouseInput())
 	{
-		_handleGamePadInput();
+		_handleGamePadInput(deltaTime);
 		_handleKeyboardInput();
 	}
 
@@ -128,14 +128,27 @@ void MainMenu::_initButtons()
 
 bool MainMenu::_handleMouseInput()
 {
-	if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
-		return false;
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
 
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
 
+	bool returnIfTrue = true;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		returnIfTrue = false;
+	}
+
+	s_mouseLastFrame = mousePos;
+
+	if (returnIfTrue)
+		return false;
+
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
+	/*if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
+		return false;*/
+
 
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
@@ -163,10 +176,12 @@ bool MainMenu::_handleMouseInput()
 	return true;
 }
 
-void MainMenu::_handleGamePadInput()
+void MainMenu::_handleGamePadInput(float deltaTime)
 {
 	if (Input::isUsingGamepad())
 	{
+		m_stickTimer += deltaTime; 
+
 		if (GamePadHandler::IsUpDpadPressed())
 		{
 			if (m_currentButton == 0)
@@ -178,6 +193,22 @@ void MainMenu::_handleGamePadInput()
 		{
 			m_currentButton++;
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+		}
+
+		if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimer > 0.2f)
+		{
+			if (m_currentButton == 0)
+				m_currentButton = (unsigned int)ButtonOrder::Quit;
+			else
+				m_currentButton--;
+
+			m_stickTimer = 0; 
+		}
+		else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimer > 0.2f)
+		{
+			m_currentButton++; 
+			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+			m_stickTimer = 0; 
 		}
 		_updateSelectionStates();
 

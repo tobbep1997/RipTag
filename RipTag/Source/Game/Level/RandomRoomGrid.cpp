@@ -34,9 +34,11 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 
 RandomRoomGrid::~RandomRoomGrid()
 {
-	delete [] m_roomGrid;
+	if (m_roomGrid)
+		delete [] m_roomGrid;
 	m_roomGrid = nullptr;
-	delete [] m_rooms;
+	if (m_rooms)
+		delete [] m_rooms;
 	m_rooms = nullptr;
 }
 

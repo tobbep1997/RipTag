@@ -119,6 +119,12 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_POSESS_END:
 		this->_onNetworkRemotePosess(id);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN:
+		this->_onNetworkRemoteCrouch(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
+		this->_onNetworkRemoteCrouch(id);
+		break;
 	default:
 		break;
 	}
@@ -364,6 +370,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
 		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
+		auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
@@ -374,9 +381,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		//set initial state
 		stateMachine->SetState("walk_forward");
 
-		//auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
-		//auto crouchState = layerMachine->AddBasicLayer("crouch", nullptr, 0.7, 0.7);
-		//crouchState->UseFirstPoseOnly(true);
+		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
+		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
+		crouchState->UseFirstPoseOnly(true);
 	}
 
 	//#todoREMOVE
@@ -427,6 +434,21 @@ void RemotePlayer::_onNetworkRemotePosess(unsigned char id)
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_POSESS_END:
 		this->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
+		break;
+	}
+}
+
+void RemotePlayer::_onNetworkRemoteCrouch(unsigned char id)
+{
+	using namespace Network;
+
+	switch (id)
+	{
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN:
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
+		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 		break;
 	}
 }

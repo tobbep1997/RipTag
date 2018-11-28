@@ -104,6 +104,25 @@ void RoomGenerator::_generateGrid()
 			}		
 		}
 	}
+
+	/*std::ofstream lol;
+	lol.open("map.txt");
+	for (int i = 0; i < iterationsDepth; i++)
+	{
+		for (int j = 0; j < iterationsWidth; j++)
+		{
+			int index = i + j * iterationsWidth;
+			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
+			if (node.tile.getPathable())
+				lol << " ";
+			else
+				lol << "#";
+			lol << " ";
+		}
+		lol << "\n";
+	}*/
+	
+
 }
 
 void RoomGenerator::_makeFloor()
@@ -557,9 +576,12 @@ void RoomGenerator::_createEntireWorld()
 		}
 		depthCounter++;
 	}
-
-	delete [] alreadyPickedSmallMods;
-	delete [] alreadyPickedLargeMods;
+	if (alreadyPickedSmallMods)
+		delete [] alreadyPickedSmallMods;
+	alreadyPickedSmallMods = nullptr;
+	if (alreadyPickedLargeMods)
+		delete [] alreadyPickedLargeMods;
+	alreadyPickedLargeMods = nullptr;
 }
 
 void RoomGenerator::_generateGuardPaths()
@@ -669,7 +691,6 @@ void RoomGenerator::moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::
 
 Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Player *  playerPtr)
 {
-	
 	this->m_worldPtr = worldPtr;
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
 	Manager::g_textureManager.loadTextures("FLOOR");
@@ -685,14 +706,14 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
-	//_makeRoof();
+	_makeRoof();
 	
 	returnableRoom->setGrid(this->m_generatedGrid);
 
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);

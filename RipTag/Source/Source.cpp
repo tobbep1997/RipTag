@@ -115,6 +115,9 @@ void SingleGameLoop(Game * game)
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
+
+
+
 	while (game->isRunning())
 	{
 		InputHandler::Reset();
@@ -167,7 +170,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	game.Init(hInstance);
 
 	SingleGameLoop(&game);
+#ifdef _DEBUG
+#else
+	/*std::thread gameLooop = std::thread(&GameLoop, &game);
+	game.PollEvents();
+	if (gameLooop.joinable())
+		gameLooop.join();*/
+#endif
 
+	
 	DX::g_shaderManager.Release();
 	FontHandler::Release();
 	AudioEngine::Release();

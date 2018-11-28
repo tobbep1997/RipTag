@@ -90,12 +90,25 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	if (InputHandler::mouseMoved() || InputHandler::isMouseLeftPressed())
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	bool mouseMoved = false;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		mouseMoved = true;
+	}
+
+	s_mouseLastFrame = mousePos;
+
+	if (mouseMoved || InputHandler::isMouseLeftPressed())
 		_handleMouseInput();
 	else
 	{
 		_handleKeyboardInput();
-		_handleGamePadInput();
+		_handleGamePadInput(deltaTime);
 	}
 
 	
@@ -557,12 +570,12 @@ void LobbyState::_initButtons()
 	}
 }
 
-void LobbyState::_handleGamePadInput()
+void LobbyState::_handleGamePadInput(float deltaTime)
 {
 	if (Input::isUsingGamepad())
 	{
 		if (!isHosting && !hasJoined && !inServerList)
-			this->_gamePadMainLobby();
+			this->_gamePadMainLobby(deltaTime);
 		if (!isHosting && !hasJoined && inServerList)
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
@@ -743,8 +756,11 @@ void LobbyState::_updateInfoString()
 		this->m_infoWindow->setString(content);
 }
 
-void LobbyState::_gamePadMainLobby()
+void LobbyState::_gamePadMainLobby(float deltaTime)
 {
+	m_stickTimerY += deltaTime; 
+	m_stickTimerX += deltaTime; 
+
 	if (GamePadHandler::IsUpDpadPressed())
 	{	
 		if (m_currentButton == 0)
@@ -758,6 +774,31 @@ void LobbyState::_gamePadMainLobby()
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
 	}
 	else if (GamePadHandler::IsRightDpadPressed())
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
+			inServerList = true;
+			m_currentButtonServerList = 0;
+		}
+	}
+
+	if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimerY >= 0.2f)
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+		m_stickTimerY = 0; 
+	}
+	else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimerY >= 0.2f)
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+		m_stickTimerY = 0; 
+	}
+	else if (GamePadHandler::GetLeftStickXPosition() > 0 && m_stickTimerX >= 0.2f)
 	{
 		if (m_hostListButtons.size() > 0)
 		{
@@ -816,6 +857,8 @@ void LobbyState::_gamePadCharSelection()
 			break;
 		}
 	}
+
+
 
 	_updateSelectionStates();
 
