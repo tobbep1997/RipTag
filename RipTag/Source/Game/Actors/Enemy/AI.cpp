@@ -639,7 +639,7 @@ void AI::_possessed(const double deltaTime)
 }
 void AI::_disabled(const double deltaTime)
 {
-	m_owner->getBody()->SetType(e_staticBody);
+	m_owner->getBody()->SetType(e_dynamicBody);
 	switch (m_owner->m_knockOutType)
 	{
 
@@ -662,6 +662,9 @@ void AI::_disabled(const double deltaTime)
 		}
 		break;
 	}
+	//m_owner->p_setRotation()
+	m_owner->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0));
+	m_owner->getBody()->SetLinearVelocity(b3Vec3(0, 0, 0));
 	//m_owner->PhysicsComponent::p_setRotation(m_owner->p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), m_owner->p_camera->getYRotationEuler().y, m_owner->p_camera->getYRotationEuler().z);
 	m_owner->m_visCounter = 0;
 }

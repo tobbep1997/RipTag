@@ -572,8 +572,8 @@ void Enemy::removePossessor()
 	if (m_possessor != nullptr)
 	{
 		m_possessor->UnlockPlayerInput();
-		this->getBody()->SetType(e_staticBody);
-		this->getBody()->SetAwake(false);
+		this->getBody()->SetType(e_dynamicBody);
+		//this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
 		m_released = true; 
@@ -703,8 +703,8 @@ void Enemy::_onReleasePossessed(double deltaTime)
 				m_possessor->UnlockPlayerInput();
 				m_possessor = nullptr;
 				//this->CreateBox(1,1,1);
-				this->getBody()->SetType(e_staticBody);
-				this->getBody()->SetAwake(false);
+				this->getBody()->SetType(e_dynamicBody);
+				//this->getBody()->SetAwake(false);
 			}
 		}
 		else

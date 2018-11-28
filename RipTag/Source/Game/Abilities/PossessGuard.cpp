@@ -262,8 +262,8 @@ void PossessGuard::_hitEnemy()
 					pPointer->setHidden(false);
 					pPointer->LockPlayerInput();
 
-					contact->contactShape->GetBody()->SetType(e_dynamicBody);
-					contact->contactShape->GetBody()->SetAwake(true);
+					//contact->contactShape->GetBody()->SetType(e_dynamicBody);
+					//contact->contactShape->GetBody()->SetAwake(true);
 					this->m_possessTarget = e;
 					this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
