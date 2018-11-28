@@ -104,7 +104,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 
 			}
 		}
-		if (DX::g_player && false)
+		if (DX::g_player && true)
 		{
 			ID3D11Buffer * vertexBuffer = DX::g_player->GetAnimatedVertex();
 

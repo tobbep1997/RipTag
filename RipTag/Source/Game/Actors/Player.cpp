@@ -860,6 +860,7 @@ void Player::_onCrouch()
 		m_currClickCrouch = Input::Crouch();
 		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
 		{
+			this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
 			if (Multiplayer::GetInstance()->isConnected())
 			{
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
@@ -871,6 +872,7 @@ void Player::_onCrouch()
 		}
 		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
 		{
+			this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 			if (Multiplayer::GetInstance()->isConnected())
 			{
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
@@ -891,6 +893,7 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
+				this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
 				if (Multiplayer::GetInstance()->isConnected())
 				{
 					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
@@ -907,6 +910,7 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
+				this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 				if (Multiplayer::GetInstance()->isConnected())
 				{
 					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
