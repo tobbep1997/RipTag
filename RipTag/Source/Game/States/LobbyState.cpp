@@ -107,7 +107,7 @@ void LobbyState::Update(double deltaTime)
 
 	_handleKeyboardInput();
 
-	_handleGamePadInput();
+	_handleGamePadInput(deltaTime);
 
 	/*if (mouseMoved)
 	else
