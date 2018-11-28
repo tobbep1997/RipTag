@@ -155,8 +155,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_alocConsole();
 	_CrtSetDbg();
 #endif
-
-
     AudioEngine::Init();
 	SoundSettings ss = _ReadSettingsFromFile();
 	AudioEngine::SetMasterVolume(ss.master / 100.0f);
