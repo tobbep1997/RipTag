@@ -24,6 +24,8 @@ private:
 	FMOD::Channel * m_music;
 	bool m_playstatePressed = false;
 
+	float m_stickTimer = 0; 
+
 	
 public:
 	MainMenu(RenderingManager * rm);
@@ -37,7 +39,7 @@ public:
 
 private:
 	void _initButtons();
-	void _handleGamePadInput();
+	void _handleGamePadInput(float deltaTime);
 	void _handleKeyboardInput();
 	bool _handleMouseInput();
 	void _updateSelectionStates();
