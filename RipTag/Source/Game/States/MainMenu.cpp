@@ -24,7 +24,7 @@ void MainMenu::Update(double deltaTime)
 
 	if (!_handleMouseInput())
 	{
-		_handleGamePadInput();
+		_handleGamePadInput(deltaTime);
 		_handleKeyboardInput();
 	}
 
@@ -176,10 +176,12 @@ bool MainMenu::_handleMouseInput()
 	return true;
 }
 
-void MainMenu::_handleGamePadInput()
+void MainMenu::_handleGamePadInput(float deltaTime)
 {
 	if (Input::isUsingGamepad())
 	{
+		m_stickTimer += deltaTime; 
+
 		if (GamePadHandler::IsUpDpadPressed())
 		{
 			if (m_currentButton == 0)
@@ -191,6 +193,22 @@ void MainMenu::_handleGamePadInput()
 		{
 			m_currentButton++;
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+		}
+
+		if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimer > 0.2f)
+		{
+			if (m_currentButton == 0)
+				m_currentButton = (unsigned int)ButtonOrder::Quit;
+			else
+				m_currentButton--;
+
+			m_stickTimer = 0; 
+		}
+		else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimer > 0.2f)
+		{
+			m_currentButton++; 
+			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+			m_stickTimer = 0; 
 		}
 		_updateSelectionStates();
 
