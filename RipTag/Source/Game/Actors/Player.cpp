@@ -619,6 +619,7 @@ void Player::SendOnAnimationUpdate(double dt)
 			this->m_currentDirection, 
 			this->m_currentSpeed,
 			this->m_currentPitch,
+			this->m_currentPeek,
 			this->getCamera()->getYRotationEuler());
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
@@ -997,6 +998,9 @@ void Player::_onPeak(double deltaTime)
 		m_peekRangeA = m_peektimer;
 		m_peekRangeB = 0;
 	}
+
+	m_currentPeek = /*peekDir * */m_peektimer;
+	std::cout << m_currentPeek << std::endl;
 
 }
 

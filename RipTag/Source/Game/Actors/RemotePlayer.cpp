@@ -211,6 +211,7 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentDirection = data->direction;
 		this->m_currentSpeed = data->speed;
 		this->m_currentPitch = data->pitch;
+		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
 
 		std::cout << m_currentSpeed << std::endl;
@@ -371,6 +372,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
 		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
 		auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+		auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+		auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
@@ -384,6 +387,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
 		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 		crouchState->UseFirstPoseOnly(true);
+		
+		auto leanState = layerMachine->Add1DPoseLayer("peek", &this->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
+		layerMachine->ActivateLayer("peek");
 	}
 
 	//#todoREMOVE
