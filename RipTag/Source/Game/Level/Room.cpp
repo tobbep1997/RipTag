@@ -158,7 +158,7 @@ void Room::LoadRoomToMemory()
 			p_emit = new ParticleEmitter();
 			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);
 
-			Torch * t = new Torch(p_pointLight, p_emit, 0);
+			Torch * t = new Torch(p_pointLight, p_emit, i);
 			t->BeginPlay();
 			m_Torches.push_back(t);
 			
@@ -537,6 +537,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 
 	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
+		int uniqueID = -1;
 		switch (propsAndAssets.props[i].typeOfProp)
 		{
 		case(1):
@@ -546,7 +547,10 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			Manager::g_textureManager.loadTextures("PLATE");
 			Manager::g_animationManager.loadSkeleton("../Assets/PLATEFOLDER/PLATE_SKELETON.bin", "PLATE");
 			Manager::g_animationManager.loadClipCollection("PLATE", "PLATE", "../Assets/PLATEFOLDER", Manager::g_animationManager.getSkeleton("PLATE"));
-			tempPressurePlate = DBG_NEW PressurePlate(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			
+			uniqueID = triggerHandler->netWorkTriggers.size();
+
+			tempPressurePlate = DBG_NEW PressurePlate(uniqueID, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
 
 			tempPressurePlate->Init(propsAndAssets.props[i].transform_position[0],
 				propsAndAssets.props[i].transform_position[1],
@@ -561,14 +565,17 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 				propsAndAssets.props[i].transform_scale[1],
 				propsAndAssets.props[i].transform_scale[2]);
 			triggerHandler->Triggers.push_back(tempPressurePlate);
-			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempPressurePlate));
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(uniqueID, tempPressurePlate));
 			tempPressurePlate = nullptr;
 
 			break;
 		case(3):
 			Manager::g_meshManager.loadStaticMesh("DOOR");
 			Manager::g_textureManager.loadTextures("DOOR");
-			tempDoor = DBG_NEW Door(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+
+			uniqueID = triggerHandler->Triggerables.size();
+
+			tempDoor = DBG_NEW Door(uniqueID, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
 			tempDoor->Init(propsAndAssets.props[i].transform_position[0],
 				propsAndAssets.props[i].transform_position[1],
 				propsAndAssets.props[i].transform_position[2],
@@ -589,9 +596,12 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			//Manager::g_textureManager.loadTextures("SPAK");
 			Manager::g_meshManager.loadSkinnedMesh("SPAK");
 			Manager::g_textureManager.loadTextures("SPAK");
+
+			uniqueID = triggerHandler->netWorkTriggers.size();
+
 			Manager::g_animationManager.loadSkeleton("../Assets/SPAKFOLDER/SPAK_SKELETON.bin", "SPAK");
 			Manager::g_animationManager.loadClipCollection("SPAK", "SPAK", "../Assets/SPAKFOLDER", Manager::g_animationManager.getSkeleton("SPAK"));
-			tempLever = DBG_NEW Lever(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+			tempLever = DBG_NEW Lever(uniqueID, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
 			tempLever->Init(propsAndAssets.props[i].transform_position[0],
 				propsAndAssets.props[i].transform_position[1],
 				propsAndAssets.props[i].transform_position[2],
@@ -599,13 +609,16 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 				propsAndAssets.props[i].transform_rotation[1],
 				propsAndAssets.props[i].transform_rotation[2]);
 			triggerHandler->Triggers.push_back(tempLever);
-			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(i, tempLever));
+			triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(uniqueID, tempLever));
 			tempLever = nullptr;
 			break;
 		case(5):
 			Manager::g_meshManager.loadStaticMesh("BARS");
 			Manager::g_textureManager.loadTextures("BARS");
-			tempBars = DBG_NEW Bars(i, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
+
+			uniqueID = triggerHandler->Triggerables.size();
+
+			tempBars = DBG_NEW Bars(uniqueID, propsAndAssets.props[i].linkedItem, propsAndAssets.props[i].isTrigger);
 			tempBars->Init(propsAndAssets.props[i].transform_position[0],
 				propsAndAssets.props[i].transform_position[1],
 				propsAndAssets.props[i].transform_position[2],
