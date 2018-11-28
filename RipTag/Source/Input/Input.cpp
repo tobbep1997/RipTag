@@ -398,7 +398,7 @@ float Input::TurnUp()
 {
 	float result = 0;
 	if (isUsingGamepad())
-		result = -5.0f * GamePadHandler::GetRightStickYPosition();
+		result = -20.0f * GamePadHandler::GetRightStickYPosition();
 	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
@@ -413,7 +413,7 @@ float Input::TurnRight()
 {
 	float result = 0;
 	if (isUsingGamepad())
-		result = 5.0f * GamePadHandler::GetRightStickXPosition();
+		result = 20.0f * GamePadHandler::GetRightStickXPosition();
 
 	if (result == 0)
 	{
