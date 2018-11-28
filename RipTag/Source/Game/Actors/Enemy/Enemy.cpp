@@ -229,7 +229,7 @@ void Enemy::ClientUpdate(double deltaTime)
 
 	AIState state = getAIState();
 
-	if (state != AIState::Possessed)
+	if (state == AIState::Possessed)
 		_cameraPlacement(deltaTime);
 	//Visibility update
 	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
