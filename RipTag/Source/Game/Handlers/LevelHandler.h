@@ -53,6 +53,9 @@ public:
 	std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> getStartingPositions();
 
 	const unsigned short getNextRoom() const;
+
+	bool HasMoreRooms();
+	void LoadNextRoom(int player = 1);
 private:
 	void _LoadCorrectRoom(const int & seed, const int & roomIndex);
 

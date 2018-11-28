@@ -84,7 +84,7 @@ void TransitionState::Update(double deltaTime)
 		}
 	}
 
-	if (pCoopData)
+	/*if (pCoopData)
 	{
 		if (isReady && isRemoteReady)
 		{
@@ -92,13 +92,13 @@ void TransitionState::Update(double deltaTime)
 		}
 	}
 	else if (isReady)
-		this->pushAndPop(2, new PlayState(p_renderingManager));
+		this->pushAndPop(2, new PlayState(p_renderingManager));*/
 	
 }
 
 void TransitionState::Draw()
 {
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
+	static Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 
 	if (m_header)
 		m_header->Draw();
@@ -107,7 +107,10 @@ void TransitionState::Draw()
 	if (m_backToMenu)
 		m_backToMenu->Draw();
 	if (m_ready)
-		m_ready->Draw();
+	{
+		if (m_type != Transition::ThankYou)
+			m_ready->Draw();
+	}
 	if (m_background)
 		m_background->Draw();
 
@@ -171,6 +174,14 @@ void TransitionState::HandlePacket(unsigned char id, unsigned char * data)
 	}
 }
 
+bool TransitionState::ReadyToLoadNextRoom()
+{
+	if (pCoopData)
+		return isReady && isRemoteReady;
+	else
+		return isReady;
+}
+
 void TransitionState::_initButtons()
 {
 	//Buttons
@@ -181,10 +192,15 @@ void TransitionState::_initButtons()
 			this->m_header->setTextColor(Colors::Red);
 			
 		}
-		else
+		else if (m_type == Transition::Win)
 		{
 			this->m_header = Quad::CreateButton("", 0.5f, 0.7f, 0.5f, 0.25f);
 			this->m_header->setTextColor(Colors::Green);
+		}
+		else
+		{
+			this->m_header = Quad::CreateButton("Thank you!", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header->setTextColor(Colors::Gold);
 		}
 		this->m_header->setUnpressedTexture("gui_transparent_pixel");
 		this->m_header->setPressedTexture("gui_transparent_pixel");
@@ -201,7 +217,10 @@ void TransitionState::_initButtons()
 		this->m_eventInfo->setFont(FontHandler::getFont("consolas32"));
 		this->m_eventInfo->setTextColor(Colors::White);
 
-		this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.3f, 0.20f, 0.5f, 0.25f);
+		if (m_type == Transition::ThankYou)
+			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.5f, 0.20f, 0.5f, 0.25f);
+		else
+			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.3f, 0.20f, 0.5f, 0.25f);
 		this->m_backToMenu->setUnpressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setPressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setHoverTexture("gui_pressed_pixel");

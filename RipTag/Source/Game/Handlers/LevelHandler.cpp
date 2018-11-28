@@ -48,7 +48,8 @@ void LevelHandler::Release()
 
 void LevelHandler::Update(float deltaTime, Camera * camera)
 {
-	using namespace std::chrono_literals;
+	//Is not used - but do not remove
+	/*using namespace std::chrono_literals;
 	if (future.valid())
 	{
 		auto status = future.wait_for(0s);
@@ -57,52 +58,52 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 		}
 		else {
 		}
-	}
+	}*/
 
 	
-	if (InputHandler::isKeyPressed('N'))
-	{
-		if (pressed == false)
-		{
-			m_rooms[m_activeRoom]->SetActive(false);
-			//m_activeRoom--;
-			m_activeRoom = 0;
-			_RoomLoadingManager();
-			pressed = true;
-			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
-			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
-			m_rooms[m_activeRoom]->SetActive(true);
-			RipExtern::g_rayListener->ClearRays();
-			RipExtern::g_rayListener->ClearProcessedRays();
-			RipExtern::g_contactListener->ClearContactQueue();
-			RipExtern::g_kill = true;
-		}
-	}
-	else if (InputHandler::isKeyPressed('M'))
-	{
-		
-		if (pressed == false)
-		{
-			m_rooms[m_activeRoom]->SetActive(false);
-			//m_activeRoom++;
-			m_activeRoom = 0;
-			_RoomLoadingManager();
-			pressed = true;
-			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
-			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
-			m_rooms[m_activeRoom]->SetActive(true);
+	//if (InputHandler::isKeyPressed('N'))
+	//{
+	//	if (pressed == false)
+	//	{
+	//		m_rooms[m_activeRoom]->SetActive(false);
+	//		//m_activeRoom--;
+	//		m_activeRoom = 0;
+	//		_RoomLoadingManager();
+	//		pressed = true;
+	//		DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
+	//		this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+	//		m_rooms[m_activeRoom]->SetActive(true);
+	//		RipExtern::g_rayListener->ClearRays();
+	//		RipExtern::g_rayListener->ClearProcessedRays();
+	//		RipExtern::g_contactListener->ClearContactQueue();
+	//		RipExtern::g_kill = true;
+	//	}
+	//}
+	//else if (InputHandler::isKeyPressed('M'))
+	//{
+	//	
+	//	if (pressed == false)
+	//	{
+	//		m_rooms[m_activeRoom]->SetActive(false);
+	//		//m_activeRoom++;
+	//		m_activeRoom = 0;
+	//		_RoomLoadingManager();
+	//		pressed = true;
+	//		DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
+	//		this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+	//		m_rooms[m_activeRoom]->SetActive(true);
 
-			RipExtern::g_rayListener->ClearRays();
-			RipExtern::g_rayListener->ClearProcessedRays();
-			RipExtern::g_contactListener->ClearContactQueue();
-			RipExtern::g_kill = true;
-		}
-	}
-	else
-	{
-	
-		pressed = false;
-	}
+	//		RipExtern::g_rayListener->ClearRays();
+	//		RipExtern::g_rayListener->ClearProcessedRays();
+	//		RipExtern::g_contactListener->ClearContactQueue();
+	//		RipExtern::g_kill = true;
+	//	}
+	//}
+	//else
+	//{
+	//
+	//	pressed = false;
+	//}
 	if (RipExtern::g_kill == false)
 		m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
 }
@@ -149,6 +150,39 @@ std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositi
 const unsigned short LevelHandler::getNextRoom() const
 {
 	return this->m_nextRoomIndex;
+}
+
+bool LevelHandler::HasMoreRooms()
+{
+	if (m_activeRoom == 2)
+		return false;
+	else
+		return true;
+}
+
+void LevelHandler::LoadNextRoom(int player)
+{
+	m_rooms[m_activeRoom]->SetActive(false);
+
+	m_activeRoom++;
+	
+	_RoomLoadingManager();
+
+	DirectX::XMFLOAT4 startPos; 
+	if (player == 1)
+		startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
+	else
+		startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+
+	this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+
+	m_rooms[m_activeRoom]->SetActive(true);
+
+	RipExtern::g_rayListener->ClearRays();
+	RipExtern::g_rayListener->ClearProcessedRays();
+	RipExtern::g_contactListener->ClearContactQueue();
+
+	RipExtern::g_kill = true;
 }
 
 void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)

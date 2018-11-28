@@ -25,11 +25,14 @@ class RayCastListener;
 class RenderingManager;
 class Drawable; //#todoREMOVE
 class ParticleEmitter;
+class TransitionState;
 
 
 class PlayState : public State
 {
 private:
+	TransitionState * m_transitionState = nullptr;
+
 	LevelHandler * m_levelHandler;		//Released
 	PlayerManager * m_playerManager;	//Released
 

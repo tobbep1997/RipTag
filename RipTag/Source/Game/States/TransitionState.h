@@ -7,7 +7,8 @@ class Quad;
 enum Transition
 {
 	Lose = 0,
-	Win = 1
+	Win = 1,
+	ThankYou = 2
 };
 
 class TransitionState :
@@ -46,6 +47,8 @@ public:
 
 	//Network
 	void HandlePacket(unsigned char id, unsigned char * data);
+
+	bool ReadyToLoadNextRoom();
 
 private:
 	void _initButtons();
