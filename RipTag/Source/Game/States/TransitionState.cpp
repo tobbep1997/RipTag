@@ -86,15 +86,19 @@ void TransitionState::Update(double deltaTime)
 	}
 
 
-	/*if (pCoopData)
+	if (m_type == Transition::Lose)
 	{
-		if (isReady && isRemoteReady)
+		if (pCoopData)
 		{
-			this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+			if (isReady && isRemoteReady)
+			{
+				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+			}
 		}
+		else if (isReady)
+			this->pushAndPop(2, new PlayState(p_renderingManager));
+
 	}
-	else if (isReady)
-		this->pushAndPop(2, new PlayState(p_renderingManager));*/
 	
 }
 
