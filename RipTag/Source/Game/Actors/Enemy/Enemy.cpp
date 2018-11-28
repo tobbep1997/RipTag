@@ -50,8 +50,8 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->getBody()->SetObjectTag("ENEMY");
 	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
 	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (3.25);
-	m_crouchHeight = pos.y + 0.5 + 0.75;
+	m_standHeight = (1.0*1.4);
+	m_crouchHeight = 1.0 * .5;
 	setUserDataBody(this);
 
 	this->setEntityType(EntityType::GuarddType);
