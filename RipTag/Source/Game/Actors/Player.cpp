@@ -854,16 +854,29 @@ void Player::_onSprint()
 
 void Player::_onCrouch()
 {
+	using namespace Network;
 	if(Input::isUsingGamepad())
 	{
 		m_currClickCrouch = Input::Crouch();
 		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			_activateCrouch();
 			m_toggleCrouch = 1;
 		}
 		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			_deActivateCrouch();
 			m_toggleCrouch = 0; 
 
@@ -878,6 +891,12 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching == false)
 			{
+				if (Multiplayer::GetInstance()->isConnected())
+				{
+					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
+					Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+				}
+
 				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 				crouchDir = 1;
 				
@@ -888,6 +907,12 @@ void Player::_onCrouch()
 		{
 			if (m_kp.crouching)
 			{
+				if (Multiplayer::GetInstance()->isConnected())
+				{
+					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
+					Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+				}
+
 				crouchDir = -1;
 				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 				
