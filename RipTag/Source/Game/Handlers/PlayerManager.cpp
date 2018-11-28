@@ -160,6 +160,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 		mLocalPlayer->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
 		mLocalPlayer->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
 		mLocalPlayer->setModelTransform(DirectX::XMMatrixTranslation(0.0, -1.7f, 0.0f));
+		mLocalPlayer->CastShadows(true);
 		{
 			auto animationPlayer = mLocalPlayer->getAnimationPlayer();
 
