@@ -259,9 +259,6 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 	_updateDriverWeight();
 	deltaTime *= m_CurrentDriverWeight;
 
-	//if (m_Muted)
-	//	m_CurrentDriverWeight = 0.0f;
-
 	LayerState::_updateTime(deltaTime);
 	LayerState::_updateBlend(deltaTime);
 	if (!LayerState::IsPopped())
@@ -269,19 +266,32 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 		auto indexAndProgression = LayerState::_getIndexAndProgression();
 		float weight = 1.0f; //todo
 		auto currentState = LayerState::GetState();
+
+		//Assign weight depending on blending state and progression
 		if (currentState != NONE)
 		{
 			if (currentState == BLENDING_OUT)
 			{
 				weight = m_CurrentBlendTime / m_BlendOutTime;
 			}
+			else if (currentState == BLENDING_IN)
+			{
+				weight = 1.0f - (m_CurrentBlendTime / m_BlendInTime);
+			}
 		}
-		auto pose = Animation::AnimationPlayer::_BlendSkeletonPoses
+
+		//Get inital pose; depends on if user requested to use first pose only 
+		auto pose = m_FirstPoseOnly
+			? Animation::MakeSkeletonPose(m_Clip->m_SkeletonPoses[0], m_OwnerMachine->GetSkeletonJointCount())
+			: Animation::AnimationPlayer::_BlendSkeletonPoses
 			( &m_Clip->m_SkeletonPoses[indexAndProgression.first]
 			, &m_Clip->m_SkeletonPoses[indexAndProgression.first + 1]
 			, indexAndProgression.second, m_OwnerMachine->GetSkeletonJointCount());
 
+		//Scale weight with driver value
 		weight *= m_CurrentDriverWeight;
+
+		//Scale pose if between 0.0 and 1.0
 		if (weight >= 0.0f || weight < 0.9999f)
 		{
 			Animation::AnimationPlayer::_ScalePose(&pose, weight, m_OwnerMachine->GetSkeletonJointCount());
@@ -298,6 +308,11 @@ void BasicLayer::MakeDriven(float * driver, float min, float max, bool affectsSp
 	m_DriverMin = min;
 	m_DriverMax = max;
 	m_DriverAffectsSpeed = affectsSpeed;
+}
+
+void BasicLayer::UseFirstPoseOnly(bool use /*= true*/)
+{
+	m_FirstPoseOnly = use;
 }
 
 void BasicLayer::_updateDriverWeight()

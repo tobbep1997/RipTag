@@ -220,7 +220,7 @@ void AI::_onInvestigateSound()
 
 	if (soundTile.getX() == -1 && soundTile.getY() == -1)
 	{
-		soundTile = m_grid->GetRandomNearbyTile(guardTile, 0);
+		soundTile = m_grid->GetRandomNearbyTile(guardTile);
 	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
@@ -246,7 +246,7 @@ void AI::_onInvestigateSight()
 
 	if (playerTile.getX() == -1 && playerTile.getY() == -1)
 	{
-		playerTile = m_grid->GetRandomNearbyTile(guardTile, 0);
+		playerTile = m_grid->GetRandomNearbyTile(guardTile);
 	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
@@ -261,10 +261,7 @@ void AI::_onInvestigateSight()
 void AI::_onObserve()
 {
 	m_owner->setLiniearVelocity();
-	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 	this->m_actTimer = 0;
-	//this->SetAlertVector(m_grid->FindPath(guardTile, this->GetCurrentPathNode()->tile));
 #ifdef _DEBUG
 
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
@@ -303,11 +300,7 @@ void AI::_onSearchArea()
 		dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
 	}
 
-
 	std::vector<Node*> fullPath = m_grid->FindPath(guardTile, Tile(x, y));
-	//std::vector<Node*> partOfPath = m_grid->FindPath(Tile(5, 6), Tile(1, 2));
-	//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-
 	this->SetAlertVector(fullPath);
 }
 
@@ -317,7 +310,7 @@ void AI::_onReturnToPatrol()
 	this->m_searchTimer = 0;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-	Tile lastPatrolPos = m_grid->WorldPosToTile(m_path.at(m_currentPathNode)->worldPos.x, m_path.at(m_currentPathNode)->worldPos.y);
+	Tile lastPatrolPos = m_path.at(m_currentPathNode)->tile;
 	this->SetAlertVector(m_grid->FindPath(guardTile, lastPatrolPos));
 	this->m_state = Patrolling;
 #ifdef _DEBUG
@@ -929,12 +922,14 @@ void AI::setGrid(Grid * grid)
 
 void AI::SetPathVector(std::vector<Node*> path)
 {
+	// Add path.size() > 0 if it can remove the path
 	if (m_path.size() > 0)
 	{
 		for (int i = 0; i < m_path.size(); i++)
 			delete m_path.at(i);
 		m_path.clear();
 	}
+	m_currentPathNode = 0;
 	m_path = path;
 }
 

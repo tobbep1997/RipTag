@@ -101,8 +101,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, 0.5 + 0.75, 0, 0.25, 1, 0.25, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 0.25, 0.25, 0.25, "HEAD");
+	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
+	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
 	m_standHeight = (y*1.4);
 	m_crouchHeight = y*.5;
 	setUserDataBody(this);
@@ -439,39 +439,39 @@ void Player::SetFirstPersonModel()
 	m_FirstPersonModel->setTexture(Manager::g_textureManager.getTexture("ARMS"));
 
 	//Animation stuff
-	auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
-	auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
-	auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
-	auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
-	auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
-	auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
-	auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
-	//auto bpClip = Manager::g_animationManager.getAnimation("ARMS", "BP_ANIMATION").get();
+	{
+		auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
+		auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
+		auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
+		auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
+		auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
+		auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+		auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
 
-	auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
+		auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
 
-	auto& machine = animPlayer->InitStateMachine(3);
-	animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
+		auto& machine = animPlayer->InitStateMachine(3);
+		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 
-	auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
-	idleState->SetBlendTime(0.0f);
-	idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
-	auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
-	auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
-	machine->SetState("idle");
+		auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+		idleState->SetBlendTime(0.2f);
+		idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
+		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
+		machine->SetState("idle");
 
-	auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
-	throwFinishState->SetBlendTime(0.0f);
+		auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
+		throwFinishState->SetBlendTime(0.0f);
 
-	auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
-	auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
-	auto turnState = layerMachine->Add1DPoseLayer("turn", &m_currentTurnSpeed, -180.0f, 180.0f, { {turnLeftPose, -180.0f}, {turnRightPose, 180.0f} });
-	additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
-	layerMachine->ActivateLayer("bob");
-	layerMachine->ActivateLayer("turn");
+		auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
+		auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
+		auto turnState = layerMachine->Add1DPoseLayer("turn", &m_currentTurnSpeed, -180.0f, 180.0f, { {turnLeftPose, -180.0f}, {turnRightPose, 180.0f} });
+		additiveState->MakeDriven(&m_currentSpeed, 0.0, 1.5, true);
+		layerMachine->ActivateLayer("bob");
+		layerMachine->ActivateLayer("turn");
 
-	animPlayer->Play();
-
+		animPlayer->Play();
+	}
 }
 
 void Player::SendOnUpdateMessage()
@@ -908,8 +908,8 @@ void Player::_onRotate(double deltaTime)
 
 	if (!unlockMouse)
 	{	
-		float deltaY = Input::TurnUp();
-		float deltaX = Input::TurnRight();
+		const float deltaY = Input::TurnUp();
+		const float deltaX = Input::TurnRight();
 
 		if (deltaY || deltaX)
 		{
@@ -921,75 +921,16 @@ void Player::_onRotate(double deltaTime)
 			else if (s_rot.y < -88.0f)
 				s_rot.y = -88.0f;
 
-			float radX = DirectX::XMConvertToRadians(s_rot.x);
-			float radY = DirectX::XMConvertToRadians(s_rot.y);
+			const float radX = DirectX::XMConvertToRadians(s_rot.x);
+			const float radY = DirectX::XMConvertToRadians(s_rot.y);
 
 			DirectX::XMFLOAT4A lookTo = { 0.0f,0.0f,0.0f,0.0f };
 			lookTo.x = cos(radX) * cos(radY);
 			lookTo.y = sin(radY);
 			lookTo.z = sin(radX) * cos(radY);
 			p_camera->setLookTo(lookTo);
-		}
-
-		//if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		//{
-		//	
-		//}
-		//else
-		//{
-		//	/*if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
-		//	{
-		//		if (m_peekRotate > 0)
-		//		{
-		//			p_camera->Rotate(0.0f, -0.05f, 0.0f);
-		//			m_peekRotate -= 0.05;
-		//		}
-		//		else
-		//		{
-		//			p_camera->Rotate(0.0f, +0.05f, 0.0f);
-		//			m_peekRotate += 0.05;
-		//		}
-
-		//	}
-		//	else
-		//	{
-		//		m_peekRotate = 0;
-		//	}*/
-		//	//m_peekRotate = 0;
-		//}
-
-		//if (((deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >=-0.5)) || deltaX)
-		//{
-		//	p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
-		//	if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		//	{
-		//		m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
-		//	}
-		//}
-		//if (deltaY) 
-		//{
-		//	if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
-		//	{
-		//		p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
-		//	}
-		//	else if (p_camera->getDirection().y >= 0.90f)
-		//	{
-		//		p_camera->setDirection(p_camera->getDirection().x, 0.89f, p_camera->getDirection().z);
-		//	}
-		//	if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) > -0.90f)
-		//	{
-		//		p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
-		//	}
-		//	else if (p_camera->getDirection().y <= -0.90f)
-		//	{
-		//		p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
-		//	}
-		//
-		//	
-		//}
-		
+		}		
 	}
-	//#todoREMOVE
 	m_currentPitch = - p_camera->getPitch().x;
 }
 

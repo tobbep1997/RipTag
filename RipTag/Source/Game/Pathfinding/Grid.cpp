@@ -156,8 +156,8 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
 		}
 		
-		for (auto & p : roomNodePath)
-			delete p;
+		for (int i = 0; i < roomNodePath.size(); i++)
+			delete roomNodePath[i];
 		roomNodePath.clear();
 
 		return pathToDestination;
@@ -168,11 +168,11 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	}
 }
 
-Tile Grid::GetRandomNearbyTile(Tile src, int dir)
+Tile Grid::GetRandomNearbyTile(Tile src)
 {
 	if (src.getX() != -1)
 	{
-		// Make random
+		/*// Make random
 		int direction = dir;
 		int x = src.getX();
 		int y = src.getY();
@@ -200,7 +200,8 @@ Tile Grid::GetRandomNearbyTile(Tile src, int dir)
 			if (index >= y * m_width && m_nodeMap.at(index).tile.getPathable())
 				return _nearbyTile(src, -1, 0);
 			break;
-		}
+		}*/
+		_getNearbyUnblockedTile(src);
 	}
 	return Tile();
 }
@@ -284,7 +285,8 @@ void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY
 	Tile nextTile = Tile(currentX + offsetX, currentY + offsetY);
 	int nextTileIndex = nextTile.getX() + nextTile.getY() * width;
 
-	if (_isValid(nextTile, width, height) && !closedList[nextTileIndex] && nodeMap.at(nextTileIndex).tile.getPathable())
+	if (_isValid(nextTile, width, height) && !closedList[nextTileIndex] &&
+		nodeMap.at(nextTileIndex).tile.getPathable())
 	{
 		Node * newNode = DBG_NEW Node(nodeMap.at(nextTileIndex).tile, nodeMap.at(nextTileIndex).worldPos,
 			current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
@@ -391,7 +393,7 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 
 	// North -> East -> South -> West
 	// Northeast -> Northwest -> Southeast -> Southwest
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 		blockedDirections[i] = false;
 
 	Tile returnTile;
@@ -579,15 +581,6 @@ bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 	sIndex2D.y = std::clamp(sIndex2D.y, 0, 4);
 	dIndex2D.x = std::clamp(dIndex2D.x, 0, 4);
 	dIndex2D.y = std::clamp(dIndex2D.y, 0, 4);
-	//sIndex2D.x = max(sIndex2D.x, 0);
-	//sIndex2D.y = max(sIndex2D.y, 0);
-	//sIndex2D.x = min(sIndex2D.x, 5);
-	//sIndex2D.y = min(sIndex2D.y, 5);
-
-	//dIndex2D.x = max(dIndex2D.x, 0);
-	//dIndex2D.y = max(dIndex2D.y, 0);
-	//dIndex2D.x = min(dIndex2D.x, 5);
-	//dIndex2D.y = min(dIndex2D.y, 5);
 
 	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
 	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
@@ -627,7 +620,6 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 	Tile roomDest = m_roomNodeMap[dIndex].tile;
 
 	roomSource = _getCenterGridFromRoomGrid(roomSource, source);
-
 	roomDest = _getCenterGridFromRoomGrid(roomDest, destination);
 
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
@@ -800,7 +792,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 
 			// Deletes any spare grid pointers
 			delete current;
-			delete closedList;
+			delete [] closedList;
 			for (int i = 0; i < openList.size(); i++)
 			{
 				delete openList.at(i);
@@ -854,6 +846,8 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		/*---------- Southeast ----------*/
 		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, nodeMap, closedList, width, height);
 
+		/*if (earlyExploration.size() == 0)
+			delete current;*/
 		std::sort(earlyExploration.begin(), earlyExploration.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
 		if (earlyExploration.size() > 0 && earlyExploration.at(0)->fCost <= current->fCost)
 		{
@@ -865,7 +859,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	}
 
 	delete current;
-	delete closedList;
+	delete [] closedList;
 	for (int i = 0; i < openList.size(); i++)
 	{
 		delete openList.at(i);

@@ -35,6 +35,9 @@ Torch::~Torch()
 
 void Torch::Update(double deltaTime)
 {
+	if (m_preState != getTriggerState())
+		_playSound(AudioEngine::SoundType::Other);
+
 	//Check wether to crate new fire.
 	if (pParticles)
 	{
@@ -82,6 +85,7 @@ void Torch::Update(double deltaTime)
 		this->SetPacketReceived(false);
 	}
 	p_updatePhysics(this);
+	this->m_preState = this->getTriggerState();
 }
 
 void Torch::Draw()
@@ -103,7 +107,7 @@ void Torch::QueueLight()
 
 void Torch::BeginPlay()
 {
-	_playSound();
+	_playSound(AudioEngine::SoundType::Other);
 }
 
 void Torch::handleContact(RayCastListener::RayContact * contact)
@@ -120,7 +124,6 @@ void Torch::handleContact(RayCastListener::RayContact * contact)
 
 void Torch::_playSound(AudioEngine::SoundType st)
 {
-	//UNCOMMENT WHEN READY
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
 		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, st);
