@@ -267,6 +267,7 @@ void PossessGuard::_hitEnemy()
 					this->m_possessTarget = e;
 					this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
+
 					m_pState = PossessGuard::Possessing;
 					p_cooldown = 0;
 					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
