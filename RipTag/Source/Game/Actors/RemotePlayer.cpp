@@ -382,7 +382,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		stateMachine->SetState("walk_forward");
 
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
-		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.5, 0.5);
+		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 		crouchState->UseFirstPoseOnly(true);
 	}
 

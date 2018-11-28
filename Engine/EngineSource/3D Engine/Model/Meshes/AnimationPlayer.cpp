@@ -53,7 +53,8 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 			if (previousState)
 			{
 				auto finalPosePrevious = previousState->recieveStateVisitor(*m_Visitor);
-				_ComputeSkinningMatrices(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor);
+				auto finalPose = _BlendSkeletonPoses(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor, m_Skeleton->m_JointCount);
+				_ComputeSkinningMatrices(&finalPose);
 				return;
 			}
 			if (finalPoseCurrent.value().m_JointPoses)
@@ -66,8 +67,8 @@ void Animation::AnimationPlayer::Update(float deltaTime)
 			if (previousState)
 			{
 				auto finalPosePrevious = previousState->recieveStateVisitor(*m_Visitor);
-				_ComputeSkinningMatrices(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor);
-				return;
+				auto finalPose = _BlendSkeletonPoses(&finalPosePrevious.value(), &finalPoseCurrent.value(), blendFactor, m_Skeleton->m_JointCount);
+				_ComputeSkinningMatrices(&finalPose);
 			}
 			if (finalPoseCurrent.value().m_JointPoses)
 				_ComputeSkinningMatrices(&finalPoseCurrent.value());
