@@ -105,7 +105,7 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 
-	std::ofstream lol;
+	/*std::ofstream lol;
 	lol.open("map.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
@@ -120,7 +120,7 @@ void RoomGenerator::_generateGrid()
 			lol << " ";
 		}
 		lol << "\n";
-	}
+	}*/
 	
 
 }
@@ -691,7 +691,6 @@ void RoomGenerator::moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::
 
 Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Player *  playerPtr)
 {
-	srand(time(0));
 	this->m_worldPtr = worldPtr;
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
 	Manager::g_textureManager.loadTextures("FLOOR");
