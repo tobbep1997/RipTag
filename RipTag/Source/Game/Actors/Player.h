@@ -147,6 +147,7 @@ private:
 	float m_peektimer = 0;
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
+	bool m_controlLayoutShown = false;
 
 	Circle * m_HUDcircle;
 	Circle * m_HUDcircleFiller;
