@@ -61,49 +61,49 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 	}*/
 
 	
-	//if (InputHandler::isKeyPressed('N'))
-	//{
-	//	if (pressed == false)
-	//	{
-	//		m_rooms[m_activeRoom]->SetActive(false);
-	//		//m_activeRoom--;
-	//		m_activeRoom = 0;
-	//		_RoomLoadingManager();
-	//		pressed = true;
-	//		DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
-	//		this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
-	//		m_rooms[m_activeRoom]->SetActive(true);
-	//		RipExtern::g_rayListener->ClearRays();
-	//		RipExtern::g_rayListener->ClearProcessedRays();
-	//		RipExtern::g_contactListener->ClearContactQueue();
-	//		RipExtern::g_kill = true;
-	//	}
-	//}
-	//else if (InputHandler::isKeyPressed('M'))
-	//{
-	//	
-	//	if (pressed == false)
-	//	{
-	//		m_rooms[m_activeRoom]->SetActive(false);
-	//		//m_activeRoom++;
-	//		m_activeRoom = 0;
-	//		_RoomLoadingManager();
-	//		pressed = true;
-	//		DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
-	//		this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
-	//		m_rooms[m_activeRoom]->SetActive(true);
+	if (InputHandler::isKeyPressed('N'))
+	{
+		if (pressed == false)
+		{
+			m_rooms[m_activeRoom]->SetActive(false);
+			//m_activeRoom--;
+			m_activeRoom = 0;
+			_RoomLoadingManager();
+			pressed = true;
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
+			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
+			RipExtern::g_contactListener->ClearContactQueue();
+			RipExtern::g_kill = true;
+		}
+	}
+	else if (InputHandler::isKeyPressed('M'))
+	{
+		
+		if (pressed == false)
+		{
+			m_rooms[m_activeRoom]->SetActive(false);
+			//m_activeRoom++;
+			m_activeRoom = 0;
+			_RoomLoadingManager();
+			pressed = true;
+			DirectX::XMFLOAT4 startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
+			this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+			m_rooms[m_activeRoom]->SetActive(true);
 
-	//		RipExtern::g_rayListener->ClearRays();
-	//		RipExtern::g_rayListener->ClearProcessedRays();
-	//		RipExtern::g_contactListener->ClearContactQueue();
-	//		RipExtern::g_kill = true;
-	//	}
-	//}
-	//else
-	//{
-	//
-	//	pressed = false;
-	//}
+			RipExtern::g_rayListener->ClearRays();
+			RipExtern::g_rayListener->ClearProcessedRays();
+			RipExtern::g_contactListener->ClearContactQueue();
+			RipExtern::g_kill = true;
+		}
+	}
+	else
+	{
+	
+		pressed = false;
+	}
 	if (RipExtern::g_kill == false)
 		m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
 }
