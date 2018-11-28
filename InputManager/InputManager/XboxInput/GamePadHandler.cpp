@@ -508,6 +508,25 @@ bool GamePadHandler::IsSelectPressed()
 	}
 }
 
+bool GamePadHandler::IsSelectReleased()
+{
+	if (m_state.IsConnected())
+	{
+		if (m_buttons.view == DirectX::GamePad::ButtonStateTracker::RELEASED)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool GamePadHandler::IsStartPressed()
 {
 	if (m_state.IsConnected())

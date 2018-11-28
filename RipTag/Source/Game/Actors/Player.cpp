@@ -13,7 +13,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	Manager::g_textureManager.loadTextures("BLACK");
 	Manager::g_textureManager.loadTextures("VISIBILITYICON");
 	Manager::g_textureManager.loadTextures("WHITE");
-
+	Manager::g_textureManager.loadTextures("CONTROLLAYOUT");
 
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
@@ -102,9 +102,9 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (y*1.4);
-	m_crouchHeight = y*.5;
+	CreateShape(0, 3.0, 0, 1.f, 1.f, 1.f, "HEAD", true);
+	m_standHeight = (3.0);
+	m_crouchHeight = y + 0.5 + 0.75;
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -680,6 +680,31 @@ void Player::_handleInput(double deltaTime)
 		m_currentAbility = (Ability)1;
 
 
+	//Render Controller Layout on screen
+	/*static bool pressed = false;
+	if (GamePadHandler::IsSelectPressed() && !pressed)
+	{
+		if (m_controlLayoutShown)
+		{
+			m_cross->setUnpressedTexture("CROSS");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+			m_controlLayoutShown = false;
+		}
+		else
+		{
+			m_cross->setUnpressedTexture("CONTROLLAYOUT");
+			m_cross->setScale(DirectX::XMFLOAT2A(18.0f / 16.0, 10.2f / 9.0f));
+			m_controlLayoutShown = true;
+		}
+
+		pressed = true;
+	}
+
+	if(pressed && GamePadHandler::IsSelectReleased())
+	{
+		pressed = false;
+	}*/
+
 	_onSprint();
 	_onCrouch();
 	_scrollMovementMod();
@@ -1084,6 +1109,10 @@ void Player::_objectInfo(double deltaTime)
 {
 	//if (m_tutorialActive)
 	//{
+
+	if (!m_controlLayoutShown)
+	{
+
 		const int tempId = m_objectInfoRayId;
 		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 		{
@@ -1165,7 +1194,7 @@ void Player::_objectInfo(double deltaTime)
 			m_objectInfoTime = 0;
 		}
 		m_objectInfoTime += deltaTime;
-	//}
+	}
 }
 
 void Player::_updateFirstPerson(float deltaTime)
@@ -1212,7 +1241,7 @@ void Player::_cameraPlacement(double deltaTime)
 	XMStoreFloat4A(&forward, vForward);
 	XMStoreFloat4(&right, vRight);
 	peekOffsetLeft.x = -1;
-	peekOffsetLeft.y = 0.;// +((upperBodyLocal.y*0.5)* (1 - fabs(m_peektimer)));
+	peekOffsetLeft.y = 0.5;// +((upperBodyLocal.y*0.5)* (1 - fabs(m_peektimer)));
 	peekOffsetLeft.z = 1;
 
 	peekOffsetRight.x = 1;
@@ -1436,7 +1465,6 @@ void Player::_loadHUD()
 
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));
-
 
 	m_HUDcircle = dynamic_cast<Circle*>(HUDComponent::GetQuad("ViewCircle"));
 	m_HUDcircle->setScale(DirectX::XMFLOAT2A(m_HUDcircle->getScale().x / 16.0f, m_HUDcircle->getScale().y / 9.0f));
