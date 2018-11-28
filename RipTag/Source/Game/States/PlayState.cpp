@@ -146,9 +146,9 @@ void PlayState::Update(double deltaTime)
 			}
 
 			if (m_youlost)
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "", (void*)pCoopData));
 			else
-				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away... this time!\nGod of Stealth", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "", (void*)pCoopData));
 		}
 	
 		// Reset mouse to middle of the window, Must be last in update
