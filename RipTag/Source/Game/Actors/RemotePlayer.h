@@ -8,7 +8,7 @@ class AbilityComponent;
 
 class RemotePlayer : public Actor, public RakNet::NetworkIDObject
 {
-private:
+public:
 	enum AnimState {
 		IDLE = 0,
 		FORWARD = 1,

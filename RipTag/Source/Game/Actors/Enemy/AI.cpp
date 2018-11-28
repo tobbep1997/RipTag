@@ -375,7 +375,7 @@ void AI::_onExitingDisabled()
 void AI::_investigatingSight(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	if (this->GetAlertPathSize() > 0)
@@ -413,7 +413,7 @@ void AI::_investigatingSight(const double deltaTime)
 void AI::_investigatingSound(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	if (this->GetAlertPathSize() > 0)
@@ -452,7 +452,7 @@ void AI::_investigatingSound(const double deltaTime)
 void AI::_investigatingRoom(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	this->m_searchTimer += deltaTime;
@@ -477,7 +477,7 @@ void AI::_investigatingRoom(const double deltaTime)
 void AI::_highAlert(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	this->m_HighAlertTime = deltaTime;
@@ -497,7 +497,7 @@ void AI::_highAlert(const double deltaTime)
 void AI::_suspicious(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
@@ -556,7 +556,7 @@ void AI::_suspicious(const double deltaTime)
 void AI::_scanningArea(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
@@ -572,7 +572,7 @@ void AI::_scanningArea(const double deltaTime)
 void AI::_patrolling(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	if (m_alertPath.size() > 0)
@@ -634,7 +634,7 @@ void AI::_patrolling(const double deltaTime)
 void AI::_possessed(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_handleInput(deltaTime);
 }
 void AI::_disabled(const double deltaTime)
@@ -834,7 +834,7 @@ void AI::_Move(Node * nextNode, double deltaTime)
 	m_owner->_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
 	DirectX::XMStoreFloat2(&vel, DirectX::XMVector2Normalize(DirectX::XMLoadFloat2(&vel)));
 	m_owner->setLiniearVelocity(vel.x * m_owner->m_guardSpeed, m_owner->getLiniearVelocity().y, vel.y * m_owner->m_guardSpeed);
-	m_owner->_cameraPlacement(deltaTime);
+	
 }
 
 bool AI::_MoveTo(Node* nextNode, double deltaTime)

@@ -32,6 +32,8 @@ class TeleportAbility;
 //This value has to be changed to match the players 
 class Player : public Actor, public CameraHolder, public PhysicsComponent, public HUDComponent
 {
+public:
+	friend class PlayerManager;
 private: //stuff for state machine
 	friend class PlayState;
 	friend class Enemy;
