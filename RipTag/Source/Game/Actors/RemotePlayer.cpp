@@ -366,6 +366,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 			SM::COMPARISON_INSIDE_RANGE //comparision condition
 		);
 
+		blend_fwd->SetBlendTime(0.5f);
+		blend_bwd->SetBlendTime(0.5f);
+
 		auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_BEGIN_ANIMATION").get();
 		auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
