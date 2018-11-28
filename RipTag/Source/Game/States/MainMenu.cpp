@@ -6,14 +6,11 @@ std::string RipSounds::g_music1;
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
-	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
-	m_music->setVolume(0.3f);
+
 }
 
 MainMenu::~MainMenu()
 {
-	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
 	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
@@ -281,6 +278,10 @@ void MainMenu::_resetButtons()
 
 void MainMenu::Load()
 {
+	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
+	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
+	m_music->setVolume(0.3f);
+
 	bool isPlaying = false;
 	m_music->isPlaying(&isPlaying);
 	if (!isPlaying)
@@ -316,6 +317,9 @@ void MainMenu::unLoad()
 	}
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
+	m_music->stop();
+
+	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
 
 	std::cout << "MainMenu unLoad" << std::endl;
 }
