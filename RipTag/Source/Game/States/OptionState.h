@@ -23,6 +23,11 @@ private:
 		Keyboard
 	};
 
+
+	float m_stickTimerFOV = 0;
+	float m_stickTimerX = 0; 
+	float m_stickTimerY = 0;
+
 	const DirectX::XMINT2 MIN_MAX_FOV = {45, 135};
 	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = {1, 11};
 	const std::string SWAP_RESOLUTION[3] = {
