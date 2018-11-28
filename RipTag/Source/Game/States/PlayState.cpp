@@ -186,12 +186,16 @@ void PlayState::Update(double deltaTime)
 	}
 	else 
 	{
+		Network::Multiplayer::HandlePackets();
 		_updateOnCoopMode(deltaTime);
 
 		if (m_transitionState)
 		{
 			m_transitionState->Update(deltaTime);
+			if (m_transitionState->BackToMenuBool())
+				this->BackToMenu();
 		}
+		
 
 		if (m_transitionState->ReadyToLoadNextRoom())
 		{
