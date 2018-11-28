@@ -108,7 +108,7 @@ void LobbyState::Update(double deltaTime)
 	else
 	{
 		_handleKeyboardInput();
-		_handleGamePadInput();
+		_handleGamePadInput(deltaTime);
 	}
 
 	
@@ -570,12 +570,12 @@ void LobbyState::_initButtons()
 	}
 }
 
-void LobbyState::_handleGamePadInput()
+void LobbyState::_handleGamePadInput(float deltaTime)
 {
 	if (Input::isUsingGamepad())
 	{
 		if (!isHosting && !hasJoined && !inServerList)
-			this->_gamePadMainLobby();
+			this->_gamePadMainLobby(deltaTime);
 		if (!isHosting && !hasJoined && inServerList)
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
@@ -756,8 +756,11 @@ void LobbyState::_updateInfoString()
 		this->m_infoWindow->setString(content);
 }
 
-void LobbyState::_gamePadMainLobby()
+void LobbyState::_gamePadMainLobby(float deltaTime)
 {
+	m_stickTimerY += deltaTime; 
+	m_stickTimerX += deltaTime; 
+
 	if (GamePadHandler::IsUpDpadPressed())
 	{	
 		if (m_currentButton == 0)
@@ -771,6 +774,31 @@ void LobbyState::_gamePadMainLobby()
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
 	}
 	else if (GamePadHandler::IsRightDpadPressed())
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
+			inServerList = true;
+			m_currentButtonServerList = 0;
+		}
+	}
+
+	if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimerY >= 0.2f)
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+		m_stickTimerY = 0; 
+	}
+	else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimerY >= 0.2f)
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+		m_stickTimerY = 0; 
+	}
+	else if (GamePadHandler::GetLeftStickXPosition() > 0 && m_stickTimerX >= 0.2f)
 	{
 		if (m_hostListButtons.size() > 0)
 		{
@@ -829,6 +857,8 @@ void LobbyState::_gamePadCharSelection()
 			break;
 		}
 	}
+
+
 
 	_updateSelectionStates();
 

@@ -56,6 +56,9 @@ private:
 	bool hasRemoteCharSelected = false;
 	unsigned int remoteSelectedChar = 0;
 
+	float m_stickTimerY = 0;
+	float m_stickTimerX = 0; 
+
 	//Network
 	Network::Multiplayer * pNetwork;
 	//Setting a SystemAdress to "0.0.0.0" will yield "UNASSIGNED_SYSTEM_ADRESSS" when calling toString() on the object
@@ -89,7 +92,7 @@ public:
 
 private:
 	void _initButtons();
-	void _handleGamePadInput();
+	void _handleGamePadInput(float deltaTime);
 	void _handleKeyboardInput();
 	void _handleMouseInput();
 	void _updateSelectionStates();
@@ -99,7 +102,7 @@ private:
 	void _updateInfoString();
 
 	//Seperate input handling for cleaner code
-	void _gamePadMainLobby();
+	void _gamePadMainLobby(float deltaTime);
 	void _gamePadCharSelection();
 	void _gamePadServerList();
 	void _keyboardMainLobby();
