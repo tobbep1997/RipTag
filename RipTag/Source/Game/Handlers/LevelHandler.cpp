@@ -164,7 +164,7 @@ void LevelHandler::LoadNextRoom(int player)
 {
 	m_rooms[m_activeRoom]->SetActive(false);
 
-	m_activeRoom++;
+	m_activeRoom = 0;
 	
 	_RoomLoadingManager();
 
