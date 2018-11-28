@@ -58,6 +58,7 @@ void TransitionState::Update(double deltaTime)
 	//Back to menu
 	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
+		backToMenu = true;
 		BackToMenu();
 	}
 	if (InputHandler::wasKeyPressed(InputHandler::Enter) || InputHandler::wasKeyPressed(InputHandler::Esc))
@@ -83,6 +84,7 @@ void TransitionState::Update(double deltaTime)
 			_sendReadyPacket();
 		}
 	}
+
 
 	/*if (pCoopData)
 	{
@@ -180,6 +182,11 @@ bool TransitionState::ReadyToLoadNextRoom()
 		return isReady && isRemoteReady;
 	else
 		return isReady;
+}
+
+bool TransitionState::BackToMenuBool()
+{
+	return backToMenu;
 }
 
 void TransitionState::_initButtons()

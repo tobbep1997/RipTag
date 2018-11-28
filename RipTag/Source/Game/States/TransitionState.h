@@ -33,6 +33,8 @@ private:
 
 	bool isReady = false;
 	bool isRemoteReady = false;
+
+	bool backToMenu = false;
 public:
 	TransitionState(RenderingManager * rm, Transition type, std::string eventString = "", void * pCoopData = nullptr);
 	~TransitionState();
@@ -49,6 +51,7 @@ public:
 	void HandlePacket(unsigned char id, unsigned char * data);
 
 	bool ReadyToLoadNextRoom();
+	bool BackToMenuBool();
 
 private:
 	void _initButtons();
