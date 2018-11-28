@@ -193,6 +193,26 @@ void PlayState::Update(double deltaTime)
 			m_deltaTime = deltaTime * !m_physicsFirstRun;
 			m_physicsCondition.notify_all();
 		}
+		if (InputHandler::isKeyPressed('M'))
+		{
+			if (RipExtern::g_kill == true)
+			{
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
+				//this->pushNewState();
+				m_loadingScreen.draw();
+				RipExtern::g_kill = false;
+				m_removeHud = true;
+				this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+				return;
+			}
+		}
+		
 	}
 	else 
 	{

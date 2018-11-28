@@ -1096,6 +1096,10 @@ void ForwardRender::_setStaticShaders()
 
 void ForwardRender::_visabilityPass()
 {
+	if (DX::g_player == nullptr)
+	{
+		return;
+	}
 	m_visabilityPass->SetViewportAndRenderTarget();
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
