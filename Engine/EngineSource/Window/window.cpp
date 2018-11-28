@@ -60,7 +60,11 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_DESTROY:
+		
+
+
 		PostQuitMessage(0);
+
 		break;
 	case WM_SIZE: //If user change the window size
 		m_windowContext.clientHeight = HIWORD(lParam);
@@ -126,6 +130,10 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (!InputHandler::m_windowInFocus)
 			GainedFocus = true;
 		InputHandler::m_windowInFocus = true;
+		break;
+
+	case WM_QUIT:
+		MessageBoxA(0, "LOL", "LOL", 0);
 		break;
 	}
 	RECT Rect;
@@ -249,6 +257,8 @@ void Window::PollEvents()
 {
 	while (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
 	{
+		if (WM_QUIT == m_Peekmsg.message)
+			InputHandler::CloseGame();
 		TranslateMessage(&m_Peekmsg);
 		DispatchMessage(&m_Peekmsg);
 	}
@@ -256,15 +266,7 @@ void Window::PollEvents()
 
 bool Window::isOpen()
 {
-	if (InputHandler::GetClosedGame())
-	{
-		return false;
-	}
-	else
-	{
-		return WM_QUIT != m_Peekmsg.message;
-	}
-	
+	return !InputHandler::GetClosedGame();
 }
 
 void Window::Close()

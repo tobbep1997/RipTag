@@ -90,7 +90,7 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+	/*static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
 
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
@@ -101,15 +101,18 @@ void LobbyState::Update(double deltaTime)
 		mouseMoved = true;
 	}
 
-	s_mouseLastFrame = mousePos;
+	s_mouseLastFrame = mousePos;*/
 
-	if (mouseMoved || InputHandler::isMouseLeftPressed())
-		_handleMouseInput();
+	_handleMouseInput();	
+
+	_handleKeyboardInput();
+
+	_handleGamePadInput(deltaTime);
+
+	/*if (mouseMoved)
 	else
 	{
-		_handleKeyboardInput();
-		_handleGamePadInput(deltaTime);
-	}
+	}*/
 
 	
 
