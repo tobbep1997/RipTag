@@ -31,15 +31,16 @@ void MainMenu::Update(double deltaTime)
 		switch ((ButtonOrder)m_currentButton)
 		{
 		case ButtonOrder::Play:
+#ifndef _DEPLOY
 			_resetButtons();
 			m_background->Release();
 			delete m_background;
 			m_background = nullptr;
 			m_loadingScreen.removeGUI(m_buttons);
 			m_loadingScreen.draw();
-			
 			this->pushNewState(new PlayState(this->p_renderingManager, nullptr, 0));
 			m_music->stop();
+#endif
 			break; 
 		case ButtonOrder::Lobby:
 			_resetButtons();
@@ -80,6 +81,13 @@ void MainMenu::StopMusic()
 
 void MainMenu::_initButtons()
 {
+#ifdef _DEPLOY
+	//play button
+	this->m_buttons.push_back(Quad::CreateButton("Castle\nCaptives", 0.5f, 0.815f, 0.565f, 0.20f));
+	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("gui_transparent_pixel");
+	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas16"));
+#else
 	//play button
 	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.815f, 0.565f, 0.20f));
 	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("gui_transparent_pixel");
@@ -88,6 +96,7 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
 
+#endif
 
 	//lobby button
 	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.605f, 0.565f, 0.20f));
@@ -149,6 +158,10 @@ bool MainMenu::_handleMouseInput()
 
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
+#ifdef _DEPLOY
+		if (i == 0)
+			continue;
+#endif
 		if (m_buttons[i]->Inside(mousePos))
 		{
 			//set this button to current and on hover state
@@ -181,8 +194,13 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 
 		if (GamePadHandler::IsUpDpadPressed())
 		{
+#ifdef _DEPLOY
+			if (m_currentButton == 1)
+				m_currentButton = ((unsigned int)ButtonOrder::Quit);
+#else
 			if (m_currentButton == 0)
 				m_currentButton = (unsigned int)ButtonOrder::Quit;
+#endif
 			else
 				m_currentButton--;
 		}
@@ -190,6 +208,10 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 		{
 			m_currentButton++;
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+#ifdef _DEPLOY
+			if (m_currentButton == 0)
+				m_currentButton++;
+#endif
 		}
 
 		if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimer > 0.2f)
@@ -207,6 +229,9 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
 			m_stickTimer = 0; 
 		}
+
+
+
 		_updateSelectionStates();
 
 		//Check for action input
@@ -223,8 +248,13 @@ void MainMenu::_handleKeyboardInput()
 {
 	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
+#ifdef _DEPLOY
+		if (m_currentButton == 1)
+			m_currentButton = ((unsigned int)ButtonOrder::Quit);
+#else
 		if (m_currentButton == 0)
 			m_currentButton = (unsigned int)ButtonOrder::Quit;
+#endif
 		else
 			m_currentButton--;
 	}
@@ -232,6 +262,10 @@ void MainMenu::_handleKeyboardInput()
 	{
 		m_currentButton++;
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+#ifdef _DEPLOY
+		if (m_currentButton == 0)
+			m_currentButton++;
+#endif
 	}
 
 	_updateSelectionStates();
@@ -294,7 +328,11 @@ void MainMenu::Load()
 	FontHandler::loadFont("consolas16");
 	_initButtons();
 	m_loadingScreen.Init();
+#ifdef _DEPLOY
+	m_currentButton = (unsigned int)ButtonOrder::Lobby;
+#else
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+#endif
 	Manager::g_textureManager.loadTextures("LOADING");
 	Manager::g_textureManager.loadTextures("DAB");
 
