@@ -371,6 +371,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
 		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
 		auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+		auto lookUpPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_UP_ANIMATION").get()->m_SkeletonPoses[0];
+		auto lookDownPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_DOWN_ANIMATION").get()->m_SkeletonPoses[0];
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
@@ -384,6 +386,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
 		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 		crouchState->UseFirstPoseOnly(true);
+		auto pitchState = layerMachine->Add1DPoseLayer("pitch", &m_currentPitch, -1.0f, 1.0f, { {lookUpPose, -1.0f}, {lookDownPose, 1.0f} });
+		pitchState->UseSmoothDriver(false);
+		layerMachine->ActivateLayer("pitch");
 	}
 
 	//#todoREMOVE
