@@ -1,0 +1,18 @@
+1
+0
+i
+0.5,0.5;1.0,1.0
+pp
+0
+b
+1
+text
+Pause Menu
+f
+consolas32
+c
+r1.000g1.000b1.000a1.000
+texture
+pVISIBILITYICON,uVISIBILITYICON,hVISIBILITYICON
+t
+PauseMenu

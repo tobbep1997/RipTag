@@ -3,7 +3,6 @@
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
 
-
 std::vector<std::string> RipSounds::g_stepsStone;
 std::string				 RipSounds::g_leverActivate;
 std::string				 RipSounds::g_leverDeactivate;
@@ -29,7 +28,6 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
 }
 
 PlayState::~PlayState()

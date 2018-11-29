@@ -357,6 +357,7 @@
     <ClCompile Include="Source\Game\Item\Map.cpp" />
     <ClCompile Include="Source\Game\Level\RoomGenerator.cpp" />
     <ClCompile Include="Source\Game\Loading Screen\LoadingScreen.cpp" />
+    <ClCompile Include="Source\Game\States\PauseMenu.cpp" />
     <ClCompile Include="Source\Game\States\TransitionState.cpp" />
     <ClCompile Include="Source\Game\States\LobbyState.cpp" />
     <ClCompile Include="Source\Game\Handlers\EnemyHandler.cpp" />
@@ -963,6 +964,7 @@
     <ClInclude Include="Source\Game\Loading Screen\LoadingScreen.h" />
     <ClInclude Include="Source\Game\Level\RandomRoom.h" />
     <ClInclude Include="Source\Game\Level\RandomRoomGrid.h" />
+    <ClInclude Include="Source\Game\States\PauseMenu.h" />
     <ClInclude Include="Source\Game\States\TransitionState.h" />
     <ClInclude Include="Source\Game\States\Helper\RandomRoomPicker.h" />
     <ClInclude Include="Source\Game\States\LobbyState.h" />
