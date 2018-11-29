@@ -32,7 +32,7 @@ private:
 		OnHit
 	};
 
-	ParticleEmitter* m_particleEmitter; 
+	ParticleEmitter** m_particleEmitters;
 
 private:
 	DisableState	m_dState;
@@ -56,8 +56,8 @@ public:
 
 	void Init() override;
 
-	void deleteEffect();
-	ParticleEmitter* getEmitter(); 
+	void deleteEffects();
+	ParticleEmitter** getEmitters(); 
 
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;

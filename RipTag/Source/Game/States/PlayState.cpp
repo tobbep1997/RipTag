@@ -142,7 +142,7 @@ void PlayState::Update(double deltaTime)
 
 			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
 			{
-				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffects(); 
 			}
 
 
@@ -731,7 +731,7 @@ void PlayState::unLoad()
 	Network::Multiplayer::inPlayState = false;
 
 	if (dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1]))
-		dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+		dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffects(); 
 
 	if (m_transitionState)
 	{

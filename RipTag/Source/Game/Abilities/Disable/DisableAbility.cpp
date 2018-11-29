@@ -12,14 +12,15 @@ DisableAbility::~DisableAbility()
 {
 	m_obj->PhysicsComponent::Release(*RipExtern::g_world);
 	delete m_obj;
-	//&this->deleteEffect(); 
+	this->deleteEffects(); 
+	delete m_particleEmitters;
 	m_bar->Release();
 	delete m_bar;
 }
 
 void DisableAbility::Init()
 {
-	m_obj = new BaseActor();
+	m_obj = DBG_NEW BaseActor();
 	m_obj->PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f, false, 0.2f);
 	m_obj->Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	m_obj->Drawable::setScale(0.1f, 0.1f, 0.1f);
@@ -46,20 +47,29 @@ void DisableAbility::Init()
 
 	p_abilityChargesMax = 2;
 	p_abilityCharges = p_abilityChargesMax;
-}
 
-void DisableAbility::deleteEffect()
-{
-	if (m_particleEmitter != nullptr)
+	m_particleEmitters = DBG_NEW ParticleEmitter*[p_abilityChargesMax];
+	for (int i = 0; i < p_abilityChargesMax; i++)
 	{
-		delete m_particleEmitter;
-		m_particleEmitter = nullptr;
+		m_particleEmitters[i] = nullptr;
 	}
 }
 
-ParticleEmitter * DisableAbility::getEmitter()
+void DisableAbility::deleteEffects()
 {
-	return m_particleEmitter; 
+	for (int i = 0; i < p_abilityChargesMax; i++)
+	{
+		if (m_particleEmitters[i] != nullptr)
+		{
+			delete m_particleEmitters[i];
+			m_particleEmitters[i] = nullptr;
+		}
+	}
+}
+
+ParticleEmitter ** DisableAbility::getEmitters()
+{
+	return m_particleEmitters; 
 }
 
 void DisableAbility::Update(double deltaTime)
@@ -99,16 +109,23 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 	case DisableState::RemoteActive:
 		if ((DisableState)data->state == DisableState::OnHit)
 		{
-			deleteEffect();
+			//deleteEffects(); 
 
 			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
 			m_obj->setLiniearVelocity(0.0f, 0.0f, 0.0f);
 			this->m_dState = DisableState::Throwable;
 
-			m_particleEmitter = new ParticleEmitter();
-			m_particleEmitter->setSmoke();
-			m_particleEmitter->setEmmiterLife(1.5f);
-			m_particleEmitter->setPosition(data->start.x, data->start.y + 0.5f, data->start.z);
+			for (int i = 0; i < p_abilityChargesMax; i++)
+			{
+				if (!m_particleEmitters[i])
+				{
+					m_particleEmitters[i] = DBG_NEW ParticleEmitter();
+					m_particleEmitters[i]->setSmoke();
+					m_particleEmitters[i]->setEmmiterLife(1.5f);
+					m_particleEmitters[i]->setPosition(data->start.x, data->start.y + 0.5f, data->start.z);
+					break;
+				}
+			}
 		}
 		break;
 	}
@@ -131,8 +148,12 @@ void DisableAbility::Draw()
 	{
 		m_obj->BaseActor::Draw();
 	}
-	if (m_particleEmitter != nullptr)
-		m_particleEmitter->Queue();
+	for (int i = 0; i < p_abilityChargesMax; i++)
+	{
+		if (m_particleEmitters[i] != nullptr)
+			m_particleEmitters[i]->Queue();
+
+	}
 }
 
 DirectX::XMFLOAT4A DisableAbility::getVelocity()
@@ -179,9 +200,12 @@ void DisableAbility::_logicLocal(double deltaTime, Camera* camera)
 		}
 	}
 
-	if (m_particleEmitter != nullptr)
+	for (int i = 0; i < p_abilityChargesMax; i++)
 	{
-		m_particleEmitter->Update(deltaTime, camera);
+		if (m_particleEmitters[i] != nullptr)
+		{
+			m_particleEmitters[i]->Update(deltaTime, camera);
+		}
 	}
 
 }
@@ -191,9 +215,12 @@ void DisableAbility::_logicRemote(double dt, Camera * camera)
 	if (m_dState == DisableAbility::RemoteActive)
 		this->_inStateRemoteActive(dt);
 
-	if (m_particleEmitter != nullptr)
+	for (int i = 0; i < p_abilityChargesMax; i++)
 	{
-		m_particleEmitter->Update(dt, camera);
+		if (m_particleEmitters[i] != nullptr)
+		{
+			m_particleEmitters[i]->Update(dt, camera);
+		}
 	}
 }
 
@@ -281,64 +308,61 @@ void DisableAbility::_inStateCharging(double dt)
 
 void DisableAbility::_inStateMoving(double dt)
 {
-	static double accumulatedTime = 0;
+	//static double accumulatedTime = 0;
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
-	accumulatedTime += dt;
-	p_cooldown = accumulatedTime;
+	//accumulatedTime += dt;
+	//p_cooldown = accumulatedTime;
 	ContactListener::S_Contact contact;
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
-		if (!m_hasHit)
+		contact = RipExtern::g_contactListener->GetBeginContact(i);
+		if (contact.a->GetBody()->GetObjectTag() == "Disable")
 		{
-			contact = RipExtern::g_contactListener->GetBeginContact(i);
-			if (contact.a->GetBody()->GetObjectTag() == "Disable")
+			//Particle effects here before changing the position. 
+			for (int j = 0; j < p_abilityChargesMax; j++)
 			{
-				//Particle effects here before changing the position. 
-				m_particleEmitter = new ParticleEmitter();
-				m_particleEmitter->setSmoke();
-				m_particleEmitter->setEmmiterLife(1.5f);
-				m_particleEmitter->setPosition(m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z);
-				m_dState = DisableState::Cooldown;
-				m_obj->setPosition(-999.9f, -999.9f, -999.9f);
-
-				accumulatedTime = 0.0;
-				m_hasHit = true;
-				m_isActive = true;
-
-				if (contact.b->GetBody()->GetObjectTag() == "ENEMY")
+				if (!m_particleEmitters[j])
 				{
-					Enemy * ptr = static_cast<Enemy*>(contact.b->GetBody()->GetUserData());
-					if (ptr)
+					m_particleEmitters[j] = DBG_NEW ParticleEmitter();
+					m_particleEmitters[j]->setSmoke();
+					m_particleEmitters[j]->setEmmiterLife(1.5f);
+					m_particleEmitters[j]->setPosition(m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z);
+					break;
+				}
+			}
+				
+			m_dState = DisableState::Cooldown;
+			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
+
+			//accumulatedTime = 0.0;
+			m_isActive = true;
+
+			if (contact.b->GetBody()->GetObjectTag() == "ENEMY")
+			{
+				Enemy * ptr = static_cast<Enemy*>(contact.b->GetBody()->GetUserData());
+				if (ptr)
+				{
+					if (ptr->getAIState() != AIState::Possessed && !ptr->ClientLocked())
 					{
-						if (ptr->getAIState() != AIState::Possessed && !ptr->ClientLocked())
-						{
-							ptr->setTransitionState(AITransitionState::BeingDisabled); 
-							this->_sendOnHitNotification(ptr);
-						}
+						ptr->setTransitionState(AITransitionState::BeingDisabled); 
+						this->_sendOnHitNotification(ptr);
 					}
 				}
 			}
 		}
 	}
 
-	if(m_particleEmitter != nullptr)
+	for (int i = 0; i < p_abilityChargesMax; i++)
 	{
-		if (!m_particleEmitter->emitterActiv)
+		if(m_particleEmitters[i] != nullptr)
 		{
-			delete m_particleEmitter;
-			m_particleEmitter = nullptr;
+			if (!m_particleEmitters[i]->emitterActiv)
+			{
+				delete m_particleEmitters[i];
+				m_particleEmitters[i] = nullptr;
+			}
 		}
 	}
-
-	//if (accumulatedTime >= lifeDuration)
-	//{
-	//	//nothing has been hit within 5 seconds, -> reset
-	//	accumulatedTime = 0.0;
-	//	p_cooldown = 0.0;
-	//	m_dState = DisableState::Throwable;
-	//	m_obj->setPosition(-999.9f, -999.9f, -999.9f);
-	//	return;
-	//}
 }
 
 void DisableAbility::_inStateCooldown(double dt)
@@ -351,7 +375,6 @@ void DisableAbility::_inStateCooldown(double dt)
 		if (p_cooldown >= 1)
 		{
 			m_dState = DisableState::Throwable;
-			m_hasHit = false;
 			m_isActive = false;
 		}
 	}
@@ -362,7 +385,6 @@ void DisableAbility::_inStateCooldown(double dt)
 			p_abilityCharges++;
 			p_cooldown = 0;
 			m_dState = DisableState::Throwable;
-			m_hasHit = false;
 			m_isActive = false;
 		}
 	}
