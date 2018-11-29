@@ -106,8 +106,9 @@ void PlayState::Update(double deltaTime)
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 		m_playerManager->Update(deltaTime);
 		m_playerManager->PhysicsUpdate();
-		_audioAgainstGuards(deltaTime);
-	
+		_audioAgainstGuards(deltaTime); 
+
+		_checkPauseState(); 
 
 		// Hide mouse
 		if (InputHandler::getShowCursor() != FALSE)
@@ -292,8 +293,6 @@ void PlayState::Update(double deltaTime)
 		}
 	}
 	
-
-
 	m_physicsFirstRun = false;
 }
 
@@ -774,6 +773,18 @@ void PlayState::Load()
 	_loadNetwork();
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
+}
+
+void PlayState::_checkPauseState()
+{
+	//Check if escape was pressed
+	m_pausePressed = InputHandler::isKeyPressed('esc'); 
+
+	if (m_pausePressed && !m_pauseWasPressed)
+	{
+		m_gamePaused = true; 
+	}
+
 }
 
 void PlayState::_loadTextures()

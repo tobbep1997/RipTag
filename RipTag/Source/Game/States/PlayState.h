@@ -11,6 +11,8 @@
 #include <fstream>
 #include "Source/Timer/DeltaTime.h"
 #include <mutex>
+#include "PauseMenu.h"
+
 namespace FMOD
 {
 	class Channel;
@@ -37,6 +39,13 @@ private:
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
+
+	PauseMenu* m_pPauseMenu; 
+	bool m_gamePaused = false; 
+	bool m_pausePressed = false; 
+	bool m_pauseWasPressed = false; 
+
+	short m_currentState = 0; 
 
 	std::ofstream phy;
 
@@ -101,6 +110,8 @@ private:
 	// Inherited via State
 	virtual void unLoad();
 	virtual void Load();
+
+	void _checkPauseState();
 
 	// LOAD functions
 	void _loadTextures();
