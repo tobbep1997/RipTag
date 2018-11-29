@@ -184,6 +184,17 @@ bool Window::Init(_In_ WindowContext windowContext)
 		int i = 0;
 	}
 
+	HICON hIicon = (HICON)LoadImage( // returns a HANDLE so we have to cast to HICON
+		NULL,             // hInstance must be NULL when loading from a file
+		L"../Assets/WindowIcon/fav.ico",   // the icon file name
+		IMAGE_ICON,       // specifies that the file is an icon
+		0,                // width of the image (we'll specify default later on)
+		0,                // height of the image
+		LR_LOADFROMFILE |  // we want to load a file (as opposed to a resource)
+		LR_DEFAULTSIZE |   // default metrics based on the type (IMAGE_ICON, 32x32)
+		LR_SHARED         // let the system release the handle when it's no longer used
+	);
+
 	
 	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX));
 	m_windowContext.wcex.cbClsExtra = 0;
@@ -197,7 +208,8 @@ bool Window::Init(_In_ WindowContext windowContext)
 	m_windowContext.wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 	m_windowContext.wcex.lpszMenuName = NULL;
 	m_windowContext.wcex.lpszClassName = L"WNDCLASS";
-	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	//m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	m_windowContext.wcex.hIcon = hIicon;
 
 
 	if (!RegisterClassEx(&m_windowContext.wcex))
