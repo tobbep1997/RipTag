@@ -293,9 +293,6 @@ void PlayState::Update(double deltaTime)
 
 		}
 	}
-	
-
-
 	m_physicsFirstRun = false;
 }
 

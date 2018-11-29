@@ -24,3 +24,7 @@ xcopy /s /y ..\External\FMOD\lib\*.dll ..\Deploy\RipTag\
 
 del /s /q /f ..\Deploy\*.h
 del /s /q /f ..\Deploy\*.cpp
+
+xcopy /s /y ..\Assets\WindowIcon ..\Deploy\RipTag
+
+start "" ..\Deploy\RipTag\IconChanger.exe ..\Deploy\RipTag\RipTag.exe ..\Deploy\RipTag\fav.ico
