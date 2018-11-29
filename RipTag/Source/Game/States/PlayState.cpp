@@ -28,6 +28,8 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
+
+	m_pPauseMenu = new PauseMenu(); 
 }
 
 PlayState::~PlayState()
@@ -49,6 +51,7 @@ PlayState::~PlayState()
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
 
+	delete m_pPauseMenu; 
 
 	//delete triggerHandler;
 	
@@ -109,6 +112,9 @@ void PlayState::Update(double deltaTime)
 		_audioAgainstGuards(deltaTime); 
 
 		_checkPauseState(); 
+
+		if (m_gamePaused)
+			_runPause(deltaTime); 
 
 		// Hide mouse
 		if (InputHandler::getShowCursor() != FALSE)
@@ -306,6 +312,12 @@ void PlayState::Draw()
 		_lightCulling();
 
 		m_playerManager->Draw();
+
+		if (m_gamePaused)
+		{
+			m_pPauseMenu->Draw();
+			std::cout << "Draw Pause" << std::endl; 
+		}
 
 	}
 	if (!runGame)
@@ -548,6 +560,11 @@ void PlayState::_lightCulling()
 	}
 }
 
+void PlayState::_runPause(double deltaTime)
+{
+	m_pPauseMenu->Update(deltaTime); 
+}
+
 void PlayState::thread(std::string s)
 {
 	Manager::g_meshManager.loadStaticMesh(s);
@@ -736,6 +753,8 @@ void PlayState::unLoad()
 		delete m_transitionState;
 		m_transitionState = nullptr;
 	}
+
+	m_pPauseMenu->unLoad(); 
 }
 
 void PlayState::Load()
@@ -771,6 +790,7 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
+	m_pPauseMenu->Load(); 
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }
@@ -778,13 +798,20 @@ void PlayState::Load()
 void PlayState::_checkPauseState()
 {
 	//Check if escape was pressed
-	m_pausePressed = InputHandler::isKeyPressed('esc'); 
+	m_pausePressed = InputHandler::isKeyPressed('J'); 
 
-	if (m_pausePressed && !m_pauseWasPressed)
+	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
 	{
 		m_gamePaused = true; 
+		m_currentState = 1; 
+	}
+	else if (m_pausePressed && !m_pauseWasPressed && m_currentState == 1)
+	{
+		m_gamePaused = false; 
+		m_currentState = 0; 
 	}
 
+	m_pauseWasPressed = m_pausePressed; 
 }
 
 void PlayState::_loadTextures()
@@ -803,7 +830,7 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
 	Manager::g_textureManager.loadTextures("PLAYER1");
-
+	
 
 }
 

@@ -105,6 +105,7 @@ private:
 	void _PhyscisThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
+	void _runPause(double deltaTime); 
 	void thread(std::string s);
 	void DrawWorldCollisionboxes(const std::string & type = "");
 	// Inherited via State

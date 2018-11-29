@@ -1,5 +1,6 @@
 #pragma once
 #include "OptionState.h"
+#include "2D Engine/Quad/Components/HUDComponent.h"
 class PauseMenu
 {
 private:

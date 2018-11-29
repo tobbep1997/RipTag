@@ -29,7 +29,7 @@ void PauseMenu::_slide()
 
 void PauseMenu::_initButtons()
 {
-	m_HUDcomp.InitHUDFromFile("PauseMenu.txt"); 
+
 }
 
 void PauseMenu::_handleGamePadInput(double dt)
@@ -65,6 +65,7 @@ void PauseMenu::Load()
 {
 	//TODO
 	//Load all the HUD for the Pause menu.
+	m_HUDcomp.InitHUDFromFile("../PauseMenu.txt");
 }
 
 void PauseMenu::unLoad()
