@@ -325,19 +325,7 @@ void LobbyState::Update(double deltaTime)
 						isReady = false;
 						isRemoteReady = false;
 
-						//loading screen stuff
-						{
-							delete m_charOneInfo;
-							m_charOneInfo = nullptr;
-							delete m_charTwoInfo;
-							m_charTwoInfo = nullptr;
-							delete m_charSelectInfo;
-							m_charSelectInfo = nullptr;
-							delete m_charSelectionBG;
-							m_charSelectionBG = nullptr;
-							m_loadingScreen.removeGUI(this->m_charSelectButtons);
-							m_loadingScreen.draw();
-						}
+						_onLoadingScreen();
 
 						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
 						
@@ -1513,18 +1501,8 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	isReady = false;
 	isRemoteReady = false;
 	//loading screen stuff
-	{
-		delete m_charOneInfo;
-		m_charOneInfo = nullptr;
-		delete m_charTwoInfo;
-		m_charTwoInfo = nullptr;
-		delete m_charSelectInfo;
-		m_charSelectInfo = nullptr;
-		delete m_charSelectionBG;
-		m_charSelectionBG = nullptr;
-		m_loadingScreen.removeGUI(this->m_charSelectButtons);
-		m_loadingScreen.draw();
-	}
+	_onLoadingScreen();
+
 	this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
 }
 
@@ -1612,6 +1590,44 @@ void LobbyState::_newHostEntry(std::string & hostName)
 	m_hostListButtons[size]->setHoverTexture(("gui_pressed_pixel"));
 	m_hostListButtons[size]->setTextColor(DefaultColor);
 	m_hostListButtons[size]->setFont(FontHandler::getFont("consolas16"));
+}
+
+void LobbyState::_onLoadingScreen()
+{
+	if (m_charOneInfo)
+	{
+		m_charOneInfo->Release();
+		delete m_charOneInfo;
+		m_charOneInfo = nullptr;
+	}
+	if (m_charTwoInfo)
+	{
+		m_charTwoInfo->Release();
+		delete m_charTwoInfo;
+		m_charTwoInfo = nullptr;
+	}
+	if (m_charSelectInfo)
+	{
+		m_charSelectInfo->Release();
+		delete m_charSelectInfo;
+		m_charSelectInfo = nullptr;
+	}
+	if (m_charSelectionBG)
+	{
+		m_charSelectionBG->Release();
+		delete m_charSelectionBG;
+		m_charSelectionBG = nullptr;
+	}
+	if (m_skipTutorialBox)
+	{
+		m_skipTutorialBox->Release();
+		delete m_skipTutorialBox;
+		m_skipTutorialBox = nullptr;
+	}
+
+	m_loadingScreen.removeGUI(this->m_charSelectButtons);
+
+	m_loadingScreen.draw();
 }
 
 void LobbyState::Load()

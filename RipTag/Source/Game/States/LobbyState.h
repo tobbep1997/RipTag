@@ -137,7 +137,7 @@ private:
 	void _sendMyHostNamePacket();
 
 	void _newHostEntry(std::string& hostName);
-
+	void _onLoadingScreen();
 
 	// Inherited via State
 	virtual void Load() override;
