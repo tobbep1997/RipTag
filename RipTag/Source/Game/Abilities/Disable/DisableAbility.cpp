@@ -12,28 +12,33 @@ DisableAbility::~DisableAbility()
 {
 	PhysicsComponent::Release(*RipExtern::g_world);
 	//&this->deleteEffect(); 
+	m_bar->Release();
+	delete m_bar;
 }
 
 void DisableAbility::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f);
+	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f, false, 0.2f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	BaseActor::setGravityScale(0.01f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 
+	Drawable::setOutline(true);
+	Drawable::setOutlineColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
+
 	PhysicsComponent::setUserDataBody(this);
 	this->getBody()->SetObjectTag("Disable");
 
-	m_bar = new Quad();
-	Manager::g_textureManager.loadTextures("BAR");
-	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.12f), DirectX::XMFLOAT2A(0.1f, 0.1f));
-	Texture * texture = Manager::g_textureManager.getTexture("BAR");
-	m_bar->setUnpressedTexture("BAR");
+	m_bar = new Circle();
+	Manager::g_textureManager.loadTextures("SPHERE");
+	m_bar->init(DirectX::XMFLOAT2A(0.5f, 0.5f), DirectX::XMFLOAT2A(1.0f / 16.0f, 1.0f / 9.0f));
+	m_bar->setUnpressedTexture("SPHERE");
 	m_bar->setPivotPoint(Quad::PivotPoint::center);
-
-	HUDComponent::AddQuad(m_bar);
+	m_bar->setRadie(.5f);
+	m_bar->setInnerRadie(.4);
+	m_bar->setAngle(0);
 }
 
 void DisableAbility::deleteEffect()
@@ -113,6 +118,8 @@ void DisableAbility::Use()
 
 void DisableAbility::Draw()
 {
+	if (m_dState == DisableState::Charging)
+		m_bar->Draw();
 	if (m_dState == DisableAbility::Moving ||m_dState == DisableAbility::RemoteActive)
 	{
 		BaseActor::Draw();
@@ -206,7 +213,11 @@ void DisableAbility::_inStateCharging(double dt)
 	{
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::DISABLE && Input::OnAbility2Pressed())
 		{
-			m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
+			float charge = (m_charge / MAX_CHARGE);
+			if (charge >= 1.0f)
+				charge = 1.0f;
+			m_bar->setAngle(360.0f * charge);
+			//m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
 				m_charge += dt;
 		}
@@ -331,6 +342,7 @@ void DisableAbility::_inStateMoving(double dt)
 void DisableAbility::_inStateCooldown(double dt)
 {
 	p_cooldown += dt;
+	m_bar->setAngle(0);
 	if (p_cooldown >= p_cooldownMax)
 	{
 		p_cooldown = 0;
