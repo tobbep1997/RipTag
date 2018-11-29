@@ -132,6 +132,7 @@ namespace SM
 		auto newState = m_States.at(stateName);
 		auto previousState = m_CurrentState;
 		m_CurrentState = newState;
+		m_CurrentState->Unlock();
 
 		if (previousState)
 		{
@@ -356,6 +357,11 @@ namespace SM
 		m_LockedValue = *m_Current;
 	}
 
+	void BlendSpace1D::Unlock()
+	{
+		m_LockedValue = std::nullopt;
+	}
+
 #pragma endregion "BlendSpace1D"
 
 #pragma region "BlendSpace2D"
@@ -413,6 +419,12 @@ namespace SM
 	{
 		m_LockedX = *m_Current_X;
 		m_LockedY = *m_Current_Y;
+	}
+
+	void BlendSpace2D::Unlock()
+	{
+		m_LockedX = std::nullopt;
+		m_LockedY = std::nullopt;
 	}
 
 	std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> BlendSpace2D::GetLeftAndRightClips(size_t rowIndex)
@@ -484,6 +496,11 @@ namespace SM
 		m_PoseIsLocked = true;
 	}
 
+	void AutoTransitionState::Unlock()
+	{
+		m_PoseIsLocked = false;
+	}
+
 	void AutoTransitionState::Reset()
 	{
 		m_ShouldTransition = false;
@@ -553,6 +570,10 @@ namespace SM
 	void BlendSpace1DAdditive::Lock()
 	{
 
+	}
+
+	void BlendSpace1DAdditive::Unlock()
+	{
 	}
 
 	std::optional<Animation::SkeletonPose> BlendSpace1DAdditive::recieveStateVisitor(StateVisitorBase & visitor)
