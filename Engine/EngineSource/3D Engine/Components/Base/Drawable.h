@@ -61,6 +61,7 @@ protected:
 	EntityType p_entityType;
 
 	DirectX::BoundingBox * m_bb = nullptr;
+	DirectX::XMFLOAT3 m_extens;
 	ID3D11Buffer * p_vertexBuffer;
 
 	std::wstring p_vertexPath;
@@ -78,6 +79,7 @@ protected:
 public:
 	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & center, const DirectX::XMFLOAT3 & extens);
 	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & extens);
+	virtual void setBoundingBoxSizeForDynamicObjects(const DirectX::XMFLOAT3 & extens);
 	
 
 	Drawable();

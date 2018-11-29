@@ -157,6 +157,10 @@ public:
 	void Release();
 	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
+
+	DirectX::BoundingFrustum * _createBoundingFrustrum(Camera * camera);//Make sure to delete the pointer
+	bool _Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box);//Return true if the box sould be culled
+
 private:
 
 
@@ -197,6 +201,7 @@ private:
 	void _createShadersInput();
 
 	void _wireFramePass(Camera * camera);
+
 
 	int run = 0;
 };

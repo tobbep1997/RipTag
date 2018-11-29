@@ -143,15 +143,10 @@ void ForwardRender::GeometryPass(Camera & camera)
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 	//_setStaticShaders();
+
+	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
-		DirectX::XMMATRIX proj, viewInv;
-		DirectX::BoundingFrustum boundingFrustum;
-		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
-		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
-		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
-		boundingFrustum.Transform(boundingFrustum, viewInv);
-
 		switch (camera.getPerspectiv())
 		{
 		case Camera::Perspectiv::Player:
@@ -168,12 +163,12 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 		if (DX::g_cullQueue[i]->getBoundingBox())
 		{
-			if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
-				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
+			if (_Cull(bf, DX::g_cullQueue[i]->getBoundingBox()))
+				continue;
 		}
-		else
-			DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
+		DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 	}
+	delete bf;
 	DrawInstancedCull(&camera, true);
 
 
@@ -204,27 +199,23 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
+
+	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
+
 	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
-		DirectX::XMMATRIX proj, viewInv;
-		DirectX::BoundingFrustum boundingFrustum;
-		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getProjection()));
-		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera.getView())));
-		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
-		boundingFrustum.Transform(boundingFrustum, viewInv);
 		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType)
 		{
 			if (DX::g_cullQueue[i]->getBoundingBox())
 			{
-				if (DX::g_cullQueue[i]->getBoundingBox()->Intersects(boundingFrustum))
-					DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
+				if (_Cull(bf, DX::g_cullQueue[i]->getBoundingBox()))
+					continue;
 			}
-			else
-				DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);			
+			DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 
 		}
 	}
-
+	delete bf;
 	DrawInstancedCull(&camera, false);
 
 
@@ -281,8 +272,13 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+
+	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
+		if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+			continue;
+
 		auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
 		DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 			0,
@@ -300,7 +296,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
 		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 	}
-
+	delete bf;
 	DX::g_deviceContext->RSSetState(m_standardRast);
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 
@@ -323,9 +319,11 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 
+	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-
+		if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+			continue;
 
 		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 		{
@@ -356,6 +354,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			//DX::g_animatedGeometryQueue[i]->TEMP();
 		}		
 	}
+	delete bf;
 }
 
 void ForwardRender::Flush(Camera & camera)
@@ -1258,4 +1257,21 @@ void ForwardRender::_wireFramePass(Camera * camera)
 	//}
 
 	//DX::g_deviceContext->RSSetState(m_standardRast);
+}
+
+DirectX::BoundingFrustum * ForwardRender::_createBoundingFrustrum(Camera* camera)
+{
+	DirectX::XMMATRIX proj, viewInv;
+	DirectX::BoundingFrustum * boundingFrustum = new DirectX::BoundingFrustum();
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getView())));
+	DirectX::BoundingFrustum::CreateFromMatrix(*boundingFrustum, proj);
+	boundingFrustum->Transform(*boundingFrustum, viewInv);
+
+	return boundingFrustum;
+}
+
+bool ForwardRender::_Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box)
+{
+	return !camera->Intersects(*box);		
 }
