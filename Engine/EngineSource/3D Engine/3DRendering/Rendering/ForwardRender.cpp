@@ -405,7 +405,7 @@ void ForwardRender::Flush(Camera & camera)
 	//_DBG_DRAW_CAMERA(camera);
 	_mapCameraBuffer(camera);
 	
-	_particlePass();
+	_particlePass(&camera);
 
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
@@ -1127,13 +1127,25 @@ void ForwardRender::_setAnimatedShaders()
 	
 }
 
-void ForwardRender::_particlePass()
+void ForwardRender::_particlePass(Camera * camera)
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	DX::g_deviceContext->OMSetDepthStencilState(m_particleDepthStencilState, NULL);
+	
+
+	DirectX::XMMATRIX proj, viewInv;
+	DirectX::BoundingFrustum boundingFrustum;
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getView())));
+	DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+	boundingFrustum.Transform(boundingFrustum, viewInv);
+
 	for (auto & emitter : DX::g_emitters)
 	{
-		emitter->Draw();
+		if (boundingFrustum.Intersects(*emitter->getBoundingBox()))
+			emitter->Draw();
+		else
+			emitter->Clear();
 	}
 	DX::g_emitters.clear();
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);

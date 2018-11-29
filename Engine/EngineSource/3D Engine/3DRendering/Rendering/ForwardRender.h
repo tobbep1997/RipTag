@@ -191,7 +191,7 @@ private:
 	void _visabilityPass();
 
 	//ParticlePass
-	void _particlePass();
+	void _particlePass(Camera * camera);
 
 	void _createShaders();
 	void _createShadersInput();
