@@ -338,7 +338,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 					continue;
 				break;
 			case Camera::Perspectiv::Enemy:
-				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::GuarddType || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::CurrentGuard || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
 					continue;
 				break;
 			}
