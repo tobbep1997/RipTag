@@ -141,6 +141,9 @@ void LobbyState::Update(double deltaTime)
 
 		if (m_lobbyButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Hover);
+			m_lobbyButtons[m_currentButton]->Select(false);
+
 			switch ((ButtonOrderLobby)m_currentButton)
 			{
 			case ButtonOrderLobby::Host:
@@ -239,6 +242,10 @@ void LobbyState::Update(double deltaTime)
 
 		if (m_charSelectButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
+
+			m_charSelectButtons[m_currentButton]->setState(ButtonStates::Hover);
+			m_charSelectButtons[m_currentButton]->Select(false);
+
 			switch ((CharacterSelection)m_currentButton)
 			{
 			case CharacterSelection::CharOne:
@@ -255,6 +262,7 @@ void LobbyState::Update(double deltaTime)
 					m_charSelectButtons[m_currentButton]->setTextColor(ActivatedColor);
 				}
 				this->_sendCharacterSelectionPacket();
+
 				break;
 			case CharacterSelection::CharTwo:
 				if (hasCharSelected && selectedChar == 2)
@@ -363,6 +371,10 @@ void LobbyState::Update(double deltaTime)
 				isReady = false;
 				isHosting = false;
 				hasJoined = false;
+
+				m_charSelectButtons[m_currentButton]->setState(ButtonStates::Hover);
+				m_charSelectButtons[m_currentButton]->Select(false);
+
 				this->_resetLobbyButtonStates();
 				break;
 			case CharacterSelection::SkipTutorial:
@@ -378,8 +390,6 @@ void LobbyState::Update(double deltaTime)
 					m_skipTutorialBox->setString(" ");
 					m_skipTutorialBox->setTextColor(Colors::Transparent);
 				}
-				m_charSelectButtons[CharacterSelection::SkipTutorial]->Select(false);
-				m_charSelectButtons[CharacterSelection::SkipTutorial]->setState(ButtonStates::Hover);
 				break;
 			}
 		}
