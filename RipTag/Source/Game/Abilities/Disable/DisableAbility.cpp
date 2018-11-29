@@ -410,10 +410,20 @@ void DisableAbility::_inStateRemoteActive(double dt)
 void DisableAbility::_sendOnHitNotification(Enemy * ptr)
 {
 	Network::ENTITYSTATEPACKET packet(0,0,true);
-	packet.id = Network::ID_ENEMY_DISABLED;
-	packet.state = ptr->getUniqueID();
-	packet.pos = ptr->getPosition();
+	if (ptr)
+	{
+		packet.id = Network::ID_ENEMY_DISABLED;
+		packet.state = ptr->getUniqueID();
+		packet.pos = ptr->getPosition();
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
 
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+	}
+	else
+	{
+		packet.id = Network::ID_SMOKE_DETONATE;
+		packet.pos = m_obj->getPosition();
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+	}
+
 }
 
