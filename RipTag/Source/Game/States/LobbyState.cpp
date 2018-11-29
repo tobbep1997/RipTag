@@ -351,6 +351,10 @@ void LobbyState::Update(double deltaTime)
 				hasRemoteCharSelected = false;
 				remoteSelectedChar = 0;
 
+				skipTutorial = false;
+				m_skipTutorialBox->setTextColor(Colors::Transparent);
+				m_skipTutorialBox->setString(" ");
+
 				m_charSelectButtons[CharOne]->setTextColor(DefaultColor);
 				m_charSelectButtons[CharTwo]->setTextColor(DefaultColor);
 
@@ -359,9 +363,6 @@ void LobbyState::Update(double deltaTime)
 				isReady = false;
 				isHosting = false;
 				hasJoined = false;
-
-				m_charSelectButtons[m_currentButton]->setState(ButtonStates::Hover);
-				m_charSelectButtons[m_currentButton]->Select(false);
 
 				this->_resetLobbyButtonStates();
 				break;
