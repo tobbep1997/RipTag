@@ -6,7 +6,7 @@
 #include "../../Actors/BaseActor.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-class DisableAbility : public AbilityComponent, public BaseActor, public HUDComponent
+class DisableAbility : public AbilityComponent, public HUDComponent
 {
 private: // CONST VARS
 	/*
@@ -38,6 +38,7 @@ private:
 	DisableState	m_dState;
 	float			m_charge;
 	float			m_travelSpeed;
+	BaseActor*		m_obj;
 
 	bool m_canceled = false;
 	//Network
