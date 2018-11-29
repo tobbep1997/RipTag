@@ -35,6 +35,10 @@ private:
 	bool isRemoteReady = false;
 
 	bool backToMenu = false;
+
+	bool m_pressed = false;
+	unsigned short m_maxButtons = 2;
+	unsigned short m_currentButton = 0;
 public:
 	TransitionState(RenderingManager * rm, Transition type, std::string eventString = "", void * pCoopData = nullptr);
 	~TransitionState();
