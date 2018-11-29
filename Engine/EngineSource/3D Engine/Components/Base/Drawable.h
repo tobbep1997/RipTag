@@ -18,7 +18,8 @@ enum EntityType
 	GuarddType = 2,
 	ExcludeType = 3,
 	RemotePlayerType = 4,
-	FirstPersonPlayer = 5
+	FirstPersonPlayer = 5,
+	CurrentGuard = 6
 };
 
 class StaticMesh;
