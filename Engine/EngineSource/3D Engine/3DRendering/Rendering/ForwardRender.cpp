@@ -276,8 +276,9 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
-			continue;
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+				continue;
 
 		auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
 		DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
@@ -322,8 +323,9 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
-			continue;
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+				continue;
 
 		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 		{
