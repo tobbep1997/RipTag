@@ -733,6 +733,9 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 		case(39):
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom);
 			break;
+		case(40):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
 		default:
 			break;
 		}
@@ -785,6 +788,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	assetVector->push_back(tempAsset);
 }
+#pragma endregion
 
 
 
