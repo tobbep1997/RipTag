@@ -1,7 +1,8 @@
 #pragma once
 #include "OptionState.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
-class PauseMenu
+
+class PauseMenu 
 {
 private:
 	
@@ -10,8 +11,11 @@ private:
 		SliderFov = 0,
 		SliderSensitivityX,
 		SliderSensitivityY,
-		SoundSettings,
-		Return
+		SliderMaster,
+		SliderEffects,
+		SliderAmbient,
+		SliderMusic,
+		Return,
 	};
 
 	enum LastInputUsed
@@ -21,18 +25,17 @@ private:
 		Keyboard
 	};
 
-
-	HUDComponent m_HUDcomp; 
-
 	float m_stickTimerFOV = 0;
 	float m_stickTimerX = 0;
 	float m_stickTimerY = 0;
 
 	std::vector<Quad* > m_buttons;
 	std::vector<Quad* > m_text;
-	Quad* m_background = nullptr;
-	Quad * m_restart;
 	int m_fov;
+	int m_master; 
+	int m_effects; 
+	int m_ambient; 
+	int m_music; 
 	DirectX::XMINT2 m_sens;
 
 	bool m_sliderPressed;
@@ -41,16 +44,18 @@ private:
 
 	bool m_mouseMoved;
 	LastInputUsed m_liu;
-	
-public:
-	PauseMenu(); 
-	~PauseMenu(); 
 
-	void Update(double deltaTime); 
+	bool m_exitPause = false; 
 
-	void Draw();
+	const DirectX::XMFLOAT2 MIN_MAX_SLIDE_GENERAL = { 0.05f, 0.3f };
+	const DirectX::XMFLOAT2 MIN_MAX_SLIDE_SOUND = { 0.65f, 0.9f}; 
+	const DirectX::XMINT2 MIN_MAX_FOV = { 45, 135 };
+	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = { 1, 11 };
+	const DirectX::XMINT2 MIN_MAX_SOUND = { 0, 100 };
 
-	void _slide();
+
+	void _slideSound();
+	void _slideGeneral();
 	void _initButtons();
 	void _handleGamePadInput(double dt);
 	void _handleKeyboardInput(double dt);
@@ -59,7 +64,16 @@ public:
 	void _WriteSettingsToFile();
 	void _ReadSettingsFromFile();
 	void _ParseFileInputInt(const std::string & str, int key);
-	
+
+public:
+	PauseMenu(); 
+	~PauseMenu(); 
+
+	void Update(double deltaTime); 
+
+	void Draw();
+
+	const bool& getExitPause() const; 
 	void Load(); 
 	void unLoad(); 
 };

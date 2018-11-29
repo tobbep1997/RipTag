@@ -28,8 +28,6 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-
-	m_pPauseMenu = new PauseMenu(); 
 }
 
 PlayState::~PlayState()
@@ -51,6 +49,7 @@ PlayState::~PlayState()
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
 
+	if(m_pPauseMenu != nullptr)
 	delete m_pPauseMenu; 
 
 	//delete triggerHandler;
@@ -801,7 +800,7 @@ void PlayState::Load()
 void PlayState::_checkPauseState()
 {
 	//Check if escape was pressed
-	m_pausePressed = InputHandler::isKeyPressed('J'); 
+	m_pausePressed = InputHandler::isKeyPressed('J');
 
 	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
 	{
@@ -811,16 +810,23 @@ void PlayState::_checkPauseState()
 		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
 		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
 		m_playerManager->getLocalPlayer()->setHeadbobbingActive(false); 
+		m_pPauseMenu = new PauseMenu(); 
 
 	}
-	else if (m_pausePressed && !m_pauseWasPressed && m_currentState == 1)
+
+	if (m_pPauseMenu != nullptr)
 	{
-		m_gamePaused = false; 
-		m_currentState = 0; 
-		m_playerManager->getLocalPlayer()->UnlockPlayerInput(); 
-		m_playerManager->getLocalPlayer()->setHeadbobbingActive(true);
-	}
-
+		if (m_pPauseMenu->getExitPause())
+		{
+			m_gamePaused = false;
+			m_currentState = 0;
+			m_playerManager->getLocalPlayer()->UnlockPlayerInput();
+			m_playerManager->getLocalPlayer()->setHeadbobbingActive(true);
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+			m_pausePressed = true; 
+		}
+	} 
 	m_pauseWasPressed = m_pausePressed; 
 }
 
@@ -840,8 +846,6 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
 	Manager::g_textureManager.loadTextures("PLAYER1");
-	
-
 }
 
 void PlayState::_loadPhysics()
