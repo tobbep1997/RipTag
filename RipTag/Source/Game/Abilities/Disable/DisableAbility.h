@@ -6,7 +6,7 @@
 #include "../../Actors/BaseActor.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-class DisableAbility : public AbilityComponent, public BaseActor, public HUDComponent
+class DisableAbility : public AbilityComponent, public HUDComponent
 {
 private: // CONST VARS
 	/*
@@ -32,12 +32,13 @@ private:
 		OnHit
 	};
 
-	ParticleEmitter* m_particleEmitter; 
+	ParticleEmitter** m_particleEmitters;
 
 private:
 	DisableState	m_dState;
 	float			m_charge;
 	float			m_travelSpeed;
+	BaseActor*		m_obj;
 
 	bool m_canceled = false;
 	//Network
@@ -55,8 +56,8 @@ public:
 
 	void Init() override;
 
-	void deleteEffect();
-	ParticleEmitter* getEmitter(); 
+	void deleteEffects();
+	ParticleEmitter** getEmitters(); 
 
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
