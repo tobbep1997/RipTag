@@ -412,8 +412,17 @@ void LobbyState::Draw()
 			this->m_charTwoInfo->Draw();
 		if (this->m_charSelectInfo)
 			this->m_charSelectInfo->Draw();
-		for (auto &button : this->m_charSelectButtons)
-			button->Draw();
+		for (int i = 0; i < m_charSelectButtons.size(); i++)
+		{
+			if (i != CharacterSelection::SkipTutorial)
+				m_charSelectButtons[i]->Draw();
+			else
+			{
+				if (isHosting)
+					m_charSelectButtons[i]->Draw();
+			}
+
+		}
 		if (isHosting)
 		{
 			if (m_skipTutorialBox)
@@ -906,15 +915,27 @@ void LobbyState::_gamePadCharSelection()
 			m_currentButton = CharacterSelection::CharOne;
 			break;
 		case CharacterSelection::Ready:
-			if (isRightPressed)
+			if (isHosting)
+			{
+				if (isRightPressed)
+					m_currentButton = CharacterSelection::Back;
+				else if (isLeftPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+			}
+			else
+			{
 				m_currentButton = CharacterSelection::Back;
-			else if (isLeftPressed)
-				m_currentButton = CharacterSelection::SkipTutorial;
+			}
 			break;
 		case CharacterSelection::Back:
-			if (isRightPressed)
-				m_currentButton = CharacterSelection::SkipTutorial;
-			else if (isLeftPressed)
+			if (isHosting)
+			{
+				if (isRightPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+				else if (isLeftPressed)
+					m_currentButton = CharacterSelection::Ready;
+			}
+			else
 				m_currentButton = CharacterSelection::Ready;
 			break;
 		case CharacterSelection::SkipTutorial:
@@ -1048,15 +1069,25 @@ void LobbyState::_keyboardCharSelection()
 			m_currentButton = CharacterSelection::CharOne;
 			break;
 		case CharacterSelection::Ready:
-			if (wasRightPressed)
+			if (isHosting)
+			{
+				if (wasRightPressed)
+					m_currentButton = CharacterSelection::Back;
+				else if (wasLeftPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+			}
+			else
 				m_currentButton = CharacterSelection::Back;
-			else if (wasLeftPressed)
-				m_currentButton = CharacterSelection::SkipTutorial;
 			break;
 		case CharacterSelection::Back:
-			if (wasRightPressed)
-				m_currentButton = CharacterSelection::SkipTutorial;
-			else if (wasLeftPressed)
+			if (isHosting)
+			{
+				if (wasRightPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+				else if (wasLeftPressed)
+					m_currentButton = CharacterSelection::Ready;
+			}
+			else
 				m_currentButton = CharacterSelection::Ready;
 			break;
 		case CharacterSelection::SkipTutorial:
@@ -1170,6 +1201,11 @@ void LobbyState::_mouseCharSelection()
 	{
 		if (m_charSelectButtons[i]->Inside(mousePos))
 		{
+			if (!isHosting)
+			{
+				if (i == CharacterSelection::SkipTutorial)
+					return;
+			}
 			//set this button to current and on hover state
 			m_currentButton = i;
 			m_charSelectButtons[i]->Select(true);
