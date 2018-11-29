@@ -153,7 +153,7 @@ void Room::LoadRoomToMemory()
 			ParticleEmitter * p_emit = nullptr;
 
 			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
-			p_pointLight->setColor(90, 112.0f, 130.0f);
+			p_pointLight->setColor(250.0f, 172.0f, 100);
 
 			p_emit = new ParticleEmitter();
 			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);

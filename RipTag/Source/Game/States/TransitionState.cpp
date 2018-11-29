@@ -54,20 +54,16 @@ TransitionState::~TransitionState()
 void TransitionState::Update(double deltaTime)
 {
 	if (!InputHandler::getShowCursor())
-		InputHandler::setShowCursor(TRUE);
+		if (m_currentButton > m_maxButtons)
+			InputHandler::setShowCursor(TRUE);
 	//Back to menu
-	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)) || (m_currentButton == 0 && m_pressed))
 	{
 		backToMenu = true;
 		BackToMenu();
 	}
-	if (InputHandler::wasKeyPressed(InputHandler::Enter) || InputHandler::wasKeyPressed(InputHandler::Esc))
-		BackToMenu();
-	if (Input::isUsingGamepad())
-		if (GamePadHandler::IsAPressed() || GamePadHandler::IsBPressed())
-			BackToMenu();
-	//Retry
-	if (m_ready->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
+
+	if (m_ready->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)) || (m_currentButton == 1 && m_pressed))
 	{
 		if (isReady)
 		{
@@ -85,7 +81,6 @@ void TransitionState::Update(double deltaTime)
 		}
 	}
 
-
 	if (m_type == Transition::Lose)
 	{
 		if (pCoopData)
@@ -99,7 +94,46 @@ void TransitionState::Update(double deltaTime)
 			this->pushAndPop(2, new PlayState(p_renderingManager));
 
 	}
-	
+
+	if (InputHandler::mouseMoved())
+		m_currentButton = 16;
+
+	if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::IsDownDpadPressed() || InputHandler::isKeyReleased(InputHandler::Key::Left))
+	{
+		if (m_currentButton > m_maxButtons)
+			m_currentButton = 1;
+		if (m_currentButton - 1 < 0)
+			m_currentButton = m_maxButtons - 1;
+		else
+			m_currentButton--;
+	}
+	if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::IsUpDpadPressed() || InputHandler::isKeyReleased(InputHandler::Key::Right))
+	{
+		if (m_currentButton + 1 >= m_maxButtons)
+			m_currentButton = 0;
+		else
+			m_currentButton++;
+	}
+	if (m_currentButton == 0)
+	{
+		m_backToMenu->setTextColor(Colors::Purple);
+	}
+	else
+	{
+		m_backToMenu->setTextColor(Colors::White);
+	}
+	if (m_currentButton == 1)
+	{
+		m_ready->setTextColor(Colors::Purple);
+	}
+	else
+	{
+		m_ready->setTextColor(Colors::White);
+	}
+	if (GamePadHandler::IsAReleased() || InputHandler::isKeyReleased(InputHandler::Key::Return))	
+		m_pressed = true;	
+	else
+		m_pressed = false;
 }
 
 void TransitionState::Draw()
