@@ -107,17 +107,20 @@ void PlayState::Update(double deltaTime)
 
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+	
 		m_playerManager->Update(deltaTime);
+
 		m_playerManager->PhysicsUpdate();
 		_audioAgainstGuards(deltaTime); 
 
 		_checkPauseState(); 
 
 		if (m_gamePaused)
-			_runPause(deltaTime); 
-
+			_runPause(deltaTime);
+		
+			
 		// Hide mouse
-		if (InputHandler::getShowCursor() != FALSE)
+		if (InputHandler::getShowCursor() != FALSE && !m_gamePaused)
 			InputHandler::setShowCursor(FALSE);	   
 		
 		// Select gamepad
@@ -183,7 +186,7 @@ void PlayState::Update(double deltaTime)
 		}
 	
 		// Reset mouse to middle of the window, Must be last in update
-		if (!m_playerManager->getLocalPlayer()->unlockMouse)
+		if (!m_playerManager->getLocalPlayer()->unlockMouse && !m_gamePaused)
 		{
 			Input::ResetMouse();
 			InputHandler::setShowCursor(false);
@@ -316,7 +319,6 @@ void PlayState::Draw()
 		if (m_gamePaused)
 		{
 			m_pPauseMenu->Draw();
-			std::cout << "Draw Pause" << std::endl; 
 		}
 
 	}
@@ -563,6 +565,7 @@ void PlayState::_lightCulling()
 void PlayState::_runPause(double deltaTime)
 {
 	m_pPauseMenu->Update(deltaTime); 
+	
 }
 
 void PlayState::thread(std::string s)
@@ -804,11 +807,13 @@ void PlayState::_checkPauseState()
 	{
 		m_gamePaused = true; 
 		m_currentState = 1; 
+		m_playerManager->getLocalPlayer()->LockPlayerInput();
 	}
 	else if (m_pausePressed && !m_pauseWasPressed && m_currentState == 1)
 	{
 		m_gamePaused = false; 
 		m_currentState = 0; 
+		m_playerManager->getLocalPlayer()->UnlockPlayerInput(); 
 	}
 
 	m_pauseWasPressed = m_pausePressed; 

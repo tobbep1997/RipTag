@@ -3,7 +3,7 @@
 
 PauseMenu::PauseMenu()
 {
-	_initButtons(); 
+
 }
 
 PauseMenu::~PauseMenu()
