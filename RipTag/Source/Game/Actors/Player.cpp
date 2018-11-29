@@ -218,14 +218,17 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 
-	for (int i = 0; i < m_nrOfAbilitys; i++)
+	if (!this->m_lockPlayerInput)
 	{
-		m_activeSet[i]->Update(deltaTime);
-
-		/*if (i != m_currentAbility)
+		for (int i = 0; i < m_nrOfAbilitys; i++)
 		{
-			m_activeSet[i]->updateCooldown(deltaTime);
-		}*/
+			m_activeSet[i]->Update(deltaTime);
+
+			/*if (i != m_currentAbility)
+			{
+				m_activeSet[i]->updateCooldown(deltaTime);
+			}*/
+		}
 	}
 
 	_cameraPlacement(deltaTime);
@@ -1256,7 +1259,7 @@ void Player::_cameraPlacement(double deltaTime)
 	static bool hasPlayed = true;
 	static int last = 0;
 
-	float offsetY = 0; 
+	float offsetY = 0;
 
 	//Head Bobbing
 	if (m_headBobbingActive)

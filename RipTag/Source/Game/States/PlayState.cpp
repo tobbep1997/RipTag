@@ -811,6 +811,7 @@ void PlayState::_checkPauseState()
 		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
 		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
 		m_playerManager->getLocalPlayer()->setHeadbobbingActive(false); 
+
 	}
 	else if (m_pausePressed && !m_pauseWasPressed && m_currentState == 1)
 	{
