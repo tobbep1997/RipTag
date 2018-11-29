@@ -266,6 +266,11 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+const bool & Player::getHeadbobbingActive() const
+{
+	return m_headBobbingActive; 
+}
+
 const float & Player::getVisability() const
 {
 	return m_visability;
@@ -472,6 +477,11 @@ void Player::SetFirstPersonModel()
 
 		animPlayer->Play();
 	}
+}
+
+void Player::setHeadbobbingActive(bool active)
+{
+	m_headBobbingActive = active; 
 }
 
 void Player::SendOnUpdateMessage()
@@ -1246,10 +1256,14 @@ void Player::_cameraPlacement(double deltaTime)
 	static bool hasPlayed = true;
 	static int last = 0;
 
-	//Head Bobbing
-	float offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+	float offsetY = 0; 
 
-	pos.y += offsetY;
+	//Head Bobbing
+	if (m_headBobbingActive)
+	{
+		offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+		pos.y += offsetY;
+	}
 
 	//Footsteps
 	if (p_moveState == Walking || p_moveState == Sprinting)
