@@ -1,9 +1,6 @@
 #include "RipTagPCH.h"
 #include "RemotePlayer.h"
 
-//#todoREMOVE
-#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
-
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
 	using namespace DirectX;
@@ -390,27 +387,6 @@ void RemotePlayer::_registerAnimationStateMachine()
 		pitchState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("pitch");
 	}
-
-	//#todoREMOVE
-	//auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
-	//auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
-	//
-	//std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
-	//SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
-	//up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
-	//up.location = .90f;
-	//up.weight = 1.0f;
-	//SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
-	//down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
-	//down.location = -.9f;
-	//down.weight = 1.0f;
-
-	//layerData.push_back(down);
-	//layerData.push_back(up);
-
-	//state->AddBlendNodes(layerData);
-
-	//layerMachine->SetState("pitch_state");
 }
 
 void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
