@@ -387,6 +387,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 		crouchState->UseFirstPoseOnly(true);
 		auto pitchState = layerMachine->Add1DPoseLayer("pitch", &m_currentPitch, -1.0f, 1.0f, { {lookUpPose, -1.0f}, {lookDownPose, 1.0f} });
+		pitchState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("pitch");
 	}
 
