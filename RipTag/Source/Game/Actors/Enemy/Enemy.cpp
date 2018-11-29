@@ -309,7 +309,10 @@ void Enemy::Draw()
 
 void Enemy::QueueForVisibility()
 {
-	if (true == m_allowVisability)
+	AIState state = getAIState();
+	bool canDoVis = (state != AIState::Disabled && state != AIState::Possessed);
+
+	if (m_allowVisability && canDoVis && !ClientLocked())
 	{
 		m_vc->QueueVisibility();
 	}
