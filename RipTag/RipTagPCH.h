@@ -2,7 +2,6 @@
 
 //MULLE MECKA
 #pragma warning (disable : 4215 4267 4305)
-#include <vld.h>
 
 #include <AudioEngine.h>
 #include <Multiplayer.h>
