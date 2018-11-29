@@ -42,6 +42,13 @@ TransitionState::~TransitionState()
 		delete m_background;
 		m_background = nullptr;
 	}
+	if (m_victory)
+	{
+		m_victory->Release();
+		delete m_victory;
+		m_victory = nullptr;
+	}
+
 }
 
 void TransitionState::Update(double deltaTime)
@@ -51,6 +58,7 @@ void TransitionState::Update(double deltaTime)
 	//Back to menu
 	if (m_backToMenu->isReleased(DirectX::XMFLOAT2(InputHandler::getMousePosition().x / InputHandler::getWindowSize().x, InputHandler::getMousePosition().y / InputHandler::getWindowSize().y)))
 	{
+		backToMenu = true;
 		BackToMenu();
 	}
 	if (InputHandler::wasKeyPressed(InputHandler::Enter) || InputHandler::wasKeyPressed(InputHandler::Esc))
@@ -77,21 +85,26 @@ void TransitionState::Update(double deltaTime)
 		}
 	}
 
-	if (pCoopData)
+
+	if (m_type == Transition::Lose)
 	{
-		if (isReady && isRemoteReady)
+		if (pCoopData)
 		{
-			this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+			if (isReady && isRemoteReady)
+			{
+				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+			}
 		}
+		else if (isReady)
+			this->pushAndPop(2, new PlayState(p_renderingManager));
+
 	}
-	else if (isReady)
-		this->pushAndPop(2, new PlayState(p_renderingManager));
 	
 }
 
 void TransitionState::Draw()
 {
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
+	static Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 
 	if (m_header)
 		m_header->Draw();
@@ -100,7 +113,10 @@ void TransitionState::Draw()
 	if (m_backToMenu)
 		m_backToMenu->Draw();
 	if (m_ready)
-		m_ready->Draw();
+	{
+		if (m_type != Transition::ThankYou)
+			m_ready->Draw();
+	}
 	if (m_background)
 		m_background->Draw();
 
@@ -164,20 +180,38 @@ void TransitionState::HandlePacket(unsigned char id, unsigned char * data)
 	}
 }
 
+bool TransitionState::ReadyToLoadNextRoom()
+{
+	if (pCoopData)
+		return isReady && isRemoteReady;
+	else
+		return isReady;
+}
+
+bool TransitionState::BackToMenuBool()
+{
+	return backToMenu;
+}
+
 void TransitionState::_initButtons()
 {
 	//Buttons
 	{
 		if (m_type == Transition::Lose)
 		{
-			this->m_header = Quad::CreateButton("Game Over", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header = Quad::CreateButton("", 0.5f, 0.7f, 0.5f, 0.25f);
 			this->m_header->setTextColor(Colors::Red);
 			
 		}
+		else if (m_type == Transition::Win)
+		{
+			this->m_header = Quad::CreateButton("", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header->setTextColor(Colors::Green);
+		}
 		else
 		{
-			this->m_header = Quad::CreateButton("Victory", 0.5f, 0.7f, 0.5f, 0.25f);
-			this->m_header->setTextColor(Colors::Green);
+			this->m_header = Quad::CreateButton("Thank you!", 0.5f, 0.7f, 0.5f, 0.25f);
+			this->m_header->setTextColor(Colors::Gold);
 		}
 		this->m_header->setUnpressedTexture("gui_transparent_pixel");
 		this->m_header->setPressedTexture("gui_transparent_pixel");
@@ -194,7 +228,10 @@ void TransitionState::_initButtons()
 		this->m_eventInfo->setFont(FontHandler::getFont("consolas32"));
 		this->m_eventInfo->setTextColor(Colors::White);
 
-		this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.3f, 0.20f, 0.5f, 0.25f);
+		if (m_type == Transition::ThankYou)
+			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.5f, 0.20f, 0.5f, 0.25f);
+		else
+			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.3f, 0.20f, 0.5f, 0.25f);
 		this->m_backToMenu->setUnpressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setPressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setHoverTexture("gui_pressed_pixel");
@@ -220,9 +257,9 @@ void TransitionState::_initButtons()
 		}
 		else
 		{
-			this->m_background->setUnpressedTexture("gui_temp_bg");
-			this->m_background->setPressedTexture("gui_temp_bg");
-			this->m_background->setHoverTexture("gui_temp_bg");
+			this->m_background->setUnpressedTexture("gui_temp_bg1");
+			this->m_background->setPressedTexture("gui_temp_bg1");
+			this->m_background->setHoverTexture("gui_temp_bg1");
 		}
 	}
 }

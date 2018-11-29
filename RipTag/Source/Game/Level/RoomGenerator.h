@@ -17,14 +17,16 @@ private:
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;
-	int incrementalValueX = 20;
-	int incrementalValueY = 20; // add these instead of 20
+	int m_incrementalValueX = 20;
+	int m_incrementalValueY = 20;
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;
 	std::vector<ParticleEmitter*> m_generated_Emitters;
 	std::vector<FMOD::Geometry*> m_generatedAudioBoxes;
 	
+	std::vector<DirectX::BoundingBox*> m_generated_boundingBoxes;
+
 	Room * returnableRoom;
 	b3World * m_worldPtr;
 	BaseActor * asset;
@@ -36,17 +38,18 @@ private:
 	void applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatrix, ImporterLibrary::CollisionBoxes & boxesToModify);
 	void _generateGrid();
 	void _makeFloor();
-	void _makeWalls();
-	void _unblockIndex(RandomRoomGrid & randomizer, ImporterLibrary::GridStruct * tempGridStruct, int roomIndex);
-	//void _placeProps();
-	void _createEnemies(Player * playerPtr);
-	void _FindWinnableAndGuardPaths();
-	void _generateLights(float xPos, float yPos, float zPos, float colorR, float colorG, float colorB, float intensity);
+	void _makeRoof();
+	void _createEntireWorld();
+	void _generateGuardPaths();
 
 	int returnRandomInGridWidth();
 	int returnRandomInGridDepth();
 	int returnRandomBetween(int min, int max);
-	
+
+	void _modifyPropBoundingBoxes(ImporterLibrary::PropItem prop);
+
+	void moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::CollisionBoxes &modCollisionBoxes);
+
 public:
 	RoomGenerator();
 	~RoomGenerator();

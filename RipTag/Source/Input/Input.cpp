@@ -251,7 +251,7 @@ bool Input::OnAbilityPressed()
 {
 	bool result = false;
 	if (isUsingGamepad())
-		result = GamePadHandler::IsRightShoulderPressed();
+		result = GamePadHandler::IsLeftShoulderPressed();
 	
 	if (!result)
 		result = InputHandler::isMouseLeftPressed();
@@ -290,7 +290,7 @@ bool Input::OnAbility2Pressed()
 {
 	bool result = false;
 	if (isUsingGamepad())
-		result = GamePadHandler::IsLeftShoulderPressed();
+		result = GamePadHandler::IsRightShoulderPressed();
 
 	if (!result)
 		result = InputHandler::isMRightPressed();
@@ -398,11 +398,13 @@ float Input::TurnUp()
 {
 	float result = 0;
 	if (isUsingGamepad())
-		result = -1.0f * GamePadHandler::GetRightStickYPosition();
+		result = -20.0f * GamePadHandler::GetRightStickYPosition();
 	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-		result = -1.0f * (((InputHandler::getWindowSize().y / 2)) - poss.y) / 40.0f;
+		//result = -1.0f * (((InputHandler::getWindowSize().y / 2)) - poss.y) / 40.0f;
+		float standardY = InputHandler::getWindowSize().y / 2;
+		result = -1 * (standardY - poss.y);
 	}
 	return result;
 }
@@ -411,12 +413,14 @@ float Input::TurnRight()
 {
 	float result = 0;
 	if (isUsingGamepad())
-		result = GamePadHandler::GetRightStickXPosition();
+		result = 20.0f * GamePadHandler::GetRightStickXPosition();
 
 	if (result == 0)
 	{
 		DirectX::XMFLOAT2 poss = InputHandler::getMousePosition();
-		result = -1.0f * (((InputHandler::getWindowSize().x / 2.0f)) - poss.x) / 40.0f;
+		//result = -1.0f * (((InputHandler::getWindowSize().x / 2.0f)) - poss.x) / 40.0f;
+		float standardY = InputHandler::getWindowSize().x / 2;
+		result = -1 * (standardY - poss.x);
 	}
 	return result;
 }

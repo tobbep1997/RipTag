@@ -154,11 +154,6 @@ void ForwardRender::GeometryPass(Camera & camera)
 
 		switch (camera.getPerspectiv())
 		{
-			
-		}
-
-		switch (camera.getPerspectiv())
-		{
 		case Camera::Perspectiv::Player:
 			if (DX::g_cullQueue[i]->getEntityType() == EntityType::PlayerType)						
 				continue;			
@@ -398,7 +393,8 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 	DX::g_deviceContext->RSSetState(m_standardRast);
 
-	_visabilityPass();
+	if (DX::g_player)
+		_visabilityPass();
 	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
@@ -1100,6 +1096,10 @@ void ForwardRender::_setStaticShaders()
 
 void ForwardRender::_visabilityPass()
 {
+	if (DX::g_player == nullptr)
+	{
+		return;
+	}
 	m_visabilityPass->SetViewportAndRenderTarget();
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{

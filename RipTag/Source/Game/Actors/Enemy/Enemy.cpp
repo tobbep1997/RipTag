@@ -43,22 +43,22 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 		this->getAnimationPlayer()->Play();
 
 	}
-	b3Vec3 pos(1, 0.9, 1);
+	b3Vec3 pos(0.25, 0.5, 0.25);
 	PhysicsComponent::Init(*world, e_dynamicBody, pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
-	CreateShape(0, pos.y, 0, pos.x, pos.y, pos.z, "UPPERBODY");
-	CreateShape(0, (pos.y*1.5) + 0.25, 0, 0.5, 0.5, 0.1, "HEAD");
-	m_standHeight = (pos.y*1.5) + 0.25;
-	m_crouchHeight = pos.y * 1.1;
+	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
+	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
+	m_standHeight = (1.0*1.4);
+	m_crouchHeight = 1.0 * .5;
 	setUserDataBody(this);
 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.9, 0.0));
-	setScale(.5, .5, .5);
+	setScale(.4, .4, .4);
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
 	m_boundingFrustum = new DirectX::BoundingFrustum(DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p_camera->getProjection())));
@@ -114,7 +114,7 @@ const int * Enemy::getPlayerVisibility() const
 
 void Enemy::CullingForVisability(const Transform& player)
 {
-	if (!m_disabled)
+	if (!m_disabled && getAIState() != AIState::Possessed)
 	{
 		DirectX::XMVECTOR enemyToPlayer = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&player.getPosition()), DirectX::XMLoadFloat4A(&getPosition()));
 
@@ -158,19 +158,18 @@ void Enemy::BeginPlay()
 
 void Enemy::Update(double deltaTime)
 {
-	static double accumulatedTime = 0.0;
-	static const double SEND_AI_PACKET_FREQUENCY = 1.0 / 15.0; 
-
-
 	using namespace DirectX;
+	AIState state = getAIState();
+	if (!m_lockedByClient)
+	{
+		handleStates(deltaTime);
+		_cameraPlacement(deltaTime);
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
 
-	handleStates(deltaTime);
-
-	auto deltaX = getLiniearVelocity().x * deltaTime;
-	auto deltaZ = getLiniearVelocity().z * deltaTime;
-	m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
-
-	m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+	}
 
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
@@ -181,6 +180,34 @@ void Enemy::Update(double deltaTime)
 	{
 		m_nodeFootPrintsEnabled = true;
 	}
+
+	if(state == AIState::Possessed)
+		for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+		{
+			ContactListener::S_Contact con = RipExtern::g_contactListener->GetBeginContact(i);
+			b3Shape * shapeA = con.a;
+			b3Shape * shapeB = con.b;
+			if (shapeA && shapeB)
+			{
+				b3Body * bodyA = shapeA->GetBody();
+				b3Body * bodyB = shapeB->GetBody();
+
+				if (bodyA && bodyB)
+				{
+					std::string objectTagA = bodyA->GetObjectTag();
+					std::string objectTagB = bodyB->GetObjectTag();
+
+					if ((objectTagA == "PLAYER" && objectTagB == "ENEMY") || (objectTagA == "ENEMY" && objectTagB == "PLAYER"))
+					{
+						{
+							m_visCounter = 100000.0f;
+							m_found = true;
+
+						}
+					}
+				}
+			}
+		}
 
 	if (pEmitter)
 	{
@@ -198,17 +225,16 @@ void Enemy::ClientUpdate(double deltaTime)
 {
 	using namespace Network;
 
-	_cameraPlacement(deltaTime);
 
-	if (getAnimationPlayer())
-		getAnimationPlayer()->Update(deltaTime);
-	setLiniearVelocity(0, 0, 0);
 
 	AIState state = getAIState();
 
+	//if (state != AIState::Possessed)
+		_cameraPlacement(deltaTime);
 	//Visibility update
-	if (state != AIState::Possessed && state != AIState::Disabled)
+	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
 	{
+
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
 		float lengthToTarget = GetLenghtToPlayer(m_PlayerPtr->getPosition());
 
@@ -237,9 +263,13 @@ void Enemy::ClientUpdate(double deltaTime)
 				m_visCounter = 0;
 			}
 		}
+		setLiniearVelocity(0, 0, 0);
 	}
 
 	handleStatesClient(deltaTime);
+
+	if (getAnimationPlayer())
+		getAnimationPlayer()->Update(deltaTime);
 
 	if (pEmitter)
 	{
@@ -250,6 +280,17 @@ void Enemy::ClientUpdate(double deltaTime)
 			delete pEmitter;
 			pEmitter = nullptr;
 		}
+	}
+
+	if (state == AIState::Possessed)
+	{
+		auto deltaX = getLiniearVelocity().x * deltaTime;
+		auto deltaZ = getLiniearVelocity().z * deltaTime;
+
+		m_currentMoveSpeed = XMVectorGetX(XMVector2Length(XMVectorSet(deltaX, deltaZ, 0.0, 0.0))) / deltaTime;
+		m_currentMoveSpeed = (float)((int)(m_currentMoveSpeed * 2.0f + 0.5f)) * 0.5f;
+
+		this->sendNetworkUpdate();
 	}
 	
 }
@@ -310,27 +351,30 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 
 void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 {
-	if (packet->condition)
-		this->setAIState(AIState::Possessed);
-	else
-		this->setTransitionState(AITransitionState::ExitingPossess);
-
+	m_lockedByClient = packet->condition;
+	if (!packet->condition)
+	{
+		setTransitionState(AITransitionState::ExitingPossess);
+	}
 }
 
 void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 {
-	if (packet->condition)
+	if (getAIState() != AIState::Possessed || m_lockedByClient)
 	{
-		this->setTransitionState(AITransitionState::BeingDisabled);
-		if (pEmitter)
+		if (packet->condition)
 		{
-			delete pEmitter;
-			pEmitter = nullptr;
+			this->setTransitionState(AITransitionState::BeingDisabled);
+			if (pEmitter)
+			{
+				delete pEmitter;
+				pEmitter = nullptr;
+			}
+			pEmitter = new ParticleEmitter();
+			pEmitter->setSmoke();
+			pEmitter->setEmmiterLife(1.5f);
+			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
 		}
-		pEmitter = new ParticleEmitter();
-		pEmitter->setSmoke();
-		pEmitter->setEmmiterLife(1.5f);
-		pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
 	}
 }
 
@@ -456,38 +500,16 @@ void Enemy::_onRotate(double deltaTime)
 {
 	if (!unlockMouse)
 	{
-		float deltaY = Input::TurnUp();
-		float deltaX = Input::TurnRight();
-		//if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
-		//{
-
-		//}
-		//else
-		//{
-		//	if (m_peekRotate > 0.05f || m_peekRotate < -0.05f)
-		//	{
-		//		if (m_peekRotate > 0)
-		//		{
-		//			p_camera->Rotate(0.0f, -0.05f, 0.0f);
-		//			m_peekRotate -= 0.05;
-		//		}
-		//		else
-		//		{
-		//			p_camera->Rotate(0.0f, +0.05f, 0.0f);
-		//			m_peekRotate += 0.05;
-		//		}
-
-		//	}
-		//	else
-		//	{
-		//		m_peekRotate = 0;
-		//	}
-		//	//
-		//}
-		m_peekRotate = 0;
-		if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
+		const float deltaY = Input::TurnUp();
+		const float deltaX = Input::TurnRight();
+		
+		//m_peekRotate = 0;
+		if (deltaX)
+			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime * 0.02f, 0.0f);
+		if (deltaY)
+			p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime * 0.02f, 0.0f, 0.0f);
+		/*if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
 		{
-			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime, 0.0f);
 			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
 			{
 				m_peekRotate += deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime;
@@ -497,7 +519,6 @@ void Enemy::_onRotate(double deltaTime)
 		{
 			if ((p_camera->getDirection().y - deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime) < 0.90f)
 			{
-				p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime, 0.0f, 0.0f);
 			}
 			else if (p_camera->getDirection().y >= 0.90f)
 			{
@@ -511,10 +532,7 @@ void Enemy::_onRotate(double deltaTime)
 			{
 				p_camera->setDirection(p_camera->getDirection().x, -0.89f, p_camera->getDirection().z);
 			}
-
-
-		}
-
+		}*/
 	}
 }
 
@@ -554,8 +572,8 @@ void Enemy::removePossessor()
 	if (m_possessor != nullptr)
 	{
 		m_possessor->UnlockPlayerInput();
-		this->getBody()->SetType(e_staticBody);
-		this->getBody()->SetAwake(false);
+		this->getBody()->SetType(e_dynamicBody);
+		//this->getBody()->SetAwake(false);
 		m_possessor = nullptr;
 		m_possessReturnDelay = 0;
 		m_released = true; 
@@ -674,7 +692,6 @@ void Enemy::SetPlayerPointer(Player* player)
 	m_PlayerPtr = player;
 }
 
-
 void Enemy::_onReleasePossessed(double deltaTime)
 {
 	if (m_possessor != nullptr)
@@ -686,8 +703,8 @@ void Enemy::_onReleasePossessed(double deltaTime)
 				m_possessor->UnlockPlayerInput();
 				m_possessor = nullptr;
 				//this->CreateBox(1,1,1);
-				this->getBody()->SetType(e_staticBody);
-				this->getBody()->SetAwake(false);
+				this->getBody()->SetType(e_dynamicBody);
+				//this->getBody()->SetAwake(false);
 			}
 		}
 		else
@@ -917,7 +934,7 @@ void Enemy::_cameraPlacement(double deltaTime)
 
 		//--------------------------------------Camera movement---------------------------------------// 
 		b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-		DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
+		DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y + .75, headPosWorld.z, 1.0f);
 		p_camera->setPosition(pos);
 		//Camera Tilt
 		p_CameraTilting(deltaTime, m_peektimer);
@@ -1179,292 +1196,3 @@ void Enemy::_detectTeleportSphere()
 
 	}
 }
-
-
-//void Enemy::_investigatingSight(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	if (this->GetAlertPathSize() > 0)
-//	{
-//		if (this->m_visCounter > this->m_biggestVisCounter)
-//		{
-//			DirectX::XMFLOAT4A playerPos = m_PlayerPtr->getPosition();
-//			
-//			if (m_RemotePtr)
-//			{
-//				const int * vis = m_vc->getVisibilityForPlayers();
-//				if (vis[1] > vis[0])
-//					playerPos = m_RemotePtr->getPosition();
-//			}
-//
-//
-//			Node * pathDestination = this->GetAlertDestination();
-//
-//			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
-//				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
-//			{
-//				DirectX::XMFLOAT4A guardPos = this->getPosition();
-//				Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
-//				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-//
-//				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-//			}
-//		}
-//	}
-//	else
-//	{
-//		this->m_transState = EnemyTransitionState::Observe;
-//	}
-//}
-//void Enemy::_investigatingSound(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	if (this->GetAlertPathSize() > 0)
-//	{
-//		SoundLocation tmp = m_sl;
-//
-//		if (Network::Multiplayer::GetInstance()->isServer())
-//		{
-//			if (tmp.percentage < m_slRemote.percentage)
-//				tmp = m_slRemote;
-//		}
-//
-//		
-//
-//		if (tmp.percentage > this->m_loudestSoundLocation.percentage)
-//		{
-//			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
-//			Node * pathDestination = this->GetAlertDestination();
-//
-//			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
-//				abs(pathDestination->worldPos.y - soundPos.z) > 2.0f)
-//			{
-//				DirectX::XMFLOAT4A guardPos = this->getPosition();
-//				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
-//				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-//
-//				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-//			}
-//		}
-//	}
-//	else
-//	{
-//		this->m_transState = EnemyTransitionState::Observe;
-//	}
-//}
-//void Enemy::_investigatingRoom(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	this->m_searchTimer += deltaTime;
-//	
-//	if (this->GetAlertPathSize() == 0)
-//	{
-//		this->setTransitionState(EnemyTransitionState::Observe);
-//	}
-//	SoundLocation target = m_sl;
-//
-//	if (target.percentage < m_slRemote.percentage)
-//		target = m_slRemote;
-//	if (this->getVisCounter() >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL)
-//	{
-//		//this->setTransitionState(EnemyTransitionState::Alerted);
-//	}
-//	else if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
-//	{
-//		this->setTransitionState(EnemyTransitionState::ReturnToPatrol);
-//	}
-//}
-//void Enemy::_highAlert(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	this->m_HighAlertTime = deltaTime;
-//	if (this->GetHighAlertTimer() >= HIGH_ALERT_LIMIT)
-//	{
-//		this->SetHightAlertTimer(0.f);
-//		this->setClearestPlayerLocation(DirectX::XMFLOAT4A(0, 0, 0, 1));
-//		this->setLoudestSoundLocation(Enemy::SoundLocation());
-//		this->setBiggestVisCounter(0);
-//		this->m_state = EnemyState::Suspicious;
-//#ifdef _DEBUG
-//
-//		std::cout << green << "Enemy " << this->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
-//#endif
-//	}
-//}
-//void Enemy::_suspicious(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	this->m_actTimer += deltaTime;
-//	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
-//	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT / 3)
-//	{
-//		attentionMultiplier = 1.2f;
-//	}
-//	if (this->m_visCounter*attentionMultiplier >= this->m_biggestVisCounter)
-//	{
-//
-//		DirectX::XMFLOAT4A playerPos = m_PlayerPtr->getPosition();
-//
-//		if (m_RemotePtr)
-//		{
-//			const int * vis = m_vc->getVisibilityForPlayers();
-//			if (vis[1] > vis[0])
-//				playerPos = m_RemotePtr->getPosition();
-//		}
-//
-//		this->setClearestPlayerLocation(playerPos);
-//		this->setBiggestVisCounter(this->getVisCounter()*attentionMultiplier);
-//		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
-//		b3Normalize(dir);
-//		guard->setDir(dir.x, dir.y, dir.y);*/
-//	}
-//
-//	SoundLocation target = m_sl;
-//
-//	if (target.percentage < m_slRemote.percentage)
-//		target = m_slRemote;
-//
-//	if (target.percentage*attentionMultiplier >= this->m_loudestSoundLocation.percentage)
-//	{
-//		Enemy::SoundLocation temp = target;
-//		temp.percentage *= attentionMultiplier;
-//		this->m_loudestSoundLocation = temp;
-//		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
-//		b3Normalize(dir);
-//		guard->setDir(dir.x, dir.y, dir.y);*/
-//	}
-//	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
-//	{
-//		if (this->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5)
-//			this->m_transState = EnemyTransitionState::InvestigateSight; //what was that?
-//		else if (this->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
-//			this->m_transState = EnemyTransitionState::InvestigateSound; //what was that noise?
-//		else
-//		{
-//			this->m_transState = EnemyTransitionState::ReturnToPatrol;
-//			//Must have been nothing...
-//		}
-//	}
-//}
-//void Enemy::_scanningArea(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	this->m_actTimer += deltaTime;
-//	//Do animation
-//	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
-//	{
-//		this->m_transState = EnemyTransitionState::SearchArea;
-//	}
-//}
-//void Enemy::_patrolling(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_CheckPlayer(deltaTime);
-//
-//	if (m_path.size() > 0)
-//	{
-//		if (m_pathNodes.size() == 0)
-//		{
-//			Manager::g_textureManager.loadTextures("FOOT");
-//			Manager::g_meshManager.loadStaticMesh("FOOT");
-//			for (unsigned int i = 0; i < m_path.size(); ++i)
-//			{
-//
-//				Drawable * temp = new Drawable();
-//				temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
-//				temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
-//				temp->setScale({ 0.2f, 0.2f, 0.2f, 1.0f });
-//				temp->setPosition(m_path.at(i)->worldPos.x, m_startYPos, m_path.at(i)->worldPos.y);
-//
-//				if (i + 1 < m_path.size())
-//				{
-//					temp->setRotation(0, _getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i + 1)->worldPos.x, m_path.at(i + 1)->worldPos.y }), 0);
-//				}
-//
-//
-//				temp->SetTransparant(true);
-//				m_pathNodes.push_back(temp);
-//			}
-//
-//		}
-//		/*float posY = 0.04 * sin(1 * DirectX::XM_PI*m_sinWaver*0.5f) + 4.4f;
-//		for (auto path : m_pathNodes)
-//		{
-//			path->setPosition(path->getPosition().x, posY , path->getPosition().z);
-//		}*/
-//		if (m_nodeFootPrintsEnabled == true)
-//		{
-//			if (m_currentPathNode != 0)
-//			{
-//				Drawable * temp = m_pathNodes.at(m_currentPathNode - 1);
-//				temp->setPosition(temp->getPosition().x, temp->getPosition().y - deltaTime * 2, temp->getPosition().z);
-//			}
-//		}
-//		_MoveTo(m_path.at(m_currentPathNode), deltaTime);
-//	}
-//
-//	SoundLocation target = m_sl;
-//
-//	if (target.percentage < m_slRemote.percentage)
-//		target = m_slRemote;
-//
-//
-//	if (this->getVisCounter() >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
-//	{
-//		this->m_transState = EnemyTransitionState::Alerted;
-//	}
-//}
-//void Enemy::_possessed(const double deltaTime)
-//{
-//	getBody()->SetType(e_dynamicBody);
-//	_cameraPlacement(deltaTime);
-//	_handleInput(deltaTime);
-//}
-//void Enemy::_disabled(const double deltaTime)
-//{
-//	getBody()->SetType(e_staticBody);
-//	switch (m_knockOutType)
-//	{
-//
-//	case Possessed:
-//		if (m_released)
-//		{
-//			m_possesionRecoverTimer += deltaTime;
-//			if (m_possesionRecoverTimer >= m_possessionRecoverMax)
-//			{
-//				m_transState = EnemyTransitionState::ExitingDisable;
-//			}
-//		}
-//		break;
-//	case Stoned:
-//
-//		m_knockOutTimer += deltaTime;
-//		if (m_knockOutMaxTime <= m_knockOutTimer)
-//		{
-//			m_transState = EnemyTransitionState::ExitingDisable;
-//		}
-//		break;
-//	}
-//	PhysicsComponent::p_setRotation(p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), p_camera->getYRotationEuler().y, p_camera->getYRotationEuler().z);
-//	m_visCounter = 0;
-//}
-//		

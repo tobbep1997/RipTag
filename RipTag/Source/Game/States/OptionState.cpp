@@ -54,6 +54,11 @@ void OptionState::Update(double deltaTime)
 		_handleGamePadInput(deltaTime);
 		_handleKeyboardInput(deltaTime);
 	}
+	if (GamePadHandler::IsBPressed())
+	{
+		m_currentButton = Return;
+		m_buttonPressed = true;
+	}
 
 	if (m_currentButton != -1)
 		if (m_sliderPressed || m_buttonPressed)
@@ -67,14 +72,33 @@ void OptionState::Update(double deltaTime)
 					m_fov = (((m_buttons[m_currentButton]->getPosition().x - MIN_MAX_SLIDE.x) * ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x)) / (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) + (float)MIN_MAX_FOV.x;
 				}
 				else
-				{
+				{ 
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
+
+						m_stickTimerFOV += deltaTime; 
+
 						if (GamePadHandler::IsRightDpadPressed())
 							m_fov++;
 						if (GamePadHandler::IsLeftDpadPressed())
 							m_fov--;
+
+						if (GamePadHandler::GetLeftStickXPosition() > 0 && m_stickTimerFOV >= 0.06f)
+						{
+							m_fov++; 
+							m_stickTimerFOV = 0; 
+						}
+						else if (GamePadHandler::GetLeftStickXPosition() < 0 && m_stickTimerFOV >= 0.06f)
+						{
+							m_fov--; 
+							m_stickTimerFOV = 0; 
+						}
+
+						if (m_fov < MIN_MAX_FOV.x)
+							m_fov = MIN_MAX_FOV.x;
+						if (m_fov > MIN_MAX_FOV.y)
+							m_fov = MIN_MAX_FOV.y;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -105,10 +129,29 @@ void OptionState::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
+
+						m_stickTimerX += deltaTime;
+
 						if (GamePadHandler::IsRightDpadPressed())
 							m_sens.x++;
 						if (GamePadHandler::IsLeftDpadPressed())
 							m_sens.x--;
+
+						if (GamePadHandler::GetLeftStickXPosition() > 0 && m_stickTimerX >= 0.1f)
+						{
+							m_sens.x++; 
+							m_stickTimerX = 0; 
+						}
+						else if (GamePadHandler::GetLeftStickXPosition() < 0 && m_stickTimerX >= 0.1f)
+						{
+							m_sens.x--; 
+							m_stickTimerX = 0; 
+						}
+						
+						if (m_sens.x < MIN_MAX_SENSITIVITY.x)
+							m_sens.x = MIN_MAX_SENSITIVITY.x;
+						if (m_sens.x > MIN_MAX_SENSITIVITY.y)
+							m_sens.x = MIN_MAX_SENSITIVITY.y;
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -135,13 +178,33 @@ void OptionState::Update(double deltaTime)
 				}
 				else
 				{
+
+					m_stickTimerY += deltaTime; 
+
 					switch (m_liu)
 					{
 					case OptionState::Gamepad:
 						if (GamePadHandler::IsRightDpadPressed())
-							m_sens.y++;
+							m_sens.y++; 
 						if (GamePadHandler::IsLeftDpadPressed())
 							m_sens.y--;
+
+						if (GamePadHandler::GetLeftStickXPosition() > 0 && m_stickTimerY > 0.1f)
+						{
+							m_sens.y++; 
+							m_stickTimerY = 0; 
+						}
+						else if (GamePadHandler::GetLeftStickXPosition() < 0 && m_stickTimerY > 0.1f)
+						{
+							m_sens.y--; 
+							m_stickTimerY = 0;   
+						}
+
+						if (m_sens.y < MIN_MAX_SENSITIVITY.x)
+							m_sens.y = MIN_MAX_SENSITIVITY.x;
+						if (m_sens.y > MIN_MAX_SENSITIVITY.y)
+							m_sens.y = MIN_MAX_SENSITIVITY.y;
+
 						break;
 					case OptionState::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -156,6 +219,7 @@ void OptionState::Update(double deltaTime)
 						break;
 					}
 
+					
 					float pos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE.y - MIN_MAX_SLIDE.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE.x;
 					m_buttons[ButtonOrder::SliderSensitivityY]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityY]->getPosition().y);
 				}

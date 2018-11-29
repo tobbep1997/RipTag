@@ -17,7 +17,7 @@ class Drawable;
 #define ANIMATION_SET_CLEAN (1<<2)
 
 #define ANIMATION_FRAMETIME 0.041666666f
-#define ANIMATION_FRAMERATE 24
+#define ANIMATION_FRAMERATE 24.0f
 
 namespace ImporterLibrary
 {

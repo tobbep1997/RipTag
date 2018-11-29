@@ -6,14 +6,11 @@ std::string RipSounds::g_music1;
 
 MainMenu::MainMenu(RenderingManager * rm) : State(rm)
 {
-	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
-	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
-	m_music->setVolume(0.3f);
+
 }
 
 MainMenu::~MainMenu()
 {
-	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
 	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
 #include "InputManager/XboxInput/GamePadHandler.h"
@@ -22,9 +19,11 @@ void MainMenu::Update(double deltaTime)
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
-	_handleMouseInput();
-	_handleGamePadInput();
-	_handleKeyboardInput();
+	if (!_handleMouseInput())
+	{
+		_handleGamePadInput(deltaTime);
+		_handleKeyboardInput();
+	}
 
 	//Check if we have the current button pressed, if so determine which one and do the thing
 	if (m_buttons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
@@ -124,13 +123,29 @@ void MainMenu::_initButtons()
 
 }
 
-void MainMenu::_handleMouseInput()
+bool MainMenu::_handleMouseInput()
 {
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
 
+	bool returnIfTrue = true;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		returnIfTrue = false;
+	}
+
+	s_mouseLastFrame = mousePos;
+
+	if (returnIfTrue)
+		return false;
+
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
+	/*if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
+		return false;*/
+
 
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
@@ -155,12 +170,15 @@ void MainMenu::_handleMouseInput()
 			break;
 		}
 	}
+	return true;
 }
 
-void MainMenu::_handleGamePadInput()
+void MainMenu::_handleGamePadInput(float deltaTime)
 {
 	if (Input::isUsingGamepad())
 	{
+		m_stickTimer += deltaTime; 
+
 		if (GamePadHandler::IsUpDpadPressed())
 		{
 			if (m_currentButton == 0)
@@ -172,6 +190,22 @@ void MainMenu::_handleGamePadInput()
 		{
 			m_currentButton++;
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+		}
+
+		if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimer > 0.2f)
+		{
+			if (m_currentButton == 0)
+				m_currentButton = (unsigned int)ButtonOrder::Quit;
+			else
+				m_currentButton--;
+
+			m_stickTimer = 0; 
+		}
+		else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimer > 0.2f)
+		{
+			m_currentButton++; 
+			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+			m_stickTimer = 0; 
 		}
 		_updateSelectionStates();
 
@@ -244,6 +278,10 @@ void MainMenu::_resetButtons()
 
 void MainMenu::Load()
 {
+	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
+	m_music = AudioEngine::PlayMusic(RipSounds::g_music1);
+	m_music->setVolume(0.3f);
+
 	bool isPlaying = false;
 	m_music->isPlaying(&isPlaying);
 	if (!isPlaying)
@@ -279,6 +317,9 @@ void MainMenu::unLoad()
 	}
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
+	m_music->stop();
+
+	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
 
 	std::cout << "MainMenu unLoad" << std::endl;
 }

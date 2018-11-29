@@ -8,7 +8,7 @@ class AbilityComponent;
 
 class RemotePlayer : public Actor, public RakNet::NetworkIDObject
 {
-private:
+public:
 	enum AnimState {
 		IDLE = 0,
 		FORWARD = 1,
@@ -16,7 +16,10 @@ private:
 		LEFT = 3,
 		RIGHT = 4,
 		BACK_LEFT = 5,
-		BACK_RIGHT = 6
+		BACK_RIGHT = 6,
+		RUN_FORWARD = 7,
+		RUN_FORWARD_LEFT = 8,
+		RUN_FORWARD_RIGHT = 9
 	};
 public:
 	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot);
@@ -59,10 +62,14 @@ private:
 	void _onNetworkUpdate(Network::ENTITYUPDATEPACKET * data);
 	void _onNetworkAbility(Network::ENTITYABILITYPACKET * data);
 	void _onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data);
+	void _onNetworkRemoteThrow(unsigned char id);
+	void _onNetworkRemotePosess(unsigned char id);
+	void _onNetworkRemoteCrouch(unsigned char id);
 	void _sendVisibilityPacket();
 
 	void _lerpPosition(float dt);
 
 	void _registerAnimationStateMachine();
+public:
 };
 

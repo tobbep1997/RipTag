@@ -18,22 +18,22 @@ Door::~Door()
 
 void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleZ / 2, bboxScaleY / 2, bboxScaleX / 2, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX * scaleX / 2, bboxScaleY * scaleY / 2, bboxScaleZ  * scaleZ/ 2, false);
 
 	BaseActor::setPosition(xPos, yPos, zPos);
 	BaseActor::setRotation(pitch, yaw, roll, false);
-	BaseActor::setPhysicsRotation(pitch, 90, roll);
+	BaseActor::setPhysicsRotation(pitch, yaw, roll);
 	m_startRotModel = { pitch, yaw, roll };
-	m_startRotBox = { pitch, 90 , roll };
+	m_startRotBox = { pitch, yaw , roll };
 	if (yaw >= 0.0f)
 	{
-		m_closePos = { xPos + bboxScaleX / 2, yPos + bboxScaleY / 2, zPos , 1.0f };
-		m_openPos = { xPos, yPos + bboxScaleY / 2, zPos - bboxScaleX / 2 , 1.0f };
+		m_closePos = { xPos +  scaleZ/2, yPos + bboxScaleY / 2, zPos , 1.0f };
+		m_openPos = { xPos, yPos + bboxScaleY / 2, zPos + scaleZ/2, 1.0f };
 	}
 	else
 	{
-		m_closePos = { xPos, yPos + bboxScaleY / 2, zPos + bboxScaleZ / 2, 1.0f };
-		m_openPos = { xPos + bboxScaleZ / 2, yPos + bboxScaleY / 2, zPos, 1.0f };
+		m_closePos = { xPos, yPos + bboxScaleY / 2, zPos + scaleZ/2, 1.0f };
+		m_openPos = { xPos + scaleZ/2, yPos + bboxScaleY / 2, zPos, 1.0f };
 	}
 
 
@@ -50,7 +50,7 @@ void Door::Update(double deltaTime)
 {
 	BaseActor::Update(deltaTime);
 
-	float t = deltaTime * 0.5f;
+	float t = deltaTime * 1.5f;
 
 
 

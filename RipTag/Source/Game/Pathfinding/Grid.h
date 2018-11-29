@@ -71,10 +71,19 @@ struct Node
 	bool operator==(Node & other) const { return tile == other.tile; }
 };
 
+class RandomRoomGrid;
+
 class Grid
 {
 private:
+	struct TilePair
+	{
+		Tile source;
+		Tile destination;
+	};
+private:
 	std::vector<Node> m_nodeMap;
+	std::vector<Node> m_roomNodeMap;
 	int m_width, m_height;
 
 	std::vector<Node*> m_path;
@@ -86,11 +95,16 @@ public:
 	virtual ~Grid();
 
 	Tile WorldPosToTile(float x, float y);
+	Node GetWorldPosFromIndex(int index);
+	void BlockGridTile(int index, bool pathable);
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded = 0);
 	std::vector<Node*> FindPath(Tile src, Tile dest);
-	Tile GetRandomNearbyTile(Tile src, int dir = 0);
+	Tile GetRandomNearbyTile(Tile src);
+	//Tile GetRandomNearbyTile(Tile src, int dir = 0);
+
+	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
 
 	void ThreadPath(Tile src, Tile dest);
 	std::vector<Node*> GetPathFromThread();
@@ -101,10 +115,22 @@ public:
 private:
 	// Utility functions
 	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,
-			std::vector<Node*> & openList, bool * closedList);
-	bool _isValid(Tile tile) const;
+	std::vector<Node*> & openList, std::vector<Node> & nodeMap, bool * closedList, int width, int height);
+	bool _isValid(Tile tile, int width, int height) const;
 	float _calcHValue(Tile src, Tile dest) const;
 	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
 	int _findXInYRow(int begin, int end, int x, int y) const;
 	Tile _nearbyTile(Tile src, int x, int y);
+	// Should theoretically always return a valid tile in the same room as the source
+	Tile _getNearbyUnblockedTile(Tile src);
+
+	bool _tilesAreInTheSameRoom(const Tile & source, const Tile & destination);
+
+	std::vector<Node*> _findRoomNodePath(const Tile & source, const Tile & destination);
+	void _removeAllCenterTiles(std::vector<Node*> & roomNodePath);
+	Tile _getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap);
+
+	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
+
+	std::vector<Node*> _findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height);
 };

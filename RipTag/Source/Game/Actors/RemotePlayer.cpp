@@ -17,12 +17,13 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//7. Register animation state machine
 	
 	//1.
-	this->setModel(Manager::g_meshManager.getSkinnedMesh("STATE"));
-	this->setTexture(Manager::g_textureManager.getTexture("STATE"));
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+	this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
-	this->setScale(scale);
+	this->setScale(.45, .45, .45);
+	this->setModelTransform(XMMatrixTranslation(0.0, -1.7, 0.0));
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
 	this->m_timeDiff = 0;
@@ -106,6 +107,26 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_ANIMATION:
 		this->_onNetworkAnimation((Network::ENTITYANIMATIONPACKET*)data);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN:
+		this->_onNetworkRemoteThrow(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
+		this->_onNetworkRemoteThrow(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
+		this->_onNetworkRemotePosess(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_END:
+		this->_onNetworkRemotePosess(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN:
+		this->_onNetworkRemoteCrouch(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
+		this->_onNetworkRemoteCrouch(id);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -120,7 +141,7 @@ void RemotePlayer::Update(double dt)
 
 	//1.
 	this->_lerpPosition(dt);
-
+	std::cout << this->getPosition().x << std::endl;
 	//2.
 	for (size_t i = 0; i < m_nrOfAbilitys; i++)
 		m_activeSet[i]->Update(dt);
@@ -191,6 +212,8 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentSpeed = data->speed;
 		this->m_currentPitch = data->pitch;
 		this->setRotation(data->rot);
+
+		std::cout << m_currentSpeed << std::endl;
 	}
 }
 
@@ -232,16 +255,19 @@ void RemotePlayer::_lerpPosition(float dt)
 void RemotePlayer::_registerAnimationStateMachine()
 {
 	std::vector<SharedAnimation> sharedAnimations;
-	const char * collection = "STATE";
-	int nrOfStates = 2;
+	const char * collection = "PLAYER1";
+	int nrOfStates = 5;
 
 	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_FORWARD_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BACKWARD_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_LEFT2_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_RIGHT2_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BLEFT_ANIMATION"));
-	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "WALK_BRIGHT_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_F_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_B_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FL_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FR_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BL_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BR_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_F_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FL_ANIMATION"));
+	sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FR_ANIMATION"));
 
 	this->getAnimationPlayer()->Play();
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton(collection));
@@ -254,8 +280,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 			"walk_forward", //state name
 			&this->m_currentDirection, //x-axis driver
 			&this->m_currentSpeed, //y-axis driver
-			-90.f, 90.f, //x-axis bounds
-			0.0f, 3.001f //y-axis bounds
+			-115.f, 115.f, //x-axis bounds
+			0.0f, 6.0f //y-axis bounds
 		);
 		SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
 			"walk_backward", //state name
@@ -270,17 +296,25 @@ void RemotePlayer::_registerAnimationStateMachine()
 		blend_fwd->AddRow(
 			0.0f, //y placement
 			{	//uses a vector initializer list for "convinience"
-				{ sharedAnimations[IDLE].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[IDLE].get(), -115.f }, //the clip to use and x-placement
 				{ sharedAnimations[IDLE].get(), 0.f },
-				{ sharedAnimations[IDLE].get(), 90.f }
+				{ sharedAnimations[IDLE].get(), 115.f }
 			}
 		);
 		blend_fwd->AddRow(
 			3.1f, //y placement
 			{	//uses a vector initializer list for "convinience"
-				{ sharedAnimations[RIGHT].get(), -90.f }, //the clip to use and x-placement
+				{ sharedAnimations[RIGHT].get(), -115.f }, //the clip to use and x-placement
 				{ sharedAnimations[FORWARD].get(), 0.f },
-				{ sharedAnimations[LEFT].get(), 90.f }
+				{ sharedAnimations[LEFT].get(), 115.f }
+			}
+		);
+		blend_fwd->AddRow(
+			6.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[RUN_FORWARD_RIGHT].get(), -115.f }, //the clip to use and x-placement
+				{ sharedAnimations[RUN_FORWARD].get(), 0.f },
+				{ sharedAnimations[RUN_FORWARD_LEFT].get(), 115.f }
 			}
 		);
 		//
@@ -304,13 +338,23 @@ void RemotePlayer::_registerAnimationStateMachine()
 				{ sharedAnimations[BACKWARD].get(), 180.f }
 			}
 		);
+		blend_bwd->AddRow(
+			6.0f, //y placement
+			{	//uses a vector initializer list for "convinience"
+				{ sharedAnimations[BACKWARD].get(), -180.f }, //the clip to use and x-placement
+				{ sharedAnimations[BACK_RIGHT].get(), -90.f },
+				{ sharedAnimations[FORWARD].get(), 0.f },
+				{ sharedAnimations[BACK_LEFT].get(), 90.f },
+				{ sharedAnimations[BACKWARD].get(), 180.f }
+			}
+		);
 
 		//Adding out state / transitions
 		SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
 		//Add transition condition
 		fwd_bwd_outstate.AddTransition(
 			&this->m_currentDirection, //referenced variable for comparision
-			-90.f, 90.f, //bound range for comparision
+			-115.f, 115.f, //bound range for comparision
 			SM::COMPARISON_OUTSIDE_RANGE //comparision condition
 		);
 
@@ -322,28 +366,89 @@ void RemotePlayer::_registerAnimationStateMachine()
 			SM::COMPARISON_INSIDE_RANGE //comparision condition
 		);
 
+		auto throwBeginClip = Manager::g_animationManager.getAnimation(collection, "THROW_BEGIN_ANIMATION").get();
+		auto throwHoldClip = Manager::g_animationManager.getAnimation(collection, "THROW_HOLD_ANIMATION").get();
+		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
+		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
+		auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+
+		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
+		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
+		auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
+		throwEndState->SetBlendTime(0.05f);
+		auto posessState = stateMachine->AddLoopState("posessing", posessClip);
+		posessState->SetBlendTime(0.3f);
 		//set initial state
 		stateMachine->SetState("walk_forward");
+
+		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
+		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
+		crouchState->UseFirstPoseOnly(true);
 	}
 
 	//#todoREMOVE
-	auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
-	auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
-	
-	std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
-	SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
-	up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
-	up.location = .90f;
-	up.weight = 1.0f;
-	SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
-	down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
-	down.location = -.9f;
-	down.weight = 1.0f;
+	//auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
+	//auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
+	//
+	//std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
+	//SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
+	//up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
+	//up.location = .90f;
+	//up.weight = 1.0f;
+	//SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
+	//down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
+	//down.location = -.9f;
+	//down.weight = 1.0f;
 
-	layerData.push_back(down);
-	layerData.push_back(up);
+	//layerData.push_back(down);
+	//layerData.push_back(up);
 
-	state->AddBlendNodes(layerData);
+	//state->AddBlendNodes(layerData);
 
-	layerMachine->SetState("pitch_state");
+	//layerMachine->SetState("pitch_state");
+}
+
+void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
+{
+	using namespace Network;
+
+	switch (id)
+	{
+	case NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_begin");
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_end");
+		break;
+	}
+}
+
+void RemotePlayer::_onNetworkRemotePosess(unsigned char id)
+{
+	using namespace Network;
+
+	switch (id)
+	{
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("posessing");
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_POSESS_END:
+		this->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
+		break;
+	}
+}
+
+void RemotePlayer::_onNetworkRemoteCrouch(unsigned char id)
+{
+	using namespace Network;
+
+	switch (id)
+	{
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN:
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
+		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
+		break;
+	}
 }

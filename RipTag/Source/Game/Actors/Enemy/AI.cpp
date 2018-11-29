@@ -176,6 +176,12 @@ void AI::handleStatesClient(const double deltaTime)
 	case AITransitionState::ExitingDisable:
 		_onExitingDisabled();
 		break;
+	case AITransitionState::BeingPossessed:
+		_onBeingPossessed();
+		break;
+	case AITransitionState::ExitingPossess:
+		_onExitingPossessed();
+		break;
 	}
 
 	switch (m_state)
@@ -183,13 +189,15 @@ void AI::handleStatesClient(const double deltaTime)
 	case AIState::Disabled:
 		_disabled(deltaTime);
 		break;
+	case AIState::Possessed:
+		_possessed(deltaTime);
+		break;
 	}
 }
 
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
-
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
 #endif
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
@@ -210,12 +218,22 @@ void AI::_onInvestigateSound()
 	Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
-	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
-	this->m_state = Investigating_Sound;
-#ifdef _DEBUG
+	if (soundTile.getX() == -1 && soundTile.getY() == -1)
+	{
+		soundTile = m_grid->GetRandomNearbyTile(guardTile);
+	}
 
+	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
+	
+
+
+
+
+	// If pathfindingThread is finnished
+#ifdef _DEBUG
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
+	this->m_state = Investigating_Sound;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 
@@ -225,6 +243,11 @@ void AI::_onInvestigateSight()
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+
+	if (playerTile.getX() == -1 && playerTile.getY() == -1)
+	{
+		playerTile = m_grid->GetRandomNearbyTile(guardTile);
+	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 	this->m_state = Investigating_Sight;
@@ -237,10 +260,8 @@ void AI::_onInvestigateSight()
 
 void AI::_onObserve()
 {
-	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+	m_owner->setLiniearVelocity();
 	this->m_actTimer = 0;
-	//this->SetAlertVector(m_grid->FindPath(guardTile, this->GetCurrentPathNode()->tile));
 #ifdef _DEBUG
 
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
@@ -279,11 +300,7 @@ void AI::_onSearchArea()
 		dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
 	}
 
-
 	std::vector<Node*> fullPath = m_grid->FindPath(guardTile, Tile(x, y));
-	//std::vector<Node*> partOfPath = m_grid->FindPath(Tile(5, 6), Tile(1, 2));
-	//fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
-
 	this->SetAlertVector(fullPath);
 }
 
@@ -291,6 +308,10 @@ void AI::_onReturnToPatrol()
 {
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
+	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
+	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+	Tile lastPatrolPos = m_path.at(m_currentPathNode)->tile;
+	this->SetAlertVector(m_grid->FindPath(guardTile, lastPatrolPos));
 	this->m_state = Patrolling;
 #ifdef _DEBUG
 
@@ -347,14 +368,14 @@ void AI::_onExitingDisabled()
 	m_owner->m_possesionRecoverTimer = 0;
 	m_owner->m_knockOutTimer = 0;
 	this->m_state = AIState::NoState;
-	this->m_transState = AITransitionState::SearchArea;
+	this->m_transState = AITransitionState::Observe;
 }
 
 
 void AI::_investigatingSight(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	if (this->GetAlertPathSize() > 0)
@@ -392,7 +413,7 @@ void AI::_investigatingSight(const double deltaTime)
 void AI::_investigatingSound(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	if (this->GetAlertPathSize() > 0)
@@ -431,7 +452,7 @@ void AI::_investigatingSound(const double deltaTime)
 void AI::_investigatingRoom(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	this->m_searchTimer += deltaTime;
@@ -456,7 +477,7 @@ void AI::_investigatingRoom(const double deltaTime)
 void AI::_highAlert(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
 	this->m_HighAlertTime = deltaTime;
@@ -476,9 +497,9 @@ void AI::_highAlert(const double deltaTime)
 void AI::_suspicious(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
-
+	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
 	float attentionMultiplier = 1.0f; // TEMP will be moved to Enemy
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT / 3)
@@ -505,9 +526,7 @@ void AI::_suspicious(const double deltaTime)
 
 		m_owner->setClearestPlayerLocation(playerPos);
 		m_owner->setBiggestVisCounter(vis[0]*attentionMultiplier);
-		/*b3Vec3 dir(guard->getPosition().x - m_player->getPosition().x, guard->getPosition().y - m_player->getPosition().y, guard->getPosition().z - m_player->getPosition().z);
-		b3Normalize(dir);
-		guard->setDir(dir.x, dir.y, dir.y);*/
+	
 	}
 
 	SoundLocation target = m_owner->m_sl;
@@ -520,9 +539,6 @@ void AI::_suspicious(const double deltaTime)
 		Enemy::SoundLocation temp = target;
 		temp.percentage *= attentionMultiplier;
 		m_owner->m_loudestSoundLocation = temp;
-		/*b3Vec3 dir(guard->getPosition().x - guard->getLoudestSoundLocation().soundPos.x, guard->getPosition().y - guard->getLoudestSoundLocation().soundPos.y, guard->getPosition().z - guard->getLoudestSoundLocation().soundPos.z);
-		b3Normalize(dir);
-		guard->setDir(dir.x, dir.y, dir.y);*/
 	}
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
@@ -540,25 +556,30 @@ void AI::_suspicious(const double deltaTime)
 void AI::_scanningArea(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
-
+	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
 	//Do animation
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
 		if (m_searchTimer != 0)
 			m_searchTimer += m_actTimer;
-		this->m_transState = AITransitionState::SearchArea;
+		//CHANGE WHEN WE WANT TO CONNECT MORE TRANSITIONS
+		this->m_transState = AITransitionState::ReturnToPatrol;  //this->m_transState = AITransitionState::SearchArea;
 	}
 }
 void AI::_patrolling(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_CheckPlayer(deltaTime);
 
-	if (m_path.size() > 0)
+	if (m_alertPath.size() > 0)
+	{
+		_MoveToAlert(m_alertPath.at(0), deltaTime);
+	}
+	else if (m_path.size() > 0)
 	{
 		if (m_owner->m_pathNodes.size() == 0)
 		{
@@ -613,12 +634,12 @@ void AI::_patrolling(const double deltaTime)
 void AI::_possessed(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	m_owner->_cameraPlacement(deltaTime);
+	
 	m_owner->_handleInput(deltaTime);
 }
 void AI::_disabled(const double deltaTime)
 {
-	m_owner->getBody()->SetType(e_staticBody);
+	m_owner->getBody()->SetType(e_dynamicBody);
 	switch (m_owner->m_knockOutType)
 	{
 
@@ -641,13 +662,15 @@ void AI::_disabled(const double deltaTime)
 		}
 		break;
 	}
+	//m_owner->p_setRotation()
+	m_owner->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0));
+	m_owner->getBody()->SetLinearVelocity(b3Vec3(0, 0, 0));
 	//m_owner->PhysicsComponent::p_setRotation(m_owner->p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), m_owner->p_camera->getYRotationEuler().y, m_owner->p_camera->getYRotationEuler().z);
 	m_owner->m_visCounter = 0;
 }
 
 void AI::_Move(Node * nextNode, double deltaTime)
 {
-	
 	// Get dirction to target
 	float x = nextNode->worldPos.x - m_owner->getPosition().x;
 	float y = nextNode->worldPos.y - m_owner->getPosition().z;
@@ -812,20 +835,16 @@ void AI::_Move(Node * nextNode, double deltaTime)
 	}
 
 	m_owner->_RotateGuard(vel.x * deltaTime, vel.y * deltaTime, angle, deltaTime);
-	auto lol = m_owner->getLiniearVelocity();
-	vel.x *= !m_lv.turnState;
-	vel.y *= !m_lv.turnState;
-
 	DirectX::XMStoreFloat2(&vel, DirectX::XMVector2Normalize(DirectX::XMLoadFloat2(&vel)));
-
 	m_owner->setLiniearVelocity(vel.x * m_owner->m_guardSpeed, m_owner->getLiniearVelocity().y, vel.y * m_owner->m_guardSpeed);
+	
 }
 
 bool AI::_MoveTo(Node* nextNode, double deltaTime)
 {
 	//std::cout << "\r" << m_owner->getPosition().x << " " << m_owner->getPosition().z << std::endl;
 	m_owner->_playFootsteps(deltaTime);
-	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.0f && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.0f)
+	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.5f && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.5f)
 	{
 		m_lv.newNode = true;
 		m_lv.timer = 0.0f;
@@ -855,7 +874,7 @@ bool AI::_MoveTo(Node* nextNode, double deltaTime)
 bool AI::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	m_owner->_playFootsteps(deltaTime);
-	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1 && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1)
+	if (abs(nextNode->worldPos.x - m_owner->getPosition().x) <= 1.5 && abs(nextNode->worldPos.y - m_owner->getPosition().z) <= 1.5)
 	{
 		delete nextNode;
 		m_alertPath.erase(m_alertPath.begin());
@@ -906,6 +925,14 @@ void AI::setGrid(Grid * grid)
 
 void AI::SetPathVector(std::vector<Node*> path)
 {
+	// Add path.size() > 0 if it can remove the path
+	if (m_path.size() > 0)
+	{
+		for (int i = 0; i < m_path.size(); i++)
+			delete m_path.at(i);
+		m_path.clear();
+	}
+	m_currentPathNode = 0;
 	m_path = path;
 }
 

@@ -46,7 +46,7 @@ void TriggerHandler::Update(double deltaTime)
 					{
 						if (pair.second.triggers[j]->getTriggerState() == false)
 						{
-						//	pair.second.triggerables[i]->setState(false);
+							pair.second.triggerables[i]->setState(false);
 						}
 						else
 						{

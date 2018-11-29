@@ -52,7 +52,10 @@ void EnemyHandler::Update(float deltaTime)
 		{
 			accumulatedTime -= SEND_UPDATES_FREQUENCY;
 			for (auto enemy : m_guards)
-				enemy->sendNetworkUpdate();
+			{
+				if (!enemy->ClientLocked())
+					enemy->sendNetworkUpdate();
+			}
 		}
 	}
 	else if (m_type == 1)
@@ -77,7 +80,14 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 		{
 			Network::ENEMYUPDATEPACKET * pData = (Network::ENEMYUPDATEPACKET*)data;
 			//this is very unsafe
-			this->m_guards[pData->uniqueID]->onNetworkUpdate(pData);
+			for (unsigned int i = 0; i < m_guards.size(); ++i)
+			{
+				if (m_guards.at(i)->getUniqueID() == pData->uniqueID)
+				{
+					this->m_guards[i]->onNetworkUpdate(pData);
+				}
+				
+			}
 		}
 		break;
 		case Network::ID_ENEMY_VISIBILITY:
@@ -185,7 +195,9 @@ void EnemyHandler::_isSinglePlayerUpdate(double deltaTime)
 
 	for (int i = 0; i < m_guards.size(); i++)
 	{
-		Enemy * currentGuard = m_guards.at(i);
+
+
+		Enemy * currentGuard = m_guards.at(i);	
 		currentGuard->Update(deltaTime);
 		currentGuard->PhysicsUpdate(deltaTime);
 
@@ -214,6 +226,7 @@ void EnemyHandler::_registerThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_UPDATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_VISIBILITY, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_DISABLED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_POSSESSED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 }
 
 int EnemyHandler::_getPlayerVisibility(Enemy * guard)
@@ -233,18 +246,35 @@ int EnemyHandler::_getRemotePlayerVisibility(Enemy * guard)
 void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 {
 	//unsafe lol
-	m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
+	
+	for (auto & g : m_guards)
+	{
+		if (g->getUniqueID() == data->uniqueID)
+		{
+			g->setCalculatedVisibilityFor(1, data->visibilityValue);
+			g->setSoundLocationRemote({ data->soundValue, data->soundPos });
+			break;
+		}
+	}
+
+	/*m_guards[data->uniqueID]->setCalculatedVisibilityFor(1, data->visibilityValue);
 	m_guards[data->uniqueID]->setSoundLocationRemote({data->soundValue, data->soundPos}
-	);
+	);*/
 }
 
 void EnemyHandler::_onPossessedPacket(Network::ENTITYSTATEPACKET * data)
 {
 	//state is their uniqueID
-	m_guards[data->state]->onNetworkPossessed(data);
+	if (data->state <= m_guards.size())
+	{
+		m_guards[data->state]->onNetworkPossessed(data);
+	}
 }
 
 void EnemyHandler::_onDisabledPacket(Network::ENTITYSTATEPACKET * data)
 {
-	m_guards[data->state]->onNetworkDisabled(data);
+	if (data->state <= m_guards.size())
+	{
+		m_guards[data->state]->onNetworkDisabled(data);
+	}
 }

@@ -32,6 +32,11 @@ public:
 	static bool IsYPressed();
 	static bool IsXPressed();
 
+	static bool IsAReleased();
+	static bool IsBReleased();
+	static bool IsYReleased();
+	static bool IsXReleased();
+
 	static float GetLeftStickYPosition();
 	static float GetLeftStickXPosition();
 
@@ -67,5 +72,6 @@ public:
 	static void SetVibration(const float & left, const float & right, const float & leftTrigger, const float & rightTrigger);
 
 	static bool IsSelectPressed();
+	static bool IsSelectReleased();
 	static bool IsStartPressed();
 };

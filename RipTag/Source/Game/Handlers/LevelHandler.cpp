@@ -48,7 +48,8 @@ void LevelHandler::Release()
 
 void LevelHandler::Update(float deltaTime, Camera * camera)
 {
-	using namespace std::chrono_literals;
+	//Is not used - but do not remove
+	/*using namespace std::chrono_literals;
 	if (future.valid())
 	{
 		auto status = future.wait_for(0s);
@@ -57,7 +58,7 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 		}
 		else {
 		}
-	}
+	}*/
 
 	
 	if (InputHandler::isKeyPressed('N'))
@@ -96,14 +97,6 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 			RipExtern::g_rayListener->ClearProcessedRays();
 			RipExtern::g_contactListener->ClearContactQueue();
 			RipExtern::g_kill = true;
-		}
-	}
-	else if (InputHandler::isKeyPressed('H'))
-	{
-		if (pressed == false)
-		{
-			pressed = true;
-			m_rooms.at(m_activeRoom)->getPath();
 		}
 	}
 	else
@@ -159,9 +152,43 @@ const unsigned short LevelHandler::getNextRoom() const
 	return this->m_nextRoomIndex;
 }
 
+bool LevelHandler::HasMoreRooms()
+{
+	if (m_activeRoom == 2)
+		return false;
+	else
+		return true;
+}
+
+void LevelHandler::LoadNextRoom(int player)
+{
+	m_rooms[m_activeRoom]->SetActive(false);
+
+	m_activeRoom = 0;
+	
+	_RoomLoadingManager();
+
+	DirectX::XMFLOAT4 startPos; 
+	if (player == 1)
+		startPos = m_rooms.at(m_activeRoom)->getPlayer1StartPos();
+	else
+		startPos = m_rooms.at(m_activeRoom)->getPlayer2StartPos();
+
+	this->m_playerPtr->setPosition(startPos.x, startPos.y, startPos.z, startPos.w);
+
+	m_rooms[m_activeRoom]->SetActive(true);
+
+	RipExtern::g_rayListener->ClearRays();
+	RipExtern::g_rayListener->ClearProcessedRays();
+	RipExtern::g_contactListener->ClearContactQueue();
+
+	RipExtern::g_kill = true;
+}
+
 void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
 	Room * room;
+	srand(seed);
 	if (roomIndex == -1)
 	{
 		room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
@@ -172,6 +199,9 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 		room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
 	}
 	m_rooms.push_back(room);
+
+	//Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
+	//m_rooms.push_back(room);
 
 	m_rooms.at(0)->loadTextures();
 	int x = m_rooms.at(0)->getRoomIndex();

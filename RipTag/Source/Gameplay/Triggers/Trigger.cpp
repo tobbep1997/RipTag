@@ -31,7 +31,7 @@ const bool & Trigger::Triggered() const
 	return m_triggerState;
 }
 
-void Trigger::setTriggerState(bool state, bool isLocal)
+void Trigger::setTriggerState(bool state, bool isLocal, const std::string & triggerer)
 {
 	
 	if (!m_triggerState && state)
@@ -55,7 +55,13 @@ void Trigger::setTriggerState(bool state, bool isLocal)
 		}
 	}
 	if (isLocal)
-		this->_playSound();
+	{
+		if (triggerer == "PLAYER")
+			this->_playSound(AudioEngine::Player);
+		else
+			this->_playSound(AudioEngine::Other);
+
+	}
 	else
 		this->_playSound(AudioEngine::RemotePlayer);
 }

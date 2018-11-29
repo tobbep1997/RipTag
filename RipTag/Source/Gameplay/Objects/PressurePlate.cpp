@@ -41,11 +41,12 @@ void PressurePlate::Update(double deltaTime)
 	p_updatePhysics(this);
 	bool previousState = this->getTriggerState();
 	ContactListener::S_Contact con;
-	for(int i = 0; i < RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
+	for(int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
 		b3Shape * shapeA = con.a;
 		b3Shape * shapeB = con.b;
+
 		if ((shapeA->GetBody()->GetObjectTag() == "PLAYER" || shapeA->GetBody()->GetObjectTag() == "ENEMY") ||
 			(shapeB->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "PLAYER"))
 			if ((shapeA->GetBody()->GetObjectTag() == "PressurePlate") || (shapeB->GetBody()->GetObjectTag() == "PressurePlate"))
@@ -55,14 +56,17 @@ void PressurePlate::Update(double deltaTime)
 				{
 					if (this->getTriggerState())
 					{
-						this->setTriggerState(false);
+						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
+							this->setTriggerState(false, "ENEMY");
+						else
+							this->setTriggerState(false);
 						this->SendOverNetwork();
 					}
 				}
 			}
 	}
 
-	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
 		b3Shape * shapeA = con.a;
@@ -87,7 +91,10 @@ void PressurePlate::Update(double deltaTime)
 						{
 							if (!this->getTriggerState())
 							{
-								this->setTriggerState(true);
+								if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
+									this->setTriggerState(true, "ENEMY");
+								else
+									this->setTriggerState(true);
 								this->SendOverNetwork();
 							}
 						}

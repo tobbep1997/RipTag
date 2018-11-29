@@ -104,14 +104,17 @@ public:
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) override;
 
 	void MakeDriven(float* driver, float min, float max, bool affectsSpeed = true);
+
+	void UseFirstPoseOnly(bool use = true);
 private:
 	Animation::AnimationClip* m_Clip;
 
-	float* m_Driver{ nullptr };
-	float m_CurrentDriverWeight = 1.0f;
-	float m_DriverMin{ 0.0f };
-	float m_DriverMax{ 0.0f };
-	bool m_DriverAffectsSpeed{ true };
+	float* m_Driver            { nullptr };
+	float m_CurrentDriverWeight{ 1.0f };
+	float m_DriverMin          { 0.0f };
+	float m_DriverMax          { 0.0f };
+	bool m_DriverAffectsSpeed  { true };
+	bool m_FirstPoseOnly       { false };
 
 	void _updateDriverWeight();
 };

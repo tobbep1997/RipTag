@@ -4,6 +4,7 @@
 bool InputHandler::m_keys[256];
 bool InputHandler::m_keysReleased[256];
 bool InputHandler::m_keysPressed[256];
+bool InputHandler::m_mouseMoved = false;
 
 bool InputHandler::m_mouseKeys[3];
 bool InputHandler::m_mouseWasPressed[3];
@@ -32,6 +33,7 @@ void InputHandler::Reset()
 	{
 		m_keysReleased[i] = false;
 	}
+	m_mouseMoved = false;
 }
 
 std::vector<unsigned int> InputHandler::m_rawInput;
@@ -171,6 +173,11 @@ DirectX::XMFLOAT2 InputHandler::getMousePosDelta()
 	float y =  m_mousePos.y - m_windowPos.y;
 	return DirectX::XMFLOAT2(x, y);
 	//return { x, y };
+}
+
+bool InputHandler::mouseMoved()
+{
+	return m_mouseMoved;
 }
 
 DirectX::XMFLOAT2 InputHandler::getWindowPos()

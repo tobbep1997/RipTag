@@ -159,7 +159,7 @@ public:
 		}
 	};
 public:
-	static const int MAX_RAYS = 50;
+	static const int MAX_RAYS = 500;
 private:
 	std::vector<Ray*> rays;
 	std::vector<Ray*> processedRays;
@@ -282,7 +282,7 @@ public:
 	{
 		ClearProcessedRays();
 		Ray* ray;
-		for (int i = 0; i < m_nrOfRays; i++)
+		for (unsigned int i = 0; i < m_nrOfRays; i++)
 		{
 			ray = rays.at(i);
 			tempID = ray->id;

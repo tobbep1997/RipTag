@@ -90,12 +90,37 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	_handleMouseInput();
+	/*static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	bool mouseMoved = false;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		mouseMoved = true;
+	}
+
+	s_mouseLastFrame = mousePos;*/
+
+	_handleMouseInput();	
+
 	_handleKeyboardInput();
-	_handleGamePadInput();
+
+	_handleGamePadInput(deltaTime);
+
+	/*if (mouseMoved)
+	else
+	{
+	}*/
+
+	
 
 	if (!isHosting && !hasJoined && !inServerList)
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+			this->setKillState(true);
+
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
 			if (m_ServerName != "None")
@@ -140,6 +165,9 @@ void LobbyState::Update(double deltaTime)
 	}
 	else if (!isHosting && !hasJoined && inServerList)
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+			this->setKillState(true);
+
 		for (size_t i = 0; i < m_hostListButtons.size(); i++)
 		{
 			if (m_ServerName != "None")
@@ -182,6 +210,12 @@ void LobbyState::Update(double deltaTime)
 	}
 	else
 	{
+		if (InputHandler::wasKeyPressed(InputHandler::Esc) || GamePadHandler::IsBReleased())
+		{
+			m_currentButton = CharacterSelection::Back;
+			m_charSelectButtons[m_currentButton]->setState(ButtonStates::Pressed);
+		}
+
 		if (hasCharSelected && hasRemoteCharSelected && !isReady && hasJoined)
 		{
 			m_charSelectButtons[Ready]->setTextColor(DefaultColor);
@@ -273,7 +307,7 @@ void LobbyState::Update(double deltaTime)
 
 						pNetwork->setRole((int)Role::Server);
 						srand(pCoopData->seed);
-
+						
 						isReady = false;
 						isRemoteReady = false;
 
@@ -461,14 +495,14 @@ void LobbyState::_initButtons()
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setTextColor(DefaultColor);
 		this->m_charSelectButtons[CharacterSelection::CharTwo]->setFont(FontHandler::getFont("consolas16"));
 		//Ready
-		this->m_charSelectButtons.push_back(Quad::CreateButton("Ready", 0.4f, 0.12f, 0.3f, 0.11f));
+		this->m_charSelectButtons.push_back(Quad::CreateButton("Ready", 0.384f, 0.113f, 0.29f, 0.11f));
 		this->m_charSelectButtons[CharacterSelection::Ready]->setUnpressedTexture("gui_transparent_pixel");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setPressedTexture("gui_pressed_pixel");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setHoverTexture("gui_hover_pixel");
 		this->m_charSelectButtons[CharacterSelection::Ready]->setTextColor(DefaultColor);
 		this->m_charSelectButtons[CharacterSelection::Ready]->setFont(FontHandler::getFont("consolas32"));
 		//Return
-		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.6f, 0.12f, 0.3f, 0.11f));
+		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.617f, 0.113f, 0.29f, 0.11f));
 		this->m_charSelectButtons[CharacterSelection::Back]->setUnpressedTexture("gui_transparent_pixel");
 		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture("gui_pressed_pixelini");
 		this->m_charSelectButtons[CharacterSelection::Back]->setHoverTexture("gui_hover_pixel");
@@ -539,17 +573,19 @@ void LobbyState::_initButtons()
 	}
 }
 
-void LobbyState::_handleGamePadInput()
+void LobbyState::_handleGamePadInput(float deltaTime)
 {
 	if (Input::isUsingGamepad())
 	{
 		if (!isHosting && !hasJoined && !inServerList)
-			this->_gamePadMainLobby();
+			this->_gamePadMainLobby(deltaTime);
 		if (!isHosting && !hasJoined && inServerList)
 			this->_gamePadServerList();
 		if (isHosting || hasJoined)
 			this->_gamePadCharSelection();
 	}
+
+
 }
 
 void LobbyState::_handleKeyboardInput()
@@ -579,7 +615,7 @@ void LobbyState::_updateSelectionStates()
 	{
 		for (size_t i = 0; i < m_lobbyButtons.size(); i++)
 		{
-			if (i != m_currentButton && !m_lobbyButtons[i]->isSelected())
+			if (i != m_currentButton)
 			{
 				m_lobbyButtons[i]->Select(false);
 				m_lobbyButtons[i]->setState(ButtonStates::Normal);
@@ -723,8 +759,11 @@ void LobbyState::_updateInfoString()
 		this->m_infoWindow->setString(content);
 }
 
-void LobbyState::_gamePadMainLobby()
+void LobbyState::_gamePadMainLobby(float deltaTime)
 {
+	m_stickTimerY += deltaTime; 
+	m_stickTimerX += deltaTime; 
+
 	if (GamePadHandler::IsUpDpadPressed())
 	{	
 		if (m_currentButton == 0)
@@ -738,6 +777,31 @@ void LobbyState::_gamePadMainLobby()
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
 	}
 	else if (GamePadHandler::IsRightDpadPressed())
+	{
+		if (m_hostListButtons.size() > 0)
+		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
+			m_lobbyButtons[m_currentButton]->Select(false);
+			inServerList = true;
+			m_currentButtonServerList = 0;
+		}
+	}
+
+	if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimerY >= 0.2f)
+	{
+		if (m_currentButton == 0)
+			m_currentButton = (unsigned int)ButtonOrderLobby::Return;
+		else
+			m_currentButton--;
+		m_stickTimerY = 0; 
+	}
+	else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimerY >= 0.2f)
+	{
+		m_currentButton++;
+		m_currentButton = m_currentButton % ((unsigned int)ButtonOrderLobby::Return + 1);
+		m_stickTimerY = 0; 
+	}
+	else if (GamePadHandler::GetLeftStickXPosition() > 0 && m_stickTimerX >= 0.2f)
 	{
 		if (m_hostListButtons.size() > 0)
 		{
@@ -796,6 +860,8 @@ void LobbyState::_gamePadCharSelection()
 			break;
 		}
 	}
+
+
 
 	_updateSelectionStates();
 
@@ -979,9 +1045,12 @@ void LobbyState::_mouseMainLobby()
 				m_lobbyButtons[m_currentButton]->setState(ButtonStates::Normal);
 				m_currentButton = i;
 			}
-			//set this button to current and on hover state
-			m_lobbyButtons[i]->Select(true);
-			m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			else
+			{
+				//set this button to current and on hover state
+				m_lobbyButtons[i]->Select(true);
+				m_lobbyButtons[i]->setState(ButtonStates::Hover);
+			}
 			//check if we released this button
 			if (m_lobbyButtons[i]->isReleased(mousePos))
 			{
@@ -1000,11 +1069,6 @@ void LobbyState::_mouseMainLobby()
 				}
 			}
 			break;
-		}
-		else
-		{
-			m_lobbyButtons[i]->Select(false);
-			m_lobbyButtons[i]->setState(ButtonStates::Normal);
 		}
 	}
 }
@@ -1038,11 +1102,6 @@ void LobbyState::_mouseCharSelection()
 				}
 			}
 			break;
-		}
-		else
-		{
-			m_charSelectButtons[i]->Select(false);
-			m_charSelectButtons[i]->setState(ButtonStates::Normal);
 		}
 	}
 
@@ -1413,7 +1472,7 @@ void LobbyState::Load()
 	this->pNetwork->StartUpPeer();
 	this->m_MySysAdress = pNetwork->GetMySysAdress();
 	//INITIAL RANDOM HOST NAME
-	srand(time(0));
+	//srand(time(0));
 	this->m_MyHostName = "Host:" + std::to_string(rand());
 	this->m_adPacket = Network::LOBBYEVENTPACKET(Network::ID_SERVER_ADVERTISE, this->m_MyHostName);
 

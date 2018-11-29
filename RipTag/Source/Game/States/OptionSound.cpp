@@ -44,6 +44,12 @@ void OptionSound::Update(double deltaTime)
 		_handleKeyboardInput(deltaTime);
 	}
 
+	if (GamePadHandler::IsBPressed())
+	{
+		m_currentButton = Return;
+		m_buttonPressed = true;
+	}
+
 	if (m_currentButton != -1)
 		if (m_sliderPressed || m_buttonPressed)
 		{
@@ -60,10 +66,16 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_master++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_master--;
+
+						if (m_master < MIN_MAX_SOUND.x)
+							m_master = MIN_MAX_SOUND.x;
+						if (m_master > MIN_MAX_SOUND.y)
+							m_master = MIN_MAX_SOUND.y;
+
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -95,10 +107,16 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_effects++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_effects--;
+
+						if (m_effects < MIN_MAX_SOUND.x)
+							m_effects = MIN_MAX_SOUND.x;
+						if (m_effects > MIN_MAX_SOUND.y)
+							m_effects = MIN_MAX_SOUND.y;
+
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -129,10 +147,16 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_ambient++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_ambient--;
+
+						if (m_ambient < MIN_MAX_SOUND.x)
+							m_ambient = MIN_MAX_SOUND.x;
+						if (m_ambient > MIN_MAX_SOUND.y)
+							m_ambient = MIN_MAX_SOUND.y;
+
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))
@@ -164,10 +188,16 @@ void OptionSound::Update(double deltaTime)
 					switch (m_liu)
 					{
 					case OptionSound::Gamepad:
-						if (GamePadHandler::IsRightDpadPressed())
+						if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0)
 							m_music++;
-						if (GamePadHandler::IsLeftDpadPressed())
+						if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0)
 							m_music--;
+
+						if (m_music < MIN_MAX_SOUND.x)
+							m_music = MIN_MAX_SOUND.x;
+						if (m_music > MIN_MAX_SOUND.y)
+							m_music = MIN_MAX_SOUND.y;
+
 						break;
 					case OptionSound::Keyboard:
 						if (InputHandler::wasKeyPressed(InputHandler::Right))

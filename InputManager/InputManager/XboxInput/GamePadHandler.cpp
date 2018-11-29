@@ -133,6 +133,60 @@ bool GamePadHandler::IsXPressed()
 	}
 }
 
+bool GamePadHandler::IsAReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsAPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsAPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+bool GamePadHandler::IsBReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsBPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsBPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+bool GamePadHandler::IsYReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsYPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsYPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+bool GamePadHandler::IsXReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsXPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsXPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+
+
+
 float GamePadHandler::GetLeftStickYPosition()
 {
 	if(m_state.IsConnected())
@@ -440,6 +494,25 @@ bool GamePadHandler::IsSelectPressed()
 	if (m_state.IsConnected())
 	{
 		if (m_buttons.view == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool GamePadHandler::IsSelectReleased()
+{
+	if (m_state.IsConnected())
+	{
+		if (m_buttons.view == DirectX::GamePad::ButtonStateTracker::RELEASED)
 		{
 			return true;
 		}

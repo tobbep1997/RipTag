@@ -76,6 +76,7 @@ protected:
 
 public:
 	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & center, const DirectX::XMFLOAT3 & extens);
+	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & extens);
 	
 
 	Drawable();
