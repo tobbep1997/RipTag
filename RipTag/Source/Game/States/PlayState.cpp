@@ -293,10 +293,6 @@ void PlayState::Update(double deltaTime)
 
 		}
 	}
-	
-
-	if (InputHandler::isKeyPressed('H'))
-		pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
 	m_physicsFirstRun = false;
 }
 
