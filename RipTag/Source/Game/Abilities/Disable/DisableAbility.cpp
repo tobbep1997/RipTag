@@ -227,7 +227,8 @@ void DisableAbility::_inStateCharging(double dt)
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 			m_charge = 0.0;
-			m_dState = DisableState::Throwable;
+			p_cooldown = (p_cooldownMax / 3) * 2;
+			m_dState = DisableState::Cooldown;
 			m_canceled = true;
 		}
 		if (Input::OnAbility2Released())
@@ -266,8 +267,11 @@ void DisableAbility::_inStateMoving(double dt)
 {
 	static double accumulatedTime = 0;
 	static const double lifeDuration = 1.0 / 0.2; //5000 ms
+
+	//Set cooldown during wait
 	accumulatedTime += dt;
 	p_cooldown = accumulatedTime;
+
 	ContactListener::S_Contact contact;
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
@@ -323,6 +327,7 @@ void DisableAbility::_inStateMoving(double dt)
 	{
 		if (!m_particleEmitter->emitterActiv)
 		{
+			//Kill particle emitter
 			delete m_particleEmitter;
 			m_particleEmitter = nullptr;
 		}
@@ -332,8 +337,7 @@ void DisableAbility::_inStateMoving(double dt)
 	{
 		//nothing has been hit within 5 seconds, -> reset
 		accumulatedTime = 0.0;
-		p_cooldown = 0.0;
-		m_dState = DisableState::Throwable;
+		m_dState = DisableState::Cooldown;
 		this->setPosition(-999.9f, -999.9f, -999.9f);
 		return;
 	}
