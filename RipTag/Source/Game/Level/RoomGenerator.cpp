@@ -63,9 +63,12 @@ void RoomGenerator::_generateGrid()
 {
 	int iterationsDepth = m_roomDepth * 2 + 1;
 	int iterationsWidth = m_roomWidth * 2 + 1;
-	int counter = 0;
+	//int counter = 0;
 	Manager::g_textureManager.loadTextures("RED");
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
+
+	long long total = iterationsDepth * iterationsWidth * 10 * 10 * m_generated_boundingBoxes.size();
+	long long counter = 0;
 
 	for (int i = 0; i < iterationsDepth; i++)
 	{
@@ -75,19 +78,25 @@ void RoomGenerator::_generateGrid()
 			int index = i + j * iterationsWidth;
 			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
 			bool placed = false;
-			for (size_t a = 0; a < 10; a++)
+			for (size_t a = 0; a < 5; a++)
 			{
-				for (size_t b = 0; b < 10; b++)
+				for (size_t b = 0; b < 5; b++)
 				{
 					for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
 					{
+						counter++;
+						
 						float offX = 0.1 * (float)a;
 						float offY = 0.1 * (float)b;
 
 						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(
 							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
 						{
+
+							counter += m_generated_boundingBoxes.size() - x + (10 - a) * (10 - b) * m_generated_boundingBoxes.size();
+
                             m_generatedGrid->BlockGridTile(index, false);
+							col = true;
 							/*asset = DBG_NEW BaseActor();
 							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
 							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
@@ -103,6 +112,7 @@ void RoomGenerator::_generateGrid()
 					break;
 			}		
 		}
+		std::cout << "\r" << ((float)counter / (float)total) * 100.0f;
 	}
 
 	/*std::ofstream lol;
