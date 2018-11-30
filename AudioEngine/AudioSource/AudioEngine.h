@@ -39,6 +39,12 @@ private:
 	static std::vector<FMOD::Sound*> s_ambientSounds;
 	static std::vector<FMOD::Sound*> s_music;
 
+
+	//TEMP
+	static std::vector<FMOD::Geometry*> s_gem;
+	//ENDTEMP
+
+
 	static std::vector<FMOD::Reverb3D*> s_reverbs;
 
 	static FMOD::ChannelGroup* s_soundEffectGroup;

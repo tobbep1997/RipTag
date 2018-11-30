@@ -12,6 +12,8 @@ std::vector<FMOD::Sound*> AudioEngine::s_soundEffects;
 std::vector<FMOD::Sound*> AudioEngine::s_ambientSounds;
 std::vector<FMOD::Sound*> AudioEngine::s_music;
 
+std::vector<FMOD::Geometry*> AudioEngine::s_gem;
+
 std::vector<FMOD::Reverb3D*> AudioEngine::s_reverbs;
 
 FMOD::ChannelGroup * AudioEngine::s_soundEffectGroup;
@@ -397,14 +399,12 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
 	};
 
-
 	DirectX::XMMATRIX mWorld, mTranslation, mRotation, mScale;
 	mTranslation = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 	mRotation = DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&q));
 	mScale = DirectX::XMMatrixScaling(scl.x, scl.y, scl.z);
 
 	mWorld = mScale * mRotation * mTranslation;
-
 	DirectX::XMMatrixTranspose(mWorld);
 
 	FMOD_VECTOR worldPosCube[36];
@@ -428,6 +428,11 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 #endif
 	}
 	
+	// TEMP
+	DirectX::XMMATRIX * w = new DirectX::XMMATRIX(mWorld);
+	ReturnValue->setUserData(w);
+	// TEMP
+
 	return ReturnValue;
 }
 
