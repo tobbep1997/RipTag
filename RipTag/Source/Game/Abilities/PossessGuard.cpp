@@ -122,6 +122,8 @@ void PossessGuard::_hitEnemy()
 						Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 					}
 
+					((Player*)p_owner)->getAnimationPlayer()->GetStateMachine()->SetState("posessing");
+
 					pPointer->getBody()->SetType(e_staticBody);
 					pPointer->getBody()->SetAwake(false);
 					pPointer->setHidden(false);
@@ -159,6 +161,7 @@ void PossessGuard::_isPossessing(double dt)
 			COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_POSESS_END);
 			Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 		}
+		((Player*)p_owner)->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
 
 		this->_sendOverNetwork(false, m_possessTarget);
 
