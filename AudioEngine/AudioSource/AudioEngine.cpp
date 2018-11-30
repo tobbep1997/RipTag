@@ -39,6 +39,11 @@ void AudioEngine::Init()
 	}
 }
 
+std::vector<FMOD::Geometry*>* AudioEngine::TEMPTEMPTEMP()
+{
+	return &s_gem;
+}
+
 void AudioEngine::Update()
 {
 	s_system->update();
@@ -429,8 +434,9 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	}
 	
 	// TEMP
-	DirectX::XMMATRIX * w = new DirectX::XMMATRIX(mWorld);
+	DirectX::XMMATRIX * w = new DirectX::XMMATRIX(DirectX::XMMatrixTranspose(mWorld));
 	ReturnValue->setUserData(w);
+	s_gem.push_back(ReturnValue);
 	// TEMP
 
 	return ReturnValue;

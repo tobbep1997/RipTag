@@ -56,6 +56,8 @@ private:
 public:
 	static void Init();
 
+	static std::vector<FMOD::Geometry*> * TEMPTEMPTEMP();
+
 	static void Update();
 	static void UpdateListenerAttributes(const Listener & l);
 
