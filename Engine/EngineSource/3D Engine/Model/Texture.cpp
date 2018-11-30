@@ -4,17 +4,15 @@
 
 Texture::Texture()
 {
-	//DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, L"poop",
 }
 
 
 
 Texture::Texture(const wchar_t* file)
 {
-//	DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, file, nullptr, &m_SRV);
 }
 
-HRESULT Texture::Load(const wchar_t * file)
+HRESULT Texture::Load(const wchar_t * file, bool staticTexture)
 {
 	std::wstring albedoName = file;
 	std::wstring normalName = file;
@@ -22,15 +20,15 @@ HRESULT Texture::Load(const wchar_t * file)
 
 
 	albedoName.append(L"_ALBEDO.png");
-	ORMname.append(L"_ORM.png");
 	normalName.append(L"_NORMAL.png");
+	ORMname.append(L"_ORM.png");
 
 
 
 
-	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, albedoName.c_str(), nullptr, &m_SRV[0]);
+	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, albedoName.c_str(), &m_texture[0], &m_SRV[0]);
 	if (FAILED(hr))
-	{ 
+	{
 		std::string p = std::string(albedoName.begin(), albedoName.end());
 		size_t t = p.find_last_of(L'/');
 		p = p.substr(t + 1);
@@ -38,8 +36,13 @@ HRESULT Texture::Load(const wchar_t * file)
 		std::cout << white;
 		return hr;
 	}
+	if (!staticTexture)
+	{
+		m_texture[0]->Release();
+		m_texture[0] = nullptr;
+	}
 	
-	hr = DirectX::CreateWICTextureFromFile(DX::g_device, normalName.c_str(), nullptr, &m_SRV[1]);
+	hr = DirectX::CreateWICTextureFromFile(DX::g_device, normalName.c_str(), &m_texture[1], &m_SRV[1]);
 	if (FAILED(hr))
 	{
 		std::string p = std::string(normalName.begin(), normalName.end());
@@ -49,8 +52,14 @@ HRESULT Texture::Load(const wchar_t * file)
 		std::cout << white;
 		return hr;
 	}
+	if (!staticTexture)
+	{
+		m_texture[1]->Release();
+		m_texture[1] = nullptr;
+	}
 
-	hr = DirectX::CreateWICTextureFromFile(DX::g_device, ORMname.c_str(), nullptr, &m_SRV[2]);
+
+	hr = DirectX::CreateWICTextureFromFile(DX::g_device, ORMname.c_str(), &m_texture[2], &m_SRV[2]);
 	if (FAILED(hr))
 	{
 		std::string p = std::string(ORMname.begin(), ORMname.end());
@@ -60,10 +69,11 @@ HRESULT Texture::Load(const wchar_t * file)
 		std::cout << white;
 		return hr;
 	}
-
-	/*hr = DirectX::CreateWICTextureFromFile(DX::g_device,DX::g_deviceContext, albedoName.c_str(), nullptr, &m_SRV[0]);
-	hr = DirectX::CreateWICTextureFromFile(DX::g_device, normalName.c_str(), nullptr, &m_SRV[1]);
-	hr = DirectX::CreateWICTextureFromFile(DX::g_device, ORMname.c_str(), nullptr, &m_SRV[2]);*/
+	if (!staticTexture)
+	{
+		m_texture[2]->Release();
+		m_texture[2] = nullptr;
+	}
 	return hr;
 }
 
@@ -86,7 +96,38 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 
 void Texture::Bind(const uint8_t slot)
 {
-	DX::g_deviceContext->PSSetShaderResources(slot, 3, m_SRV);
+	if (index == -1)
+		DX::g_deviceContext->PSSetShaderResources(slot, 3, m_SRV);
+}
+
+void Texture::setIndex(const int& index)
+{
+	this->index = index;
+}
+
+const int& Texture::getIndex() const
+{
+	return this->index;
+}
+
+void Texture::TexUnload()
+{
+	for (int i = 0; i < 3; i++)
+	{	
+		DX::SafeRelease(m_texture[i]);
+		DX::SafeRelease(m_SRV[i]);
+	}
+}
+
+
+void Texture::UnloadTexture()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (index != -1)
+			DX::SafeRelease(m_texture[i]);
+		DX::SafeRelease(m_SRV[i]);
+	}
 }
 
 void Texture::setName(const std::wstring & name)
@@ -101,8 +142,6 @@ const std::wstring & Texture::getName() const
 
 Texture::~Texture()
 {
-	for (int i = 0; i < 3; i++)
-	{
-		DX::SafeRelease(m_SRV[i]);
-	}	
+	if (index == -1)
+		UnloadTexture();
 }

@@ -120,6 +120,7 @@ void Game::_handleStateSwaps()
 	if (m_gameStack.top()->getNewState() != nullptr)
 	{
 		m_gameStack.top()->unLoad();
+		DX::g_deviceContext->ClearState();
 		m_gameStack.push(m_gameStack.top()->getNewState());
 		m_gameStack.top()->Load();
 		m_justSwaped = true;
@@ -130,6 +131,7 @@ void Game::_handleStateSwaps()
 		m_gameStack.top()->resetState(nullptr);
 		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
+		DX::g_deviceContext->ClearState();
 		m_gameStack.pop();
 		m_gameStack.top()->resetState(nullptr);
 		m_gameStack.push(ss);
@@ -145,6 +147,7 @@ void Game::_handleStateSwaps()
 		{
 			m_gameStack.top()->unLoad();
 			delete m_gameStack.top();
+			DX::g_deviceContext->ClearState();
 			m_gameStack.pop();
 			m_gameStack.top()->pushNewState(nullptr);
 		}
@@ -158,6 +161,7 @@ void Game::_handleStateSwaps()
 	{
 		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
+		DX::g_deviceContext->ClearState();
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
 		m_gameStack.top()->Load();
@@ -171,6 +175,7 @@ void Game::_handleStateSwaps()
 		{
 			m_gameStack.top()->unLoad();
 			delete m_gameStack.top();
+			DX::g_deviceContext->ClearState();
 			m_gameStack.pop();
 			m_gameStack.top()->pushNewState(nullptr);
 		}

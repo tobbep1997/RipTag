@@ -19,7 +19,32 @@ TextureManager::~TextureManager()
 	this->UnloadGUITextures();
 }
 
-void TextureManager::loadTextures(const std::string & path)
+void TextureManager::Init()
+{
+	DXRHC::CreateTexture2D(m_static_TEX,
+		512, 
+		512,
+		D3D11_BIND_SHADER_RESOURCE, 
+		1, 
+		1, 
+		0, 
+		MAX_STATIC_TEXTURES * 3U, 
+		0, 
+		0, 
+		DXGI_FORMAT_R8G8B8A8_UNORM);
+
+	DXRHC::CreateShaderResourceView(m_static_TEX, 
+		m_static_SRV,
+		0,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		D3D11_SRV_DIMENSION_TEXTURE2DARRAY, 
+		MAX_STATIC_TEXTURES * 3U,
+		0, 
+		0, 
+		1);
+}
+
+void TextureManager::loadTextures(const std::string & path, bool m_static_texture)
 {
 	Texture* tempTexture = new Texture();
 	std::wstring fullPath = this->_getFullPath(path);
@@ -29,11 +54,30 @@ void TextureManager::loadTextures(const std::string & path)
 	{
 		tempTexture->setName(fullPath);
 		
-		tempTexture->Load(fullPath.c_str());
+		tempTexture->Load(fullPath.c_str(), m_static_texture);
 
 		m_textureMutex.lock();
 		m_textures[key].push_back(tempTexture);
 		m_textureMutex.unlock();
+
+		if(m_static_texture)
+		{
+			for (int i = 0; i < 3 && this->m_static_textures < MAX_STATIC_TEXTURES * 3; i++)
+			{
+				DX::g_deviceContext->CopySubresourceRegion(m_static_TEX, 
+					this->m_static_textures,
+					0, 
+					0, 
+					0, 
+					tempTexture->m_texture[i],
+					0, 
+					NULL);
+
+				this->m_static_textures++;
+			}
+			tempTexture->setIndex(this->m_currentTexture++);
+			tempTexture->TexUnload();
+		}
 	}
 	else
 	{
@@ -49,11 +93,30 @@ void TextureManager::loadTextures(const std::string & path)
 		{
 			tempTexture->setName(fullPath);
 			
-			tempTexture->Load(fullPath.c_str());
+			tempTexture->Load(fullPath.c_str(), m_static_texture);
 			
 			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
 			m_textureMutex.unlock();
+
+			if (m_static_texture)
+			{
+				for (int i = 0; i < 3 && this->m_static_textures < MAX_STATIC_TEXTURES * 3; i++)
+				{
+					DX::g_deviceContext->CopySubresourceRegion(m_static_TEX,
+						this->m_static_textures,
+						0,
+						0,
+						0,
+						tempTexture->m_texture[i],
+						0,
+						NULL);
+
+					this->m_static_textures++;
+				}
+				tempTexture->setIndex(this->m_currentTexture++);
+				tempTexture->TexUnload();
+			}
 		}
 		else
 		{
@@ -101,6 +164,21 @@ Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 
 	//throw std::exception("TEXTURE NOT FOUND");
 	return nullptr;
+}
+
+void TextureManager::MapStaticTextures()
+{
+	DX::g_deviceContext->PSSetShaderResources(4, 1, &m_static_SRV);
+	
+	
+	m_static_SRV->Release();
+	m_static_TEX->Release();
+
+	m_static_SRV = nullptr;
+	m_static_TEX = nullptr;
+				 
+	this->m_currentTexture = 0;
+	this->m_static_textures = 0;
 }
 
 void TextureManager::loadGUITexture(const std::wstring name, const std::wstring & full_path)
@@ -169,7 +247,8 @@ bool TextureManager::UnloadAllTexture()
 		}
 		m_textures[i].clear();
 	}
-
+	this->m_currentTexture = 0;
+	this->m_static_textures = 0;
 	return true;
 }
 
@@ -178,6 +257,7 @@ bool TextureManager::UnloadGUITextures()
 	for (auto & t : m_GuiTextures)
 		delete t;
 	m_GuiTextures.clear();
+
 	return false;
 }
 

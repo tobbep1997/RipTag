@@ -52,7 +52,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 {
-	//GeneratedRoom
+	//GeneratedRoom fresh prince of bellair
 	std::cout << green << "ROOM INIT" << white << std::endl;
 
 	this->m_roomIndex = -1;
@@ -145,6 +145,7 @@ void Room::LoadRoomToMemory()
 	//TODO:: add all the assets to whatever
 	if (m_roomLoaded == false)
 	{
+
 		ImporterLibrary::CustomFileLoader fileLoader;
 		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
 		for (int i = 0; i < tempLights.nrOf; i++)
@@ -365,7 +366,7 @@ void Room::LoadRoomToMemory()
 		}
 		delete [] boxes.boxes;
 		
-		m_roomLoaded = true;	
+		m_roomLoaded = true;
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
@@ -534,6 +535,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
+
 
 	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
@@ -745,7 +747,11 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	if (name != "COLLISIONBOXASPROP")
 	{
 		Manager::g_meshManager.loadStaticMesh(name);
-		Manager::g_textureManager.loadTextures(name);
+		//if (name.find("THICKWALL") <= name.size())
+		if (name.find("WALL") <= name.size() || name.find("FLOOR") <= name.size())
+			Manager::g_textureManager.loadTextures(name, true);
+		else
+			Manager::g_textureManager.loadTextures(name, false);
 	}
 	if (name != "INVISIBLEGRIDBLOCKER" && name != "COLLISIONBOXASPROP")
 	{

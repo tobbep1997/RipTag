@@ -209,6 +209,11 @@ void DX::INSTANCING::tempInstance(Drawable* drawable)
 	attribute.objectColor = drawable->getColor();
 	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
 	attribute.usingTexture.x = drawable->isTextureAssigned();
+	if (drawable->getTexture()->getIndex() != -1)
+	{
+		attribute.usingTexture.y = 1;
+		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+	}
 
 
 	if (exisitingEntry == queue->end())

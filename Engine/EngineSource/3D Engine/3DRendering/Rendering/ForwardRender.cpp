@@ -865,6 +865,8 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	m_textureValues.textureTileMult.y = drawable->getTextureTileMult().y;
 
 	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
+	m_textureValues.usingTexture.y = 1;
+	m_textureValues.usingTexture.z = drawable->getTexture()->getIndex();
 
 	m_textureValues.color = drawable->getColor();
 
