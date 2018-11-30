@@ -623,10 +623,7 @@ void RoomGenerator::_generateGuardPaths()
 				destination = m_generatedGrid->WorldPosToTile(x, z);
 			}
 		}
-		Timer::StartTimer();
 		currentEnemey->SetPathVector(m_generatedGrid->FindPath(enemyPos, destination));
-		Timer::StopTimer();
-		std::cout << Timer::GetDurationInSeconds() << "\n" << std::flush;
 	}
 }
 
@@ -722,7 +719,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
 	_createEntireWorld();
-	//_generateGrid();
+	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
 	_makeRoof();
