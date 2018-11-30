@@ -48,7 +48,7 @@ private:
 	bool m_exitPause = false; 
 
 	const DirectX::XMFLOAT2 MIN_MAX_SLIDE_GENERAL = { 0.05f, 0.35f };
-	const DirectX::XMFLOAT2 MIN_MAX_SLIDE_SOUND = { 0.65f, 0.95f}; 
+	const DirectX::XMFLOAT2 MIN_MAX_SLIDE_SOUND = { 0.60f, 0.95f}; 
 	const DirectX::XMINT2 MIN_MAX_FOV = { 45, 135 };
 	const DirectX::XMINT2 MIN_MAX_SENSITIVITY = { 1, 11 };
 	const DirectX::XMINT2 MIN_MAX_SOUND = { 0, 100 };
