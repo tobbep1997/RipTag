@@ -142,13 +142,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
 
+		_removeAllCenterTiles(roomNodePath);
+
 		if (roomNodePath.empty())
 		{
 			return _findPath(source, destination, m_nodeMap, m_width, m_height);
 		}
-
-		_removeAllCenterTiles(roomNodePath);
-
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
