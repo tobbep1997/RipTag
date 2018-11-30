@@ -65,49 +65,34 @@ void RoomGenerator::_generateGrid()
 {
 	int iterationsDepth = m_roomDepth * 2 + 1;
 	int iterationsWidth = m_roomWidth * 2 + 1;
-	int counter = 0;
+	//int counter = 0;
 	Manager::g_textureManager.loadTextures("RED");
 	Manager::g_meshManager.loadStaticMesh("FLOOR");
+
+	DirectX::BoundingBox testBox;
 
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
 		{
 			bool col = false;
-			int index = i + j * iterationsWidth;
+			int index = j + i * iterationsWidth;
 			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
 			bool placed = false;
-			for (size_t a = 0; a < 10; a++)
+			testBox = DirectX::BoundingBox(DirectX::XMFLOAT3(node.worldPos.x, 1.0f, node.worldPos.y), DirectX::XMFLOAT3(0.5, 1, 0.5));
+			for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
 			{
-				for (size_t b = 0; b < 10; b++)
+				if (m_generated_boundingBoxes[x]->Intersects(testBox))
 				{
-					for (int x = 0; x < m_generated_boundingBoxes.size() && !col; x++)
-					{
-						float offX = 0.1 * (float)a;
-						float offY = 0.1 * (float)b;
-
-						if (m_generated_boundingBoxes[x]->Contains(DirectX::XMLoadFloat3(
-							&DirectX::XMFLOAT3(node.worldPos.x - 0.5 + offX, 0.8, node.worldPos.y - 0.5 + offY))))
-						{
-                            m_generatedGrid->BlockGridTile(index, false);
-							/*asset = DBG_NEW BaseActor();
-							asset->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-							asset->setTexture(Manager::g_textureManager.getTexture("RED"));
-							asset->setPosition(node.worldPos.x, 1, node.worldPos.y, false);
-							col = true;*/
-							break;
-						}
-					}
-					if (col == true)
-						break;
-				}
-				if (col == true)
+					m_generatedGrid->BlockGridTile(index, false);
 					break;
-			}		
+				}
+			}
 		}
+		/*testBox = DirectX::BoundingBox(DirectX::XMFLOAT3(-49.5, 0.5, i -49.5), DirectX::XMFLOAT3(.48, .48, .48));*/
 	}
 
-	/*std::ofstream lol;
+	std::ofstream lol;
 	lol.open("map.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
@@ -122,9 +107,8 @@ void RoomGenerator::_generateGrid()
 			lol << " ";
 		}
 		lol << "\n";
-	}*/
-	
-
+	}
+	lol.close();
 }
 
 void RoomGenerator::_makeFloor()
@@ -756,14 +740,14 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
-	_makeRoof();
+	//_makeRoof();
 	
 	returnableRoom->setGrid(this->m_generatedGrid);
 
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	//dbgFuncSpawnAboveMap();
+	dbgFuncSpawnAboveMap();
 
 	returnableRoom->setTorches(m_generatedTorches);
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);

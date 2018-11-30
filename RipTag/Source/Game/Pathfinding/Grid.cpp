@@ -142,13 +142,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
 
-		if (roomNodePath.size() == 0)
+		_removeAllCenterTiles(roomNodePath);
+
+		if (roomNodePath.empty())
 		{
 			return _findPath(source, destination, m_nodeMap, m_width, m_height);
 		}
-
-		_removeAllCenterTiles(roomNodePath);
-
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
@@ -281,7 +280,7 @@ int Grid::getGridHeight()
 	return m_height;
 }
 
-void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<Node*> & openList,
+void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<std::shared_ptr<Node>> & openList,
 	std::vector<Node> & nodeMap, bool * closedList, int width, int height)
 {
 	int currentX = current->tile.getX();
@@ -292,7 +291,7 @@ void Grid::_checkNode(Node * current, float addedGCost, int offsetX, int offsetY
 	if (_isValid(nextTile, width, height) && !closedList[nextTileIndex] &&
 		nodeMap.at(nextTileIndex).tile.getPathable())
 	{
-		Node * newNode = DBG_NEW Node(nodeMap.at(nextTileIndex).tile, nodeMap.at(nextTileIndex).worldPos,
+		std::shared_ptr<Node> newNode = std::make_shared<Node>(nodeMap.at(nextTileIndex).tile, nodeMap.at(nextTileIndex).worldPos,
 			current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
 		openList.push_back(newNode);
 	}
@@ -642,6 +641,7 @@ void Grid::_removeAllCenterTiles(std::vector<Node*>& roomNodePath)
 		if (!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
 		{
 			delete roomNodePath.at(i);
+			
 			roomNodePath.erase(roomNodePath.begin() + i);
 			size = roomNodePath.size();
 			i--;
@@ -758,12 +758,11 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	bool * closedList = new bool[height * width];
 	for (int i = 0; i < height * width; i++)
 		closedList[i] = false;
+	std::vector<std::shared_ptr<Node>> openList;
+	std::vector<std::shared_ptr<Node>> earlyExploration;
 
-	std::vector<Node*> openList;
-	std::vector<Node*> earlyExploration;
-
-	Node * earlyExplorationNode = nullptr;
-	Node * current = new Node(src, NodeWorldPos(), nullptr, 0.0f, _calcHValue(src, dest));
+	std::shared_ptr<Node> earlyExplorationNode = nullptr;
+	std::shared_ptr<Node> current = std::make_shared<Node>(src, NodeWorldPos(), nullptr, 0.0f, _calcHValue(src, dest));
 	openList.push_back(current);
 
 	while (!openList.empty() || earlyExplorationNode != nullptr)
@@ -775,7 +774,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		}
 		else
 		{
-			std::sort(openList.begin(), openList.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
+			std::sort(openList.begin(), openList.end(), [](std::shared_ptr<Node> first, std::shared_ptr<Node> second) { return first->fCost < second->fCost; });
 			current = openList.at(0);
 			openList.erase(openList.begin());
 		}
@@ -783,27 +782,25 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		if (current->tile == dest)
 		{
 			// Create complete path
-			std::vector<Node*> path;
+			std::vector<std::shared_ptr<Node>> path;
+			std::vector<Node*> returnPath;
 
 			// Creates the new path and deletes the pointers that are used to create the path
 			while (current->parent != nullptr)
 			{
-				Node * nextPathNode = new Node(current);
+				std::shared_ptr<Node> nextPathNode(current);
 				path.push_back(nextPathNode);
-				delete current;
 				current = nextPathNode->parent;
 			}
+			std::reverse(path.begin(), path.end());
+			for (int i = 0; i < path.size(); i++)
+				returnPath.push_back(DBG_NEW Node(path.at(i).get()));
 
 			// Deletes any spare grid pointers
-			delete current;
+		
 			delete [] closedList;
-			for (int i = 0; i < openList.size(); i++)
-			{
-				delete openList.at(i);
-			}
 
-			std::reverse(path.begin(), path.end());
-			return path;
+			return returnPath;
 		}
 
 		// Flag the tile as visited
@@ -850,9 +847,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		/*---------- Southeast ----------*/
 		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, nodeMap, closedList, width, height);
 
-		/*if (earlyExploration.size() == 0)
-			delete current;*/
-		std::sort(earlyExploration.begin(), earlyExploration.end(), [](Node * first, Node * second) { return first->fCost < second->fCost; });
+		std::sort(earlyExploration.begin(), earlyExploration.end(), [](std::shared_ptr<Node> first, std::shared_ptr<Node> second) { return first->fCost < second->fCost; });
 		if (earlyExploration.size() > 0 && earlyExploration.at(0)->fCost <= current->fCost)
 		{
 			earlyExplorationNode = earlyExploration.at(0);
@@ -861,12 +856,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		openList.insert(std::end(openList), std::begin(earlyExploration), std::end(earlyExploration));
 		earlyExploration.clear();
 	}
-
-	delete current;
+	
 	delete [] closedList;
-	for (int i = 0; i < openList.size(); i++)
-	{
-		delete openList.at(i);
-	}
 	return std::vector<Node*>();
 }
