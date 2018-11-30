@@ -1,7 +1,7 @@
 #include "RipTagPCH.h"
 #include "RemotePlayer.h"
 
-RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
+RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot, CHARACTER character) : Actor()
 {
 	using namespace DirectX;
 	//TODO:
@@ -14,8 +14,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//7. Register animation state machine
 	
 	//1.
-	this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
-	this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
@@ -164,6 +163,33 @@ void RemotePlayer::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
 		m_activeSet = m_abilityComponents2;
+
+	SetModelAndTextures(set);
+}
+
+void RemotePlayer::SetModelAndTextures(int set)
+{
+	switch (set)
+	{
+	case 1:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	case 2:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER2"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER2"));
+		break;
+	}
+	default:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	}
 }
 
 void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
