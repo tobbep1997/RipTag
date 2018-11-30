@@ -300,7 +300,9 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 				crouchState->UseFirstPoseOnly(true);
 
 				auto leanState = layerMachine->Add1DPoseLayer("peek", &mLocalPlayer->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
+				leanState->UseSmoothDriver(false);
 				layerMachine->ActivateLayer("peek");
+				
 			}
 
 			/*auto animationPlayer = mLocalPlayer->getAnimationPlayer();
