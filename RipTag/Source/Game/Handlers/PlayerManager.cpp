@@ -156,7 +156,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 	{
 		hasLocalPlayer = true;
 		mLocalPlayer = new Player();
-		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 1.0f, 1.0f, 1.0f);
+		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 1.0f, 0.8f, 1.0f);
 		mLocalPlayer->setEntityType(EntityType::PlayerType);
 		mLocalPlayer->setColor(1.f, 1.f, 1.f, 1.f);
 		//this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
@@ -306,7 +306,8 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 			stateMachine->SetState("temp");
 			animationPlayer->Play();*/
 		}
-		mLocalPlayer->setScale(1.0f * 0.5625f, 1.0f* 0.5625f, 1.0f* 0.5625f);
+		mLocalPlayer->setScale(.45, .45, .45);
+		mLocalPlayer->setModelTransform(DirectX::XMMatrixTranslation(0.0, -1.0, 0.0));
 		mLocalPlayer->setPosition(0.0f, 0.0f, 0.0f);
 		mLocalPlayer->setTextureTileMult(2, 2);
 	}

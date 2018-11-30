@@ -478,37 +478,43 @@ void RoomGenerator::_createEntireWorld()
 
 #pragma region LIGHTS
 
-			ImporterLibrary::PointLights tempLights = loader.readLightFile(MODNAMESTRING);
-			for (int k = 0; k < tempLights.nrOf; k++)
+			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
 			{
-				if (isRotated == true)
+				ImporterLibrary::PointLights tempLights = loader.readLightFile(MODNAMESTRING);
+				PointLight * tempLight;
+				for (int k = 0; k < tempLights.nrOf; k++)
 				{
-					float tempPosX = tempLights.lights[k].translate[0];
-					tempLights.lights[k].translate[1] += 90.f;
-					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[2];
-					tempLights.lights[k].translate[2] = i + 10 + tempPosX;
-				}
-				else
-				{
-					tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
-					tempLights.lights[k].translate[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
-				}
-				if (tempLights.lights[k].intensity < 10)
-					tempLights.lights[k].intensity = 10;
-				m_generated_pointLightVector.push_back(DBG_NEW PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity));
+					if (isRotated == true)
+					{
+						float tempPosX = tempLights.lights[k].translate[0];
+						tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[2];
+						tempLights.lights[k].translate[2] = i + tempPosX;
+					}
+					else
+					{
+						tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[0] + BigRoomAddX;
+						tempLights.lights[k].translate[2] = i + tempLights.lights[k].translate[2] + BigRoomAddZ;
+					}
+					if (tempLights.lights[k].intensity < 10)
+						tempLights.lights[k].intensity = 10;
 
-				/*p_emit = DBG_NEW ParticleEmitter();
-				p_emit->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2]);
-				m_generated_Emitters.push_back(p_emit);
-				std::cout << tempLights.lights[k].translate[0] << tempLights.lights[k].translate[1] << tempLights.lights[k].translate[2] << std::endl;
-				FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[k].translate[2] };
-				AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);*/
+					tempLight = DBG_NEW PointLight(tempLights.lights[k].translate, tempLights.lights[k].color, tempLights.lights[k].intensity);
+
+					tempLight->setColor(250.0f, 172.0f, 100.f);
+					ParticleEmitter * particleEmitter;
+
+					particleEmitter = DBG_NEW ParticleEmitter();
+
+					particleEmitter->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0);
+
+					Torch * tempTorch = DBG_NEW Torch(tempLight, particleEmitter, returnableRoom->getTriggerHandler()->netWorkTriggers.size());
+					m_generatedTorches.push_back(tempTorch);
+					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));
+
+				}
+
+				delete tempLights.lights;
 			}
-			for (auto light : m_generated_pointLightVector)
-			{
-				light->setColor(120.0f, 112.0f, 90.0f);
-			}
-			delete tempLights.lights;
 
 #pragma endregion
 
@@ -715,6 +721,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	//dbgFuncSpawnAboveMap();
 
+	returnableRoom->setTorches(m_generatedTorches);
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
 	returnableRoom->setRoomGuards(m_generatedRoomEnemies);

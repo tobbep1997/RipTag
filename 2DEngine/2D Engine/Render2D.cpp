@@ -1,6 +1,7 @@
 #include "Engine2DPCH.h"
 #include "Render2D.h"
-
+#include "RipTagExtern/RipExtern.h"
+#include <d3d11_4.h>
 
 
 Render2D::Render2D()
@@ -35,6 +36,9 @@ void Render2D::Init()
 	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
 
 	DXRHC::CreateConstantBuffer(m_HUDTypeBuffer, sizeof(HUDTypeStruct));
+#ifndef _DEPLOY
+	DBG_INIT();
+#endif
 
 }
 
@@ -51,6 +55,9 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
 
+#ifndef _DEPLOY
+	DBG();
+#endif
 	
 
 	UINT32 vertexSize = sizeof(Quad::QUAD_VERTEX);
@@ -168,6 +175,14 @@ void Render2D::GUIPass()
 
 	DX::g_2DQueue.clear();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+#ifndef _DEPLOY
+	if (dbg_quad)
+	{
+		dbg_quad->Release();
+		delete dbg_quad;
+		dbg_quad = nullptr;
+	}
+#endif
 
 }
 
@@ -178,6 +193,83 @@ void Render2D::Release()
 	DX::SafeRelease(m_depthStencilState);
 	DX::SafeRelease(m_HUDTypeBuffer);
 	delete m_spriteBatch;
+
+#ifndef _DEPLOY
+	DBG_RELEASE();
+#endif
 }
 
+#ifndef _DEPLOY
+void Render2D::DBG_INIT()
+{
+	m_currentProcessID = GetCurrentProcessId();
+
+	ret_code = ::CreateDXGIFactory(
+		__uuidof(IDXGIFactory),
+		reinterpret_cast<void**>(&dxgifactory));
+}
+
+void Render2D::DBG()
+{
+	DXGI_QUERY_VIDEO_MEMORY_INFO info;
+	   	 
+	if (SUCCEEDED(ret_code))
+	{
+		if (SUCCEEDED(dxgifactory->EnumAdapters(0, &dxgiAdapter)))
+		{
+
+			if (SUCCEEDED(dxgiAdapter->QueryInterface(__uuidof(IDXGIAdapter4), (void**)&dxgiAdapter4)))
+			{
+				DXGI_QUERY_VIDEO_MEMORY_INFO info;
+
+				if (SUCCEEDED(dxgiAdapter4->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
+				{
+					memoryUsageVRam = float(info.CurrentUsage / 1024.0 / 1024.0); //MiB
+				};
+
+
+			}
+			dxgiAdapter->Release();
+			dxgiAdapter4->Release();
+		}
+
+	}
+
+	hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_currentProcessID);
+
+
+	if (NULL == hProcess)
+		return;
+	PROCESS_MEMORY_COUNTERS pmc{};
+	if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc)))
+	{
+		memoryUsageRam = float(pmc.PagefileUsage / 1024.0 / 1024.0); //MiB
+	}
+
+	CloseHandle(hProcess);
+
+	m_statex.dwLength = sizeof(m_statex);
+
+	GlobalMemoryStatusEx(&m_statex);
+
+	dbg_quad = new Quad();
+	dbg_quad->init();
+	dbg_quad->setPivotPoint(Quad::PivotPoint::upperRight);
+	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
+	dbg_quad->setFont(FontHandler::getFont("consolas16"));
+	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam));
+	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 0, 0, 1));
+	dbg_quad->setPosition(1, 1);
+	dbg_quad->setScale(.20, .2);
+	dbg_quad->setColor(1, 1, 1,1);
+	dbg_quad->setUnpressedTexture("DAB");
+	dbg_quad->Draw();
+}
+
+void Render2D::DBG_RELEASE()
+{
+	dxgifactory->Release();
+
+}
+#endif
 

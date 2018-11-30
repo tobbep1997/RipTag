@@ -791,6 +791,8 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
 	Manager::g_textureManager.loadTextures("PLAYER1");
+	Manager::g_textureManager.loadTextures("PLAYER2");
+
 
 
 }
@@ -820,6 +822,7 @@ void PlayState::_loadMeshes()
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_meshManager.loadSkinnedMesh("PLAYER1");
+	Manager::g_meshManager.loadSkinnedMesh("PLAYER2");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 

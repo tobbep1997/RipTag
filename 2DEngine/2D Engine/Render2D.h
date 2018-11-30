@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include "EngineSource/Debugg/ImGui/ImGuiManager.h"
 
 namespace DirectX {
 	class SpriteBatch;
@@ -34,6 +35,21 @@ private:
 
 	ID3D11Buffer * m_HUDTypeBuffer;
 	HUDTypeStruct m_HUDTypeValues;
+#ifndef _DEPLOY
+	MEMORYSTATUSEX m_statex;
+
+	DWORD m_currentProcessID;
+	HANDLE hProcess;
+	float memoryUsageRam = 0;
+	float memoryUsageVRam = 0;
+
+	Quad * dbg_quad = nullptr;
+
+	HRESULT ret_code;
+	IDXGIFactory* dxgifactory = nullptr;
+	IDXGIAdapter* dxgiAdapter = nullptr;
+	IDXGIAdapter4* dxgiAdapter4 = NULL;
+#endif
 
 public:
 	Render2D();
@@ -43,5 +59,10 @@ public:
 	void GUIPass();
 	void Release();
 
+#ifndef _DEPLOY
+	void DBG_INIT();
+	void DBG();
+	void DBG_RELEASE();
+#endif
 };
 
