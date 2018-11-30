@@ -65,7 +65,7 @@ void RenderingManager::Update()
 			m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 		}
 	#if _DEBUG || _RELEASE_DBG
-		if (GetAsyncKeyState(int('P')))
+		if (GetAsyncKeyState(int('J')))
 		{
 			_reloadShaders();
 		}
@@ -83,7 +83,7 @@ void RenderingManager::UpdateSingleThread()
 		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 	}
 #if _DEBUG
-	if (GetAsyncKeyState(int('P')))
+	if (GetAsyncKeyState(int('J')))
 	{
 		_reloadShaders();
 	}

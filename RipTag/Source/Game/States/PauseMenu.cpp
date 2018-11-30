@@ -585,13 +585,19 @@ void PauseMenu::_initButtons()
 	m_buttons[ButtonOrder::SliderMusicButton]->setHoverTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderMusicButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
-	m_buttons.push_back(Quad::CreateButton("Save and return", 0.5f, 0.13f, 0.73f, 0.12f));
+	m_buttons.push_back(Quad::CreateButton("Save and return", 0.2f, 0.13f, 0.73f, 0.12f));
 	m_buttons[ButtonOrder::ReturnButton]->setUnpressedTexture("gui_transparent_pixel");
 	m_buttons[ButtonOrder::ReturnButton]->setPressedTexture("gui_pressed_pixel");
 	m_buttons[ButtonOrder::ReturnButton]->setHoverTexture("gui_hover_pixel");
 	m_buttons[ButtonOrder::ReturnButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::ReturnButton]->setFont(FontHandler::getFont("consolas16"));
 
+	m_buttons.push_back(Quad::CreateButton("Main Menu", 0.7f, 0.13f, 0.73f, 0.12f));
+	m_buttons[ButtonOrder::MainMenuButton]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::MainMenuButton]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::MainMenuButton]->setHoverTexture("gui_hover_pixel");
+	m_buttons[ButtonOrder::MainMenuButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::MainMenuButton]->setFont(FontHandler::getFont("consolas16"));
 }
 
 void PauseMenu::_handleGamePadInput(double dt)
@@ -621,8 +627,8 @@ void PauseMenu::_handleGamePadInput(double dt)
 		m_currentButton += dir;
 
 		if (m_currentButton < 0)
-			m_currentButton = (short)ReturnButton;
-		else if (m_currentButton > (short)ReturnButton)
+			m_currentButton = (short)MainMenuButton;
+		else if (m_currentButton > (short)MainMenuButton)
 			m_currentButton = 0;
 
 		if (m_liu == Gamepad)
@@ -635,13 +641,19 @@ void PauseMenu::_handleGamePadInput(double dt)
 			{
 				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
 				m_buttonPressed = true;
-				if (m_currentButton != ReturnButton)
+				if (m_currentButton != MainMenuButton)
 				{
 					this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
 					m_sliderPressed = true;
 				}
 			}
 		}
+
+		if (m_currentButton == MainMenuButton)
+		{
+			m_mainManuPressed = true;
+		}
+
 		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
 	}
 }
@@ -671,8 +683,8 @@ void PauseMenu::_handleKeyboardInput(double dt)
 	m_currentButton += dir;
 
 	if (m_currentButton < 0)
-		m_currentButton = (short)ReturnButton;
-	else if (m_currentButton > (short)ReturnButton)
+		m_currentButton = (short)MainMenuButton;
+	else if (m_currentButton > (short)MainMenuButton)
 		m_currentButton = 0;
 
 	if (m_liu == Keyboard)
@@ -693,6 +705,11 @@ void PauseMenu::_handleKeyboardInput(double dt)
 			}
 		}
 	}
+
+	if (m_currentButton == MainMenuButton)
+	{
+		m_mainManuPressed = true;
+	}
 	pressedLastFrame = InputHandler::isKeyPressed(InputHandler::Up) || InputHandler::isKeyPressed(InputHandler::Down);
 }
 
@@ -701,6 +718,7 @@ bool PauseMenu::_handleMouseInput()
 	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
 	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
 	m_mouseMoved = false;
 	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9)
 	{
@@ -724,6 +742,10 @@ bool PauseMenu::_handleMouseInput()
 			if (m_buttons[i]->isReleased(mousePos))
 			{
 				m_buttonPressed = true;
+				if (i == MainMenuButton)
+				{
+					m_mainManuPressed = true; 
+				}
 				break;
 			}
 			else if (m_buttons[i]->isPressed(mousePos))
@@ -881,6 +903,11 @@ void PauseMenu::_ParseFileInputInt(const std::string & name, int key)
 const bool & PauseMenu::getExitPause() const
 {
 	return m_exitPause; 
+}
+
+const bool & PauseMenu::getMainMenuPressed() const
+{
+	return m_mainManuPressed; 
 }
 
 void PauseMenu::Load()

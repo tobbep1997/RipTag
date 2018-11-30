@@ -15,7 +15,8 @@ private:
 		SliderEffectsButton,
 		SliderAmbientButton,
 		SliderMusicButton,
-		ReturnButton
+		ReturnButton,
+		MainMenuButton
 	};
 
 	enum TextOrder
@@ -61,6 +62,8 @@ private:
 	short m_currentButton;
 	bool m_buttonPressed;
 
+	bool m_mainManuPressed = false; 
+
 	bool m_mouseMoved;
 	LastInputUsed m_liu;
 
@@ -93,6 +96,8 @@ public:
 	void Draw();
 
 	const bool& getExitPause() const; 
+	const bool& getMainMenuPressed() const; 
+
 	void Load(); 
 	void unLoad(); 
 };

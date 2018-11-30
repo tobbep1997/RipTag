@@ -42,6 +42,7 @@ private:
 
 	PauseMenu* m_pPauseMenu; 
 	bool m_gamePaused = false; 
+	bool m_mainMenuPressed = false; 
 	bool m_pausePressed = false; 
 	bool m_pauseWasPressed = false; 
 

@@ -114,7 +114,7 @@ void PlayState::Update(double deltaTime)
 
 		_checkPauseState(); 
 
-		if (m_gamePaused)
+		if (m_gamePaused && !m_mainMenuPressed)
 			_runPause(deltaTime);
 		
 			
@@ -129,7 +129,21 @@ void PlayState::Update(double deltaTime)
 		}
 
 		// On exit
-		if (Input::Exit() || GamePadHandler::IsStartPressed())
+		if (m_mainMenuPressed)
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			BackToMenu();
+		}
+
+
+		/*if (Input::Exit() || GamePadHandler::IsStartPressed())
 		{
 			m_destoryPhysicsThread = true;
 			m_physicsCondition.notify_all();
@@ -140,7 +154,7 @@ void PlayState::Update(double deltaTime)
 				m_physicsThread.join();
 			}
 			BackToMenu();
-		}
+		}*/
 
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
@@ -314,7 +328,7 @@ void PlayState::Draw()
 
 		m_playerManager->Draw();
 
-		if (m_gamePaused)
+		if (m_gamePaused && !m_mainMenuPressed)
 		{
 			m_pPauseMenu->Draw();
 		}
@@ -800,7 +814,10 @@ void PlayState::Load()
 void PlayState::_checkPauseState()
 {
 	//Check if escape was pressed
-	m_pausePressed = InputHandler::isKeyPressed('J');
+	if (Input::isUsingGamepad())
+		m_pausePressed = GamePadHandler::IsStartPressed();
+	else
+		m_pausePressed = Input::Exit(); 
 
 	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
 	{
@@ -824,9 +841,15 @@ void PlayState::_checkPauseState()
 			m_playerManager->getLocalPlayer()->setHeadbobbingActive(true);
 			delete m_pPauseMenu;
 			m_pPauseMenu = nullptr;
-			m_pausePressed = true; 
 		}
-	} 
+		else if (m_pPauseMenu->getMainMenuPressed())
+		{
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+			m_mainMenuPressed = true;
+		}
+	}
+
 	m_pauseWasPressed = m_pausePressed; 
 }
 
