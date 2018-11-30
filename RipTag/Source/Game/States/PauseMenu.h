@@ -8,14 +8,33 @@ private:
 	
 	enum ButtonOrder
 	{
-		SliderFov = 0,
+		SliderFovButton = 0,
+		SliderSensXButton,
+		SliderSensYButton,
+		SliderMasterButton,
+		SliderEffectsButton,
+		SliderAmbientButton,
+		SliderMusicButton,
+		ReturnButton
+	};
+
+	enum TextOrder
+	{
+		//SlideBarFov,
+		//SliderBarSensX, 
+		//SliderBarSensY,
+		//SliderBarMaster,
+		//SliderBarEffects,
+		//SliderBarAmbient,
+		//SliderBarMusic,
+		Title = 0,
+		SliderFov,
 		SliderSensitivityX,
 		SliderSensitivityY,
 		SliderMaster,
-		SliderEffects,
+		SliderEffects, 
 		SliderAmbient,
-		SliderMusic,
-		Return,
+		SliderMusic
 	};
 
 	enum LastInputUsed

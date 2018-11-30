@@ -42,7 +42,7 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 		{
 			switch ((ButtonOrder)m_currentButton)
 			{
-			case SliderFov:
+			case SliderFovButton:
 				if (m_liu == Mouse)
 				{
 					_slideGeneral();
@@ -91,12 +91,12 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 					}
 
 					float pos = (((float)m_fov - (float)MIN_MAX_FOV.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + MIN_MAX_SLIDE_GENERAL.x;
-					m_buttons[ButtonOrder::SliderFov]->setPosition(pos, m_buttons[ButtonOrder::SliderFov]->getPosition().y);
+					m_buttons[ButtonOrder::SliderFovButton]->setPosition(pos, m_buttons[ButtonOrder::SliderFovButton]->getPosition().y);
 				}
 				camera->setFOV(DirectX::XMConvertToRadians(m_fov));
-				m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
+				m_text[TextOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
 				break;
-			case SliderSensitivityX:
+			case SliderSensXButton:
 				if (m_liu == Mouse)
 				{
 					_slideGeneral();
@@ -144,11 +144,11 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 						break;
 					}
 					float pos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE_GENERAL.x;
-					m_buttons[ButtonOrder::SliderSensitivityX]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityX]->getPosition().y);
+					m_buttons[ButtonOrder::SliderSensXButton]->setPosition(pos, m_buttons[ButtonOrder::SliderSensXButton]->getPosition().y);
 				}
-				m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
+				m_text[TextOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 				break;
-			case SliderSensitivityY:
+			case SliderSensYButton:
 				if (m_liu == Mouse)
 				{
 					_slideGeneral();
@@ -199,12 +199,12 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 
 
 					float pos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE_GENERAL.x;
-					m_buttons[ButtonOrder::SliderSensitivityY]->setPosition(pos, m_buttons[ButtonOrder::SliderSensitivityY]->getPosition().y);
+					m_buttons[ButtonOrder::SliderSensYButton]->setPosition(pos, m_buttons[ButtonOrder::SliderSensYButton]->getPosition().y);
 				}
-				m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
+				m_text[TextOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 				break;
 
-			case SliderMaster:
+			case SliderMasterButton:
 				if (m_liu == Mouse)
 				{
 					_slideSound();
@@ -240,12 +240,12 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 					}
 
 					float pos = (((float)m_master - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
-					m_buttons[ButtonOrder::SliderMaster]->setPosition(pos, m_buttons[ButtonOrder::SliderMaster]->getPosition().y);
+					m_buttons[ButtonOrder::SliderMasterButton]->setPosition(pos, m_buttons[ButtonOrder::SliderMasterButton]->getPosition().y);
 				}
-				m_text[ButtonOrder::SliderMaster]->setString("Master Volume: " + std::to_string(m_master));
+				m_text[TextOrder::SliderMaster]->setString("Master Volume: " + std::to_string(m_master));
 				AudioEngine::SetMasterVolume((float)m_master / 100.0f);
 				break;
-			case SliderEffects:
+			case SliderEffectsButton:
 				if (m_liu == Mouse)
 				{
 					_slideSound();
@@ -280,12 +280,12 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 						break;
 					}
 					float pos = (((float)m_effects - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
-					m_buttons[ButtonOrder::SliderEffects]->setPosition(pos, m_buttons[ButtonOrder::SliderEffects]->getPosition().y);
+					m_buttons[ButtonOrder::SliderEffectsButton]->setPosition(pos, m_buttons[ButtonOrder::SliderEffectsButton]->getPosition().y);
 				}
-				m_text[ButtonOrder::SliderEffects]->setString("Effects Volume: " + std::to_string(m_effects));
+				m_text[TextOrder::SliderEffects]->setString("Effects Volume: " + std::to_string(m_effects));
 				AudioEngine::SetEffectVolume((float)m_effects / 100.0f);
 				break;
-			case SliderAmbient:
+			case SliderAmbientButton:
 				if (m_liu == Mouse)
 				{
 					_slideSound();
@@ -321,12 +321,12 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 					}
 
 					float pos = (((float)m_ambient - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
-					m_buttons[ButtonOrder::SliderAmbient]->setPosition(pos, m_buttons[ButtonOrder::SliderAmbient]->getPosition().y);
+					m_buttons[ButtonOrder::SliderAmbientButton]->setPosition(pos, m_buttons[ButtonOrder::SliderAmbientButton]->getPosition().y);
 				}
-				m_text[ButtonOrder::SliderAmbient]->setString("Ambient Volume: " + std::to_string(m_ambient));
+				m_text[TextOrder::SliderAmbient]->setString("Ambient Volume: " + std::to_string(m_ambient));
 				AudioEngine::SetAmbientVolume((float)m_ambient / 100.0f);
 				break;
-			case SliderMusic:
+			case SliderMusicButton:
 				if (m_liu == Mouse)
 				{
 					_slideSound();
@@ -362,13 +362,13 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 					}
 
 					float pos = (((float)m_music - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
-					m_buttons[ButtonOrder::SliderMusic]->setPosition(pos, m_buttons[ButtonOrder::SliderMusic]->getPosition().y);
+					m_buttons[ButtonOrder::SliderMusicButton]->setPosition(pos, m_buttons[ButtonOrder::SliderMusicButton]->getPosition().y);
 				}
-				m_text[ButtonOrder::SliderMusic]->setString("Music Volume: " + std::to_string(m_music));
+				m_text[TextOrder::SliderMusic]->setString("Music Volume: " + std::to_string(m_music));
 				AudioEngine::SetMusicVolume((float)m_music / 100.0f);
 				break;
 
-			case Return:
+			case ReturnButton:
 				_WriteSettingsToFile();
 				Input::ReadSettingsFile();
 				m_exitPause = true; 
@@ -416,120 +416,178 @@ void PauseMenu::_slideGeneral()
 
 void PauseMenu::_initButtons()
 {
-	m_text.push_back(Quad::CreateButton("Field of View", 0.2f, 0.86f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderFov]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderFov]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderFov]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderFov]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
+	//m_text.push_back(Quad::CreateButton("", 0.3f, 0.79f, 0.8f, 0.1f));
+	//m_text[TextOrder::SlideBarFov]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SlideBarFov]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SlideBarFov]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SlideBarFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SlideBarFov]->setFont(FontHandler::getFont("consolas16")); 
+
+	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
+	//m_text[TextOrder::SliderBarSensX]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarSensX]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarSensX]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarSensX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SliderBarSensX]->setFont(FontHandler::getFont("consolas16"));
+
+	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
+	//m_text[TextOrder::SliderBarSensY]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarSensY]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarSensY]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarSensY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SliderBarSensY]->setFont(FontHandler::getFont("consolas16"));
+
+	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
+	//m_text[TextOrder::SliderBarMaster]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarMaster]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarMaster]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SliderBarMaster]->setFont(FontHandler::getFont("consolas16"));
+
+	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
+	//m_text[TextOrder::SliderBarEffects]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarEffects]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarEffects]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SliderBarEffects]->setFont(FontHandler::getFont("consolas16"));
+
+	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
+	//m_text[TextOrder::SliderBarAmbient]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarAmbient]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarAmbient]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SliderBarAmbient]->setFont(FontHandler::getFont("consolas16"));
+
+	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
+	//m_text[TextOrder::SliderBarMusic]->setUnpressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarMusic]->setPressedTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarMusic]->setHoverTexture("gui_slider_slide");
+	//m_text[TextOrder::SliderBarMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	//m_text[TextOrder::SliderBarMusic]->setFont(FontHandler::getFont("consolas16"));
+
+	m_text.push_back(Quad::CreateButton("Pause", 0.5f, 0.9f, 1.0f, 1.0f));
+	m_text[TextOrder::Title]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::Title]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::Title]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::Title]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::Title]->setFont(FontHandler::getFont("consolas32"));
+
+	m_text.push_back(Quad::CreateButton("Field of View:", 0.2f, 0.86f, 0.73f, 0.12f));
+	m_text[TextOrder::SliderFov]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderFov]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderFov]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderFov]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
+
 
 	float xPos = ((((float)m_fov - (float)MIN_MAX_FOV.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + MIN_MAX_SLIDE_GENERAL.x);
 
 	m_buttons.push_back(Quad::CreateButton("", 0.2, 0.79f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderFov]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderFov]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderFov]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderFovButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderFovButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderFovButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderFovButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 	m_text.push_back(Quad::CreateButton("X-Axis: ", 0.2f, 0.71f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderSensitivityX]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
+	m_text[TextOrder::SliderSensitivityX]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderSensitivityX]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderSensitivityX]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderSensitivityX]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderSensitivityX]->setString("X-Axis: " + std::to_string(m_sens.x));
 
 	xPos = (((float)m_sens.x - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE_GENERAL.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.64f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderSensitivityX]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderSensitivityX]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderSensitivityX]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderSensitivityX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderSensXButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensXButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensXButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensXButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 	m_text.push_back(Quad::CreateButton("Y-Axis: ", 0.2f, 0.56f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderSensitivityY]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderSensitivityY]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
+	m_text[TextOrder::SliderSensitivityY]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderSensitivityY]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderSensitivityY]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderSensitivityY]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderSensitivityY]->setString("Y-Axis: " + std::to_string(m_sens.y));
 
 	xPos = (((float)m_sens.y - (float)MIN_MAX_SENSITIVITY.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_SENSITIVITY.y - (float)MIN_MAX_SENSITIVITY.x) + MIN_MAX_SLIDE_GENERAL.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.49f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderSensitivityY]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderSensitivityY]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderSensitivityY]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderSensitivityY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderSensYButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensYButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensYButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderSensYButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 
 	m_text.push_back(Quad::CreateButton("Master", 0.77f, 0.86f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderMaster]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderMaster]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderMaster]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderMaster]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderMaster]->setString("Master Volume: " + std::to_string(m_master));
+	m_text[TextOrder::SliderMaster]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderMaster]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderMaster]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderMaster]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderMaster]->setString("Master Volume: " + std::to_string(m_master));
 
 	xPos = ((((float)m_master - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x);
 
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.80f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderMaster]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderMaster]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderMaster]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderMasterButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderMasterButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderMasterButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderMasterButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 	m_text.push_back(Quad::CreateButton("Effects", 0.77f, 0.71f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderEffects]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderEffects]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderEffects]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderEffects]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderEffects]->setString("Effects Volume: " + std::to_string(m_effects));
+	m_text[TextOrder::SliderEffects]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderEffects]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderEffects]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderEffects]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderEffects]->setString("Effects Volume: " + std::to_string(m_effects));
 
 	xPos = (((float)m_effects - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.64f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderEffects]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderEffects]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderEffects]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderEffectsButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderEffectsButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderEffectsButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderEffectsButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 	m_text.push_back(Quad::CreateButton("Ambient: ", 0.77f, 0.56f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderAmbient]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderAmbient]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderAmbient]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderAmbient]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderAmbient]->setString("Ambient Volume: " + std::to_string(m_ambient));
+	m_text[TextOrder::SliderAmbient]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderAmbient]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderAmbient]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderAmbient]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderAmbient]->setString("Ambient Volume: " + std::to_string(m_ambient));
 
 	xPos = (((float)m_ambient - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.49f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderAmbient]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderAmbient]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderAmbient]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderAmbientButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderAmbientButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderAmbientButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderAmbientButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 	m_text.push_back(Quad::CreateButton("Music: ", 0.77f, 0.41f, 0.73f, 0.12f));
-	m_text[ButtonOrder::SliderMusic]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[ButtonOrder::SliderMusic]->setPressedTexture("gui_pressed_pixel");
-	m_text[ButtonOrder::SliderMusic]->setHoverTexture("gui_hover_pixel");
-	m_text[ButtonOrder::SliderMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[ButtonOrder::SliderMusic]->setFont(FontHandler::getFont("consolas16"));
-	m_text[ButtonOrder::SliderMusic]->setString("Music Volume: " + std::to_string(m_music));
+	m_text[TextOrder::SliderMusic]->setUnpressedTexture("gui_transparent_pixel");
+	m_text[TextOrder::SliderMusic]->setPressedTexture("gui_pressed_pixel");
+	m_text[TextOrder::SliderMusic]->setHoverTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderMusic]->setFont(FontHandler::getFont("consolas16"));
+	m_text[TextOrder::SliderMusic]->setString("Music Volume: " + std::to_string(m_music));
 
 	xPos = (((float)m_music - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x;
 	m_buttons.push_back(Quad::CreateButton("", xPos, 0.34f, 0.04f, 0.10f));
-	m_buttons[ButtonOrder::SliderMusic]->setUnpressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderMusic]->setPressedTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderMusic]->setHoverTexture("gui_slider_button");
-	m_buttons[ButtonOrder::SliderMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::SliderMusicButton]->setUnpressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderMusicButton]->setPressedTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderMusicButton]->setHoverTexture("gui_slider_button");
+	m_buttons[ButtonOrder::SliderMusicButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 
 	m_buttons.push_back(Quad::CreateButton("Save and return", 0.5f, 0.13f, 0.73f, 0.12f));
-	m_buttons[ButtonOrder::Return]->setUnpressedTexture("gui_transparent_pixel");
-	m_buttons[ButtonOrder::Return]->setPressedTexture("gui_pressed_pixel");
-	m_buttons[ButtonOrder::Return]->setHoverTexture("gui_hover_pixel");
-	m_buttons[ButtonOrder::Return]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_buttons[ButtonOrder::Return]->setFont(FontHandler::getFont("consolas16"));
+	m_buttons[ButtonOrder::ReturnButton]->setUnpressedTexture("gui_transparent_pixel");
+	m_buttons[ButtonOrder::ReturnButton]->setPressedTexture("gui_pressed_pixel");
+	m_buttons[ButtonOrder::ReturnButton]->setHoverTexture("gui_hover_pixel");
+	m_buttons[ButtonOrder::ReturnButton]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_buttons[ButtonOrder::ReturnButton]->setFont(FontHandler::getFont("consolas16"));
+
 }
 
 void PauseMenu::_handleGamePadInput(double dt)
@@ -574,8 +632,8 @@ bool PauseMenu::_handleMouseInput()
 			{
 				m_currentButton = i;
 				ButtonOrder type = (ButtonOrder)i;
-				if (type == SliderFov || type == SliderSensitivityX || type == SliderSensitivityY || type == SliderAmbient 
-					|| type == SliderEffects || type == SliderMaster || type == SliderMusic)
+				if (type == SliderFovButton || type == SliderSensXButton || type == SliderSensYButton || type == SliderAmbientButton
+					|| type == SliderEffectsButton || type == SliderMasterButton || type == SliderMusicButton)
 				{
 					m_sliderPressed = true;
 					m_buttons[i]->Select(true);
@@ -594,7 +652,8 @@ void PauseMenu::_updateSelectionStates()
 	m_buttonPressed = false;
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
-		if (i == SliderFov || i == SliderSensitivityX || i == SliderSensitivityY)
+		if (i == SliderFovButton || i == SliderSensXButton || i == SliderSensYButton || i == SliderMasterButton || i == SliderEffectsButton ||
+			i == SliderAmbientButton || i == SliderMusicButton)
 		{
 			if (i != m_currentButton)
 			{
@@ -728,10 +787,25 @@ const bool & PauseMenu::getExitPause() const
 
 void PauseMenu::Load()
 {
-	
+	std::string path = "../Assets/PAUSEFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
+				if (extension == L".png" || extension == L".jpg")
+					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
+			}
+		}
+	}
 }
 
 void PauseMenu::unLoad()
 {
-	//Unload textures for pause.
+	Manager::g_textureManager.UnloadGUITextures();
 }
