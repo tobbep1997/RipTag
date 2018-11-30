@@ -1,9 +1,6 @@
 #include "RipTagPCH.h"
 #include "RemotePlayer.h"
 
-//#todoREMOVE
-#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
-
 RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
 {
 	using namespace DirectX;
@@ -23,7 +20,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//2.
 	this->setPosition(pos);
 	this->setScale(.45, .45, .45);
-	this->setModelTransform(XMMatrixTranslation(0.0, -1.7, 0.0));
+	this->setModelTransform(XMMatrixTranslation(0.0, -1.1, 0.0));
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
 	this->m_timeDiff = 0;
@@ -371,6 +368,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
 		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
 		auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+		auto lookUpPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_UP_ANIMATION").get()->m_SkeletonPoses[0];
+		auto lookDownPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_DOWN_ANIMATION").get()->m_SkeletonPoses[0];
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
@@ -384,28 +383,10 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
 		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 		crouchState->UseFirstPoseOnly(true);
+		auto pitchState = layerMachine->Add1DPoseLayer("pitch", &m_currentPitch, -1.0f, 1.0f, { {lookUpPose, -1.0f}, {lookDownPose, 1.0f} });
+		pitchState->UseSmoothDriver(false);
+		layerMachine->ActivateLayer("pitch");
 	}
-
-	//#todoREMOVE
-	//auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
-	//auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
-	//
-	//std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
-	//SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
-	//up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
-	//up.location = .90f;
-	//up.weight = 1.0f;
-	//SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
-	//down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
-	//down.location = -.9f;
-	//down.weight = 1.0f;
-
-	//layerData.push_back(down);
-	//layerData.push_back(up);
-
-	//state->AddBlendNodes(layerData);
-
-	//layerMachine->SetState("pitch_state");
 }
 
 void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)

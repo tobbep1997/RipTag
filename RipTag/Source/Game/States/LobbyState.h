@@ -23,7 +23,8 @@ private:
 		CharOne = 0,
 		CharTwo = 1,
 		Ready = 2,
-		Back = 3
+		Back = 3, 
+		SkipTutorial = 4,
 	};
 	enum Role
 	{
@@ -31,30 +32,33 @@ private:
 		Client = 1
 	};
 
-	Quad* m_infoWindow = nullptr;
-	Quad* m_background = nullptr;
-	Quad* m_charSelectionBG = nullptr;
-	Quad* m_charSelectInfo = nullptr;
-	Quad* m_charOneInfo = nullptr;
-	Quad* m_charTwoInfo = nullptr;
+	Quad* m_infoWindow			 = nullptr;
+	Quad* m_background			 = nullptr;
+	Quad* m_charSelectionBG		 = nullptr;
+	Quad* m_charSelectInfo		 = nullptr;
+	Quad* m_charOneInfo			 = nullptr;
+	Quad* m_charTwoInfo			 = nullptr;
+	Quad* m_skipTutorialBox		 = nullptr;
 
 	LoadingScreen m_loadingScreen;
 
 	std::vector<Quad*> m_lobbyButtons;
 	std::vector<Quad*> m_charSelectButtons;
 	std::vector<Quad*> m_hostListButtons;
+
 	unsigned int m_currentButton;
 	unsigned int m_currentButtonServerList;
 
-	bool inServerList = false;
+	bool inServerList					= false;
 
-	bool isHosting = false;
-	bool hasClient = false;
-	bool hasJoined = false;
-	bool hasCharSelected = false;
-	unsigned int selectedChar = 0;
-	bool hasRemoteCharSelected = false;
-	unsigned int remoteSelectedChar = 0;
+	bool skipTutorial					= false;
+	bool isHosting						= false;
+	bool hasClient						= false;
+	bool hasJoined						= false;
+	bool hasCharSelected				= false;
+	unsigned int selectedChar			= 0;
+	bool hasRemoteCharSelected			= false;
+	unsigned int remoteSelectedChar		= 0;
 
 	float m_stickTimerY = 0;
 	float m_stickTimerX = 0; 
@@ -62,17 +66,17 @@ private:
 	//Network
 	Network::Multiplayer * pNetwork;
 	//Setting a SystemAdress to "0.0.0.0" will yield "UNASSIGNED_SYSTEM_ADRESSS" when calling toString() on the object
-	RakNet::SystemAddress m_clientIP = RakNet::SystemAddress("0.0.0.0");
-	RakNet::SystemAddress m_MySysAdress = RakNet::SystemAddress("0.0.0.0");
+	RakNet::SystemAddress m_clientIP		= RakNet::SystemAddress("0.0.0.0");
+	RakNet::SystemAddress m_MySysAdress		= RakNet::SystemAddress("0.0.0.0");
 	RakNet::NetworkID m_remoteNID = 0;
 
 	std::string m_MyHostName;
-	std::string m_ServerName = "None";
+	std::string m_ServerName				= "None";
 	//This packet is created when we create a Server and host it
 	Network::LOBBYEVENTPACKET m_adPacket;
 
-	bool isReady = false;
-	bool isRemoteReady = false;
+	bool isReady			= false;
+	bool isRemoteReady		= false;
 
 	RakNet::SystemAddress selectedHost = RakNet::SystemAddress("0.0.0.0");
 	std::string selectedHostInfo = "Selected Host:\nNone\n";
@@ -80,7 +84,7 @@ private:
 	std::map<uint64_t, std::string> m_hostNameMap;
 	std::map<std::string, RakNet::SystemAddress> m_hostAdressMap;
 
-	CoopData * pCoopData = nullptr;
+	CoopData * pCoopData	= nullptr;
 public:
 	LobbyState(RenderingManager * rm);
 	~LobbyState();
@@ -133,7 +137,7 @@ private:
 	void _sendMyHostNamePacket();
 
 	void _newHostEntry(std::string& hostName);
-
+	void _onLoadingScreen();
 
 	// Inherited via State
 	virtual void Load() override;

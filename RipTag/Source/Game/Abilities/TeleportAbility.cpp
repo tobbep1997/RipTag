@@ -207,7 +207,8 @@ void TeleportAbility::_inStateCharging(double dt)
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 
 			m_charge = 0.0;
-			m_tpState = TeleportState::Throwable;
+			p_cooldown = (p_cooldownMax / 3) * 2;
+			m_tpState = TeleportState::Cooldown;
 			m_canceled = true;
 		}
 
@@ -267,7 +268,9 @@ void TeleportAbility::_inStateTeleportable()
 	{
 		if (Input::OnCancelAbilityPressed())
 		{
+			//Ability cooldown
 			m_tpState = TeleportAbility::Cooldown;
+			p_cooldown = p_cooldownMax / 2;
 		}
 
 		if (m_rayId != -100 || m_rayId2 != -100)

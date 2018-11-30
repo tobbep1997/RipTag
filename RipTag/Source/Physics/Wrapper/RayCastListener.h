@@ -172,10 +172,8 @@ private:
 	//Called by the physics engine to inform of the shapes intersecting
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
-		if (fraction != 0)
-		{
+		if(rays.at(tempID)->getOriginBody() != shape->GetBody())
 			processedRays.at(tempID)->_addRayContact(shape, point, normal, fraction);
-		}
 		return fraction;
 	}
 

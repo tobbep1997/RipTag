@@ -138,48 +138,6 @@ ID3D11UnorderedAccessView* Drawable::GetUAV()
 	return m_animatedUAV;
 }
 
-//Please dont call this function
-//Like ever
-void Drawable::DontCallMe()
-{
-	DX::g_deviceContext->CopyResource(uavstage, m_UAVOutput);
-	D3D11_MAPPED_SUBRESOURCE mr;
-
-	std::vector<DynamicVertex> temp = m_skinnedMesh->getVertices();
-
-	if (SUCCEEDED(DX::g_deviceContext->Map(uavstage, 0, D3D11_MAP_READ, 0, &mr)))
-	{
-		PostAniDynamicVertex* data = (PostAniDynamicVertex*)mr.pData;
-		for (unsigned int i = 0; i < (UINT)m_skinnedMesh->getVertices().size(); ++i)
-		{
-			if (temp.at(i).pos.x != data[i].pos.x)
-			{
-				std::cout << "re" << std::endl;
-			}
-			if (temp.at(i).pos.y != data[i].pos.y)
-			{
-				std::cout << "re" << std::endl;
-			}
-			if (temp.at(i).pos.z != data[i].pos.z)
-			{
-				std::cout << "re" << std::endl;
-			}
-		}
-		
-		DX::g_deviceContext->Unmap(uavstage, 0);
-	}
-	throw std::exception("What did i fucking tell you");
-	//D3D11_MAPPED_SUBRESOURCE dataPtr;
-	//if (SUCCEEDED(DX::g_deviceContext->Map(uavstage, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
-	//{
-	//	ShadowTestData killer = { 0 };
-	//	memcpy(dataPtr.pData, &killer, sizeof(ShadowTestData));
-	//	DX::g_deviceContext->CopyResource(m_UAV.uavTextureBuffer, m_UAV.uavTextureBufferCPU);
-	//	//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
-	//	DX::g_deviceContext->Unmap(m_UAV.uavTextureBufferCPU, 0);
-	//}
-}
-
 void Drawable::CastShadows(const bool& shadows)
 {
 	this->m_castShadow = shadows;
@@ -233,6 +191,12 @@ void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & extens)
 	this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
 }
 
+void Drawable::setBoundingBoxSizeForDynamicObjects(const DirectX::XMFLOAT3& extens)
+{
+	this->m_extens = extens;
+	p_createBoundingBox(this->m_extens);
+}
+
 void Drawable::setTexture(Texture * texture)
 {
 	this->p_texture = texture;
@@ -257,6 +221,7 @@ Drawable::Drawable() : Transform()
 	m_outline = false;
 	m_transparant = false;
 	m_castShadow = true;
+	this->m_extens = DirectX::XMFLOAT3(5, 5, 5);
 }
 
 
@@ -278,29 +243,30 @@ Drawable::~Drawable()
 
 void Drawable::Draw()
 {
-		switch (p_objectType)
+	switch (p_objectType)
+	{
+	case Static:
+		if (m_staticMesh)
+			DX::g_cullQueue.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
+		if (getEntityType() == EntityType::PlayerType)
 		{
-		case Static:
-			if (m_staticMesh)
-				DX::g_cullQueue.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
-			if (getEntityType() == EntityType::PlayerType)
-			{
-				DX::g_player = this;
-			}
-			else if (getOutline())
-			{
-				DX::g_outlineQueue.push_back(this);
-			}
-			break;
-		case Dynamic:
-			if (m_skinnedMesh)
-				DX::g_animatedGeometryQueue.push_back(this);
-			if (getEntityType() == EntityType::PlayerType)
-			{
-				DX::g_player = this;
-			}
-			break;
-		}	
+			DX::g_player = this;
+		}
+		else if (getOutline())
+		{
+			DX::g_outlineQueue.push_back(this);
+		}
+		break;
+	case Dynamic:
+		p_createBoundingBox(this->m_extens);
+		if (m_skinnedMesh)
+			DX::g_animatedGeometryQueue.push_back(this);
+		if (getEntityType() == EntityType::PlayerType)
+		{
+			DX::g_player = this;
+		}
+		break;
+	}	
 }
 
 void Drawable::DrawWireFrame()

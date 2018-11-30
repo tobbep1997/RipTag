@@ -300,7 +300,6 @@ void PlayState::Update(double deltaTime)
 
 		}
 	}
-	
 	m_physicsFirstRun = false;
 }
 
@@ -563,7 +562,8 @@ void PlayState::_lightCulling()
 
 void PlayState::_runPause(double deltaTime)
 {
-	m_pPauseMenu->Update(deltaTime); 
+	Camera* camera = m_playerManager->getLocalPlayer()->getCamera(); 
+	m_pPauseMenu->Update(deltaTime, camera); 
 	
 }
 

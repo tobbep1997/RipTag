@@ -152,7 +152,7 @@ namespace SM
 
 		//Locks the current X,Y driver values
 		virtual void Lock() = 0;
-
+		virtual void Unlock() = 0;
 		//Set blend time for this state
 		void SetBlendTime(float blendTime);
 
@@ -221,6 +221,7 @@ namespace SM
 		Current1DStateData CalculateCurrentClips();
 
 		virtual void Lock() override;
+		virtual void Unlock() override;
 
 	private:
 		std::vector<BlendSpaceClipData> m_Clips;
@@ -247,6 +248,7 @@ namespace SM
 		
 		void AddBlendNodes(const std::vector<BlendSpaceLayerData> nodes);
 		virtual void Lock() override;
+		virtual void Unlock() override;
 
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
@@ -297,6 +299,7 @@ namespace SM
 		Current2DStateData CalculateCurrentClips();
 
 		virtual void Lock() override;
+		virtual void Unlock() override;
 
 	private:
 		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
@@ -327,6 +330,7 @@ namespace SM
 		Animation::AnimationClip* GetClip();
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 		virtual void Lock() override {};
+		virtual void Unlock() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
 	};
@@ -348,7 +352,7 @@ namespace SM
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		virtual void Lock() override;
-
+		virtual void Unlock() override;
 		virtual void Reset() override;
 
 	private:
@@ -371,6 +375,7 @@ namespace SM
 		Animation::AnimationClip* GetClip();
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 		virtual void Lock() override {};
+		virtual void Unlock() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
 	};

@@ -8,17 +8,18 @@ PauseMenu::PauseMenu()
 	m_currentButton = -1;
 	m_mouseMoved = false;
 	m_sliderPressed = false;
+	Load(); 
 	_ReadSettingsFromFile(); 
 	_initButtons(); 
-
 }
 
 PauseMenu::~PauseMenu()
 {
-	
+	unLoad(); 
+
 }
 
-void PauseMenu::Update(double deltaTime)
+void PauseMenu::Update(double deltaTime, Camera* camera)
 {
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
@@ -81,6 +82,7 @@ void PauseMenu::Update(double deltaTime)
 					float pos = (((float)m_fov - (float)MIN_MAX_FOV.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + MIN_MAX_SLIDE_GENERAL.x;
 					m_buttons[ButtonOrder::SliderFov]->setPosition(pos, m_buttons[ButtonOrder::SliderFov]->getPosition().y);
 				}
+				camera->setFOV(DirectX::XMConvertToRadians(m_fov));
 				m_text[ButtonOrder::SliderFov]->setString("Field of View: " + std::to_string(m_fov));
 				break;
 			case SliderSensitivityX:
@@ -460,7 +462,7 @@ void PauseMenu::_initButtons()
 
 	xPos = ((((float)m_master - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x);
 
-	m_buttons.push_back(Quad::CreateButton("", xPos, 0.77f, 0.04f, 0.10f));
+	m_buttons.push_back(Quad::CreateButton("", xPos, 0.80f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderMaster]->setUnpressedTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderMaster]->setPressedTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderMaster]->setHoverTexture("gui_slider_button");
@@ -715,7 +717,7 @@ const bool & PauseMenu::getExitPause() const
 
 void PauseMenu::Load()
 {
-	//Load textures for pause.
+	
 }
 
 void PauseMenu::unLoad()

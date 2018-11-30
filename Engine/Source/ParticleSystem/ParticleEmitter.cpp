@@ -21,6 +21,7 @@ ParticleEmitter::ParticleEmitter()
 	spawnSpread = DirectX::XMINT2{ 0, 0 };
 
 	//setSmoke();
+	_CreateBoundingBox();
 	InitializeBuffer();
 }
 
@@ -41,6 +42,7 @@ void ParticleEmitter::setSmoke()
 	minMaxLife = DirectX::XMINT2{ 2, 4 };
 	spawnSpread = DirectX::XMINT2{ -1, 2 };
 
+	_CreateBoundingBox();
 	InitializeBuffer();
 }
 
@@ -51,6 +53,7 @@ ParticleEmitter::~ParticleEmitter()
 	{
 		delete particle;
 	}
+	delete this->m_boundingBox;
 }
 
 void ParticleEmitter::Update(float timeDelata, Camera * camera)
@@ -268,7 +271,6 @@ void ParticleEmitter::Draw()
 	if (nrOfVerts == 0)
 		return;
 
-
 	SetBuffer();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl"));
@@ -280,6 +282,11 @@ void ParticleEmitter::Draw()
 
 	Manager::g_textureManager.getTexture("FIRE")->Bind(1);
 	DX::g_deviceContext->Draw(nrOfVerts, 0);
+}
+
+void ParticleEmitter::Clear()
+{
+	vertex.clear();
 }
 
 DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int offset)
@@ -310,6 +317,7 @@ void ParticleEmitter::Queue()
 void ParticleEmitter::setPosition(const float & x, const float & y, const float & z, const float & w)
 {
 	m_SpawnPosition = DirectX::XMVECTOR{ x,y,z,w };
+	_CreateBoundingBox();
 }
 
 const DirectX::XMVECTOR & ParticleEmitter::getPosition() const
@@ -330,6 +338,22 @@ DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
 void ParticleEmitter::setEmmiterLife(const float & lifeTime)
 {
 	m_EmitterLife = lifeTime;
+}
+
+const DirectX::BoundingBox* ParticleEmitter::getBoundingBox() const
+{
+	return this->m_boundingBox;
+}
+
+void ParticleEmitter::_CreateBoundingBox()
+{
+	using namespace DirectX;
+
+	if (this->m_boundingBox)
+		delete this->m_boundingBox;
+
+	XMFLOAT3 center; XMStoreFloat3(&center, this->m_SpawnPosition);
+	this->m_boundingBox = new BoundingBox(center, XMFLOAT3(5,5,5));
 }
 
 float ParticleEmitter::RandomFloat(DirectX::XMINT2 min_max)
