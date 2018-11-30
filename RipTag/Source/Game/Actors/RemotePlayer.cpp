@@ -14,6 +14,8 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//7. Register animation state machine
 	
 	//1.
+	this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+	this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
 
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
