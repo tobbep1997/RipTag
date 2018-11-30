@@ -846,7 +846,7 @@ void PlayState::_checkPauseState()
 		{
 			delete m_pPauseMenu;
 			m_pPauseMenu = nullptr;
-			m_mainMenuPressed = true;
+			m_mainMenuPressed = true; 
 		}
 	}
 

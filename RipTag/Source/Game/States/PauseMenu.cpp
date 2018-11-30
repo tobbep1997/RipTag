@@ -646,6 +646,10 @@ void PauseMenu::_handleGamePadInput(double dt)
 					this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
 					m_sliderPressed = true;
 				}
+				if (m_currentButton == MainMenuButton)
+				{
+					m_mainManuPressed = true;
+				}
 			}
 		}
 
@@ -703,12 +707,11 @@ void PauseMenu::_handleKeyboardInput(double dt)
 				this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
 				m_sliderPressed = true;
 			}
+			if (m_currentButton == MainMenuButton)
+			{
+				m_mainManuPressed = true;
+			}
 		}
-	}
-
-	if (m_currentButton == MainMenuButton)
-	{
-		m_mainManuPressed = true;
 	}
 	pressedLastFrame = InputHandler::isKeyPressed(InputHandler::Up) || InputHandler::isKeyPressed(InputHandler::Down);
 }
