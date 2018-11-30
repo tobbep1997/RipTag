@@ -25,7 +25,8 @@ struct Node
 {
 	Tile tile;
 	NodeWorldPos worldPos;
-	Node * parent;
+	//Node * parent;
+	std::shared_ptr<Node> parent;
 	float fCost, gCost, hCost;
 
 	Node(Tile _tile = Tile(), NodeWorldPos _worldPos = NodeWorldPos())
@@ -38,7 +39,7 @@ struct Node
 		fCost = FLT_MAX;
 	}
 
-	Node(int _x, int _y, NodeWorldPos _worldPos, Node * _parent, float _gCost, float _hCost)
+	Node(int _x, int _y, NodeWorldPos _worldPos, std::shared_ptr<Node> _parent, float _gCost, float _hCost)
 	{
 		tile = Tile(_x, _y);
 		worldPos = _worldPos;
@@ -48,7 +49,7 @@ struct Node
 		fCost = gCost + hCost;
 	}
 	
-	Node(Tile _tile, NodeWorldPos _worldPos, Node * _parent, float _gCost, float _hCost)
+	Node(Tile _tile, NodeWorldPos _worldPos, std::shared_ptr<Node> _parent, float _gCost, float _hCost)
 	{
 		tile = _tile;
 		worldPos = _worldPos;
@@ -114,8 +115,8 @@ public:
 
 private:
 	// Utility functions
-	void _checkNode(Node * current, float addedGCost, int offsetX, int offsetY, Tile dest,
-	std::vector<Node*> & openList, std::vector<Node> & nodeMap, bool * closedList, int width, int height);
+	void _checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest,
+	std::vector<std::shared_ptr<Node>> & openList, std::vector<Node> & nodeMap, bool * closedList, int width, int height);
 	bool _isValid(Tile tile, int width, int height) const;
 	float _calcHValue(Tile src, Tile dest) const;
 	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
