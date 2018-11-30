@@ -735,6 +735,27 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 		case(39):
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom);
 			break;
+		case(40):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD0", assetVector, true, isRandomRoom);
+			break;
+		case(41):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD1", assetVector, true, isRandomRoom);
+			break;
+		case(42):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD2", assetVector, true, isRandomRoom);
+			break;
+		case(43):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD3", assetVector, true, isRandomRoom);
+			break;
+		case(44):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD4", assetVector, true, isRandomRoom);
+			break;
+		case(45):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD5", assetVector, true, isRandomRoom);
+			break;
+		case(46):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD6", assetVector, true, isRandomRoom);
+			break;
 		default:
 			break;
 		}
@@ -746,17 +767,36 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	if (name != "COLLISIONBOXASPROP")
 	{
-		Manager::g_meshManager.loadStaticMesh(name);
-		//if (name.find("THICKWALL") <= name.size())
-		if (name.find("WALL") <= name.size() || name.find("FLOOR") <= name.size())
+		if (name.find("BOARD") <= name.size())
+		{
+			Manager::g_meshManager.loadStaticMesh("BOARD");
+
+		}
+		else
+			Manager::g_meshManager.loadStaticMesh(name);
+
+
+
+
+		if (name.find("WALL") <= name.size() || name.find("BOARD") <= name.size() || name.find("FLOOR") <= name.size())
 			Manager::g_textureManager.loadTextures(name, true);
 		else
 			Manager::g_textureManager.loadTextures(name, false);
 	}
 	if (name != "INVISIBLEGRIDBLOCKER" && name != "COLLISIONBOXASPROP")
 	{
-		tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		if (name.find("BOARD") <= name.size())
+		{
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("BOARD"));
+		}
+		else
+		{
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		}
+
 		tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+
+
 	}
 
 	bool moveBox = false;
@@ -791,6 +831,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	assetVector->push_back(tempAsset);
 }
+#pragma endregion
 
 
 

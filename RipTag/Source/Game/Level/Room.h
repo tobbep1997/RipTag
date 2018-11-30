@@ -127,6 +127,7 @@ public:
 	void setEnemyhandler(EnemyHandler * enemyHandlerPtr) { this->m_enemyHandler = enemyHandlerPtr; };
 	void setRoomGuards(std::vector<Enemy*> guardsPtr) { this->m_roomGuards = guardsPtr; };
 	void setAudioBoxes(std::vector<FMOD::Geometry*> audioBoxes) { this->m_audioBoxes = audioBoxes; };
+	void setTorches(std::vector<Torch*> torches) { this->m_Torches = torches; };
 	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
 
 	void setLoaded(const bool & loaded) { this->m_roomLoaded = loaded; }

@@ -347,6 +347,11 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
+			if (DX::g_animatedGeometryQueue[i]->getTextureName().find("DOOR") <= DX::g_animatedGeometryQueue[i]->getTextureName().size())
+			{
+				int gfaghjk34h = 5;
+			}
+
 			DX::g_animatedGeometryQueue[i]->BindTextures();
 
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
