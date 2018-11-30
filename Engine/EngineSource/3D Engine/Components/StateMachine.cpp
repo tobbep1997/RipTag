@@ -136,10 +136,22 @@ namespace SM
 
 		if (previousState)
 		{
-			m_BlendFromState = previousState;
-			m_AnimationPlayer->Reset();
-			m_BlendFromState->Lock();
-			m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime() - m_RemainingBlendTime);
+			if (previousState == m_CurrentState)
+			{
+				m_RemainingBlendTime = 0.0;
+				m_TotalBlendTime = 0.0;
+				m_BlendFromState = nullptr;
+				m_AnimationPlayer->Reset();
+				return;
+			}
+			else
+			{
+				m_BlendFromState = previousState;
+				m_AnimationPlayer->Reset();
+				m_BlendFromState->Lock();
+				m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime() - m_RemainingBlendTime);
+			}
+
 		}
 
 		if (m_AnimationPlayer)

@@ -146,8 +146,9 @@ namespace Network
 		float direction;
 		float speed;
 		float pitch;
+		float peek;
 		DirectX::XMFLOAT4A rot;
-		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, float _pitch, DirectX::XMFLOAT4A _rot)
+		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, float _pitch, float _peek, DirectX::XMFLOAT4A _rot)
 			: id(_id), nid(_nid), direction(_dir), speed(_speed), pitch(_pitch), rot(_rot) {}
 	};
 
