@@ -122,7 +122,7 @@ private:
 	float m_knockOutTimer = 0;
 	float m_possesionRecoverTimer = 0; 
 	float m_possessionRecoverMax = 5; 
-	float m_knockOutMaxTime = 2;
+	float m_knockOutMaxTime = 5.0;
 
 	float enemyX = 0;
 	float enemyY = 0;

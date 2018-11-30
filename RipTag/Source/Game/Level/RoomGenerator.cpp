@@ -696,14 +696,14 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
-	//_makeRoof();
+	_makeRoof();
 	
 	returnableRoom->setGrid(this->m_generatedGrid);
 
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
-	dbgFuncSpawnAboveMap();
+	//dbgFuncSpawnAboveMap();
 
 	returnableRoom->setTorches(m_generatedTorches);
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
