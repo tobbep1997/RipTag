@@ -296,7 +296,33 @@ void Player::SetAbilitySet(int set)
 
 	m_activeSetID = set;
 
+	SetModelAndTextures(set);
 	_loadHUD();
+}
+
+void Player::SetModelAndTextures(int set)
+{
+	switch (set)
+	{
+	case 1:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	case 2:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER2"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER2"));
+		break;
+	}
+	default:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	}
 }
 
 void Player::setEnemyPositions(std::vector<Enemy*> enemys)
