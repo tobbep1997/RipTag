@@ -782,29 +782,24 @@ void Room::_createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float 
 {
 	DirectX::XMVECTOR translation, rotation, scale;
 		
-	DirectX::XMMATRIX matrixTranslation;
 	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));
-	matrixTranslation = DirectX::XMMatrixTranslationFromVector(translation);
-		
-	DirectX::XMMATRIX matrixRotation;
-	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_rotation));
-	matrixRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
-		
+
+	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(
+		DirectX::XMConvertToRadians(prop.transform_rotation[0]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[1]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[2])
+	));
+	
+	rotation = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotation);
+
+	
 	float newScale[3];
-	DirectX::XMMATRIX matrixScale;
 	for (int i = 0; i < 3; i++)
 	{
 		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
 	}
 	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
-	matrixScale = DirectX::XMMatrixScalingFromVector(scale);
-		
-	DirectX::XMMATRIX worldMatrix = matrixScale * matrixRotation* matrixTranslation;
-		
-	DirectX::XMMatrixDecompose(&scale, &rotation, &translation, worldMatrix);
 
-
-		
 	DirectX::XMFLOAT4 xmQ;
 	DirectX::XMFLOAT4 xmPos;
 	DirectX::XMFLOAT4 xmScl;

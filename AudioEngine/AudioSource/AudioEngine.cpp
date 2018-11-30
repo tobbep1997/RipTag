@@ -12,8 +12,6 @@ std::vector<FMOD::Sound*> AudioEngine::s_soundEffects;
 std::vector<FMOD::Sound*> AudioEngine::s_ambientSounds;
 std::vector<FMOD::Sound*> AudioEngine::s_music;
 
-std::vector<FMOD::Geometry*> AudioEngine::s_gem;
-
 std::vector<FMOD::Reverb3D*> AudioEngine::s_reverbs;
 
 FMOD::ChannelGroup * AudioEngine::s_soundEffectGroup;
@@ -37,11 +35,6 @@ void AudioEngine::Init()
 			std::cout << "AudioEngine is already initialized; U STOOPID!\n";
 		#endif
 	}
-}
-
-std::vector<FMOD::Geometry*>* AudioEngine::TEMPTEMPTEMP()
-{
-	return &s_gem;
 }
 
 void AudioEngine::Update()
@@ -408,7 +401,6 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	mScale = DirectX::XMMatrixScaling(scl.x, scl.y, scl.z);
 
 	mWorld = mScale * mRotation * mTranslation;
-	DirectX::XMMatrixTranspose(mWorld);
 
 	FMOD_VECTOR worldPosCube[36];
 	for (int i = 0; i < 36; i++)
@@ -426,17 +418,8 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	for (int i = 0; i < 12; i++)
 	{
 		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, false, 3, &worldPosCube[i * 3], nullptr);
-#ifdef _DEBUG
-		/*std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";*/
-#endif
 	}
 	
-	// TEMP
-	DirectX::XMMATRIX * w = new DirectX::XMMATRIX(DirectX::XMMatrixTranspose(mWorld));
-	ReturnValue->setUserData(w);
-	s_gem.push_back(ReturnValue);
-	// TEMP
-
 	return ReturnValue;
 }
 

@@ -39,12 +39,6 @@ private:
 	static std::vector<FMOD::Sound*> s_ambientSounds;
 	static std::vector<FMOD::Sound*> s_music;
 
-
-	//TEMP
-	static std::vector<FMOD::Geometry*> s_gem;
-	//ENDTEMP
-
-
 	static std::vector<FMOD::Reverb3D*> s_reverbs;
 
 	static FMOD::ChannelGroup* s_soundEffectGroup;
@@ -55,8 +49,6 @@ private:
 
 public:
 	static void Init();
-
-	static std::vector<FMOD::Geometry*> * TEMPTEMPTEMP();
 
 	static void Update();
 	static void UpdateListenerAttributes(const Listener & l);

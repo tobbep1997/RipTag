@@ -92,6 +92,26 @@ void RoomGenerator::_generateGrid()
 		/*testBox = DirectX::BoundingBox(DirectX::XMFLOAT3(-49.5, 0.5, i -49.5), DirectX::XMFLOAT3(.48, .48, .48));*/
 	}
 
+	for (int i = 0; i < iterationsDepth; i++)
+	{
+		for (int j = 0; j < iterationsWidth; j++)
+		{
+			int index = j + i * iterationsWidth;
+			if (m_generatedGrid->GetNodeAt(index)->tile.getPathable())
+			{
+				std::vector<Node*> _temp = m_generatedGrid->GetNodesAround(i, j);
+
+
+
+
+			}
+
+
+		}
+	}
+
+
+
 	std::ofstream lol;
 	lol.open("map.txt");
 	for (int i = 0; i < iterationsDepth; i++)
@@ -671,13 +691,16 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 {
 	DirectX::XMVECTOR translation, rotation, scale;
 
-	DirectX::XMMATRIX matrixTranslation;
-	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));
-	matrixTranslation = DirectX::XMMatrixTranslationFromVector(translation);
-	
-	DirectX::XMMATRIX matrixRotation;
-	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_rotation));
-	matrixRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
+
+	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));	
+
+	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(
+		DirectX::XMConvertToRadians(prop.transform_rotation[0]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[1]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[2])
+	));
+
+	rotation = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotation);
 
 	float newScale[3];
 	DirectX::XMMATRIX matrixScale;
@@ -686,16 +709,8 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
 	}
 	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
-	matrixScale = DirectX::XMMatrixScalingFromVector(scale);
 
-	DirectX::XMMATRIX worldMatrix = matrixScale * matrixRotation* matrixTranslation;
-
-	DirectX::XMMatrixDecompose(&scale, &rotation, &translation, worldMatrix);
-
-	
-	
-	//DirectX::XMMATRIX worldMatrix = DirectX::xmmatrixt;
-	DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(newScale[0], newScale[1], newScale[2]));// = new DirectX::BoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1));
+	DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(newScale[0], newScale[1], newScale[2]));
 	bb->Transform(*bb, 1, rotation, translation);
 	m_generated_boundingBoxes.push_back(bb);
 

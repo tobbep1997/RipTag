@@ -209,6 +209,36 @@ Tile Grid::GetRandomNearbyTile(Tile src)
 	return Tile();
 }
 
+Node* Grid::GetNodeAt(int index)
+{
+	return &m_nodeMap.at(index);
+}
+
+std::vector<Node*> Grid::GetNodesAround(int x, int y)
+{
+	std::vector<Node*> nodes;
+
+	if (x > 0)
+		nodes.push_back(&m_nodeMap.at(x - 1 + y * m_width));
+	if (x < m_width)
+		nodes.push_back(&m_nodeMap.at(x + 1 + y * m_width));
+	if (y > 0)
+		nodes.push_back(&m_nodeMap.at(x + (y - 1) * m_width));
+	if (y < m_height)
+		nodes.push_back(&m_nodeMap.at(x + (y + 1) * m_width));
+
+	if (x > 0 && y > 0)
+		nodes.push_back(&m_nodeMap.at(x - 1 + (y - 1) * m_width));
+	if (x < m_width && y > 0)
+		nodes.push_back(&m_nodeMap.at(x + 1 + (y - 1) * m_width));
+	if (x > 0 && y < m_height)
+		nodes.push_back(&m_nodeMap.at(x - 1 + (y + 1) * m_width));
+	if (x < m_width && y < m_height)
+		nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
+
+	return nodes;
+}
+
 void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 {
 	int width = randomizer->GetSize().x * 2 - 1;

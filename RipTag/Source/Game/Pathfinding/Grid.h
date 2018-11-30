@@ -105,6 +105,9 @@ public:
 	Tile GetRandomNearbyTile(Tile src);
 	//Tile GetRandomNearbyTile(Tile src, int dir = 0);
 
+	
+	Node * GetNodeAt(int index);
+	std::vector<Node*> GetNodesAround(int x, int y);
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
 
 	void ThreadPath(Tile src, Tile dest);

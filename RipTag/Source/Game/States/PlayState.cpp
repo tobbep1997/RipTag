@@ -315,8 +315,8 @@ void PlayState::Draw()
 	}
 	//DrawWorldCollisionboxes("BLINK_WALL");
 	//DrawWorldCollisionboxes();
-	DrawWorldCollisionboxes("AUDIO_BOX");
 #ifdef _DEBUG
+	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
@@ -593,73 +593,55 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			
 		_loaded = true;
 
-		if (type == "AUDIO_BOX")
-		{
-			auto gem = AudioEngine::TEMPTEMPTEMP();
+		const b3Body * b = m_world.getBodyList();
 
-			for (auto & lol : *gem)
-			{
-				Drawable * d = new Drawable;
-				d->setModel(&_sm);
-				DirectX::XMMATRIX * m;
-				lol->getUserData((void**)(&m));
-				d->ForceWorld(*m);
-				delete m;
-				_drawables.push_back(d);
-			}
-		}
-		else
+		while (b != nullptr)
 		{
-			const b3Body * b = m_world.getBodyList();
-
-			while (b != nullptr)
+			if (b->GetObjectTag() != "TELEPORT")
 			{
-				if (b->GetObjectTag() != "TELEPORT")
+				if (type == "" || b->GetObjectTag() == type)
 				{
-					if (type == "" || b->GetObjectTag() == type)
+					b3Shape * s = b->GetShapeList();
+					auto b3BodyRot = b->GetTransform().rotation;
+					while (s != nullptr)
 					{
-						b3Shape * s = b->GetShapeList();
-						auto b3BodyRot = b->GetTransform().rotation;
-						while (s != nullptr)
-						{
-							Drawable * d = new Drawable;
-							d->setModel(&_sm);
-							DirectX::XMFLOAT4A shapePos = {
-								s->GetTransform().translation.x + b->GetTransform().translation.x,
-								s->GetTransform().translation.y + b->GetTransform().translation.y,
-								s->GetTransform().translation.z + b->GetTransform().translation.z,
-							1.0f
-							};
-							auto b3ShapeRot = s->GetTransform().rotation;
-							DirectX::XMFLOAT3X3 shapeRot;
-							shapeRot._11 = b3BodyRot.x.x;
-							shapeRot._12 = b3BodyRot.x.y;
-							shapeRot._13 = b3BodyRot.x.z;
-							shapeRot._21 = b3BodyRot.y.x;
-							shapeRot._22 = b3BodyRot.y.y;
-							shapeRot._23 = b3BodyRot.y.z;
-							shapeRot._31 = b3BodyRot.z.x;
-							shapeRot._32 = b3BodyRot.z.y;
-							shapeRot._33 = b3BodyRot.z.z;
+						Drawable * d = new Drawable;
+						d->setModel(&_sm);
+						DirectX::XMFLOAT4A shapePos = {
+							s->GetTransform().translation.x + b->GetTransform().translation.x,
+							s->GetTransform().translation.y + b->GetTransform().translation.y,
+							s->GetTransform().translation.z + b->GetTransform().translation.z,
+						1.0f
+						};
+						auto b3ShapeRot = s->GetTransform().rotation;
+						DirectX::XMFLOAT3X3 shapeRot;
+						shapeRot._11 = b3BodyRot.x.x;
+						shapeRot._12 = b3BodyRot.x.y;
+						shapeRot._13 = b3BodyRot.x.z;
+						shapeRot._21 = b3BodyRot.y.x;
+						shapeRot._22 = b3BodyRot.y.y;
+						shapeRot._23 = b3BodyRot.y.z;
+						shapeRot._31 = b3BodyRot.z.x;
+						shapeRot._32 = b3BodyRot.z.y;
+						shapeRot._33 = b3BodyRot.z.z;
 
-							DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
-							const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
-							DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
-							DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+						DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+						const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+						DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+						DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
 
-							DirectX::XMMATRIX world = scl * rot * trans;
-							d->ForceWorld(DirectX::XMMatrixTranspose(world));
-							_drawables.push_back(d);
+						DirectX::XMMATRIX world = scl * rot * trans;
+						d->ForceWorld(DirectX::XMMatrixTranspose(world));
+						_drawables.push_back(d);
 
-							s = s->GetNext();
-						}
+						s = s->GetNext();
 					}
 				}
-				b = b->GetNext();
 			}
+			b = b->GetNext();
 		}
 	}
-	else if (type != "AUDIO_BOX")
+	else
 	{
 		int counter = 0;
 		const b3Body * b = m_world.getBodyList();

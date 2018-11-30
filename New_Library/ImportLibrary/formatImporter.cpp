@@ -167,6 +167,8 @@ namespace ImporterLibrary
 			}
 			//customPropFile.read((char*)toReturn.props, sizeof(PropItem) * (toReturn.nrOfItems));
 		}
+		else
+			return reverbPointToEngine();
 		customPropFile.close();
 		return toReturn;
 	}
@@ -193,6 +195,8 @@ namespace ImporterLibrary
 			}
 			//customPropFile.read((char*)toReturn.props, sizeof(PropItem) * (toReturn.nrOfItems));
 		}
+		else
+			return SoundPointToEngine();
 		customPropFile.close();
 		return toReturn;
 	}
