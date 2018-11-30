@@ -346,6 +346,21 @@ void Room::LoadRoomToMemory()
 			m_staticAssets.push_back(temp);
 
 		}*/
+		ImporterLibrary::reverbPointToEngine reverbs = fileLoader.readReverbPointFile(this->getAssetFilePath());
+
+		for (int i = 0; i < reverbs.nrOf; i++)
+		{
+			m_reverbvector.push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ reverbs.reverbPoints[i].translation[0], reverbs.reverbPoints[i].translation[1], reverbs.reverbPoints[i].translation[2] }, reverbs.reverbPoints[i].minRadius, reverbs.reverbPoints[i].maxRadius));
+		}
+
+		ImporterLibrary::SoundPointToEngine sounds = fileLoader.readSoundPointFile(this->getAssetFilePath());
+
+		for (int i = 0; i < sounds.nrOf; i++)
+		{
+
+			FMOD_VECTOR at = { sounds.sounds[i].translation[0], sounds.sounds[i].translation[1], sounds.sounds[i].translation[2] }; // add switch to typeofsound;
+			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, AudioEngine::Other)->setVolume(0.5f);
+		}
 
 		CollisionBoxes = DBG_NEW BaseActor();
 	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
@@ -466,6 +481,10 @@ void Room::Release()
 	if (m_roomLoaded == true)
 	{
 		m_roomLoaded = false;
+		for (auto reverbs : m_reverbvector)
+		{
+			reverbs->release();
+		}
 		for (auto asset : m_staticAssets)
 		{
 			if (asset)

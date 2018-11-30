@@ -517,6 +517,8 @@ void RoomGenerator::_createEntireWorld()
 
 #pragma endregion
 
+			
+			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 3, 10));
 #pragma region LIGHTS
 
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)

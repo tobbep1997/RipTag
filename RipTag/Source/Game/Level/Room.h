@@ -46,6 +46,7 @@ private:
 	bool m_roomLoaded = false;
 	std::vector<BaseActor*> m_staticAssets;	//Released
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
+	std::vector<FMOD::Reverb3D*> m_reverbvector;
 	float m_playerStartPos;
 
 	std::vector<PointLight*> m_pointLights;
@@ -132,6 +133,7 @@ public:
 	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
 
 	std::vector<FMOD::Geometry*>* getAudioBoxesVector() { return &this->m_audioBoxes; };
+	std::vector<FMOD::Reverb3D*>* getreverbVector() { return &this->m_reverbvector; };
 
 	void setLoaded(const bool & loaded) { this->m_roomLoaded = loaded; }
 

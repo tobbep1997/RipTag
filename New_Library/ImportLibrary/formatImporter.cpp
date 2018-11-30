@@ -147,7 +147,7 @@ namespace ImporterLibrary
 	reverbPointToEngine CustomFileLoader::readReverbPointFile(const std::string & filename)
 	{
 		std::string newFileName = "../Assets/";
-		newFileName.append(filename + "FOLDER/" + filename + "_PROPS.bin");
+		newFileName.append(filename + "FOLDER/" + filename + "_REVERB.bin");
 
 		reverbPointToEngine toReturn;
 		bool fileIsOpen = false;
@@ -173,7 +173,7 @@ namespace ImporterLibrary
 	SoundPointToEngine CustomFileLoader::readSoundPointFile(const std::string & filename)
 	{
 		std::string newFileName = "../Assets/";
-		newFileName.append(filename + "FOLDER/" + filename + "_PROPS.bin");
+		newFileName.append(filename + "FOLDER/" + filename + "_SOUND.bin");
 
 		SoundPointToEngine toReturn;
 		bool fileIsOpen = false;
