@@ -16,7 +16,18 @@ PauseMenu::PauseMenu()
 PauseMenu::~PauseMenu()
 {
 	unLoad(); 
-
+	for (auto & t : m_text)
+	{
+		t->Release();
+		delete t;
+	}
+	m_text.clear();
+	for (auto & b : m_buttons)
+	{
+		b->Release();
+		delete b;
+	}
+	m_buttons.clear();
 }
 
 void PauseMenu::Update(double deltaTime, Camera* camera)
