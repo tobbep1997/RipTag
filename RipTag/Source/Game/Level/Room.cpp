@@ -736,6 +736,23 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 		case(40):
 			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
 			break;
+		case(41):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
+		case(42):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
+		case(43):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
+		case(44):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
+		case(45):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+		case(46):
+			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
 		default:
 			break;
 		}

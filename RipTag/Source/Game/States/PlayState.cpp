@@ -590,7 +590,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			_vertices.push_back(v);
 		}
 		_sm.setVertices(_vertices);
-		
+			
 		_loaded = true;
 
 		if (type == "AUDIO_BOX")

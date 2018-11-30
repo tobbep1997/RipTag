@@ -84,7 +84,7 @@ public:
 	static float GetMusicVolume();
 	static float GetMasterVolume();
 
-	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings = FMOD_PRESET_STONEROOM);
+	static FMOD::Reverb3D* CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings = FMOD_PRESET_STONEROOM);
 
 	static FMOD::Geometry* CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry* CreateCube(float fDirectOcclusion, float fReverbOcclusion,
