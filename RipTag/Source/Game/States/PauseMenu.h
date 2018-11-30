@@ -20,14 +20,14 @@ private:
 
 	enum TextOrder
 	{
-		//SlideBarFov,
-		//SliderBarSensX, 
-		//SliderBarSensY,
-		//SliderBarMaster,
-		//SliderBarEffects,
-		//SliderBarAmbient,
-		//SliderBarMusic,
-		Title = 0,
+		SlideBarFov = 0,
+		SliderBarSensX, 
+		SliderBarSensY,
+		SliderBarMaster,
+		SliderBarEffects,
+		SliderBarAmbient,
+		SliderBarMusic,
+		Title,
 		SliderFov,
 		SliderSensitivityX,
 		SliderSensitivityY,

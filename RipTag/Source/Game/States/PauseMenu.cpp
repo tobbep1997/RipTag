@@ -35,7 +35,11 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 	if (!InputHandler::getShowCursor())
 		InputHandler::setShowCursor(TRUE);
 
-	_handleMouseInput();
+	if (!_handleMouseInput())
+	{
+		_handleGamePadInput(deltaTime);
+		_handleKeyboardInput(deltaTime);
+	}
 
 	if (m_currentButton != -1)
 		if (m_sliderPressed || m_buttonPressed)
@@ -416,54 +420,54 @@ void PauseMenu::_slideGeneral()
 
 void PauseMenu::_initButtons()
 {
-	//m_text.push_back(Quad::CreateButton("", 0.3f, 0.79f, 0.8f, 0.1f));
-	//m_text[TextOrder::SlideBarFov]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SlideBarFov]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SlideBarFov]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SlideBarFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SlideBarFov]->setFont(FontHandler::getFont("consolas16")); 
+	m_text.push_back(Quad::CreateButton("", 0.2f, 0.79f, 0.65f, 0.1f));
+	m_text[TextOrder::SlideBarFov]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SlideBarFov]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SlideBarFov]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SlideBarFov]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SlideBarFov]->setFont(FontHandler::getFont("consolas16")); 
 
-	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
-	//m_text[TextOrder::SliderBarSensX]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarSensX]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarSensX]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarSensX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SliderBarSensX]->setFont(FontHandler::getFont("consolas16"));
+	m_text.push_back(Quad::CreateButton("", 0.2f, 0.64f, 0.65f, 0.1f));
+	m_text[TextOrder::SliderBarSensX]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderBarSensX]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarSensX]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarSensX]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderBarSensX]->setFont(FontHandler::getFont("consolas16"));
 
-	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
-	//m_text[TextOrder::SliderBarSensY]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarSensY]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarSensY]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarSensY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SliderBarSensY]->setFont(FontHandler::getFont("consolas16"));
+	m_text.push_back(Quad::CreateButton("", 0.2f, 0.49f, 0.65f, 0.1f));
+	m_text[TextOrder::SliderBarSensY]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderBarSensY]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarSensY]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarSensY]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderBarSensY]->setFont(FontHandler::getFont("consolas16"));
 
-	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
-	//m_text[TextOrder::SliderBarMaster]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarMaster]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarMaster]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SliderBarMaster]->setFont(FontHandler::getFont("consolas16"));
+	m_text.push_back(Quad::CreateButton("", 0.775f, 0.79f, 0.76f, 0.1f));
+	m_text[TextOrder::SliderBarMaster]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderBarMaster]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarMaster]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarMaster]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderBarMaster]->setFont(FontHandler::getFont("consolas16"));
 
-	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
-	//m_text[TextOrder::SliderBarEffects]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarEffects]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarEffects]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SliderBarEffects]->setFont(FontHandler::getFont("consolas16"));
+	m_text.push_back(Quad::CreateButton("", 0.775f, 0.64f, 0.76f, 0.1f));
+	m_text[TextOrder::SliderBarEffects]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderBarEffects]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarEffects]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarEffects]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderBarEffects]->setFont(FontHandler::getFont("consolas16"));
 
-	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
-	//m_text[TextOrder::SliderBarAmbient]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarAmbient]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarAmbient]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SliderBarAmbient]->setFont(FontHandler::getFont("consolas16"));
+	m_text.push_back(Quad::CreateButton("", 0.775f, 0.49f, 0.76f, 0.1f));
+	m_text[TextOrder::SliderBarAmbient]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderBarAmbient]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarAmbient]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarAmbient]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderBarAmbient]->setFont(FontHandler::getFont("consolas16"));
 
-	//m_text.push_back(Quad::CreateButton("", 0.5f, 0.9f, 0.8f, 0.1f));
-	//m_text[TextOrder::SliderBarMusic]->setUnpressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarMusic]->setPressedTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarMusic]->setHoverTexture("gui_slider_slide");
-	//m_text[TextOrder::SliderBarMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	//m_text[TextOrder::SliderBarMusic]->setFont(FontHandler::getFont("consolas16"));
+	m_text.push_back(Quad::CreateButton("", 0.775f, 0.34f, 0.76f, 0.1f));
+	m_text[TextOrder::SliderBarMusic]->setUnpressedTexture("gui_hover_pixel");
+	m_text[TextOrder::SliderBarMusic]->setPressedTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarMusic]->setHoverTexture("gui_slider_slide");
+	m_text[TextOrder::SliderBarMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	m_text[TextOrder::SliderBarMusic]->setFont(FontHandler::getFont("consolas16"));
 
 	m_text.push_back(Quad::CreateButton("Pause", 0.5f, 0.9f, 1.0f, 1.0f));
 	m_text[TextOrder::Title]->setUnpressedTexture("gui_transparent_pixel");
@@ -530,7 +534,7 @@ void PauseMenu::_initButtons()
 
 	xPos = ((((float)m_master - (float)MIN_MAX_SOUND.x) * (MIN_MAX_SLIDE_SOUND.y - MIN_MAX_SLIDE_SOUND.x)) / ((float)MIN_MAX_SOUND.y - (float)MIN_MAX_SOUND.x) + MIN_MAX_SLIDE_SOUND.x);
 
-	m_buttons.push_back(Quad::CreateButton("", xPos, 0.80f, 0.04f, 0.10f));
+	m_buttons.push_back(Quad::CreateButton("", xPos, 0.79f, 0.04f, 0.10f));
 	m_buttons[ButtonOrder::SliderMasterButton]->setUnpressedTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderMasterButton]->setPressedTexture("gui_slider_button");
 	m_buttons[ButtonOrder::SliderMasterButton]->setHoverTexture("gui_slider_button");
@@ -592,10 +596,104 @@ void PauseMenu::_initButtons()
 
 void PauseMenu::_handleGamePadInput(double dt)
 {
+	static bool pressedLastFrame = false;
+	static double timer = 0.0f;
+	timer += dt;
+
+	int dir = 0;
+	if (Input::isUsingGamepad())
+	{
+		if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f))
+		{
+			m_liu = Gamepad;
+			dir = -1;
+			timer = 0.0;
+			m_sliderPressed = false;
+		}
+		else if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f))
+		{
+			m_liu = Gamepad;
+			dir = 1;
+			timer = 0.0;
+			m_sliderPressed = false;
+		}
+
+		m_currentButton += dir;
+
+		if (m_currentButton < 0)
+			m_currentButton = (short)ReturnButton;
+		else if (m_currentButton > (short)ReturnButton)
+			m_currentButton = 0;
+
+		if (m_liu == Gamepad)
+			_updateSelectionStates();
+
+		if (GamePadHandler::IsAPressed())
+		{
+			m_liu = Gamepad;
+			if (m_buttons[m_currentButton]->isSelected())
+			{
+				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+				m_buttonPressed = true;
+				if (m_currentButton != ReturnButton)
+				{
+					this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
+					m_sliderPressed = true;
+				}
+			}
+		}
+		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
+	}
 }
 
 void PauseMenu::_handleKeyboardInput(double dt)
 {
+	static bool pressedLastFrame = false;
+	static double timer = 0.0f;
+	timer += dt;
+
+	int dir = 0;
+	if ((!pressedLastFrame || timer > 0.5) && (InputHandler::isKeyPressed(InputHandler::Up)))
+	{
+		m_liu = Keyboard;
+		dir = -1;
+		timer = 0.0;
+		m_sliderPressed = false;
+	}
+	else if ((!pressedLastFrame || timer > 0.5) && (InputHandler::isKeyPressed(InputHandler::Down)))
+	{
+		m_liu = Keyboard;
+		dir = 1;
+		timer = 0.0;
+		m_sliderPressed = false;
+	}
+
+	m_currentButton += dir;
+
+	if (m_currentButton < 0)
+		m_currentButton = (short)ReturnButton;
+	else if (m_currentButton > (short)ReturnButton)
+		m_currentButton = 0;
+
+	if (m_liu == Keyboard)
+		_updateSelectionStates();
+
+	if (InputHandler::wasKeyPressed(InputHandler::Return))
+	{
+		m_liu = Keyboard;
+		if (m_buttons[m_currentButton]->isSelected())
+		{
+			this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+			m_buttonPressed = true;
+			if (m_currentButton == SliderFovButton || m_currentButton == SliderSensXButton || m_currentButton == SliderSensYButton
+				|| m_currentButton == SliderMasterButton || m_currentButton == SliderEffectsButton || m_currentButton == SliderAmbientButton || m_currentButton == SliderMusicButton)
+			{
+				this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
+				m_sliderPressed = true;
+			}
+		}
+	}
+	pressedLastFrame = InputHandler::isKeyPressed(InputHandler::Up) || InputHandler::isKeyPressed(InputHandler::Down);
 }
 
 bool PauseMenu::_handleMouseInput()
