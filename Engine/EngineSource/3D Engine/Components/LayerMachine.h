@@ -159,6 +159,7 @@ public:
 
 	virtual ~Pose1DLayer();
 
+	void UseSmoothDriver(bool use = true);
 
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) override;
 
@@ -169,7 +170,7 @@ private:
 	float m_LastDriver{ 0.0f };
 	float m_DriverMin{ 0.0f };
 	float m_DriverMax{ 0.0f };
-
+	bool m_UseSmoothDriver{ true };
 	PosesAndWeight GetPosesAndWeight(float deltaTime);
 };
 #pragma endregion "States"

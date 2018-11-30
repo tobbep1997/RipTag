@@ -172,8 +172,9 @@ namespace Network
 	{
 		unsigned char id;
 		int seed;
+		bool skipTutorial;
 		RakNet::NetworkID remoteID;
-		GAMESTARTEDPACKET(unsigned char _id, int _seed, RakNet::NetworkID nid) : id(_id), seed(_seed), remoteID(nid) {}
+		GAMESTARTEDPACKET(unsigned char _id, int _seed, bool tut, RakNet::NetworkID nid) : id(_id), seed(_seed), skipTutorial(tut), remoteID(nid) {}
 	};
 
 	struct VISIBILITYPACKET

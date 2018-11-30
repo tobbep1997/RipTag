@@ -1,13 +1,14 @@
 #pragma once
 #include <d3d11.h>
-#include <d3dcsx.h>
-#include <d3dcompiler.h>
 #include <DirectXMath.h>
-#include <iostream>
 #include "Particle.h"
-#include <math.h>
 
 class Camera;
+
+namespace DirectX
+{
+	struct BoundingBox;
+}
 
 struct Vertex
 {
@@ -60,6 +61,8 @@ private:
 
 	DirectX::XMFLOAT4X4A m_worldMatrix;
 
+	DirectX::BoundingBox * m_boundingBox = nullptr;
+
 
 public:
 	ParticleEmitter();
@@ -67,8 +70,10 @@ public:
 	void Update(float timeDelata, Camera * camera);
 	float RandomFloat(DirectX::XMINT2 min_max);
 	void InitializeBuffer();
+	
 	void SetBuffer();
 	void Draw();
+	void Clear();
 	DirectX::XMVECTOR RandomOffset(DirectX::XMVECTOR basePos, int offset);
 	int nrOfEmittedParticles;
 	std::vector<Vertex> vertex;
@@ -98,5 +103,9 @@ public:
 
 	void setEmmiterLife(const float & lifeTime);
 
+	const DirectX::BoundingBox * getBoundingBox() const;
+
+private:
+	void _CreateBoundingBox();
 };
 

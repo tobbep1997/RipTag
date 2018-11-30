@@ -34,6 +34,16 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 
 PlayState::~PlayState()
 {
+	if (!m_destoryPhysicsThread)
+	{
+		m_destoryPhysicsThread = true;
+		m_physicsCondition.notify_all();
+
+		if (m_physicsThread.joinable())
+		{
+			m_physicsThread.join();
+		}
+	}
 
 	m_levelHandler->Release();
 	delete m_levelHandler;
@@ -72,20 +82,20 @@ void PlayState::Update(double deltaTime)
 
 		if (RipExtern::g_kill == true)
 		{
-			m_destoryPhysicsThread = true;
-			m_physicsCondition.notify_all();
+			//m_destoryPhysicsThread = true;
+			//m_physicsCondition.notify_all();
 
 
-			if (m_physicsThread.joinable())
-			{
-				m_physicsThread.join();
-			}
-			//this->pushNewState();
-			m_loadingScreen.draw();
-			RipExtern::g_kill = false;
-			m_removeHud = true;
-			this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
-			return;
+			//if (m_physicsThread.joinable())
+			//{
+			//	m_physicsThread.join();
+			//}
+			////this->pushNewState();
+			//m_loadingScreen.draw();
+			//RipExtern::g_kill = false;
+			//m_removeHud = true;
+			//this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+			//return;
 		}
 		/*
 		 * Fake Spin Lock
@@ -128,27 +138,43 @@ void PlayState::Update(double deltaTime)
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
+			runGame = false;
+
 			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
 			{
 				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
 			}
 
-			if (isCoop && m_youlost)
-				_sendOnGameOver();
-
-			m_destoryPhysicsThread = true;
-			m_physicsCondition.notify_all();
-
-
-			if (m_physicsThread.joinable())
-			{
-				m_physicsThread.join();
-			}
 
 			if (m_youlost)
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "", (void*)pCoopData));
+			{
+				if (isCoop)
+					_sendOnGameOver();
+
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
+
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+			}
 			else
-				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "", (void*)pCoopData));
+			{
+				if (m_transitionState)
+				{
+					m_transitionState->unLoad();
+					delete m_transitionState;
+					m_transitionState = nullptr;
+				}
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState->Load();
+
+				runGame = false;
+			}
 		}
 	
 		// Reset mouse to middle of the window, Must be last in update
@@ -167,19 +193,112 @@ void PlayState::Update(double deltaTime)
 			m_deltaTime = deltaTime * !m_physicsFirstRun;
 			m_physicsCondition.notify_all();
 		}
+		if (InputHandler::isKeyPressed('M'))
+		{
+			if (RipExtern::g_kill == true)
+			{
+				m_destoryPhysicsThread = true;
+				m_physicsCondition.notify_all();
+
+				if (m_physicsThread.joinable())
+				{
+					m_physicsThread.join();
+				}
+				//this->pushNewState();
+				m_loadingScreen.draw();
+				RipExtern::g_kill = false;
+				m_removeHud = true;
+				this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+				return;
+			}
+		}
+		
 	}
-	else
+	else 
 	{
+		Network::Multiplayer::HandlePackets();
 		_updateOnCoopMode(deltaTime);
+
+		if (m_transitionState)
+		{
+			m_transitionState->Update(deltaTime);
+
+			if (m_transitionState->BackToMenuBool())
+				this->BackToMenu();
+
+			if (m_transitionState->ReadyToLoadNextRoom())
+			{
+				//load next room when we still have one available, otherwise push a Game Over Victory on the stack
+				if (m_levelHandler->HasMoreRooms())
+				{
+					int player = 1;
+					if (pCoopData)
+					{
+						player = pCoopData->localPlayerCharacter;
+					}
+				
+					m_levelHandler->LoadNextRoom(player);
+
+					//The critical zone
+					{
+						m_destoryPhysicsThread = true;
+						m_physicsCondition.notify_all();
+
+						if (m_physicsThread.joinable())
+						{
+							m_physicsThread.join();
+						}
+						//this->pushNewState();
+						m_loadingScreen.draw();
+						RipExtern::g_kill = false;
+						m_removeHud = true;
+						this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+						return;
+					}
+				}
+				else
+				{
+					//If no more rooms are available - we thank the Player for playing our Game
+					if (!m_destoryPhysicsThread)
+					{
+						m_destoryPhysicsThread = true;
+						m_physicsCondition.notify_all();
+
+						if (m_physicsThread.joinable())
+						{
+							m_physicsThread.join();
+						}
+					}
+
+					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+				}
+			}
+			else if (!m_levelHandler->HasMoreRooms())
+			{
+				//If no more rooms are available - we thank the Player for playing our Game
+				if (!m_destoryPhysicsThread)
+				{
+					m_destoryPhysicsThread = true;
+					m_physicsCondition.notify_all();
+
+					if (m_physicsThread.joinable())
+					{
+						m_physicsThread.join();
+					}
+				}
+
+				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+			}
+		
+
+		}
 	}
-
-
 	m_physicsFirstRun = false;
 }
 
 void PlayState::Draw()
 {
-	if (!m_removeHud)
+	if (!m_removeHud && runGame)
 	{
 
 		m_levelHandler->Draw();
@@ -188,16 +307,14 @@ void PlayState::Draw()
 
 		m_playerManager->Draw();
 
-		if (!runGame)
-		{
-			if (m_eventOverlay)
-				m_eventOverlay->Draw();
-		}
-
 	}
-
+	if (!runGame)
+	{
+		if (m_transitionState)
+			m_transitionState->Draw();
+	}
 	//DrawWorldCollisionboxes("BLINK_WALL");
-	//DrawWorldCollisionboxes("PLAYER");
+	//DrawWorldCollisionboxes();
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
@@ -610,7 +727,15 @@ void PlayState::unLoad()
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
 
-	dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+	if (dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1]))
+		dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+
+	if (m_transitionState)
+	{
+		m_transitionState->unLoad();
+		delete m_transitionState;
+		m_transitionState = nullptr;
+	}
 }
 
 void PlayState::Load()
@@ -666,6 +791,8 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
 	Manager::g_textureManager.loadTextures("PLAYER1");
+	Manager::g_textureManager.loadTextures("PLAYER2");
+
 
 
 }
@@ -695,6 +822,7 @@ void PlayState::_loadMeshes()
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_meshManager.loadSkinnedMesh("PLAYER1");
+	Manager::g_meshManager.loadSkinnedMesh("PLAYER2");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
@@ -847,8 +975,15 @@ void PlayState::_sendOnDisconnect()
 
 void PlayState::_onGameOverPacket()
 {
-	m_coopState.gameOver = true;
-	runGame = false;
+	m_destoryPhysicsThread = true;
+	m_physicsCondition.notify_all();
+
+
+	if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
 }
 
 void PlayState::_onGameWonPacket()
@@ -859,8 +994,15 @@ void PlayState::_onGameWonPacket()
 
 void PlayState::_onDisconnectPacket()
 {
-	m_coopState.remoteDisconnected = true;
-	runGame = false;
+	m_destoryPhysicsThread = true;
+	m_physicsCondition.notify_all();
+
+
+	if (m_physicsThread.joinable())
+	{
+		m_physicsThread.join();
+	}
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)
@@ -875,7 +1017,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 		double percentage = accumulatedTime / MAX_DURATION; //range[0,1[
 		m_eventOverlay->setScale({ (float)(percentage * 2.0f), (float)(percentage * 2.0f) });
 
-		if (accumulatedTime >= MAX_DURATION)
+		if (true)
 		{
 			m_eventOverlay->setScale({2.0f, 2.0f});
 			accumulatedTime = 0;
@@ -890,16 +1032,18 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 			}
 			if (m_coopState.gameWon)
 			{
-				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "You got away.. this time!\nGod of Stealth", (void*)pCoopData));
+				if (m_transitionState)
+				{
+					m_transitionState->unLoad();
+					delete m_transitionState;
+					m_transitionState = nullptr;
+				}
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState->Load();
+
+				runGame = false;
 			}
-			else if (m_coopState.gameOver)
-			{
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
-			}
-			else if (m_coopState.remoteDisconnected)
-			{
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
-			}
+		
 		}
 	}
 }

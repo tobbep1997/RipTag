@@ -395,6 +395,11 @@ Pose1DLayer::~Pose1DLayer()
 	}
 }
 
+void Pose1DLayer::UseSmoothDriver(bool use /*= true*/)
+{
+	m_UseSmoothDriver = use;
+}
+
 std::optional<Animation::SkeletonPose> Pose1DLayer::UpdateAndGetFinalPose(float deltaTime)
 {
 	auto posesAndWeight = GetPosesAndWeight(deltaTime);
@@ -418,12 +423,17 @@ float lerp(float a, float b, float f)
 
 Pose1DLayer::PosesAndWeight Pose1DLayer::GetPosesAndWeight(float deltaTime)
 {
-	float driverDelta = std::clamp(std::fabs(m_LastDriver - *m_Driver), .1f, 5.f);
-	float smoothDriver = lerp(m_LastDriver, *m_Driver, driverDelta * deltaTime);
-	m_LastDriver = smoothDriver;
+	float newDriver = *m_Driver;
+	if (m_UseSmoothDriver)
+	{
+		float driverDelta = std::clamp(std::fabs(m_LastDriver - *m_Driver), .1f, 5.f);
+		newDriver = lerp(m_LastDriver, *m_Driver, driverDelta * deltaTime);
+	}
+
+	m_LastDriver = newDriver;
 
 	auto secondPoseIt = std::find_if(m_Poses.begin(), m_Poses.end(),
-		[&](const auto& pair) { return pair.second >= smoothDriver; });
+		[&](const auto& pair) { return pair.second >= newDriver; });
 
 	if (secondPoseIt == std::end(m_Poses))
 		return { nullptr, (m_Poses.end() - 1)->first, 1.0f };
@@ -437,10 +447,10 @@ Pose1DLayer::PosesAndWeight Pose1DLayer::GetPosesAndWeight(float deltaTime)
 		const float firstFloat = firstPoseIt->second;
 		const float secondFloat = secondPoseIt->second;
 
-		assert(firstFloat <= smoothDriver && secondFloat >= smoothDriver);
+		assert(firstFloat <= newDriver && secondFloat >= newDriver);
 
-		float weight = (smoothDriver - firstFloat) / (secondFloat - firstFloat);
-		m_LastDriver = smoothDriver;
+		float weight = (newDriver - firstFloat) / (secondFloat - firstFloat);
+		m_LastDriver = newDriver;
 
 		return { firstPoseIt->first, secondPoseIt->first, weight };
 	}

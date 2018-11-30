@@ -22,6 +22,7 @@ struct CoopData
 	int remotePlayerCharacter;
 	RakNet::NetworkID remoteID;
 	int role;
+	bool skipTutorial;
 };
 
 namespace Network

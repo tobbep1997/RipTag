@@ -17,7 +17,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 100.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
@@ -61,7 +61,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	}
 
 	_initSoundHUD();
-	
+
 	SetFirstPersonModel();
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Player);
@@ -84,8 +84,8 @@ Player::~Player()
 	for (unsigned short int i = 0; i < m_nrOfAbilitys; i++)
 		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
-	
-	HUDComponent::removeHUD(); 
+
+	HUDComponent::removeHUD();
 
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
@@ -97,14 +97,14 @@ Player::~Player()
 
 void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z)
 {
-	PhysicsComponent::Init(world, bodyType, x/2.0f , y/2.0f, z/2.0f, false , 0);
+	PhysicsComponent::Init(world, bodyType, x / 2.0f, y / 2.0f, z / 2.0f, false, 0);
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
 	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
 	m_standHeight = (y*1.4);
-	m_crouchHeight = y*.5;
+	m_crouchHeight = y * .5;
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -217,7 +217,7 @@ void Player::Update(double deltaTime)
 	this->getAnimationPlayer()->Update(deltaTime);
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
-	
+
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
 		m_activeSet[i]->Update(deltaTime);
@@ -255,9 +255,9 @@ void Player::PhysicsUpdate()
 {
 	p_updatePhysics(this);
 	_collision();
-	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y , 0);
+	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y, 0);
 	p_addRotation(0, DirectX::XM_PI * 1.5f, 0);
-	
+
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -265,7 +265,7 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	Transform::setPosition(x, y, z, w);
 	PhysicsComponent::p_setPosition(x, y, z);
 }
-	
+
 const float & Player::getVisability() const
 {
 	return m_visability;
@@ -296,7 +296,33 @@ void Player::SetAbilitySet(int set)
 
 	m_activeSetID = set;
 
+	SetModelAndTextures(set);
 	_loadHUD();
+}
+
+void Player::SetModelAndTextures(int set)
+{
+	switch (set)
+	{
+	case 1:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	case 2:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER2"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER2"));
+		break;
+	}
+	default:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	}
 }
 
 void Player::setEnemyPositions(std::vector<Enemy*> enemys)
@@ -307,7 +333,7 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	maxVis = 0;
 	for (int i = 0; i < enemys.size(); i++)
 	{
-	
+
 		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
 		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
@@ -325,7 +351,7 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	{
 		m_currentEnemysVisable++;
 
-		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x /4.0f) ),
+		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x / 4.0f)),
 			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
 	}
 }
@@ -482,9 +508,9 @@ void Player::SendOnUpdateMessage()
 		PlayerState::Idle,
 		this->getPosition(),
 		this->getCamera()->getYRotationEuler()
-		);
+	);
 
-	
+
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
@@ -500,7 +526,7 @@ void Player::SendOnAbilityUsed()
 	packet.ability = (unsigned int)NONE;
 	packet.isCommonUpadate = false;
 
-	
+
 	TeleportAbility * tp_ptr = dynamic_cast<TeleportAbility*>(m_abilityComponents1[m_currentAbility]);
 	DisableAbility * dis_ptr = dynamic_cast<DisableAbility*>(m_abilityComponents1[m_currentAbility]);
 	//VisabilityAbility * vis_ptr = dynamic_cast<VisabilityAbility*>(m_abilityComponents1[m_currentAbility]);
@@ -508,7 +534,7 @@ void Player::SendOnAbilityUsed()
 	switch (this->m_currentAbility)
 	{
 	case Ability::TELEPORT:
-		if (m_activeSetID ==  1)
+		if (m_activeSetID == 1)
 		{
 			packet.ability = (unsigned int)TELEPORT;
 			packet.start = tp_ptr->getStart();
@@ -574,7 +600,7 @@ void Player::SendOnAnimationUpdate(double dt)
 	if (accumulatedTime >= FREQUENCY)
 	{
 		accumulatedTime -= FREQUENCY;
-		
+
 		{
 			///Speed
 			b3Vec3 physSpeed = this->getLiniearVelocity();
@@ -614,9 +640,9 @@ void Player::SendOnAnimationUpdate(double dt)
 			///AssertNotNAN(m_currentDirection);
 		}
 		Network::ENTITYANIMATIONPACKET packet(
-			Network::ID_PLAYER_ANIMATION, 
+			Network::ID_PLAYER_ANIMATION,
 			Network::Multiplayer::GetInstance()->GetNetworkID(),
-			this->m_currentDirection, 
+			this->m_currentDirection,
 			this->m_currentSpeed,
 			this->m_currentPitch,
 			this->m_currentPeek,
@@ -641,11 +667,11 @@ void Player::RegisterThisInstanceToNetwork()
 void Player::_collision()
 {
 	ContactListener::S_Contact con;
-	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts();i++)
+	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
 		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-			if(con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
+			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
 			{
 				m_allowPeek = true;
 				m_recentHeadCollision = true;
@@ -721,7 +747,7 @@ void Player::_onMovement(double deltaTime)
 	if (length > 1.0)
 		vDir = DirectX::XMVector2Normalize(vDir);
 	DirectX::XMStoreFloat2(&dir, vDir);
-	
+
 
 	if (fabs(Input::MoveRight()) > 1.0f || fabs(Input::MoveForward()) > 1.0f)
 	{
@@ -740,18 +766,18 @@ void Player::_onMovement(double deltaTime)
 	{
 		m_VlastSpeed = DirectX::XMVECTOR{ x,getLiniearVelocity().y,z };
 	}
-	
+
 
 	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
 	{
-			DirectX::XMVECTOR end = DirectX::XMVECTOR{ 0,getLiniearVelocity().y,0 };
-			m_VlastSpeed = DirectX::XMVectorLerp(m_VlastSpeed,end,deltaTime * 9);
-	
-			x = DirectX::XMVectorGetX(m_VlastSpeed);
-			z = DirectX::XMVectorGetZ(m_VlastSpeed);
+		DirectX::XMVECTOR end = DirectX::XMVECTOR{ 0,getLiniearVelocity().y,0 };
+		m_VlastSpeed = DirectX::XMVectorLerp(m_VlastSpeed, end, deltaTime * 9);
+
+		x = DirectX::XMVectorGetX(m_VlastSpeed);
+		z = DirectX::XMVectorGetZ(m_VlastSpeed);
 	}
 	setLiniearVelocity(x, getLiniearVelocity().y, z);
-	
+
 
 	if (RipExtern::g_rayListener->hasRayHit(m_headBobRayId))
 	{
@@ -772,9 +798,9 @@ void Player::_onMovement(double deltaTime)
 	}
 	if (Input::MoveForward() == 0 && Input::MoveRight() == 0)
 	{
-		if(m_headBobRayId = -100)
+		if (m_headBobRayId = -100)
 			m_headBobRayId = RipExtern::g_rayListener->PrepareRay(this->getBody(), p_camera->getPosition(), DirectX::XMFLOAT4A{ 0,-1,0,0 }, 1.0f);
-	}	
+	}
 }
 
 void Player::_scrollMovementMod()
@@ -824,7 +850,7 @@ void Player::_onSprint()
 			if (Input::MoveForward() == 0)
 			{
 				p_moveState = Idle;
-				m_toggleSprint = 0; 
+				m_toggleSprint = 0;
 			}
 
 			m_prevClickSprint = m_currClickSprint;
@@ -836,7 +862,7 @@ void Player::_onSprint()
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
 				m_scrollMoveModifier = 0.9f;
-				
+
 			}
 			else
 			{
@@ -844,19 +870,19 @@ void Player::_onSprint()
 				p_moveState = Walking;
 			}
 		}
-	}	
+	}
 	else
 	{
-		m_moveSpeed = 0; 
-		p_moveState = Idle; 
+		m_moveSpeed = 0;
+		p_moveState = Idle;
 	}
-	
+
 }
 
 void Player::_onCrouch()
 {
 	using namespace Network;
-	if(Input::isUsingGamepad())
+	if (Input::isUsingGamepad())
 	{
 		m_currClickCrouch = Input::Crouch();
 		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
@@ -881,7 +907,7 @@ void Player::_onCrouch()
 			}
 
 			_deActivateCrouch();
-			m_toggleCrouch = 0; 
+			m_toggleCrouch = 0;
 
 			//Just so we don't end up in an old sprint-mode when deactivating crouch.
 			m_toggleSprint = 0;
@@ -903,7 +929,7 @@ void Player::_onCrouch()
 
 				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 				crouchDir = 1;
-				
+
 				m_kp.crouching = true;
 			}
 		}
@@ -920,7 +946,7 @@ void Player::_onCrouch()
 
 				crouchDir = -1;
 				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
-				
+
 				m_kp.crouching = false;
 			}
 		}
@@ -937,7 +963,7 @@ void Player::_onRotate(double deltaTime)
 	static DirectX::XMFLOAT2 s_rot = { 0.0f, 0.0f };
 
 	if (!unlockMouse)
-	{	
+	{
 		const float deltaY = Input::TurnUp();
 		const float deltaX = Input::TurnRight();
 
@@ -959,9 +985,9 @@ void Player::_onRotate(double deltaTime)
 			lookTo.y = sin(radY);
 			lookTo.z = sin(radX) * cos(radY);
 			p_camera->setLookTo(lookTo);
-		}		
+		}
 	}
-	m_currentPitch = - p_camera->getPitch().x;
+	m_currentPitch = -p_camera->getPitch().x;
 }
 
 void Player::_onPeak(double deltaTime)
@@ -989,7 +1015,7 @@ void Player::_onPeak(double deltaTime)
 				LastPeekDir = peekDir;
 			}
 		}
-		
+
 	}
 	else //Return to default pos
 	{
@@ -1065,9 +1091,9 @@ void Player::_onInteract()
 	{
 		if (m_kp.interact == false)
 		{
-			if(m_interactRayId == -100)
+			if (m_interactRayId == -100)
 				m_interactRayId = RipExtern::g_rayListener->PrepareRay(this->getBody(), this->getCamera()->getPosition(), this->getCamera()->getDirection(), Player::INTERACT_RANGE);
-			
+
 			m_kp.interact = true;
 		}
 
@@ -1088,64 +1114,57 @@ void Player::_objectInfo(double deltaTime)
 {
 	//if (m_tutorialActive)
 	//{
-		const int tempId = m_objectInfoRayId;
-		if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
-		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
-			RayCastListener::RayContact* cContact = ray->getClosestContact();
-			RayCastListener::RayContact* cContact2 = cContact;
-			float interactFractionRange = Player::INTERACT_RANGE / 10;
-			if (ray->getNrOfContacts() >= 2)
-				cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+	const int tempId = m_objectInfoRayId;
+	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
+	{
+		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
+		RayCastListener::RayContact* cContact = ray->getClosestContact();
+		RayCastListener::RayContact* cContact2 = cContact;
+		float interactFractionRange = Player::INTERACT_RANGE / 10;
+		if (ray->getNrOfContacts() >= 2)
+			cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
 
-			if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+		if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+		{
+			m_cross->setUnpressedTexture("CROSSHAND");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+		}
+		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+		{
+			m_cross->setUnpressedTexture("CROSSHAND");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+		}
+		else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH"&& cContact->fraction <= interactFractionRange)
+		{
+			m_cross->setUnpressedTexture("CROSSHAND");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+			//Snuff out torches
+		}
+		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
+		{
+			m_cross->setUnpressedTexture("CROSSHAND");
+			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+		}
+		else if (m_activeSetID == 2)
+		{
+			if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
 			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+				m_cross->setUnpressedTexture("CROSSPOSSESS");
+				m_cross->setScale(DirectX::XMFLOAT2A(1.2f / 16.0, 1.2f / 9.0f));
 			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
+			else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= interactFractionRange)
 			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
+				//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+					//m_infoText->setString("Press RB to pass");
+				m_cross->setUnpressedTexture("CROSSPHASE");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
 			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH"&& cContact->fraction <= interactFractionRange)
+			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact2->fraction <= interactFractionRange)
 			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-				//Snuff out torches
-			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
-			{
-				m_cross->setUnpressedTexture("CROSSHAND");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-			}
-			else if (m_activeSetID == 2)
-			{
-				if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-				{
-					m_cross->setUnpressedTexture("CROSSPOSSESS");
-					m_cross->setScale(DirectX::XMFLOAT2A(1.2f / 16.0, 1.2f / 9.0f));
-				}
-				else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= interactFractionRange)
-				{
-					//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-						//m_infoText->setString("Press RB to pass");
-					m_cross->setUnpressedTexture("CROSSPHASE");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
-				}
-				else if (cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact2->fraction <= interactFractionRange)
-				{
-					//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-						//m_infoText->setString("Press RB to pass");
-					m_cross->setUnpressedTexture("CROSSPHASE");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
-				}
-				else
-				{
-					//m_infoText->setString("");
-					m_cross->setUnpressedTexture("CROSS");
-					m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
-				}
+				//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
+					//m_infoText->setString("Press RB to pass");
+				m_cross->setUnpressedTexture("CROSSPHASE");
+				m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
 			}
 			else
 			{
@@ -1154,21 +1173,28 @@ void Player::_objectInfo(double deltaTime)
 				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
 		}
-		else if (tempId != m_objectInfoRayId)
+		else
 		{
 			//m_infoText->setString("");
 			m_cross->setUnpressedTexture("CROSS");
 			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 		}
+	}
+	else if (tempId != m_objectInfoRayId)
+	{
+		//m_infoText->setString("");
+		m_cross->setUnpressedTexture("CROSS");
+		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
+	}
 
-		if (m_objectInfoTime >= 0.1f)
-		{
-			if(m_objectInfoRayId == -100)
-				m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
-			
-			m_objectInfoTime = 0;
-		}
-		m_objectInfoTime += deltaTime;
+	if (m_objectInfoTime >= 0.1f)
+	{
+		if (m_objectInfoRayId == -100)
+			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+
+		m_objectInfoTime = 0;
+	}
+	m_objectInfoTime += deltaTime;
 	//}
 }
 
@@ -1177,7 +1203,7 @@ void Player::_updateFirstPerson(float deltaTime)
 	using namespace DirectX;
 
 	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.23f, -.45)), XMMatrixScaling(.1, .1, .1));
-	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr,XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
+	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr, XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
 
 	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
 }
@@ -1197,7 +1223,7 @@ void Player::_cameraPlacement(double deltaTime)
 		m_peektimer = std::clamp(m_peektimer, m_peekRangeA, m_peekRangeB);
 	else
 		m_peektimer = std::clamp(m_peektimer, m_peekRangeB, m_peekRangeA);
-	
+
 	//Offsets to the sides to slerp between
 	b3Vec3 peekOffsetLeft;
 	b3Vec3 peekOffsetRight;
@@ -1223,7 +1249,7 @@ void Player::_cameraPlacement(double deltaTime)
 	peekOffsetRight.y = 0;// +((upperBodyLocal.y*0.5)* (1 - fabs(m_peektimer)));
 	peekOffsetRight.z = -1;
 
-	headPosLocal = _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer+1)*0.5);
+	headPosLocal = _slerp(peekOffsetRight, peekOffsetLeft, (m_peektimer + 1)*0.5);
 	headPosLocal.x *= forward.z;
 	//headPosLocal.y *= forward.y;
 	headPosLocal.z *= forward.x;
@@ -1311,9 +1337,9 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 	//std::cout << xmPos.x << ", " << xmPos.y << ", " << xmPos.z << std::endl;
 
 	FMOD_VECTOR vel;
-	vel.x = ( xmPos.x - xmLastPos.x ) / deltaTime;
-	vel.y = ( xmPos.y - xmLastPos.y ) / deltaTime;
-	vel.z = ( xmPos.z - xmLastPos.z ) / deltaTime;
+	vel.x = (xmPos.x - xmLastPos.x) / deltaTime;
+	vel.y = (xmPos.y - xmLastPos.y) / deltaTime;
+	vel.z = (xmPos.z - xmLastPos.z) / deltaTime;
 
 	m_FMODlistener.pos = { xmPos.x, xmPos.y, xmPos.z };
 	m_FMODlistener.up = { xmUp.x, xmUp.y, xmUp.z };
@@ -1337,7 +1363,7 @@ void Player::_deActivateCrouch()
 void Player::SendOnWinState()
 {
 	Network::ENTITYSTATEPACKET packet(Network::ID_PLAYER_WON, 0, this->hasWon);
-	
+
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
@@ -1374,7 +1400,7 @@ void Player::_hasWon()
 			}
 		}
 	}
-	
+
 }
 
 b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)

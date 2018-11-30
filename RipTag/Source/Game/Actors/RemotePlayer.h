@@ -22,7 +22,12 @@ public:
 		RUN_FORWARD_RIGHT = 9
 	};
 public:
-	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot);
+	enum CHARACTER
+	{
+		LEJF,
+		BILLY
+	};
+	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot, CHARACTER character = LEJF);
 	~RemotePlayer();
 
 private:
@@ -54,6 +59,7 @@ public:
 	void Draw() override;
 	bool hasWon = false;
 	void SetAbilitySet(int);
+	void SetModelAndTextures(int);
 	void SetVisibility(const float & value) { m_currentVisibility = value; }
 	void SetSoundPercentage(const float & value) { m_soundPercentage = value; }
 private:

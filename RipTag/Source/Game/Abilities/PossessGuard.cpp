@@ -74,141 +74,6 @@ void PossessGuard::_logic(double deltaTime)
 		}
 		break;
 	}
-
-	//if (true) // the Use() function were called last frame
-	//{
-	//	switch (m_pState)
-	//	{
-	//	case PossessGuard::Wait:
-	//		p_cooldown += deltaTime;
-	//		if (p_cooldown >= p_cooldownMax)
-	//		{
-	//			m_pState = PossessGuard::Possess;
-	//			p_cooldown = 0;
-	//		}
-	//		break;
-	//	case PossessGuard::Possessing:
-	//		if (!pPointer->IsInputLocked()) //Player is Returning to body
-	//		{
-	//			this->_sendOverNetwork(false, m_possessTarget);
-
-	//			this->m_possessTarget->LockEnemyInput();
-	//			pPointer->getBody()->SetType(e_dynamicBody);
-	//			pPointer->getBody()->SetAwake(true);
-	//			pPointer->setHidden(true);
-	//			CameraHandler::setActiveCamera(pPointer->getCamera());
-	//			this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
-	//			this->m_possessTarget->setTransitionState(AITransitionState::ExitingPossess);
-	//			this->m_possessTarget = nullptr;
-	//			m_pState = PossessGuard::Wait;
-	//			p_cooldown = 0; 
-	//			m_duration = 0;
-	//			//m_useFunctionCalled = false;
-
-	//		}
-	//		else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
-	//		{
-	//			this->m_possessTarget->removePossessor();
-	//			m_duration = 0;
-	//		}
-	//		else
-	//		{
-	//			float p = ((COOLDOWN_POSSESSING_MAX - m_duration) / COOLDOWN_POSSESSING_MAX);
-	//			m_possessHud->setScale(0.4f * p, 0.2);
-	//			std::string str = std::to_string(p * COOLDOWN_POSSESSING_MAX);
-	//			m_possessHud->setString(str.substr(0, 4));
-	//		}
-
-	//		
-	//		break;
-	//	case PossessGuard::Possess:
-	//		if (RipExtern::g_rayListener->hasRayHit(m_rayId) && m_useFunctionCalled)
-	//		{
-	//			RayCastListener::Ray *ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
-	//			RayCastListener::RayContact* contact = ray->getClosestContact();
-	//			if (ray->getOriginBody()->GetObjectTag() == "PLAYER")
-	//			{
-	//				std::string objectTag = contact->contactShape->GetBody()->GetObjectTag();
-	//				if (objectTag == "BLINK_WALL")
-	//				{
-	//					if (ray->getNrOfContacts() > 1)
-	//					{
-	//						contact = ray->GetRayContacts().at(ray->getNrOfContacts() - 2);
-	//						objectTag = contact->contactShape->GetBody()->GetObjectTag();
-	//					}
-	//				}
-
-	//				if (objectTag == "ENEMY")
-	//				{
-	//					pPointer->getBody()->SetType(e_staticBody);
-	//					pPointer->getBody()->SetAwake(false);
-	//					pPointer->setHidden(false);
-	//					pPointer->LockPlayerInput();
-
-	//					contact->contactShape->GetBody()->SetType(e_dynamicBody);
-	//					contact->contactShape->GetBody()->SetAwake(true);
-	//					this->m_possessTarget = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
-	//					this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
-	//					this->m_possessTarget->setPossessor(pPointer, 20, 1);
-	//					m_pState = PossessGuard::Possessing;
-	//					p_cooldown = 0;
-	//					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
-	//					this->_sendOverNetwork(true, m_possessTarget);
-	//				}
-	//			}
-	//		}
-	//		if(m_rayId == -100 && m_pState == PossessGuard::Possess)
-	//			m_rayId = RipExtern::g_rayListener->PrepareRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), PossessGuard::RANGE);
-	//		
-	//		break;
-	//	}
-	//}
-	//else
-	//{
-	//	switch (m_pState)
-	//	{
-	//	case PossessGuard::Possessing:
-	//		if (!pPointer->IsInputLocked()) //Player is Returning to body
-	//		{
-	//			this->m_possessTarget->LockEnemyInput();
-	//			pPointer->getBody()->SetType(e_dynamicBody);
-	//			pPointer->getBody()->SetAwake(true);
-	//			pPointer->setHidden(true);
-	//			CameraHandler::setActiveCamera(pPointer->getCamera());
-	//			this->m_possessTarget->setTransitionState(AITransitionState::ExitingPossess);
-	//			this->m_possessTarget = nullptr;
-	//			m_pState = PossessGuard::Wait;
-	//			p_cooldown = 0;
-	//			m_duration = 0;
-	//			//m_useFunctionCalled = false;
-	//		}
-	//		else if (m_duration >= COOLDOWN_POSSESSING_MAX) //out of mana
-	//		{
-	//			this->m_possessTarget->removePossessor();
-	//			m_duration = 0;
-	//		}
-	//		else
-	//		{
-	//			m_duration += deltaTime;
-	//			float p = ((COOLDOWN_POSSESSING_MAX - m_duration) / COOLDOWN_POSSESSING_MAX);
-	//			m_possessHud->setScale(0.4f * p , 0.2);
-	//			std::string str = std::to_string(p * COOLDOWN_POSSESSING_MAX);
-	//			m_possessHud->setString(str.substr(0, 4));
-	//		}
-	//		
-	//		break;
-	//	case PossessGuard::Wait:
-	//		p_cooldown += deltaTime;
-	//		if (p_cooldown >= p_cooldownMax)
-	//		{
-	//			m_pState = PossessGuard::Possess;
-	//			p_cooldown = 0;
-	//		}
-
-	//		break;
-	//	}
-	//
-	//}
 }
 
 void PossessGuard::_sendOverNetwork(bool state, Enemy * ptr)
@@ -257,16 +122,20 @@ void PossessGuard::_hitEnemy()
 						Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 					}
 
+					pPointer->getAnimationPlayer()->GetStateMachine()->SetState("posessing");
+
 					pPointer->getBody()->SetType(e_staticBody);
 					pPointer->getBody()->SetAwake(false);
 					pPointer->setHidden(false);
 					pPointer->LockPlayerInput();
 
-					contact->contactShape->GetBody()->SetType(e_dynamicBody);
-					contact->contactShape->GetBody()->SetAwake(true);
+					//contact->contactShape->GetBody()->SetType(e_dynamicBody);
+					//contact->contactShape->GetBody()->SetAwake(true);
 					this->m_possessTarget = e;
+					this->m_possessTarget->setEntityType(EntityType::CurrentGuard);
 					this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
+
 					m_pState = PossessGuard::Possessing;
 					p_cooldown = 0;
 					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
@@ -292,6 +161,7 @@ void PossessGuard::_isPossessing(double dt)
 			COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_POSESS_END);
 			Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 		}
+		pPointer->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
 
 		this->_sendOverNetwork(false, m_possessTarget);
 
@@ -302,8 +172,10 @@ void PossessGuard::_isPossessing(double dt)
 		CameraHandler::setActiveCamera(pPointer->getCamera());
 
 		this->m_possessTarget->LockEnemyInput();
+		this->m_possessTarget->setEntityType(EntityType::GuarddType);
 		this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
 		this->m_possessTarget->setTransitionState(AITransitionState::ExitingPossess);
+		this->m_possessTarget->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
 		this->m_possessTarget = nullptr;
 
 		m_pState = PossessGuard::Wait;

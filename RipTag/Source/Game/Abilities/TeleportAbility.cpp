@@ -22,7 +22,7 @@ TeleportAbility::~TeleportAbility()
 
 void TeleportAbility::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f);
+	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f, false, 0.2f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Manager::g_textureManager.loadTextures("OUTLINE");
@@ -207,7 +207,8 @@ void TeleportAbility::_inStateCharging(double dt)
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 
 			m_charge = 0.0;
-			m_tpState = TeleportState::Throwable;
+			p_cooldown = (p_cooldownMax / 3) * 2;
+			m_tpState = TeleportState::Cooldown;
 			m_canceled = true;
 		}
 
@@ -267,7 +268,9 @@ void TeleportAbility::_inStateTeleportable()
 	{
 		if (Input::OnCancelAbilityPressed())
 		{
+			//Ability cooldown
 			m_tpState = TeleportAbility::Cooldown;
+			p_cooldown = p_cooldownMax / 2;
 		}
 
 		if (m_rayId != -100 || m_rayId2 != -100)

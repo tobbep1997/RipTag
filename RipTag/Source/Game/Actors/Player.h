@@ -148,6 +148,7 @@ private:
 	float m_peektimer = 0;
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
+	bool m_controlLayoutShown = false;
 
 	Circle * m_HUDcircle;
 	Circle * m_HUDcircleFiller;
@@ -215,7 +216,7 @@ public:
 	
 	//This is a way of checking if we can use the ability with out current mana
 	void SetAbilitySet(int set);
-
+	void SetModelAndTextures(int set);
 	void setEnemyPositions(std::vector<Enemy *> enemys);
 
 	const Ability getCurrentAbility()const;

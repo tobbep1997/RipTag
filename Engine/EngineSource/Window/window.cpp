@@ -60,7 +60,11 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_DESTROY:
+		
+
+
 		PostQuitMessage(0);
+
 		break;
 	case WM_SIZE: //If user change the window size
 		m_windowContext.clientHeight = HIWORD(lParam);
@@ -127,6 +131,10 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			GainedFocus = true;
 		InputHandler::m_windowInFocus = true;
 		break;
+
+	case WM_QUIT:
+		MessageBoxA(0, "LOL", "LOL", 0);
+		break;
 	}
 	RECT Rect;
 	GetWindowRect(hwnd, &Rect);
@@ -176,6 +184,17 @@ bool Window::Init(_In_ WindowContext windowContext)
 		int i = 0;
 	}
 
+	HICON hIicon = (HICON)LoadImage( // returns a HANDLE so we have to cast to HICON
+		NULL,             // hInstance must be NULL when loading from a file
+		L"../Assets/WindowIcon/fav.ico",   // the icon file name
+		IMAGE_ICON,       // specifies that the file is an icon
+		0,                // width of the image (we'll specify default later on)
+		0,                // height of the image
+		LR_LOADFROMFILE |  // we want to load a file (as opposed to a resource)
+		LR_DEFAULTSIZE |   // default metrics based on the type (IMAGE_ICON, 32x32)
+		LR_SHARED         // let the system release the handle when it's no longer used
+	);
+
 	
 	ZeroMemory(&m_windowContext.wcex, sizeof(WNDCLASSEX));
 	m_windowContext.wcex.cbClsExtra = 0;
@@ -189,7 +208,8 @@ bool Window::Init(_In_ WindowContext windowContext)
 	m_windowContext.wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
 	m_windowContext.wcex.lpszMenuName = NULL;
 	m_windowContext.wcex.lpszClassName = L"WNDCLASS";
-	m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	//m_windowContext.wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	m_windowContext.wcex.hIcon = hIicon;
 
 
 	if (!RegisterClassEx(&m_windowContext.wcex))
@@ -249,6 +269,8 @@ void Window::PollEvents()
 {
 	while (PeekMessage(&m_Peekmsg, nullptr, 0, 0, PM_REMOVE))
 	{
+		if (WM_QUIT == m_Peekmsg.message)
+			InputHandler::CloseGame();
 		TranslateMessage(&m_Peekmsg);
 		DispatchMessage(&m_Peekmsg);
 	}
@@ -256,15 +278,7 @@ void Window::PollEvents()
 
 bool Window::isOpen()
 {
-	if (InputHandler::GetClosedGame())
-	{
-		return false;
-	}
-	else
-	{
-		return WM_QUIT != m_Peekmsg.message;
-	}
-	
+	return !InputHandler::GetClosedGame();
 }
 
 void Window::Close()

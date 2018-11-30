@@ -6,6 +6,7 @@ class Grid;
 class PointLight;
 class EnemyHandler;
 class ParticleEmitter;
+class Torch;
 class RoomGenerator
 {
 private:
@@ -24,7 +25,7 @@ private:
 	std::vector<Enemy*> m_generatedRoomEnemies;
 	std::vector<ParticleEmitter*> m_generated_Emitters;
 	std::vector<FMOD::Geometry*> m_generatedAudioBoxes;
-	
+	std::vector<Torch*> m_generatedTorches;
 	std::vector<DirectX::BoundingBox*> m_generated_boundingBoxes;
 
 	Room * returnableRoom;
