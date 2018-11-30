@@ -162,8 +162,8 @@ void Room::LoadRoomToMemory()
 			t->BeginPlay();
 			m_Torches.push_back(t);
 			
-			//FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
-			//AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
+			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
+			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
 		delete tempLights.lights;
 
@@ -635,13 +635,13 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			tempDoor = nullptr;
 			break;
 		case(6):
-			_setPropAttributes(propsAndAssets.props[i], "CRATE", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "CRATE", assetVector, true, isRandomRoom, true);
 			break;
 		case(7):
-			_setPropAttributes(propsAndAssets.props[i], "BARREL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BARREL", assetVector, true, isRandomRoom, true);
 			break;
 		case(8):
-			_setPropAttributes(propsAndAssets.props[i], "BANNER", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BANNER", assetVector, true, isRandomRoom, true, 0.9f, 1);
 			break;
 		case(9):
 			_setPropAttributes(propsAndAssets.props[i], "CHAIR", assetVector, true, isRandomRoom);
@@ -656,7 +656,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BUCKET", assetVector, true, isRandomRoom);
 			break;
 		case(13):
-			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", assetVector, true, isRandomRoom, true, 0.4f, 0.05f);
 			break;
 		case(14):
 			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", assetVector, false, isRandomRoom);
@@ -677,22 +677,22 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);	//set True
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom, true, 0.03f, 0.01f);	//set True
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom); //set True
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom, true, 0.06f, 0.01f); //set True
 			break;
 		case(23):
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(24):
-			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, false, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, false, isRandomRoom, true, 0.f, 0.f);
 			break;
 		case(25):
-			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom, true, 0.03f, 0.01f);
 			break;
 		case(26):
 			_setPropAttributes(propsAndAssets.props[i], "CANDLE", assetVector, false, isRandomRoom);
@@ -704,7 +704,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "SPEAR", assetVector, false, isRandomRoom);
 			break;
 		case(29):
-			_setPropAttributes(propsAndAssets.props[i], "KEG", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "KEG", assetVector, true, isRandomRoom, true, 0.5f, 0.8f);
 			break;
 		case(30):
 			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", assetVector, true, isRandomRoom);
@@ -716,22 +716,22 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", assetVector, true, isRandomRoom);
 			break;
 		case(33):
-			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom, true, 0.12f, 0.04f);
 			break;
 		case(35):
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):
-			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", assetVector, true, isRandomRoom, true, 0.5f, 0.5f);
 			break;
 		case(37):
 			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", assetVector, false, isRandomRoom);
 			break;
 		case(38):
-			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", assetVector, true, isRandomRoom, true, 0.01f, 0.02f);
 			break;
 		case(39):
-			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom, true, 0, 0);
 			break;
 		case(40):
 			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
@@ -742,7 +742,48 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	}
 }
 
-void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox, bool isRandomRoom)
+void Room::_createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float occlusion, float reverbOcclusion)
+{
+	DirectX::XMVECTOR translation, rotation, scale;
+		
+	DirectX::XMMATRIX matrixTranslation;
+	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));
+	matrixTranslation = DirectX::XMMatrixTranslationFromVector(translation);
+		
+	DirectX::XMMATRIX matrixRotation;
+	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_rotation));
+	matrixRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
+		
+	float newScale[3];
+	DirectX::XMMATRIX matrixScale;
+	for (int i = 0; i < 3; i++)
+	{
+		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
+	}
+	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
+	matrixScale = DirectX::XMMatrixScalingFromVector(scale);
+		
+	DirectX::XMMATRIX worldMatrix = matrixScale * matrixRotation* matrixTranslation;
+		
+	DirectX::XMMatrixDecompose(&scale, &rotation, &translation, worldMatrix);
+
+
+		
+	DirectX::XMFLOAT4 xmQ;
+	DirectX::XMFLOAT4 xmPos;
+	DirectX::XMFLOAT4 xmScl;
+
+	DirectX::XMStoreFloat4(&xmQ, rotation);
+	DirectX::XMStoreFloat4(&xmPos, translation);
+	DirectX::XMStoreFloat4(&xmScl, scale);
+
+
+	FMOD::Geometry * ge = AudioEngine::CreateCube(occlusion, reverbOcclusion, xmPos, xmScl, xmQ);
+	ge->setActive(useAudio);
+	this->m_audioBoxes.push_back(ge);
+}
+
+void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox, bool isRandomRoom, bool useAudio, float occlusionSound, float reverbOcclusionSound)
 {
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	if (name != "COLLISIONBOXASPROP")
@@ -787,6 +828,13 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	assetVector->push_back(tempAsset);
+	
+	if(useAudio)
+		_createAudioBox(prop, true, occlusionSound, reverbOcclusionSound);
+
+
+
+
 }
 #pragma endregion
 

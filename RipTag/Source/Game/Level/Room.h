@@ -69,6 +69,7 @@ private:
 	
 	//std::vector<StaticAsset*> TODO:: FIX
 
+	void _createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float occlusion, float reverbOcclusion);
 	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 
 	//std::vector<const int*> vis;
@@ -130,9 +131,11 @@ public:
 	void setTorches(std::vector<Torch*> torches) { this->m_Torches = torches; };
 	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
 
+	std::vector<FMOD::Geometry*>* getAudioBoxesVector() { return &this->m_audioBoxes; };
+
 	void setLoaded(const bool & loaded) { this->m_roomLoaded = loaded; }
 
 private:
-	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false);
+	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false, bool useAudio = false, float occlusionSound = 0.75f, float reverbOcclusionSound = 0.35f);
 	void _addToTriggerHandler(ImporterLibrary::PropItem prop, const std::string & name, TriggerHandler * triggerHandler, bool animated, int index);
 };
