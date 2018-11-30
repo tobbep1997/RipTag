@@ -122,7 +122,7 @@ void PossessGuard::_hitEnemy()
 						Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 					}
 
-					((Player*)p_owner)->getAnimationPlayer()->GetStateMachine()->SetState("posessing");
+					pPointer->getAnimationPlayer()->GetStateMachine()->SetState("posessing");
 
 					pPointer->getBody()->SetType(e_staticBody);
 					pPointer->getBody()->SetAwake(false);
@@ -161,7 +161,7 @@ void PossessGuard::_isPossessing(double dt)
 			COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_POSESS_END);
 			Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 		}
-		((Player*)p_owner)->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
+		pPointer->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
 
 		this->_sendOverNetwork(false, m_possessTarget);
 
@@ -175,6 +175,7 @@ void PossessGuard::_isPossessing(double dt)
 		this->m_possessTarget->setEntityType(EntityType::GuarddType);
 		this->m_possessTarget->setKnockOutType(this->m_possessTarget->Possessed);
 		this->m_possessTarget->setTransitionState(AITransitionState::ExitingPossess);
+		this->m_possessTarget->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
 		this->m_possessTarget = nullptr;
 
 		m_pState = PossessGuard::Wait;
