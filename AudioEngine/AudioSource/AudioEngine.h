@@ -39,7 +39,7 @@ private:
 	static std::vector<FMOD::Sound*> s_ambientSounds;
 	static std::vector<FMOD::Sound*> s_music;
 
-	static std::vector<FMOD::Reverb3D*> s_reverbs;
+	//static std::vector<FMOD::Reverb3D*> s_reverbs;
 
 	static FMOD::ChannelGroup* s_soundEffectGroup;
 	static FMOD::ChannelGroup* s_ambientSoundGroup;
@@ -76,7 +76,7 @@ public:
 	static float GetMusicVolume();
 	static float GetMasterVolume();
 
-	static void CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings = FMOD_PRESET_STONEROOM);
+	static FMOD::Reverb3D* CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings = FMOD_PRESET_STONEROOM);
 
 	static FMOD::Geometry* CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES);
 	static FMOD::Geometry* CreateCube(float fDirectOcclusion, float fReverbOcclusion,

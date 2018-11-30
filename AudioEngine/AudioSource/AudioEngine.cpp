@@ -12,7 +12,7 @@ std::vector<FMOD::Sound*> AudioEngine::s_soundEffects;
 std::vector<FMOD::Sound*> AudioEngine::s_ambientSounds;
 std::vector<FMOD::Sound*> AudioEngine::s_music;
 
-std::vector<FMOD::Reverb3D*> AudioEngine::s_reverbs;
+//std::vector<FMOD::Reverb3D*> AudioEngine::s_reverbs;
 
 FMOD::ChannelGroup * AudioEngine::s_soundEffectGroup;
 FMOD::ChannelGroup * AudioEngine::s_ambientSoundGroup;
@@ -289,12 +289,9 @@ void AudioEngine::Release()
 			a->release();
 		for (auto & a : s_music)
 			a->release();
-		for (auto & a : s_reverbs)
-			a->release();
 		s_soundEffects.clear();
 		s_ambientSounds.clear();
 		s_music.clear();
-		s_reverbs.clear();
 
 		result = s_system->release();
 		s_system = nullptr;
@@ -359,7 +356,7 @@ float AudioEngine::GetMasterVolume()
 	return v;
 }
 
-void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
+FMOD::Reverb3D* AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
 {
 	FMOD::Reverb3D * r;
 	FMOD_RESULT result = s_system->createReverb3D(&r);
@@ -367,7 +364,8 @@ void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FM
 	r->setProperties(&properties);
 
 	r->set3DAttributes(&pos, mindist, maxdist);
-	s_reverbs.push_back(r);
+	//s_reverbs.push_back(r);
+	return r;
 }
 
 FMOD::Geometry * AudioEngine::CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES)
