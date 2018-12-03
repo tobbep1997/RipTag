@@ -42,6 +42,12 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	//Will override the settings above
 	SettingLoader::LoadWindowSettings(*m_wind);
 	SettingLoader::g_windowContext = m_wind;
+
+	DX::g_backBufferResolution.bottom = 0;
+	DX::g_backBufferResolution.left		  = 0;
+	DX::g_backBufferResolution.right	  = m_wind->clientWidth;
+	DX::g_backBufferResolution.top		  = m_wind->clientHeight;
+
 	m_wnd->Init(*m_wind);
 
 	m_engine->Init(m_wnd->getHandler(), *m_wind);
