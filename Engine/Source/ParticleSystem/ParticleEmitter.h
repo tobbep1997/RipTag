@@ -66,6 +66,7 @@ private:
 
 public:
 	ParticleEmitter();
+	ParticleEmitter(int type);
 	~ParticleEmitter();
 	void Update(float timeDelata, Camera * camera);
 	float RandomFloat(DirectX::XMINT2 min_max);
@@ -89,7 +90,7 @@ public:
 	DirectX::XMINT2 minMaxLife;
 	DirectX::XMINT2 spawnSpread;
 	bool isSmoke;
-	int type = 0;//FIRE = 0 SMOKE = 1
+	int type;//FIRE = 0 SMOKE = 1
 
 	void releaseVertexBuffer(); 
 

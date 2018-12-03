@@ -10,15 +10,16 @@ ParticleSystem::ParticleSystem()
 
 ParticleSystem::~ParticleSystem()
 {
+	for (int i = 0; i < nrOfEmitters; i++)
+	{
+		m_ParticleEmitter[i]->Clear();
+	}
+	
 	for (auto& emitter : m_ParticleEmitter)
 	{
 		delete emitter;
 	}
 	
-	for (int i = 0; i < nrOfEmitters; i++)
-	{
-		m_ParticleEmitter[i]->Clear();
-	}
 }
 
 void ParticleSystem::Queue()
@@ -39,7 +40,7 @@ void ParticleSystem::Update(float timeDelata, Camera * camera)
 
 ParticleEmitter *ParticleSystem::CreateEmitter(DirectX::XMFLOAT3 spawnPos, typeOfEmitter type, float lifeTime)
 {
-	ParticleEmitter * newEmitter = new ParticleEmitter;
+	ParticleEmitter * newEmitter = new ParticleEmitter(type);
 	newEmitter->setPosition(spawnPos.x, spawnPos.y, spawnPos.z);
 	newEmitter->type = type;
 	newEmitter->setEmmiterLife(lifeTime);

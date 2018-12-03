@@ -16,7 +16,7 @@ public:
 
 	int nrOfEmitters;
 	enum typeOfEmitter { FIRE, SMOKE };
-	typeOfEmitter type = FIRE;
+	typeOfEmitter type;
 
 	std::vector<ParticleEmitter*> m_ParticleEmitter;
 	void Queue();
