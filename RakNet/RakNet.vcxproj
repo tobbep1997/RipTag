@@ -621,11 +621,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithConsole|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Lua Talker\Lua Talker.vcxproj">
-      <Project>{62935a65-da86-4644-8cdc-4a133a3c7282}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
