@@ -65,6 +65,8 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Enemy);
 
+	m_soundFootstep.emitter = AudioEngine::SoundEmitterType::Enemy;
+	m_soundFootstep.owner = this;
 	//setOutline(true);
 }
 
@@ -964,10 +966,10 @@ void Enemy::_cameraPlacement(double deltaTime)
 					int index = -1;
 					while (index == -1 || index == last)
 					{
-						index = rand() % (int)RipSounds::g_stepsStone.size();
+						index = rand() % (int)RipSounds::g_armorStepsStone.size();
 					}
 					FMOD::Channel * c = nullptr;
-					c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_armorStepsStone[index], &at, &m_soundFootstep);
 					b3Vec3 vel = getLiniearVelocity();
 					DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 					float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1103,7 +1105,7 @@ void Enemy::_deActivateCrouch()
 
 void Enemy::_playFootsteps(double deltaTime)
 {
-	m_av.timer += deltaTime * m_moveSpeed; // This should be deltaTime * movementspeed
+	m_av.timer += deltaTime * m_currentMoveSpeed * 2; // This should be deltaTime * movementspeed
 
 	if (m_av.timer > DirectX::XM_PI)
 		m_av.timer = 0.0f;
@@ -1115,11 +1117,13 @@ void Enemy::_playFootsteps(double deltaTime)
 		int index = -1;
 		while (index == -1 || index == m_av.lastIndex)
 		{
-			index = rand() % (int)RipSounds::g_stepsStone.size();
+			index = rand() % (int)RipSounds::g_armorStepsStone.size();
 		}
 		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
 
-		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
+		float vol = std::clamp(m_currentMoveSpeed, 0.0f, 1.0f);
+		auto channel = AudioEngine::PlaySoundEffect(RipSounds::g_armorStepsStone[index], &at, &m_soundFootstep);
+
 		m_av.lastIndex = index;
 		m_av.hasPlayed = !m_av.hasPlayed;
 	}

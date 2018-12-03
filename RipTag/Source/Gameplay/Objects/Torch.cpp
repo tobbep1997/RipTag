@@ -14,6 +14,15 @@ Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqu
 	//Need a model for torch
 	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("TORCH"));
 	BaseActor::setUserDataBody(this);
+
+	m_tourchSound.emitter = AudioEngine::Other;
+	m_tourchSound.loudness = 1.5f;
+	m_tourchSound.owner = this;
+
+	
+	/*FMOD_VECTOR at = { lightPos.x, lightPos.y,lightPos.z };
+	m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
+	m_channel->setVolume(0.6f);*/
 }
 
 
@@ -36,7 +45,7 @@ Torch::~Torch()
 void Torch::Update(double deltaTime)
 {
 	if (m_preState != getTriggerState())
-		_playSound(AudioEngine::SoundType::Other);
+		_playSound(&m_tourchSound);
 
 	//Check wether to crate new fire.
 	if (pParticles)
@@ -107,7 +116,7 @@ void Torch::QueueLight()
 
 void Torch::BeginPlay()
 {
-	_playSound(AudioEngine::SoundType::Other);
+	_playSound(&m_tourchSound);
 }
 
 void Torch::handleContact(RayCastListener::RayContact * contact)
@@ -122,11 +131,12 @@ void Torch::handleContact(RayCastListener::RayContact * contact)
 	}
 }
 
-void Torch::_playSound(AudioEngine::SoundType st)
+void Torch::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
-		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, st);
+		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, soundDesc);
 	else
 		m_channel->stop();
+	m_channel->setVolume(0.6f);
 }

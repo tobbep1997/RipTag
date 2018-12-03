@@ -71,11 +71,11 @@ void Lever::handleContact(RayCastListener::RayContact * contact)
 	}
 }
 
-void Lever::_playSound(AudioEngine::SoundType st)
+void Lever::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (this->getTriggerState())
-		AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &at, soundDesc);
 	else
-		AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &at, soundDesc);
 }

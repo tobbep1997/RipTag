@@ -6,10 +6,16 @@
 void Trigger::p_trigger(const bool & trigger)
 {
 	this->m_triggerState = trigger;
+	m_soundDesc.emitter = AudioEngine::Other;
+	m_soundDesc.loudness = 1.0f;
+	m_soundDesc.owner = this;
 }
 
 Trigger::Trigger()
 {
+	m_soundDesc.emitter = AudioEngine::Other;
+	m_soundDesc.loudness = 1.0f;
+	m_soundDesc.owner = this;
 }
 
 Trigger::Trigger(int uniqueId, int linkedID, bool isTrigger, std::string activeAnim, std::string deactiveAnim)
@@ -19,7 +25,9 @@ Trigger::Trigger(int uniqueId, int linkedID, bool isTrigger, std::string activeA
 	this->m_uniqueID = uniqueId;
 	this->activatedAnimation = activeAnim;
 	this->deactivatedAnimation = deactiveAnim;
-
+	m_soundDesc.emitter = AudioEngine::Other;
+	m_soundDesc.loudness = 1.0f;
+	m_soundDesc.owner = this;
 }
 
 Trigger::~Trigger()
@@ -57,13 +65,22 @@ void Trigger::setTriggerState(bool state, bool isLocal, const std::string & trig
 	if (isLocal)
 	{
 		if (triggerer == "PLAYER")
-			this->_playSound(AudioEngine::Player);
+		{
+			m_soundDesc.emitter = AudioEngine::Player;
+			this->_playSound(&m_soundDesc);
+		}
 		else
-			this->_playSound(AudioEngine::Other);
+		{
+			m_soundDesc.emitter = AudioEngine::Other;
+			this->_playSound(&m_soundDesc);
+		}
 
 	}
 	else
-		this->_playSound(AudioEngine::RemotePlayer);
+	{
+		m_soundDesc.emitter = AudioEngine::RemotePlayer;
+		this->_playSound(&m_soundDesc);
+	}
 }
 
 void Trigger::BeginPlay()
