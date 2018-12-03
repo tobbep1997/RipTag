@@ -264,7 +264,9 @@ void Render2D::DBG()
 	dbg_quad->setPosition(1, 1);
 	dbg_quad->setScale(.20f, .2f);
 	dbg_quad->setColor(1, 1, 1,1);
-	dbg_quad->setUnpressedTexture("DAB");
+	dbg_quad->setUnpressedTexture("");
+	dbg_quad->setPressedTexture("");
+	dbg_quad->setHoverTexture("");
 	dbg_quad->Draw();
 }
 
