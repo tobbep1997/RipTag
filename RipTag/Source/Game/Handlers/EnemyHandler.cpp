@@ -43,6 +43,13 @@ void EnemyHandler::Update(float deltaTime)
 {
 	static double accumulatedTime = 0.0;
 	static const double SEND_UPDATES_FREQUENCY = 1.0 / 50.0; // 20 ms
+	
+	for (auto enemy : m_guards)
+	{
+		if (enemy->getDestroyState())
+			enemy->setDestructionRate(1 * deltaTime);
+	}
+
 
 	if (m_type == 0)
 	{
@@ -53,6 +60,7 @@ void EnemyHandler::Update(float deltaTime)
 			accumulatedTime -= SEND_UPDATES_FREQUENCY;
 			for (auto enemy : m_guards)
 			{
+				
 				if (!enemy->ClientLocked())
 					enemy->sendNetworkUpdate();
 			}

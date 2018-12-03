@@ -273,29 +273,38 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 
+
 	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
-			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
-				continue;
+		
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+					continue;
 
-		auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
-		DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-			0,
-			nullptr,
-			NULL,
-			//NULL,
-			0, 1, &lol, 0
-		);
+			auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
+			DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+				0,
+				nullptr,
+				NULL,
+				//NULL,
+				0, 1, &lol, 0
+			);
 
-		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
-		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+
+
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+					continue;
+		
+		
 	}
 	delete bf;
 	DX::g_deviceContext->RSSetState(m_standardRast);
@@ -320,41 +329,97 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 
+
 	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
-			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
-				continue;
-
-		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
+		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
 		{
-			//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+			
+			m_destroyBuffer.timer.x = DX::g_animatedGeometryQueue[i]->getDestructionRate();
+			DXRHC::MapBuffer(m_destructionBuffer, &m_destroyBuffer, sizeof(DestroyBuffer), 0, 1, ShaderTypes::geometry);
 
-			switch (camera.getPerspectiv())
+
+
+			DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl");
+			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl"), nullptr, 0);
+
+
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+					continue;
+
+			if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 			{
-			case Camera::Perspectiv::Player:
-				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
-					continue;
-				break;
-			case Camera::Perspectiv::Enemy:
-				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::CurrentGuard || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
-					continue;
-				break;
+				//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+				switch (camera.getPerspectiv())
+				{
+				case Camera::Perspectiv::Player:
+					if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
+						continue;
+					break;
+				case Camera::Perspectiv::Enemy:
+					if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::CurrentGuard || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+						continue;
+					break;
+				}
+
+				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
+
+				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+
+				DX::g_animatedGeometryQueue[i]->BindTextures();
+
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+
+				//DX::g_animatedGeometryQueue[i]->TEMP();
 			}
 
-			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
 
-			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+		}
+		else
+		{
+			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+					continue;
 
-			DX::g_animatedGeometryQueue[i]->BindTextures();
+			if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
+			{
+				//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
-			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+				switch (camera.getPerspectiv())
+				{
+				case Camera::Perspectiv::Player:
+					if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
+						continue;
+					break;
+				case Camera::Perspectiv::Enemy:
+					if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::CurrentGuard || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+						continue;
+					break;
+				}
 
-			//DX::g_animatedGeometryQueue[i]->TEMP();
-		}		
+				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
+
+				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+
+				DX::g_animatedGeometryQueue[i]->BindTextures();
+
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+
+				//DX::g_animatedGeometryQueue[i]->TEMP();
+			}
+		}
+			
 	}
 	delete bf;
 }
@@ -395,7 +460,7 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->RSSetState(m_standardRast);
 
 	if (DX::g_player)
-		_visabilityPass();
+	//	_visabilityPass();
 	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
@@ -843,6 +908,8 @@ void ForwardRender::_createConstantBuffer()
 	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
 
 	hr = DXRHC::CreateConstantBuffer(this->m_outlineBuffer, sizeof(OutLineBuffer));
+	hr = DXRHC::CreateConstantBuffer(this->m_destructionBuffer, sizeof(DestroyBuffer));
+
 }
 
 void ForwardRender::_createSamplerState()

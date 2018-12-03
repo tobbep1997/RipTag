@@ -772,6 +772,9 @@ void PlayState::Load()
 	_loadPlayers(rooms);
 	_loadNetwork();
 
+
+
+
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }
 

@@ -65,6 +65,11 @@ class ForwardRender
 	{
 		DirectX::XMFLOAT4A outLineColor;
 	};
+
+	struct DestroyBuffer
+	{
+		DirectX::XMFLOAT4 timer;
+	};
 private:
 
 	struct sortStruct
@@ -108,6 +113,9 @@ private:
 
 	VisabilityPass * m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;
+
+	ID3D11Buffer * m_destructionBuffer = nullptr;
+	DestroyBuffer m_destroyBuffer;
 
 	
 

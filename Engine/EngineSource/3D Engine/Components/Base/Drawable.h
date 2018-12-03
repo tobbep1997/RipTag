@@ -43,10 +43,14 @@ private:
 	Animation::AnimationPlayer* m_anim = nullptr;
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
+	float m_destructionRate;
+
 	bool m_hidden;
 	bool m_outline;
 	bool m_transparant;
 	bool m_castShadow;
+	bool m_destroyState = false;
+
 	DirectX::XMFLOAT4A m_outLineColor;
 
 	ID3D11Buffer* uavstage = nullptr;
@@ -138,8 +142,13 @@ public:
 	virtual void SetTransparant(const bool & bo);
 	virtual bool GetTransparant();
 
+	virtual void setDestroyState(const bool newState) { this->m_destroyState = newState; };
+	virtual const bool getDestroyState() { return this->m_destroyState; };
+
 	std::string getTextureName() const;
 
+	virtual void setDestructionRate(const float updateRate) { this->m_destructionRate += updateRate; };
+	virtual const float getDestructionRate() { return this->m_destructionRate; };
 
 	ID3D11Buffer * GetAnimatedVertex();
 	ID3D11UnorderedAccessView * GetUAV();
