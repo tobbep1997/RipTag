@@ -202,6 +202,10 @@ void Drawable::setTexture(Texture * texture)
 	this->p_texture = texture;
 }
 
+Texture* Drawable::getTexture() const
+{
+	return this->p_texture;
+}
 
 
 void Drawable::BindTextures()

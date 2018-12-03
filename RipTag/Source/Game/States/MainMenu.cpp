@@ -374,7 +374,7 @@ void MainMenu::LoadAllGuiElements()
 			{
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
-				if (extension == L".png" || extension == L".jpg")
+				if (extension == L".DDS" || extension == L".DDS")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}
