@@ -30,7 +30,7 @@ namespace Network
 
 		void pause()
 		{
-			if (!this->m_isRunning)
+			if (this->m_isRunning)
 			{
 				this->m_value += this->getElapsedTime();
 				this->m_isRunning = false;

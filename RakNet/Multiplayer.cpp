@@ -22,11 +22,7 @@ namespace Network
 		if (this->pPeer == 0)
 			this->pPeer = RakNet::RakPeerInterface::GetInstance();
 
-		if (pNetworkIDManager == 0)
-			pNetworkIDManager = RakNet::NetworkIDManager::GetInstance();
-
 		this->SetNetworkID(this->GetNetworkID());
-		this->SetNetworkIDManager(this->networkIDManager);
 	}
 
 	void Multiplayer::Destroy()
@@ -35,11 +31,6 @@ namespace Network
 		{
 			RakNet::RakPeerInterface::DestroyInstance(this->pPeer);
 			this->pPeer = 0;
-		}
-		if (this->pNetworkIDManager)
-		{
-			RakNet::NetworkIDManager::DestroyInstance(this->pNetworkIDManager);
-			this->pNetworkIDManager = 0;
 		}
 	}
 
@@ -110,7 +101,7 @@ namespace Network
 	void Multiplayer::AdvertiseHost(const char * additionalData, size_t length)
 	{
 		static ChronoClock localClock;
-		if (localClock.isRunning() == false)
+		if (!localClock.isRunning())
 		{
 			localClock.start();
 		}
@@ -140,26 +131,14 @@ namespace Network
 
 	void Multiplayer::ReadPackets()
 	{
-		static int packetsCounter = 0;
 		RakNet::Packet * packet;
 		
 		for (packet = pPeer->Receive(); packet; pPeer->DeallocatePacket(packet), packet = pPeer->Receive()) 
 		{
-			/*packetsCounter++;
-			std::cout << "--------------------------NEW PACKET--------------------------\n";
-			std::cout << "System Adress: "; std::cout << packet->systemAddress.ToString() << std::endl;
-			std::cout << "RakNet GUID: "; std::cout << packet->guid.ToString() << std::endl;
-			std::cout << "Lenght of Data in Bytes: " + std::to_string(packet->length) << std::endl;
-			std::cout << "Message Identifier: " + std::to_string(packet->data[0]) << std::endl;
-			std::cout << "\nDATA:\n"; std::cout << std::string((char*)packet->data, packet->length);
-			std::cout << "\n\nReceived Packets Amount: " + std::to_string(packetsCounter) << std::endl;*/
 			unsigned char mID = this->GetPacketIdentifier(packet->data);
-			if (mID == 164)
-				int i = 0;
-			this->HandleRakNetMessages(mID);
+
 			this->HandleLobbyMessages(mID, packet);
 			this->HandleGameMessages(mID, packet->data);
-			
 		}
 	}
 
@@ -177,7 +156,8 @@ namespace Network
 
 	void Multiplayer::SendPacket(const char * message, size_t length,PacketPriority priority)
 	{
-		Multiplayer::GetInstance()->_send_packet(message, length, priority);
+		static Multiplayer * pNetwork = Multiplayer::GetInstance();
+		pNetwork->_send_packet(message, length, priority);
 	}
 
 	void Multiplayer::_send_packet(const char * message, size_t length, PacketPriority priority)
@@ -190,7 +170,6 @@ namespace Network
 			RakNet::UNASSIGNED_RAKNET_GUID,
 			true);
 	}
-
 
 	void Multiplayer::EndConnectionAttempt()
 	{
@@ -281,13 +260,11 @@ namespace Network
 
 	Multiplayer::Multiplayer()
 	{
-		std::cout << "Multiplayer Constructor is called.\n";
 	}
 
 
 	Multiplayer::~Multiplayer()
 	{
-		std::cout << "Multiplayer Destructor is called.\n";
 	}
 
 	unsigned char Multiplayer::GetPacketIdentifier(unsigned char * data)
@@ -298,39 +275,12 @@ namespace Network
 			return (unsigned char)data[0];
 	}
 
-	void Multiplayer::HandleRakNetMessages(unsigned char mID)
-	{
-		int breaker = 0;
-		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator;
-		switch (mID)
-		{
-		case DefaultMessageIDTypes::ID_NEW_INCOMING_CONNECTION:
-			breaker = 1;
-			break;
-		case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
-		case DefaultMessageIDTypes::ID_CONNECTION_LOST:
-			mapIterator = RemotePlayerOnReceiveMap.find(NETWORKMESSAGES::ID_PLAYER_DISCONNECT);
-			if (mapIterator != RemotePlayerOnReceiveMap.end())
-				mapIterator->second(0, nullptr);
-			//this->Disconnect();
-			break;
-		case DefaultMessageIDTypes::ID_NO_FREE_INCOMING_CONNECTIONS:
-			// Print message: Server is full
-			break;
-		default:
-			break;
-		}
-	}
-
 	void Multiplayer::HandleGameMessages(unsigned char mID, unsigned char * data)
 	{
-		if (mID == NETWORKMESSAGES::ID_GAME_START)
-			this->m_isGameRunning = true;
-	
 		std::map<unsigned char, std::function<void(unsigned char, unsigned char*)>>::iterator mapIterator = RemotePlayerOnReceiveMap.find(mID);
+
 		if (mapIterator != RemotePlayerOnReceiveMap.end())
 			mapIterator->second(mID, data);
-
 	}
 
 	void Multiplayer::HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet)
@@ -339,13 +289,4 @@ namespace Network
 		if (it != LobbyOnReceiveMap.end())
 			it->second(mID, packet);
 	}
-
-	void Multiplayer::_onDisconnect()
-	{
-		m_isConnected = m_isClient = m_isServer = m_isRunning = false;
-		// Go back to menu and print a message that the player or you lost connection
-		//might want to log who disconnected
-	}
-
-
 }
