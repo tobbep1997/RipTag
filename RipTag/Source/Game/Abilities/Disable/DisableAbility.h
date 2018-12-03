@@ -30,7 +30,8 @@ private:
 		OnHit
 	};
 
-	ParticleEmitter* m_particleEmitter; 
+	ParticleEmitter* m_particleEmitter;
+	ParticleSystem m_particleSystem;
 
 private:
 	DisableState	m_dState;

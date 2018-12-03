@@ -19,10 +19,9 @@ public:
 	typeOfEmitter type = FIRE;
 
 	std::vector<ParticleEmitter*> m_ParticleEmitter;
-	void Draw();
+	void Queue();
 	void Update(float timeDelata, Camera * camera);
 	ParticleEmitter *CreateEmitter(DirectX::XMFLOAT3 spawnPos, typeOfEmitter type, float lifeTime);
 
-	void Reset();
 };
 

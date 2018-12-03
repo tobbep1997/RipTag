@@ -98,6 +98,7 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 			this->setLiniearVelocity(0.0f, 0.0f, 0.0f);
 			this->m_dState = DisableState::Throwable;
 
+			m_particleSystem.CreateEmitter(DirectX::XMFLOAT3(data->start.x, data->start.y, data->start.z), ParticleSystem::SMOKE, 1);
 			m_particleEmitter = new ParticleEmitter();
 			m_particleEmitter->setSmoke();
 			m_particleEmitter->setEmmiterLife(1.5f);
@@ -125,7 +126,10 @@ void DisableAbility::Draw()
 		BaseActor::Draw();
 	}
 	if (m_particleEmitter != nullptr)
-		m_particleEmitter->Queue();
+	{
+		//m_particleEmitter->Queue();
+		m_particleSystem.Queue();
+	}
 }
 
 DirectX::XMFLOAT4A DisableAbility::getVelocity()
@@ -165,6 +169,7 @@ void DisableAbility::_logicLocal(double deltaTime, Camera* camera)
 	if (m_particleEmitter != nullptr)
 	{
 		m_particleEmitter->Update(deltaTime, camera);
+		m_particleSystem.Update(deltaTime, camera);
 	}
 
 }
@@ -177,6 +182,7 @@ void DisableAbility::_logicRemote(double dt, Camera * camera)
 	if (m_particleEmitter != nullptr)
 	{
 		m_particleEmitter->Update(dt, camera);
+		m_particleSystem.Update(dt, camera);
 	}
 }
 
@@ -291,7 +297,8 @@ void DisableAbility::_inStateMoving(double dt)
 							m_isActive = true; 
 					
 							m_dState = DisableState::Cooldown;
-							//Particle effects here before changing the position.  
+							//Particle effects here before changing the position. 
+							m_particleSystem.CreateEmitter(DirectX::XMFLOAT3(ptr->getPosition().x, ptr->getPosition().y, ptr->getPosition().z), ParticleSystem::SMOKE, 1);
 							m_particleEmitter = new ParticleEmitter();
 							m_particleEmitter->setSmoke(); 
 							m_particleEmitter->setEmmiterLife(1.5f); 

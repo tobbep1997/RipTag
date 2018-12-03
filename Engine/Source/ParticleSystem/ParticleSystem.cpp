@@ -21,11 +21,11 @@ ParticleSystem::~ParticleSystem()
 	}
 }
 
-void ParticleSystem::Draw()
+void ParticleSystem::Queue()
 {
 	for (int i = 0; i < nrOfEmitters; i++)
 	{
-		m_ParticleEmitter[i]->Draw();
+		m_ParticleEmitter[i]->Queue();
 	}
 }
 
@@ -46,8 +46,4 @@ ParticleEmitter *ParticleSystem::CreateEmitter(DirectX::XMFLOAT3 spawnPos, typeO
 	m_ParticleEmitter.push_back(newEmitter);
 	nrOfEmitters += 1;
 	return newEmitter;
-}
-
-void ParticleSystem::Reset()
-{
 }
