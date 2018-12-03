@@ -102,7 +102,7 @@ void RoomGenerator::_generateGrid()
 			lol << " ";
 		}
 		lol << "\n";
-	}
+	}*/
 	std::cout << green << "Blocking unpathable tiles with" << red << " Recursive stuff happening" << white << std::endl;
 	for (int i = 0; i < iterationsDepth; i++)
 	{
@@ -206,6 +206,7 @@ void RoomGenerator::_createEntireWorld()
 	int depthCounter = 0;
 	ImporterLibrary::CollisionBoxes  modCollisionBoxes;
 	modCollisionBoxes.boxes = nullptr;
+	m_nrOfLevers = 0;
 
 	Manager::g_meshManager.loadStaticMesh("CLOSEDWALL");
 	Manager::g_meshManager.loadStaticMesh("OPENWALL");
@@ -473,21 +474,6 @@ void RoomGenerator::_createEntireWorld()
 							returnableRoom->getAudioBoxesVector()->push_back(ge);
 						}
 					}
-					
-					//asset->p_createBoundingBox(DirectX::XMFLOAT3(10, 2.5f, .5f));
-					/*for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
-					{
-						float * f4Rot = modCollisionBoxes.boxes[a].rotation;
-						float * f3Pos = modCollisionBoxes.boxes[a].translation;
-						float * f3Scl = modCollisionBoxes.boxes[a].scale;
-						DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };				//FoR SoUnD
-							DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1 };
-						DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
-						FMOD::Geometry * ge = AudioEngine::CreateCube(0.75f, 0.35f, xmPos, xmScl, xmQ);
-						ge->setActive(false);
-
-						m_generatedAudioBoxes.push_back(ge);
-					}*/
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
 				}
@@ -546,6 +532,8 @@ void RoomGenerator::_createEntireWorld()
 				
 				for (int k = 0; k < tempProps.nrOfItems; k++)
 				{
+					if (tempProps.props[k].typeOfProp == 4)
+						m_nrOfLevers++;
 					if (isRotated == true)
 					{
 						float tempPosX = tempProps.props[k].transform_position[0];

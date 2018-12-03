@@ -100,7 +100,6 @@ void GameLoop(Game * game)
 		game->Clear();
 
 		//Pollevents
-		
 
 		//Draw and update
 		game->ImGuiFrameStart();
@@ -116,8 +115,6 @@ void SingleGameLoop(Game * game)
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
 
-
-
 	while (game->isRunning())
 	{
 		InputHandler::Reset();
@@ -130,8 +127,6 @@ void SingleGameLoop(Game * game)
 		//This is to avoid Pollevents from fucking with the game
 		game->Clear();
 		///-------------------
-
-
 
 		///-------------------
 
@@ -181,6 +176,4 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	FontHandler::Release();
 	AudioEngine::Release();
 	return 0;
-	
-
 }

@@ -78,7 +78,6 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
-
 }
 Room::~Room()
 {
@@ -134,7 +133,6 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		
 		Release();
 	}
 }
