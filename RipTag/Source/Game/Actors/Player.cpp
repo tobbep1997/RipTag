@@ -65,6 +65,13 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	SetFirstPersonModel();
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Player);
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+
+
+
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -72,6 +79,9 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
 	m_lockPlayerInput = false;
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
 }
 
 Player::~Player()
@@ -116,6 +126,13 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	setTextureTileMult(2, 2);
 
 	setHidden(true);
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+
+	
+
 }
 
 void Player::BeginPlay()
@@ -1291,20 +1308,34 @@ void Player::_cameraPlacement(double deltaTime)
 				hasPlayed = true;
 				auto xmPos = getPosition();
 				FMOD_VECTOR at = { xmPos.x, xmPos.y, xmPos.z };
-				int index = -1;
-				while (index == -1 || index == last)
-				{
-					index = rand() % (int)RipSounds::g_stepsStone.size();
-				}
-				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+				m_footSteps.loudness = speed + (speed * p_moveState * 0.5f);
+				FMOD::Channel * c = nullptr;
+				float vol = 1.0f;
+				
+				int index = -1;
+				if (speed > 3.0f) // running
+				{
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_hardStep.size();
+					}
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_hardStep[index], &at, &m_footSteps);
+					vol = speed / 5.0f;
+				}
+				else
+				{
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_sneakStep.size();
+					}
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_sneakStep[index], &at, &m_footSteps);
+					vol = speed / 3.0f;
+				}
+				c->setVolume(std::clamp(vol, 0.0f, 1.0f));
 
-				speed *= 0.1;
-				speed -= 0.2f;
-				c->setVolume(speed);
 				last = index;
 			}
 		}

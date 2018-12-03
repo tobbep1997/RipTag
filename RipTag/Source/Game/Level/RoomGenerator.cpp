@@ -561,8 +561,6 @@ void RoomGenerator::_createEntireWorld()
 
 					particleEmitter->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0);
 
-					FMOD_VECTOR at = { tempLights.lights[k].translate[0], tempLights.lights[k].translate[1],tempLights.lights[k].translate[2] };
-					AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 					Torch * tempTorch = DBG_NEW Torch(tempLight, particleEmitter, returnableRoom->getTriggerHandler()->netWorkTriggers.size());
 					m_generatedTorches.push_back(tempTorch);
 					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));
