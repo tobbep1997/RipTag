@@ -99,4 +99,6 @@ public:
 
 	void Load(); 
 	void unLoad(); 
+
+	void ExitPause() { m_exitPause = true; }
 };
