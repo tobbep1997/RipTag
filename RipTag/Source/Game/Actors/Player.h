@@ -38,6 +38,7 @@ private: //stuff for state machine
 	friend class PlayState;
 	friend class Enemy;
 	bool m_isInAir = false;
+	bool m_headBobbingActive = true; 
 	float m_currentSpeed = 0.0f; //[0,1]
 	float m_currentPeek = 0.0f;
 	float m_currentDirection = 0.0; //[-180,180], relative to movement
@@ -112,6 +113,8 @@ private:
 	bool m_currClickSprint = false; 
 	bool m_prevClickSprint = false; 
 	bool m_isSprinting = false; 
+	
+	bool m_exitPause = false; 
 	
 	int m_toggleCrouch = 0; 
 	int m_toggleSprint = 0; 
@@ -203,13 +206,19 @@ public:
 	void SetCurrentVisability(const float & guard);
 	void SetCurrentSoundPercentage(const float & percentage);
 	void SetFirstPersonModel();
+	void setHeadbobbingActive(bool active); 
 	void LockPlayerInput();
 	bool IsInputLocked();
 	void UnlockPlayerInput();
 
+	void setExitPause(bool exitPause);
+
+	const bool& getHeadbobbingActive() const;
+	const bool& getExitPause() const; 
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 	const bool & getWinState() const { return hasWon; }
+	const bool & getPlayerLocked() const; 
 	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
@@ -246,7 +255,6 @@ private:
 	void _deActivateCrouch();
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
-
 
 	void _loadHUD();
 	void _unloadHUD();

@@ -220,16 +220,11 @@ void AI::_onInvestigateSound()
 
 	if (soundTile.getX() == -1 && soundTile.getY() == -1)
 	{
-		soundTile = m_grid->GetRandomNearbyTile(guardTile);
+		soundTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
 	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 	
-
-
-
-
-	// If pathfindingThread is finnished
 #ifdef _DEBUG
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
@@ -246,7 +241,7 @@ void AI::_onInvestigateSight()
 
 	if (playerTile.getX() == -1 && playerTile.getY() == -1)
 	{
-		playerTile = m_grid->GetRandomNearbyTile(guardTile);
+		playerTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
 	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));

@@ -24,6 +24,11 @@ HUDComponent::~HUDComponent()
 }
 
 
+const int &HUDComponent::getNrOfElements() const 
+{
+	return m_nrOfElements; 
+}
+
 void HUDComponent::InitHUDFromFile(std::string fileName)
 {
 	std::ifstream inputStream;
@@ -41,6 +46,8 @@ void HUDComponent::InitHUDFromFile(std::string fileName)
 
 		inputStream >> nrOfElements;
 		inputStream.ignore();
+
+		m_nrOfElements = nrOfElements; 
 
 		for (int i = 0; i < nrOfElements; i++)
 		{
