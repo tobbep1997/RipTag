@@ -215,8 +215,6 @@ void Render2D::DBG_INIT()
 
 void Render2D::DBG()
 {
-	DXGI_QUERY_VIDEO_MEMORY_INFO info;
-	   	 
 	if (SUCCEEDED(ret_code))
 	{
 		if (SUCCEEDED(dxgifactory->EnumAdapters(0, &dxgiAdapter)))
@@ -264,7 +262,7 @@ void Render2D::DBG()
 	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam));
 	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 0, 0, 1));
 	dbg_quad->setPosition(1, 1);
-	dbg_quad->setScale(.20, .2);
+	dbg_quad->setScale(.20f, .2f);
 	dbg_quad->setColor(1, 1, 1,1);
 	dbg_quad->setUnpressedTexture("DAB");
 	dbg_quad->Draw();
