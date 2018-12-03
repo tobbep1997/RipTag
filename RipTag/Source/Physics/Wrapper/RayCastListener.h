@@ -100,7 +100,19 @@ public:
 		{
 			if (m_nrOfContacts == 0)
 				return nullptr;
-			return this->rayContacts.at(m_nrOfContacts - 1);
+
+			float smallestFraction = FLT_MAX;
+			unsigned int id = 0;
+			for (int i = 0; i < m_nrOfContacts; i++)
+			{
+				if (this->rayContacts.at(i)->fraction < smallestFraction)
+				{
+					id = i;
+					smallestFraction = this->rayContacts.at(i)->fraction;
+				}
+			}
+
+			return this->rayContacts.at(id);
 		}
 
 		int getNrOfContacts()
