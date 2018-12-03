@@ -71,6 +71,7 @@ void RoomGenerator::_generateGrid()
 
 	DirectX::BoundingBox testBox;
 
+	std::cout << green << "Generating grid with" << red << " Box Intersection" << white << std::endl;
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -92,28 +93,36 @@ void RoomGenerator::_generateGrid()
 		/*testBox = DirectX::BoundingBox(DirectX::XMFLOAT3(-49.5, 0.5, i -49.5), DirectX::XMFLOAT3(.48, .48, .48));*/
 	}
 
+	
+	std::ofstream lol;
+	lol.open(" map_noBlockAlg.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
 		{
-			int index = j + i * iterationsWidth;
-			if (m_generatedGrid->GetNodeAt(index)->tile.getPathable())
-			{
-				std::vector<Node*> _temp = m_generatedGrid->GetNodesAround(i, j);
+			int index = i + j * iterationsWidth;
+			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
+			if (node.tile.getPathable())
+				lol << " ";
+			else
+				lol << "#";
+			lol << " ";
+		}
+		lol << "\n";
+	}
+	lol.close();
 
-
-
-
-			}
-
-
+	std::cout << green << "Blocking unpathable tiles with" << red << " Recursive stuff happening" << white << std::endl;
+	for (int i = 0; i < iterationsDepth; i++)
+	{
+		for (int j = 0; j < iterationsWidth; j++)
+		{
+			m_generatedGrid->BlockIfNotPathable(j, i);
 		}
 	}
 
-
-
-	std::ofstream lol;
-	lol.open("map.txt");
+	//std::ofstream lol;
+	lol.open("map_BlockAlg.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -640,6 +649,7 @@ void RoomGenerator::_createEntireWorld()
 
 void RoomGenerator::_generateGuardPaths()
 {
+	std::cout << green << "Generating guards path with" << red << " A* and some magic" << white << std::endl;
 	for (int i = 0; i < m_generatedRoomEnemies.size(); i++)
 	{
 		Enemy * currentEnemey = m_generatedRoomEnemies[i];

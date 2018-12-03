@@ -83,6 +83,7 @@ private:
 		Tile destination;
 	};
 private:
+	const int MAX_BLOCK_CHECK = 21;
 	std::vector<Node> m_nodeMap;
 	std::vector<Node> m_roomNodeMap;
 	int m_width, m_height;
@@ -107,7 +108,7 @@ public:
 
 	
 	Node * GetNodeAt(int index);
-	std::vector<Node*> GetNodesAround(int x, int y);
+	//std::vector<Node*> GetNodesAround(int x, int y);
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
 
 	void ThreadPath(Tile src, Tile dest);
@@ -115,6 +116,10 @@ public:
 	bool IsPathReady();
 	int getGridWidth();
 	int getGridHeight();
+
+
+	// For Blocking Algorithm;
+	void BlockIfNotPathable(int targetX, int targetY);
 
 private:
 	// Utility functions
@@ -137,4 +142,9 @@ private:
 	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
 
 	std::vector<Node*> _findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height);
+
+	// For Blocking Algorithm;
+	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
+	std::vector<Node*>	_getUnblockedAround(int x, int y);
+
 };

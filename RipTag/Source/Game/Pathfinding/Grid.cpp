@@ -214,30 +214,30 @@ Node* Grid::GetNodeAt(int index)
 	return &m_nodeMap.at(index);
 }
 
-std::vector<Node*> Grid::GetNodesAround(int x, int y)
-{
-	std::vector<Node*> nodes;
-
-	if (x > 0)
-		nodes.push_back(&m_nodeMap.at(x - 1 + y * m_width));
-	if (x < m_width)
-		nodes.push_back(&m_nodeMap.at(x + 1 + y * m_width));
-	if (y > 0)
-		nodes.push_back(&m_nodeMap.at(x + (y - 1) * m_width));
-	if (y < m_height)
-		nodes.push_back(&m_nodeMap.at(x + (y + 1) * m_width));
-
-	if (x > 0 && y > 0)
-		nodes.push_back(&m_nodeMap.at(x - 1 + (y - 1) * m_width));
-	if (x < m_width && y > 0)
-		nodes.push_back(&m_nodeMap.at(x + 1 + (y - 1) * m_width));
-	if (x > 0 && y < m_height)
-		nodes.push_back(&m_nodeMap.at(x - 1 + (y + 1) * m_width));
-	if (x < m_width && y < m_height)
-		nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
-
-	return nodes;
-}
+//std::vector<Node*> Grid::GetNodesAround(int x, int y)
+//{
+//	std::vector<Node*> nodes;
+//
+//	if (x > 0)
+//		nodes.push_back(&m_nodeMap.at(x - 1 + y * m_width));
+//	if (x < m_width)
+//		nodes.push_back(&m_nodeMap.at(x + 1 + y * m_width));
+//	if (y > 0)
+//		nodes.push_back(&m_nodeMap.at(x + (y - 1) * m_width));
+//	if (y < m_height)
+//		nodes.push_back(&m_nodeMap.at(x + (y + 1) * m_width));
+//
+//	if (x > 0 && y > 0)
+//		nodes.push_back(&m_nodeMap.at(x - 1 + (y - 1) * m_width));
+//	if (x < m_width && y > 0)
+//		nodes.push_back(&m_nodeMap.at(x + 1 + (y - 1) * m_width));
+//	if (x > 0 && y < m_height)
+//		nodes.push_back(&m_nodeMap.at(x - 1 + (y + 1) * m_width));
+//	if (x < m_width && y < m_height)
+//		nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
+//
+//	return nodes;
+//}
 
 void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 {
@@ -308,6 +308,20 @@ int Grid::getGridWidth()
 int Grid::getGridHeight()
 {
 	return m_height;
+}
+
+void Grid::BlockIfNotPathable(int targetX, int targetY)
+{
+	if (m_nodeMap.at(targetX + targetY * m_width).tile.getPathable())
+	{
+		std::vector<Node*> targets;
+		_blockCheck(targetX, targetY, targets);
+		if (targets.size() < MAX_BLOCK_CHECK)
+		{
+			for (auto & n : targets)
+				n->tile.setPathable(false);
+		}
+	}
 }
 
 void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<std::shared_ptr<Node>> & openList,
@@ -658,8 +672,6 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
 }
 
-
-
 void Grid::_removeAllCenterTiles(std::vector<Node*>& roomNodePath)
 {
 	int size = roomNodePath.size();
@@ -889,4 +901,110 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	
 	delete [] closedList;
 	return std::vector<Node*>();
+}
+
+void Grid::_blockCheck(int x, int y, std::vector<Node*>& targetNodes)
+{
+	if (m_nodeMap.at(x + y * m_width).tile.getPathable())
+	{
+		bool canPushBack = true;
+		for (auto & t : targetNodes)
+		{
+			if (m_nodeMap.at(x + y * m_width) == *t)
+			{
+				canPushBack = false;
+				break;
+			}
+		}
+
+		if (canPushBack)
+			targetNodes.push_back(&m_nodeMap.at(x + y * m_width));
+
+		if (targetNodes.size() < MAX_BLOCK_CHECK)
+		{
+			bool somethingNew = false;
+			int startIndex = targetNodes.size();
+
+			auto t = _getUnblockedAround(x, y);
+
+			for (auto newNode : t)
+			{
+				bool pushThis = true;
+				for (auto oldNode : targetNodes)
+				{
+					if (*newNode == *oldNode)
+					{
+						pushThis = false;
+						break;
+					}
+				}
+				if (pushThis)
+				{
+					somethingNew = true;
+					targetNodes.push_back(newNode);
+				}
+			}
+
+
+			if (somethingNew)
+			{
+				int end = targetNodes.size();
+				for (int i = startIndex; i < end; i++)
+				{
+					_blockCheck(targetNodes.at(i)->tile.getX(), targetNodes.at(i)->tile.getY(), targetNodes);
+				}
+			}
+		}
+
+	}
+}
+
+std::vector<Node*> Grid::_getUnblockedAround(int x, int y)
+{
+	std::vector<Node*> nodes;
+
+	if (x > 0) // Left
+	{
+		if (m_nodeMap.at(x - 1 + y * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x - 1 + y * m_width));
+	}
+
+	if (x < m_width) // Right
+	{
+		if (m_nodeMap.at(x + 1 + y * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x + 1 + y * m_width));
+	}
+	if (y > 0) // Up
+	{
+		if (m_nodeMap.at(x + (y - 1) * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x + (y - 1) * m_width));
+	}
+	if (y < m_height) // Down
+	{
+		if (m_nodeMap.at(x + (y + 1) * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x + (y + 1) * m_width));
+	}
+
+	if (x > 0 && y > 0) // Up left
+	{
+		if (m_nodeMap.at(x - 1 + (y - 1) * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x - 1 + (y - 1) * m_width));
+	}
+	if (x < m_width && y > 0) // Up Right
+	{
+		if (m_nodeMap.at(x + 1 + (y - 1) * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x + 1 + (y - 1) * m_width));
+	}
+	if (x > 0 && y < m_height) // Down Left
+	{
+		if (m_nodeMap.at(x - 1 + (y + 1) * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x - 1 + (y + 1) * m_width));
+	}
+	if (x < m_width && y < m_height) // Down Right
+	{
+		if (m_nodeMap.at(x + 1 + (y + 1) * m_width).tile.getPathable())
+			nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
+	}
+
+	return nodes;
 }
