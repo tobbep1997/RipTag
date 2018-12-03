@@ -104,6 +104,9 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 		RipExtern::g_kill = false;
 
+
+
+	
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 	
@@ -111,13 +114,7 @@ void PlayState::Update(double deltaTime)
 
 		m_playerManager->PhysicsUpdate();
 		_audioAgainstGuards(deltaTime); 
-
-		_checkPauseState(); 
-
-		if (m_gamePaused && !m_mainMenuPressed)
-			_runPause(deltaTime);
-		
-			
+	
 		// Hide mouse
 		if (InputHandler::getShowCursor() != FALSE && !m_gamePaused)
 			InputHandler::setShowCursor(FALSE);	   
@@ -140,6 +137,14 @@ void PlayState::Update(double deltaTime)
 				m_physicsThread.join();
 			}
 			BackToMenu();
+		}
+
+
+		_checkPauseState();
+
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			_runPause(deltaTime);
 		}
 
 
@@ -578,7 +583,6 @@ void PlayState::_runPause(double deltaTime)
 {
 	Camera* camera = m_playerManager->getLocalPlayer()->getCamera(); 
 	m_pPauseMenu->Update(deltaTime, camera); 
-	
 }
 
 void PlayState::thread(std::string s)
@@ -826,9 +830,7 @@ void PlayState::_checkPauseState()
 		m_playerManager->getLocalPlayer()->LockPlayerInput();
 		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
 		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
-		m_playerManager->getLocalPlayer()->setHeadbobbingActive(false); 
 		m_pPauseMenu = new PauseMenu(); 
-
 	}
 
 	if (m_pPauseMenu != nullptr)
@@ -838,9 +840,9 @@ void PlayState::_checkPauseState()
 			m_gamePaused = false;
 			m_currentState = 0;
 			m_playerManager->getLocalPlayer()->UnlockPlayerInput();
-			m_playerManager->getLocalPlayer()->setHeadbobbingActive(true);
 			delete m_pPauseMenu;
 			m_pPauseMenu = nullptr;
+
 		}
 		else if (m_pPauseMenu->getMainMenuPressed())
 		{

@@ -28,7 +28,6 @@ private:
 		SliderBarEffects,
 		SliderBarAmbient,
 		SliderBarMusic,
-		Title,
 		SliderFov,
 		SliderSensitivityX,
 		SliderSensitivityY,

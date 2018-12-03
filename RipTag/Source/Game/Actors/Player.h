@@ -113,6 +113,8 @@ private:
 	bool m_prevClickSprint = false; 
 	bool m_isSprinting = false; 
 	
+	bool m_exitPause = false; 
+	
 	int m_toggleCrouch = 0; 
 	int m_toggleSprint = 0; 
 
@@ -208,10 +210,14 @@ public:
 	bool IsInputLocked();
 	void UnlockPlayerInput();
 
+	void setExitPause(bool exitPause);
+
 	const bool& getHeadbobbingActive() const;
+	const bool& getExitPause() const; 
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 	const bool & getWinState() const { return hasWon; }
+	const bool & getPlayerLocked() const; 
 	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
@@ -248,7 +254,6 @@ private:
 	void _deActivateCrouch();
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
-
 
 	void _loadHUD();
 	void _unloadHUD();

@@ -376,6 +376,7 @@ void PauseMenu::Update(double deltaTime, Camera* camera)
 				_WriteSettingsToFile();
 				Input::ReadSettingsFile();
 				m_exitPause = true; 
+				Input::ResetMouse(); 
 				break;
 			}
 		}
@@ -469,12 +470,6 @@ void PauseMenu::_initButtons()
 	m_text[TextOrder::SliderBarMusic]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_text[TextOrder::SliderBarMusic]->setFont(FontHandler::getFont("consolas16"));
 
-	m_text.push_back(Quad::CreateButton("Pause", 0.5f, 0.9f, 1.0f, 1.0f));
-	m_text[TextOrder::Title]->setUnpressedTexture("gui_transparent_pixel");
-	m_text[TextOrder::Title]->setPressedTexture("gui_pressed_pixel");
-	m_text[TextOrder::Title]->setHoverTexture("gui_hover_pixel");
-	m_text[TextOrder::Title]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
-	m_text[TextOrder::Title]->setFont(FontHandler::getFont("consolas32"));
 
 	m_text.push_back(Quad::CreateButton("Field of View:", 0.2f, 0.86f, 0.73f, 0.12f));
 	m_text[TextOrder::SliderFov]->setUnpressedTexture("gui_transparent_pixel");
@@ -646,18 +641,12 @@ void PauseMenu::_handleGamePadInput(double dt)
 					this->m_text[m_currentButton]->setState(ButtonStates::Pressed);
 					m_sliderPressed = true;
 				}
-				if (m_currentButton == MainMenuButton)
+				else
 				{
 					m_mainManuPressed = true;
 				}
 			}
 		}
-
-		if (m_currentButton == MainMenuButton)
-		{
-			m_mainManuPressed = true;
-		}
-
 		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
 	}
 }

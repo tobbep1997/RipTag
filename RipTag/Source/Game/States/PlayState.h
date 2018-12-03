@@ -45,6 +45,7 @@ private:
 	bool m_mainMenuPressed = false; 
 	bool m_pausePressed = false; 
 	bool m_pauseWasPressed = false; 
+	bool m_returnPressed = false; 
 
 	short m_currentState = 0; 
 

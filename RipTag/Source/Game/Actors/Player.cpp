@@ -218,18 +218,19 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 
-	if (!this->m_lockPlayerInput)
-	{
-		for (int i = 0; i < m_nrOfAbilitys; i++)
-		{
-			m_activeSet[i]->Update(deltaTime);
 
-			/*if (i != m_currentAbility)
-			{
-				m_activeSet[i]->updateCooldown(deltaTime);
-			}*/
-		}
+	for (int i = 0; i < m_nrOfAbilitys; i++)
+	{
+		
+		m_activeSet[i]->Update(deltaTime);
+		
+
+		/*if (i != m_currentAbility)
+		{
+			m_activeSet[i]->updateCooldown(deltaTime);
+		}*/
 	}
+
 
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
@@ -274,6 +275,11 @@ const bool & Player::getHeadbobbingActive() const
 	return m_headBobbingActive; 
 }
 
+const bool & Player::getExitPause() const
+{
+	return m_exitPause; 
+}
+
 const float & Player::getVisability() const
 {
 	return m_visability;
@@ -282,6 +288,11 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+const bool & Player::getPlayerLocked() const
+{
+	return m_lockPlayerInput; 
 }
 
 Animation::AnimationPlayer* Player::GetFirstPersonAnimationPlayer()
@@ -1422,6 +1433,11 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 
 	return (tempStart + tempRelativeVec);
+}
+
+void Player::setExitPause(bool exitPause)
+{
+	m_exitPause = exitPause; 
 }
 
 void Player::_loadHUD()
