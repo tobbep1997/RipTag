@@ -13,7 +13,7 @@ public:
 	Texture(const wchar_t* file);
 	~Texture();
 
-	HRESULT Load(const wchar_t* file, bool staticTexture = false);
+	HRESULT Load(const wchar_t* file, bool staticTexture = false, const std::string & extension = ".DDS");
 	HRESULT LoadSingleTexture(const wchar_t * absolutePath);
 	void Bind(const uint8_t slot);
 	ID3D11Resource * m_texture[3] = {nullptr, nullptr, nullptr}; //DIFFUSE, NORMAL, ORM

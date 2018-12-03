@@ -214,6 +214,11 @@ void DX::INSTANCING::tempInstance(Drawable* drawable)
 		attribute.usingTexture.y = 1;
 		attribute.usingTexture.z = drawable->getTexture()->getIndex();
 	}
+	else
+	{
+		attribute.usingTexture.y = -1;
+		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+	}
 
 
 	if (exisitingEntry == queue->end())
@@ -255,7 +260,7 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 {
 	UINT createDeviceFlags = 0;
 
-#ifdef _DEBUG
+#ifndef _DEPLOY
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif //DEBUG
 

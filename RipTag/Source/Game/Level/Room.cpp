@@ -573,7 +573,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(3):
 			Manager::g_meshManager.loadStaticMesh("DOOR");
-			Manager::g_textureManager.loadTextures("DOOR");
+			Manager::g_textureManager.loadTextures("DOOR", true);
 
 			uniqueID = triggerHandler->Triggerables.size();
 
@@ -616,7 +616,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(5):
 			Manager::g_meshManager.loadStaticMesh("BARS");
-			Manager::g_textureManager.loadTextures("BARS");
+			Manager::g_textureManager.loadTextures("BARS", true);
 
 			uniqueID = triggerHandler->Triggerables.size();
 
@@ -778,10 +778,11 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 
 
-		if (name.find("WALL") <= name.size() || name.find("BOARD") <= name.size() || name.find("FLOOR") <= name.size())
+		//if (name == "THICKWALL")
+		//if (name.find("WALL") <= name.size() || name.find("BOARD") <= name.size() || name.find("FLOOR") <= name.size())
 			Manager::g_textureManager.loadTextures(name, true);
-		else
-			Manager::g_textureManager.loadTextures(name, false);
+		//else
+			//Manager::g_textureManager.loadTextures(name, false);
 	}
 	if (name != "INVISIBLEGRIDBLOCKER" && name != "COLLISIONBOXASPROP")
 	{

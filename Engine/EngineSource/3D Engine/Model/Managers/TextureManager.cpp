@@ -31,17 +31,18 @@ void TextureManager::Init()
 		MAX_STATIC_TEXTURES * 3U, 
 		0, 
 		0, 
-		DXGI_FORMAT_R8G8B8A8_UNORM);
+		DXGI_FORMAT_BC3_UNORM);
 
 	DXRHC::CreateShaderResourceView(m_static_TEX, 
 		m_static_SRV,
 		0,
-		DXGI_FORMAT_R8G8B8A8_UNORM,
+		DXGI_FORMAT_BC3_UNORM,
 		D3D11_SRV_DIMENSION_TEXTURE2DARRAY, 
 		MAX_STATIC_TEXTURES * 3U,
 		0, 
 		0, 
 		1);
+	MapStaticTextures();
 }
 
 void TextureManager::loadTextures(const std::string & path, bool m_static_texture)
@@ -50,11 +51,14 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 	std::wstring fullPath = this->_getFullPath(path);
 	unsigned int key = this->_getKey(fullPath);
 
-	if (m_textures[key].size() == 0)
+	if (m_textures[key].empty())
 	{
 		tempTexture->setName(fullPath);
-		
-		tempTexture->Load(fullPath.c_str(), m_static_texture);
+
+		if (m_static_texture)
+			tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
+		else
+			tempTexture->Load(fullPath.c_str(), m_static_texture);
 
 		m_textureMutex.lock();
 		m_textures[key].push_back(tempTexture);
@@ -64,19 +68,27 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 		{
 			for (int i = 0; i < 3 && this->m_static_textures < MAX_STATIC_TEXTURES * 3; i++)
 			{
-				DX::g_deviceContext->CopySubresourceRegion(m_static_TEX, 
-					this->m_static_textures,
-					0, 
-					0, 
-					0, 
-					tempTexture->m_texture[i],
-					0, 
-					NULL);
+				if (tempTexture->m_SRV[i])
+				{
+					DX::g_deviceContext->CopySubresourceRegion(m_static_TEX, 
+						this->m_static_textures,
+						0, 
+						0, 
+						0, 
+						tempTexture->m_texture[i],
+						0, 
+						NULL);	
+					//UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
+					//DX::g_deviceContext->UpdateSubresource(this->m_static_TEX, this->m_static_textures, NULL, tempTexture->m_texture[i], calcSub, calcSub);
+				}
 
 				this->m_static_textures++;
 			}
 			tempTexture->setIndex(this->m_currentTexture++);
 			tempTexture->TexUnload();
+			DX::g_deviceContext->Flush();
+
+			
 		}
 	}
 	else
@@ -93,7 +105,10 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 		{
 			tempTexture->setName(fullPath);
 			
-			tempTexture->Load(fullPath.c_str(), m_static_texture);
+			if (m_static_texture)
+				tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
+			else
+				tempTexture->Load(fullPath.c_str(), m_static_texture);
 			
 			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
@@ -103,19 +118,26 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 			{
 				for (int i = 0; i < 3 && this->m_static_textures < MAX_STATIC_TEXTURES * 3; i++)
 				{
-					DX::g_deviceContext->CopySubresourceRegion(m_static_TEX,
-						this->m_static_textures,
-						0,
-						0,
-						0,
-						tempTexture->m_texture[i],
-						0,
-						NULL);
+					if (tempTexture->m_SRV[i])
+					{
+						DX::g_deviceContext->CopySubresourceRegion(m_static_TEX,
+							this->m_static_textures,
+							0,
+							0,
+							0,
+							tempTexture->m_texture[i],
+							0,
+							NULL);
+						//UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
+						//DX::g_deviceContext->UpdateSubresource(this->m_static_TEX, this->m_static_textures, NULL, tempTexture->m_texture[i], calcSub, calcSub);
+					}
 
 					this->m_static_textures++;
 				}
 				tempTexture->setIndex(this->m_currentTexture++);
 				tempTexture->TexUnload();
+				DX::g_deviceContext->Flush();
+				
 			}
 		}
 		else
@@ -169,13 +191,16 @@ Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 void TextureManager::MapStaticTextures()
 {
 	DX::g_deviceContext->PSSetShaderResources(4, 1, &m_static_SRV);
-	
-	
+	DX::g_deviceContext->Flush();
+
 	m_static_SRV->Release();
 	m_static_TEX->Release();
 
-	m_static_SRV = nullptr;
-	m_static_TEX = nullptr;
+	//std::free(m_static_SRV);
+	//std::free(m_static_TEX);
+
+	//m_static_SRV = nullptr;
+	//m_static_TEX = nullptr;
 				 
 	this->m_currentTexture = 0;
 	this->m_static_textures = 0;

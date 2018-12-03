@@ -1,5 +1,7 @@
 #include "EnginePCH.h"
 #include "Texture.h"
+#include "2D Engine/DirectXTK/DDSTextureLoader.h"
+#include "Source/Timer/DeltaTime.h"
 
 
 Texture::Texture()
@@ -12,21 +14,33 @@ Texture::Texture(const wchar_t* file)
 {
 }
 
-HRESULT Texture::Load(const wchar_t * file, bool staticTexture)
+HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::string & extension)
 {
 	std::wstring albedoName = file;
 	std::wstring normalName = file;
 	std::wstring ORMname = file;
 
 
-	albedoName.append(L"_ALBEDO.png");
-	normalName.append(L"_NORMAL.png");
-	ORMname.append(L"_ORM.png");
+	albedoName.append(L"_ALBEDO");
+	albedoName.append(std::wstring(extension.begin(), extension.end()));
+	normalName.append(L"_NORMAL");
+	normalName.append(std::wstring(extension.begin(), extension.end()));
+	ORMname.append(L"_ORM");
+	ORMname.append(std::wstring(extension.begin(), extension.end()));
 
+	HRESULT hr;
 
-
-
-	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, albedoName.c_str(), &m_texture[0], &m_SRV[0]);
+	size_t maxTextureSize = 512;
+	DeltaTime dt;
+	dt.Init();
+	if (extension != ".png")
+		hr = DirectX::CreateDDSTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), &m_texture[0], &m_SRV[0], maxTextureSize);
+	else
+		hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), &m_texture[0], &m_SRV[0], maxTextureSize);
+	double d = dt.getDeltaTimeInSeconds();
+	std::string s = std::to_string(d) + "\n";
+	std::wstring ws = std::wstring(s.begin(), s.end());
+	OutputDebugStringW(LPCWSTR(ws.c_str()));
 	if (FAILED(hr))
 	{
 		std::string p = std::string(albedoName.begin(), albedoName.end());
@@ -42,7 +56,10 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture)
 		m_texture[0] = nullptr;
 	}
 	
-	hr = DirectX::CreateWICTextureFromFile(DX::g_device, normalName.c_str(), &m_texture[1], &m_SRV[1]);
+	if (extension != ".png")
+		hr = DirectX::CreateDDSTextureFromFile(DX::g_device, DX::g_deviceContext, normalName.c_str(), &m_texture[1], &m_SRV[1], maxTextureSize);
+	else
+		hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, normalName.c_str(), &m_texture[1], &m_SRV[1], maxTextureSize);
 	if (FAILED(hr))
 	{
 		std::string p = std::string(normalName.begin(), normalName.end());
@@ -59,7 +76,10 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture)
 	}
 
 
-	hr = DirectX::CreateWICTextureFromFile(DX::g_device, ORMname.c_str(), &m_texture[2], &m_SRV[2]);
+	if (extension != ".png")
+		hr = DirectX::CreateDDSTextureFromFile(DX::g_device, DX::g_deviceContext, ORMname.c_str(), &m_texture[2], &m_SRV[2], maxTextureSize);
+	else
+		hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, ORMname.c_str(), &m_texture[2], &m_SRV[2], maxTextureSize);
 	if (FAILED(hr))
 	{
 		std::string p = std::string(ORMname.begin(), ORMname.end());
@@ -81,7 +101,9 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 {
 	std::wstring file = absolutePath;
 
-	HRESULT hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, file.c_str(), nullptr, &m_SRV[0]);
+	HRESULT hr;// = DirectX::CreateWICTextureFromFile(DX::g_device, nullptr, file.c_str(), nullptr, &m_SRV[0]);
+	hr = DirectX::CreateDDSTextureFromFile(DX::g_device, file.c_str(), nullptr, &m_SRV[0]);
+	//m_texture[0]->Release();
 	if (FAILED(hr))
 	{
 		std::string p = std::string(file.begin(), file.end());
