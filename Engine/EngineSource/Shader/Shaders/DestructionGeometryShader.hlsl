@@ -28,6 +28,27 @@ struct GS_OUTPUT
 	int4 info : INFO;
 };
 
+float3x3 createRoationMatrix(float angle, float3 axis)
+{
+	float3x3 rotationMatrix =
+	{
+		cos(angle) + (pow(axis.x, 2) * (1 - cos(angle)),
+		axis.x * axis.y*(1 - cos(angle)) - axis.z *(sin(angle)),
+		axis.x * axis.z * (1 - cos(angle)) - axis.x * sin(angle)),
+
+		axis.y * axis.x * (1 - cos(angle)) + axis.z * sin(angle),
+		cos(angle) + pow(axis.y, 2) * (1 - cos(angle)),
+		axis.y*axis.z * (1 - cos(angle)) - axis.x * sin(angle),
+
+		axis.z * axis.x * (1 - cos(angle)) - axis.z * sin(angle),
+		axis.z * axis.y * (1 - cos(angle)) + axis.x * sin(angle),
+		cos(angle) + pow(axis.z, 2) * (1 - cos(angle))
+	};
+	
+
+	return  rotationMatrix;
+
+}
 [maxvertexcount(3)]
 void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstream)
 {
@@ -49,6 +70,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 		float oo = abs(sin(timer.x));
 		output.pos.xyz += normalize(offsetNormal) * oo;
+		mul(output.pos, createRotationMatrix(oo, offsetNormal);
 		output.worldPos.xyz += normalize(offsetNormal) * oo;
 	
 
