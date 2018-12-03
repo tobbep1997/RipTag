@@ -1,27 +1,20 @@
 #include "EnginePCH.h"
 #include "Engine3D.h"
 
-ID3D11Device*			DX::g_device;
-ID3D11DeviceContext1*	DX::g_deviceContext;
-
-Shaders::ShaderManager DX::g_shaderManager;
-
-Drawable* DX::g_player;
-Drawable* DX::g_remotePlayer = nullptr;
-std::vector<Drawable*> DX::g_animatedGeometryQueue;
-
-std::vector<PointLight*> DX::g_lights;
-std::vector<PointLight*> DX::g_prevlights;
-
-std::vector<Drawable*> DX::g_outlineQueue;
-
-std::vector<Drawable*> DX::g_wireFrameDrawQueue;
-
-std::vector<Quad*> DX::g_2DQueue;
-
-std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
-
-std::vector<ParticleEmitter*> DX::g_emitters;
+ID3D11Device*									DX::g_device;
+ID3D11DeviceContext1*						DX::g_deviceContext;
+Shaders::ShaderManager						DX::g_shaderManager;
+Drawable*											DX::g_player;
+Drawable*											DX::g_remotePlayer = nullptr;
+std::vector<Drawable*>						DX::g_animatedGeometryQueue;
+std::vector<PointLight*>						DX::g_lights;
+std::vector<PointLight*>						DX::g_prevlights;
+std::vector<Drawable*>						DX::g_outlineQueue;
+std::vector<Drawable*>						DX::g_wireFrameDrawQueue;
+std::vector<Quad*>								DX::g_2DQueue;
+std::vector<VisibilityComponent*>		DX::g_visibilityComponentQueue;
+std::vector<ParticleEmitter*>				DX::g_emitters;
+RECT													DX::g_backBufferResolution;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
@@ -209,6 +202,16 @@ void DX::INSTANCING::tempInstance(Drawable* drawable)
 	attribute.objectColor = drawable->getColor();
 	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
 	attribute.usingTexture.x = drawable->isTextureAssigned();
+	if (drawable->getTexture()->getIndex() != -1)
+	{
+		attribute.usingTexture.y = 1;
+		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+	}
+	else
+	{
+		attribute.usingTexture.y = -1;
+		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+	}
 
 
 	if (exisitingEntry == queue->end())
@@ -250,7 +253,7 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 {
 	UINT createDeviceFlags = 0;
 
-#ifdef _DEBUG
+#ifndef _DEPLOY
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif //DEBUG
 
@@ -356,6 +359,10 @@ void Engine3D::Release()
 	
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
+
+	ID3D11Debug* DebugDevice = nullptr;
+	HRESULT Result = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
+	Result = DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 }
 
 void Engine3D::_createDepthSetencil(UINT width, UINT hight)

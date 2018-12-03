@@ -161,13 +161,17 @@ void Render2D::GUIPass()
 		vpos = DirectX::XMLoadFloat2(&pos);
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 
+		//Have the scaling based on the Resolution - reference value is 1280p, adjustment multiplier is 0.75f
+		float fontScaling = (DX::g_backBufferResolution.right / 1280.f) * 0.75f;
+		
 		DX::g_2DQueue[j]->getSpriteFont().DrawString(
 			m_spriteBatch,
 			wstring.data(),
 			vpos,
 			color,
 			0.0f,
-			origin
+			origin,
+			fontScaling
 		);
 
 		m_spriteBatch->End();
@@ -211,8 +215,6 @@ void Render2D::DBG_INIT()
 
 void Render2D::DBG()
 {
-	DXGI_QUERY_VIDEO_MEMORY_INFO info;
-	   	 
 	if (SUCCEEDED(ret_code))
 	{
 		if (SUCCEEDED(dxgifactory->EnumAdapters(0, &dxgiAdapter)))
@@ -260,9 +262,11 @@ void Render2D::DBG()
 	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam));
 	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 0, 0, 1));
 	dbg_quad->setPosition(1, 1);
-	dbg_quad->setScale(.20, .2);
+	dbg_quad->setScale(.20f, .2f);
 	dbg_quad->setColor(1, 1, 1,1);
-	dbg_quad->setUnpressedTexture("DAB");
+	dbg_quad->setUnpressedTexture("");
+	dbg_quad->setPressedTexture("");
+	dbg_quad->setHoverTexture("");
 	dbg_quad->Draw();
 }
 

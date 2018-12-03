@@ -4,7 +4,9 @@
 #include "Helper/RandomRoomPicker.h"
 
 
-std::vector<std::string> RipSounds::g_stepsStone;
+std::vector<std::string> RipSounds::g_sneakStep;
+std::vector<std::string> RipSounds::g_hardStep;
+std::vector<std::string> RipSounds::g_armorStepsStone;
 std::string				 RipSounds::g_leverActivate;
 std::string				 RipSounds::g_leverDeactivate;
 std::string				 RipSounds::g_pressurePlateActivate;
@@ -13,6 +15,7 @@ std::string				 RipSounds::g_torch;
 std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
 std::string				 RipSounds::g_grunt;
+std::string				 RipSounds::g_playAmbientSound;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -29,7 +32,6 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
 }
 
 PlayState::~PlayState()
@@ -51,6 +53,8 @@ PlayState::~PlayState()
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
 
+	if(m_pPauseMenu != nullptr)
+	delete m_pPauseMenu; 
 
 	//delete triggerHandler;
 	
@@ -104,15 +108,19 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 		RipExtern::g_kill = false;
 
+
+
+	
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
-		m_playerManager->Update(deltaTime);
-		m_playerManager->PhysicsUpdate();
-		_audioAgainstGuards(deltaTime);
 	
+		m_playerManager->Update(deltaTime);
 
+		m_playerManager->PhysicsUpdate();
+		_audioAgainstGuards(deltaTime); 
+	
 		// Hide mouse
-		if (InputHandler::getShowCursor() != FALSE)
+		if (InputHandler::getShowCursor() != FALSE && !m_gamePaused)
 			InputHandler::setShowCursor(FALSE);	   
 		
 		// Select gamepad
@@ -122,17 +130,25 @@ void PlayState::Update(double deltaTime)
 		}
 
 		// On exit
-		if (Input::Exit() || GamePadHandler::IsStartPressed())
+		if (m_mainMenuPressed)
 		{
 			m_destoryPhysicsThread = true;
 			m_physicsCondition.notify_all();
-		
+
 
 			if (m_physicsThread.joinable())
 			{
 				m_physicsThread.join();
 			}
 			BackToMenu();
+		}
+
+
+		_checkPauseState();
+
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			_runPause(deltaTime);
 		}
 
 		// On win or lost
@@ -178,7 +194,7 @@ void PlayState::Update(double deltaTime)
 		}
 	
 		// Reset mouse to middle of the window, Must be last in update
-		if (!m_playerManager->getLocalPlayer()->unlockMouse)
+		if (!m_playerManager->getLocalPlayer()->unlockMouse && !m_gamePaused)
 		{
 			Input::ResetMouse();
 			InputHandler::setShowCursor(false);
@@ -307,14 +323,17 @@ void PlayState::Draw()
 
 		m_playerManager->Draw();
 
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			m_pPauseMenu->Draw();
+		}
+
 	}
 	if (!runGame)
 	{
 		if (m_transitionState)
 			m_transitionState->Draw();
 	}
-	//DrawWorldCollisionboxes("BLINK_WALL");
-	//DrawWorldCollisionboxes();
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
@@ -420,9 +439,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			{
 				for (auto & c : channels)
 				{
-					AudioEngine::SoundType * soundType = nullptr;
-					FMOD_RESULT res = c->getUserData((void**)&soundType);
-					if (res == FMOD_OK)
+					AudioEngine::SoundDesc * sd = nullptr;
+					FMOD_RESULT res = c->getUserData((void**)&sd);
+					if (res == FMOD_OK && sd != nullptr)
 					{
 						FMOD_VECTOR soundPos;
 						if (c->get3DAttributes(&soundPos, nullptr) == FMOD_OK)
@@ -461,8 +480,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							}
 							
 
-							float volume = 0;
-							c->getVolume(&volume);
+							float volume = sd->loudness;;
 							
 							volume *= 100.0f;
 							
@@ -472,7 +490,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 
 							//Pro Tip: Not putting break in a case will not stop execution, 
 							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
-							switch (*soundType)
+							switch (sd->emitter)
 							{
 							case AudioEngine::Player:
 								allSounds += addThis;
@@ -484,6 +502,13 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 									sl.soundPos.z = soundPos.z;
 								}
 								break;
+							case AudioEngine::Enemy:
+								if (e != sd->owner)
+								{
+									allSounds += addThis;
+								}
+								break;
+							case AudioEngine::RemotePlayer:
 							case AudioEngine::Other:
 								allSounds += addThis;
 								break;
@@ -548,6 +573,12 @@ void PlayState::_lightCulling()
 	}
 }
 
+void PlayState::_runPause(double deltaTime)
+{
+	Camera* camera = m_playerManager->getLocalPlayer()->getCamera(); 
+	m_pPauseMenu->Update(deltaTime, camera); 
+}
+
 void PlayState::thread(std::string s)
 {
 	Manager::g_meshManager.loadStaticMesh(s);
@@ -590,9 +621,9 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			_vertices.push_back(v);
 		}
 		_sm.setVertices(_vertices);
-		
-		
+			
 		_loaded = true;
+
 		const b3Body * b = m_world.getBodyList();
 
 		while (b != nullptr)
@@ -707,8 +738,13 @@ void PlayState::unLoad()
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_meshManager.UnloadAllMeshes();
 
-	for (auto & s : RipSounds::g_stepsStone)
+	for (auto & s : RipSounds::g_sneakStep)
 		AudioEngine::UnLoadSoundEffect(s);
+	for (auto & s : RipSounds::g_hardStep)
+		AudioEngine::UnLoadSoundEffect(s);
+	for (auto & s : RipSounds::g_armorStepsStone)
+		AudioEngine::UnLoadSoundEffect(s);
+
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_windAndDrip);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_leverActivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_leverDeactivate);
@@ -716,6 +752,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
+	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
 
 	if (m_eventOverlay)
 	{
@@ -736,6 +773,8 @@ void PlayState::unLoad()
 		delete m_transitionState;
 		m_transitionState = nullptr;
 	}
+
+	m_pPauseMenu->unLoad(); 
 }
 
 void PlayState::Load()
@@ -771,8 +810,69 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
+	m_pPauseMenu->Load(); 
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
+}
+
+void PlayState::_checkPauseState()
+{
+	static bool justPressed = false;
+	//Check if escape was pressed
+	if (!m_pausePressed)
+	{
+		if (Input::isUsingGamepad())
+			m_pausePressed = GamePadHandler::IsStartPressed();
+		if (InputHandler::wasKeyPressed(InputHandler::Esc))
+			m_pausePressed = true;
+		justPressed = m_pausePressed;
+	}
+
+	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
+	{
+		m_gamePaused = true; 
+		m_currentState = 1; 
+		m_playerManager->getLocalPlayer()->LockPlayerInput();
+		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
+		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
+		m_pPauseMenu = new PauseMenu(); 
+	}
+
+	if (m_pPauseMenu != nullptr)
+	{
+		//Check input 
+		if (!justPressed)
+		{
+			if (Input::isUsingGamepad())
+			{
+				if (GamePadHandler::IsStartPressed())
+					m_pPauseMenu->ExitPause();
+			}
+			if (InputHandler::wasKeyPressed(InputHandler::Esc))
+				m_pPauseMenu->ExitPause();
+		}
+		if (justPressed)
+			justPressed = false;
+
+		if (m_pPauseMenu->getExitPause())
+		{
+			m_pausePressed = false;
+			m_gamePaused = false;
+			m_currentState = 0;
+			m_playerManager->getLocalPlayer()->UnlockPlayerInput();
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+
+		}
+		else if (m_pPauseMenu->getMainMenuPressed())
+		{
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+			m_mainMenuPressed = true; 
+		}
+	}
+
+	m_pauseWasPressed = m_pausePressed; 
 }
 
 void PlayState::_loadTextures()
@@ -915,32 +1015,43 @@ void PlayState::_loadNetwork()
 
 void PlayState::_loadSound()
 {
-	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", 5.0f, 10000.0f, true);
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
+	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Ambient/Cave.ogg", 5.0f, 10000.0f, true);
+
+	for (int i = 1; i <= 6; i++)
+	{
+		RipSounds::g_sneakStep.push_back(AudioEngine::LoadSoundEffect(
+			"../Assets/Audio/SoundEffects/Player/Sneaking/soft_"
+			+ std::to_string(i) +
+			".ogg"
+		));
+	}
+	for (int i = 1; i <= 6; i++)
+	{
+		RipSounds::g_hardStep.push_back(AudioEngine::LoadSoundEffect(
+			"../Assets/Audio/SoundEffects/Player/Running/hard_"
+			+ std::to_string(i) +
+			".ogg"
+		));
+	}
+	for (int i = 1; i <= 12; i++)
+	{
+		RipSounds::g_armorStepsStone.push_back(AudioEngine::LoadSoundEffect(
+			"../Assets/Audio/SoundEffects/Armored_Guard/Footsteps/step_"
+			+ std::to_string(i) +
+			".ogg"
+		));
+	}
+
+
 	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
 	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
 	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
 	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
 	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
 	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
+	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
 
-
-	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
-	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
-
-	AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &caveSoundAt2, AudioEngine::Other);
-
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
-
-	AudioEngine::CreateReverb(reverbAt, 30.0f, 50.0f);
+	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.2f);
 }
 
 void PlayState::_registerThisInstanceToNetwork()

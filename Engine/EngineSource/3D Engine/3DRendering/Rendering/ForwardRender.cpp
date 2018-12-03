@@ -13,7 +13,7 @@ ForwardRender::ForwardRender()
 
 ForwardRender::~ForwardRender()
 {
-	delete m_visabilityPass;
+	
 	
 }
 
@@ -347,6 +347,11 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
+			if (DX::g_animatedGeometryQueue[i]->getTextureName().find("DOOR") <= DX::g_animatedGeometryQueue[i]->getTextureName().size())
+			{
+				int gfaghjk34h = 5;
+			}
+
 			DX::g_animatedGeometryQueue[i]->BindTextures();
 
 			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
@@ -473,6 +478,8 @@ void ForwardRender::Release()
 	m_2DRender->Release();
 	delete m_2DRender;
 	delete m_animationBuffer;
+
+	delete m_visabilityPass;
 }
 
 void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool& bindTextures)
@@ -534,6 +541,8 @@ void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GR
 			0U,
 			0U);
 		DX::SafeRelease(instanceBuffer);
+		//DX::SafeRelease(bufferPointers[0]);
+		//DX::SafeRelease(bufferPointers[1]);
 	}
 }
 
@@ -865,10 +874,21 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	m_textureValues.textureTileMult.y = drawable->getTextureTileMult().y;
 
 	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
+	if (drawable->getTexture()->getIndex() != -1)
+	{
+		m_textureValues.usingTexture.y = 1;
+		m_textureValues.usingTexture.z = drawable->getTexture()->getIndex();
+	}
+	else
+	{
+		m_textureValues.usingTexture.y = -1;
+		m_textureValues.usingTexture.z = drawable->getTexture()->getIndex();
+	}
 
 	m_textureValues.color = drawable->getColor();
 
 	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
+	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::vertex);
 }
 
 void ForwardRender::_mapObjectOutlineBuffer(Drawable* drawable, const DirectX::XMFLOAT4A & pos)

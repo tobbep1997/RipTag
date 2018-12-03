@@ -38,8 +38,8 @@ private:
 	DirectX::XMVECTOR m_Dir;
 	DirectX::XMVECTOR m_SpawnPosition = DirectX::XMVECTOR{ 4.297f, 5, -1.682f, 1.0f/*Oof*/ };
 	std::vector<Particle*> m_Particles;
-	ID3D11Buffer* m_vertexBuffer = nullptr;
-	ID3D11Buffer* m_cBuffer = nullptr;
+	ID3D11Buffer* m_vertexBuffer = nullptr; //RE
+	ID3D11Buffer* m_cBuffer = nullptr;	//RE
 	Vertex* m_VertexData;
 	Particle * m_newParticle;
 	UINT32 m_StrideSize;

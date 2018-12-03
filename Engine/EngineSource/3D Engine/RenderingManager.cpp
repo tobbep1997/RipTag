@@ -27,7 +27,7 @@ RenderingManager * RenderingManager::GetInstance()
 
 void RenderingManager::Init(HINSTANCE hInstance)
 {
-#if _DEBUG || _RELEASE_DBG
+#ifndef _DEPLOY
 	DEBUG = true;
 #else
 	DEBUG = false;
@@ -42,6 +42,12 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	//Will override the settings above
 	SettingLoader::LoadWindowSettings(*m_wind);
 	SettingLoader::g_windowContext = m_wind;
+
+	DX::g_backBufferResolution.bottom = 0;
+	DX::g_backBufferResolution.left		  = 0;
+	DX::g_backBufferResolution.right	  = m_wind->clientWidth;
+	DX::g_backBufferResolution.top		  = m_wind->clientHeight;
+
 	m_wnd->Init(*m_wind);
 
 	m_engine->Init(m_wnd->getHandler(), *m_wind);
@@ -64,7 +70,7 @@ void RenderingManager::Update()
 		{
 			m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 		}
-	#if _DEBUG || _RELEASE_DBG
+	#ifndef _DEPLOY
 		if (GetAsyncKeyState(int('P')))
 		{
 			_reloadShaders();
@@ -83,7 +89,7 @@ void RenderingManager::UpdateSingleThread()
 		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 	}
 #if _DEBUG
-	if (GetAsyncKeyState(int('P')))
+	if (GetAsyncKeyState(int('J')))
 	{
 		_reloadShaders();
 	}
@@ -106,7 +112,7 @@ void RenderingManager::Flush(Camera & camera)
 	}
 
 	m_engine->Present();
-	DX::g_deviceContext->ClearState();
+	//DX::g_deviceContext->ClearState();
 }
 
 void RenderingManager::Release()

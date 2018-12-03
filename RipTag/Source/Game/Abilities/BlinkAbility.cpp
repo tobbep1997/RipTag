@@ -22,7 +22,7 @@ void BlinkAbility::Init()
 
 void BlinkAbility::Update(double deltaTime)
 {
-	if (this->isLocal)
+	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
 		_logic(deltaTime);
 }
 

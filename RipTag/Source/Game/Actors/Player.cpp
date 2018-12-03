@@ -65,6 +65,13 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	SetFirstPersonModel();
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Player);
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+
+
+
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -72,6 +79,9 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
 	m_lockPlayerInput = false;
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
 }
 
 Player::~Player()
@@ -116,6 +126,13 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	setTextureTileMult(2, 2);
 
 	setHidden(true);
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+
+	
+
 }
 
 void Player::BeginPlay()
@@ -196,6 +213,15 @@ void Player::Update(double deltaTime)
 
 			}
 		}
+
+		if (m_IsMoving())
+		{
+			m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->ActivateLayerIfInactive("bob");
+		}
+		else
+		{
+			m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("bob");
+		}
 	}
 	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
 	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
@@ -218,15 +244,19 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 
+
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
+		
 		m_activeSet[i]->Update(deltaTime);
+		
 
 		/*if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
 		}*/
 	}
+
 
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
@@ -266,6 +296,16 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+const bool & Player::getHeadbobbingActive() const
+{
+	return m_headBobbingActive; 
+}
+
+const bool & Player::getExitPause() const
+{
+	return m_exitPause; 
+}
+
 const float & Player::getVisability() const
 {
 	return m_visability;
@@ -274,6 +314,11 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+const bool & Player::getPlayerLocked() const
+{
+	return m_lockPlayerInput; 
 }
 
 Animation::AnimationPlayer* Player::GetFirstPersonAnimationPlayer()
@@ -479,9 +524,8 @@ void Player::SetFirstPersonModel()
 		auto& machine = animPlayer->InitStateMachine(3);
 		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 
-		auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+		auto idleState = machine->AddLoopState("idle", idleClip);
 		idleState->SetBlendTime(0.2f);
-		idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
 		machine->SetState("idle");
@@ -498,6 +542,11 @@ void Player::SetFirstPersonModel()
 
 		animPlayer->Play();
 	}
+}
+
+void Player::setHeadbobbingActive(bool active)
+{
+	m_headBobbingActive = active; 
 }
 
 void Player::SendOnUpdateMessage()
@@ -1026,7 +1075,7 @@ void Player::_onPeak(double deltaTime)
 	}
 
 	m_currentPeek = /*peekDir * */m_peektimer;
-	std::cout << m_currentPeek << std::endl;
+	//std::cout << m_currentPeek << std::endl;
 
 }
 
@@ -1276,10 +1325,14 @@ void Player::_cameraPlacement(double deltaTime)
 	static bool hasPlayed = true;
 	static int last = 0;
 
-	//Head Bobbing
-	float offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+	float offsetY = 0;
 
-	pos.y += offsetY;
+	//Head Bobbing
+	if (m_headBobbingActive)
+	{
+		offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+		pos.y += offsetY;
+	}
 
 	//Footsteps
 	if (p_moveState == Walking || p_moveState == Sprinting)
@@ -1291,20 +1344,34 @@ void Player::_cameraPlacement(double deltaTime)
 				hasPlayed = true;
 				auto xmPos = getPosition();
 				FMOD_VECTOR at = { xmPos.x, xmPos.y, xmPos.z };
-				int index = -1;
-				while (index == -1 || index == last)
-				{
-					index = rand() % (int)RipSounds::g_stepsStone.size();
-				}
-				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+				m_footSteps.loudness = speed + (speed * p_moveState * 0.5f);
+				FMOD::Channel * c = nullptr;
+				float vol = 1.0f;
+				
+				int index = -1;
+				if (speed > 3.0f) // running
+				{
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_hardStep.size();
+					}
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_hardStep[index], &at, &m_footSteps);
+					vol = speed / 5.0f;
+				}
+				else
+				{
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_sneakStep.size();
+					}
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_sneakStep[index], &at, &m_footSteps);
+					vol = speed / 3.0f;
+				}
+				c->setVolume(std::clamp(vol, 0.0f, 1.0f));
 
-				speed *= 0.1;
-				speed -= 0.2f;
-				c->setVolume(speed);
 				last = index;
 			}
 		}
@@ -1435,6 +1502,11 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 
 	return (tempStart + tempRelativeVec);
+}
+
+void Player::setExitPause(bool exitPause)
+{
+	m_exitPause = exitPause; 
 }
 
 void Player::_loadHUD()

@@ -144,6 +144,57 @@ namespace ImporterLibrary
 		customPropFile.close();
 		return toReturn;
 	}
+	reverbPointToEngine CustomFileLoader::readReverbPointFile(const std::string & filename)
+	{
+		std::string newFileName = "../Assets/";
+		newFileName.append(filename + "FOLDER/" + filename + "_REVERB.bin");
+
+		reverbPointToEngine toReturn;
+		bool fileIsOpen = false;
+
+		std::ifstream customPropFile(newFileName, std::ifstream::binary);
+
+		if (customPropFile.is_open())
+		{
+			customPropFile.read((char*)&toReturn.nrOf, sizeof(int));
+			toReturn.reverbPoints = new ReverbPoint[toReturn.nrOf];
+			for (int i = 0; i < toReturn.nrOf; i++)
+			{
+				customPropFile.read((char*)&toReturn.reverbPoints[i], sizeof(ReverbPoint));
+			}
+			//customPropFile.read((char*)toReturn.props, sizeof(PropItem) * (toReturn.nrOfItems));
+		}
+		else
+			return reverbPointToEngine();
+		customPropFile.close();
+		return toReturn;
+	}
+	SoundPointToEngine CustomFileLoader::readSoundPointFile(const std::string & filename)
+	{
+		std::string newFileName = "../Assets/";
+		newFileName.append(filename + "FOLDER/" + filename + "_SOUND.bin");
+
+		SoundPointToEngine toReturn;
+		bool fileIsOpen = false;
+
+		std::ifstream customPropFile(newFileName, std::ifstream::binary);
+
+		if (customPropFile.is_open())
+		{
+			customPropFile.read((char*)&toReturn.nrOf, sizeof(int));
+
+			toReturn.sounds = new SoundPoint[toReturn.nrOf];
+			for (int i = 0; i < toReturn.nrOf; i++)
+			{
+				customPropFile.read((char*)&toReturn.sounds[i], sizeof(SoundPoint));
+			}
+			//customPropFile.read((char*)toReturn.props, sizeof(PropItem) * (toReturn.nrOfItems));
+		}
+		else
+			return SoundPointToEngine();
+		customPropFile.close();
+		return toReturn;
+	}
 	MeshFromFile CustomFileLoader::readMeshFile(std::string fileName)
 	{
 		//reads the custom mesh file and stores all the data

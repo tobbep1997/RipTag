@@ -12,7 +12,7 @@ private:
 		SliderEffects,
 		SliderAmbient,
 		SliderMusic,
-		Return
+		Return 
 	};
 	enum LastInputUsed
 	{

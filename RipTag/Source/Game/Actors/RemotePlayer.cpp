@@ -139,7 +139,7 @@ void RemotePlayer::Update(double dt)
 
 	//1.
 	this->_lerpPosition(dt);
-	std::cout << this->getPosition().x << std::endl;
+	//std::cout << this->getPosition().x << std::endl;
 	//2.
 	for (size_t i = 0; i < m_nrOfAbilitys; i++)
 		m_activeSet[i]->Update(dt);

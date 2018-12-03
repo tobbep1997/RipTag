@@ -22,6 +22,7 @@ protected: // CD
 protected:
 	void * p_owner;
 	bool isLocal;
+	bool p_wasLocked = false; 
 
 public:
 	AbilityComponent(void * owner = nullptr);

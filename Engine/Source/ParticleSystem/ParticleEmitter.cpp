@@ -20,6 +20,8 @@ ParticleEmitter::ParticleEmitter()
 	minMaxLife = DirectX::XMINT2{ 0, 1 };
 	spawnSpread = DirectX::XMINT2{ 0, 0 };
 
+	m_vertexBuffer = nullptr;
+	m_cBuffer = nullptr;
 	//setSmoke();
 	_CreateBoundingBox();
 	InitializeBuffer();
@@ -42,18 +44,22 @@ void ParticleEmitter::setSmoke()
 	minMaxLife = DirectX::XMINT2{ 2, 4 };
 	spawnSpread = DirectX::XMINT2{ -1, 2 };
 
+
 	_CreateBoundingBox();
 	InitializeBuffer();
 }
 
 ParticleEmitter::~ParticleEmitter()
 {
-	m_vertexBuffer->Release();
+	DX::SafeRelease(m_vertexBuffer);
+	DX::SafeRelease(m_cBuffer);
 	for (auto& particle : m_Particles)
 	{
 		delete particle;
 	}
 	delete this->m_boundingBox;
+
+
 }
 
 void ParticleEmitter::Update(float timeDelata, Camera * camera)
@@ -306,7 +312,8 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 
 void ParticleEmitter::releaseVertexBuffer()
 {
-	m_vertexBuffer->Release(); 
+	//m_vertexBuffer->Release();
+	DX::SafeRelease(m_vertexBuffer);
 }
 
 void ParticleEmitter::Queue()
