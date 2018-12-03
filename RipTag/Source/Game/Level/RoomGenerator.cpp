@@ -108,7 +108,7 @@ void RoomGenerator::_generateGrid()
 	{
 		for (int j = 0; j < iterationsWidth; j++)
 		{
-			//m_generatedGrid->BlockIfNotPathable(j, i);
+			m_generatedGrid->BlockIfNotPathable(j, i);
 		}
 	}
 	/*lol.open("map_BlockAlg.txt");
@@ -475,7 +475,7 @@ void RoomGenerator::_createEntireWorld()
 					}
 					
 					//asset->p_createBoundingBox(DirectX::XMFLOAT3(10, 2.5f, .5f));
-					for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
+					/*for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
 					{
 						float * f4Rot = modCollisionBoxes.boxes[a].rotation;
 						float * f3Pos = modCollisionBoxes.boxes[a].translation;
@@ -487,7 +487,7 @@ void RoomGenerator::_createEntireWorld()
 						ge->setActive(false);
 
 						m_generatedAudioBoxes.push_back(ge);
-					}
+					}*/
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
 				}
