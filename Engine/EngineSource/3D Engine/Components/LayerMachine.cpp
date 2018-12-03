@@ -90,9 +90,22 @@ void LayerMachine::ActivateLayer( std::string layerName, float loopCount)
 
 void LayerMachine::ActivateLayerIfInactive(std::string layer)
 {
-	auto it = std::find_if(m_ActiveLayers.begin(), m_ActiveLayers.end(), [&](const auto& element) {return element->GetName() == layer; });
+	auto it = std::find_if(
+		m_ActiveLayers.begin(), 
+		m_ActiveLayers.end(), 
+		[&](const auto& element) {return element->GetName() == layer; });
+
 	if (it == std::end(m_ActiveLayers))
+	{
 		ActivateLayer(layer);
+	}
+	else
+	{
+		if ((*it)->GetState() == LayerState::BLENDING_OUT)
+		{
+			(*it)->BlendIn();
+		}
+	}
 }
 
 Pose1DLayer* LayerMachine::Add1DPoseLayer(std::string layerName, float* driver, float min, float max, std::vector<std::pair<Animation::SkeletonPose*, float>> poses)
@@ -149,15 +162,20 @@ void LayerState::BlendOut()
 {
 	if (m_BlendState != BLENDING_OUT)
 	{
+		m_CurrentBlendTime = m_BlendState == BLENDING_IN
+			? m_CurrentBlendTime
+			: m_BlendOutTime;
 		m_BlendState = BLENDING_OUT;
-		m_CurrentBlendTime = m_BlendOutTime;
 	}
 }
 
 void LayerState::BlendIn()
 {
+	m_CurrentBlendTime = m_BlendState == BLENDING_OUT
+		? m_CurrentBlendTime
+		: 0.0f;
+
 	m_BlendState = BLENDING_IN;
-	m_CurrentBlendTime = 0.0f;
 }
 
 void LayerState::PopOnFinish()
