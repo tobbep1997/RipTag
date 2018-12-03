@@ -619,7 +619,7 @@ std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressi
 	*currentTime += deltaTime;
 	frameCount -= 1;
 
-	float properTime = std::fmod(*currentTime, frameCount / 24.0);
+	float properTime = std::fmod(*currentTime, ((float)frameCount) / 24.0);
 	*currentTime = properTime;
 	///calc the actual frame index and progression towards the next frame
 	float actualTime = properTime / (1.0 / 24.0);

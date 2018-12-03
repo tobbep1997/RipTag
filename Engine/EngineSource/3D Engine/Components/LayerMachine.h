@@ -29,6 +29,7 @@ public:
 	Pose1DLayer* Add1DPoseLayer(std::string layerName, float* driver, float min, float max, std::vector<std::pair<Animation::SkeletonPose*, float>> poses);
 	void PopLayer(LayerState*);
 	void PopLayer(std::string layer);
+	void BlendOutLayer(std::string layer);
 	uint16_t GetSkeletonJointCount();
 private:
 	std::unordered_map<std::string, LayerState*> m_Layers;
@@ -36,6 +37,8 @@ private:
 	Animation::Skeleton* m_Skeleton{ nullptr };
 
 	bool _mildResetIfActive(LayerState* layer);
+public:
+	void ActivateLayerIfInactive(std::string layer);
 };
 #pragma endregion "Machine"
 
@@ -59,11 +62,14 @@ public:
 	virtual ~LayerState();
 
 	void BlendOut();
+	void BlendIn();
 	void PopOnFinish();
 	void SetEndlessLoop();
 	void SetPlayTime(float loopCount);
 	void Reset();
 	void MildReset();
+
+	std::string GetName() { return m_Name; }
 
 	virtual std::optional<Animation::SkeletonPose> UpdateAndGetFinalPose(float deltaTime) = 0;
 	bool IsPopped() const;
