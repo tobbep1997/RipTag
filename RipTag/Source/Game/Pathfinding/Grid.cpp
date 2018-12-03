@@ -93,6 +93,49 @@ void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int 
 		}
 }
 
+void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
+{
+	int width = randomizer->GetSize().x * 2 - 1;
+	int depth = randomizer->GetSize().y * 2 - 1;
+	float worldX = -40.f;
+	float worldY = -40.f;
+
+	for (int i = 0; i < depth; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			bool pathable = false;
+			if (i % 2 == 0 && j % 2 == 0)
+				pathable = true;
+			m_roomNodeMap.push_back(Node(Tile(j, i, pathable), NodeWorldPos(worldX + j * 10.0f, worldY + i * 10.0f)));
+		}
+	}
+	int counter = 0;
+	for (int i = 0; i < depth; i += 2)
+	{
+		for (int j = 0; j < width; j += 2)
+		{
+			int index = counter++;
+			if (i < depth - 1)
+				m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].south);
+			if (j < width - 1)
+				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
+		}
+	}
+
+	for (int i = 0; i < depth; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			if (m_roomNodeMap[j + i * width].tile.getPathable())
+				std::cout << green << 1 << white << " ";
+			else
+				std::cout << red << 0 << white << " ";
+		}
+		std::cout << "\n";
+	}
+}
+
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
@@ -137,221 +180,6 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 }
 
 Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
-{
-	if (src.getX() != -1)
-	{
-		/*// Make random
-		int direction = dir;
-		int x = src.getX();
-		int y = src.getY();
-		int index = 0;
-
-		switch (direction)
-		{
-			// North
-		case 0:
-			index = x - m_width + y * m_width;
-			if (index >= 0 && m_nodeMap.at(index).tile.getPathable())
-				return _nearbyTile(src, 0, -1);
-			// East
-		case 1:
-			index = x + 1 + y * m_width;
-			if (index < m_width + y * m_width && m_nodeMap.at(index).tile.getPathable())
-				return _nearbyTile(src, 1, 0);
-			// South
-		case 2:
-			index = x + m_width + y * m_width;
-			if (index < m_nodeMap.size() && m_nodeMap.at(index).tile.getPathable())
-				return _nearbyTile(src, 0, 1);
-		case 3:
-			index = x - 1 + y * m_width;
-			if (index >= y * m_width && m_nodeMap.at(index).tile.getPathable())
-				return _nearbyTile(src, -1, 0);
-			break;
-		}*/
-		_getNearbyUnblockedTile(src);
-	}
-	return Tile();
-}
-
-void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
-{
-	int width = randomizer->GetSize().x * 2 - 1;
-	int depth = randomizer->GetSize().y * 2 - 1;
-	float worldX = -40.f;
-	float worldY = -40.f;
-
-	for (int i = 0; i < depth; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			bool pathable = false;
-			if (i % 2 == 0 && j % 2 == 0)
-				pathable = true;
-			m_roomNodeMap.push_back(Node(Tile(j, i, pathable), NodeWorldPos(worldX + j * 10.0f, worldY + i * 10.0f)));
-		}
-	}
-	int counter = 0;
-	for (int i = 0; i < depth; i += 2)
-	{
-		for (int j = 0; j < width; j += 2)
-		{
-			int index = counter++;
-			if (i < depth - 1)
-				m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].south);
-			if (j < width - 1)
-				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
-		}
-	}
-
-	for (int i = 0; i < depth; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			if (m_roomNodeMap[j + i * width].tile.getPathable())
-				std::cout << green << 1 << white << " ";
-			else
-				std::cout << red << 0 << white << " ";
-		}
-		std::cout << "\n";
-	}
-}
-
-void Grid::ThreadPath(Tile src, Tile dest)
-{
-	m_pathfindingFuture = std::async(std::launch::async, &Grid::FindPath, this, src, dest);
-}
-
-std::vector<Node*> Grid::GetPathFromThread()
-{
-	m_path = m_pathfindingFuture.get();
-	return m_path;
-}
-
-bool Grid::IsPathReady()
-{
-	using namespace std::chrono_literals;
-	auto status = m_pathfindingFuture.wait_for(0s);
-	return status == std::future_status::ready;
-}
-
-int Grid::getGridWidth()
-{
-	return m_width;
-}
-
-int Grid::getGridHeight()
-{
-	return m_height;
-}
-
-void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<std::shared_ptr<Node>> & openList,
-	std::vector<Node> & nodeMap, bool * closedList, int width, int height)
-{
-	int currentX = current->tile.getX();
-	int currentY = current->tile.getY();
-	Tile nextTile = Tile(currentX + offsetX, currentY + offsetY);
-	int nextTileIndex = nextTile.getX() + nextTile.getY() * width;
-
-	if (_isValid(nextTile, width, height) && !closedList[nextTileIndex] &&
-		nodeMap.at(nextTileIndex).tile.getPathable())
-	{
-		std::shared_ptr<Node> newNode = std::make_shared<Node>(nodeMap.at(nextTileIndex).tile, nodeMap.at(nextTileIndex).worldPos,
-			current, current->gCost + addedGCost, _calcHValue(nextTile, dest));
-		openList.push_back(newNode);
-	}
-}
-
-bool Grid::_isValid(Tile tile, int width, int height) const
-{
-	int x = tile.getX();
-	int y = tile.getY();
-	return (x >= 0) && (x < width) &&
-		(y >= 0) && (y < height);
-}
-
-float Grid::_calcHValue(Tile src, Tile dest) const
-{
-	int x = abs(src.getX() - dest.getX());
-	int y = abs(src.getY() - dest.getY());
-	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
-}
-
-int Grid::_worldPosInNodeMap(int begin, int end, int x, int y) const
-{
-	if (begin <= end)
-	{
-		int mid = begin + (end - begin) / 2;
-
-		if ((int)m_nodeMap.at(mid).worldPos.y == y)
-		{
-			int indexAdjuster = mid % m_width;
-			return _findXInYRow(mid - indexAdjuster, mid - indexAdjuster + m_width - 1, x, y);
-		}
-
-		if (y < m_nodeMap.at(mid).worldPos.y)
-			return _worldPosInNodeMap(begin, mid - 1, x, y);
-
-		return _worldPosInNodeMap(mid + 1, end, x, y);
-	}
-	return -1;
-}
-
-int Grid::_findXInYRow(int begin, int end, int x, int y) const
-{
-	if (begin <= end)
-	{
-		int mid = begin + (end - begin) / 2;
-
-		if ((int)m_nodeMap.at(mid).worldPos.x == x)
-			return mid;
-
-		if (x < m_nodeMap.at(mid).worldPos.x)
-			return _findXInYRow(begin, mid - 1, x, y);
-
-		return _findXInYRow(mid + 1, end, x, y);
-	}
-	return -1;
-}
-
-Tile Grid::_nearbyTile(Tile src, int x, int y)
-{
-	bool foundTile = false;
-	Tile destination = Tile(src.getX() + x, src.getY() + y);
-	int destX = destination.getX();
-	int destY = destination.getY();
-	int count = 0;
-
-	while (!foundTile)
-	{
-		if (count > 4 || !m_nodeMap.at(destX + destY * m_width).tile.getPathable())
-		{
-			foundTile = true;
-			destX -= x;
-			destY -= y;
-		}
-		else
-		{
-			count++;
-			destX += x;
-			destY += y;
-		}
-	}
-
-	if (destX < 0)
-		destX = 0;
-	if (destY < 0)
-		destY = 0;
-	if (destX < y * m_width)
-		destX = m_width * y - 1;
-	if (destY >= m_height)
-		destY = m_height - 1;
-	destination = Tile(destX, destY);
-
-	return destination;
-}
-
-Tile Grid::_getNearbyUnblockedTile(Tile src)
 {
 	bool unblocked = false;
 	int x = src.getX();
@@ -498,41 +326,6 @@ Tile Grid::_getNearbyUnblockedTile(Tile src)
 	return returnTile;
 }
 
-Node* Grid::GetNodeAt(int index)
-{
-	return &m_nodeMap.at(index);
-}
-
-void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
-{
-	int width = randomizer->GetSize().x * 2 - 1;
-	int depth = randomizer->GetSize().y * 2 - 1;
-	float worldX = -40.f;
-	float worldY = -40.f;
-
-	for (int i = 0; i < depth; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			bool pathable = false;
-			if (i % 2 == 0 && j % 2 == 0)
-				pathable = true;
-			m_roomNodeMap.push_back(Node(Tile(j, i, pathable), NodeWorldPos(worldX + j * 10.0f, worldY + i * 10.0f)));
-		}
-	}
-	int counter = 0;
-	for (int i = 0; i < depth; i += 2)
-	{
-		for (int j = 0; j < width; j += 2)
-		{
-			int index = counter++;
-			if (i < depth - 1)
-				m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].south);
-			if (j < width - 1)
-				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
-		}
-	}
-}
 
 int Grid::getGridWidth()
 {
@@ -542,6 +335,11 @@ int Grid::getGridWidth()
 int Grid::getGridHeight()
 {
 	return m_height;
+}
+
+Node* Grid::GetNodeAt(int index)
+{
+	return &m_nodeMap.at(index);
 }
 
 void Grid::BlockIfNotPathable(int targetX, int targetY)

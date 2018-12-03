@@ -105,11 +105,6 @@ public:
 	
 	Node * GetNodeAt(int index);
 
-	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
-
-	void ThreadPath(Tile src, Tile dest);
-	std::vector<Node*> GetPathFromThread();
-	bool IsPathReady();
 	int getGridWidth();
 	int getGridHeight();
 
@@ -136,5 +131,4 @@ private:
 	// For Blocking Algorithm;
 	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
 	std::vector<Node*>	_getUnblockedAround(int x, int y);
-
 };
