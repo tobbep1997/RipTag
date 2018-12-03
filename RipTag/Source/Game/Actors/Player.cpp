@@ -101,8 +101,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
+	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, 1.0f, "UPPERBODY");
+	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, 1.0f, "HEAD", true);
 	m_standHeight = (y*1.4);
 	m_crouchHeight = y * .5;
 	setUserDataBody(this);
