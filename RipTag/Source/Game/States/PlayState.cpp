@@ -820,7 +820,7 @@ void PlayState::_checkPauseState()
 	//Check if escape was pressed
 	if (Input::isUsingGamepad())
 		m_pausePressed = GamePadHandler::IsStartPressed();
-	else
+	if (!m_pausePressed)
 		m_pausePressed = Input::Exit(); 
 
 	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
