@@ -161,13 +161,17 @@ void Render2D::GUIPass()
 		vpos = DirectX::XMLoadFloat2(&pos);
 		DirectX::XMVECTOR color = DirectX::XMLoadFloat4A(&DX::g_2DQueue[j]->getTextColor());
 
+		//Have the scaling based on the Resolution - reference value is 1280p, adjustment multiplier is 0.75f
+		float fontScaling = (DX::g_backBufferResolution.right / 1280.f) * 0.75f;
+		
 		DX::g_2DQueue[j]->getSpriteFont().DrawString(
 			m_spriteBatch,
 			wstring.data(),
 			vpos,
 			color,
 			0.0f,
-			origin
+			origin,
+			fontScaling
 		);
 
 		m_spriteBatch->End();

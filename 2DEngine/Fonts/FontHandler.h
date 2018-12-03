@@ -20,6 +20,7 @@ private:
 
 		void Release()
 		{
+			
 			delete spriteFont;
 		}
 	};
