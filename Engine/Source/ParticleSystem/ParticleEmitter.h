@@ -89,6 +89,7 @@ public:
 	DirectX::XMINT2 minMaxLife;
 	DirectX::XMINT2 spawnSpread;
 	bool isSmoke;
+	int type = 0;//FIRE = 0 SMOKE = 1
 
 	void releaseVertexBuffer(); 
 

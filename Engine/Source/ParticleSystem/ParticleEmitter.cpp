@@ -294,12 +294,6 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 	float x = DirectX::XMVectorGetX(basePos);
 	float y = DirectX::XMVectorGetY(basePos);
 	float z = DirectX::XMVectorGetZ(basePos);
-	//x += rand() % offset * 1 + (offset *-1);
-	//y += rand() % offset * 1 + (offset *-1);
-	//z += rand() % offset * 1 + (offset *-1);
-	//x += RandomFloat();
-	//y += std::abs(RandomFloat());
-	//z += RandomFloat();
 	basePos = DirectX::XMVECTOR{ x,y,z };
 	return basePos;
 }
