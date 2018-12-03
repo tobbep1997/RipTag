@@ -33,6 +33,7 @@ class Room : public HUDComponent
 {
 private:
 	std::vector<Torch*> m_Torches;
+	AudioEngine::SoundDesc m_ambientWindAndDrip;
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;

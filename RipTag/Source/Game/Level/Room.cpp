@@ -52,7 +52,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 {
-	//GeneratedRoom
+	//GeneratedRoom fresh prince of bellair
 	std::cout << green << "ROOM INIT" << white << std::endl;
 
 	this->m_roomIndex = -1;
@@ -139,10 +139,15 @@ void Room::UnloadRoomFromMemory()
 
 void Room::LoadRoomToMemory()
 {
-	
+	m_ambientWindAndDrip.emitter = AudioEngine::Other;
+	m_ambientWindAndDrip.owner = this;
+	m_ambientWindAndDrip.loudness = 1.5f;
+
+
 	//TODO:: add all the assets to whatever
 	if (m_roomLoaded == false)
 	{
+
 		ImporterLibrary::CustomFileLoader fileLoader;
 		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
 		for (int i = 0; i < tempLights.nrOf; i++)
@@ -159,9 +164,6 @@ void Room::LoadRoomToMemory()
 			Torch * t = new Torch(p_pointLight, p_emit, i);
 			t->BeginPlay();
 			m_Torches.push_back(t);
-			
-			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
-			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
 		delete tempLights.lights;
 
@@ -355,9 +357,8 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < sounds.nrOf; i++)
 		{
-
 			FMOD_VECTOR at = { sounds.sounds[i].translation[0], sounds.sounds[i].translation[1], sounds.sounds[i].translation[2] }; // add switch to typeofsound;
-			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, AudioEngine::Other)->setVolume(0.5f);
+			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, &m_ambientWindAndDrip)->setVolume(0.6f);
 		}
 
 		CollisionBoxes = DBG_NEW BaseActor();
@@ -378,7 +379,7 @@ void Room::LoadRoomToMemory()
 		}
 		delete [] boxes.boxes;
 		
-		m_roomLoaded = true;	
+		m_roomLoaded = true;
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
@@ -552,6 +553,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
 
+
 	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
 		int uniqueID = -1;
@@ -588,7 +590,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(3):
 			Manager::g_meshManager.loadStaticMesh("DOOR");
-			Manager::g_textureManager.loadTextures("DOOR");
+			Manager::g_textureManager.loadTextures("DOOR", true);
 
 			uniqueID = triggerHandler->Triggerables.size();
 
@@ -631,7 +633,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(5):
 			Manager::g_meshManager.loadStaticMesh("BARS");
-			Manager::g_textureManager.loadTextures("BARS");
+			Manager::g_textureManager.loadTextures("BARS", true);
 
 			uniqueID = triggerHandler->Triggerables.size();
 
@@ -751,24 +753,25 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom, true, 0, 0);
 			break;
 		case(40):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD0", assetVector, true, isRandomRoom);
 			break;
 		case(41):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD1", assetVector, true, isRandomRoom);
 			break;
 		case(42):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD2", assetVector, true, isRandomRoom);
 			break;
 		case(43):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD3", assetVector, true, isRandomRoom);
 			break;
 		case(44):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD4", assetVector, true, isRandomRoom);
 			break;
 		case(45):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD5", assetVector, true, isRandomRoom);
+			break;
 		case(46):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD6", assetVector, true, isRandomRoom);
 			break;
 		default:
 			break;
@@ -817,13 +820,37 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	if (name != "COLLISIONBOXASPROP")
 	{
-		Manager::g_meshManager.loadStaticMesh(name);
-		Manager::g_textureManager.loadTextures(name);
+		if (name.find("BOARD") <= name.size())
+		{
+			Manager::g_meshManager.loadStaticMesh("BOARD");
+
+		}
+		else
+			Manager::g_meshManager.loadStaticMesh(name);
+
+
+
+
+		//if (name == "THICKWALL")
+		//if (name.find("WALL") <= name.size() || name.find("BOARD") <= name.size() || name.find("FLOOR") <= name.size())
+			Manager::g_textureManager.loadTextures(name, true);
+		//else
+			//Manager::g_textureManager.loadTextures(name, false);
 	}
 	if (name != "INVISIBLEGRIDBLOCKER" && name != "COLLISIONBOXASPROP")
 	{
-		tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		if (name.find("BOARD") <= name.size())
+		{
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("BOARD"));
+		}
+		else
+		{
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		}
+
 		tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+
+
 	}
 
 	bool moveBox = false;

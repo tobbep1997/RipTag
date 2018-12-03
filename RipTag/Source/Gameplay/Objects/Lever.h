@@ -17,6 +17,6 @@ public:
 	void handleContact(RayCastListener::RayContact* contact);
 private:
 	bool m_interacted = false;
-	void _playSound(AudioEngine::SoundType st = AudioEngine::Player) override;
+	void _playSound(AudioEngine::SoundDesc * soundDesc) override;
 };
 

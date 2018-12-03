@@ -21,8 +21,8 @@ void LevelHandler::Init(b3World& worldPtr, Player * playerPtr, const int & seed,
 	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
+
 	_LoadCorrectRoom(seed,roomIndex);
-	
 
 	_RoomLoadingManager();
 	m_rooms[m_activeRoom]->SetActive(true);
@@ -189,7 +189,8 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
 	Room * room;
 	srand(seed);
-	if (roomIndex == -1 || true)
+	Manager::g_textureManager.Init();
+	if (roomIndex == -1)
 	{
 		room = m_roomGenerator.getGeneratedRoom(m_worldPtr, 1, m_playerPtr);
 		room->setLoaded(true);
@@ -202,11 +203,11 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 
 	//Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
 	//m_rooms.push_back(room);
-
 	m_rooms.at(0)->loadTextures();
 	int x = m_rooms.at(0)->getRoomIndex();
 	if (m_rooms.at(0)->getRoomIndex() != -1)
 		m_rooms.at(0)->LoadRoomToMemory();
+	//Manager::g_textureManager.MapStaticTextures();
 }
 
 void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
