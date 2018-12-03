@@ -46,6 +46,7 @@ private:
 	float m_currentDirection = 0.0f;
 	float m_currentSpeed = 0.0f;
 	float m_currentPitch = 0.0f;
+	float m_currentPeek = 0.0f;
 
 	//Visibility data
 	float m_currentVisibility = 0.0f;

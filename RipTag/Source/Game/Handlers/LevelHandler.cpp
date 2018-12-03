@@ -189,7 +189,6 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 {
 	Room * room;
 	srand(seed);
-
 	Manager::g_textureManager.Init();
 	if (roomIndex == -1)
 	{

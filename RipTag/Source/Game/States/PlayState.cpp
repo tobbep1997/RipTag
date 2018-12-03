@@ -3,7 +3,6 @@
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
 
-
 std::vector<std::string> RipSounds::g_stepsStone;
 std::string				 RipSounds::g_leverActivate;
 std::string				 RipSounds::g_leverDeactivate;
@@ -29,7 +28,6 @@ PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned shor
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
 }
 
 PlayState::~PlayState()
@@ -51,6 +49,8 @@ PlayState::~PlayState()
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
 
+	if(m_pPauseMenu != nullptr)
+	delete m_pPauseMenu; 
 
 	//delete triggerHandler;
 	
@@ -104,15 +104,19 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 		RipExtern::g_kill = false;
 
+
+
+	
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
-		m_playerManager->Update(deltaTime);
-		m_playerManager->PhysicsUpdate();
-		_audioAgainstGuards(deltaTime);
 	
+		m_playerManager->Update(deltaTime);
 
+		m_playerManager->PhysicsUpdate();
+		_audioAgainstGuards(deltaTime); 
+	
 		// Hide mouse
-		if (InputHandler::getShowCursor() != FALSE)
+		if (InputHandler::getShowCursor() != FALSE && !m_gamePaused)
 			InputHandler::setShowCursor(FALSE);	   
 		
 		// Select gamepad
@@ -122,7 +126,29 @@ void PlayState::Update(double deltaTime)
 		}
 
 		// On exit
-		if (Input::Exit() || GamePadHandler::IsStartPressed())
+		if (m_mainMenuPressed)
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+			BackToMenu();
+		}
+
+
+		_checkPauseState();
+
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			_runPause(deltaTime);
+		}
+
+
+		/*if (Input::Exit() || GamePadHandler::IsStartPressed())
 		{
 			m_destoryPhysicsThread = true;
 			m_physicsCondition.notify_all();
@@ -133,7 +159,7 @@ void PlayState::Update(double deltaTime)
 				m_physicsThread.join();
 			}
 			BackToMenu();
-		}
+		}*/
 
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
@@ -178,7 +204,7 @@ void PlayState::Update(double deltaTime)
 		}
 	
 		// Reset mouse to middle of the window, Must be last in update
-		if (!m_playerManager->getLocalPlayer()->unlockMouse)
+		if (!m_playerManager->getLocalPlayer()->unlockMouse && !m_gamePaused)
 		{
 			Input::ResetMouse();
 			InputHandler::setShowCursor(false);
@@ -306,6 +332,11 @@ void PlayState::Draw()
 		_lightCulling();
 
 		m_playerManager->Draw();
+
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			m_pPauseMenu->Draw();
+		}
 
 	}
 	if (!runGame)
@@ -548,6 +579,12 @@ void PlayState::_lightCulling()
 	}
 }
 
+void PlayState::_runPause(double deltaTime)
+{
+	Camera* camera = m_playerManager->getLocalPlayer()->getCamera(); 
+	m_pPauseMenu->Update(deltaTime, camera); 
+}
+
 void PlayState::thread(std::string s)
 {
 	Manager::g_meshManager.loadStaticMesh(s);
@@ -590,9 +627,9 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			_vertices.push_back(v);
 		}
 		_sm.setVertices(_vertices);
-		
-		
+			
 		_loaded = true;
+
 		const b3Body * b = m_world.getBodyList();
 
 		while (b != nullptr)
@@ -736,6 +773,8 @@ void PlayState::unLoad()
 		delete m_transitionState;
 		m_transitionState = nullptr;
 	}
+
+	m_pPauseMenu->unLoad(); 
 }
 
 void PlayState::Load()
@@ -771,8 +810,49 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
+	m_pPauseMenu->Load(); 
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
+}
+
+void PlayState::_checkPauseState()
+{
+	//Check if escape was pressed
+	if (Input::isUsingGamepad())
+		m_pausePressed = GamePadHandler::IsStartPressed();
+	if (!m_pausePressed)
+		m_pausePressed = Input::Exit(); 
+
+	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
+	{
+		m_gamePaused = true; 
+		m_currentState = 1; 
+		m_playerManager->getLocalPlayer()->LockPlayerInput();
+		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
+		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
+		m_pPauseMenu = new PauseMenu(); 
+	}
+
+	if (m_pPauseMenu != nullptr)
+	{
+		if (m_pPauseMenu->getExitPause())
+		{
+			m_gamePaused = false;
+			m_currentState = 0;
+			m_playerManager->getLocalPlayer()->UnlockPlayerInput();
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+
+		}
+		else if (m_pPauseMenu->getMainMenuPressed())
+		{
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+			m_mainMenuPressed = true; 
+		}
+	}
+
+	m_pauseWasPressed = m_pausePressed; 
 }
 
 void PlayState::_loadTextures()

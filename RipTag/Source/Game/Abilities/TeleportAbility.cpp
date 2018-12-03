@@ -64,7 +64,7 @@ void TeleportAbility::Update(double deltaTime)
 		BaseActor::Update(deltaTime);
 		_updateLight();
 	}
-	if (this->isLocal)
+	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
 		_logicLocal(deltaTime);
 	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
 
@@ -197,19 +197,19 @@ void TeleportAbility::_inStateCharging(double dt)
 				charge = 1.0f;
 			m_bar->setAngle(360.0f * charge);
 			//m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
-			if (m_charge < MAX_CHARGE)
-				m_charge += dt;
+if (m_charge < MAX_CHARGE)
+	m_charge += dt;
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
-			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
-			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
-			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+		((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
+		((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
+		((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 
-			m_charge = 0.0;
-			p_cooldown = (p_cooldownMax / 3) * 2;
-			m_tpState = TeleportState::Cooldown;
-			m_canceled = true;
+		m_charge = 0.0;
+		p_cooldown = (p_cooldownMax / 3) * 2;
+		m_tpState = TeleportState::Cooldown;
+		m_canceled = true;
 		}
 
 		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
@@ -254,10 +254,10 @@ void TeleportAbility::_inStateCharging(double dt)
 
 		if (Input::OnAbilityReleased())
 		{
-			if(m_rayId == -100)
+			if (m_rayId == -100)
 				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1);
 		}
-		
+
 	}
 
 }
@@ -295,6 +295,8 @@ void TeleportAbility::_inStateTeleportable()
 				position.y += con->normal.y;
 				position.z += con->normal.z;
 			}
+
+
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 			m_tpState = TeleportAbility::Cooldown;
 		}

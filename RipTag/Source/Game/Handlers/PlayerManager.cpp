@@ -1,8 +1,6 @@
 #include "RipTagPCH.h"
 #include "PlayerManager.h"
 
-
-
 PlayerManager::PlayerManager(b3World * physWorld)
 {
 	this->mWorld = physWorld;
@@ -27,12 +25,8 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 {
 	using namespace Network;
 	using namespace std::placeholders;
-	//Send handling
-	Multiplayer::addToOnSendFuncMap("RemotePlayerCreate", std::bind(&PlayerManager::SendOnPlayerCreate, this));
 
 	//Receive handling
-	//Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_DISCONNECT, std::bind(&PlayerManager::_onRemotePlayerDisconnect, this, _1, _2));
-	//Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CREATE, std::bind(&PlayerManager::_onRemotePlayerCreate, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_UPDATE, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
@@ -44,26 +38,6 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CROUCH_END, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
-}
-
-void PlayerManager::_onRemotePlayerCreate(unsigned char id, unsigned char * data)
-{
-	Network::CREATEPACKET * packet = (Network::CREATEPACKET*)data;
-	if (!mRemotePlayer && !hasRemotePlayer)
-	{
-		this->mRemotePlayer = new RemotePlayer(packet->nid, packet->pos, packet->scale, packet->rotation);
-		hasRemotePlayer = true;
-		if (Network::Multiplayer::GetInstance()->isServer())
-		{
-			this->mLocalPlayer->SetAbilitySet(1);
-			this->mRemotePlayer->SetAbilitySet(2);
-		}
-		else
-		{
-			this->mLocalPlayer->SetAbilitySet(2);
-			this->mRemotePlayer->SetAbilitySet(1);
-		}
-	}
 }
 
 void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data)
@@ -283,6 +257,9 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 				auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
 				auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
 
+				auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+				auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
+
 				auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 				stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
 				auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
@@ -295,6 +272,11 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 				auto& layerMachine = mLocalPlayer->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
 				auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 				crouchState->UseFirstPoseOnly(true);
+
+				auto leanState = layerMachine->Add1DPoseLayer("peek", &mLocalPlayer->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
+				leanState->UseSmoothDriver(false);
+				layerMachine->ActivateLayer("peek");
+				
 			}
 
 			/*auto animationPlayer = mLocalPlayer->getAnimationPlayer();
@@ -332,24 +314,6 @@ void PlayerManager::DestroyRemotePlayer()
 	hasRemotePlayer = false;
 }
 
-void PlayerManager::SendOnPlayerCreate()
-{
-	if (mLocalPlayer && hasLocalPlayer)
-	{
-		DirectX::XMFLOAT4A pos = mLocalPlayer->getPosition();
-		DirectX::XMFLOAT4A scale = DirectX::XMFLOAT4A(0.015f, 0.015f, 0.015f, 1.0f);
-		DirectX::XMFLOAT4A rot = {0.0, 0.0, 0.0, 0.0};
-
-		Network::CREATEPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CREATE,
-			Network::Multiplayer::GetInstance()->GetNetworkID(),
-			pos,
-			scale,
-			rot
-		);
-
-		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-	}
-}
 
 Player * PlayerManager::getLocalPlayer()
 {
