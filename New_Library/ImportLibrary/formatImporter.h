@@ -33,6 +33,12 @@ namespace ImporterLibrary
 		GuardStartingPositions readGuardStartFiles(const std::string & fileName);
 		GridStruct * readGridFile(const std::string & fileName);
 		PropItemToEngine readPropsFile(const std::string & fileName);
+
+		reverbPointToEngine readReverbPointFile(const std::string & filename);
+		SoundPointToEngine readSoundPointFile(const std::string & filename);
+
+
+
 	private:
 		Skeleton loadSkeleton(std::ifstream& file);
 		Skeleton loadSkeleton(std::ifstream& file, int32_t boneCount);
