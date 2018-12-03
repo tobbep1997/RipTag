@@ -218,15 +218,19 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 
+
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
+		
 		m_activeSet[i]->Update(deltaTime);
+		
 
 		/*if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
 		}*/
 	}
+
 
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
@@ -266,6 +270,16 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+const bool & Player::getHeadbobbingActive() const
+{
+	return m_headBobbingActive; 
+}
+
+const bool & Player::getExitPause() const
+{
+	return m_exitPause; 
+}
+
 const float & Player::getVisability() const
 {
 	return m_visability;
@@ -274,6 +288,11 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+const bool & Player::getPlayerLocked() const
+{
+	return m_lockPlayerInput; 
 }
 
 Animation::AnimationPlayer* Player::GetFirstPersonAnimationPlayer()
@@ -498,6 +517,11 @@ void Player::SetFirstPersonModel()
 
 		animPlayer->Play();
 	}
+}
+
+void Player::setHeadbobbingActive(bool active)
+{
+	m_headBobbingActive = active; 
 }
 
 void Player::SendOnUpdateMessage()
@@ -1276,10 +1300,14 @@ void Player::_cameraPlacement(double deltaTime)
 	static bool hasPlayed = true;
 	static int last = 0;
 
-	//Head Bobbing
-	float offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+	float offsetY = 0;
 
-	pos.y += offsetY;
+	//Head Bobbing
+	if (m_headBobbingActive)
+	{
+		offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+		pos.y += offsetY;
+	}
 
 	//Footsteps
 	if (p_moveState == Walking || p_moveState == Sprinting)
@@ -1435,6 +1463,11 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 
 	return (tempStart + tempRelativeVec);
+}
+
+void Player::setExitPause(bool exitPause)
+{
+	m_exitPause = exitPause; 
 }
 
 void Player::_loadHUD()
