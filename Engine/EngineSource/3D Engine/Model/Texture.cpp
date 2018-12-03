@@ -101,9 +101,8 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 {
 	std::wstring file = absolutePath;
 
-	HRESULT hr;// = DirectX::CreateWICTextureFromFile(DX::g_device, nullptr, file.c_str(), nullptr, &m_SRV[0]);
+	HRESULT hr;
 	hr = DirectX::CreateDDSTextureFromFile(DX::g_device, file.c_str(), nullptr, &m_SRV[0]);
-	//m_texture[0]->Release();
 	if (FAILED(hr))
 	{
 		std::string p = std::string(file.begin(), file.end());

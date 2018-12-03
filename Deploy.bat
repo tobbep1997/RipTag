@@ -11,6 +11,7 @@ xcopy /s /y ..\Configuration ..\Deploy\Configuration
 if not exist "..\Deploy\Assets" mkdir ..\Deploy\Assets
 xcopy /s /y ..\Assets ..\Deploy\Assets
 del /s /q /f ..\Deploy\Assets\*.png
+del /s /q /f ..\Deploy\Assets\*.jpg
 
 
 if not exist "..\Deploy\Engine\EngineSource\Shader" mkdir ..\Deploy\Engine\EngineSource\Shader
