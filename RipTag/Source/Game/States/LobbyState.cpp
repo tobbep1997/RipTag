@@ -95,31 +95,11 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	/*static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
-
-	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
-	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
-
-	bool mouseMoved = false;
-	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
-	{
-		mouseMoved = true;
-	}
-
-	s_mouseLastFrame = mousePos;*/
-
 	_handleMouseInput();	
 
 	_handleKeyboardInput();
 
 	_handleGamePadInput(deltaTime);
-
-	/*if (mouseMoved)
-	else
-	{
-	}*/
-
-	
 
 	if (!isHosting && !hasJoined && !inServerList)
 	{
@@ -652,6 +632,22 @@ void LobbyState::_handleKeyboardInput()
 
 void LobbyState::_handleMouseInput()
 {
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	bool returnIfTrue = true;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
+	{
+		returnIfTrue = false;
+	}
+
+	s_mouseLastFrame = mousePos;
+
+	if (returnIfTrue)
+		return;
+
 	if (!isHosting && !hasJoined)
 		_mouseMainLobby();
 	if (!isHosting && !hasJoined && (m_hostListButtons.size() > 0))

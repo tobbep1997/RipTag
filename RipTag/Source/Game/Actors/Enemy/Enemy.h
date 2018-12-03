@@ -7,6 +7,7 @@ struct Node;
 
 class VisibilityComponent;
 class AI;
+class Torch;
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent, public AI
 {
@@ -155,6 +156,9 @@ private:
 	int m_interactRayId = -100;
 
 	ParticleEmitter * pEmitter = nullptr;
+
+	std::vector<Torch*> m_torches;
+
 public:
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
@@ -244,6 +248,8 @@ public:
 	int GetGuardUniqueIndex();
 	void SetGuardUniqueIndex(const int & index);
 	const int getInteractRayId();
+
+	void SetTorchContainer(std::vector<Torch*>& v) { m_torches = v; }
 private:
 
 	void _handleInput(double deltaTime);

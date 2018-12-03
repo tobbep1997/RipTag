@@ -706,21 +706,15 @@ void OptionState::Load()
 			{
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
-				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
-				if (extension == L".DDS" || extension == L".DDS")
+				if (extension == L".png" || extension == L".jpg")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}
-
-
-		//std::cout << p.path().generic_string() << std::endl;
 	}
-	std::cout << "OptionState Load" << std::endl;
 }
 
 void OptionState::unLoad()
 {
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
-	std::cout << "OptionState unLoad" << std::endl;
 }

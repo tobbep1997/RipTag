@@ -26,6 +26,7 @@ public:
 	void setCamera(Camera * ptr) { this->pCamera = ptr; }
 	void setUniqueID(int id) { Trigger::setUniqueId(id); }
 	void handleContact(RayCastListener::RayContact* contact);
+	void Interact();
 private:
 	void _playSound(AudioEngine::SoundDesc * soundDesc) override;
 };

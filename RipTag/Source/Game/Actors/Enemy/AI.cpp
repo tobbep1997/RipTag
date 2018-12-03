@@ -577,6 +577,8 @@ void AI::_patrolling(const double deltaTime)
 	
 	m_owner->_CheckPlayer(deltaTime);
 
+	this->_checkTorches(deltaTime);
+
 	if (m_alertPath.size() > 0)
 	{
 		_MoveToAlert(m_alertPath.at(0), deltaTime);
@@ -917,6 +919,36 @@ float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 	}
 
 	return 0;
+}
+
+void AI::_checkTorches(float dt)
+{
+	static const float radiusSquared = CHECK_TORCHES_RADIUS * CHECK_TORCHES_RADIUS;
+
+	m_checkTorchesTimer += dt;
+
+
+	if (m_checkTorchesTimer >= CHECK_TORCHES_INTERVALL)
+	{
+		m_checkTorchesTimer -= CHECK_TORCHES_INTERVALL;
+		DirectX::XMFLOAT4A origin = m_owner->getPosition();
+		for (auto & t : m_owner->m_torches)
+		{
+			DirectX::XMFLOAT4A point = t->getPosition();
+			float distance = ((point.x - origin.x) * (point.x - origin.x) + (point.z - origin.z) * (point.z - origin.z));
+			if (distance <= radiusSquared)
+			{
+				if (t->getTriggerState())
+				{
+					t->Interact();
+					//QUEUE ANIMATION HERE
+				}
+			}
+
+		}
+	}
+
+
 }
 
 //------------------------------Public------------------------------------
