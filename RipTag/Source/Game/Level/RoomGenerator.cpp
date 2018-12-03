@@ -527,6 +527,11 @@ void RoomGenerator::_createEntireWorld()
 					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));
 				}
 				delete tempLights.lights;
+
+				for (auto & e : m_generatedRoomEnemies)
+				{
+					e->SetTorchContainer(m_generatedTorches);
+				}
 			}
 #pragma endregion
 

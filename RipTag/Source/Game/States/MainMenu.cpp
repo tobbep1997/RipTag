@@ -152,8 +152,6 @@ bool MainMenu::_handleMouseInput()
 
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
-	/*if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
-		return false;*/
 
 
 	for (size_t i = 0; i < m_buttons.size(); i++)

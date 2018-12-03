@@ -20,7 +20,9 @@ private:
 	std::vector<Enemy*> m_guards;
 	Player * m_player;
 	RemotePlayer * m_remotePlayer = nullptr;
+
 	Grid * m_grid;
+
 	int m_type = 2;
 public:
 	EnemyHandler();
@@ -35,7 +37,6 @@ public:
 	void Draw();
 
 	void HandlePacket(unsigned char id, unsigned char * data);
-
 private:
 	void _isServerUpdate(double deltaTime);
 	void _isClientUpdate(double deltaTime);

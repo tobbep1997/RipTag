@@ -284,6 +284,7 @@ void Room::LoadRoomToMemory()
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			e->SetGuardUniqueIndex(uniqueID.at(i));
+			e->SetTorchContainer(m_Torches);
 
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
@@ -769,6 +770,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(45):
 			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
 		case(46):
 			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
 			break;
