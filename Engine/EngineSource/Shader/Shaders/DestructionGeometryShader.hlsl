@@ -30,21 +30,32 @@ struct GS_OUTPUT
 
 float3x3 createRoationMatrix(float angle, float3 axis)
 {
-	float3x3 rotationMatrix =
-	{
-		cos(angle) + (pow(axis.x, 2) * (1 - cos(angle)),
-		axis.x * axis.y*(1 - cos(angle)) - axis.z *(sin(angle)),
-		axis.x * axis.z * (1 - cos(angle)) - axis.x * sin(angle)),
+	//float3x3 rotationMatrix = {
+	//	cos(angle) + (pow(axis.x, 2) * (1 - cos(angle)),    
+	//	axis.x * axis.y*(1 - cos(angle)) - axis.z *(sin(angle)),
+	//	axis.x * axis.z * (1 - cos(angle)) - axis.x * sin(angle)),
+    //
+	//	axis.y * axis.x * (1 - cos(angle)) + axis.z * sin(angle),
+	//	cos(angle) + pow(axis.y, 2) * (1 - cos(angle)),
+	//	axis.y*axis.z * (1 - cos(angle)) - axis.x * sin(angle),
+    //
+	//	axis.z * axis.x * (1 - cos(angle)) - axis.z * sin(angle),
+	//	axis.z * axis.y * (1 - cos(angle)) + axis.x * sin(angle),
+	//	cos(angle) + pow(axis.z, 2) * (1 - cos(angle))
+	//};
+    float3x3 rotationMatrix;
 
-		axis.y * axis.x * (1 - cos(angle)) + axis.z * sin(angle),
-		cos(angle) + pow(axis.y, 2) * (1 - cos(angle)),
-		axis.y*axis.z * (1 - cos(angle)) - axis.x * sin(angle),
+    rotationMatrix._11 = cos(angle) + (pow(axis.x, 2) * (1 - cos(angle)));
+    rotationMatrix._12 = axis.x * axis.y * (1 - cos(angle)) - axis.z * (sin(angle));
+    rotationMatrix._13 = axis.x * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
 
-		axis.z * axis.x * (1 - cos(angle)) - axis.z * sin(angle),
-		axis.z * axis.y * (1 - cos(angle)) + axis.x * sin(angle),
-		cos(angle) + pow(axis.z, 2) * (1 - cos(angle))
-	};
-	
+    rotationMatrix._21 = axis.y * axis.x * (1 - cos(angle)) + axis.z * sin(angle);
+    rotationMatrix._22 = cos(angle) + pow(axis.y, 2) * (1 - cos(angle));
+    rotationMatrix._23 = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
+
+    rotationMatrix._31 = axis.z * axis.x * (1 - cos(angle)) - axis.z * sin(angle);
+    rotationMatrix._32 = axis.z * axis.y * (1 - cos(angle)) + axis.x * sin(angle);
+    rotationMatrix._33 = cos(angle) + pow(axis.z, 2) * (1 - cos(angle));
 
 	return  rotationMatrix;
 
@@ -70,7 +81,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 		float oo = abs(sin(timer.x));
 		output.pos.xyz += normalize(offsetNormal) * oo;
-		mul(output.pos, createRotationMatrix(oo, offsetNormal);
+        output.pos.xyz = mul(output.pos, createRoationMatrix(oo, offsetNormal));
 		output.worldPos.xyz += normalize(offsetNormal) * oo;
 	
 
