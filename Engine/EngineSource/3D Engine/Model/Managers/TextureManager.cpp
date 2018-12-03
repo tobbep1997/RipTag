@@ -57,8 +57,6 @@ void TextureManager::loadTextures(const std::string & path)
 		}
 		else
 		{
-			std::cout << yellow << path << " Texture Already loaded" << std::endl;
-			std::cout << white;
 			delete tempTexture;	
 		}
 	}
@@ -79,12 +77,6 @@ Texture * TextureManager::getTexture(const std::string & path)
 		}
 	}
 	
-
-
-	//This will be spammed because of the Draw calls each frame
-	//std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
-	
-	//throw std::exception("TEXTURE NOT FOUND");
 	return nullptr;
 }
 
@@ -95,11 +87,7 @@ Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 		if (t->getName() == name)
 			return t;
 	}
-	
-	//This will be spammed because of the Draw calls each frame
-	//std::cout << red << std::string(name.begin(), name.end()) << " NOT FOUND" << std::endl;
 
-	//throw std::exception("TEXTURE NOT FOUND");
 	return nullptr;
 }
 
@@ -113,9 +101,6 @@ void TextureManager::loadGUITexture(const std::wstring name, const std::wstring 
 		{
 			if (t->getName() == name)
 			{
-				//we already have this texture loaded 
-				std::cout << yellow << std::string(name.begin(), name.end()) << " Texture Already loaded" << std::endl;
-				std::cout << white;
 				delete tempTexture;
 				return;
 			}

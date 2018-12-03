@@ -86,8 +86,9 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 
-	std::ofstream lol;
-	lol.open("map.txt");
+	
+	/*std::ofstream lol;
+	lol.open(" map_noBlockAlg.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)

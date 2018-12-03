@@ -62,7 +62,6 @@ public:
 	static bool SelectAbility4();
 
 	//Player Settings----------------
-
 	static const DirectX::XMFLOAT2 & GetPlayerMouseSensitivity();
 	static int GetPlayerFOV();
 

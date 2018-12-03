@@ -133,16 +133,19 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			source = GetRandomNearbyUnblockedTile(source);
 		if (!destination.getPathable())
 			destination = GetRandomNearbyUnblockedTile(destination);
-
-		// A* through the room grid to find which rooms are connected in the path
+		
+		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
+
 		_removeAllBlockedTiles(roomNodePath);
 
 		if (roomNodePath.empty())
+		{
 			return _findPath(source, destination, m_nodeMap, m_width, m_height);
-
+		}
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
+		
 		std::vector<Node*> pathToDestination;
 		int partCount = 0;
 		for (auto & tp : tilePairs)
@@ -308,6 +311,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 	return returnTile;
 }
 
+
 int Grid::getGridWidth()
 {
 	return m_width;
@@ -316,6 +320,25 @@ int Grid::getGridWidth()
 int Grid::getGridHeight()
 {
 	return m_height;
+}
+
+Node* Grid::GetNodeAt(int index)
+{
+	return &m_nodeMap.at(index);
+}
+
+void Grid::BlockIfNotPathable(int targetX, int targetY)
+{
+	if (m_nodeMap.at(targetX + targetY * m_width).tile.getPathable())
+	{
+		std::vector<Node*> targets;
+		_blockCheck(targetX, targetY, targets);
+		if (targets.size() < MAX_BLOCK_CHECK)
+		{
+			for (auto & n : targets)
+				n->tile.setPathable(false);
+		}
+	}
 }
 
 void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<std::shared_ptr<Node>> & openList,

@@ -102,14 +102,14 @@ public:
 	std::vector<Node*> FindPath(Tile src, Tile dest);
 	// Should theoretically always return a valid tile in the same room as the source
 	Tile GetRandomNearbyUnblockedTile(Tile src);	
-
+	
 	Node * GetNodeAt(int index);
+
 	int getGridWidth();
 	int getGridHeight();
 
-
 	// For Blocking Algorithm;
-	//void BlockIfNotPathable(int targetX, int targetY);
+	void BlockIfNotPathable(int targetX, int targetY);
 
 private:
 	// Utility functions
@@ -131,5 +131,4 @@ private:
 	// For Blocking Algorithm;
 	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
 	std::vector<Node*>	_getUnblockedAround(int x, int y);
-
 };

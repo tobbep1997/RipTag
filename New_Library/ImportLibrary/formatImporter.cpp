@@ -157,9 +157,6 @@ namespace ImporterLibrary
 		if (customPropFile.is_open())
 		{
 			customPropFile.read((char*)&toReturn.nrOf, sizeof(int));
-
-			ReverbPoint * tempReverbPoint;
-
 			toReturn.reverbPoints = new ReverbPoint[toReturn.nrOf];
 			for (int i = 0; i < toReturn.nrOf; i++)
 			{
@@ -185,8 +182,6 @@ namespace ImporterLibrary
 		if (customPropFile.is_open())
 		{
 			customPropFile.read((char*)&toReturn.nrOf, sizeof(int));
-
-			SoundPoint * tempSoundPoint;
 
 			toReturn.sounds = new SoundPoint[toReturn.nrOf];
 			for (int i = 0; i < toReturn.nrOf; i++)

@@ -1,27 +1,20 @@
 #include "EnginePCH.h"
 #include "Engine3D.h"
 
-ID3D11Device*			DX::g_device;
-ID3D11DeviceContext1*	DX::g_deviceContext;
-
-Shaders::ShaderManager DX::g_shaderManager;
-
-Drawable* DX::g_player;
-Drawable* DX::g_remotePlayer = nullptr;
-std::vector<Drawable*> DX::g_animatedGeometryQueue;
-
-std::vector<PointLight*> DX::g_lights;
-std::vector<PointLight*> DX::g_prevlights;
-
-std::vector<Drawable*> DX::g_outlineQueue;
-
-std::vector<Drawable*> DX::g_wireFrameDrawQueue;
-
-std::vector<Quad*> DX::g_2DQueue;
-
-std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
-
-std::vector<ParticleEmitter*> DX::g_emitters;
+ID3D11Device*									DX::g_device;
+ID3D11DeviceContext1*						DX::g_deviceContext;
+Shaders::ShaderManager						DX::g_shaderManager;
+Drawable*											DX::g_player;
+Drawable*											DX::g_remotePlayer = nullptr;
+std::vector<Drawable*>						DX::g_animatedGeometryQueue;
+std::vector<PointLight*>						DX::g_lights;
+std::vector<PointLight*>						DX::g_prevlights;
+std::vector<Drawable*>						DX::g_outlineQueue;
+std::vector<Drawable*>						DX::g_wireFrameDrawQueue;
+std::vector<Quad*>								DX::g_2DQueue;
+std::vector<VisibilityComponent*>		DX::g_visibilityComponentQueue;
+std::vector<ParticleEmitter*>				DX::g_emitters;
+RECT													DX::g_backBufferResolution;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
