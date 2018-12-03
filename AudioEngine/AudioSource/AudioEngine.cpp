@@ -1,8 +1,7 @@
 #include "AudioEngine.h"
 
-	#include <iostream>
-#ifdef _DEBUG
-#endif
+#include <Windows.h>
+#include <WinUser.h>
 
 bool AudioEngine::s_inited = false;
 
@@ -28,12 +27,6 @@ void AudioEngine::Init()
 		{
 			_createChannelGroups();
 		}
-	}
-	else
-	{
-		#ifdef _DEBUG
-			std::cout << "AudioEngine is already initialized; U STOOPID!\n";
-		#endif
 	}
 }
 
@@ -295,15 +288,6 @@ void AudioEngine::Release()
 
 		result = s_system->release();
 		s_system = nullptr;
-		#ifdef _DEBUG
-		std::cout << "AudioEngine released!\n";
-		#endif
-	}
-	else
-	{
-		#ifdef _DEBUG
-			std::cout << "AudioEngine is already released; U STOOPID!\n";
-		#endif
 	}
 
 }
@@ -453,36 +437,39 @@ void AudioEngine::_createSystem()
 	FMOD_RESULT result;
 	result = FMOD::System_Create(&s_system);	// Create the Studio System object
 	if (result != FMOD_OK)
-	{
-#ifdef _DEBUG
-		std::cout << "AudioEngine error!\nError:" + std::to_string(result) + "\nMessage: " + FMOD_ErrorString(result) + "\n";
-#endif
 		return;
-	}
 
 	result = s_system->getVersion(&version);
 
 	if (version < FMOD_VERSION)
 	{
-		exit(-1);
+#ifdef _WIN32
+		HWND wh = GetActiveWindow();
+		char * info = (char*)"FMOD Version mismatch!";
+		char * caption = (char*)"Audio System Error";
+		UINT type = MB_OK;
+		MessageBoxA(wh, info, caption, type);
+#endif // _WIN32
 	}
 
 	// Initialize FMOD Studio, which will also initialize FMOD Low Level
 	result = s_system->init(512, FMOD_INIT_NORMAL, 0);	// Initialize FMOD
 	if (result != FMOD_OK)
 	{
-#ifdef _DEBUG
-		std::cout << "AudioEngine error!\nError:" + std::to_string(result) + "\nMessage: " + FMOD_ErrorString(result) + "\n";
-#endif
+#ifdef _WIN32
+		HWND wh = GetActiveWindow();
+		LPCSTR info = "Audio Engine failed to initialize.";
+		LPCSTR caption = "Audio System Fatal Error";
+		UINT type = MB_OK;
+		MessageBoxA(wh, info, caption, type);
+		PostQuitMessage(10106);
+#endif // _WIN32
 		return;
 	}
 
 	s_inited = true;
 	s_system->set3DSettings(1.0f, 1.0f, 1.0f);
 	s_system->setGeometrySettings(100.0f);
-#ifdef _DEBUG
-	std::cout << "AudioEngine initialized!\n";
-#endif
 }
 
 void AudioEngine::_createChannelGroups()
