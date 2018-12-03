@@ -13,7 +13,7 @@ ForwardRender::ForwardRender()
 
 ForwardRender::~ForwardRender()
 {
-	delete m_visabilityPass;
+	
 	
 }
 
@@ -478,6 +478,8 @@ void ForwardRender::Release()
 	m_2DRender->Release();
 	delete m_2DRender;
 	delete m_animationBuffer;
+
+	delete m_visabilityPass;
 }
 
 void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool& bindTextures)
@@ -539,6 +541,8 @@ void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GR
 			0U,
 			0U);
 		DX::SafeRelease(instanceBuffer);
+		//DX::SafeRelease(bufferPointers[0]);
+		//DX::SafeRelease(bufferPointers[1]);
 	}
 }
 
