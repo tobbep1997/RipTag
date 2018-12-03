@@ -17,7 +17,8 @@ public:
 		FMOD_VECTOR forward; // Must be normalized
 		FMOD_VECTOR up;		// Must be normalized
 	};
-	enum SoundType
+
+	enum SoundEmitterType
 	{
 		NONE = 0,
 		Player,
@@ -25,12 +26,15 @@ public:
 		Enemy,
 		Other
 	};
+	
+	struct SoundDesc
+	{
+		SoundEmitterType emitter = NONE;
+		void * owner = nullptr;		// The owner of the sound
+		float loudness = 1.0f;		// This value represents how loud the sound is
+	};
+
 private:
-	static const SoundType NONE_SOUND = SoundType::NONE;
-	static const SoundType PLAYER_SOUND = SoundType::Player;
-	static const SoundType REMOTE_SOUND = SoundType::RemotePlayer;
-	static const SoundType OTHER_SOUND = SoundType::Other;
-	static const SoundType ENEMY_SOUND = SoundType::Enemy;
 	static bool s_inited;
 
 	static FMOD::System * s_system;
@@ -61,7 +65,7 @@ public:
 	static void UnloadAmbiendSound	(const std::string & name);
 	static void UnloadMusicSound	(const std::string & name);
 
-	static FMOD::Channel * PlaySoundEffect	(const std::string & name, FMOD_VECTOR * from = nullptr, SoundType type = NONE);
+	static FMOD::Channel * PlaySoundEffect(const std::string & name, FMOD_VECTOR * from = nullptr, SoundDesc * type = nullptr);
 	static FMOD::Channel * PlayAmbientSound	(const std::string & name);
 	static FMOD::Channel * PlayMusic		(const std::string & name);
 

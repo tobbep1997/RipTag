@@ -141,7 +141,11 @@ void Room::UnloadRoomFromMemory()
 
 void Room::LoadRoomToMemory()
 {
-	
+	m_ambientWindAndDrip.emitter = AudioEngine::Other;
+	m_ambientWindAndDrip.owner = this;
+	m_ambientWindAndDrip.loudness = 1.5f;
+
+
 	//TODO:: add all the assets to whatever
 	if (m_roomLoaded == false)
 	{
@@ -162,9 +166,6 @@ void Room::LoadRoomToMemory()
 			Torch * t = new Torch(p_pointLight, p_emit, i);
 			t->BeginPlay();
 			m_Torches.push_back(t);
-			
-			FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
-			AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
 		delete tempLights.lights;
 
@@ -358,9 +359,8 @@ void Room::LoadRoomToMemory()
 
 		for (int i = 0; i < sounds.nrOf; i++)
 		{
-
 			FMOD_VECTOR at = { sounds.sounds[i].translation[0], sounds.sounds[i].translation[1], sounds.sounds[i].translation[2] }; // add switch to typeofsound;
-			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, AudioEngine::Other)->setVolume(0.5f);
+			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, &m_ambientWindAndDrip)->setVolume(0.6f);
 		}
 
 		CollisionBoxes = DBG_NEW BaseActor();
