@@ -82,6 +82,7 @@ private:
 		Tile destination;
 	};
 private:
+	const int MAX_BLOCK_CHECK = 21;
 	std::vector<Node> m_nodeMap;
 	std::vector<Node> m_roomNodeMap;
 	int m_width, m_height;
@@ -102,8 +103,13 @@ public:
 	// Should theoretically always return a valid tile in the same room as the source
 	Tile GetRandomNearbyUnblockedTile(Tile src);	
 
+	Node * GetNodeAt(int index);
 	int getGridWidth();
 	int getGridHeight();
+
+
+	// For Blocking Algorithm;
+	//void BlockIfNotPathable(int targetX, int targetY);
 
 private:
 	// Utility functions
@@ -121,4 +127,9 @@ private:
 	Tile _getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap);
 	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
 	std::vector<Node*> _findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height);
+
+	// For Blocking Algorithm;
+	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
+	std::vector<Node*>	_getUnblockedAround(int x, int y);
+
 };

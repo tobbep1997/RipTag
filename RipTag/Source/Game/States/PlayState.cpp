@@ -590,9 +590,9 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			_vertices.push_back(v);
 		}
 		_sm.setVertices(_vertices);
-		
-		
+			
 		_loaded = true;
+
 		const b3Body * b = m_world.getBodyList();
 
 		while (b != nullptr)

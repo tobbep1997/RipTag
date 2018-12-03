@@ -79,6 +79,27 @@ namespace ImporterLibrary
 		float transform_scale[3];
 		float BBOX_INFO[3];
 	};
+	struct ReverbPoint
+	{
+		float translation[3];
+		float maxRadius;
+		float minRadius;
+	};
+	struct SoundPoint
+	{
+		float translation[3];
+		int soundType;
+	};
+	struct reverbPointToEngine
+	{
+		int nrOf;
+		ReverbPoint * reverbPoints;
+	};
+	struct SoundPointToEngine
+	{
+		int nrOf;
+		SoundPoint * sounds;
+	};
 	struct propsHeader
 	{
 		int nrOfItems;

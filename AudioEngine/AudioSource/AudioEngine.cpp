@@ -289,12 +289,9 @@ void AudioEngine::Release()
 			a->release();
 		for (auto & a : s_music)
 			a->release();
-		for (auto & a : s_reverbs)
-			a->release();
 		s_soundEffects.clear();
 		s_ambientSounds.clear();
 		s_music.clear();
-		s_reverbs.clear();
 
 		result = s_system->release();
 		s_system = nullptr;
@@ -359,7 +356,7 @@ float AudioEngine::GetMasterVolume()
 	return v;
 }
 
-void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
+FMOD::Reverb3D* AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FMOD_REVERB_PROPERTIES settings)
 {
 	FMOD::Reverb3D * r;
 	FMOD_RESULT result = s_system->createReverb3D(&r);
@@ -367,7 +364,8 @@ void AudioEngine::CreateReverb(FMOD_VECTOR pos, float mindist, float maxdist, FM
 	r->setProperties(&properties);
 
 	r->set3DAttributes(&pos, mindist, maxdist);
-	s_reverbs.push_back(r);
+	//s_reverbs.push_back(r);
+	return r;
 }
 
 FMOD::Geometry * AudioEngine::CreateGeometry(int MAX_POLYGONS, int MAX_VERTICES)
@@ -397,15 +395,12 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
 	};
 
-
 	DirectX::XMMATRIX mWorld, mTranslation, mRotation, mScale;
 	mTranslation = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 	mRotation = DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&q));
 	mScale = DirectX::XMMatrixScaling(scl.x, scl.y, scl.z);
 
 	mWorld = mScale * mRotation * mTranslation;
-
-	DirectX::XMMatrixTranspose(mWorld);
 
 	FMOD_VECTOR worldPosCube[36];
 	for (int i = 0; i < 36; i++)
@@ -423,9 +418,6 @@ FMOD::Geometry * AudioEngine::CreateCube(float fDirectOcclusion, float fReverbOc
 	for (int i = 0; i < 12; i++)
 	{
 		FMOD_RESULT res = ReturnValue->addPolygon(fDirectOcclusion, fReverbOcclusion, false, 3, &worldPosCube[i * 3], nullptr);
-#ifdef _DEBUG
-		/*std::cout << "AudioEngine: " + std::to_string(res) + "\nMessage: " + FMOD_ErrorString(res) + "\n";*/
-#endif
 	}
 	
 	return ReturnValue;
