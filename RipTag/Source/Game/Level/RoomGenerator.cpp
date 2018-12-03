@@ -90,11 +90,10 @@ void RoomGenerator::_generateGrid()
 				}
 			}
 		}
-		/*testBox = DirectX::BoundingBox(DirectX::XMFLOAT3(-49.5, 0.5, i -49.5), DirectX::XMFLOAT3(.48, .48, .48));*/
 	}
 
 	
-	std::ofstream lol;
+	/*std::ofstream lol;
 	lol.open(" map_noBlockAlg.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
@@ -110,7 +109,7 @@ void RoomGenerator::_generateGrid()
 		}
 		lol << "\n";
 	}
-	lol.close();
+	lol.close();*/
 
 	std::cout << green << "Blocking unpathable tiles with" << red << " Recursive stuff happening" << white << std::endl;
 	for (int i = 0; i < iterationsDepth; i++)
@@ -121,8 +120,7 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 
-	//std::ofstream lol;
-	lol.open("map_BlockAlg.txt");
+	/*lol.open("map_BlockAlg.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -137,7 +135,7 @@ void RoomGenerator::_generateGrid()
 		}
 		lol << "\n";
 	}
-	lol.close();
+	lol.close();*/
 }
 
 void RoomGenerator::_makeFloor()
