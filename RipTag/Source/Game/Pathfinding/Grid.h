@@ -105,6 +105,11 @@ public:
 	
 	Node * GetNodeAt(int index);
 
+	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
+
+	void ThreadPath(Tile src, Tile dest);
+	std::vector<Node*> GetPathFromThread();
+	bool IsPathReady();
 	int getGridWidth();
 	int getGridHeight();
 

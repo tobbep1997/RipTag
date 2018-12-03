@@ -530,7 +530,7 @@ void OptionSound::_updateSelectionStates()
 
 void OptionSound::_WriteSettingsToFile()
 {
-	// Player settings
+	// Sound settings
 	std::string file = "../Configuration/AudioSettings.ini";
 	WritePrivateProfileStringA("Audio", "Master", std::to_string(m_master).c_str(), file.c_str());
 	WritePrivateProfileStringA("Audio", "Effects", std::to_string(m_effects).c_str(), file.c_str());
