@@ -7,7 +7,9 @@ class RayCastListener;
 
 namespace RipSounds
 {
-	extern std::vector<std::string> g_stepsStone;
+	extern std::vector<std::string> g_sneakStep;
+	extern std::vector<std::string> g_hardStep;
+	extern std::vector<std::string> g_armorStepsStone;
 	extern std::string				g_leverActivate;
 	extern std::string				g_leverDeactivate;
 	extern std::string				g_pressurePlateActivate;
@@ -17,6 +19,7 @@ namespace RipSounds
 	extern std::string				g_phase;
 	extern std::string				g_music1;
 	extern std::string				g_grunt;
+	extern std::string				g_playAmbientSound;
 }
 
 namespace RipExtern

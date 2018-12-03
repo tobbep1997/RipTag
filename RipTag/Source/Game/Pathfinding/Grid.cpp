@@ -122,18 +122,6 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
 		}
 	}
-
-	for (int i = 0; i < depth; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			if (m_roomNodeMap[j + i * width].tile.getPathable())
-				std::cout << green << 1 << white << " ";
-			else
-				std::cout << red << 0 << white << " ";
-		}
-		std::cout << "\n";
-	}
 }
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
@@ -145,9 +133,6 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			source = GetRandomNearbyUnblockedTile(source);
 		if (!destination.getPathable())
 			destination = GetRandomNearbyUnblockedTile(destination);
-
-		
-		std::vector<Node*> pathToDestination;
 		
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
@@ -161,8 +146,8 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
+		std::vector<Node*> pathToDestination;
 		int partCount = 0;
-		
 		for (auto & tp : tilePairs)
 		{
 			std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
@@ -736,7 +721,6 @@ void Grid::_blockCheck(int x, int y, std::vector<Node*>& targetNodes)
 				}
 			}
 
-
 			if (somethingNew)
 			{
 				int end = targetNodes.size();
@@ -746,7 +730,6 @@ void Grid::_blockCheck(int x, int y, std::vector<Node*>& targetNodes)
 				}
 			}
 		}
-
 	}
 }
 

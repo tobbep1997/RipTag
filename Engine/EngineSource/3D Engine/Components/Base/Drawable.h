@@ -85,6 +85,7 @@ public:
 	Drawable();
 	virtual ~Drawable();
 	virtual void setTexture(Texture * texture);	
+	virtual Texture * getTexture() const;
 
 	virtual void BindTextures();
 	

@@ -51,6 +51,7 @@ public:
 	};
 private:
 	Enemy* m_owner = nullptr;
+	AudioEngine::SoundDesc m_alerted;
 
 	//AI Behavior constants
 	const float SOUND_LEVEL = 0.33f;

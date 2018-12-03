@@ -3,12 +3,17 @@
 
 AI::AI()
 {
-
+	m_alerted.owner = nullptr;
+	m_alerted.emitter = AudioEngine::Enemy;
+	m_alerted.loudness = 1.5f;
 }
 
 AI::AI(Enemy * owner)
 {
 	m_owner = owner;
+	m_alerted.owner = owner;
+	m_alerted.emitter = AudioEngine::Enemy;
+	m_alerted.loudness = 1.5f;
 }
 
 AI::~AI()
@@ -206,8 +211,10 @@ void AI::_onAlerted()
 	m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	m_owner->m_loudestSoundLocation = AI::SoundLocation();
 	m_owner->m_biggestVisCounter = 0;
+
 	FMOD_VECTOR at = { m_owner->getPosition().x, m_owner->getPosition().y, m_owner->getPosition().z };
-	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, &m_alerted);
+
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 

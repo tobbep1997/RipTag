@@ -58,6 +58,7 @@ private:
 
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
+	AudioEngine::SoundDesc m_footSteps;
 private:
 	//First-person model
 	BaseActor* m_FirstPersonModel{ nullptr };

@@ -9,8 +9,9 @@ private:
 	Camera * pCamera = nullptr;
 	bool m_interacted = false;
 	bool m_preState = false;
-
 	FMOD::Channel * m_channel;
+	AudioEngine::SoundDesc m_tourchSound;
+
 
 public:
 	Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId);
@@ -27,6 +28,6 @@ public:
 	void handleContact(RayCastListener::RayContact* contact);
 	void Interact();
 private:
-	void _playSound(AudioEngine::SoundType st = AudioEngine::Other) override;
+	void _playSound(AudioEngine::SoundDesc * soundDesc) override;
 };
 
