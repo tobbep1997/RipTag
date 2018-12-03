@@ -56,6 +56,8 @@ void RoomGenerator::applyTransformationToBoundingBox(DirectX::XMMATRIX roomMatri
 		boxesToModify.boxes[k].scale[0] = DirectX::XMVectorGetX(decomposeScaling);
 		boxesToModify.boxes[k].scale[1] = DirectX::XMVectorGetY(decomposeScaling);
 		boxesToModify.boxes[k].scale[2] = DirectX::XMVectorGetZ(decomposeScaling);
+
+		
 	}
 }
 
@@ -69,6 +71,7 @@ void RoomGenerator::_generateGrid()
 
 	DirectX::BoundingBox testBox;
 
+	std::cout << green << "Generating grid with" << red << " Box Intersection" << white << std::endl;
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -90,8 +93,36 @@ void RoomGenerator::_generateGrid()
 		/*testBox = DirectX::BoundingBox(DirectX::XMFLOAT3(-49.5, 0.5, i -49.5), DirectX::XMFLOAT3(.48, .48, .48));*/
 	}
 
+	
 	std::ofstream lol;
-	lol.open("map.txt");
+	lol.open(" map_noBlockAlg.txt");
+	for (int i = 0; i < iterationsDepth; i++)
+	{
+		for (int j = 0; j < iterationsWidth; j++)
+		{
+			int index = i + j * iterationsWidth;
+			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
+			if (node.tile.getPathable())
+				lol << " ";
+			else
+				lol << "#";
+			lol << " ";
+		}
+		lol << "\n";
+	}
+	lol.close();
+
+	std::cout << green << "Blocking unpathable tiles with" << red << " Recursive stuff happening" << white << std::endl;
+	for (int i = 0; i < iterationsDepth; i++)
+	{
+		for (int j = 0; j < iterationsWidth; j++)
+		{
+			m_generatedGrid->BlockIfNotPathable(j, i);
+		}
+	}
+
+	//std::ofstream lol;
+	lol.open("map_BlockAlg.txt");
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -123,6 +154,15 @@ void RoomGenerator::_makeFloor()
 	asset->setScale(m_roomWidth * 2, 1, m_roomDepth * 2);
 	asset->setObjectTag("FLOOOOOOR");
 	m_generated_assetVector.push_back(asset);
+
+
+	DirectX::XMFLOAT4 xmQ = { 0, 0, 0, 0 };
+	DirectX::XMFLOAT4 xmPos = { 0, 0, 0, 1 };
+	DirectX::XMFLOAT4 xmScl = { m_roomWidth * 2, 1, m_roomDepth * 2, 1 };
+	FMOD::Geometry * ge = AudioEngine::CreateCube(0.05f, 0.03f, xmPos, xmScl, xmQ);
+	ge->setActive(true);
+
+	returnableRoom->getAudioBoxesVector()->push_back(ge);
 }
 
 void RoomGenerator::_makeRoof()
@@ -139,6 +179,14 @@ void RoomGenerator::_makeRoof()
 	asset->setScale(m_roomWidth * 2, 1, m_roomDepth * 2);
 	asset->setObjectTag("FLOOOOOOR");
 	m_generated_assetVector.push_back(asset);
+
+	DirectX::XMFLOAT4 xmQ = { 0, 0, 0, 0 };
+	DirectX::XMFLOAT4 xmPos = { 0, 5.5, 0, 1 };
+	DirectX::XMFLOAT4 xmScl = { m_roomWidth * 2, 1, m_roomDepth * 2, 1 };
+	FMOD::Geometry * ge = AudioEngine::CreateCube(0.05f, 0.03f, xmPos, xmScl, xmQ);
+	ge->setActive(true);
+
+	returnableRoom->getAudioBoxesVector()->push_back(ge);
 }
 
 void RoomGenerator::_createEntireWorld()
@@ -341,6 +389,16 @@ void RoomGenerator::_createEntireWorld()
 							DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[0] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[2] * 0.5));
 						
 							m_generated_boundingBoxes.push_back(bb);
+
+							float * f4Rot = modCollisionBoxes.boxes[h].rotation;
+							float * f3Scl = modCollisionBoxes.boxes[h].scale;
+							DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
+							DirectX::XMFLOAT4 xmPos = { xPos, yPos, zPos, 1 };
+							DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
+							FMOD::Geometry * ge = AudioEngine::CreateCube(0.05f, 0.03f, xmPos, xmScl, xmQ);
+							ge->setActive(true);
+
+							returnableRoom->getAudioBoxesVector()->push_back(ge);
 						}
 					}
 					else if (x == 1)
@@ -360,6 +418,16 @@ void RoomGenerator::_createEntireWorld()
 							DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[2] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[0] * 0.5));
 
 							m_generated_boundingBoxes.push_back(bb);
+
+							float * f4Rot = modCollisionBoxes.boxes[h].rotation;
+							float * f3Scl = modCollisionBoxes.boxes[h].scale;
+							DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
+							DirectX::XMFLOAT4 xmPos = { xPos, yPos, zPos, 1 };
+							DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
+							FMOD::Geometry * ge = AudioEngine::CreateCube(0.05f, 0.03f, xmPos, xmScl, xmQ);
+							ge->setActive(true);
+
+							returnableRoom->getAudioBoxesVector()->push_back(ge);
 						}
 
 						asset->setObjectTag("WALL");
@@ -384,6 +452,16 @@ void RoomGenerator::_createEntireWorld()
 							DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[0] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[2] * 0.5));
 
 							m_generated_boundingBoxes.push_back(bb);
+
+							float * f4Rot = modCollisionBoxes.boxes[h].rotation;
+							float * f3Scl = modCollisionBoxes.boxes[h].scale;
+							DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
+							DirectX::XMFLOAT4 xmPos = { xPos, yPos, zPos, 1 };
+							DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
+							FMOD::Geometry * ge = AudioEngine::CreateCube(0.05f, 0.03f, xmPos, xmScl, xmQ);
+							ge->setActive(true);
+
+							returnableRoom->getAudioBoxesVector()->push_back(ge);
 						}
 					}
 
@@ -418,31 +496,23 @@ void RoomGenerator::_createEntireWorld()
 						m_generated_assetVector.push_back(asset);
 						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
-							for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
-							{
-								float xPos = modCollisionBoxes.boxes[h].translation[0] + j - 10;
-								float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
-								float zPos = modCollisionBoxes.boxes[h].translation[2] + i;
-								DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[2] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[0] * 0.5));
+							float xPos = modCollisionBoxes.boxes[h].translation[0] + j - 10;
+							float yPos = modCollisionBoxes.boxes[h].translation[1] + 2.5;
+							float zPos = modCollisionBoxes.boxes[h].translation[2] + i;
+							DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(xPos, yPos, zPos), DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale[2] * 0.5, modCollisionBoxes.boxes[h].scale[1] * 0.5, modCollisionBoxes.boxes[h].scale[0] * 0.5));
 
-								m_generated_boundingBoxes.push_back(bb);
-							}
+							m_generated_boundingBoxes.push_back(bb);
+
+							float * f4Rot = modCollisionBoxes.boxes[h].rotation;
+							float * f3Scl = modCollisionBoxes.boxes[h].scale;
+							DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };
+							DirectX::XMFLOAT4 xmPos = { xPos, yPos, zPos, 1 };
+							DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
+							FMOD::Geometry * ge = AudioEngine::CreateCube(0.05f, 0.03f, xmPos, xmScl, xmQ);
+							ge->setActive(true);
+
+							returnableRoom->getAudioBoxesVector()->push_back(ge);
 						}
-					}
-					
-					//asset->p_createBoundingBox(DirectX::XMFLOAT3(10, 2.5f, .5f));
-					for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
-					{
-						float * f4Rot = modCollisionBoxes.boxes[a].rotation;
-						float * f3Pos = modCollisionBoxes.boxes[a].translation;
-						float * f3Scl = modCollisionBoxes.boxes[a].scale;
-						DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };				//FoR SoUnD
-							DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1 };
-						DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
-						FMOD::Geometry * ge = AudioEngine::CreateCube(0.75f, 0.35f, xmPos, xmScl, xmQ);
-						ge->setActive(false);
-
-						m_generatedAudioBoxes.push_back(ge);
 					}
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
@@ -450,8 +520,8 @@ void RoomGenerator::_createEntireWorld()
 			}
 			if (isStartRoom)
 			{
-				returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(j +2, 3, i, 1));
-				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 3, i, 1));
+				returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(j +2, 2, i, 1));
+				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 2, i, 1));
 
 			}
 
@@ -460,6 +530,8 @@ void RoomGenerator::_createEntireWorld()
 
 #pragma endregion
 
+			
+			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 3, 10));
 #pragma region LIGHTS
 
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
@@ -491,6 +563,8 @@ void RoomGenerator::_createEntireWorld()
 
 					particleEmitter->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0);
 
+					FMOD_VECTOR at = { tempLights.lights[k].translate[0], tempLights.lights[k].translate[1],tempLights.lights[k].translate[2] };
+					AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 					Torch * tempTorch = DBG_NEW Torch(tempLight, particleEmitter, returnableRoom->getTriggerHandler()->netWorkTriggers.size());
 					m_generatedTorches.push_back(tempTorch);
 					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));
@@ -527,7 +601,6 @@ void RoomGenerator::_createEntireWorld()
 					if(tempProps.props[k].typeOfProp != 11 
 						&& tempProps.props[k].typeOfProp != 16)
 						_modifyPropBoundingBoxes(tempProps.props[k]);
-					
 				}
 			
 				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
@@ -576,6 +649,7 @@ void RoomGenerator::_createEntireWorld()
 
 void RoomGenerator::_generateGuardPaths()
 {
+	std::cout << green << "Generating guards path with" << red << " A* and some magic" << white << std::endl;
 	for (int i = 0; i < m_generatedRoomEnemies.size(); i++)
 	{
 		Enemy * currentEnemey = m_generatedRoomEnemies[i];
@@ -627,13 +701,16 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 {
 	DirectX::XMVECTOR translation, rotation, scale;
 
-	DirectX::XMMATRIX matrixTranslation;
-	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));
-	matrixTranslation = DirectX::XMMatrixTranslationFromVector(translation);
-	
-	DirectX::XMMATRIX matrixRotation;
-	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_rotation));
-	matrixRotation = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
+
+	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));	
+
+	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(
+		DirectX::XMConvertToRadians(prop.transform_rotation[0]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[1]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[2])
+	));
+
+	rotation = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotation);
 
 	float newScale[3];
 	DirectX::XMMATRIX matrixScale;
@@ -642,16 +719,8 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
 	}
 	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
-	matrixScale = DirectX::XMMatrixScalingFromVector(scale);
 
-	DirectX::XMMATRIX worldMatrix = matrixScale * matrixRotation* matrixTranslation;
-
-	DirectX::XMMatrixDecompose(&scale, &rotation, &translation, worldMatrix);
-
-	
-	
-	//DirectX::XMMATRIX worldMatrix = DirectX::xmmatrixt;
-	DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(newScale[0], newScale[1], newScale[2]));// = new DirectX::BoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1));
+	DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(newScale[0], newScale[1], newScale[2]));
 	bb->Transform(*bb, 1, rotation, translation);
 	m_generated_boundingBoxes.push_back(bb);
 
@@ -710,7 +779,6 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setStaticMeshes(m_generated_assetVector);
 	returnableRoom->setRoomGuards(m_generatedRoomEnemies);
 	returnableRoom->setLightvector(m_generated_pointLightVector);
-	returnableRoom->setAudioBoxes(m_generatedAudioBoxes);
 	returnableRoom->loadTriggerPairMap();
 	returnableRoom->setRoomIndex(-1);
 
