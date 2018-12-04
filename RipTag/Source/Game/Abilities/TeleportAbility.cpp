@@ -172,6 +172,7 @@ void TeleportAbility::_inStateThrowable()
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
 
+			((Player*)p_owner)->SetThrowing(true);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
@@ -197,19 +198,20 @@ void TeleportAbility::_inStateCharging(double dt)
 				charge = 1.0f;
 			m_bar->setAngle(360.0f * charge);
 			//m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
-if (m_charge < MAX_CHARGE)
-	m_charge += dt;
+			if (m_charge < MAX_CHARGE)
+				m_charge += dt;
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
-		((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
-		((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
-		((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->SetThrowing(false);
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
+			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 
-		m_charge = 0.0;
-		p_cooldown = (p_cooldownMax / 3) * 2;
-		m_tpState = TeleportState::Cooldown;
-		m_canceled = true;
+			m_charge = 0.0;
+			p_cooldown = (p_cooldownMax / 3) * 2;
+			m_tpState = TeleportState::Cooldown;
+			m_canceled = true;
 		}
 
 		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
@@ -234,7 +236,7 @@ if (m_charge < MAX_CHARGE)
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
-
+			((Player*)p_owner)->SetThrowing(false);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
