@@ -116,23 +116,32 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 		for (int j = 0; j < width; j += 2)
 		{
 			int index = counter++;
-			if (i < depth - 1)
-				m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].south);
+			/*if (randomizer->m_rooms[index].type == 1)
+			{
+				if (j < width - 1)
+					m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].south);
+				if (i < depth - 1)
+					m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].west);
+			}*/
+			
 			if (j < width - 1)
 				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
+			if (i < depth - 1)
+				m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].south);
 		}
 	}
 }
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
+	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
+	Tile src = m_nodeMap.at(source.getX() + source.getY() * m_width).tile;
+	if (!src.getPathable())
+		source = GetRandomNearbyUnblockedTile(source);
+	if (!dest.getPathable())
+		destination = GetRandomNearbyUnblockedTile(destination);
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
-	{
-		static int count = 0;
-		if (!source.getPathable())
-			source = GetRandomNearbyUnblockedTile(source);
-		if (!destination.getPathable())
-			destination = GetRandomNearbyUnblockedTile(destination);
+	{		
 		
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
@@ -140,20 +149,30 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		_removeAllBlockedTiles(roomNodePath);
 
 		if (roomNodePath.empty())
-		{
 			return _findPath(source, destination, m_nodeMap, m_width, m_height);
-		}
+
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
+		/*static int counter = 0;
+		std::ofstream file;
+		file.open("PATH_" + std::to_string(counter++) + ".txt");
+
+		_printTilePairs(tilePairs, file, source, destination);*/
+
 		std::vector<Node*> pathToDestination;
-		int partCount = 0;
 		for (auto & tp : tilePairs)
 		{
 			std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
+
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
+			//_printPath(partOfPath, file, source, destination);
 		}
-		
+
+		//_printPath(pathToDestination, file, source, destination);
+
+		//file.close();
+
 		for (int i = 0; i < roomNodePath.size(); i++)
 			delete roomNodePath[i];
 		roomNodePath.clear();
@@ -185,127 +204,177 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 		// North (0, -1)
 		if (!blockedDirections[0])
 		{
-			tempY = max(y - 1 * count, 0);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
-			{
+			tempY = y - 1 * count;
+			if (tempY < 0)
 				blockedDirections[0] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[x + tempY * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[x + tempY * m_width].tile;
-				unblocked = true;
+				tempY = max(tempY, 0);
+				if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
+					blockedDirections[0] = true;
+				else if (m_nodeMap[x + tempY * m_width].tile.getPathable())
+				{
+					returnTile = m_nodeMap[x + tempY * m_width].tile;
+					unblocked = true;
+				}
 			}
 		}
 		// East (1, 0)
 		if (!blockedDirections[1])
 		{
-			tempX = min(x + 1 * count, m_width - 1);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
-			{
+			tempX = x + 1 * count;
+			if (tempX >= m_width)
 				blockedDirections[1] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[tempX + y * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[tempX + y * m_width].tile;
-				unblocked = true;
+				tempX = min(tempX, m_width - 1);
+				if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
+					blockedDirections[1] = true;
+				else if (m_nodeMap[tempX + y * m_width].tile.getPathable())
+				{
+					returnTile = m_nodeMap[tempX + y * m_width].tile;
+					unblocked = true;
+				}
 			}
 		}
 		// South (0, 1)
 		if (!blockedDirections[2])
 		{
-			tempY = min(y + 1 * count, m_height - 1);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
-			{
+			tempY = y + 1 * count;
+			if (tempY >= m_height)
 				blockedDirections[2] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[x + tempY * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[x + tempY * m_width].tile;
-				unblocked = true;
+				tempY = min(tempY, m_height - 1);
+				if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(x, tempY)))
+					blockedDirections[2] = true;
+				else if (m_nodeMap[x + tempY * m_width].tile.getPathable())
+				{
+					returnTile = m_nodeMap[x + tempY * m_width].tile;
+					unblocked = true;
+				}
 			}
 		}
 		// West (-1, 0)
 		if (!blockedDirections[3])
 		{
-			tempX = min(x - 1 * count, 0);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
-			{
+			tempX = x - 1 * count;
+			if (tempX < 0)
 				blockedDirections[3] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[tempX + y * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[tempX + y * m_width].tile;
-				unblocked = true;
+				tempX = max(tempX, 0);
+				if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, y)))
+					blockedDirections[3] = true;
+				else if (m_nodeMap[tempX + y * m_width].tile.getPathable())
+				{
+					returnTile = m_nodeMap[tempX + y * m_width].tile;
+					unblocked = true;
+				}
 			}
 		}
 		// Northeast (1, -1)
 		if (!blockedDirections[4])
 		{
-			tempY = max(y - 1 * count, 0);
-			tempX = min(x + 1 * count, m_width - 1);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
-			{
+			tempY = y - 1 * count;
+			if (tempY < 0)
 				blockedDirections[4] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-				unblocked = true;
+				tempY = max(tempY, 0);
+				tempX = x + 1 * count;
+				if (tempX >= m_width)
+					blockedDirections[4] = true;
+				else
+				{
+					tempX = min(tempX, m_width - 1);
+					if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+						blockedDirections[4] = true;
+					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+					{
+						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+						unblocked = true;
+					}
+				}
 			}
 		}
 		// Northwest (-1, -1)
 		if (!blockedDirections[5])
 		{
-			tempY = max(y - 1 * count, 0);
-			tempX = min(x - 1 * count, 0);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
-			{
+			tempY = y - 1 * count;
+			if (tempY < 0)
 				blockedDirections[5] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-				unblocked = true;
+				tempY = max(tempY, 0);
+				tempX = x - 1 * count;
+				if (tempX < 0)
+					blockedDirections[5] = true;
+				else
+				{
+					tempX = max(tempX, 0);
+					if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+						blockedDirections[5] = true;
+					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+					{
+						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+						unblocked = true;
+					}
+				}
 			}
 		}
 		// Southeast (1, 1)
 		if (!blockedDirections[6])
 		{
-			tempY = min(y + 1 * count, m_height - 1);
-			tempX = min(x + 1 * count, m_width - 1);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+			tempY = y + 1 * count;
+			if (tempY >= m_height)
+				blockedDirections[6];
+			else
 			{
-				blockedDirections[6] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
-			{
-				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-				unblocked = true;
+				tempY = min(tempY, m_height - 1);
+				tempX = x + 1 * count;
+				if (tempX >= m_width)
+					blockedDirections[6];
+				else
+				{
+					tempX = min(tempX, m_width - 1);
+					if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+						blockedDirections[6] = true;
+					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+					{
+						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+						unblocked = true;
+					}
+				}
 			}
 		}
 		// Southwest (-1, 1)
 		if (!blockedDirections[7])
 		{
-			tempY = min(y + 1 * count, m_height - 1);
-			tempX = min(x - 1 * count, 0);
-			if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
-			{
+			tempY = y + 1 * count;
+			if (tempY >= m_height)
 				blockedDirections[7] = true;
-				unblocked = _isAllDirectionsBlocked(blockedDirections);
-			}
-			if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+			else
 			{
-				returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-				unblocked = true;
+				tempY = min(tempY, m_height - 1);
+				tempX = x - 1 * count;
+				if (tempX < 0)
+					blockedDirections[7];
+				else
+				{
+					tempX = max(tempX, 0);
+					if (!_tilesAreInTheSameRoom(Tile(x, y), Tile(tempX, tempY)))
+						blockedDirections[7] = true;
+					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
+					{
+						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
+						unblocked = true;
+					}
+				}
 			}
 		}
+		if (!unblocked)
+			unblocked = _isAllDirectionsBlocked(blockedDirections);
 		count++;
 	}
 	return returnTile;
@@ -338,6 +407,26 @@ void Grid::BlockIfNotPathable(int targetX, int targetY)
 	}
 }
 
+void Grid::PrintMe() const
+{
+	std::ofstream map;
+	map.open("Full_map.txt");
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			int index = x + y * m_width;
+			if (m_nodeMap[index].tile.getPathable())
+				map << " ";
+			else
+				map << "#";
+			map << " ";
+		}
+		map << "\n";
+	}
+	map.close();
+}
+
 void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<std::shared_ptr<Node>> & openList,
 	std::vector<Node> & nodeMap, bool * closedList, int width, int height)
 {
@@ -355,7 +444,7 @@ void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offse
 	}
 }
 
-const bool& Grid::_isValid(Tile tile, int width, int height) const
+const bool Grid::_isValid(Tile tile, int width, int height) const
 {
 	int x = tile.getX();
 	int y = tile.getY();
@@ -363,10 +452,11 @@ const bool& Grid::_isValid(Tile tile, int width, int height) const
 		(y >= 0) && (y < height);
 }
 
-const float& Grid::_calcHValue(Tile src, Tile dest) const
+const float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = abs(src.getX() - dest.getX());
 	int y = abs(src.getY() - dest.getY());
+	//return (x + y) + (-0.414f) * min(x, y);
 	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
 }
 
@@ -406,7 +496,7 @@ int Grid::_findXInYRow(int begin, int end, int x, int y) const
 	return -1;
 }
 
-const bool& Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
+const bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 {
 	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
 	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
@@ -452,7 +542,7 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
 }
 
-const bool & Grid::_isAllDirectionsBlocked(const bool blockedDirections[8])
+const bool Grid::_isAllDirectionsBlocked(const bool blockedDirections[8])
 {
 	if (blockedDirections[0] && blockedDirections[1] &&
 		blockedDirections[2] && blockedDirections[3] &&
@@ -467,7 +557,10 @@ void Grid::_removeAllBlockedTiles(std::vector<Node*>& roomNodePath)
 	int size = roomNodePath.size();
 	for (int i = 0; i < size; i++)
 	{
-		if (!WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y).getPathable())
+		Tile n = WorldPosToTile(roomNodePath[i]->worldPos.x, roomNodePath[i]->worldPos.y);
+		if (!n.getPathable() ||
+			(roomNodePath[i]->tile.getX() % 2 == 0 &&
+				roomNodePath[i]->tile.getY() % 2 == 0))
 		{
 			delete roomNodePath.at(i);			
 			roomNodePath.erase(roomNodePath.begin() + i);
@@ -758,4 +851,114 @@ std::vector<Node*> Grid::_getUnblockedAround(int x, int y)
 			nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
 
 	return nodes;
+}
+
+void Grid::_printTilePairs(std::vector<TilePair> & tilePair, std::ofstream & file, Tile & source, Tile & dest)
+{
+	for (int i = 0; i < m_height; i++)
+	{
+		for (int j = 0; j < m_width; j++)
+		{
+			bool found = false;
+
+			if (m_nodeMap.at(j + i * m_width).tile == source)
+			{
+				found = true;
+				file << "O";
+			}
+			else if (m_nodeMap.at(j + i * m_width).tile == dest)
+			{
+				found = true;
+				file << "D";
+			}
+			if (!found)
+			{
+				int tpCount = 0;
+				for (auto & p : tilePair)
+				{
+					if (m_nodeMap.at(j + i * m_width).tile == p.destination)
+					{
+						found = true;
+						file << tpCount++;
+						break;
+					}
+					else if (m_nodeMap.at(j + i * m_width).tile == p.source)
+					{
+						found = true;
+						file << tpCount++;
+						break;
+					}
+					tpCount++;
+				}
+			}
+			if (!found)
+			{
+				if (m_nodeMap.at(j + i * m_width).tile.getPathable())
+					file << " ";
+				else
+					file << "#";
+			}
+			file << " ";
+		}
+		file << "\n";
+	}
+	file << "\n";
+}
+
+void Grid::_printPath(std::vector<Node*>& path, std::ofstream & file, Tile & source, Tile & dest)
+{
+	for (int i = 0; i < m_height; i++)
+	{
+		for (int j = 0; j < m_width; j++)
+		{
+			bool found = false;
+
+			if (m_nodeMap.at(j + i * m_width).tile == source)
+			{
+				found = true;
+				file << "O";
+			}
+			else if (m_nodeMap.at(j + i * m_width).tile == dest)
+			{
+				found = true;
+				file << "D";
+			}
+			if (!found)
+				for (auto & p : path)
+				{
+					if (m_nodeMap.at(j + i * m_width).tile == p->tile)
+					{
+						found = true;
+						file << "X";
+						break;
+					}
+				}
+			if (!found)
+			{
+				if (m_nodeMap.at(j + i * m_width).tile.getPathable())
+					file << " ";
+				else
+					file << "#";
+			}
+			file << " ";
+		}
+		file << "\n";
+	}
+
+	file << "\n";
+}
+
+
+Node & Node::operator=(const Node & other)
+{
+	if (this != &other)
+	{
+		tile = other.tile;
+		worldPos = other.worldPos;
+		parent = other.parent;
+		gCost = other.gCost;
+		hCost = other.hCost;
+		fCost = other.fCost;
+	}
+	return *this;
 }

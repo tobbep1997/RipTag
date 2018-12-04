@@ -24,27 +24,29 @@ class Camera;
 
 
 namespace DX {
-	extern ID3D11Device*			                                     g_device;
-	extern ID3D11DeviceContext1*	                             g_deviceContext;
+	extern ID3D11Device*			                            g_device;
+	extern ID3D11DeviceContext1*	                            g_deviceContext;
 	extern void SafeRelease(IUnknown * u);
-	extern Shaders::ShaderManager                              g_shaderManager;
+	extern Shaders::ShaderManager								g_shaderManager;
 
-	extern Drawable*                                                     g_player;
-	extern Drawable*                                                     g_remotePlayer;
+	extern Drawable*									        g_player;
+	extern Drawable*                                            g_remotePlayer;
 	extern std::vector<Drawable*>                               g_animatedGeometryQueue;
 	extern std::vector<Drawable*>                               g_outlineQueue;
 	extern std::vector<Drawable*>                               g_wireFrameDrawQueue;
 
 	extern std::vector<PointLight*>                             g_lights;
 	extern std::vector<PointLight*>                             g_prevlights;
-	extern std::vector<VisibilityComponent*>             g_visibilityComponentQueue;
+	extern std::vector<VisibilityComponent*>					g_visibilityComponentQueue;
 
-	extern std::vector<Quad*>                                     g_2DQueue;
+	extern std::vector<Quad*>                                   g_2DQueue;
 
-	extern std::vector<ParticleEmitter*>                      g_emitters;
-	extern std::vector <Drawable*>                             g_cullQueue;
+	extern std::vector<ParticleEmitter*>						g_emitters;
+	extern std::vector <Drawable*>								g_cullQueue;
 
-	extern RECT                                                            g_backBufferResolution;
+	extern RECT                                                 g_backBufferResolution;
+
+	extern bool g_screenShootCamera;
 
 	namespace INSTANCING
 	{

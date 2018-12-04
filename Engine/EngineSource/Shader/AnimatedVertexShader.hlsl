@@ -40,13 +40,13 @@ VS_OUTPUT main(VS_INPUT2 input)
 
     output.pos = mul(wp, viewProjection);
     output.worldPos = wp;
-    output.normal = float4(input.normal,0);
+    output.normal = float4(normalize(input.normal), 0);
 
     float3 bitangent = cross(output.normal.xyz, input.tangent);
     float3x3 TBN = float3x3(input.tangent, bitangent, output.normal.xyz);
     output.TBN = TBN;
     output.uv = input.uv * textureTileMult.xy;
     output.color = color;
-    output.info = info;
+    output.info = int4(1, 0, 0, 0);
 	return output;
 }

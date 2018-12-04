@@ -85,25 +85,6 @@ void RoomGenerator::_generateGrid()
 			}
 		}
 	}
-
-	
-	/*std::ofstream lol;
-	lol.open(" map_noBlockAlg.txt");
-	for (int i = 0; i < iterationsDepth; i++)
-	{
-		for (int j = 0; j < iterationsWidth; j++)
-		{
-			int index = i + j * iterationsWidth;
-			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
-			if (node.tile.getPathable())
-				lol << " ";
-			else
-				lol << "#";
-			lol << " ";
-		}
-		lol << "\n";
-	}*/
-	std::cout << green << "Blocking unpathable tiles with" << red << " Recursive stuff happening" << white << std::endl;
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -111,22 +92,8 @@ void RoomGenerator::_generateGrid()
 			m_generatedGrid->BlockIfNotPathable(j, i);
 		}
 	}
-	/*lol.open("map_BlockAlg.txt");
-	for (int i = 0; i < iterationsDepth; i++)
-	{
-		for (int j = 0; j < iterationsWidth; j++)
-		{
-			int index = i + j * iterationsWidth;
-			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
-			if (node.tile.getPathable())
-				lol << " ";
-			else
-				lol << "#";
-			lol << " ";
-		}
-		lol << "\n";
-	}
-	lol.close();*/
+
+	//m_generatedGrid->PrintMe();
 }
 
 void RoomGenerator::_makeFloor()
@@ -184,8 +151,8 @@ void RoomGenerator::_createEntireWorld()
 	//std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 11; //8
-	int MAX_LARGE_MODS = 6; // 5
+	int MAX_SMALL_MODS = 11; //11
+	int MAX_LARGE_MODS = 6; //6 
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
@@ -488,7 +455,7 @@ void RoomGenerator::_createEntireWorld()
 //Above 10 mB
 
 			
-			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 3, 10));
+			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 5.0, 15.0));
 #pragma region LIGHTS
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
 			{
@@ -719,6 +686,12 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
 	//dbgFuncSpawnAboveMap();
+	m_generated_assetVector.shrink_to_fit();
+	m_generated_pointLightVector.shrink_to_fit();
+	m_generatedRoomEnemies.shrink_to_fit();
+	m_generatedAudioBoxes.shrink_to_fit();
+	m_generatedTorches.shrink_to_fit();
+	m_generated_boundingBoxes.shrink_to_fit();
 
 	returnableRoom->setTorches(m_generatedTorches);
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);

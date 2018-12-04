@@ -285,9 +285,9 @@ void TransitionState::_initButtons()
 		this->m_background->setPivotPoint(Quad::PivotPoint::center);
 		if (m_type == Transition::Lose)
 		{
-			this->m_background->setUnpressedTexture("gui_temp_bg");
-			this->m_background->setPressedTexture("gui_temp_bg");
-			this->m_background->setHoverTexture("gui_temp_bg");
+			this->m_background->setUnpressedTexture("ENDGAME");
+			this->m_background->setPressedTexture("ENDGAME");
+			this->m_background->setHoverTexture("ENDGAME");
 		}
 		else
 		{

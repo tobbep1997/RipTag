@@ -1,5 +1,8 @@
 #include "EnginePCH.h"
 #include "ForwardRender.h"
+#include "2D Engine/DirectXTK/ScreenGrab.h"
+#include <wincodec.h>
+#include <filesystem>
 
 ForwardRender::ForwardRender()
 {
@@ -43,7 +46,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 	
 	_createShaders();
 
-
+	_InitScreenShoot();
 	_createConstantBuffer();
 	_createSamplerState();
 
@@ -366,6 +369,12 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 void ForwardRender::Flush(Camera & camera)
 {
+	if (DX::g_screenShootCamera == true)
+	{
+		this->FlushScreenShoot(camera);
+		return;
+	}
+
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
@@ -471,6 +480,11 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_NUKE);
 	DX::SafeRelease(m_NUKE2);
+
+	//Release ScreenCap
+	DX::SafeRelease(m_screenShootRender);
+	DX::SafeRelease(m_screenShootTex);
+	DX::SafeRelease(m_screenShootSRV);
 
 	m_shadowMap->Release();
 	delete m_shadowMap;
@@ -876,7 +890,7 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
 	if (drawable->getTexture()->getIndex() != -1)
 	{
-		m_textureValues.usingTexture.y = 1;
+		m_textureValues.usingTexture.y = -1;
 		m_textureValues.usingTexture.z = drawable->getTexture()->getIndex();
 	}
 	else
@@ -1296,4 +1310,212 @@ DirectX::BoundingFrustum * ForwardRender::_createBoundingFrustrum(Camera* camera
 bool ForwardRender::_Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box)
 {
 	return !camera->Intersects(*box);		
+}
+
+void ForwardRender::FlushScreenShoot(Camera& camera)
+{
+
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
+	this->AnimationPrePass(camera);
+
+	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
+	dbg_camera->setDirection(0, -1, 0);
+	dbg_camera->setUP(1, 0, 0);
+	DirectX::XMFLOAT4A pos = camera.getPosition();
+	pos.y += 10;
+	dbg_camera->setPosition(pos);
+	//_mapCameraBuffer(*dbg_camera);
+	this->PrePass(camera);
+
+
+	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
+	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
+	_simpleLightCulling(camera);
+
+	_mapLightInfoNoMatrix();
+	shadowRun++;
+	if (shadowRun % 2 == 0 || true)
+	{
+		this->m_shadowMap->ShadowPass(this);
+		shadowRun = 0;
+	}
+	else
+		this->m_shadowMap->MapAllLightMatrix(&DX::g_prevlights);
+	this->m_shadowMap->SetSamplerAndShaderResources();
+
+	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	DX::g_deviceContext->RSSetState(m_standardRast);
+
+	if (DX::g_player)
+		_visabilityPass();
+	//------------------------------
+	//Pass to Pic
+	this->_GeometryPassToPic(camera);
+	this->_AnimatedGeometryToPic(camera);
+	//------------------------------
+	//SaveFile to that folder
+	HRESULT hr = DirectX::SaveWICTextureToFile(DX::g_deviceContext, m_screenShootTex, GUID_ContainerFormatDds , L"../Assets/GUIFOLDER/ENDGAME.DDS");
+	
+
+	this->_OutliningPass(camera);
+
+	
+	
+
+	//_GuardFrustumDraw();
+	//_DBG_DRAW_CAMERA(camera);
+	_mapCameraBuffer(camera);
+
+	_particlePass(&camera);
+
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
+	m_2DRender->GUIPass();
+	this->_wireFramePass(&camera);
+
+	delete dbg_camera;
+}
+
+void ForwardRender::_GeometryPassToPic(Camera& camera)
+{
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
+
+
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_screenShootRender, m_depthStencilView);
+	//_setStaticShaders();
+
+	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
+	for (int i = 0; i < DX::g_cullQueue.size(); i++)
+	{
+		switch (camera.getPerspectiv())
+		{
+		case Camera::Perspectiv::Player:
+			if (DX::g_cullQueue[i]->getEntityType() == EntityType::PlayerType)
+				continue;
+			break;
+		case Camera::Perspectiv::Enemy:
+			if (DX::g_cullQueue[i]->getEntityType() == EntityType::GuarddType && DX::g_cullQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+				continue;
+			break;
+		default:
+			break;
+		}
+
+		if (DX::g_cullQueue[i]->getBoundingBox())
+		{
+			if (_Cull(bf, DX::g_cullQueue[i]->getBoundingBox()))
+				continue;
+		}
+		DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
+	}
+	delete bf;
+	DrawInstancedCull(&camera, true);
+
+
+
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
+}
+
+void ForwardRender::_AnimatedGeometryToPic(Camera& camera)
+{
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
+	DX::g_deviceContext->OMSetRenderTargets(1, &m_screenShootRender, m_depthStencilView);
+
+	UINT32 vertexSize = sizeof(PostAniDynamicVertex);
+	UINT32 offset = 0;
+	//_setAnimatedShaders();
+
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
+
+	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
+	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
+	{
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+				continue;
+
+		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
+		{
+			//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+
+			switch (camera.getPerspectiv())
+			{
+			case Camera::Perspectiv::Player:
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
+					continue;
+				break;
+			case Camera::Perspectiv::Enemy:
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::CurrentGuard || DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+					continue;
+				break;
+			}
+
+			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->GetAnimatedVertex();
+
+			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+
+			if (DX::g_animatedGeometryQueue[i]->getTextureName().find("DOOR") <= DX::g_animatedGeometryQueue[i]->getTextureName().size())
+			{
+				int gfaghjk34h = 5;
+			}
+
+			DX::g_animatedGeometryQueue[i]->BindTextures();
+
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+
+			//DX::g_animatedGeometryQueue[i]->TEMP();
+		}
+	}
+	delete bf;
+}
+
+void ForwardRender::_InitScreenShoot()
+{
+	D3D11_TEXTURE2D_DESC textureDesc{};
+	textureDesc.Width = InputHandler::getWindowSize().x;
+	textureDesc.Height = InputHandler::getWindowSize().y;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+	
+	DX::g_device->CreateTexture2D(&textureDesc, NULL, &m_screenShootTex);
+	
+
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+
+	DX::g_device->CreateRenderTargetView(m_screenShootTex, &renderTargetViewDesc, &m_screenShootRender);
+	
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc{};
+	shaderResourceViewDesc.Format = textureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	DX::g_device->CreateShaderResourceView(m_screenShootTex, &shaderResourceViewDesc, &m_screenShootSRV);
+	
 }
