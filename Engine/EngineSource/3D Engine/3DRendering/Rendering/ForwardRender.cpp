@@ -481,6 +481,11 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_NUKE);
 	DX::SafeRelease(m_NUKE2);
 
+	//Release ScreenCap
+	DX::SafeRelease(m_screenShootRender);
+	DX::SafeRelease(m_screenShootTex);
+	DX::SafeRelease(m_screenShootSRV);
+
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
