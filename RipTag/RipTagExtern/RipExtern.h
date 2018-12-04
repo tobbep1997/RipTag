@@ -20,6 +20,9 @@ namespace RipSounds
 	extern std::string				g_music1;
 	extern std::string				g_grunt;
 	extern std::string				g_playAmbientSound;
+	extern std::string				g_metalDoorOpening;
+	extern std::string				g_metalDoorClosening;
+	extern std::string				g_metalDoorClosed;
 }
 
 namespace RipExtern

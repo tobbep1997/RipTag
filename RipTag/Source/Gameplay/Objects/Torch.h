@@ -12,7 +12,6 @@ private:
 	FMOD::Channel * m_channel;
 	AudioEngine::SoundDesc m_tourchSound;
 
-
 public:
 	Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId);
 	~Torch();

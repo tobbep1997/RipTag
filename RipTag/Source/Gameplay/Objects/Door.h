@@ -11,6 +11,9 @@ private:
 	float m_timer = 0.0f;
 	bool m_wasClosed = false;
 
+	AudioEngine::SoundDesc m_sd;
+	FMOD::Channel * m_channel = nullptr;
+
 public:
 	Door();
 	Door(int uniqueID, int linkedID, bool isTrigger);
