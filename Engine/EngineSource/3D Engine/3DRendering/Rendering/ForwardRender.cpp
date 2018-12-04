@@ -876,7 +876,7 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	m_textureValues.usingTexture.x = drawable->isTextureAssigned();
 	if (drawable->getTexture()->getIndex() != -1)
 	{
-		m_textureValues.usingTexture.y = 1;
+		m_textureValues.usingTexture.y = -1;
 		m_textureValues.usingTexture.z = drawable->getTexture()->getIndex();
 	}
 	else

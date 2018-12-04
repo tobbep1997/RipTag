@@ -41,7 +41,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 			break;
 		case 3:
 			setting = L"_2048";
-			maxTextureSize = 2048;
+			maxTextureSize = 1024;
 			break;
 		default:
 			setting = L"_128";
@@ -107,7 +107,8 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 
 						if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[i])))
 						{
-
+							DX::g_deviceContext->Flush();
+							DX::g_deviceContext->ClearState();
 						}
 					}
 					texGPU->Release();
@@ -119,6 +120,8 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 			}
 			tmpResCPU->Release();
 		}
+		DX::g_deviceContext->Flush();
+
 	}
 
 	return S_OK;	

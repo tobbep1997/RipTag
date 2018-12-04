@@ -359,10 +359,11 @@ void Engine3D::Release()
 	
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
-
+#ifndef _DEPLOY
 	ID3D11Debug* DebugDevice = nullptr;
 	HRESULT Result = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
 	Result = DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+#endif
 }
 
 void Engine3D::_createDepthSetencil(UINT width, UINT hight)

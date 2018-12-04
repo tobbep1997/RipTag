@@ -95,7 +95,7 @@ void RenderingManager::Flush(Camera & camera)
 	m_engine->Flush(camera);
 	
 	m_engine->Present();
-	//DX::g_deviceContext->ClearState();
+	DX::g_deviceContext->ClearState();
 }
 
 void RenderingManager::Release()
