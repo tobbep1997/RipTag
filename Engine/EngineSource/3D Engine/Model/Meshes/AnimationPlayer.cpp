@@ -800,6 +800,7 @@ void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const Imp
 		const int16_t parentIndex = mainSkeleton->m_Joints[i].m_ParentIndex;
 
 		DirectX::XMStoreFloat4x4A
+		
 		(&mainSkeleton->m_Joints[i].m_InverseBindPose, AnimationPlayer::_CreateMatrixFromSRT(importedSkeleton->joints[i].jointInverseBindPoseTransform));
 	}
 }
@@ -879,6 +880,7 @@ Animation::Skeleton::Skeleton(const ImporterLibrary::Skeleton& skeleton)
 		m_Joints[i].m_ParentIndex = skeleton.joints[i].parentIndex;
 	}
 	m_Joints[0].m_ParentIndex = -1; // Root does not have a real parent index
+	
 	Animation::SetInverseBindPoses(this, &skeleton);
 }
 
