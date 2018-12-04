@@ -13,6 +13,15 @@ struct NodeWorldPos
 		x = _x;
 		y = _y;
 	}
+	NodeWorldPos& operator=(const NodeWorldPos & other)
+	{
+		if (this != &other)
+		{
+			x = other.x;
+			y = other.y;
+		}
+		return *this;
+	}
 };
 
 /*
@@ -69,6 +78,7 @@ struct Node
 	}
 
 	bool operator==(Node & other) const { return tile == other.tile; }
+	Node& operator=(const Node & other);
 };
 
 class RandomRoomGrid;
@@ -111,18 +121,20 @@ public:
 	// For Blocking Algorithm;
 	void BlockIfNotPathable(int targetX, int targetY);
 
+	void PrintMe() const;
+
 private:
 	// Utility functions
 	void _checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest,
 					std::vector<std::shared_ptr<Node>>& openList, std::vector<Node> & nodeMap,
 					bool * closedList, int width, int height);
-	const bool& _isValid(Tile tile, int width, int height) const;
-	const float& _calcHValue(Tile src, Tile dest) const;
+	const bool _isValid(Tile tile, int width, int height) const;
+	const float _calcHValue(Tile src, Tile dest) const;
 	int _worldPosInNodeMap(int begin, int end, int x, int y) const;
 	int _findXInYRow(int begin, int end, int x, int y) const;
-	const bool& _tilesAreInTheSameRoom(const Tile & source, const Tile & destination);
+	const bool _tilesAreInTheSameRoom(const Tile & source, const Tile & destination);
 	std::vector<Node*> _findRoomNodePath(const Tile & source, const Tile & destination);
-	const bool& _isAllDirectionsBlocked(const bool blockedDirections[8]);
+	const bool _isAllDirectionsBlocked(const bool blockedDirections[8]);
 	void _removeAllBlockedTiles(std::vector<Node*> & roomNodePath);
 	Tile _getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap);
 	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
@@ -131,4 +143,8 @@ private:
 	// For Blocking Algorithm;
 	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
 	std::vector<Node*>	_getUnblockedAround(int x, int y);
+
+	void _printTilePairs(std::vector<TilePair> & tilePair, std::ofstream & file, Tile & source, Tile & dest);
+	void _printPath(std::vector<Node*> & path, std::ofstream & file, Tile & source, Tile & dest);
+
 };
