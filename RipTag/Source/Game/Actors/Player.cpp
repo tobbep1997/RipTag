@@ -520,24 +520,36 @@ void Player::SetFirstPersonModel()
 
 	//Animation stuff
 	{
+
+		///---Clips and poses---
 		auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
+		///auto runClip = Manager::g_animationManager.getAnimation("ARMS", "RUN_ANIMATION").get();
 		auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
 		auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
 		auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
 		auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
 		auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
 		auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
-
+		///---------------------
 		auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
-
-		auto& machine = animPlayer->InitStateMachine(3);
 		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
+		auto& machine = animPlayer->InitStateMachine(3);
+
+		///auto runState = machine->AddLoopState("run", runClip);
+		///runState->SetBlendTime(.25f);
 
 		auto idleState = machine->AddLoopState("idle", idleClip);
-		idleState->SetBlendTime(0.2f);
+		idleState->SetBlendTime(.15f);
+
+		///auto& idleToRun = idleState->AddOutState(runState);
+		///auto& runToIdle = runState->AddOutState(idleState);
+		///idleToRun.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_GREATER_THAN);
+		///runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
+
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
 		machine->SetState("idle");
+
 
 		auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
 		throwFinishState->SetBlendTime(0.0f);

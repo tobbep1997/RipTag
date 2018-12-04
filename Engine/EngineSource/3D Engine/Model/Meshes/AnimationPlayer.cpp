@@ -686,7 +686,7 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateLooping(Animation::Ani
 		//done in _computeIndexAndProgression()
 
 		///calc the actual frame index and progression towards the next frame
-		auto indexAndProgression = _ComputeIndexAndProgression(m_currentFrameDeltaTime, &m_CurrentTime, m_CurrentClip->m_FrameCount);
+		auto indexAndProgression = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_CurrentNormalizedTime, m_CurrentClip->m_FrameCount);
 		auto prevIndex = indexAndProgression.first;
 		auto progression = indexAndProgression.second;
 
