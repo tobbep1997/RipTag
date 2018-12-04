@@ -57,6 +57,7 @@ HRESULT DXRHC::CreateTexture2D(ID3D11Texture2D *& texture, UINT height, UINT wid
 	textureDesc.CPUAccessFlags = CPUAccessFlags;
 	textureDesc.MiscFlags = miscFlags;
 
+	
 	HRESULT hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &texture);
 
 	if (FAILED(hr))

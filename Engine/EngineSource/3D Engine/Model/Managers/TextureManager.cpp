@@ -21,7 +21,6 @@ TextureManager::~TextureManager()
 
 void TextureManager::Init()
 {
-	size_t maxTextureSize = 512;
 		switch (SettingLoader::g_windowContext->graphicsQuality)
 		{
 		case 0:			
@@ -46,14 +45,15 @@ void TextureManager::Init()
 	DXRHC::CreateTexture2D(m_static_TEX,
 		maxTextureSize,
 		maxTextureSize,
-		D3D11_BIND_SHADER_RESOURCE, 
+		D3D11_BIND_SHADER_RESOURCE,
 		1, 
 		1, 
-		0, 
+		0,
 		MAX_STATIC_TEXTURES * 3U, 
 		0, 
 		0, 
-		DXGI_FORMAT_BC3_UNORM);
+		DXGI_FORMAT_BC3_UNORM,
+		D3D11_USAGE_IMMUTABLE);
 
 	DXRHC::CreateShaderResourceView(m_static_TEX, 
 		m_static_SRV,
@@ -92,15 +92,26 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 			{
 				if (tempTexture->m_SRV[i])
 				{
-					DX::g_deviceContext->CopySubresourceRegion(m_static_TEX, 
-						this->m_static_textures,
-						0, 
-						0, 
-						0, 
-						tempTexture->m_texture[i],
-						0, 
-						NULL);	
-					//UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
+					//DX::g_deviceContext->CopySubresourceRegion(m_static_TEX, 
+					//	this->m_static_textures,
+					//	0, 
+					//	0, 
+					//	0, 
+					//	tempTexture->m_texture[i],
+					//	0, 
+					//	NULL);
+					D3D11_BOX destRegion;
+					destRegion.left = 0;
+					destRegion.right = 512 * 4 * 4 * 1;
+					destRegion.top = 0;
+					destRegion.bottom = 1;
+					destRegion.front = 0;
+					destRegion.back = 1;
+					D3D11_TEXTURE2D_DESC desc;
+					((ID3D11Texture2D*)tempTexture->m_texture[i])->GetDesc(&desc);
+					
+					UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
+					DX::g_deviceContext->UpdateSubresource(m_static_TEX, calcSub, NULL, tempTexture->m_texture[i], 0, 0);
 					//DX::g_deviceContext->UpdateSubresource(this->m_static_TEX, this->m_static_textures, NULL, tempTexture->m_texture[i], calcSub, calcSub);
 				}
 
@@ -142,14 +153,24 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 				{
 					if (tempTexture->m_SRV[i])
 					{
-						DX::g_deviceContext->CopySubresourceRegion(m_static_TEX,
-							this->m_static_textures,
-							0,
-							0,
-							0,
-							tempTexture->m_texture[i],
-							0,
-							NULL);
+						//DX::g_deviceContext->CopySubresourceRegion(m_static_TEX,
+						//	this->m_static_textures,
+						//	0,
+						//	0,
+						//	0,
+						//	tempTexture->m_texture[i],
+						//	0,
+						//	NULL);
+						D3D11_BOX destRegion;
+						destRegion.left = 0;
+						destRegion.right = 512 * 4*4*1;
+						destRegion.top = 0;
+						destRegion.bottom = 1;
+						destRegion.front = 0;
+						destRegion.back = 1;
+
+						DX::g_deviceContext->UpdateSubresource(m_static_TEX, this->m_static_textures, &destRegion, tempTexture->m_texture[i], maxTextureSize, 0);
+
 						//UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
 						//DX::g_deviceContext->UpdateSubresource(this->m_static_TEX, this->m_static_textures, NULL, tempTexture->m_texture[i], calcSub, calcSub);
 					}

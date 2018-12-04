@@ -107,6 +107,56 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 	}
 
 
+	// D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, WIC_LOADER_DEFAULT
+	ID3D11Resource* tmpResCPU = nullptr;
+	hr = DirectX::CreateDDSTextureFromFileEx(DX::g_device, DX::g_deviceContext, ORMname.c_str(), maxTextureSize,
+		D3D11_USAGE_STAGING, 0, D3D11_CPU_ACCESS_READ, 0, false, &tmpResCPU, nullptr, nullptr);
+
+	if (SUCCEEDED(hr))
+	{
+		ID3D11Texture2D* tmpTexCPU = nullptr;
+		if(SUCCEEDED(hr = tmpResCPU->QueryInterface(IID_PPV_ARGS(&tmpTexCPU))))
+		{
+			D3D11_MAPPED_SUBRESOURCE ms;
+			if (SUCCEEDED(hr = DX::g_deviceContext->Map(tmpTexCPU, 0, D3D11_MAP_READ, 0, &ms)))
+			{
+
+				D3D11_TEXTURE2D_DESC textureDesc{};
+				tmpTexCPU->GetDesc(&textureDesc);
+				textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+				textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+				textureDesc.CPUAccessFlags = 0;
+				textureDesc.MiscFlags = 0;
+
+				D3D11_SUBRESOURCE_DATA rd{};
+				rd.SysMemPitch = ms.RowPitch;
+				rd.pSysMem = ms.pData;
+
+				ID3D11Texture2D* texGPU = nullptr;
+				if(SUCCEEDED(hr = DX::g_device->CreateTexture2D(&textureDesc, &rd, &texGPU)))
+				{
+					D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
+					srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+					srv_desc.Format = textureDesc.Format;
+					srv_desc.Texture2D.MipLevels = textureDesc.MipLevels;
+					srv_desc.Texture2D.MostDetailedMip = 0;
+
+					if(SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[2])))
+					{
+						
+					}
+				}
+
+				DX::g_deviceContext->Unmap(tmpTexCPU, 0);
+			}
+
+			tmpTexCPU->Release();
+		}
+	}
+
+
+		//&m_texture[2], &m_SRV[2], maxTextureSize)
+
 	if (extension != ".png")
 		hr = DirectX::CreateDDSTextureFromFile(DX::g_device, DX::g_deviceContext, ORMname.c_str(), &m_texture[2], &m_SRV[2], maxTextureSize);
 	else

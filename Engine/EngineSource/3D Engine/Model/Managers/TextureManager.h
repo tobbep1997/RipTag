@@ -20,6 +20,8 @@ private:
 	ID3D11Texture2D			 *	m_static_TEX;
 	ID3D11ShaderResourceView *	m_static_SRV;
 
+	size_t maxTextureSize;
+
 public:
 	TextureManager();
 	~TextureManager();
