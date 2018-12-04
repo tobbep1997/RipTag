@@ -180,7 +180,8 @@ void RoomGenerator::_createEntireWorld()
 {
 	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
 	m_roomWidth = (m_incrementalValueX * m_roomGridWidth) / 2.0f;
-	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
+
+	//std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
 	int MAX_SMALL_MODS = 11; //8
@@ -484,6 +485,7 @@ void RoomGenerator::_createEntireWorld()
 				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 2, i, 1));
 			}
 #pragma endregion
+//Above 10 mB
 
 			
 			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 3, 10));

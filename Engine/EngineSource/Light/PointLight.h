@@ -43,9 +43,9 @@ private:
 	float m_farPlane;
 	float m_dropOff, m_intensity, m_pow;
 
-	ID3D11ShaderResourceView *	m_shadowShaderResourceView;
-	ID3D11DepthStencilView*		m_shadowDepthStencilView;
-	ID3D11Texture2D*			m_shadowDepthBufferTex;
+	ID3D11ShaderResourceView *	m_shadowShaderResourceView;	//Re
+	ID3D11DepthStencilView*		m_shadowDepthStencilView;	//Re
+	ID3D11Texture2D*			m_shadowDepthBufferTex;		//Re
 
 	bool m_update = false;
 	bool m_firstRun = true;
