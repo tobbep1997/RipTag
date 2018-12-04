@@ -8,7 +8,7 @@ void StaticMesh::_createVertexBuffer()
 
 	UINT32 vertexSize = sizeof(StaticVertex);
 	UINT32 offset = 0;
-
+	m_staticVertex.shrink_to_fit();
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -52,6 +52,7 @@ void StaticMesh::setVertices(std::vector<StaticVertex>& input)
 	m_staticVertex.clear();
 	m_staticVertex = input;
 	_createVertexBuffer();
+	m_staticVertex.shrink_to_fit();
 }
 
 const ImporterLibrary::CollisionBoxes & StaticMesh::getCollisionBoxes() const
@@ -67,6 +68,7 @@ void StaticMesh::SET_DEFAULT()
 	ImporterLibrary::MeshFromFile newMesh = meshloader.readMeshFile("../Assets/sphere.bin");
 
 	StaticVertex tempvertex;
+	m_staticVertex.reserve(newMesh.mesh_nrOfVertices);
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 		
@@ -91,6 +93,7 @@ void StaticMesh::SET_DEFAULT()
 		m_staticVertex.push_back(tempvertex);
 
 	}
+	m_staticVertex.shrink_to_fit();
 	delete newMesh.mesh_vertices;
 	_createVertexBuffer();
 }
@@ -114,6 +117,7 @@ void StaticMesh::LoadMesh(const std::string & path)
 
 	StaticVertex tempvertex;
 	//m_meshName = newMesh.mesh_meshID;
+	m_staticVertex.reserve(newMesh.mesh_nrOfVertices);
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 
@@ -140,6 +144,7 @@ void StaticMesh::LoadMesh(const std::string & path)
 		m_staticVertex.push_back(tempvertex);
 
 	}
+	m_staticVertex.shrink_to_fit();
 	delete newMesh.mesh_vertices;
 	_createVertexBuffer();
 }
