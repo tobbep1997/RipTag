@@ -82,7 +82,7 @@ public:
 
 	virtual void CreateBodyAndShape(b3World & world);
 
-	virtual void CreateShape(float x = 1, float y = 1, float z = 1, float sizeX = 1, float sizeY = 1, float sizeZ = 1, float friction = 0.0f, std::string objectTag = "NULL", bool isSensor = false);
+	virtual void CreateShape(float x = 1, float y = 1, float z = 1, float sizeX = 1, float sizeY = 1, float sizeZ = 1, float density = 1.0f, float friction = 0.0f, std::string objectTag = "NULL", bool isSensor = false);
 
 	virtual void setGravityScale(float gravity);
 

@@ -427,7 +427,7 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 
 }
 
-void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, float friction, std::string objectTag, bool isSensor)
+void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, float friction, float density, std::string objectTag, bool isSensor)
 {
 	b3Hull* hull = DBG_NEW b3Hull();
 	hull->SetAsBox(b3Vec3(sizeX, sizeY, sizeZ));
@@ -439,7 +439,7 @@ void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float
 	b3ShapeDef* s;
 	s = DBG_NEW b3ShapeDef();
 	s->shape = polyhedron;
-	s->density = 1.0f;
+	s->density = density;
 	s->restitution = 0;
 	s->friction = friction;
 	s->sensor = isSensor;
