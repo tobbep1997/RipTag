@@ -46,6 +46,8 @@ namespace DX {
 
 	extern RECT                                                            g_backBufferResolution;
 
+	extern bool g_screenShootCamera;
+
 	namespace INSTANCING
 	{
 		

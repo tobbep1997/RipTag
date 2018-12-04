@@ -131,6 +131,10 @@ private:
 	ID3D11DepthStencilState * m_NUKE2;			//RE
 
 	int shadowRun = 0;
+
+	ID3D11RenderTargetView * m_screenShootRender;
+	ID3D11Texture2D * m_screenShootTex;
+	ID3D11ShaderResourceView * m_screenShootSRV;
 	
 public:
 	ForwardRender();
@@ -161,8 +165,12 @@ public:
 	DirectX::BoundingFrustum * _createBoundingFrustrum(Camera * camera);//Make sure to delete the pointer
 	bool _Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box);//Return true if the box sould be culled
 
+	void FlushScreenShoot(Camera & camera);
 private:
+	void _GeometryPassToPic(Camera & camera);
+	void _AnimatedGeometryToPic(Camera & camera);
 
+	void _InitScreenShoot();
 
 	void _GuardFrustumDraw();
 	void _DBG_DRAW_CAMERA(Camera & camera);

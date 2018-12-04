@@ -414,25 +414,33 @@ void Room::Update(float deltaTime, Camera * camera)
 	}
 
 	triggerHandler->Update(deltaTime);
-
-	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
-	{
-		if (m_roomGuards.at(i)->getIfLost() == true)
-		{
-			m_youLost = true;
-			break;
-		}
-	}
 	if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
 #else
-		PlayState::setYouLost(true);
+		if (DX::g_screenShootCamera == false)
+		{
+			PlayState::setYouLost(true);
+		}
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
 	}
+	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
+	{
+		if (m_roomGuards.at(i)->getIfLost() == true)
+		{
+			//m_youLost = true;
+			m_playerInRoomPtr->setHidden(false);
+			CameraHandler::setActiveCamera(m_roomGuards.at(i)->getCamera());
+			m_roomGuards.at(i)->setHidden(true);
+			m_playerInRoomPtr->setOutline(true);
+			DX::g_screenShootCamera = true;
+			break;
+		}
+	}
+
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{
