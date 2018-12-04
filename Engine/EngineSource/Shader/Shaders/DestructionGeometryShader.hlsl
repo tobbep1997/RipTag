@@ -32,6 +32,7 @@ struct GS_OUTPUT
 
 	float4 color : COLOR;
 	int4 info : INFO;
+	float timerValue : TIMER;
 };
 
 float4x4 createRotationMatrix(float angle, float3 axis)
@@ -125,18 +126,23 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	float posLerpValue = 0;
 	float lerpValue = TimerAndForwardVector.w;
 	float trianglePosLerpX = 0;
-	float trianglePosLerpY = 1.5;
+	float trianglePosLerpY = 1;
 	float scaleLerpX = 1;
 	float scaleLerpY = 0.3;
+	float rotX = 0;
+	float rotY = 190;
+
 	if (lerpValue > 1)
 	{
 		lerpValue = lerpValue - 1;
 
-		trianglePosLerpX = 1.5;
+		trianglePosLerpX = 1;
 		trianglePosLerpY = 0;
 		posLerpValue = lerpValue;
 		scaleLerpY = 1;
 		scaleLerpX = 0.3;
+		rotY = 0;
+		rotX = 190;
 	}
 
 
@@ -146,9 +152,10 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	float scaleLerp = lerp(scaleLerpX, scaleLerpY, lerpValue);
 	float4x4 scaleMatrix = createScaleMatrix(scaleLerp);
 
+	float rotLerp = lerp(rotX, rotY, lerpValue);
 	for (uint i = 0; i < 3; i ++)
 	{
-
+		output.timerValue = TimerAndForwardVector.w;
 		output.pos = input[i].pos;
 		output.worldPos = input[i].worldPos;
 		output.normal = input[i].normal;
@@ -162,6 +169,8 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		//////float4 worldPosLerp = lerp(startPos, realPos, posLerpValue);
 		output.worldPos = output.worldPos - realPos;
 	
+
+		output.worldPos = mul(createRotationMatrix(rotLerp, float3(TimerAndForwardVector.x, TimerAndForwardVector.y, TimerAndForwardVector.z)), output.worldPos);
 		
 		output.worldPos.xyz += realPos.xyz + (normalize(offsetNormal) * moveTriangleLerp);
 		output.worldPos = mul(scaleMatrix, output.worldPos);

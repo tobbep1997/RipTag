@@ -150,6 +150,20 @@ void RemotePlayer::Update(double dt)
 	//4.
 	if (pNetwork->isServer())
 		_sendVisibilityPacket();
+
+	if (this->getDestroyState())
+	{
+		this->setDestructionRate(ConstTimer::g_timer.GetTime());
+		if (ConstTimer::g_timer.GetTime() > 2.0f)
+		{
+			this->setDestroyState(false);
+			this->setDestructionRate(0);//after
+			this->setLastTransform(this->getWorldmatrix());//on click
+			ConstTimer::g_timer.Stop();
+			ConstTimer::g_timer.Start();
+
+		}
+	}
 }
 
 void RemotePlayer::Draw()
@@ -222,6 +236,12 @@ void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 	{
 		m_currentAbility = (Ability)data->ability;
 		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
+		if (m_currentAbility == Ability::BLINK)
+		{
+			this->setDestroyState(true);
+			ConstTimer::g_timer.Stop();
+			ConstTimer::g_timer.Start();
+		}
 	}
 	else if (data->isCommonUpadate)
 	{

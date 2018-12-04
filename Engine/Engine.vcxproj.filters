@@ -24,6 +24,7 @@
     <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\DestructionGeometryShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\PreAnimatedDestructionShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\DestructionPixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />

@@ -355,9 +355,9 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			DXRHC::MapBuffer(m_destructionBuffer, &m_destroyBuffer, sizeof(DestroyBuffer), 0, 1, ShaderTypes::geometry);
 
 			DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl");
-			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
-			DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 			DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl"), nullptr, 0);
+			DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionPixelShader.hlsl");
+			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionPixelShader.hlsl"), nullptr, 0);
 
 
 			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
@@ -398,6 +398,8 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 		}
 		else
 		{
+			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
+
 			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
 				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
