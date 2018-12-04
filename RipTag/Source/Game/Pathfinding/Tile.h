@@ -20,6 +20,7 @@ public:
 
 	// Operators
 	bool operator==(Tile & other) const;
+	Tile & operator=(const Tile & other);
 
 private:
 

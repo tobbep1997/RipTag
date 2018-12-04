@@ -195,6 +195,7 @@ void DisableAbility::_inStateThrowable()
 			}
 
 			m_dState = DisableAbility::Charging;
+			((Player*)p_owner)->SetThrowing(true);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
@@ -223,6 +224,7 @@ void DisableAbility::_inStateCharging(double dt)
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
+			((Player*)p_owner)->SetThrowing(false);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
@@ -241,6 +243,7 @@ void DisableAbility::_inStateCharging(double dt)
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
 
+			((Player*)p_owner)->SetThrowing(false);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");

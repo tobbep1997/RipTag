@@ -27,6 +27,7 @@ void SkinnedMesh::setVertices(std::vector<DynamicVertex>& input)
 {
 	m_dynamicVertex.clear();
 	m_dynamicVertex = input;
+	m_dynamicVertex.shrink_to_fit();
 }
 
 void SkinnedMesh::SET_DEFAULT()
@@ -37,6 +38,7 @@ void SkinnedMesh::SET_DEFAULT()
 	ImporterLibrary::SkinnedMeshFromFile newMesh = meshloader.readSkinnedMeshFile("../Assets/ANIMATEDCUBE.bin");
 
 	DynamicVertex tempvertex;
+	m_dynamicVertex.reserve(newMesh.mesh_nrOfVertices);
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 		//TODO: Gör ordentligt.
@@ -92,6 +94,7 @@ void SkinnedMesh::LoadMesh(const std::string & path)
 	ImporterLibrary::CustomFileLoader meshloader;
 	ImporterLibrary::SkinnedMeshFromFile newMesh = meshloader.readSkinnedMeshFile(path);
 	DynamicVertex tempvertex;
+	m_dynamicVertex.reserve(newMesh.mesh_nrOfVertices);
 	for (unsigned int i = 0; i < newMesh.mesh_nrOfVertices; i++)
 	{
 

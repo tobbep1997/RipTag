@@ -130,6 +130,8 @@ void MainMenu::_initButtons()
 	this->m_background->setPressedTexture("gui_main_menu");
 	this->m_background->setHoverTexture("gui_main_menu");
 
+	m_buttons.shrink_to_fit();
+
 }
 
 bool MainMenu::_handleMouseInput()
@@ -354,7 +356,10 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadGUITextures();
 	m_music->stop();
 
+	//HUDComponent::removeHUD();
+
 	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
+
 
 	std::cout << "MainMenu unLoad" << std::endl;
 }

@@ -1,6 +1,12 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 #include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
+
+void Player::SetThrowing(bool throwing)
+{
+	m_IsThrowing = throwing;
+}
+
 //#todoREMOVE
 float Player::m_currentPitch = 0.0f;
 
@@ -216,7 +222,10 @@ void Player::Update(double deltaTime)
 
 		if (m_IsMoving())
 		{
-			m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->ActivateLayerIfInactive("bob");
+			if (!m_IsThrowing)
+			{
+				m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->ActivateLayerIfInactive("bob");
+			}
 		}
 		else
 		{

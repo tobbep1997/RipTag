@@ -92,7 +92,7 @@ private:
 	PivotPoint m_pivotPoint = PivotPoint::center;
 	std::string m_textures[3];
 
-	DirectX::SpriteFont * m_spriteFont;
+	DirectX::SpriteFont * m_spriteFont = nullptr;
 	std::string m_string = "";
 
 	DirectX::XMFLOAT4A m_textColor;
