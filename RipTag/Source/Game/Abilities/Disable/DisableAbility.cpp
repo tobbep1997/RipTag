@@ -199,6 +199,7 @@ void DisableAbility::_inStateThrowable()
 
 void DisableAbility::_inStateCharging(double dt)
 {
+	static float chargeTime = 0.0f;
 	using namespace Network;
 	if (isLocal)
 	{
@@ -210,13 +211,17 @@ void DisableAbility::_inStateCharging(double dt)
 			m_bar->setAngle(360.0f * charge);
 			//m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
-				m_charge += dt;
+			{
+				chargeTime += dt;
+				m_charge = log2f(1.0f + chargeTime * 10) / log2f(1 + 10);
+			}
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			chargeTime = 0.0f;
 			m_charge = 0.0;
 			p_cooldown = (p_cooldownMax / 3) * 2;
 			m_dState = DisableState::Cooldown;
@@ -240,14 +245,16 @@ void DisableAbility::_inStateCharging(double dt)
 			this->m_lastStart = start;
 
 			start.w = 1.0f;
-			direction = XMMATH::scale(direction, TRAVEL_SPEED);
+			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
 			m_obj->setPosition(start.x, start.y, start.z);
 			m_obj->setLiniearVelocity(direction.x, direction.y, direction.z);
 			m_lastVelocity = direction;
+			chargeTime = 0.0f;
 			m_charge = 0.0f;
 		}
 		else if (((Player *)p_owner)->getCurrentAbility() != Ability::DISABLE)
 		{
+			chargeTime = 0.0f;
 			m_charge = 0.0f;
 			m_dState = DisableState::Throwable;
 		}
