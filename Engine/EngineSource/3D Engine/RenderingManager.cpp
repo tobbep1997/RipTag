@@ -27,7 +27,7 @@ RenderingManager * RenderingManager::GetInstance()
 
 void RenderingManager::Init(HINSTANCE hInstance)
 {
-#if _DEBUG || _RELEASE_DBG
+#ifndef _DEPLOY
 	DEBUG = true;
 #else
 	DEBUG = false;
@@ -82,7 +82,7 @@ void RenderingManager::UpdateSingleThread()
 	{
 		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
 	}
-#if _DEBUG
+#ifndef _DEPLOY
 	if (GetAsyncKeyState(int('P')))
 	{
 		_reloadShaders();

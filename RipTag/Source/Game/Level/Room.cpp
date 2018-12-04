@@ -280,6 +280,7 @@ void Room::LoadRoomToMemory()
 			}
 
 			//Createing the guard in the world
+			
 			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], tempGuards.startingPositions[i].startingPos[1], pos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);

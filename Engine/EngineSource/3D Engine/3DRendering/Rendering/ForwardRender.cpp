@@ -267,7 +267,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	DX::g_deviceContext->RSSetState(m_NUKE);
 	DX::g_deviceContext->OMSetDepthStencilState(m_NUKE2, 0);
 
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl"), nullptr, 0);
+	
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -277,6 +277,17 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
+		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
+		{
+			DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/PreAnimatedDestructionShader.hlsl");
+			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/PreAnimatedDestructionShader.hlsl"), nullptr, 0);
+		}
+		else
+		{
+			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl"), nullptr, 0);
+		}
+
+
 		
 			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
 				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
@@ -335,11 +346,13 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	{
 		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
 		{
-			
-			m_destroyBuffer.timer.x = DX::g_animatedGeometryQueue[i]->getDestructionRate();
+			DX::g_deviceContext->RSSetState(m_disableBackFace);
+			m_destroyBuffer.TimerAndForwardVector = camera.getForward();
+			m_destroyBuffer.TimerAndForwardVector.w = DX::g_animatedGeometryQueue[i]->getDestructionRate();
+			m_destroyBuffer.lastPos = DX::g_animatedGeometryQueue[i]->getLastTransform();
+
+
 			DXRHC::MapBuffer(m_destructionBuffer, &m_destroyBuffer, sizeof(DestroyBuffer), 0, 1, ShaderTypes::geometry);
-
-
 
 			DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl");
 			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -380,7 +393,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 				//DX::g_animatedGeometryQueue[i]->TEMP();
 			}
 
-
+			DX::g_deviceContext->RSSetState(m_standardRast);
 			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 		}
 		else
@@ -906,9 +919,10 @@ void ForwardRender::_createConstantBuffer()
 	hr = DXRHC::CreateConstantBuffer(this->m_lightBuffer, sizeof(LightBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_GuardBuffer, sizeof(GuardBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
-
+	
 	hr = DXRHC::CreateConstantBuffer(this->m_outlineBuffer, sizeof(OutLineBuffer));
 	hr = DXRHC::CreateConstantBuffer(this->m_destructionBuffer, sizeof(DestroyBuffer));
+	hr = DXRHC::CreateConstantBuffer(this->m_lerpablePosBuffer, sizeof(LerpableWorldPosBuffer));
 
 }
 
@@ -923,7 +937,19 @@ void ForwardRender::_createSamplerState()
 
 void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
-	m_objectValues.worldMatrix = drawable->getWorldmatrix();	
+	if (drawable->getDestroyState())
+	{
+		m_lerpablePosBufferInfo.finalPos = drawable->getLastTransform();
+		m_lerpablePosBufferInfo.timer.x = ConstTimer::g_timer.GetTime();
+		DXRHC::MapBuffer(m_lerpablePosBuffer, &m_lerpablePosBufferInfo, sizeof(LerpableWorldPosBuffer), 5, 1, ShaderTypes::vertex);
+		
+		m_objectValues.worldMatrix = drawable->getWorldmatrix();
+	}
+	else
+	{
+
+		m_objectValues.worldMatrix = drawable->getWorldmatrix();	
+	}
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
 	
 
@@ -985,6 +1011,7 @@ void ForwardRender::_mapCameraBuffer(Camera & camera)
 	m_cameraValues.cameraPosition = camera.getPosition();
 	m_cameraValues.viewProjection = camera.getViewProjection();
 	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::vertex);
+	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::geometry);
 	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::pixel);
 }
 

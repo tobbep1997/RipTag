@@ -44,10 +44,25 @@ void EnemyHandler::Update(float deltaTime)
 	static double accumulatedTime = 0.0;
 	static const double SEND_UPDATES_FREQUENCY = 1.0 / 50.0; // 20 ms
 	
+
 	for (auto enemy : m_guards)
 	{
+		
 		if (enemy->getDestroyState())
-			enemy->setDestructionRate(1 * deltaTime);
+		{
+			
+			enemy->setDestructionRate(ConstTimer::g_timer.GetTime());
+			if (ConstTimer::g_timer.GetTime() > 2.0f)
+			{
+				//enemy->setDestroyState(false);
+				enemy->setDestructionRate(0);//after
+				enemy->setLastTransform(enemy->getWorldmatrix());//on click
+				ConstTimer::g_timer.Stop();
+				ConstTimer::g_timer.Start();
+
+			}
+
+		}
 	}
 
 

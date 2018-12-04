@@ -50,6 +50,7 @@ private:
 	bool m_transparant;
 	bool m_castShadow;
 	bool m_destroyState = false;
+	DirectX::XMFLOAT4X4A m_lastTransformation;
 
 	DirectX::XMFLOAT4A m_outLineColor;
 
@@ -147,8 +148,11 @@ public:
 
 	std::string getTextureName() const;
 
-	virtual void setDestructionRate(const float updateRate) { this->m_destructionRate += updateRate; };
+	virtual void setDestructionRate(const float updateRate) { this->m_destructionRate = updateRate; };
 	virtual const float getDestructionRate() { return this->m_destructionRate; };
+
+	virtual void setLastTransform(const DirectX::XMFLOAT4X4A lastPos) { this->m_lastTransformation = lastPos; };
+	virtual const DirectX::XMFLOAT4X4A getLastTransform() { return this->m_lastTransformation; };
 
 	ID3D11Buffer * GetAnimatedVertex();
 	ID3D11UnorderedAccessView * GetUAV();

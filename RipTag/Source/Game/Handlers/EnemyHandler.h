@@ -37,6 +37,7 @@ public:
 	void HandlePacket(unsigned char id, unsigned char * data);
 
 private:
+	
 	void _isServerUpdate(double deltaTime);
 	void _isClientUpdate(double deltaTime);
 	void _isSinglePlayerUpdate(double deltaTime);

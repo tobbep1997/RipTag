@@ -68,7 +68,13 @@ class ForwardRender
 
 	struct DestroyBuffer
 	{
-		DirectX::XMFLOAT4 timer;
+		DirectX::XMFLOAT4A TimerAndForwardVector;
+		DirectX::XMFLOAT4X4 lastPos;
+	};
+	struct LerpableWorldPosBuffer
+	{
+		DirectX::XMFLOAT4X4A finalPos;
+		DirectX::XMFLOAT4A timer;
 	};
 private:
 
@@ -116,6 +122,9 @@ private:
 
 	ID3D11Buffer * m_destructionBuffer = nullptr;
 	DestroyBuffer m_destroyBuffer;
+
+	ID3D11Buffer * m_lerpablePosBuffer = nullptr;
+	LerpableWorldPosBuffer m_lerpablePosBufferInfo;
 
 	
 
