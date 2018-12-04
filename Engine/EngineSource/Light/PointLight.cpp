@@ -10,7 +10,7 @@ PointLight::PointLight()
 	{1.0f, 1.0f},
 	5.5f
 	};
-	m_nearPlane = 0.1f;
+	m_nearPlane = 0.01f;
 	_initDirectX();
 	_setFarPlane();
 	//m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
@@ -27,7 +27,7 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	{1.0f, 1.0f},
 	5.5f
 	};
-	m_nearPlane = 0.1f;
+	m_nearPlane = 0.01f;
 	_initDirectX();
 	_setFarPlane();
 	this->m_position = DirectX::XMFLOAT4A(translation[0], translation[1], translation[2], 1);
@@ -167,6 +167,46 @@ float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 
 	float temp = base + sin(m_tev.current.x) * amplitude;
 	return temp;
+}
+
+void PointLight::setBase(const DirectX::XMFLOAT4A& base)
+{
+	this->m_mev.base = base;
+}
+
+const DirectX::XMFLOAT4A PointLight::MovmentEffect(double deltaTime, const DirectX::XMFLOAT4A position, float stride,
+	float amplitude)
+{
+	using namespace DirectX;
+	
+	if (m_mev.first)
+	{
+		m_mev.target = position;
+		m_mev.base = position;
+		m_mev.first = false;
+	}
+
+	m_mev.current = position;
+
+	XMVECTOR current	= XMLoadFloat4(&m_mev.current);
+	XMVECTOR target		= XMLoadFloat4(&m_mev.target);
+	XMVECTOR base		= XMLoadFloat4(&m_mev.base);
+
+	const float distance = XMVectorGetX(XMVector4LengthEst(XMVectorSubtract(current, target)));
+	if (distance < stride / 2.0f)
+	{
+		XMVECTOR direction = XMLoadFloat4(&getRandomDirection());
+		direction *= stride;
+		target = XMVectorAdd(base, direction);
+
+		XMStoreFloat4(&m_mev.target, target);
+		m_mev.target.w = 1;
+	}
+
+	const XMVECTOR vec = XMVectorLerp(current, target, deltaTime * 1.0);
+	XMStoreFloat4(&m_mev.current, vec);
+
+	return XMFLOAT4A(m_mev.current.x, m_mev.current.y, m_mev.current.z, 1);
 }
 
 ID3D11ShaderResourceView * PointLight::getSRV() const
@@ -485,4 +525,18 @@ void PointLight::_setFarPlane()
 		m_farPlane = 20.0f;
 		break;
 	}
+}
+
+DirectX::XMFLOAT4 PointLight::getRandomDirection()
+{
+	using namespace DirectX;
+	const float x = ((unsigned)rand() % 100) / 100.0f;
+	const float y = ((unsigned)rand() % 100) / 100.0f;
+	const float z = ((unsigned)rand() % 100) / 100.0f;
+	
+	XMVECTOR dir = { x,y,z };
+	XMVector3Normalize(dir);
+	XMFLOAT4 newDir; XMStoreFloat4(&newDir, dir);
+	newDir.w = 1;
+	return newDir;
 }

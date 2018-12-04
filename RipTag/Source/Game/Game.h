@@ -34,7 +34,6 @@ public:
 	void Clear();				//Clear screen
 	void Update(double deltaTime);				//Updates everything, ex: setPosition();
 	void Draw();				//Calls Draw
-	void ImGuiFrameStart();		//ImGuiStart
 	//------------------------------------
 
 	void ImGuiPoll();

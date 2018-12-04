@@ -102,7 +102,6 @@ void GameLoop(Game * game)
 		//Pollevents
 
 		//Draw and update
-		game->ImGuiFrameStart();
 		game->Update(deltaTime);
 		AudioEngine::Update();
 		game->Draw();
@@ -133,7 +132,6 @@ void SingleGameLoop(Game * game)
 		//Pollevents
 
 		//Draw and update
-		game->ImGuiFrameStart();
 		game->Update(deltaTime);
 		AudioEngine::Update();
 		game->Draw();
