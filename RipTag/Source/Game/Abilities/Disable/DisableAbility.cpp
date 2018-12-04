@@ -308,6 +308,9 @@ void DisableAbility::_inStateMoving(double dt)
 
 							this->_sendOnHitNotification(ptr);
 
+							FMOD_VECTOR at = FMOD_VECTOR{ this->getPosition().x, this->getPosition().y, this->getPosition().z };
+							FMOD::Channel* c = nullptr;
+							c = AudioEngine::PlaySoundEffect(RipSounds::g_smokeBomb, &at, &((Player*)p_owner)->getSmokeBombDesc());
 						}
 						else
 						{
@@ -319,6 +322,10 @@ void DisableAbility::_inStateMoving(double dt)
 							this->setPosition(-999.9f, -999.9f, -999.9f);
 							p_cooldown = 0.0;
 							accumulatedTime = 0.0;
+
+							FMOD_VECTOR at = FMOD_VECTOR{ this->getPosition().x, this->getPosition().y, this->getPosition().z };
+							FMOD::Channel* c = nullptr;
+							c = AudioEngine::PlaySoundEffect(RipSounds::g_smokeBomb, &at, &((Player*)p_owner)->getSmokeBombDesc());
 						}
 					}
 				}

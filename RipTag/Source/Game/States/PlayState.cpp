@@ -16,6 +16,7 @@ std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
 std::string				 RipSounds::g_grunt;
 std::string				 RipSounds::g_playAmbientSound;
+std::string				 RipSounds::g_smokeBomb;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -752,6 +753,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
 
 	if (m_eventOverlay)
@@ -1049,6 +1051,7 @@ void PlayState::_loadSound()
 	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
 	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
 	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
+	RipSounds::g_smokeBomb = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg"); 
 	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
 
 	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.2f);
