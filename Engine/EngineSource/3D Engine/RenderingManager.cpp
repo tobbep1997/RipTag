@@ -61,6 +61,7 @@ void RenderingManager::Update()
 	{
 		InputHandler::WindowSetShowCursor();
 		m_wnd->PollEvents();
+
 	#ifndef _DEPLOY
 		if (GetAsyncKeyState(int('P')))
 		{
@@ -75,8 +76,8 @@ void RenderingManager::UpdateSingleThread()
 {
 	InputHandler::WindowSetShowCursor();
 	m_wnd->PollEvents();
-#if _DEBUG
-	if (GetAsyncKeyState(int('J')))
+#ifndef _DEPLOY
+	if (GetAsyncKeyState(int('P')))
 	{
 		_reloadShaders();
 	}
@@ -143,10 +144,10 @@ void RenderingManager::Reset()
 	//	m_ImGuiManager->Init(m_wnd->getHandler());
 	//}
 }
-
+#pragma optimize("", off)
 void RenderingManager::_reloadShaders()
 {
-	bool f = true;
-	if (f)
-		DX::g_shaderManager.ReloadAllShaders();
+	DX::g_shaderManager.ReloadAllShaders();
 }
+#pragma optimize("", on)
+
