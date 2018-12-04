@@ -37,6 +37,9 @@ public:
 private: //stuff for state machine
 	friend class PlayState;
 	friend class Enemy;
+
+	std::function<bool()> m_IsMoving = [&]() {return m_currentMoveSpeed > 0.1f; };
+
 	bool m_isInAir = false;
 	bool m_headBobbingActive = true; 
 	float m_currentSpeed = 0.0f; //[0,1]

@@ -213,6 +213,15 @@ void Player::Update(double deltaTime)
 
 			}
 		}
+
+		if (m_IsMoving())
+		{
+			m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->ActivateLayerIfInactive("bob");
+		}
+		else
+		{
+			m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("bob");
+		}
 	}
 	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
 	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
@@ -515,9 +524,8 @@ void Player::SetFirstPersonModel()
 		auto& machine = animPlayer->InitStateMachine(3);
 		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 
-		auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
+		auto idleState = machine->AddLoopState("idle", idleClip);
 		idleState->SetBlendTime(0.2f);
-		idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
 		machine->SetState("idle");
@@ -1067,7 +1075,7 @@ void Player::_onPeak(double deltaTime)
 	}
 
 	m_currentPeek = /*peekDir * */m_peektimer;
-	std::cout << m_currentPeek << std::endl;
+	//std::cout << m_currentPeek << std::endl;
 
 }
 

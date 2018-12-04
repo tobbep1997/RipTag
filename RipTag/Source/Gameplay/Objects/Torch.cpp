@@ -131,6 +131,11 @@ void Torch::handleContact(RayCastListener::RayContact * contact)
 	}
 }
 
+void Torch::Interact()
+{
+	m_interacted = true;
+}
+
 void Torch::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };

@@ -151,20 +151,6 @@ void PlayState::Update(double deltaTime)
 			_runPause(deltaTime);
 		}
 
-
-		/*if (Input::Exit() || GamePadHandler::IsStartPressed())
-		{
-			m_destoryPhysicsThread = true;
-			m_physicsCondition.notify_all();
-		
-
-			if (m_physicsThread.joinable())
-			{
-				m_physicsThread.join();
-			}
-			BackToMenu();
-		}*/
-
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
@@ -831,11 +817,16 @@ void PlayState::Load()
 
 void PlayState::_checkPauseState()
 {
+	static bool justPressed = false;
 	//Check if escape was pressed
-	if (Input::isUsingGamepad())
-		m_pausePressed = GamePadHandler::IsStartPressed();
 	if (!m_pausePressed)
-		m_pausePressed = Input::Exit(); 
+	{
+		if (Input::isUsingGamepad())
+			m_pausePressed = GamePadHandler::IsStartPressed();
+		if (InputHandler::wasKeyPressed(InputHandler::Esc))
+			m_pausePressed = true;
+		justPressed = m_pausePressed;
+	}
 
 	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
 	{
@@ -849,8 +840,23 @@ void PlayState::_checkPauseState()
 
 	if (m_pPauseMenu != nullptr)
 	{
+		//Check input 
+		if (!justPressed)
+		{
+			if (Input::isUsingGamepad())
+			{
+				if (GamePadHandler::IsStartPressed())
+					m_pPauseMenu->ExitPause();
+			}
+			if (InputHandler::wasKeyPressed(InputHandler::Esc))
+				m_pPauseMenu->ExitPause();
+		}
+		if (justPressed)
+			justPressed = false;
+
 		if (m_pPauseMenu->getExitPause())
 		{
+			m_pausePressed = false;
 			m_gamePaused = false;
 			m_currentState = 0;
 			m_playerManager->getLocalPlayer()->UnlockPlayerInput();

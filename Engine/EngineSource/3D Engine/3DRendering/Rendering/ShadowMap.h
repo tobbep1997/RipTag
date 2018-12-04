@@ -45,22 +45,22 @@ private:
 	const unsigned int SHADER_RESOURCE_VIEW_COUNT = 8*6;
 
 	D3D11_VIEWPORT				m_shadowViewport;
-	ID3D11SamplerState*			m_shadowSamplerState;
-	ID3D11ShaderResourceView *	m_shadowShaderResourceView;
-	ID3D11DepthStencilView*		m_shadowDepthStencilView;
-	ID3D11Texture2D*			m_shadowDepthBufferTex;
+	ID3D11SamplerState*			m_shadowSamplerState;		//Release
+	ID3D11ShaderResourceView *	m_shadowShaderResourceView;	//RE
+	ID3D11DepthStencilView*		m_shadowDepthStencilView;	//RE
+	ID3D11Texture2D*			m_shadowDepthBufferTex;		//Release
 	
 
-	ID3D11RenderTargetView*		m_renderTargetView;
-	ID3D11Texture2D*			m_renderTargetsTexture;
+	ID3D11RenderTargetView*		m_renderTargetView;			//RE
+	ID3D11Texture2D*			m_renderTargetsTexture;		//RE
 
-	ID3D11Buffer* m_objectBuffer = nullptr;
+	ID3D11Buffer* m_objectBuffer = nullptr; //RE
 	ObjectBuffer m_objectValues;
 
-	ID3D11Buffer * m_allLightMatrixBuffer = nullptr;
+	ID3D11Buffer * m_allLightMatrixBuffer = nullptr; //RE
 	PointLightBuffer m_allLightMatrixValues;
 
-	ID3D11Buffer * m_lightIndexBuffer = nullptr;
+	ID3D11Buffer * m_lightIndexBuffer = nullptr;	//RE
 	LightIndex m_lightIndex;
 
 	int m_runned = 0;
