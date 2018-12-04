@@ -184,8 +184,8 @@ void RoomGenerator::_createEntireWorld()
 	//std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 1; //11
-	int MAX_LARGE_MODS = 1; //6 
+	int MAX_SMALL_MODS = 11; //11
+	int MAX_LARGE_MODS = 6; //6 
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
