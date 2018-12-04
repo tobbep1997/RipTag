@@ -49,6 +49,8 @@ private:
 	IDXGIFactory* dxgifactory = nullptr;
 	IDXGIAdapter* dxgiAdapter = nullptr;
 	IDXGIAdapter4* dxgiAdapter4 = NULL;
+
+	int firstRun = 0;
 #endif
 
 public:

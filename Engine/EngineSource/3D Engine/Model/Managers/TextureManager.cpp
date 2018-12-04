@@ -19,32 +19,6 @@ TextureManager::~TextureManager()
 	this->UnloadGUITextures();
 }
 
-void TextureManager::Init()
-{
-	DXRHC::CreateTexture2D(m_static_TEX,
-		512, 
-		512,
-		D3D11_BIND_SHADER_RESOURCE, 
-		1, 
-		1, 
-		0, 
-		MAX_STATIC_TEXTURES * 3U, 
-		0, 
-		0, 
-		DXGI_FORMAT_BC3_UNORM);
-
-	DXRHC::CreateShaderResourceView(m_static_TEX, 
-		m_static_SRV,
-		0,
-		DXGI_FORMAT_BC3_UNORM,
-		D3D11_SRV_DIMENSION_TEXTURE2DARRAY, 
-		MAX_STATIC_TEXTURES * 3U,
-		0, 
-		0, 
-		1);
-	MapStaticTextures();
-}
-
 void TextureManager::loadTextures(const std::string & path, bool m_static_texture)
 {
 	Texture* tempTexture = new Texture();
@@ -55,41 +29,13 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 	{
 		tempTexture->setName(fullPath);
 
-		if (m_static_texture)
-			tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
-		else
-			tempTexture->Load(fullPath.c_str(), m_static_texture);
+
+		tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
+
 
 		m_textureMutex.lock();
 		m_textures[key].push_back(tempTexture);
 		m_textureMutex.unlock();
-
-		if(m_static_texture)
-		{
-			for (int i = 0; i < 3 && this->m_static_textures < MAX_STATIC_TEXTURES * 3; i++)
-			{
-				if (tempTexture->m_SRV[i])
-				{
-					DX::g_deviceContext->CopySubresourceRegion(m_static_TEX, 
-						this->m_static_textures,
-						0, 
-						0, 
-						0, 
-						tempTexture->m_texture[i],
-						0, 
-						NULL);	
-					//UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
-					//DX::g_deviceContext->UpdateSubresource(this->m_static_TEX, this->m_static_textures, NULL, tempTexture->m_texture[i], calcSub, calcSub);
-				}
-
-				this->m_static_textures++;
-			}
-			tempTexture->setIndex(this->m_currentTexture++);
-			tempTexture->TexUnload();
-			DX::g_deviceContext->Flush();
-
-			
-		}
 	}
 	else
 	{
@@ -105,40 +51,11 @@ void TextureManager::loadTextures(const std::string & path, bool m_static_textur
 		{
 			tempTexture->setName(fullPath);
 			
-			if (m_static_texture)
-				tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
-			else
-				tempTexture->Load(fullPath.c_str(), m_static_texture);
+			tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
 			
 			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
 			m_textureMutex.unlock();
-
-			if (m_static_texture)
-			{
-				for (int i = 0; i < 3 && this->m_static_textures < MAX_STATIC_TEXTURES * 3; i++)
-				{
-					if (tempTexture->m_SRV[i])
-					{
-						DX::g_deviceContext->CopySubresourceRegion(m_static_TEX,
-							this->m_static_textures,
-							0,
-							0,
-							0,
-							tempTexture->m_texture[i],
-							0,
-							NULL);
-						//UINT calcSub = D3D11CalcSubresource(0, this->m_static_textures, 1);
-						//DX::g_deviceContext->UpdateSubresource(this->m_static_TEX, this->m_static_textures, NULL, tempTexture->m_texture[i], calcSub, calcSub);
-					}
-
-					this->m_static_textures++;
-				}
-				tempTexture->setIndex(this->m_currentTexture++);
-				tempTexture->TexUnload();
-				DX::g_deviceContext->Flush();
-				
-			}
 		}
 		else
 		{
@@ -174,24 +91,6 @@ Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 	}
 
 	return nullptr;
-}
-
-void TextureManager::MapStaticTextures()
-{
-	DX::g_deviceContext->PSSetShaderResources(4, 1, &m_static_SRV);
-	DX::g_deviceContext->Flush();
-
-	m_static_SRV->Release();
-	m_static_TEX->Release();
-
-	//std::free(m_static_SRV);
-	//std::free(m_static_TEX);
-
-	//m_static_SRV = nullptr;
-	//m_static_TEX = nullptr;
-				 
-	this->m_currentTexture = 0;
-	this->m_static_textures = 0;
 }
 
 void TextureManager::loadGUITexture(const std::wstring name, const std::wstring & full_path)
@@ -257,9 +156,8 @@ bool TextureManager::UnloadAllTexture()
 		}
 		m_textures[i].clear();
 	}
-	this->m_currentTexture = 0;
-	this->m_static_textures = 0;
-	return true;
+	return UnloadGUITextures();
+	
 }
 
 bool TextureManager::UnloadGUITextures()
