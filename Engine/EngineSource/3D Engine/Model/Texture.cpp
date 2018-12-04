@@ -91,10 +91,12 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 					textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 					textureDesc.CPUAccessFlags = 0;
 					textureDesc.MiscFlags = 0;
+					
 
 					D3D11_SUBRESOURCE_DATA rd{};
 					rd.SysMemPitch = ms.RowPitch;
 					rd.pSysMem = ms.pData;
+					
 
 					ID3D11Texture2D* texGPU = nullptr;
 					if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&textureDesc, &rd, &texGPU)))
@@ -111,14 +113,15 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 							DX::g_deviceContext->ClearState();
 						}
 					}
-					texGPU->Release();
-
+					if (texGPU)
+						texGPU->Release();
 					DX::g_deviceContext->Unmap(tmpTexCPU, 0);
 				}
-
-				tmpTexCPU->Release();
+				if (tmpTexCPU)
+					tmpTexCPU->Release();
 			}
-			tmpResCPU->Release();
+			if (tmpResCPU)
+				tmpResCPU->Release();
 		}
 		DX::g_deviceContext->Flush();
 
@@ -179,19 +182,18 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 					srv_desc.Texture2D.MipLevels = textureDesc.MipLevels;
 					srv_desc.Texture2D.MostDetailedMip = 0;
 
-					if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[0])))
-					{
-						
-					}
+					if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[0]))) {}
 				}
-				texGPU->Release();
+				if (texGPU)
+					texGPU->Release();
 
 				DX::g_deviceContext->Unmap(tmpTexCPU, 0);
 			}
-
-			tmpTexCPU->Release();
+			if (tmpTexCPU)
+				tmpTexCPU->Release();
 		}
-		tmpResCPU->Release();
+		if (tmpResCPU)
+			tmpResCPU->Release();
 	}
 
 
