@@ -5,6 +5,8 @@
 Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId) : Trigger(_uniqueId, -1, true, "", "")
 {
 	this->pPointLight = pLight;
+	pPointLight->setBase(pLight->getPosition());
+
 	this->pParticles = pParticleEmitter;
 	DirectX::XMFLOAT4A lightPos = pPointLight->getPosition();
 	
@@ -48,9 +50,14 @@ void Torch::Update(double deltaTime)
 		_playSound(&m_tourchSound);
 
 	//Check wether to crate new fire.
+	pPointLight->setIntensity(pPointLight->TourchEffect(deltaTime * .2, 9.5, 2));
+	DirectX::XMFLOAT4A newPos = pPointLight->MovmentEffect(deltaTime * 1.0, pPointLight->getPosition(), .075);
+	pPointLight->setPosition(newPos);
+
 	if (pParticles)
 	{
 		pParticles->Update(deltaTime, pCamera);
+		pParticles->setPosition(newPos.x, newPos.y, newPos.z, 1);
 	}
 
 	if (m_interacted)

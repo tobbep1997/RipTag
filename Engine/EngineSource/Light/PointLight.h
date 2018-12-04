@@ -31,8 +31,14 @@ private:
 		DirectX::XMFLOAT2 current, target;
 		float ran;
 	};
-
 	TourchEffectVars m_tev;
+	struct MovmentEffectVars
+	{
+		double timer;
+		DirectX::XMFLOAT4 current, target, base;
+		bool first = true;
+	};
+	MovmentEffectVars m_mev;
 
 	std::vector<Camera *>	m_sides;
 	DirectX::XMFLOAT4A		m_position;
@@ -95,6 +101,8 @@ public:
 	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
 
 	float TourchEffect(double deltaTime, float base, float amplitude);
+	void setBase(const DirectX::XMFLOAT4A & base);
+	const DirectX::XMFLOAT4A MovmentEffect(double deltaTime, const DirectX::XMFLOAT4A position, float stride = .5f, float amplitude = 0);
 
 	ID3D11ShaderResourceView * getSRV() const;
 	ID3D11DepthStencilView * getDSV() const;
@@ -127,5 +135,6 @@ private:
 	void _updateCameras();
 	void _initDirectX();
 	void _setFarPlane();
-};
 
+	DirectX::XMFLOAT4 getRandomDirection();
+};
