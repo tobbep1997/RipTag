@@ -21,9 +21,31 @@ TextureManager::~TextureManager()
 
 void TextureManager::Init()
 {
+	size_t maxTextureSize = 512;
+		switch (SettingLoader::g_windowContext->graphicsQuality)
+		{
+		case 0:			
+			maxTextureSize = 256;
+			break;
+		case 1:
+			maxTextureSize = 512;
+			break;
+		case 2:
+			maxTextureSize = 1024;
+			break;
+		case 3:
+			maxTextureSize = 2048;
+			break;
+		default:
+			maxTextureSize = 128;
+			break;
+		}
+
+	
+
 	DXRHC::CreateTexture2D(m_static_TEX,
-		512, 
-		512,
+		maxTextureSize,
+		maxTextureSize,
 		D3D11_BIND_SHADER_RESOURCE, 
 		1, 
 		1, 

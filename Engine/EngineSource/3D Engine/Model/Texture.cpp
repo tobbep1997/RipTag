@@ -20,17 +20,54 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 	std::wstring normalName = file;
 	std::wstring ORMname = file;
 
+	std::wstring setting;
+	size_t maxTextureSize = 512;
+
+	if (extension == ".DDS")
+	{
+		switch (SettingLoader::g_windowContext->graphicsQuality)
+		{
+		case 0:
+			setting = L"_256";
+			maxTextureSize = 256;
+			break;
+		case 1:
+			setting = L"_512";
+			maxTextureSize = 512;
+			break;
+		case 2:
+			setting = L"_1024";
+			maxTextureSize = 1024;
+			break;
+		case 3:
+			setting = L"_2048";
+			maxTextureSize = 2048;
+			break;
+		default:
+			setting = L"_128";
+			maxTextureSize = 128;
+			break;
+		}
+
+	}
+
 
 	albedoName.append(L"_ALBEDO");
+	albedoName.append(setting);
 	albedoName.append(std::wstring(extension.begin(), extension.end()));
+
 	normalName.append(L"_NORMAL");
+	normalName.append(setting);
 	normalName.append(std::wstring(extension.begin(), extension.end()));
+
 	ORMname.append(L"_ORM");
+	ORMname.append(setting);
 	ORMname.append(std::wstring(extension.begin(), extension.end()));
 
-	HRESULT hr;
 
-	size_t maxTextureSize = 512;
+
+
+	HRESULT hr;
 	if (extension != ".png")
 		hr = DirectX::CreateDDSTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), &m_texture[0], &m_SRV[0], maxTextureSize);
 	else
