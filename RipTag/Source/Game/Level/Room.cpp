@@ -487,6 +487,7 @@ void Room::Release()
 		{
 			reverbs->release();
 		}
+		m_reverbvector.clear();
 		for (auto asset : m_staticAssets)
 		{
 			if (asset)

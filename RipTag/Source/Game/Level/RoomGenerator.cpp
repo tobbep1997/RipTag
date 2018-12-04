@@ -85,25 +85,6 @@ void RoomGenerator::_generateGrid()
 			}
 		}
 	}
-
-	
-	/*std::ofstream lol;
-	lol.open(" map_noBlockAlg.txt");
-	for (int i = 0; i < iterationsDepth; i++)
-	{
-		for (int j = 0; j < iterationsWidth; j++)
-		{
-			int index = i + j * iterationsWidth;
-			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
-			if (node.tile.getPathable())
-				lol << " ";
-			else
-				lol << "#";
-			lol << " ";
-		}
-		lol << "\n";
-	}
-	std::cout << green << "Blocking unpathable tiles with" << red << " Recursive stuff happening" << white << std::endl;
 	for (int i = 0; i < iterationsDepth; i++)
 	{
 		for (int j = 0; j < iterationsWidth; j++)
@@ -111,22 +92,8 @@ void RoomGenerator::_generateGrid()
 			m_generatedGrid->BlockIfNotPathable(j, i);
 		}
 	}
-	/*lol.open("map_BlockAlg.txt");
-	for (int i = 0; i < iterationsDepth; i++)
-	{
-		for (int j = 0; j < iterationsWidth; j++)
-		{
-			int index = i + j * iterationsWidth;
-			Node node = m_generatedGrid->GetWorldPosFromIndex(index);
-			if (node.tile.getPathable())
-				lol << " ";
-			else
-				lol << "#";
-			lol << " ";
-		}
-		lol << "\n";
-	}
-	lol.close();*/
+
+	//m_generatedGrid->PrintMe();
 }
 
 void RoomGenerator::_makeFloor()
@@ -500,7 +467,7 @@ void RoomGenerator::_createEntireWorld()
 #pragma endregion
 
 			
-			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 3, 10));
+			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 5.0, 15.0));
 #pragma region LIGHTS
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
 			{

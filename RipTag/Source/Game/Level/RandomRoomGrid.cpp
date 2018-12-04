@@ -430,13 +430,6 @@ void RandomRoomGrid::_checkConnections()
 
 	_followConnection(visited, 0);
 
-	/*for (int i = 0; i < m_depth; i++)
-	{
-		for (int j = 0; j < m_width; j++)
-			std::cout << " " << visited[j + i * m_width] << " ";
-		std::cout << "\n\n";
-	}*/
-
 	_forcePath(visited);
 
 	delete [] visited;
