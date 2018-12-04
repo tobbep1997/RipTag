@@ -20,6 +20,7 @@ std::string				 RipSounds::g_playAmbientSound;
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
+ParticleSystem  * RipExtern::g_particleSystem;
 
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
@@ -63,7 +64,8 @@ PlayState::~PlayState()
 	delete RipExtern::g_rayListener;
 	RipExtern::g_rayListener = nullptr;
 	RipExtern::g_world = nullptr;
-
+	delete RipExtern::g_particleSystem;
+	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
@@ -114,6 +116,8 @@ void PlayState::Update(double deltaTime)
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 	
+		RipExtern::g_particleSystem->ParticleSystem::Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+
 		m_playerManager->Update(deltaTime);
 
 		m_playerManager->PhysicsUpdate();
@@ -156,10 +160,7 @@ void PlayState::Update(double deltaTime)
 		{
 			runGame = false;
 
-			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
-			{
-				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffects(); 
-			}
+			RipExtern::g_particleSystem->clearEmitters();
 
 
 			if (m_youlost)
@@ -319,6 +320,8 @@ void PlayState::Draw()
 
 		m_levelHandler->Draw();
 
+		RipExtern::g_particleSystem->ParticleSystem::Queue();
+		
 		_lightCulling();
 
 		m_playerManager->Draw();
@@ -365,6 +368,9 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 		_onGameOverPacket();
 		break;
 	case Network::ID_PLAYER_DISCONNECT:
+		_onDisconnectPacket();
+		break;
+	case Network::ID_SMOKE_DETONATE:
 		_onDisconnectPacket();
 		break;
 	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
@@ -764,8 +770,9 @@ void PlayState::unLoad()
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
 
-	if (dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1]))
-		dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffects(); 
+
+	RipExtern::g_particleSystem->clearEmitters();
+
 
 	if (m_transitionState)
 	{
@@ -810,6 +817,7 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
+	RipExtern::g_particleSystem = new ParticleSystem();
 	m_pPauseMenu->Load(); 
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
@@ -1064,6 +1072,7 @@ void PlayState::_registerThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_LOST, std::bind(&PlayState::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&PlayState::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&PlayState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_SMOKE_DETONATE, std::bind(&PlayState::HandlePacket, this, _1, _2));
 }
 
 void PlayState::_sendOnGameOver()
@@ -1114,6 +1123,13 @@ void PlayState::_onDisconnectPacket()
 		m_physicsThread.join();
 	}
 	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+}
+
+void PlayState::_onSmokeDetonatePacket(Network::ENTITYSTATEPACKET* data)
+{
+	RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
+		DirectX::XMFLOAT3(data->pos.x, data->pos.y + 0.5f, data->pos.z),
+		ParticleSystem::typeOfEmitter::SMOKE, 1.5f);
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)

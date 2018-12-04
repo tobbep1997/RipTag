@@ -82,11 +82,6 @@ Enemy::~Enemy()
 		delete drawable;
 	}
 	m_pathNodes.clear();
-	if (pEmitter)
-	{
-		delete pEmitter;
-		pEmitter = nullptr;
-	}
 
 }
 
@@ -210,17 +205,6 @@ void Enemy::Update(double deltaTime)
 				}
 			}
 		}
-
-	if (pEmitter)
-	{
-		if (pEmitter->emitterActiv)
-			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
-		else
-		{
-			delete pEmitter;
-			pEmitter = nullptr;
-		}
-	}
 }
 
 void Enemy::ClientUpdate(double deltaTime)
@@ -273,16 +257,7 @@ void Enemy::ClientUpdate(double deltaTime)
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
 
-	if (pEmitter)
-	{
-		if (pEmitter->emitterActiv)
-			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
-		else
-		{
-			delete pEmitter;
-			pEmitter = nullptr;
-		}
-	}
+	
 
 	if (state == AIState::Possessed)
 	{
@@ -305,8 +280,6 @@ void Enemy::PhysicsUpdate(double deltaTime)
 void Enemy::Draw()
 {
 	Drawable::Draw();
-	if (pEmitter)
-		pEmitter->Queue();
 }
 
 void Enemy::QueueForVisibility()
@@ -370,15 +343,7 @@ void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 		if (packet->condition)
 		{
 			this->setTransitionState(AITransitionState::BeingDisabled);
-			if (pEmitter)
-			{
-				delete pEmitter;
-				pEmitter = nullptr;
-			}
-			pEmitter = new ParticleEmitter();
-			pEmitter->setSmoke();
-			pEmitter->setEmmiterLife(1.5f);
-			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
+			//CreateEmitter (maybe?)
 		}
 	}
 }

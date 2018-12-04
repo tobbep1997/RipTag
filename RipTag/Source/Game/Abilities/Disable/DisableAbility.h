@@ -30,8 +30,6 @@ private:
 		OnHit
 	};
 
-	ParticleEmitter** m_particleEmitters;
-
 private:
 	DisableState	m_dState;
 	float			m_charge;
@@ -52,9 +50,6 @@ public:
 	~DisableAbility();
 
 	void Init() override;
-
-	void deleteEffects();
-	ParticleEmitter** getEmitters(); 
 
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
@@ -82,5 +77,5 @@ private:
 	void _inStateCooldown(double dt);
 	void _inStateRemoteActive(double dt);
 
-	void _sendOnHitNotification(Enemy * ptr);
+	void _sendOnHitNotification(Enemy * ptr = nullptr);
 };

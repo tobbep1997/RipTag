@@ -135,6 +135,7 @@ private:
 	void _onGameOverPacket();
 	void _onGameWonPacket();
 	void _onDisconnectPacket();
+	void _onSmokeDetonatePacket(Network::ENTITYSTATEPACKET* data);
 
 	void _updateOnCoopMode(double deltaTime);
 

@@ -12,8 +12,6 @@ DisableAbility::~DisableAbility()
 {
 	m_obj->PhysicsComponent::Release(*RipExtern::g_world);
 	delete m_obj;
-	this->deleteEffects(); 
-	delete m_particleEmitters;
 	m_bar->Release();
 	delete m_bar;
 }
@@ -47,30 +45,10 @@ void DisableAbility::Init()
 
 	p_abilityChargesMax = 2;
 	p_abilityCharges = p_abilityChargesMax;
-
-	m_particleEmitters = DBG_NEW ParticleEmitter*[p_abilityChargesMax];
-	for (int i = 0; i < p_abilityChargesMax; i++)
-	{
-		m_particleEmitters[i] = nullptr;
-	}
 }
 
-void DisableAbility::deleteEffects()
-{
-	for (int i = 0; i < p_abilityChargesMax; i++)
-	{
-		if (m_particleEmitters[i] != nullptr)
-		{
-			delete m_particleEmitters[i];
-			m_particleEmitters[i] = nullptr;
-		}
-	}
-}
 
-ParticleEmitter ** DisableAbility::getEmitters()
-{
-	return m_particleEmitters; 
-}
+
 
 void DisableAbility::Update(double deltaTime)
 {
@@ -109,23 +87,14 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 	case DisableState::RemoteActive:
 		if ((DisableState)data->state == DisableState::OnHit)
 		{
-			//deleteEffects(); 
 
 			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
 			m_obj->setLiniearVelocity(0.0f, 0.0f, 0.0f);
 			this->m_dState = DisableState::Throwable;
 
-			for (int i = 0; i < p_abilityChargesMax; i++)
-			{
-				if (!m_particleEmitters[i])
-				{
-					m_particleEmitters[i] = DBG_NEW ParticleEmitter();
-					m_particleEmitters[i]->setSmoke();
-					m_particleEmitters[i]->setEmmiterLife(1.5f);
-					m_particleEmitters[i]->setPosition(data->start.x, data->start.y + 0.5f, data->start.z);
-					break;
-				}
-			}
+			RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
+				DirectX::XMFLOAT3(data->start.x, data->start.y + 0.5f, data->start.z),
+				ParticleSystem::typeOfEmitter::SMOKE, 1.5f);
 		}
 		break;
 	}
@@ -147,12 +116,6 @@ void DisableAbility::Draw()
 	if (m_dState == DisableAbility::Moving ||m_dState == DisableAbility::RemoteActive)
 	{
 		m_obj->BaseActor::Draw();
-	}
-	for (int i = 0; i < p_abilityChargesMax; i++)
-	{
-		if (m_particleEmitters[i] != nullptr)
-			m_particleEmitters[i]->Queue();
-
 	}
 }
 
@@ -200,28 +163,12 @@ void DisableAbility::_logicLocal(double deltaTime, Camera* camera)
 		}
 	}
 
-	for (int i = 0; i < p_abilityChargesMax; i++)
-	{
-		if (m_particleEmitters[i] != nullptr)
-		{
-			m_particleEmitters[i]->Update(deltaTime, camera);
-		}
-	}
-
 }
 
 void DisableAbility::_logicRemote(double dt, Camera * camera)
 {
 	if (m_dState == DisableAbility::RemoteActive)
 		this->_inStateRemoteActive(dt);
-
-	for (int i = 0; i < p_abilityChargesMax; i++)
-	{
-		if (m_particleEmitters[i] != nullptr)
-		{
-			m_particleEmitters[i]->Update(dt, camera);
-		}
-	}
 }
 
 void DisableAbility::_inStateThrowable()
@@ -319,19 +266,11 @@ void DisableAbility::_inStateMoving(double dt)
 		contact = RipExtern::g_contactListener->GetBeginContact(i);
 		if (contact.a->GetBody()->GetObjectTag() == "Disable")
 		{
+			RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
+				DirectX::XMFLOAT3(m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z), 
+				ParticleSystem::typeOfEmitter::SMOKE , 1.5f);
 			//Particle effects here before changing the position. 
-			for (int j = 0; j < p_abilityChargesMax; j++)
-			{
-				if (!m_particleEmitters[j])
-				{
-					m_particleEmitters[j] = DBG_NEW ParticleEmitter();
-					m_particleEmitters[j]->setSmoke();
-					m_particleEmitters[j]->setEmmiterLife(1.5f);
-					m_particleEmitters[j]->setPosition(m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z);
-					break;
-				}
-			}
-				
+			this->_sendOnHitNotification();
 			m_dState = DisableState::Cooldown;
 			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
 
@@ -349,18 +288,6 @@ void DisableAbility::_inStateMoving(double dt)
 						this->_sendOnHitNotification(ptr);
 					}
 				}
-			}
-		}
-	}
-
-	for (int i = 0; i < p_abilityChargesMax; i++)
-	{
-		if(m_particleEmitters[i] != nullptr)
-		{
-			if (!m_particleEmitters[i]->emitterActiv)
-			{
-				delete m_particleEmitters[i];
-				m_particleEmitters[i] = nullptr;
 			}
 		}
 	}
@@ -422,7 +349,7 @@ void DisableAbility::_sendOnHitNotification(Enemy * ptr)
 	{
 		packet.id = Network::ID_SMOKE_DETONATE;
 		packet.pos = m_obj->getPosition();
-		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYSTATEPACKET), PacketPriority::LOW_PRIORITY);
 	}
 
 }
