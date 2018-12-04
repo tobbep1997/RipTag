@@ -16,6 +16,8 @@ std::vector<VisibilityComponent*>		DX::g_visibilityComponentQueue;
 std::vector<ParticleEmitter*>				DX::g_emitters;
 RECT													DX::g_backBufferResolution;
 
+bool DX::g_screenShootCamera = false;
+
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
 

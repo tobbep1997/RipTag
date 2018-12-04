@@ -18,6 +18,7 @@ private:
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;
+	int m_nrOfLevers = 0;
 	int m_incrementalValueX = 20;
 	int m_incrementalValueY = 20;
 	std::vector<BaseActor*> m_generated_assetVector;

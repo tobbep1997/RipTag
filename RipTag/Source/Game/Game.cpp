@@ -101,11 +101,6 @@ void Game::Draw()
 	m_gameStack.top()->Draw();
 }
 
-void Game::ImGuiFrameStart()
-{
-	m_renderingManager->ImGuiStartFrame();
-}
-
 void Game::ImGuiPoll()
 {
 	m_renderingManager->ImGuiProc();

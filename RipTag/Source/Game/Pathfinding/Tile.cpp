@@ -36,3 +36,14 @@ bool Tile::operator==(Tile & other) const
 {
 	return m_xCoord == other.m_xCoord && m_yCoord == other.m_yCoord;
 }
+
+Tile & Tile::operator=(const Tile & other)
+{
+	if (this != &other)
+	{
+		m_xCoord = other.m_xCoord;
+		m_yCoord = other.m_yCoord;
+		m_pathable = other.m_pathable;
+	}
+	return *this;
+}
