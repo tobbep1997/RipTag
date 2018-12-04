@@ -184,8 +184,8 @@ void RoomGenerator::_createEntireWorld()
 	//std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 11; //8
-	int MAX_LARGE_MODS = 6; // 5
+	int MAX_SMALL_MODS = 1; //11
+	int MAX_LARGE_MODS = 1; //6 
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
@@ -719,6 +719,12 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
 	//dbgFuncSpawnAboveMap();
+	m_generated_assetVector.shrink_to_fit();
+	m_generated_pointLightVector.shrink_to_fit();
+	m_generatedRoomEnemies.shrink_to_fit();
+	m_generatedAudioBoxes.shrink_to_fit();
+	m_generatedTorches.shrink_to_fit();
+	m_generated_boundingBoxes.shrink_to_fit();
 
 	returnableRoom->setTorches(m_generatedTorches);
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);
