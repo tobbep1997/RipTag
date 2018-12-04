@@ -546,3 +546,16 @@ bool GamePadHandler::IsStartPressed()
 	}
 }
 
+bool GamePadHandler::IsStartReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsStartPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsStartPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
+}
+

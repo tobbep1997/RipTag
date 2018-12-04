@@ -103,16 +103,7 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 
 	HRESULT hr;
 	hr = DirectX::CreateDDSTextureFromFile(DX::g_device, file.c_str(), nullptr, &m_SRV[0]);
-	if (FAILED(hr))
-	{
-		std::string p = std::string(file.begin(), file.end());
-		size_t t = p.find_last_of(L'/');
-		p = p.substr(t + 1);
-		std::cout << red << p << " Failed to Load" << std::endl;
-		std::cout << white;
-		return hr;
-	}
-	return E_FAIL;
+	return hr;
 }
 
 void Texture::Bind(const uint8_t slot)

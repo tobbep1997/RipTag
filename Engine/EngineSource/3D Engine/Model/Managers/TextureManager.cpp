@@ -265,10 +265,13 @@ bool TextureManager::UnloadAllTexture()
 bool TextureManager::UnloadGUITextures()
 {
 	for (auto & t : m_GuiTextures)
+	{
+		//SafeRelease is called in the Destructor
 		delete t;
+	}
 	m_GuiTextures.clear();
 
-	return false;
+	return true;
 }
 
 const unsigned int TextureManager::getLoadedTextures() const
