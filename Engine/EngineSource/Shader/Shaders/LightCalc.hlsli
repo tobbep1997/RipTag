@@ -37,8 +37,6 @@ Texture2D diffuseTexture : register(t1);
 Texture2D normalTexture : register(t2);
 Texture2D MRATexture : register(t3);
 
-Texture2DArray StaticTextures : register(t4);
-
 struct VS_OUTPUT
 {
 	float4 pos : SV_POSITION;
@@ -224,22 +222,22 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 	ambient = float4(.2f, .2f, .2f, 1);
 	if (input.info.x)
     {
-        if (input.info.y > 0)
-        {
-            albedo = StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 0)) * input.color;
-            normal = normalize((2.0f * StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 1)).xyz - 1.0f));
-            normal = normalize(mul(normal, input.TBN));
-            normal = normalize(input.normal.xyz + normal);
-            AORoughMet = StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 2)).xyz;
-        }
-        else
-        {
-            albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;
-		    normal = normalize((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz - 1.0f));
-		    normal = normalize(mul(normal, input.TBN));
-		    normal = normalize(input.normal.xyz + normal);
-            AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
-        }
+        //if (input.info.y > 0)
+        //{
+        //    albedo = StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 0)) * input.color;
+        //    normal = normalize((2.0f * StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 1)).xyz - 1.0f));
+        //    normal = normalize(mul(normal, input.TBN));
+        //    normal = normalize(input.normal.xyz + normal);
+        //    AORoughMet = StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 2)).xyz;
+        //}
+        //else
+        
+        albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;
+		normal = normalize((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz - 1.0f));
+		normal = normalize(mul(normal, input.TBN));
+		normal = normalize(input.normal.xyz + normal);
+        AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
+        
     }
     float ao = AORoughMet.x, roughness = AORoughMet.y, metallic = AORoughMet.z;
     //return albedo;
