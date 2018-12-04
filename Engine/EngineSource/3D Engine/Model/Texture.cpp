@@ -31,16 +31,10 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 	HRESULT hr;
 
 	size_t maxTextureSize = 512;
-	DeltaTime dt;
-	dt.Init();
 	if (extension != ".png")
 		hr = DirectX::CreateDDSTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), &m_texture[0], &m_SRV[0], maxTextureSize);
 	else
 		hr = DirectX::CreateWICTextureFromFile(DX::g_device, DX::g_deviceContext, albedoName.c_str(), &m_texture[0], &m_SRV[0], maxTextureSize);
-	double d = dt.getDeltaTimeInSeconds();
-	std::string s = std::to_string(d) + "\n";
-	std::wstring ws = std::wstring(s.begin(), s.end());
-	OutputDebugStringW(LPCWSTR(ws.c_str()));
 	if (FAILED(hr))
 	{
 		std::string p = std::string(albedoName.begin(), albedoName.end());

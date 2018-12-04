@@ -17,6 +17,10 @@ PointLight::PointLight()
 	//m_phys.p_setPosition(-999,-9999,-99999);
 	//m_phys.setObjectTag("FUCKOFF");
 	//m_phys.setUserDataBody(this);
+	for (int i = 0; i < 6; i++)
+	{
+		m_useSides[i] = TRUE;
+	}
 }
 
 PointLight::PointLight(float * translation, float * color, float intensity)
@@ -510,16 +514,16 @@ void PointLight::_setFarPlane()
 	switch (SettingLoader::g_windowContext->graphicsQuality)
 	{
 	case 0:
-		m_farPlane = 10.0f;
-		break;
-	case 1:
 		m_farPlane = 25.0f;
 		break;
-	case 2:
+	case 1:
 		m_farPlane = 50.0f;
 		break;
-	case 3:
+	case 2:
 		m_farPlane = 75.0f;
+		break;
+	case 3:
+		m_farPlane = 100.0f;
 		break;
 	default:
 		m_farPlane = 20.0f;
