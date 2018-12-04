@@ -20,6 +20,7 @@ void ShadowMap::Init(UINT width, UINT height)
 	_createBuffers();
 	_createShadowViewPort(width, height);
 	_createShadowDepthStencilView(width, height);
+	DXRHC::CreateRasterizerState(m_rasterizerState, FALSE, D3D11_CULL_FRONT, 0, 0, TRUE);
 }
 
 
@@ -35,8 +36,8 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowGeometry.hlsl"), nullptr, 0);	
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
+	DX::g_deviceContext->RSSetState(m_rasterizerState);
 	m_runned = 0;
-
 
 	this->MapAllLightMatrix(&DX::g_lights);
 	DirectX::XMMATRIX proj, viewInv;
@@ -115,6 +116,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		}
 
 	}
+	DX::g_deviceContext->RSSetState(nullptr);
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
