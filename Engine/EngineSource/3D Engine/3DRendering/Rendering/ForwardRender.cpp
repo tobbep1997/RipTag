@@ -2,6 +2,7 @@
 #include "ForwardRender.h"
 #include "2D Engine/DirectXTK/ScreenGrab.h"
 #include <wincodec.h>
+#include <filesystem>
 
 ForwardRender::ForwardRender()
 {
@@ -1349,10 +1350,13 @@ void ForwardRender::FlushScreenShoot(Camera& camera)
 	this->_GeometryPassToPic(camera);
 	this->_AnimatedGeometryToPic(camera);
 	//------------------------------
+	//SaveFile to that folder
+	HRESULT hr = DirectX::SaveWICTextureToFile(DX::g_deviceContext, m_screenShootTex, GUID_ContainerFormatDds , L"../Assets/GUIFOLDER/ENDGAME.DDS");
+	
 
-	//SaveWICTextureToFile();
-	HRESULT hr = DirectX::SaveWICTextureToFile(DX::g_deviceContext, m_screenShootTex, GUID_ContainerFormatBmp , L"lol.BMP");
 	this->_OutliningPass(camera);
+
+	
 	
 
 	//_GuardFrustumDraw();

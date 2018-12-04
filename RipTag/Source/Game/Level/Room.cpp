@@ -419,10 +419,10 @@ void Room::Update(float deltaTime, Camera * camera)
 #if _DEBUG
 		PlayState::setYouLost(false);
 #else
-		if (DX::g_screenShootCamera == false)
-		{
-			PlayState::setYouLost(true);
-		}
+		
+		PlayState::setYouLost(true);
+		DX::g_screenShootCamera = false;
+		
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
@@ -431,12 +431,16 @@ void Room::Update(float deltaTime, Camera * camera)
 	{
 		if (m_roomGuards.at(i)->getIfLost() == true)
 		{
-			//m_youLost = true;
 			m_playerInRoomPtr->setHidden(false);
 			CameraHandler::setActiveCamera(m_roomGuards.at(i)->getCamera());
 			m_roomGuards.at(i)->setHidden(true);
 			m_playerInRoomPtr->setOutline(true);
-			DX::g_screenShootCamera = true;
+			if (m_youLost == false)
+			{
+				DX::g_screenShootCamera = true;
+			}
+			m_youLost = true;
+			
 			break;
 		}
 	}
