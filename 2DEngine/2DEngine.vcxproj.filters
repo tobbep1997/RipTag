@@ -63,6 +63,9 @@
     <ClCompile Include="2D Engine\TextInput\TextInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\ScreenGrab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2D Engine\Quad\Components\Button.h">
@@ -138,6 +141,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="2D Engine\TextInput\TextInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="2D Engine\DirectXTK\ScreenGrab.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
