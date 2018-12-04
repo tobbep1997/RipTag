@@ -6,7 +6,6 @@ RenderingManager::RenderingManager()
 {
 	m_wnd = new Window();
 	m_engine = new Engine3D();
-	m_ImGuiManager = new ImGuiManager();
 	m_wind = new WindowContext();
 }
 
@@ -15,7 +14,6 @@ RenderingManager::~RenderingManager()
 {
 	delete m_wnd;
 	delete m_engine;
-	delete m_ImGuiManager;
 	delete m_wind;
 }
 
@@ -52,10 +50,7 @@ void RenderingManager::Init(HINSTANCE hInstance)
 
 	m_engine->Init(m_wnd->getHandler(), *m_wind);
 
-	if (DEBUG)
-	{
-		m_ImGuiManager->Init(m_wnd->getHandler());
-	}
+
 	
 	
 }
@@ -66,10 +61,7 @@ void RenderingManager::Update()
 	{
 		InputHandler::WindowSetShowCursor();
 		m_wnd->PollEvents();
-		if (DEBUG)
-		{
-			m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
-		}
+
 	#ifndef _DEPLOY
 		if (GetAsyncKeyState(int('P')))
 		{
@@ -84,12 +76,8 @@ void RenderingManager::UpdateSingleThread()
 {
 	InputHandler::WindowSetShowCursor();
 	m_wnd->PollEvents();
-	if (DEBUG)
-	{
-		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
-	}
-#if _DEBUG
-	if (GetAsyncKeyState(int('J')))
+#ifndef _DEPLOY
+	if (GetAsyncKeyState(int('P')))
 	{
 		_reloadShaders();
 	}
@@ -106,11 +94,6 @@ void RenderingManager::Flush(Camera & camera)
 	//Draws Everything in the queue
 	m_engine->Flush(camera);
 	
-	if(DEBUG)
-	{
-		m_ImGuiManager->Draw();
-	}
-
 	m_engine->Present();
 	//DX::g_deviceContext->ClearState();
 }
@@ -118,20 +101,9 @@ void RenderingManager::Flush(Camera & camera)
 void RenderingManager::Release()
 {
 	m_engine->Release();
-	if (DEBUG)
-	{
-		m_ImGuiManager->Release();
-	}
 }
 
-void RenderingManager::ImGuiStartFrame()
-{
-	//Starts the new ImGui frame
-	//TODO: This might be changed. This needs to be called before ImGui::begin()
-	if (DEBUG) {
-		m_ImGuiManager->StartFrame();
-	}
-}
+
 
 Window& RenderingManager::getWindow()
 {
@@ -145,10 +117,7 @@ ProcMsg RenderingManager::getWindowProcMsg()
 
 void RenderingManager::ImGuiProc()
 {
-	if (DEBUG)
-	{
-		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
-	}
+
 }
 
 void RenderingManager::Reset()
@@ -175,10 +144,10 @@ void RenderingManager::Reset()
 	//	m_ImGuiManager->Init(m_wnd->getHandler());
 	//}
 }
-
+#pragma optimize("", off)
 void RenderingManager::_reloadShaders()
 {
-	bool f = true;
-	if (f)
-		DX::g_shaderManager.ReloadAllShaders();
+	DX::g_shaderManager.ReloadAllShaders();
 }
+#pragma optimize("", on)
+

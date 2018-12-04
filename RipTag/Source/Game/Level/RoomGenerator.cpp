@@ -147,11 +147,12 @@ void RoomGenerator::_createEntireWorld()
 {
 	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
 	m_roomWidth = (m_incrementalValueX * m_roomGridWidth) / 2.0f;
-	std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
+
+	//std::vector<ImporterLibrary::GridStruct*> appendedGridStruct; 
 	bool isRotated = false;
 	int RANDOM_MOD_NR = 0;
-	int MAX_SMALL_MODS = 11; //8
-	int MAX_LARGE_MODS = 6; // 5
+	int MAX_SMALL_MODS = 11; //11
+	int MAX_LARGE_MODS = 6; //6 
 	bool * alreadyPickedSmallMods = DBG_NEW bool[MAX_SMALL_MODS];
 	bool * alreadyPickedLargeMods = DBG_NEW bool[MAX_LARGE_MODS];
 	for (int i = 0; i < MAX_SMALL_MODS; i++)
@@ -173,6 +174,7 @@ void RoomGenerator::_createEntireWorld()
 	int depthCounter = 0;
 	ImporterLibrary::CollisionBoxes  modCollisionBoxes;
 	modCollisionBoxes.boxes = nullptr;
+	m_nrOfLevers = 0;
 
 	Manager::g_meshManager.loadStaticMesh("CLOSEDWALL");
 	Manager::g_meshManager.loadStaticMesh("OPENWALL");
@@ -440,21 +442,6 @@ void RoomGenerator::_createEntireWorld()
 							returnableRoom->getAudioBoxesVector()->push_back(ge);
 						}
 					}
-					
-					//asset->p_createBoundingBox(DirectX::XMFLOAT3(10, 2.5f, .5f));
-					/*for (unsigned int a = 0; a < modCollisionBoxes.nrOfBoxes; a++)
-					{
-						float * f4Rot = modCollisionBoxes.boxes[a].rotation;
-						float * f3Pos = modCollisionBoxes.boxes[a].translation;
-						float * f3Scl = modCollisionBoxes.boxes[a].scale;
-						DirectX::XMFLOAT4 xmQ = { f4Rot[0], f4Rot[1], f4Rot[2], f4Rot[3] };				//FoR SoUnD
-							DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1 };
-						DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1 };
-						FMOD::Geometry * ge = AudioEngine::CreateCube(0.75f, 0.35f, xmPos, xmScl, xmQ);
-						ge->setActive(false);
-
-						m_generatedAudioBoxes.push_back(ge);
-					}*/
 					if (modCollisionBoxes.boxes)
 						delete[] modCollisionBoxes.boxes;
 				}
@@ -465,6 +452,7 @@ void RoomGenerator::_createEntireWorld()
 				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 2, i, 1));
 			}
 #pragma endregion
+//Above 10 mB
 
 			
 			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 5.0, 15.0));
@@ -516,6 +504,8 @@ void RoomGenerator::_createEntireWorld()
 				
 				for (int k = 0; k < tempProps.nrOfItems; k++)
 				{
+					if (tempProps.props[k].typeOfProp == 4)
+						m_nrOfLevers++;
 					if (isRotated == true)
 					{
 						float tempPosX = tempProps.props[k].transform_position[0];
@@ -696,6 +686,12 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
 
 	//dbgFuncSpawnAboveMap();
+	m_generated_assetVector.shrink_to_fit();
+	m_generated_pointLightVector.shrink_to_fit();
+	m_generatedRoomEnemies.shrink_to_fit();
+	m_generatedAudioBoxes.shrink_to_fit();
+	m_generatedTorches.shrink_to_fit();
+	m_generated_boundingBoxes.shrink_to_fit();
 
 	returnableRoom->setTorches(m_generatedTorches);
 	returnableRoom->setEnemyhandler(m_generatedRoomEnemyHandler);

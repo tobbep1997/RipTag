@@ -18,8 +18,6 @@ private:
 	Window*		m_wnd;
 	Engine3D*	m_engine;
 	HINSTANCE m_hInstance;
-	//IMGUI onlt take 1 mb in debug mode
-	ImGuiManager * m_ImGuiManager;
 	WindowContext * m_wind;
 public:
 	RenderingManager();
@@ -35,9 +33,6 @@ public:
 	void Flush(Camera & camera);
 
 	void Release();
-
-	//Starts the new frame for imgui
-	void ImGuiStartFrame();
 
 	//---------------------------------
 	//Explicit window related function

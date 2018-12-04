@@ -78,7 +78,6 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
-
 }
 Room::~Room()
 {
@@ -134,7 +133,6 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		
 		Release();
 	}
 }
@@ -416,25 +414,37 @@ void Room::Update(float deltaTime, Camera * camera)
 	}
 
 	triggerHandler->Update(deltaTime);
-
-	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
-	{
-		if (m_roomGuards.at(i)->getIfLost() == true)
-		{
-			m_youLost = true;
-			break;
-		}
-	}
 	if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
 #else
+		
 		PlayState::setYouLost(true);
+		DX::g_screenShootCamera = false;
+		
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
 	}
+	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
+	{
+		if (m_roomGuards.at(i)->getIfLost() == true)
+		{
+			m_playerInRoomPtr->setHidden(false);
+			CameraHandler::setActiveCamera(m_roomGuards.at(i)->getCamera());
+			m_roomGuards.at(i)->setHidden(true);
+			m_playerInRoomPtr->setOutline(true);
+			if (m_youLost == false)
+			{
+				DX::g_screenShootCamera = true;
+			}
+			m_youLost = true;
+			
+			break;
+		}
+	}
+
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{

@@ -217,10 +217,10 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	////LoadTuTorialRoomFirst
 	//Room * room = new Room(m_roomIndex, m_worldPtr, 0, m_playerPtr);
 	//m_rooms.push_back(room);
-	////room = new Room(1, m_worldPtr, 1, m_playerPtr);
-	////m_rooms.push_back(room);
-	////room = new Room(0, m_worldPtr, 2, m_playerPtr);
-	////m_rooms.push_back(room);
+	//room = new Room(1, m_worldPtr, 1, m_playerPtr);
+	//m_rooms.push_back(room);
+	//room = new Room(0, m_worldPtr, 2, m_playerPtr);
+	//m_rooms.push_back(room);
 	//m_rooms.at(0)->loadTextures();
 	//int x = m_rooms.at(0)->getRoomIndex();
 	//if(m_rooms.at(0)->getRoomIndex() != -1)

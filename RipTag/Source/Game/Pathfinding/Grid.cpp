@@ -402,10 +402,8 @@ void Grid::BlockIfNotPathable(int targetX, int targetY)
 		std::vector<Node*> targets;
 		_blockCheck(targetX, targetY, targets);
 		if (targets.size() < MAX_BLOCK_CHECK)
-		{
 			for (auto & n : targets)
 				n->tile.setPathable(false);
-		}
 	}
 }
 
@@ -817,9 +815,7 @@ void Grid::_blockCheck(int x, int y, std::vector<Node*>& targetNodes)
 			{
 				int end = targetNodes.size();
 				for (int i = startIndex; i < end; i++)
-				{
 					_blockCheck(targetNodes.at(i)->tile.getX(), targetNodes.at(i)->tile.getY(), targetNodes);
-				}
 			}
 		}
 	}
@@ -830,47 +826,29 @@ std::vector<Node*> Grid::_getUnblockedAround(int x, int y)
 	std::vector<Node*> nodes;
 
 	if (x > 0) // Left
-	{
 		if (m_nodeMap.at(x - 1 + y * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x - 1 + y * m_width));
-	}
-
 	if (x < m_width) // Right
-	{
 		if (m_nodeMap.at(x + 1 + y * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + 1 + y * m_width));
-	}
 	if (y > 0) // Up
-	{
 		if (m_nodeMap.at(x + (y - 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + (y - 1) * m_width));
-	}
 	if (y < m_height) // Down
-	{
 		if (m_nodeMap.at(x + (y + 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + (y + 1) * m_width));
-	}
-
 	if (x > 0 && y > 0) // Up left
-	{
 		if (m_nodeMap.at(x - 1 + (y - 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x - 1 + (y - 1) * m_width));
-	}
 	if (x < m_width && y > 0) // Up Right
-	{
 		if (m_nodeMap.at(x + 1 + (y - 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + 1 + (y - 1) * m_width));
-	}
 	if (x > 0 && y < m_height) // Down Left
-	{
 		if (m_nodeMap.at(x - 1 + (y + 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x - 1 + (y + 1) * m_width));
-	}
 	if (x < m_width && y < m_height) // Down Right
-	{
 		if (m_nodeMap.at(x + 1 + (y + 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
-	}
 
 	return nodes;
 }

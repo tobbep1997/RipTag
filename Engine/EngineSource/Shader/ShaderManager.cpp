@@ -1,6 +1,8 @@
 #include "EnginePCH.h"
 #include "ShaderManager.h"
 
+#define wendl std::wstring(L"\n");
+
 namespace Shaders
 {
 	ShaderManager::ShaderManager()
@@ -48,6 +50,8 @@ namespace Shaders
 #if _DEBUG
 		system("cls");
 		std::cout << "Shader Reloader-----------------------------------------------" << std::endl;
+#elif !_DEPLOY
+		OutputDebugStringW(LPCWSTR(L"Shader Reloader-----------------------------------------------\n"));
 #endif
 		int counter = 0;
 		for (int i = 0; i < m_hashSize; i++)
@@ -57,6 +61,9 @@ namespace Shaders
 				counter++;
 #if _DEBUG
 				std::wcout << L"Processing : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
+#elif !_DEPLOY
+				std::wstring s = std::wstring(L"Processing : ") + this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() + wendl;
+				OutputDebugStringW(LPCWSTR(s.c_str()));
 #endif
 				HRESULT hr = m_shadersHashTable[i][j]->ReloadShader();
 
@@ -65,7 +72,12 @@ namespace Shaders
 					_com_error err(hr);
 #if _DEBUG
 					std::wcout << L"Error : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
-					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\tFAILED " << std::endl;
+					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\t\tFAILED " << std::endl;
+#elif !_DEPLOY
+					std::wstring s = std::wstring(L"Error : ") + this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() + wendl;
+					OutputDebugStringW(LPCWSTR(s.c_str()));
+					s = L"\t\t\t\t\t\t\t\t\t\t\t\t" + std::to_wstring(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) + L"%\t\tFAILED " + wendl;
+					OutputDebugStringW(LPCWSTR(s.c_str()));
 #endif
 
 				}
@@ -73,7 +85,12 @@ namespace Shaders
 				{
 #if _DEBUG
 					std::wcout << L"Complete : " << this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() << std::endl;
-					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\tDone " << std::endl;
+					std::cout << "\t\t\t\t\t\t" + std::to_string(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) << "%\t\tDone " << std::endl;
+#elif !_DEPLOY
+					std::wstring s = std::wstring(L"Complete : ") + this->_getName(m_shadersHashTable[i][j]->getPath()).c_str() + wendl;
+					OutputDebugStringW(LPCWSTR(s.c_str()));
+					s = L"\t\t\t\t\t\t\t\t\t\t\t\t" + std::to_wstring(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) + L"%\t\tDone " + wendl;
+					OutputDebugStringW(LPCWSTR(s.c_str()));
 #endif
 				}
 
@@ -82,6 +99,8 @@ namespace Shaders
 		}
 #if _DEBUG
 		std::cout << "All done :)---------------------------------------------------" << std::endl;
+#elif !_DEPLOY
+		OutputDebugStringW(LPCWSTR(L"All done :)---------------------------------------------------\n"));
 #endif
 	}
 	void ShaderManager::UnloadShader(const std::wstring path)

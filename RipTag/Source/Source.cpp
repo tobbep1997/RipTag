@@ -100,10 +100,8 @@ void GameLoop(Game * game)
 		game->Clear();
 
 		//Pollevents
-		
 
 		//Draw and update
-		game->ImGuiFrameStart();
 		game->Update(deltaTime);
 		AudioEngine::Update();
 		game->Draw();
@@ -115,8 +113,6 @@ void SingleGameLoop(Game * game)
 	DeltaTime dt;
 	float deltaTime = 0.0f;
 	float deltaNega = 0;
-
-
 
 	while (game->isRunning())
 	{
@@ -131,14 +127,11 @@ void SingleGameLoop(Game * game)
 		game->Clear();
 		///-------------------
 
-
-
 		///-------------------
 
 		//Pollevents
 
 		//Draw and update
-		game->ImGuiFrameStart();
 		game->Update(deltaTime);
 		AudioEngine::Update();
 		game->Draw();
@@ -181,6 +174,4 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	FontHandler::Release();
 	AudioEngine::Release();
 	return 0;
-	
-
 }

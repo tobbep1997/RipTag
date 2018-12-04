@@ -45,11 +45,11 @@ private:
 	UINT32 m_StrideSize;
 	UINT32 m_Offset = 0;
 
-	D3D11_VIEWPORT m_ParticleViewport;
-	ID3D11ShaderResourceView* m_ParticleSRV = nullptr;
-	ID3D11DepthStencilView*	m_ParticleDepthStencilView = nullptr;
-	ID3D11RenderTargetView*	m_renderTargetView = nullptr;
-	ID3D11Resource* m_resource = nullptr;
+	//D3D11_VIEWPORT m_ParticleViewport;
+	//ID3D11ShaderResourceView* m_ParticleSRV = nullptr;
+	//ID3D11DepthStencilView*	m_ParticleDepthStencilView = nullptr;
+	//ID3D11RenderTargetView*	m_renderTargetView = nullptr;
+	//ID3D11Resource* m_resource = nullptr;
 
 	DirectX::XMVECTOR m_up;
 	DirectX::XMVECTOR m_right;
