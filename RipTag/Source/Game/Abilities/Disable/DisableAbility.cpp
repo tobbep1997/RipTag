@@ -294,9 +294,6 @@ void DisableAbility::_inStateMoving(double dt)
 					{
 						ptr->setTransitionState(AITransitionState::BeingDisabled); 
 						this->_sendOnHitNotification(ptr);
-							FMOD_VECTOR at = FMOD_VECTOR{ this->getPosition().x, this->getPosition().y, this->getPosition().z };;
-							FMOD::Channel* c = nullptr;
-							c = AudioEngine::PlaySoundEffect(RipSounds::g_smokeBomb, &at, &((Player*)p_owner)->getSmokeBombDesc());
 					}
 				}
 			}
