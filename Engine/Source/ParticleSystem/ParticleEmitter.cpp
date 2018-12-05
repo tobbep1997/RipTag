@@ -8,9 +8,9 @@ ParticleEmitter::ParticleEmitter()
 	m_EmitterCurrentLife = 0;
 	m_EmitterLife = 0;
 	m_RotationMinMax = DirectX::XMINT2{1, 360};
-	m_MaxParticle = 50;
+	m_MaxParticle = 100;
 	m_MinParticle = 3;
-	nrOfEmittedParticles = 40;
+	nrOfEmittedParticles = 100;
 	m_Speed = 0.2f;
 	m_SpawnPosition = DirectX::XMVECTOR{0,0,0};
 	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
@@ -20,9 +20,32 @@ ParticleEmitter::ParticleEmitter()
 	minMaxLife = DirectX::XMINT2{ 0, 1 };
 	spawnSpread = DirectX::XMINT2{ 0, 0 };
 
-	m_vertexBuffer = nullptr;
-	m_cBuffer = nullptr;
-	//setSmoke();
+	_CreateBoundingBox();
+	InitializeBuffer();
+}
+
+ParticleEmitter::ParticleEmitter(int type)
+{
+	isSmoke = false;
+	emitterActiv = 1;
+	m_EmitterCurrentLife = 0;
+	m_EmitterLife = 0;
+	m_RotationMinMax = DirectX::XMINT2{ 1, 360 };
+	m_MaxParticle = 100;
+	m_MinParticle = 3;
+	nrOfEmittedParticles = 100;
+	m_Speed = 0.2f;
+	m_SpawnPosition = DirectX::XMVECTOR{ 0,0,0 };
+	scaleOverTime = DirectX::XMFLOAT2{ 0.45f, 0.45f };
+	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
+	spreadMinMax = DirectX::XMINT2{ -2, 4 };
+	directionMinMax = DirectX::XMINT2{ 4, 10 };
+	minMaxLife = DirectX::XMINT2{ 0, 1 };
+	spawnSpread = DirectX::XMINT2{ 0, 0 };
+
+	if (type == 1)
+		setSmoke();
+
 	_CreateBoundingBox();
 	InitializeBuffer();
 }
@@ -39,8 +62,8 @@ void ParticleEmitter::setSmoke()
 	m_SpawnPosition = DirectX::XMVECTOR{ 0,0,0 };
 	scaleOverTime = DirectX::XMFLOAT2{ -0.5f, -0.5f };
 	scale = DirectX::XMFLOAT2(0.2f, 0.2f);
-	spreadMinMax = DirectX::XMINT2{ -20, 20 };
-	directionMinMax = DirectX::XMINT2{ -20, 20 };
+	spreadMinMax = DirectX::XMINT2{ -10, 20 };
+	directionMinMax = DirectX::XMINT2{ -10, 20 };
 	minMaxLife = DirectX::XMINT2{ 2, 4 };
 	spawnSpread = DirectX::XMINT2{ -1, 2 };
 
@@ -300,12 +323,6 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 	float x = DirectX::XMVectorGetX(basePos);
 	float y = DirectX::XMVectorGetY(basePos);
 	float z = DirectX::XMVectorGetZ(basePos);
-	//x += rand() % offset * 1 + (offset *-1);
-	//y += rand() % offset * 1 + (offset *-1);
-	//z += rand() % offset * 1 + (offset *-1);
-	//x += RandomFloat();
-	//y += std::abs(RandomFloat());
-	//z += RandomFloat();
 	basePos = DirectX::XMVECTOR{ x,y,z };
 	return basePos;
 }

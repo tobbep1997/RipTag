@@ -308,6 +308,8 @@ void AI::_onSearchArea()
 
 void AI::_onReturnToPatrol()
 {
+	m_owner->m_loudestSoundLocation.percentage = 0.0f;
+	m_owner->m_biggestVisCounter = 0.0f;
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();

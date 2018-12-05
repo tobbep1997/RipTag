@@ -135,7 +135,7 @@ private:
 	void _onGameOverPacket();
 	void _onGameWonPacket();
 	void _onDisconnectPacket();
-
+	
 	void _updateOnCoopMode(double deltaTime);
 
 	void _loadAnimations();
