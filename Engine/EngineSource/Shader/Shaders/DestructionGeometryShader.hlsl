@@ -40,25 +40,6 @@ struct GS_OUTPUT
 
 float4x4 createRotationMatrix(float angle, float3 axis)
 {
-
-
-//	vec3 n = vec3(0.0, 0.0, 1.0); // the axis to rotate about
-//
-//// Specify the rotation transformation matrix:
-//	mat3 m = mat3(
-//		axis.x*axis.x * (1.0f - cos(angle)) + cos(angle),       // column 1 of row 1
-//		axis.x*axis.y * (1.0f - cos(angle)) + axis.z * sin(angle), // column 2 of row 1
-//		axis.x*axis.z * (1.0f - cos(angle)) - axis.y * sin(angle), // column 3 of row 1
-//
-//		axis.y*axis.x * (1.0f - cos(angle)) - axis.z * sin(angle), // column 1 of row 2
-//		axis.y*axis.y * (1.0f - cos(angle)) + cos(angle),       // ...
-//		axis.y*axis.z * (1.0f - cos(angle)) + axis.x * sin(angle), // ...
-//
-//		axis.z*axis.x * (1.0f - cos(angle)) + axis.y * sin(angle), // column 1 of row 3
-//		axis.z*axis.y * (1.0f - cos(angle)) - axis.x * sin(angle), // ...
-//		axis.z*axis.z * (1.0f - cos(angle)) + cos(angle)        // ...
-//	);
-
     float4x4 rotationMatrix = 0;
     rotationMatrix._11 = axis.x*axis.x * (1.0f - cos(angle)) + cos(angle);
     rotationMatrix._12 = axis.x*axis.y * (1.0f - cos(angle)) + axis.z * sin(angle);
@@ -143,19 +124,16 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 {
 	GS_OUTPUT output = (GS_OUTPUT)0;
 
-	float4 startPos = float4(float4(TimerAndForwardVector.x, TimerAndForwardVector.y, TimerAndForwardVector.z, 1));
-
-	float posLerpValue = 0;
 	float lerpValue = TimerAndForwardVector.w;
-	//float3 forwardVec = TimerAndForwardVector.xyz;
-	//float3 right = normalize(cross(float3(0, 1, 0), forwardVec));
 
 	float trianglePosLerpX = 0;
 	float trianglePosLerpY = 0.5;
 	float scaleLerpX = 1;
 	float scaleLerpY = 0.3;
 	float rotX = 0;
-	float rotY = 3.141592;
+	float rotY = 3.141592 * 2;
+
+	
 
 	if (lerpValue <= 0.5)
 	{
@@ -165,38 +143,29 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	{
 		//lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
+		 rotY = 0;
+		 rotX = 3.141592 * 2;
 	}
-
 
 	float3 offsetNormal = normalize(cross((input[1].worldPos - input[0].worldPos), (input[2].worldPos - input[0].worldPos)));
 
-	float3 centerTriangle = float3((input[0].worldPos.x + input[1].worldPos.x + input[2].worldPos.x) * 0.33,
-		(input[0].worldPos.y + input[1].worldPos.y + input[2].worldPos.y) * 0.33,
-		(input[0].worldPos.z + input[1].worldPos.z + input[2].worldPos.z) * 0.33);
+	float3 centerTriangle = float3(
+		(input[0].worldPos.x + input[1].worldPos.x + input[2].worldPos.x),
+		(input[0].worldPos.y + input[1].worldPos.y + input[2].worldPos.y),
+		(input[0].worldPos.z + input[1].worldPos.z + input[2].worldPos.z)
+		);
+	centerTriangle /= 3.0f;
 
-	//float3 normalizedCenterTriangle = normalize(centerTriangle);
+	const float3 localOffset = mul(worldMatrixInverse, float4(centerTriangle, 1.0f));
 
+	const float3 triangleFaceNormal = normalize(localOffset);
 
-	float moveTriangleLerp = lerp(trianglePosLerpX, trianglePosLerpY, lerpValue);
+	const float rotLerp = lerp(rotX, rotY, lerpValue);
 	
-	float scaleLerp = lerp(scaleLerpX, scaleLerpY, lerpValue);
-	float4x4 scaleMatrix = createScaleMatrix(float3(scaleLerp, scaleLerp, scaleLerp));
+	const float3 localCenter = float3(0.f, 1.f, 0.f);
 
-	float3 localVertices[3];
-	for (int i = 0; i < 3; i++)
-	{
-		localVertices[i] = mul(worldMatrixInverse, input[i].worldPos).xyz;
-	}
+	const float3 lerpTriPosTowards = (localCenter + triangleFaceNormal) * 1;
 
-	float3 localOffset = float3((localVertices[0].x + localVertices[1].x + localVertices[2].x) * 0.33,
-		(localVertices[0].y + localVertices[1].y + localVertices[2].y) * 0.33,
-		(localVertices[0].z + localVertices[1].z + localVertices[2].z) * 0.33); // Get the local offset from the center of the triangle
-	float3 localNormal = normalize(cross((localVertices[1] - localVertices[0]), (localVertices[2] - localVertices[0]))); // Get the face normal of the local triangle
-
-	float3 triangleFaceNormal = normalize(mul(worldMatrixInverse, centerTriangle));
-
-	float rotLerp = lerp(rotX, rotY, lerpValue);
-	
 
 	for (uint i = 0; i < 3; i ++)
 	{
@@ -213,23 +182,27 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 
 		float4 localPos = mul(worldMatrixInverse, output.worldPos); // Get Local vertex
-
-		float3 tempPos = localPos.xyz;
-
-		float3 posAroundOrigin = localPos.xyz - mul(worldMatrixInverse, centerTriangle); // Remove the offset from the vertex so the vertex is around origin
 		
-		float4 rotatedAroundOrigin = mul(createRotationMatrix(rotLerp, float3(0,1,0)), float4(posAroundOrigin, 1)); // Rotate the local vertex around origin
+
+		float3 posAroundOrigin = localPos.xyz - localOffset; // Remove the offset from the vertex so the vertex is around origin
+		
+
+		float4 rotatedAroundOrigin = mul(float4(posAroundOrigin, 1), createRotationMatrix(rotLerp, triangleFaceNormal)); // Rotate the local vertex around origin
 			   
-		
-		float3 rotatedLocalPos = rotatedAroundOrigin + mul(worldMatrixInverse, centerTriangle); // Put the vertex back on its local position (tho rotated)
+		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
+		float3 lerpedTrianglePos = lerp(rotatedLocalPos, rotatedLocalPos + triangleFaceNormal, lerpValue);
+		
 		
 		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1));
+
 
 		
 
 		output.worldPos.w = 1;
 		output.pos = mul(output.worldPos, viewProjection);
+
+
 		outputstream.Append(output);
 	}
 
