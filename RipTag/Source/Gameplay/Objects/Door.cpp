@@ -54,7 +54,7 @@ void Door::Update(double deltaTime)
 {
 	BaseActor::Update(deltaTime);
 
-	float t = deltaTime * 1.5f;
+	float t = deltaTime * 3.0f;
 
 
 
