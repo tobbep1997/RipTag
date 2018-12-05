@@ -24,22 +24,157 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("GUARD"));
 
+
+	auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton("GUARD").get());
+	layerMachine->AddBasicLayer
+		("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 1.0f);
+
 	{
-		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton("GUARD").get());
-		layerMachine->AddBasicLayer
-			("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 1.0f);
-		
-	}
-	{
-		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
-		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
-		auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
-		auto& machine = getAnimationPlayer()->InitStateMachine(2);
-		auto walkState = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
-		auto knockState = machine->AddLoopState("knocked_state", knockAnim);
-		knockState->SetBlendTime(.1f);
-		walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
-		machine->SetState("walk_state");
+
+		{
+			std::vector<SharedAnimation> sharedAnimations;
+			const char * collection = "PLAYER1";
+			int nrOfStates = 8;
+
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_F_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_B_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FR_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BR_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_F_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FR_ANIMATION"));
+
+			this->getAnimationPlayer()->Play();
+			this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("GUARD"));
+
+			std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimationPlayer()->InitStateMachine(nrOfStates);
+
+			{
+				//Blend spaces - forward&backward
+				SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
+					"walk_forward", //state name
+					&this->m_currentDirection, //x-axis driver
+					&this->m_currentSpeed, //y-axis driver
+					-115.f, 115.f, //x-axis bounds
+					0.0f, 6.0f //y-axis bounds
+				);
+				SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
+					"walk_backward", //state name
+					&this->m_currentDirection, //x-axis driver
+					&this->m_currentSpeed, //y-axis driver
+					-180.f, 180.f, //x-axis bounds
+					0.0f, 3.001f //y-axis bounds
+				);
+
+				//Add blendspace rows 
+				//forward
+				blend_fwd->AddRow(
+					0.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 115.f }
+					}
+				);
+				blend_fwd->AddRow(
+					3.1f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::RIGHT].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::LEFT].get(), 115.f }
+					}
+				);
+				blend_fwd->AddRow(
+					6.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD_RIGHT].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD_LEFT].get(), 115.f }
+					}
+				);
+				//
+				blend_bwd->AddRow(
+					0.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 180.f }
+					}
+				);
+				blend_bwd->AddRow(
+					3.1f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_LEFT].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), 180.f }
+					}
+				);
+				blend_bwd->AddRow(
+					6.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_LEFT].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), 180.f }
+					}
+				);
+
+				//Adding out state / transitions
+				SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
+				//Add transition condition
+				fwd_bwd_outstate.AddTransition(
+					&this->m_currentDirection, //referenced variable for comparision
+					-115.f, 115.f, //bound range for comparision
+					SM::COMPARISON_OUTSIDE_RANGE //comparision condition
+				);
+
+				SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
+				//Add transition condition
+				bwd_fwd_outstate.AddTransition(
+					&this->m_currentDirection, //referenced variable for comparision
+					-90.f, 90.f, //bound range for comparision
+					SM::COMPARISON_INSIDE_RANGE //comparision condition
+				);
+
+				auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+
+				auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+				auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
+
+				auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
+				crouchState->UseFirstPoseOnly(true);
+
+
+				auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
+				auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
+				auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
+				auto walkState = stateMachine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
+				auto knockState = stateMachine->AddLoopState("knocked_state", knockAnim);
+				knockState->SetDefaultBlendTime(.1f);
+				walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
+				stateMachine->SetState("walk_state");
+
+				//Out states
+				auto& guardWalkToPlayerWalk = walkState->AddOutState(blend_fwd);
+				guardWalkToPlayerWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_EQUAL);
+
+				auto& playerWalkToGuardWalk = blend_fwd->AddOutState(walkState);
+				playerWalkToGuardWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_NOT_EQUAL);
+
+				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
+				playerWalkBackToGuardWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_NOT_EQUAL);
+			}
+		}
+
+
 		this->getAnimationPlayer()->Play();
 
 	}
@@ -156,7 +291,8 @@ void Enemy::BeginPlay()
 void Enemy::Update(double deltaTime)
 {
 	using namespace DirectX;
-	AIState state = getAIState();
+	m_AIState = getAIState();
+	AIState state = m_AIState;
 	if (!m_lockedByClient)
 	{
 		handleStates(deltaTime);
@@ -178,7 +314,47 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
-	if(state == AIState::Possessed)
+	if (state == AIState::Possessed)
+	{
+
+		{
+			using namespace DirectX;
+			//calculate walk direction (-1, 1, based on camera) and movement speed
+			{
+				///Speed
+				auto physSpeed = this->getLiniearVelocity();
+				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+				m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
+
+				///Walk dir
+					//Get camera direction and normalize on X,Z plane
+				auto cameraDir = p_camera->getDirection();
+				XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+				///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+				auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+				auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+				auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+				auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+				///AssertHasLength(XZCameraDir);
+				//AssertHasLength(XZMovement);
+
+					//Get dot product of cam dir and player movement
+				auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+				dot = std::clamp(dot, -0.999999f, 0.999999f);
+				//Convert to degrees
+				m_currentDirection = XMConvertToDegrees(std::acos(dot));
+				//Negate if necessary
+				float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+				m_currentDirection *= (inverter > 0.0)
+					? -1.0
+					: 1.0;
+				m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+
+			}
+		}
+
 		for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 		{
 			ContactListener::S_Contact con = RipExtern::g_contactListener->GetBeginContact(i);
@@ -205,6 +381,7 @@ void Enemy::Update(double deltaTime)
 				}
 			}
 		}
+	}
 }
 
 void Enemy::ClientUpdate(double deltaTime)
