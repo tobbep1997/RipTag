@@ -162,10 +162,11 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	const float rotLerp = lerp(rotX, rotY, lerpValue);
 	
-	const float3 localCenter = float3(0.f, 1.f, 0.f);
+	const float4 localCenter = float4(0.f, 1.f, 0.f, 1.f);
 
-	const float3 lerpTriPosTowards = (localCenter + triangleFaceNormal) * 1;
+	float4 lerpTriPosTowards = localCenter;
 
+	float4 modelPos = float4(worldMatrix._41, worldMatrix._42 + 1.5f, worldMatrix._43, 1.0f);
 
 	for (uint i = 0; i < 3; i ++)
 	{
@@ -191,16 +192,19 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			   
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
-		float3 lerpedTrianglePos = lerp(rotatedLocalPos, rotatedLocalPos + triangleFaceNormal, lerpValue);
-		
-		
-		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1));
 
+	
+		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1)); // Go to  worldSpace
 
 		
+		output.worldPos.xyz = lerp(output.worldPos.xyz, modelPos.xyz + normalize(output.worldPos.xyz - modelPos.xyz) * 0.8f, lerpValue);
+
 
 		output.worldPos.w = 1;
 		output.pos = mul(output.worldPos, viewProjection);
+	
+		
+
 
 
 		outputstream.Append(output);
