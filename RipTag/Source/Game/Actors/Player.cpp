@@ -383,7 +383,7 @@ void Player::SetModelAndTextures(int set)
 	}
 }
 
-void Player::setEnemyPositions(std::vector<Enemy*> enemys)
+void Player::setEnemyPositions(std::vector<Enemy*> & enemys)
 {
 	using namespace DirectX;
 	std::vector<DirectX::XMFLOAT2> relativEnemyPostions;
@@ -395,7 +395,7 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
 		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
-			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
+			relativEnemyPostions.push_back(pos);
 			if (enemys[i]->getTotalVisibility() > totVis)
 			{
 				totVis = enemys[i]->getTotalVisibility();

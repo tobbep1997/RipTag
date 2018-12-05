@@ -235,7 +235,7 @@ public:
 	//This is a way of checking if we can use the ability with out current mana
 	void SetAbilitySet(int set);
 	void SetModelAndTextures(int set);
-	void setEnemyPositions(std::vector<Enemy *> enemys);
+	void setEnemyPositions(std::vector<Enemy *> & enemys);
 
 	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();

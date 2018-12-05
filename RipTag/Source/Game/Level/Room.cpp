@@ -430,7 +430,7 @@ void Room::Update(float deltaTime, Camera * camera)
 			m_playerInRoomPtr->setHidden(false);
 			CameraHandler::setActiveCamera(m_roomGuards.at(i)->getCamera());
 			m_roomGuards.at(i)->setHidden(true);
-			m_playerInRoomPtr->setOutline(true);
+			//m_playerInRoomPtr->setOutline(true);
 			if (m_youLost == false)
 			{
 				DX::g_screenShootCamera = true;
