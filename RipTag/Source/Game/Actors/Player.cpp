@@ -91,7 +91,7 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 
 	m_smokeBomb.emitter = AudioEngine::Player;
 	m_smokeBomb.owner = this;
-	m_smokeBomb.loudness = 0.6f;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 Player::~Player()
@@ -142,7 +142,7 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 
 	m_smokeBomb.emitter = AudioEngine::Player;
 	m_smokeBomb.owner = this;
-	m_smokeBomb.loudness = 0.6f;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 void Player::BeginPlay()
