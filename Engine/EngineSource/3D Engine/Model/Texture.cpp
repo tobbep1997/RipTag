@@ -40,7 +40,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 			maxTextureSize = 1024;
 			break;
 		case 3:
-			setting = L"_2048";
+			setting = L"_1024";
 			maxTextureSize = 1024;
 			break;
 		default:

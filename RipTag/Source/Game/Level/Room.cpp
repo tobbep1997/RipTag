@@ -406,11 +406,7 @@ void Room::Update(float deltaTime, Camera * camera)
 
 	for (auto torch : m_Torches)
 	{
-		torch->Update(deltaTime);
-		auto light = torch->getPointLightPtr();
-		light->setDropOff(2.0425345f);
-		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
+		torch->Update(deltaTime);	
 	}
 
 	triggerHandler->Update(deltaTime);

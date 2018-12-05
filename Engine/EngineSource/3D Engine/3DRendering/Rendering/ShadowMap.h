@@ -49,7 +49,7 @@ private:
 	ID3D11ShaderResourceView *	m_shadowShaderResourceView;	//RE
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;	//RE
 	ID3D11Texture2D*			m_shadowDepthBufferTex;		//Release
-	
+	ID3D11RasterizerState *		m_rasterizerState;
 
 	ID3D11RenderTargetView*		m_renderTargetView;			//RE
 	ID3D11Texture2D*			m_renderTargetsTexture;		//RE

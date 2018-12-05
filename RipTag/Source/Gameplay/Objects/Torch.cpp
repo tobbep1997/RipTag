@@ -50,12 +50,11 @@ void Torch::Update(double deltaTime)
 		_playSound(&m_tourchSound);
 
 	//Check wether to crate new fire.
-	pPointLight->setIntensity(pPointLight->TourchEffect(deltaTime * .2, 15.5, 2));
-	pPointLight->setDropOff(.1);
+	pPointLight->setIntensity(pPointLight->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
+	pPointLight->setDropOff(1.0425345f);
 	pPointLight->setPower(2);
 	DirectX::XMFLOAT4A newPos = pPointLight->MovmentEffect(deltaTime * 1.0, pPointLight->getPosition(), .075);
 	pPointLight->setPosition(newPos);
-
 	if (pParticles)
 	{
 		pParticles->Update(deltaTime, pCamera);

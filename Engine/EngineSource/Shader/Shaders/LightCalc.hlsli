@@ -311,8 +311,28 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
             }
             float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
 
-            float epsilon = 0.001f;
-            float currentShadowCoeff = (txShadowArray.Sample(shadowSampler, indexPos).r < depth - epsilon) ? 0.0f : 1.0f;
+
+            float width, element;
+            txShadowArray.GetDimensions(width, width, element);
+            float texelSize = 1.0f / width;
+
+            float margin = acos(saturate(dot(input.normal.xyz, posToLight.xyz)));
+
+            float epsilon = (0.000125f) / margin;
+            epsilon = clamp(epsilon, 0, 0.1);
+
+            float currentShadowCoeff; //= (txShadowArray.Sample(shadowSampler, indexPos).r < depth - epsilon) ? 0.0f : 1.0f;
+            float divider = 1.0f;
+            int sampleSize = 1;
+            for (int x = -sampleSize; x <= sampleSize; ++x)
+            {
+                for (int y = -sampleSize; y <= sampleSize; ++y)
+                {
+                    currentShadowCoeff += float(txShadowArray.SampleCmpLevelZero(sampAniPoint, float3(smTex + (float2(x, y) * texelSize), (shadowLight * 6) + targetMatrix), depth - epsilon).r);
+                    divider += 1.0f;
+                }
+            }
+            currentShadowCoeff /= divider;
             specular *= currentShadowCoeff;
             shadowCoeff += currentShadowCoeff;
             div += 1.0f;
