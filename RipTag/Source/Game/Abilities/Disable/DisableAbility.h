@@ -8,6 +8,8 @@
 
 class DisableAbility : public AbilityComponent, public HUDComponent
 {
+public:
+	inline static const float SMOKE_LIFE = 1.5f;
 private: // CONST VARS
 	/*
 	 * This will be the start mana cost. But the mana kan be changed
@@ -15,7 +17,6 @@ private: // CONST VARS
 	 */
 	const float TRAVEL_SPEED = 20.0f;
 	const float MAX_CHARGE = 1.0f;
-
 	Circle * m_bar = nullptr;
 
 private:
@@ -62,6 +63,8 @@ public:
 
 	void Draw() override;
 
+	void Reset();
+
 	DirectX::XMFLOAT4A getVelocity();
 	DirectX::XMFLOAT4A getStart();
 	unsigned int getState();
@@ -75,7 +78,7 @@ private:
 	void _inStateCharging(double dt);
 	void _inStateMoving(double dt);
 	void _inStateCooldown(double dt);
-	void _inStateRemoteActive(double dt);
 
 	void _sendOnHitNotification(Enemy * ptr = nullptr);
+	void _sendSmokeNotification();
 };

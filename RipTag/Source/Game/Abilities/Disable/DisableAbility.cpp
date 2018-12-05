@@ -84,19 +84,6 @@ void DisableAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
 			this->m_dState = DisableState::RemoteActive;
 		}
 		break;
-	case DisableState::RemoteActive:
-		if ((DisableState)data->state == DisableState::OnHit)
-		{
-
-			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
-			m_obj->setLiniearVelocity(0.0f, 0.0f, 0.0f);
-			this->m_dState = DisableState::Throwable;
-
-			RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
-				DirectX::XMFLOAT3(data->start.x, data->start.y + 0.5f, data->start.z),
-				ParticleSystem::typeOfEmitter::SMOKE, 1.5f);
-		}
-		break;
 	}
 }
 
@@ -117,6 +104,13 @@ void DisableAbility::Draw()
 	{
 		m_obj->BaseActor::Draw();
 	}
+}
+
+void DisableAbility::Reset()
+{
+	m_obj->setPosition(-999.9f, -999.9f, -999.9f);
+	m_obj->setLiniearVelocity(0.0f, 0.0f, 0.0f);
+	this->m_dState = DisableState::Throwable;
 }
 
 DirectX::XMFLOAT4A DisableAbility::getVelocity()
@@ -167,8 +161,7 @@ void DisableAbility::_logicLocal(double deltaTime, Camera* camera)
 
 void DisableAbility::_logicRemote(double dt, Camera * camera)
 {
-	if (m_dState == DisableAbility::RemoteActive)
-		this->_inStateRemoteActive(dt);
+	
 }
 
 void DisableAbility::_inStateThrowable()
@@ -278,9 +271,9 @@ void DisableAbility::_inStateMoving(double dt)
 		{
 			RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
 				DirectX::XMFLOAT3(m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z), 
-				ParticleSystem::typeOfEmitter::SMOKE , 1.5f);
+				ParticleSystem::typeOfEmitter::SMOKE , DisableAbility::SMOKE_LIFE);
 			//Particle effects here before changing the position. 
-			this->_sendOnHitNotification();
+			this->_sendSmokeNotification();
 			m_dState = DisableState::Cooldown;
 			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
 
@@ -299,6 +292,8 @@ void DisableAbility::_inStateMoving(double dt)
 					}
 				}
 			}
+
+			break;
 		}
 	}
 }
@@ -328,22 +323,6 @@ void DisableAbility::_inStateCooldown(double dt)
 	}
 }
 
-void DisableAbility::_inStateRemoteActive(double dt)
-{
-	static double accumulatedTime = 0;
-	static const double lifeDuration = 1.0 / 0.2; //5000 ms
-	accumulatedTime += dt;
-
-	if (accumulatedTime >= (lifeDuration - delay))
-	{
-		//nothing has been hit within 5 seconds, -> reset
-		accumulatedTime = 0.0;
-		m_dState = DisableState::Throwable;
-		m_obj->setPosition(-999.9f, -999.9f, -999.9f);
-		return;
-	}
-}
-
 void DisableAbility::_sendOnHitNotification(Enemy * ptr)
 {
 	Network::ENTITYSTATEPACKET packet(0,0,true);
@@ -355,12 +334,15 @@ void DisableAbility::_sendOnHitNotification(Enemy * ptr)
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYABILITYPACKET), PacketPriority::LOW_PRIORITY);
 
 	}
-	else
-	{
-		packet.id = Network::ID_SMOKE_DETONATE;
-		packet.pos = m_obj->getPosition();
-		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYSTATEPACKET), PacketPriority::LOW_PRIORITY);
-	}
 
+}
+
+void DisableAbility::_sendSmokeNotification()
+{
+	Network::ENTITYSTATEPACKET packet(0, 0, true);
+
+	packet.id = Network::ID_SMOKE_DETONATE;
+	packet.pos = m_obj->getPosition();
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYSTATEPACKET), PacketPriority::LOW_PRIORITY);
 }
 

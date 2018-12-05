@@ -370,9 +370,6 @@ void PlayState::HandlePacket(unsigned char id, unsigned char * data)
 	case Network::ID_PLAYER_DISCONNECT:
 		_onDisconnectPacket();
 		break;
-	case Network::ID_SMOKE_DETONATE:
-		_onDisconnectPacket();
-		break;
 	case DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION:
 		_onDisconnectPacket();
 		break;
@@ -1123,13 +1120,6 @@ void PlayState::_onDisconnectPacket()
 		m_physicsThread.join();
 	}
 	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
-}
-
-void PlayState::_onSmokeDetonatePacket(Network::ENTITYSTATEPACKET* data)
-{
-	RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
-		DirectX::XMFLOAT3(data->pos.x, data->pos.y + 0.5f, data->pos.z),
-		ParticleSystem::typeOfEmitter::SMOKE, 1.5f);
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)
