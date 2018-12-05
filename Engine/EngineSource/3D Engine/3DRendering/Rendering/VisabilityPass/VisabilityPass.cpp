@@ -90,8 +90,6 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 		}
 	}
 
-	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0); 
-
 	/*for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
 		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_geometryQueue[i]->getEntityType() != EntityType::ExcludeType)
