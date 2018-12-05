@@ -92,7 +92,9 @@ void TransitionState::Update(double deltaTime)
 			}
 		}
 		else if (isReady)
+		{
 			this->pushAndPop(2, new PlayState(p_renderingManager));
+		}
 
 	}
 

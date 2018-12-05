@@ -164,7 +164,7 @@ void PlayState::Update(double deltaTime)
 		if (m_youlost || m_playerManager->isGameWon())
 		{
 			runGame = false;
-
+			
 			RipExtern::g_particleSystem->clearEmitters();
 
 
@@ -316,6 +316,11 @@ void PlayState::Update(double deltaTime)
 		}
 	}
 	m_physicsFirstRun = false;
+}
+
+LevelHandler * PlayState::getLevelHandler()
+{
+	return m_levelHandler; 
 }
 
 void PlayState::Draw()
