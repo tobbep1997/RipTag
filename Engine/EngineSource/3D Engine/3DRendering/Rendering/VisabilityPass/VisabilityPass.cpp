@@ -21,6 +21,7 @@ VisabilityPass::~VisabilityPass()
 	DX::SafeRelease(m_guardRenderTargetView);
 
 	DX::SafeRelease(m_textureBuffer);
+	DX::SafeRelease(m_alphaBlend); 
 }
 
 void VisabilityPass::Init()
@@ -77,6 +78,8 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 
 	forwardRender->DrawInstancedCull(target->getCamera());
 
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff); 
+
 	for (auto & emitter : DX::g_emitters)
 	{	
 		if (boundingFrustum.Intersects(*emitter->getBoundingBox()))
@@ -86,6 +89,8 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 			emitter->Draw();
 		}
 	}
+
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0); 
 
 	/*for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
@@ -233,7 +238,14 @@ void VisabilityPass::_init()
 	_initDSV();
 	_initSRV();
 
+
 	HRESULT hr;
+
+	if (SUCCEEDED(hr =DXRHC::CreateBlendState("VisabilityParticleBlendState", m_alphaBlend)))
+	{
+
+	}
+
 	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_guatdShaderResourceTex",
 		m_guatdShaderResourceTex, 
 		GUARD_RES_Y, 
