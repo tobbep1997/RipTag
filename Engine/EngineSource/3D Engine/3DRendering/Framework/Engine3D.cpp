@@ -350,8 +350,6 @@ void Engine3D::Release()
 {
 	m_swapChain->SetFullscreenState(false, NULL);
 
-	DX::SafeRelease(DX::g_device);
-	DX::SafeRelease(DX::g_deviceContext);
 	DX::SafeRelease(m_swapChain);
 	DX::SafeRelease(m_backBufferRTV);
 	DX::SafeRelease(m_depthStencilView);
@@ -361,11 +359,23 @@ void Engine3D::Release()
 	
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
+
+	DX::SafeRelease(DX::g_deviceContext);
+	   
 #ifndef _DEPLOY
-	ID3D11Debug* DebugDevice = nullptr;
-	HRESULT Result = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
-	Result = DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	//HRESULT hr;
+	//ID3D11Debug* dbg_device = nullptr;
+	//if (SUCCEEDED(hr = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&dbg_device)))
+	//{
+	//	if (SUCCEEDED(hr = dbg_device->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL)))
+	//	{
+
+	//	}
+	//	dbg_device->Release();
+	//}
 #endif
+	DX::SafeRelease(DX::g_device);
+
 }
 
 void Engine3D::_createDepthSetencil(UINT width, UINT hight)

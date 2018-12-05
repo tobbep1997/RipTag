@@ -109,6 +109,10 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 
 						if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[i])))
 						{
+#ifndef _DEPLOY
+							m_SRV[i]->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * names[i].size(), names[i].c_str());
+#endif
+
 							DX::g_deviceContext->Flush();
 							DX::g_deviceContext->ClearState();
 						}
@@ -124,6 +128,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 				tmpResCPU->Release();
 		}
 		DX::g_deviceContext->Flush();
+		DX::g_deviceContext->ClearState();
 
 	}
 
@@ -182,7 +187,14 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 					srv_desc.Texture2D.MipLevels = textureDesc.MipLevels;
 					srv_desc.Texture2D.MostDetailedMip = 0;
 
-					if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[0]))) {}
+					if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[0])))
+					{
+#ifndef _DEPLOY
+						m_SRV[0]->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * getName().size(), getName().c_str());
+#endif
+						DX::g_deviceContext->Flush();
+						DX::g_deviceContext->ClearState();
+					}
 				}
 				if (texGPU)
 					texGPU->Release();
@@ -195,7 +207,8 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 		if (tmpResCPU)
 			tmpResCPU->Release();
 	}
-
+	DX::g_deviceContext->Flush();
+	DX::g_deviceContext->ClearState();
 
 	return S_OK;
 }

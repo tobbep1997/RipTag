@@ -112,7 +112,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 	DX::g_device->CreateRasterizerState(&wfdesc, &m_disableBackFace);
 	DX::g_deviceContext->RSSetState(m_disableBackFace);
 
-	DXRHC::CreateRasterizerState(m_NUKE, FALSE, D3D11_CULL_NONE, 0, 0, FALSE);
+	DXRHC::CreateRasterizerState("m_NUKE",m_NUKE, FALSE, D3D11_CULL_NONE, 0, 0, FALSE);
 
 	m_animationBuffer = new Animation::AnimationCBuffer();
 	m_animationBuffer->SetAnimationCBuffer();
@@ -859,19 +859,18 @@ void ForwardRender::_GuardLightCulling()
 void ForwardRender::_createConstantBuffer()
 {
 	HRESULT hr;
-	hr = DXRHC::CreateConstantBuffer(this->m_objectBuffer, sizeof(ObjectBuffer));	
-	hr = DXRHC::CreateConstantBuffer(this->m_cameraBuffer, sizeof(CameraBuffer));
-	hr = DXRHC::CreateConstantBuffer(this->m_lightBuffer, sizeof(LightBuffer));
-	hr = DXRHC::CreateConstantBuffer(this->m_GuardBuffer, sizeof(GuardBuffer));
-	hr = DXRHC::CreateConstantBuffer(this->m_textureBuffer, sizeof(TextureBuffer));
-
-	hr = DXRHC::CreateConstantBuffer(this->m_outlineBuffer, sizeof(OutLineBuffer));
+	hr = DXRHC::CreateConstantBuffer("ObjectBuffer", this->m_objectBuffer, sizeof(ObjectBuffer));	
+	hr = DXRHC::CreateConstantBuffer("CameraBuffer", this->m_cameraBuffer, sizeof(CameraBuffer));
+	hr = DXRHC::CreateConstantBuffer("LightBuffer", this->m_lightBuffer, sizeof(LightBuffer));
+	hr = DXRHC::CreateConstantBuffer("GuardBuffer", this->m_GuardBuffer, sizeof(GuardBuffer));
+	hr = DXRHC::CreateConstantBuffer("TextureBuffer", this->m_textureBuffer, sizeof(TextureBuffer));
+	hr = DXRHC::CreateConstantBuffer("OutLineBuffer", this->m_outlineBuffer, sizeof(OutLineBuffer));
 }
 
 void ForwardRender::_createSamplerState()
 {
-	HRESULT hr = DXRHC::CreateSamplerState(m_samplerState, D3D11_TEXTURE_ADDRESS_WRAP);
-	hr = DXRHC::CreateSamplerState(m_shadowSampler);
+	HRESULT hr = DXRHC::CreateSamplerState("Default Sampler State", m_samplerState, D3D11_TEXTURE_ADDRESS_WRAP);
+	hr = DXRHC::CreateSamplerState("Shadow Sampler State",m_shadowSampler);
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);

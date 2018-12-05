@@ -23,8 +23,8 @@ void Render2D::Init()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/2DVertex.hlsl", "main", inputDesc, 2);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/2DPixel.hlsl");
 
-	HRESULT hr = DXRHC::CreateSamplerState(m_sampler, D3D11_TEXTURE_ADDRESS_WRAP);
-	DXRHC::CreateBlendState(m_blendState);
+	HRESULT hr = DXRHC::CreateSamplerState("2D Sampler", m_sampler, D3D11_TEXTURE_ADDRESS_WRAP);
+	DXRHC::CreateBlendState("Render2D Blendstate" ,m_blendState);
 	m_spriteBatch = new DirectX::SpriteBatch(DX::g_deviceContext);
 
 	D3D11_DEPTH_STENCIL_DESC dpd{};
@@ -35,7 +35,7 @@ void Render2D::Init()
 	//Create the Depth/Stencil View
 	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
 
-	DXRHC::CreateConstantBuffer(m_HUDTypeBuffer, sizeof(HUDTypeStruct));
+	DXRHC::CreateConstantBuffer("2D HUDTypeStruct" ,m_HUDTypeBuffer, sizeof(HUDTypeStruct));
 #ifndef _DEPLOY
 	DBG_INIT();
 #endif
