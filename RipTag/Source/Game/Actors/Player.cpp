@@ -523,7 +523,7 @@ void Player::SetFirstPersonModel()
 
 		///---Clips and poses---
 		auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
-		///auto runClip = Manager::g_animationManager.getAnimation("ARMS", "RUN_ANIMATION").get();
+		auto runClip = Manager::g_animationManager.getAnimation("ARMS", "RUN_ANIMATION").get();
 		auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
 		auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
 		auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
@@ -535,16 +535,16 @@ void Player::SetFirstPersonModel()
 		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 		auto& machine = animPlayer->InitStateMachine(3);
 
-		///auto runState = machine->AddLoopState("run", runClip);
-		///runState->SetBlendTime(.25f);
+		auto runState = machine->AddLoopState("run", runClip);
+		runState->SetBlendTime(.65f);
 
 		auto idleState = machine->AddLoopState("idle", idleClip);
-		idleState->SetBlendTime(.15f);
+		idleState->SetBlendTime(.25f);
 
-		///auto& idleToRun = idleState->AddOutState(runState);
-		///auto& runToIdle = runState->AddOutState(idleState);
-		///idleToRun.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_GREATER_THAN);
-		///runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
+		auto& idleToRun = idleState->AddOutState(runState);
+		auto& runToIdle = runState->AddOutState(idleState);
+		idleToRun.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_GREATER_THAN);
+		runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
 
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
