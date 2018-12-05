@@ -69,7 +69,7 @@ public:
 		UINT texture2DArray_FirstArraySlice = 0,
 		UINT texture2DArray_MipSlice = 0);
 
-	static void MapBuffer(ID3D11Buffer *& buffer,
+	static HRESULT MapBuffer(ID3D11Buffer *& buffer,
 		void* input,
 		unsigned int inputSize,
 		unsigned int slot = 0, 

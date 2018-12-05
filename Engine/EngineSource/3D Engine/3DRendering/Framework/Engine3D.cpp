@@ -239,6 +239,20 @@ void DX::SafeRelease(IUnknown * unknown)
 	unknown = nullptr;
 }
 
+void DX::SetName(ID3D11DeviceChild * dc, const std::string & name)
+{
+#ifndef _DEPLOY
+	dc->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
+#endif
+}
+
+void DX::SetName(ID3D11DeviceChild * dc, const std::wstring & name)
+{
+#ifndef _DEPLOY
+	dc->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
+#endif
+}
+
 WindowContext * SettingLoader::g_windowContext;
 
 Engine3D::Engine3D()
@@ -309,14 +323,17 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 
 		m_swapChain->ResizeBuffers(0, windContext.clientWidth, windContext.clientHeight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
-		//we are creating the standard depth buffer here.
-		_createDepthSetencil(windContext.clientWidth, windContext.clientHeight);
-		_initViewPort(windContext.clientWidth, windContext.clientHeight);
+		if (SUCCEEDED(hr = DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV)))
+		{
+			DX::SetName(m_backBufferRTV, "m_backBufferRTV");
+			//we are creating the standard depth buffer here.
+			_createDepthSetencil(windContext.clientWidth, windContext.clientHeight);
+			_initViewPort(windContext.clientWidth, windContext.clientHeight);
 
-	
-		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
-		pBackBuffer->Release();
+		
+			//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
+			pBackBuffer->Release();
+		}
 	}
 	m_forwardRendering = new ForwardRender();
 	m_forwardRendering->Init(m_swapChain, 
@@ -400,9 +417,22 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	dpd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
 	//Create the Depth/Stencil View
-	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
-	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex);
-	hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView);
+
+	HRESULT hr;
+
+	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState)))
+	{
+		DX::SetName(m_depthStencilState, "ENGINE: m_depthStencilState");
+		if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex)))
+		{
+			DX::SetName(m_depthBufferTex, "ENGINE: m_depthBufferTex");
+			if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView)))
+			{
+				DX::SetName(m_depthStencilView, "ENGINE: m_depthStencilView");
+			}
+		}
+	}
+	
 }
 
 void Engine3D::_initViewPort(UINT width, UINT hight)

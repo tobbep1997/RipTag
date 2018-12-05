@@ -31,11 +31,7 @@ void VisibilityComponent::Init(Camera * cam)
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_frustum.s_frustumBuffer)))
 	{
-#ifndef _DEPLOY
-		std::string name = "s_frustumBuffer";
-		m_frustum.s_frustumBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
-		
+		DX::SetName(m_frustum.s_frustumBuffer, "s_frustumBuffer");
 	}
 
 	_createUAV();
@@ -127,18 +123,27 @@ void VisibilityComponent::_createUAV()
 	TextureData.Usage = D3D11_USAGE_DEFAULT;
 
 	HRESULT hr;
-	hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_UAV.uavTextureBuffer);
+	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_UAV.uavTextureBuffer)))
+	{
+		DX::SetName(m_UAV.uavTextureBuffer, "Vis: uavTextureBuffer");
+	}
 
 	TextureData.Usage = D3D11_USAGE_STAGING;
 	TextureData.BindFlags = 0;
 	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 
-	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_UAV.uavTextureBufferCPU);
-
-	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
-	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
-	UAVdesc.Format = DXGI_FORMAT_R32_UINT;
-	UAVdesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	UAVdesc.Texture2D.MipSlice = 0;
-	hr = DX::g_device->CreateUnorderedAccessView(m_UAV.uavTextureBuffer, &UAVdesc, &m_UAV.UAV);
+	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_UAV.uavTextureBufferCPU)))
+	{
+		DX::SetName(m_UAV.uavTextureBufferCPU, "Vis: m_UAV.uavTextureBufferCPU");
+		D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
+		ZeroMemory(&UAVdesc, sizeof(UAVdesc));
+		UAVdesc.Format = DXGI_FORMAT_R32_UINT;
+		UAVdesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+		UAVdesc.Texture2D.MipSlice = 0;
+			
+		if (SUCCEEDED(hr = DX::g_device->CreateUnorderedAccessView(m_UAV.uavTextureBuffer, &UAVdesc, &m_UAV.UAV)))
+		{
+			DX::SetName(m_UAV.UAV, "Vis: m_UAV.UAV");
+		}
+	}
 }

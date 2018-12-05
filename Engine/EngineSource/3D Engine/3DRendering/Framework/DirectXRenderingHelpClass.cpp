@@ -16,12 +16,10 @@ HRESULT DXRHC::CreateConstantBuffer(const std::string & name, ID3D11Buffer *& bu
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	HRESULT hr;// = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer);
+	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer)))
 	{
-#ifndef _DEPLOY
-		buffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(buffer, name);
 	}
 	else
 		exit(-1);
@@ -46,9 +44,7 @@ HRESULT DXRHC::CreateSamplerState(const std::string & name, ID3D11SamplerState *
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateSamplerState(&ssDesc, &sampler)))
 	{
-#ifndef _DEPLOY
-		sampler->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(sampler, name);
 	}
 	else
 		exit(-1);
@@ -75,9 +71,7 @@ HRESULT DXRHC::CreateTexture2D(const std::string & name, ID3D11Texture2D *& text
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &texture)))
 	{
-#ifndef _DEPLOY
-		texture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(texture, name);
 	}
 	else
 		exit(-1);
@@ -99,9 +93,7 @@ HRESULT DXRHC::CreateDepthStencilView(const std::string & name, ID3D11Resource *
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilView(resource, &depthStencilDesc, &dsv)))
 	{
-#ifndef _DEPLOY
-		dsv->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(dsv, name);
 	}
 	return hr;
 	
@@ -120,9 +112,7 @@ HRESULT DXRHC::CreateShaderResourceView(const std::string & name, ID3D11Resource
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(resource, &srvDesc, &srv)))
 	{
-#ifndef _DEPLOY
-		srv->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(srv, name);
 	}
 	else
 		exit(-1);
@@ -143,16 +133,14 @@ HRESULT DXRHC::CreateRenderTargetView(const std::string & name, ID3D11Resource *
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateRenderTargetView(resource, &renderTargetViewDesc, &rtv)))
 	{
-#ifndef _DEPLOY
-		rtv->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(rtv, name);
 	}
 	else
 		exit(-1);
 	return hr;
 }
 
-void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
+HRESULT DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
 {
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	HRESULT hr;
@@ -187,6 +175,7 @@ void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSiz
 			}
 		}
 	}
+	return hr;
 }
 
 HRESULT DXRHC::CreateRasterizerState(const std::string & name, ID3D11RasterizerState *& rasterrizerState,
@@ -216,9 +205,7 @@ HRESULT DXRHC::CreateRasterizerState(const std::string & name, ID3D11RasterizerS
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState)))
 	{
-#ifndef _DEPLOY
-		rasterrizerState->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(rasterrizerState, name);
 	}
 	else
 		exit(-1);
@@ -242,9 +229,8 @@ HRESULT DXRHC::CreateBlendState(const std::string & name, ID3D11BlendState *& bl
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateBlendState(&omDesc, &blendState)))
 	{
-#ifndef _DEPLOY
-		blendState->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
+		DX::SetName(blendState, name);
+
 	}
 	else
 		exit(-1);

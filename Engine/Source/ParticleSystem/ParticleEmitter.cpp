@@ -258,7 +258,10 @@ void ParticleEmitter::InitializeBuffer()
 	data.pSysMem = initData;
 	data.SysMemPitch = 0;
 	data.SysMemSlicePitch = 0;
-	hr = DX::g_device->CreateBuffer(&bufferDesc, &data, &m_vertexBuffer);
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &data, &m_vertexBuffer)))
+	{
+		DX::SetName(m_vertexBuffer, "Particle: m_vertexBuffer");
+	}
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },

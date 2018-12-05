@@ -30,8 +30,6 @@ void VisabilityPass::Init()
 
 void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardRender * forwardRender, Animation::AnimationCBuffer * animBuffer)
 {
-	//ID3D11ShaderResourceView * tes = nullptr;
-	//DX::g_deviceContext->PSSetShaderResources(10, 1, nullptr);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_guardRenderTargetView, m_guardDepthStencil);
 	
 	float c[4] = { 0,0,0,0 };
@@ -224,9 +222,23 @@ void VisabilityPass::_init()
 	_initSRV();
 
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D("m_guatdShaderResourceTex",m_guatdShaderResourceTex, GUARD_RES_Y, GUARD_RES_X, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
-	hr = DXRHC::CreateRenderTargetView("m_guardRenderTargetView", m_guatdShaderResourceTex, m_guardRenderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, 1);
-	hr = DXRHC::CreateConstantBuffer("TextureBuffer", this->m_textureBuffer, sizeof(TextureBuffer));
+	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_guatdShaderResourceTex",
+		m_guatdShaderResourceTex, 
+		GUARD_RES_Y, 
+		GUARD_RES_X, 
+		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
+		1, 1, 0, 1, 0, 0,
+		DXGI_FORMAT_R32G32B32A32_FLOAT, 
+		D3D11_USAGE_DEFAULT)))
+	{
+		if (SUCCEEDED(hr = DXRHC::CreateRenderTargetView("m_guardRenderTargetView", m_guatdShaderResourceTex, m_guardRenderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, 1)))
+		{
+			if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("TextureBuffer", this->m_textureBuffer, sizeof(TextureBuffer))))
+			{
+				
+			}			
+		}		
+	}
 }
 
 void VisabilityPass::_initViewPort()
@@ -241,23 +253,47 @@ void VisabilityPass::_initViewPort()
 
 void VisabilityPass::_initViewBuffer()
 {
-	HRESULT hr;
-	hr = DXRHC::CreateConstantBuffer("GuardViewBuffer",this->m_guardViewBuffer, sizeof(GuardViewBuffer));
+	HRESULT hr = 0;
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("GuardViewBuffer",this->m_guardViewBuffer, sizeof(GuardViewBuffer)))) { }
 }
 
 void VisabilityPass::_initObjectBuffer()
 {
-
-	HRESULT hr = DXRHC::CreateConstantBuffer("ObjectBuffer", this->m_objectBuffer, sizeof(ObjectBuffer));
+	HRESULT hr = 0;
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("ObjectBuffer", this->m_objectBuffer, sizeof(ObjectBuffer)))) { }
 
 }
 
 void VisabilityPass::_initDSV()
 {
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D("m_guardDepthTex", m_guardDepthTex, GUARD_RES_Y, GUARD_RES_X, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, 1, 0, 0, DXGI_FORMAT_R32_TYPELESS);
-	hr = DXRHC::CreateDepthStencilView("m_guardDepthStencil", m_guardDepthTex, m_guardDepthStencil, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2D, 0, 1);
-	hr = DXRHC::CreateShaderResourceView("m_guardShaderResource", m_guardDepthTex, m_guardShaderResource, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2D, 1, 0, 0, 1);
+	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_guardDepthTex",
+		m_guardDepthTex, 
+		GUARD_RES_Y, 
+		GUARD_RES_X, 
+		D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 
+		1, 1, 0, 1, 0, 0, 
+		DXGI_FORMAT_R32_TYPELESS)))
+	{
+		if (SUCCEEDED(hr = DXRHC::CreateDepthStencilView("m_guardDepthStencil", 
+			m_guardDepthTex, 
+			m_guardDepthStencil, 
+			0,
+			DXGI_FORMAT_D32_FLOAT, 
+			D3D11_DSV_DIMENSION_TEXTURE2D, 
+			0, 1)))
+		{
+			if (SUCCEEDED(hr = DXRHC::CreateShaderResourceView("m_guardShaderResource",
+				m_guardDepthTex, 
+				m_guardShaderResource, 
+				0, 
+				DXGI_FORMAT_R32_FLOAT, 
+				D3D11_SRV_DIMENSION_TEXTURE2D, 
+				1, 0, 0, 1)))
+			{
+			}
+		}		
+	}
 }
 
 void VisabilityPass::_initSRV()
@@ -282,12 +318,12 @@ void VisabilityPass::_initPixelShaders()
 
 void VisabilityPass::_mapViewBuffer(VisibilityComponent * target)
 {
-	
+	HRESULT hr;
 	GuardViewBuffer gvb;
 	gvb.cameraPosition = target->getCamera()->getPosition();
 	gvb.viewProjection = target->getCamera()->getViewProjection();
 
-	DXRHC::MapBuffer(m_guardViewBuffer, &gvb, sizeof(GuardViewBuffer));
+	if (SUCCEEDED(hr = DXRHC::MapBuffer(m_guardViewBuffer, &gvb, sizeof(GuardViewBuffer)))) {}
 
 	DX::g_deviceContext->VSSetConstantBuffers(2, 1, &m_guardViewBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(2, 1, &m_guardViewBuffer);
@@ -305,8 +341,8 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 {
 	ObjectBuffer ob;
 	ob.worldMatrix = target->getWorldmatrix();
-
-	DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DXRHC::MapBuffer(m_objectBuffer, &ob, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex))) {}
 
 	m_textureValues.textureTileMult.x = target->getTextureTileMult().x;
 	m_textureValues.textureTileMult.y = target->getTextureTileMult().y;
@@ -315,7 +351,7 @@ void VisabilityPass::_mapObjectBuffer(Drawable * target)
 
 	m_textureValues.color = target->getColor();
 
-	DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel);
+	if (SUCCEEDED(hr = DXRHC::MapBuffer(m_textureBuffer, &m_textureValues, sizeof(TextureBuffer), 7, 1, ShaderTypes::pixel))){}
 }
 
 void VisabilityPass::_drawForPlayer(Drawable * player, VisibilityComponent * target, int playerIndex)
