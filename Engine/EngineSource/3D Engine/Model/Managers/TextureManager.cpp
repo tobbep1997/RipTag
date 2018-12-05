@@ -93,6 +93,17 @@ Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 	return nullptr;
 }
 
+Texture * TextureManager::getDDSTextureByName(const std::wstring & name)
+{
+	for (auto &t : m_DDSTextures)
+	{
+		if (t->getName() == name)
+			return t;
+	}
+
+	return nullptr;
+}
+
 void TextureManager::loadGUITexture(const std::wstring name, const std::wstring & full_path)
 {
 	Texture * tempTexture = new Texture();
@@ -129,6 +140,48 @@ void TextureManager::loadGUITexture(const std::wstring name, const std::wstring 
 	}
 }
 
+void TextureManager::loadDDSTexture(const std::wstring name, const std::wstring & full_path, const std::wstring & type = L"_256")
+{
+	const size_t index = full_path.find(type, 0);
+	if (index == std::wstring::npos)
+		return;
+
+	Texture * tempTexture = new Texture();
+
+	std::wstring _name = name.substr(0, type.size());
+
+	if (m_DDSTextures.size() > 0)
+	{
+		for (auto &t : m_DDSTextures)
+		{
+			if (t->getName() == _name)
+			{
+				delete tempTexture;
+				return;
+			}
+		}
+		//new entry
+		tempTexture->setName(_name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_DDSTextures.push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
+	else
+	{
+		//first entry is always free
+		tempTexture->setName(name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_DDSTextures.push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
+}
+
 bool TextureManager::UnloadTexture(const std::string& path)
 {
 	std::wstring fullPath = this->_getFullPath(path);
@@ -156,7 +209,8 @@ bool TextureManager::UnloadAllTexture()
 		}
 		m_textures[i].clear();
 	}
-	return UnloadGUITextures();
+	
+	return UnloadGUITextures() && UnloadDDSTextures();
 	
 }
 
@@ -168,6 +222,18 @@ bool TextureManager::UnloadGUITextures()
 		delete t;
 	}
 	m_GuiTextures.clear();
+
+	return true;
+}
+
+bool TextureManager::UnloadDDSTextures()
+{
+	for (auto & t : m_DDSTextures)
+	{
+		//SafeRelease is called in the Destructor
+		delete t;
+	}
+	m_DDSTextures.clear();
 
 	return true;
 }

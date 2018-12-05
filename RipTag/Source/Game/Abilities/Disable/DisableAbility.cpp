@@ -269,9 +269,9 @@ void DisableAbility::_inStateMoving(double dt)
 		contact = RipExtern::g_contactListener->GetBeginContact(i);
 		if (contact.a->GetBody()->GetObjectTag() == "Disable")
 		{
-			RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
-				DirectX::XMFLOAT3(m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z), 
-				ParticleSystem::typeOfEmitter::SMOKE , DisableAbility::SMOKE_LIFE);
+			ParticleEmitter* emitter = new ParticleEmitter();
+			emitter->SetAsDefaultSmoke({ m_obj->getPosition().x, m_obj->getPosition().y + 0.5f, m_obj->getPosition().z , 1.0f });
+			RipExtern::g_particleSystem->ParticleSystem::AddEmitter(emitter);
 			//Particle effects here before changing the position. 
 			this->_sendSmokeNotification();
 			m_dState = DisableState::Cooldown;
