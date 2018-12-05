@@ -2,6 +2,9 @@
 #include "CheetParser.h"
 Player * CheetParser::playerPtr = nullptr;
 EnemyHandler * CheetParser::enemyHandlerPtr = nullptr;
+
+bool CheetParser::m_visabilityDisable = false;
+bool CheetParser::m_DrawCollisionBoxes = false;
 CheetParser * CheetParser::GetInstance()
 {
 	
@@ -31,7 +34,16 @@ void CheetParser::ParseString(const std::string& input)
 	}
 	else if (input == "spawn")
 	{
-		_SpawnCheets();
+		std::cout << "SpawnBroken" << std::endl;
+		//_SpawnCheets();
+	}
+	else if (input == "common")
+	{
+		_CommonCheets();
+	}
+	else if (input == "draw")
+	{
+		_Draw();
 	}
 	else if (input == "help" || input == "HELP")
 	{
@@ -50,6 +62,16 @@ bool CheetParser::SetEnemyHandlerCheetPointer(EnemyHandler* en)
 {
 	enemyHandlerPtr = en;
 	return true;
+}
+
+bool CheetParser::GetVisabilityDisabled()
+{
+	return m_visabilityDisable;
+}
+
+bool CheetParser::GetDrawCollisionBoxes()
+{
+	return m_DrawCollisionBoxes;
 }
 
 void CheetParser::_PlayerCheets()
@@ -107,10 +129,66 @@ void CheetParser::_SpawnCheets()
 	std::cin >> x;
 	switch (x)
 	{
-	case(0):
-		
+	case(1):
+		enemyHandlerPtr->SpawnEnemy(playerPtr->getPosition().x, playerPtr->getPosition().y, playerPtr->getPosition().z);
 		break;
 
+	}
+}
+
+void CheetParser::_CommonCheets()
+{
+	int x = -1;
+	system("CLS");
+	std::cout << "Common Commands" << std::endl;
+	std::cout << "1: Visability" << std::endl;
+	
+
+	
+	std::cin >> x;
+	switch (x)
+	{
+	case(1):
+		std::string in;
+		std::cout << "Visability state " << CheetParser::m_visabilityDisable << std::endl;
+		std::cin >> in;
+		if (in == "y" || in == "1")
+		{
+			m_visabilityDisable = true;
+		}
+		else
+		{
+			m_visabilityDisable = false;
+		}
+		break;
+	}
+}
+
+void CheetParser::_Draw()
+{
+	int x = -1;
+	system("CLS");
+	std::cout << "Draw Commands" << std::endl;
+	std::cout << "1: CollisionBoxes" << std::endl;
+
+
+
+	std::cin >> x;
+	switch (x)
+	{
+	case(1):
+		std::string in;
+		std::cout << "CollisionBoxes state " << CheetParser::m_DrawCollisionBoxes << std::endl;
+		std::cin >> in;
+		if (in == "y" || in == "1")
+		{
+			m_DrawCollisionBoxes = true;
+		}
+		else
+		{
+			m_DrawCollisionBoxes = false;
+		}
+		break;
 	}
 }
 
@@ -121,4 +199,7 @@ void CheetParser::_Help()
 	std::cout << "lose" << std::endl;
 	std::cout << "win" << std::endl;
 	std::cout << "spawn" << std::endl;
+	std::cout << "draw" << std::endl;
+
+	std::cout << "----------" << std::endl;
 }

@@ -39,6 +39,7 @@ public:
 	void HandlePacket(unsigned char id, unsigned char * data);
 
 	Enemy * GetFirstEnemy();
+	void SpawnEnemy(const float & x, const float & y, const float & z );
 private:
 	void _isServerUpdate(double deltaTime);
 	void _isClientUpdate(double deltaTime);

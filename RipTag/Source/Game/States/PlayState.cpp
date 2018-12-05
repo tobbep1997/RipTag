@@ -2,6 +2,7 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
+#include "Source/CheetConsole/CheetParser.h"
 
 
 std::vector<std::string> RipSounds::g_sneakStep;
@@ -342,6 +343,11 @@ void PlayState::Draw()
 		if (m_transitionState)
 			m_transitionState->Draw();
 	}
+	if (CheetParser::GetDrawCollisionBoxes())
+	{
+		DrawWorldCollisionboxes();
+	}
+
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif

@@ -15,6 +15,7 @@ void _alocConsole() {
 	freopen_s(&fp, "CONIN$", "r", stdin);
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 	std::string x;
+	CheetParser::_Help();
 	while (cakeIsALie)
 	{
 		//system("CLS");
