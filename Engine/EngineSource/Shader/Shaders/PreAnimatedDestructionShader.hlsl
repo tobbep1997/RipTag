@@ -65,14 +65,14 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 	float posLerpX = 0;
 	float posLerpY = 2;
 
-	if (lerpValue > 1)
+	if (lerpValue <= 0.5)
 	{
-		lerpValue = lerpValue - 1;
-		finalWorldPos = lerp(lerpFromTransformMatrix, worldMatrix, lerpValue);
-		scaleLerpX = 0.3;
-		scaleLerpY = 1;
-		posLerpX = 2;
-		posLerpY = 0;
+		lerpValue = lerpValue * 2;
+	}
+	else
+	{
+		lerpValue = 1 -(lerpValue - 0.5f) / 1.5f;
+		finalWorldPos = lerp(worldMatrix, lerpFromTransformMatrix, lerpValue);
 	}
 
 	float finalPosY = lerp(posLerpX, posLerpY, lerpValue);

@@ -30,10 +30,13 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 	float4 colorLerpSecond = float4(0.4, 0.6, 0.5, 1);
 
 	float lerpValue = input.timerValue;
-
-	if (lerpValue > 1)
+	if (lerpValue <= 0.5)
 	{
-		lerpValue -= 1;
+		lerpValue = lerpValue * 2;
+	}
+	else
+	{
+		lerpValue = 1 - (lerpValue - 0.5f) / 1.5f;
 
 		colorLerpFirst = float4(0.4, 0.6, 0.5, 1);
 		colorLerpSecond = dummy;

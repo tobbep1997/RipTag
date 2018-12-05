@@ -132,17 +132,13 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	float rotX = 0;
 	float rotY = 190;
 
-	if (lerpValue > 1)
+	if (lerpValue <= 0.5)
 	{
-		lerpValue = lerpValue - 1;
-
-		trianglePosLerpX = 1;
-		trianglePosLerpY = 0;
-		posLerpValue = lerpValue;
-		scaleLerpY = 1;
-		scaleLerpX = 0.3;
-		rotY = 0;
-		rotX = 190;
+		lerpValue = lerpValue * 2;
+	}
+	else
+	{
+		lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
 	}
 
 
