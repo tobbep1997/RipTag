@@ -164,13 +164,13 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 				//Out states
 				auto& guardWalkToPlayerWalk = walkState->AddOutState(blend_fwd);
-				guardWalkToPlayerWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_EQUAL);
+				guardWalkToPlayerWalk.AddTransition(&m_IsPossessed, true, SM::COMPARISON_EQUAL);
 
 				auto& playerWalkToGuardWalk = blend_fwd->AddOutState(walkState);
-				playerWalkToGuardWalk.AddTransition((int*)(&m_AIState), static_cast<int>(AIState::Possessed), SM::COMPARISON_NOT_EQUAL);
+				playerWalkToGuardWalk.AddTransition(&m_IsPossessed, true, SM::COMPARISON_NOT_EQUAL);
 
 				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
-				playerWalkBackToGuardWalk.AddTransition((int*)(&m_AIState), static_cast<int>(AIState::Possessed), SM::COMPARISON_NOT_EQUAL);
+				playerWalkBackToGuardWalk.AddTransition(&m_IsPossessed, true, SM::COMPARISON_NOT_EQUAL);
 			}
 		}
 
@@ -291,8 +291,12 @@ void Enemy::BeginPlay()
 void Enemy::Update(double deltaTime)
 {
 	using namespace DirectX;
-	m_AIState = getAIState();
-	AIState state = m_AIState;
+	AIState state = getAIState();
+
+	m_IsPossessed = (state == Possessed)
+		? true
+		: false;
+
 	if (!m_lockedByClient)
 	{
 		handleStates(deltaTime);
@@ -316,7 +320,7 @@ void Enemy::Update(double deltaTime)
 
 	if (state == AIState::Possessed)
 	{
-
+		
 		{
 			using namespace DirectX;
 			//calculate walk direction (-1, 1, based on camera) and movement speed
