@@ -275,6 +275,11 @@ void DisableAbility::_inStateMoving(double dt)
 			//Particle effects here before changing the position. 
 			this->_sendSmokeNotification();
 			m_dState = DisableState::Cooldown;
+
+			FMOD_VECTOR at = FMOD_VECTOR{ m_obj->getPosition().x, m_obj->getPosition().y, this->m_obj->getPosition().z };;
+			FMOD::Channel* c = nullptr;
+			c = AudioEngine::PlaySoundEffect(RipSounds::g_smokeBomb, &at, &((Player*)p_owner)->getSmokeBombDesc());
+
 			m_obj->setPosition(-999.9f, -999.9f, -999.9f);
 
 			//accumulatedTime = 0.0;
@@ -289,6 +294,9 @@ void DisableAbility::_inStateMoving(double dt)
 					{
 						ptr->setTransitionState(AITransitionState::BeingDisabled); 
 						this->_sendOnHitNotification(ptr);
+							FMOD_VECTOR at = FMOD_VECTOR{ this->getPosition().x, this->getPosition().y, this->getPosition().z };;
+							FMOD::Channel* c = nullptr;
+							c = AudioEngine::PlaySoundEffect(RipSounds::g_smokeBomb, &at, &((Player*)p_owner)->getSmokeBombDesc());
 					}
 				}
 			}
