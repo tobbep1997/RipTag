@@ -221,17 +221,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     input.uv.y = 1 - input.uv.y;
 	ambient = float4(.2f, .2f, .2f, 1);
 	if (input.info.x)
-    {
-        //if (input.info.y > 0)
-        //{
-        //    albedo = StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 0)) * input.color;
-        //    normal = normalize((2.0f * StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 1)).xyz - 1.0f));
-        //    normal = normalize(mul(normal, input.TBN));
-        //    normal = normalize(input.normal.xyz + normal);
-        //    AORoughMet = StaticTextures.Sample(defaultSampler, float3(input.uv.xy, (input.info.z * 3) + 2)).xyz;
-        //}
-        //else
-        
+    {        
         albedo = diffuseTexture.Sample(defaultSampler, input.uv) * input.color;
 		normal = normalize((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz - 1.0f));
 		normal = normalize(mul(normal, input.TBN));
@@ -275,8 +265,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         numerator = roughnessDistribution * overshadowOcclusion * kS;
         denominator = 4.0f * max(dot(normal, worldToCamera.xyz), 0.0f) * max(dot(normal, posToLight.xyz), 0.0f);
 
-        specular = numerator / max(denominator, 0.001f);
-
+        specular = (numerator / max(denominator, 0.001f)) * (1.0f / (1.0f + 0.1f * pow(distanceToLight, 2.0f)));
+        
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
             if (useDir[shadowLight][targetMatrix].x == 0)
@@ -291,24 +281,13 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
             float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
 
             float depth = fragmentLightPosition.z;
-            bool inside = false;
-            if (smTex.x >= 0 && smTex.x <= 1 &&
-                smTex.y >= 0 && smTex.y <= 1)
-            {
-                //if (depth > 1)
-                    
-                inside = true;
-            }
 
-            if (smTex.x < 0 || smTex.x > 1 || depth < 0.0f || depth > 1.0f)
-            {
-                continue;
-            }
+            if (smTex.x < 0 || smTex.x > 1 || depth < 0.0f || depth > 1.0f)            
+                continue;            
 
-            if (smTex.y < 0 || smTex.y > 1 || depth < 0.0f || depth > 1.0f)
-            {
+            if (smTex.y < 0 || smTex.y > 1 || depth < 0.0f || depth > 1.0f)            
                 continue;
-            }
+            
             float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
 
 
@@ -321,7 +300,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
             float epsilon = (0.000125f) / margin;
             epsilon = clamp(epsilon, 0, 0.1);
 
-            float currentShadowCoeff; //= (txShadowArray.Sample(shadowSampler, indexPos).r < depth - epsilon) ? 0.0f : 1.0f;
+            float currentShadowCoeff;
             float divider = 1.0f;
             int sampleSize = 1;
             for (int x = -sampleSize; x <= sampleSize; ++x)
@@ -340,14 +319,12 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         }
 
         finalShadowCoeff = pow(shadowCoeff / div, 32);
-
-
-
+               
         normDotLight = max(dot(normal, posToLight.xyz), 0.0f);
         lightCal += finalShadowCoeff * (kD * albedo / PI + specular) * radiance * normDotLight * ((lightDropOff[shadowLight].x - attenuation + 1.0f));
                 
     }
-    
+    //return totSpecualar;
     float zDepth = input.pos.z / input.pos.w;
     float fogend = 0.95;
 	float fogMul = saturate((zDepth) / (fogend - 0.6f));
