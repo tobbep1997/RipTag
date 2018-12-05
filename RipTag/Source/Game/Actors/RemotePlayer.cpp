@@ -123,6 +123,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
 		this->_onNetworkRemoteCrouch(id);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_BLINK:
+		this->_onNetworkBlink(id);
+		break;
 	default:
 		break;
 	}
@@ -158,7 +161,6 @@ void RemotePlayer::Update(double dt)
 		{
 			this->setDestroyState(false);
 			this->setDestructionRate(0);//after
-			this->setLastTransform(this->getWorldmatrix());//on click
 			ConstTimer::g_timer.Stop();
 			ConstTimer::g_timer.Start();
 
@@ -236,12 +238,7 @@ void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 	{
 		m_currentAbility = (Ability)data->ability;
 		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
-		if (m_currentAbility == Ability::BLINK)
-		{
-			this->setDestroyState(true);
-			ConstTimer::g_timer.Stop();
-			ConstTimer::g_timer.Start();
-		}
+		
 	}
 	else if (data->isCommonUpadate)
 	{
@@ -268,6 +265,14 @@ void RemotePlayer::_sendVisibilityPacket()
 	//Network::VISIBILITYPACKET packet;
 	//packet.value = m_currentVisibility;
 	/*Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);*/
+}
+
+void RemotePlayer::_onNetworkBlink(unsigned char id)
+{
+	this->setDestroyState(true);
+	this->setLastTransform(this->getWorldmatrix());
+	ConstTimer::g_timer.Stop();
+	ConstTimer::g_timer.Start();
 }
 
 

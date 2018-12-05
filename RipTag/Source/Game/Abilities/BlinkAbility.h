@@ -29,5 +29,6 @@ public:
 	void Draw() override;
 private:
 	void _logic(double deltaTime);
+	void _sendBlinkPacket();
 };
 
