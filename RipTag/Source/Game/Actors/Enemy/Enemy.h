@@ -155,8 +155,6 @@ private:
 
 	int m_interactRayId = -100;
 
-	ParticleEmitter * pEmitter = nullptr;
-
 	std::vector<Torch*> m_torches;
 
 public:

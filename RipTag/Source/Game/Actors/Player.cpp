@@ -117,10 +117,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (y*1.4);
-	m_crouchHeight = y * .5;
+	CreateShape(b3Vec3(0, y*0.70, 0), b3Vec3(x/2, y/2, z/2), 1.0f, 1.0f, "UPPERBODY");
+	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.4f, 0.4f, 0.4f), 1.0f, 1.0f, "HEAD", true);
+	m_standHeight = (y*1.5);
+	m_crouchHeight = y*0.70;
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);

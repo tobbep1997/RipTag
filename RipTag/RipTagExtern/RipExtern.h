@@ -4,6 +4,7 @@
 class b3World;
 class ContactListener;
 class RayCastListener;
+class ParticleSystem;
 
 namespace RipSounds
 {
@@ -28,6 +29,7 @@ namespace RipSounds
 namespace RipExtern
 {
 	extern b3World * g_world;
+	extern ParticleSystem   * g_particleSystem;
 	extern ContactListener	* g_contactListener;
 	extern RayCastListener	* g_rayListener;
 	extern bool g_kill;

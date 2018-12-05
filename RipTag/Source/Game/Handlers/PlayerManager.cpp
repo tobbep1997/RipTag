@@ -38,6 +38,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CROUCH_END, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_SMOKE_DETONATE, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data)
@@ -129,7 +130,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 	{
 		hasLocalPlayer = true;
 		mLocalPlayer = new Player();
-		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 1.0f, 0.8f, 1.0f);
+		mLocalPlayer->Init(*this->mWorld, e_dynamicBody, 1.0f, 1.25f, 1.0f);
 		mLocalPlayer->setEntityType(EntityType::PlayerType);
 		mLocalPlayer->setColor(1.f, 1.f, 1.f, 1.f);
 		//this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));

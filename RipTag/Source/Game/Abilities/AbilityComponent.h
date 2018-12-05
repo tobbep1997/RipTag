@@ -16,6 +16,8 @@ class AbilityComponent
 protected: // CD
 	float p_cooldownMax= 8.0f;
 	float p_cooldown = 0;
+	int p_abilityCharges = 1;
+	int p_abilityChargesMax = 1;
 
 protected:
 	void * p_owner;
