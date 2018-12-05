@@ -264,9 +264,9 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 				auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 				stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
 				auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
-				throwEndState->SetBlendTime(0.05f);
+				throwEndState->SetDefaultBlendTime(0.05f);
 				auto posessState = stateMachine->AddLoopState("posessing", posessClip);
-				posessState->SetBlendTime(0.3f);
+				posessState->SetDefaultBlendTime(0.3f);
 				//set initial state
 				stateMachine->SetState("walk_forward");
 
