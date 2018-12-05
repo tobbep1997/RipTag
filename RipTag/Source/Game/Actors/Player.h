@@ -243,6 +243,8 @@ public:
 	bool GetMapPicked();
 	const int getInteractRayId();
 	const bool sameInteractRayId(int id);
+
+	void InstaWin();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

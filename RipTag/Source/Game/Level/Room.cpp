@@ -302,6 +302,7 @@ void Room::LoadRoomToMemory()
 				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
 			}
 			//Setting guard patrol path
+			
 			e->SetPathVector(fullPath);
 			//Pushing guard to vector
 			this->m_roomGuards.push_back(e);

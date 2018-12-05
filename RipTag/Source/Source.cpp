@@ -17,6 +17,7 @@ void _alocConsole() {
 	std::string x;
 	while (cakeIsALie)
 	{
+		//system("CLS");
 		std::cout << "Enter Command" << std::endl;
 		std::cin >> x;
 		CheetParser::ParseString(x);
@@ -151,7 +152,7 @@ void SingleGameLoop(Game * game)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	parser = CheetParser::GetInstance();
-	bool consoleEnabled = false;
+	bool consoleEnabled = true;
 	std::thread console;
 	if (consoleEnabled)
 	{

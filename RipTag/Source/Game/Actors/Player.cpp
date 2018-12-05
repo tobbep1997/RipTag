@@ -455,6 +455,11 @@ const bool Player::sameInteractRayId(int id)
 	return false;
 }
 
+void Player::InstaWin()
+{
+	hasWon = true;
+}
+
 void Player::Draw()
 {
 	for (int i = 0; i < m_nrOfAbilitys; i++)
