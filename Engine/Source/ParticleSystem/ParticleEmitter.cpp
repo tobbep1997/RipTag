@@ -74,8 +74,13 @@ void ParticleEmitter::setSmoke()
 
 ParticleEmitter::~ParticleEmitter()
 {
-	DX::SafeRelease(m_vertexBuffer);
-	DX::SafeRelease(m_cBuffer);
+	if (m_vertexBuffer)
+	{
+		m_vertexBuffer->Release();
+		m_vertexBuffer = nullptr;
+	}
+	if (m_cBuffer)
+		m_cBuffer->Release();
 	for (auto& particle : m_Particles)
 	{
 		delete particle;
@@ -258,6 +263,7 @@ void ParticleEmitter::InitializeBuffer()
 	data.pSysMem = initData;
 	data.SysMemPitch = 0;
 	data.SysMemSlicePitch = 0;
+	DX::SafeRelease(m_vertexBuffer);
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &data, &m_vertexBuffer)))
 	{
 		DX::SetName(m_vertexBuffer, "Particle: m_vertexBuffer");
@@ -331,7 +337,11 @@ DirectX::XMVECTOR ParticleEmitter::RandomOffset(DirectX::XMVECTOR basePos, int o
 void ParticleEmitter::releaseVertexBuffer()
 {
 	//m_vertexBuffer->Release();
-	DX::SafeRelease(m_vertexBuffer);
+	if (m_vertexBuffer)
+	{
+		m_vertexBuffer->Release();
+		m_vertexBuffer = nullptr;
+	}
 }
 
 void ParticleEmitter::Queue()
