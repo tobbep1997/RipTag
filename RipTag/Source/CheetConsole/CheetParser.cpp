@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "CheetParser.h"
 Player * CheetParser::playerPtr = nullptr;
+EnemyHandler * CheetParser::enemyHandlerPtr = nullptr;
 CheetParser * CheetParser::GetInstance()
 {
 	
@@ -41,6 +42,12 @@ bool CheetParser::SetPlayerCheetPointer(Player * p)
 	return true;
 }
 
+bool CheetParser::SetEnemyHandlerCheetPointer(EnemyHandler* en)
+{
+	enemyHandlerPtr = en;
+	return true;
+}
+
 void CheetParser::_PlayerCheets()
 {
 	int x = -1;
@@ -48,6 +55,7 @@ void CheetParser::_PlayerCheets()
 	std::cout << "Player Commands" << std::endl;
 	std::cout << "1: Get Position" << std::endl;
 	std::cout << "2: Set Position" << std::endl;
+	std::cout << "3: Jump to first guard" << std::endl;
 
 	int posX = 0;
 	int posY = 0;
@@ -72,9 +80,12 @@ void CheetParser::_PlayerCheets()
 
 		playerPtr->setPosition(posX, posY, posZ);
 		break;
-	default:
-		return;
+	case(3):
+		Enemy * temp = enemyHandlerPtr->GetFirstEnemy();
+		playerPtr->setPosition(temp->getPosition());
 		break;
+
+	
 	}
 }
 

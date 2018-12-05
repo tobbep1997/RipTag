@@ -309,6 +309,12 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+void Player::setPosition(const DirectX::XMFLOAT4A& pos)
+{
+	Transform::setPosition(pos);
+	PhysicsComponent::p_setPosition(pos.x, pos.y, pos.z);
+}
+
 const bool & Player::getHeadbobbingActive() const
 {
 	return m_headBobbingActive; 

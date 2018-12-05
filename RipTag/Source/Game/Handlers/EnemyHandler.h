@@ -37,6 +37,8 @@ public:
 	void Draw();
 
 	void HandlePacket(unsigned char id, unsigned char * data);
+
+	Enemy * GetFirstEnemy();
 private:
 	void _isServerUpdate(double deltaTime);
 	void _isClientUpdate(double deltaTime);

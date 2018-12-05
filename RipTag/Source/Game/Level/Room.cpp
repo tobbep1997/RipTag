@@ -388,7 +388,7 @@ void Room::LoadRoomToMemory()
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
-
+	CheetParser::SetEnemyHandlerCheetPointer(m_enemyHandler);
 	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
 	for (int i = 0; i < m_Torches.size(); i++)
 	{
