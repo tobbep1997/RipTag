@@ -318,8 +318,8 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 
             float margin = acos(saturate(dot(input.normal.xyz, posToLight.xyz)));
 
-            float epsilon = (0.0001f) / margin;
-            epsilon = clamp(epsilon, 0, 0.01);
+            float epsilon = (0.000125f) / margin;
+            epsilon = clamp(epsilon, 0, 0.1);
 
             float currentShadowCoeff; //= (txShadowArray.Sample(shadowSampler, indexPos).r < depth - epsilon) ? 0.0f : 1.0f;
             float divider = 1.0f;
