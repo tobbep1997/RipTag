@@ -17,10 +17,15 @@ std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
 std::string				 RipSounds::g_grunt;
 std::string				 RipSounds::g_playAmbientSound;
+std::string				 RipSounds::g_metalDoorOpening;
+std::string				 RipSounds::g_metalDoorClosening;
+std::string				 RipSounds::g_metalDoorClosed;
+std::string				 RipSounds::g_smokeBomb;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
+ParticleSystem  * RipExtern::g_particleSystem;
 
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
@@ -64,7 +69,8 @@ PlayState::~PlayState()
 	delete RipExtern::g_rayListener;
 	RipExtern::g_rayListener = nullptr;
 	RipExtern::g_world = nullptr;
-
+	delete RipExtern::g_particleSystem;
+	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 }
 
@@ -115,6 +121,8 @@ void PlayState::Update(double deltaTime)
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 	
+		RipExtern::g_particleSystem->ParticleSystem::Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
+
 		m_playerManager->Update(deltaTime);
 
 		m_playerManager->PhysicsUpdate();
@@ -157,10 +165,7 @@ void PlayState::Update(double deltaTime)
 		{
 			runGame = false;
 
-			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
-			{
-				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
-			}
+			RipExtern::g_particleSystem->clearEmitters();
 
 
 			if (m_youlost)
@@ -320,6 +325,8 @@ void PlayState::Draw()
 
 		m_levelHandler->Draw();
 
+		RipExtern::g_particleSystem->ParticleSystem::Queue();
+		
 		_lightCulling();
 
 		m_playerManager->Draw();
@@ -753,6 +760,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
 
 	if (m_eventOverlay)
@@ -765,8 +773,9 @@ void PlayState::unLoad()
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
 
-	if (dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1]))
-		dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+
+	RipExtern::g_particleSystem->clearEmitters();
+
 
 	if (m_transitionState)
 	{
@@ -811,6 +820,7 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
+	RipExtern::g_particleSystem = new ParticleSystem();
 	m_pPauseMenu->Load(); 
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
@@ -1028,13 +1038,16 @@ void PlayState::_loadSound()
 	}
 
 
-	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
-	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
-	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
-	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
-	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
-	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
+	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg");
+	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg");
+	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg");
+	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg");
+	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true);
+	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg");
+	RipSounds::g_smokeBomb = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg"); 
 	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
+	RipSounds::g_metalDoorOpening = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg");
+
 
 	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.2f);
 }
@@ -1049,6 +1062,7 @@ void PlayState::_registerThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_LOST, std::bind(&PlayState::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&PlayState::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&PlayState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_SMOKE_DETONATE, std::bind(&PlayState::HandlePacket, this, _1, _2));
 }
 
 void PlayState::_sendOnGameOver()

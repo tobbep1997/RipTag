@@ -123,6 +123,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
 		this->_onNetworkRemoteCrouch(id);
 		break;
+	case NETWORKMESSAGES::ID_SMOKE_DETONATE:
+		this->_onNetworkSmokeDetonate(data);
+		break;
 	default:
 		break;
 	}
@@ -466,4 +469,14 @@ void RemotePlayer::_onNetworkRemoteCrouch(unsigned char id)
 		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 		break;
 	}
+}
+
+void RemotePlayer::_onNetworkSmokeDetonate(unsigned char * data)
+{
+	Network::ENTITYSTATEPACKET* dataPacket = (Network::ENTITYSTATEPACKET*)data;
+	RipExtern::g_particleSystem->ParticleSystem::CreateEmitter(
+		DirectX::XMFLOAT3(dataPacket->pos.x, dataPacket->pos.y + 0.5f, dataPacket->pos.z),
+		ParticleSystem::typeOfEmitter::SMOKE, DisableAbility::SMOKE_LIFE);
+
+	dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE])->Reset();
 }

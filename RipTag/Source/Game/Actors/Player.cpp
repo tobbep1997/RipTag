@@ -75,9 +75,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
 
-
-
-
+	m_smokeBomb.emitter = AudioEngine::Player; 
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 0.6f; 
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -88,6 +88,10 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	m_footSteps.emitter = AudioEngine::Player;
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
+
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 Player::~Player()
@@ -117,10 +121,10 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (y*1.4);
-	m_crouchHeight = y * .5;
+	CreateShape(b3Vec3(0, y*0.70, 0), b3Vec3(x/2, y/2, z/2), 1.0f, 1.0f, "UPPERBODY");
+	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.4f, 0.4f, 0.4f), 1.0f, 1.0f, "HEAD", true);
+	m_standHeight = (y*1.5);
+	m_crouchHeight = y*0.70;
 	setUserDataBody(this);
 
 	setEntityType(EntityType::PlayerType);
@@ -136,9 +140,9 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
 
-
-	
-
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 void Player::BeginPlay()
@@ -410,6 +414,11 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 	}
 }
 
+AudioEngine::SoundDesc & Player::getSmokeBombDesc() 
+{
+	return m_smokeBomb; 
+}
+
 const Ability Player::getCurrentAbility() const
 {
 	return m_currentAbility;
@@ -523,7 +532,7 @@ void Player::SetFirstPersonModel()
 
 		///---Clips and poses---
 		auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
-		///auto runClip = Manager::g_animationManager.getAnimation("ARMS", "RUN_ANIMATION").get();
+		auto runClip = Manager::g_animationManager.getAnimation("ARMS", "RUN_ANIMATION").get();
 		auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
 		auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
 		auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
@@ -535,16 +544,16 @@ void Player::SetFirstPersonModel()
 		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
 		auto& machine = animPlayer->InitStateMachine(3);
 
-		///auto runState = machine->AddLoopState("run", runClip);
-		///runState->SetBlendTime(.25f);
+		auto runState = machine->AddLoopState("run", runClip);
+		runState->SetBlendTime(.65f);
 
 		auto idleState = machine->AddLoopState("idle", idleClip);
-		idleState->SetBlendTime(.15f);
+		idleState->SetBlendTime(.25f);
 
-		///auto& idleToRun = idleState->AddOutState(runState);
-		///auto& runToIdle = runState->AddOutState(idleState);
-		///idleToRun.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_GREATER_THAN);
-		///runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
+		auto& idleToRun = idleState->AddOutState(runState);
+		auto& runToIdle = runState->AddOutState(idleState);
+		idleToRun.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_GREATER_THAN);
+		runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
 
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);

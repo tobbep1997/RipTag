@@ -11,11 +11,12 @@ Bars::Bars(int uniqueID, int linkedID, bool isTrigger) : Triggerable(uniqueID, l
 
 void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY * 0.5f, bboxScaleZ, false);
 	BaseActor::setPosition(xPos, yPos, zPos);
 	BaseActor::setRotation(pitch, yaw, roll, false);
 	BaseActor::setPhysicsRotation(pitch, yaw, roll);
 	
+	m_YOffset = bboxScaleY * 0.5f;
 	m_closePos = { xPos, yPos, zPos , 1.0f };
 	m_openPos = { xPos, yPos + 8.0f, zPos , 1.0f };
 
@@ -57,7 +58,7 @@ void Bars::Update(double deltaTime)
 		DirectX::XMFLOAT3 openPos;
 		DirectX::XMStoreFloat3(&openPos, lerp);
 		setPosition(openPos.x, openPos.y, openPos.z);
-		p_setPosition(openPos.x, openPos.y, openPos.z);
+		p_setPosition(openPos.x, openPos.y + m_YOffset, openPos.z);
 	}
 	else
 	{
@@ -71,7 +72,7 @@ void Bars::Update(double deltaTime)
 		DirectX::XMStoreFloat3(&closePos, lerp);
 
 		setPosition(closePos.x, closePos.y, closePos.z);
-		p_setPosition(closePos.x, closePos.y, closePos.z);
+		p_setPosition(closePos.x, closePos.y + m_YOffset, closePos.z);
 
 	}
 }

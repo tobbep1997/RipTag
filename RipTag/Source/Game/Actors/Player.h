@@ -64,6 +64,7 @@ private:
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 	AudioEngine::SoundDesc m_footSteps;
+	AudioEngine::SoundDesc m_smokeBomb; 
 private:
 	//First-person model
 	BaseActor* m_FirstPersonModel{ nullptr };
@@ -228,6 +229,8 @@ public:
 	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
+	AudioEngine::SoundDesc& getSmokeBombDesc(); 
+
 	
 	//This is a way of checking if we can use the ability with out current mana
 	void SetAbilitySet(int set);

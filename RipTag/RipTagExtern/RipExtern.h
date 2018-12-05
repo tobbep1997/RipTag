@@ -4,6 +4,7 @@
 class b3World;
 class ContactListener;
 class RayCastListener;
+class ParticleSystem;
 
 namespace RipSounds
 {
@@ -20,11 +21,16 @@ namespace RipSounds
 	extern std::string				g_music1;
 	extern std::string				g_grunt;
 	extern std::string				g_playAmbientSound;
+	extern std::string				g_metalDoorOpening;
+	extern std::string				g_metalDoorClosening;
+	extern std::string				g_metalDoorClosed;
+	extern std::string				g_smokeBomb; 
 }
 
 namespace RipExtern
 {
 	extern b3World * g_world;
+	extern ParticleSystem   * g_particleSystem;
 	extern ContactListener	* g_contactListener;
 	extern RayCastListener	* g_rayListener;
 	extern bool g_kill;
