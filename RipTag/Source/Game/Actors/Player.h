@@ -64,6 +64,7 @@ private:
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
 	AudioEngine::SoundDesc m_footSteps;
+	AudioEngine::SoundDesc m_smokeBomb; 
 private:
 	//First-person model
 	BaseActor* m_FirstPersonModel{ nullptr };
@@ -197,6 +198,7 @@ public:
 	void PhysicsUpdate();
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
+	void setPosition(const DirectX::XMFLOAT4A& pos) override;
 
 	void Draw() override;
 	void DrawHUDComponents();
@@ -228,11 +230,13 @@ public:
 	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
+	AudioEngine::SoundDesc& getSmokeBombDesc(); 
+
 	
 	//This is a way of checking if we can use the ability with out current mana
 	void SetAbilitySet(int set);
 	void SetModelAndTextures(int set);
-	void setEnemyPositions(std::vector<Enemy *> enemys);
+	void setEnemyPositions(std::vector<Enemy *> & enemys);
 
 	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
@@ -240,6 +244,8 @@ public:
 	bool GetMapPicked();
 	const int getInteractRayId();
 	const bool sameInteractRayId(int id);
+
+	void InstaWin();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

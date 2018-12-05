@@ -112,6 +112,15 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 	}
 }
 
+Enemy* EnemyHandler::GetFirstEnemy()
+{
+	if (!m_guards.empty())
+	{
+		return m_guards.at(0);
+	}
+	return nullptr;
+}
+
 void EnemyHandler::_isServerUpdate(double deltaTime)
 {
 	static float timer = 0.0f;

@@ -14,7 +14,6 @@ private:
 	std::vector<Texture*> m_textures[TEXTURE_HASHTABLE_SIZE];
 	std::vector<Texture*> m_GuiTextures;
 
-	size_t maxTextureSize;
 
 public:
 	TextureManager();

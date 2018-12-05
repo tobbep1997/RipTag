@@ -13,6 +13,7 @@ ShadowMap::~ShadowMap()
 
 void ShadowMap::Init(UINT width, UINT height)
 {
+	HRESULT hr = 0;
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertex.hlsl");
 	ID3D11GeometryShader * test = DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowGeometry.hlsl");
 
@@ -20,12 +21,15 @@ void ShadowMap::Init(UINT width, UINT height)
 	_createBuffers();
 	_createShadowViewPort(width, height);
 	_createShadowDepthStencilView(width, height);
+	if (SUCCEEDED(hr = DXRHC::CreateRasterizerState("Shadow Rasterizer State", m_rasterizerState, FALSE, D3D11_CULL_FRONT, 0, 0, TRUE))) { }
 }
 
 
 
 void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 {
+	HRESULT hr;
+
 	this->Clear();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
@@ -35,9 +39,8 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 	DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowGeometry.hlsl"), nullptr, 0);	
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
+	DX::g_deviceContext->RSSetState(m_rasterizerState);
 	m_runned = 0;
-
-
 	this->MapAllLightMatrix(&DX::g_lights);
 	DirectX::XMMATRIX proj, viewInv;
 	DirectX::BoundingFrustum boundingFrustum;
@@ -82,7 +85,10 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 				}
 			}
 		}
-		DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry);
+		if (SUCCEEDED(hr = DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry)))
+		{
+			
+		}
 		renderingManager->DrawInstancedCull(nullptr);
 
 		UINT32 vertexSize = sizeof(PostAniDynamicVertex);
@@ -115,11 +121,13 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		}
 
 	}
+	DX::g_deviceContext->RSSetState(nullptr);
 	DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
 void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 {
+	HRESULT hr;
 	m_allLightMatrixValues.nrOfLights = DirectX::XMINT4(lights->size(), 0,0,0);
 	for (unsigned int light = 0; light < lights->size(); light++)
 	{		
@@ -131,7 +139,7 @@ void ShadowMap::MapAllLightMatrix(std::vector<PointLight*> * lights)
 		}		
 	}
 	
-	DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer));
+	if (SUCCEEDED(hr = DXRHC::MapBuffer(m_allLightMatrixBuffer, &m_allLightMatrixValues, sizeof(PointLightBuffer)))){}
 	DX::g_deviceContext->VSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->GSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);
 	DX::g_deviceContext->PSSetConstantBuffers(1, 1, &m_allLightMatrixBuffer);	
@@ -180,6 +188,7 @@ void ShadowMap::Release()
 	DX::SafeRelease(m_renderTargetView);
 	DX::SafeRelease(m_renderTargetsTexture);
 	DX::SafeRelease(m_lightIndexBuffer);
+	DX::SafeRelease(m_rasterizerState);
 }
 
 void ShadowMap::_createShadowViewPort(UINT width, UINT height)
@@ -195,25 +204,52 @@ void ShadowMap::_createShadowViewPort(UINT width, UINT height)
 void ShadowMap::_createShadowDepthStencilView(UINT width, UINT hight)
 {
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, hight, width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADER_RESOURCE_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32_TYPELESS);
-	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADER_RESOURCE_VIEW_COUNT);
-	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADER_RESOURCE_VIEW_COUNT, 0, 0, 1);
-	hr = DXRHC::CreateSamplerState(m_shadowSamplerState, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_LESS_EQUAL, 1.0f, 0.f);
+	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_shadowDepthBufferTex", this->m_shadowDepthBufferTex, hight, width, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADER_RESOURCE_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32_TYPELESS)))
+	{
+		
+		if (SUCCEEDED(hr = DXRHC::CreateDepthStencilView("m_shadowDepthStencilView", m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADER_RESOURCE_VIEW_COUNT)))
+		{
+			
+		}
+		if (SUCCEEDED(hr = DXRHC::CreateShaderResourceView("m_shadowShaderResourceView", m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADER_RESOURCE_VIEW_COUNT, 0, 0, 1)))
+		{
+			
+		}
+	}
+	if (SUCCEEDED(hr = DXRHC::CreateSamplerState("m_shadowSamplerState", m_shadowSamplerState, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_LESS_EQUAL, 1.0f, 0.f)))
+	{
+		
+	}
 }
 
 void ShadowMap::_createBuffers()
 {
 	HRESULT hr = 0;
-	hr = DXRHC::CreateConstantBuffer(m_objectBuffer, sizeof(ObjectBuffer));	
-	hr = DXRHC::CreateConstantBuffer(m_allLightMatrixBuffer, sizeof(PointLightBuffer));
-	hr = DXRHC::CreateConstantBuffer(m_lightIndexBuffer, sizeof(LightIndex));
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("ObjectBuffer", m_objectBuffer, sizeof(ObjectBuffer))))
+	{
+		
+	}
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("PointLightBuffer", m_allLightMatrixBuffer, sizeof(PointLightBuffer))))
+	{
+		
+	}
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("LightIndex", m_lightIndexBuffer, sizeof(LightIndex))))
+	{
+		
+	}
 }
 
 void ShadowMap::_createRenderTargets(UINT width, UINT height)
 {
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(m_renderTargetsTexture, height, width, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, RENDER_TARGET_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT);
-	hr = DXRHC::CreateRenderTargetView(m_renderTargetsTexture, m_renderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, RENDER_TARGET_VIEW_COUNT);
+	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_renderTargetsTexture", m_renderTargetsTexture, height, width, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, RENDER_TARGET_VIEW_COUNT, 0, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_DEFAULT)))
+	{
+		if (SUCCEEDED(hr = DXRHC::CreateRenderTargetView("m_renderTargetsTexture", m_renderTargetsTexture, m_renderTargetView, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_RTV_DIMENSION_TEXTURE2DARRAY, RENDER_TARGET_VIEW_COUNT)))
+		{
+			
+		}
+		
+	}
 }
 
 void ShadowMap::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer)
@@ -226,6 +262,10 @@ void ShadowMap::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * a
 
 void ShadowMap::_mapObjectBuffer(Drawable * drawable)
 {
+	HRESULT hr;
 	m_objectValues.worldMatrix = drawable->getWorldmatrix();
-	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
+	if (SUCCEEDED(hr = DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex)))
+	{
+		
+	}
 }

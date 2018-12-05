@@ -4,13 +4,24 @@
 #include <AudioEngine.h>
 
 #include "EngineSource/Shader/ShaderManager.h"
+#include "CheetConsole/CheetParser.h"
 
 //Allocates memory to the console
-
+bool cakeIsALie = true;
+CheetParser * parser;
 void _alocConsole() {
 	AllocConsole();
 	FILE* fp;
+	freopen_s(&fp, "CONIN$", "r", stdin);
 	freopen_s(&fp, "CONOUT$", "w", stdout);
+	std::string x;
+	while (cakeIsALie)
+	{
+		//system("CLS");
+		std::cout << "Enter Command" << std::endl;
+		std::cin >> x;
+		CheetParser::ParseString(x);
+	}
 }
 
 void _CrtSetDbg() {
@@ -140,14 +151,25 @@ void SingleGameLoop(Game * game)
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+	parser = CheetParser::GetInstance();
+	bool consoleEnabled = true;
+	std::thread console;
+	if (consoleEnabled)
+	{
+		console = std::thread(_alocConsole);
+	}
+	
 #if _DEBUG
-	_alocConsole();
+	
 	_CrtSetDbg();
 #endif
 #if _RELEASE_DBG
 	_alocConsole();
 	_CrtSetDbg();
 #endif
+
+
+
     AudioEngine::Init();
 	SoundSettings ss = _ReadSettingsFromFile();
 	AudioEngine::SetMasterVolume(ss.master / 100.0f);
@@ -173,5 +195,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	DX::g_shaderManager.Release();
 	FontHandler::Release();
 	AudioEngine::Release();
+	if (consoleEnabled)
+	{
+		cakeIsALie = false;
+		console.join();
+	}
+	
 	return 0;
 }

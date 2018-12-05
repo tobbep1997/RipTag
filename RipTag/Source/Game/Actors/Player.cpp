@@ -75,9 +75,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
 
-
-
-
+	m_smokeBomb.emitter = AudioEngine::Player; 
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 0.6f; 
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -88,6 +88,10 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	m_footSteps.emitter = AudioEngine::Player;
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
+
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 Player::~Player()
@@ -136,9 +140,9 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
 
-
-	
-
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 void Player::BeginPlay()
@@ -305,6 +309,12 @@ void Player::setPosition(const float& x, const float& y, const float& z, const f
 	PhysicsComponent::p_setPosition(x, y, z);
 }
 
+void Player::setPosition(const DirectX::XMFLOAT4A& pos)
+{
+	Transform::setPosition(pos);
+	PhysicsComponent::p_setPosition(pos.x, pos.y, pos.z);
+}
+
 const bool & Player::getHeadbobbingActive() const
 {
 	return m_headBobbingActive; 
@@ -379,7 +389,7 @@ void Player::SetModelAndTextures(int set)
 	}
 }
 
-void Player::setEnemyPositions(std::vector<Enemy*> enemys)
+void Player::setEnemyPositions(std::vector<Enemy*> & enemys)
 {
 	using namespace DirectX;
 	std::vector<DirectX::XMFLOAT2> relativEnemyPostions;
@@ -391,7 +401,7 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
 		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
-			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
+			relativEnemyPostions.push_back(pos);
 			if (enemys[i]->getTotalVisibility() > totVis)
 			{
 				totVis = enemys[i]->getTotalVisibility();
@@ -408,6 +418,11 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x / 4.0f)),
 			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
 	}
+}
+
+AudioEngine::SoundDesc & Player::getSmokeBombDesc() 
+{
+	return m_smokeBomb; 
 }
 
 const Ability Player::getCurrentAbility() const
@@ -444,6 +459,11 @@ const bool Player::sameInteractRayId(int id)
 		return true;
 	}
 	return false;
+}
+
+void Player::InstaWin()
+{
+	hasWon = true;
 }
 
 void Player::Draw()
