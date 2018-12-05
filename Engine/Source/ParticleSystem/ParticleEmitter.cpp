@@ -292,8 +292,6 @@ void ParticleEmitter::SetBuffer()
 	DX::g_deviceContext->Unmap(m_vertexBuffer, 0);
 	m_StrideSize = sizeof(Vertex);
 	DX::g_deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_StrideSize, &m_Offset);
-
-	vertex.clear();
 }
 
 void ParticleEmitter::Draw()
