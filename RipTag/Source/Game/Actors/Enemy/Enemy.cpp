@@ -11,7 +11,6 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-
 Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent(), AI(this)
 {
 	this->uniqueID = id;
@@ -167,10 +166,10 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 				guardWalkToPlayerWalk.AddTransition(&m_IsPossessed, true, SM::COMPARISON_EQUAL);
 
 				auto& playerWalkToGuardWalk = blend_fwd->AddOutState(walkState);
-				playerWalkToGuardWalk.AddTransition(&m_IsPossessed, true, SM::COMPARISON_NOT_EQUAL);
+				playerWalkToGuardWalk.AddTransition(&m_IsPossessed, false, SM::COMPARISON_EQUAL);
 
 				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
-				playerWalkBackToGuardWalk.AddTransition(&m_IsPossessed, true, SM::COMPARISON_NOT_EQUAL);
+				playerWalkBackToGuardWalk.AddTransition(&m_IsPossessed, false, SM::COMPARISON_EQUAL);
 			}
 		}
 
@@ -293,7 +292,7 @@ void Enemy::Update(double deltaTime)
 	using namespace DirectX;
 	AIState state = getAIState();
 
-	m_IsPossessed = (state == Possessed)
+	m_IsPossessed = (state == AIState::Possessed)
 		? true
 		: false;
 
@@ -320,7 +319,6 @@ void Enemy::Update(double deltaTime)
 
 	if (state == AIState::Possessed)
 	{
-		
 		{
 			using namespace DirectX;
 			//calculate walk direction (-1, 1, based on camera) and movement speed
