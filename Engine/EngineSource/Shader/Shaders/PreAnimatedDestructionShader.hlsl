@@ -80,7 +80,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 	float finalPosY = lerp(posLerpX, posLerpY, lerpValue);
 	float scaleFinal = lerp(scaleLerpX, scaleLerpY, lerpValue);
 	
-	//finalWorldPos._42 += finalPosY;
+	finalWorldPos = worldMatrix;
 	
 
 

@@ -27,7 +27,7 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 	float4 dummy;
 	dummy = OptimizedLightCalculation(inin, dummy);
 	float4 colorLerpFirst = dummy;
-	float4 colorLerpSecond = float4(0.4, 0.6, 0.5, 1);
+	float4 colorLerpSecond = dummy;
 
 	float lerpValue = input.timerValue;
 	if (lerpValue <= 0.5)
