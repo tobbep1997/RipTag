@@ -23,8 +23,9 @@ void Render2D::Init()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/2DVertex.hlsl", "main", inputDesc, 2);
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/2DPixel.hlsl");
 
-	HRESULT hr = DXRHC::CreateSamplerState("2D Sampler", m_sampler, D3D11_TEXTURE_ADDRESS_WRAP);
-	DXRHC::CreateBlendState("Render2D Blendstate" ,m_blendState);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DXRHC::CreateSamplerState("2D Sampler", m_sampler, D3D11_TEXTURE_ADDRESS_WRAP))) { }
+	if (SUCCEEDED(hr = DXRHC::CreateBlendState("Render2D Blendstate" ,m_blendState))) { }
 	m_spriteBatch = new DirectX::SpriteBatch(DX::g_deviceContext);
 
 	D3D11_DEPTH_STENCIL_DESC dpd{};
@@ -33,9 +34,14 @@ void Render2D::Init()
 	dpd.DepthFunc = D3D11_COMPARISON_LESS;
 
 	//Create the Depth/Stencil View
-	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
+	
+	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState)))
+	{
+		DX::SetName(m_depthStencilState, "Render2D m_depthStencilState");
+	}
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("2D HUDTypeStruct" ,m_HUDTypeBuffer, sizeof(HUDTypeStruct)))) { }
+	
 
-	DXRHC::CreateConstantBuffer("2D HUDTypeStruct" ,m_HUDTypeBuffer, sizeof(HUDTypeStruct));
 #ifndef _DEPLOY
 	DBG_INIT();
 #endif
@@ -44,6 +50,7 @@ void Render2D::Init()
 
 void Render2D::GUIPass()
 {
+	HRESULT hr;
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/Shaders/2DVertex.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/2DVertex.hlsl"), nullptr, 0);
@@ -99,7 +106,7 @@ void Render2D::GUIPass()
 		}
 		
 
-		DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel);
+		if (SUCCEEDED(hr = DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel))) { }
 		DX::g_2DQueue[j]->MapTexture();
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
@@ -262,9 +269,9 @@ void Render2D::DBG()
 	dbg_quad->setPivotPoint(Quad::PivotPoint::upperRight);
 	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
 	dbg_quad->setFont(FontHandler::getFont("consolas16"));
-	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam));
+	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)(memoryUsageRam - memoryUsageVRam)));
 
-	if (memoryUsageVRam < 256.0f && memoryUsageRam < 256.0f)
+	if (memoryUsageVRam < 256.0f && memoryUsageRam - memoryUsageVRam < 256.0f)
 		dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 1, 0, 1));
 	else
 		dbg_quad->setTextColor(DirectX::XMFLOAT4A(1, 0, 0, 1));

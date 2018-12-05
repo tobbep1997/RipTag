@@ -941,7 +941,10 @@ void Animation::AnimationCBuffer::SetAnimationCBuffer()
 
 	// check if the creation failed for any reason
 	HRESULT hr = 0;
-	hr = DX::g_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer);
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer)))
+	{
+		DX::SetName(m_AnimationBuffer, "m_AnimationBuffer");
+	}
 	if (FAILED(hr))
 	{
 		// handle the error, could be fatal or a warning...

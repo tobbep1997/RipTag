@@ -16,7 +16,7 @@ HRESULT DXRHC::CreateConstantBuffer(const std::string & name, ID3D11Buffer *& bu
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	HRESULT hr;// = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer);
+	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer)))
 	{
 		DX::SetName(buffer, name);
@@ -140,7 +140,7 @@ HRESULT DXRHC::CreateRenderTargetView(const std::string & name, ID3D11Resource *
 	return hr;
 }
 
-void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
+HRESULT DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
 {
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	HRESULT hr;
@@ -175,6 +175,7 @@ void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSiz
 			}
 		}
 	}
+	return hr;
 }
 
 HRESULT DXRHC::CreateRasterizerState(const std::string & name, ID3D11RasterizerState *& rasterrizerState,
