@@ -211,6 +211,8 @@ void Render2D::DBG_INIT()
 	ret_code = ::CreateDXGIFactory(
 		__uuidof(IDXGIFactory),
 		reinterpret_cast<void**>(&dxgifactory));
+	Manager::g_textureManager.loadTextures("DAB");
+
 }
 
 void Render2D::DBG()
@@ -254,17 +256,23 @@ void Render2D::DBG()
 
 	GlobalMemoryStatusEx(&m_statex);
 
+
 	dbg_quad = new Quad();
 	dbg_quad->init();
 	dbg_quad->setPivotPoint(Quad::PivotPoint::upperRight);
 	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
 	dbg_quad->setFont(FontHandler::getFont("consolas16"));
 	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam));
-	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 0, 0, 1));
+
+	if (memoryUsageVRam < 256.0f && memoryUsageRam < 256.0f)
+		dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 1, 0, 1));
+	else
+		dbg_quad->setTextColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
+
 	dbg_quad->setPosition(1, 1);
 	dbg_quad->setScale(.20f, .2f);
 	dbg_quad->setColor(1, 1, 1,1);
-	dbg_quad->setUnpressedTexture("");
+	dbg_quad->setUnpressedTexture("DAB");
 	dbg_quad->setPressedTexture("");
 	dbg_quad->setHoverTexture("");
 	dbg_quad->Draw();

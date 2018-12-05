@@ -47,6 +47,6 @@ VS_OUTPUT main(VS_INPUT2 input)
     output.TBN = TBN;
     output.uv = input.uv * textureTileMult.xy;
     output.color = color;
-    output.info = info;
+    output.info = int4(1, 0, 0, 0);
 	return output;
 }

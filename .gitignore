@@ -338,3 +338,5 @@ Assets/**/*.txt
 imgui.ini
 
 Deploy/
+
+*.DDS
