@@ -9,7 +9,6 @@ TeleportAbility::TeleportAbility(void * owner) : AbilityComponent(owner), BaseAc
 	m_charge = 0.0f;
 	m_travelSpeed = MAX_CHARGE;
 	m_boundingSphere = DBG_NEW DirectX::BoundingSphere(DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z), .1f);
-	p_cooldownMax = 1.0f;
 }
 
 TeleportAbility::~TeleportAbility()
