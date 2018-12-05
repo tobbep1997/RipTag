@@ -24,6 +24,7 @@ namespace RipSounds
 	extern std::string				g_metalDoorOpening;
 	extern std::string				g_metalDoorClosening;
 	extern std::string				g_metalDoorClosed;
+	extern std::string				g_smokeBomb; 
 }
 
 namespace RipExtern

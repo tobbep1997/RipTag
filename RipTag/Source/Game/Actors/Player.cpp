@@ -75,9 +75,9 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
 
-
-
-
+	m_smokeBomb.emitter = AudioEngine::Player; 
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 0.6f; 
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -88,6 +88,10 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	m_footSteps.emitter = AudioEngine::Player;
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
+
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 Player::~Player()
@@ -136,9 +140,9 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_footSteps.owner = this;
 	m_footSteps.loudness = 1.0f;
 
-
-	
-
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 void Player::BeginPlay()
@@ -408,6 +412,11 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x / 4.0f)),
 			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
 	}
+}
+
+AudioEngine::SoundDesc & Player::getSmokeBombDesc() 
+{
+	return m_smokeBomb; 
 }
 
 const Ability Player::getCurrentAbility() const
