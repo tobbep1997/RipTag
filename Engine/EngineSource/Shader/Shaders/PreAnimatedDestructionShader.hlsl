@@ -71,14 +71,16 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 	}
 	else
 	{
-		lerpValue = 1 -(lerpValue - 0.5f) / 1.5f;
+		//lerpValue = 1 -(lerpValue - 0.5f) / 1.5f;
+		lerpValue = 1 -(lerpValue - 0.5f) *2;
+
 		finalWorldPos = lerp(worldMatrix, lerpFromTransformMatrix, lerpValue);
 	}
 
 	float finalPosY = lerp(posLerpX, posLerpY, lerpValue);
 	float scaleFinal = lerp(scaleLerpX, scaleLerpY, lerpValue);
 	
-	finalWorldPos._42 += finalPosY;
+	//finalWorldPos._42 += finalPosY;
 	
 
 

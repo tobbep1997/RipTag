@@ -157,7 +157,7 @@ void RemotePlayer::Update(double dt)
 	if (this->getDestroyState())
 	{
 		this->setDestructionRate(ConstTimer::g_timer.GetTime());
-		if (ConstTimer::g_timer.GetTime() > 2.0f)
+		if (ConstTimer::g_timer.GetTime() > 1.0f)
 		{
 			this->setDestroyState(false);
 			this->setDestructionRate(0);//after

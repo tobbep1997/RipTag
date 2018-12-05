@@ -36,10 +36,8 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 	}
 	else
 	{
-		lerpValue = 1 - (lerpValue - 0.5f) / 1.5f;
-
-		colorLerpFirst = float4(0.4, 0.6, 0.5, 1);
-		colorLerpSecond = dummy;
+		//lerpValue = 1 - (lerpValue - 0.5f) / 1.5f;
+		lerpValue = 1 - (lerpValue - 0.5f) * 2;
 	}
 	float4 finalColour = lerp(colorLerpFirst, colorLerpSecond, lerpValue);
 		

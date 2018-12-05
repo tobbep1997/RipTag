@@ -678,7 +678,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, false, isRandomRoom);	//set True
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom);	//set True
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);

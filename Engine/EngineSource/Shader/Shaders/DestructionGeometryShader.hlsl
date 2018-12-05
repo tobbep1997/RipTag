@@ -125,8 +125,10 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	float posLerpValue = 0;
 	float lerpValue = TimerAndForwardVector.w;
+	float3 forwardVec = TimerAndForwardVector.xyz;
+
 	float trianglePosLerpX = 0;
-	float trianglePosLerpY = 1;
+	float trianglePosLerpY = 0.5;
 	float scaleLerpX = 1;
 	float scaleLerpY = 0.3;
 	float rotX = 0;
@@ -138,7 +140,8 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	}
 	else
 	{
-		lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
+		//lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
+		lerpValue = 1 - (lerpValue - 0.5f) * 2;
 	}
 
 
@@ -169,7 +172,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		output.worldPos = mul(createRotationMatrix(rotLerp, float3(TimerAndForwardVector.x, TimerAndForwardVector.y, TimerAndForwardVector.z)), output.worldPos);
 		
 		output.worldPos.xyz += realPos.xyz + (normalize(offsetNormal) * moveTriangleLerp);
-		output.worldPos = mul(scaleMatrix, output.worldPos);
+	//	output.worldPos = mul(scaleMatrix, output.worldPos);
 
 		output.worldPos.w = 1;
 		//////
