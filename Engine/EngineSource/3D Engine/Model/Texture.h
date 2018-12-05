@@ -16,13 +16,11 @@ public:
 	HRESULT Load(const wchar_t* file, bool staticTexture = false, const std::string & extension = ".DDS");
 	HRESULT LoadSingleTexture(const wchar_t * absolutePath);
 	void Bind(const uint8_t slot);
-	ID3D11Resource * m_texture[3] = {nullptr, nullptr, nullptr}; //DIFFUSE, NORMAL, ORM
 	ID3D11ShaderResourceView* m_SRV[3] = { nullptr, nullptr, nullptr };
 
 	void setIndex(const int & index);
 	const int & getIndex() const;
 
-	void TexUnload();
 	void UnloadTexture();
 
 	void setName(const std::wstring & name);

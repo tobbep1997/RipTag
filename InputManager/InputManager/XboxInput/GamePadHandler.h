@@ -74,4 +74,5 @@ public:
 	static bool IsSelectPressed();
 	static bool IsSelectReleased();
 	static bool IsStartPressed();
+	static bool IsStartReleased();
 };

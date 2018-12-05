@@ -57,7 +57,7 @@ void PressurePlate::Update(double deltaTime)
 					if (this->getTriggerState())
 					{
 						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-							this->setTriggerState(false, "ENEMY");
+							this->setTriggerState(false, true, "ENEMY");
 						else
 							this->setTriggerState(false);
 						this->SendOverNetwork();
@@ -92,7 +92,7 @@ void PressurePlate::Update(double deltaTime)
 							if (!this->getTriggerState())
 							{
 								if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-									this->setTriggerState(true, "ENEMY");
+									this->setTriggerState(true, true, "ENEMY");
 								else
 									this->setTriggerState(true);
 								this->SendOverNetwork();

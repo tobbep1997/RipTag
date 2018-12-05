@@ -7,6 +7,7 @@
 std::vector<std::string> RipSounds::g_sneakStep;
 std::vector<std::string> RipSounds::g_hardStep;
 std::vector<std::string> RipSounds::g_armorStepsStone;
+
 std::string				 RipSounds::g_leverActivate;
 std::string				 RipSounds::g_leverDeactivate;
 std::string				 RipSounds::g_pressurePlateActivate;
@@ -16,6 +17,9 @@ std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
 std::string				 RipSounds::g_grunt;
 std::string				 RipSounds::g_playAmbientSound;
+std::string				 RipSounds::g_metalDoorOpening;
+std::string				 RipSounds::g_metalDoorClosening;
+std::string				 RipSounds::g_metalDoorClosed;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -822,15 +826,13 @@ void PlayState::Load()
 
 void PlayState::_checkPauseState()
 {
-	static bool justPressed = false;
 	//Check if escape was pressed
 	if (!m_pausePressed)
 	{
 		if (Input::isUsingGamepad())
-			m_pausePressed = GamePadHandler::IsStartPressed();
+			m_pausePressed = GamePadHandler::IsStartReleased();
 		if (InputHandler::wasKeyPressed(InputHandler::Esc))
 			m_pausePressed = true;
-		justPressed = m_pausePressed;
 	}
 
 	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
@@ -845,20 +847,6 @@ void PlayState::_checkPauseState()
 
 	if (m_pPauseMenu != nullptr)
 	{
-		//Check input 
-		if (!justPressed)
-		{
-			if (Input::isUsingGamepad())
-			{
-				if (GamePadHandler::IsStartPressed())
-					m_pPauseMenu->ExitPause();
-			}
-			if (InputHandler::wasKeyPressed(InputHandler::Esc))
-				m_pPauseMenu->ExitPause();
-		}
-		if (justPressed)
-			justPressed = false;
-
 		if (m_pPauseMenu->getExitPause())
 		{
 			m_pausePressed = false;
@@ -1048,13 +1036,15 @@ void PlayState::_loadSound()
 	}
 
 
-	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
-	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
-	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
-	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
-	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
-	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
+	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg");
+	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg");
+	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg");
+	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg");
+	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true);
+	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg");
 	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
+	RipSounds::g_metalDoorOpening = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg");
+
 
 	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.2f);
 }

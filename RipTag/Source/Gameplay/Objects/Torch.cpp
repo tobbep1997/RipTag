@@ -21,7 +21,6 @@ Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqu
 	m_tourchSound.loudness = 1.5f;
 	m_tourchSound.owner = this;
 
-	
 	/*FMOD_VECTOR at = { lightPos.x, lightPos.y,lightPos.z };
 	m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
 	m_channel->setVolume(0.6f);*/
@@ -149,8 +148,7 @@ void Torch::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
-		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, soundDesc);
-	else
+		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
 		m_channel->stop();
 	m_channel->setVolume(0.6f);
 }
