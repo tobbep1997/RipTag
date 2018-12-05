@@ -353,6 +353,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			
 			DirectX::XMStoreFloat4x4A(&m_destroyBuffer.worldMatrixInverse, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4A(&DX::g_animatedGeometryQueue[i]->getWorldmatrix())));
 			m_destroyBuffer.worldMatrix = DX::g_animatedGeometryQueue[i]->getWorldmatrix();
+			DirectX::XMStoreFloat4x4A(&m_destroyBuffer.lastPosInverse, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4A(&DX::g_animatedGeometryQueue[i]->getLastTransform())));
 			DXRHC::MapBuffer(m_destructionBuffer, &m_destroyBuffer, sizeof(DestroyBuffer), 0, 1, ShaderTypes::geometry);
 
 			DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl");

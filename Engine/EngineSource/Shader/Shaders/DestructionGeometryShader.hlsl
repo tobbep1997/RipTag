@@ -2,6 +2,7 @@ cbuffer destructionTimer : register(b0)
 {
     float4 TimerAndForwardVector;
     float4x4 lastPos;
+	float4x4 lastPosInverse;
     float4x4 worldMatrixInverse;
     float4x4 worldMatrix;
 
@@ -133,7 +134,8 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	float rotX = 0;
 	float rotY = 3.141592 * 2;
 
-	
+	float4x4 finalWorldPos = lastPos;
+	float4x4 finalWorldPosInverse = lastPosInverse;
 
 	if (lerpValue <= 0.5)
 	{
@@ -145,6 +147,9 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
 		 rotY = 0;
 		 rotX = 3.141592 * 2;
+
+		 finalWorldPos = lerp(finalWorldPos, worldMatrix, lerpValue);
+		 finalWorldPosInverse = lerp(finalWorldPosInverse, worldMatrixInverse, lerpValue);
 	}
 
 	float3 offsetNormal = normalize(cross((input[1].worldPos - input[0].worldPos), (input[2].worldPos - input[0].worldPos)));
@@ -156,7 +161,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		);
 	centerTriangle /= 3.0f;
 
-	const float3 localOffset = mul(worldMatrixInverse, float4(centerTriangle, 1.0f));
+	const float3 localOffset = mul(finalWorldPosInverse, float4(centerTriangle, 1.0f));
 
 	const float3 triangleFaceNormal = normalize(localOffset);
 
@@ -166,7 +171,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	float4 lerpTriPosTowards = localCenter;
 
-	float4 modelPos = float4(worldMatrix._41, worldMatrix._42 + 1.5f, worldMatrix._43, 1.0f);
+	float4 modelPos = float4(finalWorldPos._41, finalWorldPos._42 + 1.5f, finalWorldPos._43, 1.0f);
 
 	for (uint i = 0; i < 3; i ++)
 	{
@@ -182,7 +187,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		}
 
 
-		float4 localPos = mul(worldMatrixInverse, output.worldPos); // Get Local vertex
+		float4 localPos = mul(finalWorldPosInverse, output.worldPos); // Get Local vertex
 		
 
 		float3 posAroundOrigin = localPos.xyz - localOffset; // Remove the offset from the vertex so the vertex is around origin
@@ -194,7 +199,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 
 	
-		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1)); // Go to  worldSpace
+		output.worldPos = mul(finalWorldPos, float4(rotatedLocalPos, 1)); // Go to  worldSpace
 
 		
 		output.worldPos.xyz = lerp(output.worldPos.xyz, modelPos.xyz + normalize(output.worldPos.xyz - modelPos.xyz + offsetNormal) * 0.4f, lerpValue);

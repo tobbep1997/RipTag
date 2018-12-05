@@ -70,6 +70,7 @@ class ForwardRender
 	{
 		DirectX::XMFLOAT4A TimerAndForwardVector;
 		DirectX::XMFLOAT4X4A lastPos;
+		DirectX::XMFLOAT4X4A lastPosInverse;
 		DirectX::XMFLOAT4X4A worldMatrixInverse;
 		DirectX::XMFLOAT4X4A worldMatrix;
 	};
