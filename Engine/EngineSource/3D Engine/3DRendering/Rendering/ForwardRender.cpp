@@ -647,6 +647,16 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 	g_temp.clear();
 }
 
+ID3D11BlendState * ForwardRender::getAlphaBlendState()
+{
+	return m_alphaBlend; 
+}
+
+ID3D11DepthStencilState * ForwardRender::getDepthStencilState()
+{
+	return m_depthStencilState; 
+}
+
 void ForwardRender::_GuardFrustumDraw()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
@@ -1212,7 +1222,12 @@ void ForwardRender::_particlePass(Camera * camera)
 	for (auto & emitter : DX::g_emitters)
 	{
 		if (boundingFrustum.Intersects(*emitter->getBoundingBox()))
+		{
+			emitter->Clear(); 
+			emitter->Update(0,camera); 
 			emitter->Draw();
+			emitter->Clear(); 
+		}
 		else
 			emitter->Clear();
 	}

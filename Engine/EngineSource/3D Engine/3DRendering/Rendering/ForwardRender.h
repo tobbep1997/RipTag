@@ -162,6 +162,9 @@ public:
 	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
 
+	ID3D11BlendState* getAlphaBlendState(); 
+	ID3D11DepthStencilState* getDepthStencilState(); 
+
 	DirectX::BoundingFrustum * _createBoundingFrustrum(Camera * camera);//Make sure to delete the pointer
 	bool _Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box);//Return true if the box sould be culled
 
@@ -181,6 +184,7 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
+
 
 
 	void _mapObjectOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
