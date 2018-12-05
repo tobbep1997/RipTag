@@ -1163,23 +1163,6 @@ void ForwardRender::_OutlineDepthCreate()
 
 }
 
-void ForwardRender::_setStaticShaders()
-{
-	/*if (DX::g_geometryQueue.empty())
-		return;
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DX::g_geometryQueue[0]->getVertexPath()));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DX::g_geometryQueue[0]->getVertexPath()), nullptr, 0);
-	
-
-	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-	if (m_lastPixelPath != DX::g_geometryQueue[0]->getPixelPath())
-	{
-		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(DX::g_geometryQueue[0]->getPixelPath()), nullptr, 0);
-	}*/
-}
-
 void ForwardRender::_visabilityPass()
 {
 	if (DX::g_player == nullptr)

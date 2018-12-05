@@ -197,7 +197,6 @@ private:
 
 	//void _SetShaders(int i);
 	void _setAnimatedShaders();
-	void _setStaticShaders();
 
 	//VisabilityPass
 	void _visabilityPass();
