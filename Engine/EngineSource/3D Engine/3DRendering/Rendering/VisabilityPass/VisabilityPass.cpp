@@ -31,7 +31,7 @@ void VisabilityPass::Init()
 void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardRender * forwardRender, Animation::AnimationCBuffer * animBuffer)
 {
 	//ID3D11ShaderResourceView * tes = nullptr;
-	DX::g_deviceContext->PSSetShaderResources(10, 1, nullptr);
+	//DX::g_deviceContext->PSSetShaderResources(10, 1, nullptr);
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_guardRenderTargetView, m_guardDepthStencil);
 	
 	float c[4] = { 0,0,0,0 };
