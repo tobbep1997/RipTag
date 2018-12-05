@@ -2,11 +2,12 @@
 #include "TransitionState.h"
 
 
-TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData) : State(rm)
+TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData, bool partnerLost) : State(rm)
 {
 	this->m_type = type;
 	m_eventString = eventString;
 	this->pCoopData = pCoopData;
+	m_partnerLost = partnerLost;
 }
 
 
@@ -283,11 +284,17 @@ void TransitionState::_initButtons()
 	{
 		this->m_background = Quad::CreateButton("", 0.5f, 0.5f, 2.0f, 2.0f);
 		this->m_background->setPivotPoint(Quad::PivotPoint::center);
-		if (m_type == Transition::Lose)
+		if (m_type == Transition::Lose && m_partnerLost == false)
 		{
 			this->m_background->setUnpressedTexture("ENDGAME");
 			this->m_background->setPressedTexture("ENDGAME");
 			this->m_background->setHoverTexture("ENDGAME");
+		}
+		else if (m_type == Transition::Lose && m_partnerLost == true)
+		{
+			this->m_background->setUnpressedTexture("gui_temp_bg");
+			this->m_background->setPressedTexture("gui_temp_bg");
+			this->m_background->setHoverTexture("gui_temp_bg");
 		}
 		else
 		{

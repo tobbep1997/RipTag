@@ -1093,7 +1093,7 @@ void PlayState::_onGameOverPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData, true));
 }
 
 void PlayState::_onGameWonPacket()
