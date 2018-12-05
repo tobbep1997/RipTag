@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
+#include "Source/CheetConsole/CheetParser.h"
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
@@ -27,6 +28,8 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_arrayIndex = arrayIndex;
 	this->m_roomIndex = roomIndex;
 	this->m_playerInRoomPtr = playerPtr;
+	CheetParser::SetPlayerCheetPointer(playerPtr);
+
 
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
@@ -446,6 +449,8 @@ void Room::Update(float deltaTime, Camera * camera)
 	{
 		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
 	}
+
+
 }
 
 void Room::SetActive(bool state)
@@ -837,7 +842,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		}
 		else
 			Manager::g_meshManager.loadStaticMesh(name);
-
+		
 
 
 
