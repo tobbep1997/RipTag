@@ -18,9 +18,13 @@ void Drawable::_setStaticBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_staticMesh->getRawVertice();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+	HRESULT hr;
 
 
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer)))
+	{
+		DX::SetName(p_vertexBuffer, L"p_vertexBuffer");
+	}
 
 }
 
@@ -73,20 +77,14 @@ void Drawable::_setDynamicBuffer()
 
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer)))
 	{
-#ifndef _DEPLOY
-		std::wstring name = L"p_vertexBuffer";
-		p_vertexBuffer->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
-#endif
+		DX::SetName(p_vertexBuffer, L"p_vertexBuffer");
 	}
 
 	bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	bufferDesc.StructureByteStride = sizeof(PostAniDynamicVertex);
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput)))
 	{
-#ifndef _DEPLOY
-		std::wstring name = L"m_UAVOutput";
-		m_UAVOutput->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
-#endif
+		DX::SetName(m_UAVOutput, L"m_UAVOutput");
 	}
 
 
@@ -98,10 +96,7 @@ void Drawable::_setDynamicBuffer()
 
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &uavstage)))
 	{
-#ifndef _DEPLOY
-		std::wstring name = L"uavstage";
-		uavstage->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
-#endif
+		DX::SetName(uavstage, L"uavstage");
 
 		D3D11_UNORDERED_ACCESS_VIEW_DESC ud = {};
 		ud.Format = DXGI_FORMAT_R32_FLOAT;
@@ -113,10 +108,7 @@ void Drawable::_setDynamicBuffer()
 
 		if (SUCCEEDED(hr = DX::g_device->CreateUnorderedAccessView(m_UAVOutput, &ud, &m_animatedUAV)))
 		{
-#ifndef _DEPLOY
-			std::wstring name = L"m_animatedUAV";
-			m_animatedUAV->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
-#endif
+			DX::SetName(m_animatedUAV, L"m_animatedUAV");
 		}
 	}
 

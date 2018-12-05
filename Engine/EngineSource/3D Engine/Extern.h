@@ -27,6 +27,8 @@ namespace DX {
 	extern ID3D11Device*			                            g_device;
 	extern ID3D11DeviceContext1*	                            g_deviceContext;
 	extern void SafeRelease(IUnknown * u);
+	extern void SetName(ID3D11DeviceChild * dc, const std::string & name);
+	extern void SetName(ID3D11DeviceChild * dc, const std::wstring & wname);
 	extern Shaders::ShaderManager								g_shaderManager;
 
 	extern Drawable*									        g_player;

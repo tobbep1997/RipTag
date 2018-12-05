@@ -109,10 +109,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 
 						if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[i])))
 						{
-#ifndef _DEPLOY
-							m_SRV[i]->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * names[i].size(), names[i].c_str());
-#endif
-
+							DX::SetName(m_SRV[i], names[i].c_str());
 							DX::g_deviceContext->Flush();
 							DX::g_deviceContext->ClearState();
 						}
@@ -189,9 +186,7 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 
 					if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(texGPU, &srv_desc, &m_SRV[0])))
 					{
-#ifndef _DEPLOY
-						m_SRV[0]->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * getName().size(), getName().c_str());
-#endif
+						DX::SetName(m_SRV[0], getName().c_str());
 						DX::g_deviceContext->Flush();
 						DX::g_deviceContext->ClearState();
 					}

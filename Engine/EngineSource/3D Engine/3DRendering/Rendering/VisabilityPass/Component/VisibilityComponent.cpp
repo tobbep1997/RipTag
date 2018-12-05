@@ -31,11 +31,7 @@ void VisibilityComponent::Init(Camera * cam)
 	HRESULT hr;
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_frustum.s_frustumBuffer)))
 	{
-#ifndef _DEPLOY
-		std::string name = "s_frustumBuffer";
-		m_frustum.s_frustumBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
-#endif
-		
+		DX::SetName(m_frustum.s_frustumBuffer, "s_frustumBuffer");
 	}
 
 	_createUAV();

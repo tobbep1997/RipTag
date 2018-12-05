@@ -239,6 +239,20 @@ void DX::SafeRelease(IUnknown * unknown)
 	unknown = nullptr;
 }
 
+void DX::SetName(ID3D11DeviceChild * dc, const std::string & name)
+{
+#ifndef _DEPLOY
+	dc->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
+#endif
+}
+
+void DX::SetName(ID3D11DeviceChild * dc, const std::wstring & name)
+{
+#ifndef _DEPLOY
+	dc->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
+#endif
+}
+
 WindowContext * SettingLoader::g_windowContext;
 
 Engine3D::Engine3D()
