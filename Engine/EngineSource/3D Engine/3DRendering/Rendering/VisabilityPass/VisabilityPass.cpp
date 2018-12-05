@@ -21,6 +21,7 @@ VisabilityPass::~VisabilityPass()
 	DX::SafeRelease(m_guardRenderTargetView);
 
 	DX::SafeRelease(m_textureBuffer);
+	DX::SafeRelease(m_alphaBlend); 
 }
 
 void VisabilityPass::Init()
@@ -45,20 +46,23 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 
 
+
+
 	// Static Objects
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(STATIC_VERTEX_SHADER_PATH));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_STATIC_VERTEX_SHADER_PATH), nullptr,0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
+		
+	DirectX::XMMATRIX proj, viewInv;
+	DirectX::BoundingFrustum boundingFrustum;
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getView())));
+	DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+	boundingFrustum.Transform(boundingFrustum, viewInv);
 
 	for (int i = 0; i < DX::g_cullQueue.size(); i++)
 	{
-		DirectX::XMMATRIX proj, viewInv;
-		DirectX::BoundingFrustum boundingFrustum;
-		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getProjection()));
-		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&target->getCamera()->getView())));
-		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
-		boundingFrustum.Transform(boundingFrustum, viewInv);
 		if (DX::g_cullQueue[i]->getEntityType() != EntityType::PlayerType && !DX::g_cullQueue[i]->getOutline())
 		{
 			if (DX::g_cullQueue[i]->getBoundingBox())
@@ -74,6 +78,19 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 
 	forwardRender->DrawInstancedCull(target->getCamera());
 
+	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff); 
+
+	for (auto & emitter : DX::g_emitters)
+	{	
+		if (boundingFrustum.Intersects(*emitter->getBoundingBox()))
+		{
+			emitter->Clear();
+			emitter->Update(0, target->getCamera());
+			emitter->Draw();
+		}
+	}
+
+	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0); 
 
 	/*for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
 	{
@@ -221,7 +238,14 @@ void VisabilityPass::_init()
 	_initDSV();
 	_initSRV();
 
+
 	HRESULT hr;
+
+	if (SUCCEEDED(hr =DXRHC::CreateBlendState("VisabilityParticleBlendState", m_alphaBlend)))
+	{
+
+	}
+
 	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_guatdShaderResourceTex",
 		m_guatdShaderResourceTex, 
 		GUARD_RES_Y, 
