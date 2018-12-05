@@ -167,10 +167,10 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 				guardWalkToPlayerWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_EQUAL);
 
 				auto& playerWalkToGuardWalk = blend_fwd->AddOutState(walkState);
-				playerWalkToGuardWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_NOT_EQUAL);
+				playerWalkToGuardWalk.AddTransition((int*)(&m_AIState), static_cast<int>(AIState::Possessed), SM::COMPARISON_NOT_EQUAL);
 
 				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
-				playerWalkBackToGuardWalk.AddTransition(&m_AIState, AIState::Possessed, SM::COMPARISON_NOT_EQUAL);
+				playerWalkBackToGuardWalk.AddTransition((int*)(&m_AIState), static_cast<int>(AIState::Possessed), SM::COMPARISON_NOT_EQUAL);
 			}
 		}
 

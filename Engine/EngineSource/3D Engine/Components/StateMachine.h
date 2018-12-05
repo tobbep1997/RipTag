@@ -49,8 +49,8 @@ namespace SM
 		bool Evaluate() const override;
 	private:
 		T* m_Reference = nullptr;
-		T m_Value = 0;
-		T m_Value2 = 0;
+		T m_Value;
+		T m_Value2;
 		COMPARISON_TYPE m_Type;
 	};
 
