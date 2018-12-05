@@ -16,4 +16,5 @@ private:
 
 	static void _PlayerCheets();
 	static void _SpawnCheets();
+	static void _Help();
 };

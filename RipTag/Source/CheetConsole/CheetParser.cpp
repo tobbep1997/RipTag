@@ -33,6 +33,10 @@ void CheetParser::ParseString(const std::string& input)
 	{
 		_SpawnCheets();
 	}
+	else if (input == "help" || input == "HELP")
+	{
+		_Help();
+	}
 	
 }
 
@@ -108,4 +112,13 @@ void CheetParser::_SpawnCheets()
 		break;
 
 	}
+}
+
+void CheetParser::_Help()
+{
+	std::cout << "---HELP---" << std::endl;
+	std::cout << "player" << std::endl;
+	std::cout << "lose" << std::endl;
+	std::cout << "win" << std::endl;
+	std::cout << "spawn" << std::endl;
 }
