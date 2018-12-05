@@ -115,11 +115,11 @@ float4 GuardOptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         This is the default values 
         We need these if there is no textures. (Albedo, Normal, ORM)
     */    
-    float4 albedo = input.color; //Albedo
-    float3 normal = input.normal.xyz; //Normal
-    float3 AORoughMet = float3(1, 1, 1); //ORM
+    float4 albedo = input.color;            //Albedo
+    float3 normal = input.normal.xyz;       //Normal
+    float3 AORoughMet = float3(1, 1, 1);    //ORM
 
-    ambient = float4(.2f, .2f, .2f, 1); //Ambient default
+    ambient = float4(.09f, .09f, .09f, 1);  //Ambient default
                                             //We need to set the ambient becouse its and output parameter                                            
     //----------------------------------------------------------------
     //We flip the v becouse export and shit
@@ -329,7 +329,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 normal = input.normal.xyz;       //Normal
     float3 AORoughMet = float3(1, 1, 1);    //ORM
 
-    ambient = float4(.2f, .2f, .2f, 1);     //Ambient default
+    ambient = float4(.09f, .09f, .09f, 1);  //Ambient default
                                             //We need to set the ambient becouse its and output parameter                                            
     //----------------------------------------------------------------
     //We flip the v becouse export and shit
@@ -419,7 +419,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
             Hey wait you say, That looks alot like the attenuation calculations.    
             Well observed sir. We can't use the previous one because its not between [0, 1]
         */
-        specular = (numerator / max(denominator, 0.001f)) * (1.0f / (1.0f + 0.1f * pow(distanceToLight, 2.0f)));
+        specular = (numerator / max(denominator, 0.001f)) * (1.0f / (1.0f + 0.08f * pow(distanceToLight, 2.0f)));
         //----------------------------------------------------------------
 
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
