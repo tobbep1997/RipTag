@@ -33,6 +33,8 @@ private:
 	const wchar_t * STATIC_VERTEX_SHADER_PATH = L"../Engine/EngineSource/Shader/VertexShader.hlsl";
 	const wchar_t * DYNAMIC_VERTEX_SHADER_PATH = L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl";
 
+	ID3D11BlendState* m_alphaBlend; 
+
 
 	struct GuardViewBuffer
 	{

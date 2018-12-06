@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
+#include "Source/CheetConsole/CheetParser.h"
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
@@ -27,6 +28,8 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_arrayIndex = arrayIndex;
 	this->m_roomIndex = roomIndex;
 	this->m_playerInRoomPtr = playerPtr;
+	CheetParser::SetPlayerCheetPointer(playerPtr);
+
 
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
@@ -298,6 +301,7 @@ void Room::LoadRoomToMemory()
 				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
 			}
 			//Setting guard patrol path
+			
 			e->SetPathVector(fullPath);
 			//Pushing guard to vector
 			this->m_roomGuards.push_back(e);
@@ -383,7 +387,7 @@ void Room::LoadRoomToMemory()
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
-
+	CheetParser::SetEnemyHandlerCheetPointer(m_enemyHandler);
 	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
 	for (int i = 0; i < m_Torches.size(); i++)
 	{
@@ -405,11 +409,7 @@ void Room::Update(float deltaTime, Camera * camera)
 
 	for (auto torch : m_Torches)
 	{
-		torch->Update(deltaTime);
-		auto light = torch->getPointLightPtr();
-		light->setDropOff(2.0425345f);
-		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
+		torch->Update(deltaTime);	
 	}
 
 	triggerHandler->Update(deltaTime);
@@ -433,7 +433,7 @@ void Room::Update(float deltaTime, Camera * camera)
 			m_playerInRoomPtr->setHidden(false);
 			CameraHandler::setActiveCamera(m_roomGuards.at(i)->getCamera());
 			m_roomGuards.at(i)->setHidden(true);
-			m_playerInRoomPtr->setOutline(true);
+			//m_playerInRoomPtr->setOutline(true);
 			if (m_youLost == false)
 			{
 				DX::g_screenShootCamera = true;
@@ -449,6 +449,8 @@ void Room::Update(float deltaTime, Camera * camera)
 	{
 		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
 	}
+
+
 }
 
 void Room::SetActive(bool state)
@@ -840,7 +842,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		}
 		else
 			Manager::g_meshManager.loadStaticMesh(name);
-
+		
 
 
 

@@ -47,6 +47,7 @@ namespace Shaders
 	}
 	void ShaderManager::ReloadAllShaders()
 	{	
+		bool succeeded = true;
 #if _DEBUG
 		system("cls");
 		std::cout << "Shader Reloader-----------------------------------------------" << std::endl;
@@ -79,7 +80,7 @@ namespace Shaders
 					s = L"\t\t\t\t\t\t\t\t\t\t\t\t" + std::to_wstring(static_cast<int>((static_cast<float>(counter) / nrOfShaders) * 100)) + L"%\t\tFAILED " + wendl;
 					OutputDebugStringW(LPCWSTR(s.c_str()));
 #endif
-
+					succeeded = false;
 				}
 				else
 				{
@@ -100,7 +101,11 @@ namespace Shaders
 #if _DEBUG
 		std::cout << "All done :)---------------------------------------------------" << std::endl;
 #elif !_DEPLOY
-		OutputDebugStringW(LPCWSTR(L"All done :)---------------------------------------------------\n"));
+		if (succeeded)
+			OutputDebugStringW(LPCWSTR(L"All done :)---------------------------------------------------\n"));
+		else
+			OutputDebugStringW(LPCWSTR(L"SHADER RELOADING FAILED >:(-----------------------------------\n"));
+
 #endif
 	}
 	void ShaderManager::UnloadShader(const std::wstring path)

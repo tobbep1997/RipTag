@@ -479,3 +479,6 @@ void RemotePlayer::_onNetworkSmokeDetonate(unsigned char * data)
 	RipExtern::g_particleSystem->ParticleSystem::AddEmitter(emitter);
 	dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE])->Reset();
 }
+
+	dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE])->Reset();
+}

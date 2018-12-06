@@ -521,6 +521,10 @@ void RoomGenerator::_createEntireWorld()
 					if(tempProps.props[k].typeOfProp != 11 
 						&& tempProps.props[k].typeOfProp != 16)
 						_modifyPropBoundingBoxes(tempProps.props[k]);
+					if (tempProps.props[k].typeOfProp == 4)
+					{
+						m_spakCounter++;
+					}
 				}
 			
 				returnableRoom->addPropsAndAssets(tempProps, returnableRoom->getTriggerHandler(), &m_generated_assetVector, true);
@@ -673,12 +677,32 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 
+	//
+
 	_createEntireWorld();
 	_generateGrid();
 	_generateGuardPaths();
 	_makeFloor();
 	_makeRoof();
-	
+
+	Quad * dbg_quad = new Quad();
+	dbg_quad->init();
+	dbg_quad->setPivotPoint(Quad::PivotPoint::upperRight);
+	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
+	dbg_quad->setFont(FontHandler::getFont("consolas16"));
+	dbg_quad->setPosition(1, 0.8);
+	dbg_quad->setString("Amount of Spakar\n " + std::to_string((UINT)m_spakCounter));
+	//dbg_quad->setPosition(1, 1);
+	dbg_quad->setTextColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
+	dbg_quad->setScale(.20f, .2f);
+	dbg_quad->setColor(0, 0, 0, 1);
+	dbg_quad->setUnpressedTexture("DAB");
+	dbg_quad->setPressedTexture("");
+	dbg_quad->setHoverTexture("");
+	dbg_quad->Draw();
+
+	returnableRoom->getPLayerInRoomPtr()->AddQuad(dbg_quad);
+
 	returnableRoom->setGrid(this->m_generatedGrid);
 
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;

@@ -13,10 +13,6 @@ PointLight::PointLight()
 	m_nearPlane = 0.01f;
 	_initDirectX();
 	_setFarPlane();
-	//m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
-	//m_phys.p_setPosition(-999,-9999,-99999);
-	//m_phys.setObjectTag("FUCKOFF");
-	//m_phys.setUserDataBody(this);
 	for (int i = 0; i < 6; i++)
 	{
 		m_useSides[i] = TRUE;
@@ -39,7 +35,6 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_dropOff = 1.1f;
 	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
-	//CreateShadowDirection(PointLight::Y_POSITIVE);
 	CreateShadowDirection(PointLight::XYZ_ALL);
 	for (int i = 0; i < 6; i++)
 	{
@@ -503,9 +498,17 @@ void PointLight::_initDirectX()
 		break;
 	}
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, size, size, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS);
-	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADOW_SIDES);
-	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADOW_SIDES, 0, 0, 1);
+	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_shadowDepthBufferTex",this->m_shadowDepthBufferTex, size, size, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS)))
+	{
+		if (SUCCEEDED(hr = DXRHC::CreateDepthStencilView("m_shadowDepthStencilView", m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADOW_SIDES)))
+		{
+			
+		}
+		if (SUCCEEDED(hr = DXRHC::CreateShaderResourceView("m_shadowShaderResourceView", m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADOW_SIDES, 0, 0, 1)))
+		{
+			
+		}		
+	}
 	
 }
 
@@ -517,7 +520,7 @@ void PointLight::_setFarPlane()
 		m_farPlane = 25.0f;
 		break;
 	case 1:
-		m_farPlane = 50.0f;
+		m_farPlane = 25.0f;
 		break;
 	case 2:
 		m_farPlane = 75.0f;

@@ -15,7 +15,6 @@ private:
 	std::vector<Texture*> m_GuiTextures;
 	std::vector<Texture *>m_DDSTextures;
 
-	size_t maxTextureSize;
 
 public:
 	TextureManager();

@@ -19,6 +19,7 @@
 #include <d3dcsx.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
+#include <D3DCommon.h>
 
 //Internal
 #include "ConsoleColor.h"

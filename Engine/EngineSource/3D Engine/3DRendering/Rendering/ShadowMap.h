@@ -49,7 +49,7 @@ private:
 	ID3D11ShaderResourceView *	m_shadowShaderResourceView;	//RE
 	ID3D11DepthStencilView*		m_shadowDepthStencilView;	//RE
 	ID3D11Texture2D*			m_shadowDepthBufferTex;		//Release
-	
+	ID3D11RasterizerState *		m_rasterizerState;
 
 	ID3D11RenderTargetView*		m_renderTargetView;			//RE
 	ID3D11Texture2D*			m_renderTargetsTexture;		//RE
@@ -71,7 +71,7 @@ public:
 	ShadowMap();
 	~ShadowMap();
 
-	void Init(UINT width, UINT height);
+	HRESULT Init(UINT width, UINT height);
 
 	void ShadowPass(ForwardRender * renderingManager);
 
@@ -82,10 +82,10 @@ public:
 	void Release();
 private:
 	void _createShadowViewPort(UINT width, UINT height);
-	void _createShadowDepthStencilView(UINT width, UINT hight);
-	void _createBuffers();
-	void _createRenderTargets(UINT width, UINT height);
+	HRESULT _createShadowDepthStencilView(UINT width, UINT hight);
+	HRESULT _createBuffers();
+	HRESULT _createRenderTargets(UINT width, UINT height);
 	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
-	void _mapObjectBuffer(Drawable * drawable);
+	HRESULT _mapObjectBuffer(Drawable * drawable);
 };
 

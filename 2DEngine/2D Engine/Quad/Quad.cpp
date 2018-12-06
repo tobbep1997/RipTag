@@ -14,7 +14,11 @@ void Quad::p_createBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = quadVertex;
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer)))
+	{
+		DX::SetName(m_vertexBuffer, "QUAD: m_vertexBuffer");
+	}
 }
 
 void Quad::p_setStaticQuadVertex()

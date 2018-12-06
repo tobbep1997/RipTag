@@ -18,16 +18,22 @@ void Drawable::_setStaticBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_staticMesh->getRawVertice();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+	HRESULT hr;
 
 
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer)))
+	{
+		DX::SetName(p_vertexBuffer, L"p_vertexBuffer");
+	}
 
 }
 
 void Drawable::_setDynamicBuffer()
 {
 	DX::SafeRelease(p_vertexBuffer);
-
+	DX::SafeRelease(m_animatedUAV);
+	DX::SafeRelease(m_UAVOutput);
+	DX::SafeRelease(uavstage);
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
 	
@@ -58,36 +64,52 @@ void Drawable::_setDynamicBuffer()
 		stuffs.push_back(s);
 	}
 
-
+	HRESULT hr;
+	
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER ;
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.ByteWidth = sizeof(stuff) * (UINT)stuffs.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = stuffs.data();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer)))
+	{
+		DX::SetName(p_vertexBuffer, L"p_vertexBuffer");
+	}
 
 	bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	bufferDesc.StructureByteStride = sizeof(PostAniDynamicVertex);
-	hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput);
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput)))
+	{
+		DX::SetName(m_UAVOutput, L"m_UAVOutput");
+	}
+
 
 	bufferDesc.BindFlags = 0;
 	bufferDesc.Usage = D3D11_USAGE_STAGING;
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &uavstage);
 
+	
 
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &uavstage)))
 	{
+		DX::SetName(uavstage, L"uavstage");
+
 		D3D11_UNORDERED_ACCESS_VIEW_DESC ud = {};
 		ud.Format = DXGI_FORMAT_R32_FLOAT;
 		ud.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 
 		unsigned int numFloatElementsPerVertex = 11; //needed since DXGI_FORMAT_R32_FLOAT format
 		ud.Buffer.NumElements = m_skinnedMesh->getVertices().size() * numFloatElementsPerVertex;
-		hr = DX::g_device->CreateUnorderedAccessView(m_UAVOutput, &ud, &m_animatedUAV);
+
+
+		if (SUCCEEDED(hr = DX::g_device->CreateUnorderedAccessView(m_UAVOutput, &ud, &m_animatedUAV)))
+		{
+			DX::SetName(m_animatedUAV, L"m_animatedUAV");
+		}
 	}
 
 

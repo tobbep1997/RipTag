@@ -72,9 +72,26 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 				NodeWorldPos(grid.gridPoints[index].translation[0],
 					grid.gridPoints[index].translation[2])));
 		}
+	_createSubGrid();
+	/*std::ofstream o;
+	this->PrintMe();
+	o.open("sub.txt");
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
+				o << "#";
+			else
+				o << m_nodeMap[x + y * m_width].tile.getSubGrid();
+			o << " ";
+		}
+		o << "\n";
+	}
+	o.close();*/
 }
 
-void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded)
+void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid)
 {
 	if (grid.gridPoints == nullptr)
 		return;
@@ -180,7 +197,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		return pathToDestination;
 	}
 	else
-		return _findPath(source, destination, m_nodeMap, m_width, m_height);
+	{
+		if (dest.getSubGrid() == src.getSubGrid())
+			return _findPath(source, destination, m_nodeMap, m_width, m_height);
+		else
+			return std::vector<Node*>();
+	}
 }
 
 Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
@@ -427,8 +449,9 @@ void Grid::PrintMe() const
 	map.close();
 }
 
-void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY, Tile dest, std::vector<std::shared_ptr<Node>> & openList,
-	std::vector<Node> & nodeMap, bool * closedList, int width, int height)
+void Grid::_checkNode(std::shared_ptr<Node> current, float addedGCost, int offsetX, int offsetY,
+						Tile dest, std::vector<std::shared_ptr<Node>> & openList,
+						std::vector<Node> & nodeMap, bool * closedList, int width, int height)
 {
 	int currentX = current->tile.getX();
 	int currentY = current->tile.getY();
@@ -828,25 +851,25 @@ std::vector<Node*> Grid::_getUnblockedAround(int x, int y)
 	if (x > 0) // Left
 		if (m_nodeMap.at(x - 1 + y * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x - 1 + y * m_width));
-	if (x < m_width) // Right
+	if (x < m_width - 1) // Right
 		if (m_nodeMap.at(x + 1 + y * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + 1 + y * m_width));
 	if (y > 0) // Up
 		if (m_nodeMap.at(x + (y - 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + (y - 1) * m_width));
-	if (y < m_height) // Down
+	if (y < m_height - 1) // Down
 		if (m_nodeMap.at(x + (y + 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + (y + 1) * m_width));
 	if (x > 0 && y > 0) // Up left
 		if (m_nodeMap.at(x - 1 + (y - 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x - 1 + (y - 1) * m_width));
-	if (x < m_width && y > 0) // Up Right
+	if (x < m_width - 1 && y > 0) // Up Right
 		if (m_nodeMap.at(x + 1 + (y - 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + 1 + (y - 1) * m_width));
-	if (x > 0 && y < m_height) // Down Left
+	if (x > 0 && y < m_height - 1) // Down Left
 		if (m_nodeMap.at(x - 1 + (y + 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x - 1 + (y + 1) * m_width));
-	if (x < m_width && y < m_height) // Down Right
+	if (x < m_width - 1 && y < m_height - 1) // Down Right
 		if (m_nodeMap.at(x + 1 + (y + 1) * m_width).tile.getPathable())
 			nodes.push_back(&m_nodeMap.at(x + 1 + (y + 1) * m_width));
 
@@ -948,6 +971,75 @@ void Grid::_printPath(std::vector<Node*>& path, std::ofstream & file, Tile & sou
 	file << "\n";
 }
 
+void Grid::_createSubGrid()
+{
+	int subGrid = 0;
+	
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			if (m_nodeMap[x + y * m_width].tile.getPathable() && m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
+			{
+				std::vector<Node*> targets;
+				_subGridCheck(x, y, targets);
+				for (auto & n : targets)
+					n->tile.setSubGrid(subGrid);
+
+				subGrid++;
+			}
+		}
+	}
+}
+
+void Grid::_subGridCheck(int x, int y, std::vector<Node*>& targetNodes)
+{
+	if (m_nodeMap.at(x + y * m_width).tile.getPathable())
+	{
+		bool canPushBack = true;
+		for (auto & t : targetNodes)
+		{
+			if (m_nodeMap.at(x + y * m_width) == *t)
+			{
+				canPushBack = false;
+				break;
+			}
+		}
+
+		if (canPushBack)
+			targetNodes.push_back(&m_nodeMap.at(x + y * m_width));
+
+		bool somethingNew = false;
+		int startIndex = targetNodes.size();
+
+		auto t = _getUnblockedAround(x, y);
+
+		for (auto newNode : t)
+		{
+			bool pushThis = true;
+			for (auto oldNode : targetNodes)
+			{
+				if (*newNode == *oldNode)
+				{
+					pushThis = false;
+					break;
+				}
+			}
+			if (pushThis)
+			{
+				somethingNew = true;
+				targetNodes.push_back(newNode);
+			}
+		}
+
+		if (somethingNew)
+		{
+			int end = targetNodes.size();
+			for (int i = startIndex; i < end; i++)
+				_subGridCheck(targetNodes.at(i)->tile.getX(), targetNodes.at(i)->tile.getY(), targetNodes);
+		}
+	}
+}
 
 Node & Node::operator=(const Node & other)
 {

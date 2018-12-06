@@ -18,7 +18,11 @@ void StaticMesh::_createVertexBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = getRawVertice();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer)))
+	{
+		DX::SetName(m_vertexBuffer, "StaticMesh: m_vertexBuffer");
+	}
 }
 
 StaticMesh::StaticMesh()

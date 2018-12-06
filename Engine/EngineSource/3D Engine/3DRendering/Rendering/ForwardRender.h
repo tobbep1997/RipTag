@@ -37,6 +37,7 @@ class ForwardRender
 	{
 		DirectX::XMFLOAT4A cameraPosition;
 		DirectX::XMFLOAT4X4A viewProjection;
+		DirectX::XMFLOAT4A cameraInfo;
 	};
 
 	struct LightBuffer
@@ -162,6 +163,9 @@ public:
 	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
 
+	ID3D11BlendState* getAlphaBlendState(); 
+	ID3D11DepthStencilState* getDepthStencilState(); 
+
 	DirectX::BoundingFrustum * _createBoundingFrustrum(Camera * camera);//Make sure to delete the pointer
 	bool _Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box);//Return true if the box sould be culled
 
@@ -183,6 +187,7 @@ private:
 	void _mapObjectBuffer(Drawable * drawable);
 
 
+
 	void _mapObjectOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
 	void _mapObjectInsideOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
 
@@ -197,7 +202,6 @@ private:
 
 	//void _SetShaders(int i);
 	void _setAnimatedShaders();
-	void _setStaticShaders();
 
 	//VisabilityPass
 	void _visabilityPass();

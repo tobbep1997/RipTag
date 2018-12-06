@@ -106,6 +106,11 @@ Texture * TextureManager::getDDSTextureByName(const std::wstring & name)
 
 void TextureManager::loadGUITexture(const std::wstring name, const std::wstring & full_path)
 {
+	if (full_path.find(L"_256") <= full_path.size() ||
+		full_path.find(L"_512") <= full_path.size() || 
+		full_path.find(L"_1024") <= full_path.size())
+		return;
+
 	Texture * tempTexture = new Texture();
 
 	if (m_GuiTextures.size() > 0)

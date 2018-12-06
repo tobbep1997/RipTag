@@ -2,6 +2,7 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
+#include "Source/CheetConsole/CheetParser.h"
 
 
 std::vector<std::string> RipSounds::g_sneakStep;
@@ -20,6 +21,7 @@ std::string				 RipSounds::g_playAmbientSound;
 std::string				 RipSounds::g_metalDoorOpening;
 std::string				 RipSounds::g_metalDoorClosening;
 std::string				 RipSounds::g_metalDoorClosed;
+std::string				 RipSounds::g_smokeBomb;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -75,6 +77,13 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+	//Cheat update
+	{
+		Cheet::g_visabilityDisabled = CheetParser::GetVisabilityDisabled();
+		Cheet::g_DBG_CAM = CheetParser::GetDBG_CAM();
+	}
+
+
 	int counter = 0;
 	if (runGame)
 	{
@@ -163,7 +172,7 @@ void PlayState::Update(double deltaTime)
 		if (m_youlost || m_playerManager->isGameWon())
 		{
 			runGame = false;
-
+			
 			RipExtern::g_particleSystem->clearEmitters();
 
 
@@ -181,7 +190,7 @@ void PlayState::Update(double deltaTime)
 					m_physicsThread.join();
 				}
 
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData,m_levelHandler->getNextRoom() - 1));
 			}
 			else
 			{
@@ -191,9 +200,8 @@ void PlayState::Update(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1);
 				m_transitionState->Load();
-
 				runGame = false;
 			}
 		}
@@ -273,7 +281,9 @@ void PlayState::Update(double deltaTime)
 						m_loadingScreen.draw();
 						RipExtern::g_kill = false;
 						m_removeHud = true;
+
 						this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+					
 						return;
 					}
 				}
@@ -291,7 +301,7 @@ void PlayState::Update(double deltaTime)
 						}
 					}
 
-					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 				}
 			}
 			else if (!m_levelHandler->HasMoreRooms())
@@ -308,13 +318,16 @@ void PlayState::Update(double deltaTime)
 					}
 				}
 
-				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 			}
-		
-
 		}
 	}
 	m_physicsFirstRun = false;
+}
+
+LevelHandler * PlayState::getLevelHandler()
+{
+	return m_levelHandler; 
 }
 
 void PlayState::Draw()
@@ -341,6 +354,11 @@ void PlayState::Draw()
 		if (m_transitionState)
 			m_transitionState->Draw();
 	}
+	if (CheetParser::GetDrawCollisionBoxes())
+	{
+		DrawWorldCollisionboxes();
+	}
+
 #ifdef _DEBUG
 	//DrawWorldCollisionboxes();
 #endif
@@ -759,6 +777,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
 
 	if (m_eventOverlay)
@@ -771,7 +790,7 @@ void PlayState::unLoad()
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
 
-
+	if(RipExtern::g_particleSystem != nullptr)
 	RipExtern::g_particleSystem->clearEmitters();
 
 
@@ -1042,6 +1061,7 @@ void PlayState::_loadSound()
 	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg");
 	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true);
 	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg");
+	RipSounds::g_smokeBomb = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg"); 
 	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
 	RipSounds::g_metalDoorOpening = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg");
 
@@ -1090,7 +1110,7 @@ void PlayState::_onGameOverPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData, m_levelHandler->getNextRoom() - 1, true));
 }
 
 void PlayState::_onGameWonPacket()
@@ -1109,7 +1129,7 @@ void PlayState::_onDisconnectPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)
@@ -1145,7 +1165,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1);
 				m_transitionState->Load();
 
 				runGame = false;

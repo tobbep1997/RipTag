@@ -1036,8 +1036,7 @@ DirectX::XMFLOAT2 AI::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Cam
 	{
 		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
 		XMVECTOR enemyPos = XMLoadFloat4A(&m_owner->getPosition());
-
-		XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
+		XMVECTOR vdir = XMVector3TransformCoord(enemyPos, playerView);
 		XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
 		vdir = XMLoadFloat2(&dir);
 		vdir = XMVector2Normalize(vdir);

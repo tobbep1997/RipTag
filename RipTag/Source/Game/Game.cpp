@@ -9,13 +9,14 @@ Game::Game()
 
 Game::~Game()
 {
-	m_renderingManager->Release();
-	pNetworkInstance->Destroy();
 	while(!m_gameStack.empty())
 	{
+		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
 		m_gameStack.pop();
 	}
+	m_renderingManager->Release();
+	pNetworkInstance->Destroy();
 }
 
 void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
