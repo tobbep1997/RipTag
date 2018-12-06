@@ -58,14 +58,14 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 					&this->m_currentDirection, //x-axis driver
 					&this->m_currentMoveSpeed, //y-axis driver
 					-115.f, 115.f, //x-axis bounds
-					0.0f, 6.0f //y-axis bounds
+					0.0f, 4.0f //y-axis bounds
 				);
 				SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
 					"walk_backward", //state name
 					&this->m_currentDirection, //x-axis driver
 					&this->m_currentMoveSpeed, //y-axis driver
 					-180.f, 180.f, //x-axis bounds
-					0.0f, 3.001f //y-axis bounds
+					0.0f, 4.f //y-axis bounds
 				);
 
 				//Add blendspace rows 
@@ -79,7 +79,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 					}
 				);
 				blend_fwd->AddRow(
-					3.1f, //y placement
+					4.f, //y placement
 					{	//uses a vector initializer list for "convinience"
 						{ sharedAnimations[RemotePlayer::AnimState::RIGHT].get(), -115.f }, //the clip to use and x-placement
 						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
@@ -106,7 +106,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 					}
 				);
 				blend_bwd->AddRow(
-					3.1f, //y placement
+					4.f, //y placement
 					{	//uses a vector initializer list for "convinience"
 						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
 						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
@@ -392,6 +392,7 @@ void Enemy::ClientUpdate(double deltaTime)
 {
 	using namespace Network;
 
+	if (!m_IsPossessed)
 	{
 		using namespace DirectX;
 		//calculate walk direction (-1, 1, based on camera) and movement speed
@@ -537,12 +538,14 @@ bool Enemy::GetDisabledState()
 
 void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 {
-	std::cout << "updating enemy from network\n";
+	std::cout << "Direction:\t" << packet->direction << "\n";
+	std::cout << "Speed:    \t" << packet->moveSpeed << "\n";
 	this->m_currentMoveSpeed = packet->moveSpeed;
 	this->m_currentDirection = packet->direction;
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
 	p_setRotation(0.0f, packet->rot.y, 0.0f);
 	p_camera->setDirection(packet->camDir);
+
 }
 
 void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
