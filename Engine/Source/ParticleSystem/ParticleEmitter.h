@@ -50,8 +50,9 @@ struct Vertex
 //__declspec(align(32))
 struct ConstantBufferData
 {
-	float alphaMultipliers[4]	= { 1.0f, 1.0f, 1.0f, 1.0f };
+	float alphaMultipliers[4]	= { 1.0f, 1.0f, 1.0f, 0.0f };
 	float fadePoints[4]			= { 1.0f, 1.0f, 1.0f, 0.0f };
+	float colorModifiers[4]		= { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
 
