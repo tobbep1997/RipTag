@@ -105,7 +105,9 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 		pressed = false;
 	}
 	if (RipExtern::g_kill == false)
+	{
 		m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
+	}
 }
 
 void LevelHandler::Draw()
@@ -141,6 +143,11 @@ EnemyHandler * LevelHandler::getEnemyHandler()
 	return m_rooms[m_activeRoom]->getEnemyHandler();
 }
 
+std::vector<Room*> LevelHandler::getRooms()
+{
+	return m_rooms; 
+}
+
 
 std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
 {
@@ -150,6 +157,11 @@ std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositi
 const unsigned short LevelHandler::getNextRoom() const
 {
 	return this->m_nextRoomIndex;
+}
+
+short unsigned int LevelHandler::getActiveRoomNr() const
+{
+	return m_activeRoom; 
 }
 
 bool LevelHandler::HasMoreRooms()
