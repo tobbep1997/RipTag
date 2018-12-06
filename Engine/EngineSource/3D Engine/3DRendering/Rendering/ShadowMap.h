@@ -85,7 +85,7 @@ private:
 	HRESULT _createShadowDepthStencilView(UINT width, UINT hight);
 	HRESULT _createBuffers();
 	HRESULT _createRenderTargets(UINT width, UINT height);
-	HRESULT _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
+	void _mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer);
 	HRESULT _mapObjectBuffer(Drawable * drawable);
 };
 

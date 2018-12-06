@@ -263,7 +263,7 @@ HRESULT ShadowMap::_createRenderTargets(UINT width, UINT height)
 	return hr;
 }
 
-HRESULT ShadowMap::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer)
+void ShadowMap::_mapSkinningBuffer(Drawable * d, Animation::AnimationCBuffer * animBuffer)
 {
 	std::vector<DirectX::XMFLOAT4X4A> skinningVector = d->getAnimationPlayer()->GetSkinningMatrices();
 
