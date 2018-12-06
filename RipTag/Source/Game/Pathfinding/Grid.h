@@ -105,9 +105,11 @@ public:
 	Tile WorldPosToTile(float x, float y);
 	Node GetWorldPosFromIndex(int index);
 	void BlockGridTile(int index, bool pathable);
+	
+
 
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
-	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid, int overloaded = 0);
+	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid);
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
 	std::vector<Node*> FindPath(Tile src, Tile dest);
 	// Should theoretically always return a valid tile in the same room as the source
@@ -146,5 +148,6 @@ private:
 
 	void _printTilePairs(std::vector<TilePair> & tilePair, std::ofstream & file, Tile & source, Tile & dest);
 	void _printPath(std::vector<Node*> & path, std::ofstream & file, Tile & source, Tile & dest);
-
+	void _createSubGrid();
+	void _subGridCheck(int x, int y, std::vector<Node*> &targetNodes);
 };
