@@ -2,12 +2,13 @@
 #include "TransitionState.h"
 
 
-TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData, bool partnerLost) : State(rm)
+TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData, int currentRoom, bool partnerLost) : State(rm)
 {
 	this->m_type = type;
 	m_eventString = eventString;
 	this->pCoopData = pCoopData;
 	m_partnerLost = partnerLost;
+	m_currentRoom = currentRoom; 
 }
 
 
@@ -88,11 +89,14 @@ void TransitionState::Update(double deltaTime)
 		{
 			if (isReady && isRemoteReady)
 			{
-				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+				//this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
 			}
 		}
 		else if (isReady)
-			this->pushAndPop(2, new PlayState(p_renderingManager));
+		{
+			this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
+		}
 
 	}
 

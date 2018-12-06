@@ -95,6 +95,9 @@ public:
 	unsigned short m_roomIndex = 0;
 	void Update(double deltaTime) override;
 
+
+	LevelHandler* getLevelHandler(); 
+
 	void Draw() override;
 
 	static void setYouLost(const bool & youLost);
