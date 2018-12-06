@@ -70,6 +70,20 @@ void TeleportAbility::Update(double deltaTime)
 		_logicLocal(deltaTime);
 	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
 
+	ContactListener::S_Contact contact;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	{
+		contact = RipExtern::g_contactListener->GetBeginContact(i);
+		if (contact.a->GetBody()->GetObjectTag() == "TELEPORT" || contact.b->GetBody()->GetObjectTag() == "TELEPORT")
+		{
+			if (!contact.a->IsSensor() && !contact.b->IsSensor())
+			{
+				FMOD_VECTOR at = FMOD_VECTOR{ this->p_position.x, this->p_position.y, this->p_position.z };
+				AudioEngine::PlaySoundEffect(RipSounds::g_teleportHit, &at)->setVolume(1.0f);
+			}
+		}
+	}
+
 }
 
 void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -306,6 +320,9 @@ void TeleportAbility::_inStateTeleportable()
 			}
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 			m_tpState = TeleportAbility::Cooldown;
+
+			FMOD_VECTOR at = FMOD_VECTOR{ position.x, position.y, position.z }; 
+			AudioEngine::PlaySoundEffect(RipSounds::g_teleport, &at)->setVolume(0.8f); 
 		}
 
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())

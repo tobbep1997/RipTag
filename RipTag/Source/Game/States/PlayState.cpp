@@ -23,6 +23,7 @@ std::string				 RipSounds::g_metalDoorClosening;
 std::string				 RipSounds::g_metalDoorClosed;
 std::string				 RipSounds::g_smokeBomb;
 std::string				 RipSounds::g_teleport; 
+std::string				 RipSounds::g_teleportHit; 
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -780,6 +781,7 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleport); 
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleportHit); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
 
 	if (m_eventOverlay)
@@ -1065,6 +1067,7 @@ void PlayState::_loadSound()
 	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg");
 	RipSounds::g_smokeBomb = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg"); 
 	RipSounds::g_teleport = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleport.ogg"); 
+	RipSounds::g_teleportHit = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleportHit.ogg");
 	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
 	RipSounds::g_metalDoorOpening = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg");
 
