@@ -319,6 +319,12 @@ void Enemy::Update(double deltaTime)
 
 	if (state == AIState::Possessed)
 	{
+		//#todoREMOVE
+		{
+			if (m_IsPossessed)
+				std::cout << yellow << getAnimationPlayer()->GetStateMachine()->GetCurrentState().Name() << '\n';
+		}
+
 		{
 			using namespace DirectX;
 			//calculate walk direction (-1, 1, based on camera) and movement speed

@@ -241,8 +241,6 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentPitch = data->pitch;
 		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
-
-		std::cout << m_currentSpeed << std::endl;
 	}
 }
 
@@ -260,9 +258,6 @@ void RemotePlayer::_lerpPosition(float dt)
 
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
-
-	if (DirectX::XMVector3IsNaN(curr) || DirectX::XMVector3IsNaN(next))
-		std::cout << "isNAN\n";
 
 	if (!DirectX::XMVector3IsNaN(curr) && !DirectX::XMVector3IsNaN(next))
 	{
