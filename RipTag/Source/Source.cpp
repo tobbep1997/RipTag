@@ -153,7 +153,7 @@ void SingleGameLoop(Game * game)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	parser = CheetParser::GetInstance();
-	bool consoleEnabled = true;
+	bool consoleEnabled = false;
 	std::thread console;
 	if (consoleEnabled)
 	{
