@@ -151,6 +151,19 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 {
+	if (source.getX() < 0 || source.getY() < 0)
+	{
+		std::vector<Node*> temp;
+		
+		return temp;
+	}
+	if (source.getX() < 0 || source.getY() < 0)
+	{
+		std::vector<Node*> temp;
+
+		return temp;
+	}
+
 	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	Tile src = m_nodeMap.at(source.getX() + source.getY() * m_width).tile;
 	if (!src.getPathable())
