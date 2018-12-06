@@ -313,6 +313,7 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
+	if (!m_IsPossessedByTeammate)
 	{
 		using namespace DirectX;
 		//calculate walk direction (-1, 1, based on camera) and movement speed
