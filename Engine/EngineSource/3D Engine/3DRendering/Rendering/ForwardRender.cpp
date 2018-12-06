@@ -53,27 +53,44 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 
 	_OutlineDepthCreate();
 	m_shadowMap = new ShadowMap();
+	HRESULT hr;
 	switch (windowContext.graphicsQuality)
 	{
 	case 0:
-		m_shadowMap->Init(32, 32);
-		m_lightCullingDistance = 50;
-		m_forceCullingLimit = 4;
+		if (SUCCEEDED(hr = m_shadowMap->Init(32, 32)))
+		{
+			m_lightCullingDistance = 50;
+			m_forceCullingLimit = 4;
+		}
+		else
+			throw hr;		
 		break;
 	case 1:
-		m_shadowMap->Init(128, 128);
-		m_lightCullingDistance = 50;
-		m_forceCullingLimit = 4;
+		if (SUCCEEDED(hr = m_shadowMap->Init(128, 128)))
+		{
+			m_lightCullingDistance = 50;
+			m_forceCullingLimit = 4;
+		}
+		else
+			throw hr;
 		break;
 	case 2:
-		m_shadowMap->Init(1024, 1024);
-		m_lightCullingDistance = 100;
-		m_forceCullingLimit = 8;
+		if (SUCCEEDED(hr = m_shadowMap->Init(1024, 1024)))
+		{
+			m_lightCullingDistance = 100;
+			m_forceCullingLimit = 8;
+		}
+		else
+			throw hr;
 		break;
 	case 3:
-		m_shadowMap->Init(2048, 2048);
-		m_lightCullingDistance = 250;
-		m_forceCullingLimit = 8;
+		if (SUCCEEDED(hr = m_shadowMap->Init(2048, 2048)))
+		{
+			m_lightCullingDistance = 250;
+			m_forceCullingLimit = 8;
+		}
+		else
+			throw hr;
 		break;
 	default:
 		m_shadowMap->Init(64, 64);
@@ -91,7 +108,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 	omDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	omDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	HRESULT hr;
+
 	if (SUCCEEDED(hr = DX::g_device->CreateBlendState(&omDesc, &m_alphaBlend)))
 	{
 		DX::SetName(m_alphaBlend, "ForwardRender: m_alphaBlend");

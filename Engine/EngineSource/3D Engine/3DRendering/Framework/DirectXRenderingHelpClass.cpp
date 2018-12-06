@@ -20,10 +20,9 @@ HRESULT DXRHC::CreateConstantBuffer(const std::string & name, ID3D11Buffer *& bu
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer)))
 	{
 		DX::SetName(buffer, name);
+		return hr;
 	}
-	else
-		exit(-1);
-
+	throw E_FAIL;
 }
 
 HRESULT DXRHC::CreateSamplerState(const std::string & name, ID3D11SamplerState *& sampler, D3D11_TEXTURE_ADDRESS_MODE d3_tx_ad_mode, D3D11_FILTER d3_filter, D3D11_COMPARISON_FUNC d3_comp_func, float boderColor, float minLod, float maxLod, float mipLoadBias, UINT maxAnisotropy)
@@ -45,11 +44,9 @@ HRESULT DXRHC::CreateSamplerState(const std::string & name, ID3D11SamplerState *
 	if (SUCCEEDED(hr = DX::g_device->CreateSamplerState(&ssDesc, &sampler)))
 	{
 		DX::SetName(sampler, name);
+		return hr;
 	}
-	else
-		exit(-1);
-
-	return hr;
+	throw E_FAIL;
 }
 
 HRESULT DXRHC::CreateTexture2D(const std::string & name, ID3D11Texture2D *& texture, UINT height, UINT width, UINT bindFlags, UINT mipLevel, UINT sampleDescCount, UINT sampleDescQuality, UINT arraySize, UINT CPUAccessFlags, UINT miscFlags, DXGI_FORMAT format, D3D11_USAGE usage)
@@ -72,10 +69,9 @@ HRESULT DXRHC::CreateTexture2D(const std::string & name, ID3D11Texture2D *& text
 	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &texture)))
 	{
 		DX::SetName(texture, name);
+		return hr;
 	}
-	else
-		exit(-1);
-	return hr;
+	throw E_FAIL;
 }
 
 HRESULT DXRHC::CreateDepthStencilView(const std::string & name, ID3D11Resource * resource, ID3D11DepthStencilView *& dsv, UINT flags, DXGI_FORMAT format, D3D11_DSV_DIMENSION dimension, UINT texture2DArray_FirstArraySize, UINT texture2DArray_ArraySize, UINT texture2DArray_MipSlice)
@@ -94,9 +90,9 @@ HRESULT DXRHC::CreateDepthStencilView(const std::string & name, ID3D11Resource *
 	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilView(resource, &depthStencilDesc, &dsv)))
 	{
 		DX::SetName(dsv, name);
+		return hr;
 	}
-	return hr;
-	
+		throw E_FAIL;
 }
 
 HRESULT DXRHC::CreateShaderResourceView(const std::string & name, ID3D11Resource * resource, ID3D11ShaderResourceView *& srv, UINT flags, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension, UINT texture2DArray_ArraySize, UINT texture2DArray_FirstArraySlice, UINT texture2DArray_MostDetailMip, UINT texture2DArray_MipLevel)
@@ -113,10 +109,11 @@ HRESULT DXRHC::CreateShaderResourceView(const std::string & name, ID3D11Resource
 	if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(resource, &srvDesc, &srv)))
 	{
 		DX::SetName(srv, name);
+		return hr;
 	}
-	else
-		exit(-1);
-	return hr;
+	throw E_FAIL;
+
+
 }
 
 HRESULT DXRHC::CreateRenderTargetView(const std::string & name, ID3D11Resource * resource, ID3D11RenderTargetView *& rtv, DXGI_FORMAT format, D3D11_RTV_DIMENSION dimension, UINT texture2DArray_ArraySize, UINT texture2DArray_FirstArraySlice, UINT texture2DArray_MipSlice)
@@ -134,10 +131,9 @@ HRESULT DXRHC::CreateRenderTargetView(const std::string & name, ID3D11Resource *
 	if (SUCCEEDED(hr = DX::g_device->CreateRenderTargetView(resource, &renderTargetViewDesc, &rtv)))
 	{
 		DX::SetName(rtv, name);
+		return hr;
 	}
-	else
-		exit(-1);
-	return hr;
+	throw E_FAIL;
 }
 
 HRESULT DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
@@ -206,10 +202,9 @@ HRESULT DXRHC::CreateRasterizerState(const std::string & name, ID3D11RasterizerS
 	if (SUCCEEDED(hr = DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState)))
 	{
 		DX::SetName(rasterrizerState, name);
+		return hr;
 	}
-	else
-		exit(-1);
-
+	throw E_FAIL;
 }
 
 HRESULT DXRHC::CreateBlendState(const std::string & name, ID3D11BlendState *& blendState, BOOL BlendEnable, D3D11_BLEND SrcBlend, D3D11_BLEND DestBlend, D3D11_BLEND_OP BlendOp, D3D11_BLEND SrcBlendAlpha, D3D11_BLEND DestBlendAlpha, D3D11_BLEND_OP BlendOpAlpha, UINT8 RenderTargetWriteMask)
@@ -230,9 +225,9 @@ HRESULT DXRHC::CreateBlendState(const std::string & name, ID3D11BlendState *& bl
 	if (SUCCEEDED(hr = DX::g_device->CreateBlendState(&omDesc, &blendState)))
 	{
 		DX::SetName(blendState, name);
-
+		return hr;
 	}
-	else
-		exit(-1);
+	throw E_FAIL;
+
 }
 

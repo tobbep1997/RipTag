@@ -113,11 +113,10 @@ bool calculateShadows(in VS_OUTPUT input, in int shadowLight, in int targetMatri
 
         //----------------------------------------------------------------
         //Here we calculate the epsilon value
-        float margin = acos(saturate(dot(input.normal.xyz, posToLight.xyz)));
-
-        float epsilon = (0.000125f) / margin;
+        float margin = max(dot(input.normal.xyz, posToLight.xyz), 0.001);
+        float epsilon = 0.000125 / margin;
         epsilon = clamp(epsilon, 0, 0.1);
-
+        //epsilon = .0001f;
         //----------------------------------------------------------------
         //Because we are sampling from a Texture2DArray we need a float3 to sample from it
         //float3(u, v, index)
