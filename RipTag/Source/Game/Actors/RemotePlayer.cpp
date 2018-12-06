@@ -241,6 +241,7 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentPitch = data->pitch;
 		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
+		std::cout << "Peek value recieved: " << data->peek << '\n';
 	}
 }
 
@@ -417,6 +418,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		layerMachine->ActivateLayer("pitch");
 		
 		auto leanState = layerMachine->Add1DPoseLayer("peek", &this->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
+		leanState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("peek");
 	}
 }
