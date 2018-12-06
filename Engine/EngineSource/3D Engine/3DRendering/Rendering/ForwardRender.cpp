@@ -285,7 +285,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
 	DX::g_deviceContext->RSSetState(m_NUKE);
-	//DX::g_deviceContext->OMSetDepthStencilState(m_NUKE2, 0);
+	DX::g_deviceContext->OMSetDepthStencilState(m_NUKE2, 0);
 
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl"), nullptr, 0);
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -843,77 +843,7 @@ void ForwardRender::_simpleLightCulling(Camera & cam)
 
 void ForwardRender::_GuardLightCulling()
 {
-	//Get all the guards for this frame
-	///*std::vector<Drawable*> guards;
-	//for (unsigned int i = 0; i < DX::g_geometryQueue.size(); ++i)
-	//{
-	//	if (DX::g_geometryQueue.at(i)->getEntityType() == EntityType::GuarddType)
-	//	{
-	//		guards.push_back(DX::g_geometryQueue.at(i));
-	//	}
-	//}*/
 
-	//std::vector<PointLight*> lights;
-	//std::vector<int> indexs;
-
-	//for (unsigned int i = 0; i < guards.size(); ++i)
-	//{
-	//	//DONT TOUCH
-	//	float bobbyDickLenght = 1000000;
-	//	//ITS VERY IMPORTANT
-	//	int lightIndex = -1;
-	//	for (unsigned int j = 0; j < DX::g_lights.size(); ++j)
-	//	{
-	//		float lenght = DX::g_lights.at(j)->getDistanceFromObject(guards.at(i)->getPosition());
-	//		if (lenght < bobbyDickLenght)
-	//		{
-	//			bobbyDickLenght = lenght;
-	//			lightIndex = j;
-	//		}
-	//	}
-	//	if (lightIndex != -1)
-	//	{
-	//		lights.push_back(DX::g_lights.at(lightIndex));
-	//		indexs.push_back(lightIndex);
-	//	}
-	//}
-	////bool Culled = false;
-	////while (Culled == false)
-	////{
-	////	bool ff = false;
-	////	for (unsigned int i = 0; i < DX::g_lights.size(); ++i)
-	////	{
-	////		bool found = false;
-	////		for (unsigned int j = 0; j < lights.size(); ++j)
-	////		{
-	////			if (DX::g_lights.at(i) != lights.at(j))
-	////			{
-	////				found = true;
-	////				DX::g_lights.erase(DX::g_lights.begin() + i);
-	////				//lights.erase(lights.begin() + j);
-	////				break;
-	////			}
-	////		}
-	////		if (found == true)
-	////		{
-	////			ff = true;
-	////			break;
-	////		}
-	////		
-	////	}
-	////	if (ff == false)
-	////	{
-	////		Culled = true;
-	////	}
-	////	
-	////}
-
-	//DX::g_lights.clear();
-	//DX::g_lights = lights;
-	//
-	//ImGui::Begin("lgihts");
-	//ImGui::Text("Lights, %d", DX::g_lights.size());
-	//ImGui::End();
 }
 
 void ForwardRender::_createConstantBuffer()
