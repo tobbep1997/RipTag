@@ -239,16 +239,12 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		output.worldPos = mul(finalWorldPos, float4(rotatedLocalPos, 1)); // Go to  worldSpace
 
 		
-		output.worldPos.xyz = lerp(output.worldPos.xyz, modelPos.xyz + normalize(output.worldPos.xyz - modelPos.xyz + offsetNormal) * 0.4f, lerpValue);
+		output.worldPos.xyz = lerp(output.worldPos.xyz, modelPos.xyz + normalize(output.worldPos.xyz - modelPos.xyz + offsetNormal) * 1.f, lerpValue);
 
 
 		output.worldPos.w = 1;
 		output.pos = mul(output.worldPos, viewProjection);
 	
-		
-
-
-
 		outputstream.Append(output);
 	}
 

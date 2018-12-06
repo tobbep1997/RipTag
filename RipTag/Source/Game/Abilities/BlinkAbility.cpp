@@ -110,5 +110,5 @@ void BlinkAbility::_logic(double deltaTime)
 void BlinkAbility::_sendBlinkPacket()
 {
 	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_BLINK);
-	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::IMMEDIATE_PRIORITY);
 }
