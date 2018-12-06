@@ -142,13 +142,13 @@ void TextureManager::loadGUITexture(const std::wstring name, const std::wstring 
 
 void TextureManager::loadDDSTexture(const std::wstring name, const std::wstring & full_path, const std::wstring & type = L"_256")
 {
-	const size_t index = full_path.find(type, 0);
+	const size_t index = name.find(type, 0);
 	if (index == std::wstring::npos)
 		return;
 
 	Texture * tempTexture = new Texture();
 
-	std::wstring _name = name.substr(0, type.size());
+	std::wstring _name = name.substr(0, index);
 
 	if (m_DDSTextures.size() > 0)
 	{
@@ -172,7 +172,7 @@ void TextureManager::loadDDSTexture(const std::wstring name, const std::wstring 
 	else
 	{
 		//first entry is always free
-		tempTexture->setName(name);
+		tempTexture->setName(_name);
 
 		tempTexture->LoadSingleTexture(full_path.c_str());
 

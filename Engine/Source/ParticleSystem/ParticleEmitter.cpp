@@ -183,10 +183,10 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 		downRightVertex.tangent = DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMStoreFloat4A(&downRightVertex.normal, m_forward);
 
-		upLeftVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
-		upRightVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
-		downLeftVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
-		downRightVertex.tangent.x = m_Particles[i]->lifeTime - m_Particles[i]->age;
+		upLeftVertex.tangent.x = (m_Particles[i]->lifeTime - m_Particles[i]->age) / m_Particles[i]->lifeTime;
+		upRightVertex.tangent.x = (m_Particles[i]->lifeTime - m_Particles[i]->age) / m_Particles[i]->lifeTime;
+		downLeftVertex.tangent.x = (m_Particles[i]->lifeTime - m_Particles[i]->age) / m_Particles[i]->lifeTime;
+		downRightVertex.tangent.x = (m_Particles[i]->lifeTime - m_Particles[i]->age) / m_Particles[i]->lifeTime;
 		
 		downLeftVertex.pos.w = 1.0f;
 		upLeftVertex.pos.w = 1.0f;
@@ -204,58 +204,86 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 
 void ParticleEmitter::_applyTextures()
 {
-	switch (type)
-	{
-	case PS::FIRE:
-		Manager::g_textureManager.getDDSTextureByName(L"FIRE")->Bind(1);
-		Manager::g_textureManager.getDDSTextureByName(L"SMOKE")->Bind(3);
-		break;
-	case PS::SMOKE:
-		Manager::g_textureManager.getDDSTextureByName(L"SMOKE")->Bind(1);
-		Manager::g_textureManager.getDDSTextureByName(L"SMOKE")->Bind(3);
-		break;
-	case PS::DEFAULT:
-		Manager::g_textureManager.getDDSTextureByName(L"NONE")->Bind(1);
-		Manager::g_textureManager.getDDSTextureByName(L"NONE")->Bind(3);
-		break;
-	default:
-		Manager::g_textureManager.getDDSTextureByName(L"NONE")->Bind(1);
-		Manager::g_textureManager.getDDSTextureByName(L"NONE")->Bind(3);
-		break;
-	}
+	Texture * texture = nullptr;
+
+	texture = Manager::g_textureManager.getDDSTextureByName(m_config.textures[0]);
+	if (texture)
+		texture->Bind(1);
+
+	texture = Manager::g_textureManager.getDDSTextureByName(m_config.textures[1]);
+	if (texture)
+		texture->Bind(2);
+
+	texture = Manager::g_textureManager.getDDSTextureByName(m_config.textures[2]);
+	if (texture)
+		texture->Bind(3);
 }
 
-void ParticleEmitter::InitializeBuffer()
+void ParticleEmitter::InitializeBuffers()
 {
 	if (m_vertexBuffer)
 	{
 		DX::SafeRelease(m_vertexBuffer);
 		m_vertexBuffer = nullptr;
 	}
-	int nrOfVertex = m_config.m_MaxParticle * 6;
-	D3D11_SUBRESOURCE_DATA data;
-	D3D11_BUFFER_DESC bufferDesc;
 
-	HRESULT hr;
-	Vertex * initData = new Vertex[nrOfVertex];
-	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	bufferDesc.ByteWidth = sizeof(Vertex) * nrOfVertex;
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bufferDesc.MiscFlags = 0;
-	bufferDesc.StructureByteStride = 0;
+	if (m_cBuffer)
+	{
+		DX::SafeRelease(m_cBuffer);
+		m_cBuffer = nullptr;
+	}
 
-	data.pSysMem = initData;
-	data.SysMemPitch = 0;
-	data.SysMemSlicePitch = 0;
+	//Vertex Buffer
+	{
+		int nrOfVertex = m_config.m_MaxParticle * 6;
+		D3D11_SUBRESOURCE_DATA data;
+		D3D11_BUFFER_DESC bufferDesc;
 
-	hr = DX::g_device->CreateBuffer(&bufferDesc, &data, &m_vertexBuffer);
+		HRESULT hr;
+		Vertex * initData = new Vertex[nrOfVertex];
+		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		bufferDesc.ByteWidth = sizeof(Vertex) * nrOfVertex;
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = 0;
 
-	delete[] initData;
+		data.pSysMem = initData;
+		data.SysMemPitch = 0;
+		data.SysMemSlicePitch = 0;
+
+		hr = DX::g_device->CreateBuffer(&bufferDesc, &data, &m_vertexBuffer);
+
+		delete[] initData;
+	}
+	//Constant Buffer
+	{
+		D3D11_SUBRESOURCE_DATA data;
+		D3D11_BUFFER_DESC bufferDesc;
+
+		HRESULT hr;
+		
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufferDesc.ByteWidth = sizeof(ConstantBufferData);
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.CPUAccessFlags = 0;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = 0;
+
+		data.pSysMem = &this->m_cData;
+		data.SysMemPitch = 0;
+		data.SysMemSlicePitch = 0;
+
+		hr = DX::g_device->CreateBuffer(&bufferDesc, &data, &m_cBuffer);
+	}
 }
 
-void ParticleEmitter::SetBuffer()
+void ParticleEmitter::SetBuffers()
 {
+
+	UINT32 m_StrideSize = 0;
+	UINT32 m_Offset = 0;
+
 	D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 	DX::g_deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 
@@ -267,6 +295,7 @@ void ParticleEmitter::SetBuffer()
 	DX::g_deviceContext->Unmap(m_vertexBuffer, 0);
 	m_StrideSize = sizeof(Vertex);
 	DX::g_deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_StrideSize, &m_Offset);
+	DX::g_deviceContext->PSSetConstantBuffers(0, 1, &m_cBuffer);
 
 	vertex.clear();
 }
@@ -278,7 +307,7 @@ void ParticleEmitter::Draw()
 	if (nrOfVerts == 0)
 		return;
 
-	SetBuffer();
+	SetBuffers();
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/ParticleVertex.hlsl"), nullptr, 0);
@@ -319,7 +348,7 @@ void ParticleEmitter::SetAsDefaultNone(DirectX::XMFLOAT4A origin)
 	m_config.minMaxLife = DirectX::XMINT2{ 0, 10 };
 	m_config.spawnSpread = DirectX::XMINT2{ -1, 1 };
 
-	InitializeBuffer();
+	InitializeBuffers();
 }
 
 void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
@@ -328,10 +357,10 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 	m_EmitterCurrentLife				= 0;
 
 	m_config.m_EmitterLife				= 0;
-	m_config.m_MaxParticle				= 100;
-	m_config.m_MinParticle				= 3;
-	m_config.m_nrOfEmittParticles	= 100;
-	m_config.m_Speed						= 0.2f;
+	m_config.m_MaxParticle				= 25;
+	m_config.m_MinParticle				= 25;
+	m_config.m_nrOfEmittParticles	= 25;
+	m_config.m_Speed						= 0.1f;
 
 	m_config.m_SpawnPosition			= origin;
 
@@ -339,12 +368,24 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 	m_config.scale								= DirectX::XMFLOAT2(0.2f, 0.2f);
 
 	m_config.m_RotationMinMax		= DirectX::XMINT2{ 1, 360 };
-	m_config.spreadMinMax				= DirectX::XMINT2{ -2, 4 };
-	m_config.directionMinMax			= DirectX::XMINT2{ 4, 10 };
+	m_config.spreadMinMax				= DirectX::XMINT2{ -1, 1 };
+	m_config.directionMinMax			= DirectX::XMINT2{ 6, 10 };
 	m_config.minMaxLife					= DirectX::XMINT2{ 0, 1 };
 	m_config.spawnSpread				= DirectX::XMINT2{ 0, 0 };
 
-	InitializeBuffer();
+	m_cData.alphaMultipliers[0] = m_config.alphaMultipliers[0] = 1.0f;
+	m_cData.alphaMultipliers[1] = m_config.alphaMultipliers[1] = 1.5f;
+	m_cData.alphaMultipliers[2] = m_config.alphaMultipliers[2] = 1.5f;
+
+	m_cData.fadePoints[0] = m_config.fadingPoints[0] = 1.0f;
+	m_cData.fadePoints[1] = m_config.fadingPoints[1] = 0.35f;
+	m_cData.fadePoints[2] = m_config.fadingPoints[2] = 0.15f;
+
+	m_config.textures[0] = L"FIRE";
+	m_config.textures[1] = L"FIRE_CLEAR";
+	m_config.textures[2] = L"SMOKE";
+
+	InitializeBuffers();
 }
 
 void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
@@ -354,22 +395,34 @@ void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
 
 	m_config.m_EmitterLife				= 1;
 	m_config.m_MaxParticle				= 1000;
-	m_config.m_MinParticle				= 3;
+	m_config.m_MinParticle				= 1000;
 	m_config.m_nrOfEmittParticles	= 1000;
 	m_config.m_Speed						= 0.005f;
 
 	m_config.m_SpawnPosition			= origin;
 
-	m_config.scaleOverTime				= DirectX::XMFLOAT2{ -0.1f, -0.1f };
-	m_config.scale								= DirectX::XMFLOAT2(0.2f, 0.2f);
+	m_config.scaleOverTime				= DirectX::XMFLOAT2{ -0.05f, -0.05f };
+	m_config.scale								= DirectX::XMFLOAT2(0.05f, 0.05f);
 
 	m_config.m_RotationMinMax		= DirectX::XMINT2{ 1, 360 };
 	m_config.spreadMinMax				= DirectX::XMINT2{ -50, 100 };
-	m_config.directionMinMax			= DirectX::XMINT2{ 50, 50 };
-	m_config.minMaxLife					= DirectX::XMINT2{ 2, 4 };
+	m_config.directionMinMax			= DirectX::XMINT2{ 15, 40 };
+	m_config.minMaxLife					= DirectX::XMINT2{ 4, 8 };
 	m_config.spawnSpread				= DirectX::XMINT2{ -1, 1 };
 
-	InitializeBuffer();
+	m_cData.alphaMultipliers[0] = m_config.alphaMultipliers[0] = 2.5f;
+	m_cData.alphaMultipliers[1] = m_config.alphaMultipliers[1] = 2.5f;
+	m_cData.alphaMultipliers[2] = m_config.alphaMultipliers[2] = 2.5f;
+
+	m_cData.fadePoints[0] = m_config.fadingPoints[0] = 1000.0f;
+	m_cData.fadePoints[1] = m_config.fadingPoints[1] = 0.55f;
+	m_cData.fadePoints[2] = m_config.fadingPoints[2] = 0.55f;
+
+	m_config.textures[0] = L"SMOKE";
+	m_config.textures[1] = L"SMOKE";
+	m_config.textures[2] = L"SMOKE";
+
+	InitializeBuffers();
 }
 
 void ParticleEmitter::SetConfiguration(PS::ParticleConfiguration & config)

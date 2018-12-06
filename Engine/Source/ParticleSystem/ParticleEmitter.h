@@ -32,7 +32,12 @@ namespace PS
 		int m_RotationOffset			= 0;
 		int m_SpawnOffset				= 0;
 		int m_nrOfEmittParticles		= 0;
+
+		std::wstring textures[3]	= { L"NONE", L"NONE", L"NONE" };
+		float fadingPoints[3]		= { 1.0f, 1.0f, 1.0f };
+		float alphaMultipliers[3]	= { 1.0f, 1.0f, 1.0f };
 	};
+
 }
 struct Vertex
 {
@@ -41,6 +46,14 @@ struct Vertex
 	DirectX::XMFLOAT4A tangent;
 	DirectX::XMFLOAT2A uvPos;
 };
+
+//__declspec(align(32))
+struct ConstantBufferData
+{
+	float alphaMultipliers[4]	= { 1.0f, 1.0f, 1.0f, 0.0f };
+	float fadePoints[4]			= { 1.0f, 1.0f, 1.0f, 0.0f };
+};
+
 
 class ParticleEmitter
 {
@@ -73,20 +86,14 @@ private:
 
 	ID3D11Buffer* m_vertexBuffer	= nullptr; 
 	ID3D11Buffer* m_cBuffer			= nullptr;
+	ConstantBufferData m_cData;
 
 	std::vector<Particle*> m_Particles;
 	std::vector<Vertex> vertex;
 
 	DirectX::BoundingBox m_boundingBox = DirectX::BoundingBox();
 
-
-	
-
-	
 	DirectX::XMFLOAT4X4A m_worldMatrix		= XMFLOAT4X4_IDENTITY;
-	
-	UINT32 m_StrideSize		= 0;
-	UINT32 m_Offset				= 0;
 
 	Vertex* m_VertexData		= nullptr;
 	Particle * m_newParticle	= nullptr;
@@ -96,8 +103,8 @@ private:
 
 	bool m_emitterActive			= false;
 private:
-	void InitializeBuffer();
-	void SetBuffer();
+	void InitializeBuffers();
+	void SetBuffers();
 
 	float RandomFloat(DirectX::XMINT2 min_max);
 	DirectX::XMVECTOR RandomOffset(DirectX::XMVECTOR basePos, int offset);
