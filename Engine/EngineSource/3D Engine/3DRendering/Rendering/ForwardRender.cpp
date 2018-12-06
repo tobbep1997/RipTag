@@ -350,9 +350,9 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			m_destroyBuffer.TimerAndForwardVector = camera.getForward();
 			m_destroyBuffer.TimerAndForwardVector.w = DX::g_animatedGeometryQueue[i]->getDestructionRate();
 			m_destroyBuffer.lastPos = DX::g_animatedGeometryQueue[i]->getLastTransform();
-			
 			DirectX::XMStoreFloat4x4A(&m_destroyBuffer.worldMatrixInverse, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4A(&DX::g_animatedGeometryQueue[i]->getWorldmatrix())));
 			m_destroyBuffer.worldMatrix = DX::g_animatedGeometryQueue[i]->getWorldmatrix();
+			
 			DirectX::XMStoreFloat4x4A(&m_destroyBuffer.lastPosInverse, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4A(&DX::g_animatedGeometryQueue[i]->getLastTransform())));
 			DXRHC::MapBuffer(m_destructionBuffer, &m_destroyBuffer, sizeof(DestroyBuffer), 0, 1, ShaderTypes::geometry);
 

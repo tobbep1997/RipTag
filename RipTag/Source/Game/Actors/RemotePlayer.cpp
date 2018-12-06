@@ -269,8 +269,8 @@ void RemotePlayer::_sendVisibilityPacket()
 
 void RemotePlayer::_onNetworkBlink(unsigned char id)
 {
-	this->setDestroyState(true);
 	this->setLastTransform(this->getWorldmatrix());
+	this->setDestroyState(true);
 	ConstTimer::g_timer.Stop();
 	ConstTimer::g_timer.Start();
 }
