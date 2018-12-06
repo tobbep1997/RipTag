@@ -34,7 +34,7 @@ private:
 
 	float m_currentSpeed = 0.0f;
 	float m_currentDirection = 0.0f;
-	bool m_IsPossessed = false;
+	bool m_IsPossessedByTeammate = false;
 private:
 	struct AudioVars
 	{
