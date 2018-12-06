@@ -517,7 +517,9 @@ void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 	if (!packet->condition)
 	{
 		setTransitionState(AITransitionState::ExitingPossess);
+		m_IsPossessed = false;
 	}
+	else m_IsPossessed = true;
 }
 
 void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
