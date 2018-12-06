@@ -123,17 +123,14 @@ float4x4 createTranslationMatrix(float4 posVec)
 void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstream)
 {
 	GS_OUTPUT output = (GS_OUTPUT)0;
-
+	
 	float lerpValue = TimerAndForwardVector.w;
 
-
+	float secondLerpValue = TimerAndForwardVector.w;
 	float rotX = 0;
 	float rotY = 3.141592 * 2;
 
 	float posLerp = 0;
-
-	
-
 
 	if (lerpValue <= 0.5)
 	{
@@ -144,7 +141,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		//lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
 		 rotY = 0;
-		 rotX = 3.141592 * 2;
+		 rotX = 3.141592 * 4;
 	}
 
 	float3 offsetNormal = normalize(cross((input[1].worldPos - input[0].worldPos), (input[2].worldPos - input[0].worldPos)));
@@ -195,28 +192,28 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
 
-		if (lerpValue <= 0.25)
+		if (secondLerpValue <= 0.25)
 		{
-			posLerp = lerpValue * 4;
+			posLerp = secondLerpValue * 4;
 			lerpFrom = rotatedLocalPos;
 			lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
 		}
-		else if (lerpValue > 0.25 && lerpValue <= 0.75)
+		else if (secondLerpValue > 0.25 && secondLerpValue <= 0.75)
 		{
-			posLerp = (lerpValue - 0.25) / 0.5;
+			posLerp = (secondLerpValue - 0.25) / 0.5;
 			lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
 			lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
 
 		}
-		else if (lerpValue > 0.75)
+		else
 		{
-			posLerp = (lerpValue - 0.75) * 4;
+			posLerp = (secondLerpValue - 0.75) * 4;
 			lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
 			lerpTowards = rotatedLocalPos;
 		}
+	
 
 		rotatedLocalPos = lerp(lerpFrom, lerpTowards, posLerp);
-		
 		
 		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1));
 
