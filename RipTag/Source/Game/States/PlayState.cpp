@@ -182,7 +182,7 @@ void PlayState::Update(double deltaTime)
 					m_physicsThread.join();
 				}
 
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData,m_levelHandler->getNextRoom() - 1));
 			}
 			else
 			{
@@ -192,9 +192,8 @@ void PlayState::Update(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1);
 				m_transitionState->Load();
-
 				runGame = false;
 			}
 		}
@@ -274,7 +273,9 @@ void PlayState::Update(double deltaTime)
 						m_loadingScreen.draw();
 						RipExtern::g_kill = false;
 						m_removeHud = true;
+
 						this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+					
 						return;
 					}
 				}
@@ -292,7 +293,7 @@ void PlayState::Update(double deltaTime)
 						}
 					}
 
-					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 				}
 			}
 			else if (!m_levelHandler->HasMoreRooms())
@@ -309,10 +310,8 @@ void PlayState::Update(double deltaTime)
 					}
 				}
 
-				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 			}
-		
-
 		}
 	}
 	m_physicsFirstRun = false;
@@ -778,7 +777,7 @@ void PlayState::unLoad()
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
 
-
+	if(RipExtern::g_particleSystem != nullptr)
 	RipExtern::g_particleSystem->clearEmitters();
 
 
@@ -1098,7 +1097,7 @@ void PlayState::_onGameOverPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData, true));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData, m_levelHandler->getNextRoom() - 1, true));
 }
 
 void PlayState::_onGameWonPacket()
@@ -1117,7 +1116,7 @@ void PlayState::_onDisconnectPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)
@@ -1153,7 +1152,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1);
 				m_transitionState->Load();
 
 				runGame = false;
