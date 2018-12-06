@@ -198,6 +198,7 @@ void CheetParser::_Help()
 	std::cout << "player" << std::endl;
 	std::cout << "lose" << std::endl;
 	std::cout << "win" << std::endl;
+	std::cout << "common" << std::endl;
 	std::cout << "spawn" << std::endl;
 	std::cout << "draw" << std::endl;
 

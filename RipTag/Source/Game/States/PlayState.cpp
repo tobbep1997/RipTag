@@ -77,6 +77,12 @@ PlayState::~PlayState()
 
 void PlayState::Update(double deltaTime)
 {
+	//Cheat update
+	{
+		Cheet::g_visabilityDisabled = CheetParser::GetVisabilityDisabled();
+	}
+
+
 	int counter = 0;
 	if (runGame)
 	{

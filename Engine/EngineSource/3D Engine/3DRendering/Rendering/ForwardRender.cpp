@@ -1177,10 +1177,10 @@ void ForwardRender::_OutlineDepthCreate()
 
 void ForwardRender::_visabilityPass()
 {
-	/*if (CheetParser::GetVisabilityDisabled())
+	if (Cheet::g_visabilityDisabled)
 	{
 		return;
-	}*/
+	}
 	if (DX::g_player == nullptr)
 	{
 		return;

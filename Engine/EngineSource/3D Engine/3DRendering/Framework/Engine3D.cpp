@@ -26,6 +26,9 @@ std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceWireFrameGroups;
 
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceShadowGroups;
 
+bool Cheet::g_visabilityDisabled = false;
+
+
 bool checkLoltest5(Drawable* drawable, PointLight * pl)
 {
 	using namespace DirectX;

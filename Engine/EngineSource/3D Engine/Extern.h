@@ -92,3 +92,10 @@ namespace Manager
 	extern TextureManager         g_textureManager;
 	extern AnimationHandler      g_animationManager;
 }
+
+//JAG VET ATT DET ÄR FEL
+//MEN NU ÄR DET FEL ÖVERALLT SÅ FINE
+namespace Cheet
+{
+	extern bool g_visabilityDisabled;
+}
