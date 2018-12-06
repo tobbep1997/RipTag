@@ -20,7 +20,7 @@ ParticleEmitter::ParticleEmitter(DirectX::XMFLOAT4A origin, PS::ParticleType typ
 	}
 
 	m_boundingBox.Center = { m_config.m_SpawnPosition.x, m_config.m_SpawnPosition.y , m_config.m_SpawnPosition.z };
-	m_boundingBox.Extents = { 5,5,5 };
+	m_boundingBox.Extents = { 500,500,500 };
 }
 
 ParticleEmitter::~ParticleEmitter()
@@ -390,33 +390,38 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 
 void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
 {
-	m_emitterActive						= 1;
+	m_emitterActive						= true;
 	m_EmitterCurrentLife				= 0;
 
-	m_config.m_EmitterLife				= 1;
-	m_config.m_MaxParticle				= 1000;
-	m_config.m_MinParticle				= 1000;
-	m_config.m_nrOfEmittParticles	= 1000;
-	m_config.m_Speed						= 0.005f;
+	m_config.m_EmitterLife				= 5;
+	m_config.m_MaxParticle				= 10;
+	m_config.m_MinParticle				= 10;
+	m_config.m_nrOfEmittParticles	= 10;
+	m_config.m_Speed						= 0.001f;
 
 	m_config.m_SpawnPosition			= origin;
 
-	m_config.scaleOverTime				= DirectX::XMFLOAT2{ -0.05f, -0.05f };
-	m_config.scale								= DirectX::XMFLOAT2(0.05f, 0.05f);
+	m_config.scaleOverTime				= DirectX::XMFLOAT2{ -1.0f, -1.0f };
+	m_config.scale								= DirectX::XMFLOAT2(0.01f, 0.01f);
 
-	m_config.m_RotationMinMax		= DirectX::XMINT2{ 1, 360 };
-	m_config.spreadMinMax				= DirectX::XMINT2{ -50, 100 };
-	m_config.directionMinMax			= DirectX::XMINT2{ 15, 40 };
-	m_config.minMaxLife					= DirectX::XMINT2{ 4, 8 };
-	m_config.spawnSpread				= DirectX::XMINT2{ -1, 1 };
+	m_config.m_RotationMinMax		= DirectX::XMINT2{ 360, 360 };
+	m_config.directionMinMax			= DirectX::XMINT2{ -4, 4 };
+	m_config.minMaxLife					= DirectX::XMINT2{ 5, 5 };
 
-	m_cData.alphaMultipliers[0] = m_config.alphaMultipliers[0] = 2.5f;
-	m_cData.alphaMultipliers[1] = m_config.alphaMultipliers[1] = 2.5f;
-	m_cData.alphaMultipliers[2] = m_config.alphaMultipliers[2] = 2.5f;
+	m_config.spreadMinMax				= DirectX::XMINT2{ -0, 0 };
+	m_config.spawnSpread				= DirectX::XMINT2{ -0, 0 };
 
-	m_cData.fadePoints[0] = m_config.fadingPoints[0] = 1000.0f;
-	m_cData.fadePoints[1] = m_config.fadingPoints[1] = 0.55f;
-	m_cData.fadePoints[2] = m_config.fadingPoints[2] = 0.55f;
+	m_cData.alphaMultipliers[0] = m_config.alphaMultipliers[0] = 1.0f;
+	m_cData.alphaMultipliers[1] = m_config.alphaMultipliers[1] = 0.5f;
+	m_cData.alphaMultipliers[2] = m_config.alphaMultipliers[2] = 0.01f;
+
+	m_cData.fadePoints[0] = m_config.fadingPoints[0] = 1.0f;
+	m_cData.fadePoints[1] = m_config.fadingPoints[1] = 0.99f;
+	m_cData.fadePoints[2] = m_config.fadingPoints[2] = 0.25f;
+
+	m_cData.colorModifiers[0] = 0.8f,
+	m_cData.colorModifiers[1] = 0.9f;
+	m_cData.colorModifiers[2] = 1.0f;
 
 	m_config.textures[0] = L"SMOKE";
 	m_config.textures[1] = L"SMOKE";

@@ -29,21 +29,21 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	{
 		color = BeginTexture.Sample(defaultSampler, input.uv);
 		color.w *= alphaMultipliers[0] * lifeLeft;
-		color *= colorModifiers[0];
+		color.xyz *= colorModifiers[0] * (lifeLeft);
 		saturate(color);
 	}
 	else if (lifeLeft < fadePoints[1] && lifeLeft> fadePoints[2])
 	{
 		color = IntermidiateTexture.Sample(defaultSampler, input.uv);
 		color.w *= alphaMultipliers[1] * lifeLeft;
-		color *= colorModifiers[1];
+		color.xyz *= colorModifiers[1] * (1.0f - lifeLeft);
 		saturate(color);
 	}
-	else if (lifeLeft < fadePoints[2] && lifeLeft > 0.01f)
+	else if (lifeLeft < fadePoints[2] && lifeLeft > 0.001f)
 	{
 		color = EndTexture.Sample(defaultSampler, input.uv);
 		color.w *= alphaMultipliers[2] * lifeLeft;
-		color *= colorModifiers[2];
+		color.xyz *= colorModifiers[2] * (1.0f - lifeLeft);
 		saturate(color);
 	}
 	
