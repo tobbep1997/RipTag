@@ -61,15 +61,6 @@ void TeleportAbility::Init()
 
 void TeleportAbility::Update(double deltaTime)
 {
-	if (m_tpState == TeleportState::Teleportable ||m_tpState == TeleportState::RemoteActive)
-	{
-		BaseActor::Update(deltaTime);
-		_updateLight();
-	}
-	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
-		_logicLocal(deltaTime);
-	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
-
 	ContactListener::S_Contact contact;
 	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
@@ -79,10 +70,19 @@ void TeleportAbility::Update(double deltaTime)
 			if (!contact.a->IsSensor() && !contact.b->IsSensor())
 			{
 				FMOD_VECTOR at = FMOD_VECTOR{ this->p_position.x, this->p_position.y, this->p_position.z };
-				AudioEngine::PlaySoundEffect(RipSounds::g_teleportHit, &at)->setVolume(1.0f);
+				AudioEngine::PlaySoundEffect(RipSounds::g_teleportHit, &at)->setVolume(0.6f);
 			}
 		}
 	}
+	if (m_tpState == TeleportState::Teleportable ||m_tpState == TeleportState::RemoteActive)
+	{
+		BaseActor::Update(deltaTime);
+		_updateLight();
+	}
+	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
+		_logicLocal(deltaTime);
+	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
+
 
 }
 
