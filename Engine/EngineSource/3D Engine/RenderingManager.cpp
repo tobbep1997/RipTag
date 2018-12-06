@@ -62,13 +62,9 @@ void RenderingManager::Update()
 		InputHandler::WindowSetShowCursor();
 		m_wnd->PollEvents();
 
-	#ifndef _DEPLOY
-		if (GetAsyncKeyState(int('P')))
-		{
+		if (InputHandler::isKeyPressed('P'))		
 			_reloadShaders();
-		}
-	#endif
-
+		
 	}
 }
 
@@ -76,12 +72,10 @@ void RenderingManager::UpdateSingleThread()
 {
 	InputHandler::WindowSetShowCursor();
 	m_wnd->PollEvents();
-#ifndef _DEPLOY
-	if (GetAsyncKeyState(int('P')))
-	{
+
+	if (InputHandler::isKeyPressed('P'))	
 		_reloadShaders();
-	}
-#endif
+	
 }
 
 void RenderingManager::Clear()
@@ -122,32 +116,15 @@ void RenderingManager::ImGuiProc()
 
 void RenderingManager::Reset()
 {
-	// TODO :: Reload window and engine
-
-	//WindowContext wind;
-	//wind.clientWidth = 1280;
-	//wind.clientHeight = 720;
-	//wind.fullscreen = false;
-	//wind.windowInstance = m_hInstance;
-	//wind.windowTitle = L"RipTag";
-	////Will override the settings above
-	//SettingLoader::LoadWindowSettings(wind);
-
-	//m_engine->Release();
-	//m_wnd->Init(wind);
-	//m_engine->Init(m_wnd->getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);
-	//_reloadShaders();
-
-	//if (DEBUG)
-	//{
-	//	m_ImGuiManager->Release();
-	//	m_ImGuiManager->Init(m_wnd->getHandler());
-	//}
+	//TODO :: Reload window and engine
+	//Rest in Peace (TAG)
 }
 #pragma optimize("", off)
 void RenderingManager::_reloadShaders()
 {
+#ifndef _DEPLOY
 	DX::g_shaderManager.ReloadAllShaders();
+#endif
 }
 #pragma optimize("", on)
 

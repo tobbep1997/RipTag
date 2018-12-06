@@ -51,6 +51,7 @@ void ParticleSystem::clearEmitters()
 	{
 		if (m_ParticleEmitter[i])
 		{
+			m_ParticleEmitter[i]->releaseVertexBuffer();
 			delete m_ParticleEmitter[i];
 			m_ParticleEmitter[i] = nullptr;
 			nrOfEmitters = 0;

@@ -648,6 +648,16 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 	g_temp.clear();
 }
 
+ID3D11BlendState * ForwardRender::getAlphaBlendState()
+{
+	return m_alphaBlend; 
+}
+
+ID3D11DepthStencilState * ForwardRender::getDepthStencilState()
+{
+	return m_depthStencilState; 
+}
+
 void ForwardRender::_GuardFrustumDraw()
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
@@ -982,6 +992,7 @@ void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 void ForwardRender::_mapCameraBuffer(Camera & camera)
 {
 	HRESULT hr;
+	m_cameraValues.cameraInfo = DirectX::XMFLOAT4A(camera.getNearPlane(), camera.getFarPlane(), 0, 0);
 	m_cameraValues.cameraPosition = camera.getPosition();
 	m_cameraValues.viewProjection = camera.getViewProjection();
 	if (SUCCEEDED(hr = DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::vertex))) { }
@@ -1217,7 +1228,12 @@ void ForwardRender::_particlePass(Camera * camera)
 	for (auto & emitter : DX::g_emitters)
 	{
 		if (boundingFrustum.Intersects(*emitter->getBoundingBox()))
+		{
+			emitter->Clear(); 
+			emitter->Update(0,camera); 
 			emitter->Draw();
+			emitter->Clear(); 
+		}
 		else
 			emitter->Clear();
 	}
