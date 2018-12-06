@@ -535,8 +535,6 @@ bool Enemy::GetDisabledState()
 
 void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 {
-	std::cout << "Direction:\t" << packet->direction << "\n";
-	std::cout << "Speed:    \t" << packet->moveSpeed << "\n";
 	this->m_currentMoveSpeed = packet->moveSpeed;
 	this->m_currentDirection = packet->direction;
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
