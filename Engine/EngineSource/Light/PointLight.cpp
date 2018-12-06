@@ -520,7 +520,7 @@ void PointLight::_setFarPlane()
 		m_farPlane = 25.0f;
 		break;
 	case 1:
-		m_farPlane = 25.0f;
+		m_farPlane = 50.0f;
 		break;
 	case 2:
 		m_farPlane = 75.0f;
