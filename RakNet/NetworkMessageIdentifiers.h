@@ -109,6 +109,7 @@ namespace Network
 		DirectX::XMFLOAT4A camDir;
 		//Animation data
 		float moveSpeed;
+		float direction;
 	};
 
 	struct ENTITYABILITYPACKET
