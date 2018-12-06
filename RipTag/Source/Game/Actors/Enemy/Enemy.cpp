@@ -56,14 +56,14 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 				SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
 					"walk_forward", //state name
 					&this->m_currentDirection, //x-axis driver
-					&this->m_currentSpeed, //y-axis driver
+					&this->m_currentMoveSpeed, //y-axis driver
 					-115.f, 115.f, //x-axis bounds
 					0.0f, 6.0f //y-axis bounds
 				);
 				SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
 					"walk_backward", //state name
 					&this->m_currentDirection, //x-axis driver
-					&this->m_currentSpeed, //y-axis driver
+					&this->m_currentMoveSpeed, //y-axis driver
 					-180.f, 180.f, //x-axis bounds
 					0.0f, 3.001f //y-axis bounds
 				);
@@ -317,51 +317,47 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
+	{
+		using namespace DirectX;
+		//calculate walk direction (-1, 1, based on camera) and movement speed
+		{
+			///Speed
+			auto physSpeed = this->getLiniearVelocity();
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
+
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			auto cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+
+		}
+	}
+
 	if (state == AIState::Possessed)
 	{
-		//#todoREMOVE
-		{
-			if (m_IsPossessed)
-				std::cout << yellow << getAnimationPlayer()->GetStateMachine()->GetCurrentState().Name() << '\n';
-		}
 
-		{
-			using namespace DirectX;
-			//calculate walk direction (-1, 1, based on camera) and movement speed
-			{
-				///Speed
-				auto physSpeed = this->getLiniearVelocity();
-				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
-				m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
-
-				///Walk dir
-					//Get camera direction and normalize on X,Z plane
-				auto cameraDir = p_camera->getDirection();
-				XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
-				///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
-
-				auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
-				auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
-				auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
-				auto XZMovementNormalized = XMVector3Normalize(XZMovement);
-				///AssertHasLength(XZCameraDir);
-				//AssertHasLength(XZMovement);
-
-					//Get dot product of cam dir and player movement
-				auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
-				dot = std::clamp(dot, -0.999999f, 0.999999f);
-				//Convert to degrees
-				m_currentDirection = XMConvertToDegrees(std::acos(dot));
-				//Negate if necessary
-				float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
-
-				m_currentDirection *= (inverter > 0.0)
-					? -1.0
-					: 1.0;
-				m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
-
-			}
-		}
 
 		for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 		{
@@ -396,7 +392,43 @@ void Enemy::ClientUpdate(double deltaTime)
 {
 	using namespace Network;
 
+	{
+		using namespace DirectX;
+		//calculate walk direction (-1, 1, based on camera) and movement speed
+		{
+			///Speed
+			auto physSpeed = this->getLiniearVelocity();
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
 
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			auto cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+
+		}
+	}
 
 	AIState state = getAIState();
 
@@ -505,7 +537,9 @@ bool Enemy::GetDisabledState()
 
 void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 {
+	std::cout << "updating enemy from network\n";
 	this->m_currentMoveSpeed = packet->moveSpeed;
+	this->m_currentDirection = packet->direction;
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
 	p_setRotation(0.0f, packet->rot.y, 0.0f);
 	p_camera->setDirection(packet->camDir);
@@ -542,6 +576,7 @@ void Enemy::sendNetworkUpdate()
 	packet.rot = p_camera->getYRotationEuler();
 	packet.camDir = p_camera->getDirection();
 	packet.moveSpeed = m_currentMoveSpeed;
+	packet.direction = m_currentDirection;
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
