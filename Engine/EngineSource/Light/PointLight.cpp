@@ -13,10 +13,6 @@ PointLight::PointLight()
 	m_nearPlane = 0.01f;
 	_initDirectX();
 	_setFarPlane();
-	//m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
-	//m_phys.p_setPosition(-999,-9999,-99999);
-	//m_phys.setObjectTag("FUCKOFF");
-	//m_phys.setUserDataBody(this);
 	for (int i = 0; i < 6; i++)
 	{
 		m_useSides[i] = TRUE;
@@ -39,7 +35,6 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_dropOff = 1.1f;
 	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
-	//CreateShadowDirection(PointLight::Y_POSITIVE);
 	CreateShadowDirection(PointLight::XYZ_ALL);
 	for (int i = 0; i < 6; i++)
 	{
@@ -525,7 +520,7 @@ void PointLight::_setFarPlane()
 		m_farPlane = 25.0f;
 		break;
 	case 1:
-		m_farPlane = 50.0f;
+		m_farPlane = 25.0f;
 		break;
 	case 2:
 		m_farPlane = 75.0f;
