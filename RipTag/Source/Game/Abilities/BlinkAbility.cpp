@@ -48,6 +48,7 @@ void BlinkAbility::_logic(double deltaTime)
 		if (ray->getOriginBody()->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 		{
 			_sendBlinkPacket();
+
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("phase");
 			pPointer->setPosition(
 				var->contactPoint.x + (

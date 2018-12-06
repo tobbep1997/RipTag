@@ -143,15 +143,7 @@ public:
 	virtual void SetTransparant(const bool & bo);
 	virtual bool GetTransparant();
 
-	virtual void setDestroyState(const bool newState)
-	{ 
-		if (m_destroyState != newState)
-		{
-			this->m_destroyState = newState; 
-			this->setLastTransform(this->getWorldmatrix());
-		}
-		
-	};
+	virtual void setDestroyState(const bool newState);
 	virtual const bool getDestroyState() { return this->m_destroyState; };
 
 	std::string getTextureName() const;

@@ -1,11 +1,8 @@
 cbuffer destructionTimer : register(b0)
 {
-    float4 TimerAndForwardVector;
     float4x4 lastPos;
-	float4x4 lastPosInverse;
-    float4x4 worldMatrixInverse;
     float4x4 worldMatrix;
-
+    float4 TimerAndForwardVector;
 }
 
 cbuffer CAMERA_BUFFER : register(b2)
@@ -171,12 +168,15 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	float rotX = 0;
 	float rotY = 3.141592 * 2;
 
-	float4x4 finalWorldPos = lastPos;
-	float4x4 finalWorldPosInverse;
+	
+	float4x4 from;
+	float4x4 to;
 
 	if (lerpValue <= 0.5)
 	{
 		lerpValue = lerpValue * 2;
+		from = lastPos;
+		to = lastPos;
 	}
 	else
 	{
@@ -184,9 +184,13 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
 		 rotY = 0;
 		 rotX = 3.141592 * 2;
-
-		 finalWorldPos = lerp(worldMatrix, finalWorldPos, lerpValue);
+		 		 
+		 to = lastPos;
+		 from = worldMatrix;
 	}
+	float4x4 finalWorldPos;
+	float4x4 finalWorldPosInverse;
+	finalWorldPos = lerp(from, to, lerpValue);
 	finalWorldPosInverse = inverse(finalWorldPos);
 
 	float3 offsetNormal = normalize(cross((input[1].worldPos - input[0].worldPos), (input[2].worldPos - input[0].worldPos)));

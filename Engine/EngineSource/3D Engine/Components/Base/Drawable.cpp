@@ -123,6 +123,18 @@ bool Drawable::GetTransparant()
 	return m_transparant;
 }
 
+void Drawable::setDestroyState(const bool newState)
+{
+	if (m_destroyState != newState)
+	{
+		this->m_destroyState = newState;
+		this->setLastTransform(this->getWorldmatrix());
+		this->setDestructionRate(0);//after
+		ConstTimer::g_timer.Stop();
+		ConstTimer::g_timer.Start();
+	}
+}
+
 std::string Drawable::getTextureName() const
 {
 	return std::string(this->p_texture->getName().begin(), this->p_texture->getName().end());

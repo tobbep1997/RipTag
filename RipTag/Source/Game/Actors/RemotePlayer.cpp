@@ -160,10 +160,6 @@ void RemotePlayer::Update(double dt)
 		if (ConstTimer::g_timer.GetTime() > 1.0f)
 		{
 			this->setDestroyState(false);
-			this->setDestructionRate(0);//after
-			ConstTimer::g_timer.Stop();
-			ConstTimer::g_timer.Start();
-
 		}
 	}
 }
@@ -270,8 +266,7 @@ void RemotePlayer::_sendVisibilityPacket()
 void RemotePlayer::_onNetworkBlink(unsigned char id)
 {
 	this->setDestroyState(true);
-	ConstTimer::g_timer.Stop();
-	ConstTimer::g_timer.Start();
+
 }
 
 
