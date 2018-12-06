@@ -428,14 +428,14 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	dpd.FrontFace.StencilFunc = D3D11_COMPARISON_LESS_EQUAL;
 	dpd.BackFace.StencilFunc = D3D11_COMPARISON_LESS_EQUAL;
 	
-	dpd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;
-	dpd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;
+	dpd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dpd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	
-	dpd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
-	dpd.BackFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
+	dpd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dpd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 
-	dpd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
-	dpd.BackFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
+	dpd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dpd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 
 	//Create the Depth/Stencil View
 
