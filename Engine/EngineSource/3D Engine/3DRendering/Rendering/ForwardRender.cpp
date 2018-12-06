@@ -285,7 +285,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
 	DX::g_deviceContext->RSSetState(m_NUKE);
-	DX::g_deviceContext->OMSetDepthStencilState(m_NUKE2, 0);
+	//DX::g_deviceContext->OMSetDepthStencilState(m_NUKE2, 0);
 
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl"), nullptr, 0);
 	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -299,6 +299,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
 			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
 				continue;
+		
 
 		auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
 		DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
@@ -316,6 +317,9 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
 		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
 		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+
+
+		
 	}
 	delete bf;
 	DX::g_deviceContext->RSSetState(m_standardRast);
@@ -346,7 +350,10 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
 			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
 				continue;
-
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+		{
+			DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
+		}
 		if (DX::g_animatedGeometryQueue[i]->getHidden() != true)
 		{
 			//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
@@ -379,6 +386,10 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 
 			//DX::g_animatedGeometryQueue[i]->TEMP();
+			if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+			{
+				DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+			}
 		}		
 	}
 	delete bf;
@@ -403,6 +414,11 @@ void ForwardRender::Flush(Camera & camera)
 	DirectX::XMFLOAT4A pos = camera.getPosition();
 	pos.y += 10;
 	dbg_camera->setPosition(pos);
+
+	if (Cheet::g_DBG_CAM)
+	{
+		_mapCameraBuffer(*dbg_camera);
+	}
 	//_mapCameraBuffer(*dbg_camera);
 	this->PrePass(camera);
 	
@@ -427,6 +443,11 @@ void ForwardRender::Flush(Camera & camera)
 
 	if (DX::g_player)
 		_visabilityPass();
+
+	if (Cheet::g_DBG_CAM)
+	{
+		_mapCameraBuffer(*dbg_camera);
+	}
 	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
@@ -434,6 +455,10 @@ void ForwardRender::Flush(Camera & camera)
 
 
 	//_GuardFrustumDraw();
+	if (Cheet::g_DBG_CAM)
+	{
+		_DBG_DRAW_CAMERA(camera);
+	}
 	//_DBG_DRAW_CAMERA(camera);
 	_mapCameraBuffer(camera);
 	

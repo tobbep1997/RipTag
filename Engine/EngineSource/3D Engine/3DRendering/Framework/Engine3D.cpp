@@ -27,6 +27,7 @@ std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceWireFrameGroups;
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceShadowGroups;
 
 bool Cheet::g_visabilityDisabled = false;
+bool Cheet::g_DBG_CAM = false;
 
 
 bool checkLoltest5(Drawable* drawable, PointLight * pl)
@@ -418,6 +419,21 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	dpd.DepthEnable = TRUE;
 	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dpd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dpd.StencilEnable = TRUE;
+
+	dpd.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	dpd.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	dpd.FrontFace.StencilFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dpd.BackFace.StencilFunc = D3D11_COMPARISON_LESS_EQUAL;
+	
+	dpd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;
+	dpd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;
+	
+	dpd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
+	dpd.BackFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;
+
+	dpd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
+	dpd.BackFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
 
 	//Create the Depth/Stencil View
 

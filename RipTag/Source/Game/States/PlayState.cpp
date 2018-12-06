@@ -80,6 +80,7 @@ void PlayState::Update(double deltaTime)
 	//Cheat update
 	{
 		Cheet::g_visabilityDisabled = CheetParser::GetVisabilityDisabled();
+		Cheet::g_DBG_CAM = CheetParser::GetDBG_CAM();
 	}
 
 

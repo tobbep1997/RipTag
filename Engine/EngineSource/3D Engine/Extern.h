@@ -98,4 +98,5 @@ namespace Manager
 namespace Cheet
 {
 	extern bool g_visabilityDisabled;
+	extern bool g_DBG_CAM;
 }

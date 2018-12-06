@@ -5,6 +5,8 @@ EnemyHandler * CheetParser::enemyHandlerPtr = nullptr;
 
 bool CheetParser::m_visabilityDisable = false;
 bool CheetParser::m_DrawCollisionBoxes = false;
+
+bool CheetParser::m_DBG_CAM = false;
 CheetParser * CheetParser::GetInstance()
 {
 	
@@ -41,6 +43,10 @@ void CheetParser::ParseString(const std::string& input)
 	{
 		_CommonCheets();
 	}
+	else if (input == "engine")
+	{
+		_EngineCheets();
+	}
 	else if (input == "draw")
 	{
 		_Draw();
@@ -72,6 +78,11 @@ bool CheetParser::GetVisabilityDisabled()
 bool CheetParser::GetDrawCollisionBoxes()
 {
 	return m_DrawCollisionBoxes;
+}
+
+bool CheetParser::GetDBG_CAM()
+{
+	return m_DBG_CAM;
 }
 
 void CheetParser::_PlayerCheets()
@@ -159,6 +170,33 @@ void CheetParser::_CommonCheets()
 		else
 		{
 			m_visabilityDisable = false;
+		}
+		break;
+	}
+}
+
+void CheetParser::_EngineCheets()
+{
+	int x = -1;
+	system("CLS");
+	std::cout << "Engine Commands" << std::endl;
+	std::cout << "1: Debug Camera" << std::endl;
+
+
+	std::string in;
+	std::cin >> x;
+	switch (x)
+	{
+	case(1):
+		std::cout << "Debug Camera state " << CheetParser::m_DBG_CAM << std::endl;
+		std::cin >> in;
+		if (in == "y" || in == "1")
+		{
+			m_DBG_CAM = true;
+		}
+		else
+		{
+			m_DBG_CAM = false;
 		}
 		break;
 	}
