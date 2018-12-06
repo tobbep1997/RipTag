@@ -126,20 +126,20 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	float lerpValue = TimerAndForwardVector.w;
 
-	float trianglePosLerpX = 0;
-	float trianglePosLerpY = 0.5;
-	float scaleLerpX = 1;
-	float scaleLerpY = 0.3;
+
 	float rotX = 0;
 	float rotY = 3.141592 * 2;
 
+	float posLerp = 0;
+
 	
+
 
 	if (lerpValue <= 0.5)
 	{
 		lerpValue = lerpValue * 2;
 	}
-	else if(lerpValue)
+	else
 	{
 		//lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
@@ -168,6 +168,8 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	const float3 lerpTriPosTowards = (localCenter + triangleFaceNormal) * 1;
 
 
+	float3 lerpTowards = 0;
+	float3 lerpFrom = 0;
 	for (uint i = 0; i < 3; i ++)
 	{
 		{
@@ -192,7 +194,28 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			   
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
-		rotatedLocalPos = lerp(rotatedLocalPos, rotatedLocalPos + localOffsetNormal * 2, lerpValue);
+
+		if (lerpValue <= 0.25)
+		{
+			posLerp = lerpValue * 4;
+			lerpFrom = rotatedLocalPos;
+			lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
+		}
+		else if (lerpValue > 0.25 && lerpValue <= 0.75)
+		{
+			posLerp = (lerpValue - 0.25) / 0.5;
+			lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
+			lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
+
+		}
+		else if (lerpValue > 0.75)
+		{
+			posLerp = (lerpValue - 0.75) * 4;
+			lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
+			lerpTowards = rotatedLocalPos;
+		}
+
+		rotatedLocalPos = lerp(lerpFrom, lerpTowards, posLerp);
 		
 		
 		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1));

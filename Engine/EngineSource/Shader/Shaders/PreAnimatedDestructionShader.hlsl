@@ -65,22 +65,33 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 	float posLerpX = 0;
 	float posLerpY = 2;
 
-	if (lerpValue <= 0.5)
-	{
-		lerpValue = lerpValue * 2;
-	}
-	else
-	{
-		//lerpValue = 1 -(lerpValue - 0.5f) / 1.5f;
-		lerpValue = 1 -(lerpValue - 0.5f) *2;
+	float4x4 lerpTowards = lerpFromTransformMatrix;
+	float4x4 lerpFrom = lerpFromTransformMatrix;
+	float posLerp = 0;
 
-		finalWorldPos = lerp(worldMatrix, lerpFromTransformMatrix, lerpValue);
+	if (lerpValue <= 0.25)
+	{
+		posLerp = lerpValue * 4;
+	}
+	else if (lerpValue > 0.25 && lerpValue <= 0.75)
+	{
+		posLerp = (lerpValue - 0.25) / 0.5;
+		lerpFrom = lerpFromTransformMatrix;
+		lerpTowards = worldMatrix;
+
+	}
+	else if (lerpValue > 0.75)
+	{
+		posLerp = (lerpValue - 0.75) * 4;
+		lerpFrom = worldMatrix;
+		lerpTowards = worldMatrix;
 	}
 
-	float finalPosY = lerp(posLerpX, posLerpY, lerpValue);
-	float scaleFinal = lerp(scaleLerpX, scaleLerpY, lerpValue);
+
+	finalWorldPos = lerp(lerpFrom, lerpTowards, lerpValue);
 	
-	finalWorldPos = worldMatrix;
+	
+	
 	
 
 
@@ -112,7 +123,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 
 	nor = normalize(nor);
 	tan = normalize(tan);
-	nor = mul(float4(nor, 0.0f), worldMatrix).xyz;
+	nor = mul(float4(nor, 0.0f), finalWorldPos).xyz;
 	//TODO remove
 	float3 tangent = normalize(mul(float4(tan, 0.0f), worldMatrix).xyz);
 	tangent = normalize(tangent - dot(tangent, nor) * nor).xyz;
