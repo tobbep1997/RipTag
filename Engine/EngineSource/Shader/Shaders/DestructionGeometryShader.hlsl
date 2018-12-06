@@ -139,7 +139,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	{
 		lerpValue = lerpValue * 2;
 	}
-	else
+	else if(lerpValue)
 	{
 		//lerpValue =  1 -(lerpValue - 0.5f) / 1.5f;
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
@@ -149,6 +149,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	float3 offsetNormal = normalize(cross((input[1].worldPos - input[0].worldPos), (input[2].worldPos - input[0].worldPos)));
 
+	float3 localOffsetNormal = normalize(mul(worldMatrixInverse, float4(offsetNormal, 0)).xyz);
 	float3 centerTriangle = float3(
 		(input[0].worldPos.x + input[1].worldPos.x + input[2].worldPos.x),
 		(input[0].worldPos.y + input[1].worldPos.y + input[2].worldPos.y),
@@ -187,11 +188,11 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		float3 posAroundOrigin = localPos.xyz - localOffset; // Remove the offset from the vertex so the vertex is around origin
 		
 
-		float4 rotatedAroundOrigin = mul(float4(posAroundOrigin, 1), createRotationMatrix(rotLerp, triangleFaceNormal)); // Rotate the local vertex around origin
+		float4 rotatedAroundOrigin = mul(float4(posAroundOrigin, 1), createRotationMatrix(rotLerp, localOffsetNormal)); // Rotate the local vertex around origin
 			   
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
-		float3 lerpedTrianglePos = lerp(rotatedLocalPos, rotatedLocalPos + triangleFaceNormal, lerpValue);
+		rotatedLocalPos = lerp(rotatedLocalPos, rotatedLocalPos + localOffsetNormal * 2, lerpValue);
 		
 		
 		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1));
