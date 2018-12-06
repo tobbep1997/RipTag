@@ -35,7 +35,7 @@ void Bars::Update(double deltaTime)
 {
 	BaseActor::Update(deltaTime);
 	
-	float t = deltaTime * 0.5f;
+	float t = deltaTime * 1.5f;
 
 	if (m_wasClosed)
 		m_timer += t;
