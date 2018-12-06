@@ -73,6 +73,7 @@
     <ClCompile Include="Source\Game\States\State.cpp" />
     <ClCompile Include="Source\Gameplay\Objects\Torch.cpp" />
     <ClCompile Include="Source\Game\States\PauseMenu.cpp" />
+    <ClCompile Include="Source\CheetConsole\CheetParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Actors\Enemy\AI.h" />
@@ -165,5 +166,6 @@
     <ClInclude Include="Source\Game\States\State.h" />
     <ClInclude Include="Source\Gameplay\Objects\Torch.h" />
     <ClInclude Include="Source\Game\States\PauseMenu.h" />
+    <ClInclude Include="Source\CheetConsole\CheetParser.h" />
   </ItemGroup>
 </Project>

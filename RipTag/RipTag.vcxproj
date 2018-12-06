@@ -350,6 +350,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\CheetConsole\CheetParser.cpp" />
     <ClCompile Include="Source\Game\Actors\Enemy\AI.cpp" />
     <ClCompile Include="Source\Game\Level\RandomRoom.cpp" />
     <ClCompile Include="Source\Game\States\DBG\DBGState.cpp" />
@@ -958,6 +959,7 @@
     <ClCompile Include="Source\Gameplay\Objects\Torch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\CheetConsole\CheetParser.h" />
     <ClInclude Include="Source\Game\Actors\Enemy\AI.h" />
     <ClInclude Include="Source\Game\States\DBG\DBGState.h" />
     <ClInclude Include="Source\Game\Item\Rock.h" />

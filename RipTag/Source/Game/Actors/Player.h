@@ -198,6 +198,7 @@ public:
 	void PhysicsUpdate();
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
+	void setPosition(const DirectX::XMFLOAT4A& pos) override;
 
 	void Draw() override;
 	void DrawHUDComponents();
@@ -243,6 +244,8 @@ public:
 	bool GetMapPicked();
 	const int getInteractRayId();
 	const bool sameInteractRayId(int id);
+
+	void InstaWin();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);

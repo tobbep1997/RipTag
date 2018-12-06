@@ -4,6 +4,7 @@
 #include <wincodec.h>
 #include <filesystem>
 
+
 ForwardRender::ForwardRender()
 {
 	m_lastVertexPath = L"NULL";
@@ -1176,6 +1177,10 @@ void ForwardRender::_OutlineDepthCreate()
 
 void ForwardRender::_visabilityPass()
 {
+	/*if (CheetParser::GetVisabilityDisabled())
+	{
+		return;
+	}*/
 	if (DX::g_player == nullptr)
 	{
 		return;

@@ -239,7 +239,7 @@ void LayerState::_updateBlend(float deltaTime)
 			m_BlendState = NONE;
 		}
 
-		std::cout << "IN: " << m_CurrentBlendTime << '\n';
+		//std::cout << "IN: " << m_CurrentBlendTime << '\n';
 
 		break;
 	}
@@ -254,7 +254,7 @@ void LayerState::_updateBlend(float deltaTime)
 			m_BlendState = NONE;
 		}
 
-		std::cout << "OUT: " << m_CurrentBlendTime << '\n';
+		//std::cout << "OUT: " << m_CurrentBlendTime << '\n';
 
 		break;
 	}
