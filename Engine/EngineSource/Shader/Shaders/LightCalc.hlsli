@@ -88,6 +88,76 @@ float4 FresnelReflection(float cosTheta, float4 f0)
     return f0 + (1.0f - f0) * pow(1.0f - cosTheta, 5.f);
 }
 
+bool calculateShadows(in VS_OUTPUT input, in int shadowLight, in int targetMatrix, inout float shadowCoeff, inout float shadowDivider, inout float4 specular)
+{
+    if (useDir[shadowLight][targetMatrix].x != 0)
+    {
+        float4 posToLight = normalize(lightPosition[shadowLight] - input.worldPos);
+        
+        //----------------------------------------------------------------
+		// Translate the world position into the view space of the shadowLight
+        float4 fragmentLightPosition = mul(float4(input.worldPos.xyz, 1), lightViewProjection[shadowLight][targetMatrix]);
+		// Get the texture coords of the "object" in the shadow map
+        fragmentLightPosition.xyz /= fragmentLightPosition.w;
+		// Texcoords are not [-1, 1], change the coords to [0, 1]
+        float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
+        //The depth of the fragment relativ to the light
+        float depth = fragmentLightPosition.z;
+
+        //----------------------------------------------------------------
+        //This checks if the fragment is outside the shadowmap
+        //If its outside we dont want to sample from that texture
+        if (smTex.x < 0 || smTex.x > 1 || depth < 0.0f || depth > 1.0f ||
+                    smTex.y < 0 || smTex.y > 1 || depth < 0.0f || depth > 1.0f)            
+            return false;
+
+        //----------------------------------------------------------------
+        //Here we calculate the epsilon value
+        float margin = acos(saturate(dot(input.normal.xyz, posToLight.xyz)));
+
+        float epsilon = (0.000125f) / margin;
+        epsilon = clamp(epsilon, 0, 0.1);
+
+        //----------------------------------------------------------------
+        //Because we are sampling from a Texture2DArray we need a float3 to sample from it
+        //float3(u, v, index)
+        float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
+
+        //----------------------------------------------------------------
+        //Get the texelSize
+        float width, element;
+        txShadowArray.GetDimensions(width, width, element);
+        float texelSize = 1.0f / width;
+
+        //----------------------------------------------------------------
+        //Here we sample from the shadowmap 
+        //We sample arount the current texel and avrage out the values
+        float currentShadowCoeff;
+        float divider = 1.0f;
+        int sampleSize = 1;
+        for (int x = -sampleSize; x <= sampleSize; ++x)
+        {
+            for (int y = -sampleSize; y <= sampleSize; ++y)
+            {
+                currentShadowCoeff += float(txShadowArray.SampleCmpLevelZero(sampAniPoint, float3(smTex + (float2(x, y) * texelSize), (shadowLight * 6) + targetMatrix), depth - epsilon).r);
+                divider += 1.0f;
+            }
+        }
+
+        //----------------------------------------------------------------
+        //Here is the final part of the shadowmap 
+        //We add and avrage out the values and mult the shadow with specular to help it to not shine through walls 
+        currentShadowCoeff /= divider;
+        specular *= currentShadowCoeff;
+        shadowCoeff += currentShadowCoeff;
+        shadowDivider += 1.0f;           
+        
+        return true;
+    }
+    
+    return false;
+}
+
 float4 GuardOptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 {
     /*
@@ -214,70 +284,9 @@ float4 GuardOptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
-            if (useDir[shadowLight][targetMatrix].x != 0)
+            if (calculateShadows(input, shadowLight, targetMatrix, shadowCoeff, div, specular))
             {
-                //----------------------------------------------------------------
-			    // Translate the world position into the view space of the shadowLight
-                float4 fragmentLightPosition = mul(float4(input.worldPos.xyz, 1), lightViewProjection[shadowLight][targetMatrix]);
-			    // Get the texture coords of the "object" in the shadow map
-                fragmentLightPosition.xyz /= fragmentLightPosition.w;
-			    // Texcoords are not [-1, 1], change the coords to [0, 1]
-                float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
-                //The depth of the fragment relativ to the light
-                float depth = fragmentLightPosition.z;
-
-                //----------------------------------------------------------------
-                //This checks if the fragment is outside the shadowmap
-                //If its outside we dont want to sample from that texture
-                if (smTex.x < 0 || smTex.x > 1 || depth < 0.0f || depth > 1.0f ||
-                    smTex.y < 0 || smTex.y > 1 || depth < 0.0f || depth > 1.0f)            
-                    continue;
-
-                //----------------------------------------------------------------
-                //Here we calculate the epsilon value
-                float margin = acos(saturate(dot(input.normal.xyz, posToLight.xyz)));
-
-                float epsilon = (0.000125f) / margin;
-                epsilon = clamp(epsilon, 0, 0.1);
-
-                //----------------------------------------------------------------
-                //Because we are sampling from a Texture2DArray we need a float3 to sample from it
-                //float3(u, v, index)
-                float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
-
-                //----------------------------------------------------------------
-                //Get the texelSize
-                float width, element;
-                txShadowArray.GetDimensions(width, width, element);
-                float texelSize = 1.0f / width;
-
-                //----------------------------------------------------------------
-                //Here we sample from the shadowmap 
-                //We sample arount the current texel and avrage out the values
-                float currentShadowCoeff;
-                float divider = 1.0f;
-                int sampleSize = 1;
-                for (int x = -sampleSize; x <= sampleSize; ++x)
-                {
-                    for (int y = -sampleSize; y <= sampleSize; ++y)
-                    {
-                        currentShadowCoeff += float(txShadowArray.SampleCmpLevelZero(sampAniPoint, float3(smTex + (float2(x, y) * texelSize), (shadowLight * 6) + targetMatrix), depth - epsilon).r);
-                        divider += 1.0f;
-                    }
-                }
-
-                //----------------------------------------------------------------
-                //Here is the final part of the shadowmap 
-                //We add and avrage out the values and mult the shadow with specular to help it to not shine through walls 
-                currentShadowCoeff /= divider;
-                specular *= currentShadowCoeff;
-                shadowCoeff += currentShadowCoeff;
-                div += 1.0f;
-
-                //----------------------------------------------------------------
-                //if we hit a shadowmap there is no use to sample the rest of them
                 break;
-                
             }
         }
         //----------------------------------------------------------------
@@ -303,7 +312,6 @@ float4 GuardOptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 
 float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
 {	
-    
     //----------------------------------------------------------------  Vars
     float4 posToLight;
     float distanceToLight;
@@ -421,74 +429,12 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         */
         specular = (numerator / max(denominator, 0.001f)) * (1.0f / (1.0f + 0.08f * pow(distanceToLight, 2.0f)));
         //----------------------------------------------------------------
-
         for (int targetMatrix = 0; targetMatrix < numberOfViewProjection[shadowLight].x; targetMatrix++)
         {
-            if (useDir[shadowLight][targetMatrix].x != 0)
+            if (calculateShadows(input, shadowLight, targetMatrix, shadowCoeff, div, specular))
             {
-                //----------------------------------------------------------------
-			    // Translate the world position into the view space of the shadowLight
-                float4 fragmentLightPosition = mul(float4(input.worldPos.xyz, 1), lightViewProjection[shadowLight][targetMatrix]);
-			    // Get the texture coords of the "object" in the shadow map
-                fragmentLightPosition.xyz /= fragmentLightPosition.w;
-			    // Texcoords are not [-1, 1], change the coords to [0, 1]
-                float2 smTex = float2(0.5f * fragmentLightPosition.x + 0.5f, -0.5f * fragmentLightPosition.y + 0.5f);
-                //The depth of the fragment relativ to the light
-                float depth = fragmentLightPosition.z;
-
-                //----------------------------------------------------------------
-                //This checks if the fragment is outside the shadowmap
-                //If its outside we dont want to sample from that texture
-                if (smTex.x < 0 || smTex.x > 1 || depth < 0.0f || depth > 1.0f ||
-                    smTex.y < 0 || smTex.y > 1 || depth < 0.0f || depth > 1.0f)            
-                    continue;                   
-
-                //----------------------------------------------------------------
-                //Here we calculate the epsilon value
-                float margin = acos(saturate(dot(input.normal.xyz, posToLight.xyz)));
-
-                float epsilon = (0.000125f) / margin;
-                epsilon = clamp(epsilon, 0, 0.1);
-
-                //----------------------------------------------------------------
-                //Because we are sampling from a Texture2DArray we need a float3 to sample from it
-                //float3(u, v, index)
-                float3 indexPos = float3(smTex, (shadowLight * 6) + targetMatrix);
-
-                //----------------------------------------------------------------
-                //Get the texelSize
-                float width, element;
-                txShadowArray.GetDimensions(width, width, element);
-                float texelSize = 1.0f / width;
-
-                //----------------------------------------------------------------
-                //Here we sample from the shadowmap 
-                //We sample arount the current texel and avrage out the values
-                float currentShadowCoeff;
-                float divider = 1.0f;
-                int sampleSize = 1;
-                for (int x = -sampleSize; x <= sampleSize; ++x)
-                {
-                    for (int y = -sampleSize; y <= sampleSize; ++y)
-                    {
-                        currentShadowCoeff += float(txShadowArray.SampleCmpLevelZero(sampAniPoint, float3(smTex + (float2(x, y) * texelSize), (shadowLight * 6) + targetMatrix), depth - epsilon).r);
-                        divider += 1.0f;
-                    }
-                }
-
-                //----------------------------------------------------------------
-                //Here is the final part of the shadowmap 
-                //We add and avrage out the values and mult the shadow with specular to help it to not shine through walls 
-                currentShadowCoeff /= divider;
-                specular *= currentShadowCoeff;
-                shadowCoeff += currentShadowCoeff;
-                div += 1.0f;
-
-                //----------------------------------------------------------------
-                //if we hit a shadowmap there is no use to sample the rest of them
                 break;
-                
-            }
+            }            
         }
         //----------------------------------------------------------------
         //Okey i lied 

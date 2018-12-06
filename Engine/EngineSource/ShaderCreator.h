@@ -38,8 +38,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(shaderError))
 		{
 			_com_error err(shaderError);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Vertex Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -91,8 +91,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Vertex Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -133,8 +133,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Domain Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -174,8 +174,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Hull Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -214,8 +214,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Geometry Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -255,8 +255,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Pixel Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -300,8 +300,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Compute Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();

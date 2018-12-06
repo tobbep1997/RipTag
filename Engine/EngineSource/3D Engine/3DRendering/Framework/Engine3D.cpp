@@ -385,17 +385,19 @@ void Engine3D::Release()
 	   
 #ifndef _DEPLOY
 	HRESULT hr;
-	ID3D11Debug* dbg_device = nullptr;
-	if (SUCCEEDED(hr = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&dbg_device)))
-	{
-		if (SUCCEEDED(hr = dbg_device->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL)))
+	if (DX::g_device->Release() > 0)
+	{		
+		ID3D11Debug* dbg_device = nullptr;
+		if (SUCCEEDED(hr = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&dbg_device)))
 		{
+			if (SUCCEEDED(hr = dbg_device->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL)))
+			{
 
+			}
+			dbg_device->Release();
 		}
-		dbg_device->Release();
 	}
 #endif
-	DX::SafeRelease(DX::g_device);
 
 }
 
