@@ -168,9 +168,14 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	float rotX = 0;
 	float rotY = 3.141592 * 2;
 
-	
+	float3 forward = TimerAndForwardVector.xyz;
+	float3 right = normalize(cross(float3(0, 1, 0), forward));
+	float3 up = normalize(cross(forward, right));
+
 	float4x4 from;
 	float4x4 to;
+	
+	float rotSphereLerp = 0;
 
 	if (lerpValue <= 0.5)
 	{
@@ -187,6 +192,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 		 		 
 		 to = lastPos;
 		 from = worldMatrix;
+		 rotSphereLerp = lerp(rotY, rotX, lerpValue);
 	}
 	float4x4 finalWorldPos;
 	float4x4 finalWorldPosInverse;
@@ -204,6 +210,8 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	const float3 localOffset = mul(finalWorldPosInverse, float4(centerTriangle, 1.0f));
 
+	float3 normalTemp = mul(finalWorldPosInverse, float4(offsetNormal, 0.0f)).xyz;
+
 	const float3 triangleFaceNormal = normalize(localOffset);
 
 	const float rotLerp = lerp(rotX, rotY, lerpValue);
@@ -212,7 +220,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 
 	float4 lerpTriPosTowards = localCenter;
 
-	float4 modelPos = float4(finalWorldPos._41, finalWorldPos._42 + 1.5f, finalWorldPos._43, 1.0f);
+	float4 modelPos = float4(finalWorldPos._41 + up.x * 0.f, finalWorldPos._42 + up.y * 0.f, finalWorldPos._43 + up.z * 0.f, 1.0f);
 
 	for (uint i = 0; i < 3; i ++)
 	{
@@ -238,13 +246,16 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			   
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
-
+		rotatedLocalPos = mul(createRotationMatrix(rotSphereLerp, normalize(right + mul(finalWorldPosInverse, modelPos.xyz))), float4(rotatedLocalPos.xyz, 1));
+		//rotatedLocalPos = mul(createRotationMatrix(rotLerp, normalize(right + localPos.xyz), float4(rotatedLocalPos, 1)));
 	
 		output.worldPos = mul(finalWorldPos, float4(rotatedLocalPos, 1)); // Go to  worldSpace
+		
+		//output.worldPos = mul(output.worldPos, createRotationMatrix(rotLerp, right));
+		
+		output.worldPos.xyz = lerp(output.worldPos.xyz, modelPos.xyz + normalize(output.worldPos.xyz - modelPos.xyz +  normalTemp) * 1.f, lerpValue);
 
 		
-		output.worldPos.xyz = lerp(output.worldPos.xyz, modelPos.xyz + normalize(output.worldPos.xyz - modelPos.xyz + offsetNormal) * 1.f, lerpValue);
-
 
 		output.worldPos.w = 1;
 		output.pos = mul(output.worldPos, viewProjection);

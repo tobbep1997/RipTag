@@ -74,7 +74,7 @@ private:
 	float m_walk = 0;
 	bool forward = true;
 	float distance = 0.1f;
-	float m_guardSpeed = 1.5;
+	float m_guardSpeed = 3.0;
 
 	//Possess
 	Player* m_possessor;
