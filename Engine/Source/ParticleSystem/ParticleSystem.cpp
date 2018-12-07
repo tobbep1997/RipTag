@@ -3,24 +3,19 @@
 
 ParticleSystem::ParticleSystem()
 {
-	nrOfEmitters = 0;
-
+	_loadParticleShaders();
+	_loadParticleTextures();
 }
 
 
 ParticleSystem::~ParticleSystem()
 {
-	clearEmitters();
-
-	for (int i = 0; i < nrOfEmitters; i++)
-	{
-		m_ParticleEmitter[i]->Clear();
-	}	
+	clearEmitters();	
 }
 
 void ParticleSystem::Queue()
 {
-	for (int i = 0; i < nrOfEmitters; i++)
+	for (size_t i = 0; i < m_ParticleEmitter.size(); i++)
 	{
 		m_ParticleEmitter[i]->Queue();
 	}
@@ -28,33 +23,60 @@ void ParticleSystem::Queue()
 
 void ParticleSystem::Update(float timeDelata, Camera * camera)
 {
-	for (int i = 0; i < nrOfEmitters; i++)
+	for (size_t i = 0; i < m_ParticleEmitter.size(); i++)
 	{
 		m_ParticleEmitter[i]->Update(timeDelata, camera);
 	}
 }
 
-ParticleEmitter *ParticleSystem::CreateEmitter(DirectX::XMFLOAT3 spawnPos, typeOfEmitter type, float lifeTime)
+void ParticleSystem::AddEmitter(ParticleEmitter * pEmitter)
 {
-	ParticleEmitter * newEmitter = new ParticleEmitter(type);
-	newEmitter->setPosition(spawnPos.x, spawnPos.y, spawnPos.z);
-	newEmitter->type = type;
-	newEmitter->setEmmiterLife(lifeTime);
-	m_ParticleEmitter.push_back(newEmitter);
-	nrOfEmitters += 1;
-	return newEmitter;
+	this->m_ParticleEmitter.push_back(pEmitter);
 }
 
 void ParticleSystem::clearEmitters()
 {
-	for (int i = 0; i < nrOfEmitters; i++)
+	for (size_t i = 0; i < m_ParticleEmitter.size(); i++)
 	{
 		if (m_ParticleEmitter[i])
 		{
-			m_ParticleEmitter[i]->releaseVertexBuffer();
+			m_ParticleEmitter[i]->Release();
 			delete m_ParticleEmitter[i];
 			m_ParticleEmitter[i] = nullptr;
-			nrOfEmitters = 0;
+		}
+	}
+	m_ParticleEmitter.clear();
+}
+
+void ParticleSystem::_loadParticleShaders()
+{
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl", "main", inputDesc, 4);
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/Source/Shader/ParticleVertex.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/ParticlePixel.hlsl");
+}
+
+void ParticleSystem::_loadParticleTextures()
+{
+	std::string path = "../Assets/PARTICLEFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				if (extension == L".DDS")
+					Manager::g_textureManager.loadDDSTexture(stem, file.generic_wstring(), L"_256");
+			}
 		}
 	}
 }

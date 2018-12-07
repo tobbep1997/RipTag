@@ -161,9 +161,8 @@ void Room::LoadRoomToMemory()
 			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
 			p_pointLight->setColor(250.0f, 172.0f, 100);
 
-			p_emit = new ParticleEmitter();
-			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);
-
+			p_emit = new ParticleEmitter({ tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0}, PS::FIRE);
+		
 			Torch * t = new Torch(p_pointLight, p_emit, i);
 			t->BeginPlay();
 			m_Torches.push_back(t);
