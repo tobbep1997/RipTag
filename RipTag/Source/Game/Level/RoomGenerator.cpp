@@ -481,9 +481,8 @@ void RoomGenerator::_createEntireWorld()
 					tempLight->setColor(250.0f, 172.0f, 100.f);
 
 					ParticleEmitter * particleEmitter;
-					particleEmitter = DBG_NEW ParticleEmitter();
-					particleEmitter->setPosition(tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0);
-
+					particleEmitter = DBG_NEW ParticleEmitter({ tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0 }, PS::FIRE);
+					
 					Torch * tempTorch = DBG_NEW Torch(tempLight, particleEmitter, returnableRoom->getTriggerHandler()->netWorkTriggers.size());
 					m_generatedTorches.push_back(tempTorch);
 					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));

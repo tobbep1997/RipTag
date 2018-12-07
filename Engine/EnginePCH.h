@@ -1,5 +1,7 @@
 #pragma once
 #pragma warning (disable : 4715)
+
+//STD
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -10,11 +12,16 @@
 #include <thread>
 #include <fstream>
 #include <sstream>
+
+//DX
 #include <DirectXCollision.h>
+#include <d3d11.h>
+#include <d3dcsx.h>
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
 #include <D3DCommon.h>
 
-
-
+//Internal
 #include "ConsoleColor.h"
 #include "Source/ParticleSystem/Particle.h"
 #include "Source/ParticleSystem/ParticleEmitter.h"

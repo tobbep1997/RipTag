@@ -1,6 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
-#include "Source/CheetConsole/CheetParser.h"
+#include "Source/CheetConsole/CheatParser.h"
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
@@ -28,7 +28,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_arrayIndex = arrayIndex;
 	this->m_roomIndex = roomIndex;
 	this->m_playerInRoomPtr = playerPtr;
-	CheetParser::SetPlayerCheetPointer(playerPtr);
+	CheatParser::SetPlayerCheatPointer(playerPtr);
 
 
 	this->m_worldPtr = worldPtr;
@@ -161,9 +161,8 @@ void Room::LoadRoomToMemory()
 			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
 			p_pointLight->setColor(250.0f, 172.0f, 100);
 
-			p_emit = new ParticleEmitter();
-			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);
-
+			p_emit = new ParticleEmitter({ tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0}, PS::FIRE);
+		
 			Torch * t = new Torch(p_pointLight, p_emit, i);
 			t->BeginPlay();
 			m_Torches.push_back(t);
@@ -388,7 +387,7 @@ void Room::LoadRoomToMemory()
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
-	CheetParser::SetEnemyHandlerCheetPointer(m_enemyHandler);
+	CheatParser::SetEnemyHandlerCheatPointer(m_enemyHandler);
 	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
 	for (int i = 0; i < m_Torches.size(); i++)
 	{

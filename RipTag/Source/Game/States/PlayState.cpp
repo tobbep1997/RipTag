@@ -2,7 +2,7 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
-#include "Source/CheetConsole/CheetParser.h"
+#include "Source/CheetConsole/CheatParser.h"
 
 
 std::vector<std::string> RipSounds::g_sneakStep;
@@ -26,6 +26,8 @@ std::string				 RipSounds::g_gateClosed;
 std::string				 RipSounds::g_gateClosening;
 std::string				 RipSounds::g_gateOpend;
 std::string				 RipSounds::g_gateOpening;
+std::string				 RipSounds::g_teleport; 
+std::string				 RipSounds::g_teleportHit; 
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -83,8 +85,8 @@ void PlayState::Update(double deltaTime)
 {
 	//Cheat update
 	{
-		Cheet::g_visabilityDisabled = CheetParser::GetVisabilityDisabled();
-		Cheet::g_DBG_CAM = CheetParser::GetDBG_CAM();
+		Cheet::g_visabilityDisabled = CheatParser::GetVisabilityDisabled();
+		Cheet::g_DBG_CAM = CheatParser::GetDBG_CAM();
 	}
 
 
@@ -358,7 +360,7 @@ void PlayState::Draw()
 		if (m_transitionState)
 			m_transitionState->Draw();
 	}
-	if (CheetParser::GetDrawCollisionBoxes())
+	if (CheatParser::GetDrawCollisionBoxes())
 	{
 		DrawWorldCollisionboxes();
 	}
@@ -782,6 +784,8 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleport); 
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleportHit); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorOpening);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosening);
@@ -1083,6 +1087,8 @@ void PlayState::_loadSound()
 	RipSounds::g_gateClosening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closening.ogg"); // Released
 	RipSounds::g_gateOpend					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opend.ogg"); // Released
 	RipSounds::g_gateOpening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opening.ogg"); // Released
+	RipSounds::g_teleport = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleport.ogg"); 
+	RipSounds::g_teleportHit = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleportHit.ogg");
 
 	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.15f);
 }

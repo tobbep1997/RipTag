@@ -57,7 +57,7 @@ void Torch::Update(double deltaTime)
 	if (pParticles)
 	{
 		pParticles->Update(deltaTime, pCamera);
-		pParticles->setPosition(newPos.x, newPos.y, newPos.z, 1);
+		pParticles->SetPosition(newPos);
 	}
 
 	if (m_interacted)
@@ -66,9 +66,9 @@ void Torch::Update(double deltaTime)
 		{
 			this->setTriggerState(false);
 			pPointLight->setLightOn(true);
-			pParticles = new ParticleEmitter();
-			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-			pParticles->setEmmiterLife(0);
+			pParticles = new ParticleEmitter(this->getPosition(), PS::FIRE);
+
+			pParticles->SetEmitterLife(FLT_MAX);
 		}
 		else
 		{
@@ -87,9 +87,8 @@ void Torch::Update(double deltaTime)
 		{
 			this->setTriggerState(false);
 			pPointLight->setLightOn(true);
-			pParticles = new ParticleEmitter();
-			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-			pParticles->setEmmiterLife(0);
+			pParticles = new ParticleEmitter(this->getPosition(), PS::FIRE);
+			pParticles->SetEmitterLife(0.0f);
 		}
 		else
 		{

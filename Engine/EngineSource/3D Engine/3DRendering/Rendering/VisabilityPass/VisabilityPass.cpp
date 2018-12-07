@@ -82,7 +82,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 
 	for (auto & emitter : DX::g_emitters)
 	{	
-		if (boundingFrustum.Intersects(*emitter->getBoundingBox()))
+		if (boundingFrustum.Intersects(emitter->getBoundingBox()))
 		{
 			emitter->Clear();
 			emitter->Update(0, target->getCamera());
