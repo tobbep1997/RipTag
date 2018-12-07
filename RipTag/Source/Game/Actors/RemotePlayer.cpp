@@ -159,21 +159,27 @@ void RemotePlayer::Update(double dt)
 
 	if (this->getDestroyState())
 	{
-		this->setDestructionRate(ConstTimer::g_blinkTimer.GetTime());
-		if (ConstTimer::g_blinkTimer.GetTime() > 1.0f)
+		if (this->getTypeOfAbilityUsed().x == 1)
 		{
-			this->setDestroyState(false);
-			this->setDestructionRate(0);//after
-			ConstTimer::g_blinkTimer.Stop();
-			ConstTimer::g_blinkTimer.Start();
+			this->setDestructionRate(ConstTimer::g_blinkTimer.GetTime());
+			if (ConstTimer::g_blinkTimer.GetTime() > 1.0f)
+			{
+				this->setDestroyState(false);
+				this->setDestructionRate(0);//after
+				ConstTimer::g_blinkTimer.Stop();
+				ConstTimer::g_blinkTimer.Start();
+			}
 		}
-		this->setDestructionRate(ConstTimer::g_teleportTimer.GetTime());
-		if (ConstTimer::g_teleportTimer.GetTime() > 1.0f)
+		if (this->getTypeOfAbilityUsed().x == 2)
 		{
-			this->setDestroyState(false);
-			this->setDestructionRate(0);//after
-			ConstTimer::g_teleportTimer.Stop();
-			ConstTimer::g_teleportTimer.Start();
+			this->setDestructionRate(ConstTimer::g_teleportTimer.GetTime());
+			if (ConstTimer::g_teleportTimer.GetTime() > 1.0f)
+			{
+				this->setDestroyState(false);
+				this->setDestructionRate(0);//after
+				ConstTimer::g_teleportTimer.Stop();
+				ConstTimer::g_teleportTimer.Start();
+			}
 		}
 	}
 }

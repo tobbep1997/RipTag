@@ -44,7 +44,7 @@ private:
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
 	float m_destructionRate;
-	DirectX::XMINT4 m_typeOfAbilityEffect;
+	DirectX::XMINT4 m_typeOfAbilityEffect = { 0, 0, 0, 0 };
 
 	bool m_hidden;
 	bool m_outline;
