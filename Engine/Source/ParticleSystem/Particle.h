@@ -34,7 +34,7 @@ public:
 	float lifeTime = 2.3f;
 	float acceleration = 1.1f;
 	DirectX::XMFLOAT2 scale = DirectX::XMFLOAT2(1,1);
-
+	bool Expired() { return age >= lifeTime; }
 
 };
 

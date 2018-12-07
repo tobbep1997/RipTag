@@ -27,6 +27,25 @@ void ParticleSystem::Update(float timeDelata, Camera * camera)
 	{
 		m_ParticleEmitter[i]->Update(timeDelata, camera);
 	}
+	//Remove expired emitters
+	for (size_t i = 0; i < m_ParticleEmitter.size(); i++)
+	{
+		if (m_ParticleEmitter[i]->Expired())
+		{
+			delete m_ParticleEmitter[i];
+			m_ParticleEmitter[i] = nullptr;
+		}
+	}
+	std::vector<ParticleEmitter*> temp;
+	for (size_t i = 0; i < m_ParticleEmitter.size(); i++)
+	{
+		if (m_ParticleEmitter[i])
+			temp.push_back(m_ParticleEmitter[i]);
+	}
+
+	m_ParticleEmitter.clear();
+	m_ParticleEmitter = temp;
+	temp.clear();
 }
 
 void ParticleSystem::AddEmitter(ParticleEmitter * pEmitter)
