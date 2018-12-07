@@ -89,6 +89,8 @@ private:
 	int m_rayId = -100;
 
 	std::mutex m_physThreadRun;
+
+	std::ofstream fps;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
