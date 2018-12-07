@@ -79,16 +79,23 @@ PlayState::~PlayState()
 	delete RipExtern::g_particleSystem;
 	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
+
+	fps.close();
 }
 
 void PlayState::Update(double deltaTime)
 {
 	//Cheat update
+	//fps << deltaTime << std::endl;
+
 	{
 		Cheet::g_visabilityDisabled = CheatParser::GetVisabilityDisabled();
 		Cheet::g_DBG_CAM = CheatParser::GetDBG_CAM();
 	}
 
+	
+
+	
 
 	int counter = 0;
 	if (runGame)
@@ -828,6 +835,7 @@ void PlayState::Load()
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
 
+	fps.open("fpsData.txt");
 	//phy.open("physData.txt");
 	
 	if (isCoop)
