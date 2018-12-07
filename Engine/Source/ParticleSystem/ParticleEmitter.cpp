@@ -404,7 +404,7 @@ void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
 	m_config.scaleOverTime				= DirectX::XMFLOAT2{ -1.0f, -1.0f };
 	m_config.scale								= DirectX::XMFLOAT2(0.01f, 0.01f);
 
-	m_config.m_RotationMinMax		= DirectX::XMINT2{ 360, 360 };
+	m_config.m_RotationMinMax		= DirectX::XMINT2{ 1, 360 };
 	m_config.directionMinMax			= DirectX::XMINT2{ -4, 4 };
 	m_config.minMaxLife					= DirectX::XMINT2{ 5, 5 };
 
