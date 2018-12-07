@@ -8,10 +8,7 @@ class Enemy;
 enum AIState
 {
 	NoState,
-	Investigating_Sight,
-	Investigating_Sound,
-	Investigating_Room,
-	High_Alert,
+	Investigating,
 	Suspicious,
 	Scanning_Area,
 	Patrolling,
@@ -24,10 +21,8 @@ enum AITransitionState
 {
 	NoTransitionState,
 	Alerted,
-	InvestigateSound,
-	InvestigateSight,
+	Investigate,
 	Observe,
-	SearchArea,
 	ReturnToPatrol,
 	BeingPossessed,
 	BeingDisabled,
@@ -64,7 +59,7 @@ private:
 	const float CHECK_TORCHES_RADIUS = 7.5f;
 
 	//stateData
-	float m_HighAlertTime = 0.f;
+	//float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
 	float m_searchTimer = 0.0f;
 	float m_checkTorchesTimer = 0.0f;
@@ -123,10 +118,8 @@ private:
 
 	//Transistion States
 	void _onAlerted();
-	void _onInvestigateSound();
-	void _onInvestigateSight();
+	void _onInvestigate();
 	void _onObserve();
-	void _onSearchArea();
 	void _onReturnToPatrol();
 	void _onBeingPossessed();
 	void _onBeingDisabled();
@@ -134,8 +127,7 @@ private:
 	void _onExitingDisabled();
 
 	//States
-	void _investigatingSight(const double deltaTime);
-	void _investigatingSound(const double deltaTime);
+	void _investigating(const double deltaTime);
 	void _investigatingRoom(const double deltaTime);
 	void _highAlert(const double deltaTime);
 	void _suspicious(const double deltaTime);

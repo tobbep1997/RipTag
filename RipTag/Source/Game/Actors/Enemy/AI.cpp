@@ -44,17 +44,11 @@ void AI::handleStates(const double deltaTime)
 	case AITransitionState::Alerted:
 		this->_onAlerted();
 		break;
-	case AITransitionState::InvestigateSound:
-		this->_onInvestigateSound();
-		break;
-	case AITransitionState::InvestigateSight:
-		this->_onInvestigateSight();
+	case AITransitionState::Investigate:
+		this->_onInvestigate();
 		break;
 	case AITransitionState::Observe:
 		this->_onObserve();
-		break;
-	case AITransitionState::SearchArea:
-		this->_onSearchArea();
 		break;
 	case AITransitionState::ReturnToPatrol:
 		this->_onReturnToPatrol();
@@ -75,26 +69,7 @@ void AI::handleStates(const double deltaTime)
 
 	switch (m_state)
 	{
-	case AIState::Investigating_Sight:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-#endif
-
-		if (timer > 0.3f)
-		{
-			timer = 0.0f;
-			this->_investigatingSound(deltaTime);
-		}
-		if (m_transState == AITransitionState::NoTransitionState)
-		{
-			if (m_alertPath.size() != 0)
-			{
-				_MoveToAlert(m_alertPath.at(0), deltaTime);
-			}
-		}
-		m_owner->_detectTeleportSphere();
-		break;
-	case AIState::Investigating_Sound:
+	case AIState::Investigating:
 #ifdef _DEBUG
 		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 #endif
@@ -102,34 +77,13 @@ void AI::handleStates(const double deltaTime)
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
-			this->_investigatingSound(deltaTime);
+			this->_investigating(deltaTime);
 		}
 		if (m_transState == AITransitionState::NoTransitionState)
 			if (m_alertPath.size() != 0)
 			{
 				_MoveToAlert(m_alertPath.at(0), deltaTime);
 			}
-		m_owner->_detectTeleportSphere();
-		break;
-	case AIState::Investigating_Room:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
-#endif
-
-		this->_investigatingRoom(deltaTime);
-		m_owner->_detectTeleportSphere();
-		if (m_transState == AITransitionState::NoTransitionState)
-			if (m_alertPath.size() != 0)
-			{
-				_MoveToAlert(m_alertPath.at(0), deltaTime);
-			}
-		break;
-	case AIState::High_Alert:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-#endif
-
-		this->_highAlert(deltaTime);
 		m_owner->_detectTeleportSphere();
 		break;
 	case AIState::Patrolling:
@@ -208,55 +162,37 @@ void AI::_onAlerted()
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
 	this->m_actTimer = 0;
-	m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
-	m_owner->m_loudestSoundLocation = AI::SoundLocation();
-	m_owner->m_biggestVisCounter = 0;
-
+	
 	FMOD_VECTOR at = { m_owner->getPosition().x, m_owner->getPosition().y, m_owner->getPosition().z };
 	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, &m_alerted);
 
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 
-void AI::_onInvestigateSound()
+void AI::_onInvestigate()
 {
+	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
 	DirectX::XMFLOAT3 soundPos = m_owner->getLoudestSoundLocation().soundPos;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
+	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
 	Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
-	if (soundTile.getX() == -1 && soundTile.getY() == -1)
-	{
-		soundTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
-	}
-
-	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
-	
-#ifdef _DEBUG
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
-#endif
-	this->m_state = Investigating_Sound;
-	this->m_transState = AITransitionState::NoTransitionState;
-}
-
-void AI::_onInvestigateSight()
-{
-	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
-	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
-	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-	if (playerTile.getX() == -1 && playerTile.getY() == -1)
+	if (m_owner->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5 && playerTile.getX() == -1)
 	{
 		playerTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
+		this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+	}
+	else if (soundTile.getX() == -1)
+	{
+		soundTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
+		this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 	}
 
-	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-	this->m_state = Investigating_Sight;
 #ifdef _DEBUG
-
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sight" << white << std::endl;
+	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigating" << white << std::endl;
 #endif
+	this->m_state = Investigating;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 
@@ -270,40 +206,6 @@ void AI::_onObserve()
 #endif
 	this->m_state = Scanning_Area;
 	this->m_transState = AITransitionState::NoTransitionState;
-}
-
-void AI::_onSearchArea()
-{
-	this->m_actTimer = 0;
-	this->m_state = Investigating_Room;
-#ifdef _DEBUG
-
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
-#endif
-	this->m_transState = AITransitionState::NoTransitionState;
-	auto pos = m_owner->getPosition();
-	Tile guardTile = m_grid->WorldPosToTile(pos.x, pos.z);
-
-	int x = rand() % 4 + 1;
-	int y = rand() % 11;
-
-	DirectX::XMFLOAT2 gPos = { (float)guardTile.getX(), (float)guardTile.getY() };
-	DirectX::XMFLOAT2 tPos = { (float)x, (float)y };
-
-	float dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
-
-	while (dist < 3.0f)
-	{
-		int x = rand() % 4 + 1;
-		int y = rand() % 10;
-
-		DirectX::XMFLOAT2 tPos = { (float)x, (float)y };
-
-		dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
-	}
-
-	std::vector<Node*> fullPath = m_grid->FindPath(guardTile, Tile(x, y));
-	this->SetAlertVector(fullPath);
 }
 
 void AI::_onReturnToPatrol()
@@ -375,46 +277,7 @@ void AI::_onExitingDisabled()
 	this->m_transState = AITransitionState::Observe;
 }
 
-/*void AI::_investigatingSight(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-
-	if (this->GetAlertPathSize() > 0)
-	{
-		if (m_owner->m_visCounter > m_owner->m_biggestVisCounter)
-		{
-			DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
-
-			if (m_owner->m_RemotePtr)
-			{
-				const int * vis = m_owner->getPlayerVisibility();
-				if (vis[1] > vis[0])
-					playerPos = m_owner->m_RemotePtr->getPosition();
-			}
-
-
-			Node * pathDestination = this->GetAlertDestination();
-
-			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
-				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
-			{
-				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-				Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
-				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-			}
-		}
-	}
-	else
-	{
-		this->m_transState = AITransitionState::Observe;
-	}
-}*/
-
-void AI::_investigatingSound(const double deltaTime)
+void AI::_investigating(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
 	m_owner->_CheckPlayer(deltaTime);
@@ -472,52 +335,6 @@ void AI::_investigatingSound(const double deltaTime)
 		this->m_transState = AITransitionState::Observe;
 	}
 }
-
-void AI::_investigatingRoom(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-
-	this->m_searchTimer += deltaTime;
-
-	if (this->GetAlertPathSize() == 0)
-	{
-		this->m_transState = AITransitionState::Observe;
-	}
-	SoundLocation target = m_owner->m_sl;
-
-	if (target.percentage < m_owner->m_slRemote.percentage)
-		target = m_owner->m_slRemote;
-	if (m_owner->m_visCounter >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL)
-	{
-		//this->setTransitionState(EnemyTransitionState::Alerted);
-	}
-	if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
-	{
-		this->m_transState = AITransitionState::ReturnToPatrol;
-	}
-}
-void AI::_highAlert(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-
-	this->m_HighAlertTime = deltaTime;
-	if (this->m_HighAlertTime >= HIGH_ALERT_LIMIT)
-	{
-		this->m_HighAlertTime = 0.0f;
-		m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
-		m_owner->m_loudestSoundLocation = SoundLocation();
-		m_owner->m_biggestVisCounter = 0.0f;
-		this->m_state = AIState::Suspicious;
-#ifdef _DEBUG
-
-		std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
-#endif
-	}
-}
 void AI::_suspicious(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
@@ -566,10 +383,8 @@ void AI::_suspicious(const double deltaTime)
 	}
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
-		if (m_owner->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5)
-			this->m_transState = AITransitionState::InvestigateSight; //what was that?
-		else if (m_owner->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
-			this->m_transState = AITransitionState::InvestigateSound; //what was that noise?
+		if (m_owner->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5 || m_owner->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
+			this->m_transState = AITransitionState::Investigate; //what was that?
 		else
 		{
 			this->m_transState = AITransitionState::ReturnToPatrol;
