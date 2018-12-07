@@ -241,8 +241,6 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentPitch = data->pitch;
 		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
-
-		std::cout << m_currentSpeed << std::endl;
 	}
 }
 
