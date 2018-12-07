@@ -1,6 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
-#include "Source/CheetConsole/CheetParser.h"
+#include "Source/CheetConsole/CheatParser.h"
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
@@ -28,7 +28,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_arrayIndex = arrayIndex;
 	this->m_roomIndex = roomIndex;
 	this->m_playerInRoomPtr = playerPtr;
-	CheetParser::SetPlayerCheetPointer(playerPtr);
+	CheatParser::SetPlayerCheatPointer(playerPtr);
 
 
 	this->m_worldPtr = worldPtr;
@@ -388,7 +388,7 @@ void Room::LoadRoomToMemory()
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
-	CheetParser::SetEnemyHandlerCheetPointer(m_enemyHandler);
+	CheatParser::SetEnemyHandlerCheatPointer(m_enemyHandler);
 	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
 	for (int i = 0; i < m_Torches.size(); i++)
 	{

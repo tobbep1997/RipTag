@@ -1,6 +1,6 @@
 #pragma once
 
-class CheetParser
+class CheatParser
 {
 private:
 	static Player * playerPtr;
@@ -12,13 +12,13 @@ private:
 	static bool m_DBG_CAM;
 public:
 	//Create instance for the singleton
-	static CheetParser * GetInstance();
+	static CheatParser * GetInstance();
 
 	//Parser input and execute correct stuff
 	static void ParseString(const std::string & input);
 
-	static bool SetPlayerCheetPointer(Player * p);
-	static bool SetEnemyHandlerCheetPointer(EnemyHandler * en);
+	static bool SetPlayerCheatPointer(Player * p);
+	static bool SetEnemyHandlerCheatPointer(EnemyHandler * en);
 
 	static bool GetVisabilityDisabled();
 	static bool GetDrawCollisionBoxes();
@@ -30,10 +30,10 @@ public:
 private:
 	//Cheat classes.
 	//This is where we put all the switch cases to avoid clutter
-	static void _PlayerCheets();
-	static void _SpawnCheets();
-	static void _CommonCheets();
-	static void _EngineCheets();
+	static void _PlayerCheats();
+	static void _SpawnCheats();
+	static void _CommonCheats();
+	static void _EngineCheats();
 	
 
 	static void _Draw();

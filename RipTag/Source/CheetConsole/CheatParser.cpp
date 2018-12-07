@@ -1,26 +1,26 @@
 #include "RipTagPCH.h"
-#include "CheetParser.h"
-Player * CheetParser::playerPtr = nullptr;
-EnemyHandler * CheetParser::enemyHandlerPtr = nullptr;
+#include "CheatParser.h"
+Player * CheatParser::playerPtr = nullptr;
+EnemyHandler * CheatParser::enemyHandlerPtr = nullptr;
 
-bool CheetParser::m_visabilityDisable = false;
-bool CheetParser::m_DrawCollisionBoxes = false;
+bool CheatParser::m_visabilityDisable = false;
+bool CheatParser::m_DrawCollisionBoxes = false;
 
-bool CheetParser::m_DBG_CAM = false;
-CheetParser * CheetParser::GetInstance()
+bool CheatParser::m_DBG_CAM = false;
+CheatParser * CheatParser::GetInstance()
 {
 	
-	static CheetParser m_instance;
+	static CheatParser m_instance;
 	return &m_instance;
 	
 }
 
-void CheetParser::ParseString(const std::string& input)
+void CheatParser::ParseString(const std::string& input)
 {
 	//std::transform(input.begin(), input.end(), input.begin(), ::tolower);
 	if (input == "player")
 	{
-		_PlayerCheets();
+		_PlayerCheats();
 	}
 	else if (input == "*noclip*")
 	{
@@ -37,15 +37,15 @@ void CheetParser::ParseString(const std::string& input)
 	else if (input == "spawn")
 	{
 		std::cout << "SpawnBroken" << std::endl;
-		//_SpawnCheets();
+		//_SpawnCheats();
 	}
 	else if (input == "common")
 	{
-		_CommonCheets();
+		_CommonCheats();
 	}
 	else if (input == "engine")
 	{
-		_EngineCheets();
+		_EngineCheats();
 	}
 	else if (input == "draw")
 	{
@@ -58,34 +58,34 @@ void CheetParser::ParseString(const std::string& input)
 	
 }
 
-bool CheetParser::SetPlayerCheetPointer(Player * p)
+bool CheatParser::SetPlayerCheatPointer(Player * p)
 {
 	playerPtr = p;
 	return true;
 }
 
-bool CheetParser::SetEnemyHandlerCheetPointer(EnemyHandler* en)
+bool CheatParser::SetEnemyHandlerCheatPointer(EnemyHandler* en)
 {
 	enemyHandlerPtr = en;
 	return true;
 }
 
-bool CheetParser::GetVisabilityDisabled()
+bool CheatParser::GetVisabilityDisabled()
 {
 	return m_visabilityDisable;
 }
 
-bool CheetParser::GetDrawCollisionBoxes()
+bool CheatParser::GetDrawCollisionBoxes()
 {
 	return m_DrawCollisionBoxes;
 }
 
-bool CheetParser::GetDBG_CAM()
+bool CheatParser::GetDBG_CAM()
 {
 	return m_DBG_CAM;
 }
 
-void CheetParser::_PlayerCheets()
+void CheatParser::_PlayerCheats()
 {
 	int x = -1;
 	system("CLS");
@@ -126,7 +126,7 @@ void CheetParser::_PlayerCheets()
 	}
 }
 
-void CheetParser::_SpawnCheets()
+void CheatParser::_SpawnCheats()
 {
 	int x = -1;
 	system("CLS");
@@ -147,7 +147,7 @@ void CheetParser::_SpawnCheets()
 	}
 }
 
-void CheetParser::_CommonCheets()
+void CheatParser::_CommonCheats()
 {
 	int x = -1;
 	system("CLS");
@@ -161,7 +161,7 @@ void CheetParser::_CommonCheets()
 	{
 	case(1):
 		std::string in;
-		std::cout << "Visability state " << CheetParser::m_visabilityDisable << std::endl;
+		std::cout << "Visability state " << CheatParser::m_visabilityDisable << std::endl;
 		std::cin >> in;
 		if (in == "y" || in == "1")
 		{
@@ -175,7 +175,7 @@ void CheetParser::_CommonCheets()
 	}
 }
 
-void CheetParser::_EngineCheets()
+void CheatParser::_EngineCheats()
 {
 	int x = -1;
 	system("CLS");
@@ -188,7 +188,7 @@ void CheetParser::_EngineCheets()
 	switch (x)
 	{
 	case(1):
-		std::cout << "Debug Camera state " << CheetParser::m_DBG_CAM << std::endl;
+		std::cout << "Debug Camera state " << CheatParser::m_DBG_CAM << std::endl;
 		std::cin >> in;
 		if (in == "y" || in == "1")
 		{
@@ -202,7 +202,7 @@ void CheetParser::_EngineCheets()
 	}
 }
 
-void CheetParser::_Draw()
+void CheatParser::_Draw()
 {
 	int x = -1;
 	system("CLS");
@@ -216,7 +216,7 @@ void CheetParser::_Draw()
 	{
 	case(1):
 		std::string in;
-		std::cout << "CollisionBoxes state " << CheetParser::m_DrawCollisionBoxes << std::endl;
+		std::cout << "CollisionBoxes state " << CheatParser::m_DrawCollisionBoxes << std::endl;
 		std::cin >> in;
 		if (in == "y" || in == "1")
 		{
@@ -230,7 +230,7 @@ void CheetParser::_Draw()
 	}
 }
 
-void CheetParser::_Help()
+void CheatParser::_Help()
 {
 	std::cout << "---HELP---" << std::endl;
 	std::cout << "player" << std::endl;
