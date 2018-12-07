@@ -66,7 +66,7 @@ public:
 	OptionState(RenderingManager * rm = nullptr);
 	~OptionState();
 
-	void Update(double deltaTime) override;
+	virtual void Update(double deltaTime) override;
 	void Draw() override;
 private:
 	void _slide();

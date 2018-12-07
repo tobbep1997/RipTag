@@ -129,6 +129,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_TELEPORT:
 		this->_onNetworkUseTeleport(id);
 		break;
+	case NETWORKMESSAGES::ID_SMOKE_DETONATE:
+		this->_onNetworkSmokeDetonate(data);
+		break;
 	default:
 		break;
 	}
@@ -145,7 +148,7 @@ void RemotePlayer::Update(double dt)
 
 	//1.
 	this->_lerpPosition(dt);
-	std::cout << this->getPosition().x << std::endl;
+	//std::cout << this->getPosition().x << std::endl;
 	//2.
 	for (size_t i = 0; i < m_nrOfAbilitys; i++)
 		m_activeSet[i]->Update(dt);
@@ -271,8 +274,6 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentPitch = data->pitch;
 		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
-
-		std::cout << m_currentSpeed << std::endl;
 	}
 }
 
@@ -517,4 +518,12 @@ void RemotePlayer::_onNetworkRemoteCrouch(unsigned char id)
 		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 		break;
 	}
+}
+
+void RemotePlayer::_onNetworkSmokeDetonate(unsigned char * data)
+{
+	Network::ENTITYSTATEPACKET* dataPacket = (Network::ENTITYSTATEPACKET*)data;
+	ParticleEmitter* emitter = new ParticleEmitter({ dataPacket->pos.x, dataPacket->pos.y + 0.5f, dataPacket->pos.z , 1.0f }, PS::SMOKE);
+	RipExtern::g_particleSystem->ParticleSystem::AddEmitter(emitter);
+	dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE])->Reset();
 }

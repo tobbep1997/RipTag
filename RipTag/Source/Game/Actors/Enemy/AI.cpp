@@ -3,12 +3,17 @@
 
 AI::AI()
 {
-
+	m_alerted.owner = nullptr;
+	m_alerted.emitter = AudioEngine::Enemy;
+	m_alerted.loudness = 1.5f;
 }
 
 AI::AI(Enemy * owner)
 {
 	m_owner = owner;
+	m_alerted.owner = owner;
+	m_alerted.emitter = AudioEngine::Enemy;
+	m_alerted.loudness = 1.5f;
 }
 
 AI::~AI()
@@ -206,8 +211,10 @@ void AI::_onAlerted()
 	m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
 	m_owner->m_loudestSoundLocation = AI::SoundLocation();
 	m_owner->m_biggestVisCounter = 0;
+
 	FMOD_VECTOR at = { m_owner->getPosition().x, m_owner->getPosition().y, m_owner->getPosition().z };
-	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, &m_alerted);
+
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 
@@ -220,16 +227,11 @@ void AI::_onInvestigateSound()
 
 	if (soundTile.getX() == -1 && soundTile.getY() == -1)
 	{
-		soundTile = m_grid->GetRandomNearbyTile(guardTile);
+		soundTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
 	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 	
-
-
-
-
-	// If pathfindingThread is finnished
 #ifdef _DEBUG
 	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
@@ -246,7 +248,7 @@ void AI::_onInvestigateSight()
 
 	if (playerTile.getX() == -1 && playerTile.getY() == -1)
 	{
-		playerTile = m_grid->GetRandomNearbyTile(guardTile);
+		playerTile = m_grid->GetRandomNearbyUnblockedTile(guardTile);
 	}
 
 	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
@@ -306,6 +308,8 @@ void AI::_onSearchArea()
 
 void AI::_onReturnToPatrol()
 {
+	m_owner->m_loudestSoundLocation.percentage = 0.0f;
+	m_owner->m_biggestVisCounter = 0.0f;
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
@@ -574,6 +578,8 @@ void AI::_patrolling(const double deltaTime)
 	m_owner->getBody()->SetType(e_dynamicBody);
 	
 	m_owner->_CheckPlayer(deltaTime);
+
+	this->_checkTorches(deltaTime);
 
 	if (m_alertPath.size() > 0)
 	{
@@ -917,6 +923,36 @@ float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 	return 0;
 }
 
+void AI::_checkTorches(float dt)
+{
+	static const float radiusSquared = CHECK_TORCHES_RADIUS * CHECK_TORCHES_RADIUS;
+
+	m_checkTorchesTimer += dt;
+
+
+	if (m_checkTorchesTimer >= CHECK_TORCHES_INTERVALL)
+	{
+		m_checkTorchesTimer -= CHECK_TORCHES_INTERVALL;
+		DirectX::XMFLOAT4A origin = m_owner->getPosition();
+		for (auto & t : m_owner->m_torches)
+		{
+			DirectX::XMFLOAT4A point = t->getPosition();
+			float distance = ((point.x - origin.x) * (point.x - origin.x) + (point.z - origin.z) * (point.z - origin.z));
+			if (distance <= radiusSquared)
+			{
+				if (t->getTriggerState())
+				{
+					t->Interact();
+					//QUEUE ANIMATION HERE
+				}
+			}
+
+		}
+	}
+
+
+}
+
 //------------------------------Public------------------------------------
 void AI::setGrid(Grid * grid)
 {
@@ -1000,8 +1036,7 @@ DirectX::XMFLOAT2 AI::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Cam
 	{
 		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
 		XMVECTOR enemyPos = XMLoadFloat4A(&m_owner->getPosition());
-
-		XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
+		XMVECTOR vdir = XMVector3TransformCoord(enemyPos, playerView);
 		XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
 		vdir = XMLoadFloat2(&dir);
 		vdir = XMVector2Normalize(vdir);

@@ -16,7 +16,7 @@ namespace Network
 	enum NETWORKMESSAGES
 	{
 		//GAME EVENTS
-		ID_GAME_START				 = ID_USER_PACKET_ENUM,
+		ID_GAME_START								= ID_USER_PACKET_ENUM,
 		//PLAYER EVENTS 1-19
 		ID_PLAYER_CREATE			 = ID_USER_PACKET_ENUM + 1,
 		ID_PLAYER_DISCONNECT		 = ID_USER_PACKET_ENUM + 2,
@@ -34,16 +34,16 @@ namespace Network
 		ID_PLAYER_BLINK				 = ID_USER_PACKET_ENUM + 14,
 		ID_PLAYER_TELEPORT			 = ID_USER_PACKET_ENUM + 15,
 		// 20-29 is reserved for lobby
-		ID_SERVER_ADVERTISE			 = ID_USER_PACKET_ENUM + 20,
-		ID_CHAR_SELECTED			 = ID_USER_PACKET_ENUM + 21,
-		ID_READY_PRESSED			 = ID_USER_PACKET_ENUM + 22,
-		ID_REQUEST_NID				 = ID_USER_PACKET_ENUM + 23,
-		ID_REPLY_NID				 = ID_USER_PACKET_ENUM + 24,
-		ID_REQUEST_SELECTED_CHAR	 = ID_USER_PACKET_ENUM + 25,
-		ID_HOST_NAME				 = ID_USER_PACKET_ENUM + 26,
+		ID_SERVER_ADVERTISE					= ID_USER_PACKET_ENUM + 20,
+		ID_CHAR_SELECTED							= ID_USER_PACKET_ENUM + 21,
+		ID_READY_PRESSED							= ID_USER_PACKET_ENUM + 22,
+		ID_REQUEST_NID								= ID_USER_PACKET_ENUM + 23,
+		ID_REPLY_NID									= ID_USER_PACKET_ENUM + 24,
+		ID_REQUEST_SELECTED_CHAR		= ID_USER_PACKET_ENUM + 25,
+		ID_HOST_NAME								= ID_USER_PACKET_ENUM + 26,
 
 		//this packet is sent by the server, contains a random seed
-		ID_GAME_STARTED				= ID_USER_PACKET_ENUM + 29,
+		ID_GAME_STARTED							= ID_USER_PACKET_ENUM + 29,
 		//GAMEPLAY/GAMESTATE EVENTS 30-49
 		ID_TRIGGER_USED				= ID_USER_PACKET_ENUM + 30,
 		ID_PLAYER_WON				= ID_USER_PACKET_ENUM + 31,
@@ -51,7 +51,8 @@ namespace Network
 		ID_ENEMY_UPDATE				= ID_USER_PACKET_ENUM + 33,
 		ID_ENEMY_VISIBILITY			= ID_USER_PACKET_ENUM + 34,
 		ID_ENEMY_POSSESSED			= ID_USER_PACKET_ENUM + 35,
-		ID_ENEMY_DISABLED			= ID_USER_PACKET_ENUM + 36
+		ID_ENEMY_DISABLED			= ID_USER_PACKET_ENUM + 36,
+		ID_SMOKE_DETONATE			= ID_USER_PACKET_ENUM + 37
 	};
 
 
@@ -76,19 +77,6 @@ namespace Network
 				str = str.substr(0, 32);
 			strcpy(string, str.c_str());
 		}
-	};
-
-	struct CREATEPACKET
-	{
-		unsigned char id; //variable name must be the same for all structs
-		RakNet::Time timeStamp;
-		unsigned char m_id; //this is our identifier
-		RakNet::NetworkID nid;
-		XMFLOAT4A pos;
-		XMFLOAT4A scale;
-		XMFLOAT4A rotation;
-		CREATEPACKET(unsigned char _id, RakNet::NetworkID _nid, XMFLOAT4A _pos, XMFLOAT4A _scale, XMFLOAT4A _rot) 
-			: id(DefaultMessageIDTypes::ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), nid(_nid), pos(_pos), scale(_scale), rotation(_rot) {}
 	};
 
 	struct ENTITYUPDATEPACKET

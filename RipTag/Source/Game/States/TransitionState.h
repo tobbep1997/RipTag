@@ -25,6 +25,8 @@ private:
 
 	Quad * m_background		= nullptr;
 
+	int m_currentRoom = 0; 
+
 	std::string m_eventString = "";
 	void * pCoopData = nullptr;
 
@@ -39,11 +41,13 @@ private:
 	bool m_pressed = false;
 	unsigned short m_maxButtons = 2;
 	unsigned short m_currentButton = 0;
+
+	bool m_partnerLost;
 public:
-	TransitionState(RenderingManager * rm, Transition type, std::string eventString = "", void * pCoopData = nullptr);
+	TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData, int currentRoom, bool partnerLost = false);
 	~TransitionState();
 
-	void Update(double deltaTime);
+	void Update(double deltaTime); 
 
 	void Draw() override;
 

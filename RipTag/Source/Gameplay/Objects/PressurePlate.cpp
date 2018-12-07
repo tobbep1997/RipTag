@@ -57,7 +57,7 @@ void PressurePlate::Update(double deltaTime)
 					if (this->getTriggerState())
 					{
 						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-							this->setTriggerState(false, "ENEMY");
+							this->setTriggerState(false, true, "ENEMY");
 						else
 							this->setTriggerState(false);
 						this->SendOverNetwork();
@@ -92,7 +92,7 @@ void PressurePlate::Update(double deltaTime)
 							if (!this->getTriggerState())
 							{
 								if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-									this->setTriggerState(true, "ENEMY");
+									this->setTriggerState(true, true, "ENEMY");
 								else
 									this->setTriggerState(true);
 								this->SendOverNetwork();
@@ -112,13 +112,13 @@ void PressurePlate::Update(double deltaTime)
 	this->getAnimationPlayer()->Update(deltaTime);
 }
 
-void PressurePlate::_playSound(AudioEngine::SoundType st)
+void PressurePlate::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
-		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateDeactivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateDeactivate, &at, soundDesc);
 	else
-		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateActivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateActivate, &at, soundDesc);
 }
 
 

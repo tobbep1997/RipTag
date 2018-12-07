@@ -11,6 +11,8 @@ private:
 	int m_uniqueID;
 	std::string activatedAnimation;
 	std::string deactivatedAnimation;
+	AudioEngine::SoundDesc m_soundDesc;
+
 
 	bool m_receivedPacket = false;
 
@@ -37,6 +39,6 @@ public:
 	void SetPacketReceived(bool b) { m_receivedPacket = b; }
 	bool HasPacketReceived() { return m_receivedPacket; }
 private:
-	virtual void _playSound(AudioEngine::SoundType st = AudioEngine::Other) = 0;
+	virtual void _playSound(AudioEngine::SoundDesc * soundDesc) = 0;
 };
 

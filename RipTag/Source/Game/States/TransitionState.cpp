@@ -2,11 +2,13 @@
 #include "TransitionState.h"
 
 
-TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData) : State(rm)
+TransitionState::TransitionState(RenderingManager * rm, Transition type, std::string eventString, void * pCoopData, int currentRoom, bool partnerLost) : State(rm)
 {
 	this->m_type = type;
 	m_eventString = eventString;
 	this->pCoopData = pCoopData;
+	m_partnerLost = partnerLost;
+	m_currentRoom = currentRoom; 
 }
 
 
@@ -87,11 +89,14 @@ void TransitionState::Update(double deltaTime)
 		{
 			if (isReady && isRemoteReady)
 			{
-				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+				//this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
+				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
 			}
 		}
 		else if (isReady)
-			this->pushAndPop(2, new PlayState(p_renderingManager));
+		{
+			this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
+		}
 
 	}
 
@@ -180,7 +185,7 @@ void TransitionState::Load()
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
 				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
-				if (extension == L".png" || extension == L".jpg")
+				if (extension == L".DDS" || extension == L".DDS")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}
@@ -283,7 +288,13 @@ void TransitionState::_initButtons()
 	{
 		this->m_background = Quad::CreateButton("", 0.5f, 0.5f, 2.0f, 2.0f);
 		this->m_background->setPivotPoint(Quad::PivotPoint::center);
-		if (m_type == Transition::Lose)
+		if (m_type == Transition::Lose && m_partnerLost == false)
+		{
+			this->m_background->setUnpressedTexture("ENDGAME");
+			this->m_background->setPressedTexture("ENDGAME");
+			this->m_background->setHoverTexture("ENDGAME");
+		}
+		else if (m_type == Transition::Lose && m_partnerLost == true)
 		{
 			this->m_background->setUnpressedTexture("gui_temp_bg");
 			this->m_background->setPressedTexture("gui_temp_bg");

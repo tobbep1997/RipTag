@@ -270,7 +270,7 @@ namespace Animation
 		};
 
 		private:
-			ID3D11Buffer* m_AnimationBuffer = nullptr;
+			ID3D11Buffer* m_AnimationBuffer = nullptr; //RE
 			D3D11_MAPPED_SUBRESOURCE m_dataPtr;
 			AnimationBuffer m_AnimationValues;
 

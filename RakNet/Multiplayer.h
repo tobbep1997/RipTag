@@ -6,12 +6,12 @@
 
 #include <RakPeerInterface.h>
 #include <RakNetStatistics.h>
-#include "NetworkClock.h"
-#include <string>
-#include <NetworkIDManager.h>
-#include "NetworkMessageIdentifiers.h"
-#include <iostream>
+#include <NetworkIDObject.h>
 
+#include "NetworkClock.h"
+#include "NetworkMessageIdentifiers.h"
+
+#include <string>
 #include <map>
 #include <functional>
 
@@ -55,9 +55,7 @@ namespace Network
 		static bool inPlayState;
 
 		int GenerateSeed();
-		int GetSeed() { return m_seed; }
-
-		RakNet::NetworkIDManager * pNetworkIDManager = 0;
+		int GetSeed() { return m_seed; } 
 		
 		void SetupServer();
 		void CloseServer(RakNet::SystemAddress ip);
@@ -78,7 +76,6 @@ namespace Network
 		bool isClient() { return m_isClient; }
 		bool isRunning() { return m_isRunning; }
 		bool isConnected() { return m_isConnected; }
-		bool isGameRunning() { return m_isGameRunning; }
 
 		void setIsConnected(bool b) { this->m_isConnected = b; }
 		void setRole(int role = -1);
@@ -89,25 +86,20 @@ namespace Network
 		RakNet::SystemAddress GetMySysAdress();
 		RakNet::RakNetGUID GetMyGUID();
 
-		void setIsGameRunning(bool running) { this->m_isGameRunning = running; }
 		void setOccasionalPing();
 
 		static void HandlePackets();
 		static void SendPacket(const char* message, size_t length, PacketPriority priority);
 		void _send_packet(const char* message, size_t length, PacketPriority priority);
-		//unsafe, find a better way
-		//private constructor to avoid instanciating more than one object
-		//the destructor of the singleton is called when the program exits.
-		Multiplayer();
-
-		~Multiplayer();
+		
 	private:
+		Multiplayer();
+		~Multiplayer();
 
 		bool m_isServer = false;
 		bool m_isClient = false;
 		bool m_isRunning = false;
 		bool m_isConnected = false;
-		bool m_isGameRunning = false;
 
 		int m_seed = 0;
 
@@ -115,13 +107,9 @@ namespace Network
 		RakNet::SystemAddress m_rIP;
 
 		unsigned char GetPacketIdentifier(unsigned char * data);
-		void HandleRakNetMessages(unsigned char mID);
+
 		void HandleGameMessages(unsigned char mID, unsigned char * data);
 		void HandleLobbyMessages(unsigned char mID, RakNet::Packet * packet);
-
-		//functions to handle RakNet internal messages
-		void _onDisconnect();
-
 	};
 }
 

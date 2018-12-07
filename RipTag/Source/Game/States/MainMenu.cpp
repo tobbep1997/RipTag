@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "../2DEngine/2D Engine/Quad/Components/HUDComponent.h"
 #include "MainMenu.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 
 std::string RipSounds::g_music1;
 
@@ -13,7 +14,6 @@ MainMenu::~MainMenu()
 {
 	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
-#include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
 {
 	if (!InputHandler::getShowCursor())
@@ -130,6 +130,8 @@ void MainMenu::_initButtons()
 	this->m_background->setPressedTexture("gui_main_menu");
 	this->m_background->setHoverTexture("gui_main_menu");
 
+	m_buttons.shrink_to_fit();
+
 }
 
 bool MainMenu::_handleMouseInput()
@@ -152,8 +154,6 @@ bool MainMenu::_handleMouseInput()
 
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
-	/*if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
-		return false;*/
 
 
 	for (size_t i = 0; i < m_buttons.size(); i++)
@@ -334,7 +334,6 @@ void MainMenu::Load()
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 #endif
 	Manager::g_textureManager.loadTextures("LOADING");
-	Manager::g_textureManager.loadTextures("DAB");
 
 	std::cout << "MainMenu Load" << std::endl;
 }
@@ -357,7 +356,10 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadGUITextures();
 	m_music->stop();
 
+	//HUDComponent::removeHUD();
+
 	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
+
 
 	std::cout << "MainMenu unLoad" << std::endl;
 }
@@ -375,14 +377,10 @@ void MainMenu::LoadAllGuiElements()
 			{
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
-				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
-				if (extension == L".png" || extension == L".jpg")
+				if (extension == L".DDS")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}
-
-
-		//std::cout << p.path().generic_string() << std::endl;
 	}
 
 		

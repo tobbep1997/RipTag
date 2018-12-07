@@ -1,15 +1,44 @@
 #pragma once
+#define XMFLOAT4X4_IDENTITY DirectX::XMFLOAT4X4A( 1.0f, 0.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f, 1.0f)
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "Particle.h"
 
 class Camera;
 
-namespace DirectX
+namespace PS
 {
-	struct BoundingBox;
-}
+	struct ParticleConfiguration
+	{
+		DirectX::XMFLOAT4A m_SpawnPosition = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+		DirectX::XMFLOAT2 scaleOverTime			= { 0.f, 0.f };
+		DirectX::XMFLOAT2 scale						= { 0.f, 0.f };
+
+		DirectX::XMINT2 directionMinMax			= { 0, 0 };
+		DirectX::XMINT2 spreadMinMax				= { 0, 0 };
+		DirectX::XMINT2 minMaxSpeed				= { 0, 0 };
+		DirectX::XMINT2 minMax						= { 0, 0 };
+		DirectX::XMINT2 minMaxLife					= { 0, 0 };
+		DirectX::XMINT2 spawnSpread				= { 0, 0 };
+		DirectX::XMINT2 m_RotationMinMax		= { 0, 0 };
+
+		float m_EmitterLife				= 0;
+		float m_Speed						= 0;
+
+		int m_MaxParticle				= 1;
+		int m_MinParticle					= 0;
+		int m_RotationOffset			= 0;
+		int m_SpawnOffset				= 0;
+		int m_nrOfEmittParticles		= 0;
+
+		std::wstring textures[3]	= { L"NONE", L"NONE", L"NONE" };
+		float fadingPoints[3]		= { 1.0f, 1.0f, 1.0f };
+		float alphaMultipliers[3]	= { 1.0f, 1.0f, 1.0f };
+	};
+
+}
 struct Vertex
 {
 	DirectX::XMFLOAT4A pos;
@@ -18,94 +47,71 @@ struct Vertex
 	DirectX::XMFLOAT2A uvPos;
 };
 
+//__declspec(align(32))
+struct ConstantBufferData
+{
+	float alphaMultipliers[4]	= { 1.0f, 1.0f, 1.0f, 0.0f };
+	float fadePoints[4]			= { 1.0f, 1.0f, 1.0f, 0.0f };
+	float colorModifiers[4]		= { 1.0f, 1.0f, 1.0f, 1.0f };
+};
+
+
 class ParticleEmitter
 {
-private:
-	int m_RotationOffset;
-	int m_SpawnOffset;
-
-	int m_MinParticle;
-	int m_MaxParticle;
-	
-	float m_EmitterLife;
-	float m_EmitterCurrentLife;
-	DirectX::XMMATRIX rotationMatrix;
-	
-	DirectX::XMINT2 m_RotationMinMax;
-	float m_Speed;
-	float m_partialParticle;
-	DirectX::XMVECTOR m_SpeedDir;
-	DirectX::XMVECTOR m_Dir;
-	DirectX::XMVECTOR m_SpawnPosition = DirectX::XMVECTOR{ 4.297f, 5, -1.682f, 1.0f/*Oof*/ };
-	std::vector<Particle*> m_Particles;
-	ID3D11Buffer* m_vertexBuffer = nullptr;
-	ID3D11Buffer* m_cBuffer = nullptr;
-	Vertex* m_VertexData;
-	Particle * m_newParticle;
-	UINT32 m_StrideSize;
-	UINT32 m_Offset = 0;
-
-	D3D11_VIEWPORT m_ParticleViewport;
-	ID3D11ShaderResourceView* m_ParticleSRV = nullptr;
-	ID3D11DepthStencilView*	m_ParticleDepthStencilView = nullptr;
-	ID3D11RenderTargetView*	m_renderTargetView = nullptr;
-	ID3D11Resource* m_resource = nullptr;
-
-	DirectX::XMVECTOR m_up;
-	DirectX::XMVECTOR m_right;
-	DirectX::XMVECTOR m_toCam;
-	DirectX::XMVECTOR m_forward;
-	DirectX::XMVECTOR m_fakeUp = { 0.0f, 1.0f, 0.0f };
-
-	void _particleVertexCalculation(float timeDelata, Camera * camera);
-
-	DirectX::XMFLOAT4X4A m_worldMatrix;
-
-	DirectX::BoundingBox * m_boundingBox = nullptr;
-
-
 public:
-	ParticleEmitter();
+	ParticleEmitter(DirectX::XMFLOAT4A origin = { 0.0f, 0.0f, 0.0f, 1.0f }, PS::ParticleType type = PS::DEFAULT, float lifeTime = 1.0f);
 	~ParticleEmitter();
+	void Release();
+
 	void Update(float timeDelata, Camera * camera);
-	float RandomFloat(DirectX::XMINT2 min_max);
-	void InitializeBuffer();
 	
-	void SetBuffer();
+	void Queue();
 	void Draw();
 	void Clear();
-	DirectX::XMVECTOR RandomOffset(DirectX::XMVECTOR basePos, int offset);
-	int nrOfEmittedParticles;
-	std::vector<Vertex> vertex;
-	int nrOfVertex;
-	void setSmoke();
+	
+	//SETTERS
+	void SetAsDefaultNone(DirectX::XMFLOAT4A origin);
+	void SetAsDefaultFire(DirectX::XMFLOAT4A origin);
+	void SetAsDefaultSmoke(DirectX::XMFLOAT4A origin);
 
-	DirectX::XMINT2 directionMinMax;
-	DirectX::XMINT2 spreadMinMax;
-	DirectX::XMFLOAT2 scaleOverTime;
-	DirectX::XMFLOAT2 scale;
-	DirectX::XMINT2 minMaxSpeed;
-	DirectX::XMINT2 minMax;
-	DirectX::XMINT2 minMaxLife;
-	DirectX::XMINT2 spawnSpread;
-	bool isSmoke;
-
-	void releaseVertexBuffer(); 
-
-	bool emitterActiv;
-
-	void Queue();
-
-	void setPosition(const float & x, const float & y, const float & z, const float & w = 1.0f);
-	const DirectX::XMVECTOR& getPosition() const; 
-
+	void SetConfiguration(PS::ParticleConfiguration &config);
+	void SetPosition(DirectX::XMFLOAT4A origin);
+	void SetEmitterLife(float lifetime);
+	//GETTERS
 	DirectX::XMFLOAT4X4A getWorldMatrix();
-
-	void setEmmiterLife(const float & lifeTime);
-
-	const DirectX::BoundingBox * getBoundingBox() const;
-
+	const DirectX::XMFLOAT4A& getPosition() const;
+	const DirectX::BoundingBox& getBoundingBox() const;
 private:
-	void _CreateBoundingBox();
+	PS::ParticleType type					= PS::DEFAULT;
+	PS::ParticleConfiguration m_config = {};
+
+	ID3D11Buffer* m_vertexBuffer	= nullptr; 
+	ID3D11Buffer* m_cBuffer			= nullptr;
+	ConstantBufferData m_cData;
+
+	std::vector<Particle*> m_Particles;
+	std::vector<Vertex> vertex;
+
+	DirectX::BoundingBox m_boundingBox = DirectX::BoundingBox();
+
+	DirectX::XMFLOAT4X4A m_worldMatrix		= XMFLOAT4X4_IDENTITY;
+
+	Vertex* m_VertexData		= nullptr;
+	Particle * m_newParticle	= nullptr;
+
+	float m_EmitterCurrentLife	= 0;
+	float m_partialParticle			= 0;
+
+	bool m_emitterActive			= false;
+private:
+	void InitializeBuffers();
+	void SetBuffers();
+
+	float RandomFloat(DirectX::XMINT2 min_max);
+	DirectX::XMVECTOR RandomOffset(DirectX::XMVECTOR basePos, int offset);
+	void _particleVertexCalculation(float timeDelata, Camera * camera);
+
+	void _applyTextures();
+
 };
 

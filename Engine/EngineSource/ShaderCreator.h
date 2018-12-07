@@ -8,6 +8,11 @@
 /*
 Copyright (Joa)king Trossvik 1856
 */
+#ifdef _DEPOLY
+	#define COMPILE_SETTINGS D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_PARTIAL_PRECISION | D3DCOMPILE_SKIP_VALIDATION
+#else
+	#define COMPILE_SETTINGS D3DCOMPILE_OPTIMIZATION_LEVEL3 | D3DCOMPILE_PARTIAL_PRECISION
+#endif
 #include <iostream>
 namespace ShaderCreator //Maybe subject to change
 {
@@ -23,7 +28,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"vs_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pVS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -33,8 +38,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(shaderError))
 		{
 			_com_error err(shaderError);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Vertex Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -76,7 +81,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"vs_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pVS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -86,8 +91,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Vertex Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -119,7 +124,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"ds_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pDS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -128,8 +133,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Domain Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -160,7 +165,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"hs_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pHS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -169,8 +174,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Hull Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -200,7 +205,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"gs_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pGS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -209,8 +214,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Geometry Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -241,7 +246,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"ps_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pPS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -250,8 +255,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Pixel Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();
@@ -286,7 +291,7 @@ namespace ShaderCreator //Maybe subject to change
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,		// optional include files
 			entryPoint,		// entry point
 			"cs_5_0",		// shader model (target)
-			0,				// shader compile options
+			COMPILE_SETTINGS,				// shader compile options
 			0,				// effect compile options
 			&pCS,			// double pointer to ID3DBlob		
 			&errorBlob		// pointer for Error Blob messages.
@@ -295,8 +300,8 @@ namespace ShaderCreator //Maybe subject to change
 		if (FAILED(hr))
 		{
 			_com_error err(hr);
-			OutputDebugString(err.ErrorMessage());
-			OutputDebugStringA((char*)" :Compute Shader:");
+			//OutputDebugString(err.ErrorMessage());
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 			std::cout << ((char*)errorBlob->GetBufferPointer());
 			errorBlob->Release();

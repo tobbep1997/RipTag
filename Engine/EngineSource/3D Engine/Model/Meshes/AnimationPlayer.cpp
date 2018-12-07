@@ -619,7 +619,7 @@ std::pair<uint16_t, float> Animation::AnimationPlayer::_ComputeIndexAndProgressi
 	*currentTime += deltaTime;
 	frameCount -= 1;
 
-	float properTime = std::fmod(*currentTime, frameCount / 24.0);
+	float properTime = std::fmod(*currentTime, ((float)frameCount) / 24.0);
 	*currentTime = properTime;
 	///calc the actual frame index and progression towards the next frame
 	float actualTime = properTime / (1.0 / 24.0);
@@ -686,7 +686,7 @@ Animation::SkeletonPose Animation::AnimationPlayer::UpdateLooping(Animation::Ani
 		//done in _computeIndexAndProgression()
 
 		///calc the actual frame index and progression towards the next frame
-		auto indexAndProgression = _ComputeIndexAndProgression(m_currentFrameDeltaTime, &m_CurrentTime, m_CurrentClip->m_FrameCount);
+		auto indexAndProgression = _ComputeIndexAndProgressionNormalized(m_currentFrameDeltaTime, &m_CurrentNormalizedTime, m_CurrentClip->m_FrameCount);
 		auto prevIndex = indexAndProgression.first;
 		auto progression = indexAndProgression.second;
 
@@ -800,6 +800,7 @@ void Animation::SetInverseBindPoses(Animation::Skeleton* mainSkeleton, const Imp
 		const int16_t parentIndex = mainSkeleton->m_Joints[i].m_ParentIndex;
 
 		DirectX::XMStoreFloat4x4A
+		
 		(&mainSkeleton->m_Joints[i].m_InverseBindPose, AnimationPlayer::_CreateMatrixFromSRT(importedSkeleton->joints[i].jointInverseBindPoseTransform));
 	}
 }
@@ -879,6 +880,7 @@ Animation::Skeleton::Skeleton(const ImporterLibrary::Skeleton& skeleton)
 		m_Joints[i].m_ParentIndex = skeleton.joints[i].parentIndex;
 	}
 	m_Joints[0].m_ParentIndex = -1; // Root does not have a real parent index
+	
 	Animation::SetInverseBindPoses(this, &skeleton);
 }
 
@@ -939,7 +941,10 @@ void Animation::AnimationCBuffer::SetAnimationCBuffer()
 
 	// check if the creation failed for any reason
 	HRESULT hr = 0;
-	hr = DX::g_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer);
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&AnimationBufferDesc, nullptr, &m_AnimationBuffer)))
+	{
+		DX::SetName(m_AnimationBuffer, "m_AnimationBuffer");
+	}
 	if (FAILED(hr))
 	{
 		// handle the error, could be fatal or a warning...

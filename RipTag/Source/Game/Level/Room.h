@@ -33,6 +33,7 @@ class Room : public HUDComponent
 {
 private:
 	std::vector<Torch*> m_Torches;
+	AudioEngine::SoundDesc m_ambientWindAndDrip;
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -46,6 +47,7 @@ private:
 	bool m_roomLoaded = false;
 	std::vector<BaseActor*> m_staticAssets;	//Released
 	std::vector<FMOD::Geometry*> m_audioBoxes;	//Released
+	std::vector<FMOD::Reverb3D*> m_reverbvector;
 	float m_playerStartPos;
 
 	std::vector<PointLight*> m_pointLights;
@@ -69,6 +71,7 @@ private:
 	
 	//std::vector<StaticAsset*> TODO:: FIX
 
+	void _createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float occlusion, float reverbOcclusion);
 	void placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace);
 
 	//std::vector<const int*> vis;
@@ -130,9 +133,12 @@ public:
 	void setTorches(std::vector<Torch*> torches) { this->m_Torches = torches; };
 	void addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, TriggerHandler * triggerHandler, std::vector<BaseActor*> * assetVector, bool isRandomRoom = false);
 
+	std::vector<FMOD::Geometry*>* getAudioBoxesVector() { return &this->m_audioBoxes; };
+	std::vector<FMOD::Reverb3D*>* getreverbVector() { return &this->m_reverbvector; };
+
 	void setLoaded(const bool & loaded) { this->m_roomLoaded = loaded; }
 
 private:
-	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false);
+	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false, bool useAudio = false, float occlusionSound = 0.75f, float reverbOcclusionSound = 0.35f);
 	void _addToTriggerHandler(ImporterLibrary::PropItem prop, const std::string & name, TriggerHandler * triggerHandler, bool animated, int index);
 };

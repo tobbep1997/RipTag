@@ -4,10 +4,13 @@
 class b3World;
 class ContactListener;
 class RayCastListener;
+class ParticleSystem;
 
 namespace RipSounds
 {
-	extern std::vector<std::string> g_stepsStone;
+	extern std::vector<std::string> g_sneakStep;
+	extern std::vector<std::string> g_hardStep;
+	extern std::vector<std::string> g_armorStepsStone;
 	extern std::string				g_leverActivate;
 	extern std::string				g_leverDeactivate;
 	extern std::string				g_pressurePlateActivate;
@@ -17,11 +20,23 @@ namespace RipSounds
 	extern std::string				g_phase;
 	extern std::string				g_music1;
 	extern std::string				g_grunt;
+	extern std::string				g_playAmbientSound;
+	extern std::string				g_metalDoorOpening;
+	extern std::string				g_metalDoorClosening;
+	extern std::string				g_metalDoorClosed;
+	extern std::string				g_smokeBomb;
+	extern std::string				g_gateClosed;
+	extern std::string				g_gateClosening;
+	extern std::string				g_gateOpend;
+	extern std::string				g_gateOpening;
+	extern std::string				g_teleport; 
+	extern std::string				g_teleportHit; 
 }
 
 namespace RipExtern
 {
 	extern b3World * g_world;
+	extern ParticleSystem   * g_particleSystem;
 	extern ContactListener	* g_contactListener;
 	extern RayCastListener	* g_rayListener;
 	extern bool g_kill;

@@ -11,6 +11,8 @@
 #include <fstream>
 #include "Source/Timer/DeltaTime.h"
 #include <mutex>
+#include "PauseMenu.h"
+
 namespace FMOD
 {
 	class Channel;
@@ -37,6 +39,15 @@ private:
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
+
+	PauseMenu* m_pPauseMenu; 
+	bool m_gamePaused = false; 
+	bool m_mainMenuPressed = false; 
+	bool m_pausePressed = false; 
+	bool m_pauseWasPressed = false; 
+	bool m_returnPressed = false; 
+
+	short m_currentState = 0; 
 
 	std::ofstream phy;
 
@@ -84,6 +95,9 @@ public:
 	unsigned short m_roomIndex = 0;
 	void Update(double deltaTime) override;
 
+
+	LevelHandler* getLevelHandler(); 
+
 	void Draw() override;
 
 	static void setYouLost(const bool & youLost);
@@ -96,11 +110,14 @@ private:
 	void _PhyscisThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
+	void _runPause(double deltaTime); 
 	void thread(std::string s);
 	void DrawWorldCollisionboxes(const std::string & type = "");
 	// Inherited via State
 	virtual void unLoad();
 	virtual void Load();
+
+	void _checkPauseState();
 
 	// LOAD functions
 	void _loadTextures();
@@ -121,7 +138,7 @@ private:
 	void _onGameOverPacket();
 	void _onGameWonPacket();
 	void _onDisconnectPacket();
-
+	
 	void _updateOnCoopMode(double deltaTime);
 
 	void _loadAnimations();

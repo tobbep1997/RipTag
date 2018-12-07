@@ -1,8 +1,12 @@
 #include "EnginePCH.h"
 #include "DirectXRenderingHelpClass.h"
 
+#ifndef _DEPLOY
+#include <D3DCommon.h>
+#pragma comment( lib, "dxguid.lib") 
+#endif
 
-HRESULT DXRHC::CreateConstantBuffer(ID3D11Buffer *& buffer, UINT size)
+HRESULT DXRHC::CreateConstantBuffer(const std::string & name, ID3D11Buffer *& buffer, UINT size)
 {
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -12,15 +16,16 @@ HRESULT DXRHC::CreateConstantBuffer(ID3D11Buffer *& buffer, UINT size)
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer);
-
-	if (FAILED(hr))
-		exit(-1);
-
-	return hr;
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &buffer)))
+	{
+		DX::SetName(buffer, name);
+		return hr;
+	}
+	throw E_FAIL;
 }
 
-HRESULT DXRHC::CreateSamplerState(ID3D11SamplerState *& sampler, D3D11_TEXTURE_ADDRESS_MODE d3_tx_ad_mode, D3D11_FILTER d3_filter, D3D11_COMPARISON_FUNC d3_comp_func, float boderColor, float minLod, float maxLod, float mipLoadBias, UINT maxAnisotropy)
+HRESULT DXRHC::CreateSamplerState(const std::string & name, ID3D11SamplerState *& sampler, D3D11_TEXTURE_ADDRESS_MODE d3_tx_ad_mode, D3D11_FILTER d3_filter, D3D11_COMPARISON_FUNC d3_comp_func, float boderColor, float minLod, float maxLod, float mipLoadBias, UINT maxAnisotropy)
 {
 	D3D11_SAMPLER_DESC ssDesc = {};
 	ssDesc.AddressU = d3_tx_ad_mode;
@@ -35,14 +40,16 @@ HRESULT DXRHC::CreateSamplerState(ID3D11SamplerState *& sampler, D3D11_TEXTURE_A
 		ssDesc.BorderColor[i] = boderColor;
 
 
-	HRESULT hr = DX::g_device->CreateSamplerState(&ssDesc, &sampler);
-
-	if (FAILED(hr))
-		exit(-1);
-	return hr;
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateSamplerState(&ssDesc, &sampler)))
+	{
+		DX::SetName(sampler, name);
+		return hr;
+	}
+	throw E_FAIL;
 }
 
-HRESULT DXRHC::CreateTexture2D(ID3D11Texture2D *& texture, UINT height, UINT width, UINT bindFlags, UINT mipLevel, UINT sampleDescCount, UINT sampleDescQuality, UINT arraySize, UINT CPUAccessFlags, UINT miscFlags, DXGI_FORMAT format, D3D11_USAGE usage)
+HRESULT DXRHC::CreateTexture2D(const std::string & name, ID3D11Texture2D *& texture, UINT height, UINT width, UINT bindFlags, UINT mipLevel, UINT sampleDescCount, UINT sampleDescQuality, UINT arraySize, UINT CPUAccessFlags, UINT miscFlags, DXGI_FORMAT format, D3D11_USAGE usage)
 {
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Height = height;
@@ -57,14 +64,17 @@ HRESULT DXRHC::CreateTexture2D(ID3D11Texture2D *& texture, UINT height, UINT wid
 	textureDesc.CPUAccessFlags = CPUAccessFlags;
 	textureDesc.MiscFlags = miscFlags;
 
-	HRESULT hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &texture);
-
-	if (FAILED(hr))
-		exit(-1);
-	return hr;
+	
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&textureDesc, NULL, &texture)))
+	{
+		DX::SetName(texture, name);
+		return hr;
+	}
+	throw E_FAIL;
 }
 
-HRESULT DXRHC::CreateDepthStencilView(ID3D11Resource * resource, ID3D11DepthStencilView *& dsv, UINT flags, DXGI_FORMAT format, D3D11_DSV_DIMENSION dimension, UINT texture2DArray_FirstArraySize, UINT texture2DArray_ArraySize, UINT texture2DArray_MipSlice)
+HRESULT DXRHC::CreateDepthStencilView(const std::string & name, ID3D11Resource * resource, ID3D11DepthStencilView *& dsv, UINT flags, DXGI_FORMAT format, D3D11_DSV_DIMENSION dimension, UINT texture2DArray_FirstArraySize, UINT texture2DArray_ArraySize, UINT texture2DArray_MipSlice)
 {
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc{};
 
@@ -76,14 +86,16 @@ HRESULT DXRHC::CreateDepthStencilView(ID3D11Resource * resource, ID3D11DepthSten
 	depthStencilDesc.Texture2DArray.ArraySize = texture2DArray_ArraySize;
 	depthStencilDesc.Texture2DArray.MipSlice = texture2DArray_MipSlice;
 
-	HRESULT hr =  DX::g_device->CreateDepthStencilView(resource, &depthStencilDesc, &dsv);
-	if (FAILED(hr))
-		exit(-1);
-	return hr;
-	
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilView(resource, &depthStencilDesc, &dsv)))
+	{
+		DX::SetName(dsv, name);
+		return hr;
+	}
+		throw E_FAIL;
 }
 
-HRESULT DXRHC::CreateShaderResourceView(ID3D11Resource * resource, ID3D11ShaderResourceView *& srv, UINT flags, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension, UINT texture2DArray_ArraySize, UINT texture2DArray_FirstArraySlice, UINT texture2DArray_MostDetailMip, UINT texture2DArray_MipLevel)
+HRESULT DXRHC::CreateShaderResourceView(const std::string & name, ID3D11Resource * resource, ID3D11ShaderResourceView *& srv, UINT flags, DXGI_FORMAT format, D3D11_SRV_DIMENSION dimension, UINT texture2DArray_ArraySize, UINT texture2DArray_FirstArraySlice, UINT texture2DArray_MostDetailMip, UINT texture2DArray_MipLevel)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = format;
@@ -93,13 +105,18 @@ HRESULT DXRHC::CreateShaderResourceView(ID3D11Resource * resource, ID3D11ShaderR
 	srvDesc.Texture2DArray.ArraySize = texture2DArray_ArraySize;
 	srvDesc.Texture2DArray.FirstArraySlice = texture2DArray_FirstArraySlice;
 
-	HRESULT hr = DX::g_device->CreateShaderResourceView(resource, &srvDesc, &srv);
-	if (FAILED(hr))
-		exit(-1);
-	return hr;
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateShaderResourceView(resource, &srvDesc, &srv)))
+	{
+		DX::SetName(srv, name);
+		return hr;
+	}
+	throw E_FAIL;
+
+
 }
 
-HRESULT DXRHC::CreateRenderTargetView(ID3D11Resource * resource, ID3D11RenderTargetView *& rtv, DXGI_FORMAT format, D3D11_RTV_DIMENSION dimension, UINT texture2DArray_ArraySize, UINT texture2DArray_FirstArraySlice, UINT texture2DArray_MipSlice)
+HRESULT DXRHC::CreateRenderTargetView(const std::string & name, ID3D11Resource * resource, ID3D11RenderTargetView *& rtv, DXGI_FORMAT format, D3D11_RTV_DIMENSION dimension, UINT texture2DArray_ArraySize, UINT texture2DArray_FirstArraySlice, UINT texture2DArray_MipSlice)
 {
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
 
@@ -110,47 +127,54 @@ HRESULT DXRHC::CreateRenderTargetView(ID3D11Resource * resource, ID3D11RenderTar
 	renderTargetViewDesc.Texture2DArray.FirstArraySlice = texture2DArray_FirstArraySlice;
 	renderTargetViewDesc.Texture2DArray.MipSlice = texture2DArray_MipSlice;
 	
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateRenderTargetView(resource, &renderTargetViewDesc, &rtv)))
+	{
+		DX::SetName(rtv, name);
+		return hr;
+	}
+	throw E_FAIL;
+}
 
-	HRESULT hr = DX::g_device->CreateRenderTargetView(resource, &renderTargetViewDesc, &rtv);
-	if (FAILED(hr))
-		exit(-1);
+HRESULT DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
+{
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_deviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr)))
+	{
+		memcpy(dataPtr.pData, input, inputSize);
+		
+		DX::g_deviceContext->Unmap(buffer, 0);
+
+		if (numBuffer != 0)
+		{
+			switch (i_shader)
+			{
+			case vertex:
+				DX::g_deviceContext->VSSetConstantBuffers(slot, numBuffer, &buffer);
+				break;
+			case hull:
+				DX::g_deviceContext->HSSetConstantBuffers(slot, numBuffer, &buffer);
+				break;
+			case domain:
+				DX::g_deviceContext->DSSetConstantBuffers(slot, numBuffer, &buffer);
+				break;
+			case geometry:
+				DX::g_deviceContext->GSSetConstantBuffers(slot, numBuffer, &buffer);
+				break;
+			case pixel:
+				DX::g_deviceContext->PSSetConstantBuffers(slot, numBuffer, &buffer);
+				break;
+			case compute:
+				DX::g_deviceContext->CSSetConstantBuffers(slot, numBuffer, &buffer);
+				break;
+			}
+		}
+	}
 	return hr;
 }
 
-void DXRHC::MapBuffer(ID3D11Buffer *& buffer, void* input, unsigned int inputSize, unsigned int slot, unsigned int numBuffer, ShaderTypes i_shader)
-{
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	DX::g_deviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-	memcpy(dataPtr.pData, input, inputSize);
-	DX::g_deviceContext->Unmap(buffer, 0);
-
-	if (numBuffer != 0)
-	{
-		switch (i_shader)
-		{
-		case vertex:
-			DX::g_deviceContext->VSSetConstantBuffers(slot, numBuffer, &buffer);
-			break;
-		case hull:
-			DX::g_deviceContext->HSSetConstantBuffers(slot, numBuffer, &buffer);
-			break;
-		case domain:
-			DX::g_deviceContext->DSSetConstantBuffers(slot, numBuffer, &buffer);
-			break;
-		case geometry:
-			DX::g_deviceContext->GSSetConstantBuffers(slot, numBuffer, &buffer);
-			break;
-		case pixel:
-			DX::g_deviceContext->PSSetConstantBuffers(slot, numBuffer, &buffer);
-			break;
-		case compute:
-			DX::g_deviceContext->CSSetConstantBuffers(slot, numBuffer, &buffer);
-			break;
-		}
-	}
-}
-
-HRESULT DXRHC::CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
+HRESULT DXRHC::CreateRasterizerState(const std::string & name, ID3D11RasterizerState *& rasterrizerState,
 	BOOL antialiasedLineEnable ,
 	D3D11_CULL_MODE cullMode ,
 	INT depthBias,
@@ -174,10 +198,16 @@ HRESULT DXRHC::CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
 	wfdesc.ScissorEnable = FALSE;
 	wfdesc.SlopeScaledDepthBias = SlopeScaledDepthBias;
 
-	return DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateRasterizerState(&wfdesc, &rasterrizerState)))
+	{
+		DX::SetName(rasterrizerState, name);
+		return hr;
+	}
+	throw E_FAIL;
 }
 
-HRESULT DXRHC::CreateBlendState(ID3D11BlendState *& blendState, BOOL BlendEnable, D3D11_BLEND SrcBlend, D3D11_BLEND DestBlend, D3D11_BLEND_OP BlendOp, D3D11_BLEND SrcBlendAlpha, D3D11_BLEND DestBlendAlpha, D3D11_BLEND_OP BlendOpAlpha, UINT8 RenderTargetWriteMask)
+HRESULT DXRHC::CreateBlendState(const std::string & name, ID3D11BlendState *& blendState, BOOL BlendEnable, D3D11_BLEND SrcBlend, D3D11_BLEND DestBlend, D3D11_BLEND_OP BlendOp, D3D11_BLEND SrcBlendAlpha, D3D11_BLEND DestBlendAlpha, D3D11_BLEND_OP BlendOpAlpha, UINT8 RenderTargetWriteMask)
 {
 	D3D11_BLEND_DESC omDesc{};
 
@@ -191,7 +221,13 @@ HRESULT DXRHC::CreateBlendState(ID3D11BlendState *& blendState, BOOL BlendEnable
 	omDesc.RenderTarget[0].BlendOpAlpha = BlendOpAlpha;
 	omDesc.RenderTarget[0].RenderTargetWriteMask = RenderTargetWriteMask;
 
-	return DX::g_device->CreateBlendState(&omDesc, &blendState);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBlendState(&omDesc, &blendState)))
+	{
+		DX::SetName(blendState, name);
+		return hr;
+	}
+	throw E_FAIL;
 
 }
 

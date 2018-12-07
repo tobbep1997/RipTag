@@ -6,7 +6,6 @@ RenderingManager::RenderingManager()
 {
 	m_wnd = new Window();
 	m_engine = new Engine3D();
-	m_ImGuiManager = new ImGuiManager();
 	m_wind = new WindowContext();
 }
 
@@ -15,7 +14,6 @@ RenderingManager::~RenderingManager()
 {
 	delete m_wnd;
 	delete m_engine;
-	delete m_ImGuiManager;
 	delete m_wind;
 }
 
@@ -42,14 +40,17 @@ void RenderingManager::Init(HINSTANCE hInstance)
 	//Will override the settings above
 	SettingLoader::LoadWindowSettings(*m_wind);
 	SettingLoader::g_windowContext = m_wind;
+
+	DX::g_backBufferResolution.bottom = 0;
+	DX::g_backBufferResolution.left		  = 0;
+	DX::g_backBufferResolution.right	  = m_wind->clientWidth;
+	DX::g_backBufferResolution.top		  = m_wind->clientHeight;
+
 	m_wnd->Init(*m_wind);
 
 	m_engine->Init(m_wnd->getHandler(), *m_wind);
 
-	if (DEBUG)
-	{
-		m_ImGuiManager->Init(m_wnd->getHandler());
-	}
+
 	
 	
 }
@@ -60,17 +61,10 @@ void RenderingManager::Update()
 	{
 		InputHandler::WindowSetShowCursor();
 		m_wnd->PollEvents();
-		if (DEBUG)
-		{
-			m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
-		}
-	#if _DEBUG || _RELEASE_DBG
-		if (GetAsyncKeyState(int('P')))
-		{
-			_reloadShaders();
-		}
-	#endif
 
+		if (InputHandler::isKeyPressed('P'))		
+			_reloadShaders();
+		
 	}
 }
 
@@ -78,16 +72,10 @@ void RenderingManager::UpdateSingleThread()
 {
 	InputHandler::WindowSetShowCursor();
 	m_wnd->PollEvents();
-	if (DEBUG)
-	{
-		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
-	}
-#ifndef _DEPLOY
-	if (GetAsyncKeyState(int('P')))
-	{
+
+	if (InputHandler::isKeyPressed('P'))	
 		_reloadShaders();
-	}
-#endif
+	
 }
 
 void RenderingManager::Clear()
@@ -100,11 +88,6 @@ void RenderingManager::Flush(Camera & camera)
 	//Draws Everything in the queue
 	m_engine->Flush(camera);
 	
-	if(DEBUG)
-	{
-		m_ImGuiManager->Draw();
-	}
-
 	m_engine->Present();
 	DX::g_deviceContext->ClearState();
 }
@@ -112,20 +95,9 @@ void RenderingManager::Flush(Camera & camera)
 void RenderingManager::Release()
 {
 	m_engine->Release();
-	if (DEBUG)
-	{
-		m_ImGuiManager->Release();
-	}
 }
 
-void RenderingManager::ImGuiStartFrame()
-{
-	//Starts the new ImGui frame
-	//TODO: This might be changed. This needs to be called before ImGui::begin()
-	if (DEBUG) {
-		m_ImGuiManager->StartFrame();
-	}
-}
+
 
 Window& RenderingManager::getWindow()
 {
@@ -139,40 +111,20 @@ ProcMsg RenderingManager::getWindowProcMsg()
 
 void RenderingManager::ImGuiProc()
 {
-	if (DEBUG)
-	{
-		m_ImGuiManager->ImGuiProcPoll(m_wnd->getWindowProcMsg());
-	}
+
 }
 
 void RenderingManager::Reset()
 {
-	// TODO :: Reload window and engine
-
-	//WindowContext wind;
-	//wind.clientWidth = 1280;
-	//wind.clientHeight = 720;
-	//wind.fullscreen = false;
-	//wind.windowInstance = m_hInstance;
-	//wind.windowTitle = L"RipTag";
-	////Will override the settings above
-	//SettingLoader::LoadWindowSettings(wind);
-
-	//m_engine->Release();
-	//m_wnd->Init(wind);
-	//m_engine->Init(m_wnd->getHandler(), wind.fullscreen, wind.clientWidth, wind.clientHeight);
-	//_reloadShaders();
-
-	//if (DEBUG)
-	//{
-	//	m_ImGuiManager->Release();
-	//	m_ImGuiManager->Init(m_wnd->getHandler());
-	//}
+	//TODO :: Reload window and engine
+	//Rest in Peace (TAG)
 }
-
+#pragma optimize("", off)
 void RenderingManager::_reloadShaders()
 {
-	bool f = true;
-	if (f)
-		DX::g_shaderManager.ReloadAllShaders();
+#ifndef _DEPLOY
+	DX::g_shaderManager.ReloadAllShaders();
+#endif
 }
+#pragma optimize("", on)
+
