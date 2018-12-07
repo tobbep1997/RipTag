@@ -59,7 +59,7 @@ public:
 	private:
 		friend class RayCastListener;
 		unsigned int id = INT_MAX;
-		std::vector<RayContact*> rayContacts;
+		std::vector<RayContact> rayContacts;
 		b3Body* originBody;
 		bool free = true;
 		b3Vec3 startPos;
@@ -70,45 +70,49 @@ public:
 
 		Ray()
 		{
-			rayContacts.reserve(MAX_CONTACTS);
-			for (int i = 0; i < MAX_CONTACTS; i++)
-			{
-				rayContacts.push_back(new RayContact());
-			}
+			rayContacts.resize(MAX_CONTACTS);
+			
 		};
 		~Ray()
 		{
-			for (int i = 0; i < MAX_CONTACTS; i++)
-			{
-				delete rayContacts.at(i);
-				rayContacts.at(i) = nullptr;
-			}
 			rayContacts.clear();
 		}
 
-		std::vector<RayContact*> GetRayContacts()
+		std::vector<RayContact>& GetRayContacts()
 		{
 			return this->rayContacts;
 		}
 
-		RayContact* GetRayContact(int pos)
+		RayContact& GetRayContact(int pos)
 		{
 			return this->rayContacts.at(pos);
 		}
 
-		RayContact* getClosestContact()
+		RayContact& getClosestContact(bool objectPriority = false)
 		{
 			if (m_nrOfContacts == 0)
-				return nullptr;
+				return this->rayContacts.at(MAX_CONTACTS-1);
 
 			float smallestFraction = FLT_MAX;
 			unsigned int id = 0;
 			for (int i = 0; i < m_nrOfContacts; i++)
 			{
-				if (this->rayContacts.at(i)->fraction < smallestFraction)
+				if (this->rayContacts.at(i).fraction <= smallestFraction)
 				{
-					id = i;
-					smallestFraction = this->rayContacts.at(i)->fraction;
+					if (objectPriority && this->rayContacts.at(i).fraction == smallestFraction)
+					{
+						if (this->rayContacts.at(i).contactShape->GetBody()->GetObjectTag() != "NULL"
+							&& this->rayContacts.at(i).contactShape->GetBody()->GetObjectTag() != "WORLD")
+						{
+							id = i;
+							smallestFraction = this->rayContacts.at(i).fraction;
+						}
+					}
+					else
+					{
+						id = i;
+						smallestFraction = this->rayContacts.at(i).fraction;
+					}
 				}
 			}
 
@@ -144,9 +148,9 @@ public:
 		{
 			for (int i = 0; i < MAX_CONTACTS; i++)
 			{
-				if (rayContacts.at(i)->free)
+				if (rayContacts.at(i).free)
 				{
-					rayContacts.at(i)->_setData(this, contactShape, point, normal, fraction);
+					rayContacts.at(i)._setData(this, contactShape, point, normal, fraction);
 					this->m_nrOfContacts++;
 					return true;
 				}
@@ -158,9 +162,9 @@ public:
 		{
 			for (int i = 0; i < MAX_CONTACTS; i++)
 			{
-				if (!rayContacts[i]->free)
+				if (!rayContacts[i].free)
 				{
-					rayContacts[i]->_clearGarbage();
+					rayContacts[i]._clearGarbage();
 				}
 			}
 			this->originBody = nullptr;
@@ -173,8 +177,8 @@ public:
 public:
 	static const int MAX_RAYS = 500;
 private:
-	std::vector<Ray*> rays;
-	std::vector<Ray*> processedRays;
+	std::vector<Ray> rays;
+	std::vector<Ray> processedRays;
 	unsigned int m_nrOfRays;
 	unsigned int m_nrOfProcessedRays;
 	b3Body* m_tempBody;
@@ -184,11 +188,11 @@ private:
 	//Called by the physics engine to inform of the shapes intersecting
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
-		if (rays.at(tempID)->getOriginBody() != shape->GetBody())
+		if (rays.at(tempID).getOriginBody() != shape->GetBody())
 		{
-			if (!shape->GetBody()->FindInFilters(rays.at(tempID)->getOriginBody()->GetObjectTag())
-				&& !rays.at(tempID)->getOriginBody()->FindInFilters(shape->GetBody()->GetObjectTag()))
-				processedRays.at(tempID)->_addRayContact(shape, point, normal, fraction);	
+			if (!shape->GetBody()->FindInFilters(rays.at(tempID).getOriginBody()->GetObjectTag())
+				&& !rays.at(tempID).getOriginBody()->FindInFilters(shape->GetBody()->GetObjectTag()))
+				processedRays.at(tempID)._addRayContact(shape, point, normal, fraction);	
 		}
 		return fraction;
 	}
@@ -196,13 +200,11 @@ private:
 public:
 	RayCastListener() 
 	{ 
-		rays.reserve(MAX_RAYS);
-		processedRays.reserve(MAX_RAYS);
+		rays.resize(MAX_RAYS);
+		processedRays.resize(MAX_RAYS);
 		for (int i = 0; i < MAX_RAYS; i++)
 		{
-			rays.push_back(new Ray());
-			rays.at(i)->id = i;
-			processedRays.push_back(new Ray());
+			rays.at(i).id = i;
 		}
 	}
 
@@ -211,13 +213,6 @@ public:
 		ClearRays();
 		ClearProcessedRays();
 		m_tempBody = nullptr;
-		for (int i = 0; i < MAX_RAYS; i++)
-		{
-			delete rays.at(i);
-			delete processedRays.at(i);
-			rays.at(i) = nullptr;
-			processedRays.at(i) = nullptr;
-		}
 		rays.clear();
 		processedRays.clear();
 	}
@@ -226,9 +221,9 @@ public:
 	{
 		for (int i = 0; i < MAX_RAYS; i++)
 		{
-			if (!rays.at(i)->isFree())
+			if (!rays.at(i).isFree())
 			{
-				rays.at(i)->_clearGarbage();
+				rays.at(i)._clearGarbage();
 			}
 		}
 		m_nrOfRays = 0;
@@ -238,31 +233,31 @@ public:
 	{
 		for (int i = 0; i < MAX_RAYS; i++)
 		{
-			if (!processedRays.at(i)->isFree())
+			if (!processedRays.at(i).isFree())
 			{
-				processedRays.at(i)->_clearGarbage();
-				processedRays.at(i)->id = -1;
+				processedRays.at(i)._clearGarbage();
+				processedRays.at(i).id = -1;
 			}
 		}
 		m_nrOfProcessedRays = 0;
 	}
 
-	virtual std::vector<Ray*> GetRays()
+	virtual std::vector<Ray> GetRays()
 	{
 		return this->rays;
 	}
 
-	virtual std::vector<Ray*> GetProcessedRays()
+	virtual std::vector<Ray> GetProcessedRays()
 	{
 		return this->processedRays;
 	}
 
-	virtual Ray* GetProcessedRay(unsigned int pos)
+	virtual Ray& GetProcessedRay(unsigned int pos)
 	{
 		return this->processedRays.at(pos);
 	}
 
-	virtual Ray* ConsumeProcessedRay(int& pos)
+	virtual Ray& ConsumeProcessedRay(int& pos)
 	{
 		const int rPos = pos;
 		pos = -100;
@@ -283,7 +278,7 @@ public:
 		bool result = true;
 		if (id < 0)
 			result = false;
-		else if (this->processedRays.at(id)->getNrOfContacts() == 0)
+		else if (this->processedRays.at(id).getNrOfContacts() == 0)
 		{
 			id = -100;
 			result = false;
@@ -295,16 +290,16 @@ public:
 	virtual void ShotRays()
 	{
 		ClearProcessedRays();
-		Ray* ray;
+		Ray ray;
 		for (unsigned int i = 0; i < m_nrOfRays; i++)
 		{
 			ray = rays.at(i);
-			tempID = ray->id;
-			this->processedRays.at(tempID)->id = tempID;
-			this->processedRays.at(tempID)->free = false;
-			this->processedRays.at(tempID)->originBody = ray->originBody;
-			if(!(ray->startPos.x == ray->endPos.x && ray->startPos.y == ray->endPos.y && ray->startPos.z == ray->endPos.z))
-				RipExtern::g_world->RayCast(this, ray->startPos, ray->endPos);
+			tempID = ray.id;
+			this->processedRays.at(tempID).id = tempID;
+			this->processedRays.at(tempID).free = false;
+			this->processedRays.at(tempID).originBody = ray.originBody;
+			if(!(ray.startPos.x == ray.endPos.x && ray.startPos.y == ray.endPos.y && ray.startPos.z == ray.endPos.z))
+				RipExtern::g_world->RayCast(this, ray.startPos, ray.endPos);
 			m_nrOfProcessedRays++;
 		}
 		ClearRays();
@@ -320,7 +315,7 @@ public:
 		b3Vec3 startPos(start.x, start.y, start.z);
 		b3Vec3 endPos = startPos + (length * dir);
 
-		rays.at(m_nrOfRays)->_setupRay(body, startPos, endPos);
+		rays.at(m_nrOfRays)._setupRay(body, startPos, endPos);
 		m_nrOfRays++;
 
 		return m_nrOfRays-1;

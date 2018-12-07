@@ -491,12 +491,12 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 
 							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 							{
-								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
-								RayCastListener::RayContact* c;
-								for (int i = 0; i < ray->getNrOfContacts(); i++)
+								RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+								RayCastListener::RayContact& c = ray.GetRayContact(0);
+								for (int i = 0; i < ray.getNrOfContacts(); i++)
 								{
-									c = ray->GetRayContact(i);
-									std::string tag = c->contactShape->GetBody()->GetObjectTag();
+									c = ray.GetRayContact(i);
+									std::string tag = c.contactShape->GetBody()->GetObjectTag();
 									if (tag == "WORLD" || tag == "NULL")
 									{
 										occ *= 0.15f;
