@@ -876,7 +876,6 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		moveBox = true;
 	}
 
-
 	tempAsset->setObjectTag(name.c_str());
 	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
 		tempAsset->CastShadows(false);

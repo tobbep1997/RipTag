@@ -60,10 +60,10 @@ public:
 		friend class RayCastListener;
 		unsigned int id = INT_MAX;
 		std::vector<RayContact> rayContacts;
-		b3Body* originBody;
+		b3Body* originBody = nullptr;
 		bool free = true;
-		b3Vec3 startPos;
-		b3Vec3 endPos;
+		b3Vec3 startPos = {};
+		b3Vec3 endPos = {};
 		unsigned int m_nrOfContacts = 0;
 
 	public:
@@ -179,20 +179,31 @@ public:
 private:
 	std::vector<Ray> rays;
 	std::vector<Ray> processedRays;
+	Ray audioRay;
 	unsigned int m_nrOfRays;
 	unsigned int m_nrOfProcessedRays;
 	b3Body* m_tempBody;
-	unsigned int tempID;
+	unsigned int tempID = -1;
 
 private:
 	//Called by the physics engine to inform of the shapes intersecting
 	virtual r32 ReportShape(b3Shape* shape, const b3Vec3& point, const b3Vec3& normal, r32 fraction)
 	{
-		if (rays.at(tempID).getOriginBody() != shape->GetBody())
+		if (tempID != -1)
 		{
-			if (!shape->GetBody()->FindInFilters(rays.at(tempID).getOriginBody()->GetObjectTag())
-				&& !rays.at(tempID).getOriginBody()->FindInFilters(shape->GetBody()->GetObjectTag()))
-				processedRays.at(tempID)._addRayContact(shape, point, normal, fraction);	
+			if (rays.at(tempID).getOriginBody() != shape->GetBody())
+			{
+				if (!shape->GetBody()->FindInFilters(rays.at(tempID).getOriginBody()->GetObjectTag())
+					&& !rays.at(tempID).getOriginBody()->FindInFilters(shape->GetBody()->GetObjectTag()))
+					processedRays.at(tempID)._addRayContact(shape, point, normal, fraction);	
+			}
+		}
+		else
+		{
+			if (audioRay.getOriginBody() != shape->GetBody())
+			{
+				audioRay._addRayContact(shape, point, normal, fraction);
+			}
 		}
 		return fraction;
 	}
@@ -287,7 +298,7 @@ public:
 	}
 
 
-	virtual void ShotRays()
+	virtual void ShootRays()
 	{
 		ClearProcessedRays();
 		Ray ray;
@@ -302,7 +313,22 @@ public:
 				RipExtern::g_world->RayCast(this, ray.startPos, ray.endPos);
 			m_nrOfProcessedRays++;
 		}
+		tempID = -1;
 		ClearRays();
+	}
+
+	virtual Ray& ShootAudioRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A end)
+	{
+
+
+		b3Vec3 startPos(start.x, start.y, start.z);
+		b3Vec3 endPos(end.x, end.y, end.z);
+
+		audioRay._clearGarbage();
+		audioRay._setupRay(body, startPos, endPos);
+		RipExtern::g_world->RayCast(this, startPos, endPos);
+
+		return audioRay;
 	}
 
 	virtual unsigned int PrepareRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A direction, float length)
