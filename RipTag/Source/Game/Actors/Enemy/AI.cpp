@@ -83,7 +83,7 @@ void AI::handleStates(const double deltaTime)
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
-			this->_investigatingSight(deltaTime);
+			this->_investigatingSound(deltaTime);
 		}
 		if (m_transState == AITransitionState::NoTransitionState)
 		{
@@ -375,8 +375,7 @@ void AI::_onExitingDisabled()
 	this->m_transState = AITransitionState::Observe;
 }
 
-
-void AI::_investigatingSight(const double deltaTime)
+/*void AI::_investigatingSight(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
 	
@@ -413,39 +412,59 @@ void AI::_investigatingSight(const double deltaTime)
 	{
 		this->m_transState = AITransitionState::Observe;
 	}
-}
+}*/
+
 void AI::_investigatingSound(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	
 	m_owner->_CheckPlayer(deltaTime);
 
 	if (this->GetAlertPathSize() > 0)
 	{
 		SoundLocation tmp = m_owner->m_sl;
-
 		if (Network::Multiplayer::GetInstance()->isServer())
 		{
 			if (tmp.percentage < m_owner->m_slRemote.percentage)
 				tmp = m_owner->m_slRemote;
 		}
 
-
-
-		if (tmp.percentage > m_owner->m_loudestSoundLocation.percentage)
+		if (tmp.percentage > m_owner->m_loudestSoundLocation.percentage || m_owner->m_visCounter > m_owner->m_biggestVisCounter)
 		{
 			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
 			Node * pathDestination = this->GetAlertDestination();
+			DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
+			bool getNewPath = false;
+			Tile playerTile;
+			Tile guardTile;
 
+			// Check if the guard has heard anything recently
 			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
 				abs(pathDestination->worldPos.y - soundPos.z) > 2.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
-				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+				playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+				guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+				getNewPath = true;
 			}
+
+			// Get the remote players position
+			if (m_owner->m_RemotePtr)
+			{
+				const int * vis = m_owner->getPlayerVisibility();
+				if (vis[1] > vis[0])
+					playerPos = m_owner->m_RemotePtr->getPosition();
+			}
+			// Check and prioritize if the guard has seen a player recently
+			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
+				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
+			{
+				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
+				playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
+				guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+				getNewPath = true;
+			}
+			if (getNewPath)
+				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 		}
 	}
 	else
@@ -453,6 +472,7 @@ void AI::_investigatingSound(const double deltaTime)
 		this->m_transState = AITransitionState::Observe;
 	}
 }
+
 void AI::_investigatingRoom(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
