@@ -229,7 +229,7 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		else if (Input::OnAbilityReleased())
 		{
-			_sendTeleportPacket();
+			
 			if (Multiplayer::GetInstance()->isConnected())
 			{
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
@@ -296,6 +296,7 @@ void TeleportAbility::_inStateTeleportable()
 				position.y += con->normal.y;
 				position.z += con->normal.z;
 			}
+			_sendTeleportPacket();
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 			m_tpState = TeleportAbility::Cooldown;
 		}
