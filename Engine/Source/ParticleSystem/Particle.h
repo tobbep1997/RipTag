@@ -3,8 +3,17 @@
 #include <d3dcsx.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
-#include <iostream>
 #include <time.h>
+
+namespace PS
+{
+	enum ParticleType
+	{
+		DEFAULT = 0,
+		FIRE,
+		SMOKE
+	};
+}
 
 class Particle
 {

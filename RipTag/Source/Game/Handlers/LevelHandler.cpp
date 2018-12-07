@@ -21,8 +21,8 @@ void LevelHandler::Init(b3World& worldPtr, Player * playerPtr, const int & seed,
 	m_playerPtr = playerPtr;
 	m_activeRoom = 0;
 	m_worldPtr = &worldPtr;
+
 	_LoadCorrectRoom(seed,roomIndex);
-	
 
 	_RoomLoadingManager();
 	m_rooms[m_activeRoom]->SetActive(true);
@@ -105,7 +105,9 @@ void LevelHandler::Update(float deltaTime, Camera * camera)
 		pressed = false;
 	}
 	if (RipExtern::g_kill == false)
+	{
 		m_rooms.at(m_activeRoom)->Update(deltaTime, camera);
+	}
 }
 
 void LevelHandler::Draw()
@@ -141,6 +143,11 @@ EnemyHandler * LevelHandler::getEnemyHandler()
 	return m_rooms[m_activeRoom]->getEnemyHandler();
 }
 
+std::vector<Room*> LevelHandler::getRooms()
+{
+	return m_rooms; 
+}
+
 
 std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositions()
 {
@@ -150,6 +157,11 @@ std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> LevelHandler::getStartingPositi
 const unsigned short LevelHandler::getNextRoom() const
 {
 	return this->m_nextRoomIndex;
+}
+
+short unsigned int LevelHandler::getActiveRoomNr() const
+{
+	return m_activeRoom; 
 }
 
 bool LevelHandler::HasMoreRooms()
@@ -200,9 +212,6 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 	}
 	m_rooms.push_back(room);
 
-	//Room * room = new Room(roomIndex, m_worldPtr, 0, m_playerPtr);
-	//m_rooms.push_back(room);
-
 	m_rooms.at(0)->loadTextures();
 	int x = m_rooms.at(0)->getRoomIndex();
 	if (m_rooms.at(0)->getRoomIndex() != -1)
@@ -216,10 +225,10 @@ void LevelHandler::_GenerateLevelStruct(const int seed, const int amountOfRooms)
 	////LoadTuTorialRoomFirst
 	//Room * room = new Room(m_roomIndex, m_worldPtr, 0, m_playerPtr);
 	//m_rooms.push_back(room);
-	////room = new Room(1, m_worldPtr, 1, m_playerPtr);
-	////m_rooms.push_back(room);
-	////room = new Room(0, m_worldPtr, 2, m_playerPtr);
-	////m_rooms.push_back(room);
+	//room = new Room(1, m_worldPtr, 1, m_playerPtr);
+	//m_rooms.push_back(room);
+	//room = new Room(0, m_worldPtr, 2, m_playerPtr);
+	//m_rooms.push_back(room);
 	//m_rooms.at(0)->loadTextures();
 	//int x = m_rooms.at(0)->getRoomIndex();
 	//if(m_rooms.at(0)->getRoomIndex() != -1)

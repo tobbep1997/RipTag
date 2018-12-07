@@ -43,15 +43,15 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 		this->getAnimationPlayer()->Play();
 
 	}
-	b3Vec3 pos(0.25, 0.5, 0.25);
-	PhysicsComponent::Init(*world, e_dynamicBody, pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
+	b3Vec3 pos = b3Vec3(1.0f, 1.25f, 1.0f);
+	PhysicsComponent::Init(*world, e_dynamicBody, pos.x/2, pos.y/2, pos.z/2, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
-	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (1.0*1.4);
-	m_crouchHeight = 1.0 * .5;
+	CreateShape(b3Vec3(0, pos.y*0.70, 0), b3Vec3(pos.x / 2, pos.y / 2, pos.z / 2), 1.0f, 1.0f, "UPPERBODY");
+	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(1.f, 1.f, 1.f), 1.0f, 1.0f, "HEAD", true);
+	m_standHeight = (pos.y*1.5);
+	m_crouchHeight = pos.y * 0.70;
 	setUserDataBody(this);
 
 	this->setEntityType(EntityType::GuarddType);
@@ -65,6 +65,8 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Enemy);
 
+	m_soundFootstep.emitter = AudioEngine::SoundEmitterType::Enemy;
+	m_soundFootstep.owner = this;
 	//setOutline(true);
 }
 
@@ -80,11 +82,6 @@ Enemy::~Enemy()
 		delete drawable;
 	}
 	m_pathNodes.clear();
-	if (pEmitter)
-	{
-		delete pEmitter;
-		pEmitter = nullptr;
-	}
 
 }
 
@@ -208,17 +205,6 @@ void Enemy::Update(double deltaTime)
 				}
 			}
 		}
-
-	if (pEmitter)
-	{
-		if (pEmitter->emitterActiv)
-			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
-		else
-		{
-			delete pEmitter;
-			pEmitter = nullptr;
-		}
-	}
 }
 
 void Enemy::ClientUpdate(double deltaTime)
@@ -229,8 +215,7 @@ void Enemy::ClientUpdate(double deltaTime)
 
 	AIState state = getAIState();
 
-	//if (state != AIState::Possessed)
-		_cameraPlacement(deltaTime);
+	_cameraPlacement(deltaTime);
 	//Visibility update
 	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
 	{
@@ -271,16 +256,7 @@ void Enemy::ClientUpdate(double deltaTime)
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
 
-	if (pEmitter)
-	{
-		if (pEmitter->emitterActiv)
-			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
-		else
-		{
-			delete pEmitter;
-			pEmitter = nullptr;
-		}
-	}
+	
 
 	if (state == AIState::Possessed)
 	{
@@ -303,8 +279,6 @@ void Enemy::PhysicsUpdate(double deltaTime)
 void Enemy::Draw()
 {
 	Drawable::Draw();
-	if (pEmitter)
-		pEmitter->Queue();
 }
 
 void Enemy::QueueForVisibility()
@@ -368,15 +342,7 @@ void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 		if (packet->condition)
 		{
 			this->setTransitionState(AITransitionState::BeingDisabled);
-			if (pEmitter)
-			{
-				delete pEmitter;
-				pEmitter = nullptr;
-			}
-			pEmitter = new ParticleEmitter();
-			pEmitter->setSmoke();
-			pEmitter->setEmmiterLife(1.5f);
-			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
+			//CreateEmitter (maybe?)
 		}
 	}
 }
@@ -964,10 +930,10 @@ void Enemy::_cameraPlacement(double deltaTime)
 					int index = -1;
 					while (index == -1 || index == last)
 					{
-						index = rand() % (int)RipSounds::g_stepsStone.size();
+						index = rand() % (int)RipSounds::g_armorStepsStone.size();
 					}
 					FMOD::Channel * c = nullptr;
-					c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_armorStepsStone[index], &at, &m_soundFootstep);
 					b3Vec3 vel = getLiniearVelocity();
 					DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 					float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1103,7 +1069,7 @@ void Enemy::_deActivateCrouch()
 
 void Enemy::_playFootsteps(double deltaTime)
 {
-	m_av.timer += deltaTime * m_moveSpeed; // This should be deltaTime * movementspeed
+	m_av.timer += deltaTime * m_currentMoveSpeed * 2; // This should be deltaTime * movementspeed
 
 	if (m_av.timer > DirectX::XM_PI)
 		m_av.timer = 0.0f;
@@ -1115,11 +1081,13 @@ void Enemy::_playFootsteps(double deltaTime)
 		int index = -1;
 		while (index == -1 || index == m_av.lastIndex)
 		{
-			index = rand() % (int)RipSounds::g_stepsStone.size();
+			index = rand() % (int)RipSounds::g_armorStepsStone.size();
 		}
 		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
 
-		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
+		float vol = std::clamp(m_currentMoveSpeed, 0.0f, 1.0f);
+		auto channel = AudioEngine::PlaySoundEffect(RipSounds::g_armorStepsStone[index], &at, &m_soundFootstep);
+
 		m_av.lastIndex = index;
 		m_av.hasPlayed = !m_av.hasPlayed;
 	}

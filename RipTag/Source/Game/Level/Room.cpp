@@ -1,5 +1,6 @@
 #include "RipTagPCH.h"
 #include "Room.h"
+#include "Source/CheetConsole/CheatParser.h"
 
 void Room::placeRoomProps(ImporterLibrary::PropItemToEngine propsToPlace)
 {
@@ -27,6 +28,8 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	this->m_arrayIndex = arrayIndex;
 	this->m_roomIndex = roomIndex;
 	this->m_playerInRoomPtr = playerPtr;
+	CheatParser::SetPlayerCheatPointer(playerPtr);
+
 
 	this->m_worldPtr = worldPtr;
 	setAssetFilePath(filePath);
@@ -52,7 +55,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 }
 Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 {
-	//GeneratedRoom
+	//GeneratedRoom fresh prince of bellair
 	std::cout << green << "ROOM INIT" << white << std::endl;
 
 	this->m_roomIndex = -1;
@@ -78,7 +81,6 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
-
 }
 Room::~Room()
 {
@@ -134,17 +136,21 @@ void Room::UnloadRoomFromMemory()
 {
 	if (m_roomLoaded == true)
 	{
-		
 		Release();
 	}
 }
 
 void Room::LoadRoomToMemory()
 {
-	
+	m_ambientWindAndDrip.emitter = AudioEngine::Other;
+	m_ambientWindAndDrip.owner = this;
+	m_ambientWindAndDrip.loudness = 1.5f;
+
+
 	//TODO:: add all the assets to whatever
 	if (m_roomLoaded == false)
 	{
+
 		ImporterLibrary::CustomFileLoader fileLoader;
 		ImporterLibrary::PointLights tempLights = fileLoader.readLightFile(this->getAssetFilePath());
 		for (int i = 0; i < tempLights.nrOf; i++)
@@ -155,15 +161,11 @@ void Room::LoadRoomToMemory()
 			p_pointLight = new PointLight(tempLights.lights[i].translate, tempLights.lights[i].color, tempLights.lights[i].intensity);
 			p_pointLight->setColor(250.0f, 172.0f, 100);
 
-			p_emit = new ParticleEmitter();
-			p_emit->setPosition(tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0);
-
+			p_emit = new ParticleEmitter({ tempLights.lights[i].translate[0], tempLights.lights[i].translate[1], tempLights.lights[i].translate[2], 0}, PS::FIRE);
+		
 			Torch * t = new Torch(p_pointLight, p_emit, i);
 			t->BeginPlay();
 			m_Torches.push_back(t);
-			
-			//FMOD_VECTOR at = { tempLights.lights[i].translate[0], tempLights.lights[i].translate[1],tempLights.lights[i].translate[2] };
-			//AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, AudioEngine::Other)->setVolume(0.5f);
 		}
 		delete tempLights.lights;
 
@@ -285,6 +287,8 @@ void Room::LoadRoomToMemory()
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			e->SetGuardUniqueIndex(uniqueID.at(i));
+			e->SetTorchContainer(m_Torches);
+
 			e->setDestroyState(true);
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
@@ -299,6 +303,7 @@ void Room::LoadRoomToMemory()
 				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
 			}
 			//Setting guard patrol path
+			
 			e->SetPathVector(fullPath);
 			//Pushing guard to vector
 			this->m_roomGuards.push_back(e);
@@ -347,6 +352,20 @@ void Room::LoadRoomToMemory()
 			m_staticAssets.push_back(temp);
 
 		}*/
+		ImporterLibrary::reverbPointToEngine reverbs = fileLoader.readReverbPointFile(this->getAssetFilePath());
+
+		for (int i = 0; i < reverbs.nrOf; i++)
+		{
+			m_reverbvector.push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ reverbs.reverbPoints[i].translation[0], reverbs.reverbPoints[i].translation[1], reverbs.reverbPoints[i].translation[2] }, reverbs.reverbPoints[i].minRadius, reverbs.reverbPoints[i].maxRadius));
+		}
+
+		ImporterLibrary::SoundPointToEngine sounds = fileLoader.readSoundPointFile(this->getAssetFilePath());
+
+		for (int i = 0; i < sounds.nrOf; i++)
+		{
+			FMOD_VECTOR at = { sounds.sounds[i].translation[0], sounds.sounds[i].translation[1], sounds.sounds[i].translation[2] }; // add switch to typeofsound;
+			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, &m_ambientWindAndDrip)->setVolume(0.6f);
+		}
 
 		CollisionBoxes = DBG_NEW BaseActor();
 	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
@@ -361,16 +380,16 @@ void Room::LoadRoomToMemory()
 			DirectX::XMFLOAT4 xmPos = { f3Pos[0], f3Pos[1], f3Pos[2], 1};
 			DirectX::XMFLOAT4 xmScl = { f3Scl[0] * 0.5f, f3Scl[1] * 0.5f, f3Scl[2] * 0.5f, 1};
 			FMOD::Geometry * ge = AudioEngine::CreateCube(0.75f, 0.35f, xmPos, xmScl, xmQ);
-			ge->setActive(false);
+			ge->setActive(true);
 			m_audioBoxes.push_back(ge);
 		}
 		delete [] boxes.boxes;
 		
-		m_roomLoaded = true;	
+		m_roomLoaded = true;
 	}
 	m_enemyHandler = DBG_NEW EnemyHandler();
 	m_enemyHandler->Init(m_roomGuards, m_playerInRoomPtr, m_pathfindingGrid);
-
+	CheatParser::SetEnemyHandlerCheatPointer(m_enemyHandler);
 	int nrOfTriggers = triggerHandler->netWorkTriggers.size();
 	for (int i = 0; i < m_Torches.size(); i++)
 	{
@@ -392,38 +411,48 @@ void Room::Update(float deltaTime, Camera * camera)
 
 	for (auto torch : m_Torches)
 	{
-		torch->Update(deltaTime);
-		auto light = torch->getPointLightPtr();
-		light->setDropOff(2.0425345f);
-		light->setPower(2.0f);
-		light->setIntensity(light->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
+		torch->Update(deltaTime);	
 	}
 
 	triggerHandler->Update(deltaTime);
-
-	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
-	{
-		if (m_roomGuards.at(i)->getIfLost() == true)
-		{
-			m_youLost = true;
-			break;
-		}
-	}
 	if (m_youLost)
 	{
 #if _DEBUG
 		PlayState::setYouLost(false);
 #else
+		
 		PlayState::setYouLost(true);
+		DX::g_screenShootCamera = false;
+		
 #endif
 
 		HUDComponent::HUDUpdate(deltaTime);
 	}
+	for (unsigned int i = 0; i < m_roomGuards.size(); ++i)
+	{
+		if (m_roomGuards.at(i)->getIfLost() == true)
+		{
+			m_playerInRoomPtr->setHidden(false);
+			CameraHandler::setActiveCamera(m_roomGuards.at(i)->getCamera());
+			m_roomGuards.at(i)->setHidden(true);
+			//m_playerInRoomPtr->setOutline(true);
+			if (m_youLost == false)
+			{
+				DX::g_screenShootCamera = true;
+			}
+			m_youLost = true;
+			
+			break;
+		}
+	}
+
 
 	if (m_playerInRoomPtr->getPosition().y <= -50)
 	{
 		m_playerInRoomPtr->setPosition(m_player1StartPos.x, m_player1StartPos.y + 1, m_player1StartPos.z);
 	}
+
+
 }
 
 void Room::SetActive(bool state)
@@ -467,6 +496,11 @@ void Room::Release()
 	if (m_roomLoaded == true)
 	{
 		m_roomLoaded = false;
+		for (auto reverbs : m_reverbvector)
+		{
+			reverbs->release();
+		}
+		m_reverbvector.clear();
 		for (auto asset : m_staticAssets)
 		{
 			if (asset)
@@ -536,6 +570,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
 
+
 	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
 		int uniqueID = -1;
@@ -572,7 +607,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(3):
 			Manager::g_meshManager.loadStaticMesh("DOOR");
-			Manager::g_textureManager.loadTextures("DOOR");
+			Manager::g_textureManager.loadTextures("DOOR", true);
 
 			uniqueID = triggerHandler->Triggerables.size();
 
@@ -615,7 +650,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			break;
 		case(5):
 			Manager::g_meshManager.loadStaticMesh("BARS");
-			Manager::g_textureManager.loadTextures("BARS");
+			Manager::g_textureManager.loadTextures("BARS", true);
 
 			uniqueID = triggerHandler->Triggerables.size();
 
@@ -636,13 +671,13 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			tempDoor = nullptr;
 			break;
 		case(6):
-			_setPropAttributes(propsAndAssets.props[i], "CRATE", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "CRATE", assetVector, true, isRandomRoom, true);
 			break;
 		case(7):
-			_setPropAttributes(propsAndAssets.props[i], "BARREL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BARREL", assetVector, true, isRandomRoom, true);
 			break;
 		case(8):
-			_setPropAttributes(propsAndAssets.props[i], "BANNER", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BANNER", assetVector, true, isRandomRoom, true, 0.9f, 1);
 			break;
 		case(9):
 			_setPropAttributes(propsAndAssets.props[i], "CHAIR", assetVector, true, isRandomRoom);
@@ -657,7 +692,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BUCKET", assetVector, true, isRandomRoom);
 			break;
 		case(13):
-			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOOKSHELF", assetVector, true, isRandomRoom, true, 0.4f, 0.05f);
 			break;
 		case(14):
 			_setPropAttributes(propsAndAssets.props[i], "TORCHWITHHOLDER", assetVector, false, isRandomRoom);
@@ -678,22 +713,22 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "BIGCEILING", assetVector, true, isRandomRoom);
 			break;
 		case(20):
-			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, false, isRandomRoom);	//set True
+			_setPropAttributes(propsAndAssets.props[i], "THICKWALL", assetVector, true, isRandomRoom, true, 0.03f, 0.01f);	//set True
 			break;
 		case(21):
 			_setPropAttributes(propsAndAssets.props[i], "THICKWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(22):
-			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom); //set True
+			_setPropAttributes(propsAndAssets.props[i], "THINWALL", assetVector, true, isRandomRoom, true, 0.06f, 0.01f); //set True
 			break;
 		case(23):
 			_setPropAttributes(propsAndAssets.props[i], "THINWALLWITHOPENING", assetVector, false, isRandomRoom);
 			break;
 		case(24):
-			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, false, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "STATICROOMFLOOR", assetVector, false, isRandomRoom, true, 0.f, 0.f);
 			break;
 		case(25):
-			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "PILLARLOW", assetVector, true, isRandomRoom, true, 0.03f, 0.01f);
 			break;
 		case(26):
 			_setPropAttributes(propsAndAssets.props[i], "CANDLE", assetVector, false, isRandomRoom);
@@ -705,7 +740,7 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "SPEAR", assetVector, false, isRandomRoom);
 			break;
 		case(29):
-			_setPropAttributes(propsAndAssets.props[i], "KEG", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "KEG", assetVector, true, isRandomRoom, true, 0.5f, 0.8f);
 			break;
 		case(30):
 			_setPropAttributes(propsAndAssets.props[i], "WEAPONRACK", assetVector, true, isRandomRoom);
@@ -717,42 +752,43 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 			_setPropAttributes(propsAndAssets.props[i], "SMALLLOWPILLAR", assetVector, true, isRandomRoom);
 			break;
 		case(33):
-			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BLINKWALL", assetVector, true, isRandomRoom, true, 0.12f, 0.04f);
 			break;
 		case(35):
 			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, false, isRandomRoom);
 			break;
 		case(36):
-			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "WOODENFLOOR", assetVector, true, isRandomRoom, true, 0.5f, 0.5f);
 			break;
 		case(37):
 			_setPropAttributes(propsAndAssets.props[i], "INVISIBLEGRIDBLOCKER", assetVector, false, isRandomRoom);
 			break;
 		case(38):
-			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "COLLISIONBOXASPROP", assetVector, true, isRandomRoom, true, 0.01f, 0.02f);
 			break;
 		case(39):
-			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "FLOOR", assetVector, true, isRandomRoom, true, 0, 0);
 			break;
 		case(40):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD0", assetVector, true, isRandomRoom);
 			break;
 		case(41):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD1", assetVector, true, isRandomRoom);
 			break;
 		case(42):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD2", assetVector, true, isRandomRoom);
 			break;
 		case(43):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD3", assetVector, true, isRandomRoom);
 			break;
 		case(44):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD4", assetVector, true, isRandomRoom);
 			break;
 		case(45):
 			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			break;
 		case(46):
-			_setPropAttributes(propsAndAssets.props[i], "BOARD", assetVector, true, isRandomRoom);
+			_setPropAttributes(propsAndAssets.props[i], "BOARD6", assetVector, true, isRandomRoom);
 			break;
 		default:
 			break;
@@ -760,18 +796,78 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	}
 }
 
-void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*>* assetVector, bool useBoundingBox, bool isRandomRoom)
+void Room::_createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float occlusion, float reverbOcclusion)
+{
+	DirectX::XMVECTOR translation, rotation, scale;
+		
+	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));
+
+	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(
+		DirectX::XMConvertToRadians(prop.transform_rotation[0]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[1]),
+		DirectX::XMConvertToRadians(prop.transform_rotation[2])
+	));
+	
+	rotation = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotation);
+
+	
+	float newScale[3];
+	for (int i = 0; i < 3; i++)
+	{
+		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
+	}
+	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
+
+	DirectX::XMFLOAT4 xmQ;
+	DirectX::XMFLOAT4 xmPos;
+	DirectX::XMFLOAT4 xmScl;
+
+	DirectX::XMStoreFloat4(&xmQ, rotation);
+	DirectX::XMStoreFloat4(&xmPos, translation);
+	DirectX::XMStoreFloat4(&xmScl, scale);
+
+
+	FMOD::Geometry * ge = AudioEngine::CreateCube(occlusion, reverbOcclusion, xmPos, xmScl, xmQ);
+	ge->setActive(useAudio);
+	this->m_audioBoxes.push_back(ge);
+}
+
+void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox, bool isRandomRoom, bool useAudio, float occlusionSound, float reverbOcclusionSound)
 {
 	BaseActor * tempAsset = DBG_NEW BaseActor();
 	if (name != "COLLISIONBOXASPROP")
 	{
-		Manager::g_meshManager.loadStaticMesh(name);
-		Manager::g_textureManager.loadTextures(name);
+		if (name.find("BOARD") <= name.size())
+		{
+			Manager::g_meshManager.loadStaticMesh("BOARD");
+
+		}
+		else
+			Manager::g_meshManager.loadStaticMesh(name);
+		
+
+
+
+		//if (name == "THICKWALL")
+		//if (name.find("WALL") <= name.size() || name.find("BOARD") <= name.size() || name.find("FLOOR") <= name.size())
+			Manager::g_textureManager.loadTextures(name, true);
+		//else
+			//Manager::g_textureManager.loadTextures(name, false);
 	}
 	if (name != "INVISIBLEGRIDBLOCKER" && name != "COLLISIONBOXASPROP")
 	{
-		tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		if (name.find("BOARD") <= name.size())
+		{
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh("BOARD"));
+		}
+		else
+		{
+			tempAsset->setModel(Manager::g_meshManager.getStaticMesh(name));
+		}
+
 		tempAsset->setTexture(Manager::g_textureManager.getTexture(name));
+
+
 	}
 
 	bool moveBox = false;
@@ -805,6 +901,13 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
 	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	assetVector->push_back(tempAsset);
+	
+	if(useAudio)
+		_createAudioBox(prop, true, occlusionSound, reverbOcclusionSound);
+
+
+
+
 }
 #pragma endregion
 

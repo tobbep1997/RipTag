@@ -68,7 +68,7 @@ protected:
 
 	DirectX::BoundingBox * m_bb = nullptr;
 	DirectX::XMFLOAT3 m_extens;
-	ID3D11Buffer * p_vertexBuffer;
+	ID3D11Buffer * p_vertexBuffer = nullptr;
 
 	std::wstring p_vertexPath;
 	std::wstring p_pixelPath;
@@ -91,6 +91,7 @@ public:
 	Drawable();
 	virtual ~Drawable();
 	virtual void setTexture(Texture * texture);	
+	virtual Texture * getTexture() const;
 
 	virtual void BindTextures();
 	

@@ -5,6 +5,8 @@
 Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId) : Trigger(_uniqueId, -1, true, "", "")
 {
 	this->pPointLight = pLight;
+	pPointLight->setBase(pLight->getPosition());
+
 	this->pParticles = pParticleEmitter;
 	DirectX::XMFLOAT4A lightPos = pPointLight->getPosition();
 	
@@ -14,6 +16,14 @@ Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqu
 	//Need a model for torch
 	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("TORCH"));
 	BaseActor::setUserDataBody(this);
+
+	m_tourchSound.emitter = AudioEngine::Other;
+	m_tourchSound.loudness = 1.5f;
+	m_tourchSound.owner = this;
+
+	/*FMOD_VECTOR at = { lightPos.x, lightPos.y,lightPos.z };
+	m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
+	m_channel->setVolume(0.6f);*/
 }
 
 
@@ -36,12 +46,18 @@ Torch::~Torch()
 void Torch::Update(double deltaTime)
 {
 	if (m_preState != getTriggerState())
-		_playSound(AudioEngine::SoundType::Other);
+		_playSound(&m_tourchSound);
 
 	//Check wether to crate new fire.
+	pPointLight->setIntensity(pPointLight->TourchEffect(deltaTime * .1f, 20.1f, 8.5f));
+	pPointLight->setDropOff(1.0425345f);
+	pPointLight->setPower(2);
+	DirectX::XMFLOAT4A newPos = pPointLight->MovmentEffect(deltaTime * 1.0, pPointLight->getPosition(), .075);
+	pPointLight->setPosition(newPos);
 	if (pParticles)
 	{
 		pParticles->Update(deltaTime, pCamera);
+		pParticles->SetPosition(newPos);
 	}
 
 	if (m_interacted)
@@ -50,9 +66,9 @@ void Torch::Update(double deltaTime)
 		{
 			this->setTriggerState(false);
 			pPointLight->setLightOn(true);
-			pParticles = new ParticleEmitter();
-			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-			pParticles->setEmmiterLife(0);
+			pParticles = new ParticleEmitter(this->getPosition(), PS::FIRE);
+
+			pParticles->SetEmitterLife(FLT_MAX);
 		}
 		else
 		{
@@ -71,9 +87,8 @@ void Torch::Update(double deltaTime)
 		{
 			this->setTriggerState(false);
 			pPointLight->setLightOn(true);
-			pParticles = new ParticleEmitter();
-			pParticles->setPosition(this->getPosition().x, this->getPosition().y, this->getPosition().z);
-			pParticles->setEmmiterLife(0);
+			pParticles = new ParticleEmitter(this->getPosition(), PS::FIRE);
+			pParticles->SetEmitterLife(0.0f);
 		}
 		else
 		{
@@ -107,7 +122,7 @@ void Torch::QueueLight()
 
 void Torch::BeginPlay()
 {
-	_playSound(AudioEngine::SoundType::Other);
+	_playSound(&m_tourchSound);
 }
 
 void Torch::handleContact(RayCastListener::RayContact * contact)
@@ -122,11 +137,16 @@ void Torch::handleContact(RayCastListener::RayContact * contact)
 	}
 }
 
-void Torch::_playSound(AudioEngine::SoundType st)
+void Torch::Interact()
+{
+	m_interacted = true;
+}
+
+void Torch::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
-		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, st);
+		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
 	else
 		m_channel->stop();
 }

@@ -16,11 +16,13 @@ BlinkAbility::~BlinkAbility()
 
 void BlinkAbility::Init()
 {
+	p_abilityChargesMax = 2;
+	p_abilityCharges = p_abilityChargesMax;
 }
 
 void BlinkAbility::Update(double deltaTime)
 {
-	if (this->isLocal)
+	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
 		_logic(deltaTime);
 }
 
@@ -69,42 +71,53 @@ void BlinkAbility::_logic(double deltaTime)
 				);
 			}
 
+			p_abilityCharges--;
 			m_bState = BlinkState::Wait;
 		}
 
 	}
 
-	if (((Player *)p_owner)->getCurrentAbility() == Ability::BLINK && Input::OnAbilityPressed()) // the Use() function was called last frame
+	if (((Player *)p_owner)->getCurrentAbility() == Ability::BLINK && Input::OnAbilityPressed())
 	{
 		Player* pPointer = static_cast<Player*>(p_owner);
-		switch (m_bState)
-		{
-		case BlinkState::Wait:
-			p_cooldown += deltaTime;
-			if (p_cooldown >= p_cooldownMax)
-			{
-				m_bState = BlinkState::Blink;
-				p_cooldown = 0;
-			}
-			break;
-		case BlinkState::Blink:
-			if(m_rayId == -100)
+			if(m_bState == BlinkState::Blink && m_rayId == -100 && p_abilityCharges != 0)
 				m_rayId = RipExtern::g_rayListener->PrepareRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE);
-			break;
-		}
 	}
-	else
-	{	
-		if(m_bState == BlinkState::Wait)
+
+	switch (m_bState)
+	{
+	case BlinkState::Blink:
+		if (m_bState == BlinkState::Blink && p_abilityCharges < p_abilityChargesMax)
 		{
 			p_cooldown += deltaTime;
 			if (p_cooldown >= p_cooldownMax)
 			{
-				m_bState = BlinkState::Blink;
+				p_abilityCharges++;
 				p_cooldown = 0;
 			}
 		}
+		break;
+	case BlinkState::Wait:
+		p_cooldown += deltaTime;
+		if (p_abilityCharges != 0)
+		{
+			if (p_cooldown >= 1)
+			{
+				m_bState = BlinkState::Blink;
+			}
+		}
+		else
+		{
+			if (p_cooldown >= p_cooldownMax)
+			{
+				m_bState = BlinkState::Blink;
+				p_abilityCharges++;
+				p_cooldown = 0;
+			}
+		}
+		break;
 	}
+
 }
 
 void BlinkAbility::_sendBlinkPacket()

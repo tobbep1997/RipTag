@@ -2,9 +2,6 @@
 #include "Quad.h"
 
 
-
-
-
 void Quad::p_createBuffer()
 {
 	DX::SafeRelease(m_vertexBuffer);
@@ -17,7 +14,11 @@ void Quad::p_createBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = quadVertex;
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer)))
+	{
+		DX::SetName(m_vertexBuffer, "QUAD: m_vertexBuffer");
+	}
 }
 
 void Quad::p_setStaticQuadVertex()
@@ -106,9 +107,6 @@ void Quad::_rebuildQuad()
 	quadVertex[Upper_Right].position.x = quadVertex[0].position.x + this->getSize().x;
 	quadVertex[Upper_Right].position.y = quadVertex[0].position.y + this->getSize().y;
 	
-	//std::cout << this << ":\n\tLowerLeftPos: " << quadVertex[Lower_Left].position.x << ":" << quadVertex[Lower_Left].position.y << std::endl;
-	//std::cout << "Size: " << this->getSize().x << ":" << this->getSize().y << std::endl << std::endl;
-	
 }
 
 Quad::Quad() : Transform2D(), Button(this)
@@ -196,9 +194,6 @@ void Quad::MapTexture()
 	{
 		Manager::g_textureManager.getGUITextureByName(wName)->Bind(1);
 	}
-	else
-		std::cout << red << "Can't Find Texture: " << this->m_textures[m_buttonState] << std::endl;
-	std::cout << white;
 }
 
 void Quad::setPosition(const float & x, const float & y)
@@ -233,7 +228,6 @@ void Quad::setTag(std::string tag)
 void Quad::setFont(DirectX::SpriteFont * font)
 {
 	this->m_spriteFont = font;
-	this->m_spriteFont->SetDefaultCharacter('X');
 }
 
 void Quad::setString(const std::string & string)

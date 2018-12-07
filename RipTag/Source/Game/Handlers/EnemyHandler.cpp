@@ -135,6 +135,23 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 	}
 }
 
+Enemy* EnemyHandler::GetFirstEnemy()
+{
+	if (!m_guards.empty())
+	{
+		return m_guards.at(0);
+	}
+	return nullptr;
+}
+
+void EnemyHandler::SpawnEnemy(const float & x, const float & y, const float & z)
+{
+	Enemy * e = DBG_NEW Enemy(RipExtern::g_world, m_guards.size() + 1, x, y, z);
+	//e->addTeleportAbility(m_player);
+	//e->SetPlayerPointer(m_player);
+	m_guards.push_back(e);
+}
+
 void EnemyHandler::_isServerUpdate(double deltaTime)
 {
 	static float timer = 0.0f;

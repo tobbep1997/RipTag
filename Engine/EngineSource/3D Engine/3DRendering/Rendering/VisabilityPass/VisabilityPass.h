@@ -33,6 +33,8 @@ private:
 	const wchar_t * STATIC_VERTEX_SHADER_PATH = L"../Engine/EngineSource/Shader/VertexShader.hlsl";
 	const wchar_t * DYNAMIC_VERTEX_SHADER_PATH = L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl";
 
+	ID3D11BlendState* m_alphaBlend; 
+
 
 	struct GuardViewBuffer
 	{
@@ -53,15 +55,15 @@ private:
 
 private:
 	D3D11_VIEWPORT				m_guardViewPort;
-	ID3D11Buffer *				m_guardViewBuffer;
-	ID3D11DepthStencilView*		m_guardDepthStencil;
-	ID3D11Texture2D*			m_guardDepthTex;
-	ID3D11Texture2D*			m_guatdShaderResourceTex;
-	ID3D11RenderTargetView*		m_guardRenderTargetView;
-	ID3D11ShaderResourceView*	m_guardShaderResource;
-	ID3D11Buffer*				m_objectBuffer;
+	ID3D11Buffer *				m_guardViewBuffer;			//RE
+	ID3D11DepthStencilView*		m_guardDepthStencil;		//RE
+	ID3D11Texture2D*			m_guardDepthTex;			//RE
+	ID3D11Texture2D*			m_guatdShaderResourceTex;	//RE	
+	ID3D11RenderTargetView*		m_guardRenderTargetView;	//RE
+	ID3D11ShaderResourceView*	m_guardShaderResource;		//RE
+	ID3D11Buffer*				m_objectBuffer;				//RE
 
-	ID3D11Buffer*				m_textureBuffer;
+	ID3D11Buffer*				m_textureBuffer;			//RE
 	TextureBuffer				m_textureValues;
 public:
 	VisabilityPass();

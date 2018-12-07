@@ -19,17 +19,19 @@ TextureManager::~TextureManager()
 	this->UnloadGUITextures();
 }
 
-void TextureManager::loadTextures(const std::string & path)
+void TextureManager::loadTextures(const std::string & path, bool m_static_texture)
 {
 	Texture* tempTexture = new Texture();
 	std::wstring fullPath = this->_getFullPath(path);
 	unsigned int key = this->_getKey(fullPath);
 
-	if (m_textures[key].size() == 0)
+	if (m_textures[key].empty())
 	{
 		tempTexture->setName(fullPath);
-		
-		tempTexture->Load(fullPath.c_str());
+
+
+		tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
+
 
 		m_textureMutex.lock();
 		m_textures[key].push_back(tempTexture);
@@ -49,7 +51,7 @@ void TextureManager::loadTextures(const std::string & path)
 		{
 			tempTexture->setName(fullPath);
 			
-			tempTexture->Load(fullPath.c_str());
+			tempTexture->Load(fullPath.c_str(), m_static_texture, ".DDS");
 			
 			m_textureMutex.lock();
 			m_textures[key].push_back(tempTexture);
@@ -57,8 +59,6 @@ void TextureManager::loadTextures(const std::string & path)
 		}
 		else
 		{
-			std::cout << yellow << path << " Texture Already loaded" << std::endl;
-			std::cout << white;
 			delete tempTexture;	
 		}
 	}
@@ -79,12 +79,6 @@ Texture * TextureManager::getTexture(const std::string & path)
 		}
 	}
 	
-
-
-	//This will be spammed because of the Draw calls each frame
-	//std::cout << red << std::string(fullPath.begin(), fullPath.end()) << " NOT FOUND" << std::endl;
-	
-	//throw std::exception("TEXTURE NOT FOUND");
 	return nullptr;
 }
 
@@ -95,16 +89,28 @@ Texture * TextureManager::getGUITextureByName(const std::wstring & name)
 		if (t->getName() == name)
 			return t;
 	}
-	
-	//This will be spammed because of the Draw calls each frame
-	//std::cout << red << std::string(name.begin(), name.end()) << " NOT FOUND" << std::endl;
 
-	//throw std::exception("TEXTURE NOT FOUND");
+	return nullptr;
+}
+
+Texture * TextureManager::getDDSTextureByName(const std::wstring & name)
+{
+	for (auto &t : m_DDSTextures)
+	{
+		if (t->getName() == name)
+			return t;
+	}
+
 	return nullptr;
 }
 
 void TextureManager::loadGUITexture(const std::wstring name, const std::wstring & full_path)
 {
+	if (full_path.find(L"_256") <= full_path.size() ||
+		full_path.find(L"_512") <= full_path.size() || 
+		full_path.find(L"_1024") <= full_path.size())
+		return;
+
 	Texture * tempTexture = new Texture();
 
 	if (m_GuiTextures.size() > 0)
@@ -113,9 +119,6 @@ void TextureManager::loadGUITexture(const std::wstring name, const std::wstring 
 		{
 			if (t->getName() == name)
 			{
-				//we already have this texture loaded 
-				std::cout << yellow << std::string(name.begin(), name.end()) << " Texture Already loaded" << std::endl;
-				std::cout << white;
 				delete tempTexture;
 				return;
 			}
@@ -138,6 +141,48 @@ void TextureManager::loadGUITexture(const std::wstring name, const std::wstring 
 
 		m_textureMutex.lock();
 		m_GuiTextures.push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
+}
+
+void TextureManager::loadDDSTexture(const std::wstring name, const std::wstring & full_path, const std::wstring & type = L"_256")
+{
+	const size_t index = name.find(type, 0);
+	if (index == std::wstring::npos)
+		return;
+
+	Texture * tempTexture = new Texture();
+
+	std::wstring _name = name.substr(0, index);
+
+	if (m_DDSTextures.size() > 0)
+	{
+		for (auto &t : m_DDSTextures)
+		{
+			if (t->getName() == _name)
+			{
+				delete tempTexture;
+				return;
+			}
+		}
+		//new entry
+		tempTexture->setName(_name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_DDSTextures.push_back(tempTexture);
+		m_textureMutex.unlock();
+	}
+	else
+	{
+		//first entry is always free
+		tempTexture->setName(_name);
+
+		tempTexture->LoadSingleTexture(full_path.c_str());
+
+		m_textureMutex.lock();
+		m_DDSTextures.push_back(tempTexture);
 		m_textureMutex.unlock();
 	}
 }
@@ -169,16 +214,33 @@ bool TextureManager::UnloadAllTexture()
 		}
 		m_textures[i].clear();
 	}
-
-	return true;
+	
+	return UnloadGUITextures() && UnloadDDSTextures();
+	
 }
 
 bool TextureManager::UnloadGUITextures()
 {
 	for (auto & t : m_GuiTextures)
+	{
+		//SafeRelease is called in the Destructor
 		delete t;
+	}
 	m_GuiTextures.clear();
-	return false;
+
+	return true;
+}
+
+bool TextureManager::UnloadDDSTextures()
+{
+	for (auto & t : m_DDSTextures)
+	{
+		//SafeRelease is called in the Destructor
+		delete t;
+	}
+	m_DDSTextures.clear();
+
+	return true;
 }
 
 const unsigned int TextureManager::getLoadedTextures() const

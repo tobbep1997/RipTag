@@ -18,8 +18,12 @@ private:
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;
+	int m_nrOfLevers = 0;
 	int m_incrementalValueX = 20;
 	int m_incrementalValueY = 20;
+
+	int m_spakCounter = 0;
+
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;

@@ -92,37 +92,37 @@ private:
 	std::wstring m_lastPixelPath;
 
 	//Standard �
-	IDXGISwapChain*				m_swapChain;
-	ID3D11RenderTargetView*		m_backBufferRTV;
-	ID3D11DepthStencilView*		m_depthStencilView;
-	ID3D11Texture2D*			m_depthBufferTex;
-	ID3D11SamplerState*			m_samplerState;
-	ID3D11SamplerState*			m_shadowSampler;
-	ID3D11DepthStencilState*	m_depthStencilState;
-	ID3D11DepthStencilState*	m_particleDepthStencilState;
+	IDXGISwapChain*				m_swapChain;			//Released engine3D
+	ID3D11RenderTargetView*		m_backBufferRTV;		//Released engine3D
+	ID3D11DepthStencilView*		m_depthStencilView;		//Released engine3D
+	ID3D11Texture2D*			m_depthBufferTex;		//Released engine3D
+	ID3D11SamplerState*			m_samplerState;			//Released engine3D
+	ID3D11SamplerState*			m_shadowSampler;		//Released engine3D
+	ID3D11DepthStencilState*	m_depthStencilState;	//Released engine3D
+	ID3D11DepthStencilState*	m_particleDepthStencilState; //Released Forward
 	
 
 	D3D11_VIEWPORT				m_viewport;
 
-	ID3D11Buffer* m_objectBuffer = nullptr;
-	ObjectBuffer m_objectValues;
-
-	ID3D11Buffer * m_cameraBuffer = nullptr;
-	CameraBuffer m_cameraValues;
-
-	ID3D11Buffer * m_lightBuffer = nullptr;
-	LightBuffer m_lightValues;
-
-	ID3D11Buffer * m_textureBuffer = nullptr;
+	ID3D11Buffer* m_objectBuffer = nullptr;				   //RELEASED
+	ObjectBuffer m_objectValues;						   //RELEASED
+														   //RELEASED
+	ID3D11Buffer * m_cameraBuffer = nullptr;			   //RELEASED
+	CameraBuffer m_cameraValues;						   //RELEASED
+														   //RELEASED
+	ID3D11Buffer * m_lightBuffer = nullptr;				   //RELEASED
+	LightBuffer m_lightValues;							   //RELEASED
+														   //RELEASED
+	ID3D11Buffer * m_textureBuffer = nullptr;			   //RELEASED
 	TextureBuffer m_textureValues;
 
 	Animation::AnimationCBuffer * m_animationBuffer;
-	ShadowMap * m_shadowMap;
-	Render2D * m_2DRender;
+	ShadowMap * m_shadowMap;	//Released
+	Render2D * m_2DRender;		//Released
 
 
 	VisabilityPass * m_visabilityPass;
-	ID3D11Buffer* m_GuardBuffer;
+	ID3D11Buffer* m_GuardBuffer;	//RElEASED 
 
 	ID3D11Buffer * m_destructionBuffer = nullptr;
 	DestroyBuffer m_destroyBuffer;
@@ -138,20 +138,28 @@ private:
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
 
-	ID3D11RasterizerState * m_standardRast;
-	ID3D11RasterizerState * m_wireFrame;
-	ID3D11RasterizerState * m_disableBackFace;
-	ID3D11RasterizerState * m_NUKE;
+	ID3D11RasterizerState * m_standardRast;		//RE
+	ID3D11RasterizerState * m_wireFrame;		//RE
+	ID3D11RasterizerState * m_disableBackFace;	//RE
+	ID3D11RasterizerState * m_NUKE;				//RE
 
-	ID3D11Buffer * m_outlineBuffer;
+	ID3D11Buffer * m_outlineBuffer;				//RE
 	OutLineBuffer m_outLineValues;
 
-	ID3D11DepthStencilState * m_write0State;
-	ID3D11DepthStencilState * m_write1State;
-	ID3D11DepthStencilState * m_OutlineState;
-	ID3D11DepthStencilState * m_NUKE2;
+	ID3D11DepthStencilState * m_write0State;	//RE
+	ID3D11DepthStencilState * m_write1State;	//RE
+	ID3D11DepthStencilState * m_OutlineState;	//RE
+	ID3D11DepthStencilState * m_NUKE2;			//RE
 
 	int shadowRun = 0;
+
+	ID3D11RenderTargetView * m_screenShootRender;
+	ID3D11Texture2D * m_screenShootTex;
+	ID3D11ShaderResourceView * m_screenShootSRV;
+
+	std::vector<ID3D11Buffer *> m_bufferVec;
+	UINT m_bufferSize = 100000;
+	UINT m_bufferLenght = 70;
 	
 public:
 	ForwardRender();
@@ -179,11 +187,18 @@ public:
 	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
 
+	ID3D11BlendState* getAlphaBlendState(); 
+	ID3D11DepthStencilState* getDepthStencilState(); 
+
 	DirectX::BoundingFrustum * _createBoundingFrustrum(Camera * camera);//Make sure to delete the pointer
 	bool _Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box);//Return true if the box sould be culled
 
+	void FlushScreenShoot(Camera & camera);
 private:
+	void _GeometryPassToPic(Camera & camera);
+	void _AnimatedGeometryToPic(Camera & camera);
 
+	void _InitScreenShoot();
 
 	void _GuardFrustumDraw();
 	void _DBG_DRAW_CAMERA(Camera & camera);
@@ -194,6 +209,7 @@ private:
 	void _createConstantBuffer();
 	void _createSamplerState();
 	void _mapObjectBuffer(Drawable * drawable);
+
 
 
 	void _mapObjectOutlineBuffer(Drawable * drawable, const DirectX::XMFLOAT4A & pos);
@@ -210,7 +226,6 @@ private:
 
 	//void _SetShaders(int i);
 	void _setAnimatedShaders();
-	void _setStaticShaders();
 
 	//VisabilityPass
 	void _visabilityPass();

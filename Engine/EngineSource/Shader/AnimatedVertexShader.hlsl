@@ -5,6 +5,12 @@ cbuffer OBJECT_BUFFER : register(b3)
 	float4x4 worldMatrix;
 };
 
+cbuffer OBJECT_BUFFER : register(b7)
+{
+    int4 usingTexture;
+    float4 textureTileMult;
+    float4 color;
+};
 
 struct VS_INPUT2
 {
@@ -34,13 +40,13 @@ VS_OUTPUT main(VS_INPUT2 input)
 
     output.pos = mul(wp, viewProjection);
     output.worldPos = wp;
-    output.normal = float4(input.normal,0);
+    output.normal = float4(normalize(input.normal), 0);
 
     float3 bitangent = cross(output.normal.xyz, input.tangent);
     float3x3 TBN = float3x3(input.tangent, bitangent, output.normal.xyz);
     output.TBN = TBN;
-	output.uv = input.uv;
-    output.color = float4(1, 1, 1, 1);
+    output.uv = input.uv * textureTileMult.xy;
+    output.color = color;
     output.info = int4(1, 0, 0, 0);
 	return output;
 }
