@@ -223,12 +223,12 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			{
 				posLerp = secondLerpValue * 2;
 				lerpFrom = rotatedLocalPos;
-				lerpTowards = rotatedLocalPos + lerpTriPosTowards * 12;
+				lerpTowards = rotatedLocalPos + localOffsetNormal * 80;
 			}
 			else
 			{
 				posLerp = (secondLerpValue - 0.5) * 2;
-				lerpFrom = rotatedLocalPos + lerpTriPosTowards * 12;
+				lerpFrom = rotatedLocalPos + localOffsetNormal * 80;
 				lerpTowards = rotatedLocalPos;
 			}
 		}
