@@ -192,12 +192,15 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			   
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
+
+		
 		if (typeOfAbility.x == 1)
 		{
 			if (secondLerpValue <= 0.25)
 			{
 				posLerp = secondLerpValue * 4;
 				lerpFrom = rotatedLocalPos;
+				
 				lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
 			}
 			else if (secondLerpValue > 0.25 && secondLerpValue <= 0.75)
@@ -210,7 +213,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			else
 			{
 				posLerp = (secondLerpValue - 0.75) * 4;
-				lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
+				lerpFrom = rotatedLocalPos + localOffsetNormal * 0.2;
 				lerpTowards = rotatedLocalPos;
 			}
 		}
@@ -220,12 +223,12 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			{
 				posLerp = secondLerpValue * 2;
 				lerpFrom = rotatedLocalPos;
-				lerpTowards = rotatedLocalPos - localOffsetNormal * 1.5;
+				lerpTowards = rotatedLocalPos + lerpTriPosTowards * 12;
 			}
 			else
 			{
 				posLerp = (secondLerpValue - 0.5) * 2;
-				lerpFrom = rotatedLocalPos - localOffsetNormal * 1.5;
+				lerpFrom = rotatedLocalPos + lerpTriPosTowards * 12;
 				lerpTowards = rotatedLocalPos;
 			}
 		}

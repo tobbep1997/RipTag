@@ -59,6 +59,7 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 		//lerpValue = 1 - (lerpValue - 0.5f) / 1.5f;
 		lerpValue = 1 - (lerpValue - 0.5f) * 2;
 	}
+	colorLerpSecond = input.worldPos;
 	float4 finalColour = lerp(colorLerpFirst, colorLerpSecond, lerpValue);
 		
 

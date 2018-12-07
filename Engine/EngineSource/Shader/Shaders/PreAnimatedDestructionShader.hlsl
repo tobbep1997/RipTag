@@ -76,7 +76,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 		{
 			posLerp = lerpValue * 4;
 		}
-		/*else if (lerpValue > 0.25 && lerpValue <= 0.75)
+		else if (lerpValue > 0.25 && lerpValue <= 0.75)
 		{
 			posLerp = (lerpValue - 0.25) / 0.5;
 			lerpFrom = lerpFromTransformMatrix;
@@ -88,13 +88,13 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 			posLerp = (lerpValue - 0.75) * 4;
 			lerpFrom = worldMatrix;
 			lerpTowards = worldMatrix;
-		}*/
-		else
+		}
+		/*else
 		{
 			posLerp = (lerpValue - 0.25) / 0.75;
 			lerpFrom = lerpFromTransformMatrix;
 			lerpTowards = worldMatrix;
-		}
+		}*/
 	}
 	
 	
