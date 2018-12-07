@@ -28,8 +28,8 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
 	auto activateState = machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
 	auto deactivateState = machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
-	activateState->SetBlendTime(0.0f);
-	deactivateState->SetBlendTime(0.0f);
+	activateState->SetDefaultBlendTime(0.0f);
+	deactivateState->SetDefaultBlendTime(0.0f);
 	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }

@@ -53,14 +53,31 @@ namespace SM
 		return m_Name;
 	}
 
-	void AnimationState::SetBlendTime(float blendTime)
+	void AnimationState::SetDefaultBlendTime(float blendTime)
 	{
-		m_BlendTime = blendTime;
+		m_DefaultBlendTime = blendTime;
+	}
+
+	void AnimationState::SetSpecificBlendTime(SM::AnimationState* fromState, float blendTime)
+	{
+		assert(fromState != nullptr);
+		
+		m_SpecificBlendTimes.push_back(std::make_pair(fromState, blendTime));
 	}
 
 	float AnimationState::BlendTime()
 	{
-		return m_BlendTime;
+		return m_DefaultBlendTime;
+	}
+
+	float AnimationState::BlendTime(SM::AnimationState* fromState)
+	{
+		auto it = std::find_if(m_SpecificBlendTimes.begin(), m_SpecificBlendTimes.end(),
+			[&](const auto& element) {return element.first == fromState; });
+
+		if (it != std::end(m_SpecificBlendTimes))
+			return it->second;
+		else return m_DefaultBlendTime;
 	}
 
 #pragma endregion "AnimationState"
@@ -149,7 +166,7 @@ namespace SM
 				m_BlendFromState = previousState;
 				m_AnimationPlayer->Reset();
 				m_BlendFromState->Lock();
-				m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime() - m_RemainingBlendTime);
+				m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime(previousState) - m_RemainingBlendTime);
 			}
 
 		}
@@ -194,7 +211,7 @@ namespace SM
 			m_BlendFromState = m_CurrentState;
 			m_BlendFromState->Lock();
 			m_CurrentState = state.first;
-			m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime() - m_RemainingBlendTime);
+			m_RemainingBlendTime = m_TotalBlendTime = (m_CurrentState->BlendTime(m_BlendFromState) - m_RemainingBlendTime);
 		}
 		return true;
 	}
