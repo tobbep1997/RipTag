@@ -2,7 +2,7 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
-#include "Source/CheetConsole/CheetParser.h"
+#include "Source/CheetConsole/CheatParser.h"
 
 
 std::vector<std::string> RipSounds::g_sneakStep;
@@ -79,8 +79,8 @@ void PlayState::Update(double deltaTime)
 {
 	//Cheat update
 	{
-		Cheet::g_visabilityDisabled = CheetParser::GetVisabilityDisabled();
-		Cheet::g_DBG_CAM = CheetParser::GetDBG_CAM();
+		Cheet::g_visabilityDisabled = CheatParser::GetVisabilityDisabled();
+		Cheet::g_DBG_CAM = CheatParser::GetDBG_CAM();
 	}
 
 
@@ -354,7 +354,7 @@ void PlayState::Draw()
 		if (m_transitionState)
 			m_transitionState->Draw();
 	}
-	if (CheetParser::GetDrawCollisionBoxes())
+	if (CheatParser::GetDrawCollisionBoxes())
 	{
 		DrawWorldCollisionboxes();
 	}
