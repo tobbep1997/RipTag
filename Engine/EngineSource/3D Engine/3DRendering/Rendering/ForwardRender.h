@@ -37,7 +37,6 @@ class ForwardRender
 	{
 		DirectX::XMFLOAT4A cameraPosition;
 		DirectX::XMFLOAT4X4A viewProjection;
-		DirectX::XMFLOAT4A cameraInfo;
 	};
 
 	struct LightBuffer

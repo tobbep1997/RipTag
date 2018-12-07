@@ -12,7 +12,7 @@ cbuffer LIGHTS : register(b0)
     float4 lightDropOff[8]; //128
     float4 lightPosition[8]; // 128
     float4 lightColor[8]; //128 
-}
+};
 cbuffer LIGHT_MATRIX : register(b1)
 {
     float4x4 lightViewProjection[8][6]; //3072
@@ -24,7 +24,6 @@ cbuffer CAMERA_BUFFER : register(b2)
 {
     float4 cameraPosition;
     float4x4 viewProjection;
-    float4 cameraInfo;
 };
 // end<TODO>
 
@@ -449,7 +448,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     //----------------------------------------------------------------
     // The distance divided by the farplane
     float fogMul;
-    float fogDepth = length(cameraPosition - input.worldPos) / cameraInfo.y;
+    float fogDepth = length(cameraPosition - input.worldPos) / 50.0f;
 
     //Fog
     //This is for Linear ---------------------------------------------
