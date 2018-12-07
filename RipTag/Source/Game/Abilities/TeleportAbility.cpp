@@ -319,6 +319,7 @@ void TeleportAbility::_inStateTeleportable()
 
 			if (m_tpState == TeleportState::Teleportable)
 			{
+				
 				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir, 2);
 				m_rayId2 = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir2, 2);	
 			}

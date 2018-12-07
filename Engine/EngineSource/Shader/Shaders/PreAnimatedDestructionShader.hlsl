@@ -96,22 +96,23 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 			lerpTowards = worldMatrix;
 		}
 	}
+	
+	
+	finalWorldPos = lerp(lerpFrom, lerpTowards, posLerp);
+	
+
+
 	if (typeOfAbility.x == 2)
 	{
 		if (lerpValue <= 0.5)
 		{
-			finalWorldPos = worldMatrix;
+			finalWorldPos = lerpFromTransformMatrix;
 		}
 		else
 		{
-			finalWorldPos = lerpFromTransformMatrix;
+			finalWorldPos = worldMatrix;
 		}
 	}
-	
-	
-
-
-	finalWorldPos = lerp(lerpFrom, lerpTowards, posLerp);
 	//finalWorldPos = worldMatrix;
 	
 	//init array
