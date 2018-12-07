@@ -148,6 +148,6 @@ void Torch::_playSound(AudioEngine::SoundDesc * soundDesc)
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
 		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
+	else
 		m_channel->stop();
-	m_channel->setVolume(0.6f);
 }

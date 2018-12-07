@@ -22,6 +22,10 @@ std::string				 RipSounds::g_metalDoorOpening;
 std::string				 RipSounds::g_metalDoorClosening;
 std::string				 RipSounds::g_metalDoorClosed;
 std::string				 RipSounds::g_smokeBomb;
+std::string				 RipSounds::g_gateClosed;
+std::string				 RipSounds::g_gateClosening;
+std::string				 RipSounds::g_gateOpend;
+std::string				 RipSounds::g_gateOpening;
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
@@ -779,6 +783,15 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorOpening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosed);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_playAmbientSound);
+
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateClosed);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateClosening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateOpend);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateOpening);
 
 	if (m_eventOverlay)
 	{
@@ -1027,9 +1040,9 @@ void PlayState::_loadNetwork()
 
 void PlayState::_loadSound()
 {
-	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Ambient/Cave.ogg", 5.0f, 10000.0f, true);
+	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Ambient/Cave.ogg", 5.0f, 10000.0f, true); // Released
 
-	for (int i = 1; i <= 6; i++)
+	for (int i = 1; i <= 6; i++)	 // Released
 	{
 		RipSounds::g_sneakStep.push_back(AudioEngine::LoadSoundEffect(
 			"../Assets/Audio/SoundEffects/Player/Sneaking/soft_"
@@ -1037,7 +1050,7 @@ void PlayState::_loadSound()
 			".ogg"
 		));
 	}
-	for (int i = 1; i <= 6; i++)
+	for (int i = 1; i <= 6; i++)	 // Released
 	{
 		RipSounds::g_hardStep.push_back(AudioEngine::LoadSoundEffect(
 			"../Assets/Audio/SoundEffects/Player/Running/hard_"
@@ -1045,7 +1058,7 @@ void PlayState::_loadSound()
 			".ogg"
 		));
 	}
-	for (int i = 1; i <= 12; i++)
+	for (int i = 1; i <= 12; i++)	 // Released
 	{
 		RipSounds::g_armorStepsStone.push_back(AudioEngine::LoadSoundEffect(
 			"../Assets/Audio/SoundEffects/Armored_Guard/Footsteps/step_"
@@ -1055,18 +1068,23 @@ void PlayState::_loadSound()
 	}
 
 
-	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg");
-	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg");
-	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg");
-	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg");
-	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true);
-	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg");
-	RipSounds::g_smokeBomb = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg"); 
-	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
-	RipSounds::g_metalDoorOpening = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg");
+	RipSounds::g_leverActivate				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg"); // Released
+	RipSounds::g_leverDeactivate			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg"); // Released
+	RipSounds::g_pressurePlateActivate		= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg"); // Released
+	RipSounds::g_pressurePlateDeactivate	= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg"); // Released
+	RipSounds::g_torch						= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true); // Released
+	RipSounds::g_grunt						= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg"); // Released
+	RipSounds::g_smokeBomb					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg");  // Released
+	RipSounds::g_playAmbientSound			= AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true); // Released
+	RipSounds::g_metalDoorOpening			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg"); // Released
+	RipSounds::g_metalDoorClosening			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/close.ogg"); // Released
+	RipSounds::g_metalDoorClosed			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/closed.ogg"); // Released
+	RipSounds::g_gateClosed					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closed.ogg"); // Released
+	RipSounds::g_gateClosening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closening.ogg"); // Released
+	RipSounds::g_gateOpend					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opend.ogg"); // Released
+	RipSounds::g_gateOpening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opening.ogg"); // Released
 
-
-	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.2f);
+	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.15f);
 }
 
 void PlayState::_registerThisInstanceToNetwork()
