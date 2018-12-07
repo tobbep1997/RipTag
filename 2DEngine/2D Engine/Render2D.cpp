@@ -255,7 +255,7 @@ void Render2D::DBG()
 	dbg_quad->setPivotPoint(Quad::PivotPoint::upperRight);
 	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
 	dbg_quad->setFont(FontHandler::getFont("consolas16"));
-	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam) + "\nTimer: " + std::to_string(ConstTimer::g_timer.GetTime()));
+	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)memoryUsageRam) + "\nTimer: " + std::to_string(ConstTimer::g_teleportTimer.GetTime()));
 	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 0, 0, 1));
 	dbg_quad->setPosition(1, 1);
 	dbg_quad->setScale(.20f, .2f);

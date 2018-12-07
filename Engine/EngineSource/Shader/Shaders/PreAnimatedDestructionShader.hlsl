@@ -70,7 +70,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 	float4x4 lerpFrom = lerpFromTransformMatrix;
 	float posLerp = 0;
 
-	if (typeOfAbility == 1)
+	if (typeOfAbility.x == 1)
 	{
 		if (lerpValue <= 0.25)
 		{
@@ -96,7 +96,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 			lerpTowards = worldMatrix;
 		}
 	}
-	if (typeOfAbility == 2)
+	if (typeOfAbility.x == 2)
 	{
 		if (lerpValue <= 0.5)
 		{
@@ -104,7 +104,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 		}
 		else
 		{
-			finalWorldPos = lastPos;
+			finalWorldPos = lerpFromTransformMatrix;
 		}
 	}
 	
