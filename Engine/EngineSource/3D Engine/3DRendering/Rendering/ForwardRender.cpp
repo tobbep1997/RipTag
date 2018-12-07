@@ -381,7 +381,6 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	DirectX::BoundingFrustum * bf = _createBoundingFrustrum(&camera);
 	for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
 	{
-		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
 		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
 			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
 				continue;
@@ -389,6 +388,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 		{
 			DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
 		}
+		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
 		{
 			DX::g_deviceContext->RSSetState(m_disableBackFace);
 			m_destroyBuffer.TimerAndForwardVector = camera.getForward();
@@ -945,8 +945,8 @@ void ForwardRender::_createConstantBuffer()
 	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("GuardBuffer", this->m_GuardBuffer, sizeof(GuardBuffer)))) {}
 	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("TextureBuffer", this->m_textureBuffer, sizeof(TextureBuffer)))) {}
 	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("OutLineBuffer", this->m_outlineBuffer, sizeof(OutLineBuffer)))) {}
-	hr = DXRHC::CreateConstantBuffer(this->m_destructionBuffer, sizeof(DestroyBuffer));
-	hr = DXRHC::CreateConstantBuffer(this->m_lerpablePosBuffer, sizeof(LerpableWorldPosBuffer));
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("DestroyBuffer", this->m_destructionBuffer, sizeof(DestroyBuffer)))) {};
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("LerpablePosBuffer", this->m_lerpablePosBuffer, sizeof(LerpableWorldPosBuffer)))) {};
 }
 
 void ForwardRender::_createSamplerState()
