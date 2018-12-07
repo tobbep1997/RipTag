@@ -21,11 +21,12 @@ RayCastListener * RipExtern::g_rayListener;
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
 
-ConstTimer::MTimer ConstTimer::g_timer;
-
+ConstTimer::MTimer ConstTimer::g_blinkTimer;
+ConstTimer::MTimer ConstTimer::g_teleportTimer;
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
-	ConstTimer::g_timer.Start();
+	ConstTimer::g_blinkTimer.Start();
+	ConstTimer::g_teleportTimer.Start();
 	m_roomIndex = roomIndex;
 	if (coopData)
 	{

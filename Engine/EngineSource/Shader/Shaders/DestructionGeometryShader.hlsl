@@ -4,6 +4,7 @@ cbuffer destructionTimer : register(b0)
     float4x4 lastPos;
     float4x4 worldMatrixInverse;
     float4x4 worldMatrix;
+	int4 typeOfAbility;
 
 }
 
@@ -191,26 +192,44 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 			   
 		float3 rotatedLocalPos = rotatedAroundOrigin.xyz + localOffset; // Put the vertex back on its local position (tho rotated)
 
+		if (typeOfAbility.x == 1)
+		{
+			if (secondLerpValue <= 0.25)
+			{
+				posLerp = secondLerpValue * 4;
+				lerpFrom = rotatedLocalPos;
+				lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
+			}
+			else if (secondLerpValue > 0.25 && secondLerpValue <= 0.75)
+			{
+				posLerp = (secondLerpValue - 0.25) / 0.5;
+				lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
+				lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
 
-		if (secondLerpValue <= 0.25)
-		{
-			posLerp = secondLerpValue * 4;
-			lerpFrom = rotatedLocalPos;
-			lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
+			}
+			else
+			{
+				posLerp = (secondLerpValue - 0.75) * 4;
+				lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
+				lerpTowards = rotatedLocalPos;
+			}
 		}
-		else if (secondLerpValue > 0.25 && secondLerpValue <= 0.75)
+		if (typeOfAbility.x == 2)
 		{
-			posLerp = (secondLerpValue - 0.25) / 0.5;
-			lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
-			lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
-
+			if (secondLerpValue <= 0.5)
+			{
+				posLerp = secondLerpValue * 2;
+				lerpFrom = rotatedLocalPos;
+				lerpTowards = rotatedLocalPos - localOffsetNormal * 1.5;
+			}
+			else
+			{
+				posLerp = (secondLerpValue - 0.5) * 2;
+				lerpFrom = rotatedLocalPos - localOffsetNormal * 1.5;
+				lerpTowards = rotatedLocalPos;
+			}
 		}
-		else
-		{
-			posLerp = (secondLerpValue - 0.75) * 4;
-			lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
-			lerpTowards = rotatedLocalPos;
-		}
+		
 	
 
 		rotatedLocalPos = lerp(lerpFrom, lerpTowards, posLerp);

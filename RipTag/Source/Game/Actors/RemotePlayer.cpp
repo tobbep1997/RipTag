@@ -126,6 +126,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_BLINK:
 		this->_onNetworkBlink(id);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_TELEPORT:
+		this->_onNetworkUseTeleport(id);
+		break;
 	default:
 		break;
 	}
@@ -156,14 +159,21 @@ void RemotePlayer::Update(double dt)
 
 	if (this->getDestroyState())
 	{
-		this->setDestructionRate(ConstTimer::g_timer.GetTime());
-		if (ConstTimer::g_timer.GetTime() > 1.0f)
+		this->setDestructionRate(ConstTimer::g_blinkTimer.GetTime());
+		if (ConstTimer::g_blinkTimer.GetTime() > 1.0f)
 		{
 			this->setDestroyState(false);
 			this->setDestructionRate(0);//after
-			ConstTimer::g_timer.Stop();
-			ConstTimer::g_timer.Start();
-
+			ConstTimer::g_blinkTimer.Stop();
+			ConstTimer::g_blinkTimer.Start();
+		}
+		this->setDestructionRate(ConstTimer::g_teleportTimer.GetTime());
+		if (ConstTimer::g_teleportTimer.GetTime() > 1.0f)
+		{
+			this->setDestroyState(false);
+			this->setDestructionRate(0);//after
+			ConstTimer::g_teleportTimer.Stop();
+			ConstTimer::g_teleportTimer.Start();
 		}
 	}
 }
@@ -267,12 +277,22 @@ void RemotePlayer::_sendVisibilityPacket()
 	/*Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);*/
 }
 
+
 void RemotePlayer::_onNetworkBlink(unsigned char id)
 {
+	this->setTypeOfAbilityUsed(1);
 	this->setDestroyState(true);
 	this->setLastTransform(this->getWorldmatrix());
-	ConstTimer::g_timer.Stop();
-	ConstTimer::g_timer.Start();
+	ConstTimer::g_blinkTimer.Stop();
+	ConstTimer::g_blinkTimer.Start();
+}
+void RemotePlayer::_onNetworkUseTeleport(unsigned char id)
+{
+	this->setTypeOfAbilityUsed(2);
+	this->setDestroyState(true);
+	this->setLastTransform(this->getWorldmatrix());
+	ConstTimer::g_teleportTimer.Stop();
+	ConstTimer::g_teleportTimer.Start();
 }
 
 

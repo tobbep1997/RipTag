@@ -74,6 +74,7 @@ private:
 	void _onNetworkRemoteCrouch(unsigned char id);
 	void _sendVisibilityPacket();
 	void _onNetworkBlink(unsigned char id);
+	void _onNetworkUseTeleport(unsigned char id);
 
 	void _lerpPosition(float dt);
 

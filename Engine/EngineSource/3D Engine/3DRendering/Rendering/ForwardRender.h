@@ -72,11 +72,13 @@ class ForwardRender
 		DirectX::XMFLOAT4X4A lastPos;
 		DirectX::XMFLOAT4X4A worldMatrixInverse;
 		DirectX::XMFLOAT4X4A worldMatrix;
+		DirectX::XMINT4 typeOfAbility;
 	};
 	struct LerpableWorldPosBuffer
 	{
-		DirectX::XMFLOAT4X4A finalPos;
+		DirectX::XMFLOAT4X4A lastPos;
 		DirectX::XMFLOAT4A timer;
+		DirectX::XMINT4 typeOfAbility;
 	};
 private:
 

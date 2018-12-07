@@ -229,6 +229,7 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		else if (Input::OnAbilityReleased())
 		{
+			_sendTeleportPacket();
 			if (Multiplayer::GetInstance()->isConnected())
 			{
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
@@ -336,6 +337,12 @@ void TeleportAbility::_inStateCooldown(double dt)
 		p_cooldown = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
+}
+
+void TeleportAbility::_sendTeleportPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_TELEPORT);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void TeleportAbility::_updateLight()

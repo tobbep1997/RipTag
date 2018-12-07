@@ -44,6 +44,7 @@ private:
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
 	float m_destructionRate;
+	DirectX::XMINT4 m_typeOfAbilityEffect;
 
 	bool m_hidden;
 	bool m_outline;
@@ -153,7 +154,8 @@ public:
 
 	virtual void setLastTransform(const DirectX::XMFLOAT4X4A lastPos) { this->m_lastTransformation = lastPos; };
 	virtual const DirectX::XMFLOAT4X4A getLastTransform() { return this->m_lastTransformation; };
-
+	virtual void setTypeOfAbilityUsed(const int ability) { this->m_typeOfAbilityEffect.x = ability; };
+	virtual DirectX::XMINT4 getTypeOfAbilityUsed() const { return this->m_typeOfAbilityEffect; };
 	ID3D11Buffer * GetAnimatedVertex();
 	ID3D11UnorderedAccessView * GetUAV();
 	void DontCallMe();

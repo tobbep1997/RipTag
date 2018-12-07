@@ -149,5 +149,6 @@ namespace ConstTimer
 		}
 	};
 
-	extern MTimer g_timer;
+	extern MTimer g_blinkTimer;
+	extern MTimer g_teleportTimer;
 }

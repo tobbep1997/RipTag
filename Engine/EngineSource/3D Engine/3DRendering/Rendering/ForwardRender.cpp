@@ -942,8 +942,9 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 {
 	if (drawable->getDestroyState())
 	{
-		m_lerpablePosBufferInfo.finalPos = drawable->getLastTransform();
-		m_lerpablePosBufferInfo.timer.x = ConstTimer::g_timer.GetTime();
+		m_lerpablePosBufferInfo.typeOfAbility = drawable->getTypeOfAbilityUsed();
+		m_lerpablePosBufferInfo.lastPos = drawable->getLastTransform();
+		m_lerpablePosBufferInfo.timer.x = drawable->getDestructionRate();
 		DXRHC::MapBuffer(m_lerpablePosBuffer, &m_lerpablePosBufferInfo, sizeof(LerpableWorldPosBuffer), 5, 1, ShaderTypes::vertex);
 		
 		m_objectValues.worldMatrix = drawable->getWorldmatrix();

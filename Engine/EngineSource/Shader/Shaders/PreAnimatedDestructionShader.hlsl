@@ -9,10 +9,11 @@ cbuffer SKINNING_BUFFER : register(b4)
 {
 	row_major float4x4 skinningMatrices[128];
 };
-cbuffer SKINNING_BUFFER : register(b5)
+cbuffer lerpableBuffer : register(b5)
 {
 	float4x4 lerpFromTransformMatrix;
 	float4 timer;
+	int4 typeOfAbility;
 };
 struct VS_INPUT
 {
@@ -69,29 +70,45 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 	float4x4 lerpFrom = lerpFromTransformMatrix;
 	float posLerp = 0;
 
-	if (lerpValue <= 0.25)
+	if (typeOfAbility == 1)
 	{
-		posLerp = lerpValue * 4;
-	}
-	/*else if (lerpValue > 0.25 && lerpValue <= 0.75)
-	{
-		posLerp = (lerpValue - 0.25) / 0.5;
-		lerpFrom = lerpFromTransformMatrix;
-		lerpTowards = worldMatrix;
+		if (lerpValue <= 0.25)
+		{
+			posLerp = lerpValue * 4;
+		}
+		/*else if (lerpValue > 0.25 && lerpValue <= 0.75)
+		{
+			posLerp = (lerpValue - 0.25) / 0.5;
+			lerpFrom = lerpFromTransformMatrix;
+			lerpTowards = worldMatrix;
 
+		}
+		else if (lerpValue > 0.75) // try this instead of else below
+		{
+			posLerp = (lerpValue - 0.75) * 4;
+			lerpFrom = worldMatrix;
+			lerpTowards = worldMatrix;
+		}*/
+		else
+		{
+			posLerp = (lerpValue - 0.25) / 0.75;
+			lerpFrom = lerpFromTransformMatrix;
+			lerpTowards = worldMatrix;
+		}
 	}
-	else if (lerpValue > 0.75)
+	if (typeOfAbility == 2)
 	{
-		posLerp = (lerpValue - 0.75) * 4;
-		lerpFrom = worldMatrix;
-		lerpTowards = worldMatrix;
-	}*/
-	else
-	{
-		posLerp = (lerpValue - 0.25) / 0.75;
-		lerpFrom = lerpFromTransformMatrix;
-		lerpTowards = worldMatrix;
+		if (lerpValue <= 0.5)
+		{
+			finalWorldPos = worldMatrix;
+		}
+		else
+		{
+			finalWorldPos = lastPos;
+		}
 	}
+	
+	
 
 
 	finalWorldPos = lerp(lerpFrom, lerpTowards, posLerp);
