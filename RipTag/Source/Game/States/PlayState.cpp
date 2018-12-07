@@ -453,7 +453,6 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 		timer = 0.0f;
 		std::vector<FMOD::Channel*> channels = AudioEngine::getAllPlayingChannels();
 		const std::vector<Enemy*>* enemies = m_levelHandler->getEnemies();
-		int counter = 0;
 		for (auto & e : *enemies)
 		{
 			float allSounds = 0.0f;
@@ -482,42 +481,64 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
 
-							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
+							
+							if (RipExtern::g_rayListener->hasRayHit(m_audioRaysIds))
 							{
-								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_audioRaysIds);
 								RayCastListener::RayContact* c;
+																
 								for (int i = 0; i < ray->getNrOfContacts(); i++)
 								{
 									c = ray->GetRayContact(i);
 									std::string tag = c->contactShape->GetBody()->GetObjectTag();
-									if (tag == "WORLD" || tag == "NULL")
-									{
-										occ *= 0.15f;
-									}
+									
+									if (tag == "BANNER")
+										occ *= 0.9f;
+									else if (tag == "BOOKSHELF")
+										occ *= 0.4f;
+									else if (tag == "THICKWALL")
+										occ *= 0.03f;
+									else if (tag == "THINWALL")
+										occ *= 0.06f;
+									else if (tag == "STATICROOMFLOOR")
+										occ *= 0.0f;
+									else if (tag == "PILLARLOW")
+										occ *= 0.03f;
+									else if (tag == "KEG")
+										occ *= 0.5f;
 									else if (tag == "BLINK_WALL")
-									{
-										occ *= 0.50f;
-									}
+										occ *= 0.12f;
+									else if (tag == "WOODENFLOOR")
+										occ *= 0.5f;
+									else if (tag == "COLLISIONBOXASPROP")
+										occ *= 0.01f;
+									else if (tag == "FLOOR")
+										occ *= 0.0f;
+									else if (tag == "WALL")
+										occ *= 0.05f;
+									else if (tag == "CRATE" || tag == "BARREL")
+										occ *= 0.75f;
 								}
 							}
-
+							
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
 								DirectX::XMFLOAT4A soundDirNormalized;
 								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
 
-								if(m_rayId == -100)
-									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+								if(m_audioRaysIds == -100)
+									m_audioRaysIds = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
 							}
 							
 
-							float volume = sd->loudness;;
+							float volume = sd->loudness;
 							
 							volume *= 100.0f;
-							
+
 							volume *= occ;
+
 							float addThis = (volume / (lengthSquared * 3));
-							
+						
 
 							//Pro Tip: Not putting break in a case will not stop execution, 
 							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
@@ -548,15 +569,17 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					}
 				}
 
+			
 				sl.percentage = playerSounds / allSounds;
 				e->setSoundLocation(sl);
+			
 			}
 			else
 			{
 				sl.soundPos = { 0,0,0 };
 				e->setSoundLocation(sl);
 			}
-			counter++;
+
 		}
 	}
 }
