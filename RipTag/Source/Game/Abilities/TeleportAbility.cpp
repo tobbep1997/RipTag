@@ -61,6 +61,15 @@ void TeleportAbility::Init()
 
 void TeleportAbility::Update(double deltaTime)
 {
+	if (m_tpState == TeleportState::Teleportable ||m_tpState == TeleportState::RemoteActive)
+	{
+		BaseActor::Update(deltaTime);
+		_updateLight();
+	}
+	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
+		_logicLocal(deltaTime);
+	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
+
 	ContactListener::S_Contact contact;
 	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
@@ -74,15 +83,6 @@ void TeleportAbility::Update(double deltaTime)
 			}
 		}
 	}
-	if (m_tpState == TeleportState::Teleportable ||m_tpState == TeleportState::RemoteActive)
-	{
-		BaseActor::Update(deltaTime);
-		_updateLight();
-	}
-	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
-		_logicLocal(deltaTime);
-	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
-
 
 }
 
@@ -323,6 +323,8 @@ void TeleportAbility::_inStateTeleportable()
 
 			FMOD_VECTOR at = FMOD_VECTOR{ position.x, position.y, position.z }; 
 			AudioEngine::PlaySoundEffect(RipSounds::g_teleport, &at)->setVolume(0.8f); 
+
+			this->setPosition(-999, -999, -999); 
 		}
 
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
