@@ -811,27 +811,27 @@ void Enemy::_onInteract()
 {
 	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
 	{
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
-		RayCastListener::RayContact* con;
-		for (int i = 0; i < ray->getNrOfContacts(); i++)
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
+		RayCastListener::RayContact& con = ray.GetRayContact(0);
+		for (int i = 0; i < ray.getNrOfContacts(); i++)
 		{
-			con = ray->GetRayContact(i);
-			if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
+			con = ray.GetRayContact(i);
+			if (ray.getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+				if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
 				{
 					//do the pickups
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 				{
-					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					static_cast<Lever*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
-					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					static_cast<Torch*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
 					//Snuff out torches (example)
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
 
 					//std::cout << "Enemy Found!" << std::endl;

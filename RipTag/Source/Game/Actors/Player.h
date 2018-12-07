@@ -57,6 +57,7 @@ private:
 	const float SPRINT_MULT = 1.8f;
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
+	const float OBJECT_INFO_RANGE = 10.0f;
 
 	const std::string PlayerOneHUDPath = "../Assets/Player1HUD.txt";
 	const std::string PlayerTwoHUDPath = "../Assets/Player2HUD.txt";
