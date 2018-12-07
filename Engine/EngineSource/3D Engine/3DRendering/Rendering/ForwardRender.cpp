@@ -162,6 +162,24 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		DX::SetName(m_particleDepthStencilState, "m_particleDepthStencilState");
 	}
 
+	for (unsigned int i = 0; i < m_bufferLenght; ++i)
+	{
+		ID3D11Buffer * buf;
+		D3D11_BUFFER_DESC instBuffDesc;
+		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+		instBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+		instBuffDesc.ByteWidth = m_bufferSize;
+		instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		instBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		HRESULT hr;
+		if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, NULL, &buf)))
+		{
+			DX::SetName(buf, "instanceBuffer");
+		}
+		m_bufferVec.push_back(buf);
+	}
+
 }
 
 void ForwardRender::GeometryPass(Camera & camera)
@@ -545,6 +563,11 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_screenShootTex);
 	DX::SafeRelease(m_screenShootSRV);
 
+	for (unsigned int i = 0; i < m_bufferVec.size(); ++i)
+	{
+		DX::SafeRelease(m_bufferVec.at(i));
+	}
+
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
@@ -632,25 +655,26 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 	   
 	size_t instanceGroupSize = g_temp.size();
 	size_t attributeSize = 0;
-	ID3D11Buffer * instanceBuffer;
+	
 	for (size_t group = 0; group < instanceGroupSize; group++)
 	{
 		GROUP instance = g_temp.at(group);
-
-		D3D11_BUFFER_DESC instBuffDesc;
-		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
-		instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
-		instBuffDesc.ByteWidth = sizeof(OBJECT) * (UINT)instance.attribs.size();
-		instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		ID3D11Buffer * instanceBuffer = m_bufferVec.at(group);
+		
 
 		D3D11_SUBRESOURCE_DATA instData;
 		memset(&instData, 0, sizeof(instData));
 		instData.pSysMem = instance.attribs.data();
 		HRESULT hr;
-		if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer)))
-		{
-			DX::SetName(instanceBuffer, "instanceBuffer");
-		}
+
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		void* dataPtr;
+		DX::g_deviceContext->Map(instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		dataPtr = (void*)mappedResource.pData;
+		memcpy(dataPtr, instance.attribs.data(), sizeof(OBJECT) * (UINT)instance.attribs.size());
+		DX::g_deviceContext->Unmap(instanceBuffer, 0);
+
+		//DX::g_deviceContext->UpdateSubresource(instanceBuffer, 0, nullptr, instance.attribs.data(), 0, 0);
 		//We copy the data into the attribute part of the layout.
 		// makes instancing special
 
@@ -685,7 +709,7 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 			instance.attribs.size(),
 			0U,
 			0U);
-		DX::SafeRelease(instanceBuffer);
+		//DX::SafeRelease(instanceBuffer);
 	}
 	g_temp.clear();
 }

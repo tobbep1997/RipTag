@@ -79,16 +79,23 @@ PlayState::~PlayState()
 	delete RipExtern::g_particleSystem;
 	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
+
+	fps.close();
 }
 
 void PlayState::Update(double deltaTime)
 {
 	//Cheat update
+	//fps << deltaTime << std::endl;
+
 	{
 		Cheet::g_visabilityDisabled = CheatParser::GetVisabilityDisabled();
 		Cheet::g_DBG_CAM = CheatParser::GetDBG_CAM();
 	}
 
+	
+
+	
 
 	int counter = 0;
 	if (runGame)
@@ -436,7 +443,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		RipExtern::g_rayListener->ShotRays();
+		RipExtern::g_rayListener->ShootRays();
 		m_physThreadRun.unlock();
 		//m_physRunning = false;
 	}
@@ -473,6 +480,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					FMOD_RESULT res = c->getUserData((void**)&sd);
 					if (res == FMOD_OK && sd != nullptr)
 					{
+						if (sd->emitter == AudioEngine::Enemy && e == sd->owner)
+							continue;
+
 						FMOD_VECTOR soundPos;
 						if (c->get3DAttributes(&soundPos, nullptr) == FMOD_OK)
 						{
@@ -480,57 +490,47 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
-
-							
-							if (RipExtern::g_rayListener->hasRayHit(m_audioRaysIds))
-							{
-								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_audioRaysIds);
-								RayCastListener::RayContact* c;
-																
-								for (int i = 0; i < ray->getNrOfContacts(); i++)
-								{
-									c = ray->GetRayContact(i);
-									std::string tag = c->contactShape->GetBody()->GetObjectTag();
-									
-									if (tag == "BANNER")
-										occ *= 0.9f;
-									else if (tag == "BOOKSHELF")
-										occ *= 0.4f;
-									else if (tag == "THICKWALL")
-										occ *= 0.03f;
-									else if (tag == "THINWALL")
-										occ *= 0.06f;
-									else if (tag == "STATICROOMFLOOR")
-										occ *= 0.0f;
-									else if (tag == "PILLARLOW")
-										occ *= 0.03f;
-									else if (tag == "KEG")
-										occ *= 0.5f;
-									else if (tag == "BLINK_WALL")
-										occ *= 0.12f;
-									else if (tag == "WOODENFLOOR")
-										occ *= 0.5f;
-									else if (tag == "COLLISIONBOXASPROP")
-										occ *= 0.01f;
-									else if (tag == "FLOOR")
-										occ *= 0.0f;
-									else if (tag == "WALL")
-										occ *= 0.05f;
-									else if (tag == "CRATE" || tag == "BARREL")
-										occ *= 0.75f;
-								}
-							}
-							
+							RayCastListener::Ray ray;
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
-								DirectX::XMFLOAT4A soundDirNormalized;
-								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
-
-								if(m_audioRaysIds == -100)
-									m_audioRaysIds = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+								DirectX::XMFLOAT4A xmSoundPos = {soundPos.x, soundPos.y, soundPos.z, 1.0f};
+								ray = RipExtern::g_rayListener->ShootAudioRay(e->getBody(), ePos, xmSoundPos);
+							}
+								
+							for (int i = 0; i < ray.getNrOfContacts(); i++)
+							{
+								const RayCastListener::RayContact & c = ray.GetRayContact(i);
+								std::string tag = c.contactShape->GetBody()->GetObjectTag();
+									
+								if (tag == "BANNER")
+									occ *= 0.9f;
+								else if (tag == "BOOKSHELF")
+									occ *= 0.4f;
+								else if (tag == "THICKWALL")
+									occ *= 0.03f;
+								else if (tag == "THINWALL")
+									occ *= 0.06f;
+								else if (tag == "STATICROOMFLOOR")
+									occ *= 0.0f;
+								else if (tag == "PILLARLOW")
+									occ *= 0.03f;
+								else if (tag == "KEG")
+									occ *= 0.5f;
+								else if (tag == "BLINK_WALL")
+									occ *= 0.12f;
+								else if (tag == "WOODENFLOOR")
+									occ *= 0.5f;
+								else if (tag == "COLLISIONBOXASPROP")
+									occ *= 0.01f;
+								else if (tag == "FLOOR")
+									occ *= 0.0f;
+								else if (tag == "WALL")
+									occ *= 0.05f;
+								else if (tag == "CRATE" || tag == "BARREL")
+									occ *= 0.75f;
 							}
 							
-
+							
 							float volume = sd->loudness;
 							
 							volume *= 100.0f;
@@ -554,11 +554,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 									sl.soundPos.z = soundPos.z;
 								}
 								break;
-							case AudioEngine::Enemy:
-								if (e != sd->owner)
-								{
-									allSounds += addThis;
-								}
+							case AudioEngine::Enemy:	
+								allSounds += addThis;
 								break;
 							case AudioEngine::RemotePlayer:
 							case AudioEngine::Other:
@@ -851,6 +848,7 @@ void PlayState::Load()
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
 
+	fps.open("fpsData.txt");
 	//phy.open("physData.txt");
 	
 	if (isCoop)

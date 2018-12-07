@@ -135,6 +135,10 @@ private:
 	ID3D11RenderTargetView * m_screenShootRender;
 	ID3D11Texture2D * m_screenShootTex;
 	ID3D11ShaderResourceView * m_screenShootSRV;
+
+	std::vector<ID3D11Buffer *> m_bufferVec;
+	UINT m_bufferSize = 100000;
+	UINT m_bufferLenght = 70;
 	
 public:
 	ForwardRender();
