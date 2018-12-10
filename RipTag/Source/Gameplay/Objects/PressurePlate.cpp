@@ -54,14 +54,18 @@ void PressurePlate::Update(double deltaTime)
 				if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this ||
 					static_cast<PressurePlate*>(shapeB->GetBody()->GetUserData()) == this)
 				{
-					if (this->getTriggerState())
+					if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
 					{
-						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-							this->setTriggerState(false, true, "ENEMY");
-						else
-							this->setTriggerState(false);
-						this->SendOverNetwork();
+						m_objects--;
+						if (m_objects < 0)
+							m_objects = 0;
 					}
+					else
+					{
+						m_objects--;
+						if (m_objects < 0)
+							m_objects = 0;
+					}					
 				}
 			}
 	}
@@ -89,21 +93,37 @@ void PressurePlate::Update(double deltaTime)
 						if (static_cast<PressurePlate*>(bodyA->GetUserData()) == this ||
 							static_cast<PressurePlate*>(bodyB->GetUserData()) == this)
 						{
-							if (!this->getTriggerState())
+							//if (!this->getTriggerState())
+							//{
+							if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
 							{
-								if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-									this->setTriggerState(true, true, "ENEMY");
-								else
-									this->setTriggerState(true);
-								this->SendOverNetwork();
+								m_lastPressed = "ENEMY";
+								m_objects++;
 							}
+							else
+							{
+								m_lastPressed = "PLAYER";
+								m_objects++;
+							}
+							//}
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
+	if (m_objects == 1)
+	{
+		this->setTriggerState(true, true, m_lastPressed);
+		this->SendOverNetwork();
+	}
+	else if (m_objects <= 0)
+	{
+		this->setTriggerState(false, true, m_lastPressed);
+		this->SendOverNetwork();
+	}
+
 
 	//If previous state was true, but the new state is false no one is one the plate locally
 	//if (previousState && !this->getTriggerState())

@@ -4,7 +4,8 @@
 class PressurePlate : public Trigger
 {
 private:
-	std::vector<std::string> m_objects;
+	int m_objects = 0;
+	std::string m_lastPressed;
 public:
 	PressurePlate();
 	PressurePlate(int uniqueId, int linkedID, bool isTrigger);

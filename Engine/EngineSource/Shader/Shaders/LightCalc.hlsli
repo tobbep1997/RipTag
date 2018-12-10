@@ -364,7 +364,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         */
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     } 
-    return float4(normal, 1);
+    //return float4(normal, 1);
     //----------------------------------------------------------------
     /*
         Don't touch the magic varibles
