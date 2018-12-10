@@ -21,8 +21,19 @@ void MainMenu::Update(double deltaTime)
 
 	if (!_handleMouseInput())
 	{
-		_handleGamePadInput(deltaTime);
-		_handleKeyboardInput();
+		if (_handleGamePadInput(deltaTime) == false && m_gamePadInUse == false)
+		{
+			_handleKeyboardInput();
+			_handleMousePP();
+		}
+		else
+		{
+			m_gamePadInUse = true;
+		}
+	}
+	else
+	{
+		m_gamePadInUse = false;
 	}
 
 	//Check if we have the current button pressed, if so determine which one and do the thing
@@ -186,8 +197,9 @@ bool MainMenu::_handleMouseInput()
 	return true;
 }
 
-void MainMenu::_handleGamePadInput(float deltaTime)
+bool MainMenu::_handleGamePadInput(float deltaTime)
 {
+	bool used = false;
 	if (Input::isUsingGamepad())
 	{
 		m_stickTimer += deltaTime; 
@@ -203,6 +215,8 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 #endif
 			else
 				m_currentButton--;
+
+			used = true;
 		}
 		else if (GamePadHandler::IsDownDpadPressed())
 		{
@@ -212,6 +226,7 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 			if (m_currentButton == 0)
 				m_currentButton++;
 #endif
+			used = true;
 		}
 
 		if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimer > 0.2f)
@@ -221,13 +236,15 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 			else
 				m_currentButton--;
 
-			m_stickTimer = 0; 
+			m_stickTimer = 0;
+			used = true;
 		}
 		else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimer > 0.2f)
 		{
 			m_currentButton++; 
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
-			m_stickTimer = 0; 
+			m_stickTimer = 0;
+			used = true;
 		}
 
 
@@ -239,9 +256,11 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 		{
 			if (m_buttons[m_currentButton]->isSelected())
 				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+
+			used = true;
 		}
 	}
-
+	return used;
 }
 
 void MainMenu::_handleKeyboardInput()
@@ -308,6 +327,44 @@ void MainMenu::_resetButtons()
 		button->setState(ButtonStates::Normal);
 	}
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+}
+
+void MainMenu::_handleMousePP()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+#ifdef _DEPLOY
+		if (i == 0)
+			continue;
+#endif
+		if (m_buttons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_buttons[i]->Select(true);
+			m_buttons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_buttons[i]->isReleased(mousePos))
+				m_buttons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_buttons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_buttons[j]->Select(false);
+					m_buttons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
 }
 
 void MainMenu::Load()
