@@ -22,7 +22,7 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
 {
     PatchTess pt = (PatchTess)0;
     
-    float tessFactor = 50;
+    float tessFactor = 1000;
 
 
     // Average tess factors along edges, and pick an edge tess factor for 
@@ -34,9 +34,9 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
     //pt.EdgeTess[1] = 0.5f * (patch[2].TessFactor + patch[0].TessFactor);
     //pt.EdgeTess[2] = 0.5f * (patch[0].TessFactor + patch[1].TessFactor);
 
-    pt.EdgeTess[0] = 0.5f * (tessFactor * 2);
-    pt.EdgeTess[1] =  0.5f *(tessFactor * 2);
-    pt.EdgeTess[2] = 0.5f * (tessFactor * 2);
+    pt.EdgeTess[0] = 0.5f * (tessFactor * 2.0f);
+    pt.EdgeTess[1] = 0.5f * (tessFactor * 2.0f);
+    pt.EdgeTess[2] = 0.5f * (tessFactor * 2.0f);
     pt.InsideTess = tessFactor;
     
     return pt;

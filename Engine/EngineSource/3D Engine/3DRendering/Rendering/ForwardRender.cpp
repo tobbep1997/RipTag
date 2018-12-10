@@ -272,7 +272,7 @@ void ForwardRender::PrePass(Camera & camera)
 		}
 	}
 	delete bf;
-	DrawInstancedCull(&camera, false);
+	DrawInstancedCullWithTes(&camera, false);
 
 
 
@@ -829,8 +829,14 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl"), nullptr, 0);
 				DX::g_deviceContext->HSSetShader(DX::g_shaderManager.GetShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/HullShader.hlsl"), nullptr, 0);
 				DX::g_deviceContext->DSSetShader(DX::g_shaderManager.GetShader<ID3D11DomainShader>(L"../Engine/EngineSource/Shader/TessShaders/DomainShader.hlsl"), nullptr, 0);
-				DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
+			}
+			else
+			{
+				DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
+				DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+				DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 			}
 
 		}
@@ -841,8 +847,6 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
 			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 			DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
-			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 		}
 		//-----------------------------------------------------------
 

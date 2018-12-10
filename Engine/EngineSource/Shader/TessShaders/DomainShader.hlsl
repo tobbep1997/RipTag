@@ -65,7 +65,7 @@ VS_OUTPUT DS(PatchTess patchTess,
         float h = length(displacementMap.SampleLevel(defaultSampler, dout.uv, 0).rbg);
 
         // Offset vertex along normal.
-        dout.worldPos += (0.04f * h) * dout.normal;
+        dout.worldPos += (0.06f * h) * dout.normal;
     }
     else
     {
