@@ -63,7 +63,7 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
 
 #ifndef _DEPLOY
-	//DBG();
+	DBG();
 #endif
 	
 
