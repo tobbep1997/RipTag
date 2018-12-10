@@ -113,14 +113,20 @@ void PressurePlate::Update(double deltaTime)
 		}
 	}
 
-	if (m_objects == 1)
+	if (m_objects >= 1)
 	{
-		this->setTriggerState(true, true, m_lastPressed);
+		if (m_lastPressed == "PLAYER")
+			this->setTriggerState(true);
+		else
+			this->setTriggerState(true, true, "ENEMY");
 		this->SendOverNetwork();
 	}
 	else if (m_objects <= 0)
 	{
-		this->setTriggerState(false, true, m_lastPressed);
+		if (m_lastPressed == "PLAYER")
+			this->setTriggerState(false);
+		else
+			this->setTriggerState(false, true, "ENEMY");
 		this->SendOverNetwork();
 	}
 
