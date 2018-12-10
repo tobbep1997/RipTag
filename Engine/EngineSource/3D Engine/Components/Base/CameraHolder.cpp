@@ -35,9 +35,9 @@ double CameraHolder::p_viewBobbing(double deltaTime, double moveSpeed, b3Body * 
 
 	if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 	{
-		RayCastListener::Ray * ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 		XMFLOAT4A point;
-		b3Vec3 vec = ray->getClosestContact()->contactPoint;
+		b3Vec3 vec = ray.getClosestContact().contactPoint;
 		if (!(vec.x == 0 && vec.y == 0 && vec.z == 0))
 		{
 			point = { vec.x, vec.y, vec.z, 1.0f };

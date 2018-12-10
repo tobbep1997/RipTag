@@ -86,9 +86,11 @@ private:
 	bool m_physicsFirstRun = true;
 	const double	UPDATE_TIME = 1.0 / 60.0;
 	double			m_timer = 0.0f;
-	int m_rayId = -100;
+	int m_audioRaysIds = -100;
 
 	std::mutex m_physThreadRun;
+
+	std::ofstream fps;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();

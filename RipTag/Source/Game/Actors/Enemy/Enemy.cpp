@@ -49,7 +49,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
 	CreateShape(b3Vec3(0, pos.y*0.70, 0), b3Vec3(pos.x / 2, pos.y / 2, pos.z / 2), 1.0f, 1.0f, "UPPERBODY");
-	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(1.f, 1.f, 1.f), 1.0f, 1.0f, "HEAD", true);
+	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(0.3f, 0.35f, 0.3f), 1.0f, 1.0f, "HEAD", true);
 	m_standHeight = (pos.y*1.5);
 	m_crouchHeight = pos.y * 0.70;
 	setUserDataBody(this);
@@ -811,27 +811,27 @@ void Enemy::_onInteract()
 {
 	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
 	{
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
-		RayCastListener::RayContact* con;
-		for (int i = 0; i < ray->getNrOfContacts(); i++)
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
+		RayCastListener::RayContact& con = ray.GetRayContact(0);
+		for (int i = 0; i < ray.getNrOfContacts(); i++)
 		{
-			con = ray->GetRayContact(i);
-			if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
+			con = ray.GetRayContact(i);
+			if (ray.getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+				if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
 				{
 					//do the pickups
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 				{
-					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					static_cast<Lever*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
-					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					static_cast<Torch*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
 					//Snuff out torches (example)
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
 
 					//std::cout << "Enemy Found!" << std::endl;
@@ -1009,10 +1009,6 @@ void Enemy::_CheckPlayer(double deltaTime)
 		if (lengthToTarget < m_lengthToPlayerSpan)
 		{
 			visPerc *= 1.5;
-		}
-		if (getAIState() == High_Alert)
-		{
-			visPerc *= 1.2;
 		}
 
 		if (visPerc > 0)

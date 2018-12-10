@@ -126,6 +126,12 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_SMOKE_DETONATE:
 		this->_onNetworkSmokeDetonate(data);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_BLINK:
+		this->_onNetworkBlink(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_TELEPORT:
+		this->_onNetworkUseTeleport(id);
+		break;
 	default:
 		break;
 	}
@@ -153,6 +159,32 @@ void RemotePlayer::Update(double dt)
 	//4.
 	if (pNetwork->isServer())
 		_sendVisibilityPacket();
+
+	if (this->getDestroyState())
+	{
+		if (this->getTypeOfAbilityUsed().x == 1)
+		{
+			this->setDestructionRate(ConstTimer::g_blinkTimer.GetTime());
+			if (ConstTimer::g_blinkTimer.GetTime() > 1.0f)
+			{
+				this->setDestroyState(false);
+				this->setDestructionRate(0);//after
+				ConstTimer::g_blinkTimer.Stop();
+				ConstTimer::g_blinkTimer.Start();
+			}
+		}
+		if (this->getTypeOfAbilityUsed().x == 2)
+		{
+			this->setDestructionRate(ConstTimer::g_teleportTimer.GetTime());
+			if (ConstTimer::g_teleportTimer.GetTime() > 1.0f)
+			{
+				this->setDestroyState(false);
+				this->setDestructionRate(0);//after
+				ConstTimer::g_teleportTimer.Stop();
+				ConstTimer::g_teleportTimer.Start();
+			}
+		}
+	}
 }
 
 void RemotePlayer::Draw()
@@ -225,6 +257,7 @@ void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 	{
 		m_currentAbility = (Ability)data->ability;
 		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
+		
 	}
 	else if (data->isCommonUpadate)
 	{
@@ -241,8 +274,6 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentPitch = data->pitch;
 		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
-
-		std::cout << m_currentSpeed << std::endl;
 	}
 }
 
@@ -251,6 +282,24 @@ void RemotePlayer::_sendVisibilityPacket()
 	//Network::VISIBILITYPACKET packet;
 	//packet.value = m_currentVisibility;
 	/*Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), LOW_PRIORITY);*/
+}
+
+
+void RemotePlayer::_onNetworkBlink(unsigned char id)
+{
+	this->setTypeOfAbilityUsed(1);
+	this->setDestroyState(true);
+	this->setLastTransform(this->getWorldmatrix());
+	ConstTimer::g_blinkTimer.Stop();
+	ConstTimer::g_blinkTimer.Start();
+}
+void RemotePlayer::_onNetworkUseTeleport(unsigned char id)
+{
+	this->setTypeOfAbilityUsed(2);
+	this->setDestroyState(true);
+	this->setLastTransform(this->getWorldmatrix());
+	ConstTimer::g_teleportTimer.Stop();
+	ConstTimer::g_teleportTimer.Start();
 }
 
 

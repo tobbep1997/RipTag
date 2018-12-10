@@ -39,6 +39,8 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_CROUCH_END, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_WON, std::bind(&PlayerManager::_onRemotePlayerWonPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_SMOKE_DETONATE, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_BLINK, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_TELEPORT, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 }
 
 void PlayerManager::_onRemotePlayerPacket(unsigned char id, unsigned char * data)

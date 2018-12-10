@@ -207,7 +207,7 @@ void PauseMenu::_initButtons()
 
 		float xPos = ((((float)m_fov - (float)MIN_MAX_FOV.x) * (MIN_MAX_SLIDE_GENERAL.y - MIN_MAX_SLIDE_GENERAL.x)) / ((float)MIN_MAX_FOV.y - (float)MIN_MAX_FOV.x) + MIN_MAX_SLIDE_GENERAL.x);
 
-		m_buttonsOptions.push_back(Quad::CreateButton("", 0.2, 0.79f, 0.04f, 0.10f));
+		m_buttonsOptions.push_back(Quad::CreateButton("", xPos, 0.79f, 0.04f, 0.10f));
 		m_buttonsOptions[ButtonOrderOptions::SliderFovButton]->setUnpressedTexture("gui_slider_button");
 		m_buttonsOptions[ButtonOrderOptions::SliderFovButton]->setPressedTexture("gui_slider_button");
 		m_buttonsOptions[ButtonOrderOptions::SliderFovButton]->setHoverTexture("gui_slider_button");

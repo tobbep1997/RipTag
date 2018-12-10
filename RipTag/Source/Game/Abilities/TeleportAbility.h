@@ -71,6 +71,6 @@ private:
 	void _inStateCharging(double dt);
 	void _inStateTeleportable();
 	void _inStateCooldown(double dt);
-
+	void _sendTeleportPacket();
 	void _updateLight();
 };

@@ -70,6 +70,20 @@ void TeleportAbility::Update(double deltaTime)
 		_logicLocal(deltaTime);
 	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
 
+	ContactListener::S_Contact contact;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	{
+		contact = RipExtern::g_contactListener->GetBeginContact(i);
+		if (contact.a->GetBody()->GetObjectTag() == "TELEPORT" || contact.b->GetBody()->GetObjectTag() == "TELEPORT")
+		{
+			if (!contact.a->IsSensor() && !contact.b->IsSensor())
+			{
+				FMOD_VECTOR at = FMOD_VECTOR{ this->p_position.x, this->p_position.y, this->p_position.z };
+				AudioEngine::PlaySoundEffect(RipSounds::g_teleportHit, &at)->setVolume(0.6f);
+			}
+		}
+	}
+
 }
 
 void TeleportAbility::UpdateFromNetwork(Network::ENTITYABILITYPACKET * data)
@@ -221,7 +235,7 @@ void TeleportAbility::_inStateCharging(double dt)
 
 		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+			RayCastListener::Ray ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
@@ -237,6 +251,7 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		else if (Input::OnAbilityReleased())
 		{
+			
 			if (Multiplayer::GetInstance()->isConnected())
 			{
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
@@ -285,27 +300,33 @@ void TeleportAbility::_inStateTeleportable()
 		if (m_rayId != -100 || m_rayId2 != -100)
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
-			RayCastListener::Ray* ray = nullptr;
-			RayCastListener::RayContact* con = nullptr;
+			RayCastListener::Ray& ray = RipExtern::g_rayListener->GetProcessedRay(RipExtern::g_rayListener->MAX_RAYS-1);
+			RayCastListener::RayContact& con = ray.GetRayContact(ray.MAX_CONTACTS-1);
 			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 			{
 				ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 				m_rayId2 = -100;
-				con = ray->getClosestContact();
-				position.x += con->normal.x;
-				position.y += con->normal.y;
-				position.z += con->normal.z;
+				con = ray.getClosestContact();
+				position.x += con.normal.x;
+				position.y += con.normal.y;
+				position.z += con.normal.z;
 			}
 			else if (RipExtern::g_rayListener->hasRayHit(m_rayId2))
 			{
 				ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId2);
-				con = ray->getClosestContact();
-				position.x += con->normal.x;
-				position.y += con->normal.y;
-				position.z += con->normal.z;
+				con = ray.getClosestContact();
+				position.x += con.normal.x;
+				position.y += con.normal.y;
+				position.z += con.normal.z;
 			}
+			_sendTeleportPacket();
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 			m_tpState = TeleportAbility::Cooldown;
+
+			FMOD_VECTOR at = FMOD_VECTOR{ position.x, position.y, position.z }; 
+			AudioEngine::PlaySoundEffect(RipSounds::g_teleport, &at)->setVolume(0.8f); 
+
+			this->setPosition(-999, -999, -999); 
 		}
 
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
@@ -345,6 +366,12 @@ void TeleportAbility::_inStateCooldown(double dt)
 		p_cooldown = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
+}
+
+void TeleportAbility::_sendTeleportPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_TELEPORT);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void TeleportAbility::_updateLight()

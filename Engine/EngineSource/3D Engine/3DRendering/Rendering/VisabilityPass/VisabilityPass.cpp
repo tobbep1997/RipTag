@@ -31,24 +31,11 @@ void VisabilityPass::Init()
 
 void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardRender * forwardRender, Animation::AnimationCBuffer * animBuffer)
 {
-	DX::g_deviceContext->OMSetRenderTargets(1, &m_guardRenderTargetView, m_guardDepthStencil);
 	
 	float c[4] = { 0,0,0,0 };
 	DX::g_deviceContext->ClearRenderTargetView(m_guardRenderTargetView, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_guardDepthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-	//	0,
-	//	nullptr,
-	//	nullptr,
-	//	//NULL,
-	//	0, 0, nullptr, 0
-	//);
-	//DX::g_deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 
-
-
-
-	// Static Objects
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(STATIC_VERTEX_SHADER_PATH));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(DEPTH_PRE_PASS_STATIC_VERTEX_SHADER_PATH), nullptr,0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -89,36 +76,6 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 			emitter->Draw();
 		}
 	}
-
-	/*for (unsigned int i = 0; i < DX::g_geometryQueue.size(); i++)
-	{
-		if (DX::g_geometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_geometryQueue[i]->getEntityType() != EntityType::ExcludeType)
-		{
-			_mapObjectBuffer(DX::g_geometryQueue[i]);
-			ID3D11Buffer * vertexBuffer = DX::g_geometryQueue[i]->getBuffer();
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_geometryQueue[i]->getVertexSize(), 0);
-		}
-	}
-	if (animBuffer && !DX::g_animatedGeometryQueue.empty())
-	{
-		UINT32 vertexSize = sizeof(DynamicVertex);
-		UINT32 offset = 0;
-		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DYNAMIC_VERTEX_SHADER_PATH));
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DEPTH_PRE_PASS_DYNAMIC_VERTEX_SHADER_PATH), nullptr, 0);
-		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
-		{
-			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::PlayerType && DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::ExcludeType)
-			{
-				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
-				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
-				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-			}
-
-		}
-	}*/
 }
 
 void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
@@ -129,7 +86,6 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 		1,
 		&m_guardRenderTargetView,
 		nullptr,
-		//NULL,
 		1, 1, &l_uav, 0
 	);
 
@@ -142,84 +98,7 @@ void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animat
 	DX::g_deviceContext->PSSetShaderResources(10, 1, &m_guardShaderResource);
 
 	_drawForPlayer(DX::g_player, target, 0);
-	/*if (DX::g_remotePlayer)
-		_drawForPlayer(DX::g_remotePlayer, target, 1);*/
-
-
-	//UINT32 vertexSize = sizeof(StaticVertex);
-	//UINT32 offset = 0;
-
-	//int playerIndex = 0;
-
-	//// Player
-	//	//-----------------------------------------------	Player input layout slot 1
-	//	DX::INSTANCING::OBJECT player_object{};
-	//	player_object.worldMatrix = DX::g_player->getWorldmatrix();
-	//	player_object.objectColor = DX::g_player->getColor();
-	//	player_object.textureTileMult = DirectX::XMFLOAT4A(DX::g_player->getTextureTileMult().x, DX::g_player->getTextureTileMult().y, 0, 0);
-	//	player_object.usingTexture.x = DX::g_player->isTextureAssigned();
-	//	//-----------------------------------------------
-
-
-	//	//-----------------------------------------------	Important buffers
-	//	ID3D11Buffer * instanceBuffer;
-	//	D3D11_BUFFER_DESC instBuffDesc;
-	//	memset(&instBuffDesc, 0, sizeof(instBuffDesc));
-	//	instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
-	//	instBuffDesc.ByteWidth = sizeof(DX::INSTANCING::OBJECT);
-	//	instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	//	D3D11_SUBRESOURCE_DATA instData;
-	//	memset(&instData, 0, sizeof(instData));
-	//	instData.pSysMem = &player_object;
-	//	HRESULT hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer);
-
-	//	//_mapObjectBuffer(DX::g_geometryQueue[i]);
-	//	ID3D11Buffer * inputBuffers[2];
-	//	inputBuffers[0] = DX::g_player->getBuffer();
-	//	inputBuffers[1] = instanceBuffer;
-
-	//	unsigned int strides[2];
-	//	strides[0] = sizeof(StaticVertex);
-	//	strides[1] = sizeof(DX::INSTANCING::OBJECT);
-
-	//	unsigned int offsets[2];
-	//	offsets[0] = 0;
-	//	offsets[1] = 0;
-	//	//-----------------------------------------------
-	//	DX::g_player->BindTextures();
-	//	//-----------------------------------------------
-	//	DX::g_deviceContext->IASetVertexBuffers(0, 2, inputBuffers, strides, offsets);
-	//	DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
-	//	target->CalculateVisabilityFor(playerIndex++);
-	//	//-----------------------------------------------
-	//	DX::SafeRelease(instanceBuffer);
-	// Remote
-
-
-
-
-	/*if (animBuffer && !DX::g_animatedGeometryQueue.empty())
-	{
-		UINT32 vertexSize = sizeof(DynamicVertex);
-		UINT32 offset = 0;
-		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(DYNAMIC_VERTEX_SHADER_PATH));
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.LoadShader<ID3D11VertexShader>(DYNAMIC_VERTEX_SHADER_PATH), nullptr, 0);
-		for (unsigned int i = 0; i < DX::g_animatedGeometryQueue.size(); i++)
-		{
-			if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::PlayerType)
-			{
-				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
-				_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				_mapSkinningBuffer(DX::g_animatedGeometryQueue[i], animBuffer);
-				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
-				target->CalculateVisabilityFor(playerIndex++);
-			}
-
-		}
-	}*/
-	//DX::g_deviceContext->PSSetShaderResources(10, 0, nullptr);
+	DX::g_deviceContext->Flush();
 }
 
 void VisabilityPass::SetViewportAndRenderTarget()
@@ -380,47 +259,6 @@ void VisabilityPass::_drawForPlayer(Drawable * player, VisibilityComponent * tar
 {
 	UINT32 vertexSize = sizeof(PostAniDynamicVertex);
 	UINT32 offset = 0;
-
-	// Player
-		//-----------------------------------------------	Player input layout slot 1
-	//DX::INSTANCING::OBJECT player_object{};
-	//player_object.worldMatrix = player->getWorldmatrix();
-	//player_object.objectColor = player->getColor();
-	//player_object.textureTileMult = DirectX::XMFLOAT4A(player->getTextureTileMult().x, player->getTextureTileMult().y, 0, 0);
-	//player_object.usingTexture.x = player->isTextureAssigned();
-	//-----------------------------------------------
-
-
-	//-----------------------------------------------	Important buffers
-	//ID3D11Buffer * instanceBuffer;
-	//D3D11_BUFFER_DESC instBuffDesc;
-	//memset(&instBuffDesc, 0, sizeof(instBuffDesc));
-	//instBuffDesc.Usage = D3D11_USAGE_DEFAULT;
-	//instBuffDesc.ByteWidth = sizeof(DX::INSTANCING::OBJECT);
-	//instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	//D3D11_SUBRESOURCE_DATA instData;
-	//memset(&instData, 0, sizeof(instData));
-	//instData.pSysMem = &player_object;
-	//HRESULT hr = DX::g_device->CreateBuffer(&instBuffDesc, &instData, &instanceBuffer);
-
-	////_mapObjectBuffer(DX::g_geometryQueue[i]);
-	//ID3D11Buffer * inputBuffers[2];
-	//inputBuffers[0] = player->getBuffer();
-	//inputBuffers[1] = instanceBuffer;
-
-	//unsigned int strides[2];
-	//strides[0] = sizeof(StaticVertex);
-	//strides[1] = sizeof(DX::INSTANCING::OBJECT);
-
-	//unsigned int offsets[2];
-	//offsets[0] = 0;
-	//offsets[1] = 0;
-	////-----------------------------------------------
-	//player->BindTextures();
-	////-----------------------------------------------
-	//DX::g_deviceContext->IASetVertexBuffers(0, 2, inputBuffers, strides, offsets);
-	//DX::g_deviceContext->Draw(player->getVertexSize(), 0);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
 
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"), nullptr, 0);
@@ -429,16 +267,12 @@ void VisabilityPass::_drawForPlayer(Drawable * player, VisibilityComponent * tar
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 
 	ID3D11Buffer * vertexBuffer = DX::g_player->GetAnimatedVertex();
-
 	_mapObjectBuffer(DX::g_player);
 
 	DX::g_player->BindTextures();
-
 	DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-	//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+
 	DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
 
 	target->CalculateVisabilityFor(playerIndex);
-	//-----------------------------------------------
-	//DX::SafeRelease(instanceBuffer);
 }
