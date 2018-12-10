@@ -41,6 +41,7 @@ private: //stuff for state machine
 
 	std::function<bool()> m_IsMoving = [&]() {return m_currentMoveSpeed > 0.1f; };
 
+	bool m_playAnimation = true; 
 	bool m_IsThrowing = false;
 	bool m_isInAir = false;
 	bool m_headBobbingActive = true; 
@@ -200,6 +201,8 @@ public:
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
 	void setPosition(const DirectX::XMFLOAT4A& pos) override;
+
+	void setPlayAnimation(bool playAnimation); 
 
 	void Draw() override;
 	void DrawHUDComponents();

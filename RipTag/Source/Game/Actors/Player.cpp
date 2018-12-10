@@ -315,6 +315,11 @@ void Player::setPosition(const DirectX::XMFLOAT4A& pos)
 	PhysicsComponent::p_setPosition(pos.x, pos.y, pos.z);
 }
 
+void Player::setPlayAnimation(bool playAnimation)
+{
+	m_playAnimation = playAnimation; 
+}
+
 const bool & Player::getHeadbobbingActive() const
 {
 	return m_headBobbingActive; 
@@ -1267,6 +1272,7 @@ void Player::_updateFirstPerson(float deltaTime)
 	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.23f, -.45)), XMMatrixScaling(.1, .1, .1));
 	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr, XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
 
+	if(m_playAnimation)
 	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
 }
 
