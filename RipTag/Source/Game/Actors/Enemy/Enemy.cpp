@@ -1010,10 +1010,6 @@ void Enemy::_CheckPlayer(double deltaTime)
 		{
 			visPerc *= 1.5;
 		}
-		if (getAIState() == High_Alert)
-		{
-			visPerc *= 1.2;
-		}
 
 		if (visPerc > 0)
 		{
