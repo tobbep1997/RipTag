@@ -19,6 +19,8 @@ PlayerManager::~PlayerManager()
 		Network::Multiplayer::LocalPlayerOnSendMap.clear();
 		delete mLocalPlayer;
 	}
+	DX::g_player = nullptr;
+	DX::g_remotePlayer = nullptr;
 }
 
 void PlayerManager::RegisterThisInstanceToNetwork()
@@ -306,6 +308,7 @@ void PlayerManager::CreateRemotePlayer(DirectX::XMFLOAT4A pos, RakNet::NetworkID
 		this->mRemotePlayer = new RemotePlayer(nid, pos, scale, rot);
 		this->mRemotePlayer->setEntityType(EntityType::RemotePlayerType);
 		hasRemotePlayer = true;
+		DX::g_remotePlayer = mRemotePlayer;
 	}
 }
 
@@ -315,6 +318,7 @@ void PlayerManager::DestroyRemotePlayer()
 		delete mRemotePlayer;
 	mRemotePlayer = nullptr;
 	hasRemotePlayer = false;
+	DX::g_remotePlayer = nullptr;
 }
 
 
