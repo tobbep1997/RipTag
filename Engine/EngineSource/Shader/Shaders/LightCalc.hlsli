@@ -336,7 +336,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     float3 AORoughMet = float3(1, 1, 1);    //ORM
 
     ambient = float4(.09f, .09f, .09f, 1);  //Ambient default
-                                            //We need to set the ambient becouse its and output parameter                                            
+    ambient = float4(.5, .5, .5, 1); //We need to set the ambient becouse its and output parameter                                            
     //----------------------------------------------------------------
     //We flip the v becouse export and shit
     input.uv.y = 1 - input.uv.y;
@@ -364,7 +364,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         */
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     } 
-
+    return float4(normal, 1);
     //----------------------------------------------------------------
     /*
         Don't touch the magic varibles
