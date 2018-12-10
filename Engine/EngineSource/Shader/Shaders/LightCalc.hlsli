@@ -404,7 +404,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         
         //----------------------------------------------------------------
         //  The attenuation is the light dropoff for pointlights
-        attenuation = ((lightDropOff[shadowLight].x) / (1.0f + lightDropOff[shadowLight].y * pow(distanceToLight, lightDropOff[shadowLight].z)));
+        attenuation = ((lightDropOff[shadowLight].x * 1.0f) / (1.0f + lightDropOff[shadowLight].y * pow(distanceToLight, lightDropOff[shadowLight].z)));
         radiance = lightColor[shadowLight] * attenuation;
 		 
         //----------------------------------------------------------------
