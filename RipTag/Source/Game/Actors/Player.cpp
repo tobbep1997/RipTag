@@ -315,6 +315,11 @@ void Player::setPosition(const DirectX::XMFLOAT4A& pos)
 	PhysicsComponent::p_setPosition(pos.x, pos.y, pos.z);
 }
 
+void Player::setPlayAnimation(bool playAnimation)
+{
+	m_playAnimation = playAnimation; 
+}
+
 const bool & Player::getHeadbobbingActive() const
 {
 	return m_headBobbingActive; 
@@ -556,10 +561,11 @@ void Player::SetFirstPersonModel()
 		auto& machine = animPlayer->InitStateMachine(3);
 
 		auto runState = machine->AddLoopState("run", runClip);
-		runState->SetBlendTime(.65f);
+		runState->SetDefaultBlendTime(.65f);
 
 		auto idleState = machine->AddLoopState("idle", idleClip);
-		idleState->SetBlendTime(.25f);
+		idleState->SetDefaultBlendTime(.05f);
+		idleState->SetSpecificBlendTime(runState, 0.3f);
 
 		auto& idleToRun = idleState->AddOutState(runState);
 		auto& runToIdle = runState->AddOutState(idleState);
@@ -567,12 +573,15 @@ void Player::SetFirstPersonModel()
 		runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
 
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
+		throwReadyState->SetDefaultBlendTime(0.1f);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
+		phaseState->SetDefaultBlendTime(0.001f);
 		machine->SetState("idle");
 
 
 		auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
-		throwFinishState->SetBlendTime(0.0f);
+		throwFinishState->SetDefaultBlendTime(0.0f);
+		idleState->SetSpecificBlendTime(throwFinishState, .4f);
 
 		auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
 		auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
@@ -1263,6 +1272,7 @@ void Player::_updateFirstPerson(float deltaTime)
 	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.23f, -.45)), XMMatrixScaling(.1, .1, .1));
 	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr, XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
 
+	if(m_playAnimation)
 	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
 }
 

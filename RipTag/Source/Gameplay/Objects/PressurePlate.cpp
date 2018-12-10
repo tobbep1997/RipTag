@@ -30,8 +30,8 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
 	auto activateState = stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
 	auto deactivateState = stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
-	activateState->SetBlendTime(0.0f);
-	deactivateState->SetBlendTime(0.0f);
+	activateState->SetDefaultBlendTime(0.0f);
+	deactivateState->SetDefaultBlendTime(0.0f);
 	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
@@ -60,11 +60,15 @@ void PressurePlate::Update(double deltaTime)
 					if (DX::g_remotePlayer)
 					{
 						DirectX::XMFLOAT4A remotePlayerPos = DX::g_remotePlayer->getPosition();
-						DirectX::BoundingBox * bb = this->getBoundingBox();
+						b3AABB bb;
+						if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this)
+							shapeA->ComputeAabb(bb, shapeA->GetTransform());
+						else
+							shapeB->ComputeAabb(bb, shapeB->GetTransform());
+						
 						//Put the position into the same x-z plane
-						remotePlayerPos.y = bb->Center.y;
-						DirectX::ContainmentType cType = bb->Contains(DirectX::XMLoadFloat4A(&remotePlayerPos));
-						if (cType == DirectX::ContainmentType::CONTAINS)
+						remotePlayerPos.y = bb.GetCenter().y;
+						if (bb.ContainsPoint(b3Vec3((r32)remotePlayerPos.x, (r32)remotePlayerPos.y, (r32)remotePlayerPos.z)))
 							useTrigger = false;
 					}
 					if (this->getTriggerState() && useTrigger)

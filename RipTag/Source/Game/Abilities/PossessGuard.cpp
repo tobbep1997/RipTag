@@ -137,6 +137,7 @@ void PossessGuard::_hitEnemy()
 					this->m_possessTarget->setEntityType(EntityType::CurrentGuard);
 					this->m_possessTarget->setTransitionState(AITransitionState::BeingPossessed);
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
+					this->m_possessTarget->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
 
 					m_pState = PossessGuard::Possessing;
 					p_cooldown = 0;

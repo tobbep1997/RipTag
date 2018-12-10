@@ -32,6 +32,9 @@ private:
 	AudioEngine::SoundDesc m_soundFootstep;
 
 
+	float m_currentSpeed = 0.0f;
+	float m_currentDirection = 0.0f;
+	bool m_IsPossessedByTeammate = false;
 private:
 	struct AudioVars
 	{
