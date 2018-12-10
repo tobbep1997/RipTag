@@ -184,15 +184,15 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 
 void ForwardRender::GeometryPass(Camera & camera)
 {
-	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	
 	
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
-	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl"));
+	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl"), nullptr, 0);
+	DX::g_deviceContext->HSSetShader(DX::g_shaderManager.GetShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/HullShader.hlsl"), nullptr, 0);
+	DX::g_deviceContext->DSSetShader(DX::g_shaderManager.GetShader<ID3D11DomainShader>(L"../Engine/EngineSource/Shader/TessShaders/DomainShader.hlsl"), nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
@@ -224,9 +224,10 @@ void ForwardRender::GeometryPass(Camera & camera)
 		DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 	}
 	delete bf;
-	DrawInstancedCull(&camera, true);
+	DrawInstancedCullWithTes(&camera, true);
 
-
+	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 }
@@ -506,6 +507,7 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
+	DX::g_deviceContext->DSSetSamplers(1, 1, &m_samplerState);
 	this->AnimationPrePass(camera);
 
 	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
@@ -754,6 +756,93 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 			size_t t = textureName.find_last_of('/');
 			textureName = textureName.substr(t + 1);
 			Manager::g_textureManager.getTexture(textureName)->Bind(1);
+		}
+		//-----------------------------------------------------------
+
+
+		UINT offset = 0;
+		ID3D11Buffer * bufferPointers[2];
+		bufferPointers[0] = instance.staticMesh->getBuffer();
+		bufferPointers[1] = instanceBuffer;
+
+		unsigned int strides[2];
+		strides[0] = sizeof(StaticVertex);
+		strides[1] = sizeof(OBJECT);
+
+		unsigned int offsets[2];
+		offsets[0] = 0;
+		offsets[1] = 0;
+
+		DX::g_deviceContext->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+
+		DX::g_deviceContext->DrawInstanced(instance.staticMesh->getVertice().size(),
+			instance.attribs.size(),
+			0U,
+			0U);
+		//DX::SafeRelease(instanceBuffer);
+	}
+	g_temp.clear();
+}
+
+void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTextures)
+{
+	using namespace DirectX;
+	using namespace DX::INSTANCING;
+	if (camera)//TODO TAKE ME HOME
+		_mapCameraBuffer(*camera);
+
+	size_t instanceGroupSize = g_temp.size();
+	size_t attributeSize = 0;
+
+	for (size_t group = 0; group < instanceGroupSize; group++)
+	{
+		GROUP instance = g_temp.at(group);
+		ID3D11Buffer * instanceBuffer = m_bufferVec.at(group);
+
+
+
+
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		void* dataPtr;
+		DX::g_deviceContext->Map(instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		dataPtr = (void*)mappedResource.pData;
+		memcpy(dataPtr, instance.attribs.data(), sizeof(OBJECT) * (UINT)instance.attribs.size());
+		DX::g_deviceContext->Unmap(instanceBuffer, 0);
+
+		//DX::g_deviceContext->UpdateSubresource(instanceBuffer, 0, nullptr, instance.attribs.data(), 0, 0);
+		//We copy the data into the attribute part of the layout.
+		// makes instancing special
+
+		//Map Texture
+		//-----------------------------------------------------------
+		if (bindTextures)
+		{
+			std::string textureName = instance.textureName;
+			size_t t = textureName.find_last_of('/');
+			textureName = textureName.substr(t + 1);
+			Texture* tex = Manager::g_textureManager.getTexture(textureName);
+			tex->Bind(1);
+			if (tex->m_SRV[3])
+			{
+				DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+
+				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl"), nullptr, 0);
+				DX::g_deviceContext->HSSetShader(DX::g_shaderManager.GetShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/HullShader.hlsl"), nullptr, 0);
+				DX::g_deviceContext->DSSetShader(DX::g_shaderManager.GetShader<ID3D11DomainShader>(L"../Engine/EngineSource/Shader/TessShaders/DomainShader.hlsl"), nullptr, 0);
+				DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+				DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
+			}
+
+		}
+		else
+		{
+			DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
+			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 		}
 		//-----------------------------------------------------------
 
@@ -1074,12 +1163,12 @@ void ForwardRender::_mapSkinningBuffer(Drawable * drawable)
 
 void ForwardRender::_mapCameraBuffer(Camera & camera)
 {
-	HRESULT hr;
 	m_cameraValues.cameraPosition = camera.getPosition();
 	m_cameraValues.viewProjection = camera.getViewProjection();
 	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::vertex);
 	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::geometry);
 	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::pixel);
+	DXRHC::MapBuffer(m_cameraBuffer, &m_cameraValues, sizeof(CameraBuffer), 2, 1, ShaderTypes::domain);
 }
 
 void ForwardRender::_mapLightInfoNoMatrix()
@@ -1342,7 +1431,9 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/wireFramePixel.hlsl");
 
-	
+
+	DX::g_shaderManager.LoadShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/HullShader.hlsl", "HS");
+	DX::g_shaderManager.LoadShader<ID3D11DomainShader>(L"../Engine/EngineSource/Shader/TessShaders/DomainShader.hlsl", "DS");
 }
 
 void ForwardRender::_createShadersInput()
@@ -1392,6 +1483,8 @@ void ForwardRender::_createShadersInput()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/OutlinePrepassVertex.hlsl", "main", outlineInputDesc, 4);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl", "main", inputDesc, 11);
+
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl", "main", inputDesc, 11);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/PreAnimatedVertexShader.hlsl", "main", animatedInputDesc, 6);
 

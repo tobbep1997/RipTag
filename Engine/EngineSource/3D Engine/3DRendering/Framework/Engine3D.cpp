@@ -208,15 +208,16 @@ void DX::INSTANCING::tempInstance(Drawable* drawable)
 	attribute.objectColor = drawable->getColor();
 	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
 	attribute.usingTexture.x = drawable->isTextureAssigned();
-	if (drawable->getTexture()->getIndex() != -1)
+	if (attribute.usingTexture.x)
 	{
 		attribute.usingTexture.y = 1;
-		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+		if (drawable->getTexture()->m_SRV[3])
+			attribute.usingTexture.z = 1;
 	}
 	else
 	{
 		attribute.usingTexture.y = -1;
-		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+		attribute.usingTexture.z = -1;
 	}
 
 
@@ -421,6 +422,7 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	dpd.DepthEnable = TRUE;
 	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dpd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	
 	dpd.StencilEnable = TRUE;
 
 	dpd.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;

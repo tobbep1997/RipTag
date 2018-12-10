@@ -16,7 +16,7 @@ public:
 	HRESULT Load(const wchar_t* file, bool staticTexture = false, const std::string & extension = ".DDS");
 	HRESULT LoadSingleTexture(const wchar_t * absolutePath);
 	void Bind(const uint8_t slot);
-	ID3D11ShaderResourceView* m_SRV[3] = { nullptr, nullptr, nullptr };
+	ID3D11ShaderResourceView* m_SRV[4] = { nullptr, nullptr, nullptr, nullptr };
 
 	void setIndex(const int & index);
 	const int & getIndex() const;

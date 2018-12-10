@@ -19,6 +19,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 	std::wstring albedoName = file;
 	std::wstring normalName = file;
 	std::wstring ORMname = file;
+	std::wstring DISName = file;
 
 	std::wstring setting;
 	size_t maxTextureSize = 512;
@@ -64,9 +65,13 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 	ORMname.append(setting);
 	ORMname.append(std::wstring(extension.begin(), extension.end()));
 
-	std::wstring names[3] = { albedoName, normalName, ORMname };
+	DISName.append(L"_DIS");
+	DISName.append(setting);
+	DISName.append(std::wstring(extension.begin(), extension.end()));
 
-	for (int i = 0; i < 3; i++)
+	std::wstring names[4] = { albedoName, normalName, ORMname, DISName };
+
+	for (int i = 0; i < 4; i++)
 	{
 		/*
 		 * COPYRIGHT (C) Stefan Petersson 2018
@@ -211,7 +216,8 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 void Texture::Bind(const uint8_t slot)
 {
 	if (index == -1)
-		DX::g_deviceContext->PSSetShaderResources(slot, 3, m_SRV);
+		DX::g_deviceContext->PSSetShaderResources(slot, 4, m_SRV);
+		DX::g_deviceContext->DSSetShaderResources(slot, 4, m_SRV);
 }
 
 void Texture::setIndex(const int& index)
@@ -229,7 +235,7 @@ const int& Texture::getIndex() const
 
 void Texture::UnloadTexture()
 {
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{		
 		DX::SafeRelease(m_SRV[i]);
 	}

@@ -36,6 +36,7 @@ Texture2DArray txShadowArray : register(t0);
 Texture2D diffuseTexture : register(t1);
 Texture2D normalTexture : register(t2);
 Texture2D MRATexture : register(t3);
+Texture2D displacementMap : register(t4);
 
 struct VS_OUTPUT
 {
