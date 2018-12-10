@@ -774,6 +774,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 
 		// AddedGCost based on the distance to the node, 1.0 for direct paths and 1.414 for diagonal paths.
 		// Offset defined by the new tiles direction standing at the source tile.
+		// Check all possible node directions to see if they are valid or not for further exploration.
 		/*---------- North ----------*/
 		_checkNode(current, 1.0f, 0, -1, dest, earlyExploration, nodeMap, closedList, width, height);
 		/*---------- South ----------*/
@@ -791,6 +792,7 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 		/*---------- Southeast ----------*/
 		_checkNode(current, 1.414f, 1, 1, dest, earlyExploration, nodeMap, closedList, width, height);
 
+		// Sort the early exploration list to see if there is a match with lower cost then the current node. Then that node is the next one to be explored.
 		std::sort(earlyExploration.begin(), earlyExploration.end(), [](std::shared_ptr<Node> first, std::shared_ptr<Node> second) { return first->fCost < second->fCost; });
 		if (earlyExploration.size() > 0 && earlyExploration.at(0)->fCost <= current->fCost)
 		{
