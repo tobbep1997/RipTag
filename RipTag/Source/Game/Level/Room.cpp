@@ -282,6 +282,7 @@ void Room::LoadRoomToMemory()
 			}
 
 			//Createing the guard in the world
+			
 			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], tempGuards.startingPositions[i].startingPos[1], pos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
@@ -876,6 +877,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		moveBox = true;
 	}
 
+	tempAsset->setObjectTag(name.c_str());
 	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
 		tempAsset->CastShadows(false);
 	else if (name == "FLOOR")

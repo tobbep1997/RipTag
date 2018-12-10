@@ -453,7 +453,7 @@ void AudioEngine::_createSystem()
 
 	s_inited = true;
 	s_system->set3DSettings(1.0f, 1.0f, 1.0f);
-	s_system->setGeometrySettings(100.0f);
+	s_system->setGeometrySettings(1024.0f);
 }
 
 void AudioEngine::_createChannelGroups()

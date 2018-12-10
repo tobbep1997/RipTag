@@ -125,11 +125,11 @@ void Torch::BeginPlay()
 	_playSound(&m_tourchSound);
 }
 
-void Torch::handleContact(RayCastListener::RayContact * contact)
+void Torch::handleContact(RayCastListener::RayContact & contact)
 {
-	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	if (contact.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 	{
-		Torch* ObjectPointer = static_cast<Torch*>(contact->contactShape->GetBody()->GetUserData());
+		Torch* ObjectPointer = static_cast<Torch*>(contact.contactShape->GetBody()->GetUserData());
 		if (ObjectPointer == this)
 		{
 			m_interacted = true;
@@ -147,6 +147,6 @@ void Torch::_playSound(AudioEngine::SoundDesc * soundDesc)
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
 		m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_torch, &at, &m_tourchSound);
+	else
 		m_channel->stop();
-	m_channel->setVolume(0.6f);
 }

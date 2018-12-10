@@ -6,7 +6,13 @@ private:
 	DirectX::XMFLOAT4A m_closePos;
 	DirectX::XMFLOAT4A m_openPos;
 	float m_timer = 0.0f;
+	
 	bool m_wasClosed = false;
+	bool m_playedClosedSound = false;
+	bool m_playedOpenSound = false;
+	AudioEngine::SoundDesc m_sd;
+	FMOD::Channel * m_channel = nullptr;
+
 	float m_YOffset = 0.0f;
 public:
 	Bars();

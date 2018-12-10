@@ -22,6 +22,10 @@ std::string				 RipSounds::g_metalDoorOpening;
 std::string				 RipSounds::g_metalDoorClosening;
 std::string				 RipSounds::g_metalDoorClosed;
 std::string				 RipSounds::g_smokeBomb;
+std::string				 RipSounds::g_gateClosed;
+std::string				 RipSounds::g_gateClosening;
+std::string				 RipSounds::g_gateOpend;
+std::string				 RipSounds::g_gateOpening;
 std::string				 RipSounds::g_teleport; 
 std::string				 RipSounds::g_teleportHit; 
 
@@ -33,8 +37,12 @@ ParticleSystem  * RipExtern::g_particleSystem;
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
 
+ConstTimer::MTimer ConstTimer::g_blinkTimer;
+ConstTimer::MTimer ConstTimer::g_teleportTimer;
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
+	ConstTimer::g_blinkTimer.Start();
+	ConstTimer::g_teleportTimer.Start();
 	m_roomIndex = roomIndex;
 	if (coopData)
 	{
@@ -75,16 +83,23 @@ PlayState::~PlayState()
 	delete RipExtern::g_particleSystem;
 	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
+
+	fps.close();
 }
 
 void PlayState::Update(double deltaTime)
 {
 	//Cheat update
+	//fps << deltaTime << std::endl;
+
 	{
 		Cheet::g_visabilityDisabled = CheatParser::GetVisabilityDisabled();
 		Cheet::g_DBG_CAM = CheatParser::GetDBG_CAM();
 	}
 
+	
+
+	
 
 	int counter = 0;
 	if (runGame)
@@ -432,7 +447,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		RipExtern::g_rayListener->ShotRays();
+		RipExtern::g_rayListener->ShootRays();
 		m_physThreadRun.unlock();
 		//m_physRunning = false;
 	}
@@ -449,7 +464,6 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 		timer = 0.0f;
 		std::vector<FMOD::Channel*> channels = AudioEngine::getAllPlayingChannels();
 		const std::vector<Enemy*>* enemies = m_levelHandler->getEnemies();
-		int counter = 0;
 		for (auto & e : *enemies)
 		{
 			float allSounds = 0.0f;
@@ -470,6 +484,9 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					FMOD_RESULT res = c->getUserData((void**)&sd);
 					if (res == FMOD_OK && sd != nullptr)
 					{
+						if (sd->emitter == AudioEngine::Enemy && e == sd->owner)
+							continue;
+
 						FMOD_VECTOR soundPos;
 						if (c->get3DAttributes(&soundPos, nullptr) == FMOD_OK)
 						{
@@ -477,43 +494,55 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
-
-							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
-							{
-								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
-								RayCastListener::RayContact* c;
-								for (int i = 0; i < ray->getNrOfContacts(); i++)
-								{
-									c = ray->GetRayContact(i);
-									std::string tag = c->contactShape->GetBody()->GetObjectTag();
-									if (tag == "WORLD" || tag == "NULL")
-									{
-										occ *= 0.15f;
-									}
-									else if (tag == "BLINK_WALL")
-									{
-										occ *= 0.50f;
-									}
-								}
-							}
-
+							RayCastListener::Ray ray;
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
-								DirectX::XMFLOAT4A soundDirNormalized;
-								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
-
-								if(m_rayId == -100)
-									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+								DirectX::XMFLOAT4A xmSoundPos = {soundPos.x, soundPos.y, soundPos.z, 1.0f};
+								ray = RipExtern::g_rayListener->ShootAudioRay(e->getBody(), ePos, xmSoundPos);
+							}
+								
+							for (int i = 0; i < ray.getNrOfContacts(); i++)
+							{
+								const RayCastListener::RayContact & c = ray.GetRayContact(i);
+								std::string tag = c.contactShape->GetBody()->GetObjectTag();
+									
+								if (tag == "BANNER")
+									occ *= 0.9f;
+								else if (tag == "BOOKSHELF")
+									occ *= 0.4f;
+								else if (tag == "THICKWALL")
+									occ *= 0.03f;
+								else if (tag == "THINWALL")
+									occ *= 0.06f;
+								else if (tag == "STATICROOMFLOOR")
+									occ *= 0.0f;
+								else if (tag == "PILLARLOW")
+									occ *= 0.03f;
+								else if (tag == "KEG")
+									occ *= 0.5f;
+								else if (tag == "BLINK_WALL")
+									occ *= 0.12f;
+								else if (tag == "WOODENFLOOR")
+									occ *= 0.5f;
+								else if (tag == "COLLISIONBOXASPROP")
+									occ *= 0.01f;
+								else if (tag == "FLOOR")
+									occ *= 0.0f;
+								else if (tag == "WALL")
+									occ *= 0.05f;
+								else if (tag == "CRATE" || tag == "BARREL")
+									occ *= 0.75f;
 							}
 							
-
-							float volume = sd->loudness;;
+							
+							float volume = sd->loudness;
 							
 							volume *= 100.0f;
-							
+
 							volume *= occ;
+
 							float addThis = (volume / (lengthSquared * 3));
-							
+						
 
 							//Pro Tip: Not putting break in a case will not stop execution, 
 							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
@@ -529,11 +558,8 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 									sl.soundPos.z = soundPos.z;
 								}
 								break;
-							case AudioEngine::Enemy:
-								if (e != sd->owner)
-								{
-									allSounds += addThis;
-								}
+							case AudioEngine::Enemy:	
+								allSounds += addThis;
 								break;
 							case AudioEngine::RemotePlayer:
 							case AudioEngine::Other:
@@ -544,15 +570,17 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					}
 				}
 
+			
 				sl.percentage = playerSounds / allSounds;
 				e->setSoundLocation(sl);
+			
 			}
 			else
 			{
 				sl.soundPos = { 0,0,0 };
 				e->setSoundLocation(sl);
 			}
-			counter++;
+
 		}
 	}
 }
@@ -783,6 +811,15 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleport); 
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleportHit); 
 	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorOpening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosed);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_playAmbientSound);
+
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateClosed);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateClosening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateOpend);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateOpening);
 
 	if (m_eventOverlay)
 	{
@@ -815,6 +852,7 @@ void PlayState::Load()
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
 
+	fps.open("fpsData.txt");
 	//phy.open("physData.txt");
 	
 	if (isCoop)
@@ -843,6 +881,9 @@ void PlayState::Load()
 	_loadNetwork();
 	RipExtern::g_particleSystem = new ParticleSystem();
 	m_pPauseMenu->Load(); 
+
+
+
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }
@@ -1031,9 +1072,9 @@ void PlayState::_loadNetwork()
 
 void PlayState::_loadSound()
 {
-	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Ambient/Cave.ogg", 5.0f, 10000.0f, true);
+	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Ambient/Cave.ogg", 5.0f, 10000.0f, true); // Released
 
-	for (int i = 1; i <= 6; i++)
+	for (int i = 1; i <= 6; i++)	 // Released
 	{
 		RipSounds::g_sneakStep.push_back(AudioEngine::LoadSoundEffect(
 			"../Assets/Audio/SoundEffects/Player/Sneaking/soft_"
@@ -1041,7 +1082,7 @@ void PlayState::_loadSound()
 			".ogg"
 		));
 	}
-	for (int i = 1; i <= 6; i++)
+	for (int i = 1; i <= 6; i++)	 // Released
 	{
 		RipSounds::g_hardStep.push_back(AudioEngine::LoadSoundEffect(
 			"../Assets/Audio/SoundEffects/Player/Running/hard_"
@@ -1049,7 +1090,7 @@ void PlayState::_loadSound()
 			".ogg"
 		));
 	}
-	for (int i = 1; i <= 12; i++)
+	for (int i = 1; i <= 12; i++)	 // Released
 	{
 		RipSounds::g_armorStepsStone.push_back(AudioEngine::LoadSoundEffect(
 			"../Assets/Audio/SoundEffects/Armored_Guard/Footsteps/step_"
@@ -1059,20 +1100,25 @@ void PlayState::_loadSound()
 	}
 
 
-	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg");
-	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg");
-	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg");
-	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg");
-	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true);
-	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg");
-	RipSounds::g_smokeBomb = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg"); 
+	RipSounds::g_leverActivate				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg"); // Released
+	RipSounds::g_leverDeactivate			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg"); // Released
+	RipSounds::g_pressurePlateActivate		= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg"); // Released
+	RipSounds::g_pressurePlateDeactivate	= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg"); // Released
+	RipSounds::g_torch						= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true); // Released
+	RipSounds::g_grunt						= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg"); // Released
+	RipSounds::g_smokeBomb					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg");  // Released
+	RipSounds::g_playAmbientSound			= AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true); // Released
+	RipSounds::g_metalDoorOpening			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg"); // Released
+	RipSounds::g_metalDoorClosening			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/close.ogg"); // Released
+	RipSounds::g_metalDoorClosed			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/closed.ogg"); // Released
+	RipSounds::g_gateClosed					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closed.ogg"); // Released
+	RipSounds::g_gateClosening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closening.ogg"); // Released
+	RipSounds::g_gateOpend					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opend.ogg"); // Released
+	RipSounds::g_gateOpening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opening.ogg"); // Released
 	RipSounds::g_teleport = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleport.ogg"); 
 	RipSounds::g_teleportHit = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleportHit.ogg");
-	RipSounds::g_playAmbientSound = AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true);
-	RipSounds::g_metalDoorOpening = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg");
 
-
-	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.2f);
+	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.15f);
 }
 
 void PlayState::_registerThisInstanceToNetwork()

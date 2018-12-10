@@ -19,7 +19,7 @@ Door::~Door()
 void Door::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)//TODO: ADD SCALE
 {
 	m_sd.emitter = AudioEngine::Other;
-	m_sd.owner = nullptr;
+	m_sd.owner = this;
 	m_sd.loudness = 1.5f;
 
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX * scaleX / 2, bboxScaleY * scaleY / 2, bboxScaleZ  * scaleZ/ 2, false);
@@ -54,9 +54,9 @@ void Door::Update(double deltaTime)
 {
 	BaseActor::Update(deltaTime);
 
-	float t = deltaTime * 3.0f;
-
-
+	//float t = deltaTime * 3.0f;
+	float t = deltaTime * 1.0f;
+	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 
 	if (!m_wasClosed)
 		m_timer += t;
@@ -97,10 +97,19 @@ void Door::Update(double deltaTime)
 					m_channel->stop();
 				}
 			}
-			FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 			m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_metalDoorOpening, &at, &m_sd);
 
 		}
+		if (m_timer > 0.9999f)
+		{
+			bool isPlaying = false;
+			auto res = m_channel->isPlaying(&isPlaying);
+			if (res == FMOD_OK && isPlaying)
+			{
+				m_channel->stop();
+			}
+		}
+		m_playedClosedSound = false;
 		DirectX::XMFLOAT3 xmCurrentModelRotation, xmCurrentBoundingRotation, xmCurrentBoundingPos;
 
 		DirectX::XMVECTOR vCurrentModelRotation, vCurrentBoundingRotation, vCurrentBoundingPos;
@@ -130,8 +139,20 @@ void Door::Update(double deltaTime)
 					m_channel->stop();
 				}
 			}
-			FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
-			m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_metalDoorOpening, &at, &m_sd);
+			
+			m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_metalDoorClosening, &at, &m_sd);
+		}
+
+		if (m_timer < 0.001f && !m_playedClosedSound)
+		{
+			bool isPlaying = false;
+			auto res = m_channel->isPlaying(&isPlaying);
+			if (res == FMOD_OK && isPlaying)
+			{
+				m_channel->stop();
+			}
+			m_playedClosedSound = true;
+			AudioEngine::PlaySoundEffect(RipSounds::g_metalDoorClosed, &at, &m_sd);
 		}
 
 		DirectX::XMFLOAT3 xmCurrentModelRotation, xmCurrentBoundingRotation, xmCurrentBoundingPos;

@@ -10,6 +10,7 @@ private:
 	DirectX::XMFLOAT3 m_startRotBox;
 	float m_timer = 0.0f;
 	bool m_wasClosed = false;
+	bool m_playedClosedSound = false;
 
 	AudioEngine::SoundDesc m_sd;
 	FMOD::Channel * m_channel = nullptr;

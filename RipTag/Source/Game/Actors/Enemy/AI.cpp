@@ -84,7 +84,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Patrolling:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+		//std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 #endif
 
 		this->_patrolling(deltaTime);
@@ -92,7 +92,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Suspicious:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+		//std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 #endif
 
 		this->_suspicious(deltaTime);
@@ -100,7 +100,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Scanning_Area:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
+		//std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
 #endif
 
 		this->_scanningArea(deltaTime);
@@ -108,13 +108,13 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Possessed:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Possessed" << white << "\r";
+		//std::cout << yellow << "Enemy State: Possessed" << white << "\r";
 #endif
 		_possessed(deltaTime);
 		break;
 	case AIState::Disabled:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Disabled" << white << "\r";
+		//std::cout << yellow << "Enemy State: Disabled" << white << "\r";
 #endif
 		_disabled(deltaTime);
 		break;
@@ -152,7 +152,7 @@ void AI::handleStatesClient(const double deltaTime)
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
 #endif
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
@@ -203,7 +203,7 @@ void AI::_onObserve()
 	this->m_searchTimer = 0;
 #ifdef _DEBUG
 
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
 #endif
 	this->m_state = AIState::Suspicious;
 	this->m_transState = AITransitionState::NoTransitionState;
@@ -221,7 +221,7 @@ void AI::_onReturnToPatrol()
 	this->m_state = Patrolling;
 #ifdef _DEBUG
 
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
 #endif
 	this->m_transState = AITransitionState::NoTransitionState;
 }

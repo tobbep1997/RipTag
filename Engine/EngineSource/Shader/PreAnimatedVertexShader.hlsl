@@ -69,7 +69,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
     
     const uint dat = vId * 11;
     
-
+	
     outputUAV[dat + 0] = o[0].x;
     outputUAV[dat + 1] = o[0].y;
     outputUAV[dat + 2] = o[0].z;
