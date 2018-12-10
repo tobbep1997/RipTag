@@ -289,7 +289,6 @@ void Room::LoadRoomToMemory()
 			e->SetGuardUniqueIndex(uniqueID.at(i));
 			e->SetTorchContainer(m_Torches);
 
-			e->setDestroyState(true);
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
 			Tile temp2 = m_pathfindingGrid->WorldPosToTile(tempNodes.at(1).translation[0], tempNodes.at(1).translation[2]);

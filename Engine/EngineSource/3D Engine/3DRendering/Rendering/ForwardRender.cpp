@@ -603,6 +603,9 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_samplerState);
 	DX::SafeRelease(m_textureBuffer);
 
+	DX::SafeRelease(m_destructionBuffer);
+	DX::SafeRelease(m_lerpablePosBuffer);
+
 	DX::SafeRelease(m_alphaBlend);
 	DX::SafeRelease(m_GuardBuffer);
 
