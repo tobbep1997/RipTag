@@ -8,10 +8,7 @@ class Enemy;
 enum AIState
 {
 	NoState,
-	Investigating_Sight,
-	Investigating_Sound,
-	Investigating_Room,
-	High_Alert,
+	Investigating,
 	Suspicious,
 	Scanning_Area,
 	Patrolling,
@@ -24,10 +21,8 @@ enum AITransitionState
 {
 	NoTransitionState,
 	Alerted,
-	InvestigateSound,
-	InvestigateSight,
+	Investigate,
 	Observe,
-	SearchArea,
 	ReturnToPatrol,
 	BeingPossessed,
 	BeingDisabled,
@@ -54,9 +49,8 @@ private:
 	AudioEngine::SoundDesc m_alerted;
 
 	//AI Behavior constants
-	const float SOUND_LEVEL = 0.33f;
-	const int SIGHT_LEVEL = 1700;
-	const float ALERT_TIME_LIMIT = 0.45f;
+	const float SOUND_LEVEL = 0.60f;
+	const float ALERT_TIME_LIMIT = 0.2f;
 	const float SUSPICIOUS_TIME_LIMIT = 3.0f;
 	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
@@ -64,7 +58,7 @@ private:
 	const float CHECK_TORCHES_RADIUS = 7.5f;
 
 	//stateData
-	float m_HighAlertTime = 0.f;
+	//float m_HighAlertTime = 0.f;
 	float m_actTimer = 0.0f;
 	float m_searchTimer = 0.0f;
 	float m_checkTorchesTimer = 0.0f;
@@ -72,7 +66,7 @@ private:
 	AIState m_state = AIState::Patrolling;
 	float lastSearchDirX = 0;
 	float lastSearchDirY = 0;
-
+	bool m_followSight = 0;
 
 	//Pathing
 	Grid* m_grid;
@@ -123,10 +117,8 @@ private:
 
 	//Transistion States
 	void _onAlerted();
-	void _onInvestigateSound();
-	void _onInvestigateSight();
+	void _onInvestigate();
 	void _onObserve();
-	void _onSearchArea();
 	void _onReturnToPatrol();
 	void _onBeingPossessed();
 	void _onBeingDisabled();
@@ -134,8 +126,7 @@ private:
 	void _onExitingDisabled();
 
 	//States
-	void _investigatingSight(const double deltaTime);
-	void _investigatingSound(const double deltaTime);
+	void _investigating(const double deltaTime);
 	void _investigatingRoom(const double deltaTime);
 	void _highAlert(const double deltaTime);
 	void _suspicious(const double deltaTime);
