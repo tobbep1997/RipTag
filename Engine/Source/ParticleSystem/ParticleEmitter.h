@@ -16,13 +16,13 @@ namespace PS
 		DirectX::XMFLOAT2 scaleOverTime			= { 0.f, 0.f };
 		DirectX::XMFLOAT2 scale						= { 0.f, 0.f };
 
-		DirectX::XMINT2 directionMinMax			= { 0, 0 };
-		DirectX::XMINT2 spreadMinMax				= { 0, 0 };
-		DirectX::XMINT2 minMaxSpeed				= { 0, 0 };
-		DirectX::XMINT2 minMax						= { 0, 0 };
-		DirectX::XMINT2 minMaxLife					= { 0, 0 };
-		DirectX::XMINT2 spawnSpread				= { 0, 0 };
-		DirectX::XMINT2 m_RotationMinMax		= { 0, 0 };
+		DirectX::XMFLOAT2 directionMinMax			= { 0, 0 };
+		DirectX::XMFLOAT2 spreadMinMax				= { 0, 0 };
+		DirectX::XMFLOAT2 minMaxSpeed				= { 0, 0 };
+		DirectX::XMFLOAT2 minMax						= { 0, 0 };
+		DirectX::XMFLOAT2 minMaxLife					= { 0, 0 };
+		DirectX::XMFLOAT2 spawnSpread				= { 0, 0 };
+		DirectX::XMFLOAT2 m_RotationMinMax		= { 0, 0 };
 
 		float m_EmitterLife				= 0;
 		float m_Speed						= 0;
@@ -32,6 +32,7 @@ namespace PS
 		int m_RotationOffset			= 0;
 		int m_SpawnOffset				= 0;
 		int m_nrOfEmittParticles		= 0;
+		int m_nrOfCreatedParticles = 0;
 
 		std::wstring textures[3]	= { L"NONE", L"NONE", L"NONE" };
 		float fadingPoints[3]		= { 1.0f, 1.0f, 1.0f };
@@ -81,6 +82,7 @@ public:
 	DirectX::XMFLOAT4X4A getWorldMatrix();
 	const DirectX::XMFLOAT4A& getPosition() const;
 	const DirectX::BoundingBox& getBoundingBox() const;
+	bool Expired() { return m_expired; }
 private:
 	PS::ParticleType type					= PS::DEFAULT;
 	PS::ParticleConfiguration m_config = {};
@@ -103,15 +105,17 @@ private:
 	float m_partialParticle			= 0;
 
 	bool m_emitterActive			= false;
+	bool m_expired					= false;
 private:
 	void InitializeBuffers();
 	void SetBuffers();
 
-	float RandomFloat(DirectX::XMINT2 min_max);
+	float RandomFloat(DirectX::XMFLOAT2 min_max);
 	DirectX::XMVECTOR RandomOffset(DirectX::XMVECTOR basePos, int offset);
 	void _particleVertexCalculation(float timeDelata, Camera * camera);
 
 	void _applyTextures();
-
+	void _createSmokeParticles();
+	void _createParticles(); //Uses Henriks lögic :]
 };
 

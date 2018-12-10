@@ -53,6 +53,7 @@ void EnemyHandler::Update(float deltaTime)
 			accumulatedTime -= SEND_UPDATES_FREQUENCY;
 			for (auto enemy : m_guards)
 			{
+				
 				if (!enemy->ClientLocked())
 					enemy->sendNetworkUpdate();
 			}

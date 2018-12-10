@@ -343,3 +343,4 @@ imgui.ini
 Deploy/
 
 *.DDS
+Configuration/defultEngineSettings\.ini

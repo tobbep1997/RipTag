@@ -9,7 +9,8 @@ void Quad::p_createBuffer()
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bufferDesc.ByteWidth = sizeof(QUAD_VERTEX) * 4;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -124,6 +125,7 @@ void Quad::init(DirectX::XMFLOAT2A position, DirectX::XMFLOAT2A size)
 	p_setStaticQuadVertex();
 	setPosition(position);
 	setScale(size);
+	p_createBuffer();
 }
 
 void Quad::Draw()
@@ -205,7 +207,7 @@ void Quad::setPosition(const DirectX::XMFLOAT2A & position)
 {
 	Transform2D::setPosition(position);
 	_rebuildQuad();
-	p_createBuffer();
+	
 }
 
 void Quad::setScale(const float & x, const float & y)
@@ -217,7 +219,7 @@ void Quad::setScale(const DirectX::XMFLOAT2A & size)
 {
 	Transform2D::setScale(size);
 	_rebuildQuad();
-	p_createBuffer();
+	//p_createBuffer();
 }
 
 void Quad::setTag(std::string tag)
@@ -419,4 +421,9 @@ void Quad::setU(const float & u)
 void Quad::setV(const float & v)
 {
 	this->vScale = v;
+}
+
+size_t Quad::GetSize()
+{
+	return sizeof(QUAD_VERTEX) * 4;
 }

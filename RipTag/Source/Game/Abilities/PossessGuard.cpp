@@ -1,7 +1,9 @@
 #include "RipTagPCH.h"
 #include "PossessGuard.h"
 
-
+const float PossessGuard::RANGE = 10.0f;
+const float PossessGuard::COOLDOWN_POSSESSING_MAX = 10.0f;
+const float PossessGuard::MANA_COST_DRAIN = 1.0f;
 
 PossessGuard::PossessGuard(void * owner) : AbilityComponent(owner)
 {
@@ -96,24 +98,24 @@ void PossessGuard::_hitEnemy()
 
 	if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 	{
-		RayCastListener::Ray *ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
-		RayCastListener::RayContact* contact = ray->getClosestContact();
-		if (ray->getOriginBody()->GetObjectTag() == "PLAYER")
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+		RayCastListener::RayContact& contact = ray.getClosestContact();
+		if (ray.getOriginBody()->GetObjectTag() == "PLAYER")
 		{
-			std::string objectTag = contact->contactShape->GetBody()->GetObjectTag();
+			std::string objectTag = contact.contactShape->GetBody()->GetObjectTag();
 			if (objectTag == "BLINK_WALL")
 			{
-				if (ray->getNrOfContacts() > 1)
+				if (ray.getNrOfContacts() > 1)
 				{
-					contact = ray->GetRayContacts().at(ray->getNrOfContacts() - 2);
-					objectTag = contact->contactShape->GetBody()->GetObjectTag();
+					contact = ray.GetRayContacts().at(ray.getNrOfContacts() - 2);
+					objectTag = contact.contactShape->GetBody()->GetObjectTag();
 				}
 			}
 
 
 			if (objectTag == "ENEMY")
 			{
-				Enemy * e = static_cast<Enemy*>(contact->contactShape->GetBody()->GetUserData());
+				Enemy * e = static_cast<Enemy*>(contact.contactShape->GetBody()->GetUserData());
 				if (e->getAIState() != AIState::Disabled)
 				{
 					if (Multiplayer::GetInstance()->isConnected())

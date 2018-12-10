@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "BlinkAbility.h"
 
+const float BlinkAbility::RANGE = 3.0f;
 
 BlinkAbility::BlinkAbility()
 {
@@ -45,27 +46,28 @@ void BlinkAbility::_logic(double deltaTime)
 	if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 	{
 		Player* pPointer = static_cast<Player*>(p_owner);
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
-		RayCastListener::RayContact* var = ray->getClosestContact();
-		if (ray->getOriginBody()->GetObjectTag() == "PLAYER" && var->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+		RayCastListener::RayContact& var = ray.getClosestContact();
+		if (ray.getOriginBody()->GetObjectTag() == "PLAYER" && var.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 		{
+			_sendBlinkPacket();
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("phase");
 			pPointer->setPosition(
-				var->contactPoint.x + (
-				(fabs(fabs(var->contactPoint.x) - fabs(var->contactShape->GetBody()->GetTransform().translation.x)) * 2 + 0.25)*
-					(-var->normal.x)),
+				var.contactPoint.x + (
+				(fabs(fabs(var.contactPoint.x) - fabs(var.contactShape->GetBody()->GetTransform().translation.x)) * 2 + 0.25)*
+					(-var.normal.x)),
 				pPointer->getPosition().y,
-				var->contactPoint.z + (
-				(fabs(fabs(var->contactPoint.z) - fabs(var->contactShape->GetBody()->GetTransform().translation.z)) * 2 + 0.25) *
-					(-var->normal.z))
+				var.contactPoint.z + (
+				(fabs(fabs(var.contactPoint.z) - fabs(var.contactShape->GetBody()->GetTransform().translation.z)) * 2 + 0.25) *
+					(-var.normal.z))
 			);
-			if (fabs(var->normal.y) > 0.001)
+			if (fabs(var.normal.y) > 0.001)
 			{
 				pPointer->setPosition(
 					pPointer->getPosition().x,
-					var->contactPoint.y + (
-					(fabs(var->contactPoint.y - (var->contactShape->GetBody()->GetTransform().translation.y) * 2)) *
-						(-var->normal.y)),
+					var.contactPoint.y + (
+					(fabs(var.contactPoint.y - (var.contactShape->GetBody()->GetTransform().translation.y) * 2)) *
+						(-var.normal.y)),
 					pPointer->getPosition().z
 				);
 			}
@@ -117,4 +119,10 @@ void BlinkAbility::_logic(double deltaTime)
 		break;
 	}
 
+}
+
+void BlinkAbility::_sendBlinkPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_BLINK);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }

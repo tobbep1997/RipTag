@@ -67,8 +67,6 @@ void Torch::Update(double deltaTime)
 			this->setTriggerState(false);
 			pPointLight->setLightOn(true);
 			pParticles = new ParticleEmitter(this->getPosition(), PS::FIRE);
-
-			pParticles->SetEmitterLife(FLT_MAX);
 		}
 		else
 		{
@@ -125,11 +123,11 @@ void Torch::BeginPlay()
 	_playSound(&m_tourchSound);
 }
 
-void Torch::handleContact(RayCastListener::RayContact * contact)
+void Torch::handleContact(RayCastListener::RayContact & contact)
 {
-	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	if (contact.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 	{
-		Torch* ObjectPointer = static_cast<Torch*>(contact->contactShape->GetBody()->GetUserData());
+		Torch* ObjectPointer = static_cast<Torch*>(contact.contactShape->GetBody()->GetUserData());
 		if (ObjectPointer == this)
 		{
 			m_interacted = true;

@@ -54,7 +54,20 @@ void PressurePlate::Update(double deltaTime)
 				if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this ||
 					static_cast<PressurePlate*>(shapeB->GetBody()->GetUserData()) == this)
 				{
-					if (this->getTriggerState())
+					bool useTrigger = true;
+					//Do a check with the remote player if he is inside this objects bounding box, we have a pointer to RemotePlayer in extern
+					//I am assuming the DirectX BoundingBox is equal to the Bounce BB. IF this is not the case, find a solution with the BOUNCE BB.  
+					if (DX::g_remotePlayer)
+					{
+						DirectX::XMFLOAT4A remotePlayerPos = DX::g_remotePlayer->getPosition();
+						DirectX::BoundingBox * bb = this->getBoundingBox();
+						//Put the position into the same x-z plane
+						remotePlayerPos.y = bb->Center.y;
+						DirectX::ContainmentType cType = bb->Contains(DirectX::XMLoadFloat4A(&remotePlayerPos));
+						if (cType == DirectX::ContainmentType::CONTAINS)
+							useTrigger = false;
+					}
+					if (this->getTriggerState() && useTrigger)
 					{
 						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
 							this->setTriggerState(false, true, "ENEMY");

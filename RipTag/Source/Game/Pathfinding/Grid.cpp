@@ -157,7 +157,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		
 		return temp;
 	}
-	if (source.getX() < 0 || source.getY() < 0)
+	if (destination.getX() < 0 || destination.getY() < 0)
 	{
 		std::vector<Node*> temp;
 

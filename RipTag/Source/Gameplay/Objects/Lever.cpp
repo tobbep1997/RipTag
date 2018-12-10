@@ -60,11 +60,11 @@ void Lever::Update(double deltaTime)
 void Lever::BeginPlay()
 {
 }
-void Lever::handleContact(RayCastListener::RayContact * contact)
+void Lever::handleContact(RayCastListener::RayContact& contact)
 {
-	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	if (contact.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 	{
-		if (static_cast<Lever*>(contact->contactShape->GetBody()->GetUserData()) == this)
+		if (static_cast<Lever*>(contact.contactShape->GetBody()->GetUserData()) == this)
 		{
 			m_interacted = true;
 		}

@@ -65,6 +65,21 @@ class ForwardRender
 	{
 		DirectX::XMFLOAT4A outLineColor;
 	};
+
+	struct DestroyBuffer
+	{
+		DirectX::XMFLOAT4A TimerAndForwardVector;
+		DirectX::XMFLOAT4X4A lastPos;
+		DirectX::XMFLOAT4X4A worldMatrixInverse;
+		DirectX::XMFLOAT4X4A worldMatrix;
+		DirectX::XMINT4 typeOfAbility;
+	};
+	struct LerpableWorldPosBuffer
+	{
+		DirectX::XMFLOAT4X4A lastPos;
+		DirectX::XMFLOAT4A timer;
+		DirectX::XMINT4 typeOfAbility;
+	};
 private:
 
 	struct sortStruct
@@ -109,6 +124,12 @@ private:
 	VisabilityPass * m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;	//RElEASED 
 
+	ID3D11Buffer * m_destructionBuffer = nullptr;
+	DestroyBuffer m_destroyBuffer;
+
+	ID3D11Buffer * m_lerpablePosBuffer = nullptr;
+	LerpableWorldPosBuffer m_lerpablePosBufferInfo;
+
 	
 
 	float m_lightCullingDistance = 50;	
@@ -135,6 +156,10 @@ private:
 	ID3D11RenderTargetView * m_screenShootRender;
 	ID3D11Texture2D * m_screenShootTex;
 	ID3D11ShaderResourceView * m_screenShootSRV;
+
+	std::vector<ID3D11Buffer *> m_bufferVec;
+	UINT m_bufferSize = 100000;
+	UINT m_bufferLenght = 70;
 	
 public:
 	ForwardRender();

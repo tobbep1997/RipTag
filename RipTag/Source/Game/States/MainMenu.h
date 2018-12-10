@@ -26,7 +26,7 @@ private:
 
 	float m_stickTimer = 0; 
 
-	
+	bool m_gamePadInUse = false;
 public:
 	MainMenu(RenderingManager * rm);
 	~MainMenu();
@@ -39,11 +39,12 @@ public:
 
 private:
 	void _initButtons();
-	void _handleGamePadInput(float deltaTime);
+	bool _handleGamePadInput(float deltaTime);
 	void _handleKeyboardInput();
 	bool _handleMouseInput();
 	void _updateSelectionStates();
 	void _resetButtons();
+	void _handleMousePP();
 
 	// Inherited via State
 	virtual void Load() override;
