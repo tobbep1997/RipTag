@@ -67,8 +67,6 @@ void Torch::Update(double deltaTime)
 			this->setTriggerState(false);
 			pPointLight->setLightOn(true);
 			pParticles = new ParticleEmitter(this->getPosition(), PS::FIRE);
-
-			pParticles->SetEmitterLife(FLT_MAX);
 		}
 		else
 		{

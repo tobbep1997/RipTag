@@ -50,10 +50,11 @@ void ParticleEmitter::Update(float dt, Camera * camera)
 
 	//the emitter lives endlessly if set to -1
 	if (!m_config.m_EmitterLife == -1)
+	{
 		m_EmitterCurrentLife += dt;
-
-	if (m_config.m_EmitterLife <= m_EmitterCurrentLife)
-		m_expired = true;
+		if (m_config.m_EmitterLife <= m_EmitterCurrentLife)
+			m_expired = true;
+	}
 
 	if (!m_expired && m_emitterActive)
 	{
@@ -238,12 +239,14 @@ void ParticleEmitter::_createSmokeParticles()
 				-1.0f + ((rand() % RAND_MAX) / (float)RAND_MAX) * 2.0f,
 				0));
 
-			auto normal = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			/*auto normal = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 			if (DirectX::XMVectorGetX(DirectX::XMVector3Dot(vel, normal)) < 0)
 				particle->velocity = DirectX::XMVectorScale(vel, -1.f);
 			else
-				particle->velocity = vel;
+				particle->velocity = vel;*/
+
+			particle->velocity = vel;
 
 			particle->speed = m_config.m_Speed;
 			particle->color = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -434,7 +437,7 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 	m_EmitterCurrentLife				= 0;
 
 	m_config.m_EmitterLife				= -1;
-	m_config.m_MaxParticle				= FLT_MAX;
+	m_config.m_MaxParticle				= INT_MAX;
 	m_config.m_MinParticle				= 25;
 	m_config.m_nrOfEmittParticles	= 25;
 	m_config.m_Speed						= 0.1f;
@@ -461,6 +464,8 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 	m_config.textures[0] = L"FIRE";
 	m_config.textures[1] = L"FIRE_CLEAR";
 	m_config.textures[2] = L"SMOKE";
+
+	_createParticles();
 
 	InitializeBuffers();
 }
