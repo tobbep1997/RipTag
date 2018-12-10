@@ -120,8 +120,8 @@ private:
 	void _rebuildQuad();
 protected:
 	float p_angle = 10.0f;
-	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
+	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 	Quad();
 	virtual~Quad();
 	const bool Inside(const DirectX::XMFLOAT2 & mousePos) override;
@@ -206,6 +206,8 @@ public:
 	float getV() const;
 	void setU(const float & u);
 	void setV(const float & v);
+
+	size_t GetSize();
 	
 };
 

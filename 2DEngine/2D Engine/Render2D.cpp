@@ -63,7 +63,7 @@ void Render2D::GUIPass()
 	DX::g_deviceContext->OMSetBlendState(m_blendState, 0, 0xffffffff);
 
 #ifndef _DEPLOY
-	DBG();
+	//DBG();
 #endif
 	
 
@@ -105,12 +105,22 @@ void Render2D::GUIPass()
 			break;
 		}
 		
+		if (vertexBuffer != NULL)
+		{
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			void* dataPtr;
+			DX::g_deviceContext->Map(vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			dataPtr = (void*)mappedResource.pData;
+			memcpy(dataPtr, q->quadVertex, q->GetSize());
+			DX::g_deviceContext->Unmap(vertexBuffer, 0);
 
-		if (SUCCEEDED(hr = DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel))) { }
-		DX::g_2DQueue[j]->MapTexture();
+			if (SUCCEEDED(hr = DXRHC::MapBuffer(m_HUDTypeBuffer, &m_HUDTypeValues, sizeof(HUDTypeStruct), 0U, 1U, ShaderTypes::pixel))) { }
+			DX::g_2DQueue[j]->MapTexture();
 
-		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-		DX::g_deviceContext->Draw(4, 0);
+			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+			DX::g_deviceContext->Draw(4, 0);
+
+		}
 	}
 	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
 	{

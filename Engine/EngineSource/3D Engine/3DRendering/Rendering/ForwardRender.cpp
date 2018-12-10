@@ -662,10 +662,10 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 		ID3D11Buffer * instanceBuffer = m_bufferVec.at(group);
 		
 
-		D3D11_SUBRESOURCE_DATA instData;
-		memset(&instData, 0, sizeof(instData));
-		instData.pSysMem = instance.attribs.data();
-		HRESULT hr;
+		//D3D11_SUBRESOURCE_DATA instData;
+		//memset(&instData, 0, sizeof(instData));
+		//instData.pSysMem = instance.attribs.data();
+		//HRESULT hr;
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		void* dataPtr;
