@@ -49,8 +49,8 @@ namespace SM
 		bool Evaluate() const override;
 	private:
 		T* m_Reference = nullptr;
-		T m_Value = 0;
-		T m_Value2 = 0;
+		T m_Value;
+		T m_Value2;
 		COMPARISON_TYPE m_Type;
 	};
 
@@ -154,9 +154,11 @@ namespace SM
 		virtual void Lock() = 0;
 		virtual void Unlock() = 0;
 		//Set blend time for this state
-		void SetBlendTime(float blendTime);
+		void SetDefaultBlendTime(float blendTime);
+		void SetSpecificBlendTime(SM::AnimationState* fromState, float blendTime);
 
 		float BlendTime();
+		float BlendTime(SM::AnimationState* fromState);
 
 		//Resets the state
 		virtual void Reset() {};
@@ -167,7 +169,8 @@ namespace SM
 		std::pair<AnimationState*, float> EvaluateAll();
 	private:
 		std::string m_Name = "";
-		float m_BlendTime = 0.2f;
+		float m_DefaultBlendTime = 0.2f;
+		std::vector<std::pair<SM::AnimationState*, float>> m_SpecificBlendTimes;
 		std::unordered_map<std::string, OutState> m_OutStates;
 	};
 

@@ -310,9 +310,6 @@ void RemotePlayer::_lerpPosition(float dt)
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
 
-	if (DirectX::XMVector3IsNaN(curr) || DirectX::XMVector3IsNaN(next))
-		std::cout << "isNAN\n";
-
 	if (!DirectX::XMVector3IsNaN(curr) && !DirectX::XMVector3IsNaN(next))
 	{
 
@@ -457,9 +454,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
 		auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
-		throwEndState->SetBlendTime(0.05f);
+		throwEndState->SetDefaultBlendTime(0.05f);
 		auto posessState = stateMachine->AddLoopState("posessing", posessClip);
-		posessState->SetBlendTime(0.3f);
+		posessState->SetDefaultBlendTime(0.3f);
 		//set initial state
 		stateMachine->SetState("walk_forward");
 
@@ -471,6 +468,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		layerMachine->ActivateLayer("pitch");
 		
 		auto leanState = layerMachine->Add1DPoseLayer("peek", &this->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
+		leanState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("peek");
 	}
 }
