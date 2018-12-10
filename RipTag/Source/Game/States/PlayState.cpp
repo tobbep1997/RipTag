@@ -37,8 +37,12 @@ ParticleSystem  * RipExtern::g_particleSystem;
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
 
+ConstTimer::MTimer ConstTimer::g_blinkTimer;
+ConstTimer::MTimer ConstTimer::g_teleportTimer;
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
+	ConstTimer::g_blinkTimer.Start();
+	ConstTimer::g_teleportTimer.Start();
 	m_roomIndex = roomIndex;
 	if (coopData)
 	{
@@ -877,6 +881,9 @@ void PlayState::Load()
 	_loadNetwork();
 	RipExtern::g_particleSystem = new ParticleSystem();
 	m_pPauseMenu->Load(); 
+
+
+
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }
