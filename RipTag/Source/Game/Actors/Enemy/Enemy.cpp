@@ -49,7 +49,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
 	CreateShape(b3Vec3(0, pos.y*0.70, 0), b3Vec3(pos.x / 2, pos.y / 2, pos.z / 2), 1.0f, 1.0f, "UPPERBODY");
-	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(1.f, 1.f, 1.f), 1.0f, 1.0f, "HEAD", true);
+	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(0.3f, 0.35f, 0.3f), 1.0f, 1.0f, "HEAD", true);
 	m_standHeight = (pos.y*1.5);
 	m_crouchHeight = pos.y * 0.70;
 	setUserDataBody(this);
