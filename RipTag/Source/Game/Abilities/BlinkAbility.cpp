@@ -50,6 +50,7 @@ void BlinkAbility::_logic(double deltaTime)
 		RayCastListener::RayContact& var = ray.getClosestContact();
 		if (ray.getOriginBody()->GetObjectTag() == "PLAYER" && var.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 		{
+			_sendBlinkPacket();
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("phase");
 			pPointer->setPosition(
 				var.contactPoint.x + (
@@ -118,4 +119,10 @@ void BlinkAbility::_logic(double deltaTime)
 		break;
 	}
 
+}
+
+void BlinkAbility::_sendBlinkPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_BLINK);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }

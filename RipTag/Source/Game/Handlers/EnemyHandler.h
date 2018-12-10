@@ -41,6 +41,7 @@ public:
 	Enemy * GetFirstEnemy();
 	void SpawnEnemy(const float & x, const float & y, const float & z );
 private:
+	
 	void _isServerUpdate(double deltaTime);
 	void _isClientUpdate(double deltaTime);
 	void _isSinglePlayerUpdate(double deltaTime);
