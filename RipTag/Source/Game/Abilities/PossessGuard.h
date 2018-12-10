@@ -5,11 +5,13 @@ class Enemy;
 
 class PossessGuard : public AbilityComponent
 {
+public:
+	static const float RANGE;
+	static const float COOLDOWN_POSSESSING_MAX;
+	static const float MANA_COST_DRAIN;
+	static const int MANA_COST_START = 5;
 private:
-	const float RANGE = 10.0f;
-	const float COOLDOWN_POSSESSING_MAX = 10.0f;
-	const int MANA_COST_START = 5;
-	const float MANA_COST_DRAIN = 1.0f;
+
 	enum PossessState
 	{
 		Possess,	// Ready to possess

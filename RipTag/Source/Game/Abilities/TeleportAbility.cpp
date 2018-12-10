@@ -235,7 +235,7 @@ void TeleportAbility::_inStateCharging(double dt)
 
 		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+			RayCastListener::Ray ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
@@ -300,24 +300,24 @@ void TeleportAbility::_inStateTeleportable()
 		if (m_rayId != -100 || m_rayId2 != -100)
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
-			RayCastListener::Ray* ray = nullptr;
-			RayCastListener::RayContact* con = nullptr;
+			RayCastListener::Ray& ray = RipExtern::g_rayListener->GetProcessedRay(RipExtern::g_rayListener->MAX_RAYS-1);
+			RayCastListener::RayContact& con = ray.GetRayContact(ray.MAX_CONTACTS-1);
 			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 			{
 				ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 				m_rayId2 = -100;
-				con = ray->getClosestContact();
-				position.x += con->normal.x;
-				position.y += con->normal.y;
-				position.z += con->normal.z;
+				con = ray.getClosestContact();
+				position.x += con.normal.x;
+				position.y += con.normal.y;
+				position.z += con.normal.z;
 			}
 			else if (RipExtern::g_rayListener->hasRayHit(m_rayId2))
 			{
 				ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId2);
-				con = ray->getClosestContact();
-				position.x += con->normal.x;
-				position.y += con->normal.y;
-				position.z += con->normal.z;
+				con = ray.getClosestContact();
+				position.x += con.normal.x;
+				position.y += con.normal.y;
+				position.z += con.normal.z;
 			}
 			_sendTeleportPacket();
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);

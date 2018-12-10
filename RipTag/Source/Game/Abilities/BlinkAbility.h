@@ -3,17 +3,9 @@
 
 class BlinkAbility : public AbilityComponent
 {
-private:
-	const float RANGE = 3.0f;
-	const int MANA_COST = 10;
-	enum BlinkState
-	{
-		Blink,	// Ready to blink
-		Wait	// Just Blinked
-	};
-	BlinkState	m_bState;
-	bool		m_useFunctionCalled;
-	int m_rayId = -100;
+public:
+	static const float RANGE;
+	static const int MANA_COST = 10;
 public:
 	BlinkAbility();
 	~BlinkAbility();
@@ -27,6 +19,16 @@ public:
 	void Use() override;
 
 	void Draw() override;
+private:
+	enum BlinkState
+	{
+		Blink,	// Ready to blink
+		Wait	// Just Blinked
+	};
+	BlinkState	m_bState;
+	bool		m_useFunctionCalled;
+	int m_rayId = -100;
+
 private:
 	void _logic(double deltaTime);
 	void _sendBlinkPacket();

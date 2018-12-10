@@ -77,7 +77,7 @@ void AI::handleStates(const double deltaTime)
 	{
 	case AIState::Investigating_Sight:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
+		//std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
 #endif
 
 		if (timer > 0.3f)
@@ -96,7 +96,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Investigating_Sound:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
+		//std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
 #endif
 
 		if (timer > 0.3f)
@@ -113,7 +113,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Investigating_Room:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
+		//std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
 #endif
 
 		this->_investigatingRoom(deltaTime);
@@ -126,7 +126,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::High_Alert:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
+		//std::cout << yellow << "Enemy State: High Alert" << white << "\r";
 #endif
 
 		this->_highAlert(deltaTime);
@@ -134,7 +134,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Patrolling:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
+		//std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
 #endif
 
 		this->_patrolling(deltaTime);
@@ -142,7 +142,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Suspicious:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
+		//std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
 #endif
 
 		this->_suspicious(deltaTime);
@@ -150,7 +150,7 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Scanning_Area:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
+		//std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
 #endif
 
 		this->_scanningArea(deltaTime);
@@ -158,13 +158,13 @@ void AI::handleStates(const double deltaTime)
 		break;
 	case AIState::Possessed:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Possessed" << white << "\r";
+		//std::cout << yellow << "Enemy State: Possessed" << white << "\r";
 #endif
 		_possessed(deltaTime);
 		break;
 	case AIState::Disabled:
 #ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Disabled" << white << "\r";
+		//std::cout << yellow << "Enemy State: Disabled" << white << "\r";
 #endif
 		_disabled(deltaTime);
 		break;
@@ -203,7 +203,7 @@ void AI::handleStatesClient(const double deltaTime)
 void AI::_onAlerted()
 {
 #ifdef _DEBUG
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
 #endif
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
@@ -233,7 +233,7 @@ void AI::_onInvestigateSound()
 	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 	
 #ifdef _DEBUG
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
 #endif
 	this->m_state = Investigating_Sound;
 	this->m_transState = AITransitionState::NoTransitionState;
@@ -255,7 +255,7 @@ void AI::_onInvestigateSight()
 	this->m_state = Investigating_Sight;
 #ifdef _DEBUG
 
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sight" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sight" << white << std::endl;
 #endif
 	this->m_transState = AITransitionState::NoTransitionState;
 }
@@ -266,7 +266,7 @@ void AI::_onObserve()
 	this->m_actTimer = 0;
 #ifdef _DEBUG
 
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
 #endif
 	this->m_state = Scanning_Area;
 	this->m_transState = AITransitionState::NoTransitionState;
@@ -278,7 +278,7 @@ void AI::_onSearchArea()
 	this->m_state = Investigating_Room;
 #ifdef _DEBUG
 
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
 #endif
 	this->m_transState = AITransitionState::NoTransitionState;
 	auto pos = m_owner->getPosition();
@@ -319,7 +319,7 @@ void AI::_onReturnToPatrol()
 	this->m_state = Patrolling;
 #ifdef _DEBUG
 
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
+	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
 #endif
 	this->m_transState = AITransitionState::NoTransitionState;
 }
@@ -494,7 +494,7 @@ void AI::_highAlert(const double deltaTime)
 		this->m_state = AIState::Suspicious;
 #ifdef _DEBUG
 
-		std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
+		//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
 #endif
 	}
 }

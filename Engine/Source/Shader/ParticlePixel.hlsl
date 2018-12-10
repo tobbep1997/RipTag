@@ -7,7 +7,7 @@ struct VS_OUTPUT
 	float2 uv : UV;
 };
 
-cbuffer PARTICLE_MODIFIERS : register(b0)
+cbuffer PARTICLE_MODIFIERS : register(b10)
 {
 	vector <float, 4> alphaMultipliers;
 	vector <float, 4> fadePoints;
