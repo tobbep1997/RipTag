@@ -217,6 +217,7 @@ void Texture::Bind(const uint8_t slot)
 {
 	if (index == -1)
 		DX::g_deviceContext->PSSetShaderResources(slot, 4, m_SRV);
+	if (m_SRV[3])
 		DX::g_deviceContext->DSSetShaderResources(slot, 4, m_SRV);
 }
 

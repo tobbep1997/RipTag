@@ -28,7 +28,10 @@ struct VS_OUTPUT
 
     float TessFactor : TESS;
 };
-
+#define MAX_TESS 5
+#define MIN_TESS 1
+#define MIN_TESS_DIST 1
+#define MAX_TESS_DIST 10
 VS_OUTPUT main(VS_INPUT input)
 {
 
@@ -50,8 +53,11 @@ VS_OUTPUT main(VS_INPUT input)
     output.uv = input.uv.xy * input.uvMult.xy;
 
     float d = distance(cameraPosition, output.worldPos);
-    float tess = saturate((1 - d) / (1 - 50));
-    output.TessFactor = 1 + tess * (50 - 1);
+
+
+    float tess = saturate((MIN_TESS_DIST - d) / (MIN_TESS_DIST - MAX_TESS_DIST));
+    output.TessFactor = tess * (MAX_TESS - MIN_TESS);
+    output.TessFactor = MAX_TESS - output.TessFactor;
 
 	return output;
 }

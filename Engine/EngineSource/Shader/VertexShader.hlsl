@@ -38,7 +38,7 @@ VS_OUTPUT main(VS_INPUT input)
     output.normal = normalize(mul(input.normal, input.worldMatrix));
     float3 tangent = normalize(mul(input.tangent, input.worldMatrix).xyz);
 	tangent = normalize(tangent - dot(tangent, output.normal.xyz)*output.normal.xyz).xyz;
-	float3 bitangent = cross(output.normal.xyz, tangent);
+    float3 bitangent = cross(tangent, output.normal.xyz);
 	float3x3 TBN = float3x3(tangent, bitangent, output.normal.xyz);
 	output.TBN = TBN;
 

@@ -340,7 +340,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
                                             //We need to set the ambient becouse its and output parameter                                            
     //----------------------------------------------------------------
     //We flip the v becouse export and shit
-    input.uv.y = 1 - input.uv.y;
+    input.uv.y = 1.0f - input.uv.y;
 
     //----------------------------------------------------------------	
     /*
@@ -358,6 +358,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
             Here we sample the normal texture and do stuff
             I honestly got no fucking clue whats happening here
         */
+
         normal = normalize(input.normal.xyz + mul((2.0f * normalTexture.Sample(defaultSampler, input.uv).xyz - 1.0f), input.TBN));
         /*
             This is the texture that makes stuff shiny
@@ -365,7 +366,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
         */
         AORoughMet = MRATexture.Sample(defaultSampler, input.uv).xyz;
     } 
-
+    //return float4(normal, 1);
     //----------------------------------------------------------------
     /*
         Don't touch the magic varibles

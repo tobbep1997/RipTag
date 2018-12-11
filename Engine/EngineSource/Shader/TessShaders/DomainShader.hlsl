@@ -36,12 +36,18 @@ VS_OUTPUT DS(PatchTess patchTess,
 {
     VS_OUTPUT dout = (VS_OUTPUT)0;
     
+
+   
+
     // Interpolate patch attributes to generated vertices.
     dout.worldPos = bary.x * tri[0].worldPos + bary.y * tri[1].worldPos + bary.z * tri[2].worldPos;
     dout.worldPos.w = 1;
     dout.normal = bary.x * tri[0].normal + bary.y * tri[1].normal + bary.z * tri[2].normal;
     dout.uv = bary.x * tri[0].uv + bary.y * tri[1].uv + bary.z * tri[2].uv;
+  
     
+    
+
     // Interpolating normal can unnormalize it, so normalize it.
     dout.normal = normalize(dout.normal);
     dout.normal.w = 0;
@@ -60,12 +66,18 @@ VS_OUTPUT DS(PatchTess patchTess,
     //float mipLevel = clamp((distance(dout.PosW, gEyePosW) - MipInterval) / MipInterval, 0.0f, 6.0f);
     
     // Sample height map (stored in alpha channel).
+
+    float2 uv = dout.uv;
+    uv.y = 1.0f - uv.y;
+
     if (tri[0].info.z == 1)
     {
         float h = length(displacementMap.SampleLevel(defaultSampler, dout.uv, 0).rbg);
+               
+        //float3 normal = normalize(dout.normal.xyz + mul((2.0f * normalTexture.SampleLevel(defaultSampler, uv, 0).xyz) - 1.0f, tri[0].TBN));
 
         // Offset vertex along normal.
-        dout.worldPos += (0.06f * h) * dout.normal;
+        dout.worldPos += (0.05f * h) * dout.normal;
     }
     else
     {

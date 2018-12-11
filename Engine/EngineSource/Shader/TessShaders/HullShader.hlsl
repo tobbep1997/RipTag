@@ -41,13 +41,15 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
     // calculation based on the edge properties so that edges shared by 
     // more than one triangle will have the same tessellation factor.  
     // Otherwise, gaps can appear.
-    //pt.EdgeTess[0] = 0.5f * (patch[1].TessFactor + patch[2].TessFactor);
-    //pt.EdgeTess[1] = 0.5f * (patch[2].TessFactor + patch[0].TessFactor);
-    //pt.EdgeTess[2] = 0.5f * (patch[0].TessFactor + patch[1].TessFactor);
-
     pt.EdgeTess[0] = 0.5f * (patch[1].TessFactor + patch[2].TessFactor);
     pt.EdgeTess[1] = 0.5f * (patch[2].TessFactor + patch[0].TessFactor);
     pt.EdgeTess[2] = 0.5f * (patch[0].TessFactor + patch[1].TessFactor);
+
+    //float tessFactor = 4;
+    //
+    //pt.EdgeTess[0] = tessFactor;
+    //pt.EdgeTess[1] = tessFactor;
+    //pt.EdgeTess[2] = tessFactor;
     pt.InsideTess = pt.EdgeTess[0];
     
     return pt;

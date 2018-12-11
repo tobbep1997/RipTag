@@ -28,6 +28,7 @@
     <FxCompile Include="EngineSource\Shader\TessShaders\DomainShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\TessShaders\HullShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\TessShaders\TessVertex.hlsl" />
+    <FxCompile Include="EngineSource\Shader\TessShaders\TessGeometry.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
