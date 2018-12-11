@@ -69,7 +69,7 @@ void Drawable::_setDynamicBuffer()
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	bufferDesc.ByteWidth = sizeof(stuff) * (UINT)stuffs.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -82,6 +82,7 @@ void Drawable::_setDynamicBuffer()
 
 	bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	bufferDesc.StructureByteStride = sizeof(PostAniDynamicVertex);
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput)))
 	{
 		DX::SetName(m_UAVOutput, L"m_UAVOutput");
