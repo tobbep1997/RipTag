@@ -164,7 +164,9 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 
 	for (unsigned int i = 0; i < m_bufferLenght; ++i)
 	{
-		ID3D11Buffer * buf;
+		BufferMapping temp;
+		temp.m_bufferVec;
+		temp.m_occupied = FALSE;
 		D3D11_BUFFER_DESC instBuffDesc;
 		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
 		instBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -173,11 +175,11 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		instBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 		HRESULT hr;
-		if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, NULL, &buf)))
+		if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, NULL, &temp.m_bufferVec)))
 		{
-			DX::SetName(buf, "instanceBuffer");
+			DX::SetName(temp.m_bufferVec, "instanceBuffer");
 		}
-		m_bufferVec.push_back(buf);
+		m_bufferVec.push_back(temp);
 	}
 
 }
@@ -224,7 +226,7 @@ void ForwardRender::GeometryPass(Camera & camera)
 		DX::INSTANCING::tempInstance(DX::g_cullQueue[i]);
 	}
 	delete bf;
-	DrawInstancedCull(&camera, true);
+	DrawInstancedCull(&camera, true, true);
 
 
 
@@ -271,7 +273,7 @@ void ForwardRender::PrePass(Camera & camera)
 		}
 	}
 	delete bf;
-	DrawInstancedCull(&camera, false);
+	DrawInstancedCull(&camera, false,false,true);
 
 
 
@@ -456,7 +458,6 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 		{
 			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/PixelShader.hlsl"), nullptr, 0);
 
-			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
 				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
 					continue;
@@ -517,15 +518,17 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
 	this->AnimationPrePass(camera);
 
-	Camera * dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
+	Camera * dbg_camera = nullptr;
+	if (Cheet::g_DBG_CAM)
+	{
+	dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
 	dbg_camera->setDirection(0, -1, 0);
 	dbg_camera->setUP(1, 0, 0);
 	DirectX::XMFLOAT4A pos = camera.getPosition();
 	pos.y += 10;
 	dbg_camera->setPosition(pos);
 
-	if (Cheet::g_DBG_CAM)
-	{
+	
 		_mapCameraBuffer(*dbg_camera);
 	}
 	//_mapCameraBuffer(*dbg_camera);
@@ -561,6 +564,7 @@ void ForwardRender::Flush(Camera & camera)
 	this->GeometryPass(camera);
 	this->AnimatedGeometryPass(camera);
 	this->_OutliningPass(camera);
+	m_occpidePid = 0;
 
 
 	//_GuardFrustumDraw();
@@ -642,7 +646,7 @@ void ForwardRender::Release()
 
 	for (unsigned int i = 0; i < m_bufferVec.size(); ++i)
 	{
-		DX::SafeRelease(m_bufferVec.at(i));
+		DX::SafeRelease(m_bufferVec.at(i).m_bufferVec);
 	}
 
 	m_shadowMap->Release();
@@ -723,7 +727,7 @@ void ForwardRender::DrawInstanced(Camera* camera, std::vector<DX::INSTANCING::GR
 	}
 }
 
-void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
+void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures, bool GeoPass, bool PrePass)
 {
 	using namespace DirectX;
 	using namespace DX::INSTANCING;
@@ -736,20 +740,37 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures)
 	for (size_t group = 0; group < instanceGroupSize; group++)
 	{
 		GROUP instance = g_temp.at(group);
-		ID3D11Buffer * instanceBuffer = m_bufferVec.at(group);
+		ID3D11Buffer * instanceBuffer;
+		if (GeoPass || PrePass)
+		{
+			instanceBuffer = m_bufferVec.at(group).m_bufferVec;
+		}
+		else
+		{
+			instanceBuffer = m_bufferVec.at(group + m_occpidePid).m_bufferVec;
+		}
 		
+
+		if (PrePass)
+		{
+			m_bufferVec.at(group).m_occupied = TRUE;
+			m_occpidePid++;
+		}
 
 		//D3D11_SUBRESOURCE_DATA instData;
 		//memset(&instData, 0, sizeof(instData));
 		//instData.pSysMem = instance.attribs.data();
 		//HRESULT hr;
-
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		void* dataPtr;
-		DX::g_deviceContext->Map(instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		dataPtr = (void*)mappedResource.pData;
-		memcpy(dataPtr, instance.attribs.data(), sizeof(OBJECT) * (UINT)instance.attribs.size());
-		DX::g_deviceContext->Unmap(instanceBuffer, 0);
+		if (!GeoPass)
+		{
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			void* dataPtr;
+			DX::g_deviceContext->Map(instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+			dataPtr = (void*)mappedResource.pData;
+			memcpy(dataPtr, instance.attribs.data(), sizeof(OBJECT) * (UINT)instance.attribs.size());
+			DX::g_deviceContext->Unmap(instanceBuffer, 0);
+		}
+		
 
 		//DX::g_deviceContext->UpdateSubresource(instanceBuffer, 0, nullptr, instance.attribs.data(), 0, 0);
 		//We copy the data into the attribute part of the layout.
