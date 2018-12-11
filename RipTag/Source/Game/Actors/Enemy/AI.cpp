@@ -129,6 +129,16 @@ void AI::handleStatesClient(const double deltaTime)
 
 void AI::_onAlerted()
 {
+	//Set animation and send 
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("aware");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "aware");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+		}
+	}
+
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
 	this->m_actTimer = 0;
@@ -140,6 +150,15 @@ void AI::_onAlerted()
 }
 void AI::_onInvestigate()
 {
+	//Set animation and send to client
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+		}
+	}
 	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
 	DirectX::XMFLOAT3 soundPos = m_owner->getLoudestSoundLocation().soundPos;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
@@ -171,6 +190,16 @@ void AI::_onInvestigate()
 }
 void AI::_onObserve()
 {
+	//Set animation and send to client
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+		}
+	}
+
 	m_owner->m_loudestSoundLocation.percentage = 0.0f;
 	m_owner->m_biggestVisCounter = 0.0f;
 	m_owner->setLiniearVelocity();
@@ -181,6 +210,16 @@ void AI::_onObserve()
 }
 void AI::_onReturnToPatrol()
 {
+	//Set animation and send to client
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+		}
+	}
+
 	m_owner->m_loudestSoundLocation.percentage = 0.0f;
 	m_owner->m_biggestVisCounter = 0.0f;
 	this->m_actTimer = 0;
