@@ -250,7 +250,10 @@ bool GamePadHandler::IsLeftStickPressed()
 {
 	if (m_state.IsConnected())
 	{
-		return m_state.IsLeftStickPressed();
+		if (m_buttons.leftStick == DirectX::GamePad::ButtonStateTracker::HELD)
+		{
+			return true;
+		}		
 	}
 	return false;
 }

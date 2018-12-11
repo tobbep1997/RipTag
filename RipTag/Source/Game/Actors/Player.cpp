@@ -951,7 +951,26 @@ void Player::_onSprint()
 		if (Input::isUsingGamepad())
 		{
 			m_currClickSprint = Input::Sprinting();
-			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
+			if (m_currClickSprint)
+			{
+				m_toggleSprint = 1;
+				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+				m_scrollMoveModifier = 0.9f;
+				p_moveState = Sprinting;
+			}
+			else
+			{
+				m_toggleSprint = 0;
+				m_moveSpeed = MOVE_SPEED;
+				m_scrollMoveModifier = 0.9f;
+				p_moveState = Walking;
+			}
+			if (Input::MoveForward() == 0)
+			{
+				p_moveState = Idle;
+				m_toggleSprint = 0;
+			}
+			/*if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
 			{
 				m_toggleSprint = 1;
 			}
@@ -979,7 +998,7 @@ void Player::_onSprint()
 				m_toggleSprint = 0;
 			}
 
-			m_prevClickSprint = m_currClickSprint;
+			m_prevClickSprint = m_currClickSprint;*/
 		}
 		else
 		{
