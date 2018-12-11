@@ -403,6 +403,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 	{
 		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
 		{
+			DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 			DX::g_deviceContext->RSSetState(m_disableBackFace);
 			m_destroyBuffer.TimerAndForwardVector = camera.getForward();
 			m_destroyBuffer.TimerAndForwardVector.w = DX::g_animatedGeometryQueue[i]->getDestructionRate();
@@ -450,7 +451,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 				//DX::g_animatedGeometryQueue[i]->TEMP();
 			}
-
+			DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0xffffffff);
 			DX::g_deviceContext->RSSetState(m_standardRast);
 			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 		}
@@ -503,6 +504,9 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			
 	}
 	delete bf;
+
+	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+
 }
 
 void ForwardRender::Flush(Camera & camera)

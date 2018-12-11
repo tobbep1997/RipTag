@@ -25,11 +25,11 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 	inin.color = input.color;
 	inin.info = input.info;
 
-	float red = saturate(input.timerValue * 0.4705f);
-	float green = saturate(input.timerValue * 0.44705f);
-	float blue = saturate(input.timerValue * 0.5254f);
+	float red = saturate(input.timerValue *1.0f);
+	float green = saturate(input.timerValue * 0.2f);
+	float blue = saturate(input.timerValue * 0.2f);
 
-	return float4(red, green, blue, 1.0f);
+	return float4(red, green, blue, 1.0 - input.timerValue);
 
 	float4 dummy;
 	dummy = OptimizedLightCalculation(inin, dummy);
