@@ -522,7 +522,7 @@ void ForwardRender::Flush(Camera & camera)
 		_mapCameraBuffer(*dbg_camera);
 	}
 	//_mapCameraBuffer(*dbg_camera);
-	//this->PrePass(camera);
+	this->PrePass(camera);
 	
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
