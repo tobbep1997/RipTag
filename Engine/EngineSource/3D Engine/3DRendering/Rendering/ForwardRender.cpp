@@ -465,6 +465,11 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			{
 				//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+				{
+					DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
+				}
+
 				switch (camera.getPerspectiv())
 				{
 				case Camera::Perspectiv::Player:
@@ -487,6 +492,10 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 				//_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
 				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 
+				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+				{
+					DX::g_deviceContext->OMSetDepthStencilState(m_write0State, 0);
+				}
 				//DX::g_animatedGeometryQueue[i]->TEMP();
 			}
 		}
@@ -581,7 +590,7 @@ void ForwardRender::Clear()
 	DX::g_lights.clear();
 
 	DX::g_player = nullptr;
-	DX::g_remotePlayer = nullptr;
+	//DX::g_remotePlayer = nullptr;
 
 	DX::g_outlineQueue.clear();
 	DX::g_visibilityComponentQueue.clear();

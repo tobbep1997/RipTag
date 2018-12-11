@@ -103,4 +103,6 @@ public:
 	
 
 	virtual b3Body* getBody();
+	const b3Hull * getHull();
+	b3Shape * getShape();
 };

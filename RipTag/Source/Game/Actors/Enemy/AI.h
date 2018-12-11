@@ -10,11 +10,9 @@ enum AIState
 	NoState,
 	Investigating,
 	Suspicious,
-	Scanning_Area,
 	Patrolling,
 	Possessed,
-	Disabled,
-
+	Disabled
 };
 
 enum AITransitionState
@@ -27,7 +25,7 @@ enum AITransitionState
 	BeingPossessed,
 	BeingDisabled,
 	ExitingPossess,
-	ExitingDisable,
+	ExitingDisable
 };
 
 class AI
@@ -110,11 +108,9 @@ public:
 	void setTransitionState(AITransitionState state);
 
 	void setGrid(Grid* grid);
-
 	DirectX::XMFLOAT2 GetDirectionToPlayer(const DirectX::XMFLOAT4A & player, Camera & playerCma);
 
 private:
-
 	//Transistion States
 	void _onAlerted();
 	void _onInvestigate();
@@ -127,10 +123,7 @@ private:
 
 	//States
 	void _investigating(const double deltaTime);
-	void _investigatingRoom(const double deltaTime);
-	void _highAlert(const double deltaTime);
 	void _suspicious(const double deltaTime);
-	void _scanningArea(const double deltaTime);
 	void _patrolling(const double deltaTime);
 	void _possessed(const double deltaTime);
 	void _disabled(const double deltaTime);
@@ -143,6 +136,5 @@ private:
 
 	//Actions
 	void _checkTorches(float dt);
-
 };
 

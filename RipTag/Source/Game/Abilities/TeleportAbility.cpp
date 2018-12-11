@@ -246,8 +246,11 @@ void TeleportAbility::_inStateCharging(double dt)
 			setPosition(start.x, start.y, start.z);
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			this->m_lastVelocity = direction;
+
+			
 			chargeTime = 0.0f;
 			m_charge = 0.0f;
+			
 		}
 		else if (Input::OnAbilityReleased())
 		{
@@ -267,9 +270,15 @@ void TeleportAbility::_inStateCharging(double dt)
 			DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
+			DirectX::XMFLOAT4A normDir;
+			DirectX::XMStoreFloat4A(&normDir, DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&direction)));
+			float range = 0.9f;
+
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
-			setPosition(start.x, start.y, start.z);
+
+
+			setPosition(start.x + (normDir.x * range), start.y + (normDir.y * range), start.z + (normDir.z * range));
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			this->m_lastVelocity = direction;
 			chargeTime = 0.0f;
