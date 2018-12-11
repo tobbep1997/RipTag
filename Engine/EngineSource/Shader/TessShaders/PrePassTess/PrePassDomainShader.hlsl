@@ -75,8 +75,8 @@ VS_OUTPUT DS(PatchTess patchTess,
 
         // Offset vertex along normal.
         
+        dout.worldPos += 0.025f * (h - 2.0f) * dout.normal;
 
-        dout.worldPos += (0.025f * (h - 10.0f)) * dout.normal;
     }
     else
     {

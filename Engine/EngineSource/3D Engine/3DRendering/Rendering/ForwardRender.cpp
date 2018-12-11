@@ -585,7 +585,7 @@ void ForwardRender::Flush(Camera & camera)
 
 void ForwardRender::Clear()
 {
-	float c[4] = { .5f,.5f,.5f,1.0f };
+	float c[4] = { .0f,.0f,.0f,1.0f };
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -826,6 +826,35 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 
 		//Map Texture
 		//-----------------------------------------------------------
+
+		if (prePass)
+		{
+
+			std::string textureName = instance.textureName;
+			size_t t = textureName.find_last_of('/');
+			textureName = textureName.substr(t + 1);
+			Texture* tex = Manager::g_textureManager.getTexture(textureName);
+
+			if (tex->m_SRV[3])
+			{
+				DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+
+				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl"), nullptr, 0);
+				DX::g_deviceContext->HSSetShader(DX::g_shaderManager.GetShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/HullShader.hlsl"), nullptr, 0);
+				DX::g_deviceContext->DSSetShader(DX::g_shaderManager.GetShader<ID3D11DomainShader>(L"../Engine/EngineSource/Shader/TessShaders/PrePassTess/PrePassDomainShader.hlsl"), nullptr, 0);
+				DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+			}
+		}
+		else
+		{
+			DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
+			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+		}
+
 		if (bindTextures)
 		{
 			std::string textureName = instance.textureName;
@@ -839,8 +868,6 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 				
 				if (prePass)
 				{
-					//DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/TessShaders/PrePassTess/PrePassTessVertex.hlsl"), nullptr, 0);
-					//DX::g_deviceContext->HSSetShader(DX::g_shaderManager.GetShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/PrePassTess/PrePassHullShader.hlsl"), nullptr, 0);
 					DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/TessShaders/TessVertex.hlsl"), nullptr, 0);
 					DX::g_deviceContext->HSSetShader(DX::g_shaderManager.GetShader<ID3D11HullShader>(L"../Engine/EngineSource/Shader/TessShaders/HullShader.hlsl"), nullptr, 0);
 					DX::g_deviceContext->DSSetShader(DX::g_shaderManager.GetShader<ID3D11DomainShader>(L"../Engine/EngineSource/Shader/TessShaders/PrePassTess/PrePassDomainShader.hlsl"), nullptr, 0);
@@ -866,7 +893,7 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 			}
 
 		}
-		else
+		else if (!prePass)
 		{
 			DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

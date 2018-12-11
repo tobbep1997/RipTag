@@ -28,7 +28,7 @@ struct VS_OUTPUT
 
     float TessFactor : TESS;
 };
-#define MAX_TESS 16
+#define MAX_TESS 64
 #define MIN_TESS 1
 #define MIN_TESS_DIST 5
 #define MAX_TESS_DIST 20
