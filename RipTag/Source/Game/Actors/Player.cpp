@@ -78,6 +78,8 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_smokeBomb.emitter = AudioEngine::Player; 
 	m_smokeBomb.owner = this;
 	m_smokeBomb.loudness = 0.6f; 
+
+	m_head = new PhysicsComponent();
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -122,10 +124,15 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(b3Vec3(0, y*0.70, 0), b3Vec3(x/2, y/2, z/2), 1.0f, 1.0f, "UPPERBODY");
-	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.4f, 0.4f, 0.4f), 1.0f, 1.0f, "HEAD", true);
+	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.4f, 0.2f, 0.4f), 1.0f, 1.0f, "HEAD", true);
 	m_standHeight = (y*1.5);
 	m_crouchHeight = y*0.70;
 	setUserDataBody(this);
+	
+	m_head->Init(world, bodyType, 0.5, 0.4, 0.5, false, 0);
+	m_head->setGravityScale(0);
+	m_head->setObjectTag("HEADO");
+	m_head->getBody()->AddToFilters("PLAYER");
 
 	setEntityType(EntityType::PlayerType);
 	setColor(10, 10, 0, 1);
@@ -301,6 +308,12 @@ void Player::PhysicsUpdate()
 	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y, 0);
 	p_addRotation(0, DirectX::XM_PI * 1.5f, 0);
 
+	b3Vec3 vel = this->getLiniearVelocity();
+	b3Vec3 pos = this->getBody()->GetTransform().translation + this->getBody()->GetShapeList()->GetTransform().translation;
+
+	m_head->p_setRotation(this->getEulerRotation().x, this->getEulerRotation().y, this->getEulerRotation().z);
+	m_head->p_setPosition(pos.x, pos.y, pos.z);
+	m_head->setLiniearVelocity(vel.x, vel.y, vel.z);
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
@@ -769,24 +782,38 @@ void Player::_collision()
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
-		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
+		/*if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
 			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
 			{
 				m_allowPeek = true;
 				m_recentHeadCollision = true;
-			}
+			}*/
+		if (con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO")
+		{
+			m_allowPeek = true;
+			m_recentHeadCollision = true;
+			//m_peekSpeed = 5.0f;
+		}
 	}
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
-		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
+		/*if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
 			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
 			{
 				m_allowPeek = false;
 				peekDir = -LastPeekDir;
 				m_peekRangeA = m_peektimer;
 				m_peekRangeB = 0;
-			}
+			}*/
+		if ((con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
+		{
+			m_allowPeek = false;
+			peekDir = -LastPeekDir;
+			m_peekRangeA = m_peektimer;
+			m_peekRangeB = 0;
+			//m_peekSpeed = 10.0f;
+		}
 	}
 }
 
@@ -1103,8 +1130,16 @@ void Player::_onPeak(double deltaTime)
 			}
 			else
 			{
-				m_peekRangeA = Input::PeekRight();
-				m_peekRangeB = -Input::PeekRight();
+				if (fabs(Input::PeekRight()) < fabs(m_peektimer))
+				{
+					m_peekRangeA = m_peektimer;
+					m_peekRangeB = -m_peektimer;
+				}
+				else
+				{
+					m_peekRangeA = Input::PeekRight();
+					m_peekRangeB = -Input::PeekRight();
+				}
 
 				if (Input::PeekRight() > 0) //Left Side
 					peekDir = 1;
@@ -1326,7 +1361,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
 	m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
-	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - m_standHeight;
+	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - (m_standHeight - m_crouchHeight);
 
 	if (m_crouchAnimSteps == 1 || m_crouchAnimSteps == 0) //Animation Finished
 	{
@@ -1335,7 +1370,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	//--------------------------------------Camera movement---------------------------------------// 
 	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y + 0.75f, headPosWorld.z, 1.0f);
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
 	p_camera->setPosition(pos);
 	//Camera Tilt
 	p_CameraTilting(deltaTime, m_peektimer);
