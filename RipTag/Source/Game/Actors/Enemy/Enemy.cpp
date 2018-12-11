@@ -1230,6 +1230,8 @@ void Enemy::_CheckPlayer(double deltaTime)
 		{
 			visPerc *= 1.5;
 		}
+		if (lengthToTarget < m_playerTooCloseInstaLose)
+			visPerc *= 5;
 
 		if (visPerc > 0)
 		{
