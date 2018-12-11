@@ -672,6 +672,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	Manager::g_meshManager.loadStaticMesh("WALL");
 	Manager::g_textureManager.loadTextures("OPENWALL");
 	Manager::g_textureManager.loadTextures("CLOSEDWALL");
+	Manager::g_textureManager.loadTextures("HUDLEVER"); 
 
 	returnableRoom = DBG_NEW Room(worldPtr, arrayIndex, playerPtr);
 	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
@@ -687,16 +688,14 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 	Quad * dbg_quad = new Quad();
 	dbg_quad->init();
-	dbg_quad->setPivotPoint(Quad::PivotPoint::upperRight);
+	dbg_quad->setPivotPoint(Quad::PivotPoint::center);
 	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
-	dbg_quad->setFont(FontHandler::getFont("consolas16"));
-	dbg_quad->setPosition(1, 0.8);
-	dbg_quad->setString("Amount of Spakar\n " + std::to_string((UINT)m_spakCounter));
-	//dbg_quad->setPosition(1, 1);
-	dbg_quad->setTextColor(DirectX::XMFLOAT4A(1, 0, 0, 1));
-	dbg_quad->setScale(.20f, .2f);
-	dbg_quad->setColor(0, 0, 0, 1);
-	dbg_quad->setUnpressedTexture("DAB");
+	dbg_quad->setFont(FontHandler::getFont("consolas32"));
+	dbg_quad->setPosition(0.95, 0.8);
+	dbg_quad->setString("\n   " + std::to_string((UINT)m_spakCounter));
+	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0.5, 0, 0.5, 1));
+	dbg_quad->setScale(.20f, .25f);
+	dbg_quad->setUnpressedTexture("HUDLEVER");
 	dbg_quad->setPressedTexture("");
 	dbg_quad->setHoverTexture("");
 	dbg_quad->Draw();
