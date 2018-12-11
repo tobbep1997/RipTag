@@ -906,6 +906,8 @@ void PlayState::_checkPauseState()
 		m_playerManager->getLocalPlayer()->LockPlayerInput();
 		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
 		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
+		m_playerManager->getLocalPlayer()->setHeadbobbingActive(false); 
+		m_playerManager->getLocalPlayer()->setPlayAnimation(false); 
 		m_pPauseMenu = new PauseMenu(); 
 	}
 
@@ -917,6 +919,8 @@ void PlayState::_checkPauseState()
 			m_gamePaused = false;
 			m_currentState = 0;
 			m_playerManager->getLocalPlayer()->UnlockPlayerInput();
+			m_playerManager->getLocalPlayer()->setHeadbobbingActive(true); 
+			m_playerManager->getLocalPlayer()->setPlayAnimation(true);
 			delete m_pPauseMenu;
 			m_pPauseMenu = nullptr;
 
