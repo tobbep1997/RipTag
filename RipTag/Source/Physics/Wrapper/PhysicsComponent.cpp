@@ -553,6 +553,11 @@ const b3Hull * PhysicsComponent::getHull()
 	return m_poly->GetHull();
 }
 
+b3Shape * PhysicsComponent::getShape()
+{
+	return this->m_shape;
+}
+
 void PhysicsComponent::setAwakeState(const bool& awa)
 {
 	m_body->SetAwake(awa);
