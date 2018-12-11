@@ -522,7 +522,7 @@ void ForwardRender::Flush(Camera & camera)
 		_mapCameraBuffer(*dbg_camera);
 	}
 	//_mapCameraBuffer(*dbg_camera);
-	this->PrePass(camera);
+	//this->PrePass(camera);
 	
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
@@ -838,7 +838,7 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
 				DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 				DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
-				DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+				DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);			
 
 			}
 
@@ -850,6 +850,8 @@ void ForwardRender::DrawInstancedCullWithTes(Camera* camera, const bool& bindTex
 			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/VertexShader.hlsl"), nullptr, 0);
 			DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
 			DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+			DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+
 		}
 		//-----------------------------------------------------------
 

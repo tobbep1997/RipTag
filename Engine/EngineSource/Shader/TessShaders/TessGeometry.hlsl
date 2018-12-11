@@ -34,7 +34,7 @@ void main(
 [maxvertexcount(3)]
 void main(
 	triangle DS_OUTPUT input[3],
-	inout LineStream<GS_OUTPUT> output
+	inout TriangleStream<GS_OUTPUT> output
 )
 {
 	for (uint i = 0; i < 3; i++)

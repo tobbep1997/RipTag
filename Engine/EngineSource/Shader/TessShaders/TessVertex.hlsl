@@ -28,10 +28,10 @@ struct VS_OUTPUT
 
     float TessFactor : TESS;
 };
-#define MAX_TESS 5
-#define MIN_TESS 1
+#define MAX_TESS 10
+#define MIN_TESS 2
 #define MIN_TESS_DIST 1
-#define MAX_TESS_DIST 10
+#define MAX_TESS_DIST 40
 VS_OUTPUT main(VS_INPUT input)
 {
 

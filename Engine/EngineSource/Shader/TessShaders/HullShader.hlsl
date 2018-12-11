@@ -45,11 +45,11 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
     pt.EdgeTess[1] = 0.5f * (patch[2].TessFactor + patch[0].TessFactor);
     pt.EdgeTess[2] = 0.5f * (patch[0].TessFactor + patch[1].TessFactor);
 
-    //float tessFactor = 4;
-    //
-    //pt.EdgeTess[0] = tessFactor;
-    //pt.EdgeTess[1] = tessFactor;
-    //pt.EdgeTess[2] = tessFactor;
+    float tessFactor = 4;
+    
+    pt.EdgeTess[0] = tessFactor;
+    pt.EdgeTess[1] = tessFactor;
+    pt.EdgeTess[2] = tessFactor;
     pt.InsideTess = pt.EdgeTess[0];
     
     return pt;
