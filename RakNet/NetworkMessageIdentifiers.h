@@ -34,16 +34,16 @@ namespace Network
 		ID_PLAYER_BLINK				 = ID_USER_PACKET_ENUM + 14,
 		ID_PLAYER_TELEPORT			 = ID_USER_PACKET_ENUM + 15,
 		// 20-29 is reserved for lobby
-		ID_SERVER_ADVERTISE					= ID_USER_PACKET_ENUM + 20,
-		ID_CHAR_SELECTED							= ID_USER_PACKET_ENUM + 21,
-		ID_READY_PRESSED							= ID_USER_PACKET_ENUM + 22,
-		ID_REQUEST_NID								= ID_USER_PACKET_ENUM + 23,
-		ID_REPLY_NID									= ID_USER_PACKET_ENUM + 24,
-		ID_REQUEST_SELECTED_CHAR		= ID_USER_PACKET_ENUM + 25,
-		ID_HOST_NAME								= ID_USER_PACKET_ENUM + 26,
+		ID_SERVER_ADVERTISE			 = ID_USER_PACKET_ENUM + 20,
+		ID_CHAR_SELECTED			 = ID_USER_PACKET_ENUM + 21,
+		ID_READY_PRESSED			 = ID_USER_PACKET_ENUM + 22,
+		ID_REQUEST_NID				 = ID_USER_PACKET_ENUM + 23,
+		ID_REPLY_NID				 = ID_USER_PACKET_ENUM + 24,
+		ID_REQUEST_SELECTED_CHAR	 = ID_USER_PACKET_ENUM + 25,
+		ID_HOST_NAME				 = ID_USER_PACKET_ENUM + 26,
 
 		//this packet is sent by the server, contains a random seed
-		ID_GAME_STARTED							= ID_USER_PACKET_ENUM + 29,
+		ID_GAME_STARTED				= ID_USER_PACKET_ENUM + 29,
 		//GAMEPLAY/GAMESTATE EVENTS 30-49
 		ID_TRIGGER_USED				= ID_USER_PACKET_ENUM + 30,
 		ID_PLAYER_WON				= ID_USER_PACKET_ENUM + 31,
@@ -52,7 +52,8 @@ namespace Network
 		ID_ENEMY_VISIBILITY			= ID_USER_PACKET_ENUM + 34,
 		ID_ENEMY_POSSESSED			= ID_USER_PACKET_ENUM + 35,
 		ID_ENEMY_DISABLED			= ID_USER_PACKET_ENUM + 36,
-		ID_SMOKE_DETONATE			= ID_USER_PACKET_ENUM + 37
+		ID_SMOKE_DETONATE			= ID_USER_PACKET_ENUM + 37,
+		ID_ENEMY_ANIMATION_STATE	= ID_USER_PACKET_ENUM + 38
 	};
 
 
@@ -112,6 +113,22 @@ namespace Network
 		//Animation data
 		float moveSpeed;
 		float direction;
+	};
+
+	struct ENEMYANIMATIONSTATEPACKET
+	{
+		unsigned char id = ID_ENEMY_ANIMATION_STATE;
+		int uniqueID;
+
+		char animationStateName[32];
+
+		ENEMYANIMATIONSTATEPACKET(int _uniqueID, std::string _animationStateName)
+			: uniqueID(_uniqueID)
+		{
+			if (_animationStateName.size() > 32)
+				_animationStateName = _animationStateName.substr(0, 32);
+			strcpy(animationStateName, _animationStateName.c_str());
+		}
 	};
 
 	struct ENTITYABILITYPACKET
