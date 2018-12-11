@@ -157,7 +157,14 @@ private:
 	ID3D11Texture2D * m_screenShootTex;
 	ID3D11ShaderResourceView * m_screenShootSRV;
 
-	std::vector<ID3D11Buffer *> m_bufferVec;
+	struct BufferMapping
+	{
+		ID3D11Buffer * m_bufferVec = nullptr;
+		BOOL m_occupied = FALSE;
+	};
+
+	std::vector<BufferMapping> m_bufferVec;
+	UINT m_occpidePid = 0;
 	UINT m_bufferSize = 100000;
 	UINT m_bufferLenght = 70;
 	
@@ -185,7 +192,7 @@ public:
 
 	void Release();
 	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
-	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
+	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true, bool GeoPass = false, bool PrePass = false);
 
 	ID3D11BlendState* getAlphaBlendState(); 
 	ID3D11DepthStencilState* getDepthStencilState(); 
