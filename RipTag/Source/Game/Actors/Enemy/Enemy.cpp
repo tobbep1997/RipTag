@@ -158,8 +158,10 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 				auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
 				auto walkState = stateMachine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
 				walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
+				walkState->SetDefaultBlendTime(0.2f);
 				auto awareState = stateMachine->AddLoopState("aware", awareAnim);
 				awareState->SetDefaultBlendTime(0.4f);
+
 				auto knockState = stateMachine->AddLoopState("knocked_state", knockAnim);
 				knockState->SetDefaultBlendTime(.1f);
 				stateMachine->SetState("walk_state");
