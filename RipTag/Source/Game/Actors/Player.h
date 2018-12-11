@@ -180,6 +180,7 @@ private:
 	int m_lastInteractRayId = -100;
 	int m_objectInfoRayId = -100; // objectInfo
 
+	PhysicsComponent* m_head;
 public:
 	//Magic number
 	static const int g_fullVisability = 1300;
