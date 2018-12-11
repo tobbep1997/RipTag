@@ -888,15 +888,15 @@ void Enemy::_onJump()
 
 void Enemy::_onCrouch()
 {
-	if (Input::isUsingGamepad())
+	m_currClickCrouch = std::get<0>(Input::Crouch());
+	if (std::get<1>(Input::Crouch()) && m_currClickCrouch)
 	{
-		m_currClickCrouch = Input::Crouch();
-		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
+		if (!m_prevClickCrouch && m_toggleCrouch == 0)
 		{
 			_activateCrouch();
 			m_toggleCrouch = 1;
 		}
-		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
+		else if (!m_prevClickCrouch && m_toggleCrouch == 1)
 		{
 			_deActivateCrouch();
 			m_toggleCrouch = 0;
@@ -904,31 +904,22 @@ void Enemy::_onCrouch()
 			//Just so we don't end up in an old sprint-mode when deactivating crouch.
 			m_toggleSprint = 0;
 		}
-		m_prevClickCrouch = m_currClickCrouch;
 	}
 	else
 	{
-		if (Input::Crouch())
+		if (m_currClickCrouch)
 		{
-			if (m_kp.crouching == false)
-			{
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
-				crouchDir = 1;
-
-				m_kp.crouching = true;
-			}
+			_activateCrouch();
+			m_toggleCrouch = 0;
 		}
-		else
+		else if (m_toggleCrouch == 0)
 		{
-			if (m_kp.crouching)
-			{
-				crouchDir = -1;
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
-
-				m_kp.crouching = false;
-			}
+			_deActivateCrouch();
+			m_toggleSprint = 0;
 		}
 	}
+
+	m_prevClickCrouch = m_currClickCrouch;
 
 	if (m_kp.crouching)
 	{
@@ -940,9 +931,9 @@ void Enemy::_onSprint()
 {
 	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 	{
-		if (Input::isUsingGamepad())
+		if (std::get<1>(Input::Sprinting()))
 		{
-			m_currClickSprint = Input::Sprinting();
+			m_currClickSprint = std::get<0>(Input::Sprinting());
 			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
 			{
 				m_toggleSprint = 1;
@@ -975,18 +966,18 @@ void Enemy::_onSprint()
 		}
 		else
 		{
-			if (Input::Sprinting())
+			if (std::get<0>(Input::Sprinting()))
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
 				m_scrollMoveModifier = 0.9f;
-
 			}
 			else
 			{
 				m_moveSpeed = MOVE_SPEED;
 				p_moveState = Walking;
 			}
+			m_toggleSprint = 0;
 		}
 	}
 	else

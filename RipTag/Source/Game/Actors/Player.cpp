@@ -948,53 +948,46 @@ void Player::_onSprint()
 {
 	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 	{
-		if (Input::isUsingGamepad())
+		m_currClickSprint = std::get<0>(Input::Sprinting());
+		if (std::get<1>(Input::Sprinting()))
 		{
-			m_currClickSprint = Input::Sprinting();
 			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
 			{
 				m_toggleSprint = 1;
 			}
-
-			if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
-			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
-			}
-			else
+			/*else if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 1)
 			{
 				m_toggleSprint = 0;
-			}
+			}*/
 
-			if (m_toggleSprint == 0)
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
-
-			if (Input::MoveForward() == 0)
-			{
-				p_moveState = Idle;
-				m_toggleSprint = 0;
-			}
-
-			m_prevClickSprint = m_currClickSprint;
 		}
 		else
 		{
-			if (Input::Sprinting())
+			//KEYBOARD
+			if (m_currClickSprint)
 			{
 				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
 				p_moveState = Sprinting;
 				m_scrollMoveModifier = 0.9f;
-
+				m_toggleSprint = 0;
 			}
-			else
+			else if(m_toggleSprint == 0)
 			{
 				m_moveSpeed = MOVE_SPEED;
 				p_moveState = Walking;
 			}
+		}
+
+		//GAMEPAD
+		if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
+		{
+			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+			p_moveState = Sprinting;
+			m_scrollMoveModifier = 0.9f;
+		}
+		else
+		{
+			m_toggleSprint = 0;
 		}
 	}
 	else
@@ -1003,15 +996,17 @@ void Player::_onSprint()
 		p_moveState = Idle;
 	}
 
+	m_prevClickSprint = m_currClickSprint;
+
 }
 
 void Player::_onCrouch()
 {
 	using namespace Network;
-	if (Input::isUsingGamepad())
+	m_currClickCrouch = std::get<0>(Input::Crouch());
+	if (std::get<1>(Input::Crouch()) && m_currClickCrouch)
 	{
-		m_currClickCrouch = Input::Crouch();
-		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
+		if (!m_prevClickCrouch && m_toggleCrouch == 0)
 		{
 			this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
 			if (Multiplayer::GetInstance()->isConnected())
@@ -1023,7 +1018,7 @@ void Player::_onCrouch()
 			_activateCrouch();
 			m_toggleCrouch = 1;
 		}
-		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
+		else if (!m_prevClickCrouch && m_toggleCrouch == 1)
 		{
 			this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 			if (Multiplayer::GetInstance()->isConnected())
@@ -1038,45 +1033,33 @@ void Player::_onCrouch()
 			//Just so we don't end up in an old sprint-mode when deactivating crouch.
 			m_toggleSprint = 0;
 		}
-		m_prevClickCrouch = m_currClickCrouch;
 	}
 	else
 	{
-		if (Input::Crouch())
+		if (m_currClickCrouch)
 		{
-			if (m_kp.crouching == false)
+			this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
+			if (Multiplayer::GetInstance()->isConnected())
 			{
-				this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
-				if (Multiplayer::GetInstance()->isConnected())
-				{
-					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
-					Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-				}
-
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
-				crouchDir = 1;
-
-				m_kp.crouching = true;
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
+			_activateCrouch();
+			m_toggleCrouch = 0;
 		}
-		else
+		else if (m_toggleCrouch == 0)
 		{
-			if (m_kp.crouching)
+			this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
+			if (Multiplayer::GetInstance()->isConnected())
 			{
-				this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
-				if (Multiplayer::GetInstance()->isConnected())
-				{
-					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
-					Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-				}
-
-				crouchDir = -1;
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
-
-				m_kp.crouching = false;
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
+			_deActivateCrouch();
+			m_toggleSprint = 0;
 		}
 	}
+	m_prevClickCrouch = m_currClickCrouch;
 
 	if (m_kp.crouching)
 	{

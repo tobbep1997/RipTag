@@ -30,7 +30,7 @@ public:
 	//Action Mappings
 	static bool Jump();
 	static bool CheckVisability();
-	static bool Crouch();
+	static std::tuple<bool, bool> Crouch();
 
 	//Axis binds
 	static float MoveForward();
@@ -38,7 +38,7 @@ public:
 	static float MouseMovementModifier();
 	static bool ResetMouseMovementModifier();
 	static float PeekRight();
-	static bool Sprinting();
+	static std::tuple<bool,bool> Sprinting();
 	static bool OnAbilityPressed();
 	static bool OnAbilityReleased();
 	static bool OnAbility2Pressed();

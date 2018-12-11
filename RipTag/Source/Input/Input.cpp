@@ -82,11 +82,15 @@ bool Input::CheckVisability()
 	return result;
 }
 
-bool Input::Crouch()
+std::tuple<bool, bool> Input::Crouch()
 {
 	bool result = false;
+	bool gamepad = false;
 	if (isUsingGamepad())
+	{
 		result = GamePadHandler::IsRightStickPressed();
+		gamepad = result;
+	}
 	
 	if (!result)
 	{
@@ -103,7 +107,7 @@ bool Input::Crouch()
 		}
 	}
 	
-	return result;
+	return { result, gamepad };
 }
 
 
@@ -223,11 +227,15 @@ float Input::PeekRight()
 	return result;
 }
 
-bool Input::Sprinting()
+std::tuple<bool, bool> Input::Sprinting()
 {
 	bool result = false;
+	bool gamepad = false;
 	if (isUsingGamepad())
+	{
 		result = GamePadHandler::IsLeftStickPressed();
+		gamepad = result;
+	}
 
 	if (!result)
 	{
@@ -244,7 +252,7 @@ bool Input::Sprinting()
 		}
 	}
 	
-	return result;
+	return { result, gamepad };
 }
 
 bool Input::OnAbilityPressed()
