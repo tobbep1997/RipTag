@@ -736,7 +736,72 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures, 
 	   
 	size_t instanceGroupSize = g_temp.size();
 	size_t attributeSize = 0;
+
+	ID3D11Buffer * meshBuff = nullptr;
+	ID3D11Buffer * objBuff = nullptr;
+
+	UINT bufferMeshSize = 0;
+	UINT bufferObjectSize = 0;
+
+	std::vector<StaticVertex> fullMesh;
+	std::vector<OBJECT> fullObj;
+	for (unsigned int i = 0; i < instanceGroupSize; ++i)
+	{
+		GROUP instance = g_temp.at(i);
+		
+		
+
+		bufferMeshSize += instance.staticMesh->getSize();
+		bufferObjectSize += sizeof(OBJECT) * (UINT)instance.attribs.size();
+
+		for (unsigned int j = 0; j < instance.staticMesh->getVertice().size(); ++j)
+		{
+			fullMesh.push_back(instance.staticMesh->getVertice().at(j));
+		}
+		for (unsigned int j = 0; j < instance.attribs.size(); ++j)
+		{
+			fullObj.push_back(instance.attribs.at(j));
+		}
+	}
+
+	if (instanceGroupSize != 0)
+	{
+		D3D11_BUFFER_DESC instBuffDesc;
+		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+		instBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+		instBuffDesc.ByteWidth = bufferMeshSize;
+		instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		instBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		HRESULT hr;
+		D3D11_SUBRESOURCE_DATA vertexData;
+		vertexData.pSysMem = fullMesh.data();
+
+		if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, &vertexData, &meshBuff)))
+		{
+			DX::SetName(meshBuff, "instanceBuffer");
+		}
+
+		
+		memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+		instBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+		instBuffDesc.ByteWidth = bufferObjectSize;
+		instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		instBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		
 	
+		vertexData.pSysMem = fullObj.data();
+	
+
+		if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, &vertexData, &objBuff)))
+		{
+			DX::SetName(objBuff, "instanceBuffer");
+		}
+
+	}
+
+	UINT SizeAmount = 0;
+	UINT SizeInst = 0;
 	for (size_t group = 0; group < instanceGroupSize; group++)
 	{
 		GROUP instance = g_temp.at(group);
@@ -761,15 +826,15 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures, 
 		//memset(&instData, 0, sizeof(instData));
 		//instData.pSysMem = instance.attribs.data();
 		//HRESULT hr;
-		if (!GeoPass)
-		{
-			D3D11_MAPPED_SUBRESOURCE mappedResource;
-			void* dataPtr;
-			DX::g_deviceContext->Map(instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-			dataPtr = (void*)mappedResource.pData;
-			memcpy(dataPtr, instance.attribs.data(), sizeof(OBJECT) * (UINT)instance.attribs.size());
-			DX::g_deviceContext->Unmap(instanceBuffer, 0);
-		}
+		//if (!GeoPass)
+		//{
+		//	D3D11_MAPPED_SUBRESOURCE mappedResource;
+		//	void* dataPtr;
+		//	DX::g_deviceContext->Map(instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		//	dataPtr = (void*)mappedResource.pData;
+		//	memcpy(dataPtr, instance.attribs.data(), sizeof(OBJECT) * (UINT)instance.attribs.size());
+		//	DX::g_deviceContext->Unmap(instanceBuffer, 0);
+		//}
 		
 
 		//DX::g_deviceContext->UpdateSubresource(instanceBuffer, 0, nullptr, instance.attribs.data(), 0, 0);
@@ -790,8 +855,8 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures, 
 
 		UINT offset = 0;
 		ID3D11Buffer * bufferPointers[2];
-		bufferPointers[0] = instance.staticMesh->getBuffer();
-		bufferPointers[1] = instanceBuffer;
+		bufferPointers[0] = meshBuff;
+		bufferPointers[1] = objBuff;
 
 		unsigned int strides[2];
 		strides[0] = sizeof(StaticVertex);
@@ -805,8 +870,10 @@ void ForwardRender::DrawInstancedCull(Camera* camera, const bool& bindTextures, 
 
 		DX::g_deviceContext->DrawInstanced(instance.staticMesh->getVertice().size(),
 			instance.attribs.size(),
-			0U,
-			0U);
+			SizeAmount,
+			SizeInst);
+		SizeAmount += instance.staticMesh->getVertice().size();
+		SizeInst += instance.attribs.size();
 		//DX::SafeRelease(instanceBuffer);
 	}
 	g_temp.clear();
