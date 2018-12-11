@@ -213,7 +213,6 @@ void LevelHandler::_LoadCorrectRoom(const int& seed, const int& roomIndex)
 	m_rooms.push_back(room);
 
 	m_rooms.at(0)->loadTextures();
-	int x = m_rooms.at(0)->getRoomIndex();
 	if (m_rooms.at(0)->getRoomIndex() != -1)
 		m_rooms.at(0)->LoadRoomToMemory();
 }
