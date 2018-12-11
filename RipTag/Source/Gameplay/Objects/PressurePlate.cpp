@@ -21,6 +21,7 @@ PressurePlate::~PressurePlate()
 void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, true);
+	
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("PressurePlate");
@@ -57,14 +58,15 @@ void PressurePlate::Update(double deltaTime)
 					bool useTrigger = true;
 					//Do a check with the remote player if he is inside this objects bounding box, we have a pointer to RemotePlayer in extern
 					//I am assuming the DirectX BoundingBox is equal to the Bounce BB. IF this is not the case, find a solution with the BOUNCE BB.  
-					if (DX::g_remotePlayer)
+				if (DX::g_remotePlayer)
 					{
 						DirectX::XMFLOAT4A remotePlayerPos = DX::g_remotePlayer->getPosition();
 						b3AABB bb;
+						
 						if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this)
-							shapeA->ComputeAabb(bb, shapeA->GetTransform());
+							shapeA->ComputeAabb(bb, this->getBody()->GetTransform());
 						else
-							shapeB->ComputeAabb(bb, shapeB->GetTransform());
+							shapeB->ComputeAabb(bb, this->getBody()->GetTransform());
 						
 						//Put the position into the same x-z plane
 						remotePlayerPos.y = bb.GetCenter().y;

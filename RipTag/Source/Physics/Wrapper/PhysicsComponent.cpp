@@ -548,6 +548,11 @@ b3Body* PhysicsComponent::getBody()
 	return this->m_body;
 }
 
+const b3Hull * PhysicsComponent::getHull()
+{
+	return m_poly->GetHull();
+}
+
 void PhysicsComponent::setAwakeState(const bool& awa)
 {
 	m_body->SetAwake(awa);
