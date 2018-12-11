@@ -70,13 +70,13 @@ VS_OUTPUT DS(PatchTess patchTess,
     if (tri[0].info.z == 1)
     {
         float h = length(displacementMap.SampleLevel(defaultSampler, uv, 0).rbg);
-        h = clamp(h, 0.0f, 1.0f);
+               
         //float3 normal = normalize(dout.normal.xyz + mul((2.0f * normalTexture.SampleLevel(defaultSampler, uv, 0).xyz) - 1.0f, tri[0].TBN));
 
         // Offset vertex along normal.
         
 
-        dout.worldPos += (0.025f * (h - 1.0f)) * dout.normal;
+        dout.worldPos += (0.025f * (h - 10.0f)) * dout.normal;
     }
     else
     {

@@ -82,7 +82,7 @@ namespace DX {
 		extern void submitToInstance(Drawable* drawable, Camera * camera);
 
 		extern std::vector<GROUP> g_temp;
-		extern void tempInstance(Drawable* drawable);
+		extern void tempInstance(Drawable* drawable, const bool & prePass = false);
 	}
 
 }

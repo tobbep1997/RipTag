@@ -319,3 +319,36 @@ void Transform::setVelocity(b3Vec3 vel)
 {
 	m_Velocity = vel;
 }
+
+DirectX::XMFLOAT4X4A Transform::CreateNewWorldMatrix(const DirectX::XMFLOAT3& scale)
+{
+	using namespace DirectX;
+	XMMATRIX translation = DirectX::XMMatrixIdentity();
+	XMMATRIX scaling = DirectX::XMMatrixIdentity();
+	XMMATRIX rotation = DirectX::XMMatrixIdentity();
+	translation = XMMatrixTranslation(this->p_position.x, this->p_position.y, this->p_position.z);
+	scaling = XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixScaling(this->p_scale.x, this->p_scale.y, this->p_scale.z);
+
+	if (p_physicsRotation._11 == INT16_MIN)
+	{
+		rotation = XMMatrixRotationRollPitchYaw(this->p_rotation.x, this->p_rotation.y, this->p_rotation.z);
+		//rotation = rotation * p_forcedRotation;
+	}
+	else
+	{
+		rotation = XMLoadFloat3x3(&p_physicsRotation);
+	}
+	XMMATRIX worldMatrix;
+	if (DirectX::XMMatrixIsIdentity(p_forcedWorld))
+		worldMatrix = XMMatrixTranspose(XMMatrixMultiply(m_modelTransform, scaling * rotation * translation));
+	else
+		worldMatrix = p_forcedWorld;
+	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
+
+	if (m_parent)
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+
+	XMFLOAT4X4A retWorld;
+	XMStoreFloat4x4A(&retWorld, worldMatrix);
+	return retWorld;
+}

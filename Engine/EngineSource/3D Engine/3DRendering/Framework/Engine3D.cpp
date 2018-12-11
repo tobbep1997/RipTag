@@ -185,7 +185,7 @@ void DX::INSTANCING::submitToInstance(Drawable* drawable, Camera * camera)
 std::vector<Drawable*> DX::g_cullQueue;
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_temp;
 
-void DX::INSTANCING::tempInstance(Drawable* drawable)
+void DX::INSTANCING::tempInstance(Drawable* drawable, const bool & prePass)
 {
 	using namespace DirectX;
 	using namespace DX::INSTANCING;
@@ -203,10 +203,13 @@ void DX::INSTANCING::tempInstance(Drawable* drawable)
 	});
 
 	OBJECT attribute;
+	XMFLOAT4X4A worldMatrix; 
+	worldMatrix = drawable->getWorldmatrix();
+	
 
-	attribute.worldMatrix = drawable->getWorldmatrix();
+	attribute.worldMatrix = worldMatrix;
 	attribute.objectColor = drawable->getColor();
-	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
+	attribute.textureTileMult = XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
 	attribute.usingTexture.x = drawable->isTextureAssigned();
 	if (attribute.usingTexture.x)
 	{
@@ -448,6 +451,8 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 		DX::SetName(m_depthStencilState, "ENGINE: m_depthStencilState");
 		if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex)))
 		{
+			D3D11_DEPTH_STENCIL_DESC desc{};
+			
 			DX::SetName(m_depthBufferTex, "ENGINE: m_depthBufferTex");
 			if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView)))
 			{

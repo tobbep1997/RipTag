@@ -138,10 +138,11 @@ private:
 	bool m_firstRun = true;
 	ID3D11BlendState* m_alphaBlend;
 
-	ID3D11RasterizerState * m_standardRast;		//RE
-	ID3D11RasterizerState * m_wireFrame;		//RE
-	ID3D11RasterizerState * m_disableBackFace;	//RE
-	ID3D11RasterizerState * m_NUKE;				//RE
+	ID3D11RasterizerState * m_standardRast		= nullptr;
+	ID3D11RasterizerState * m_wireFrame			= nullptr;
+	ID3D11RasterizerState * m_disableBackFace	= nullptr;
+	ID3D11RasterizerState * m_NUKE				= nullptr;
+	ID3D11RasterizerState * m_prePassRasterizer = nullptr;
 
 	ID3D11Buffer * m_outlineBuffer;				//RE
 	OutLineBuffer m_outLineValues;
@@ -186,7 +187,7 @@ public:
 	void Release();
 	void DrawInstanced(Camera * camera, std::vector<DX::INSTANCING::GROUP> * instanceGroup, const bool & bindTextures = true);
 	void DrawInstancedCull(Camera * camera, const bool & bindTextures = true);
-	void DrawInstancedCullWithTes(Camera * camera, const bool & bindTextures = true);
+	void DrawInstancedCullWithTes(Camera * camera, const bool & bindTextures = true, const bool & prePass = false);
 
 	ID3D11BlendState* getAlphaBlendState(); 
 	ID3D11DepthStencilState* getDepthStencilState(); 

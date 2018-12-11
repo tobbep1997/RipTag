@@ -72,6 +72,8 @@ public:
 	// #todoREMOVE
 	void setVelocity(b3Vec3 vel);
 	// #todoREMOVE
+
+	DirectX::XMFLOAT4X4A CreateNewWorldMatrix(const DirectX::XMFLOAT3 & scale);
 private:
 	b3Vec3 m_Velocity = { 0.0, 0.0, 0.0 };
 };

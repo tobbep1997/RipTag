@@ -114,15 +114,15 @@ const std::string & StaticMesh::getName() const
 
 bool Close(const DirectX::XMFLOAT4A & p1, const DirectX::XMFLOAT4A & p2, const float & distance) 
 {
-	const float d = powf(fabs(p1.x - p2.x), 2) + powf(fabs(p1.y - p2.y), 2) + powf(fabs(p1.z - p2.z), 2);
+	const float d = sqrt(pow(abs(p1.x - p2.x), 2.0f) + pow(abs(p1.y - p2.y), 2.0f) + pow(abs(p1.z - p2.z), 2.0f));
 
-	return d <= powf(distance, 2.0f);
+	return d <= distance;
 }
 
 DirectX::XMFLOAT4A CalcNewNormal(const std::vector<DirectX::XMFLOAT4A> & normals)
 {
 	DirectX::XMFLOAT4A newNormal = DirectX::XMFLOAT4A(0,0,0,0);
-	for (int i = 0; i < normals.size(); i++)
+	for (size_t i = 0; i < normals.size(); i++)
 	{
 		newNormal.x += normals[i].x;
 		newNormal.y += normals[i].y;
@@ -172,23 +172,23 @@ void StaticMesh::LoadMesh(const std::string & path)
 		m_staticVertex.push_back(tempvertex);
 
 	}
-	using namespace DirectX;
-	for (size_t i = 0; i < m_staticVertex.size(); i++)
-	{
-		std::vector<DirectX::XMFLOAT4A> normals = std::vector<DirectX::XMFLOAT4A>(m_staticVertex.size() / 3U);
-		for (size_t j = i + 1; j < m_staticVertex.size(); j++)
-		{
-			if (Close(m_staticVertex[i].pos, m_staticVertex[j].pos, 0.01f))
-			{
-				normals.push_back(m_staticVertex[i].normal);
-			}	
-		}
-		if (!normals.empty())
-		{
-			m_staticVertex[i].normal = CalcNewNormal(normals);
-			normals.clear();
-		}
-	}
+	//using namespace DirectX;
+	//for (size_t i = 0; i < m_staticVertex.size(); i++)
+	//{
+	//	std::vector<DirectX::XMFLOAT4A> normals;
+	//	for (size_t j = i + 1; j < m_staticVertex.size(); j++)
+	//	{
+	//		if (Close(m_staticVertex[i].pos, m_staticVertex[j].pos, 0.01f))
+	//		{
+	//			normals.push_back(m_staticVertex[i].normal);
+	//		}	
+	//	}
+	//	if (!normals.empty())
+	//	{
+	//		m_staticVertex[i].normal = CalcNewNormal(normals);
+	//		normals.clear();
+	//	}
+	//}
 
 	m_staticVertex.shrink_to_fit();
 	delete newMesh.mesh_vertices;

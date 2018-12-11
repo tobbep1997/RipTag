@@ -29,6 +29,9 @@
     <FxCompile Include="EngineSource\Shader\TessShaders\HullShader.hlsl" />
     <FxCompile Include="EngineSource\Shader\TessShaders\TessVertex.hlsl" />
     <FxCompile Include="EngineSource\Shader\TessShaders\TessGeometry.hlsl" />
+    <FxCompile Include="EngineSource\Shader\TessShaders\PrePassTess\PrePassDomainShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\TessShaders\PrePassTess\PrePassTessVertex.hlsl" />
+    <FxCompile Include="EngineSource\Shader\TessShaders\PrePassTess\PrePassHullShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
