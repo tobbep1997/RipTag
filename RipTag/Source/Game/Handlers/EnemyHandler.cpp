@@ -108,6 +108,11 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 			Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
 			_onDisabledPacket(pData);
 		}
+		case Network::ID_ENEMY_ANIMATION_STATE:
+		{
+			Network::ENEMYANIMATIONSTATEPACKET * pData = (Network::ENEMYANIMATIONSTATEPACKET*)data;
+			_onAnimationStatePacket(pData);
+		}
 		break;
 
 	}
@@ -242,6 +247,7 @@ void EnemyHandler::_registerThisInstanceToNetwork()
 	using namespace std::placeholders;
 
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_UPDATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_ANIMATION_STATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_VISIBILITY, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_DISABLED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_POSSESSED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
@@ -294,5 +300,20 @@ void EnemyHandler::_onDisabledPacket(Network::ENTITYSTATEPACKET * data)
 	if (data->state <= m_guards.size())
 	{
 		m_guards[data->state]->onNetworkDisabled(data);
+	}
+}
+
+void EnemyHandler::_onAnimationStatePacket(Network::ENEMYANIMATIONSTATEPACKET * pData)
+{
+	auto it = std::find_if
+		(m_guards.begin(), m_guards.end(), 
+		[&](const auto& enemy) 
+		{ 
+			return enemy->getUniqueID() == pData->uniqueID; 
+		});
+
+	if (it != std::end(m_guards))
+	{
+		(*it)->getAnimationPlayer()->GetStateMachine()->SetState(pData->animationStateName);
 	}
 }
