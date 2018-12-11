@@ -37,9 +37,9 @@ VS_OUTPUT DS(PatchTess patchTess,
     VS_OUTPUT dout = (VS_OUTPUT)0;
     
     // Interpolate patch attributes to generated vertices.
-    dout.worldPos.xyz = bary.x * tri[0].worldPos.xyz + bary.y * tri[1].worldPos.xyz + bary.z * tri[2].worldPos.xyz;
+    dout.worldPos = bary.x * tri[0].worldPos + bary.y * tri[1].worldPos + bary.z * tri[2].worldPos;
     dout.worldPos.w = 1;
-    dout.normal.xyz = bary.x * tri[0].normal.xyz + bary.y * tri[1].normal.xyz + bary.z * tri[2].normal.xyz;
+    dout.normal = bary.x * tri[0].normal + bary.y * tri[1].normal + bary.z * tri[2].normal;
     dout.uv = bary.x * tri[0].uv + bary.y * tri[1].uv + bary.z * tri[2].uv;
     
     // Interpolating normal can unnormalize it, so normalize it.
@@ -69,7 +69,7 @@ VS_OUTPUT DS(PatchTess patchTess,
     }
     else
     {
-        dout.worldPos += 0.04f * dout.normal;
+        //dout.worldPos += 0.04f * dout.normal;
     }
     
     

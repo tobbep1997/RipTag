@@ -9,6 +9,20 @@ struct VS_OUTPUT
 
     float4 color    : COLOR;
     int4 info       : INFO;
+
+    float TessFactor : TESS;
+};
+
+struct HS_OUTPUT
+{
+    float4 pos : SV_POSITION;
+    float4 worldPos : WORLD;
+    float4 normal : NORMAL;
+    float3x3 TBN : TBN;
+    float2 uv : UV;
+
+    float4 color : COLOR;
+    int4 info : INFO;
 };
 
 struct PatchTess
@@ -22,9 +36,6 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
 {
     PatchTess pt = (PatchTess)0;
     
-    float tessFactor = 1000;
-
-
     // Average tess factors along edges, and pick an edge tess factor for 
     // the interior tessellation.  It is important to do the tess factor
     // calculation based on the edge properties so that edges shared by 
@@ -34,10 +45,10 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
     //pt.EdgeTess[1] = 0.5f * (patch[2].TessFactor + patch[0].TessFactor);
     //pt.EdgeTess[2] = 0.5f * (patch[0].TessFactor + patch[1].TessFactor);
 
-    pt.EdgeTess[0] = 0.5f * (tessFactor * 2.0f);
-    pt.EdgeTess[1] = 0.5f * (tessFactor * 2.0f);
-    pt.EdgeTess[2] = 0.5f * (tessFactor * 2.0f);
-    pt.InsideTess = tessFactor;
+    pt.EdgeTess[0] = 0.5f * (patch[1].TessFactor + patch[2].TessFactor);
+    pt.EdgeTess[1] = 0.5f * (patch[2].TessFactor + patch[0].TessFactor);
+    pt.EdgeTess[2] = 0.5f * (patch[0].TessFactor + patch[1].TessFactor);
+    pt.InsideTess = pt.EdgeTess[0];
     
     return pt;
 }
@@ -48,11 +59,11 @@ PatchTess PatchHS(InputPatch<VS_OUTPUT, 3> patch,
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("PatchHS")]
-VS_OUTPUT HS(InputPatch<VS_OUTPUT, 3> p,
+HS_OUTPUT HS(InputPatch<VS_OUTPUT, 3> p,
            uint i : SV_OutputControlPointID,
            uint patchId : SV_PrimitiveID)
 {
-    VS_OUTPUT hout;
+    HS_OUTPUT hout;
     
     // Pass through shader.
     hout.pos        = p[i].pos;

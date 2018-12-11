@@ -25,6 +25,8 @@ struct VS_OUTPUT
 
 	float4 color : COLOR;
 	int4 info : INFO;
+
+    float TessFactor : TESS;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -46,5 +48,10 @@ VS_OUTPUT main(VS_INPUT input)
 	output.info = input.info;
 
     output.uv = input.uv.xy * input.uvMult.xy;
+
+    float d = distance(cameraPosition, output.worldPos);
+    float tess = saturate((1 - d) / (1 - 50));
+    output.TessFactor = 1 + tess * (50 - 1);
+
 	return output;
 }
