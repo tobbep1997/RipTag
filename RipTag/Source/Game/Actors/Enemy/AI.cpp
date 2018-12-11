@@ -83,39 +83,17 @@ void AI::handleStates(const double deltaTime)
 		m_owner->_detectTeleportSphere();
 		break;
 	case AIState::Patrolling:
-#ifdef _DEBUG
-		//std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-#endif
-
 		this->_patrolling(deltaTime);
 		m_owner->_detectTeleportSphere();
 		break;
 	case AIState::Suspicious:
-#ifdef _DEBUG
-		//std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-#endif
-
 		this->_suspicious(deltaTime);
 		m_owner->_detectTeleportSphere();
 		break;
-	case AIState::Scanning_Area:
-#ifdef _DEBUG
-		//std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
-#endif
-
-		this->_scanningArea(deltaTime);
-		m_owner->_detectTeleportSphere();
-		break;
 	case AIState::Possessed:
-#ifdef _DEBUG
-		//std::cout << yellow << "Enemy State: Possessed" << white << "\r";
-#endif
 		_possessed(deltaTime);
 		break;
 	case AIState::Disabled:
-#ifdef _DEBUG
-		//std::cout << yellow << "Enemy State: Disabled" << white << "\r";
-#endif
 		_disabled(deltaTime);
 		break;
 	}
@@ -151,9 +129,6 @@ void AI::handleStatesClient(const double deltaTime)
 
 void AI::_onAlerted()
 {
-#ifdef _DEBUG
-	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
-#endif
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
 	this->m_actTimer = 0;
@@ -201,10 +176,6 @@ void AI::_onObserve()
 	m_owner->setLiniearVelocity();
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
-#ifdef _DEBUG
-
-	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
-#endif
 	this->m_state = AIState::Suspicious;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
@@ -219,10 +190,6 @@ void AI::_onReturnToPatrol()
 	Tile lastPatrolPos = m_path.at(m_currentPathNode)->tile;
 	this->SetAlertVector(m_grid->FindPath(guardTile, lastPatrolPos));
 	this->m_state = Patrolling;
-#ifdef _DEBUG
-
-	//std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
-#endif
 	this->m_transState = AITransitionState::NoTransitionState;
 }
 void AI::_onBeingPossessed()
@@ -391,22 +358,6 @@ void AI::_suspicious(const double deltaTime)
 		}
 	}
 }
-void AI::_scanningArea(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-	m_owner->setLiniearVelocity();
-	this->m_actTimer += deltaTime;
-	//Do animation
-	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
-	{
-		if (m_searchTimer != 0)
-			m_searchTimer += m_actTimer;
-		//CHANGE WHEN WE WANT TO CONNECT MORE TRANSITIONS
-		this->m_transState = AITransitionState::ReturnToPatrol;  //this->m_transState = AITransitionState::SearchArea;
-	}
-}
 void AI::_patrolling(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
@@ -463,10 +414,7 @@ void AI::_patrolling(const double deltaTime)
 		target = m_owner->m_slRemote;
 
 	if (m_owner->m_visCounter >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
-	{
 		this->m_transState = AITransitionState::Alerted;
-		std::cout << red << "Target: " << green << target.percentage << red << " Visibility: " << green << m_owner->m_visCounter << white << "\n";
-	}
 }
 void AI::_possessed(const double deltaTime)
 {
