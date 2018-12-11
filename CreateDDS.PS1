@@ -7,20 +7,20 @@ $MIP_MAP_LEVEL = 1
 $COMPRESSION_TYPE = 'BC7_UNORM'
 
 #-----------------------------------------------------------------	HIGH
-$files = Get-ChildItem "Assets" -include *.png -Recurse -Force
-$files | Foreach-Object  {
-	$name = $_.FullName
-	$dir = Split-Path -Path $name	
+#$files = Get-ChildItem "Assets" -include *.png -Recurse -Force
+#$files | Foreach-Object  {
+#	$name = $_.FullName
+#	$dir = Split-Path -Path $name	
 	
-	Assets/texconv.exe $name -o $dir -sx _1024 -pow2 -m $MIP_MAP_LEVEL -f $COMPRESSION_TYPE -y -w 1024	-h 1024
-}
-$files = Get-ChildItem "Assets" -include *.jpg -Recurse -Force
-$files | Foreach-Object  {
-	$name = $_.FullName
-	$dir = Split-Path -Path $name	
+#	Assets/texconv.exe $name -o $dir -sx _1024 -pow2 -m $MIP_MAP_LEVEL -f $COMPRESSION_TYPE -y -w 1024	-h 1024
+#}
+#$files = Get-ChildItem "Assets" -include *.jpg -Recurse -Force
+#$files | Foreach-Object  {
+#	$name = $_.FullName
+#	$dir = Split-Path -Path $name	
 	
-	Assets/texconv.exe $name -o $dir -sx _1024 -pow2 -m $MIP_MAP_LEVEL -f $COMPRESSION_TYPE -y -w 1024	-h 1024
-}
+#	Assets/texconv.exe $name -o $dir -sx _1024 -pow2 -m $MIP_MAP_LEVEL -f $COMPRESSION_TYPE -y -w 1024	-h 1024
+#}
 
 #-----------------------------------------------------------------	MEDUIM
 $files = Get-ChildItem "Assets" -include *.png -Recurse -Force
