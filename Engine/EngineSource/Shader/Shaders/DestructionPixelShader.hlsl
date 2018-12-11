@@ -25,6 +25,12 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 	inin.color = input.color;
 	inin.info = input.info;
 
+	float red = saturate(input.timerValue * 0.4705f);
+	float green = saturate(input.timerValue * 0.44705f);
+	float blue = saturate(input.timerValue * 0.5254f);
+
+	return float4(red, green, blue, 1.0f);
+
 	float4 dummy;
 	dummy = OptimizedLightCalculation(inin, dummy);
 	float4 colorLerpFirst = dummy;
@@ -61,7 +67,5 @@ float4 main(GS_OUTPUT input) : SV_TARGET
 	}
 	colorLerpSecond = input.worldPos;
 	float4 finalColour = lerp(colorLerpFirst, colorLerpSecond, lerpValue);
-		
-
 	return finalColour;
 }

@@ -171,7 +171,7 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 	for (uint i = 0; i < 3; i ++)
 	{
 		{
-			output.timerValue = TimerAndForwardVector.w;
+			output.timerValue = lerpValue;
 			output.pos = input[i].pos;
 			output.worldPos = input[i].worldPos;
 			output.normal = input[i].normal;
@@ -201,41 +201,45 @@ void main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> outputstr
 				posLerp = secondLerpValue * 4;
 				lerpFrom = rotatedLocalPos;
 				
-				lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
+				lerpTowards = rotatedLocalPos + localOffsetNormal * 0.7;
 			}
 			else if (secondLerpValue > 0.25 && secondLerpValue <= 0.75)
 			{
 				posLerp = (secondLerpValue - 0.25) / 0.5;
-				lerpFrom = rotatedLocalPos + localOffsetNormal * 2;
-				lerpTowards = rotatedLocalPos + localOffsetNormal * 2;
+				lerpFrom = rotatedLocalPos + localOffsetNormal * 0.7;
+				lerpTowards = lerpFrom - localOffsetNormal * 0.25;
 
 			}
 			else
 			{
 				posLerp = (secondLerpValue - 0.75) * 4;
-				lerpFrom = rotatedLocalPos + localOffsetNormal * 0.2;
+				lerpFrom = rotatedLocalPos + localOffsetNormal * 0.25;
 				lerpTowards = rotatedLocalPos;
 			}
+			rotatedLocalPos = lerp(lerpFrom, lerpTowards, posLerp);
 		}
 		if (typeOfAbility.x == 2)
 		{
 			if (secondLerpValue <= 0.5)
 			{
-				posLerp = secondLerpValue * 2;
+				posLerp = secondLerpValue * 2.f;
 				lerpFrom = rotatedLocalPos;
-				lerpTowards = rotatedLocalPos + localOffsetNormal * 80;
+				lerpTowards = rotatedLocalPos + localOffsetNormal * 0.5f;
+				rotatedLocalPos = lerp(lerpFrom, lerpTowards, posLerp);
 			}
 			else
 			{
-				posLerp = (secondLerpValue - 0.5) * 2;
-				lerpFrom = rotatedLocalPos + localOffsetNormal * 80;
-				lerpTowards = rotatedLocalPos;
+				posLerp = (secondLerpValue - 0.5f) * 2.f;
+				lerpFrom = rotatedLocalPos;
+				lerpTowards = rotatedLocalPos + localOffsetNormal * 0.5f;
+				lerpTowards = lerp(lerpFrom, lerpTowards, 1.0f);
+				rotatedLocalPos = lerp(lerpTowards, lerpFrom, posLerp);
 			}
-		}
 		
+		}
 	
 
-		rotatedLocalPos = lerp(lerpFrom, lerpTowards, posLerp);
+		
 		
 		output.worldPos = mul(worldMatrix, float4(rotatedLocalPos, 1));
 
