@@ -426,7 +426,7 @@ Animation::JointPose Animation::AnimationPlayer::_GetAdditivePose(Animation::Joi
 
 	XMMATRIX targetPoseMatrix = _CreateMatrixFromSRT(targetPose.m_Transformation);
 	XMMATRIX differencePoseMatrix = differencePose;
-	XMMATRIX additivePoseMatrix = XMMatrixMultiply(targetPoseMatrix, differencePoseMatrix);
+	XMMATRIX additivePoseMatrix = XMMatrixMultiply(differencePoseMatrix, targetPoseMatrix);
 
 
 	Animation::SRT additivePose = {};
