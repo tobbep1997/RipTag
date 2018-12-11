@@ -270,8 +270,8 @@ void AI::_investigating(const double deltaTime)
 					playerPos = m_owner->m_RemotePtr->getPosition();
 			}
 			// Check and prioritize if the guard has seen a player recently
-			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
-				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
+			if (abs(pathDestination->worldPos.x - playerPos.x) > 2.0f ||
+				abs(pathDestination->worldPos.y - playerPos.z) > 2.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
 				targetTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);

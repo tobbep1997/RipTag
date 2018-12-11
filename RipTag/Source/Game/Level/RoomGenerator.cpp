@@ -467,7 +467,7 @@ void RoomGenerator::_createEntireWorld()
 					{
 						float tempPosX = tempLights.lights[k].translate[0];
 						tempLights.lights[k].translate[0] = j + tempLights.lights[k].translate[2];
-						tempLights.lights[k].translate[2] = i + tempPosX;
+						tempLights.lights[k].translate[2] = i + 10 + tempPosX;
 					}
 					else
 					{
