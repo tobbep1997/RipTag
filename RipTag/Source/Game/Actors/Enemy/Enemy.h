@@ -150,6 +150,7 @@ private:
 	 */
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
+	float m_playerTooCloseInstaLose = 4;
 
 	Player * m_PlayerPtr		= nullptr;
 	RemotePlayer * m_RemotePtr	= nullptr;
