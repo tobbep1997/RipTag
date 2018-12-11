@@ -97,7 +97,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		{
 			
 		}
-		renderingManager->DrawInstancedCull(nullptr);
+		renderingManager->DrawInstancedCull(nullptr,false);
 
 		UINT32 vertexSize = sizeof(PostAniDynamicVertex);
 		UINT32 offset = 0;

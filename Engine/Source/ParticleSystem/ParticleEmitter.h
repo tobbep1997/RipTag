@@ -94,7 +94,7 @@ private:
 	std::vector<Particle*> m_Particles;
 	std::vector<Vertex> vertex;
 
-	DirectX::BoundingBox m_boundingBox = DirectX::BoundingBox();
+	DirectX::BoundingBox m_boundingBox;
 
 	DirectX::XMFLOAT4X4A m_worldMatrix		= XMFLOAT4X4_IDENTITY;
 
