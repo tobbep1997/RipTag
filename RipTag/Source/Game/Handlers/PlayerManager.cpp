@@ -264,6 +264,8 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 
 				auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
 				auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
+				auto chargeAnimation = Manager::g_animationManager.getAnimation(collection, "CHARGE_POSE_ANIMATION").get();
+				auto throwAnimation = Manager::g_animationManager.getAnimation(collection, "THROW_ANIMATION").get();
 
 				auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 				stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
@@ -277,6 +279,10 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 				auto& layerMachine = mLocalPlayer->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
 				auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 				crouchState->UseFirstPoseOnly(true);
+
+				auto chargeState = layerMachine->AddBasicLayer("charge", chargeAnimation, 0.35, 0.2);
+				chargeState->UseFirstPoseOnly(true);
+				auto throwState = layerMachine->AddBasicLayer("throw", throwAnimation, 0.0f, 0.0f);
 
 				auto leanState = layerMachine->Add1DPoseLayer("peek", &mLocalPlayer->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
 				leanState->UseSmoothDriver(false);

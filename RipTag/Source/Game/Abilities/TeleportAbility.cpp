@@ -192,6 +192,8 @@ void TeleportAbility::_inStateThrowable()
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("charge");
+
 			m_tpState = TeleportAbility::Charging;
 			
 		}
@@ -226,6 +228,9 @@ void TeleportAbility::_inStateCharging(double dt)
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+
+
 			chargeTime = 0;
 			m_charge = 0.0f;
 			p_cooldown = (p_cooldownMax / 3) * 2;
@@ -264,6 +269,9 @@ void TeleportAbility::_inStateCharging(double dt)
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->PopLayer("charge");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0);
+
 
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();

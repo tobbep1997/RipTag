@@ -56,6 +56,7 @@ struct ConstantBufferData
 	float colorModifiers[4]		= { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
+class Texture;
 
 class ParticleEmitter
 {
@@ -67,7 +68,7 @@ public:
 	void Update(float timeDelata, Camera * camera);
 	
 	void Queue();
-	void Draw();
+	bool Draw();
 	void Clear();
 	
 	//SETTERS
@@ -83,6 +84,14 @@ public:
 	const DirectX::XMFLOAT4A& getPosition() const;
 	const DirectX::BoundingBox& getBoundingBox() const;
 	bool Expired() { return m_expired; }
+	void ApplyTextures();
+
+	const PS::ParticleConfiguration & getConfig() const;
+
+	UINT getBufferSize() const;
+	UINT getVertexSize() const;
+	UINT getSize() const;
+	const std::vector<Vertex> & getVertex() const;
 private:
 	PS::ParticleType type					= PS::DEFAULT;
 	PS::ParticleConfiguration m_config = {};
@@ -114,7 +123,6 @@ private:
 	DirectX::XMVECTOR RandomOffset(DirectX::XMVECTOR basePos, int offset);
 	void _particleVertexCalculation(float timeDelata, Camera * camera);
 
-	void _applyTextures();
 	void _createSmokeParticles();
 	void _createParticles(); //Uses Henriks lögic :]
 };

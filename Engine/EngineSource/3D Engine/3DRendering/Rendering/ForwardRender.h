@@ -169,10 +169,14 @@ private:
 	ID3D11Buffer * m_meshBuffGeo = nullptr;
 	ID3D11Buffer * m_objBuffGeo = nullptr;
 
+	ID3D11Buffer * m_particleVertexBuffer = nullptr;
+
 
 	UINT m_meshBufferSize = 2500000;
 	UINT m_objBufferSize = 150000;
-	
+
+	UINT m_particleBufferSize = 5000000;
+
 public:
 	ForwardRender();
 	~ForwardRender();
@@ -206,6 +210,8 @@ public:
 	bool _Cull(DirectX::BoundingFrustum* camera, DirectX::BoundingBox* box);//Return true if the box sould be culled
 
 	void FlushScreenShoot(Camera & camera);
+	//ParticlePass
+	void _particlePass(Camera * camera, const bool & update = false);
 private:
 	void _GeometryPassToPic(Camera & camera);
 	void _AnimatedGeometryToPic(Camera & camera);
@@ -242,8 +248,6 @@ private:
 	//VisabilityPass
 	void _visabilityPass();
 
-	//ParticlePass
-	void _particlePass(Camera * camera);
 
 	void _createShaders();
 	void _createShadersInput();
