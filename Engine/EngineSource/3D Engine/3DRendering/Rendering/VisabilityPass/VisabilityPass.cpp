@@ -65,17 +65,19 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 
 	forwardRender->DrawInstancedCull(target->getCamera());
 
+	forwardRender->_particlePass(target->getCamera(), true);
+
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff); 
 
-	for (auto & emitter : DX::g_emitters)
-	{	
-		if (boundingFrustum.Intersects(emitter->getBoundingBox()))
-		{
-			emitter->Clear();
-			emitter->Update(0, target->getCamera());
-			emitter->Draw();
-		}
-	}
+	//for (auto & emitter : DX::g_emitters)
+	//{	
+	//	if (boundingFrustum.Intersects(emitter->getBoundingBox()))
+	//	{
+	//		emitter->Clear();
+	//		emitter->Update(0, target->getCamera());
+	//		emitter->Draw();
+	//	}
+	//}
 }
 
 void VisabilityPass::CalculateVisabilityFor(VisibilityComponent * target, Animation::AnimationCBuffer * animBuffer)
