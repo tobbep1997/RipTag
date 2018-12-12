@@ -120,16 +120,14 @@ namespace Network
 		unsigned char id = ID_ENEMY_ANIMATION_STATE;
 		int uniqueID;
 
-		char animationStateName[32];
+		char string[32];
 
-		ENEMYANIMATIONSTATEPACKET(int _uniqueID, std::string _animationStateName)
+		ENEMYANIMATIONSTATEPACKET(int _uniqueID, std::string str = "")
 			: id(ID_ENEMY_ANIMATION_STATE), uniqueID(_uniqueID)
 		{
-			_animationStateName.reserve(32);
-			if (_animationStateName.size() > 30)
-				_animationStateName = _animationStateName.substr(0, 30);
-			memcpy(animationStateName, _animationStateName.c_str(), _animationStateName.size());
-			animationStateName[_animationStateName.size()] = '\0';
+			if (str.size() > 32)
+				str = str.substr(0, 32);
+			strcpy(string, str.c_str());
 		}
 	};
 
