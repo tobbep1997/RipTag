@@ -163,10 +163,15 @@ private:
 		BOOL m_occupied = FALSE;
 	};
 
-	std::vector<BufferMapping> m_bufferVec;
-	UINT m_occpidePid = 0;
-	UINT m_bufferSize = 100000;
-	UINT m_bufferLenght = 70;
+	ID3D11Buffer * m_meshBuff = nullptr;
+	ID3D11Buffer * m_objBuff = nullptr;
+
+	ID3D11Buffer * m_meshBuffGeo = nullptr;
+	ID3D11Buffer * m_objBuffGeo = nullptr;
+
+
+	UINT m_meshBufferSize = 2500000;
+	UINT m_objBufferSize = 150000;
 	
 public:
 	ForwardRender();
