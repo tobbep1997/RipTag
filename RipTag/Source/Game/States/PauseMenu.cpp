@@ -342,9 +342,9 @@ void PauseMenu::_initButtons()
 		this->m_fullscreenOverlay->setPivotPoint(Quad::PivotPoint::center);
 		this->m_fullscreenOverlay->setPosition(0.5f, 0.5f);
 		this->m_fullscreenOverlay->setScale(2.0f, 2.0f);
-		this->m_fullscreenOverlay->setUnpressedTexture("gui_hover_pixel");
-		this->m_fullscreenOverlay->setPressedTexture("gui_hover_pixel");
-		this->m_fullscreenOverlay->setHoverTexture("gui_hover_pixel");
+		this->m_fullscreenOverlay->setUnpressedTexture("pause_menu_background");
+		this->m_fullscreenOverlay->setPressedTexture("pause_menu_background");
+		this->m_fullscreenOverlay->setHoverTexture("pause_menu_background");
 	}
 }
 
@@ -1359,7 +1359,7 @@ void PauseMenu::Load()
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
 				if (extension == L".DDS")
-					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
+					Manager::g_textureManager.loadDDSTexture(stem, file.generic_wstring(), L"_256");
 			}
 		}
 	}
