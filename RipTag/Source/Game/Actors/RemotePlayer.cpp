@@ -469,9 +469,9 @@ void RemotePlayer::_registerAnimationStateMachine()
 		pitchState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("pitch");
 		
-		auto chargeState = layerMachine->AddBasicLayer("charge", chargeAnimation, 0.35, 0.2);
+		auto chargeState = layerMachine->AddBasicLayer("charge", chargeAnimation, 0.35, 0.0);
 		chargeState->UseFirstPoseOnly(true);
-		auto throwState = layerMachine->AddBasicLayer("throw", throwAnimation, 0.0f, 0.0f);
+		auto throwState = layerMachine->AddBasicLayer("throw", throwAnimation, 0.0f, 0.05f);
 
 		auto leanState = layerMachine->Add1DPoseLayer("peek", &this->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
 		leanState->UseSmoothDriver(false);
