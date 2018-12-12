@@ -93,10 +93,10 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	o.close();*/
 
 
-	bool reverse = false;
+	bool reverse = true;
 
 	if (reverse)
-		FindPath(Tile(20, 1), Tile(112, 78));
+		FindPath(Tile(20, 1), Tile(94, 24));
 	else
 		FindPath(Tile(112, 78), Tile(20, 1));
 
@@ -1145,7 +1145,7 @@ void Grid::_generateWaypoints()
 
 void Grid::_includeInField(int x, int y, bool * visitedNodes, std::vector<Node*>& targets, int startIndex)
 {
-	static const int FIELD_LIMIT = 64;
+	static const int FIELD_LIMIT = 32;
 	int index = x + y * m_width;
 	if (m_nodeMap[index].tile.getPathable())
 	{
