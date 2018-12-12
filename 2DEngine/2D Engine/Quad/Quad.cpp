@@ -196,6 +196,10 @@ void Quad::MapTexture()
 	{
 		Manager::g_textureManager.getGUITextureByName(wName)->Bind(1);
 	}
+	else if (Manager::g_textureManager.getDDSTextureByName(wName))
+	{
+		Manager::g_textureManager.getDDSTextureByName(wName)->Bind(1);
+	}
 }
 
 void Quad::setPosition(const float & x, const float & y)

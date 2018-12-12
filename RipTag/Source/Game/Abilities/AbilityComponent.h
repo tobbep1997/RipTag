@@ -42,5 +42,9 @@ public:
 
 	virtual float getPercentage() const;
 
+	virtual int GetAbilityChargeMax() const;
+	virtual int GetAbilityCharges() const;
+	virtual float getAbilityChargesPercent() const;
+
 	virtual void updateCooldown(double deltaTime);
 };

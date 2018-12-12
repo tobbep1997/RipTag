@@ -36,6 +36,21 @@ float AbilityComponent::getPercentage() const
 	return p_cooldown / p_cooldownMax;
 }
 
+int AbilityComponent::GetAbilityChargeMax() const
+{
+	return p_abilityChargesMax;
+}
+
+int AbilityComponent::GetAbilityCharges() const
+{
+	return this->p_abilityCharges;
+}
+
+float AbilityComponent::getAbilityChargesPercent() const
+{
+	return (float)this->p_abilityCharges / (float)p_abilityChargesMax;
+}
+
 void AbilityComponent::updateCooldown(double deltaTime)
 {
 	if (p_cooldown > 0)
