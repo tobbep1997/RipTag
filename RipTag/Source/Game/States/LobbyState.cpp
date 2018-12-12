@@ -307,7 +307,10 @@ void LobbyState::Update(double deltaTime)
 
 						_onLoadingScreen();
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
+						if (!pCoopData->skipTutorial)
+							this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
+						else
+							this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 1));
 						
 					}
 				}
