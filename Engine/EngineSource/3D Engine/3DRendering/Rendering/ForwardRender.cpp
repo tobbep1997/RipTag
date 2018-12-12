@@ -209,6 +209,17 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		DX::SetName(m_objBuffGeo, "instanceBufferObjMegaBuffer");
 	}
 
+	memset(&instBuffDesc, 0, sizeof(instBuffDesc));
+	instBuffDesc.Usage = D3D11_USAGE_DYNAMIC;
+	instBuffDesc.ByteWidth = m_particleBufferSize;
+	instBuffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	instBuffDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&instBuffDesc, NULL, &m_particleVertexBuffer)))
+	{
+		DX::SetName(m_particleVertexBuffer, "PARTICLE_MEGA_BUFFER_BTICHES");
+	}
+
 }
 
 void ForwardRender::GeometryPass(Camera & camera)
@@ -606,7 +617,7 @@ void ForwardRender::Flush(Camera & camera)
 	//_DBG_DRAW_CAMERA(camera);
 	_mapCameraBuffer(camera);
 	
-	_particlePass(&camera);
+	_particlePass(&camera, true);
 
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
@@ -636,6 +647,9 @@ void ForwardRender::Clear()
 	DX::INSTANCING::g_instanceShadowGroups.clear();
 	DX::INSTANCING::g_instanceWireFrameGroups.clear();
 	DX::g_cullQueue.clear();
+
+	DX::g_emitters.clear();
+
 
 }
 
@@ -680,6 +694,8 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_meshBuffGeo);
 	DX::SafeRelease(m_objBuffGeo);
+
+	DX::SafeRelease(m_particleVertexBuffer);
 
 	m_shadowMap->Release();
 	delete m_shadowMap;
@@ -1421,31 +1437,97 @@ void ForwardRender::_setAnimatedShaders()
 	
 }
 
-void ForwardRender::_particlePass(Camera * camera)
+void ForwardRender::_particlePass(Camera * camera, const bool & update)
 {
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);
 	DX::g_deviceContext->OMSetDepthStencilState(m_particleDepthStencilState, NULL);
-	
 
-	DirectX::XMMATRIX proj, viewInv;
-	DirectX::BoundingFrustum boundingFrustum;
-	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getProjection()));
-	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getView())));
-	DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
-	boundingFrustum.Transform(boundingFrustum, viewInv);
 
-	for (auto & emitter : DX::g_emitters)
+	if (!DX::g_emitters.empty())
 	{
-		if (boundingFrustum.Intersects(emitter->getBoundingBox()))
+		
+		DirectX::XMMATRIX proj, viewInv;
+		DirectX::BoundingFrustum boundingFrustum;
+		proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getProjection()));
+		viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&camera->getView())));
+		DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+		boundingFrustum.Transform(boundingFrustum, viewInv);
+
+
+		DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/ParticleVertex.hlsl"), nullptr, 0);
+		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl"));
+		DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
+		DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/Source/Shader/ParticlePixel.hlsl"), nullptr, 0);
+
+
+		std::vector<Vertex> particleVertex;
+
+		UINT particleTotalSize = 0;
+
+		for (size_t i = 0; i < DX::g_emitters.size(); i++)
 		{
-			emitter->Clear();
-			emitter->Update(0, camera);
-			emitter->Draw();
+			if (boundingFrustum.Intersects(DX::g_emitters[i]->getBoundingBox()))
+			{
+				if (update)
+					DX::g_emitters[i]->Update(0, camera);
+				particleTotalSize += DX::g_emitters[i]->getBufferSize();
+				for (UINT j = 0; j < DX::g_emitters[i]->getSize(); j++)
+				{
+					particleVertex.push_back(DX::g_emitters[i]->getVertex()[j]);
+				}
+			}
 		}
-		else
-			emitter->Clear();
+			   
+
+		D3D11_MAPPED_SUBRESOURCE mappedResourcee;
+		void* dataPtr;
+		if (SUCCEEDED(DX::g_deviceContext->Map(m_particleVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResourcee)))
+		{
+			dataPtr = (void*)mappedResourcee.pData;
+			memcpy(dataPtr, particleVertex.data(), particleTotalSize);
+			DX::g_deviceContext->Unmap(m_particleVertexBuffer, 0);	
+		}
+
+		UINT offset = 0;
+		UINT stride =sizeof(Vertex);
+
+
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &m_particleVertexBuffer, &stride, &offset);
+
+		UINT vertexSize = 0;
+		std::wstring tex[3] = { L"", L"", L"" };
+		for (size_t i = 0; i < DX::g_emitters.size(); i++)
+		{
+			if (boundingFrustum.Intersects(DX::g_emitters[i]->getBoundingBox()))
+			{
+				if (DX::g_emitters[i]->Draw())
+				{
+					const PS::ParticleConfiguration * psConfig = &DX::g_emitters[i]->getConfig();
+					bool same = true;
+					for (int j = 0; j < 3 && same; j++)
+					{
+						if (tex[j] != psConfig->textures[j])
+							same = false;
+					}
+					if (!same)
+					{
+						for (int j = 0; j < 3; j++)
+						{
+							tex[j] = psConfig->textures[j];
+						}
+						DX::g_emitters[i]->ApplyTextures();
+					}
+					DX::g_deviceContext->Draw(DX::g_emitters[i]->getSize(), vertexSize);
+				}
+				vertexSize += DX::g_emitters[i]->getSize();
+			}
+			DX::g_emitters[i]->Clear();
+		}
+
 	}
-	DX::g_emitters.clear();
 	DX::g_deviceContext->OMSetBlendState(nullptr, 0, 0);
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 }
@@ -1528,6 +1610,17 @@ void ForwardRender::_createShadersInput()
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl", "main", postAnimatedInputDesc, 4);
 
 	DX::g_shaderManager.VertexInputLayout(L"../Engine/EngineSource/Shader/Shaders/GuardFrustum/GuardFrustumVertex.hlsl", "main", guardFrustumInputDesc, 3);
+
+	D3D11_INPUT_ELEMENT_DESC ParticleInputLayout[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	DX::g_shaderManager.VertexInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl", "main", ParticleInputLayout, 4);
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/Source/Shader/ParticlePixel.hlsl");
+
 }
 
 void ForwardRender::_wireFramePass(Camera * camera)

@@ -202,7 +202,7 @@ void ParticleEmitter::_particleVertexCalculation(float timeDelata, Camera * came
 	}
 }
 
-void ParticleEmitter::_applyTextures()
+void ParticleEmitter::ApplyTextures()
 {
 	Texture * texture = nullptr;
 
@@ -217,6 +217,12 @@ void ParticleEmitter::_applyTextures()
 	texture = Manager::g_textureManager.getDDSTextureByName(m_config.textures[2]);
 	if (texture)
 		texture->Bind(3);
+
+}
+
+const PS::ParticleConfiguration & ParticleEmitter::getConfig() const
+{
+	return m_config;
 }
 
 void ParticleEmitter::_createSmokeParticles()
@@ -382,24 +388,20 @@ void ParticleEmitter::SetBuffers()
 	vertex.clear();
 }
 
-void ParticleEmitter::Draw()
+bool ParticleEmitter::Draw()
 {
 	int nrOfVerts = vertex.size();
 
 	if (nrOfVerts == 0 || this->m_expired || !this->m_emitterActive)
-		return;
+		return false;
 
-	SetBuffers();
-	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/Source/Shader/ParticleVertex.hlsl"));
-	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/Source/Shader/ParticleVertex.hlsl"), nullptr, 0);
-	DX::g_deviceContext->HSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/Source/Shader/ParticlePixel.hlsl"), nullptr, 0);
+	DX::g_deviceContext->PSSetConstantBuffers(10, 1, &m_cBuffer);
+	//SetBuffers();
 
-	_applyTextures();
-	DX::g_deviceContext->Draw(nrOfVerts, 0);
+
+	//ApplyTextures();
+	//DX::g_deviceContext->Draw(nrOfVerts, 0);
+	return true;
 }
 
 void ParticleEmitter::Clear()
@@ -444,8 +446,8 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 	m_config.m_EmitterLife				= -1;
 	m_config.m_MaxParticle				= INT_MAX;
 	m_config.m_MinParticle				= 25;
-	m_config.m_nrOfEmittParticles	= 25;
-	m_config.m_Speed						= 0.1f;
+	m_config.m_nrOfEmittParticles		= 25;
+	m_config.m_Speed					= 0.1f;
 
 	m_config.m_SpawnPosition			= origin;
 
@@ -483,9 +485,9 @@ void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
 	m_EmitterCurrentLife				= 0;
 
 	m_config.m_EmitterLife				= 5;
-	m_config.m_MaxParticle				= 400;
-	m_config.m_MinParticle				= 200;
-	m_config.m_nrOfEmittParticles		= 200;
+	m_config.m_MaxParticle				= 100 * (SettingLoader::g_windowContext->graphicsQuality + 1);
+	m_config.m_MinParticle				= 50 * (SettingLoader::g_windowContext->graphicsQuality + 1);
+	m_config.m_nrOfEmittParticles		= 50 * (SettingLoader::g_windowContext->graphicsQuality + 1);
 	m_config.m_Speed					= 1.25f;
 
 	m_config.m_SpawnPosition			= origin;
@@ -559,6 +561,26 @@ const DirectX::XMFLOAT4A & ParticleEmitter::getPosition() const
 const DirectX::BoundingBox& ParticleEmitter::getBoundingBox() const
 {
 	return m_boundingBox;
+}
+
+UINT ParticleEmitter::getBufferSize() const
+{
+	return sizeof(Vertex) * this->vertex.size();
+}
+
+UINT ParticleEmitter::getVertexSize() const
+{
+	return sizeof(Vertex);
+}
+
+UINT ParticleEmitter::getSize() const
+{
+	return this->vertex.size();
+}
+
+const std::vector<Vertex>& ParticleEmitter::getVertex() const
+{
+	return this->vertex;
 }
 
 DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
