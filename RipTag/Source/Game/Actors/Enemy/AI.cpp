@@ -136,7 +136,7 @@ void AI::_onAlerted()
 		if (Network::Multiplayer::GetInstance()->isConnected())
 		{
 			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "aware");
-			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
 		}
 	}
 
@@ -157,7 +157,7 @@ void AI::_onInvestigate()
 		if (Network::Multiplayer::GetInstance()->isConnected())
 		{
 			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
-			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
 		}
 	}
 	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
@@ -197,7 +197,7 @@ void AI::_onObserve()
 		if (Network::Multiplayer::GetInstance()->isConnected())
 		{
 			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
-			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
 		}
 	}
 
@@ -217,7 +217,7 @@ void AI::_onReturnToPatrol()
 		if (Network::Multiplayer::GetInstance()->isConnected())
 		{
 			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
-			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
 		}
 	}
 

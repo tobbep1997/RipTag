@@ -123,11 +123,13 @@ namespace Network
 		char animationStateName[32];
 
 		ENEMYANIMATIONSTATEPACKET(int _uniqueID, std::string _animationStateName)
-			: uniqueID(_uniqueID)
+			: id(ID_ENEMY_ANIMATION_STATE), uniqueID(_uniqueID)
 		{
-			if (_animationStateName.size() > 32)
-				_animationStateName = _animationStateName.substr(0, 32);
-			strcpy(animationStateName, _animationStateName.c_str());
+			_animationStateName.reserve(32);
+			if (_animationStateName.size() > 30)
+				_animationStateName = _animationStateName.substr(0, 30);
+			memcpy(animationStateName, _animationStateName.c_str(), _animationStateName.size());
+			animationStateName[_animationStateName.size()] = '\0';
 		}
 	};
 
