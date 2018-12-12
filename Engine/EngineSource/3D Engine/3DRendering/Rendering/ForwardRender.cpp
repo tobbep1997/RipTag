@@ -1437,7 +1437,11 @@ void ForwardRender::_particlePass(Camera * camera)
 	for (auto & emitter : DX::g_emitters)
 	{
 		if (boundingFrustum.Intersects(emitter->getBoundingBox()))
+		{
+			emitter->Clear();
+			emitter->Update(0, camera);
 			emitter->Draw();
+		}
 		else
 			emitter->Clear();
 	}
