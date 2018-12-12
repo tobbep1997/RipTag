@@ -11,9 +11,11 @@ ParticleEmitter::ParticleEmitter(DirectX::XMFLOAT4A origin, PS::ParticleType typ
 	case PS::FIRE:
 		SetAsDefaultFire(origin);
 		//m_boundingBox.Extents = { 2,3,2 };
+		m_boundingBox = DirectX::BoundingBox({ origin.x, origin.y , origin.z }, { 2,3,2 });
 		break;
 	case PS::SMOKE:
 		SetAsDefaultSmoke(origin);
+		m_boundingBox = DirectX::BoundingBox({ origin.x, origin.y , origin.z }, { 5,5,5 });
 		break;
 	case PS::DEFAULT:
 		SetAsDefaultNone(origin);
@@ -22,6 +24,7 @@ ParticleEmitter::ParticleEmitter(DirectX::XMFLOAT4A origin, PS::ParticleType typ
 		SetAsDefaultNone(origin);
 		break;
 	}
+
 	//m_boundingBox.Transform();
 }
 
@@ -526,7 +529,7 @@ void ParticleEmitter::SetConfiguration(PS::ParticleConfiguration & config)
 void ParticleEmitter::SetPosition(DirectX::XMFLOAT4A origin)
 {
 	m_config.m_SpawnPosition = origin;
-	m_boundingBox = DirectX::BoundingBox({ m_config.m_SpawnPosition.x, m_config.m_SpawnPosition.y , m_config.m_SpawnPosition.z }, { 2,3,2 });
+	m_boundingBox = DirectX::BoundingBox({ m_config.m_SpawnPosition.x, m_config.m_SpawnPosition.y , m_config.m_SpawnPosition.z }, { 5,5,5 });
 }
 
 void ParticleEmitter::SetEmitterLife(float lifetime)
