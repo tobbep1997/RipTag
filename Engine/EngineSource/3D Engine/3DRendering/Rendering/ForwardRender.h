@@ -175,7 +175,7 @@ private:
 	UINT m_meshBufferSize = 2500000;
 	UINT m_objBufferSize = 150000;
 
-	UINT m_particleBufferSize = 500000;
+	UINT m_particleBufferSize = 50000000;
 
 public:
 	ForwardRender();

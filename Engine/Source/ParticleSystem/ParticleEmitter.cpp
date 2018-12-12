@@ -446,8 +446,8 @@ void ParticleEmitter::SetAsDefaultFire(DirectX::XMFLOAT4A origin)
 	m_config.m_EmitterLife				= -1;
 	m_config.m_MaxParticle				= INT_MAX;
 	m_config.m_MinParticle				= 25;
-	m_config.m_nrOfEmittParticles	= 25;
-	m_config.m_Speed						= 0.1f;
+	m_config.m_nrOfEmittParticles		= 25;
+	m_config.m_Speed					= 0.1f;
 
 	m_config.m_SpawnPosition			= origin;
 
@@ -485,9 +485,9 @@ void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
 	m_EmitterCurrentLife				= 0;
 
 	m_config.m_EmitterLife				= 5;
-	m_config.m_MaxParticle				= 400;
-	m_config.m_MinParticle				= 200;
-	m_config.m_nrOfEmittParticles		= 200;
+	m_config.m_MaxParticle				= 100 * (SettingLoader::g_windowContext->graphicsQuality + 1);
+	m_config.m_MinParticle				= 50 * (SettingLoader::g_windowContext->graphicsQuality + 1);
+	m_config.m_nrOfEmittParticles		= 50 * (SettingLoader::g_windowContext->graphicsQuality + 1);
 	m_config.m_Speed					= 1.25f;
 
 	m_config.m_SpawnPosition			= origin;
