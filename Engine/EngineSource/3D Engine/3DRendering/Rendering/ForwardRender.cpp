@@ -525,14 +525,14 @@ void ForwardRender::Flush(Camera & camera)
 	Camera * dbg_camera = nullptr;
 	if (Cheet::g_DBG_CAM)
 	{
-	dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
-	dbg_camera->setDirection(0, -1, 0);
-	dbg_camera->setUP(1, 0, 0);
-	DirectX::XMFLOAT4A pos = camera.getPosition();
-	pos.y += 10;
-	dbg_camera->setPosition(pos);
+		dbg_camera = new Camera(DirectX::XM_PI * 0.75f, 16.0f / 9.0f, 1, 100);
+		dbg_camera->setDirection(0, -1, 0);
+		dbg_camera->setUP(1, 0, 0);
+		DirectX::XMFLOAT4A pos = camera.getPosition();
+		pos.y += 10;
+		dbg_camera->setPosition(pos);
 
-	
+		
 		_mapCameraBuffer(*dbg_camera);
 	}
 	//_mapCameraBuffer(*dbg_camera);
