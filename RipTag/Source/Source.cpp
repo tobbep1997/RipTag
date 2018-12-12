@@ -138,7 +138,7 @@ void SingleGameLoop(Game * game)
 		//This is to avoid Pollevents from fucking with the game
 		
 		///-------------------
-
+		game->Clear();
 		///-------------------
 
 		//Pollevents
@@ -146,7 +146,7 @@ void SingleGameLoop(Game * game)
 		//Draw and update
 		game->Update(deltaTime);
 		AudioEngine::Update();
-		game->Clear();
+		
 		game->Draw();
 	}
 }
