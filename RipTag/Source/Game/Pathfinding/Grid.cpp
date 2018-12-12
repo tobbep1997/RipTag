@@ -73,7 +73,9 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 					grid.gridPoints[index].translation[2])));
 		}
 	_createSubGrid();
-	/*std::ofstream o;
+	_generateWaypoints();
+
+	std::ofstream o;
 	this->PrintMe();
 	o.open("sub.txt");
 	for (int y = 0; y < m_height; y++)
@@ -88,7 +90,8 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		}
 		o << "\n";
 	}
-	o.close();*/
+	o.close();
+	int exde = 0;
 }
 
 void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid)
@@ -805,6 +808,191 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	
 	delete [] closedList;
 	return std::vector<Node*>();
+}
+
+Waypoint Grid::_createField(int x, int y, bool * visitedNodes)
+{
+	static int counter = 0;
+	
+	std::vector<Node*> targets;
+	_includeInField(x, y, visitedNodes, targets);
+	int centerX = 0;
+	int centerY = 0;
+
+	for (auto & t : targets)
+	{
+		centerX += t->tile.getX();
+		centerY += t->tile.getY();
+	}
+
+	centerX /= targets.size();
+	centerY /= targets.size();
+	DirectX::XMINT2 topLeft = { 999, 999 },
+		topRight = { -999, 999 },
+		bottomRight = { -999, -999 },
+		bottomLeft = { 999, -999 };
+	if (!m_nodeMap[centerX + centerY * m_width].tile.getPathable())
+	{
+		for (auto & t : targets)
+		{
+			if (topLeft.x >= t->tile.getX() && topLeft.y >= t->tile.getY())
+				topLeft = { t->tile.getX(), t->tile.getY() };
+
+			if (topRight.x <= t->tile.getX() && topRight.y >= t->tile.getY())
+				topRight = { t->tile.getX(), t->tile.getY() };
+
+			if (bottomRight.x <= t->tile.getX() && bottomRight.y <= t->tile.getY())
+				bottomRight = { t->tile.getX(), t->tile.getY() };
+
+			if (bottomLeft.x >= t->tile.getX() && bottomLeft.y <= t->tile.getY())
+				bottomLeft = { t->tile.getX(), t->tile.getY() };
+		}
+
+		DirectX::XMINT2 xmC = { centerX, centerY };
+		DirectX::XMVECTOR v1, v2, v3, v4, vC;
+		vC = DirectX::XMLoadSInt2(&xmC);
+		v1 = DirectX::XMLoadSInt2(&topLeft);
+		v2 = DirectX::XMLoadSInt2(&topRight);
+		v3 = DirectX::XMLoadSInt2(&bottomRight);
+		v4 = DirectX::XMLoadSInt2(&bottomLeft);
+
+		float closestLength = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v1, vC)));
+		centerX = topLeft.x;
+		centerY = topLeft.y;
+
+		float length = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v2, vC)));
+		if (length < closestLength)
+		{
+			centerX = topRight.x;
+			centerY = topRight.y;
+			closestLength = length;
+		}
+		length = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v3, vC)));
+		if (length < closestLength)
+		{
+			centerX = bottomRight.x;
+			centerY = bottomRight.y;
+			closestLength = length;
+		}
+		length = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v4, vC)));
+		if (length < closestLength)
+		{
+			centerX = bottomLeft.x;
+			centerY = bottomLeft.y;
+			closestLength = length;
+		}
+	}
+
+	Waypoint waypoint;
+	waypoint.waypointIndex = counter++;
+	waypoint.field = targets;
+	waypoint.x = centerX;
+	waypoint.y = centerY;
+
+	return waypoint;
+}
+
+void Grid::_findConnections()
+{
+	// Iterate all the waypoints
+	for (auto & target : m_waypoints)
+	{
+		// Compare all waypoints with eachother to find possible neighbours
+		for (auto & subTargets : m_waypoints)
+		{
+			// Check to not compare this with this
+			if (target.waypointIndex != subTargets.waypointIndex)
+			{
+				// Loop through our target waypoints field to see if they have neighbouring nodes
+				for (auto targetNode : target.field)
+				{
+					// Get our targets neighbour nodes
+					auto nodes = _getUnblockedAround(targetNode->tile.getX(), targetNode->tile.getY());
+					std::vector<Node*> nodesInOtherField;
+
+					// Check the neighbouring nodes to see if the target field contains them
+					for (auto & searchTarget : nodes)
+					{
+						auto result = std::find(target.field.begin(), target.field.end(), searchTarget);
+						// If the neighbour does not exist in targets field then we can assume that it exists in a neighbouring field
+						if (result == std::end(target.field))
+							nodesInOtherField.push_back(searchTarget);
+					}
+					// Iterate through potential neighbouring nodes and extract the nodes waypoint
+					for (auto & nodeInOtherField : nodesInOtherField)
+					{
+						// If the node exists in the subtargets field then there's a connection in between the two fields
+						auto result = std::find(subTargets.field.begin(), subTargets.field.end(), nodeInOtherField);
+						if (result != std::end(subTargets.field))
+						{
+							// Create a connection in between the two fields if there aint an existing one already
+							auto result = std::find(target.connections.begin(), target.connections.end(), &subTargets);
+							if (result == std::end(target.connections))
+								target.connections.push_back(&subTargets);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void Grid::_generateWaypoints()
+{
+	bool * visitedNodes = new bool[m_width * m_height];
+	for (int i = 0; i < m_width * m_height; i++)
+		visitedNodes[i] = false;
+
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			int index = x + y * m_width;
+			if (m_nodeMap[index].tile.getPathable() && !visitedNodes[index])
+			{
+				Waypoint waypoint = _createField(x, y, visitedNodes);
+				m_waypoints.push_back(waypoint);
+			}
+		}
+	}
+	_findConnections();
+	delete [] visitedNodes;
+}
+
+void Grid::_includeInField(int x, int y, bool * visitedNodes, std::vector<Node*>& targets, int startIndex)
+{
+	static const int FIELD_LIMIT = 150;
+	int index = x + y * m_width;
+	if (m_nodeMap[index].tile.getPathable())
+	{
+		if (!visitedNodes[index])
+		{
+			targets.push_back(&m_nodeMap[index]);
+			visitedNodes[index] = true;
+		}
+
+		bool newNode = false;
+		auto nodes = _getUnblockedAround(x, y);
+
+		for (auto & node : nodes)
+		{
+			if (!visitedNodes[node->tile.getX() + node->tile.getY() * m_width])
+			{
+				visitedNodes[node->tile.getX() + node->tile.getY() * m_width] = true;
+				targets.push_back(node);
+				newNode = true;
+			}
+		}
+		if (targets.size() < FIELD_LIMIT)
+		{
+			if (newNode)
+			{
+				int end = targets.size();
+				for (int i = startIndex; i < end; i++)
+					_includeInField(targets[i]->tile.getX(), targets[i]->tile.getY(), visitedNodes, targets, startIndex + 1);
+			}
+		}
+	}
 }
 
 void Grid::_blockCheck(int x, int y, std::vector<Node*>& targetNodes)

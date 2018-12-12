@@ -81,6 +81,19 @@ struct Node
 	Node& operator=(const Node & other);
 };
 
+struct Waypoint
+{
+	int x = -1, y = -1;
+	int waypointIndex = -1;
+	std::vector<Waypoint*> connections;
+	std::vector<Node*> field;
+
+	bool operator==(const Waypoint & other)
+	{
+		return waypointIndex == other.waypointIndex;
+	}
+};
+
 class RandomRoomGrid;
 
 class Grid
@@ -95,6 +108,7 @@ private:
 	const int MAX_BLOCK_CHECK = 21;
 	std::vector<Node> m_nodeMap;
 	std::vector<Node> m_roomNodeMap;
+	std::vector<Waypoint> m_waypoints;
 	int m_width, m_height;
 
 public:
@@ -106,8 +120,6 @@ public:
 	Node GetWorldPosFromIndex(int index);
 	void BlockGridTile(int index, bool pathable);
 	
-
-
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid);
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
@@ -141,6 +153,12 @@ private:
 	Tile _getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap);
 	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
 	std::vector<Node*> _findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height);
+
+	// Waypoint functions
+	Waypoint _createField(int x, int y, bool * visitedNodes);
+	void _findConnections();
+	void _generateWaypoints();
+	void _includeInField(int x, int y, bool * visitedNodes, std::vector<Node*> & targets, int startIndex = 0);
 
 	// For Blocking Algorithm;
 	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
