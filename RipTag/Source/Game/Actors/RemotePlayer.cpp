@@ -450,6 +450,8 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto lookDownPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_DOWN_ANIMATION").get()->m_SkeletonPoses[0];
 		auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
 		auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
+		auto chargeAnimation = Manager::g_animationManager.getAnimation(collection, "CHARGE_POSE_ANIMATION").get();
+		auto throwAnimation = Manager::g_animationManager.getAnimation(collection, "THROW_ANIMATION").get();
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
@@ -467,6 +469,10 @@ void RemotePlayer::_registerAnimationStateMachine()
 		pitchState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("pitch");
 		
+		auto chargeState = layerMachine->AddBasicLayer("charge", chargeAnimation, 0.35, 0.2);
+		chargeState->UseFirstPoseOnly(true);
+		auto throwState = layerMachine->AddBasicLayer("throw", throwAnimation, 0.0f, 0.0f);
+
 		auto leanState = layerMachine->Add1DPoseLayer("peek", &this->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
 		leanState->UseSmoothDriver(false);
 		layerMachine->ActivateLayer("peek");
@@ -480,11 +486,16 @@ void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
 	switch (id)
 	{
 	case NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN:
-		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_begin");
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("charge");
 		break;
+	}
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
-		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_end");
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0f);
 		break;
+	}
 	}
 }
 
