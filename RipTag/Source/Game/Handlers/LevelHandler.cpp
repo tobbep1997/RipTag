@@ -1,8 +1,6 @@
 #include "RipTagPCH.h"
 #include "LevelHandler.h"
 
-
-
 LevelHandler::LevelHandler(const unsigned short & roomIndex)
 {
 	m_roomIndex = roomIndex;

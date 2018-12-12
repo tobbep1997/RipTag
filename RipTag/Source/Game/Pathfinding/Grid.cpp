@@ -75,14 +75,25 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	_createSubGrid();
 	_generateWaypoints();
 
+	//this->PrintMe();
 	/*std::ofstream o;
-	this->PrintMe();
 	o.open("sub.txt");
 	for (int y = 0; y < m_height; y++)
 	{
 		for (int x = 0; x < m_width; x++)
 		{
-			if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
+			bool drawWp = false;
+			for (auto & w : m_waypoints)
+			{
+				if (w.x == x && w.y == y)
+				{
+					drawWp = true;
+					break;
+				}
+			}
+			if (drawWp)
+				o << "X";
+			else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
 				o << "#";
 			else
 				o << m_nodeMap[x + y * m_width].tile.getSubGrid();
@@ -91,14 +102,6 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		o << "\n";
 	}
 	o.close();*/
-
-
-	bool reverse = true;
-
-	if (reverse)
-		FindPath(Tile(20, 1), Tile(94, 24));
-	else
-		FindPath(Tile(112, 78), Tile(20, 1));
 
 }
 
@@ -200,6 +203,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		// A* in each room to get to the next
 		std::vector<TilePair> tilePairs = _roomNodePathToGridTiles(&roomNodePath, source, destination);
 		
+		// DONT REMOVE
 		/*static int counter = 0;
 		std::ofstream file;
 		file.open("PATH_" + std::to_string(counter++) + ".txt");
@@ -237,11 +241,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 			std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
 
-			static int counter = 0;
+			//DONT REMOVE
+			/*static int counter = 0;
 			std::ofstream file;
 			file.open("PATH_" + std::to_string(counter++) + ".txt");
 
-			_printTilePairs(tilePairs, file, source, destination);
+			_printTilePairs(tilePairs, file, source, destination);*/
 
 
 			std::vector<Node*> pathToDestination;
@@ -249,12 +254,12 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 			{
 				std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
 				pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
-				_printPath(partOfPath, file, source, destination);
+				//_printPath(partOfPath, file, source, destination);
 			}
 
-			_printPath(pathToDestination, file, source, destination);
+			//_printPath(pathToDestination, file, source, destination);
 
-			file.close();
+			//file.close();
 
 			return pathToDestination;
 		}
@@ -1145,7 +1150,6 @@ void Grid::_generateWaypoints()
 
 void Grid::_includeInField(int x, int y, bool * visitedNodes, std::vector<Node*>& targets, int startIndex)
 {
-	static const int FIELD_LIMIT = 32;
 	int index = x + y * m_width;
 	if (m_nodeMap[index].tile.getPathable())
 	{

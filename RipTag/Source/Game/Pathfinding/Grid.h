@@ -128,6 +128,7 @@ class RandomRoomGrid;
 class Grid
 {
 private:
+	static const int FIELD_LIMIT = 64;
 	struct TilePair
 	{
 		Tile source;
