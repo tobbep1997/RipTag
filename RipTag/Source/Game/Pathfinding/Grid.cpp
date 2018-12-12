@@ -75,7 +75,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	_createSubGrid();
 	_generateWaypoints();
 
-	std::ofstream o;
+	/*std::ofstream o;
 	this->PrintMe();
 	o.open("sub.txt");
 	for (int y = 0; y < m_height; y++)
@@ -90,8 +90,16 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		}
 		o << "\n";
 	}
-	o.close();
-	int exde = 0;
+	o.close();*/
+
+
+	bool reverse = false;
+
+	if (reverse)
+		FindPath(Tile(20, 1), Tile(112, 78));
+	else
+		FindPath(Tile(112, 78), Tile(20, 1));
+
 }
 
 void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid)
@@ -152,7 +160,8 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 	}
 }
 
-std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
+//FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!
+std::vector<Node*> Grid::FindPath(Tile source, Tile destination)				
 {
 	if (source.getX() < 0 || source.getY() < 0)
 	{
@@ -167,15 +176,19 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 		return temp;
 	}
 
-	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	Tile src = m_nodeMap.at(source.getX() + source.getY() * m_width).tile;
+	Tile dest = m_nodeMap.at(destination.getX() + destination.getY() * m_width).tile;
 	if (!src.getPathable())
-		source = GetRandomNearbyUnblockedTile(source);
+		src = GetRandomNearbyUnblockedTile(source);
 	if (!dest.getPathable())
-		destination = GetRandomNearbyUnblockedTile(destination);
+		dest = GetRandomNearbyUnblockedTile(destination);
+
+	source = src;
+	destination = dest;
+
 	if (!m_roomNodeMap.empty() && !_tilesAreInTheSameRoom(source, destination))
 	{		
-		
+
 		// A* through the "large" grid to find which rooms are connected in the path
 		std::vector<Node*> roomNodePath = _findRoomNodePath(source, destination);
 
@@ -215,10 +228,38 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 	else
 	{
 		if (dest.getSubGrid() == src.getSubGrid())
-			return _findPath(source, destination, m_nodeMap, m_width, m_height);
-		else
-			return std::vector<Node*>();
+		{
+			// find paths through our waypoints
+			std::vector<Waypoint*> waypoints = _findWaypointPath(source, destination);
+
+			if (waypoints.empty())
+				return _findPath(source, destination, m_nodeMap, m_width, m_height);
+
+			std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
+
+			static int counter = 0;
+			std::ofstream file;
+			file.open("PATH_" + std::to_string(counter++) + ".txt");
+
+			_printTilePairs(tilePairs, file, source, destination);
+
+
+			std::vector<Node*> pathToDestination;
+			for (auto & tp : tilePairs)
+			{
+				std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
+				pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
+				_printPath(partOfPath, file, source, destination);
+			}
+
+			_printPath(pathToDestination, file, source, destination);
+
+			file.close();
+
+			return pathToDestination;
+		}
 	}
+	return std::vector<Node*>();
 }
 
 Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
@@ -253,7 +294,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 				else if (m_nodeMap[x + tempY * m_width].tile.getPathable())
 				{
 					returnTile = m_nodeMap[x + tempY * m_width].tile;
-					unblocked = true;
+					break;
 				}
 			}
 		}
@@ -271,7 +312,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 				else if (m_nodeMap[tempX + y * m_width].tile.getPathable())
 				{
 					returnTile = m_nodeMap[tempX + y * m_width].tile;
-					unblocked = true;
+					break;
 				}
 			}
 		}
@@ -289,7 +330,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 				else if (m_nodeMap[x + tempY * m_width].tile.getPathable())
 				{
 					returnTile = m_nodeMap[x + tempY * m_width].tile;
-					unblocked = true;
+					break;
 				}
 			}
 		}
@@ -307,7 +348,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 				else if (m_nodeMap[tempX + y * m_width].tile.getPathable())
 				{
 					returnTile = m_nodeMap[tempX + y * m_width].tile;
-					unblocked = true;
+					break;
 				}
 			}
 		}
@@ -331,7 +372,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
 					{
 						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-						unblocked = true;
+						break;
 					}
 				}
 			}
@@ -356,7 +397,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
 					{
 						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-						unblocked = true;
+						break;
 					}
 				}
 			}
@@ -381,7 +422,7 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
 					{
 						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-						unblocked = true;
+						break;
 					}
 				}
 			}
@@ -406,13 +447,12 @@ Tile Grid::GetRandomNearbyUnblockedTile(Tile src)
 					else if (m_nodeMap[tempX + tempY * m_width].tile.getPathable())
 					{
 						returnTile = m_nodeMap[tempX + tempY * m_width].tile;
-						unblocked = true;
+						break;
 					}
 				}
 			}
 		}
-		if (!unblocked)
-			unblocked = _isAllDirectionsBlocked(blockedDirections);
+		unblocked = _isAllDirectionsBlocked(blockedDirections);
 		count++;
 	}
 	return returnTile;
@@ -537,6 +577,9 @@ int Grid::_findXInYRow(int begin, int end, int x, int y) const
 
 const bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destination)
 {
+	if (m_roomNodeMap.empty())
+		return true;
+
 	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
 	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
 	DirectX::XMFLOAT2 sWposOff = { sWpos.x + 50.0f, sWpos.y + 50.0f };
@@ -810,6 +853,113 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	return std::vector<Node*>();
 }
 
+std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile & destination)
+{
+	//std::stack<Waypoint*> currentPath;
+	std::vector<Waypoint*> currentPath;
+	Waypoint * start = m_nodeMap[source.getX() + source.getY() * m_width].fieldOwner;
+	Waypoint * end = m_nodeMap[destination.getX() + destination.getY() * m_width].fieldOwner;
+	start->hCost = 0.0f;
+	start->visited = true;
+	currentPath.push_back(start);
+	Waypoint * current = nullptr;
+
+	while (!currentPath.empty() && currentPath.back() != end)
+	{
+		float currentCost = FLT_MAX;
+		//float potentialCost = FLT_MAX;
+		WaypointConnection * next = nullptr;
+		current = currentPath.back();
+
+		if (!current->connections.empty())
+		{
+			std::vector<WaypointConnection> & wpc = current->connections;
+			/*currentCost = wpc.at(0).connectionCost;
+			next = &wpc.at(0);*/
+			for (int i = 0; i < wpc.size(); i++)
+			{
+				int x = wpc.at(i).connection->x;
+				int y = wpc.at(i).connection->y;
+
+				int deltaX = abs(x - destination.getX());
+				int deltaY = abs(y - destination.getY());
+
+				float tempHCost = deltaX + deltaY + wpc.at(i).connectionCost;
+
+
+				if (!wpc.at(i).connection->visited && !wpc.at(i).traversedConnection && tempHCost < currentCost)
+				{
+					currentCost = tempHCost;
+					next = &wpc.at(i);
+				}
+			}
+
+			if (next && next->connection->hCost > current->hCost + currentCost)
+			{
+				int x = next->connection->x;
+				int y = next->connection->y;
+
+				int deltaX = abs(x - destination.getX());
+				int deltaY = abs(y - destination.getY());
+
+
+
+				next->connection->hCost = deltaX + deltaY;
+				next->connection->visited = true;
+				next->traversedConnection = true;
+				currentPath.push_back(next->connection);
+			}
+			else
+			{
+				currentPath.back()->visited = false;
+				currentPath.back()->hCost = FLT_MAX;
+				currentPath.pop_back();
+			}
+		}
+		else
+		{
+			currentPath.back()->visited = false;
+			currentPath.back()->hCost = FLT_MAX;
+			currentPath.pop_back();
+		}
+	}
+
+	for (auto & w : m_waypoints)
+	{
+		w.hCost = FLT_MAX;
+		w.visited = false;
+
+		for (auto c : w.connections)
+			c.traversedConnection = false;
+
+	}
+
+	return currentPath;
+}
+
+std::vector<Grid::TilePair> Grid::_waypointPathToGridTiles(std::vector<Waypoint*>& waypoints, const Tile & source, const Tile & destination)
+{
+	std::vector<TilePair> gtp;
+	TilePair start;
+	start.source = source;
+	start.destination = m_nodeMap.at(waypoints.at(0)->x + waypoints.at(0)->y * m_width).tile;
+	gtp.push_back(start);
+
+	for (int i = 0; i < waypoints.size() - 1; i++)
+	{
+		TilePair tp;
+		tp.source = m_nodeMap.at(waypoints.at(i)->x + waypoints.at(i)->y * m_width).tile;
+		tp.destination = m_nodeMap.at(waypoints.at(i + 1)->x + waypoints.at(i + 1)->y * m_width).tile;
+		gtp.push_back(tp);
+	}
+	TilePair end;
+	end.source = m_nodeMap.at(waypoints.at(waypoints.size() - 1)->x + waypoints.at(waypoints.size() - 1)->y * m_width).tile;
+	end.destination = destination;
+	gtp.push_back(end);
+
+	return gtp;
+}
+
 Waypoint Grid::_createField(int x, int y, bool * visitedNodes)
 {
 	static int counter = 0;
@@ -823,16 +973,22 @@ Waypoint Grid::_createField(int x, int y, bool * visitedNodes)
 	{
 		centerX += t->tile.getX();
 		centerY += t->tile.getY();
+		
 	}
 
 	centerX /= targets.size();
 	centerY /= targets.size();
-	DirectX::XMINT2 topLeft = { 999, 999 },
-		topRight = { -999, 999 },
-		bottomRight = { -999, -999 },
-		bottomLeft = { 999, -999 };
-	if (!m_nodeMap[centerX + centerY * m_width].tile.getPathable())
+
+	auto iterator = std::find(targets.begin(), targets.end(), &m_nodeMap[centerX + centerY * m_width]);
+
+	if (!m_nodeMap[centerX + centerY * m_width].tile.getPathable() || iterator == std::end(targets))
 	{
+		DirectX::XMINT2 topLeft = { 999, 999 },
+			topRight = { -999, 999 },
+			bottomRight = { -999, -999 },
+			bottomLeft = { 999, -999 };
+
+
 		for (auto & t : targets)
 		{
 			if (topLeft.x >= t->tile.getX() && topLeft.y >= t->tile.getY())
@@ -898,10 +1054,10 @@ void Grid::_findConnections()
 	for (auto & target : m_waypoints)
 	{
 		// Compare all waypoints with eachother to find possible neighbours
-		for (auto & subTargets : m_waypoints)
+		for (auto & subTarget : m_waypoints)
 		{
 			// Check to not compare this with this
-			if (target.waypointIndex != subTargets.waypointIndex)
+			if (target.waypointIndex != subTarget.waypointIndex)
 			{
 				// Loop through our target waypoints field to see if they have neighbouring nodes
 				for (auto targetNode : target.field)
@@ -922,13 +1078,31 @@ void Grid::_findConnections()
 					for (auto & nodeInOtherField : nodesInOtherField)
 					{
 						// If the node exists in the subtargets field then there's a connection in between the two fields
-						auto result = std::find(subTargets.field.begin(), subTargets.field.end(), nodeInOtherField);
-						if (result != std::end(subTargets.field))
+						auto result = std::find(subTarget.field.begin(), subTarget.field.end(), nodeInOtherField);
+						if (result != std::end(subTarget.field))
 						{
 							// Create a connection in between the two fields if there aint an existing one already
-							auto result = std::find(target.connections.begin(), target.connections.end(), &subTargets);
+							auto result = std::find(target.connections.begin(), target.connections.end(), &subTarget);
 							if (result == std::end(target.connections))
-								target.connections.push_back(&subTargets);
+							{
+								DirectX::XMINT2 targetPos = { target.x, target.y },
+									sharedTilePos =			{ nodeInOtherField->tile.getX(),  nodeInOtherField->tile.getY() },
+									subTargetPos =			{ subTarget.x, subTarget.y };
+
+								DirectX::XMVECTOR v1, v2, v3;
+								v1 = DirectX::XMLoadSInt2(&targetPos);
+								v2 = DirectX::XMLoadSInt2(&sharedTilePos);
+								v3 = DirectX::XMLoadSInt2(&subTargetPos);
+								float cost1, cost2;
+								cost1 = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v2, v1)));
+								cost2 = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v3, v2)));
+
+								WaypointConnection wpc;
+								wpc.connection = &subTarget;
+								wpc.connectionCost = cost1 + cost2;
+								target.AddConnection(wpc);
+							}
+								
 						}
 					}
 				}
@@ -956,12 +1130,22 @@ void Grid::_generateWaypoints()
 		}
 	}
 	_findConnections();
+
+	for (auto & waypoint : m_waypoints)
+	{
+		for (auto & node : waypoint.field)
+			node->fieldOwner = &waypoint;
+
+
+		waypoint.field.clear();
+	}
+
 	delete [] visitedNodes;
 }
 
 void Grid::_includeInField(int x, int y, bool * visitedNodes, std::vector<Node*>& targets, int startIndex)
 {
-	static const int FIELD_LIMIT = 150;
+	static const int FIELD_LIMIT = 64;
 	int index = x + y * m_width;
 	if (m_nodeMap[index].tile.getPathable())
 	{
@@ -1254,6 +1438,34 @@ Node & Node::operator=(const Node & other)
 		gCost = other.gCost;
 		hCost = other.hCost;
 		fCost = other.fCost;
+		fieldOwner = other.fieldOwner;
+	}
+	return *this;
+}
+
+WaypointConnection::WaypointConnection()
+{
+	connection = nullptr;
+	connectionCost = FLT_MAX;
+	traversedConnection = false;
+}
+
+bool WaypointConnection::operator==(const WaypointConnection & other)
+{
+	return *this->connection == *other.connection;;
+}
+
+bool WaypointConnection::operator==(const Waypoint * other)
+{
+	return this->connection->waypointIndex == other->waypointIndex;
+}
+
+WaypointConnection & WaypointConnection::operator=(const WaypointConnection & other)
+{
+	if (this != &other)
+	{
+		this->connection = other.connection;
+		this->connectionCost = other.connectionCost;
 	}
 	return *this;
 }
