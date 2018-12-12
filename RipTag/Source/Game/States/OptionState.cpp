@@ -13,7 +13,7 @@ OptionState::OptionState(RenderingManager * rm) : State(rm)
 	m_buttonPressed = false;
 	m_drawMustRestart = false;
 	m_mouseMoved = false;
-	m_currentButton = -1;
+	m_currentButton = Return;
 	m_liu = Mouse;
 	_ReadSettingsFromFile();
 	_initButtons();
@@ -273,7 +273,7 @@ void OptionState::Update(double deltaTime)
 
 void OptionState::Draw()
 {
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
+	static Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
 	if (this->m_background)
 		this->m_background->Draw();
@@ -389,6 +389,9 @@ void OptionState::_initButtons()
 	m_buttons[ButtonOrder::Return]->setHoverTexture("gui_hover_pixel");
 	m_buttons[ButtonOrder::Return]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_buttons[ButtonOrder::Return]->setFont(FontHandler::getFont("consolas16"));
+	m_buttons[ButtonOrder::Return]->setState(ButtonStates::Hover);
+	m_buttons[ButtonOrder::Return]->Select(false);
+	m_currentButton = Return;
 
 	m_restart = Quad::CreateButton("You must restart the game to apply some of the changes made", 0.5f, 0.05f, 1.2f, 0.17f);
 	m_restart->setUnpressedTexture("gui_transparent_pixel");
@@ -425,6 +428,10 @@ void OptionState::_handleGamePadInput(double dt)
 			dir = -1;
 			timer = 0.0;
 			m_sliderPressed = false;
+			if (m_currentButton == Return)
+				m_currentButton = ToggleFullscreen;
+			else
+				m_currentButton += dir;
 		}
 		else if ((!pressedLastFrame || timer > 0.5) && (GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f))
 		{
@@ -432,9 +439,31 @@ void OptionState::_handleGamePadInput(double dt)
 			dir = 1;
 			timer = 0.0;
 			m_sliderPressed = false;
+			if (m_currentButton == ToggleFullscreen)
+				m_currentButton = Return;
+			else if (m_currentButton == SoundSettings)
+				m_currentButton = SliderFov;
+			else
+				m_currentButton += dir;
 		}
+		else if ((!pressedLastFrame || timer > 0.5) && ((GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0.0f) ||  (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0.0f)  ))
+		{
+			m_liu = Gamepad;
+			dir = 0;
+			timer = 0.0;
+			m_sliderPressed = false;
 
-		m_currentButton += dir;
+
+			switch (m_currentButton)
+			{
+			case Return:
+				m_currentButton = SoundSettings;
+				break;
+			case SoundSettings:
+				m_currentButton = Return;
+				break;
+			}
+		}
 		
 		if (m_currentButton < 0)
 			m_currentButton = (short)Return;
@@ -458,8 +487,8 @@ void OptionState::_handleGamePadInput(double dt)
 				}
 			}
 		}
-
-		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f;
+		bool b = GamePadHandler::IsRightDpadPressed() || GamePadHandler::GetLeftStickXPosition() > 0.0f || GamePadHandler::IsLeftDpadPressed() || GamePadHandler::GetLeftStickXPosition() < 0.0f;
+		pressedLastFrame = GamePadHandler::IsUpDpadPressed() || GamePadHandler::GetLeftStickYPosition() > 0.0f || GamePadHandler::IsDownDpadPressed() || GamePadHandler::GetLeftStickYPosition() < 0.0f || b;
 	}
 }
 
@@ -476,6 +505,10 @@ void OptionState::_handleKeyboardInput(double dt)
 		dir = -1;
 		timer = 0.0;
 		m_sliderPressed = false;
+		if (m_currentButton == Return)
+			m_currentButton = ToggleFullscreen;
+		else
+			m_currentButton += dir;
 	}
 	else if ((!pressedLastFrame || timer > 0.5) && (InputHandler::isKeyPressed(InputHandler::Down)))
 	{
@@ -483,9 +516,32 @@ void OptionState::_handleKeyboardInput(double dt)
 		dir = 1;
 		timer = 0.0;
 		m_sliderPressed = false;
+		if (m_currentButton == ToggleFullscreen)
+			m_currentButton = Return;
+		else if (m_currentButton == SoundSettings)
+			m_currentButton = SliderFov;
+		else
+			m_currentButton += dir;
+	}
+	else if ((!pressedLastFrame || timer > 0.5) && (InputHandler::wasKeyPressed(InputHandler::Right) || InputHandler::wasKeyPressed(InputHandler::Left)))
+	{
+		m_liu = Keyboard;
+		dir = 0;
+		timer = 0.0;
+		m_sliderPressed = false;
+		
+
+		switch (m_currentButton)
+		{
+		case Return:
+			m_currentButton = SoundSettings;
+			break;
+		case SoundSettings:
+			m_currentButton = Return;
+			break;
+		}
 	}
 
-	m_currentButton += dir;
 
 	if (m_currentButton < 0)
 		m_currentButton = (short)Return;
@@ -537,6 +593,15 @@ bool OptionState::_handleMouseInput()
 		for (size_t i = 0; i < m_buttons.size() && !m_sliderPressed; i++)
 		{
 			//set this button to current and on hover state
+			if (m_buttons[i]->Inside(mousePos))
+			{
+				m_buttons[m_currentButton]->setState(ButtonStates::Normal);
+				m_buttons[m_currentButton]->Select(false);
+				m_currentButton = i;
+				m_buttons[i]->setState(ButtonStates::Hover);
+				m_buttons[i]->Select(false);
+			}
+
 			if (m_buttons[i]->isReleased(mousePos))
 			{
 				m_buttonPressed = true;
