@@ -302,7 +302,7 @@ const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 
 const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
 {
-	bool b = !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
+	bool b = InputHandler::isMLeftReleased() && this->Inside(mousePos);	
 	if (m_selected)
 		m_buttonState = ButtonStates::Hover;
 	return b;
