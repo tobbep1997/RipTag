@@ -32,6 +32,9 @@ Grid::Grid(float xVal, float yVal, int width, int depth)
 
 Grid::~Grid()
 {
+	m_waypoints.clear();
+	m_roomNodeMap.clear();
+	m_nodeMap.clear();
 }
 
 Tile Grid::WorldPosToTile(float x, float y)
@@ -75,8 +78,8 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	_createSubGrid();
 	_generateWaypoints();
 
-	//this->PrintMe();
-	/*std::ofstream o;
+	this->PrintMe();
+	std::ofstream o;
 	o.open("sub.txt");
 	for (int y = 0; y < m_height; y++)
 	{
@@ -101,8 +104,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		}
 		o << "\n";
 	}
-	o.close();*/
-
+	o.close();
 }
 
 void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid)

@@ -549,7 +549,7 @@ void Room::Release()
 		delete triggerHandler;
 		delete m_enemyHandler;
 		delete m_pathfindingGrid;
-	
+		
 	}
 	
 }

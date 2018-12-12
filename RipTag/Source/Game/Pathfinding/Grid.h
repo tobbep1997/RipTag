@@ -128,13 +128,13 @@ class RandomRoomGrid;
 class Grid
 {
 private:
-	static const int FIELD_LIMIT = 64;
 	struct TilePair
 	{
 		Tile source;
 		Tile destination;
 	};
 private:
+	static const int FIELD_LIMIT = 64;
 	const int MAX_BLOCK_CHECK = 21;
 	std::vector<Node> m_nodeMap;
 	std::vector<Node> m_roomNodeMap;
