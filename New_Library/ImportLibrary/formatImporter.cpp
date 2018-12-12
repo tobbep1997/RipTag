@@ -428,9 +428,9 @@ namespace ImporterLibrary
 				collisionBoxes.boxes[i].rotation[3] = box[i].rotation[3];
 
 				collisionBoxes.boxes[i].typeOfBox = box[i].typeOfBox;
-				if (collisionBoxes.boxes[i].typeOfBox != 1
-					|| collisionBoxes.boxes[i].typeOfBox != 2)
-					collisionBoxes.boxes[i].typeOfBox = 0;
+				if (collisionBoxes.boxes[i].typeOfBox == 2)
+					std::cout << "Hello TypeOfBox2." << std::endl;
+	
 			}
 
 			customBoxFile.close();
