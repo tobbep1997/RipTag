@@ -386,7 +386,7 @@ void ParticleEmitter::Draw()
 {
 	int nrOfVerts = vertex.size();
 
-	if (nrOfVerts == 0)
+	if (nrOfVerts == 0 || this->m_expired || !this->m_emitterActive)
 		return;
 
 	SetBuffers();
@@ -482,18 +482,18 @@ void ParticleEmitter::SetAsDefaultSmoke(DirectX::XMFLOAT4A origin)
 	m_emitterActive						= true;
 	m_EmitterCurrentLife				= 0;
 
-	m_config.m_EmitterLife				= 100;
-	m_config.m_MaxParticle				= 5000;
-	m_config.m_MinParticle				= 500;
-	m_config.m_nrOfEmittParticles	= 500;
-	m_config.m_Speed						= 1.55f;
+	m_config.m_EmitterLife				= 5;
+	m_config.m_MaxParticle				= 400;
+	m_config.m_MinParticle				= 200;
+	m_config.m_nrOfEmittParticles		= 200;
+	m_config.m_Speed					= 1.25f;
 
 	m_config.m_SpawnPosition			= origin;
 
 	m_config.scaleOverTime				= { -0.7f, -0.7f };
-	m_config.scale								= { 0.01f, 0.01f };
+	m_config.scale						= { 0.01f, 0.01f };
 
-	m_config.m_RotationMinMax		= { 1.f, 360.f };
+	m_config.m_RotationMinMax			= { 1.f, 360.f };
 	m_config.directionMinMax			= { -2.f, 5.f };
 	m_config.minMaxLife					= { 0.1f, 5.f };
 
