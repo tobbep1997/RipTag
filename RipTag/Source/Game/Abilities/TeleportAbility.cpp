@@ -43,7 +43,7 @@ void TeleportAbility::Init()
 		m_light->CreateShadowDirection(PointLight::XYZ_ALL);
 	
 	m_light->setFarPlane(50.0f);
-	m_light->setNearPlane(0.01f);
+	m_light->setNearPlane(0.1f);
 	m_light->setIntensity(10.0f);
 	m_light->setDropOff(1.f); // set to 1
 

@@ -165,3 +165,8 @@ ID3D11Buffer* StaticMesh::getBuffer()
 {
 	return this->m_vertexBuffer;
 }
+
+UINT StaticMesh::getSize()
+{
+	return sizeof(StaticVertex) * (UINT)getVertice().size();
+}

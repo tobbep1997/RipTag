@@ -62,6 +62,8 @@ private:
 
 	bool m_lightOn = true;
 
+	bool m_prioLight = false;
+
 public:
 	PointLight();
 	PointLight(float * translation, float * color, float intensity);
@@ -71,7 +73,7 @@ public:
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
 
-	void QueueLight();
+	void QueueLight(const bool & prio = false);
 
 	void setPosition(const DirectX::XMFLOAT4A & pos);
 	void setPosition(float x, float y, float z, float w = 1);
@@ -129,6 +131,8 @@ public:
 	bool getLightOn() const;
 	void setLightOn(bool bo);
 	void SwitchLightOn();
+
+	const bool & GetPrio();
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);

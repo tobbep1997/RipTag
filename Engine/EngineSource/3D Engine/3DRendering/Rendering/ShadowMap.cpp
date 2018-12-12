@@ -64,6 +64,14 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 		if (newLightIndex == DX::g_prevlights.end())
 			i = k;
 	}
+	for (size_t k = 0; k < DX::g_lights.size(); k++)
+	{
+		if (DX::g_lights[i]->GetPrio())
+		{
+			i = k;
+			break;
+		}
+	}
 	if (DX::g_lights.size())
 	{	
 		DX::g_lights[i]->Clear();
