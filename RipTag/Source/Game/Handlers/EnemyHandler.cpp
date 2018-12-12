@@ -108,6 +108,7 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 			Network::ENTITYSTATEPACKET * pData = (Network::ENTITYSTATEPACKET*)data;
 			_onDisabledPacket(pData);
 		}
+		break;
 		case Network::ID_ENEMY_ANIMATION_STATE:
 		{
 			Network::ENEMYANIMATIONSTATEPACKET * pData = (Network::ENEMYANIMATIONSTATEPACKET*)data;
@@ -314,6 +315,6 @@ void EnemyHandler::_onAnimationStatePacket(Network::ENEMYANIMATIONSTATEPACKET * 
 
 	if (it != std::end(m_guards))
 	{
-		(*it)->getAnimationPlayer()->GetStateMachine()->SetState(pData->animationStateName);
+		(*it)->getAnimationPlayer()->GetStateMachine()->SetState(pData->string);
 	}
 }

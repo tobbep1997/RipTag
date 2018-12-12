@@ -336,10 +336,21 @@ void PointLight::SwitchLightOn()
 	m_lightOn = !m_lightOn;
 }
 
-void PointLight::QueueLight()
+const bool& PointLight::GetPrio()
+{
+	if (m_prioLight)
+	{
+		m_prioLight = false;
+		return true;
+	}
+	return this->m_prioLight;
+}
+
+void PointLight::QueueLight(const bool & prio)
 {
 	if (m_lightOn)
 	{
+		this->m_prioLight = prio;
 		DX::g_lights.push_back(this);
 	}
 }

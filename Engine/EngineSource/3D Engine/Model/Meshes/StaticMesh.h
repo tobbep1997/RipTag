@@ -37,5 +37,6 @@ public:
 
 	ID3D11Buffer * getBuffer();
 
+	UINT getSize();
 };
 

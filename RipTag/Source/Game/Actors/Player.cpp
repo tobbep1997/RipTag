@@ -295,6 +295,16 @@ void Player::Update(double deltaTime)
 		else
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
+	
+	for (unsigned int i = 0; i < m_nrOfAbilitys; ++i)
+	{
+		Circle * current = m_abilityCircle[i+2];
+		if(m_activeSet[i]->GetAbilityChargeMax() == 1)
+		{
+			current->setInnerRadie(100.0f);	
+		}
+		current->setAngle(m_activeSet[i]->getAbilityChargesPercent() * 360.0f);
+	}
 
 	p_addRotation(0, p_camera->getYRotationEuler().y + DirectX::XM_PI * .5f, 0);
 
@@ -1591,7 +1601,7 @@ void Player::_loadHUD()
 	else
 		HUDComponent::InitHUDFromFile(PlayerTwoHUDPath);
 
-	m_abilityCircle = new Circle*[2];
+	m_abilityCircle = new Circle*[4];
 	m_abilityCircle[0] = new Circle();
 	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
 	m_abilityCircle[0]->setRadie(.53f);
@@ -1606,8 +1616,28 @@ void Player::_loadHUD()
 	m_abilityCircle[1]->setUnpressedTexture("DAB");
 	m_abilityCircle[1]->setAngle(360);
 
+	m_abilityCircle[2] = new Circle();
+	m_abilityCircle[2]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[2]->setRadie(.44f);
+	m_abilityCircle[2]->setInnerRadie(.40f);
+	m_abilityCircle[2]->setUnpressedTexture("DAB");
+	m_abilityCircle[2]->setAngle(360);
+	m_abilityCircle[2]->setColor(1,0,0,1);
+
+	m_abilityCircle[3] = new Circle();
+	m_abilityCircle[3]->init(DirectX::XMFLOAT2A(.1f, .08f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[3]->setRadie(.44f);
+	m_abilityCircle[3]->setInnerRadie(.40f);
+	m_abilityCircle[3]->setUnpressedTexture("DAB");
+	m_abilityCircle[3]->setAngle(360);
+	m_abilityCircle[3]->setColor(1, 0, 0, 1);
+
+	
+
 	HUDComponent::AddQuad(m_abilityCircle[0]);
 	HUDComponent::AddQuad(m_abilityCircle[1]);
+	HUDComponent::AddQuad(m_abilityCircle[2]);
+	HUDComponent::AddQuad(m_abilityCircle[3]);
 
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));

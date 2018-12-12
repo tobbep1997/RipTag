@@ -307,7 +307,10 @@ void LobbyState::Update(double deltaTime)
 
 						_onLoadingScreen();
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
+						if (!pCoopData->skipTutorial)
+							this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
+						else
+							this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 1));
 						
 					}
 				}
@@ -1500,7 +1503,10 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	//loading screen stuff
 	_onLoadingScreen();
 
-	this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
+	if(!packet->skipTutorial)
+		this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData,0));
+	else
+		this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 1));
 }
 
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
