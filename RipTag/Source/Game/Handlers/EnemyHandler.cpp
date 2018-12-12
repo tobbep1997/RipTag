@@ -315,6 +315,6 @@ void EnemyHandler::_onAnimationStatePacket(Network::ENEMYANIMATIONSTATEPACKET * 
 
 	if (it != std::end(m_guards))
 	{
-		(*it)->getAnimationPlayer()->GetStateMachine()->SetState(pData->animationStateName);
+		(*it)->getAnimationPlayer()->GetStateMachine()->SetState(pData->string);
 	}
 }
