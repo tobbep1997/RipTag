@@ -318,25 +318,25 @@ void Room::LoadRoomToMemory()
 		//Manager::g_meshManager.loadStaticMesh("FLOOR");
 		//Manager::g_textureManager.loadTextures("FLOOR");
 		//Manager::g_meshManager.loadStaticMesh("FLOOR");
-			//Manager::g_textureManager.loadTextures("FLOOR");
-			//for (unsigned int i = 0; i < m_grid->maxY; ++i)
-			//{
-			//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
-			//	{
-			//		int index = i + j * m_grid->maxY;
-			//		if (m_grid->gridPoints[index].pathable == true)
-			//		{
-			//			BaseActor * b = DBG_NEW BaseActor();
-			//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-			//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
+		//Manager::g_textureManager.loadTextures("FLOOR");
+		//for (unsigned int i = 0; i < m_grid->maxY; ++i)
+		//{
+		//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
+		//	{
+		//		int index = i + j * m_grid->maxY;
+		//		if (m_grid->gridPoints[index].pathable == true)
+		//		{
+		//			BaseActor * b = DBG_NEW BaseActor();
+		//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+		//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
 
 
-			//			//m_pathfindingGrid->
-			//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
-			//			m_staticAssets.push_back(b);
-			//		}
-			//	}
-			//}
+		//			//m_pathfindingGrid->
+		//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
+		//			m_staticAssets.push_back(b);
+		//		}
+		//	}
+		//}
 	
 		//Tartillbaka Hela rum
 	/*	if (m_roomIndex != 8 && m_roomIndex != 0 && m_roomIndex != 1)
