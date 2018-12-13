@@ -65,6 +65,12 @@ void AI::handleStates(const double deltaTime)
 	case AITransitionState::ExitingDisable:
 		this->_onExitingDisabled();
 		break;
+	case AITransitionState::TorchFound:
+		this->_onTorchFound();
+		break;
+	case AITransitionState::TorchHandled:
+		this->_onTorchHandled();
+		break;
 	}
 
 	switch (m_state)
@@ -258,8 +264,7 @@ void AI::_onBeingDisabled()
 void AI::_onExitingPossessed()
 {
 	m_owner->m_knockOutType = Enemy::KnockOutType::Possessed;
-	m_owner->DisableEnemy();
-	m_owner->setReleased(true);
+	m_owner->removePossessor(); 
 	m_owner->setHidden(false);
 
 	this->m_state = AIState::Disabled;
@@ -279,9 +284,31 @@ void AI::_onExitingDisabled()
 	this->m_state = AIState::NoState;
 	this->m_transState = AITransitionState::Observe;
 }
+void AI::_onTorchFound()
+{
+	//Do we need to do anything else here? 
+	this->m_state = AIState::TorchHandling;
+
+}
+
+void AI::_onTorchHandled()
+{
+	m_state = AIState::NoState;
+	m_transState = AITransitionState::ReturnToPatrol;
+}
 
 void AI::_investigating(const double deltaTime)
 {
+	
+	m_timers[T_Investigate] += deltaTime;
+	bool hasTimedOut = m_timers[T_Investigate] >= m_timeOutPoints[T_Investigate];
+	if (hasTimedOut)
+	{
+		m_timers[T_Investigate] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	
 
@@ -339,6 +366,17 @@ void AI::_investigating(const double deltaTime)
 }
 void AI::_suspicious(const double deltaTime)
 {
+
+	m_timers[T_Suspicious] += deltaTime;
+	bool hasTimedOut = m_timers[T_Possessed] >= m_timeOutPoints[T_Suspicious];
+	if (hasTimedOut)
+	{
+		m_timers[T_Suspicious] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	m_owner->_CheckPlayer(deltaTime);
 	m_owner->setLiniearVelocity();
@@ -458,12 +496,34 @@ void AI::_patrolling(const double deltaTime)
 }
 void AI::_possessed(const double deltaTime)
 {
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_handleInput(deltaTime);
+
+	m_timers[T_Possessed] += deltaTime;
+	bool hasTimedOut = m_timers[T_Possessed] >= m_timeOutPoints[T_Possessed];
+	if (hasTimedOut)
+	{
+		m_timers[T_Possessed] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ExitingPossess; 
+	}
+	else
+	{
+		m_owner->getBody()->SetType(e_dynamicBody);
+
+		m_owner->_handleInput(deltaTime);
+	}
 }
 void AI::_disabled(const double deltaTime)
 {
+
+	m_timers[T_Disabled] += deltaTime;
+	bool hasTimedOut = m_timers[T_Disabled] >= m_timeOutPoints[T_Disabled];
+	if (hasTimedOut)
+	{
+		m_timers[T_Disabled] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	switch (m_owner->m_knockOutType)
 	{
@@ -492,6 +552,47 @@ void AI::_disabled(const double deltaTime)
 	m_owner->getBody()->SetLinearVelocity(b3Vec3(0, 0, 0));
 	//m_owner->PhysicsComponent::p_setRotation(m_owner->p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), m_owner->p_camera->getYRotationEuler().y, m_owner->p_camera->getYRotationEuler().z);
 	m_owner->m_visCounter = 0;
+}
+
+void AI::_torchHandling(const double deltaTime)
+{
+	static bool active = false;
+	static double timer = 0.0f; 
+	static const double lightAt = 0.5; //The timepoint at which we will actuallt light the torch, has to be properly synced with the animation
+
+	//this is to ensure that the AI never locks up in this state
+
+	m_timers[T_TorchHandling] += deltaTime;
+	bool hasTimedOut = m_timers[T_TorchHandling] >= m_timeOutPoints[T_TorchHandling];
+	//Make sure we actually have a torch, if not, return to patrolling
+	if (!m_currentTorch || hasTimedOut)
+	{
+		m_timers[T_TorchHandling] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
+	//Rotate towards the torch from the guard's direction, when we are ready do the actual animation
+	if (_RotateToCurrentTorch(deltaTime) && !active)
+	{
+		//Queue animation here ELIAS
+		active = true;
+	}
+	//If we are active, add to timer and when we reach our desired timepoint, execute order 66. 
+	if (active)
+	{
+		timer += deltaTime; 
+		if (timer >= lightAt)
+		{
+			timer = 0.0;
+			active = false;
+
+			m_currentTorch->Interact();
+			m_currentTorch = nullptr;
+
+			m_transState = AITransitionState::TorchHandled;
+		}
+	}
 }
 
 void AI::_Move(Node * nextNode, double deltaTime)
@@ -738,6 +839,10 @@ float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 
 	return 0;
 }
+bool AI::_RotateToCurrentTorch(double deltaTime)
+{
+	return false;
+}
 void AI::_checkTorches(float dt)
 {
 	static const float radiusSquared = CHECK_TORCHES_RADIUS * CHECK_TORCHES_RADIUS;
@@ -757,8 +862,9 @@ void AI::_checkTorches(float dt)
 			{
 				if (t->getTriggerState())
 				{
-					t->Interact();
-					//QUEUE ANIMATION HERE
+					this->m_currentTorch = t;
+					this->m_transState = AITransitionState::TorchFound;
+					return;
 				}
 			}
 
