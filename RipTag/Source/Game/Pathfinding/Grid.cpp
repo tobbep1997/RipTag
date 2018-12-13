@@ -78,52 +78,35 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	_createSubGrid();
 	_generateWaypoints();
 
-	/*this->PrintMe();
-	std::ofstream o;
-	o.open("sub.txt");
-	for (int y = 0; y < m_height; y++)
-	{
-		for (int x = 0; x < m_width; x++)
-		{
-			bool drawWp = false;
-			for (auto & w : m_waypoints)
-			{
-				if (w.x == x && w.y == y)
-				{
-					drawWp = true;
-					break;
-				}
-			}
-			if (drawWp)
-				o << "X";
-			else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
-				o << "#";
-			else
-				o << m_nodeMap[x + y * m_width].tile.getSubGrid();
-			o << " ";
-		}
-		o << "\n";
-	}
-	o.close();*/
-}
 
-void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid)
-{
-	if (grid.gridPoints == nullptr)
-		return;
-	if (!m_nodeMap.empty())
-		m_nodeMap.clear();
-
-	m_width = grid.maxX;
-	m_height = grid.maxY;
-	for (int i = 0; i < grid.maxY; i++)
-		for (int j = 0; j < grid.maxX; j++)
-		{
-			int index = j + i * grid.maxX;
-			m_nodeMap.push_back(Node(Tile(j, i, grid.gridPoints[index].pathable),
-				NodeWorldPos(grid.gridPoints[index].translation[0],
-					grid.gridPoints[index].translation[2])));
-		}
+	// DONT REMOVE
+	//this->PrintMe();
+	//std::ofstream o;
+	//o.open("sub.txt");
+	//for (int y = 0; y < m_height; y++)
+	//{
+	//	for (int x = 0; x < m_width; x++)
+	//	{
+	//		bool drawWp = false;
+	//		for (auto & w : m_waypoints)
+	//		{
+	//			if (w.x == x && w.y == y)
+	//			{
+	//				drawWp = true;
+	//				break;
+	//			}
+	//		}
+	//		if (drawWp)
+	//			o << "X";
+	//		else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
+	//			o << "#";
+	//		else
+	//			o << m_nodeMap[x + y * m_width].tile.getSubGrid();
+	//		o << " ";
+	//	}
+	//	o << "\n";
+	//}
+	//o.close();
 }
 
 void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
@@ -220,9 +203,9 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoin
 			pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
 			//_printPath(partOfPath, file, source, destination);
 		}
-
+		//DONT REMOVE
 		//_printPath(pathToDestination, file, source, destination);
-
+		//DONT REMOVE
 		//file.close();
 
 		for (int i = 0; i < roomNodePath.size(); i++)
@@ -244,23 +227,29 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoin
 			std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
 
 			//DONT REMOVE
-			/*static int counter = 0;
-			std::ofstream file;
-			file.open("PATH_" + std::to_string(counter++) + ".txt");
+			//static int counter = 0;
+			//std::ofstream file;
+			//file.open("PATH_" + std::to_string(counter++) + ".txt");
 
-			_printTilePairs(tilePairs, file, source, destination);*/
+			//_printTilePairs(tilePairs, file, source, destination);
+
 
 
 			std::vector<Node*> pathToDestination;
 			for (auto & tp : tilePairs)
 			{
+				//DONT REMOVE
+				//DeltaTime dt;
+				//dt.Init();
 				std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
 				pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
+				//DONT REMOVE
 				//_printPath(partOfPath, file, source, destination);
+				//file << dt.getDeltaTimeInSeconds() << "\n";
 			}
-
+			//DONT REMOVE
 			//_printPath(pathToDestination, file, source, destination);
-
+			//DONT REMOVE
 			//file.close();
 
 			return pathToDestination;

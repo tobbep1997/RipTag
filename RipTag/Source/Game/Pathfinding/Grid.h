@@ -134,7 +134,7 @@ private:
 		Tile destination;
 	};
 private:
-	static const int FIELD_LIMIT = 64;
+	static const int FIELD_LIMIT = 32;
 	const int MAX_BLOCK_CHECK = 21;
 	std::vector<Node> m_nodeMap;
 	std::vector<Node> m_roomNodeMap;
@@ -151,7 +151,6 @@ public:
 	void BlockGridTile(int index, bool pathable);
 	
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
-	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid);
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
 	std::vector<Node*> FindPath(Tile src, Tile dest, bool useWaypoints = true);
 	// Should theoretically always return a valid tile in the same room as the source
