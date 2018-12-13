@@ -89,9 +89,7 @@ private:
 	//Key Input
 	bool m_currClickCrouch = false;
 	bool m_prevClickCrouch = false;
-	bool m_currClickSprint = false;
-	bool m_prevClickSprint = false;
-	bool m_isSprinting = false;
+	unsigned int m_prevSprintInputType = 0;
 
 	int m_toggleCrouch = 0;
 	int m_toggleSprint = 0;
@@ -267,8 +265,10 @@ private:
 	void _onReleasePossessed(double deltaTime);
 	void _cameraPlacement(double deltaTime); 
 	void _RotateGuard(float x, float y, float angle, float deltaTime);
-	void _activateCrouch();
+	void _activateCrouch(const unsigned int inputType);
 	void _deActivateCrouch();
+	void _startSprint(const unsigned int inputType);
+	void _startWalk();
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
