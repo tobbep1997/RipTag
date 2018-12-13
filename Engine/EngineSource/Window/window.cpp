@@ -89,27 +89,33 @@ LRESULT Window::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		//Left MB
 	case WM_LBUTTONDOWN:
-		InputHandler::m_mouseKeys[0] = true; 
+		InputHandler::m_mouseKeys[0] = true;
+		InputHandler::m_mouseKeyReleased[0] = false;
 		break;
 	case WM_LBUTTONUP:
-		InputHandler::m_mouseKeys[0] = false; 
+		InputHandler::m_mouseKeys[0] = false;
+		InputHandler::m_mouseKeyReleased[0] = true;
 		break; 
 
 		//Middle MB
 	case WM_MBUTTONDOWN:
 		InputHandler::m_mouseKeys[1] = true;
+		InputHandler::m_mouseKeyReleased[1] = true;
 		break; 
 
 	case WM_MBUTTONUP: 
 		InputHandler::m_mouseKeys[1] = false;
+		InputHandler::m_mouseKeyReleased[1] = true;
 		break; 
 
 		//Right MB 
 	case WM_RBUTTONDOWN:
-		InputHandler::m_mouseKeys[2] = true; 
+		InputHandler::m_mouseKeys[2] = true;
+		InputHandler::m_mouseKeyReleased[2] = false;
 		break; 
 	case WM_RBUTTONUP:
-		InputHandler::m_mouseKeys[2] = false; 
+		InputHandler::m_mouseKeys[2] = false;
+		InputHandler::m_mouseKeyReleased[2] = true;
 		break;
 
 	case WM_MOUSEMOVE:

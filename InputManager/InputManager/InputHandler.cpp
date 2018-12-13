@@ -8,6 +8,7 @@ bool InputHandler::m_mouseMoved = false;
 
 bool InputHandler::m_mouseKeys[3];
 bool InputHandler::m_mouseWasPressed[3];
+bool InputHandler::m_mouseKeyReleased[3];
 DirectX::XMFLOAT2 InputHandler::m_mousePos;
 float InputHandler::m_scrollDelta;
 
@@ -34,6 +35,8 @@ void InputHandler::Reset()
 		m_keysReleased[i] = false;
 	}
 	m_mouseMoved = false;
+	for (int i = 0; i < 3; i++)
+		m_mouseKeyReleased[i] = false;
 }
 
 std::vector<unsigned int> InputHandler::m_rawInput;
@@ -87,18 +90,7 @@ bool InputHandler::isMouseLeftPressed()
 
 bool InputHandler::isMLeftReleased()
 {
-	static bool lastFrame = false;
-	if (InputHandler::isMouseLeftPressed())
-	{
-		lastFrame = true;
-		return false;
-	}
-	else if (!InputHandler::isMouseLeftPressed() && lastFrame)
-	{
-		lastFrame = true;
-		return true;
-	}
-	return false;
+	return m_mouseKeyReleased[0];
 }
 
 bool InputHandler::isMMiddlePressed()
@@ -113,18 +105,7 @@ bool InputHandler::isMRightPressed()
 
 bool InputHandler::isMRightReleased()
 {
-	static bool lastFrame = false;
-	if (InputHandler::isMRightPressed())
-	{
-		lastFrame = true;
-		return false;
-	}
-	else if (!InputHandler::isMRightPressed() && lastFrame)
-	{
-		lastFrame = true;
-		return true;
-	}
-	return false;
+	return m_mouseKeyReleased[2];
 }
 
 int InputHandler::getLastPressed()

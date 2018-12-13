@@ -1410,9 +1410,10 @@ void ForwardRender::_visabilityPass()
 	{
 		return;
 	}
-	m_visabilityPass->SetViewportAndRenderTarget();
+	
 	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
 	{
+		m_visabilityPass->SetViewportAndRenderTarget();
 		m_visabilityPass->GuardDepthPrePassFor(guard, this, m_animationBuffer);
 		m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
 	}

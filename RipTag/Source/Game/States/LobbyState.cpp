@@ -641,10 +641,10 @@ void LobbyState::_handleMouseInput()
 	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
 
 	bool returnIfTrue = true;
-	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
-	{
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9)
 		returnIfTrue = false;
-	}
+	if (InputHandler::isMLeftReleased())
+		returnIfTrue = false;
 
 	s_mouseLastFrame = mousePos;
 
