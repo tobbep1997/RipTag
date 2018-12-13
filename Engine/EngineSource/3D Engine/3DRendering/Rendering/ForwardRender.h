@@ -172,8 +172,8 @@ private:
 	ID3D11Buffer * m_particleVertexBuffer = nullptr;
 
 
-	UINT m_meshBufferSize = 2500000;
-	UINT m_objBufferSize = 150000;
+	UINT m_meshBufferSize = 5500000;
+	UINT m_objBufferSize = 550000;
 
 	UINT m_particleBufferSize = 5000000;
 
