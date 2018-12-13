@@ -1,6 +1,6 @@
 #pragma once
 
-#define TIMEOUT_VALUES { 5.0, 5.0, 5.0, 5.0, 5.0}
+#define AI_TIMEOUT_VALUES { 5.0, 5.0, 5.0, 5.0, 5.0 }
 
 struct Node;
 class Grid;
@@ -67,7 +67,7 @@ private:
 	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
 	const float CHECK_TORCHES_INTERVALL = 3.0f;
-	const float CHECK_TORCHES_RADIUS = 7.5f;
+	const float CHECK_TORCHES_RADIUS = 7000.5f;
 
 	//stateData
 	//float m_HighAlertTime = 0.f;
@@ -100,10 +100,14 @@ private:
 
 
 	//time out handling
-	double timers[5]; //Dont use the AIState enum as index, remember which index is for which state, OR do a new enum and assign index values
-	const double timeOutPoints[5] = TIMEOUT_VALUES;
+	double timers[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; //Dont use the AIState enum as index, remember which index is for which state, OR do a new enum and assign index values
+	const double timeOutPoints[5] = AI_TIMEOUT_VALUES;
 	//Torch handling
-	Torch * m_currentTorch = nullptr;
+	Torch * m_currentTorch	= nullptr;
+	bool m_activeTorch			= false;
+	double m_timerTorch		= 0.0;
+	const double m_igniteAt = 0.5;  //The timepoint at which we will actually light the torch, has to be properly synced with the animation
+
 public:
 	AI();
 	AI(Enemy * owner);

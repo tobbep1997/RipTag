@@ -103,6 +103,9 @@ void AI::handleStates(const double deltaTime)
 	case AIState::Disabled:
 		_disabled(deltaTime);
 		break;
+	case AIState::TorchHandling:
+		_torchHandling(deltaTime);
+		break;
 	}
 }
 void AI::handleStatesClient(const double deltaTime)
@@ -514,38 +517,32 @@ void AI::_disabled(const double deltaTime)
 
 void AI::_torchHandling(const double deltaTime)
 {
-	static bool active = false;
-	static double timer = 0.0;
-	static const double lightAt = 0.5; //The timepoint at which we will actuallt light the torch, has to be properly synced with the animation
-
 	//this is to ensure that the AI never locks up in this state
-	static double timeOutTimer = 0.0;
-	static const double timeOutAt = 5.0; //5 seconds should be a good enough value
+	this->timers[T_TorchHandling] += deltaTime;
 
-	timeOutTimer += deltaTime;
-	bool hasTimedOut = timeOutTimer >= timeOutAt;
+	bool hasTimedOut = this->timers[T_TorchHandling] >= timeOutPoints[T_TorchHandling];
 	//Make sure we actually have a torch, if not, return to patrolling
 	if (!m_currentTorch || hasTimedOut)
 	{
-		timeOutTimer = 0.0;
+		this->timers[T_TorchHandling] = 0.0;
 		m_state = AIState::NoState;
 		m_transState = AITransitionState::ReturnToPatrol;
 	}
-
 	//Rotate towards the torch from the guard's direction, when we are ready do the actual animation
-	if (_RotateToCurrentTorch(deltaTime) && !active)
+	if (!m_activeTorch)
 	{
 		//Queue animation here ELIAS
-		active = true;
+		if (_RotateToCurrentTorch(deltaTime))
+			m_activeTorch = true;
 	}
 	//If we are active, add to timer and when we reach our desired timepoint, execute order 66. 
-	if (active)
+	if (m_activeTorch)
 	{
-		timer += deltaTime;
-		if (timer >= lightAt)
+		m_timerTorch += deltaTime;
+		if (m_timerTorch >= m_igniteAt)
 		{
-			timer = 0.0;
-			active = false;
+			m_timerTorch = 0.0;
+			m_activeTorch = false;
 
 			m_currentTorch->Interact();
 			m_currentTorch = nullptr;
@@ -801,6 +798,47 @@ float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 }
 bool AI::_RotateToCurrentTorch(double deltaTime)
 {
+	//https://stackoverflow.com/questions/14066933/direct-way-of-computing-clockwise-angle-between-2-vectors
+	m_owner->setVelocity({ 0.0f, 0.0f, 0.0f });
+	using namespace DirectX;
+	//Get the current direction and construct a directional vector from guard's pos towards the torch pos 
+	
+	//Put Everything into the x-z plane
+	XMFLOAT4A camDir = m_owner->getCamera()->getDirection();
+	camDir.y = 0.0f;
+
+	XMFLOAT4A guardPos = m_owner->getPosition();
+	guardPos.y = 0.0f;
+
+	XMFLOAT4A torchPos = m_currentTorch->getPosition();
+	torchPos.y = 0.0f;
+
+	auto currentDirection =  XMVector3Normalize( XMLoadFloat4A(&camDir) );
+	auto directionToTorch = XMVector3Normalize( XMVectorSubtract( XMLoadFloat4A(&guardPos), XMLoadFloat4A(&torchPos) ) );
+
+	auto normal = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); //Is already a normalized vector
+
+	//Compute the DOT product between our directional vectors
+	auto dot = XMVectorGetX( XMVector3Dot(currentDirection, directionToTorch) );
+	//Compute the determinant with the triple product
+	auto det = XMVectorGetX( XMVector3Dot(normal, XMVector3Cross(currentDirection, directionToTorch)) );
+
+	auto angle = atan2f(det, dot);
+
+	std::string fileName = "Enemy_" + std::to_string(m_owner->uniqueID) + "_Angles.txt";
+
+	FILE * pFile = fopen(fileName.c_str(), "a");
+	if (pFile == NULL)
+		PostQuitMessage(0);
+	if (fprintf(pFile, "Angle %f\n", angle) < 0)
+		PostQuitMessage(0);
+	fclose(pFile);
+	//if the angle is small enough we are probably facing the torch enough by now, return true
+	if (angle <= 0.0f)
+		return true;
+	
+	m_owner->_RotateGuard(0.5f, 0.5f, angle, deltaTime);
+
 	return false;
 }
 void AI::_checkTorches(float dt)
@@ -822,8 +860,9 @@ void AI::_checkTorches(float dt)
 			{
 				if (t->getTriggerState())
 				{
-					this->m_currentTorch = t;
-					this->m_transState = AITransitionState::TorchFound;
+					t->Interact();
+					//this->m_currentTorch = t;
+					//this->m_transState = AITransitionState::TorchFound;
 					return;
 				}
 			}
