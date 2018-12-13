@@ -125,8 +125,8 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 
 	CreateShape(b3Vec3(0, y*0.70, 0), b3Vec3(x/2, y/2, z/2), 1.0f, 1.0f, "UPPERBODY");
 	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.4f, 0.2f, 0.4f), 1.0f, 1.0f, "HEAD", true);
-	m_standHeight = (y*1.5);
-	m_crouchHeight = y*0.70;
+	m_standHeight = y*0.6;
+	m_crouchHeight = y*0.20;
 	setUserDataBody(this);
 	
 	m_head->Init(world, bodyType, 0.5, 0.4, 0.5, false, 0);
@@ -984,35 +984,6 @@ void Player::_onSprint()
 				p_moveState = Idle;
 				m_toggleSprint = 0;
 			}
-			/*if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
-			{
-				m_toggleSprint = 1;
-			}
-
-			if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
-			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
-			}
-			else
-			{
-				m_toggleSprint = 0;
-			}
-
-			if (m_toggleSprint == 0)
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
-
-			if (Input::MoveForward() == 0)
-			{
-				p_moveState = Idle;
-				m_toggleSprint = 0;
-			}
-
-			m_prevClickSprint = m_currClickSprint;*/
 		}
 		else
 		{
@@ -1277,10 +1248,16 @@ void Player::_onAbility(double dt)
 void Player::_objectInfo(double deltaTime)
 {
 	const int tempId = m_objectInfoRayId;
+	//m_cross->setString("");
 	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 	{
 		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
 		RayCastListener::RayContact& cContact = ray.getClosestContact(true);
+
+		/*std::string ass = cContact.contactShape->GetBody()->GetObjectTag();
+
+		m_cross->setString(ass);*/
+
 		float interactFractionRange = Player::INTERACT_RANGE / Player::OBJECT_INFO_RANGE;
 		if (cContact.contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact.fraction <= interactFractionRange)
 		{
@@ -1310,6 +1287,9 @@ void Player::_objectInfo(double deltaTime)
 				m_cross->setUnpressedTexture("CROSS");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
+
+
+
 		}
 		else
 		{
@@ -1322,7 +1302,7 @@ void Player::_objectInfo(double deltaTime)
 		m_cross->setUnpressedTexture("CROSS");
 		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 	}
-
+	
 	if (m_objectInfoTime >= 0.1f)
 	{
 		if (m_objectInfoRayId == -100)
@@ -1394,7 +1374,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
 	m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
-	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - (m_standHeight - m_crouchHeight);
+	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps);
 
 	if (m_crouchAnimSteps == 1 || m_crouchAnimSteps == 0) //Animation Finished
 	{

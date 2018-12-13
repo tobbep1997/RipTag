@@ -567,32 +567,35 @@ void PhysicsComponent::setUserDataBody(void* self)
 {
 	if (m_body)
 		this->m_body->SetUserData(self);
-	else
+	
+	for (auto &lol : m_bodys)
 	{
-		for (auto &lol : m_bodys)
-		{
-			lol->SetUserData(self);
-		}
+		lol->SetUserData(self);
 	}
+	
 }
 
 void PhysicsComponent::setObjectTag(const char * type)
 {
 	if (m_body)
 		m_body->SetObjectTag(type);
-	else
+	
+	for (auto &lol : m_bodys)
 	{
-		for (auto &lol : m_bodys)
+		lol->SetObjectTag(type);
+		auto lol2 = lol->GetShapeList();
+		while (lol2 != nullptr)
 		{
-			lol->SetObjectTag(type);
-			auto lol2 = lol->GetShapeList();
-			while (lol2 != nullptr)
-			{
-				lol2->SetObjectTag(type);
-				lol2 = lol2->GetNext();
-			}
+			lol2->SetObjectTag(type);
+			lol2 = lol2->GetNext();
 		}
 	}
+	
+	if (m_shape)
+		m_shape->SetObjectTag(type);
+
+	for (auto s : m_shapes)
+		s->SetObjectTag(type);
 	
 }
 
