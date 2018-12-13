@@ -292,13 +292,13 @@ void Room::LoadRoomToMemory()
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
 			Tile temp2 = m_pathfindingGrid->WorldPosToTile(tempNodes.at(1).translation[0], tempNodes.at(1).translation[2]);
-			std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(temp,temp2);
+			std::vector<Node*> fullPath = m_pathfindingGrid->FindPath(temp,temp2, false);
 			for (unsigned int j = 1; j < tempNodes.size()-1; ++j)
 			{
 				//Gluing the rest of the paths.
 				Tile uno = m_pathfindingGrid->WorldPosToTile(tempNodes.at(j).translation[0], tempNodes.at(j).translation[2]);
 				Tile duo = m_pathfindingGrid->WorldPosToTile(tempNodes.at(j+1).translation[0], tempNodes.at(j+1).translation[2]);
-				std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(uno, duo);
+				std::vector<Node*> partOfPath = m_pathfindingGrid->FindPath(uno, duo, false);
 				fullPath.insert(std::end(fullPath), std::begin(partOfPath), std::end(partOfPath));
 			}
 			//Setting guard patrol path

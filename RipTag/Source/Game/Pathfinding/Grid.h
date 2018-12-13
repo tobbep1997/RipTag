@@ -153,7 +153,7 @@ public:
 	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
 	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid);
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
-	std::vector<Node*> FindPath(Tile src, Tile dest);
+	std::vector<Node*> FindPath(Tile src, Tile dest, bool useWaypoints = true);
 	// Should theoretically always return a valid tile in the same room as the source
 	Tile GetRandomNearbyUnblockedTile(Tile src);	
 	

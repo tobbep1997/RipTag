@@ -78,7 +78,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	_createSubGrid();
 	_generateWaypoints();
 
-	this->PrintMe();
+	/*this->PrintMe();
 	std::ofstream o;
 	o.open("sub.txt");
 	for (int y = 0; y < m_height; y++)
@@ -104,7 +104,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 		}
 		o << "\n";
 	}
-	o.close();
+	o.close();*/
 }
 
 void Grid::CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid)
@@ -166,7 +166,7 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 }
 
 //FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!
-std::vector<Node*> Grid::FindPath(Tile source, Tile destination)				
+std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoints)				
 {
 	if (source.getX() < 0 || source.getY() < 0)
 	{
@@ -231,7 +231,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 		return pathToDestination;
 	}
-	else
+	else if (useWaypoints)
 	{
 		if (dest.getSubGrid() == src.getSubGrid())
 		{
@@ -265,6 +265,11 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination)
 
 			return pathToDestination;
 		}
+	}
+	else
+	{
+		if (dest.getSubGrid() == src.getSubGrid())
+			return _findPath(source, destination, m_nodeMap, m_width, m_height);
 	}
 	return std::vector<Node*>();
 }
@@ -941,6 +946,11 @@ std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile &
 
 	}
 
+	if (!currentPath.empty())
+		currentPath.erase(currentPath.begin());
+	if (!currentPath.empty())
+		currentPath.erase(currentPath.end() - 1);
+
 	return currentPath;
 }
 
@@ -1089,27 +1099,32 @@ void Grid::_findConnections()
 						if (result != std::end(subTarget.field))
 						{
 							// Create a connection in between the two fields if there aint an existing one already
+							DirectX::XMINT2 targetPos = { target.x, target.y },
+								sharedTilePos = { nodeInOtherField->tile.getX(),  nodeInOtherField->tile.getY() },
+								subTargetPos = { subTarget.x, subTarget.y };
+
+							DirectX::XMVECTOR v1, v2, v3;
+							v1 = DirectX::XMLoadSInt2(&targetPos);
+							v2 = DirectX::XMLoadSInt2(&sharedTilePos);
+							v3 = DirectX::XMLoadSInt2(&subTargetPos);
+							float cost1, cost2;
+							cost1 = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v2, v1)));
+							cost2 = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v3, v2)));
+
+
 							auto result = std::find(target.connections.begin(), target.connections.end(), &subTarget);
-							if (result == std::end(target.connections))
+							if (result == std::end(target.connections)) // if the connection dont already exist
 							{
-								DirectX::XMINT2 targetPos = { target.x, target.y },
-									sharedTilePos =			{ nodeInOtherField->tile.getX(),  nodeInOtherField->tile.getY() },
-									subTargetPos =			{ subTarget.x, subTarget.y };
-
-								DirectX::XMVECTOR v1, v2, v3;
-								v1 = DirectX::XMLoadSInt2(&targetPos);
-								v2 = DirectX::XMLoadSInt2(&sharedTilePos);
-								v3 = DirectX::XMLoadSInt2(&subTargetPos);
-								float cost1, cost2;
-								cost1 = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v2, v1)));
-								cost2 = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(v3, v2)));
-
 								WaypointConnection wpc;
 								wpc.connection = &subTarget;
 								wpc.connectionCost = cost1 + cost2;
 								target.AddConnection(wpc);
 							}
-								
+							else if (cost1 + cost2 < result->connectionCost)
+							{
+								result->connectionCost = cost1 + cost2;
+								result->connection = &subTarget;
+							}
 						}
 					}
 				}
