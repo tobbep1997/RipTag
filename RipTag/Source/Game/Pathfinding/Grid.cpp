@@ -67,6 +67,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	
 	m_width = grid.maxX;
 	m_height = grid.maxY;
+
 	for (int i = 0; i < m_height; i++)
 		for (int j = 0; j < m_width; j++)
 		{
@@ -80,33 +81,36 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 
 
 	// DONT REMOVE
-	//this->PrintMe();
-	//std::ofstream o;
-	//o.open("sub.txt");
-	//for (int y = 0; y < m_height; y++)
-	//{
-	//	for (int x = 0; x < m_width; x++)
-	//	{
-	//		bool drawWp = false;
-	//		for (auto & w : m_waypoints)
-	//		{
-	//			if (w.x == x && w.y == y)
-	//			{
-	//				drawWp = true;
-	//				break;
-	//			}
-	//		}
-	//		if (drawWp)
-	//			o << "X";
-	//		else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
-	//			o << "#";
-	//		else
-	//			o << m_nodeMap[x + y * m_width].tile.getSubGrid();
-	//		o << " ";
-	//	}
-	//	o << "\n";
-	//}
-	//o.close();
+	/*this->PrintMe();
+	std::ofstream o;
+	o.open("sub.txt");
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			bool drawWp = false;
+			for (auto & w : m_waypoints)
+			{
+				if (w.x == x && w.y == y)
+				{
+					drawWp = true;
+					break;
+				}
+			}
+			if (drawWp)
+				o << "X";
+			else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
+				o << "#";
+			else
+				o << m_nodeMap[x + y * m_width].tile.getSubGrid();
+			o << " ";
+		}
+		o << "\n";
+	}
+	o.close();*/
+
+	//FindPath(Tile(7, 1), Tile(20, 22));
+
 }
 
 void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
@@ -221,38 +225,37 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoin
 			// find paths through our waypoints
 			std::vector<Waypoint*> waypoints = _findWaypointPath(source, destination);
 
-			if (waypoints.empty())
-				return _findPath(source, destination, m_nodeMap, m_width, m_height);
-
-			std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
-
-			//DONT REMOVE
-			//static int counter = 0;
-			//std::ofstream file;
-			//file.open("PATH_" + std::to_string(counter++) + ".txt");
-
-			//_printTilePairs(tilePairs, file, source, destination);
-
-
-
-			std::vector<Node*> pathToDestination;
-			for (auto & tp : tilePairs)
+			if (!waypoints.empty())
 			{
-				//DONT REMOVE
-				//DeltaTime dt;
-				//dt.Init();
-				std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
-				pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
-				//DONT REMOVE
-				//_printPath(partOfPath, file, source, destination);
-				//file << dt.getDeltaTimeInSeconds() << "\n";
-			}
-			//DONT REMOVE
-			//_printPath(pathToDestination, file, source, destination);
-			//DONT REMOVE
-			//file.close();
+				std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
 
-			return pathToDestination;
+				//DONT REMOVE
+				//static int counter = 0;
+				//std::ofstream file;
+				//file.open("PATH_" + std::to_string(counter++) + ".txt");
+
+				//_printTilePairs(tilePairs, file, source, destination);
+
+				std::vector<Node*> pathToDestination;
+				for (auto & tp : tilePairs)
+				{
+					//DONT REMOVE
+					//DeltaTime dt;
+					//dt.Init();
+					std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
+					pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
+					//DONT REMOVE
+					//_printPath(partOfPath, file, source, destination);
+					//file << dt.getDeltaTimeInSeconds() << "\n";
+				}
+				//DONT REMOVE
+				//_printPath(pathToDestination, file, source, destination);
+
+				//DONT REMOVE
+				//file.close();
+
+				return pathToDestination;
+			}
 		}
 	}
 	else
@@ -935,10 +938,10 @@ std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile &
 
 	}
 
-	if (!currentPath.empty())
+	/*if (!currentPath.empty())
 		currentPath.erase(currentPath.begin());
 	if (!currentPath.empty())
-		currentPath.erase(currentPath.end() - 1);
+		currentPath.erase(currentPath.end() - 1);*/
 
 	return currentPath;
 }

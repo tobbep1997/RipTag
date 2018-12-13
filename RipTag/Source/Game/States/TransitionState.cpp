@@ -83,13 +83,12 @@ void TransitionState::Update(double deltaTime)
 		}
 	}
 
-	if (m_type == Transition::Lose)
+	if (m_type == Transition::Lose || m_type == Transition::Win)
 	{
 		if (pCoopData)
 		{
 			if (isReady && isRemoteReady)
 			{
-				//this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
 				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
 			}
 		}
