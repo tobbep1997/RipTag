@@ -100,8 +100,8 @@ private:
 
 
 	//time out handling
-	double timers[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; //Dont use the AIState enum as index, remember which index is for which state, OR do a new enum and assign index values
-	const double timeOutPoints[5] = AI_TIMEOUT_VALUES;
+	double m_timers[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; //Dont use the AIState enum as index, remember which index is for which state, OR do a new enum and assign index values
+	const double m_timeOutPoints[5] = AI_TIMEOUT_VALUES;
 	//Torch handling
 	Torch * m_currentTorch	= nullptr;
 	bool m_activeTorch			= false;

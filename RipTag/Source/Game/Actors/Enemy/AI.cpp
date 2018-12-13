@@ -560,13 +560,13 @@ void AI::_disabled(const double deltaTime)
 void AI::_torchHandling(const double deltaTime)
 {
 	//this is to ensure that the AI never locks up in this state
-	this->timers[T_TorchHandling] += deltaTime;
+	this->m_timers[T_TorchHandling] += deltaTime;
 
-	bool hasTimedOut = this->timers[T_TorchHandling] >= timeOutPoints[T_TorchHandling];
+	bool hasTimedOut = this->m_timers[T_TorchHandling] >= m_timeOutPoints[T_TorchHandling];
 	//Make sure we actually have a torch, if not, return to patrolling
 	if (!m_currentTorch || hasTimedOut)
 	{
-		this->timers[T_TorchHandling] = 0.0;
+		this->m_timers[T_TorchHandling] = 0.0;
 		m_state = AIState::NoState;
 		m_transState = AITransitionState::ReturnToPatrol;
 	}
