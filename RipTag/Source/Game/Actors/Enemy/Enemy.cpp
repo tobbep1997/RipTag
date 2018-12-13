@@ -1243,6 +1243,8 @@ void Enemy::_CheckPlayer(double deltaTime)
 		}
 	}
 
+	m_vc->Reset();
+
 }
 
 void Enemy::_activateCrouch()

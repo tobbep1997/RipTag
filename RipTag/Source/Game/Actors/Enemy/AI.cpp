@@ -178,7 +178,7 @@ void AI::_onInvestigate()
 
 	if (this->m_followSight)
 	{
-		if (!playerTile.getX() == -1)
+		if (!(playerTile.getX() == -1))
 			playerTile = m_grid->GetRandomNearbyUnblockedTile(playerTile);
 		this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 #ifdef _DEBUG
@@ -187,7 +187,7 @@ void AI::_onInvestigate()
 	}
 	else
 	{
-		if (!soundTile.getX() == -1)
+		if (!(soundTile.getX() == -1))
 			soundTile = m_grid->GetRandomNearbyUnblockedTile(soundTile);
 		this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 #ifdef _DEBUG
@@ -267,8 +267,7 @@ void AI::_onBeingDisabled()
 void AI::_onExitingPossessed()
 {
 	m_owner->m_knockOutType = Enemy::KnockOutType::Possessed;
-	m_owner->DisableEnemy();
-	m_owner->setReleased(true);
+	m_owner->removePossessor(); 
 	m_owner->setHidden(false);
 
 	this->m_state = AIState::Disabled;
@@ -303,6 +302,16 @@ void AI::_onTorchHandled()
 
 void AI::_investigating(const double deltaTime)
 {
+	
+	m_timers[T_Investigate] += deltaTime;
+	bool hasTimedOut = m_timers[T_Investigate] >= m_timeOutPoints[T_Investigate];
+	if (hasTimedOut)
+	{
+		m_timers[T_Investigate] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	
 
@@ -360,6 +369,17 @@ void AI::_investigating(const double deltaTime)
 }
 void AI::_suspicious(const double deltaTime)
 {
+
+	m_timers[T_Suspicious] += deltaTime;
+	bool hasTimedOut = m_timers[T_Possessed] >= m_timeOutPoints[T_Suspicious];
+	if (hasTimedOut)
+	{
+		m_timers[T_Suspicious] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	m_owner->_CheckPlayer(deltaTime);
 	m_owner->setLiniearVelocity();
@@ -479,12 +499,34 @@ void AI::_patrolling(const double deltaTime)
 }
 void AI::_possessed(const double deltaTime)
 {
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_handleInput(deltaTime);
+
+	m_timers[T_Possessed] += deltaTime;
+	bool hasTimedOut = m_timers[T_Possessed] >= m_timeOutPoints[T_Possessed];
+	if (hasTimedOut)
+	{
+		m_timers[T_Possessed] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ExitingPossess; 
+	}
+	else
+	{
+		m_owner->getBody()->SetType(e_dynamicBody);
+
+		m_owner->_handleInput(deltaTime);
+	}
 }
 void AI::_disabled(const double deltaTime)
 {
+
+	m_timers[T_Disabled] += deltaTime;
+	bool hasTimedOut = m_timers[T_Disabled] >= m_timeOutPoints[T_Disabled];
+	if (hasTimedOut)
+	{
+		m_timers[T_Disabled] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	switch (m_owner->m_knockOutType)
 	{
