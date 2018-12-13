@@ -67,7 +67,7 @@ private:
 	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
 	const float CHECK_TORCHES_INTERVALL = 3.0f;
-	const float CHECK_TORCHES_RADIUS = 7000.5f;
+	const float CHECK_TORCHES_RADIUS = 7.5f;
 
 	//stateData
 	//float m_HighAlertTime = 0.f;
