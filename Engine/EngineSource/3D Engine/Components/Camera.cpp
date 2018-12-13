@@ -60,8 +60,8 @@ void Camera::_calcProjectionMatrix()
 
 void Camera::_calcViewProjectionMatrix()
 {
-	DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4A(&this->m_view);
-	DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4A(&this->m_projection);
+	const DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4A(&this->m_view);
+	const DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4A(&this->m_projection);
 
 	DirectX::XMStoreFloat4x4A(&this->m_viewProjection, proj * view);
 }

@@ -14,7 +14,7 @@ std::vector<Drawable*>						DX::g_wireFrameDrawQueue;
 std::vector<Quad*>							DX::g_2DQueue;
 std::vector<VisibilityComponent*>			DX::g_visibilityComponentQueue;
 std::vector<ParticleEmitter*>				DX::g_emitters;
-RECT													DX::g_backBufferResolution;
+RECT										DX::g_backBufferResolution;
 
 bool DX::g_screenShootCamera = false;
 

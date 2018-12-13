@@ -842,7 +842,10 @@ void PlayState::unLoad()
 		m_transitionState = nullptr;
 	}
 
-	m_pPauseMenu->unLoad(); 
+	m_pPauseMenu->unLoad();
+
+	delete DX::g_skyBox;
+	DX::g_skyBox = nullptr;
 }
 
 void PlayState::Load()
@@ -883,7 +886,12 @@ void PlayState::Load()
 	m_pPauseMenu->Load(); 
 
 
+	Manager::g_meshManager.loadStaticMesh("SKYBOX");
+	Manager::g_textureManager.loadTextures("SKYBOX");
 
+	DX::g_skyBox = new Drawable();
+	DX::g_skyBox->setModel(Manager::g_meshManager.getStaticMesh("SKYBOX"));
+	DX::g_skyBox->setTexture(Manager::g_textureManager.getTexture("SKYBOX"));
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }

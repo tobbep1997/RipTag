@@ -16,6 +16,7 @@ private:
 
 	ID3D11Buffer *			m_skyboxBuffer;	
 	ID3D11RasterizerState * m_rasterizerState;
+	ID3D11DepthStencilState * m_depthStencilState;
 
 	ID3D11InputLayout *		m_inputLayout;
 	ID3D11VertexShader *	m_vertexShader;

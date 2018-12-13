@@ -69,7 +69,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		if (SUCCEEDED(hr = m_shadowMap->Init(128, 128)))
 		{
 			m_lightCullingDistance = 50;
-			m_forceCullingLimit = 4;
+			m_forceCullingLimit = 6;
 		}
 		else
 			throw hr;
@@ -230,8 +230,10 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 			m_skyBox = nullptr;
 
 			_com_error err(hr);
-			LPCTSTR errMsg = err.ErrorMessage();
-			OutputDebugString(errMsg);
+			std::wstring errMsg = L"Skybox: ";
+			errMsg.append(err.ErrorMessage());
+			errMsg.append(L"\n");
+			OutputDebugString(errMsg.c_str());
 		}
 	}
 	catch (const std::exception & e)
@@ -308,7 +310,6 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
@@ -577,8 +578,11 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
-	this->AnimationPrePass(camera);
 
+
+
+	this->AnimationPrePass(camera);
+#ifndef _DEPLOY
 	Camera * dbg_camera = nullptr;
 	if (Cheet::g_DBG_CAM)
 	{
@@ -592,8 +596,22 @@ void ForwardRender::Flush(Camera & camera)
 		
 		_mapCameraBuffer(*dbg_camera);
 	}
+#endif
 	//_mapCameraBuffer(*dbg_camera);
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	this->PrePass(camera);
+	if (DX::g_skyBox)
+	{
+		DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+		if (FAILED(hr = m_skyBox->Draw(DX::g_skyBox, camera)))
+		{
+			_com_error err(hr);
+			std::wstring errMsg = L"Skybox: ";
+			errMsg.append(err.ErrorMessage());
+			errMsg.append(L"\n");
+			OutputDebugString(errMsg.c_str());
+		}
+	}
 	
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
@@ -619,7 +637,10 @@ void ForwardRender::Flush(Camera & camera)
 
 	if (Cheet::g_DBG_CAM)
 	{
+#ifndef _DEPLOY
+
 		_mapCameraBuffer(*dbg_camera);
+#endif
 	}
 	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
@@ -638,21 +659,14 @@ void ForwardRender::Flush(Camera & camera)
 	
 	_particlePass(&camera, true);
 
-	if (DX::g_skyBox)
-	{		
-		if (FAILED(hr = m_skyBox->Draw(DX::g_skyBox, camera)))
-		{
-			_com_error err(hr);
-			LPCTSTR errMsg = err.ErrorMessage();
-			OutputDebugString(errMsg);
-		}
-	}
 
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass(&camera);
-	
+#ifndef _DEPLOY
+
 	delete dbg_camera;
+#endif
 }
 
 void ForwardRender::Clear()
@@ -1715,7 +1729,7 @@ void ForwardRender::FlushScreenShoot(Camera& camera)
 	pos.y += 10;
 	dbg_camera->setPosition(pos);
 	//_mapCameraBuffer(*dbg_camera);
-	this->PrePass(camera);
+	//this->PrePass(camera);
 
 
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
