@@ -94,7 +94,7 @@ void MainMenu::_initButtons()
 {
 #ifdef _DEPLOY
 	//play button
-	this->m_buttons.push_back(Quad::CreateButton("Castle\nCaptives", 0.5f, 0.815f, 0.565f, 0.20f));
+	this->m_buttons.push_back(Quad::CreateButton("", 0.5f, 0.815f, 0.565f, 0.20f));
 	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("gui_transparent_pixel");
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas16"));
