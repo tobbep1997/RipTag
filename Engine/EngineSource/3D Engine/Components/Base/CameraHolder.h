@@ -28,7 +28,8 @@ protected:
 	{
 		Walking,
 		Sprinting,
-		Idle
+		Idle,
+		Crouching
 	};
 	MoveState p_moveState; 
 

@@ -214,6 +214,8 @@ void Room::LoadRoomToMemory()
 		}
 		ImporterLibrary::GuardStartingPositions tempGuards = fileLoader.readGuardStartFiles(this->getAssetFilePath());
 		std::vector<int> uniqueID;
+		std::vector<float> spawnPos;
+		
 		for (unsigned int i = 0; i < nodes.size(); ++i)
 		{
 			//Make sure we only create guards of a unique id
@@ -231,6 +233,19 @@ void Room::LoadRoomToMemory()
 			if (noDupe == true)
 			{
 				uniqueID.push_back(nodes.at(i).guardpathConnection);
+				//Find the real guard index with the right pos
+				//now it should pick the correct guard Y value for the correct guard index
+				//Mvh Jocke
+				for (size_t g = 0; g < tempGuards.nrOf; g++)
+				{
+					if (nodes.at(i).guardpathConnection == tempGuards.startingPositions[g].guardIndex)
+					{
+						spawnPos.push_back(tempGuards.startingPositions[g].startingPos[1]);
+						break;
+					}
+					
+				}
+				
 			}
 
 		}
@@ -283,11 +298,15 @@ void Room::LoadRoomToMemory()
 
 			//Createing the guard in the world
 			
-			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], tempGuards.startingPositions[i].startingPos[1], pos[2]);
+			Enemy * e = DBG_NEW Enemy(m_worldPtr, i, pos[0], spawnPos.at(i), pos[2]);
 			e->addTeleportAbility(*this->m_playerInRoomPtr->getTeleportAbility());
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			e->SetGuardUniqueIndex(uniqueID.at(i));
 			e->SetTorchContainer(m_Torches);
+			if (spawnPos.at(i) > 12)
+			{
+				//CameraHandler::setActiveCamera(e->getCamera());
+			}
 
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
@@ -318,25 +337,25 @@ void Room::LoadRoomToMemory()
 		//Manager::g_meshManager.loadStaticMesh("FLOOR");
 		//Manager::g_textureManager.loadTextures("FLOOR");
 		//Manager::g_meshManager.loadStaticMesh("FLOOR");
-			//Manager::g_textureManager.loadTextures("FLOOR");
-			//for (unsigned int i = 0; i < m_grid->maxY; ++i)
-			//{
-			//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
-			//	{
-			//		int index = i + j * m_grid->maxY;
-			//		if (m_grid->gridPoints[index].pathable == true)
-			//		{
-			//			BaseActor * b = DBG_NEW BaseActor();
-			//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
-			//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
+		//Manager::g_textureManager.loadTextures("FLOOR");
+		//for (unsigned int i = 0; i < m_grid->maxY; ++i)
+		//{
+		//	for (unsigned int j = 0; j < m_grid->maxX; ++j)
+		//	{
+		//		int index = i + j * m_grid->maxY;
+		//		if (m_grid->gridPoints[index].pathable == true)
+		//		{
+		//			BaseActor * b = DBG_NEW BaseActor();
+		//			b->setModel(Manager::g_meshManager.getStaticMesh("FLOOR"));
+		//			b->setTexture(Manager::g_textureManager.getTexture("FLOOR"));
 
 
-			//			//m_pathfindingGrid->
-			//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
-			//			m_staticAssets.push_back(b);
-			//		}
-			//	}
-			//}
+		//			//m_pathfindingGrid->
+		//			b->setPosition(m_grid->gridPoints[index].translation[0], 10, m_grid->gridPoints[index].translation[2], false);
+		//			m_staticAssets.push_back(b);
+		//		}
+		//	}
+		//}
 	
 		//Tartillbaka Hela rum
 	/*	if (m_roomIndex != 8 && m_roomIndex != 0 && m_roomIndex != 1)

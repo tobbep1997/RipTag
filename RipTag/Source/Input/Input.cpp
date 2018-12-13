@@ -82,13 +82,16 @@ bool Input::CheckVisability()
 	return result;
 }
 
-bool Input::Crouch()
+const unsigned int Input::Crouch()
 {
-	bool result = false;
+	unsigned int inputType = InputType::None;
 	if (isUsingGamepad())
-		result = GamePadHandler::IsRightStickPressed();
+		if (GamePadHandler::IsRightStickPressed())
+		{
+			inputType = InputType::Gamepad;
+		}
 	
-	if (!result)
+	if (inputType == InputType::None)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -97,13 +100,13 @@ bool Input::Crouch()
 			{
 				if (keyIterator->second == "Crouch")
 				{
-					result = true;
+					inputType = InputType::Keyboard;
 				}
 			}
 		}
 	}
 	
-	return result;
+	return inputType;
 }
 
 
@@ -211,11 +214,11 @@ float Input::PeekRight()
 			{
 				if (keyIterator->second == "PeekRight")
 				{
-					result = -1;
+					result--;
 				}
 				else if (keyIterator->second == "PeekLeft")
 				{
-					result = 1;
+					result++;
 				}
 			}
 		}
@@ -223,13 +226,16 @@ float Input::PeekRight()
 	return result;
 }
 
-bool Input::Sprinting()
+const unsigned int Input::Sprinting()
 {
-	bool result = false;
+	unsigned int inputType = InputType::None;
 	if (isUsingGamepad())
-		result = GamePadHandler::IsLeftStickPressed();
+		if (GamePadHandler::IsLeftStickPressed())
+		{
+			inputType = InputType::Gamepad;
+		}
 
-	if (!result)
+	if (inputType == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -238,13 +244,13 @@ bool Input::Sprinting()
 			{
 				if (keyIterator->second == "Sprint")
 				{
-					result = true;
+					inputType = InputType::Keyboard;
 				}
 			}
 		}
 	}
 	
-	return result;
+	return inputType;
 }
 
 bool Input::OnAbilityPressed()

@@ -154,7 +154,6 @@ void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const
 	zz = DirectX::XMVectorGetZ(t);
 	ww = DirectX::XMVectorGetW(t);
 	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
-	//m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
 }
 
 void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const float& roll)
