@@ -51,6 +51,11 @@ HRESULT SkyBox::Release()
 	return S_OK;
 }
 
+HRESULT SkyBox::Draw()
+{
+	return E_INVALIDARG;
+}
+
 HRESULT SkyBox::Draw(Drawable* drawable, const Camera & camera)
 {
 	if (!drawable || !drawable->getTexture())

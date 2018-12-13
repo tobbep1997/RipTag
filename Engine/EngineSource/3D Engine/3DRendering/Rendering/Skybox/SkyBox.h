@@ -28,6 +28,7 @@ public:
 	
 	HRESULT Init(ForwardRender* forwardRender) override;
 	HRESULT Release() override;
+	HRESULT Draw() override;
 	HRESULT Draw(Drawable* drawable, const Camera & camera) override;
 	HRESULT Draw(std::vector<DX::INSTANCING::GROUP> group, const Camera & camera) override;
 
