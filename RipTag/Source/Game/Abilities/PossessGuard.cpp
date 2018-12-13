@@ -33,7 +33,7 @@ void PossessGuard::Init()
 
 void PossessGuard::Update(double deltaTime)
 {
-	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
+	if (this->isLocal)
 		_logic(deltaTime);
 }
 
@@ -53,6 +53,7 @@ void PossessGuard::Draw()
 
 void PossessGuard::_logic(double deltaTime)
 {
+
 	switch (m_pState)
 	{
 		case PossessState::Possess:
@@ -66,6 +67,7 @@ void PossessGuard::_logic(double deltaTime)
 
 		case PossessState::Possessing:
 		{
+
 			_isPossessing(deltaTime);
 		}
 		break;
@@ -75,6 +77,7 @@ void PossessGuard::_logic(double deltaTime)
 			_onCooldown(deltaTime);
 		}
 		break;
+
 	}
 }
 
@@ -139,6 +142,9 @@ void PossessGuard::_hitEnemy()
 					this->m_possessTarget->setPossessor(pPointer, 20, 1);
 					this->m_possessTarget->getAnimationPlayer()->GetStateMachine()->SetState("walk_forward");
 
+
+
+
 					m_pState = PossessGuard::Possessing;
 					p_cooldown = 0;
 					//m_possessHud->setScale(1.0f / COOLDOWN_POSSESSING_MAX, 0.2);
@@ -194,9 +200,10 @@ void PossessGuard::_isPossessing(double dt)
 	{
 		m_duration += dt;
 		float p = ((COOLDOWN_POSSESSING_MAX - m_duration) / COOLDOWN_POSSESSING_MAX);
-		m_possessHud->setScale(0.4f * p , 0.2);
+		m_possessHud->setScale(0.4f * p , 0.2); 
 		std::string str = std::to_string(p * COOLDOWN_POSSESSING_MAX);
-		m_possessHud->setString(str.substr(0, 4));
+		m_possessHud->setString(str.substr(0, 4)); 
+		
 	}
 }
 
