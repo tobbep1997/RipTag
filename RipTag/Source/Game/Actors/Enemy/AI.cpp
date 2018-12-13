@@ -169,7 +169,7 @@ void AI::_onInvestigate()
 
 	if (this->m_followSight)
 	{
-		if (!playerTile.getX() == -1)
+		if (!(playerTile.getX() == -1))
 			playerTile = m_grid->GetRandomNearbyUnblockedTile(playerTile);
 		this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
 #ifdef _DEBUG
@@ -178,7 +178,7 @@ void AI::_onInvestigate()
 	}
 	else
 	{
-		if (!soundTile.getX() == -1)
+		if (!(soundTile.getX() == -1))
 			soundTile = m_grid->GetRandomNearbyUnblockedTile(soundTile);
 		this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
 #ifdef _DEBUG
