@@ -183,7 +183,7 @@ private:
 	PhysicsComponent* m_head;
 public:
 	//Magic number
-	static const int g_fullVisability = 1300;
+	static const int g_fullVisability = 1000;
 
 	bool hasWon = false;
 	
