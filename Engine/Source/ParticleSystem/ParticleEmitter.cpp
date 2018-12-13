@@ -54,7 +54,7 @@ void ParticleEmitter::Update(float dt, Camera * camera)
 {
 
 	//the emitter lives endlessly if set to -1
-	if (!m_config.m_EmitterLife == -1)
+	if (!(m_config.m_EmitterLife == -1))
 	{
 		m_EmitterCurrentLife += dt;
 		if (m_config.m_EmitterLife <= m_EmitterCurrentLife)

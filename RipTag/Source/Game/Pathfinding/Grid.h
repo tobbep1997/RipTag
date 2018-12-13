@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <future>
+#include <stack>
 
 struct NodeWorldPos
 {
@@ -30,8 +31,45 @@ struct NodeWorldPos
 	hCost = the estimated movement cost to move from the given square
 		on the grid to the final destination.
 */
+struct Waypoint;
+struct WaypointConnection
+{
+	Waypoint * connection;
+	float connectionCost;
+	bool traversedConnection;
+	WaypointConnection();
+
+	bool operator==(const WaypointConnection & other);
+	
+	bool operator==(const Waypoint * other);
+
+	WaypointConnection & operator=(const WaypointConnection & other);
+};
+
+struct Waypoint
+{
+	int x = -1, y = -1;
+	int waypointIndex = -1;
+	float hCost = FLT_MAX;
+	bool visited = false;
+	std::vector<WaypointConnection>	connections;
+
+	void AddConnection(const WaypointConnection & wpc)
+	{
+		connections.push_back(wpc);
+	}
+
+	bool operator==(const Waypoint & other)
+	{
+		return waypointIndex == other.waypointIndex;
+	}
+
+	std::vector<Node*> field; // This will be empty in runtime. Only used to find connections
+};
+
 struct Node
 {
+	Waypoint * fieldOwner;
 	Tile tile;
 	NodeWorldPos worldPos;
 	std::shared_ptr<Node> parent;
@@ -45,6 +83,7 @@ struct Node
 		gCost = FLT_MAX;
 		hCost = FLT_MAX;
 		fCost = FLT_MAX;
+		fieldOwner = nullptr;
 	}
 
 	Node(int _x, int _y, NodeWorldPos _worldPos, std::shared_ptr<Node> _parent, float _gCost, float _hCost)
@@ -55,6 +94,7 @@ struct Node
 		gCost = _gCost;
 		hCost = _hCost;
 		fCost = gCost + hCost;
+		fieldOwner = nullptr;
 	}
 	
 	Node(Tile _tile, NodeWorldPos _worldPos, std::shared_ptr<Node> _parent, float _gCost, float _hCost)
@@ -65,6 +105,7 @@ struct Node
 		gCost = _gCost;
 		hCost = _hCost;
 		fCost = gCost + hCost;
+		fieldOwner = nullptr;
 	}
 
 	Node(Node * node)
@@ -75,6 +116,7 @@ struct Node
 		fCost = node->fCost;
 		gCost = node->gCost;
 		hCost = node->hCost;
+		fieldOwner = nullptr;
 	}
 
 	bool operator==(Node & other) const { return tile == other.tile; }
@@ -92,9 +134,11 @@ private:
 		Tile destination;
 	};
 private:
+	static const int FIELD_LIMIT = 32;
 	const int MAX_BLOCK_CHECK = 21;
 	std::vector<Node> m_nodeMap;
 	std::vector<Node> m_roomNodeMap;
+	std::vector<Waypoint> m_waypoints;
 	int m_width, m_height;
 
 public:
@@ -106,12 +150,9 @@ public:
 	Node GetWorldPosFromIndex(int index);
 	void BlockGridTile(int index, bool pathable);
 	
-
-
-	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid);
-	void CreateGridFromRandomRoomLayout(ImporterLibrary::GridStruct grid);
+	void CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid); 
 	void GenerateRoomNodeMap(RandomRoomGrid * randomizer);
-	std::vector<Node*> FindPath(Tile src, Tile dest);
+	std::vector<Node*> FindPath(Tile src, Tile dest, bool useWaypoints = true);
 	// Should theoretically always return a valid tile in the same room as the source
 	Tile GetRandomNearbyUnblockedTile(Tile src);	
 	
@@ -141,6 +182,14 @@ private:
 	Tile _getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap);
 	std::vector<TilePair> _roomNodePathToGridTiles(std::vector<Node*> * roomNodes, const Tile & source, const Tile & destination);
 	std::vector<Node*> _findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height);
+	std::vector<Waypoint*> _findWaypointPath(const Tile & source, const Tile & destination);
+	std::vector<TilePair> _waypointPathToGridTiles(std::vector<Waypoint*>& waypoints, const Tile & source, const Tile & destination);
+
+	// Waypoint functions
+	Waypoint _createField(int x, int y, bool * visitedNodes);
+	void _findConnections();
+	void _generateWaypoints();
+	void _includeInField(int x, int y, bool * visitedNodes, std::vector<Node*> & targets, int startIndex = 0);
 
 	// For Blocking Algorithm;
 	void				_blockCheck(int x, int y, std::vector<Node*> &targetNodes);
