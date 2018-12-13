@@ -84,7 +84,7 @@ PlayState::~PlayState()
 	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
 
-	fps.close();
+	//fps.close();
 }
 
 void PlayState::Update(double deltaTime)
@@ -852,7 +852,7 @@ void PlayState::Load()
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
 
-	fps.open("fpsData.txt");
+	//fps.open("fpsData.txt");
 	//phy.open("physData.txt");
 	
 	if (isCoop)
