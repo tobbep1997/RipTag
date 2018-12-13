@@ -1,6 +1,6 @@
 #pragma once
 
-#define TIMEOUT_VALUES { 5.0, 5.0, 10.0, 5.0, 5.0}
+#define TIMEOUT_VALUES { 10.0, 5.0, 10.0, 10.0, 5.0}
 
 struct Node;
 class Grid;
