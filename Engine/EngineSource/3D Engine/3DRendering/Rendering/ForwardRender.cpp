@@ -10,7 +10,6 @@ ForwardRender::ForwardRender()
 	m_lastVertexPath = L"NULL";
 	m_lastPixelPath = L"NULL";
 
-	m_visabilityPass = new VisabilityPass();
 
 }
 
@@ -114,8 +113,9 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		DX::SetName(m_alphaBlend, "ForwardRender: m_alphaBlend");
 	}
 
-	
-	m_visabilityPass->Init();
+	m_visabilityPass = new VisabilityPass();
+
+	hr = m_visabilityPass->Init(this);
 
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
@@ -147,6 +147,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 
 	m_animationBuffer = new Animation::AnimationCBuffer();
 	m_animationBuffer->SetAnimationCBuffer();
+
 
 	m_2DRender = new Render2D();
 	m_2DRender->Init();
@@ -749,7 +750,7 @@ void ForwardRender::Release()
 	m_2DRender->Release();
 	delete m_2DRender;
 	delete m_animationBuffer;
-
+	m_visabilityPass->Release();
 	delete m_visabilityPass;
 }
 
@@ -1456,14 +1457,14 @@ void ForwardRender::_visabilityPass()
 	{
 		return;
 	}
-	
-	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
-	{
-		m_visabilityPass->SetViewportAndRenderTarget();
-		m_visabilityPass->GuardDepthPrePassFor(guard, this, m_animationBuffer);
-		m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
-	}
-	
+	m_visabilityPass->Draw();
+	//for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
+	//{
+	//	m_visabilityPass->SetViewportAndRenderTarget();
+	//	m_visabilityPass->GuardDepthPrePassFor(guard, this, m_animationBuffer);
+	//	m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
+	//}
+	//
 
 }
 
