@@ -1,6 +1,6 @@
 #pragma once
 
-#define AI_TIMEOUT_VALUES { 5.0, 5.0, 5.0, 5.0, 5.0 }
+#define AI_TIMEOUT_VALUES { 5.0, 5.0, 10.0, 10.0, 5.0 }
 
 struct Node;
 class Grid;
