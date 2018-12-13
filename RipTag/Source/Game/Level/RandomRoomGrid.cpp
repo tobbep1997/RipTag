@@ -11,7 +11,7 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 
 	int randPlaceWinRoom = rand() % m_width;
 	randPlaceWinRoom *= m_depth;
-	int randPlaceStartRoom = (rand() % m_width) * m_width - 1;
+	int randPlaceStartRoom = (rand() % m_width) * (m_width - 1);
 
 	for (int i = 0; i < m_gridSize; i++)
 	{
