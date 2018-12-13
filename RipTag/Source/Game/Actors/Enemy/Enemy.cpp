@@ -1188,7 +1188,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 		}
 	}
 
-	m_vc->Reset();
+	//m_vc->Reset();
 
 }
 
