@@ -70,6 +70,8 @@ public:
 	void setUP(DirectX::XMFLOAT4A up);
 	void setUP(float x, float y, float z, float w = 0);
 
+	const DirectX::XMFLOAT4A & getUP() const;
+
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 

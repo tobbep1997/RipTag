@@ -220,6 +220,24 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		DX::SetName(m_particleVertexBuffer, "PARTICLE_MEGA_BUFFER_BTICHES");
 	}
 
+
+	m_skyBox = new SkyBox();
+	try
+	{		
+		if (FAILED(hr = m_skyBox->Init(this)))
+		{
+			delete m_skyBox;
+			m_skyBox = nullptr;
+
+			_com_error err(hr);
+			LPCTSTR errMsg = err.ErrorMessage();
+			OutputDebugString(errMsg);
+		}
+	}
+	catch (const std::exception & e)
+	{
+		OutputDebugStringA(e.what());
+	}
 }
 
 void ForwardRender::GeometryPass(Camera & camera)
@@ -549,6 +567,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 void ForwardRender::Flush(Camera & camera)
 {
+	HRESULT hr;
 	if (DX::g_screenShootCamera == true)
 	{
 		this->FlushScreenShoot(camera);
@@ -618,6 +637,16 @@ void ForwardRender::Flush(Camera & camera)
 	_mapCameraBuffer(camera);
 	
 	_particlePass(&camera, true);
+
+	if (DX::g_skyBox)
+	{		
+		if (FAILED(hr = m_skyBox->Draw(DX::g_skyBox, camera)))
+		{
+			_com_error err(hr);
+			LPCTSTR errMsg = err.ErrorMessage();
+			OutputDebugString(errMsg);
+		}
+	}
 
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
@@ -696,6 +725,9 @@ void ForwardRender::Release()
 	DX::SafeRelease(m_objBuffGeo);
 
 	DX::SafeRelease(m_particleVertexBuffer);
+
+	if (SUCCEEDED(m_skyBox->Release()))	{ }
+	delete m_skyBox;
 
 	m_shadowMap->Release();
 	delete m_shadowMap;

@@ -199,6 +199,11 @@ void Camera::setUP(float x, float y, float z, float w)
 	this->setUP(DirectX::XMFLOAT4A(x, y, z, w));
 }
 
+const DirectX::XMFLOAT4A & Camera::getUP() const
+{
+	return this->m_UP;
+}
+
 void Camera::setNearPlane(float nearPlane)
 {
 	this->m_nearPlane = nearPlane;
