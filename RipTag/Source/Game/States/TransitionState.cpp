@@ -83,7 +83,7 @@ void TransitionState::Update(double deltaTime)
 		}
 	}
 
-	if (m_type == Transition::Lose)
+	if (m_type == Transition::Lose || m_type == Transition::Win)
 	{
 		if (pCoopData)
 		{
@@ -99,6 +99,7 @@ void TransitionState::Update(double deltaTime)
 		}
 
 	}
+	
 
 	if (InputHandler::mouseMoved())
 		m_currentButton = 16;
