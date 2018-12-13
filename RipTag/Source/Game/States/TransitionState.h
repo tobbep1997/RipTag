@@ -74,6 +74,8 @@ private:
 	void _sendReadyPacket();
 
 private:
-	
+	void _handleMouseInput();
+	void _handleKeyboardInput();
+	void _handleGamepadInput();
 };
 
