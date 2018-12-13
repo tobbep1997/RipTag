@@ -79,7 +79,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	m_smokeBomb.owner = this;
 	m_smokeBomb.loudness = 0.6f; 
 
-	m_head = new PhysicsComponent();
+	m_head = DBG_NEW PhysicsComponent();
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -107,6 +107,8 @@ Player::~Player()
 		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
 
+	m_head->Release(*RipExtern::g_world);
+	delete m_head;
 	HUDComponent::removeHUD();
 
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
@@ -124,12 +126,13 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->AddToFilters("TELEPORT");
 
 	CreateShape(b3Vec3(0, y*0.70, 0), b3Vec3(x/2, y/2, z/2), 1.0f, 1.0f, "UPPERBODY");
-	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.4f, 0.2f, 0.4f), 1.0f, 1.0f, "HEAD", true);
-	m_standHeight = (y*1.5);
-	m_crouchHeight = y*0.70;
+	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.5f, 0.4f, 0.5f), 1.0f, 1.0f, "HEAD", true);
+	m_standHeight = y*0.6;
+	m_crouchHeight = y*0.2;
 	setUserDataBody(this);
 	
-	m_head->Init(world, bodyType, 0.5, 0.4, 0.5, false, 0);
+	m_head->Init(world, bodyType, 0.4, 0.4, 0.4, false, 0);
+	m_head->getBody()->GetShapeList()->SetObjectTag("HEADO");
 	m_head->setGravityScale(0);
 	m_head->setObjectTag("HEADO");
 	m_head->getBody()->AddToFilters("PLAYER");
@@ -308,10 +311,10 @@ void Player::PhysicsUpdate()
 	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y, 0);
 	p_addRotation(0, DirectX::XM_PI * 1.5f, 0);
 
+
 	b3Vec3 vel = this->getLiniearVelocity();
 	b3Vec3 pos = this->getBody()->GetTransform().translation + this->getBody()->GetShapeList()->GetTransform().translation;
-
-	m_head->p_setRotation(this->getEulerRotation().x, this->getEulerRotation().y, this->getEulerRotation().z);
+	m_head->p_setRotation(0, p_camera->getYRotationEuler().y, 0);
 	m_head->p_setPosition(pos.x, pos.y, pos.z);
 	m_head->setLiniearVelocity(vel.x, vel.y, vel.z);
 }
@@ -782,37 +785,22 @@ void Player::_collision()
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
-		/*if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
-			{
-				m_allowPeek = true;
-				m_recentHeadCollision = true;
-			}*/
 		if (con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO")
 		{
-			m_allowPeek = true;
-			m_recentHeadCollision = true;
-			//m_peekSpeed = 5.0f;
+				m_allowPeek = true;
+				m_recentHeadCollision = true;
 		}
 	}
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
-		/*if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
-			{
-				m_allowPeek = false;
-				peekDir = -LastPeekDir;
-				m_peekRangeA = m_peektimer;
-				m_peekRangeB = 0;
-			}*/
+
 		if ((con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
 		{
 			m_allowPeek = false;
 			peekDir = -LastPeekDir;
 			m_peekRangeA = m_peektimer;
 			m_peekRangeB = 0;
-			//m_peekSpeed = 10.0f;
 		}
 	}
 }
@@ -946,124 +934,56 @@ void Player::_scrollMovementMod()
 
 void Player::_onSprint()
 {
-	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
-	{
-		m_currClickSprint = std::get<0>(Input::Sprinting());
-		if (std::get<1>(Input::Sprinting()))
+	if(p_moveState != Crouching)
+		if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 		{
-			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
-			{
-				m_toggleSprint = 1;
-			}
-			/*else if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 1)
-			{
-				m_toggleSprint = 0;
-			}*/
+			unsigned int sprintInputType = Input::Sprinting();
 
+			if (sprintInputType == Input::InputType::Gamepad && Input::MoveForward() > 0.9)
+			{
+				if (p_moveState != Sprinting && !m_toggleSprint)
+					_startSprint(sprintInputType);
+				else if (p_moveState == Sprinting && !m_toggleSprint)
+					_startWalk();
+				m_toggleSprint = true;//Gamepad Input
+			}
+			else if (sprintInputType == Input::InputType::Keyboard && Input::MoveForward() > 0.9)
+				_startSprint(sprintInputType); //Keyboard Input
+			else if (p_moveState == Idle || m_prevSprintInputType == Input::InputType::Keyboard || (m_prevSprintInputType == Input::InputType::Gamepad && Input::MoveForward() < 0.9))
+				_startWalk(); //No Input
+			else
+				m_toggleSprint = false;
 		}
 		else
 		{
-			//KEYBOARD
-			if (m_currClickSprint)
-			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
-				m_toggleSprint = 0;
-			}
-			else if(m_toggleSprint == 0)
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
+			m_moveSpeed = 0;
+			p_moveState = Idle;
 		}
-
-		//GAMEPAD
-		if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
-		{
-			m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-			p_moveState = Sprinting;
-			m_scrollMoveModifier = 0.9f;
-		}
-		else
-		{
-			m_toggleSprint = 0;
-		}
-	}
-	else
-	{
-		m_moveSpeed = 0;
-		p_moveState = Idle;
-	}
-
-	m_prevClickSprint = m_currClickSprint;
-
 }
 
 void Player::_onCrouch()
 {
-	using namespace Network;
-	m_currClickCrouch = std::get<0>(Input::Crouch());
-	if (std::get<1>(Input::Crouch()) && m_currClickCrouch)
+	unsigned int crouchInputType = Input::Crouch();
+	if (crouchInputType == Input::InputType::Gamepad)
 	{
-		if (!m_prevClickCrouch && m_toggleCrouch == 0)
-		{
-			this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
-			if (Multiplayer::GetInstance()->isConnected())
-			{
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-			}
-
-			_activateCrouch();
-			m_toggleCrouch = 1;
-		}
-		else if (!m_prevClickCrouch && m_toggleCrouch == 1)
-		{
-			this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
-			if (Multiplayer::GetInstance()->isConnected())
-			{
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-			}
-
-			_deActivateCrouch();
-			m_toggleCrouch = 0;
-
-			//Just so we don't end up in an old sprint-mode when deactivating crouch.
-			m_toggleSprint = 0;
-		}
+		if (p_moveState != Crouching && !m_toggleCrouch)
+			_activateCrouch(crouchInputType);
+		else if (p_moveState == Crouching && !m_toggleCrouch)
+			_deActivateCrouch(); 			
+		m_toggleCrouch = true;
+	}
+	else if(crouchInputType == Input::InputType::Keyboard)
+	{
+		if (p_moveState != Crouching)
+			_activateCrouch(crouchInputType);
+		else
+			m_prevClickCrouch = Input::InputType::Keyboard;
 	}
 	else
 	{
-		if (m_currClickCrouch)
-		{
-			this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
-			if (Multiplayer::GetInstance()->isConnected())
-			{
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-			}
-			_activateCrouch();
-			m_toggleCrouch = 0;
-		}
-		else if (m_toggleCrouch == 0)
-		{
-			this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
-			if (Multiplayer::GetInstance()->isConnected())
-			{
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-			}
+		m_toggleCrouch = false;
+		if (m_prevClickCrouch == Input::InputType::Keyboard && p_moveState == Crouching)
 			_deActivateCrouch();
-			m_toggleSprint = 0;
-		}
-	}
-	m_prevClickCrouch = m_currClickCrouch;
-
-	if (m_kp.crouching)
-	{
-		m_moveSpeed = MOVE_SPEED * 0.5f;
 	}
 }
 
@@ -1129,21 +1049,28 @@ void Player::_onPeak(double deltaTime)
 				if (Input::PeekRight() < 0) //Right Side
 					peekDir = -1;
 
-				LastPeekDir = peekDir;
+				if (peekDir != LastPeekDir) //Change in Direction
+				{
+					LastPeekDir = peekDir;
+				}
+				
 			}
 		}
-
 	}
 	else //Return to default pos
 	{
-		m_recentHeadCollision = false;
+		if (m_peekRangeA == m_peektimer)
+		{
+			LastPeekDir = peekDir;
+		}
 		peekDir = -LastPeekDir;
 		m_peekRangeA = m_peektimer;
 		m_peekRangeB = 0;
+		m_recentHeadCollision = false;
+
 	}
 
 	m_currentPeek = /*peekDir * */m_peektimer;
-	//std::cout << m_currentPeek << std::endl;
 
 }
 
@@ -1302,7 +1229,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 
 	//-------------------------------------------Peeking--------------------------------------------// 
-
+	
 	m_peektimer += peekDir * (float)deltaTime *m_peekSpeed;
 
 	if (m_peekRangeB > m_peekRangeA)
@@ -1344,7 +1271,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
 	m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
-	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - (m_standHeight - m_crouchHeight);
+	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps);
 
 	if (m_crouchAnimSteps == 1 || m_crouchAnimSteps == 0) //Animation Finished
 	{
@@ -1450,18 +1377,51 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 	m_FMODlistener.forward = { xmDir.x, xmDir.y, xmDir.z };
 	m_FMODlistener.vel = vel;
 }
-void Player::_activateCrouch()
+void Player::_activateCrouch(const unsigned int inputType)
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 	crouchDir = 1;
-	m_kp.crouching = true;
+	m_moveSpeed = MOVE_SPEED * 0.5f;
+	p_moveState = Crouching;
+	m_prevClickCrouch = inputType;
+
+	this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
+	if (Network::Multiplayer::GetInstance()->isConnected())
+	{
+		Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::_deActivateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 	crouchDir = -1;
-	m_kp.crouching = false;
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Idle;
+	m_prevClickCrouch = Input::InputType::None;
+
+	this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
+	if (Network::Multiplayer::GetInstance()->isConnected())
+	{
+		Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+	}
+}
+
+void Player::_startSprint(const unsigned int inputType)
+{
+	m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+	p_moveState = Sprinting;
+	m_scrollMoveModifier = 0.9f;
+	m_prevSprintInputType = inputType;
+}
+
+void Player::_startWalk()
+{
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Walking;
+	m_prevSprintInputType = 0;
 }
 
 void Player::SendOnWinState()
@@ -1540,6 +1500,8 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 
 	return (tempStart + tempRelativeVec);
 }
+
+
 
 void Player::setExitPause(bool exitPause)
 {

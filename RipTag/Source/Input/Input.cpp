@@ -82,17 +82,16 @@ bool Input::CheckVisability()
 	return result;
 }
 
-std::tuple<bool, bool> Input::Crouch()
+const unsigned int Input::Crouch()
 {
-	bool result = false;
-	bool gamepad = false;
+	unsigned int inputType = InputType::None;
 	if (isUsingGamepad())
-	{
-		result = GamePadHandler::IsRightStickPressed();
-		gamepad = result;
-	}
+		if (GamePadHandler::IsRightStickPressed())
+		{
+			inputType = InputType::Gamepad;
+		}
 	
-	if (!result)
+	if (inputType == InputType::None)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -101,13 +100,13 @@ std::tuple<bool, bool> Input::Crouch()
 			{
 				if (keyIterator->second == "Crouch")
 				{
-					result = true;
+					inputType = InputType::Keyboard;
 				}
 			}
 		}
 	}
 	
-	return { result, gamepad };
+	return inputType;
 }
 
 
@@ -215,11 +214,11 @@ float Input::PeekRight()
 			{
 				if (keyIterator->second == "PeekRight")
 				{
-					result = -1;
+					result--;
 				}
 				else if (keyIterator->second == "PeekLeft")
 				{
-					result = 1;
+					result++;
 				}
 			}
 		}
@@ -227,17 +226,16 @@ float Input::PeekRight()
 	return result;
 }
 
-std::tuple<bool, bool> Input::Sprinting()
+const unsigned int Input::Sprinting()
 {
-	bool result = false;
-	bool gamepad = false;
+	unsigned int inputType = InputType::None;
 	if (isUsingGamepad())
-	{
-		result = GamePadHandler::IsLeftStickPressed();
-		gamepad = result;
-	}
+		if (GamePadHandler::IsLeftStickPressed())
+		{
+			inputType = InputType::Gamepad;
+		}
 
-	if (!result)
+	if (inputType == 0)
 	{
 		std::map<int, std::string>::iterator keyIterator = InputMapping::keyMap.begin();
 		for (keyIterator; keyIterator != InputMapping::keyMap.end(); keyIterator++)
@@ -246,13 +244,13 @@ std::tuple<bool, bool> Input::Sprinting()
 			{
 				if (keyIterator->second == "Sprint")
 				{
-					result = true;
+					inputType = InputType::Keyboard;
 				}
 			}
 		}
 	}
 	
-	return { result, gamepad };
+	return inputType;
 }
 
 bool Input::OnAbilityPressed()
