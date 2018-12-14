@@ -266,6 +266,8 @@ void AI::_onBeingDisabled()
 }
 void AI::_onExitingPossessed()
 {
+	m_owner->getAnimationPlayer()->GetStateMachine()->SetState("knocked_state");
+
 	m_owner->m_knockOutType = Enemy::KnockOutType::Possessed;
 	m_owner->removePossessor(); 
 	m_owner->setHidden(false);
