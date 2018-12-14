@@ -12,6 +12,8 @@ private:
 	FMOD::Channel * m_channel;
 	AudioEngine::SoundDesc m_tourchSound;
 
+	bool m_draw = true;
+
 public:
 	Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqueId);
 	~Torch();
@@ -21,6 +23,8 @@ public:
 	void BeginPlay() override;
 
 	PointLight * getPointLightPtr() { return pPointLight; }
+
+	void DrawTorch(const bool & draw);
 
 	void setCamera(Camera * ptr) { this->pCamera = ptr; }
 	void setUniqueID(int id) { Trigger::setUniqueId(id); }

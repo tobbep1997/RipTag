@@ -65,7 +65,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 			throw hr;		
 		break;
 	case 1:
-		if (SUCCEEDED(hr = m_shadowMap->Init(128, 128)))
+		if (SUCCEEDED(hr = m_shadowMap->Init(64, 64)))
 		{
 			m_lightCullingDistance = 50;
 			m_forceCullingLimit = 6;
@@ -404,31 +404,31 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 
 
 		
-			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
-				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
-					continue;
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+				continue;
 
-			auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
-			DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
-				0,
-				nullptr,
-				nullptr,
-				0, 1, &lol, 0
-			);
+		auto lol = DX::g_animatedGeometryQueue.at(i)->GetUAV();
+		DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+			0,
+			nullptr,
+			nullptr,
+			0, 1, &lol, 0
+		);
 
-			ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
+		ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-			_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
+		_mapObjectBuffer(DX::g_animatedGeometryQueue[i]);
 
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
-			DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
+		DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+		_mapSkinningBuffer(DX::g_animatedGeometryQueue[i]);
+		DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[i]->getVertexSize(), 0);
 
 
-			if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
-				if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
-					continue;
-		
+		if (DX::g_animatedGeometryQueue[i]->getEntityType() != EntityType::FirstPersonPlayer)
+			if (_Cull(bf, DX::g_animatedGeometryQueue[i]->getBoundingBox()))
+				continue;
+	
 		
 	}
 	delete bf;
@@ -1530,7 +1530,7 @@ void ForwardRender::_particlePass(Camera * camera, const bool & update)
 		}
 
 		UINT offset = 0;
-		UINT stride =sizeof(Vertex);
+		UINT stride = sizeof(Vertex);
 
 
 		DX::g_deviceContext->IASetVertexBuffers(0, 1, &m_particleVertexBuffer, &stride, &offset);

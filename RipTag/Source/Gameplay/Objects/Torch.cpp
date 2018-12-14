@@ -105,7 +105,8 @@ void Torch::Update(double deltaTime)
 
 void Torch::Draw()
 {
-	Drawable::Draw();
+	if (m_draw)
+		Drawable::Draw();
 	if (!this->getTriggerState())
 	{
 		this->pPointLight->QueueLight();
@@ -123,6 +124,11 @@ void Torch::QueueLight()
 void Torch::BeginPlay()
 {
 	_playSound(&m_tourchSound);
+}
+
+void Torch::DrawTorch(const bool& draw)
+{
+	this->m_draw = draw;
 }
 
 void Torch::handleContact(RayCastListener::RayContact & contact)

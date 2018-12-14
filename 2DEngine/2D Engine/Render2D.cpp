@@ -34,12 +34,11 @@ void Render2D::Init()
 	dpd.DepthFunc = D3D11_COMPARISON_LESS;
 
 	//Create the Depth/Stencil View
-	
 	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState)))
 	{
 		DX::SetName(m_depthStencilState, "Render2D m_depthStencilState");
 	}
-	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("2D HUDTypeStruct" ,m_HUDTypeBuffer, sizeof(HUDTypeStruct)))) { }
+	if (SUCCEEDED(hr = DXRHC::CreateConstantBuffer("2D HUDTypeStruct", m_HUDTypeBuffer, sizeof(HUDTypeStruct)))) { }
 	
 
 #ifndef _DEPLOY
@@ -281,7 +280,7 @@ void Render2D::DBG()
 	dbg_quad->setFont(FontHandler::getFont("consolas16"));
 	dbg_quad->setString("VRAM: " + std::to_string((UINT)memoryUsageVRam) + "\nRAM:  " + std::to_string((UINT)(memoryUsageRam - memoryUsageVRam)));
 
-	if (memoryUsageVRam < 256.0f && memoryUsageRam - memoryUsageVRam < 256.0f)
+	if (memoryUsageVRam <= 256.0f && memoryUsageRam - memoryUsageVRam <= 256.0f)
 		dbg_quad->setTextColor(DirectX::XMFLOAT4A(0, 1, 0, 1));
 	else
 		dbg_quad->setTextColor(DirectX::XMFLOAT4A(1, 0, 0, 1));

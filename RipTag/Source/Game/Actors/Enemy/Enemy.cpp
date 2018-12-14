@@ -196,7 +196,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.9, 0.0));
+	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.95, 0.0));
 	setScale(.4, .4, .4);
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
