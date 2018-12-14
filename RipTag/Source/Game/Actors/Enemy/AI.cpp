@@ -889,9 +889,20 @@ bool AI::_RotateToCurrentTorch(double deltaTime)
 void AI::_checkTorches(float dt)
 {
 	static const float radiusSquared = CHECK_TORCHES_RADIUS * CHECK_TORCHES_RADIUS;
-
+	static bool shotRay = false;
 	m_checkTorchesTimer += dt;
 
+	if (shotRay)
+	{
+		if (RipExtern::g_rayListener->hasRayHit(m_torchRay))
+		{
+			RayCastListener::Ray & ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_torchRay);
+			RayCastListener::RayContact con = ray.getClosestContact();
+			if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
+				static_cast<Torch*>(con.contactShape->GetBody()->GetUserData())->Interact();
+		}
+		shotRay = false;
+	}
 
 	if (m_checkTorchesTimer >= CHECK_TORCHES_INTERVALL)
 	{
@@ -905,9 +916,9 @@ void AI::_checkTorches(float dt)
 			{
 				if (t->getTriggerState())
 				{
-					t->Interact();
-					//this->m_currentTorch = t;
-					//this->m_transState = AITransitionState::TorchFound;
+					m_torchRay = RipExtern::g_rayListener->PrepareRay(m_owner->getBody(), m_owner->getPosition(), point);
+					shotRay = true;
+
 					return;
 				}
 			}

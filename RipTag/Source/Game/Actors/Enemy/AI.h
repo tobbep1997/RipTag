@@ -67,7 +67,7 @@ private:
 	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
 	const float CHECK_TORCHES_INTERVALL = 3.0f;
-	const float CHECK_TORCHES_RADIUS = 7.5f;
+	const float CHECK_TORCHES_RADIUS = 5.5f;
 
 	//stateData
 	//float m_HighAlertTime = 0.f;
@@ -106,6 +106,7 @@ private:
 	Torch * m_currentTorch	= nullptr;
 	bool m_activeTorch			= false;
 	double m_timerTorch		= 0.0;
+	int m_torchRay = -100;
 	const double m_igniteAt = 0.5;  //The timepoint at which we will actually light the torch, has to be properly synced with the animation
 
 public:
