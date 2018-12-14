@@ -217,8 +217,8 @@ void PlayState::Update(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1);
-				m_transitionState->Load();
+
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 				runGame = false;
 			}
 		}
@@ -376,7 +376,7 @@ void PlayState::Draw()
 		DrawWorldCollisionboxes();
 	}
 
-	//DrawWorldCollisionboxes("WIN_BOX");
+	//DrawWorldCollisionboxes();
 #ifdef _DEBUG
 #endif
 
@@ -842,7 +842,13 @@ void PlayState::unLoad()
 		m_transitionState = nullptr;
 	}
 
-	m_pPauseMenu->unLoad(); 
+	m_pPauseMenu->unLoad();
+
+	if (DX::g_skyBox)
+	{
+		delete DX::g_skyBox;
+		DX::g_skyBox = nullptr;
+	}
 }
 
 void PlayState::Load()
@@ -865,7 +871,7 @@ void PlayState::Load()
 	}
 	else
 	{
-		rooms = RandomRoomPicker::RoomPick(1);
+		rooms = RandomRoomPicker::RoomPick((int)time(0));
 	}
 	
 	m_youlost = false;
@@ -883,7 +889,14 @@ void PlayState::Load()
 	m_pPauseMenu->Load(); 
 
 
-
+	Manager::g_meshManager.loadStaticMesh("SKYBOX");
+	Manager::g_textureManager.loadTextures("SKYBOX");
+	if (false == true)
+	{		
+		DX::g_skyBox = new Drawable();
+		DX::g_skyBox->setModel(Manager::g_meshManager.getStaticMesh("SKYBOX"));
+		DX::g_skyBox->setTexture(Manager::g_textureManager.getTexture("SKYBOX"));
+	}
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
 }

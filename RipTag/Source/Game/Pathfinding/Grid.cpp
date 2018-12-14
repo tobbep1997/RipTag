@@ -67,6 +67,7 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 	
 	m_width = grid.maxX;
 	m_height = grid.maxY;
+
 	for (int i = 0; i < m_height; i++)
 		for (int j = 0; j < m_width; j++)
 		{
@@ -80,33 +81,36 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 
 
 	// DONT REMOVE
-	//this->PrintMe();
-	//std::ofstream o;
-	//o.open("sub.txt");
-	//for (int y = 0; y < m_height; y++)
-	//{
-	//	for (int x = 0; x < m_width; x++)
-	//	{
-	//		bool drawWp = false;
-	//		for (auto & w : m_waypoints)
-	//		{
-	//			if (w.x == x && w.y == y)
-	//			{
-	//				drawWp = true;
-	//				break;
-	//			}
-	//		}
-	//		if (drawWp)
-	//			o << "X";
-	//		else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
-	//			o << "#";
-	//		else
-	//			o << m_nodeMap[x + y * m_width].tile.getSubGrid();
-	//		o << " ";
-	//	}
-	//	o << "\n";
-	//}
-	//o.close();
+	/*this->PrintMe();
+	std::ofstream o;
+	o.open("sub.txt");
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			bool drawWp = false;
+			for (auto & w : m_waypoints)
+			{
+				if (w.x == x && w.y == y)
+				{
+					drawWp = true;
+					break;
+				}
+			}
+			if (drawWp)
+				o << "X";
+			else if (m_nodeMap[x + y * m_width].tile.getSubGrid() == -1)
+				o << "#";
+			else
+				o << m_nodeMap[x + y * m_width].tile.getSubGrid();
+			o << " ";
+		}
+		o << "\n";
+	}
+	o.close();*/
+
+	//FindPath(Tile(7, 1), Tile(20, 22));
+
 }
 
 void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
@@ -132,14 +136,6 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 		for (int j = 0; j < width; j += 2)
 		{
 			int index = counter++;
-			/*if (randomizer->m_rooms[index].type == 1)
-			{
-				if (j < width - 1)
-					m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].south);
-				if (i < depth - 1)
-					m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].west);
-			}*/
-			
 			if (j < width - 1)
 				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
 			if (i < depth - 1)
@@ -148,7 +144,7 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 	}
 }
 
-//FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!
+//FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoints)				
 {
 	if (source.getX() < 0 || source.getY() < 0)
@@ -214,45 +210,44 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoin
 
 		return pathToDestination;
 	}
-	else if (useWaypoints)
+	else if (useWaypoints && m_roomNodeMap.empty())
 	{
 		if (dest.getSubGrid() == src.getSubGrid())
 		{
 			// find paths through our waypoints
 			std::vector<Waypoint*> waypoints = _findWaypointPath(source, destination);
 
-			if (waypoints.empty())
-				return _findPath(source, destination, m_nodeMap, m_width, m_height);
-
-			std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
-
-			//DONT REMOVE
-			//static int counter = 0;
-			//std::ofstream file;
-			//file.open("PATH_" + std::to_string(counter++) + ".txt");
-
-			//_printTilePairs(tilePairs, file, source, destination);
-
-
-
-			std::vector<Node*> pathToDestination;
-			for (auto & tp : tilePairs)
+			if (!waypoints.empty())
 			{
-				//DONT REMOVE
-				//DeltaTime dt;
-				//dt.Init();
-				std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
-				pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
-				//DONT REMOVE
-				//_printPath(partOfPath, file, source, destination);
-				//file << dt.getDeltaTimeInSeconds() << "\n";
-			}
-			//DONT REMOVE
-			//_printPath(pathToDestination, file, source, destination);
-			//DONT REMOVE
-			//file.close();
+				std::vector<TilePair> tilePairs = _waypointPathToGridTiles(waypoints, source, destination);
 
-			return pathToDestination;
+				//DONT REMOVE
+				//static int counter = 0;
+				//std::ofstream file;
+				//file.open("PATH_" + std::to_string(counter++) + ".txt");
+
+				//_printTilePairs(tilePairs, file, source, destination);
+
+				std::vector<Node*> pathToDestination;
+				for (auto & tp : tilePairs)
+				{
+					//DONT REMOVE
+					//DeltaTime dt;
+					//dt.Init();
+					std::vector<Node*> partOfPath = _findPath(tp.source, tp.destination, m_nodeMap, m_width, m_height);
+					pathToDestination.insert(std::end(pathToDestination), std::begin(partOfPath), std::end(partOfPath));
+					//DONT REMOVE
+					//_printPath(partOfPath, file, source, destination);
+					//file << dt.getDeltaTimeInSeconds() << "\n";
+				}
+				//DONT REMOVE
+				//_printPath(pathToDestination, file, source, destination);
+
+				//DONT REMOVE
+				//file.close();
+
+				return pathToDestination;
+			}
 		}
 	}
 	else
@@ -536,8 +531,8 @@ const float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = abs(src.getX() - dest.getX());
 	int y = abs(src.getY() - dest.getY());
-	//return (x + y) + (-0.414f) * min(x, y);
-	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
+	//return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
+	return (x + y) + (-0.414f) * min(x, y);
 }
 
 int Grid::_worldPosInNodeMap(int begin, int end, int x, int y) const
@@ -856,7 +851,6 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 
 std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile & destination)
 {
-	//std::stack<Waypoint*> currentPath;
 	std::vector<Waypoint*> currentPath;
 	Waypoint * start = m_nodeMap[source.getX() + source.getY() * m_width].fieldOwner;
 	Waypoint * end = m_nodeMap[destination.getX() + destination.getY() * m_width].fieldOwner;
@@ -868,15 +862,12 @@ std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile &
 	while (!currentPath.empty() && currentPath.back() != end)
 	{
 		float currentCost = FLT_MAX;
-		//float potentialCost = FLT_MAX;
 		WaypointConnection * next = nullptr;
 		current = currentPath.back();
 
 		if (!current->connections.empty())
 		{
 			std::vector<WaypointConnection> & wpc = current->connections;
-			/*currentCost = wpc.at(0).connectionCost;
-			next = &wpc.at(0);*/
 			for (int i = 0; i < wpc.size(); i++)
 			{
 				int x = wpc.at(i).connection->x;
@@ -934,11 +925,6 @@ std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile &
 			c.traversedConnection = false;
 
 	}
-
-	if (!currentPath.empty())
-		currentPath.erase(currentPath.begin());
-	if (!currentPath.empty())
-		currentPath.erase(currentPath.end() - 1);
 
 	return currentPath;
 }
@@ -1102,7 +1088,8 @@ void Grid::_findConnections()
 
 
 							auto result = std::find(target.connections.begin(), target.connections.end(), &subTarget);
-							if (result == std::end(target.connections)) // if the connection dont already exist
+							// If the connection doesn't already exist
+							if (result == std::end(target.connections))
 							{
 								WaypointConnection wpc;
 								wpc.connection = &subTarget;

@@ -10,7 +10,6 @@ ForwardRender::ForwardRender()
 	m_lastVertexPath = L"NULL";
 	m_lastPixelPath = L"NULL";
 
-	m_visabilityPass = new VisabilityPass();
 
 }
 
@@ -69,7 +68,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		if (SUCCEEDED(hr = m_shadowMap->Init(128, 128)))
 		{
 			m_lightCullingDistance = 50;
-			m_forceCullingLimit = 4;
+			m_forceCullingLimit = 6;
 		}
 		else
 			throw hr;
@@ -114,8 +113,9 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		DX::SetName(m_alphaBlend, "ForwardRender: m_alphaBlend");
 	}
 
-	
-	m_visabilityPass->Init();
+	m_visabilityPass = new VisabilityPass();
+
+	hr = m_visabilityPass->Init(this);
 
 
 	DX::g_deviceContext->RSGetState(&m_standardRast);
@@ -147,6 +147,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 
 	m_animationBuffer = new Animation::AnimationCBuffer();
 	m_animationBuffer->SetAnimationCBuffer();
+
 
 	m_2DRender = new Render2D();
 	m_2DRender->Init();
@@ -220,6 +221,26 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 		DX::SetName(m_particleVertexBuffer, "PARTICLE_MEGA_BUFFER_BTICHES");
 	}
 
+
+	m_skyBox = new SkyBox();
+	try
+	{		
+		if (FAILED(hr = m_skyBox->Init(this)))
+		{
+			delete m_skyBox;
+			m_skyBox = nullptr;
+
+			_com_error err(hr);
+			std::wstring errMsg = L"Skybox: ";
+			errMsg.append(err.ErrorMessage());
+			errMsg.append(L"\n");
+			OutputDebugString(errMsg.c_str());
+		}
+	}
+	catch (const std::exception & e)
+	{
+		OutputDebugStringA(e.what());
+	}
 }
 
 void ForwardRender::GeometryPass(Camera & camera)
@@ -290,7 +311,6 @@ void ForwardRender::PrePass(Camera & camera)
 	DX::g_deviceContext->DSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->GSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
-	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff);	
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
 
@@ -374,7 +394,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 	{
 		if (DX::g_animatedGeometryQueue[i]->getDestroyState())
 		{
-			DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/PreAnimatedDestructionShader.hlsl");
+			
 			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/PreAnimatedDestructionShader.hlsl"), nullptr, 0);
 		}
 		else
@@ -392,8 +412,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 			DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 				0,
 				nullptr,
-				NULL,
-				//NULL,
+				nullptr,
 				0, 1, &lol, 0
 			);
 
@@ -451,9 +470,9 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			m_destroyBuffer.worldMatrix = DX::g_animatedGeometryQueue[i]->getWorldmatrix();
 			DXRHC::MapBuffer(m_destructionBuffer, &m_destroyBuffer, sizeof(DestroyBuffer), 0, 1, ShaderTypes::geometry);
 
-			DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl");
+			
 			DX::g_deviceContext->GSSetShader(DX::g_shaderManager.GetShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl"), nullptr, 0);
-			DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionPixelShader.hlsl");
+			
 			DX::g_deviceContext->PSSetShader(DX::g_shaderManager.GetShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionPixelShader.hlsl"), nullptr, 0);
 
 
@@ -549,6 +568,7 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 
 void ForwardRender::Flush(Camera & camera)
 {
+	HRESULT hr;
 	if (DX::g_screenShootCamera == true)
 	{
 		this->FlushScreenShoot(camera);
@@ -558,8 +578,11 @@ void ForwardRender::Flush(Camera & camera)
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, NULL);
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
 	DX::g_deviceContext->PSSetSamplers(2, 1, &m_shadowSampler);
-	this->AnimationPrePass(camera);
 
+
+
+	this->AnimationPrePass(camera);
+#ifndef _DEPLOY
 	Camera * dbg_camera = nullptr;
 	if (Cheet::g_DBG_CAM)
 	{
@@ -573,8 +596,22 @@ void ForwardRender::Flush(Camera & camera)
 		
 		_mapCameraBuffer(*dbg_camera);
 	}
+#endif
 	//_mapCameraBuffer(*dbg_camera);
+	DX::g_deviceContext->RSSetViewports(1, &m_viewport);
 	this->PrePass(camera);
+	if (DX::g_skyBox)
+	{
+		DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);
+		if (FAILED(hr = m_skyBox->Draw(DX::g_skyBox, camera)))
+		{
+			_com_error err(hr);
+			std::wstring errMsg = L"Skybox: ";
+			errMsg.append(err.ErrorMessage());
+			errMsg.append(L"\n");
+			OutputDebugString(errMsg.c_str());
+		}
+	}
 	
 	
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
@@ -600,7 +637,10 @@ void ForwardRender::Flush(Camera & camera)
 
 	if (Cheet::g_DBG_CAM)
 	{
+#ifndef _DEPLOY
+
 		_mapCameraBuffer(*dbg_camera);
+#endif
 	}
 	//_mapCameraBuffer(*dbg_camera);
 	this->GeometryPass(camera);
@@ -619,16 +659,19 @@ void ForwardRender::Flush(Camera & camera)
 	
 	_particlePass(&camera, true);
 
+
 	DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, nullptr);
 	m_2DRender->GUIPass();
 	this->_wireFramePass(&camera);
-	
+#ifndef _DEPLOY
+
 	delete dbg_camera;
+#endif
 }
 
 void ForwardRender::Clear()
 {
-	float c[4] = { .5f,.5f,.5f,1.0f };
+	float c[4] = { .15f,.15f,.15f,1.0f };
 	DX::g_deviceContext->ClearRenderTargetView(m_backBufferRTV, c);
 	DX::g_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -697,13 +740,16 @@ void ForwardRender::Release()
 
 	DX::SafeRelease(m_particleVertexBuffer);
 
+	if (SUCCEEDED(m_skyBox->Release()))	{ }
+	delete m_skyBox;
+
 	m_shadowMap->Release();
 	delete m_shadowMap;
 
 	m_2DRender->Release();
 	delete m_2DRender;
 	delete m_animationBuffer;
-
+	m_visabilityPass->Release();
 	delete m_visabilityPass;
 }
 
@@ -1139,7 +1185,6 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	}
 	else
 	{
-
 		m_objectValues.worldMatrix = drawable->getWorldmatrix();	
 	}
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
@@ -1410,15 +1455,7 @@ void ForwardRender::_visabilityPass()
 	{
 		return;
 	}
-	
-	for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
-	{
-		m_visabilityPass->SetViewportAndRenderTarget();
-		m_visabilityPass->GuardDepthPrePassFor(guard, this, m_animationBuffer);
-		m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
-	}
-	
-
+	m_visabilityPass->Draw();
 }
 
 void ForwardRender::_setAnimatedShaders()
@@ -1555,7 +1592,10 @@ void ForwardRender::_createShaders()
 	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/OutlineVertexShader.hlsl");
 	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/wireFramePixel.hlsl");
 
-	
+	DX::g_shaderManager.LoadShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/PreAnimatedDestructionShader.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11GeometryShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionGeometryShader.hlsl");
+	DX::g_shaderManager.LoadShader<ID3D11PixelShader>(L"../Engine/EngineSource/Shader/Shaders/DestructionPixelShader.hlsl");
+
 }
 
 void ForwardRender::_createShadersInput()
@@ -1684,7 +1724,7 @@ void ForwardRender::FlushScreenShoot(Camera& camera)
 	pos.y += 10;
 	dbg_camera->setPosition(pos);
 	//_mapCameraBuffer(*dbg_camera);
-	this->PrePass(camera);
+	//this->PrePass(camera);
 
 
 	DX::g_deviceContext->PSSetSamplers(1, 1, &m_samplerState);
