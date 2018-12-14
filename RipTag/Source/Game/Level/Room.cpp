@@ -303,10 +303,6 @@ void Room::LoadRoomToMemory()
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			e->SetGuardUniqueIndex(uniqueID.at(i));
 			e->SetTorchContainer(m_Torches);
-			if (spawnPos.at(i) > 12)
-			{
-				//CameraHandler::setActiveCamera(e->getCamera());
-			}
 
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
@@ -376,6 +372,7 @@ void Room::LoadRoomToMemory()
 		{
 			m_reverbvector.push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ reverbs.reverbPoints[i].translation[0], reverbs.reverbPoints[i].translation[1], reverbs.reverbPoints[i].translation[2] }, reverbs.reverbPoints[i].minRadius, reverbs.reverbPoints[i].maxRadius));
 		}
+		delete [] reverbs.reverbPoints;
 
 		ImporterLibrary::SoundPointToEngine sounds = fileLoader.readSoundPointFile(this->getAssetFilePath());
 
@@ -384,6 +381,7 @@ void Room::LoadRoomToMemory()
 			FMOD_VECTOR at = { sounds.sounds[i].translation[0], sounds.sounds[i].translation[1], sounds.sounds[i].translation[2] }; // add switch to typeofsound;
 			AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &at, &m_ambientWindAndDrip)->setVolume(0.6f);
 		}
+		delete [] sounds.sounds;
 
 		CollisionBoxes = DBG_NEW BaseActor();
 	//	ImporterLibrary::CollisionBoxes boxes = Manager::g_meshManager.getCollisionBoxes(this->getAssetFilePath());
