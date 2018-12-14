@@ -10,7 +10,8 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 }
 
 
-LobbyState::~LobbyState()
+LobbyState::
+~LobbyState()
 {
 	if (pCoopData)
 	{
