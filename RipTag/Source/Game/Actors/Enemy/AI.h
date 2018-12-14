@@ -61,9 +61,9 @@ private:
 	AudioEngine::SoundDesc m_alerted;
 
 	//AI Behavior constants
-	const float SOUND_LEVEL = 0.60f;
+	const float SOUND_LEVEL = 0.30f;
 	const float ALERT_TIME_LIMIT = 0.2f;
-	const float SUSPICIOUS_TIME_LIMIT = 3.0f;
+	const float SUSPICIOUS_TIME_LIMIT = 0.1f;
 	const float SEARCH_ROOM_TIME_LIMIT = 20.0f;
 	const float HIGH_ALERT_LIMIT = 3.0f;
 	const float CHECK_TORCHES_INTERVALL = 3.0f;
