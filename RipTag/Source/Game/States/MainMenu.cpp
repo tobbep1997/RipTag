@@ -391,8 +391,6 @@ void MainMenu::Load()
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 #endif
 	Manager::g_textureManager.loadTextures("LOADING");
-
-	std::cout << "MainMenu Load" << std::endl;
 }
 
 void MainMenu::unLoad()
@@ -416,9 +414,6 @@ void MainMenu::unLoad()
 	//HUDComponent::removeHUD();
 
 	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
-
-
-	std::cout << "MainMenu unLoad" << std::endl;
 }
 
 void MainMenu::LoadAllGuiElements()
