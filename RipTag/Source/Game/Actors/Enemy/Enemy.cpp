@@ -185,13 +185,13 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	b3Vec3 pos = b3Vec3(1.0f, 1.25f, 1.0f);
 	PhysicsComponent::Init(*world, e_dynamicBody, pos.x/2, pos.y/2, pos.z/2, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
-	this->getBody()->SetUserData(Enemy::validate());
+	//this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
 	CreateShape(b3Vec3(0, pos.y*0.70, 0), b3Vec3(pos.x / 2, pos.y / 2, pos.z / 2), 1.0f, 1.0f, "UPPERBODY");
 	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(0.3f, 0.35f, 0.3f), 1.0f, 1.0f, "HEAD", true);
 	m_standHeight = (pos.y*1.5);
 	m_crouchHeight = pos.y * 0.70;
-	setUserDataBody(this);
+	this->getBody()->SetUserData(this);
 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);

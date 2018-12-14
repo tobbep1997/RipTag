@@ -346,3 +346,10 @@ bool PlayerManager::isGameWon()
 	else
 		return mLocalPlayer->getWinState();
 }
+
+bool PlayerManager::isGameLost()
+{
+	if (mLocalPlayer)
+		return mLocalPlayer->hasLost;
+	return false;
+}

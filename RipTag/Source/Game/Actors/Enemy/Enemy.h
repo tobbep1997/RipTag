@@ -3,6 +3,9 @@
 #include "../Actor.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"
+
+#define ENUM_TO_STR(ENUM) std::string(#ENUM)
+
 struct Node;
 
 class VisibilityComponent;
@@ -250,6 +253,15 @@ public:
 	const int getInteractRayId();
 
 	void SetTorchContainer(std::vector<Torch*>& v) { m_torches = v; }
+
+	AIState GetState() { return this->getAIState(); }
+	std::string ToString() {
+		std::stringstream ss;
+
+		ss << "Enemy " << uniqueID << "\nState " << getAIState() << "\nTransition " << getTransitionState() <<  "\nAdress " << this <<"\n\n";
+
+		return ss.str();
+	}
 private:
 
 	void _handleInput(double deltaTime);

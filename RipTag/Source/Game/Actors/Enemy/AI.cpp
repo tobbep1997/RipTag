@@ -298,7 +298,7 @@ void AI::_onTorchFound()
 
 void AI::_onTorchHandled()
 {
-	m_state = AIState::NoState;
+	//m_state = AIState::NoState;
 	m_transState = AITransitionState::ReturnToPatrol;
 }
 
@@ -310,7 +310,7 @@ void AI::_investigating(const double deltaTime)
 	if (hasTimedOut)
 	{
 		m_timers[T_Investigate] = 0.0;
-		m_state = AIState::NoState;
+		//m_state = AIState::NoState;
 		m_transState = AITransitionState::ReturnToPatrol;
 	}
 
@@ -377,7 +377,7 @@ void AI::_suspicious(const double deltaTime)
 	if (hasTimedOut)
 	{
 		m_timers[T_Suspicious] = 0.0;
-		m_state = AIState::NoState;
+		//m_state = AIState::NoState;
 		m_transState = AITransitionState::ReturnToPatrol;
 	}
 
@@ -507,7 +507,7 @@ void AI::_possessed(const double deltaTime)
 	if (hasTimedOut)
 	{
 		m_timers[T_Possessed] = 0.0;
-		m_state = AIState::NoState;
+		//m_state = AIState::NoState;
 		m_transState = AITransitionState::ExitingPossess; 
 	}
 	else
@@ -525,7 +525,7 @@ void AI::_disabled(const double deltaTime)
 	if (hasTimedOut)
 	{
 		m_timers[T_Disabled] = 0.0;
-		m_state = AIState::NoState;
+		//m_state = AIState::NoState;
 		m_transState = AITransitionState::ReturnToPatrol;
 	}
 
@@ -569,7 +569,7 @@ void AI::_torchHandling(const double deltaTime)
 	if (!m_currentTorch || hasTimedOut)
 	{
 		this->m_timers[T_TorchHandling] = 0.0;
-		m_state = AIState::NoState;
+		//m_state = AIState::NoState;
 		m_transState = AITransitionState::ReturnToPatrol;
 	}
 	//Rotate towards the torch from the guard's direction, when we are ready do the actual animation
