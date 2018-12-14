@@ -154,7 +154,7 @@ void SingleGameLoop(Game * game)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	parser = CheatParser::GetInstance();
-	bool consoleEnabled = false;
+	bool consoleEnabled = true;
 	std::thread console;
 	if (consoleEnabled)
 	{
