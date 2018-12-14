@@ -51,8 +51,6 @@ void RandomRoomGrid::GenerateRoomLayout()
 		nrOfBigRooms = 4;
 	}
 
-	nrOfBigRooms = 4;
-
 	_insertRooms(nrOfBigRooms);
 	_connectRooms();
 	_checkConnections();
