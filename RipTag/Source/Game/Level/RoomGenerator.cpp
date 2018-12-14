@@ -145,6 +145,8 @@ void RoomGenerator::_makeRoof()
 
 void RoomGenerator::_createEntireWorld()
 {
+	m_roomGridWidth = 1 + (rand() % 3 + 1);
+	m_roomGridDepth = 1 + (rand() % 3 + 1);
 	m_roomDepth = (m_incrementalValueY * m_roomGridDepth) / 2.0f;
 	m_roomWidth = (m_incrementalValueX * m_roomGridWidth) / 2.0f;
 
@@ -255,11 +257,6 @@ void RoomGenerator::_createEntireWorld()
 			{
 				MODNAMESTRING = "MOD" + std::to_string(98);
 				isStartRoom = true;
-			}
-			else if (randomizer.m_rooms[index].type == START_ROOM)
-			{
-				isStartRoom = true;
-				MODNAMESTRING = "MOD" + std::to_string(66);
 			}
 #pragma region Guards
 			Manager::g_meshManager.loadSkinnedMesh("STATE");
