@@ -218,7 +218,7 @@ void PlayState::Update(double deltaTime)
 					m_transitionState = nullptr;
 				}
 
-				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom()));
 				runGame = false;
 			}
 		}
