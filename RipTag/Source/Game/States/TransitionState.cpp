@@ -72,7 +72,6 @@ void TransitionState::Update(double deltaTime)
 		{
 			if (isReady && isRemoteReady)
 			{
-				//this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData));
 				this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
 			}
 		}

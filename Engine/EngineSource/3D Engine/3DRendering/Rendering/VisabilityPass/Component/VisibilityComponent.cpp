@@ -85,7 +85,6 @@ void VisibilityComponent::CalculateVisabilityFor(int playerIndex)
 		ShadowTestData killer = { 0 };
 		memcpy(dataPtr.pData, &killer, sizeof(ShadowTestData));
 		DX::g_deviceContext->CopyResource(m_UAV.uavTextureBuffer, m_UAV.uavTextureBufferCPU);
-		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
 		DX::g_deviceContext->Unmap(m_UAV.uavTextureBufferCPU, 0);
 	}
 }

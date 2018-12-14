@@ -22,8 +22,8 @@ public:
 
 private:
 	friend class AI;
-	const float MOVE_SPEED = 4.0f;
-	const float SPRINT_MULT = 2.0f;
+	const float MOVE_SPEED = 3.3f;
+	const float SPRINT_MULT = 1.8f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
 	const float TURN_SPEED = 2.0f;

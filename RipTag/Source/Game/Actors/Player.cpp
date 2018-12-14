@@ -1168,10 +1168,16 @@ void Player::_onAbility(double dt)
 void Player::_objectInfo(double deltaTime)
 {
 	const int tempId = m_objectInfoRayId;
+	//m_cross->setString("");
 	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 	{
 		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
 		RayCastListener::RayContact& cContact = ray.getClosestContact(true);
+
+		/*std::string ass = cContact.contactShape->GetBody()->GetObjectTag();
+
+		m_cross->setString(ass);*/
+
 		float interactFractionRange = Player::INTERACT_RANGE / Player::OBJECT_INFO_RANGE;
 		if (cContact.contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact.fraction <= interactFractionRange)
 		{
@@ -1201,6 +1207,9 @@ void Player::_objectInfo(double deltaTime)
 				m_cross->setUnpressedTexture("CROSS");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
+
+
+
 		}
 		else
 		{
@@ -1213,7 +1222,7 @@ void Player::_objectInfo(double deltaTime)
 		m_cross->setUnpressedTexture("CROSS");
 		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 	}
-
+	
 	if (m_objectInfoTime >= 0.1f)
 	{
 		if (m_objectInfoRayId == -100)
