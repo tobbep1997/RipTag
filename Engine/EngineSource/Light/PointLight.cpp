@@ -496,7 +496,7 @@ void PointLight::_initDirectX()
 		size = 32U;
 		break;
 	case 1:
-		size = 128U;
+		size = 64U;
 		break;
 	case 2:
 		size = 1024U;

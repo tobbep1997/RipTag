@@ -583,6 +583,11 @@ const std::vector<Vertex>& ParticleEmitter::getVertex() const
 	return this->vertex;
 }
 
+const PS::ParticleType& ParticleEmitter::getType() const
+{
+	return this->type;
+}
+
 DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()
 {
 	using namespace DirectX;
