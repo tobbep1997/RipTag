@@ -225,10 +225,17 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
 			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+
 
 
 			chargeTime = 0;
@@ -259,7 +266,6 @@ void TeleportAbility::_inStateCharging(double dt)
 		}
 		else if (Input::OnAbilityReleased())
 		{
-			
 			if (Multiplayer::GetInstance()->isConnected())
 			{
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
