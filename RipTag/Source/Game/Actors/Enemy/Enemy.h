@@ -91,7 +91,7 @@ private:
 	
 	//Key Input
 	bool m_currClickCrouch = false;
-	bool m_prevClickCrouch = false;
+	unsigned int m_prevClickCrouch = 0;
 	unsigned int m_prevSprintInputType = 0;
 
 	int m_toggleCrouch = 0;
@@ -122,7 +122,7 @@ private:
 	float m_biggestVisCounter = 0.0f;
 
 	float m_visCounter;
-	float m_visabilityTimer = 1.6f;
+	float m_visabilityTimer = 1.0f;
 
 	bool m_found = false;
 

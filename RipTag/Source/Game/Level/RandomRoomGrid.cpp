@@ -35,23 +35,24 @@ RandomRoomGrid::~RandomRoomGrid()
 
 void RandomRoomGrid::GenerateRoomLayout()
 {
-	int threshold = rand() % 101;
+	int threshold = rand() % 100 + 1;
 	int nrOfBigRooms = 1;
 
-	if (threshold > 40 && threshold <= 60)
+	if (m_width > 3 && m_depth > 3)
 	{
-		nrOfBigRooms = 2;
+		if (threshold > 40 && threshold <= 60)
+		{
+			nrOfBigRooms = 2;
+		}
+		else if (threshold > 60 && threshold <= 80)
+		{
+			nrOfBigRooms = 3;
+		}
+		else if (threshold > 80)
+		{
+			nrOfBigRooms = 4;
+		}
 	}
-	else if (threshold > 60 && threshold <= 80)
-	{
-		nrOfBigRooms = 3;
-	}
-	else if (threshold > 80)
-	{
-		nrOfBigRooms = 4;
-	}
-
-	nrOfBigRooms = 4;
 
 	_insertRooms(nrOfBigRooms);
 	_connectRooms();

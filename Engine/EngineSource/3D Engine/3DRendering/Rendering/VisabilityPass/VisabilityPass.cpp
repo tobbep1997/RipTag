@@ -50,7 +50,7 @@ HRESULT VisabilityPass::Draw()
 	DX::g_deviceContext->RSSetViewports(1, &m_guardViewPort);
 
 
-	for (int i = 0; i < visSize; i++)
+	for (int i = 0; i < visSize && i < MAX_GUARDS; i++)
 	{
 		SetViewportAndRenderTarget(i);
 		current = DX::g_visibilityComponentQueue[i];

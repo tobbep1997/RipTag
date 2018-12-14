@@ -175,6 +175,9 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
 				playerWalkBackToGuardWalk.AddTransition(&m_IsPossessedByTeammate, false, SM::COMPARISON_EQUAL);
+
+				auto& guardAwareToPlayerWalk = awareState->AddOutState(blend_fwd);
+				guardAwareToPlayerWalk.AddTransition(&m_IsPossessedByTeammate, true, SM::COMPARISON_EQUAL);
 			}
 		}
 
@@ -475,6 +478,11 @@ void Enemy::QueueForVisibility()
 	AIState state = getAIState();
 	bool canDoVis = (state != AIState::Disabled && state != AIState::Possessed);
 
+	if(!canDoVis)
+	{
+		m_vc->Reset();
+	}
+
 	if (m_allowVisability && canDoVis && !ClientLocked())
 	{
 		m_vc->QueueVisibility();
@@ -495,6 +503,7 @@ void Enemy::UnlockEnemyInput()
 void Enemy::DisableEnemy()
 {
 	m_disabled = true;
+	m_vc->Reset();
 }
 
 void Enemy::EnableEnemy()
@@ -514,6 +523,7 @@ void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
 	p_setRotation(0.0f, packet->rot.y, 0.0f);
 	p_camera->setDirection(packet->camDir);
+	//m_vc->getCamera()->setDirection(packet->camDir);
 
 }
 
@@ -525,7 +535,11 @@ void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 		setTransitionState(AITransitionState::ExitingPossess);
 		m_IsPossessedByTeammate = false;
 	}
-	else m_IsPossessedByTeammate = true;
+	else
+	{
+		m_vc->Reset();
+		m_IsPossessedByTeammate = true;
+	}
 }
 
 void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
@@ -534,6 +548,7 @@ void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 	{
 		if (packet->condition)
 		{
+			m_vc->Reset();
 			this->setTransitionState(AITransitionState::BeingDisabled);
 			//CreateEmitter (maybe?)
 		}
@@ -668,9 +683,16 @@ void Enemy::_onRotate(double deltaTime)
 		
 		//m_peekRotate = 0;
 		if (deltaX)
+		{
 			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime * 0.02f, 0.0f);
+			//m_vc->getCamera()->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime * 0.02f, 0.0f);
+		}
 		if (deltaY)
+		{
 			p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime * 0.02f, 0.0f, 0.0f);
+			//m_vc->getCamera()->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime * 0.02f, 0.0f, 0.0f);
+			
+		}
 		/*if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
 		{
 			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
@@ -1118,7 +1140,9 @@ void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
 	DirectX::XMFLOAT4A xmDir;
 	DirectX::XMStoreFloat4A(&xmDir, newDir);
 	p_camera->setDirection(xmDir);
+	//m_vc->getCamera()->setDirection(xmDir);
 	p_camera->Rotate(0, angle * deltaTime, 0);
+	//m_vc->getCamera()->Rotate(0, angle * deltaTime, 0);
 	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
 	p_setRotation(0, cameraRotationY.y, 0);
 }
@@ -1128,7 +1152,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 	if (m_allowVisability)
 	{
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
-		float visPercRemote = (float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
+		float visPercRemote = -1;//(float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
 
 		float visPerc;
 		float lengthToTarget;
@@ -1188,7 +1212,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 		}
 	}
 
-	m_vc->Reset();
+	//m_vc->Reset();
 
 }
 
