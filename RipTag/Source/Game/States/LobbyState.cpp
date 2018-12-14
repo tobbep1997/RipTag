@@ -13,7 +13,13 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 LobbyState::
 ~LobbyState()
 {
-	
+	if (pCoopData)
+	{
+		delete pCoopData;
+		pCoopData = nullptr;
+	}
+	pNetwork->setRole();
+	this->pNetwork->ShutdownPeer();
 }
 
 void LobbyState::Update(double deltaTime)
@@ -1683,13 +1689,7 @@ void LobbyState::unLoad()
 		delete this->m_skipTutorialBox;
 		m_skipTutorialBox = nullptr;
 	}
-	if (pCoopData)
-	{
-		delete pCoopData;
-		pCoopData = nullptr;
-	}
-	pNetwork->setRole();
-	this->pNetwork->ShutdownPeer();
+	
 
 	std::cout << "Lobby unLoad" << std::endl;
 }
