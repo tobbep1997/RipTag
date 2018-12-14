@@ -11,10 +11,14 @@ Grid::Grid(int width, int height)
 			m_nodeMap.push_back(Tile(j, i));
 }
 
-Grid::Grid(float xVal, float yVal, int width, int depth)
+Grid::Grid(float xVal, float yVal, int width, int depth, int roomSizeX, int roomSizeY)
 {
+	m_endOfTheWorldX = xVal;
+	m_endOfTheWorldY = yVal;
 	m_width = width;
 	m_height = depth;
+	m_randomRoomUnitSizeX = roomSizeX;
+	m_randomRoomUnitSizeY = roomSizeY;
 	float tempXval = xVal;
 	for (int i = 0; i < depth; i++)
 	{
@@ -115,31 +119,33 @@ void Grid::CreateGridWithWorldPosValues(ImporterLibrary::GridStruct grid)
 
 void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 {
-	int width = randomizer->GetSize().x * 2 - 1;
-	int depth = randomizer->GetSize().y * 2 - 1;
-	float worldX = -40.f;
-	float worldY = -40.f;
+	m_randomizerX = randomizer->GetSize().x;
+	m_randomizerY = randomizer->GetSize().y;
+	m_roomNodeMapWidth = m_randomizerX * 2 - 1;
+	m_roomNodeMapDepth = m_randomizerY * 2 - 1;
+	float roomCenterX = m_endOfTheWorldX + (m_randomRoomUnitSizeX / 2);
+	float roomCenterY = m_endOfTheWorldY + (m_randomRoomUnitSizeY / 2);
 
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < m_roomNodeMapDepth; i++)
 	{
-		for (int j = 0; j < width; j++)
+		for (int j = 0; j < m_roomNodeMapWidth; j++)
 		{
 			bool pathable = false;
 			if (i % 2 == 0 && j % 2 == 0)
 				pathable = true;
-			m_roomNodeMap.push_back(Node(Tile(j, i, pathable), NodeWorldPos(worldX + j * 10.0f, worldY + i * 10.0f)));
+			m_roomNodeMap.push_back(Node(Tile(j, i, pathable), NodeWorldPos(roomCenterX + j * (m_randomRoomUnitSizeX / 2), roomCenterY + i * (m_randomRoomUnitSizeY / 2))));
 		}
 	}
 	int counter = 0;
-	for (int i = 0; i < depth; i += 2)
+	for (int i = 0; i < m_roomNodeMapDepth; i += 2)
 	{
-		for (int j = 0; j < width; j += 2)
+		for (int j = 0; j < m_roomNodeMapWidth; j += 2)
 		{
 			int index = counter++;
-			if (j < width - 1)
-				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
-			if (i < depth - 1)
-				m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].south);
+			if (j < m_roomNodeMapWidth - 1)
+				m_roomNodeMap[(j + 1) + i * m_roomNodeMapWidth].tile.setPathable(randomizer->m_rooms[index].east);
+			if (i < m_roomNodeMapDepth - 1)
+				m_roomNodeMap[j + (i + 1) * m_roomNodeMapWidth].tile.setPathable(randomizer->m_rooms[index].south);
 		}
 	}
 }
@@ -578,19 +584,18 @@ const bool Grid::_tilesAreInTheSameRoom(const Tile & source, const Tile & destin
 
 	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
 	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
-	DirectX::XMFLOAT2 sWposOff = { sWpos.x + 50.0f, sWpos.y + 50.0f };
-	DirectX::XMFLOAT2 dWposOff = { dWpos.x + 50.0f, dWpos.y + 50.0f };
-	DirectX::XMINT2 sIndex2D = { (int)sWposOff.x / 20, (int)sWposOff.y / 20 };
-	DirectX::XMINT2 dIndex2D = { (int)dWposOff.x / 20, (int)dWposOff.y / 20 };
-	const int ROOM_WIDTH = 5;
+	DirectX::XMFLOAT2 sWposOff = { sWpos.x + abs(m_endOfTheWorldX), sWpos.y + abs(m_endOfTheWorldY) };
+	DirectX::XMFLOAT2 dWposOff = { dWpos.x + abs(m_endOfTheWorldX), dWpos.y + abs(m_endOfTheWorldY) };
+	DirectX::XMINT2 sIndex2D = { (int)sWposOff.x / m_randomRoomUnitSizeX, (int)sWposOff.y / m_randomRoomUnitSizeY };
+	DirectX::XMINT2 dIndex2D = { (int)dWposOff.x / m_randomRoomUnitSizeX, (int)dWposOff.y / m_randomRoomUnitSizeY };
+	
+	sIndex2D.x = std::clamp(sIndex2D.x, 0, m_randomizerX - 1);
+	sIndex2D.y = std::clamp(sIndex2D.y, 0, m_randomizerY - 1);
+	dIndex2D.x = std::clamp(dIndex2D.x, 0, m_randomizerX - 1);
+	dIndex2D.y = std::clamp(dIndex2D.y, 0, m_randomizerY - 1);
 
-	sIndex2D.x = std::clamp(sIndex2D.x, 0, 4);
-	sIndex2D.y = std::clamp(sIndex2D.y, 0, 4);
-	dIndex2D.x = std::clamp(dIndex2D.x, 0, 4);
-	dIndex2D.y = std::clamp(dIndex2D.y, 0, 4);
-
-	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
-	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
+	int sIndex = sIndex2D.y * m_randomizerX + sIndex2D.x;
+	int dIndex = dIndex2D.y * m_randomizerX + dIndex2D.x;
 
 	return sIndex == dIndex;
 }
@@ -599,25 +604,24 @@ std::vector<Node*> Grid::_findRoomNodePath(const Tile & source, const Tile & des
 {
 	NodeWorldPos sWpos = m_nodeMap[source.getX() + source.getY() * m_width].worldPos;
 	NodeWorldPos dWpos = m_nodeMap[destination.getX() + destination.getY() * m_width].worldPos;
-	DirectX::XMFLOAT2 sWposOff = { sWpos.x + 40.0f, sWpos.y + 40.0f };
-	DirectX::XMFLOAT2 dWposOff = { dWpos.x + 40.0f, dWpos.y + 40.0f };
-	DirectX::XMINT2 sIndex2D = { (int)sWposOff.x / 10, (int)sWposOff.y / 10 };
-	DirectX::XMINT2 dIndex2D = { (int)dWposOff.x / 10, (int)dWposOff.y / 10 };
-	const int ROOM_WIDTH = 9;
+	DirectX::XMFLOAT2 sWposOff = { sWpos.x + abs(m_endOfTheWorldX + (m_randomRoomUnitSizeX / 2)), sWpos.y + abs(m_endOfTheWorldY + (m_randomRoomUnitSizeY / 2)) };
+	DirectX::XMFLOAT2 dWposOff = { dWpos.x + abs(m_endOfTheWorldX + (m_randomRoomUnitSizeX / 2)), dWpos.y + abs(m_endOfTheWorldY + (m_randomRoomUnitSizeY / 2)) };
+	DirectX::XMINT2 sIndex2D = { (int)sWposOff.x / (m_randomRoomUnitSizeX / 2), (int)sWposOff.y / (m_randomRoomUnitSizeY / 2) };
+	DirectX::XMINT2 dIndex2D = { (int)dWposOff.x / (m_randomRoomUnitSizeX / 2), (int)dWposOff.y / (m_randomRoomUnitSizeY / 2) };
 
-	sIndex2D.x = std::clamp(sIndex2D.x, 0, 8);
-	sIndex2D.y = std::clamp(sIndex2D.y, 0, 8);
-	dIndex2D.x = std::clamp(dIndex2D.x, 0, 8);
-	dIndex2D.y = std::clamp(dIndex2D.y, 0, 8);
+	sIndex2D.x = std::clamp(sIndex2D.x, 0, m_roomNodeMapWidth - 1);
+	sIndex2D.y = std::clamp(sIndex2D.y, 0, m_roomNodeMapDepth - 1);
+	dIndex2D.x = std::clamp(dIndex2D.x, 0, m_roomNodeMapWidth - 1);
+	dIndex2D.y = std::clamp(dIndex2D.y, 0, m_roomNodeMapDepth - 1);
 
-	int sIndex = sIndex2D.y * ROOM_WIDTH + sIndex2D.x;
-	int dIndex = dIndex2D.y * ROOM_WIDTH + dIndex2D.x;
+	int sIndex = sIndex2D.y * m_roomNodeMapWidth + sIndex2D.x;
+	int dIndex = dIndex2D.y * m_roomNodeMapWidth + dIndex2D.x;
 	Tile roomSource = m_roomNodeMap[sIndex].tile;
 	Tile roomDest = m_roomNodeMap[dIndex].tile;
 	roomSource = _getCenterGridFromRoomGrid(roomSource, source);
 	roomDest = _getCenterGridFromRoomGrid(roomDest, destination);
 
-	return _findPath(roomSource, roomDest, m_roomNodeMap, 9, 9);
+	return _findPath(roomSource, roomDest, m_roomNodeMap, m_roomNodeMapWidth, m_roomNodeMapDepth);
 }
 
 const bool Grid::_isAllDirectionsBlocked(const bool blockedDirections[8])
@@ -650,36 +654,36 @@ void Grid::_removeAllBlockedTiles(std::vector<Node*>& roomNodePath)
 
 Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile & tileInNodeMap)
 {
-	int Xroom = tileOnRoomNodeMap.getX();
-	int Yroom = tileOnRoomNodeMap.getY();
+	int xRoom = tileOnRoomNodeMap.getX();
+	int yRoom = tileOnRoomNodeMap.getY();
 	std::vector<Node*> potentialCenter;
-	if (Yroom % 2 == 0 && Xroom % 2 == 0)
+	if (yRoom % 2 == 0 && xRoom % 2 == 0)
 	{
 		return tileOnRoomNodeMap;
 	}
-	if (Yroom % 2 == 0)
+	if (yRoom % 2 == 0)
 	{
 		// Center is either on Left or Right
-		int iLeft = Yroom * 9 + Xroom - 1;
-		int iRight = Yroom * 9 + Xroom + 1;
+		int iLeft = yRoom * m_roomNodeMapWidth + xRoom - 1;
+		int iRight = yRoom * m_roomNodeMapWidth + xRoom + 1;
 		potentialCenter.push_back(&m_roomNodeMap.at(iLeft));
 		potentialCenter.push_back(&m_roomNodeMap.at(iRight));
 	}
-	else if (Xroom % 2 == 0)
+	else if (xRoom % 2 == 0)
 	{
 		// Center is either on Up or Down
-		int iUp = (Yroom - 1) * 9 + Xroom;
-		int iDown = (Yroom + 1) * 9 + Xroom;
+		int iUp = (yRoom - 1) * m_roomNodeMapWidth + xRoom;
+		int iDown = (yRoom + 1) * m_roomNodeMapWidth + xRoom;
 		potentialCenter.push_back(&m_roomNodeMap.at(iUp));
 		potentialCenter.push_back(&m_roomNodeMap.at(iDown));
 	}
 	else
 	{
 		// Center is either D-Up, D-Right, D-Down, D-Left
-		int leftUp = (Yroom - 1) * 9 + Xroom - 1;
-		int rightUp = (Yroom - 1) * 9 + Xroom + 1;
-		int rightDown = (Yroom + 1) * 9 + Xroom + 1;
-		int leftDown = (Yroom + 1) * 9 + Xroom - 1;
+		int leftUp = (yRoom - 1) * m_roomNodeMapWidth + xRoom - 1;
+		int rightUp = (yRoom - 1) * m_roomNodeMapWidth + xRoom + 1;
+		int rightDown = (yRoom + 1) * m_roomNodeMapWidth + xRoom + 1;
+		int leftDown = (yRoom + 1) * m_roomNodeMapWidth + xRoom - 1;
 
 		potentialCenter.push_back(&m_roomNodeMap.at(leftUp));
 		potentialCenter.push_back(&m_roomNodeMap.at(rightUp));
@@ -687,7 +691,7 @@ Tile Grid::_getCenterGridFromRoomGrid(const Tile & tileOnRoomNodeMap, const Tile
 		potentialCenter.push_back(&m_roomNodeMap.at(leftDown));
 	}
 	float distance = 99999.9f;
-	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * 101].worldPos;
+	auto sWpos = m_nodeMap[tileInNodeMap.getX() + tileInNodeMap.getY() * ((m_randomRoomUnitSizeX * m_randomizerX) + 1)].worldPos;
 	DirectX::XMVECTOR vSWpos = DirectX::XMVectorSet(sWpos.x, sWpos.y, 0.0f, 0.0f);
 
 	Tile center;

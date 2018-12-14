@@ -13,8 +13,8 @@ private:
 	Grid * m_generatedGrid;
 	float m_roomWidth;
 	float m_roomDepth;
-	int m_roomGridWidth = 5;
-	int m_roomGridDepth = 5;
+	int m_roomGridWidth = 4;
+	int m_roomGridDepth = 4;
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;

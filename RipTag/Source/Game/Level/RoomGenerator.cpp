@@ -160,14 +160,15 @@ void RoomGenerator::_createEntireWorld()
 	for (int i = 0; i < MAX_LARGE_MODS; i++)
 		alreadyPickedLargeMods[i] = false;
 
-	RandomRoomGrid randomizer;
+	RandomRoomGrid randomizer = RandomRoomGrid(m_roomGridWidth, m_roomGridDepth);
 	ImporterLibrary::CustomFileLoader loader;
 	randomizer.GenerateRoomLayout();
 
 	int iterationsDepth = m_roomDepth * 2 + 1;
 	int iterationsWidth = m_roomWidth * 2 + 1;
 
-	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth);
+	m_generatedGrid = DBG_NEW Grid(-m_roomWidth, -m_roomDepth, iterationsWidth, iterationsDepth,
+		m_incrementalValueX, m_incrementalValueY);
 	m_generatedGrid->GenerateRoomNodeMap(&randomizer);
 
 	int widthCounter = 0;
@@ -676,8 +677,6 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	returnableRoom = DBG_NEW Room(worldPtr, arrayIndex, playerPtr);
 	returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
 	returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(0, 10, 0, 1));
-
-	//
 
 	_createEntireWorld();
 	_generateGrid();
