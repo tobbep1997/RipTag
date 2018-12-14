@@ -210,8 +210,8 @@ void AI::_onObserve()
 		}
 	}
 
-	m_owner->m_loudestSoundLocation.percentage = 0.0f;
-	m_owner->m_biggestVisCounter = 0.0f;
+	/*m_owner->m_loudestSoundLocation.percentage = 0.0f;
+	m_owner->m_biggestVisCounter = 0.0f;*/
 	m_owner->setLiniearVelocity();
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
