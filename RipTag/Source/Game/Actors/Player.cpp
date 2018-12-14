@@ -1173,6 +1173,7 @@ void Player::_objectInfo(double deltaTime)
 {
 	const int tempId = m_objectInfoRayId;
 	m_cross->setString("");
+	RipExtern::g_LOLObject = nullptr;
 	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 	{
 		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);

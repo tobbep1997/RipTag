@@ -1455,7 +1455,7 @@ void ForwardRender::_visabilityPass()
 	{
 		return;
 	}
-	m_visabilityPass->Draw();
+//	m_visabilityPass->Draw();
 }
 
 void ForwardRender::_setAnimatedShaders()
