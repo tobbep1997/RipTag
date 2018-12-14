@@ -186,6 +186,7 @@ public:
 	static const int g_fullVisability = 1000;
 
 	bool hasWon = false;
+	bool hasLost = false;
 	
 	bool unlockMouse = false;
 	Player();

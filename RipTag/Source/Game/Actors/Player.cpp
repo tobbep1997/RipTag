@@ -798,10 +798,15 @@ void Player::RegisterThisInstanceToNetwork()
 void Player::_collision()
 {
 	ContactListener::S_Contact con;
+	std::string tagA, tagB;
+
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
-		if (con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO")
+		tagA = con.a->GetBody()->GetObjectTag();
+		tagB = con.b->GetBody()->GetObjectTag();
+
+		if ( tagA == "HEADO" || tagB == "HEADO")
 		{
 				m_allowPeek = true;
 				m_recentHeadCollision = true;
@@ -810,13 +815,32 @@ void Player::_collision()
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
+		tagA = con.a->GetBody()->GetObjectTag();
+		tagB = con.b->GetBody()->GetObjectTag();
 
-		if ((con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
+		if ((tagA == "HEADO" || tagB == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
 		{
 			m_allowPeek = false;
 			peekDir = -LastPeekDir;
 			m_peekRangeA = m_peektimer;
 			m_peekRangeB = 0;
+		}
+
+		if ((tagA == "ENEMY" && tagB == "PLAYER"))
+		{
+			Enemy * ptrE = (Enemy*)con.a->GetBody()->GetUserData();
+			AIState state = ptrE->GetState();
+
+			if (state != AIState::Disabled && state != AIState::Possessed && state != AIState::NoState)
+				hasLost = true;
+		}
+		else if ((tagA == "PLAYER" && tagB == "ENEMY"))
+		{
+			Enemy * ptrE = (Enemy*)con.b->GetBody()->GetUserData();
+			AIState state = ptrE->GetState();
+
+			if (state != AIState::Disabled && state != AIState::Possessed && state != AIState::NoState)
+				hasLost = true;
 		}
 	}
 }

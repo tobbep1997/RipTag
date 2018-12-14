@@ -243,6 +243,7 @@ void AI::_onReturnToPatrol()
 }
 void AI::_onBeingPossessed()
 {
+	m_owner->getAnimationPlayer()->GetLayerMachine()->PopAll();
 	m_owner->UnlockEnemyInput();
 	m_owner->setReleased(false);
 	m_owner->setHidden(true);

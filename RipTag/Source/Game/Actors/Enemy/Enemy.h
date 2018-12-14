@@ -3,6 +3,9 @@
 #include "../Actor.h"
 #include "EngineSource/3D Engine/Components/Base/CameraHolder.h"
 #include "../../../Physics/Wrapper/PhysicsComponent.h"
+
+#define ENUM_TO_STR(ENUM) std::string(#ENUM)
+
 struct Node;
 
 class VisibilityComponent;
@@ -88,7 +91,7 @@ private:
 	
 	//Key Input
 	bool m_currClickCrouch = false;
-	bool m_prevClickCrouch = false;
+	unsigned int m_prevClickCrouch = 0;
 	unsigned int m_prevSprintInputType = 0;
 
 	int m_toggleCrouch = 0;
@@ -119,7 +122,7 @@ private:
 	float m_biggestVisCounter = 0.0f;
 
 	float m_visCounter;
-	float m_visabilityTimer = 1.6f;
+	float m_visabilityTimer = 1.0f;
 
 	bool m_found = false;
 
@@ -250,6 +253,15 @@ public:
 	const int getInteractRayId();
 
 	void SetTorchContainer(std::vector<Torch*>& v) { m_torches = v; }
+
+	AIState GetState() { return this->getAIState(); }
+	std::string ToString() {
+		std::stringstream ss;
+
+		ss << "Enemy " << uniqueID << "\nState " << getAIState() << "\nTransition " << getTransitionState() <<  "\nAdress " << this <<"\n\n";
+
+		return ss.str();
+	}
 private:
 
 	void _handleInput(double deltaTime);
