@@ -737,6 +737,7 @@ std::vector<Grid::TilePair> Grid::_roomNodePathToGridTiles(std::vector<Node*> * 
 	return gtp;
 }
 
+// A* pathfinding
 std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<Node> & nodeMap, int width, int height)
 {
 	if (!_isValid(destination, width, height) || !_isValid(source, width, height))
@@ -747,6 +748,9 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 	if (!dest.getPathable() || !src.getPathable())
 		return std::vector<Node*>();
 
+	// Closed list to check what tiles are visited already
+	// Open list are tiles that are to be investigated, always investigating the cheapest one first
+	// Early exploration are tiles found during the current tile evaluation
 	bool * closedList = new bool[height * width];
 	for (int i = 0; i < height * width; i++)
 		closedList[i] = false;

@@ -451,10 +451,7 @@ void RoomGenerator::_createEntireWorld()
 				returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(j +2, 2, i, 1));
 				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 2, i, 1));
 			}
-#pragma endregion
-//Above 10 mB
-
-			
+#pragma endregion			
 			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 5.0, 15.0));
 #pragma region LIGHTS
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
