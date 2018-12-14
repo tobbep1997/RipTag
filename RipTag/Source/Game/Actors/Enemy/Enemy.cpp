@@ -534,6 +534,7 @@ void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 	}
 	else
 	{
+		m_vc->Reset();
 		m_IsPossessedByTeammate = true;
 	}
 }
@@ -544,6 +545,7 @@ void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 	{
 		if (packet->condition)
 		{
+			m_vc->Reset();
 			this->setTransitionState(AITransitionState::BeingDisabled);
 			//CreateEmitter (maybe?)
 		}
