@@ -34,7 +34,8 @@ LoadingScreen::~LoadingScreen()
 	if (m_loadingText != nullptr)
 	{
 		m_loadingText->Release(); 
-		delete m_loadingText; 
+		delete m_loadingText;
+		m_loadingText = nullptr;
 	}
 }
 
@@ -43,7 +44,8 @@ void LoadingScreen::removeGUI(std::vector<Quad*>& GUICollection)
 	for (int i = 0; i < GUICollection.size(); i++)
 	{
 		GUICollection.at(i)->Release(); 
-		delete GUICollection.at(i); 
+		delete GUICollection.at(i);
+		GUICollection.at(i) = nullptr;
 	}
 	GUICollection.clear(); 
 	DX::g_2DQueue.clear(); 
