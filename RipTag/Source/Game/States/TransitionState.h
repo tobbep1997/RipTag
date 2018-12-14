@@ -47,7 +47,7 @@ private:
 	unsigned short m_maxButtons = 2;
 	unsigned short m_currentButton = 0;
 	double m_inputTimer = 0.0;
-	const double m_timerLimit = 0.5;
+	const double m_timerLimit = 0.35;
 
 	bool m_partnerLost;
 public:

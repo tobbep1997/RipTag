@@ -197,7 +197,7 @@ void TransitionState::_initButtons()
 		this->m_backToMenu->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_backToMenu->setFont(FontHandler::getFont("consolas32"));
 
-		this->m_ready = Quad::CreateButton("Try again?", 0.65f, 0.20f, 0.5f, 0.25f);
+		this->m_ready = Quad::CreateButton("Ready", 0.65f, 0.20f, 0.5f, 0.25f);
 		this->m_ready->setUnpressedTexture("gui_hover_pixel");
 		this->m_ready->setPressedTexture("gui_pressed_pixel");
 		this->m_ready->setHoverTexture("pause_menu_background");
