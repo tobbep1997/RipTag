@@ -183,6 +183,7 @@ void DisableAbility::_inStateThrowable()
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("charge");
 		}
 		if (Input::OnAbility2Released())
 		{
@@ -212,10 +213,19 @@ void DisableAbility::_inStateCharging(double dt)
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			((Player*)p_owner)->SetThrowing(false);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("throw");
+
 			chargeTime = 0.0f;
 			m_charge = 0.0;
 			p_cooldown = (p_cooldownMax / 3) * 2;
@@ -236,6 +246,9 @@ void DisableAbility::_inStateCharging(double dt)
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->PopLayer("charge");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0);
+
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;

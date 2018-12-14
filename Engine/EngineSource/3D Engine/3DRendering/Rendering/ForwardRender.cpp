@@ -412,8 +412,7 @@ void ForwardRender::AnimationPrePass(Camera& camera)
 			DX::g_deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
 				0,
 				nullptr,
-				NULL,
-				//NULL,
+				nullptr,
 				0, 1, &lol, 0
 			);
 
@@ -1186,7 +1185,6 @@ void ForwardRender::_mapObjectBuffer(Drawable * drawable)
 	}
 	else
 	{
-
 		m_objectValues.worldMatrix = drawable->getWorldmatrix();	
 	}
 	DXRHC::MapBuffer(m_objectBuffer, &m_objectValues, sizeof(ObjectBuffer), 3, 1, ShaderTypes::vertex);
@@ -1458,14 +1456,6 @@ void ForwardRender::_visabilityPass()
 		return;
 	}
 	m_visabilityPass->Draw();
-	//for (VisibilityComponent * guard : DX::g_visibilityComponentQueue)
-	//{
-	//	m_visabilityPass->SetViewportAndRenderTarget();
-	//	m_visabilityPass->GuardDepthPrePassFor(guard, this, m_animationBuffer);
-	//	m_visabilityPass->CalculateVisabilityFor(guard, m_animationBuffer);
-	//}
-	//
-
 }
 
 void ForwardRender::_setAnimatedShaders()

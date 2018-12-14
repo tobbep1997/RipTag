@@ -871,7 +871,7 @@ void PlayState::Load()
 	}
 	else
 	{
-		rooms = RandomRoomPicker::RoomPick(1);
+		rooms = RandomRoomPicker::RoomPick((int)time(0));
 	}
 	
 	m_youlost = false;
