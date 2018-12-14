@@ -475,6 +475,11 @@ void Enemy::QueueForVisibility()
 	AIState state = getAIState();
 	bool canDoVis = (state != AIState::Disabled && state != AIState::Possessed);
 
+	if(!canDoVis)
+	{
+		m_vc->Reset();
+	}
+
 	if (m_allowVisability && canDoVis && !ClientLocked())
 	{
 		m_vc->QueueVisibility();
@@ -495,6 +500,7 @@ void Enemy::UnlockEnemyInput()
 void Enemy::DisableEnemy()
 {
 	m_disabled = true;
+	m_vc->Reset();
 }
 
 void Enemy::EnableEnemy()
