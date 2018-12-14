@@ -4,7 +4,7 @@
 class LoadingScreen
 {
 private:
-	Quad* m_loadingText;  
+	Quad* m_loadingText = nullptr;  
 	float m_alphaValue = 0.0f; 
 	float m_frequency = 3.0f; 
 public:
