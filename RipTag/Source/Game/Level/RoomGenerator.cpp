@@ -93,7 +93,7 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 
-	m_generatedGrid->PrintMe();
+	//m_generatedGrid->PrintMe();
 }
 
 void RoomGenerator::_makeFloor()
