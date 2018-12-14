@@ -173,7 +173,6 @@ void Game::_handleStateSwaps()
 			m_gameStack.top()->unLoad();
 			delete m_gameStack.top();
 			DX::g_deviceContext->ClearState();
-			//std::this_thread::sleep_for(5s);
 			m_gameStack.pop();
 			m_gameStack.top()->pushNewState(nullptr);
 		}

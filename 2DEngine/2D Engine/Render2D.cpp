@@ -71,8 +71,10 @@ void Render2D::GUIPass()
 
 	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
 	{
-		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
 		Quad * q = DX::g_2DQueue[j];
+		if (q == nullptr)
+			continue;
+		ID3D11Buffer * vertexBuffer = DX::g_2DQueue[j]->getVertexBuffer();
 		HUDTypeEnum type = (HUDTypeEnum)q->getType();
 		m_HUDTypeValues.type.x = (unsigned int)type;
 		m_HUDTypeValues.color = q->getColor();
