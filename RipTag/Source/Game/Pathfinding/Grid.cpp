@@ -136,14 +136,6 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 		for (int j = 0; j < width; j += 2)
 		{
 			int index = counter++;
-			/*if (randomizer->m_rooms[index].type == 1)
-			{
-				if (j < width - 1)
-					m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].south);
-				if (i < depth - 1)
-					m_roomNodeMap[j + (i + 1) * width].tile.setPathable(randomizer->m_rooms[index].west);
-			}*/
-			
 			if (j < width - 1)
 				m_roomNodeMap[(j + 1) + i * width].tile.setPathable(randomizer->m_rooms[index].east);
 			if (i < depth - 1)
@@ -152,7 +144,7 @@ void Grid::GenerateRoomNodeMap(RandomRoomGrid * randomizer)
 	}
 }
 
-//FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!
+//FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!FINDPATH HERE!!!
 std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoints)				
 {
 	if (source.getX() < 0 || source.getY() < 0)
@@ -539,8 +531,8 @@ const float Grid::_calcHValue(Tile src, Tile dest) const
 {
 	int x = abs(src.getX() - dest.getX());
 	int y = abs(src.getY() - dest.getY());
-	//return (x + y) + (-0.414f) * min(x, y);
-	return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
+	//return 1.0f * (x + y) + (1.414f - 2 * 1.0f) * min(x, y);
+	return (x + y) + (-0.414f) * min(x, y);
 }
 
 int Grid::_worldPosInNodeMap(int begin, int end, int x, int y) const
@@ -859,7 +851,6 @@ std::vector<Node*> Grid::_findPath(Tile source, Tile destination, std::vector<No
 
 std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile & destination)
 {
-	//std::stack<Waypoint*> currentPath;
 	std::vector<Waypoint*> currentPath;
 	Waypoint * start = m_nodeMap[source.getX() + source.getY() * m_width].fieldOwner;
 	Waypoint * end = m_nodeMap[destination.getX() + destination.getY() * m_width].fieldOwner;
@@ -871,15 +862,12 @@ std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile &
 	while (!currentPath.empty() && currentPath.back() != end)
 	{
 		float currentCost = FLT_MAX;
-		//float potentialCost = FLT_MAX;
 		WaypointConnection * next = nullptr;
 		current = currentPath.back();
 
 		if (!current->connections.empty())
 		{
 			std::vector<WaypointConnection> & wpc = current->connections;
-			/*currentCost = wpc.at(0).connectionCost;
-			next = &wpc.at(0);*/
 			for (int i = 0; i < wpc.size(); i++)
 			{
 				int x = wpc.at(i).connection->x;
@@ -937,11 +925,6 @@ std::vector<Waypoint*> Grid::_findWaypointPath(const Tile & source, const Tile &
 			c.traversedConnection = false;
 
 	}
-
-	/*if (!currentPath.empty())
-		currentPath.erase(currentPath.begin());
-	if (!currentPath.empty())
-		currentPath.erase(currentPath.end() - 1);*/
 
 	return currentPath;
 }
@@ -1105,7 +1088,8 @@ void Grid::_findConnections()
 
 
 							auto result = std::find(target.connections.begin(), target.connections.end(), &subTarget);
-							if (result == std::end(target.connections)) // if the connection dont already exist
+							// If the connection doesn't already exist
+							if (result == std::end(target.connections))
 							{
 								WaypointConnection wpc;
 								wpc.connection = &subTarget;

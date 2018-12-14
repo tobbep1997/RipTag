@@ -11,21 +11,11 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 
 	int randPlaceWinRoom = rand() % m_width;
 	randPlaceWinRoom *= m_depth;
-	int randPlaceStartRoom = (rand() % m_width) * m_width - 1;
+	int randPlaceStartRoom = (rand() % m_width + 1) * m_width - 1;
 
 	for (int i = 0; i < m_gridSize; i++)
-	{
-		//if (i != randPlaceWinRoom)
 		m_roomGrid[i] = 2;
-		/*else
-		{
-			m_roomGrid[i] = 3;
-			m_rooms[i].type = WIN_ROOM;
 
-			m_roomGrid[i + (m_width * randPlaceStartRoom - 1)] = 4;
-			m_rooms[i + m_width - 1].type = START_ROOM;
-		}*/
-	}
 	m_roomGrid[randPlaceWinRoom] = 3;
 	m_rooms[randPlaceWinRoom].type = WIN_ROOM;
 	m_roomGrid[randPlaceStartRoom] = 4;
