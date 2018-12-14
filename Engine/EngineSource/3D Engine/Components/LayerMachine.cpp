@@ -108,6 +108,14 @@ void LayerMachine::ActivateLayerIfInactive(std::string layer)
 	}
 }
 
+void LayerMachine::PopAll()
+{
+	while (!m_ActiveLayers.empty())
+	{
+		PopLayer(m_ActiveLayers[0]);
+	}
+}
+
 Pose1DLayer* LayerMachine::Add1DPoseLayer(std::string layerName, float* driver, float min, float max, std::vector<std::pair<Animation::SkeletonPose*, float>> poses)
 {
 	auto layer = new Pose1DLayer(layerName, driver, min, max, poses, this);

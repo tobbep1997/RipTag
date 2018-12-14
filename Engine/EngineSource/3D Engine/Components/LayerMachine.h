@@ -39,6 +39,7 @@ private:
 	bool _mildResetIfActive(LayerState* layer);
 public:
 	void ActivateLayerIfInactive(std::string layer);
+	void PopAll();
 };
 #pragma endregion "Machine"
 
