@@ -51,6 +51,7 @@ public:
 	RemotePlayer * getRemotePlayer();
 
 	bool isGameWon();
+	bool isGameLost();
 
 	//use this function to set the type from char selection 
 	void setPlayerType(int type) { player_type = type; }

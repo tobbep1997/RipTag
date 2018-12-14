@@ -184,7 +184,8 @@ void PlayState::Update(double deltaTime)
 		{
 			_runPause(deltaTime);
 		}
-
+		if (!m_youlost)
+			m_youlost = m_playerManager->isGameLost();
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
