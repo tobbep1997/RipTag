@@ -826,27 +826,22 @@ void Player::_collision()
 			m_peekRangeB = 0;
 		}
 
-		if ((tagA == "ENEMY" && tagB == "PLAYER") || (tagA == "PLAYER" && tagB == "ENEMY"))
+		if ((tagA == "ENEMY" && tagB == "PLAYER"))
 		{
-			void * ptrA = con.a->GetBody()->GetUserData();
-			void * ptrB = con.b->GetBody()->GetUserData();
-			Enemy * ptrE = nullptr;
-
-			if (static_cast<Enemy*>(ptrA))
-				ptrE = static_cast<Enemy*>(ptrA);
-			else
-				ptrE = static_cast<Enemy*>(ptrB);
-
-			FILE * pFile = fopen("ENEMY STATES.txt", "a");
-			fprintf(pFile, ptrE->ToString().c_str());
-			fclose(pFile);
-
+			Enemy * ptrE = (Enemy*)con.a->GetBody()->GetUserData();
 			AIState state = ptrE->GetState();
 
 			if (state != AIState::Disabled && state != AIState::Possessed && state != AIState::NoState)
 				hasLost = true;
 		}
+		else if ((tagA == "PLAYER" && tagB == "ENEMY"))
+		{
+			Enemy * ptrE = (Enemy*)con.b->GetBody()->GetUserData();
+			AIState state = ptrE->GetState();
 
+			if (state != AIState::Disabled && state != AIState::Possessed && state != AIState::NoState)
+				hasLost = true;
+		}
 	}
 }
 
