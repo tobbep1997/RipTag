@@ -810,6 +810,32 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 		case(46):
 			_setPropAttributes(propsAndAssets.props[i], "BOARD6", assetVector, true, isRandomRoom);
 			break;
+		case(47):
+			_setPropAttributes(propsAndAssets.props[i], "FRONTWALL", assetVector, false, isRandomRoom);
+			break;
+		case(48):
+			_setPropAttributes(propsAndAssets.props[i], "TOWER", assetVector, true, isRandomRoom);
+			break;
+		case(49):
+			_setPropAttributes(propsAndAssets.props[i], "SIDEWALL", assetVector, false, isRandomRoom);
+			break;
+		case(50):
+			_setPropAttributes(propsAndAssets.props[i], "GATEFRAME", assetVector, false, isRandomRoom);
+			break;
+		case(51):
+			_setPropAttributes(propsAndAssets.props[i], "BIGDOOR", assetVector, true, isRandomRoom);
+			break;
+		case(52):
+			_setPropAttributes(propsAndAssets.props[i], "SCAFFOLDING", assetVector, false, isRandomRoom);
+			break;
+		case(53):
+			_setPropAttributes(propsAndAssets.props[i], "STABLE", assetVector, false, isRandomRoom);
+			break;
+		case(54):
+			_setPropAttributes(propsAndAssets.props[i], "COURTYARDGROUND", assetVector, true, isRandomRoom);
+			break;
+
+			
 		default:
 			break;
 		}
@@ -901,7 +927,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	tempAsset->setObjectTag(name.c_str());
 	if ("TORCH" == name || "TORCHWITHHOLDER" == name)
 		tempAsset->CastShadows(false);
-	else if (name == "FLOOR")
+	else if (name == "FLOOR" || name == "COURTYARDGROUND")
 		tempAsset->setTextureTileMult(prop.transform_scale[0] / 2.0f, prop.transform_scale[2] / 2.0f);
 	else if (name == "BLINKWALL")
 		tempAsset->setObjectTag("BLINK_WALL");
@@ -920,7 +946,8 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	if(name == "BANNER")
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
-	tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
+	if(name!= "SIDEWALL" || name != "STABLE" || name != "TOWER")
+		 tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	assetVector->push_back(tempAsset);
 	
 	if(useAudio)
