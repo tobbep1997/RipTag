@@ -21,7 +21,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//2.
 	this->setPosition(pos);
 	this->setScale(.45, .45, .45);
-	this->setModelTransform(XMMatrixTranslation(0.0, -1.1, 0.0));
+	this->setModelTransform(XMMatrixTranslation(0.0, -1.15, 0.0));
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
 	this->m_timeDiff = 0;
