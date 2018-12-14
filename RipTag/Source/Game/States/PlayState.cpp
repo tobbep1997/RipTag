@@ -800,21 +800,11 @@ void PlayState::DrawWorldCollisionbox(b3Body * body)
 		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},
 		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
 	};
-	static Drawable* d = nullptr;
+	static Drawable* d = new Drawable;
 	static std::vector<StaticVertex> _vertices;
 	static StaticMesh _sm;
 
-
-	static bool _loaded = false;
 	const b3Body * b = RipExtern::g_LOLObject;
-
-	for (int i = 0; i < 36; i++)
-	{
-		StaticVertex v;
-		v.pos = _SXMcube[i];
-		_vertices.push_back(v);
-	}
-	_sm.setVertices(_vertices);
 
 	if (b != nullptr)
 	{
@@ -822,9 +812,17 @@ void PlayState::DrawWorldCollisionbox(b3Body * body)
 		auto b3BodyRot = b->GetTransform().rotation;
 		if (s != nullptr)
 		{
-			if (d != nullptr)
-				delete d;
-			d = new Drawable;
+			for (int i = 0; i < 36; i++)
+			{
+				StaticVertex v;
+				v.pos = _SXMcube[i];
+				_vertices.push_back(v);
+			}
+			_sm.setVertices(_vertices);
+
+			/*if (d != nullptr)
+				delete d;*/
+			//d = new Drawable;
 			d->setModel(&_sm);
 			DirectX::XMFLOAT4A shapePos = {
 				s->GetTransform().translation.x + b->GetTransform().translation.x,
