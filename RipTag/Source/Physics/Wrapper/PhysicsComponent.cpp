@@ -154,7 +154,6 @@ void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const
 	zz = DirectX::XMVectorGetZ(t);
 	ww = DirectX::XMVectorGetW(t);
 	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
-	//m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
 }
 
 void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const float& roll)
@@ -567,32 +566,35 @@ void PhysicsComponent::setUserDataBody(void* self)
 {
 	if (m_body)
 		this->m_body->SetUserData(self);
-	else
+	
+	for (auto &lol : m_bodys)
 	{
-		for (auto &lol : m_bodys)
-		{
-			lol->SetUserData(self);
-		}
+		lol->SetUserData(self);
 	}
+	
 }
 
 void PhysicsComponent::setObjectTag(const char * type)
 {
 	if (m_body)
 		m_body->SetObjectTag(type);
-	else
+	
+	for (auto &lol : m_bodys)
 	{
-		for (auto &lol : m_bodys)
+		lol->SetObjectTag(type);
+		auto lol2 = lol->GetShapeList();
+		while (lol2 != nullptr)
 		{
-			lol->SetObjectTag(type);
-			auto lol2 = lol->GetShapeList();
-			while (lol2 != nullptr)
-			{
-				lol2->SetObjectTag(type);
-				lol2 = lol2->GetNext();
-			}
+			lol2->SetObjectTag(type);
+			lol2 = lol2->GetNext();
 		}
 	}
+	
+	if (m_shape)
+		m_shape->SetObjectTag(type);
+
+	for (auto s : m_shapes)
+		s->SetObjectTag(type);
 	
 }
 

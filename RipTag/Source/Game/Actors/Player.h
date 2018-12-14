@@ -9,6 +9,7 @@
 #include "2D Engine/Quad/Components/HUDComponent.h"
 #include <stack>
 
+
 struct KeyPressed
 {
 	bool jump = false;
@@ -117,16 +118,14 @@ private:
 	float m_currentMoveSpeed = 0.0f;
 	float m_offPutY = 0.4f; 
 
-	bool m_currClickCrouch = false; 
-	bool m_prevClickCrouch = false;
-	bool m_currClickSprint = false; 
-	bool m_prevClickSprint = false; 
-	bool m_isSprinting = false; 
+	unsigned int m_prevClickCrouch = 0; 
+	unsigned int m_prevSprintInputType = 0;
+	
+	bool m_toggleSprint = 0;
+	bool m_toggleCrouch = 0; 
 	
 	bool m_exitPause = false; 
 	
-	int m_toggleCrouch = 0; 
-	int m_toggleSprint = 0; 
 
 	KeyPressed m_kp;
 	
@@ -160,6 +159,7 @@ private:
 	float m_peektimer = 0;
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
+
 	bool m_controlLayoutShown = false;
 
 	Circle * m_HUDcircle;
@@ -180,10 +180,10 @@ private:
 	int m_lastInteractRayId = -100;
 	int m_objectInfoRayId = -100; // objectInfo
 
-	PhysicsComponent* m_head;
+	PhysicsComponent* m_head = nullptr;
 public:
 	//Magic number
-	static const int g_fullVisability = 1300;
+	static const int g_fullVisability = 1000;
 
 	bool hasWon = false;
 	
@@ -268,11 +268,12 @@ private:
 	void _updateFirstPerson(float deltaTime);
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
-	void _activateCrouch(); 
+	void _activateCrouch(const unsigned int inputType);
 	void _deActivateCrouch();
+	void _startSprint(const unsigned int inputType);
+	void _startWalk();
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
-
 	void _loadHUD();
 	void _unloadHUD();
 	void _initSoundHUD();

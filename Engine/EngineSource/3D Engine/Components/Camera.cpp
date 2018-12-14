@@ -60,8 +60,8 @@ void Camera::_calcProjectionMatrix()
 
 void Camera::_calcViewProjectionMatrix()
 {
-	DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4A(&this->m_view);
-	DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4A(&this->m_projection);
+	const DirectX::XMMATRIX view = DirectX::XMLoadFloat4x4A(&this->m_view);
+	const DirectX::XMMATRIX proj = DirectX::XMLoadFloat4x4A(&this->m_projection);
 
 	DirectX::XMStoreFloat4x4A(&this->m_viewProjection, proj * view);
 }
@@ -197,6 +197,11 @@ void Camera::setUP(DirectX::XMFLOAT4A up)
 void Camera::setUP(float x, float y, float z, float w)
 {
 	this->setUP(DirectX::XMFLOAT4A(x, y, z, w));
+}
+
+const DirectX::XMFLOAT4A & Camera::getUP() const
+{
+	return this->m_UP;
 }
 
 void Camera::setNearPlane(float nearPlane)

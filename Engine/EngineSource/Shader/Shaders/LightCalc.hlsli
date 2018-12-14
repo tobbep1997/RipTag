@@ -467,7 +467,7 @@ float4 OptimizedLightCalculation(VS_OUTPUT input, out float4 ambient)
     
     //----------------------------------------------------------------
     //C = f * C + (1 - f) * fC
-    finalColor = fogMul * (ambient + lightCal) + ((1.0f - fogMul) * float4(.5, .5, .5, 0.6f));
+    finalColor = fogMul * (ambient + lightCal) + ((1.0f - fogMul) * float4(.15, .15, .15, 1.0f));
     finalColor.a = albedo.a;
 
     //----------------------------------------------------------------

@@ -21,7 +21,7 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//2.
 	this->setPosition(pos);
 	this->setScale(.45, .45, .45);
-	this->setModelTransform(XMMatrixTranslation(0.0, -1.1, 0.0));
+	this->setModelTransform(XMMatrixTranslation(0.0, -1.15, 0.0));
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
 	this->m_timeDiff = 0;
@@ -109,6 +109,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 		this->_onNetworkRemoteThrow(id);
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
+		this->_onNetworkRemoteThrow(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL:
 		this->_onNetworkRemoteThrow(id);
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
@@ -492,8 +495,14 @@ void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
 	}
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
 	{
-		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
 		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0f);
+		break;
+	}
+	case NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL:
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("throw");
 		break;
 	}
 	}

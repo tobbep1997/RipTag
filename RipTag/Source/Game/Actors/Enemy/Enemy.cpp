@@ -196,7 +196,7 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.9, 0.0));
+	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.95, 0.0));
 	setScale(.4, .4, .4);
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
@@ -893,112 +893,57 @@ void Enemy::_onJump()
 
 void Enemy::_onCrouch()
 {
-	if (Input::isUsingGamepad())
+	unsigned int crouchInputType = Input::Crouch();
+	if (crouchInputType == Input::InputType::Gamepad)
 	{
-		m_currClickCrouch = Input::Crouch();
-		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
-		{
-			_activateCrouch();
-			m_toggleCrouch = 1;
-		}
-		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
-		{
+		if (p_moveState != Crouching && !m_toggleCrouch)
+			_activateCrouch(crouchInputType);
+		else if (p_moveState == Crouching && !m_toggleCrouch)
 			_deActivateCrouch();
-			m_toggleCrouch = 0;
-
-			//Just so we don't end up in an old sprint-mode when deactivating crouch.
-			m_toggleSprint = 0;
-		}
-		m_prevClickCrouch = m_currClickCrouch;
+		m_toggleCrouch = true;
+	}
+	else if (crouchInputType == Input::InputType::Keyboard)
+	{
+		if (p_moveState != Crouching)
+			_activateCrouch(crouchInputType);
+		else
+			m_prevClickCrouch = Input::InputType::Keyboard;
 	}
 	else
 	{
-		if (Input::Crouch())
-		{
-			if (m_kp.crouching == false)
-			{
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
-				crouchDir = 1;
-
-				m_kp.crouching = true;
-			}
-		}
-		else
-		{
-			if (m_kp.crouching)
-			{
-				crouchDir = -1;
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
-
-				m_kp.crouching = false;
-			}
-		}
-	}
-
-	if (m_kp.crouching)
-	{
-		m_moveSpeed = MOVE_SPEED * 0.5f;
+		m_toggleCrouch = false;
+		if (m_prevClickCrouch == Input::InputType::Keyboard && p_moveState == Crouching)
+			_deActivateCrouch();
 	}
 }
 
 void Enemy::_onSprint()
 {
-	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
-	{
-		if (Input::isUsingGamepad())
+	if (p_moveState != Crouching)
+		if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 		{
-			m_currClickSprint = Input::Sprinting();
-			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
-			{
-				m_toggleSprint = 1;
-			}
+			unsigned int sprintInputType = Input::Sprinting();
 
-			if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
+			if (sprintInputType == Input::InputType::Gamepad && Input::MoveForward() > 0.9)
 			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
+				if (p_moveState != Sprinting && !m_toggleSprint)
+					_startSprint(sprintInputType);
+				else if (p_moveState == Sprinting && !m_toggleSprint)
+					_startWalk();
+				m_toggleSprint = true;//Gamepad Input
 			}
+			else if (sprintInputType == Input::InputType::Keyboard && Input::MoveForward() > 0.9)
+				_startSprint(sprintInputType); //Keyboard Input
+			else if (p_moveState == Idle || m_prevSprintInputType == Input::InputType::Keyboard || (m_prevSprintInputType == Input::InputType::Gamepad && Input::MoveForward() < 0.9))
+				_startWalk(); //No Input
 			else
-			{
-				m_toggleSprint = 0;
-			}
-
-			if (m_toggleSprint == 0)
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
-
-			if (Input::MoveForward() == 0)
-			{
-				p_moveState = Idle;
-				m_toggleSprint = 0;
-			}
-
-			m_prevClickSprint = m_currClickSprint;
+				m_toggleSprint = false;
 		}
 		else
 		{
-			if (Input::Sprinting())
-			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
-
-			}
-			else
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
+			m_moveSpeed = 0;
+			p_moveState = Idle;
 		}
-	}
-	else
-	{
-		m_moveSpeed = 0;
-		p_moveState = Idle;
-	}
 }
 
 void Enemy::_onInteract()
@@ -1247,18 +1192,37 @@ void Enemy::_CheckPlayer(double deltaTime)
 
 }
 
-void Enemy::_activateCrouch()
+void Enemy::_activateCrouch(const unsigned int inputType)
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 	crouchDir = 1;
-m_kp.crouching = true;
+	m_moveSpeed = MOVE_SPEED * 0.5f;
+	p_moveState = Crouching;
+	m_prevClickCrouch = inputType;
 }
 
 void Enemy::_deActivateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 	crouchDir = -1;
-	m_kp.crouching = false;
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Idle;
+	m_prevClickCrouch = Input::InputType::None;
+}
+
+void Enemy::_startSprint(const unsigned int inputType)
+{
+	m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+	p_moveState = Sprinting;
+	m_scrollMoveModifier = 0.9f;
+	m_prevSprintInputType = inputType;
+}
+
+void Enemy::_startWalk()
+{
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Walking;
+	m_prevSprintInputType = 0;
 }
 
 void Enemy::_playFootsteps(double deltaTime)

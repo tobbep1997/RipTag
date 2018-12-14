@@ -12,62 +12,6 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 
 LobbyState::~LobbyState()
 {
-	for (auto &button : this->m_lobbyButtons)
-	{
-		button->Release();
-		delete button;
-	}
-	this->m_lobbyButtons.clear();
-
-	for (auto & button : this->m_charSelectButtons)
-	{
-		button->Release();
-		delete button;
-	}
-	this->m_charSelectButtons.clear();
-
-	for (auto & button : this->m_hostListButtons)
-	{
-		button->Release();
-		delete button;
-	}
-	this->m_hostListButtons.clear();
-
-	if (this->m_infoWindow)
-	{
-		this->m_infoWindow->Release();
-		delete this->m_infoWindow;
-	}
-	if (this->m_background)
-	{
-		this->m_background->Release();
-		delete this->m_background;
-	}
-	if (this->m_charSelectionBG)
-	{
-		this->m_charSelectionBG->Release();
-		delete this->m_charSelectionBG;
-	}
-	if (this->m_charOneInfo)
-	{
-		this->m_charOneInfo->Release();
-		delete this->m_charOneInfo;
-	}
-	if (this->m_charTwoInfo)
-	{
-		this->m_charTwoInfo->Release();
-		delete this->m_charTwoInfo;
-	}
-	if (this->m_charSelectInfo)
-	{
-		this->m_charSelectInfo->Release();
-		delete this->m_charSelectInfo;
-	}
-	if (this->m_skipTutorialBox)
-	{
-		this->m_skipTutorialBox->Release();
-		delete this->m_skipTutorialBox;
-	}
 	if (pCoopData)
 	{
 		delete pCoopData;
@@ -1679,6 +1623,73 @@ void LobbyState::unLoad()
 	Network::Multiplayer::LobbyOnReceiveMap.clear();
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
+
+	for (auto &button : this->m_lobbyButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_lobbyButtons.clear();
+
+	for (auto & button : this->m_charSelectButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_charSelectButtons.clear();
+
+	for (auto & button : this->m_hostListButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_hostListButtons.clear();
+
+	if (this->m_infoWindow)
+	{
+		this->m_infoWindow->Release();
+		delete this->m_infoWindow;
+		m_infoWindow = nullptr;
+	}
+	if (this->m_background)
+	{
+		this->m_background->Release();
+		delete this->m_background;
+		m_background = nullptr;
+
+	}
+	if (this->m_charSelectionBG)
+	{
+		this->m_charSelectionBG->Release();
+		delete this->m_charSelectionBG;
+		m_charSelectionBG = nullptr;
+	}
+	if (this->m_charOneInfo)
+	{
+		this->m_charOneInfo->Release();
+		delete this->m_charOneInfo;
+		m_charOneInfo = nullptr;
+	}
+	if (this->m_charTwoInfo)
+	{
+		this->m_charTwoInfo->Release();
+		delete this->m_charTwoInfo;
+		m_charTwoInfo = nullptr;
+	}
+	if (this->m_charSelectInfo)
+	{
+		this->m_charSelectInfo->Release();
+		delete this->m_charSelectInfo;
+		m_charSelectInfo = nullptr;
+	}
+	if (this->m_skipTutorialBox)
+	{
+		this->m_skipTutorialBox->Release();
+		delete this->m_skipTutorialBox;
+		m_skipTutorialBox = nullptr;
+	}
+	
+
 	std::cout << "Lobby unLoad" << std::endl;
 }
 

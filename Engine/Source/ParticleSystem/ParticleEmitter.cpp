@@ -54,7 +54,7 @@ void ParticleEmitter::Update(float dt, Camera * camera)
 {
 
 	//the emitter lives endlessly if set to -1
-	if (!m_config.m_EmitterLife == -1)
+	if (!(m_config.m_EmitterLife == -1))
 	{
 		m_EmitterCurrentLife += dt;
 		if (m_config.m_EmitterLife <= m_EmitterCurrentLife)
@@ -581,6 +581,11 @@ UINT ParticleEmitter::getSize() const
 const std::vector<Vertex>& ParticleEmitter::getVertex() const
 {
 	return this->vertex;
+}
+
+const PS::ParticleType& ParticleEmitter::getType() const
+{
+	return this->type;
 }
 
 DirectX::XMFLOAT4X4A ParticleEmitter::getWorldMatrix()

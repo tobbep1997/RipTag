@@ -84,30 +84,7 @@ void main(VS_INPUT input, uint vId : SV_VertexID)
 
     outputUAV[dat + 9] = input.uv.x;
     outputUAV[dat + 10] = input.uv.y;
-
     
     
-    //        outputUAV[dat + 0] = 5;
-    //output.worldPos.x;
-    //outputUAV[ dat + 1] = 6;
-    //output.worldPos.y;
-    //outputUAV[ dat + 2] = 7;
-    //output.worldPos.z;
 
-    //outputUAV[ dat + 3] = 8;
-    //output.normal.x;
-    //outputUAV[ dat + 4] = 9;
-    //output.normal.y;
-    //outputUAV[ dat + 5] = 10;
-    //output.normal.z;
-
-    //outputUAV[ dat + 6] = 11;
-    //tangent.x;
-    //outputUAV[ dat + 7] = 12;
-    //tangent.y;
-    //outputUAV[ dat + 8] = 13;
-    //tangent.z;
-
-
-	//return output;
 }

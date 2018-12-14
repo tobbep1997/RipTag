@@ -50,6 +50,8 @@ namespace DX {
 
 	extern bool g_screenShootCamera;
 
+	extern Drawable *											g_skyBox;
+
 	namespace INSTANCING
 	{
 		

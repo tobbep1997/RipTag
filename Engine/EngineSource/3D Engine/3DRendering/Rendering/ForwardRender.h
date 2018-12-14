@@ -17,6 +17,7 @@ class VisibilityComponent;
 class PointLight;
 class ShadowMap;
 class Render2D;
+class SkyBox;
 
 class VisabilityPass;
 
@@ -119,7 +120,7 @@ private:
 	Animation::AnimationCBuffer * m_animationBuffer;
 	ShadowMap * m_shadowMap;	//Released
 	Render2D * m_2DRender;		//Released
-
+	SkyBox *	m_skyBox;
 
 	VisabilityPass * m_visabilityPass;
 	ID3D11Buffer* m_GuardBuffer;	//RElEASED 

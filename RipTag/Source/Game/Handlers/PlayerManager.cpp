@@ -34,6 +34,7 @@ void PlayerManager::RegisterThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ANIMATION, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_THROW_END, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_ABILITY_CANCEL, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(NETWORKMESSAGES::ID_PLAYER_POSESS_END, std::bind(&PlayerManager::_onRemotePlayerPacket, this, _1, _2));
@@ -301,7 +302,7 @@ void PlayerManager::CreateLocalPlayer(DirectX::XMFLOAT4A pos)
 		mLocalPlayer->setScale(.45, .45, .45);
 		mLocalPlayer->setModelTransform(DirectX::XMMatrixTranslation(0.0, -1.0, 0.0));
 		mLocalPlayer->setPosition(0.0f, 0.0f, 0.0f);
-		mLocalPlayer->setTextureTileMult(2, 2);
+		mLocalPlayer->setTextureTileMult(1, 1);
 	}
 }
 

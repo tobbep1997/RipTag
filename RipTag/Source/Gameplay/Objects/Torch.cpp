@@ -15,6 +15,8 @@ Torch::Torch(PointLight * pLight, ParticleEmitter * pParticleEmitter, int _uniqu
 	BaseActor::setObjectTag("TORCH");
 	//Need a model for torch
 	BaseActor::setModel(Manager::g_meshManager.getStaticMesh("TORCH"));
+	BaseActor::setTexture(Manager::g_textureManager.getTexture("TORCH"));
+
 	BaseActor::setUserDataBody(this);
 
 	m_tourchSound.emitter = AudioEngine::Other;
@@ -103,7 +105,8 @@ void Torch::Update(double deltaTime)
 
 void Torch::Draw()
 {
-	Drawable::Draw();
+	if (m_draw)
+		Drawable::Draw();
 	if (!this->getTriggerState())
 	{
 		this->pPointLight->QueueLight();
@@ -121,6 +124,11 @@ void Torch::QueueLight()
 void Torch::BeginPlay()
 {
 	_playSound(&m_tourchSound);
+}
+
+void Torch::DrawTorch(const bool& draw)
+{
+	this->m_draw = draw;
 }
 
 void Torch::handleContact(RayCastListener::RayContact & contact)

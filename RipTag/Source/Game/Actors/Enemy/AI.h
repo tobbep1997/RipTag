@@ -1,9 +1,20 @@
 #pragma once
 
+#define AI_TIMEOUT_VALUES { 5.0, 5.0, 10.0, 10.0, 5.0 }
+
 struct Node;
 class Grid;
 class VisibilityComponent;
 class Enemy;
+
+enum TimerIndices
+{
+	T_Investigate		= 0,
+	T_Suspicious		= 1,
+	T_Possessed			= 2,
+	T_Disabled			= 3,
+	T_TorchHandling = 4,
+};
 
 enum AIState
 {
@@ -12,7 +23,8 @@ enum AIState
 	Suspicious,
 	Patrolling,
 	Possessed,
-	Disabled
+	Disabled,
+	TorchHandling
 };
 
 enum AITransitionState
@@ -25,7 +37,9 @@ enum AITransitionState
 	BeingPossessed,
 	BeingDisabled,
 	ExitingPossess,
-	ExitingDisable
+	ExitingDisable, 
+	TorchFound, 
+	TorchHandled
 };
 
 class AI
@@ -84,6 +98,16 @@ private:
 	
 	lerpVal m_lv;
 
+
+	//time out handling
+	double m_timers[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; //Dont use the AIState enum as index, remember which index is for which state, OR do a new enum and assign index values
+	const double m_timeOutPoints[5] = AI_TIMEOUT_VALUES;
+	//Torch handling
+	Torch * m_currentTorch	= nullptr;
+	bool m_activeTorch			= false;
+	double m_timerTorch		= 0.0;
+	const double m_igniteAt = 0.5;  //The timepoint at which we will actually light the torch, has to be properly synced with the animation
+
 public:
 	AI();
 	AI(Enemy * owner);
@@ -120,6 +144,8 @@ private:
 	void _onBeingDisabled();
 	void _onExitingPossessed();
 	void _onExitingDisabled();
+	void _onTorchFound();
+	void _onTorchHandled();
 
 	//States
 	void _investigating(const double deltaTime);
@@ -127,13 +153,14 @@ private:
 	void _patrolling(const double deltaTime);
 	void _possessed(const double deltaTime);
 	void _disabled(const double deltaTime);
+	void _torchHandling(const double deltaTime);
 
 	//Pathing
 	void _Move(Node * nextNode, double deltaTime);
 	bool _MoveTo(Node * nextNode, double deltaTime);
 	bool _MoveToAlert(Node * nextNode, double deltaTime);
 	float _getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last);
-
+	bool _RotateToCurrentTorch(double deltaTime);
 	//Actions
 	void _checkTorches(float dt);
 };
