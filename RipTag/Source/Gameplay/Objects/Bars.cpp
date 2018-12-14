@@ -15,12 +15,12 @@ void Bars::Init(float xPos, float yPos, float zPos, float pitch, float yaw, floa
 	m_sd.owner = this;
 	m_sd.loudness = 1.5f;
 
-	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY * 0.5f, bboxScaleZ, false);
+	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX * scaleX, bboxScaleY * scaleY, bboxScaleZ * scaleZ, false);
 	BaseActor::setPosition(xPos, yPos, zPos);
 	BaseActor::setRotation(pitch, yaw, roll, false);
 	BaseActor::setPhysicsRotation(pitch, yaw, roll);
-	
-	m_YOffset = bboxScaleY * 0.5f;
+
+
 	m_closePos = { xPos, yPos, zPos , 1.0f };
 	m_openPos = { xPos, yPos + 8.0f, zPos , 1.0f };
 
