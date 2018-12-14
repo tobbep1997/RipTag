@@ -5,7 +5,7 @@ cbuffer OBJECT_BUFFER : register(b3)
 	float4x4 worldMatrix;
 };
 
-cbuffer OBJECT_BUFFER : register(b7)
+cbuffer TEXURE_BUFFER : register(b7)
 {
     int4 usingTexture;
     float4 textureTileMult;
