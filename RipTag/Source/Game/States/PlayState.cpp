@@ -376,7 +376,7 @@ void PlayState::Draw()
 		DrawWorldCollisionboxes();
 	}
 
-	DrawWorldCollisionboxes("BLINK_WALL");
+	DrawWorldCollisionboxes("PILLARLOW");
 #ifdef _DEBUG
 #endif
 
