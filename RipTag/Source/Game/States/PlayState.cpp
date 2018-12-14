@@ -376,7 +376,7 @@ void PlayState::Draw()
 		DrawWorldCollisionboxes();
 	}
 
-	DrawWorldCollisionboxes("DOOR");
+	//DrawWorldCollisionboxes("DOOR");
 #ifdef _DEBUG
 #endif
 
