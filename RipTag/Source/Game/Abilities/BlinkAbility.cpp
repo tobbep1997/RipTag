@@ -3,7 +3,7 @@
 
 const float BlinkAbility::RANGE = 3.0f;
 
-BlinkAbility::BlinkAbility()
+BlinkAbility::BlinkAbility() : AbilityComponent()
 {
 	m_bState = Blink;
 	m_useFunctionCalled = false;
@@ -48,41 +48,50 @@ void BlinkAbility::_logic(double deltaTime)
 		Player* pPointer = static_cast<Player*>(p_owner);
 		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 		RayCastListener::RayContact& var = ray.getClosestContact();
+
 		if (ray.getOriginBody()->GetObjectTag() == "PLAYER" && var.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 		{
-			_sendBlinkPacket();
-			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("phase");
-			pPointer->setPosition(
-				var.contactPoint.x + (
-				(fabs(fabs(var.contactPoint.x) - fabs(var.contactShape->GetBody()->GetTransform().translation.x)) * 2 + 0.25)*
-					(-var.normal.x)),
-				pPointer->getPosition().y,
-				var.contactPoint.z + (
-				(fabs(fabs(var.contactPoint.z) - fabs(var.contactShape->GetBody()->GetTransform().translation.z)) * 2 + 0.25) *
-					(-var.normal.z))
-			);
-			if (fabs(var.normal.y) > 0.001)
+			if (fabs(var.normal.y) > 0.001 || (RipExtern::g_rayListener->hasRayHit(m_rayId2) && RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId2).getClosestContact().contactShape->GetBody()->GetObjectTag() == "BLINK_WALL"))
 			{
+				_sendBlinkPacket();
+				((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("phase");
 				pPointer->setPosition(
-					pPointer->getPosition().x,
-					var.contactPoint.y + (
-					(fabs(var.contactPoint.y - (var.contactShape->GetBody()->GetTransform().translation.y) * 2)) *
-						(-var.normal.y)),
-					pPointer->getPosition().z
+					var.contactPoint.x + (
+					(fabs(fabs(var.contactPoint.x) - fabs(var.contactShape->GetBody()->GetTransform().translation.x)) * 2 + 0.25)*
+						(-var.normal.x)),
+					pPointer->getPosition().y,
+					var.contactPoint.z + (
+					(fabs(fabs(var.contactPoint.z) - fabs(var.contactShape->GetBody()->GetTransform().translation.z)) * 2 + 0.25) *
+						(-var.normal.z))
 				);
-			}
+				if (fabs(var.normal.y) > 0.001)
+				{
+					pPointer->setPosition(
+						pPointer->getPosition().x,
+						var.contactPoint.y + (
+						(fabs(var.contactPoint.y - (var.contactShape->GetBody()->GetTransform().translation.y) * 2)) *
+							(-var.normal.y)),
+						pPointer->getPosition().z
+					);
+				}
 
-			p_abilityCharges--;
-			m_bState = BlinkState::Wait;
+				p_abilityCharges--;
+				m_bState = BlinkState::Wait;
+			}
 		}
 
 	}
+	else
+		m_rayId2 = -100;
 
 	if (((Player *)p_owner)->getCurrentAbility() == Ability::BLINK && Input::OnAbilityPressed())
 	{
 		Player* pPointer = static_cast<Player*>(p_owner);
-			if(m_bState == BlinkState::Blink && m_rayId == -100 && p_abilityCharges != 0)
-				m_rayId = RipExtern::g_rayListener->PrepareRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE);
+		if (m_bState == BlinkState::Blink && m_rayId == -100 && m_rayId2 == -100 && p_abilityCharges != 0)
+		{
+			m_rayId = RipExtern::g_rayListener->PrepareRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getDirection(), BlinkAbility::RANGE);
+			m_rayId2 = RipExtern::g_rayListener->PrepareRay(pPointer->getBody(), pPointer->getCamera()->getPosition(), pPointer->getCamera()->getForward(), BlinkAbility::RANGE);
+		}
 	}
 
 	switch (m_bState)

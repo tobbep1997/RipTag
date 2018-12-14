@@ -28,6 +28,7 @@ private:
 	BlinkState	m_bState;
 	bool		m_useFunctionCalled;
 	int m_rayId = -100;
+	int m_rayId2 = -100;
 
 private:
 	void _logic(double deltaTime);
