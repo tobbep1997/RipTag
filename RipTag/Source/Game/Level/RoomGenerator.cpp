@@ -93,7 +93,7 @@ void RoomGenerator::_generateGrid()
 		}
 	}
 
-	m_generatedGrid->PrintMe();
+	//m_generatedGrid->PrintMe();
 }
 
 void RoomGenerator::_makeFloor()
@@ -484,6 +484,7 @@ void RoomGenerator::_createEntireWorld()
 					particleEmitter = DBG_NEW ParticleEmitter({ tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0 }, PS::FIRE);
 					
 					Torch * tempTorch = DBG_NEW Torch(tempLight, particleEmitter, returnableRoom->getTriggerHandler()->netWorkTriggers.size());
+					tempTorch->BeginPlay();
 					m_generatedTorches.push_back(tempTorch);
 					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));
 				}

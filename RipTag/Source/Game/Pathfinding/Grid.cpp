@@ -218,7 +218,7 @@ std::vector<Node*> Grid::FindPath(Tile source, Tile destination, bool useWaypoin
 
 		return pathToDestination;
 	}
-	else if (useWaypoints)
+	else if (useWaypoints && m_roomNodeMap.empty())
 	{
 		if (dest.getSubGrid() == src.getSubGrid())
 		{
