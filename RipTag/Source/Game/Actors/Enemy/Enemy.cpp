@@ -175,6 +175,9 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
 				playerWalkBackToGuardWalk.AddTransition(&m_IsPossessedByTeammate, false, SM::COMPARISON_EQUAL);
+
+				auto& guardAwareToPlayerWalk = awareState->AddOutState(blend_fwd);
+				guardAwareToPlayerWalk.AddTransition(&m_IsPossessedByTeammate, true, SM::COMPARISON_EQUAL);
 			}
 		}
 
