@@ -109,7 +109,7 @@ void VisabilityPass::GuardDepthPrePassFor(VisibilityComponent * target, ForwardR
 
 	forwardRender->DrawInstancedCull(target->getCamera());
 
-	forwardRender->_particlePass(target->getCamera(), true);
+	//forwardRender->_particlePass(target->getCamera(), true, PS::SMOKE);
 
 	DX::g_deviceContext->OMSetBlendState(m_alphaBlend, 0, 0xffffffff); 
 
