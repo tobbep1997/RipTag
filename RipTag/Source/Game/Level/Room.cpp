@@ -947,6 +947,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 		tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	}
 
+
 	assetVector->push_back(tempAsset);
 	
 	if(useAudio)
