@@ -332,7 +332,7 @@ void AI::_investigating(const double deltaTime)
 		Tile targetTile;
 		Tile guardTile;
 
-		if (m_owner->m_visCounter > m_owner->m_biggestVisCounter)
+		if (m_owner->m_visCounter > ALERT_TIME_LIMIT)
 		{
 			// Get the remote players position
 			if (m_owner->m_RemotePtr)
@@ -351,7 +351,7 @@ void AI::_investigating(const double deltaTime)
 				this->SetAlertVector(m_grid->FindPath(guardTile, targetTile));
 			}
 		}
-		else if (tmp.percentage > m_owner->m_loudestSoundLocation.percentage)
+		else if (tmp.percentage > SOUND_LEVEL)
 		{
 			// Check if the guard has heard anything recently
 			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
