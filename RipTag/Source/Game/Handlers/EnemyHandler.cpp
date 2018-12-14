@@ -277,6 +277,7 @@ void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 		if (g->getUniqueID() == data->uniqueID)
 		{
 			g->setCalculatedVisibilityFor(1, data->visibilityValue);
+			std::cout << data->visibilityValue << std::endl;
 			g->setSoundLocationRemote({ data->soundValue, data->soundPos });
 			break;
 		}
