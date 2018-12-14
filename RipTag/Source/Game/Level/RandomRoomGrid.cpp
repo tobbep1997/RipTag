@@ -38,7 +38,7 @@ void RandomRoomGrid::GenerateRoomLayout()
 	int threshold = rand() % 100 + 1;
 	int nrOfBigRooms = 1;
 
-	if (m_width > 3)
+	if (m_width > 3 && m_depth > 3)
 	{
 		if (threshold > 40 && threshold <= 60)
 		{

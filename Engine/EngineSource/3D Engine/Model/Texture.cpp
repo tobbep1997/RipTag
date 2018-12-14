@@ -111,7 +111,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 						{
 							DX::SetName(m_SRV[i], names[i].c_str());
 							DX::g_deviceContext->Flush();
-							DX::g_deviceContext->ClearState();
+							//DX::g_deviceContext->ClearState();
 						}
 					}
 					if (texGPU)
@@ -125,7 +125,7 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 				tmpResCPU->Release();
 		}
 		DX::g_deviceContext->Flush();
-		DX::g_deviceContext->ClearState();
+		//DX::g_deviceContext->ClearState();
 
 	}
 
@@ -188,7 +188,7 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 					{
 						DX::SetName(m_SRV[0], getName().c_str());
 						DX::g_deviceContext->Flush();
-						DX::g_deviceContext->ClearState();
+						//DX::g_deviceContext->ClearState();
 					}
 				}
 				if (texGPU)
@@ -203,7 +203,7 @@ HRESULT Texture::LoadSingleTexture(const wchar_t * absolutePath)
 			tmpResCPU->Release();
 	}
 	DX::g_deviceContext->Flush();
-	DX::g_deviceContext->ClearState();
+	//DX::g_deviceContext->ClearState();
 
 	return S_OK;
 }
