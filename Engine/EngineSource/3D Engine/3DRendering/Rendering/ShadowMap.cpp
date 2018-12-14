@@ -112,18 +112,20 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 
 		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
 		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertexAnimated.hlsl"), nullptr, 0);
-
-		for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
-		{
-			if (!DX::g_animatedGeometryQueue[j]->getHidden() && DX::g_animatedGeometryQueue[j]->getCastShadows())
+		if (SettingLoader::g_windowContext->graphicsQuality > 1)
+		{			
+			for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
 			{
-				ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->GetAnimatedVertex();
+				if (!DX::g_animatedGeometryQueue[j]->getHidden() && DX::g_animatedGeometryQueue[j]->getCastShadows())
+				{
+					ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->GetAnimatedVertex();
 
-				_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
+					_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
 
-				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-				DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
+					DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+					DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
 
+				}
 			}
 		}
 		if (DX::g_player && true)

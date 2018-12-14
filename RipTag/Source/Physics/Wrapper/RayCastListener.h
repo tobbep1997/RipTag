@@ -319,8 +319,6 @@ public:
 
 	virtual Ray& ShootAudioRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A end)
 	{
-
-
 		b3Vec3 startPos(start.x, start.y, start.z);
 		b3Vec3 endPos(end.x, end.y, end.z);
 
@@ -350,5 +348,14 @@ public:
 		return m_nrOfRays-1;
 	}
 
-	
+	virtual unsigned int PrepareRay(b3Body* body, DirectX::XMFLOAT4A start, DirectX::XMFLOAT4A end)
+	{
+		b3Vec3 startPos(start.x, start.y, start.z);
+		b3Vec3 endPos(end.x, end.y, end.z);
+
+		rays.at(m_nrOfRays)._setupRay(body, startPos, endPos);
+		m_nrOfRays++;
+
+		return m_nrOfRays - 1;
+	}
 };
