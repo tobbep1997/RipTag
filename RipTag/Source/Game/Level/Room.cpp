@@ -140,6 +140,8 @@ void Room::UnloadRoomFromMemory()
 	}
 }
 
+#pragma optimize("",off)
+
 void Room::LoadRoomToMemory()
 {
 	m_ambientWindAndDrip.emitter = AudioEngine::Other;
@@ -282,14 +284,14 @@ void Room::LoadRoomToMemory()
 			while (false == sorted)
 			{
 				sorted = true;
-				for (int i = 0; i < tempNodes.size() - 1; ++i)
+				for (int j = 0; j < tempNodes.size() - 1; ++j)
 				{
-					if (tempNodes[i].guardPathIndex > tempNodes[i + 1].guardPathIndex)
+					if (tempNodes[j].guardPathIndex > tempNodes[j + 1].guardPathIndex)
 					{
 						sorted = false;
-						ImporterLibrary::GridPointStruct swap = tempNodes[i];
-						tempNodes[i] = tempNodes[i + 1];
-						tempNodes[i + 1] = swap;
+						ImporterLibrary::GridPointStruct swap = tempNodes[j];
+						tempNodes[j] = tempNodes[j + 1];
+						tempNodes[j + 1] = swap;
 
 					}
 				}
@@ -303,10 +305,7 @@ void Room::LoadRoomToMemory()
 			e->SetPlayerPointer(m_playerInRoomPtr);
 			e->SetGuardUniqueIndex(uniqueID.at(i));
 			e->SetTorchContainer(m_Torches);
-			if (spawnPos.at(i) > 12)
-			{
-				//CameraHandler::setActiveCamera(e->getCamera());
-			}
+			
 
 			//Getting the first path length to fill fullPath
 			Tile temp = m_pathfindingGrid->WorldPosToTile(pos[0], pos[2]);
@@ -415,6 +414,8 @@ void Room::LoadRoomToMemory()
 		triggerHandler->netWorkTriggers.insert(std::pair<int, Trigger*>(m_Torches[i]->getUniqueID(), m_Torches[i]));
 	}
 }
+
+#pragma optimize("",on)
 
 void Room::loadTriggerPairMap()
 {
