@@ -39,8 +39,15 @@ private:
 	bool backToMenu = false;
 
 	bool m_pressed = false;
+	enum ButtonOrder
+	{
+		Quit = 0,
+		Ready = 1,
+	};
 	unsigned short m_maxButtons = 2;
 	unsigned short m_currentButton = 0;
+	double m_inputTimer = 0.0;
+	const double m_timerLimit = 0.5;
 
 	bool m_partnerLost;
 public:
@@ -63,6 +70,7 @@ public:
 
 private:
 	void _initButtons();
+	void _loadTextures();
 
 	//Network
 	void _registerThisInstanceToNetwork();
@@ -77,5 +85,6 @@ private:
 	void _handleMouseInput();
 	void _handleKeyboardInput();
 	void _handleGamepadInput();
+	void _buttonStateCheck();
 };
 

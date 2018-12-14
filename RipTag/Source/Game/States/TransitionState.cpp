@@ -58,9 +58,15 @@ void TransitionState::Update(double deltaTime)
 	if (!InputHandler::getShowCursor())
 			InputHandler::setShowCursor(TRUE);
 
-	_handleMouseInput();
+	m_inputTimer += deltaTime;
 
-	if (m_type == Transition::Lose)
+	_handleMouseInput();
+	_handleKeyboardInput();
+	_handleGamepadInput();
+
+	_buttonStateCheck();
+
+	if (m_type == Transition::Lose || m_type	== Transition::Win)
 	{
 		if (pCoopData)
 		{
@@ -74,54 +80,15 @@ void TransitionState::Update(double deltaTime)
 		{
 			this->pushAndPop(2, new PlayState(p_renderingManager, pCoopData, m_currentRoom)); 
 		}
-
 	}
-
-	/*if (InputHandler::mouseMoved())
-		m_currentButton = 16;
-
-	if (GamePadHandler::IsLeftDpadPressed() || GamePadHandler::IsDownDpadPressed() || InputHandler::isKeyReleased(InputHandler::Key::Left))
-	{
-		if (m_currentButton > m_maxButtons)
-			m_currentButton = 1;
-		if (m_currentButton - 1 < 0)
-			m_currentButton = m_maxButtons - 1;
-		else
-			m_currentButton--;
-	}
-	if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::IsUpDpadPressed() || InputHandler::isKeyReleased(InputHandler::Key::Right))
-	{
-		if (m_currentButton + 1 >= m_maxButtons)
-			m_currentButton = 0;
-		else
-			m_currentButton++;
-	}
-	if (m_currentButton == 0)
-	{
-		m_backToMenu->setTextColor(Colors::Purple);
-	}
-	else
-	{
-		m_backToMenu->setTextColor(Colors::White);
-	}
-	if (m_currentButton == 1)
-	{
-		m_ready->setTextColor(Colors::Purple);
-	}
-	else
-	{
-		m_ready->setTextColor(Colors::White);
-	}
-	if (GamePadHandler::IsAReleased() || InputHandler::isKeyReleased(InputHandler::Key::Return))	
-		m_pressed = true;	
-	else
-		m_pressed = false;*/
 }
 
 void TransitionState::Draw()
 {
 	static Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
-
+	//WE HAVE NO Z ORDERING PLEASE DO THE DRAW ORDER YOURSELF PROPERLY, jesus christ
+	if (m_background)
+		m_background->Draw();
 	if (m_header)
 		m_header->Draw();
 	if (m_eventInfo)
@@ -133,15 +100,12 @@ void TransitionState::Draw()
 		if (m_type != Transition::ThankYou)
 			m_ready->Draw();
 	}
-	if (m_background)
-		m_background->Draw();
 
 	p_renderingManager->Flush(camera);
 }
 
 void TransitionState::Load()
 {
-	std::cout << "Lose State Load" << std::endl;
 	if (pCoopData)
 	{
 		CoopData * data = (CoopData*)pCoopData;
@@ -151,32 +115,13 @@ void TransitionState::Load()
 			isClient = true;
 		this->_registerThisInstanceToNetwork();
 	}
-	std::string path = "../Assets/GUIFOLDER";
-	for (auto & p : std::filesystem::directory_iterator(path))
-	{
-		if (p.is_regular_file())
-		{
-			auto file = p.path();
-			if (file.has_filename() && file.has_extension())
-			{
-				std::wstring stem = file.stem().generic_wstring();
-				std::wstring extension = file.extension().generic_wstring();
-				if (extension == L".DDS")
-					Manager::g_textureManager.loadDDSTexture(stem, file.generic_wstring(), L"_256");
-			}
-		}
-
-
-		//std::cout << p.path().generic_string() << std::endl;
-	}
+	_loadTextures();
 	_initButtons();
 }
 
 void TransitionState::unLoad()
 {
 	Manager::g_textureManager.UnloadGUITextures();
-
-	std::cout << "Lose State unLoad" << std::endl;
 }
 
 void TransitionState::HandlePacket(unsigned char id, unsigned char * data)
@@ -246,19 +191,20 @@ void TransitionState::_initButtons()
 		if (m_type == Transition::ThankYou)
 			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.5f, 0.20f, 0.5f, 0.25f);
 		else
-			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.3f, 0.20f, 0.5f, 0.25f);
+			this->m_backToMenu = Quad::CreateButton("Back To Menu", 0.35f, 0.20f, 0.5f, 0.25f);
 		this->m_backToMenu->setUnpressedTexture("gui_hover_pixel");
 		this->m_backToMenu->setPressedTexture("gui_pressed_pixel");
 		this->m_backToMenu->setHoverTexture("pause_menu_background");
 		this->m_backToMenu->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_backToMenu->setFont(FontHandler::getFont("consolas32"));
 
-		this->m_ready = Quad::CreateButton("Try again?", 0.6f, 0.20f, 0.5f, 0.25f);
+		this->m_ready = Quad::CreateButton("Try again?", 0.65f, 0.20f, 0.5f, 0.25f);
 		this->m_ready->setUnpressedTexture("gui_hover_pixel");
 		this->m_ready->setPressedTexture("gui_pressed_pixel");
 		this->m_ready->setHoverTexture("pause_menu_background");
 		this->m_ready->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 		this->m_ready->setFont(FontHandler::getFont("consolas32"));
+		this->m_ready->setState(ButtonStates::Hover);
 	}
 	//Background
 	{
@@ -281,6 +227,25 @@ void TransitionState::_initButtons()
 			this->m_background->setUnpressedTexture("gui_temp_bg1");
 			this->m_background->setPressedTexture("gui_temp_bg1");
 			this->m_background->setHoverTexture("gui_temp_bg1");
+		}
+	}
+}
+
+void TransitionState::_loadTextures()
+{
+	std::string path = "../Assets/GUIFOLDER";
+	for (auto & p : std::filesystem::directory_iterator(path))
+	{
+		if (p.is_regular_file())
+		{
+			auto file = p.path();
+			if (file.has_filename() && file.has_extension())
+			{
+				std::wstring stem = file.stem().generic_wstring();
+				std::wstring extension = file.extension().generic_wstring();
+				if (extension == L".DDS")
+					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
+			}
 		}
 	}
 }
@@ -331,16 +296,25 @@ void TransitionState::_handleMouseInput()
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
 
+	bool moved = InputHandler::mouseMoved();
+
 	if (m_backToMenu->Inside(mousePos))
 	{
-		m_backToMenu->setState(ButtonStates::Hover);
+		if (moved)
+		{
+			m_currentButton = Quit;
+			m_backToMenu->setState(ButtonStates::Hover);
+		}
 
 		if (InputHandler::isMLeftPressed(true))
 		{
+			m_currentButton = Quit;
 			m_backToMenu->setState(ButtonStates::Pressed);
 		}
 		if (m_backToMenu->isReleased(mousePos))
 		{
+			m_currentButton = Quit;
+			m_backToMenu->setTextColor(Colors::Red);
 			this->BackToMenu();
 		}
 	}
@@ -351,14 +325,20 @@ void TransitionState::_handleMouseInput()
 
 	if (m_ready->Inside(mousePos))
 	{
-		m_ready->setState(ButtonStates::Hover);
+		if (moved)
+		{
+			m_currentButton = Ready;
+			m_ready->setState(ButtonStates::Hover);
+		}
 
 		if (InputHandler::isMLeftPressed(true))
 		{
+			m_currentButton = Ready;
 			m_ready->setState(ButtonStates::Pressed);
 		}
 		if (m_ready->isReleased(mousePos))
 		{
+			m_currentButton = Ready;
 			if (isReady)
 			{
 				isReady = false;
@@ -378,5 +358,125 @@ void TransitionState::_handleMouseInput()
 	else if (!m_ready->isSelected())
 	{
 		m_ready->setState(ButtonStates::Normal);
+	}
+}
+
+void TransitionState::_handleKeyboardInput()
+{
+	bool left = InputHandler::wasKeyPressed(InputHandler::Left);
+	bool right = InputHandler::wasKeyPressed(InputHandler::Right);
+
+	if (InputHandler::isKeyPressed(InputHandler::Left) && m_inputTimer >= m_timerLimit)
+	{
+		left = true;
+		m_inputTimer = 0.0;
+	}
+	if (InputHandler::isKeyPressed(InputHandler::Right) && m_inputTimer >= m_timerLimit)
+	{
+		right = true;
+		m_inputTimer = 0.0;
+	}
+
+	if (left || right)
+		m_currentButton = (m_currentButton + 1) % m_maxButtons;
+
+	bool enter = InputHandler::wasKeyPressed(InputHandler::Enter);
+
+	if (enter)
+	{
+		switch (m_currentButton)
+		{
+		case Quit:
+			m_backToMenu->setTextColor(Colors::Red);
+			this->BackToMenu();
+			break;
+		case Ready:
+			if (isReady)
+			{
+				isReady = false;
+				m_ready->setTextColor(Colors::White);
+			}
+			else
+			{
+				isReady = true;
+				m_ready->setTextColor(Colors::Green);
+			}
+			if (pCoopData)
+			{
+				_sendReadyPacket();
+			}
+			break;
+		}
+	}
+
+}
+
+void TransitionState::_handleGamepadInput()
+{
+	bool left = GamePadHandler::IsLeftDpadPressed();
+	bool right = GamePadHandler::IsRightDpadPressed();
+
+	if ((GamePadHandler::GetLeftStickXPosition() > 0) && m_inputTimer >= m_timerLimit)
+	{
+		left = true;
+		m_inputTimer = 0.0;
+	}
+	if ((GamePadHandler::GetLeftStickXPosition() < 0) && m_inputTimer >= m_timerLimit)
+	{
+		right = true;
+		m_inputTimer = 0.0;
+	}
+
+	if (left || right)
+		m_currentButton = (m_currentButton + 1) % m_maxButtons;
+
+	bool enter = GamePadHandler::IsAReleased();
+
+	if (enter)
+	{
+		switch (m_currentButton)
+		{
+		case Quit:
+			m_backToMenu->setTextColor(Colors::Red);
+			this->BackToMenu();
+			break;
+		case Ready:
+			if (isReady)
+			{
+				isReady = false;
+				m_ready->setTextColor(Colors::White);
+			}
+			else
+			{
+				isReady = true;
+				m_ready->setTextColor(Colors::Green);
+			}
+			if (pCoopData)
+			{
+				_sendReadyPacket();
+			}
+			break;
+		}
+	}
+}
+
+void TransitionState::_buttonStateCheck()
+{
+	switch (m_currentButton)
+	{
+	case ButtonOrder::Quit:
+		if (m_backToMenu->getState() != ButtonStates::Pressed)
+		{
+			m_backToMenu->setState(ButtonStates::Hover);
+			m_ready->setState(ButtonStates::Normal);
+		}
+		break;
+	case ButtonOrder::Ready:
+		if (m_ready->getState() != ButtonStates::Pressed)
+		{
+			m_ready->setState(ButtonStates::Hover);
+			m_backToMenu->setState(ButtonStates::Normal);
+		}
+		break;
 	}
 }
