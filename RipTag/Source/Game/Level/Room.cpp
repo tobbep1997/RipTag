@@ -946,8 +946,11 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 
 	if(name == "BANNER")
 		tempAsset->setPhysicsRotation(prop.transform_rotation[0], prop.transform_rotation[1], prop.transform_rotation[2]);
-	if(name!= "SIDEWALL" || name != "STABLE" || name != "TOWER")
-		 tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
+	if (name != "SIDEWALL" && name != "STABLE" && name != "TOWER")
+	{
+		tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
+	}
+
 	assetVector->push_back(tempAsset);
 	
 	if(useAudio)

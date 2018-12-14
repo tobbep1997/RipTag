@@ -364,7 +364,7 @@ void PlayState::Draw()
 		{
 			m_pPauseMenu->Draw();
 		}
-
+		
 	}
 	if (!runGame)
 	{
@@ -376,7 +376,7 @@ void PlayState::Draw()
 		DrawWorldCollisionboxes();
 	}
 
-	//DrawWorldCollisionboxes();
+	DrawWorldCollisionboxes("DOOR");
 #ifdef _DEBUG
 #endif
 

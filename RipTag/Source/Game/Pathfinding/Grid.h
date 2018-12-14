@@ -140,10 +140,14 @@ private:
 	std::vector<Node> m_roomNodeMap;
 	std::vector<Waypoint> m_waypoints;
 	int m_width, m_height;
+	int m_randomizerX, m_randomizerY;
+	int m_roomNodeMapWidth, m_roomNodeMapDepth;
+	float m_endOfTheWorldX, m_endOfTheWorldY;
+	int m_randomRoomUnitSizeX, m_randomRoomUnitSizeY;
 
 public:
 	Grid(int width = 0, int height = 0);
-	Grid(float xVal, float yVal, int width, int depth);
+	Grid(float xVal, float yVal, int width, int depth, int roomSizeX, int roomSizeY);
 	virtual ~Grid();
 
 	Tile WorldPosToTile(float x, float y);
