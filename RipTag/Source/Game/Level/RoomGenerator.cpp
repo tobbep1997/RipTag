@@ -451,10 +451,7 @@ void RoomGenerator::_createEntireWorld()
 				returnableRoom->setPlayer1StartPos(DirectX::XMFLOAT4(j +2, 2, i, 1));
 				returnableRoom->setPlayer2StartPos(DirectX::XMFLOAT4(j, 2, i, 1));
 			}
-#pragma endregion
-//Above 10 mB
-
-			
+#pragma endregion			
 			returnableRoom->getreverbVector()->push_back(AudioEngine::CreateReverb(FMOD_VECTOR{ (float)i, 2.5, (float)j }, 5.0, 15.0));
 #pragma region LIGHTS
 			if (!randomizer.m_rooms[index].propsPlaced && !isStartRoom)
@@ -484,6 +481,7 @@ void RoomGenerator::_createEntireWorld()
 					particleEmitter = DBG_NEW ParticleEmitter({ tempLights.lights[k].translate[0], tempLights.lights[k].translate[1], tempLights.lights[k].translate[2], 0 }, PS::FIRE);
 					
 					Torch * tempTorch = DBG_NEW Torch(tempLight, particleEmitter, returnableRoom->getTriggerHandler()->netWorkTriggers.size());
+					tempTorch->DrawTorch(false);
 					tempTorch->BeginPlay();
 					m_generatedTorches.push_back(tempTorch);
 					returnableRoom->getTriggerHandler()->netWorkTriggers.insert(std::pair<int, Trigger*>(returnableRoom->getTriggerHandler()->netWorkTriggers.size(), m_generatedTorches.back()));

@@ -92,6 +92,9 @@ public:
 	UINT getVertexSize() const;
 	UINT getSize() const;
 	const std::vector<Vertex> & getVertex() const;
+
+	const PS::ParticleType & getType() const;
+
 private:
 	PS::ParticleType type					= PS::DEFAULT;
 	PS::ParticleConfiguration m_config = {};

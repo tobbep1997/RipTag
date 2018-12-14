@@ -338,6 +338,9 @@ public:
 		dir.y = direction.y;
 		dir.z = direction.z;
 
+		if (dir.y == 0)
+			dir.y = FLT_EPSILON;
+
 		b3Vec3 startPos(start.x, start.y, start.z);
 		b3Vec3 endPos = startPos + (length * dir);
 

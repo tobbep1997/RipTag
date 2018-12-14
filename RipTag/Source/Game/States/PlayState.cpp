@@ -512,7 +512,7 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 									occ *= 0.9f;
 								else if (tag == "BOOKSHELF")
 									occ *= 0.4f;
-								else if (tag == "THICKWALL")
+								else if (tag == "THICKWALL" || tag == "WORLD")
 									occ *= 0.03f;
 								else if (tag == "THINWALL")
 									occ *= 0.06f;
