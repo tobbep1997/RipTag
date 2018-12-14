@@ -587,15 +587,15 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 
 void PlayState::_lightCulling()
 {
-	Player * p = m_playerManager->getLocalPlayer();
+	Camera * cTarget = CameraHandler::getActiveCamera();
 	DirectX::BoundingFrustum PlayerWorldBox;
 	DirectX::XMMATRIX viewInv, proj;
 
-	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getProjection()));
-	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getView())));
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&cTarget->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&cTarget->getView())));
 	DirectX::BoundingFrustum::CreateFromMatrix(PlayerWorldBox, proj);
 	PlayerWorldBox.Transform(PlayerWorldBox, viewInv);
-	const DirectX::XMFLOAT4A & pPos = p->getPosition();
+	const DirectX::XMFLOAT4A & pPos = cTarget->getPosition();
 	DirectX::XMVECTOR vpPos = DirectX::XMLoadFloat4A(&pPos);
 
 	for (auto & light : DX::g_lights)
@@ -605,7 +605,7 @@ void PlayState::_lightCulling()
 		const DirectX::XMFLOAT4A & lPos = light->getPosition();
 		DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&lPos), vpPos);
 		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
-		if (length < p->getCamera()->getFarPlane())
+		if (length < cTarget->getFarPlane())
 		{
 			const std::vector<Camera*> & sidesVec = light->getSides();
 			int counter = 0;
