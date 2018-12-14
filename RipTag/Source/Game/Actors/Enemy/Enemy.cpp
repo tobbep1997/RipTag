@@ -1141,7 +1141,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 	if (m_allowVisability)
 	{
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
-		float visPercRemote = (float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
+		float visPercRemote = -1;//(float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
 
 		float visPerc;
 		float lengthToTarget;
