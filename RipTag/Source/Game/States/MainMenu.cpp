@@ -1,6 +1,7 @@
 #include "RipTagPCH.h"
 #include "../2DEngine/2D Engine/Quad/Components/HUDComponent.h"
 #include "MainMenu.h"
+#include "InputManager/XboxInput/GamePadHandler.h"
 
 std::string RipSounds::g_music1;
 
@@ -13,7 +14,6 @@ MainMenu::~MainMenu()
 {
 	unLoad(); // This is a special case because the MainMenu is on slot 0 in the stack
 }
-#include "InputManager/XboxInput/GamePadHandler.h"
 void MainMenu::Update(double deltaTime)
 {
 	if (!InputHandler::getShowCursor())
@@ -21,8 +21,19 @@ void MainMenu::Update(double deltaTime)
 
 	if (!_handleMouseInput())
 	{
-		_handleGamePadInput(deltaTime);
-		_handleKeyboardInput();
+		if (_handleGamePadInput(deltaTime) == false && m_gamePadInUse == false)
+		{
+			_handleKeyboardInput();
+			_handleMousePP();
+		}
+		else
+		{
+			m_gamePadInUse = true;
+		}
+	}
+	else
+	{
+		m_gamePadInUse = false;
 	}
 
 	//Check if we have the current button pressed, if so determine which one and do the thing
@@ -31,15 +42,16 @@ void MainMenu::Update(double deltaTime)
 		switch ((ButtonOrder)m_currentButton)
 		{
 		case ButtonOrder::Play:
+#ifndef _DEPLOY
 			_resetButtons();
 			m_background->Release();
 			delete m_background;
 			m_background = nullptr;
 			m_loadingScreen.removeGUI(m_buttons);
 			m_loadingScreen.draw();
-			
 			this->pushNewState(new PlayState(this->p_renderingManager, nullptr, 0));
 			m_music->stop();
+#endif
 			break; 
 		case ButtonOrder::Lobby:
 			_resetButtons();
@@ -80,6 +92,13 @@ void MainMenu::StopMusic()
 
 void MainMenu::_initButtons()
 {
+#ifdef _DEPLOY
+	//play button
+	this->m_buttons.push_back(Quad::CreateButton("", 0.5f, 0.815f, 0.565f, 0.20f));
+	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("gui_transparent_pixel");
+	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas16"));
+#else
 	//play button
 	this->m_buttons.push_back(Quad::CreateButton("Play Game", 0.5f, 0.815f, 0.565f, 0.20f));
 	this->m_buttons[ButtonOrder::Play]->setUnpressedTexture("gui_transparent_pixel");
@@ -88,6 +107,7 @@ void MainMenu::_initButtons()
 	this->m_buttons[ButtonOrder::Play]->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	this->m_buttons[ButtonOrder::Play]->setFont(FontHandler::getFont("consolas32"));
 
+#endif
 
 	//lobby button
 	this->m_buttons.push_back(Quad::CreateButton("Lobby", 0.5f, 0.605f, 0.565f, 0.20f));
@@ -121,6 +141,8 @@ void MainMenu::_initButtons()
 	this->m_background->setPressedTexture("gui_main_menu");
 	this->m_background->setHoverTexture("gui_main_menu");
 
+	m_buttons.shrink_to_fit();
+
 }
 
 bool MainMenu::_handleMouseInput()
@@ -143,12 +165,14 @@ bool MainMenu::_handleMouseInput()
 
 	mousePos.x /= windowSize.x;
 	mousePos.y /= windowSize.y;
-	/*if (!InputHandler::mouseMoved() && !InputHandler::isMouseLeftPressed())
-		return false;*/
 
 
 	for (size_t i = 0; i < m_buttons.size(); i++)
 	{
+#ifdef _DEPLOY
+		if (i == 0)
+			continue;
+#endif
 		if (m_buttons[i]->Inside(mousePos))
 		{
 			//set this button to current and on hover state
@@ -173,23 +197,36 @@ bool MainMenu::_handleMouseInput()
 	return true;
 }
 
-void MainMenu::_handleGamePadInput(float deltaTime)
+bool MainMenu::_handleGamePadInput(float deltaTime)
 {
+	bool used = false;
 	if (Input::isUsingGamepad())
 	{
 		m_stickTimer += deltaTime; 
 
 		if (GamePadHandler::IsUpDpadPressed())
 		{
+#ifdef _DEPLOY
+			if (m_currentButton == 1)
+				m_currentButton = ((unsigned int)ButtonOrder::Quit);
+#else
 			if (m_currentButton == 0)
 				m_currentButton = (unsigned int)ButtonOrder::Quit;
+#endif
 			else
 				m_currentButton--;
+
+			used = true;
 		}
 		else if (GamePadHandler::IsDownDpadPressed())
 		{
 			m_currentButton++;
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+#ifdef _DEPLOY
+			if (m_currentButton == 0)
+				m_currentButton++;
+#endif
+			used = true;
 		}
 
 		if (GamePadHandler::GetLeftStickYPosition() > 0 && m_stickTimer > 0.2f)
@@ -199,14 +236,19 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 			else
 				m_currentButton--;
 
-			m_stickTimer = 0; 
+			m_stickTimer = 0;
+			used = true;
 		}
 		else if (GamePadHandler::GetLeftStickYPosition() < 0 && m_stickTimer > 0.2f)
 		{
 			m_currentButton++; 
 			m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
-			m_stickTimer = 0; 
+			m_stickTimer = 0;
+			used = true;
 		}
+
+
+
 		_updateSelectionStates();
 
 		//Check for action input
@@ -214,17 +256,24 @@ void MainMenu::_handleGamePadInput(float deltaTime)
 		{
 			if (m_buttons[m_currentButton]->isSelected())
 				this->m_buttons[m_currentButton]->setState(ButtonStates::Pressed);
+
+			used = true;
 		}
 	}
-
+	return used;
 }
 
 void MainMenu::_handleKeyboardInput()
 {
 	if (InputHandler::wasKeyPressed(InputHandler::Up))
 	{
+#ifdef _DEPLOY
+		if (m_currentButton == 1)
+			m_currentButton = ((unsigned int)ButtonOrder::Quit);
+#else
 		if (m_currentButton == 0)
 			m_currentButton = (unsigned int)ButtonOrder::Quit;
+#endif
 		else
 			m_currentButton--;
 	}
@@ -232,6 +281,10 @@ void MainMenu::_handleKeyboardInput()
 	{
 		m_currentButton++;
 		m_currentButton = m_currentButton % ((unsigned int)ButtonOrder::Quit + 1);
+#ifdef _DEPLOY
+		if (m_currentButton == 0)
+			m_currentButton++;
+#endif
 	}
 
 	_updateSelectionStates();
@@ -276,6 +329,44 @@ void MainMenu::_resetButtons()
 	m_currentButton = (unsigned int)ButtonOrder::Play;
 }
 
+void MainMenu::_handleMousePP()
+{
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	mousePos.x /= windowSize.x;
+	mousePos.y /= windowSize.y;
+
+
+	for (size_t i = 0; i < m_buttons.size(); i++)
+	{
+#ifdef _DEPLOY
+		if (i == 0)
+			continue;
+#endif
+		if (m_buttons[i]->Inside(mousePos))
+		{
+			//set this button to current and on hover state
+			m_currentButton = i;
+			m_buttons[i]->Select(true);
+			m_buttons[i]->setState(ButtonStates::Hover);
+			//check if we released this button
+			if (m_buttons[i]->isReleased(mousePos))
+				m_buttons[i]->setState(ButtonStates::Pressed);
+			//set all the other buttons to
+			for (size_t j = 0; j < m_buttons.size(); j++)
+			{
+				if (i != j)
+				{
+					m_buttons[j]->Select(false);
+					m_buttons[j]->setState(ButtonStates::Normal);
+				}
+			}
+			break;
+		}
+	}
+}
+
 void MainMenu::Load()
 {
 	RipSounds::g_music1 = AudioEngine::LoadMusicSound("../Assets/Audio/Music/MySong2.ogg", true);
@@ -294,11 +385,12 @@ void MainMenu::Load()
 	FontHandler::loadFont("consolas16");
 	_initButtons();
 	m_loadingScreen.Init();
+#ifdef _DEPLOY
+	m_currentButton = (unsigned int)ButtonOrder::Lobby;
+#else
 	m_currentButton = (unsigned int)ButtonOrder::Play;
+#endif
 	Manager::g_textureManager.loadTextures("LOADING");
-	Manager::g_textureManager.loadTextures("DAB");
-
-	std::cout << "MainMenu Load" << std::endl;
 }
 
 void MainMenu::unLoad()
@@ -319,9 +411,9 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadGUITextures();
 	m_music->stop();
 
-	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
+	//HUDComponent::removeHUD();
 
-	std::cout << "MainMenu unLoad" << std::endl;
+	AudioEngine::UnloadMusicSound(RipSounds::g_music1);
 }
 
 void MainMenu::LoadAllGuiElements()
@@ -337,14 +429,10 @@ void MainMenu::LoadAllGuiElements()
 			{
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
-				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
-				if (extension == L".png" || extension == L".jpg")
+				if (extension == L".DDS")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}
-
-
-		//std::cout << p.path().generic_string() << std::endl;
 	}
 
 		

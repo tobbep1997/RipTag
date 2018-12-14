@@ -530,7 +530,7 @@ void OptionSound::_updateSelectionStates()
 
 void OptionSound::_WriteSettingsToFile()
 {
-	// Player settings
+	// Sound settings
 	std::string file = "../Configuration/AudioSettings.ini";
 	WritePrivateProfileStringA("Audio", "Master", std::to_string(m_master).c_str(), file.c_str());
 	WritePrivateProfileStringA("Audio", "Effects", std::to_string(m_effects).c_str(), file.c_str());
@@ -615,7 +615,7 @@ void OptionSound::Load()
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
 				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
-				if (extension == L".png" || extension == L".jpg")
+				if (extension == L".DDS" || extension == L".DDS")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}

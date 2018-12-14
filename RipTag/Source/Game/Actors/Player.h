@@ -9,6 +9,7 @@
 #include "2D Engine/Quad/Components/HUDComponent.h"
 #include <stack>
 
+
 struct KeyPressed
 {
 	bool jump = false;
@@ -34,11 +35,19 @@ class Player : public Actor, public CameraHolder, public PhysicsComponent, publi
 {
 public:
 	friend class PlayerManager;
+	void SetThrowing(bool throwing);
 private: //stuff for state machine
 	friend class PlayState;
 	friend class Enemy;
+
+	std::function<bool()> m_IsMoving = [&]() {return m_currentMoveSpeed > 0.1f; };
+
+	bool m_playAnimation = true; 
+	bool m_IsThrowing = false;
 	bool m_isInAir = false;
+	bool m_headBobbingActive = true; 
 	float m_currentSpeed = 0.0f; //[0,1]
+	float m_currentPeek = 0.0f;
 	float m_currentDirection = 0.0; //[-180,180], relative to movement
 	float m_currentWorldDirection = 0.0f; //relative to world
 	float m_currentTurnSpeed = 0.0f;
@@ -50,12 +59,15 @@ private:
 	const float SPRINT_MULT = 1.8f;
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
+	const float OBJECT_INFO_RANGE = 10.0f;
 
 	const std::string PlayerOneHUDPath = "../Assets/Player1HUD.txt";
 	const std::string PlayerTwoHUDPath = "../Assets/Player2HUD.txt";
 
 	const unsigned short int m_nrOfAbilitys = 2;
 	AudioEngine::Listener m_FMODlistener;
+	AudioEngine::SoundDesc m_footSteps;
+	AudioEngine::SoundDesc m_smokeBomb; 
 private:
 	//First-person model
 	BaseActor* m_FirstPersonModel{ nullptr };
@@ -106,14 +118,14 @@ private:
 	float m_currentMoveSpeed = 0.0f;
 	float m_offPutY = 0.4f; 
 
-	bool m_currClickCrouch = false; 
-	bool m_prevClickCrouch = false;
-	bool m_currClickSprint = false; 
-	bool m_prevClickSprint = false; 
-	bool m_isSprinting = false; 
+	unsigned int m_prevClickCrouch = 0; 
+	unsigned int m_prevSprintInputType = 0;
 	
-	int m_toggleCrouch = 0; 
-	int m_toggleSprint = 0; 
+	bool m_toggleSprint = 0;
+	bool m_toggleCrouch = 0; 
+	
+	bool m_exitPause = false; 
+	
 
 	KeyPressed m_kp;
 	
@@ -147,6 +159,7 @@ private:
 	float m_peektimer = 0;
 	bool  m_allowPeek = true;
 	bool m_recentHeadCollision = false;
+
 	bool m_controlLayoutShown = false;
 
 	Circle * m_HUDcircle;
@@ -167,9 +180,10 @@ private:
 	int m_lastInteractRayId = -100;
 	int m_objectInfoRayId = -100; // objectInfo
 
+	PhysicsComponent* m_head = nullptr;
 public:
 	//Magic number
-	static const int g_fullVisability = 1300;
+	static const int g_fullVisability = 1000;
 
 	bool hasWon = false;
 	
@@ -187,6 +201,9 @@ public:
 	void PhysicsUpdate();
 
 	void setPosition(const float& x, const float& y, const float& z, const float& w = 1.0f) override;
+	void setPosition(const DirectX::XMFLOAT4A& pos) override;
+
+	void setPlayAnimation(bool playAnimation); 
 
 	void Draw() override;
 	void DrawHUDComponents();
@@ -202,21 +219,29 @@ public:
 	void SetCurrentVisability(const float & guard);
 	void SetCurrentSoundPercentage(const float & percentage);
 	void SetFirstPersonModel();
+	void setHeadbobbingActive(bool active); 
 	void LockPlayerInput();
 	bool IsInputLocked();
 	void UnlockPlayerInput();
 
+	void setExitPause(bool exitPause);
+
+	const bool& getHeadbobbingActive() const;
+	const bool& getExitPause() const; 
 	const float & getVisability() const;
 	const int & getFullVisability() const;
 	const bool & getWinState() const { return hasWon; }
+	const bool & getPlayerLocked() const; 
 	Animation::AnimationPlayer* GetFirstPersonAnimationPlayer();
 
 	const AudioEngine::Listener & getFMODListener() const; 
+	AudioEngine::SoundDesc& getSmokeBombDesc(); 
+
 	
 	//This is a way of checking if we can use the ability with out current mana
 	void SetAbilitySet(int set);
-
-	void setEnemyPositions(std::vector<Enemy *> enemys);
+	void SetModelAndTextures(int set);
+	void setEnemyPositions(std::vector<Enemy *> & enemys);
 
 	const Ability getCurrentAbility()const;
 	TeleportAbility * getTeleportAbility();
@@ -224,6 +249,8 @@ public:
 	bool GetMapPicked();
 	const int getInteractRayId();
 	const bool sameInteractRayId(int id);
+
+	void InstaWin();
 private:
 	void _collision();
 	void _handleInput(double deltaTime);
@@ -241,12 +268,12 @@ private:
 	void _updateFirstPerson(float deltaTime);
 	void _cameraPlacement(double deltaTime);
 	void _updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xmLastPos);
-	void _activateCrouch(); 
+	void _activateCrouch(const unsigned int inputType);
 	void _deActivateCrouch();
+	void _startSprint(const unsigned int inputType);
+	void _startWalk();
 	void _hasWon();
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);
-
-
 	void _loadHUD();
 	void _unloadHUD();
 	void _initSoundHUD();

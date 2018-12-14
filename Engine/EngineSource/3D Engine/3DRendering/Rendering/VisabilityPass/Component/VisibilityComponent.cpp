@@ -28,7 +28,11 @@ void VisibilityComponent::Init(Camera * cam)
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_frustum.s_frustumData.data();
 
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_frustum.s_frustumBuffer);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_frustum.s_frustumBuffer)))
+	{
+		DX::SetName(m_frustum.s_frustumBuffer, "s_frustumBuffer");
+	}
 
 	_createUAV();
 }
@@ -81,7 +85,6 @@ void VisibilityComponent::CalculateVisabilityFor(int playerIndex)
 		ShadowTestData killer = { 0 };
 		memcpy(dataPtr.pData, &killer, sizeof(ShadowTestData));
 		DX::g_deviceContext->CopyResource(m_UAV.uavTextureBuffer, m_UAV.uavTextureBufferCPU);
-		//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
 		DX::g_deviceContext->Unmap(m_UAV.uavTextureBufferCPU, 0);
 	}
 }
@@ -119,18 +122,27 @@ void VisibilityComponent::_createUAV()
 	TextureData.Usage = D3D11_USAGE_DEFAULT;
 
 	HRESULT hr;
-	hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_UAV.uavTextureBuffer);
+	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&TextureData, NULL, &m_UAV.uavTextureBuffer)))
+	{
+		DX::SetName(m_UAV.uavTextureBuffer, "Vis: uavTextureBuffer");
+	}
 
 	TextureData.Usage = D3D11_USAGE_STAGING;
 	TextureData.BindFlags = 0;
 	TextureData.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 
-	hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_UAV.uavTextureBufferCPU);
-
-	D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
-	ZeroMemory(&UAVdesc, sizeof(UAVdesc));
-	UAVdesc.Format = DXGI_FORMAT_R32_UINT;
-	UAVdesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	UAVdesc.Texture2D.MipSlice = 0;
-	hr = DX::g_device->CreateUnorderedAccessView(m_UAV.uavTextureBuffer, &UAVdesc, &m_UAV.UAV);
+	if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&TextureData, 0, &m_UAV.uavTextureBufferCPU)))
+	{
+		DX::SetName(m_UAV.uavTextureBufferCPU, "Vis: m_UAV.uavTextureBufferCPU");
+		D3D11_UNORDERED_ACCESS_VIEW_DESC UAVdesc;
+		ZeroMemory(&UAVdesc, sizeof(UAVdesc));
+		UAVdesc.Format = DXGI_FORMAT_R32_UINT;
+		UAVdesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+		UAVdesc.Texture2D.MipSlice = 0;
+			
+		if (SUCCEEDED(hr = DX::g_device->CreateUnorderedAccessView(m_UAV.uavTextureBuffer, &UAVdesc, &m_UAV.UAV)))
+		{
+			DX::SetName(m_UAV.UAV, "Vis: m_UAV.UAV");
+		}
+	}
 }

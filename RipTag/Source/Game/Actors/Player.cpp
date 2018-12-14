@@ -1,6 +1,12 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 #include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
+
+void Player::SetThrowing(bool throwing)
+{
+	m_IsThrowing = throwing;
+}
+
 //#todoREMOVE
 float Player::m_currentPitch = 0.0f;
 
@@ -17,7 +23,7 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 
 	//float convertion = (float)Input::GetPlayerFOV() / 100;
 	//p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 110.0f));
-	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 100.0f));
+	p_initCamera(new Camera(DirectX::XMConvertToRadians(Input::GetPlayerFOV()), 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(0, 0, 0);
 	m_lockPlayerInput = false;
 
@@ -65,6 +71,15 @@ Player::Player() : Actor(), CameraHolder(), PhysicsComponent(), HUDComponent()
 	SetFirstPersonModel();
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Player);
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+	m_smokeBomb.emitter = AudioEngine::Player; 
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 0.6f; 
+
+	m_head = DBG_NEW PhysicsComponent();
 }
 
 Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), CameraHolder(), PhysicsComponent()
@@ -72,6 +87,13 @@ Player::Player(RakNet::NetworkID nID, float x, float y, float z) : Actor(), Came
 	p_initCamera(new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 0.1f, 50.0f));
 	p_camera->setPosition(x, y, z);
 	m_lockPlayerInput = false;
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 Player::~Player()
@@ -85,6 +107,8 @@ Player::~Player()
 		delete m_abilityComponents2[i];
 	delete[] m_abilityComponents2;
 
+	m_head->Release(*RipExtern::g_world);
+	delete m_head;
 	HUDComponent::removeHUD();
 
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
@@ -101,11 +125,17 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	this->getBody()->SetObjectTag("PLAYER");
 	this->getBody()->AddToFilters("TELEPORT");
 
-	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (y*1.4);
-	m_crouchHeight = y * .5;
+	CreateShape(b3Vec3(0, y*0.70, 0), b3Vec3(x/2, y/2, z/2), 1.0f, 1.0f, "UPPERBODY");
+	CreateShape(b3Vec3(0, y*1.5, 0), b3Vec3(0.5f, 0.4f, 0.5f), 1.0f, 1.0f, "HEAD", true);
+	m_standHeight = y*0.6;
+	m_crouchHeight = y*0.2;
 	setUserDataBody(this);
+	
+	m_head->Init(world, bodyType, 0.4, 0.4, 0.4, false, 0);
+	m_head->getBody()->GetShapeList()->SetObjectTag("HEADO");
+	m_head->setGravityScale(0);
+	m_head->setObjectTag("HEADO");
+	m_head->getBody()->AddToFilters("PLAYER");
 
 	setEntityType(EntityType::PlayerType);
 	setColor(10, 10, 0, 1);
@@ -116,6 +146,13 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	setTextureTileMult(2, 2);
 
 	setHidden(true);
+	m_footSteps.emitter = AudioEngine::Player;
+	m_footSteps.owner = this;
+	m_footSteps.loudness = 1.0f;
+
+	m_smokeBomb.emitter = AudioEngine::Player;
+	m_smokeBomb.owner = this;
+	m_smokeBomb.loudness = 1.5f;
 }
 
 void Player::BeginPlay()
@@ -125,7 +162,9 @@ void Player::BeginPlay()
 #include <math.h>
 void Player::Update(double deltaTime)
 {
+#ifndef _DEPLOY
 	_cheats();
+#endif
 
 	/*if (getLiniearVelocity().y > 5.0f)
 		setLiniearVelocity(getLiniearVelocity().x, 5.0f, getLiniearVelocity().z);*/
@@ -196,6 +235,18 @@ void Player::Update(double deltaTime)
 
 			}
 		}
+
+		if (m_IsMoving())
+		{
+			if (!m_IsThrowing)
+			{
+				m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->ActivateLayerIfInactive("bob");
+			}
+		}
+		else
+		{
+			m_FirstPersonModel->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("bob");
+		}
 	}
 	const DirectX::XMFLOAT4A xmLP = p_camera->getPosition();
 	FMOD_VECTOR fvLP = { xmLP.x, xmLP.y, xmLP.z, };
@@ -218,15 +269,19 @@ void Player::Update(double deltaTime)
 
 	//m_activeSet[m_currentAbility]->Update(deltaTime);
 
+
 	for (int i = 0; i < m_nrOfAbilitys; i++)
 	{
+		
 		m_activeSet[i]->Update(deltaTime);
+		
 
 		/*if (i != m_currentAbility)
 		{
 			m_activeSet[i]->updateCooldown(deltaTime);
 		}*/
 	}
+
 
 	_cameraPlacement(deltaTime);
 	_updateFMODListener(deltaTime, xmLP);
@@ -245,6 +300,16 @@ void Player::Update(double deltaTime)
 		else
 			current->setAngle(m_activeSet[i]->getPercentage() * 360.0f);
 	}
+	
+	for (unsigned int i = 0; i < m_nrOfAbilitys; ++i)
+	{
+		Circle * current = m_abilityCircle[i+2];
+		if(m_activeSet[i]->GetAbilityChargeMax() == 1)
+		{
+			current->setInnerRadie(100.0f);	
+		}
+		current->setAngle(m_activeSet[i]->getAbilityChargesPercent() * 360.0f);
+	}
 
 	p_addRotation(0, p_camera->getYRotationEuler().y + DirectX::XM_PI * .5f, 0);
 
@@ -258,12 +323,39 @@ void Player::PhysicsUpdate()
 	PhysicsComponent::p_setRotation(0, p_camera->getEulerRotation().y, 0);
 	p_addRotation(0, DirectX::XM_PI * 1.5f, 0);
 
+
+	b3Vec3 vel = this->getLiniearVelocity();
+	b3Vec3 pos = this->getBody()->GetTransform().translation + this->getBody()->GetShapeList()->GetTransform().translation;
+	m_head->p_setRotation(0, p_camera->getYRotationEuler().y, 0);
+	m_head->p_setPosition(pos.x, pos.y, pos.z);
+	m_head->setLiniearVelocity(vel.x, vel.y, vel.z);
 }
 
 void Player::setPosition(const float& x, const float& y, const float& z, const float& w)
 {
 	Transform::setPosition(x, y, z, w);
 	PhysicsComponent::p_setPosition(x, y, z);
+}
+
+void Player::setPosition(const DirectX::XMFLOAT4A& pos)
+{
+	Transform::setPosition(pos);
+	PhysicsComponent::p_setPosition(pos.x, pos.y, pos.z);
+}
+
+void Player::setPlayAnimation(bool playAnimation)
+{
+	m_playAnimation = playAnimation; 
+}
+
+const bool & Player::getHeadbobbingActive() const
+{
+	return m_headBobbingActive; 
+}
+
+const bool & Player::getExitPause() const
+{
+	return m_exitPause; 
 }
 
 const float & Player::getVisability() const
@@ -274,6 +366,11 @@ const float & Player::getVisability() const
 const int & Player::getFullVisability() const
 {
 	return g_fullVisability;
+}
+
+const bool & Player::getPlayerLocked() const
+{
+	return m_lockPlayerInput; 
 }
 
 Animation::AnimationPlayer* Player::GetFirstPersonAnimationPlayer()
@@ -296,10 +393,36 @@ void Player::SetAbilitySet(int set)
 
 	m_activeSetID = set;
 
+	SetModelAndTextures(set);
 	_loadHUD();
 }
 
-void Player::setEnemyPositions(std::vector<Enemy*> enemys)
+void Player::SetModelAndTextures(int set)
+{
+	switch (set)
+	{
+	case 1:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	case 2:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER2"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER2"));
+		break;
+	}
+	default:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	}
+}
+
+void Player::setEnemyPositions(std::vector<Enemy*> & enemys)
 {
 	using namespace DirectX;
 	std::vector<DirectX::XMFLOAT2> relativEnemyPostions;
@@ -311,11 +434,15 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		DirectX::XMFLOAT2 pos = enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera());
 		if (fabs(pos.x) > 0 || fabs(pos.y) > 0)
 		{
-			relativEnemyPostions.push_back(enemys[i]->GetDirectionToPlayer(getPosition(), *getCamera()));
-			if (enemys[i]->getTotalVisibility() > totVis)
+			if (enemys[i]->getPlayerVisibility()[0] > 0.0f)
 			{
-				totVis = enemys[i]->getTotalVisibility();
-				maxVis = enemys[i]->getMaxVisibility();
+				relativEnemyPostions.push_back(pos);
+
+				if (enemys[i]->getTotalVisibility() > totVis)
+				{
+					totVis = enemys[i]->getTotalVisibility();
+					maxVis = enemys[i]->getMaxVisibility();
+				}
 			}
 		}
 	}
@@ -328,6 +455,11 @@ void Player::setEnemyPositions(std::vector<Enemy*> enemys)
 		m_enemyCircles[i]->setPosition(XMFLOAT2A(finalPos.x + (relativEnemyPostions[i].x * (m_HUDcircle->getScale().x / 4.0f)),
 			finalPos.y + (relativEnemyPostions[i].y * (m_HUDcircle->getScale().y / 4.0f))));
 	}
+}
+
+AudioEngine::SoundDesc & Player::getSmokeBombDesc() 
+{
+	return m_smokeBomb; 
 }
 
 const Ability Player::getCurrentAbility() const
@@ -364,6 +496,11 @@ const bool Player::sameInteractRayId(int id)
 		return true;
 	}
 	return false;
+}
+
+void Player::InstaWin()
+{
+	hasWon = true;
 }
 
 void Player::Draw()
@@ -440,28 +577,43 @@ void Player::SetFirstPersonModel()
 
 	//Animation stuff
 	{
+
+		///---Clips and poses---
 		auto idleClip = Manager::g_animationManager.getAnimation("ARMS", "IDLE_ANIMATION").get();
+		auto runClip = Manager::g_animationManager.getAnimation("ARMS", "RUN_ANIMATION").get();
 		auto bobClip = Manager::g_animationManager.getAnimation("ARMS", "BOB_ANIMATION").get();
 		auto thrwRdyClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_READY_ANIMATION").get();
 		auto thrwThrwClip = Manager::g_animationManager.getAnimation("ARMS", "THROW_THROW_ANIMATION").get();
 		auto phaseClip = Manager::g_animationManager.getAnimation("ARMS", "PHASE_ANIMATION").get();
 		auto turnLeftPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
 		auto turnRightPose = &Manager::g_animationManager.getAnimation("ARMS", "TURN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
-
+		///---------------------
 		auto animPlayer = m_FirstPersonModel->getAnimationPlayer();
-
-		auto& machine = animPlayer->InitStateMachine(3);
 		animPlayer->SetSkeleton(Manager::g_animationManager.getSkeleton("ARMS"));
+		auto& machine = animPlayer->InitStateMachine(3);
 
-		auto idleState = machine->AddBlendSpace1DState("idle", &AnimationDebugHelper::foo, -1.0f, 1.0f);
-		idleState->SetBlendTime(0.2f);
-		idleState->AddBlendNodes({ {idleClip, -1.0}, {idleClip, 1.0f} });
+		auto runState = machine->AddLoopState("run", runClip);
+		runState->SetDefaultBlendTime(.65f);
+
+		auto idleState = machine->AddLoopState("idle", idleClip);
+		idleState->SetDefaultBlendTime(.05f);
+		idleState->SetSpecificBlendTime(runState, 0.3f);
+
+		auto& idleToRun = idleState->AddOutState(runState);
+		auto& runToIdle = runState->AddOutState(idleState);
+		idleToRun.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_GREATER_THAN);
+		runToIdle.AddTransition(&m_moveSpeed, MOVE_SPEED * SPRINT_MULT - 0.01f, SM::COMPARISON_LESS_THAN);
+
 		auto throwReadyState = machine->AddPlayOnceState("throw_ready", thrwRdyClip);
+		throwReadyState->SetDefaultBlendTime(0.1f);
 		auto phaseState = machine->AddAutoTransitionState("phase", phaseClip, idleState);
+		phaseState->SetDefaultBlendTime(0.001f);
 		machine->SetState("idle");
 
+
 		auto throwFinishState = machine->AddAutoTransitionState("throw_throw", thrwThrwClip, idleState);
-		throwFinishState->SetBlendTime(0.0f);
+		throwFinishState->SetDefaultBlendTime(0.0f);
+		idleState->SetSpecificBlendTime(throwFinishState, .4f);
 
 		auto& layerMachine = animPlayer->InitLayerMachine(Manager::g_animationManager.getSkeleton("ARMS").get());
 		auto additiveState = layerMachine->AddBasicLayer("bob", bobClip, .3f, .3f);
@@ -472,6 +624,11 @@ void Player::SetFirstPersonModel()
 
 		animPlayer->Play();
 	}
+}
+
+void Player::setHeadbobbingActive(bool active)
+{
+	m_headBobbingActive = active; 
 }
 
 void Player::SendOnUpdateMessage()
@@ -619,6 +776,7 @@ void Player::SendOnAnimationUpdate(double dt)
 			this->m_currentDirection,
 			this->m_currentSpeed,
 			this->m_currentPitch,
+			this->m_currentPeek,
 			this->getCamera()->getYRotationEuler());
 		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENTITYANIMATIONPACKET), PacketPriority::LOW_PRIORITY);
 	}
@@ -643,24 +801,23 @@ void Player::_collision()
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
-		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
-			{
+		if (con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO")
+		{
 				m_allowPeek = true;
 				m_recentHeadCollision = true;
-			}
+		}
 	}
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
-		if (con.a->GetBody()->GetObjectTag() == "PLAYER" || con.b->GetBody()->GetObjectTag() == "PLAYER")
-			if (con.a->GetObjectTag() == "HEAD" || con.b->GetObjectTag() == "HEAD")
-			{
-				m_allowPeek = false;
-				peekDir = -LastPeekDir;
-				m_peekRangeA = m_peektimer;
-				m_peekRangeB = 0;
-			}
+
+		if ((con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
+		{
+			m_allowPeek = false;
+			peekDir = -LastPeekDir;
+			m_peekRangeA = m_peektimer;
+			m_peekRangeB = 0;
+		}
 	}
 }
 
@@ -754,14 +911,14 @@ void Player::_onMovement(double deltaTime)
 
 	if (RipExtern::g_rayListener->hasRayHit(m_headBobRayId))
 	{
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_headBobRayId);
-		RayCastListener::RayContact* con;
-		for (int i = 0; i < ray->getNrOfContacts(); i++)
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_headBobRayId);
+		RayCastListener::RayContact& con = ray.GetRayContact(0);
+		for (int i = 0; i < ray.getNrOfContacts(); i++)
 		{
-			con = ray->GetRayContact(i);
-			if (con->contactShape->GetObjectTag() == "NULL")
+			con = ray.GetRayContact(i);
+			if (con.contactShape->GetObjectTag() == "NULL")
 			{
-				if (fabs(con->normal.y) < 0.999f)
+				if (fabs(con.normal.y) < 0.999f)
 				{
 					p_setPosition(getPosition().x, getPosition().y, getPosition().z);
 					break;
@@ -793,141 +950,56 @@ void Player::_scrollMovementMod()
 
 void Player::_onSprint()
 {
-	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
-	{
-		if (Input::isUsingGamepad())
+	if(p_moveState != Crouching)
+		if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 		{
-			m_currClickSprint = Input::Sprinting();
-			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
-			{
-				m_toggleSprint = 1;
-			}
+			unsigned int sprintInputType = Input::Sprinting();
 
-			if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
+			if (sprintInputType == Input::InputType::Gamepad && Input::MoveForward() > 0.9)
 			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
+				if (p_moveState != Sprinting && !m_toggleSprint)
+					_startSprint(sprintInputType);
+				else if (p_moveState == Sprinting && !m_toggleSprint)
+					_startWalk();
+				m_toggleSprint = true;//Gamepad Input
 			}
+			else if (sprintInputType == Input::InputType::Keyboard && Input::MoveForward() > 0.9)
+				_startSprint(sprintInputType); //Keyboard Input
+			else if (p_moveState == Idle || m_prevSprintInputType == Input::InputType::Keyboard || (m_prevSprintInputType == Input::InputType::Gamepad && Input::MoveForward() < 0.9))
+				_startWalk(); //No Input
 			else
-			{
-				m_toggleSprint = 0;
-			}
-
-			if (m_toggleSprint == 0)
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
-
-			if (Input::MoveForward() == 0)
-			{
-				p_moveState = Idle;
-				m_toggleSprint = 0;
-			}
-
-			m_prevClickSprint = m_currClickSprint;
+				m_toggleSprint = false;
 		}
 		else
 		{
-			if (Input::Sprinting())
-			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
-
-			}
-			else
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
+			m_moveSpeed = 0;
+			p_moveState = Idle;
 		}
-	}
-	else
-	{
-		m_moveSpeed = 0;
-		p_moveState = Idle;
-	}
-
 }
 
 void Player::_onCrouch()
 {
-	using namespace Network;
-	if (Input::isUsingGamepad())
+	unsigned int crouchInputType = Input::Crouch();
+	if (crouchInputType == Input::InputType::Gamepad)
 	{
-		m_currClickCrouch = Input::Crouch();
-		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
-		{
-			this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
-			if (Multiplayer::GetInstance()->isConnected())
-			{
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-			}
-
-			_activateCrouch();
-			m_toggleCrouch = 1;
-		}
-		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
-		{
-			this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
-			if (Multiplayer::GetInstance()->isConnected())
-			{
-				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
-				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-			}
-
-			_deActivateCrouch();
-			m_toggleCrouch = 0;
-
-			//Just so we don't end up in an old sprint-mode when deactivating crouch.
-			m_toggleSprint = 0;
-		}
-		m_prevClickCrouch = m_currClickCrouch;
+		if (p_moveState != Crouching && !m_toggleCrouch)
+			_activateCrouch(crouchInputType);
+		else if (p_moveState == Crouching && !m_toggleCrouch)
+			_deActivateCrouch(); 			
+		m_toggleCrouch = true;
+	}
+	else if(crouchInputType == Input::InputType::Keyboard)
+	{
+		if (p_moveState != Crouching)
+			_activateCrouch(crouchInputType);
+		else
+			m_prevClickCrouch = Input::InputType::Keyboard;
 	}
 	else
 	{
-		if (Input::Crouch())
-		{
-			if (m_kp.crouching == false)
-			{
-				this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
-				if (Multiplayer::GetInstance()->isConnected())
-				{
-					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
-					Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-				}
-
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
-				crouchDir = 1;
-
-				m_kp.crouching = true;
-			}
-		}
-		else
-		{
-			if (m_kp.crouching)
-			{
-				this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
-				if (Multiplayer::GetInstance()->isConnected())
-				{
-					Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
-					Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
-				}
-
-				crouchDir = -1;
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
-
-				m_kp.crouching = false;
-			}
-		}
-	}
-
-	if (m_kp.crouching)
-	{
-		m_moveSpeed = MOVE_SPEED * 0.5f;
+		m_toggleCrouch = false;
+		if (m_prevClickCrouch == Input::InputType::Keyboard && p_moveState == Crouching)
+			_deActivateCrouch();
 	}
 }
 
@@ -977,26 +1049,44 @@ void Player::_onPeak(double deltaTime)
 			}
 			else
 			{
-				m_peekRangeA = Input::PeekRight();
-				m_peekRangeB = -Input::PeekRight();
+				if (fabs(Input::PeekRight()) < fabs(m_peektimer))
+				{
+					m_peekRangeA = m_peektimer;
+					m_peekRangeB = -m_peektimer;
+				}
+				else
+				{
+					m_peekRangeA = Input::PeekRight();
+					m_peekRangeB = -Input::PeekRight();
+				}
 
 				if (Input::PeekRight() > 0) //Left Side
 					peekDir = 1;
 				if (Input::PeekRight() < 0) //Right Side
 					peekDir = -1;
 
-				LastPeekDir = peekDir;
+				if (peekDir != LastPeekDir) //Change in Direction
+				{
+					LastPeekDir = peekDir;
+				}
+				
 			}
 		}
-
 	}
 	else //Return to default pos
 	{
-		m_recentHeadCollision = false;
+		if (m_peekRangeA == m_peektimer)
+		{
+			LastPeekDir = peekDir;
+		}
 		peekDir = -LastPeekDir;
 		m_peekRangeA = m_peektimer;
 		m_peekRangeB = 0;
+		m_recentHeadCollision = false;
+
 	}
+
+	m_currentPeek = /*peekDir * */m_peektimer;
 
 }
 
@@ -1005,56 +1095,53 @@ void Player::_onInteract()
 	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
 	{
 		const int tempRayId = m_interactRayId;
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_interactRayId);
-		RayCastListener::RayContact* con;
-		for (int i = 0; i < ray->getNrOfContacts(); i++)
-		{
-			con = ray->GetRayContact(i);
-			if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_interactRayId);
+		RayCastListener::RayContact& con = ray.getClosestContact(true);
+		/*for (int i = 0; i < ray->getNrOfContacts(); i++)
+		{*/
+			if (ray.getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+				if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
 				{
 					//do the pickups
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
+				{
+					static_cast<Lever*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
+				}
+				else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
+				{
+					static_cast<Torch*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
+				}
+				else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
 
-					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
 				{
-					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
-				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
-				{
-
-				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL")
-				{
-					//*con->consumeState += 1;
 					//std::cout << "illusory wall ahead" << std::endl;
-					//Snuff out torches (example)
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "ROCK_PICKUP")
 				{
 					//lol wtf is dis
-					Rock * rock = static_cast<Rock*>(con->contactShape->GetBody()->GetUserData());
+					Rock * rock = static_cast<Rock*>(con.contactShape->GetBody()->GetUserData());
 					if (m_rockCounter < MAXROCKS)
 					{
 						rock->DeleteRock();
 						m_rockCounter++;
 					}
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "MAP")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "MAP")
 				{
 					//Mange vafan, autolol p� dej
-					Map * autoLol = static_cast<Map*>(con->contactShape->GetBody()->GetUserData());
+					Map * autoLol = static_cast<Map*>(con.contactShape->GetBody()->GetUserData());
 					autoLol->DeleteMap();
 					m_MapPicked = true;
 					//std::cout << "MAP" << std::endl;
 				}
+				
 			}
-		}
+		//}
 	}
 
 	if (Input::Interact())
@@ -1082,90 +1169,70 @@ void Player::_onAbility(double dt)
 //Sends a ray every second and check if there is relevant data for the object to show on the screen
 void Player::_objectInfo(double deltaTime)
 {
-	//if (m_tutorialActive)
-	//{
 	const int tempId = m_objectInfoRayId;
+	//m_cross->setString("");
 	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 	{
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
-		RayCastListener::RayContact* cContact = ray->getClosestContact();
-		RayCastListener::RayContact* cContact2 = cContact;
-		float interactFractionRange = Player::INTERACT_RANGE / 10;
-		if (ray->getNrOfContacts() >= 2)
-			cContact2 = ray->GetRayContacts()[ray->getNrOfContacts() - 2];
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
+		RayCastListener::RayContact& cContact = ray.getClosestContact(true);
 
-		if (cContact->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact->fraction <= interactFractionRange)
+		/*std::string ass = cContact.contactShape->GetBody()->GetObjectTag();
+
+		m_cross->setString(ass);*/
+
+		float interactFractionRange = Player::INTERACT_RANGE / Player::OBJECT_INFO_RANGE;
+		if (cContact.contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact.fraction <= interactFractionRange)
 		{
 			m_cross->setUnpressedTexture("CROSSHAND");
 			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 		}
-		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact2->fraction <= interactFractionRange)
-		{
-			m_cross->setUnpressedTexture("CROSSHAND");
-			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-		}
-		else if (cContact->contactShape->GetBody()->GetObjectTag() == "TORCH"&& cContact->fraction <= interactFractionRange)
+		else if (cContact.contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact.fraction <= interactFractionRange)
 		{
 			m_cross->setUnpressedTexture("CROSSHAND");
 			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
 			//Snuff out torches
 		}
-		else if (cContact2->contactShape->GetBody()->GetObjectTag() == "TORCH" && cContact2->fraction <= interactFractionRange)
-		{
-			m_cross->setUnpressedTexture("CROSSHAND");
-			m_cross->setScale(DirectX::XMFLOAT2A(0.6f / 16.0, 0.6f / 9.0f));
-		}
 		else if (m_activeSetID == 2)
 		{
-			if (cContact->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+			if (cContact.contactShape->GetBody()->GetObjectTag() == "ENEMY" && cContact.fraction <= (PossessGuard::RANGE / Player::OBJECT_INFO_RANGE))
 			{
 				m_cross->setUnpressedTexture("CROSSPOSSESS");
 				m_cross->setScale(DirectX::XMFLOAT2A(1.2f / 16.0, 1.2f / 9.0f));
 			}
-			else if (cContact->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact->fraction <= interactFractionRange)
+			else if (cContact.contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact.fraction <= (BlinkAbility::RANGE / Player::OBJECT_INFO_RANGE))
 			{
-				//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-					//m_infoText->setString("Press RB to pass");
-				m_cross->setUnpressedTexture("CROSSPHASE");
-				m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
-			}
-			else if (cContact2->contactShape->GetBody()->GetObjectTag() == "BLINK_WALL" && cContact2->fraction <= interactFractionRange)
-			{
-				//if (cContact->fraction <= interactFractionRange || cContact2->fraction <= interactFractionRange)
-					//m_infoText->setString("Press RB to pass");
 				m_cross->setUnpressedTexture("CROSSPHASE");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.9f / 16.0, 0.9f / 9.0f));
 			}
 			else
 			{
-				//m_infoText->setString("");
 				m_cross->setUnpressedTexture("CROSS");
 				m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 			}
+
+
+
 		}
 		else
 		{
-			//m_infoText->setString("");
 			m_cross->setUnpressedTexture("CROSS");
 			m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 		}
 	}
 	else if (tempId != m_objectInfoRayId)
 	{
-		//m_infoText->setString("");
 		m_cross->setUnpressedTexture("CROSS");
 		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 	}
-
+	
 	if (m_objectInfoTime >= 0.1f)
 	{
 		if (m_objectInfoRayId == -100)
-			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), 10);
+			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), Player::OBJECT_INFO_RANGE);
 
 		m_objectInfoTime = 0;
 	}
 	m_objectInfoTime += deltaTime;
-	//}
 }
 
 void Player::_updateFirstPerson(float deltaTime)
@@ -1175,6 +1242,7 @@ void Player::_updateFirstPerson(float deltaTime)
 	const auto offset = XMMatrixMultiply(XMMatrixTranspose(XMMatrixTranslation(0.0, -1.23f, -.45)), XMMatrixScaling(.1, .1, .1));
 	m_FirstPersonModel->ForceWorld(XMMatrixMultiply(XMMatrixInverse(nullptr, XMLoadFloat4x4A(&CameraHolder::getCamera()->getView())), offset));
 
+	if(m_playAnimation)
 	m_FirstPersonModel->getAnimationPlayer()->Update(deltaTime);
 }
 
@@ -1186,7 +1254,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 
 	//-------------------------------------------Peeking--------------------------------------------// 
-
+	
 	m_peektimer += peekDir * (float)deltaTime *m_peekSpeed;
 
 	if (m_peekRangeB > m_peekRangeA)
@@ -1228,7 +1296,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	m_crouchAnimSteps += crouchDir * (float)deltaTime*m_crouchSpeed;
 	m_crouchAnimSteps = std::clamp(m_crouchAnimSteps, 0.0f, 1.0f);
-	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps) - m_standHeight;
+	headPosLocal.y += lerp(m_standHeight, m_crouchHeight, m_crouchAnimSteps);
 
 	if (m_crouchAnimSteps == 1 || m_crouchAnimSteps == 0) //Animation Finished
 	{
@@ -1237,7 +1305,7 @@ void Player::_cameraPlacement(double deltaTime)
 
 	//--------------------------------------Camera movement---------------------------------------// 
 	b3Vec3 headPosWorld = this->getBody()->GetTransform().translation + headPosLocal;
-	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y + 0.75f, headPosWorld.z, 1.0f);
+	DirectX::XMFLOAT4A pos = DirectX::XMFLOAT4A(headPosWorld.x, headPosWorld.y, headPosWorld.z, 1.0f);
 	p_camera->setPosition(pos);
 	//Camera Tilt
 	p_CameraTilting(deltaTime, m_peektimer);
@@ -1246,10 +1314,14 @@ void Player::_cameraPlacement(double deltaTime)
 	static bool hasPlayed = true;
 	static int last = 0;
 
-	//Head Bobbing
-	float offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+	float offsetY = 0;
 
-	pos.y += offsetY;
+	//Head Bobbing
+	if (m_headBobbingActive)
+	{
+		offsetY = p_viewBobbing(deltaTime, m_currentMoveSpeed, this->getBody());
+		pos.y += offsetY;
+	}
 
 	//Footsteps
 	if (p_moveState == Walking || p_moveState == Sprinting)
@@ -1261,20 +1333,34 @@ void Player::_cameraPlacement(double deltaTime)
 				hasPlayed = true;
 				auto xmPos = getPosition();
 				FMOD_VECTOR at = { xmPos.x, xmPos.y, xmPos.z };
-				int index = -1;
-				while (index == -1 || index == last)
-				{
-					index = rand() % (int)RipSounds::g_stepsStone.size();
-				}
-				FMOD::Channel * c = nullptr;
-				c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
 				b3Vec3 vel = getLiniearVelocity();
 				DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 				float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
+				m_footSteps.loudness = speed + (speed * p_moveState * 0.5f);
+				FMOD::Channel * c = nullptr;
+				float vol = 1.0f;
+				
+				int index = -1;
+				if (speed > 3.0f) // running
+				{
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_hardStep.size();
+					}
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_hardStep[index], &at, &m_footSteps);
+					vol = speed / 5.0f;
+				}
+				else
+				{
+					while (index == -1 || index == last)
+					{
+						index = rand() % (int)RipSounds::g_sneakStep.size();
+					}
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_sneakStep[index], &at, &m_footSteps);
+					vol = speed / 3.0f;
+				}
+				c->setVolume(std::clamp(vol, 0.0f, 1.0f));
 
-				speed *= 0.1;
-				speed -= 0.2f;
-				c->setVolume(speed);
 				last = index;
 			}
 		}
@@ -1316,18 +1402,51 @@ void Player::_updateFMODListener(double deltaTime, const DirectX::XMFLOAT4A & xm
 	m_FMODlistener.forward = { xmDir.x, xmDir.y, xmDir.z };
 	m_FMODlistener.vel = vel;
 }
-void Player::_activateCrouch()
+void Player::_activateCrouch(const unsigned int inputType)
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 	crouchDir = 1;
-	m_kp.crouching = true;
+	m_moveSpeed = MOVE_SPEED * 0.5f;
+	p_moveState = Crouching;
+	m_prevClickCrouch = inputType;
+
+	this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
+	if (Network::Multiplayer::GetInstance()->isConnected())
+	{
+		Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+	}
 }
 
 void Player::_deActivateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 	crouchDir = -1;
-	m_kp.crouching = false;
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Idle;
+	m_prevClickCrouch = Input::InputType::None;
+
+	this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
+	if (Network::Multiplayer::GetInstance()->isConnected())
+	{
+		Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_CROUCH_END);
+		Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+	}
+}
+
+void Player::_startSprint(const unsigned int inputType)
+{
+	m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+	p_moveState = Sprinting;
+	m_scrollMoveModifier = 0.9f;
+	m_prevSprintInputType = inputType;
+}
+
+void Player::_startWalk()
+{
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Walking;
+	m_prevSprintInputType = 0;
 }
 
 void Player::SendOnWinState()
@@ -1407,6 +1526,13 @@ b3Vec3 Player::_slerp(b3Vec3 start, b3Vec3 end, float percent)
 	return (tempStart + tempRelativeVec);
 }
 
+
+
+void Player::setExitPause(bool exitPause)
+{
+	m_exitPause = exitPause; 
+}
+
 void Player::_loadHUD()
 {
 	_unloadHUD();
@@ -1416,7 +1542,7 @@ void Player::_loadHUD()
 	else
 		HUDComponent::InitHUDFromFile(PlayerTwoHUDPath);
 
-	m_abilityCircle = new Circle*[2];
+	m_abilityCircle = new Circle*[4];
 	m_abilityCircle[0] = new Circle();
 	m_abilityCircle[0]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
 	m_abilityCircle[0]->setRadie(.53f);
@@ -1431,8 +1557,28 @@ void Player::_loadHUD()
 	m_abilityCircle[1]->setUnpressedTexture("DAB");
 	m_abilityCircle[1]->setAngle(360);
 
+	m_abilityCircle[2] = new Circle();
+	m_abilityCircle[2]->init(DirectX::XMFLOAT2A(.05f, .2f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[2]->setRadie(.44f);
+	m_abilityCircle[2]->setInnerRadie(.40f);
+	m_abilityCircle[2]->setUnpressedTexture("DAB");
+	m_abilityCircle[2]->setAngle(360);
+	m_abilityCircle[2]->setColor(1,0,0,1);
+
+	m_abilityCircle[3] = new Circle();
+	m_abilityCircle[3]->init(DirectX::XMFLOAT2A(.1f, .08f), DirectX::XMFLOAT2A(2.2f / 16.0f, 2.2f / 9.0f));
+	m_abilityCircle[3]->setRadie(.44f);
+	m_abilityCircle[3]->setInnerRadie(.40f);
+	m_abilityCircle[3]->setUnpressedTexture("DAB");
+	m_abilityCircle[3]->setAngle(360);
+	m_abilityCircle[3]->setColor(1, 0, 0, 1);
+
+	
+
 	HUDComponent::AddQuad(m_abilityCircle[0]);
 	HUDComponent::AddQuad(m_abilityCircle[1]);
+	HUDComponent::AddQuad(m_abilityCircle[2]);
+	HUDComponent::AddQuad(m_abilityCircle[3]);
 
 	m_cross = HUDComponent::GetQuad("Cross");
 	m_cross->setScale(DirectX::XMFLOAT2A(.1f / 16.0, .1f / 9.0f));

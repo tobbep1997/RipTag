@@ -1,10 +1,5 @@
 #pragma once
-#include <d3d11.h>
-#include <d3dcsx.h>
-#include <d3dcompiler.h>
-#include <DirectXMath.h>
-#include <iostream>
-#include <time.h>
+#include <filesystem>
 
 class ParticleEmitter;
 
@@ -14,11 +9,17 @@ public:
 	ParticleSystem();
 	~ParticleSystem();
 
-	int nrOfEmitters;
-
 	std::vector<ParticleEmitter*> m_ParticleEmitter;
-	void Draw();
 
-	void Reset();
+	void Queue();
+	void Update(float timeDelata, Camera * camera);
+
+	void AddEmitter(ParticleEmitter * pEmitter);
+	
+	void clearEmitters();
+
+private: 
+	void _loadParticleShaders();
+	void _loadParticleTextures();
 };
 

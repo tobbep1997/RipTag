@@ -14,7 +14,8 @@ private:
 	static bool m_keysPressed[256];
 	
 	static bool m_mouseKeys[3];
-	static bool m_mouseWasPressed[3]; 
+	static bool m_mouseWasPressed[3];
+	static bool m_mouseKeyReleased[3];
 	static DirectX::XMFLOAT2 m_mousePos; 
 	static float m_scrollDelta; 
 	static DirectX::XMINT2 m_windowSize; 

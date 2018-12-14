@@ -19,8 +19,8 @@ class DXRHC
 {
 public:
 public:
-	static HRESULT CreateConstantBuffer(ID3D11Buffer *& buffer, UINT size);
-	static HRESULT CreateSamplerState(ID3D11SamplerState *& sampler, 
+	static HRESULT CreateConstantBuffer(const std::string & name, ID3D11Buffer *& buffer, UINT size);
+	static HRESULT CreateSamplerState(const std::string & name, ID3D11SamplerState *& sampler,
 		D3D11_TEXTURE_ADDRESS_MODE d3_tx_ad_mode = D3D11_TEXTURE_ADDRESS_CLAMP,
 		D3D11_FILTER d3_filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR,
 		D3D11_COMPARISON_FUNC d3_comp_func = D3D11_COMPARISON_NEVER,
@@ -29,7 +29,7 @@ public:
 		float maxLod = D3D11_FLOAT32_MAX,
 		float mipLoadBias = 0.0f,
 		UINT maxAnisotropy = 0);
-	static HRESULT CreateTexture2D(ID3D11Texture2D *& texture,
+	static HRESULT CreateTexture2D(const std::string & name, ID3D11Texture2D *& texture,
 		UINT height,
 		UINT width,
 		UINT bindFlags = 0,
@@ -42,7 +42,7 @@ public:
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT
 		);
-	static HRESULT CreateDepthStencilView(ID3D11Resource * resource,
+	static HRESULT CreateDepthStencilView(const std::string & name, ID3D11Resource * resource,
 		ID3D11DepthStencilView *& dsv,
 		UINT flags = 0,
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
@@ -51,7 +51,7 @@ public:
 		UINT texture2DArray_ArraySize = 1,
 		UINT texture2DArray_MipSlice = 0);
 
-	static HRESULT CreateShaderResourceView(ID3D11Resource * resource,
+	static HRESULT CreateShaderResourceView(const std::string & name, ID3D11Resource * resource,
 		ID3D11ShaderResourceView *& srv,
 		UINT flags = 0,
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
@@ -61,7 +61,7 @@ public:
 		UINT texture2DArray_MostDetailMip = 0,
 		UINT texture2DArray_MipLevel = 1);
 
-	static HRESULT CreateRenderTargetView(ID3D11Resource * resource,
+	static HRESULT CreateRenderTargetView(const std::string & name, ID3D11Resource * resource,
 		ID3D11RenderTargetView *& rtv,	
 		DXGI_FORMAT format = DXGI_FORMAT_R32_TYPELESS,
 		D3D11_RTV_DIMENSION dimension = D3D11_RTV_DIMENSION_TEXTURE2D,
@@ -69,13 +69,13 @@ public:
 		UINT texture2DArray_FirstArraySlice = 0,
 		UINT texture2DArray_MipSlice = 0);
 
-	static void MapBuffer(ID3D11Buffer *& buffer,
+	static HRESULT MapBuffer(ID3D11Buffer *& buffer,
 		void* input,
 		unsigned int inputSize,
 		unsigned int slot = 0, 
 		unsigned int numBuffer = 0,
 		ShaderTypes i_shader = ShaderTypes::vertex);
-	static HRESULT CreateRasterizerState(ID3D11RasterizerState *& rasterrizerState,
+	static HRESULT CreateRasterizerState(const std::string & name, ID3D11RasterizerState *& rasterrizerState,
 		BOOL antialiasedLineEnable = FALSE,
 		D3D11_CULL_MODE cullMode = D3D11_CULL_NONE,
 		INT depthBias = 0,
@@ -86,7 +86,7 @@ public:
 		BOOL multisampleEnable = FALSE,
 		BOOL scissorEnable = FALSE,
 		FLOAT SlopeScaledDepthBias = 0.0f);
-	static HRESULT CreateBlendState(ID3D11BlendState *& blendState,
+	static HRESULT CreateBlendState(const std::string & name, ID3D11BlendState *& blendState,
 		BOOL BlendEnable = true,
 		D3D11_BLEND SrcBlend = D3D11_BLEND_SRC_ALPHA,
 		D3D11_BLEND DestBlend = D3D11_BLEND_INV_SRC_ALPHA,

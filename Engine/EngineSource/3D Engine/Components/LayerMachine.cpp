@@ -71,6 +71,7 @@ void LayerMachine::ActivateLayer(std::string layerName)
 	auto layer = m_Layers.at(layerName);
 	layer->Reset();
 	layer->SetEndlessLoop();
+	layer->BlendIn();
 	m_ActiveLayers.push_back(layer);
 }
 
@@ -79,10 +80,39 @@ void LayerMachine::ActivateLayer( std::string layerName, float loopCount)
 	auto layer = m_Layers.at(layerName);
 	layer->SetPlayTime(loopCount);
 	layer->PopOnFinish();
+	layer->BlendIn();
 	if (!_mildResetIfActive(layer))
 	{
 		layer->Reset();
 		m_ActiveLayers.push_back(layer);
+	}
+}
+
+void LayerMachine::ActivateLayerIfInactive(std::string layer)
+{
+	auto it = std::find_if(
+		m_ActiveLayers.begin(), 
+		m_ActiveLayers.end(), 
+		[&](const auto& element) {return element->GetName() == layer; });
+
+	if (it == std::end(m_ActiveLayers))
+	{
+		ActivateLayer(layer);
+	}
+	else
+	{
+		if ((*it)->GetState() == LayerState::BLENDING_OUT)
+		{
+			(*it)->BlendIn();
+		}
+	}
+}
+
+void LayerMachine::PopAll()
+{
+	while (!m_ActiveLayers.empty())
+	{
+		PopLayer(m_ActiveLayers[0]);
 	}
 }
 
@@ -99,7 +129,6 @@ void LayerMachine::PopLayer(LayerState* state)
 	if (it != std::end(m_ActiveLayers)) 
 	{
 		m_ActiveLayers.erase(it);
-		//m_ActiveLayers.erase(it);
 	}
 }
 
@@ -107,6 +136,14 @@ void LayerMachine::PopLayer(std::string layer)
 {
 	auto pLayer = m_Layers.at(layer);
 	PopLayer(pLayer);
+}
+
+void LayerMachine::BlendOutLayer(std::string layer)
+{
+	auto pLayer = m_Layers.at(layer);
+	auto it = std::find(m_ActiveLayers.begin(), m_ActiveLayers.end(), pLayer);
+	if (it != std::end(m_ActiveLayers))
+		pLayer->BlendOut();
 }
 
 uint16_t LayerMachine::GetSkeletonJointCount()
@@ -125,14 +162,30 @@ bool LayerMachine::_mildResetIfActive(LayerState* layer)
 	else return false;
 }
 
+
+
 LayerState::~LayerState()
 {
 }
 
 void LayerState::BlendOut()
 {
-	m_BlendState = BLENDING_OUT;
-	m_CurrentBlendTime = m_BlendOutTime;
+	if (m_BlendState != BLENDING_OUT)
+	{
+		m_CurrentBlendTime = m_BlendState == BLENDING_IN
+			? m_CurrentBlendTime
+			: m_BlendOutTime;
+		m_BlendState = BLENDING_OUT;
+	}
+}
+
+void LayerState::BlendIn()
+{
+	m_CurrentBlendTime = m_BlendState == BLENDING_OUT
+		? m_CurrentBlendTime
+		: 0.0f;
+
+	m_BlendState = BLENDING_IN;
 }
 
 void LayerState::PopOnFinish()
@@ -191,10 +244,12 @@ void LayerState::_updateBlend(float deltaTime)
 	{
 		m_CurrentBlendTime += deltaTime;
 
-		if (m_CurrentBlendTime > m_BlendOutTime)
+		if (m_CurrentBlendTime > m_BlendInTime)
 		{
 			m_BlendState = NONE;
 		}
+
+		//std::cout << "IN: " << m_CurrentBlendTime << '\n';
 
 		break;
 	}
@@ -206,7 +261,10 @@ void LayerState::_updateBlend(float deltaTime)
 		{
 			m_OwnerMachine->PopLayer(this);
 			m_IsPopped = true;
+			m_BlendState = NONE;
 		}
+
+		//std::cout << "OUT: " << m_CurrentBlendTime << '\n';
 
 		break;
 	}
@@ -257,10 +315,10 @@ BasicLayer::~BasicLayer()
 std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float deltaTime)
 {
 	_updateDriverWeight();
+	_updateBlend(deltaTime);
 	deltaTime *= m_CurrentDriverWeight;
+	_updateTime(deltaTime);
 
-	LayerState::_updateTime(deltaTime);
-	LayerState::_updateBlend(deltaTime);
 	if (!LayerState::IsPopped())
 	{
 		auto indexAndProgression = LayerState::_getIndexAndProgression();
@@ -273,10 +331,11 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 			if (currentState == BLENDING_OUT)
 			{
 				weight = m_CurrentBlendTime / m_BlendOutTime;
+				//std::cout << "Blend weight: " << weight << '\n';
 			}
 			else if (currentState == BLENDING_IN)
 			{
-				weight = 1.0f - (m_CurrentBlendTime / m_BlendInTime);
+				weight = (m_CurrentBlendTime / m_BlendInTime);
 			}
 		}
 
@@ -294,6 +353,7 @@ std::optional<Animation::SkeletonPose> BasicLayer::UpdateAndGetFinalPose(float d
 		//Scale pose if between 0.0 and 1.0
 		if (weight >= 0.0f || weight < 0.9999f)
 		{
+			//std::cout << "\tFinal weight: " << weight << '\n';
 			Animation::AnimationPlayer::_ScalePose(&pose, weight, m_OwnerMachine->GetSkeletonJointCount());
 		}
 
@@ -395,6 +455,11 @@ Pose1DLayer::~Pose1DLayer()
 	}
 }
 
+void Pose1DLayer::UseSmoothDriver(bool use /*= true*/)
+{
+	m_UseSmoothDriver = use;
+}
+
 std::optional<Animation::SkeletonPose> Pose1DLayer::UpdateAndGetFinalPose(float deltaTime)
 {
 	auto posesAndWeight = GetPosesAndWeight(deltaTime);
@@ -418,12 +483,17 @@ float lerp(float a, float b, float f)
 
 Pose1DLayer::PosesAndWeight Pose1DLayer::GetPosesAndWeight(float deltaTime)
 {
-	float driverDelta = std::clamp(std::fabs(m_LastDriver - *m_Driver), .1f, 5.f);
-	float smoothDriver = lerp(m_LastDriver, *m_Driver, driverDelta * deltaTime);
-	m_LastDriver = smoothDriver;
+	float newDriver = *m_Driver;
+	if (m_UseSmoothDriver)
+	{
+		float driverDelta = std::clamp(std::fabs(m_LastDriver - *m_Driver), .1f, 5.f);
+		newDriver = lerp(m_LastDriver, *m_Driver, driverDelta * deltaTime);
+	}
+
+	m_LastDriver = newDriver;
 
 	auto secondPoseIt = std::find_if(m_Poses.begin(), m_Poses.end(),
-		[&](const auto& pair) { return pair.second >= smoothDriver; });
+		[&](const auto& pair) { return pair.second >= newDriver; });
 
 	if (secondPoseIt == std::end(m_Poses))
 		return { nullptr, (m_Poses.end() - 1)->first, 1.0f };
@@ -437,10 +507,10 @@ Pose1DLayer::PosesAndWeight Pose1DLayer::GetPosesAndWeight(float deltaTime)
 		const float firstFloat = firstPoseIt->second;
 		const float secondFloat = secondPoseIt->second;
 
-		assert(firstFloat <= smoothDriver && secondFloat >= smoothDriver);
+		assert(firstFloat <= newDriver && secondFloat >= newDriver);
 
-		float weight = (smoothDriver - firstFloat) / (secondFloat - firstFloat);
-		m_LastDriver = smoothDriver;
+		float weight = (newDriver - firstFloat) / (secondFloat - firstFloat);
+		m_LastDriver = newDriver;
 
 		return { firstPoseIt->first, secondPoseIt->first, weight };
 	}

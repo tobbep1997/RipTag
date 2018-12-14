@@ -82,7 +82,7 @@ public:
 
 	virtual void CreateBodyAndShape(b3World & world);
 
-	virtual void CreateShape(float x = 1, float y = 1, float z = 1, float sizeX = 1, float sizeY = 1, float sizeZ = 1, std::string objectTag = "NULL", bool isSensor = false);
+	virtual void CreateShape(b3Vec3 position = b3Vec3(0,0,0), b3Vec3 size = b3Vec3(1, 1, 1), float density = 1.0f, float friction = 0.0f, std::string objectTag = "NULL", bool isSensor = false);
 
 	virtual void setGravityScale(float gravity);
 
@@ -103,4 +103,6 @@ public:
 	
 
 	virtual b3Body* getBody();
+	const b3Hull * getHull();
+	b3Shape * getShape();
 };

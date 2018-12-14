@@ -22,6 +22,11 @@
     <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertexAnimated.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowGeometry.hlsl" />
     <FxCompile Include="EngineSource\Shader\Shaders\ShadowMap\ShadowVertex.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\DestructionGeometryShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\PreAnimatedDestructionShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\DestructionPixelShader.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\Skybox\SkyboxVertex.hlsl" />
+    <FxCompile Include="EngineSource\Shader\Shaders\Skybox\SkyboxPixel.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EngineSource\3D Engine\3DRendering\Framework\DirectXRenderingHelpClass.cpp" />
@@ -65,6 +70,8 @@
     <ClCompile Include="EngineSource\3D Engine\Components\LayerMachine.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.cpp" />
     <ClCompile Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\3DRendering\Rendering\Skybox\SkyBox.cpp" />
+    <ClCompile Include="EngineSource\3D Engine\3DRendering\IRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -126,6 +133,8 @@
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\AnimationPlayer.h" />
     <ClInclude Include="EngineSource\3D Engine\Model\Meshes\SkinnedMesh.h" />
     <ClInclude Include="EngineSource\Helper\AnimationHelpers.h" />
+    <ClInclude Include="EngineSource\3D Engine\3DRendering\Rendering\Skybox\SkyBox.h" />
+    <ClInclude Include="EngineSource\3D Engine\3DRendering\IRender.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EngineSource\Shader\Shaders\LightCalc.hlsli" />

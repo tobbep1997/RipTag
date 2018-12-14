@@ -33,11 +33,37 @@ bool MeshManager::loadSkinnedMesh(const std::string & meshName)
 	SkinnedMesh* tempMesh = new SkinnedMesh();
 	std::string fullPath = this->_getFullPath(meshName);
 	unsigned int key = this->_getKey(fullPath);
+	if (m_staticMesh[key].size() == 0)
+	{
+		tempMesh->setName(fullPath);
+		tempMesh->LoadMesh(fullPath);
+		m_skinnedMesh[key].push_back(tempMesh);
+	}
+	else
+	{
+		bool duplicate = false;
+		for (unsigned int i = 0; i < m_skinnedMesh[key].size(); i++)
+		{
+			if (m_skinnedMesh[key].at(i)->getName() == fullPath)
+			{
+				duplicate = true;
+			}
+		}
+		if (duplicate == false)
+		{
+			tempMesh->setName(fullPath);
+			tempMesh->LoadMesh(fullPath);
+			m_skinnedMesh[key].push_back(tempMesh);
+		}
+		else
+		{
+			//Mesh already loaded
+			delete tempMesh;
+			return false;
+		}
+		
 
-	tempMesh->setName(fullPath);
-	tempMesh->LoadMesh(fullPath);
-
-	m_skinnedMesh[key].push_back(tempMesh);	
+	}
 	return true;
 }
 

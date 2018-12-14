@@ -10,13 +10,13 @@ PointLight::PointLight()
 	{1.0f, 1.0f},
 	5.5f
 	};
-	m_nearPlane = 0.1f;
+	m_nearPlane = 0.01f;
 	_initDirectX();
 	_setFarPlane();
-	//m_phys.Init(*RipExtern::g_world, e_staticBody, 0.01f, 0.01f, 0.01f);
-	//m_phys.p_setPosition(-999,-9999,-99999);
-	//m_phys.setObjectTag("FUCKOFF");
-	//m_phys.setUserDataBody(this);
+	for (int i = 0; i < 6; i++)
+	{
+		m_useSides[i] = TRUE;
+	}
 }
 
 PointLight::PointLight(float * translation, float * color, float intensity)
@@ -27,7 +27,7 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	{1.0f, 1.0f},
 	5.5f
 	};
-	m_nearPlane = 0.1f;
+	m_nearPlane = 0.01f;
 	_initDirectX();
 	_setFarPlane();
 	this->m_position = DirectX::XMFLOAT4A(translation[0], translation[1], translation[2], 1);
@@ -35,7 +35,6 @@ PointLight::PointLight(float * translation, float * color, float intensity)
 	this->m_dropOff = 1.1f;
 	this->m_intensity = intensity;
 	this->m_pow = 2.0f;
-	//CreateShadowDirection(PointLight::Y_POSITIVE);
 	CreateShadowDirection(PointLight::XYZ_ALL);
 	for (int i = 0; i < 6; i++)
 	{
@@ -169,6 +168,46 @@ float PointLight::TourchEffect(double deltaTime, float base, float amplitude)
 	return temp;
 }
 
+void PointLight::setBase(const DirectX::XMFLOAT4A& base)
+{
+	this->m_mev.base = base;
+}
+
+const DirectX::XMFLOAT4A PointLight::MovmentEffect(double deltaTime, const DirectX::XMFLOAT4A position, float stride,
+	float amplitude)
+{
+	using namespace DirectX;
+	
+	if (m_mev.first)
+	{
+		m_mev.target = position;
+		m_mev.base = position;
+		m_mev.first = false;
+	}
+
+	m_mev.current = position;
+
+	XMVECTOR current	= XMLoadFloat4(&m_mev.current);
+	XMVECTOR target		= XMLoadFloat4(&m_mev.target);
+	XMVECTOR base		= XMLoadFloat4(&m_mev.base);
+
+	const float distance = XMVectorGetX(XMVector4LengthEst(XMVectorSubtract(current, target)));
+	if (distance < stride / 2.0f)
+	{
+		XMVECTOR direction = XMLoadFloat4(&getRandomDirection());
+		direction *= stride;
+		target = XMVectorAdd(base, direction);
+
+		XMStoreFloat4(&m_mev.target, target);
+		m_mev.target.w = 1;
+	}
+
+	const XMVECTOR vec = XMVectorLerp(current, target, deltaTime * 1.0);
+	XMStoreFloat4(&m_mev.current, vec);
+
+	return XMFLOAT4A(m_mev.current.x, m_mev.current.y, m_mev.current.z, 1);
+}
+
 ID3D11ShaderResourceView * PointLight::getSRV() const
 {
 	return m_shadowShaderResourceView;
@@ -297,10 +336,21 @@ void PointLight::SwitchLightOn()
 	m_lightOn = !m_lightOn;
 }
 
-void PointLight::QueueLight()
+const bool& PointLight::GetPrio()
+{
+	if (m_prioLight)
+	{
+		m_prioLight = false;
+		return true;
+	}
+	return this->m_prioLight;
+}
+
+void PointLight::QueueLight(const bool & prio)
 {
 	if (m_lightOn)
 	{
+		this->m_prioLight = prio;
 		DX::g_lights.push_back(this);
 	}
 }
@@ -446,7 +496,7 @@ void PointLight::_initDirectX()
 		size = 32U;
 		break;
 	case 1:
-		size = 128U;
+		size = 64U;
 		break;
 	case 2:
 		size = 1024U;
@@ -459,9 +509,17 @@ void PointLight::_initDirectX()
 		break;
 	}
 	HRESULT hr;
-	hr = DXRHC::CreateTexture2D(this->m_shadowDepthBufferTex, size, size, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS);
-	hr = DXRHC::CreateDepthStencilView(m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADOW_SIDES);
-	hr = DXRHC::CreateShaderResourceView(m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADOW_SIDES, 0, 0, 1);
+	if (SUCCEEDED(hr = DXRHC::CreateTexture2D("m_shadowDepthBufferTex",this->m_shadowDepthBufferTex, size, size, D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE, 1, 1, 0, SHADOW_SIDES, 0, 0, DXGI_FORMAT_R32_TYPELESS)))
+	{
+		if (SUCCEEDED(hr = DXRHC::CreateDepthStencilView("m_shadowDepthStencilView", m_shadowDepthBufferTex, this->m_shadowDepthStencilView, 0, DXGI_FORMAT_D32_FLOAT, D3D11_DSV_DIMENSION_TEXTURE2DARRAY, 0, SHADOW_SIDES)))
+		{
+			
+		}
+		if (SUCCEEDED(hr = DXRHC::CreateShaderResourceView("m_shadowShaderResourceView", m_shadowDepthBufferTex, m_shadowShaderResourceView, 0, DXGI_FORMAT_R32_FLOAT, D3D11_SRV_DIMENSION_TEXTURE2DARRAY, SHADOW_SIDES, 0, 0, 1)))
+		{
+			
+		}		
+	}
 	
 }
 
@@ -470,19 +528,33 @@ void PointLight::_setFarPlane()
 	switch (SettingLoader::g_windowContext->graphicsQuality)
 	{
 	case 0:
-		m_farPlane = 10.0f;
-		break;
-	case 1:
 		m_farPlane = 25.0f;
 		break;
-	case 2:
+	case 1:
 		m_farPlane = 50.0f;
 		break;
-	case 3:
+	case 2:
 		m_farPlane = 75.0f;
+		break;
+	case 3:
+		m_farPlane = 100.0f;
 		break;
 	default:
 		m_farPlane = 20.0f;
 		break;
 	}
+}
+
+DirectX::XMFLOAT4 PointLight::getRandomDirection()
+{
+	using namespace DirectX;
+	const float x = ((unsigned)rand() % 100) / 100.0f;
+	const float y = ((unsigned)rand() % 100) / 100.0f;
+	const float z = ((unsigned)rand() % 100) / 100.0f;
+	
+	XMVECTOR dir = { x,y,z };
+	XMVector3Normalize(dir);
+	XMFLOAT4 newDir; XMStoreFloat4(&newDir, dir);
+	newDir.w = 1;
+	return newDir;
 }

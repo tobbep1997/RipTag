@@ -22,7 +22,7 @@ TeleportAbility::~TeleportAbility()
 
 void TeleportAbility::Init()
 {
-	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f);
+	PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.3f, 0.3f, 0.3f, false, 0.2f);
 	Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
 	Drawable::setScale(0.1f, 0.1f, 0.1f);
 	Manager::g_textureManager.loadTextures("OUTLINE");
@@ -34,6 +34,8 @@ void TeleportAbility::Init()
 	BaseActor::setGravityScale(0.60f);
 	Transform::setPosition(-999.0f, -999.0f, -999.0f);
 	this->getBody()->SetObjectTag("TELEPORT");
+	this->getBody()->AddToFilters("LEVEL");
+	this->getBody()->AddToFilters("TORCH");
 	m_light = new PointLight();
 	m_light->Init(Transform::getPosition(), COLOUR);
 
@@ -41,7 +43,7 @@ void TeleportAbility::Init()
 		m_light->CreateShadowDirection(PointLight::XYZ_ALL);
 	
 	m_light->setFarPlane(50.0f);
-	m_light->setNearPlane(0.01f);
+	m_light->setNearPlane(0.1f);
 	m_light->setIntensity(10.0f);
 	m_light->setDropOff(1.f); // set to 1
 
@@ -64,9 +66,23 @@ void TeleportAbility::Update(double deltaTime)
 		BaseActor::Update(deltaTime);
 		_updateLight();
 	}
-	if (this->isLocal)
+	if (this->isLocal && !((Player*)p_owner)->getPlayerLocked())
 		_logicLocal(deltaTime);
 	m_boundingSphere->Center = DirectX::XMFLOAT3(getPosition().x, getPosition().y, getPosition().z);
+
+	ContactListener::S_Contact contact;
+	for (int i = 0; i < RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
+	{
+		contact = RipExtern::g_contactListener->GetBeginContact(i);
+		if (contact.a->GetBody()->GetObjectTag() == "TELEPORT" || contact.b->GetBody()->GetObjectTag() == "TELEPORT")
+		{
+			if (!contact.a->IsSensor() && !contact.b->IsSensor())
+			{
+				FMOD_VECTOR at = FMOD_VECTOR{ this->p_position.x, this->p_position.y, this->p_position.z };
+				AudioEngine::PlaySoundEffect(RipSounds::g_teleportHit, &at)->setVolume(0.6f);
+			}
+		}
+	}
 
 }
 
@@ -172,9 +188,12 @@ void TeleportAbility::_inStateThrowable()
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
 
+			((Player*)p_owner)->SetThrowing(true);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_ready");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->PopLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("charge");
+
 			m_tpState = TeleportAbility::Charging;
 			
 		}
@@ -187,6 +206,7 @@ void TeleportAbility::_inStateThrowable()
 
 void TeleportAbility::_inStateCharging(double dt)
 {
+	static float chargeTime = 0;
 	using namespace Network;
 	if (isLocal)
 	{
@@ -198,22 +218,36 @@ void TeleportAbility::_inStateCharging(double dt)
 			m_bar->setAngle(360.0f * charge);
 			//m_bar->setScale(1.0f *(m_charge / MAX_CHARGE), .1f);
 			if (m_charge < MAX_CHARGE)
-				m_charge += dt;
+			{
+				chargeTime += dt;
+				m_charge = log2f(1.0f + chargeTime * 10) / log2f(1+10);
+			}
 		}
 		if (Input::OnCancelAbilityPressed())
 		{
+			if (Multiplayer::GetInstance()->isConnected())
+			{
+				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL);
+				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
+			}
+
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("idle");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
 
-			m_charge = 0.0;
-			m_tpState = TeleportState::Throwable;
+
+
+			chargeTime = 0;
+			m_charge = 0.0f;
+			p_cooldown = (p_cooldownMax / 3) * 2;
+			m_tpState = TeleportState::Cooldown;
 			m_canceled = true;
 		}
 
 		if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 		{
-			RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
+			RayCastListener::Ray ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::add(((Player*)p_owner)->getCamera()->getPosition(), direction);
@@ -224,7 +258,11 @@ void TeleportAbility::_inStateCharging(double dt)
 			setPosition(start.x, start.y, start.z);
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			this->m_lastVelocity = direction;
+
+			
+			chargeTime = 0.0f;
 			m_charge = 0.0f;
+			
 		}
 		else if (Input::OnAbilityReleased())
 		{
@@ -233,30 +271,40 @@ void TeleportAbility::_inStateCharging(double dt)
 				Network::COMMONEVENTPACKET packet(Network::NETWORKMESSAGES::ID_PLAYER_THROW_END);
 				Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 			}
-
+			((Player*)p_owner)->SetThrowing(false);
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetStateMachine()->SetState("throw_throw");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("bob");
 			((Player*)p_owner)->GetFirstPersonAnimationPlayer()->GetLayerMachine()->ActivateLayer("turn");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->PopLayer("charge");
+			((Player*)p_owner)->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0);
+
 
 			m_tpState = TeleportState::Teleportable;
 			DirectX::XMFLOAT4A direction = ((Player *)p_owner)->getCamera()->getDirection();
 			DirectX::XMFLOAT4A start = XMMATH::subtract(((Player*)p_owner)->getCamera()->getPosition(), direction);
 			this->m_lastStart = start;
 
+			DirectX::XMFLOAT4A normDir;
+			DirectX::XMStoreFloat4A(&normDir, DirectX::XMVector3Normalize(DirectX::XMLoadFloat4A(&direction)));
+			float range = 0.9f;
+
 			start.w = 1.0f;
 			direction = XMMATH::scale(direction, TRAVEL_SPEED * m_charge);
-			setPosition(start.x, start.y, start.z);
+
+
+			setPosition(start.x + (normDir.x * range), start.y + (normDir.y * range), start.z + (normDir.z * range));
 			setLiniearVelocity(direction.x, direction.y, direction.z);
 			this->m_lastVelocity = direction;
+			chargeTime = 0.0f;
 			m_charge = 0.0f;
 		}
 
 		if (Input::OnAbilityReleased())
 		{
-			if(m_rayId == -100)
+			if (m_rayId == -100)
 				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), ((Player*)p_owner)->getCamera()->getPosition(), ((Player *)p_owner)->getCamera()->getDirection(), 1);
 		}
-		
+
 	}
 
 }
@@ -267,33 +315,41 @@ void TeleportAbility::_inStateTeleportable()
 	{
 		if (Input::OnCancelAbilityPressed())
 		{
+			//Ability cooldown
 			m_tpState = TeleportAbility::Cooldown;
+			p_cooldown = p_cooldownMax / 2;
 		}
 
 		if (m_rayId != -100 || m_rayId2 != -100)
 		{
 			DirectX::XMFLOAT4A position = Transform::getPosition();
-			RayCastListener::Ray* ray;
-			RayCastListener::RayContact* con;
+			RayCastListener::Ray& ray = RipExtern::g_rayListener->GetProcessedRay(RipExtern::g_rayListener->MAX_RAYS-1);
+			RayCastListener::RayContact& con = ray.GetRayContact(ray.MAX_CONTACTS-1);
 			if (RipExtern::g_rayListener->hasRayHit(m_rayId))
 			{
 				ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
 				m_rayId2 = -100;
-				con = ray->getClosestContact();
-				position.x += con->normal.x;
-				position.y += con->normal.y;
-				position.z += con->normal.z;
+				con = ray.getClosestContact();
+				position.x += con.normal.x;
+				position.y += con.normal.y;
+				position.z += con.normal.z;
 			}
 			else if (RipExtern::g_rayListener->hasRayHit(m_rayId2))
 			{
 				ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId2);
-				con = ray->getClosestContact();
-				position.x += con->normal.x;
-				position.y += con->normal.y;
-				position.z += con->normal.z;
+				con = ray.getClosestContact();
+				position.x += con.normal.x;
+				position.y += con.normal.y;
+				position.z += con.normal.z;
 			}
+			_sendTeleportPacket();
 			((Player*)p_owner)->setPosition(position.x, position.y, position.z, position.w);
 			m_tpState = TeleportAbility::Cooldown;
+
+			FMOD_VECTOR at = FMOD_VECTOR{ position.x, position.y, position.z }; 
+			AudioEngine::PlaySoundEffect(RipSounds::g_teleport, &at)->setVolume(0.8f); 
+
+			this->setPosition(-999, -999, -999); 
 		}
 
 		if (((Player *)p_owner)->getCurrentAbility() == Ability::TELEPORT && Input::OnAbilityPressed())
@@ -314,8 +370,8 @@ void TeleportAbility::_inStateTeleportable()
 
 			if (m_tpState == TeleportState::Teleportable)
 			{
-				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir, 2);
-				m_rayId2 = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir2, 2);	
+				m_rayId = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir, 1);
+				m_rayId2 = RipExtern::g_rayListener->PrepareRay(getBody(), getPosition(), dir2, 1);	
 			}
 		}
 	}
@@ -333,6 +389,12 @@ void TeleportAbility::_inStateCooldown(double dt)
 		p_cooldown = 0.0;
 		m_tpState = TeleportState::Throwable;
 	}
+}
+
+void TeleportAbility::_sendTeleportPacket()
+{
+	Network::COMMONEVENTPACKET packet(Network::ID_PLAYER_TELEPORT);
+	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
 
 void TeleportAbility::_updateLight()

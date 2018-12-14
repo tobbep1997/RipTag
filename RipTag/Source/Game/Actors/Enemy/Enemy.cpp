@@ -11,7 +11,6 @@
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-
 Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ) : Actor(), CameraHolder(), PhysicsComponent(), AI(this)
 {
 	this->uniqueID = id;
@@ -24,40 +23,183 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 	this->setTexture(Manager::g_textureManager.getTexture("SPHERE"));
 	this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("GUARD"));
 
+
+	auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton("GUARD").get());
+	layerMachine->AddBasicLayer
+		("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 1.0f);
+
 	{
-		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton("GUARD").get());
-		layerMachine->AddBasicLayer
-			("test_layer", Manager::g_animationManager.getAnimation("GUARD", "HEADTURN_ANIMATION").get(), 0.2f, 1.0f);
-		
-	}
-	{
-		auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
-		auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
-		auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
-		auto& machine = getAnimationPlayer()->InitStateMachine(2);
-		auto walkState = machine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
-		auto knockState = machine->AddLoopState("knocked_state", knockAnim);
-		knockState->SetBlendTime(.1f);
-		walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
-		machine->SetState("walk_state");
+
+		{
+			std::vector<SharedAnimation> sharedAnimations;
+			const char * collection = "PLAYER1";
+			int nrOfStates = 8;
+
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "IDLE_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_F_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_B_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_FR_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "W_BR_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_F_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FL_ANIMATION"));
+			sharedAnimations.push_back(Manager::g_animationManager.getAnimation(collection, "R_FR_ANIMATION"));
+
+			this->getAnimationPlayer()->Play();
+			this->getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("GUARD"));
+
+			std::unique_ptr<SM::AnimationStateMachine>& stateMachine = this->getAnimationPlayer()->InitStateMachine(nrOfStates);
+
+			{
+				//Blend spaces - forward&backward
+				SM::BlendSpace2D * blend_fwd = stateMachine->AddBlendSpace2DState(
+					"walk_forward", //state name
+					&this->m_currentDirection, //x-axis driver
+					&this->m_currentMoveSpeed, //y-axis driver
+					-115.f, 115.f, //x-axis bounds
+					0.0f, 4.0f //y-axis bounds
+				);
+				SM::BlendSpace2D * blend_bwd = stateMachine->AddBlendSpace2DState(
+					"walk_backward", //state name
+					&this->m_currentDirection, //x-axis driver
+					&this->m_currentMoveSpeed, //y-axis driver
+					-180.f, 180.f, //x-axis bounds
+					0.0f, 4.f //y-axis bounds
+				);
+
+				//Add blendspace rows 
+				//forward
+				blend_fwd->AddRow(
+					0.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 115.f }
+					}
+				);
+				blend_fwd->AddRow(
+					4.f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::RIGHT].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::LEFT].get(), 115.f }
+					}
+				);
+				blend_fwd->AddRow(
+					6.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD_RIGHT].get(), -115.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::RUN_FORWARD_LEFT].get(), 115.f }
+					}
+				);
+				//
+				blend_bwd->AddRow(
+					0.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::IDLE].get(), 180.f }
+					}
+				);
+				blend_bwd->AddRow(
+					4.f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_LEFT].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), 180.f }
+					}
+				);
+				blend_bwd->AddRow(
+					6.0f, //y placement
+					{	//uses a vector initializer list for "convinience"
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), -180.f }, //the clip to use and x-placement
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_RIGHT].get(), -90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::FORWARD].get(), 0.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACK_LEFT].get(), 90.f },
+						{ sharedAnimations[RemotePlayer::AnimState::BACKWARD].get(), 180.f }
+					}
+				);
+
+				//Adding out state / transitions
+				SM::OutState & fwd_bwd_outstate = blend_fwd->AddOutState(blend_bwd);
+				//Add transition condition
+				fwd_bwd_outstate.AddTransition(
+					&this->m_currentDirection, //referenced variable for comparision
+					-115.f, 115.f, //bound range for comparision
+					SM::COMPARISON_OUTSIDE_RANGE //comparision condition
+				);
+
+				SM::OutState & bwd_fwd_outstate = blend_bwd->AddOutState(blend_fwd);
+				//Add transition condition
+				bwd_fwd_outstate.AddTransition(
+					&this->m_currentDirection, //referenced variable for comparision
+					-90.f, 90.f, //bound range for comparision
+					SM::COMPARISON_INSIDE_RANGE //comparision condition
+				);
+
+				auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+
+				auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+				auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
+
+				auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
+				crouchState->UseFirstPoseOnly(true);
+
+
+				auto idleAnim = Manager::g_animationManager.getAnimation("GUARD", "IDLE_ANIMATION").get();
+				auto walkAnim = Manager::g_animationManager.getAnimation("GUARD", "WALK_ANIMATION").get();
+				auto awareAnim = Manager::g_animationManager.getAnimation("GUARD", "AWARE_ANIMATION").get();
+				auto knockAnim = Manager::g_animationManager.getAnimation("GUARD", "KNOCKED_ANIMATION").get();
+				auto walkState = stateMachine->AddBlendSpace1DState("walk_state", &m_currentMoveSpeed, 0.0, 1.5f);
+				walkState->AddBlendNodes({ {idleAnim, 0.0}, {walkAnim, 1.5f} });
+				walkState->SetDefaultBlendTime(0.2f);
+				auto awareState = stateMachine->AddLoopState("aware", awareAnim);
+				awareState->SetDefaultBlendTime(0.4f);
+
+				auto knockState = stateMachine->AddLoopState("knocked_state", knockAnim);
+				knockState->SetDefaultBlendTime(.1f);
+				stateMachine->SetState("walk_state");
+
+				//Out states
+				auto& guardWalkToPlayerWalk = walkState->AddOutState(blend_fwd);
+				guardWalkToPlayerWalk.AddTransition(&m_IsPossessedByTeammate, true, SM::COMPARISON_EQUAL);
+
+				auto& playerWalkToGuardWalk = blend_fwd->AddOutState(walkState);
+				playerWalkToGuardWalk.AddTransition(&m_IsPossessedByTeammate, false, SM::COMPARISON_EQUAL);
+
+				auto& playerWalkBackToGuardWalk = blend_bwd->AddOutState(walkState);
+				playerWalkBackToGuardWalk.AddTransition(&m_IsPossessedByTeammate, false, SM::COMPARISON_EQUAL);
+
+				auto& guardAwareToPlayerWalk = awareState->AddOutState(blend_fwd);
+				guardAwareToPlayerWalk.AddTransition(&m_IsPossessedByTeammate, true, SM::COMPARISON_EQUAL);
+			}
+		}
+
+
 		this->getAnimationPlayer()->Play();
 
 	}
-	b3Vec3 pos(0.25, 0.5, 0.25);
-	PhysicsComponent::Init(*world, e_dynamicBody, pos.x, pos.y, pos.z, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
+	b3Vec3 pos = b3Vec3(1.0f, 1.25f, 1.0f);
+	PhysicsComponent::Init(*world, e_dynamicBody, pos.x/2, pos.y/2, pos.z/2, false, 0); //0.5f, 0.9f, 0.5f //1,0.9,1
 
 	this->getBody()->SetUserData(Enemy::validate());
 	this->getBody()->SetObjectTag("ENEMY");
-	CreateShape(0, 0.5 + 0.75, 0, 0.5, 1, 0.5, "UPPERBODY");
-	CreateShape(0, 3.25, 0, 1.f, 1.f, 1.f, "HEAD", true);
-	m_standHeight = (1.0*1.4);
-	m_crouchHeight = 1.0 * .5;
+	CreateShape(b3Vec3(0, pos.y*0.70, 0), b3Vec3(pos.x / 2, pos.y / 2, pos.z / 2), 1.0f, 1.0f, "UPPERBODY");
+	CreateShape(b3Vec3(0, pos.y*1.5, 0), b3Vec3(0.3f, 0.35f, 0.3f), 1.0f, 1.0f, "HEAD", true);
+	m_standHeight = (pos.y*1.5);
+	m_crouchHeight = pos.y * 0.70;
 	setUserDataBody(this);
 
 	this->setEntityType(EntityType::GuarddType);
 	this->setPosition(startPosX, startPosY, startPosZ);
 	//setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
-	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.9, 0.0));
+	this->setModelTransform(DirectX::XMMatrixTranslation(0.0, -0.95, 0.0));
 	setScale(.4, .4, .4);
 	setTexture(Manager::g_textureManager.getTexture("GUARD"));
 	//setTextureTileMult(1, 2);
@@ -65,6 +207,8 @@ Enemy::Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, 
 
 	this->p_camera->setPerspectiv(Camera::Perspectiv::Enemy);
 
+	m_soundFootstep.emitter = AudioEngine::SoundEmitterType::Enemy;
+	m_soundFootstep.owner = this;
 	//setOutline(true);
 }
 
@@ -80,11 +224,6 @@ Enemy::~Enemy()
 		delete drawable;
 	}
 	m_pathNodes.clear();
-	if (pEmitter)
-	{
-		delete pEmitter;
-		pEmitter = nullptr;
-	}
 
 }
 
@@ -160,6 +299,7 @@ void Enemy::Update(double deltaTime)
 {
 	using namespace DirectX;
 	AIState state = getAIState();
+
 	if (!m_lockedByClient)
 	{
 		handleStates(deltaTime);
@@ -181,56 +321,93 @@ void Enemy::Update(double deltaTime)
 		m_nodeFootPrintsEnabled = true;
 	}
 
-	if(state == AIState::Possessed)
-		for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
-		{
-			ContactListener::S_Contact con = RipExtern::g_contactListener->GetBeginContact(i);
-			b3Shape * shapeA = con.a;
-			b3Shape * shapeB = con.b;
-			if (shapeA && shapeB)
-			{
-				b3Body * bodyA = shapeA->GetBody();
-				b3Body * bodyB = shapeB->GetBody();
-
-				if (bodyA && bodyB)
-				{
-					std::string objectTagA = bodyA->GetObjectTag();
-					std::string objectTagB = bodyB->GetObjectTag();
-
-					if ((objectTagA == "PLAYER" && objectTagB == "ENEMY") || (objectTagA == "ENEMY" && objectTagB == "PLAYER"))
-					{
-						{
-							m_visCounter = 100000.0f;
-							m_found = true;
-
-						}
-					}
-				}
-			}
-		}
-
-	if (pEmitter)
+	if (!m_IsPossessedByTeammate)
 	{
-		if (pEmitter->emitterActiv)
-			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
-		else
+		using namespace DirectX;
+		//calculate walk direction (-1, 1, based on camera) and movement speed
 		{
-			delete pEmitter;
-			pEmitter = nullptr;
+			///Speed
+			auto physSpeed = this->getLiniearVelocity();
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
+
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			auto cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+
 		}
 	}
+
 }
 
 void Enemy::ClientUpdate(double deltaTime)
 {
 	using namespace Network;
 
+	if (!m_IsPossessedByTeammate)
+	{
+		using namespace DirectX;
+		//calculate walk direction (-1, 1, based on camera) and movement speed
+		{
+			///Speed
+			auto physSpeed = this->getLiniearVelocity();
+			float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0)));
+			m_currentSpeed = std::clamp(std::fabs(speed), 0.0f, 6.0f);
 
+			///Walk dir
+				//Get camera direction and normalize on X,Z plane
+			auto cameraDir = p_camera->getDirection();
+			XMVECTOR cameraDirNormalized = XMVector3Normalize(XMVectorSet(cameraDir.x, 0.0f, cameraDir.z, 0.0));
+			///assert(XMVectorGetX(XMVector3Length(cameraDirNormalized)) != 0.0f);
+
+			auto XZCameraDir = XMVectorSet(cameraDir.x, 0.0, cameraDir.z, 0.0);
+			auto XZMovement = XMVectorSet(physSpeed.x, 0.0, physSpeed.z, 0.0);
+			auto XZCameraDirNormalized = XMVector3Normalize(XZCameraDir);
+			auto XZMovementNormalized = XMVector3Normalize(XZMovement);
+			///AssertHasLength(XZCameraDir);
+			//AssertHasLength(XZMovement);
+
+				//Get dot product of cam dir and player movement
+			auto dot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(XMVectorSet(physSpeed.x, 0, physSpeed.z, 0.0)), cameraDirNormalized));
+			dot = std::clamp(dot, -0.999999f, 0.999999f);
+			//Convert to degrees
+			m_currentDirection = XMConvertToDegrees(std::acos(dot));
+			//Negate if necessary
+			float inverter = (XMVectorGetY(XMVector3Cross(XZMovement, XZCameraDir)));
+
+			m_currentDirection *= (inverter > 0.0)
+				? -1.0
+				: 1.0;
+			m_currentDirection = std::clamp(m_currentDirection, -180.0f, 180.0f);
+
+		}
+	}
 
 	AIState state = getAIState();
 
-	//if (state != AIState::Possessed)
-		_cameraPlacement(deltaTime);
+	_cameraPlacement(deltaTime);
 	//Visibility update
 	if (state != AIState::Possessed && state != AIState::Disabled && !m_lockedByClient)
 	{
@@ -271,16 +448,7 @@ void Enemy::ClientUpdate(double deltaTime)
 	if (getAnimationPlayer())
 		getAnimationPlayer()->Update(deltaTime);
 
-	if (pEmitter)
-	{
-		if (pEmitter->emitterActiv)
-			pEmitter->Update(deltaTime, CameraHandler::getActiveCamera());
-		else
-		{
-			delete pEmitter;
-			pEmitter = nullptr;
-		}
-	}
+	
 
 	if (state == AIState::Possessed)
 	{
@@ -303,13 +471,19 @@ void Enemy::PhysicsUpdate(double deltaTime)
 void Enemy::Draw()
 {
 	Drawable::Draw();
-	if (pEmitter)
-		pEmitter->Queue();
 }
 
 void Enemy::QueueForVisibility()
 {
-	if (true == m_allowVisability)
+	AIState state = getAIState();
+	bool canDoVis = (state != AIState::Disabled && state != AIState::Possessed);
+
+	if(!canDoVis)
+	{
+		m_vc->Reset();
+	}
+
+	if (m_allowVisability && canDoVis && !ClientLocked())
 	{
 		m_vc->QueueVisibility();
 	}
@@ -329,6 +503,7 @@ void Enemy::UnlockEnemyInput()
 void Enemy::DisableEnemy()
 {
 	m_disabled = true;
+	m_vc->Reset();
 }
 
 void Enemy::EnableEnemy()
@@ -344,9 +519,12 @@ bool Enemy::GetDisabledState()
 void Enemy::onNetworkUpdate(Network::ENEMYUPDATEPACKET * packet)
 {
 	this->m_currentMoveSpeed = packet->moveSpeed;
+	this->m_currentDirection = packet->direction;
 	this->setPosition(packet->pos.x, packet->pos.y, packet->pos.z, 0.0f);
 	p_setRotation(0.0f, packet->rot.y, 0.0f);
 	p_camera->setDirection(packet->camDir);
+	//m_vc->getCamera()->setDirection(packet->camDir);
+
 }
 
 void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
@@ -355,6 +533,12 @@ void Enemy::onNetworkPossessed(Network::ENTITYSTATEPACKET * packet)
 	if (!packet->condition)
 	{
 		setTransitionState(AITransitionState::ExitingPossess);
+		m_IsPossessedByTeammate = false;
+	}
+	else
+	{
+		m_vc->Reset();
+		m_IsPossessedByTeammate = true;
 	}
 }
 
@@ -364,16 +548,9 @@ void Enemy::onNetworkDisabled(Network::ENTITYSTATEPACKET * packet)
 	{
 		if (packet->condition)
 		{
+			m_vc->Reset();
 			this->setTransitionState(AITransitionState::BeingDisabled);
-			if (pEmitter)
-			{
-				delete pEmitter;
-				pEmitter = nullptr;
-			}
-			pEmitter = new ParticleEmitter();
-			pEmitter->setSmoke();
-			pEmitter->setEmmiterLife(1.5f);
-			pEmitter->setPosition(packet->pos.x, packet->pos.y + 0.5f, packet->pos.z);
+			//CreateEmitter (maybe?)
 		}
 	}
 }
@@ -386,6 +563,7 @@ void Enemy::sendNetworkUpdate()
 	packet.rot = p_camera->getYRotationEuler();
 	packet.camDir = p_camera->getDirection();
 	packet.moveSpeed = m_currentMoveSpeed;
+	packet.direction = m_currentDirection;
 
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(packet), PacketPriority::LOW_PRIORITY);
 }
@@ -505,9 +683,16 @@ void Enemy::_onRotate(double deltaTime)
 		
 		//m_peekRotate = 0;
 		if (deltaX)
+		{
 			p_camera->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime * 0.02f, 0.0f);
+			//m_vc->getCamera()->Rotate(0.0f, deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime * 0.02f, 0.0f);
+		}
 		if (deltaY)
+		{
 			p_camera->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime * 0.02f, 0.0f, 0.0f);
+			//m_vc->getCamera()->Rotate(deltaY * Input::GetPlayerMouseSensitivity().y * deltaTime * 0.02f, 0.0f, 0.0f);
+			
+		}
 		/*if (deltaX && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) <= 0.5 && (m_peekRotate + deltaX * Input::GetPlayerMouseSensitivity().x * deltaTime) >= -0.5)
 		{
 			if (Input::PeekRight() > 0.1 || Input::PeekRight() < -0.1)
@@ -730,139 +915,84 @@ void Enemy::_onJump()
 
 void Enemy::_onCrouch()
 {
-	if (Input::isUsingGamepad())
+	unsigned int crouchInputType = Input::Crouch();
+	if (crouchInputType == Input::InputType::Gamepad)
 	{
-		m_currClickCrouch = Input::Crouch();
-		if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 0)
-		{
-			_activateCrouch();
-			m_toggleCrouch = 1;
-		}
-		else if (m_currClickCrouch && !m_prevClickCrouch && m_toggleCrouch == 1)
-		{
+		if (p_moveState != Crouching && !m_toggleCrouch)
+			_activateCrouch(crouchInputType);
+		else if (p_moveState == Crouching && !m_toggleCrouch)
 			_deActivateCrouch();
-			m_toggleCrouch = 0;
-
-			//Just so we don't end up in an old sprint-mode when deactivating crouch.
-			m_toggleSprint = 0;
-		}
-		m_prevClickCrouch = m_currClickCrouch;
+		m_toggleCrouch = true;
+	}
+	else if (crouchInputType == Input::InputType::Keyboard)
+	{
+		if (p_moveState != Crouching)
+			_activateCrouch(crouchInputType);
+		else
+			m_prevClickCrouch = Input::InputType::Keyboard;
 	}
 	else
 	{
-		if (Input::Crouch())
-		{
-			if (m_kp.crouching == false)
-			{
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
-				crouchDir = 1;
-
-				m_kp.crouching = true;
-			}
-		}
-		else
-		{
-			if (m_kp.crouching)
-			{
-				crouchDir = -1;
-				this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
-
-				m_kp.crouching = false;
-			}
-		}
-	}
-
-	if (m_kp.crouching)
-	{
-		m_moveSpeed = MOVE_SPEED * 0.5f;
+		m_toggleCrouch = false;
+		if (m_prevClickCrouch == Input::InputType::Keyboard && p_moveState == Crouching)
+			_deActivateCrouch();
 	}
 }
 
 void Enemy::_onSprint()
 {
-	if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
-	{
-		if (Input::isUsingGamepad())
+	if (p_moveState != Crouching)
+		if (Input::MoveForward() != 0 || Input::MoveRight() != 0)
 		{
-			m_currClickSprint = Input::Sprinting();
-			if (m_currClickSprint && !m_prevClickSprint && m_toggleSprint == 0 && Input::MoveForward() > 0.9)
-			{
-				m_toggleSprint = 1;
-			}
+			unsigned int sprintInputType = Input::Sprinting();
 
-			if (m_toggleSprint == 1 && Input::MoveForward() > 0.9)
+			if (sprintInputType == Input::InputType::Gamepad && Input::MoveForward() > 0.9)
 			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
+				if (p_moveState != Sprinting && !m_toggleSprint)
+					_startSprint(sprintInputType);
+				else if (p_moveState == Sprinting && !m_toggleSprint)
+					_startWalk();
+				m_toggleSprint = true;//Gamepad Input
 			}
+			else if (sprintInputType == Input::InputType::Keyboard && Input::MoveForward() > 0.9)
+				_startSprint(sprintInputType); //Keyboard Input
+			else if (p_moveState == Idle || m_prevSprintInputType == Input::InputType::Keyboard || (m_prevSprintInputType == Input::InputType::Gamepad && Input::MoveForward() < 0.9))
+				_startWalk(); //No Input
 			else
-			{
-				m_toggleSprint = 0;
-			}
-
-			if (m_toggleSprint == 0)
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
-
-			if (Input::MoveForward() == 0)
-			{
-				p_moveState = Idle;
-				m_toggleSprint = 0;
-			}
-
-			m_prevClickSprint = m_currClickSprint;
+				m_toggleSprint = false;
 		}
 		else
 		{
-			if (Input::Sprinting())
-			{
-				m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
-				p_moveState = Sprinting;
-				m_scrollMoveModifier = 0.9f;
-
-			}
-			else
-			{
-				m_moveSpeed = MOVE_SPEED;
-				p_moveState = Walking;
-			}
+			m_moveSpeed = 0;
+			p_moveState = Idle;
 		}
-	}
-	else
-	{
-		m_moveSpeed = 0;
-		p_moveState = Idle;
-	}
 }
 
 void Enemy::_onInteract()
 {
 	if (RipExtern::g_rayListener->hasRayHit(m_interactRayId))
 	{
-		RayCastListener::Ray* ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
-		RayCastListener::RayContact* con;
-		for (int i = 0; i < ray->getNrOfContacts(); i++)
+		RayCastListener::Ray& ray = RipExtern::g_rayListener->GetProcessedRay(m_interactRayId);
+		RayCastListener::RayContact& con = ray.GetRayContact(0);
+		for (int i = 0; i < ray.getNrOfContacts(); i++)
 		{
-			con = ray->GetRayContact(i);
-			if (ray->getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
+			con = ray.GetRayContact(i);
+			if (ray.getOriginBody()->GetObjectTag() == getBody()->GetObjectTag())
 			{
-				if (con->contactShape->GetBody()->GetObjectTag() == "ITEM")
+				if (con.contactShape->GetBody()->GetObjectTag() == "ITEM")
 				{
 					//do the pickups
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "LEVER")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "LEVER")
 				{
-					static_cast<Lever*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					static_cast<Lever*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "TORCH")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "TORCH")
 				{
-					static_cast<Torch*>(con->contactShape->GetBody()->GetUserData())->handleContact(con);
+					static_cast<Torch*>(con.contactShape->GetBody()->GetUserData())->handleContact(con);
 					//Snuff out torches (example)
 				}
-				else if (con->contactShape->GetBody()->GetObjectTag() == "ENEMY")
+				else if (con.contactShape->GetBody()->GetObjectTag() == "ENEMY")
 				{
 
 					//std::cout << "Enemy Found!" << std::endl;
@@ -961,10 +1091,10 @@ void Enemy::_cameraPlacement(double deltaTime)
 					int index = -1;
 					while (index == -1 || index == last)
 					{
-						index = rand() % (int)RipSounds::g_stepsStone.size();
+						index = rand() % (int)RipSounds::g_armorStepsStone.size();
 					}
 					FMOD::Channel * c = nullptr;
-					c = AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Player);
+					c = AudioEngine::PlaySoundEffect(RipSounds::g_armorStepsStone[index], &at, &m_soundFootstep);
 					b3Vec3 vel = getLiniearVelocity();
 					DirectX::XMVECTOR vVel = DirectX::XMVectorSet(vel.x, vel.y, vel.z, 0.0f);
 					float speed = DirectX::XMVectorGetX(DirectX::XMVector3Length(vVel));
@@ -1010,7 +1140,9 @@ void Enemy::_RotateGuard(float x, float y, float angle, float deltaTime)
 	DirectX::XMFLOAT4A xmDir;
 	DirectX::XMStoreFloat4A(&xmDir, newDir);
 	p_camera->setDirection(xmDir);
+	//m_vc->getCamera()->setDirection(xmDir);
 	p_camera->Rotate(0, angle * deltaTime, 0);
+	//m_vc->getCamera()->Rotate(0, angle * deltaTime, 0);
 	DirectX::XMFLOAT4A cameraRotationY = p_camera->getYRotationEuler();
 	p_setRotation(0, cameraRotationY.y, 0);
 }
@@ -1020,7 +1152,7 @@ void Enemy::_CheckPlayer(double deltaTime)
 	if (m_allowVisability)
 	{
 		float visPercLocal = (float)m_vc->getVisibilityForPlayers()[0] / (float)Player::g_fullVisability;
-		float visPercRemote = (float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
+		float visPercRemote = -1;//(float)m_vc->getVisibilityForPlayers()[1] / (float)Player::g_fullVisability;
 
 		float visPerc;
 		float lengthToTarget;
@@ -1041,10 +1173,8 @@ void Enemy::_CheckPlayer(double deltaTime)
 		{
 			visPerc *= 1.5;
 		}
-		if (getAIState() == High_Alert)
-		{
-			visPerc *= 1.2;
-		}
+		if (lengthToTarget < m_playerTooCloseInstaLose)
+			visPerc *= 5;
 
 		if (visPerc > 0)
 		{
@@ -1082,25 +1212,46 @@ void Enemy::_CheckPlayer(double deltaTime)
 		}
 	}
 
+	//m_vc->Reset();
+
 }
 
-void Enemy::_activateCrouch()
+void Enemy::_activateCrouch(const unsigned int inputType)
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(true);
 	crouchDir = 1;
-m_kp.crouching = true;
+	m_moveSpeed = MOVE_SPEED * 0.5f;
+	p_moveState = Crouching;
+	m_prevClickCrouch = inputType;
 }
 
 void Enemy::_deActivateCrouch()
 {
 	this->getBody()->GetShapeList()->GetNext()->SetSensor(false);
 	crouchDir = -1;
-	m_kp.crouching = false;
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Idle;
+	m_prevClickCrouch = Input::InputType::None;
+}
+
+void Enemy::_startSprint(const unsigned int inputType)
+{
+	m_moveSpeed = MOVE_SPEED * SPRINT_MULT;
+	p_moveState = Sprinting;
+	m_scrollMoveModifier = 0.9f;
+	m_prevSprintInputType = inputType;
+}
+
+void Enemy::_startWalk()
+{
+	m_moveSpeed = MOVE_SPEED;
+	p_moveState = Walking;
+	m_prevSprintInputType = 0;
 }
 
 void Enemy::_playFootsteps(double deltaTime)
 {
-	m_av.timer += deltaTime * m_moveSpeed; // This should be deltaTime * movementspeed
+	m_av.timer += deltaTime * m_currentMoveSpeed * 2; // This should be deltaTime * movementspeed
 
 	if (m_av.timer > DirectX::XM_PI)
 		m_av.timer = 0.0f;
@@ -1112,11 +1263,13 @@ void Enemy::_playFootsteps(double deltaTime)
 		int index = -1;
 		while (index == -1 || index == m_av.lastIndex)
 		{
-			index = rand() % (int)RipSounds::g_stepsStone.size();
+			index = rand() % (int)RipSounds::g_armorStepsStone.size();
 		}
 		FMOD_VECTOR at = { getPosition().x, getPosition().y ,getPosition().z };
 
-		AudioEngine::PlaySoundEffect(RipSounds::g_stepsStone[index], &at, AudioEngine::Enemy)->setVolume(m_moveSpeed * 0.3);
+		float vol = std::clamp(m_currentMoveSpeed, 0.0f, 1.0f);
+		auto channel = AudioEngine::PlaySoundEffect(RipSounds::g_armorStepsStone[index], &at, &m_soundFootstep);
+
 		m_av.lastIndex = index;
 		m_av.hasPlayed = !m_av.hasPlayed;
 	}

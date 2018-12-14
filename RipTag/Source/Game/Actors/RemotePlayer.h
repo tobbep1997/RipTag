@@ -22,7 +22,12 @@ public:
 		RUN_FORWARD_RIGHT = 9
 	};
 public:
-	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot);
+	enum CHARACTER
+	{
+		LEJF,
+		BILLY
+	};
+	RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot, CHARACTER character = LEJF);
 	~RemotePlayer();
 
 private:
@@ -41,6 +46,7 @@ private:
 	float m_currentDirection = 0.0f;
 	float m_currentSpeed = 0.0f;
 	float m_currentPitch = 0.0f;
+	float m_currentPeek = 0.0f;
 
 	//Visibility data
 	float m_currentVisibility = 0.0f;
@@ -53,6 +59,7 @@ public:
 	void Draw() override;
 	bool hasWon = false;
 	void SetAbilitySet(int);
+	void SetModelAndTextures(int);
 	void SetVisibility(const float & value) { m_currentVisibility = value; }
 	void SetSoundPercentage(const float & value) { m_soundPercentage = value; }
 private:
@@ -65,7 +72,10 @@ private:
 	void _onNetworkRemoteThrow(unsigned char id);
 	void _onNetworkRemotePosess(unsigned char id);
 	void _onNetworkRemoteCrouch(unsigned char id);
+	void _onNetworkSmokeDetonate(unsigned char * data);
 	void _sendVisibilityPacket();
+	void _onNetworkBlink(unsigned char id);
+	void _onNetworkUseTeleport(unsigned char id);
 
 	void _lerpPosition(float dt);
 

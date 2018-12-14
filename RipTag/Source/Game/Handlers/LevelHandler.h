@@ -50,9 +50,12 @@ public:
 	TriggerHandler * getTriggerHandler();
 	EnemyHandler * getEnemyHandler();
 
+	std::vector<Room*> getRooms(); 
+
 	std::tuple<DirectX::XMFLOAT4, DirectX::XMFLOAT4> getStartingPositions();
 
 	const unsigned short getNextRoom() const;
+	short unsigned int getActiveRoomNr() const;
 
 	bool HasMoreRooms();
 	void LoadNextRoom(int player = 1);

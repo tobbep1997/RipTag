@@ -2,6 +2,7 @@
 
 //MULLE MECKA
 #pragma warning (disable : 4215 4267 4305)
+
 #include <AudioEngine.h>
 #include <Multiplayer.h>
 
@@ -15,10 +16,6 @@
 #include "RipTagExtern/RipExtern.h"
 
 #include <DirectXCollision.h>
-#include "Source/ParticleSystem/Particle.h"
-#include "Source/ParticleSystem/ParticleEmitter.h"
-#include "Source/ParticleSystem/ParticleManager.h"
-#include "Source/ParticleSystem/ParticleSystem.h"
 
 #include "Source/Game/States/State.h"
 #include "Source/Game/States/MainMenu.h"
@@ -80,6 +77,11 @@
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
+
+#include "Source/ParticleSystem/Particle.h"
+#include "Source/ParticleSystem/ParticleEmitter.h"
+#include "Source/ParticleSystem/ParticleManager.h"
+#include "Source/ParticleSystem/ParticleSystem.h"
 
 #include "ConsoleColor.h"
 

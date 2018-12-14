@@ -49,7 +49,7 @@ public:
 	};
 
 private:
-	const int MAX_CONTACTS = 50;
+	const int MAX_CONTACTS = 100;
 	unsigned int m_nrOfBeginContacts;
 	unsigned int m_nrOfEndContacts;
 	std::vector<S_Contact> startContacts;

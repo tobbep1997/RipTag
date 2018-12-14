@@ -6,25 +6,30 @@ class Grid;
 class PointLight;
 class EnemyHandler;
 class ParticleEmitter;
+class Torch;
 class RoomGenerator
 {
 private:
 	Grid * m_generatedGrid;
 	float m_roomWidth;
 	float m_roomDepth;
-	int m_roomGridWidth = 5;
-	int m_roomGridDepth = 5;
+	int m_roomGridWidth = 4;
+	int m_roomGridDepth = 4;
 	float m_height = 10;
 	int m_nrOfWalls;
 	int m_nrOfEnemies = 1;
+	int m_nrOfLevers = 0;
 	int m_incrementalValueX = 20;
 	int m_incrementalValueY = 20;
+
+	int m_spakCounter = 0;
+
 	std::vector<BaseActor*> m_generated_assetVector;
 	std::vector<PointLight*> m_generated_pointLightVector;
 	std::vector<Enemy*> m_generatedRoomEnemies;
 	std::vector<ParticleEmitter*> m_generated_Emitters;
 	std::vector<FMOD::Geometry*> m_generatedAudioBoxes;
-	
+	std::vector<Torch*> m_generatedTorches;
 	std::vector<DirectX::BoundingBox*> m_generated_boundingBoxes;
 
 	Room * returnableRoom;

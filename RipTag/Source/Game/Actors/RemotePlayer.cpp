@@ -1,10 +1,7 @@
 #include "RipTagPCH.h"
 #include "RemotePlayer.h"
 
-//#todoREMOVE
-#include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
-
-RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot) : Actor()
+RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, DirectX::XMFLOAT4A scale, DirectX::XMFLOAT4A rot, CHARACTER character) : Actor()
 {
 	using namespace DirectX;
 	//TODO:
@@ -19,11 +16,12 @@ RemotePlayer::RemotePlayer(RakNet::NetworkID nID, DirectX::XMFLOAT4A pos, Direct
 	//1.
 	this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
 	this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+
 	//this->setModelTransform(XMMatrixRotationRollPitchYaw(0.0, 90.0, 0.0));
 	//2.
 	this->setPosition(pos);
 	this->setScale(.45, .45, .45);
-	this->setModelTransform(XMMatrixTranslation(0.0, -1.7, 0.0));
+	this->setModelTransform(XMMatrixTranslation(0.0, -1.15, 0.0));
 	this->setRotation(rot);
 	this->m_mostRecentPosition = pos;
 	this->m_timeDiff = 0;
@@ -113,6 +111,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
 		this->_onNetworkRemoteThrow(id);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL:
+		this->_onNetworkRemoteThrow(id);
+		break;
 	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
 		this->_onNetworkRemotePosess(id);
 		break;
@@ -124,6 +125,15 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
 		this->_onNetworkRemoteCrouch(id);
+		break;
+	case NETWORKMESSAGES::ID_SMOKE_DETONATE:
+		this->_onNetworkSmokeDetonate(data);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_BLINK:
+		this->_onNetworkBlink(id);
+		break;
+	case NETWORKMESSAGES::ID_PLAYER_TELEPORT:
+		this->_onNetworkUseTeleport(id);
 		break;
 	default:
 		break;
@@ -141,7 +151,7 @@ void RemotePlayer::Update(double dt)
 
 	//1.
 	this->_lerpPosition(dt);
-	std::cout << this->getPosition().x << std::endl;
+	//std::cout << this->getPosition().x << std::endl;
 	//2.
 	for (size_t i = 0; i < m_nrOfAbilitys; i++)
 		m_activeSet[i]->Update(dt);
@@ -152,6 +162,32 @@ void RemotePlayer::Update(double dt)
 	//4.
 	if (pNetwork->isServer())
 		_sendVisibilityPacket();
+
+	if (this->getDestroyState())
+	{
+		if (this->getTypeOfAbilityUsed().x == 1)
+		{
+			this->setDestructionRate(ConstTimer::g_blinkTimer.GetTime());
+			if (ConstTimer::g_blinkTimer.GetTime() > 1.0f)
+			{
+				this->setDestroyState(false);
+				this->setDestructionRate(0);//after
+				ConstTimer::g_blinkTimer.Stop();
+				ConstTimer::g_blinkTimer.Start();
+			}
+		}
+		if (this->getTypeOfAbilityUsed().x == 2)
+		{
+			this->setDestructionRate(ConstTimer::g_teleportTimer.GetTime());
+			if (ConstTimer::g_teleportTimer.GetTime() > 1.0f)
+			{
+				this->setDestroyState(false);
+				this->setDestructionRate(0);//after
+				ConstTimer::g_teleportTimer.Stop();
+				ConstTimer::g_teleportTimer.Start();
+			}
+		}
+	}
 }
 
 void RemotePlayer::Draw()
@@ -167,6 +203,33 @@ void RemotePlayer::SetAbilitySet(int set)
 		m_activeSet = m_abilityComponents1;
 	else if (set == 2)
 		m_activeSet = m_abilityComponents2;
+
+	SetModelAndTextures(set);
+}
+
+void RemotePlayer::SetModelAndTextures(int set)
+{
+	switch (set)
+	{
+	case 1:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	case 2:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER2"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER2"));
+		break;
+	}
+	default:
+	{
+		this->setModel(Manager::g_meshManager.getSkinnedMesh("PLAYER1"));
+		this->setTexture(Manager::g_textureManager.getTexture("PLAYER1"));
+		break;
+	}
+	}
 }
 
 void RemotePlayer::_onNetworkUpdate(Network::ENTITYUPDATEPACKET * data)
@@ -197,6 +260,7 @@ void RemotePlayer::_onNetworkAbility(Network::ENTITYABILITYPACKET * data)
 	{
 		m_currentAbility = (Ability)data->ability;
 		m_abilityComponents1[m_currentAbility]->UpdateFromNetwork(data);
+		
 	}
 	else if (data->isCommonUpadate)
 	{
@@ -211,9 +275,8 @@ void RemotePlayer::_onNetworkAnimation(Network::ENTITYANIMATIONPACKET * data)
 		this->m_currentDirection = data->direction;
 		this->m_currentSpeed = data->speed;
 		this->m_currentPitch = data->pitch;
+		this->m_currentPeek = data->peek;
 		this->setRotation(data->rot);
-
-		std::cout << m_currentSpeed << std::endl;
 	}
 }
 
@@ -225,15 +288,30 @@ void RemotePlayer::_sendVisibilityPacket()
 }
 
 
+void RemotePlayer::_onNetworkBlink(unsigned char id)
+{
+	this->setTypeOfAbilityUsed(1);
+	this->setDestroyState(true);
+	this->setLastTransform(this->getWorldmatrix());
+	ConstTimer::g_blinkTimer.Stop();
+	ConstTimer::g_blinkTimer.Start();
+}
+void RemotePlayer::_onNetworkUseTeleport(unsigned char id)
+{
+	this->setTypeOfAbilityUsed(2);
+	this->setDestroyState(true);
+	this->setLastTransform(this->getWorldmatrix());
+	ConstTimer::g_teleportTimer.Stop();
+	ConstTimer::g_teleportTimer.Start();
+}
+
+
 void RemotePlayer::_lerpPosition(float dt)
 {
 	DirectX::XMVECTOR curr, next, newPos;
 
 	curr = DirectX::XMLoadFloat4A(&this->getPosition());
 	next = DirectX::XMLoadFloat4A(&this->m_mostRecentPosition);
-
-	if (DirectX::XMVector3IsNaN(curr) || DirectX::XMVector3IsNaN(next))
-		std::cout << "isNAN\n";
 
 	if (!DirectX::XMVector3IsNaN(curr) && !DirectX::XMVector3IsNaN(next))
 	{
@@ -371,41 +449,37 @@ void RemotePlayer::_registerAnimationStateMachine()
 		auto throwEndClip = Manager::g_animationManager.getAnimation(collection, "THROW_END_ANIMATION").get();
 		auto posessClip = Manager::g_animationManager.getAnimation(collection, "POSESSING_ANIMATION").get();
 		auto crouchClip = Manager::g_animationManager.getAnimation(collection, "CROUCH_POSE_ANIMATION").get();
+		auto lookUpPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_UP_ANIMATION").get()->m_SkeletonPoses[0];
+		auto lookDownPose = &Manager::g_animationManager.getAnimation(collection, "LOOK_DOWN_ANIMATION").get()->m_SkeletonPoses[0];
+		auto leanLeftPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_LEFT_ANIMATION").get()->m_SkeletonPoses[0];
+		auto leanRightPose = &Manager::g_animationManager.getAnimation(collection, "LEAN_RIGHT_ANIMATION").get()->m_SkeletonPoses[0];
+		auto chargeAnimation = Manager::g_animationManager.getAnimation(collection, "CHARGE_POSE_ANIMATION").get();
+		auto throwAnimation = Manager::g_animationManager.getAnimation(collection, "THROW_ANIMATION").get();
 
 		auto holdState = stateMachine->AddLoopState("throw_hold", throwHoldClip);
 		stateMachine->AddAutoTransitionState("throw_begin", throwBeginClip, holdState);
 		auto throwEndState = stateMachine->AddAutoTransitionState("throw_end", throwEndClip, blend_fwd);
-		throwEndState->SetBlendTime(0.05f);
+		throwEndState->SetDefaultBlendTime(0.05f);
 		auto posessState = stateMachine->AddLoopState("posessing", posessClip);
-		posessState->SetBlendTime(0.3f);
+		posessState->SetDefaultBlendTime(0.3f);
 		//set initial state
 		stateMachine->SetState("walk_forward");
 
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
 		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
 		crouchState->UseFirstPoseOnly(true);
+		auto pitchState = layerMachine->Add1DPoseLayer("pitch", &m_currentPitch, -1.0f, 1.0f, { {lookUpPose, -1.0f}, {lookDownPose, 1.0f} });
+		pitchState->UseSmoothDriver(false);
+		layerMachine->ActivateLayer("pitch");
+		
+		auto chargeState = layerMachine->AddBasicLayer("charge", chargeAnimation, 0.35, 0.0);
+		chargeState->UseFirstPoseOnly(true);
+		auto throwState = layerMachine->AddBasicLayer("throw", throwAnimation, 0.0f, 0.05f);
+
+		auto leanState = layerMachine->Add1DPoseLayer("peek", &this->m_currentPeek, -1.0f, 1.0f, { {leanRightPose, -1.0f}, {leanLeftPose, 1.0f} });
+		leanState->UseSmoothDriver(false);
+		layerMachine->ActivateLayer("peek");
 	}
-
-	//#todoREMOVE
-	//auto& layerMachine = getAnimationPlayer()->InitLayerStateMachine(1);
-	//auto state = layerMachine->AddBlendSpace1DAdditiveState("pitch_state", &m_currentPitch, -.9f, .9f);
-	//
-	//std::vector<SM::BlendSpace1DAdditive::BlendSpaceLayerData> layerData;
-	//SM::BlendSpace1DAdditive::BlendSpaceLayerData up;
-	//up.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_UP_ANIMATION").get();
-	//up.location = .90f;
-	//up.weight = 1.0f;
-	//SM::BlendSpace1DAdditive::BlendSpaceLayerData down;
-	//down.clip = Manager::g_animationManager.getAnimation(collection, "PITCH_DOWN_ANIMATION").get();
-	//down.location = -.9f;
-	//down.weight = 1.0f;
-
-	//layerData.push_back(down);
-	//layerData.push_back(up);
-
-	//state->AddBlendNodes(layerData);
-
-	//layerMachine->SetState("pitch_state");
 }
 
 void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
@@ -415,11 +489,22 @@ void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
 	switch (id)
 	{
 	case NETWORKMESSAGES::ID_PLAYER_THROW_BEGIN:
-		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_begin");
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("charge");
 		break;
+	}
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
-		this->getAnimationPlayer()->GetStateMachine()->SetState("throw_end");
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0f);
 		break;
+	}
+	case NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL:
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("throw");
+		break;
+	}
 	}
 }
 
@@ -451,4 +536,12 @@ void RemotePlayer::_onNetworkRemoteCrouch(unsigned char id)
 		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
 		break;
 	}
+}
+
+void RemotePlayer::_onNetworkSmokeDetonate(unsigned char * data)
+{
+	Network::ENTITYSTATEPACKET* dataPacket = (Network::ENTITYSTATEPACKET*)data;
+	ParticleEmitter* emitter = new ParticleEmitter({ dataPacket->pos.x, dataPacket->pos.y + 0.5f, dataPacket->pos.z , 1.0f }, PS::SMOKE);
+	RipExtern::g_particleSystem->ParticleSystem::AddEmitter(emitter);
+	dynamic_cast<DisableAbility*>(m_abilityComponents1[Ability::DISABLE])->Reset();
 }

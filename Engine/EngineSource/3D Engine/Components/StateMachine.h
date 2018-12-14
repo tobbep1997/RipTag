@@ -49,8 +49,8 @@ namespace SM
 		bool Evaluate() const override;
 	private:
 		T* m_Reference = nullptr;
-		T m_Value = 0;
-		T m_Value2 = 0;
+		T m_Value;
+		T m_Value2;
 		COMPARISON_TYPE m_Type;
 	};
 
@@ -152,11 +152,13 @@ namespace SM
 
 		//Locks the current X,Y driver values
 		virtual void Lock() = 0;
-
+		virtual void Unlock() = 0;
 		//Set blend time for this state
-		void SetBlendTime(float blendTime);
+		void SetDefaultBlendTime(float blendTime);
+		void SetSpecificBlendTime(SM::AnimationState* fromState, float blendTime);
 
 		float BlendTime();
+		float BlendTime(SM::AnimationState* fromState);
 
 		//Resets the state
 		virtual void Reset() {};
@@ -167,7 +169,8 @@ namespace SM
 		std::pair<AnimationState*, float> EvaluateAll();
 	private:
 		std::string m_Name = "";
-		float m_BlendTime = 0.2f;
+		float m_DefaultBlendTime = 0.2f;
+		std::vector<std::pair<SM::AnimationState*, float>> m_SpecificBlendTimes;
 		std::unordered_map<std::string, OutState> m_OutStates;
 	};
 
@@ -221,6 +224,7 @@ namespace SM
 		Current1DStateData CalculateCurrentClips();
 
 		virtual void Lock() override;
+		virtual void Unlock() override;
 
 	private:
 		std::vector<BlendSpaceClipData> m_Clips;
@@ -247,6 +251,7 @@ namespace SM
 		
 		void AddBlendNodes(const std::vector<BlendSpaceLayerData> nodes);
 		virtual void Lock() override;
+		virtual void Unlock() override;
 
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
@@ -297,6 +302,7 @@ namespace SM
 		Current2DStateData CalculateCurrentClips();
 
 		virtual void Lock() override;
+		virtual void Unlock() override;
 
 	private:
 		std::tuple<Animation::AnimationClip*, Animation::AnimationClip*, float> GetLeftAndRightClips(size_t rowIndex);
@@ -327,6 +333,7 @@ namespace SM
 		Animation::AnimationClip* GetClip();
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 		virtual void Lock() override {};
+		virtual void Unlock() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
 	};
@@ -348,7 +355,7 @@ namespace SM
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 
 		virtual void Lock() override;
-
+		virtual void Unlock() override;
 		virtual void Reset() override;
 
 	private:
@@ -371,6 +378,7 @@ namespace SM
 		Animation::AnimationClip* GetClip();
 		std::optional<Animation::SkeletonPose> recieveStateVisitor(StateVisitorBase& visitor) override;
 		virtual void Lock() override {};
+		virtual void Unlock() override {};
 	private:
 		Animation::AnimationClip* m_Clip{};
 	};

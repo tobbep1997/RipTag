@@ -275,7 +275,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEPLOY;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)InputManager;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)RipTag;$(SolutionDir)2DEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -420,6 +420,12 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Deploy|x64'">$(IntDir)$(TargetName)DirectXTK.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='ReleaseWithConsole|x64'">$(IntDir)$(TargetName)DirectXTK.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
+    <ClCompile Include="2D Engine\DirectXTK\ScreenGrab.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseWithConsole|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="2D Engine\DirectXTK\SpriteBatch.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch.h</PrecompiledHeaderFile>
@@ -530,6 +536,7 @@
     <ClInclude Include="2D Engine\DirectXTK\LoaderHelpers.h" />
     <ClInclude Include="2D Engine\DirectXTK\pch.h" />
     <ClInclude Include="2D Engine\DirectXTK\PlatformHelpers.h" />
+    <ClInclude Include="2D Engine\DirectXTK\ScreenGrab.h" />
     <ClInclude Include="2D Engine\DirectXTK\SharedResourcePool.h" />
     <ClInclude Include="2D Engine\DirectXTK\SpriteBatch.h" />
     <ClInclude Include="2D Engine\DirectXTK\SpriteFont.h" />

@@ -6,17 +6,19 @@
 #include "../../Actors/BaseActor.h"
 #include "2D Engine/Quad/Components/HUDComponent.h"
 
-class DisableAbility : public AbilityComponent, public BaseActor, public HUDComponent
+class DisableAbility : public AbilityComponent, public HUDComponent
 {
+public:
+	inline static const float SMOKE_LIFE = 1.5f;
 private: // CONST VARS
 	/*
 	 * This will be the start mana cost. But the mana kan be changed
 	 * This is beacuse abilitycomponent is the one holding mana. and not the component it self
 	 */
-	const int START_MANA_COST = 10;
 	const float TRAVEL_SPEED = 20.0f;
-	const float MAX_CHARGE = 0.0f;
-	const float SMOKEGRASSTOTHEMAX = 2.0f;
+	const float MAX_CHARGE = 1.0f;
+	Circle * m_bar = nullptr;
+
 private:
 	// ENUM
 	enum DisableState
@@ -29,13 +31,11 @@ private:
 		OnHit
 	};
 
-	ParticleEmitter* m_particleEmitter; 
-
 private:
 	DisableState	m_dState;
 	float			m_charge;
 	float			m_travelSpeed;
-	Quad * m_bar;
+	BaseActor*		m_obj;
 
 	bool m_canceled = false;
 	//Network
@@ -45,16 +45,12 @@ private:
 
 	bool m_hasHit = false; 
 	bool m_isActive = false; 
-	float m_smokeTimer = 0.0f;
 
 public:
 	DisableAbility(void * owner = nullptr);
 	~DisableAbility();
 
 	void Init() override;
-
-	void deleteEffect();
-	ParticleEmitter* getEmitter(); 
 
 	/* This Function needs to be used after the Use() function */
 	void Update(double deltaTime) override;
@@ -66,6 +62,8 @@ public:
 	void Use() override;
 
 	void Draw() override;
+
+	void Reset();
 
 	DirectX::XMFLOAT4A getVelocity();
 	DirectX::XMFLOAT4A getStart();
@@ -80,7 +78,7 @@ private:
 	void _inStateCharging(double dt);
 	void _inStateMoving(double dt);
 	void _inStateCooldown(double dt);
-	void _inStateRemoteActive(double dt);
 
-	void _sendOnHitNotification(Enemy * ptr);
+	void _sendOnHitNotification(Enemy * ptr = nullptr);
+	void _sendSmokeNotification();
 };

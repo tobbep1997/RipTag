@@ -2,9 +2,13 @@
 #include "PlayState.h"
 #include <DirectXCollision.h>
 #include "Helper/RandomRoomPicker.h"
+#include "Source/CheetConsole/CheatParser.h"
 
 
-std::vector<std::string> RipSounds::g_stepsStone;
+std::vector<std::string> RipSounds::g_sneakStep;
+std::vector<std::string> RipSounds::g_hardStep;
+std::vector<std::string> RipSounds::g_armorStepsStone;
+
 std::string				 RipSounds::g_leverActivate;
 std::string				 RipSounds::g_leverDeactivate;
 std::string				 RipSounds::g_pressurePlateActivate;
@@ -13,23 +17,38 @@ std::string				 RipSounds::g_torch;
 std::string				 RipSounds::g_windAndDrip;
 std::string				 RipSounds::g_phase;
 std::string				 RipSounds::g_grunt;
+std::string				 RipSounds::g_playAmbientSound;
+std::string				 RipSounds::g_metalDoorOpening;
+std::string				 RipSounds::g_metalDoorClosening;
+std::string				 RipSounds::g_metalDoorClosed;
+std::string				 RipSounds::g_smokeBomb;
+std::string				 RipSounds::g_gateClosed;
+std::string				 RipSounds::g_gateClosening;
+std::string				 RipSounds::g_gateOpend;
+std::string				 RipSounds::g_gateOpening;
+std::string				 RipSounds::g_teleport; 
+std::string				 RipSounds::g_teleportHit; 
 
 b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
+ParticleSystem  * RipExtern::g_particleSystem;
 
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
 
+ConstTimer::MTimer ConstTimer::g_blinkTimer;
+ConstTimer::MTimer ConstTimer::g_teleportTimer;
 PlayState::PlayState(RenderingManager * rm, void * coopData, const unsigned short & roomIndex) : State(rm)
 {	
+	ConstTimer::g_blinkTimer.Start();
+	ConstTimer::g_teleportTimer.Start();
 	m_roomIndex = roomIndex;
 	if (coopData)
 	{
 		isCoop = true;
 		pCoopData = (CoopData*)coopData;
 	}
-	
 }
 
 PlayState::~PlayState()
@@ -51,6 +70,8 @@ PlayState::~PlayState()
 	m_playerManager->getLocalPlayer()->Release(m_world);
 	delete m_playerManager;
 
+	if(m_pPauseMenu != nullptr)
+	delete m_pPauseMenu; 
 
 	//delete triggerHandler;
 	
@@ -59,12 +80,27 @@ PlayState::~PlayState()
 	delete RipExtern::g_rayListener;
 	RipExtern::g_rayListener = nullptr;
 	RipExtern::g_world = nullptr;
-
+	delete RipExtern::g_particleSystem;
+	RipExtern::g_particleSystem = nullptr;
 	//delete m_world; //FAK U BYTE // WHY U NOE FREE
+
+	//fps.close();
 }
 
 void PlayState::Update(double deltaTime)
 {
+	//Cheat update
+	//fps << deltaTime << std::endl;
+
+	{
+		Cheet::g_visabilityDisabled = CheatParser::GetVisabilityDisabled();
+		Cheet::g_DBG_CAM = CheatParser::GetDBG_CAM();
+	}
+
+	
+
+	
+
 	int counter = 0;
 	if (runGame)
 	{
@@ -104,15 +140,21 @@ void PlayState::Update(double deltaTime)
 		//Handle all packets
 		RipExtern::g_kill = false;
 
+
+
+	
 		Network::Multiplayer::HandlePackets();
 		m_levelHandler->Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
-		m_playerManager->Update(deltaTime);
-		m_playerManager->PhysicsUpdate();
-		_audioAgainstGuards(deltaTime);
 	
+		RipExtern::g_particleSystem->ParticleSystem::Update(deltaTime, this->m_playerManager->getLocalPlayer()->getCamera());
 
+		m_playerManager->Update(deltaTime);
+
+		m_playerManager->PhysicsUpdate();
+		_audioAgainstGuards(deltaTime); 
+	
 		// Hide mouse
-		if (InputHandler::getShowCursor() != FALSE)
+		if (InputHandler::getShowCursor() != FALSE && !m_gamePaused)
 			InputHandler::setShowCursor(FALSE);	   
 		
 		// Select gamepad
@@ -122,11 +164,11 @@ void PlayState::Update(double deltaTime)
 		}
 
 		// On exit
-		if (Input::Exit() || GamePadHandler::IsStartPressed())
+		if (m_mainMenuPressed)
 		{
 			m_destoryPhysicsThread = true;
 			m_physicsCondition.notify_all();
-		
+
 
 			if (m_physicsThread.joinable())
 			{
@@ -135,15 +177,20 @@ void PlayState::Update(double deltaTime)
 			BackToMenu();
 		}
 
+
+		_checkPauseState();
+
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			_runPause(deltaTime);
+		}
+
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
 			runGame = false;
-
-			if (static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->getIsActive())
-			{
-				static_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
-			}
+			
+			RipExtern::g_particleSystem->clearEmitters();
 
 
 			if (m_youlost)
@@ -160,7 +207,7 @@ void PlayState::Update(double deltaTime)
 					m_physicsThread.join();
 				}
 
-				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData));
+				pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "You got caught by a Guard!\nTry to hide in the shadows next time buddy.", (void*)pCoopData,m_levelHandler->getNextRoom() - 1));
 			}
 			else
 			{
@@ -170,15 +217,14 @@ void PlayState::Update(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
-				m_transitionState->Load();
 
+				pushNewState(new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom()));
 				runGame = false;
 			}
 		}
 	
 		// Reset mouse to middle of the window, Must be last in update
-		if (!m_playerManager->getLocalPlayer()->unlockMouse)
+		if (!m_playerManager->getLocalPlayer()->unlockMouse && !m_gamePaused)
 		{
 			Input::ResetMouse();
 			InputHandler::setShowCursor(false);
@@ -252,7 +298,9 @@ void PlayState::Update(double deltaTime)
 						m_loadingScreen.draw();
 						RipExtern::g_kill = false;
 						m_removeHud = true;
+
 						this->resetState(new PlayState(this->p_renderingManager, pCoopData, m_levelHandler->getNextRoom()));
+					
 						return;
 					}
 				}
@@ -270,7 +318,7 @@ void PlayState::Update(double deltaTime)
 						}
 					}
 
-					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+					this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 				}
 			}
 			else if (!m_levelHandler->HasMoreRooms())
@@ -287,16 +335,16 @@ void PlayState::Update(double deltaTime)
 					}
 				}
 
-				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData));
+				this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 			}
-		
-
 		}
 	}
-	
-
-
 	m_physicsFirstRun = false;
+}
+
+LevelHandler * PlayState::getLevelHandler()
+{
+	return m_levelHandler; 
 }
 
 void PlayState::Draw()
@@ -306,20 +354,30 @@ void PlayState::Draw()
 
 		m_levelHandler->Draw();
 
+		RipExtern::g_particleSystem->ParticleSystem::Queue();
+		
 		_lightCulling();
 
 		m_playerManager->Draw();
 
+		if (m_gamePaused && !m_mainMenuPressed)
+		{
+			m_pPauseMenu->Draw();
+		}
+		
 	}
 	if (!runGame)
 	{
 		if (m_transitionState)
 			m_transitionState->Draw();
 	}
-	//DrawWorldCollisionboxes("BLINK_WALL");
-	//DrawWorldCollisionboxes();
+	if (CheatParser::GetDrawCollisionBoxes())
+	{
+		DrawWorldCollisionboxes();
+	}
+
+	//DrawWorldCollisionboxes("DOOR");
 #ifdef _DEBUG
-	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
@@ -389,7 +447,7 @@ void PlayState::_PhyscisThread(double deltaTime)
 			m_world.Step(m_step);
 			m_timer -= UPDATE_TIME;
 		}
-		RipExtern::g_rayListener->ShotRays();
+		RipExtern::g_rayListener->ShootRays();
 		m_physThreadRun.unlock();
 		//m_physRunning = false;
 	}
@@ -406,7 +464,6 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 		timer = 0.0f;
 		std::vector<FMOD::Channel*> channels = AudioEngine::getAllPlayingChannels();
 		const std::vector<Enemy*>* enemies = m_levelHandler->getEnemies();
-		int counter = 0;
 		for (auto & e : *enemies)
 		{
 			float allSounds = 0.0f;
@@ -423,10 +480,13 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 			{
 				for (auto & c : channels)
 				{
-					AudioEngine::SoundType * soundType = nullptr;
-					FMOD_RESULT res = c->getUserData((void**)&soundType);
-					if (res == FMOD_OK)
+					AudioEngine::SoundDesc * sd = nullptr;
+					FMOD_RESULT res = c->getUserData((void**)&sd);
+					if (res == FMOD_OK && sd != nullptr)
 					{
+						if (sd->emitter == AudioEngine::Enemy && e == sd->owner)
+							continue;
+
 						FMOD_VECTOR soundPos;
 						if (c->get3DAttributes(&soundPos, nullptr) == FMOD_OK)
 						{
@@ -434,48 +494,59 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 							DirectX::XMVECTOR soundDir = DirectX::XMVectorSubtract(vSPos, vEPos);
 							float lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3Dot(soundDir, soundDir));
 							float occ = 1.0f;
-
-							if (RipExtern::g_rayListener->hasRayHit(m_rayId))
-							{
-								RayCastListener::Ray* ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_rayId);
-								RayCastListener::RayContact* c;
-								for (int i = 0; i < ray->getNrOfContacts(); i++)
-								{
-									c = ray->GetRayContact(i);
-									std::string tag = c->contactShape->GetBody()->GetObjectTag();
-									if (tag == "WORLD" || tag == "NULL")
-									{
-										occ *= 0.15f;
-									}
-									else if (tag == "BLINK_WALL")
-									{
-										occ *= 0.50f;
-									}
-								}
-							}
-
+							RayCastListener::Ray ray;
 							if (!DirectX::XMVectorGetX(DirectX::XMVectorEqual(soundDir, DirectX::XMVectorZero())))
 							{
-								DirectX::XMFLOAT4A soundDirNormalized;
-								DirectX::XMStoreFloat4A(&soundDirNormalized, DirectX::XMVector3Normalize(soundDir));
-
-								if(m_rayId == -100)
-									m_rayId = RipExtern::g_rayListener->PrepareRay(e->getBody(), ePos, soundDirNormalized, sqrt(lengthSquared));
+								DirectX::XMFLOAT4A xmSoundPos = {soundPos.x, soundPos.y, soundPos.z, 1.0f};
+								ray = RipExtern::g_rayListener->ShootAudioRay(e->getBody(), ePos, xmSoundPos);
+							}
+								
+							for (int i = 0; i < ray.getNrOfContacts(); i++)
+							{
+								const RayCastListener::RayContact & c = ray.GetRayContact(i);
+								std::string tag = c.contactShape->GetBody()->GetObjectTag();
+									
+								if (tag == "BANNER")
+									occ *= 0.9f;
+								else if (tag == "BOOKSHELF")
+									occ *= 0.4f;
+								else if (tag == "THICKWALL" || tag == "WORLD")
+									occ *= 0.03f;
+								else if (tag == "THINWALL")
+									occ *= 0.06f;
+								else if (tag == "STATICROOMFLOOR")
+									occ *= 0.0f;
+								else if (tag == "PILLARLOW")
+									occ *= 0.03f;
+								else if (tag == "KEG")
+									occ *= 0.5f;
+								else if (tag == "BLINK_WALL")
+									occ *= 0.12f;
+								else if (tag == "WOODENFLOOR")
+									occ *= 0.5f;
+								else if (tag == "COLLISIONBOXASPROP")
+									occ *= 0.01f;
+								else if (tag == "FLOOR")
+									occ *= 0.0f;
+								else if (tag == "WALL")
+									occ *= 0.05f;
+								else if (tag == "CRATE" || tag == "BARREL")
+									occ *= 0.75f;
 							}
 							
-
-							float volume = 0;
-							c->getVolume(&volume);
+							
+							float volume = sd->loudness;
 							
 							volume *= 100.0f;
-							
+
 							volume *= occ;
+
 							float addThis = (volume / (lengthSquared * 3));
-							
+						
 
 							//Pro Tip: Not putting break in a case will not stop execution, 
 							//it will continue execute until a break is found. Break acts like a GOTO command in switch cases
-							switch (*soundType)
+							switch (sd->emitter)
 							{
 							case AudioEngine::Player:
 								allSounds += addThis;
@@ -487,6 +558,10 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 									sl.soundPos.z = soundPos.z;
 								}
 								break;
+							case AudioEngine::Enemy:	
+								allSounds += addThis;
+								break;
+							case AudioEngine::RemotePlayer:
 							case AudioEngine::Other:
 								allSounds += addThis;
 								break;
@@ -495,30 +570,32 @@ void PlayState::_audioAgainstGuards(double deltaTime)
 					}
 				}
 
+			
 				sl.percentage = playerSounds / allSounds;
 				e->setSoundLocation(sl);
+			
 			}
 			else
 			{
 				sl.soundPos = { 0,0,0 };
 				e->setSoundLocation(sl);
 			}
-			counter++;
+
 		}
 	}
 }
 
 void PlayState::_lightCulling()
 {
-	Player * p = m_playerManager->getLocalPlayer();
+	Camera * cTarget = CameraHandler::getActiveCamera();
 	DirectX::BoundingFrustum PlayerWorldBox;
 	DirectX::XMMATRIX viewInv, proj;
 
-	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getProjection()));
-	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&p->getCamera()->getView())));
+	proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&cTarget->getProjection()));
+	viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&cTarget->getView())));
 	DirectX::BoundingFrustum::CreateFromMatrix(PlayerWorldBox, proj);
 	PlayerWorldBox.Transform(PlayerWorldBox, viewInv);
-	const DirectX::XMFLOAT4A & pPos = p->getPosition();
+	const DirectX::XMFLOAT4A & pPos = cTarget->getPosition();
 	DirectX::XMVECTOR vpPos = DirectX::XMLoadFloat4A(&pPos);
 
 	for (auto & light : DX::g_lights)
@@ -528,7 +605,7 @@ void PlayState::_lightCulling()
 		const DirectX::XMFLOAT4A & lPos = light->getPosition();
 		DirectX::XMVECTOR dir = DirectX::XMVectorSubtract(DirectX::XMLoadFloat4A(&lPos), vpPos);
 		float length = DirectX::XMVectorGetX(DirectX::XMVector3Length(dir));
-		if (length < p->getCamera()->getFarPlane())
+		if (length < cTarget->getFarPlane())
 		{
 			const std::vector<Camera*> & sidesVec = light->getSides();
 			int counter = 0;
@@ -549,6 +626,12 @@ void PlayState::_lightCulling()
 		}
 		
 	}
+}
+
+void PlayState::_runPause(double deltaTime)
+{
+	Camera* camera = m_playerManager->getLocalPlayer()->getCamera(); 
+	m_pPauseMenu->Update(deltaTime, camera); 
 }
 
 void PlayState::thread(std::string s)
@@ -593,9 +676,9 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			_vertices.push_back(v);
 		}
 		_sm.setVertices(_vertices);
-		
-		
+			
 		_loaded = true;
+
 		const b3Body * b = m_world.getBodyList();
 
 		while (b != nullptr)
@@ -710,8 +793,13 @@ void PlayState::unLoad()
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_meshManager.UnloadAllMeshes();
 
-	for (auto & s : RipSounds::g_stepsStone)
+	for (auto & s : RipSounds::g_sneakStep)
 		AudioEngine::UnLoadSoundEffect(s);
+	for (auto & s : RipSounds::g_hardStep)
+		AudioEngine::UnLoadSoundEffect(s);
+	for (auto & s : RipSounds::g_armorStepsStone)
+		AudioEngine::UnLoadSoundEffect(s);
+
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_windAndDrip);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_leverActivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_leverDeactivate);
@@ -719,6 +807,19 @@ void PlayState::unLoad()
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_pressurePlateDeactivate);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_torch);
 	AudioEngine::UnLoadSoundEffect(RipSounds::g_grunt);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_smokeBomb); 
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleport); 
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_teleportHit); 
+	AudioEngine::UnloadAmbiendSound(RipSounds::g_playAmbientSound);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorOpening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_metalDoorClosed);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_playAmbientSound);
+
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateClosed);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateClosening);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateOpend);
+	AudioEngine::UnLoadSoundEffect(RipSounds::g_gateOpening);
 
 	if (m_eventOverlay)
 	{
@@ -730,14 +831,23 @@ void PlayState::unLoad()
 	Network::Multiplayer::RemotePlayerOnReceiveMap.clear();
 	Network::Multiplayer::inPlayState = false;
 
-	if (dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1]))
-		dynamic_cast<DisableAbility*>(m_playerManager->getLocalPlayer()->m_abilityComponents1[1])->deleteEffect(); 
+	if(RipExtern::g_particleSystem != nullptr)
+	RipExtern::g_particleSystem->clearEmitters();
+
 
 	if (m_transitionState)
 	{
 		m_transitionState->unLoad();
 		delete m_transitionState;
 		m_transitionState = nullptr;
+	}
+
+	m_pPauseMenu->unLoad();
+
+	if (DX::g_skyBox)
+	{
+		delete DX::g_skyBox;
+		DX::g_skyBox = nullptr;
 	}
 }
 
@@ -748,6 +858,7 @@ void PlayState::Load()
 	std::vector<RandomRoomPicker::RoomPicker> rooms;
 	//Initially Clear network maps
 
+	//fps.open("fpsData.txt");
 	//phy.open("physData.txt");
 	
 	if (isCoop)
@@ -760,7 +871,7 @@ void PlayState::Load()
 	}
 	else
 	{
-		rooms = RandomRoomPicker::RoomPick(0);
+		rooms = RandomRoomPicker::RoomPick((int)time(0));
 	}
 	
 	m_youlost = false;
@@ -774,8 +885,68 @@ void PlayState::Load()
 	_loadAnimations();
 	_loadPlayers(rooms);
 	_loadNetwork();
+	RipExtern::g_particleSystem = new ParticleSystem();
+	m_pPauseMenu->Load(); 
+
+
+	Manager::g_meshManager.loadStaticMesh("SKYBOX");
+	Manager::g_textureManager.loadTextures("SKYBOX");
+	if (false == true)
+	{		
+		DX::g_skyBox = new Drawable();
+		DX::g_skyBox->setModel(Manager::g_meshManager.getStaticMesh("SKYBOX"));
+		DX::g_skyBox->setTexture(Manager::g_textureManager.getTexture("SKYBOX"));
+	}
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
+}
+
+void PlayState::_checkPauseState()
+{
+	//Check if escape was pressed
+	if (!m_pausePressed)
+	{
+		if (Input::isUsingGamepad())
+			m_pausePressed = GamePadHandler::IsStartReleased();
+		if (InputHandler::wasKeyPressed(InputHandler::Esc))
+			m_pausePressed = true;
+	}
+
+	if (m_pausePressed && !m_pauseWasPressed && m_currentState == 0)
+	{
+		m_gamePaused = true; 
+		m_currentState = 1; 
+		m_playerManager->getLocalPlayer()->LockPlayerInput();
+		m_playerManager->getLocalPlayer()->setLiniearVelocity(0, m_playerManager->getLocalPlayer()->getLiniearVelocity().y, 0);
+		m_playerManager->getLocalPlayer()->getBody()->SetAngularVelocity(b3Vec3(0, 0, 0)); 
+		m_playerManager->getLocalPlayer()->setHeadbobbingActive(false); 
+		m_playerManager->getLocalPlayer()->setPlayAnimation(false); 
+		m_pPauseMenu = new PauseMenu(); 
+	}
+
+	if (m_pPauseMenu != nullptr)
+	{
+		if (m_pPauseMenu->getExitPause())
+		{
+			m_pausePressed = false;
+			m_gamePaused = false;
+			m_currentState = 0;
+			m_playerManager->getLocalPlayer()->UnlockPlayerInput();
+			m_playerManager->getLocalPlayer()->setHeadbobbingActive(true); 
+			m_playerManager->getLocalPlayer()->setPlayAnimation(true);
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+
+		}
+		else if (m_pPauseMenu->getMainMenuPressed())
+		{
+			delete m_pPauseMenu;
+			m_pPauseMenu = nullptr;
+			m_mainMenuPressed = true; 
+		}
+	}
+
+	m_pauseWasPressed = m_pausePressed; 
 }
 
 void PlayState::_loadTextures()
@@ -794,6 +965,8 @@ void PlayState::_loadTextures()
 	Manager::g_textureManager.loadTextures("GUARD");
 	Manager::g_textureManager.loadTextures("ARMS");
 	Manager::g_textureManager.loadTextures("PLAYER1");
+	Manager::g_textureManager.loadTextures("PLAYER2");
+
 
 
 }
@@ -823,6 +996,7 @@ void PlayState::_loadMeshes()
 
 	Manager::g_meshManager.loadSkinnedMesh("STATE");
 	Manager::g_meshManager.loadSkinnedMesh("PLAYER1");
+	Manager::g_meshManager.loadSkinnedMesh("PLAYER2");
 	Manager::g_meshManager.loadSkinnedMesh("GUARD");
 	Manager::g_meshManager.loadSkinnedMesh("ARMS");
 
@@ -915,32 +1089,53 @@ void PlayState::_loadNetwork()
 
 void PlayState::_loadSound()
 {
-	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/AmbientSounds/Cave.ogg", 5.0f, 10000.0f, true);
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep1.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep2.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep3.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep4.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep5.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep6.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep7.ogg"));
-	RipSounds::g_stepsStone.push_back(AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/footstep8.ogg"));
-	RipSounds::g_leverActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickUnlock.ogg");
-	RipSounds::g_leverDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/RazerClickLock.ogg");
-	RipSounds::g_pressurePlateActivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplatePush.ogg");
-	RipSounds::g_pressurePlateDeactivate = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/PressureplateRelease.ogg");
-	RipSounds::g_torch = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Torch.ogg", 1.0f, 5000.0f, true);
-	RipSounds::g_grunt = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/TimAllenGrunt.ogg");
+	RipSounds::g_windAndDrip = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Ambient/Cave.ogg", 5.0f, 10000.0f, true); // Released
+
+	for (int i = 1; i <= 6; i++)	 // Released
+	{
+		RipSounds::g_sneakStep.push_back(AudioEngine::LoadSoundEffect(
+			"../Assets/Audio/SoundEffects/Player/Sneaking/soft_"
+			+ std::to_string(i) +
+			".ogg"
+		));
+	}
+	for (int i = 1; i <= 6; i++)	 // Released
+	{
+		RipSounds::g_hardStep.push_back(AudioEngine::LoadSoundEffect(
+			"../Assets/Audio/SoundEffects/Player/Running/hard_"
+			+ std::to_string(i) +
+			".ogg"
+		));
+	}
+	for (int i = 1; i <= 12; i++)	 // Released
+	{
+		RipSounds::g_armorStepsStone.push_back(AudioEngine::LoadSoundEffect(
+			"../Assets/Audio/SoundEffects/Armored_Guard/Footsteps/step_"
+			+ std::to_string(i) +
+			".ogg"
+		));
+	}
 
 
-	FMOD_VECTOR caveSoundAt = { -2.239762f, 6.5f, -1.4f };
-	FMOD_VECTOR caveSoundAt2 = { -5.00677f, 6.5f, -10.8154f };
+	RipSounds::g_leverActivate				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickUnlock.ogg"); // Released
+	RipSounds::g_leverDeactivate			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Lever/RazerClickLock.ogg"); // Released
+	RipSounds::g_pressurePlateActivate		= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplatePush.ogg"); // Released
+	RipSounds::g_pressurePlateDeactivate	= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Pressureplate/PressureplateRelease.ogg"); // Released
+	RipSounds::g_torch						= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Light/Torch.ogg", 1.0f, 5000.0f, true); // Released
+	RipSounds::g_grunt						= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Armored_Guard/Alert/TimAllenGrunt.ogg"); // Released
+	RipSounds::g_smokeBomb					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/smokeBomb.ogg");  // Released
+	RipSounds::g_playAmbientSound			= AudioEngine::LoadAmbientSound("../Assets/Audio/AmbientSounds/play_ambient.ogg", true); // Released
+	RipSounds::g_metalDoorOpening			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/open.ogg"); // Released
+	RipSounds::g_metalDoorClosening			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/close.ogg"); // Released
+	RipSounds::g_metalDoorClosed			= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Small_Door/closed.ogg"); // Released
+	RipSounds::g_gateClosed					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closed.ogg"); // Released
+	RipSounds::g_gateClosening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Closening.ogg"); // Released
+	RipSounds::g_gateOpend					= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opend.ogg"); // Released
+	RipSounds::g_gateOpening				= AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/Interactables/Gate/Gate_Opening.ogg"); // Released
+	RipSounds::g_teleport = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleport.ogg"); 
+	RipSounds::g_teleportHit = AudioEngine::LoadSoundEffect("../Assets/Audio/SoundEffects/teleportHit.ogg");
 
-	AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &caveSoundAt, AudioEngine::Other);
-	AudioEngine::PlaySoundEffect(RipSounds::g_windAndDrip, &caveSoundAt2, AudioEngine::Other);
-
-	FMOD_VECTOR reverbAt = { -5.94999f, 7.0f, 3.88291f };
-
-	AudioEngine::CreateReverb(reverbAt, 30.0f, 50.0f);
+	AudioEngine::PlayAmbientSound(RipSounds::g_playAmbientSound)->setVolume(0.15f);
 }
 
 void PlayState::_registerThisInstanceToNetwork()
@@ -953,6 +1148,7 @@ void PlayState::_registerThisInstanceToNetwork()
 	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_LOST, std::bind(&PlayState::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_PLAYER_DISCONNECT, std::bind(&PlayState::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION, std::bind(&PlayState::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_SMOKE_DETONATE, std::bind(&PlayState::HandlePacket, this, _1, _2));
 }
 
 void PlayState::_sendOnGameOver()
@@ -983,7 +1179,7 @@ void PlayState::_onGameOverPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner got caught by a Guard!\nTime to get a better friend?", (void*)pCoopData, m_levelHandler->getNextRoom() - 1, true));
 }
 
 void PlayState::_onGameWonPacket()
@@ -1002,7 +1198,7 @@ void PlayState::_onDisconnectPacket()
 	{
 		m_physicsThread.join();
 	}
-	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData));
+	pushNewState(new TransitionState(p_renderingManager, Transition::Lose, "Your partner has abandoned you!\nIs he really your friend?", (void*)pCoopData, m_levelHandler->getNextRoom() - 1));
 }
 
 void PlayState::_updateOnCoopMode(double deltaTime)
@@ -1038,7 +1234,7 @@ void PlayState::_updateOnCoopMode(double deltaTime)
 					delete m_transitionState;
 					m_transitionState = nullptr;
 				}
-				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData);
+				m_transitionState = new TransitionState(p_renderingManager, Transition::Win, "Round won!\nPress Ready to play next round.", (void*)pCoopData, m_levelHandler->getNextRoom() - 1);
 				m_transitionState->Load();
 
 				runGame = false;

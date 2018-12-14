@@ -31,8 +31,14 @@ private:
 		DirectX::XMFLOAT2 current, target;
 		float ran;
 	};
-
 	TourchEffectVars m_tev;
+	struct MovmentEffectVars
+	{
+		double timer;
+		DirectX::XMFLOAT4 current, target, base;
+		bool first = true;
+	};
+	MovmentEffectVars m_mev;
 
 	std::vector<Camera *>	m_sides;
 	DirectX::XMFLOAT4A		m_position;
@@ -43,9 +49,9 @@ private:
 	float m_farPlane;
 	float m_dropOff, m_intensity, m_pow;
 
-	ID3D11ShaderResourceView *	m_shadowShaderResourceView;
-	ID3D11DepthStencilView*		m_shadowDepthStencilView;
-	ID3D11Texture2D*			m_shadowDepthBufferTex;
+	ID3D11ShaderResourceView *	m_shadowShaderResourceView;	//Re
+	ID3D11DepthStencilView*		m_shadowDepthStencilView;	//Re
+	ID3D11Texture2D*			m_shadowDepthBufferTex;		//Re
 
 	bool m_update = false;
 	bool m_firstRun = true;
@@ -56,6 +62,8 @@ private:
 
 	bool m_lightOn = true;
 
+	bool m_prioLight = false;
+
 public:
 	PointLight();
 	PointLight(float * translation, float * color, float intensity);
@@ -65,7 +73,7 @@ public:
 
 	void Init(DirectX::XMFLOAT4A position, DirectX::XMFLOAT4A color, float intencsity = 1.0f);
 
-	void QueueLight();
+	void QueueLight(const bool & prio = false);
 
 	void setPosition(const DirectX::XMFLOAT4A & pos);
 	void setPosition(float x, float y, float z, float w = 1);
@@ -95,6 +103,8 @@ public:
 	void CreateShadowDirection(const std::vector<ShadowDir> & shadowDir);
 
 	float TourchEffect(double deltaTime, float base, float amplitude);
+	void setBase(const DirectX::XMFLOAT4A & base);
+	const DirectX::XMFLOAT4A MovmentEffect(double deltaTime, const DirectX::XMFLOAT4A position, float stride = .5f, float amplitude = 0);
 
 	ID3D11ShaderResourceView * getSRV() const;
 	ID3D11DepthStencilView * getDSV() const;
@@ -121,11 +131,14 @@ public:
 	bool getLightOn() const;
 	void setLightOn(bool bo);
 	void SwitchLightOn();
+
+	const bool & GetPrio();
 private:
 	void _createSides();
 	void _createSide(const DirectX::XMFLOAT4A & dir, const DirectX::XMFLOAT4A & up);
 	void _updateCameras();
 	void _initDirectX();
 	void _setFarPlane();
-};
 
+	DirectX::XMFLOAT4 getRandomDirection();
+};

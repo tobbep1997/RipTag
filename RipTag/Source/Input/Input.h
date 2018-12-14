@@ -30,7 +30,7 @@ public:
 	//Action Mappings
 	static bool Jump();
 	static bool CheckVisability();
-	static bool Crouch();
+	static const unsigned int Crouch();
 
 	//Axis binds
 	static float MoveForward();
@@ -38,7 +38,7 @@ public:
 	static float MouseMovementModifier();
 	static bool ResetMouseMovementModifier();
 	static float PeekRight();
-	static bool Sprinting();
+	static const unsigned int Sprinting();
 	static bool OnAbilityPressed();
 	static bool OnAbilityReleased();
 	static bool OnAbility2Pressed();
@@ -62,13 +62,19 @@ public:
 	static bool SelectAbility4();
 
 	//Player Settings----------------
-
 	static const DirectX::XMFLOAT2 & GetPlayerMouseSensitivity();
 	static int GetPlayerFOV();
 
 	//LoadPlayerSettings from iniFile
 	static void WriteSettingsToFile();
 	static void ReadSettingsFile();
+
+	static enum InputType
+	{
+		None = 0,
+		Gamepad = 1,
+		Keyboard = 2,
+	};
 private:
 	static void _ParseFileInputInt(const std::string & name, int key);
 public:

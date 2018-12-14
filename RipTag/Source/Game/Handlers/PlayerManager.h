@@ -35,6 +35,7 @@ public:
 	void _onRemotePlayerPacket(unsigned char id, unsigned char * data);
 	void _onRemotePlayerWonPacket(unsigned char id, unsigned char *data);
 
+
 	void Init(b3World * physWorld);
 	void Update(float dt);
 	void PhysicsUpdate();
@@ -46,7 +47,6 @@ public:
 	void CreateRemotePlayer(DirectX::XMFLOAT4A pos, RakNet::NetworkID nid);
 	//call this function if you had a client connected but he left
 	void DestroyRemotePlayer();
-	void SendOnPlayerCreate();
 	Player * getLocalPlayer();
 	RemotePlayer * getRemotePlayer();
 

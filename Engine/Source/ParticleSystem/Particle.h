@@ -3,8 +3,17 @@
 #include <d3dcsx.h>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
-#include <iostream>
 #include <time.h>
+
+namespace PS
+{
+	enum ParticleType
+	{
+		DEFAULT = 0,
+		FIRE,
+		SMOKE
+	};
+}
 
 class Particle
 {
@@ -25,7 +34,7 @@ public:
 	float lifeTime = 2.3f;
 	float acceleration = 1.1f;
 	DirectX::XMFLOAT2 scale = DirectX::XMFLOAT2(1,1);
-
+	bool Expired() { return age >= lifeTime; }
 
 };
 

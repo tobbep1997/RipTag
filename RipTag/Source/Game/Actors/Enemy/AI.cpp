@@ -3,12 +3,17 @@
 
 AI::AI()
 {
-
+	m_alerted.owner = nullptr;
+	m_alerted.emitter = AudioEngine::Enemy;
+	m_alerted.loudness = 1.5f;
 }
 
 AI::AI(Enemy * owner)
 {
 	m_owner = owner;
+	m_alerted.owner = owner;
+	m_alerted.emitter = AudioEngine::Enemy;
+	m_alerted.loudness = 1.5f;
 }
 
 AI::~AI()
@@ -39,17 +44,11 @@ void AI::handleStates(const double deltaTime)
 	case AITransitionState::Alerted:
 		this->_onAlerted();
 		break;
-	case AITransitionState::InvestigateSound:
-		this->_onInvestigateSound();
-		break;
-	case AITransitionState::InvestigateSight:
-		this->_onInvestigateSight();
+	case AITransitionState::Investigate:
+		this->_onInvestigate();
 		break;
 	case AITransitionState::Observe:
 		this->_onObserve();
-		break;
-	case AITransitionState::SearchArea:
-		this->_onSearchArea();
 		break;
 	case AITransitionState::ReturnToPatrol:
 		this->_onReturnToPatrol();
@@ -66,106 +65,49 @@ void AI::handleStates(const double deltaTime)
 	case AITransitionState::ExitingDisable:
 		this->_onExitingDisabled();
 		break;
+	case AITransitionState::TorchFound:
+		this->_onTorchFound();
+		break;
+	case AITransitionState::TorchHandled:
+		this->_onTorchHandled();
+		break;
 	}
 
 	switch (m_state)
 	{
-	case AIState::Investigating_Sight:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Sight" << white << "\r";
-#endif
-
+	case AIState::Investigating:
+		m_owner->_CheckPlayer(deltaTime);
 		if (timer > 0.3f)
 		{
 			timer = 0.0f;
-			this->_investigatingSight(deltaTime);
+			this->_investigating(deltaTime);
 		}
 		if (m_transState == AITransitionState::NoTransitionState)
+		if (m_alertPath.size() != 0)
 		{
-			if (m_alertPath.size() != 0)
-			{
-				_MoveToAlert(m_alertPath.at(0), deltaTime);
-			}
+			_MoveToAlert(m_alertPath.at(0), deltaTime);
 		}
-		m_owner->_detectTeleportSphere();
-		break;
-	case AIState::Investigating_Sound:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Sound" << white << "\r";
-#endif
-
-		if (timer > 0.3f)
-		{
-			timer = 0.0f;
-			this->_investigatingSound(deltaTime);
-		}
-		if (m_transState == AITransitionState::NoTransitionState)
-			if (m_alertPath.size() != 0)
-			{
-				_MoveToAlert(m_alertPath.at(0), deltaTime);
-			}
-		m_owner->_detectTeleportSphere();
-		break;
-	case AIState::Investigating_Room:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Investigating Room" << white << "\r";
-#endif
-
-		this->_investigatingRoom(deltaTime);
-		m_owner->_detectTeleportSphere();
-		if (m_transState == AITransitionState::NoTransitionState)
-			if (m_alertPath.size() != 0)
-			{
-				_MoveToAlert(m_alertPath.at(0), deltaTime);
-			}
-		break;
-	case AIState::High_Alert:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: High Alert" << white << "\r";
-#endif
-
-		this->_highAlert(deltaTime);
 		m_owner->_detectTeleportSphere();
 		break;
 	case AIState::Patrolling:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Patrolling" << white << "\r";
-#endif
-
 		this->_patrolling(deltaTime);
 		m_owner->_detectTeleportSphere();
 		break;
 	case AIState::Suspicious:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Suspicious" << white << "\r";
-#endif
-
 		this->_suspicious(deltaTime);
 		m_owner->_detectTeleportSphere();
 		break;
-	case AIState::Scanning_Area:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Scanning Area" << white << "\r";
-#endif
-
-		this->_scanningArea(deltaTime);
-		m_owner->_detectTeleportSphere();
-		break;
 	case AIState::Possessed:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Possessed" << white << "\r";
-#endif
 		_possessed(deltaTime);
 		break;
 	case AIState::Disabled:
-#ifdef _DEBUG
-		std::cout << yellow << "Enemy State: Disabled" << white << "\r";
-#endif
 		_disabled(deltaTime);
+		break;
+	case AIState::TorchHandling:
+		_torchHandling(deltaTime);
 		break;
 	}
 }
-
 void AI::handleStatesClient(const double deltaTime)
 {
 	switch (m_transState)
@@ -197,115 +139,99 @@ void AI::handleStatesClient(const double deltaTime)
 
 void AI::_onAlerted()
 {
-#ifdef _DEBUG
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Patrolling -> Suspicious" << white << std::endl;
-#endif
+	//Set animation and send 
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("aware");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "aware");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
+		}
+	}
+
 	m_owner->setLiniearVelocity(0.0f, m_owner->getLiniearVelocity().y, 0.0f);
 	this->m_state = AIState::Suspicious;
 	this->m_actTimer = 0;
-	m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
-	m_owner->m_loudestSoundLocation = AI::SoundLocation();
-	m_owner->m_biggestVisCounter = 0;
+
 	FMOD_VECTOR at = { m_owner->getPosition().x, m_owner->getPosition().y, m_owner->getPosition().z };
-	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, AudioEngine::Enemy);
+	AudioEngine::PlaySoundEffect(RipSounds::g_grunt, &at, &m_alerted);
+
 	this->m_transState = AITransitionState::NoTransitionState;
 }
-
-void AI::_onInvestigateSound()
+void AI::_onInvestigate()
 {
+	//Set animation and send to client
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
+		}
+	}
+	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
 	DirectX::XMFLOAT3 soundPos = m_owner->getLoudestSoundLocation().soundPos;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
+	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
 	Tile soundTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
 	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
 
-	if (soundTile.getX() == -1 && soundTile.getY() == -1)
+	if (this->m_followSight)
 	{
-		soundTile = m_grid->GetRandomNearbyTile(guardTile);
+		if (!(playerTile.getX() == -1))
+			playerTile = m_grid->GetRandomNearbyUnblockedTile(playerTile);
+		this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+#ifdef _DEBUG
+		std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigating Sight" << white << std::endl;
+#endif
+	}
+	else
+	{
+		if (!(soundTile.getX() == -1))
+			soundTile = m_grid->GetRandomNearbyUnblockedTile(soundTile);
+		this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
+#ifdef _DEBUG
+		std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigating Sound" << white << std::endl;
+#endif
 	}
 
-	this->SetAlertVector(m_grid->FindPath(guardTile, soundTile));
-	
-
-
-
-
-	// If pathfindingThread is finnished
-#ifdef _DEBUG
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sound" << white << std::endl;
-#endif
-	this->m_state = Investigating_Sound;
+	this->m_state = Investigating;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
-
-void AI::_onInvestigateSight()
-{
-	DirectX::XMFLOAT4A playerPos = m_owner->getClearestPlayerLocation();
-	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-	Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
-	Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-	if (playerTile.getX() == -1 && playerTile.getY() == -1)
-	{
-		playerTile = m_grid->GetRandomNearbyTile(guardTile);
-	}
-
-	this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-	this->m_state = Investigating_Sight;
-#ifdef _DEBUG
-
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Investigate Sight" << white << std::endl;
-#endif
-	this->m_transState = AITransitionState::NoTransitionState;
-}
-
 void AI::_onObserve()
 {
-	m_owner->setLiniearVelocity();
-	this->m_actTimer = 0;
-#ifdef _DEBUG
-
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Investigating Source -> Scanning Area" << white << std::endl;
-#endif
-	this->m_state = Scanning_Area;
-	this->m_transState = AITransitionState::NoTransitionState;
-}
-
-void AI::_onSearchArea()
-{
-	this->m_actTimer = 0;
-	this->m_state = Investigating_Room;
-#ifdef _DEBUG
-
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Scanning Area -> Investigating Area" << white << std::endl;
-#endif
-	this->m_transState = AITransitionState::NoTransitionState;
-	auto pos = m_owner->getPosition();
-	Tile guardTile = m_grid->WorldPosToTile(pos.x, pos.z);
-
-	int x = rand() % 4 + 1;
-	int y = rand() % 11;
-
-	DirectX::XMFLOAT2 gPos = { (float)guardTile.getX(), (float)guardTile.getY() };
-	DirectX::XMFLOAT2 tPos = { (float)x, (float)y };
-
-	float dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
-
-	while (dist < 3.0f)
+	//Set animation and send to client
 	{
-		int x = rand() % 4 + 1;
-		int y = rand() % 10;
-
-		DirectX::XMFLOAT2 tPos = { (float)x, (float)y };
-
-		dist = DirectX::XMVectorGetX(DirectX::XMVector2Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat2(&gPos), DirectX::XMLoadFloat2(&tPos))));
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
+		}
 	}
 
-	std::vector<Node*> fullPath = m_grid->FindPath(guardTile, Tile(x, y));
-	this->SetAlertVector(fullPath);
+	m_owner->m_loudestSoundLocation.percentage = 0.0f;
+	m_owner->m_biggestVisCounter = 0.0f;
+	m_owner->setLiniearVelocity();
+	this->m_actTimer = 0;
+	this->m_searchTimer = 0;
+	this->m_state = AIState::Suspicious;
+	this->m_transState = AITransitionState::NoTransitionState;
 }
-
 void AI::_onReturnToPatrol()
 {
+	//Set animation and send to client
+	{
+		m_owner->getAnimationPlayer()->GetStateMachine()->SetState("walk_state");
+		if (Network::Multiplayer::GetInstance()->isConnected())
+		{
+			Network::ENEMYANIMATIONSTATEPACKET packet(m_owner->getUniqueID(), "walk_state");
+			Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::ENEMYANIMATIONSTATEPACKET), PacketPriority::LOW_PRIORITY);
+		}
+	}
+
+	m_owner->m_loudestSoundLocation.percentage = 0.0f;
+	m_owner->m_biggestVisCounter = 0.0f;
 	this->m_actTimer = 0;
 	this->m_searchTimer = 0;
 	DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
@@ -313,15 +239,11 @@ void AI::_onReturnToPatrol()
 	Tile lastPatrolPos = m_path.at(m_currentPathNode)->tile;
 	this->SetAlertVector(m_grid->FindPath(guardTile, lastPatrolPos));
 	this->m_state = Patrolling;
-#ifdef _DEBUG
-
-	std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: Suspicious -> Patrolling" << white << std::endl;
-#endif
 	this->m_transState = AITransitionState::NoTransitionState;
 }
-
 void AI::_onBeingPossessed()
 {
+	m_owner->getAnimationPlayer()->GetLayerMachine()->PopAll();
 	m_owner->UnlockEnemyInput();
 	m_owner->setReleased(false);
 	m_owner->setHidden(true);
@@ -331,7 +253,6 @@ void AI::_onBeingPossessed()
 	this->m_state = AIState::Possessed;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
-
 void AI::_onBeingDisabled()
 {
 	///Set knocked animation
@@ -344,18 +265,17 @@ void AI::_onBeingDisabled()
 	this->m_state = AIState::Disabled;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
-
 void AI::_onExitingPossessed()
 {
+	m_owner->getAnimationPlayer()->GetStateMachine()->SetState("knocked_state");
+
 	m_owner->m_knockOutType = Enemy::KnockOutType::Possessed;
-	m_owner->DisableEnemy();
-	m_owner->setReleased(true);
+	m_owner->removePossessor(); 
 	m_owner->setHidden(false);
 
 	this->m_state = AIState::Disabled;
 	this->m_transState = AITransitionState::NoTransitionState;
 }
-
 void AI::_onExitingDisabled()
 {
 	///Exit knocked state
@@ -370,77 +290,78 @@ void AI::_onExitingDisabled()
 	this->m_state = AIState::NoState;
 	this->m_transState = AITransitionState::Observe;
 }
-
-
-void AI::_investigatingSight(const double deltaTime)
+void AI::_onTorchFound()
 {
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
+	//Do we need to do anything else here? 
+	this->m_state = AIState::TorchHandling;
 
-	if (this->GetAlertPathSize() > 0)
-	{
-		if (m_owner->m_visCounter > m_owner->m_biggestVisCounter)
-		{
-			DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
-
-			if (m_owner->m_RemotePtr)
-			{
-				const int * vis = m_owner->getPlayerVisibility();
-				if (vis[1] > vis[0])
-					playerPos = m_owner->m_RemotePtr->getPosition();
-			}
-
-
-			Node * pathDestination = this->GetAlertDestination();
-
-			if (abs(pathDestination->worldPos.x - playerPos.x) > 5.0f ||
-				abs(pathDestination->worldPos.y - playerPos.z) > 5.0f)
-			{
-				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-				Tile playerTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
-				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
-			}
-		}
-	}
-	else
-	{
-		this->m_transState = AITransitionState::Observe;
-	}
 }
-void AI::_investigatingSound(const double deltaTime)
+
+void AI::_onTorchHandled()
 {
+	m_state = AIState::NoState;
+	m_transState = AITransitionState::ReturnToPatrol;
+}
+
+void AI::_investigating(const double deltaTime)
+{
+	
+	m_timers[T_Investigate] += deltaTime;
+	bool hasTimedOut = m_timers[T_Investigate] >= m_timeOutPoints[T_Investigate];
+	if (hasTimedOut)
+	{
+		m_timers[T_Investigate] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	
-	m_owner->_CheckPlayer(deltaTime);
 
 	if (this->GetAlertPathSize() > 0)
 	{
 		SoundLocation tmp = m_owner->m_sl;
-
 		if (Network::Multiplayer::GetInstance()->isServer())
 		{
 			if (tmp.percentage < m_owner->m_slRemote.percentage)
 				tmp = m_owner->m_slRemote;
 		}
 
+		DirectX::XMFLOAT3 soundPos = tmp.soundPos;
+		Node * pathDestination = this->GetAlertDestination();
+		DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
+		Tile targetTile;
+		Tile guardTile;
 
-
-		if (tmp.percentage > m_owner->m_loudestSoundLocation.percentage)
+		if (m_owner->m_visCounter > m_owner->m_biggestVisCounter)
 		{
-			DirectX::XMFLOAT3 soundPos = tmp.soundPos;
-			Node * pathDestination = this->GetAlertDestination();
-
+			// Get the remote players position
+			if (m_owner->m_RemotePtr)
+			{
+				const int * vis = m_owner->getPlayerVisibility();
+				if (vis[1] > vis[0])
+					playerPos = m_owner->m_RemotePtr->getPosition();
+			}
+			// Check and prioritize if the guard has seen a player recently
+			if (abs(pathDestination->worldPos.x - playerPos.x) > 2.0f ||
+				abs(pathDestination->worldPos.y - playerPos.z) > 2.0f)
+			{
+				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
+				targetTile = m_grid->WorldPosToTile(playerPos.x, playerPos.z);
+				guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+				this->SetAlertVector(m_grid->FindPath(guardTile, targetTile));
+			}
+		}
+		else if (tmp.percentage > m_owner->m_loudestSoundLocation.percentage)
+		{
+			// Check if the guard has heard anything recently
 			if (abs(pathDestination->worldPos.x - soundPos.x) > 2.0f ||
 				abs(pathDestination->worldPos.y - soundPos.z) > 2.0f)
 			{
 				DirectX::XMFLOAT4A guardPos = m_owner->getPosition();
-				Tile playerTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
-				Tile guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
-
-				this->SetAlertVector(m_grid->FindPath(guardTile, playerTile));
+				targetTile = m_grid->WorldPosToTile(soundPos.x, soundPos.z);
+				guardTile = m_grid->WorldPosToTile(guardPos.x, guardPos.z);
+				this->SetAlertVector(m_grid->FindPath(guardTile, targetTile));
 			}
 		}
 	}
@@ -449,55 +370,20 @@ void AI::_investigatingSound(const double deltaTime)
 		this->m_transState = AITransitionState::Observe;
 	}
 }
-void AI::_investigatingRoom(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-
-	this->m_searchTimer += deltaTime;
-
-	if (this->GetAlertPathSize() == 0)
-	{
-		this->m_transState = AITransitionState::Observe;
-	}
-	SoundLocation target = m_owner->m_sl;
-
-	if (target.percentage < m_owner->m_slRemote.percentage)
-		target = m_owner->m_slRemote;
-	if (m_owner->m_visCounter >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL)
-	{
-		//this->setTransitionState(EnemyTransitionState::Alerted);
-	}
-	if (this->m_searchTimer > SEARCH_ROOM_TIME_LIMIT)
-	{
-		this->m_transState = AITransitionState::ReturnToPatrol;
-	}
-}
-void AI::_highAlert(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-
-	this->m_HighAlertTime = deltaTime;
-	if (this->m_HighAlertTime >= HIGH_ALERT_LIMIT)
-	{
-		this->m_HighAlertTime = 0.0f;
-		m_owner->m_clearestPlayerPos = DirectX::XMFLOAT4A(0, 0, 0, 1);
-		m_owner->m_loudestSoundLocation = SoundLocation();
-		m_owner->m_biggestVisCounter = 0.0f;
-		this->m_state = AIState::Suspicious;
-#ifdef _DEBUG
-
-		std::cout << green << "Enemy " << m_owner->uniqueID << " Transition: High Alert -> Suspicious" << white << std::endl;
-#endif
-	}
-}
 void AI::_suspicious(const double deltaTime)
 {
+
+	m_timers[T_Suspicious] += deltaTime;
+	bool hasTimedOut = m_timers[T_Possessed] >= m_timeOutPoints[T_Suspicious];
+	if (hasTimedOut)
+	{
+		m_timers[T_Suspicious] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
+
 	m_owner->getBody()->SetType(e_dynamicBody);
-	
 	m_owner->_CheckPlayer(deltaTime);
 	m_owner->setLiniearVelocity();
 	this->m_actTimer += deltaTime;
@@ -506,11 +392,10 @@ void AI::_suspicious(const double deltaTime)
 	{
 		attentionMultiplier = 1.2f;
 	}
-	if (m_owner->m_visCounter*attentionMultiplier >= m_owner->m_biggestVisCounter)
+	if (m_owner->m_visCounter * attentionMultiplier >= m_owner->m_biggestVisCounter)
 	{
 
 		DirectX::XMFLOAT4A playerPos = m_owner->m_PlayerPtr->getPosition();
-
 		const int * vis = m_owner->getPlayerVisibility();
 		
 		int	visValue = vis[0];
@@ -525,16 +410,14 @@ void AI::_suspicious(const double deltaTime)
 		}
 
 		m_owner->setClearestPlayerLocation(playerPos);
-		m_owner->setBiggestVisCounter(vis[0]*attentionMultiplier);
-	
+		m_owner->setBiggestVisCounter(visValue * attentionMultiplier);
 	}
 
 	SoundLocation target = m_owner->m_sl;
-
 	if (target.percentage < m_owner->m_slRemote.percentage)
 		target = m_owner->m_slRemote;
 
-	if (target.percentage*attentionMultiplier >= m_owner->m_loudestSoundLocation.percentage)
+	if (target.percentage * attentionMultiplier >= m_owner->m_loudestSoundLocation.percentage)
 	{
 		Enemy::SoundLocation temp = target;
 		temp.percentage *= attentionMultiplier;
@@ -543,9 +426,15 @@ void AI::_suspicious(const double deltaTime)
 	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
 	{
 		if (m_owner->m_biggestVisCounter >= ALERT_TIME_LIMIT * 1.5)
-			this->m_transState = AITransitionState::InvestigateSight; //what was that?
-		else if (m_owner->m_loudestSoundLocation.percentage > SOUND_LEVEL*1.5)
-			this->m_transState = AITransitionState::InvestigateSound; //what was that noise?
+		{
+			this->m_transState = AITransitionState::Investigate; //what was that?
+			this->m_followSight = 1;
+		}
+		else if (m_owner->m_loudestSoundLocation.percentage > SOUND_LEVEL * 1.5)
+		{
+			this->m_transState = AITransitionState::Investigate;
+			this->m_followSight = 0;
+		}
 		else
 		{
 			this->m_transState = AITransitionState::ReturnToPatrol;
@@ -553,27 +442,11 @@ void AI::_suspicious(const double deltaTime)
 		}
 	}
 }
-void AI::_scanningArea(const double deltaTime)
-{
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_CheckPlayer(deltaTime);
-	m_owner->setLiniearVelocity();
-	this->m_actTimer += deltaTime;
-	//Do animation
-	if (this->m_actTimer > SUSPICIOUS_TIME_LIMIT)
-	{
-		if (m_searchTimer != 0)
-			m_searchTimer += m_actTimer;
-		//CHANGE WHEN WE WANT TO CONNECT MORE TRANSITIONS
-		this->m_transState = AITransitionState::ReturnToPatrol;  //this->m_transState = AITransitionState::SearchArea;
-	}
-}
 void AI::_patrolling(const double deltaTime)
 {
 	m_owner->getBody()->SetType(e_dynamicBody);
-	
 	m_owner->_CheckPlayer(deltaTime);
+	this->_checkTorches(deltaTime);
 
 	if (m_alertPath.size() > 0)
 	{
@@ -587,7 +460,6 @@ void AI::_patrolling(const double deltaTime)
 			Manager::g_meshManager.loadStaticMesh("FOOT");
 			for (unsigned int i = 0; i < m_path.size(); ++i)
 			{
-
 				Drawable * temp = new Drawable();
 				temp->setModel(Manager::g_meshManager.getStaticMesh("FOOT"));
 				temp->setTexture(Manager::g_textureManager.getTexture("FOOT"));
@@ -598,7 +470,6 @@ void AI::_patrolling(const double deltaTime)
 				{
 					temp->setRotation(0, m_owner->_getPathNodeRotation({ m_path.at(i)->worldPos.x, m_path.at(i)->worldPos.y }, { m_path.at(i + 1)->worldPos.x, m_path.at(i + 1)->worldPos.y }), 0);
 				}
-
 
 				temp->SetTransparant(true);
 				m_owner->m_pathNodes.push_back(temp);
@@ -627,18 +498,38 @@ void AI::_patrolling(const double deltaTime)
 		target = m_owner->m_slRemote;
 
 	if (m_owner->m_visCounter >= ALERT_TIME_LIMIT || target.percentage > SOUND_LEVEL) //"Huh?!" - Tim Allen
-	{
 		this->m_transState = AITransitionState::Alerted;
-	}
 }
 void AI::_possessed(const double deltaTime)
 {
-	m_owner->getBody()->SetType(e_dynamicBody);
-	
-	m_owner->_handleInput(deltaTime);
+
+	m_timers[T_Possessed] += deltaTime;
+	bool hasTimedOut = m_timers[T_Possessed] >= m_timeOutPoints[T_Possessed];
+	if (hasTimedOut)
+	{
+		m_timers[T_Possessed] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ExitingPossess; 
+	}
+	else
+	{
+		m_owner->getBody()->SetType(e_dynamicBody);
+
+		m_owner->_handleInput(deltaTime);
+	}
 }
 void AI::_disabled(const double deltaTime)
 {
+
+	m_timers[T_Disabled] += deltaTime;
+	bool hasTimedOut = m_timers[T_Disabled] >= m_timeOutPoints[T_Disabled];
+	if (hasTimedOut)
+	{
+		m_timers[T_Disabled] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+
 	m_owner->getBody()->SetType(e_dynamicBody);
 	switch (m_owner->m_knockOutType)
 	{
@@ -667,6 +558,43 @@ void AI::_disabled(const double deltaTime)
 	m_owner->getBody()->SetLinearVelocity(b3Vec3(0, 0, 0));
 	//m_owner->PhysicsComponent::p_setRotation(m_owner->p_camera->getYRotationEuler().x + DirectX::XMConvertToRadians(85), m_owner->p_camera->getYRotationEuler().y, m_owner->p_camera->getYRotationEuler().z);
 	m_owner->m_visCounter = 0;
+}
+
+void AI::_torchHandling(const double deltaTime)
+{
+	//this is to ensure that the AI never locks up in this state
+	this->m_timers[T_TorchHandling] += deltaTime;
+
+	bool hasTimedOut = this->m_timers[T_TorchHandling] >= m_timeOutPoints[T_TorchHandling];
+	//Make sure we actually have a torch, if not, return to patrolling
+	if (!m_currentTorch || hasTimedOut)
+	{
+		this->m_timers[T_TorchHandling] = 0.0;
+		m_state = AIState::NoState;
+		m_transState = AITransitionState::ReturnToPatrol;
+	}
+	//Rotate towards the torch from the guard's direction, when we are ready do the actual animation
+	if (!m_activeTorch)
+	{
+		//Queue animation here ELIAS
+		if (_RotateToCurrentTorch(deltaTime))
+			m_activeTorch = true;
+	}
+	//If we are active, add to timer and when we reach our desired timepoint, execute order 66. 
+	if (m_activeTorch)
+	{
+		m_timerTorch += deltaTime;
+		if (m_timerTorch >= m_igniteAt)
+		{
+			m_timerTorch = 0.0;
+			m_activeTorch = false;
+
+			m_currentTorch->Interact();
+			m_currentTorch = nullptr;
+
+			m_transState = AITransitionState::TorchHandled;
+		}
+	}
 }
 
 void AI::_Move(Node * nextNode, double deltaTime)
@@ -839,7 +767,6 @@ void AI::_Move(Node * nextNode, double deltaTime)
 	m_owner->setLiniearVelocity(vel.x * m_owner->m_guardSpeed, m_owner->getLiniearVelocity().y, vel.y * m_owner->m_guardSpeed);
 	
 }
-
 bool AI::_MoveTo(Node* nextNode, double deltaTime)
 {
 	//std::cout << "\r" << m_owner->getPosition().x << " " << m_owner->getPosition().z << std::endl;
@@ -870,7 +797,6 @@ bool AI::_MoveTo(Node* nextNode, double deltaTime)
 	}
 	return false;
 }
-
 bool AI::_MoveToAlert(Node * nextNode, double deltaTime)
 {
 	m_owner->_playFootsteps(deltaTime);
@@ -889,7 +815,6 @@ bool AI::_MoveToAlert(Node * nextNode, double deltaTime)
 	}
 	return false;
 }
-
 float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 {
 	if (first.x > last.x)
@@ -916,13 +841,88 @@ float AI::_getPathNodeRotation(DirectX::XMFLOAT2 first, DirectX::XMFLOAT2 last)
 
 	return 0;
 }
+bool AI::_RotateToCurrentTorch(double deltaTime)
+{
+	//https://stackoverflow.com/questions/14066933/direct-way-of-computing-clockwise-angle-between-2-vectors
+	m_owner->setVelocity({ 0.0f, 0.0f, 0.0f });
+	using namespace DirectX;
+	//Get the current direction and construct a directional vector from guard's pos towards the torch pos 
+	
+	//Put Everything into the x-z plane
+	XMFLOAT4A camDir = m_owner->getCamera()->getDirection();
+	camDir.y = 0.0f;
+
+	XMFLOAT4A guardPos = m_owner->getPosition();
+	guardPos.y = 0.0f;
+
+	XMFLOAT4A torchPos = m_currentTorch->getPosition();
+	torchPos.y = 0.0f;
+
+	auto currentDirection =  XMVector3Normalize( XMLoadFloat4A(&camDir) );
+	auto directionToTorch = XMVector3Normalize( XMVectorSubtract( XMLoadFloat4A(&guardPos), XMLoadFloat4A(&torchPos) ) );
+
+	auto normal = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); //Is already a normalized vector
+
+	//Compute the DOT product between our directional vectors
+	auto dot = XMVectorGetX( XMVector3Dot(currentDirection, directionToTorch) );
+	//Compute the determinant with the triple product
+	auto det = XMVectorGetX( XMVector3Dot(normal, XMVector3Cross(currentDirection, directionToTorch)) );
+
+	auto angle = atan2f(det, dot);
+
+	std::string fileName = "Enemy_" + std::to_string(m_owner->uniqueID) + "_Angles.txt";
+
+	FILE * pFile = fopen(fileName.c_str(), "a");
+	if (pFile == NULL)
+		PostQuitMessage(0);
+	if (fprintf(pFile, "Angle %f\n", angle) < 0)
+		PostQuitMessage(0);
+	fclose(pFile);
+	//if the angle is small enough we are probably facing the torch enough by now, return true
+	if (angle <= 0.0f)
+		return true;
+	
+	m_owner->_RotateGuard(0.5f, 0.5f, angle, deltaTime);
+
+	return false;
+}
+void AI::_checkTorches(float dt)
+{
+	static const float radiusSquared = CHECK_TORCHES_RADIUS * CHECK_TORCHES_RADIUS;
+
+	m_checkTorchesTimer += dt;
+
+
+	if (m_checkTorchesTimer >= CHECK_TORCHES_INTERVALL)
+	{
+		m_checkTorchesTimer -= CHECK_TORCHES_INTERVALL;
+		DirectX::XMFLOAT4A origin = m_owner->getPosition();
+		for (auto & t : m_owner->m_torches)
+		{
+			DirectX::XMFLOAT4A point = t->getPosition();
+			float distance = ((point.x - origin.x) * (point.x - origin.x) + (point.z - origin.z) * (point.z - origin.z));
+			if (distance <= radiusSquared)
+			{
+				if (t->getTriggerState())
+				{
+					t->Interact();
+					//this->m_currentTorch = t;
+					//this->m_transState = AITransitionState::TorchFound;
+					return;
+				}
+			}
+
+		}
+	}
+
+
+}
 
 //------------------------------Public------------------------------------
 void AI::setGrid(Grid * grid)
 {
 	m_grid = grid;
 }
-
 void AI::SetPathVector(std::vector<Node*> path)
 {
 	// Add path.size() > 0 if it can remove the path
@@ -935,17 +935,14 @@ void AI::SetPathVector(std::vector<Node*> path)
 	m_currentPathNode = 0;
 	m_path = path;
 }
-
 Node * AI::GetCurrentPathNode() const
 {
 	return m_path.at(m_currentPathNode);
 }
-
 int AI::GetCurrentPathNodeGridID() const
 {
 	return this->m_currentPathNode;
 }
-
 void AI::SetAlertVector(std::vector<Node*> alertPath)
 {
 	if (m_alertPath.size() > 0)
@@ -956,17 +953,14 @@ void AI::SetAlertVector(std::vector<Node*> alertPath)
 	}
 	m_alertPath = alertPath;
 }
-
 bool AI::GetPathEmpty() const
 {
 	return m_path.empty();
 }
-
 size_t AI::GetAlertPathSize() const
 {
 	return m_alertPath.size();
 }
-
 Node * AI::GetAlertDestination() const
 {
 	return m_alertPath.at(m_alertPath.size() - 1);
@@ -976,17 +970,14 @@ AIState AI::getAIState() const
 {
 	return m_state;
 }
-
 void AI::setAIState(AIState state)
 {
 	m_state = state;
 }
-
 AITransitionState AI::getTransitionState() const
 {
 	return m_transState;
 }
-
 void AI::setTransitionState(AITransitionState state)
 {
 	m_transState = state;
@@ -1000,8 +991,7 @@ DirectX::XMFLOAT2 AI::GetDirectionToPlayer(const DirectX::XMFLOAT4A& player, Cam
 	{
 		XMMATRIX playerView = XMMatrixTranspose(XMLoadFloat4x4A(&playerCma.getView()));
 		XMVECTOR enemyPos = XMLoadFloat4A(&m_owner->getPosition());
-
-		XMVECTOR vdir = XMVector4Transform(enemyPos, playerView);
+		XMVECTOR vdir = XMVector3TransformCoord(enemyPos, playerView);
 		XMFLOAT2 dir = XMFLOAT2(DirectX::XMVectorGetX(vdir), DirectX::XMVectorGetZ(vdir));
 		vdir = XMLoadFloat2(&dir);
 		vdir = XMVector2Normalize(vdir);

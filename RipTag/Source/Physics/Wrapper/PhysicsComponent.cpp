@@ -154,7 +154,6 @@ void PhysicsComponent::p_setRotation(const float& pitch, const float& yaw, const
 	zz = DirectX::XMVectorGetZ(t);
 	ww = DirectX::XMVectorGetW(t);
 	m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
-	//m_body->SetTransform(m_body->GetTransform().translation, b3Quaternion(xx, yy, zz, ww));
 }
 
 void PhysicsComponent::p_addRotation(const float& pitch, const float& yaw, const float& roll)
@@ -427,10 +426,10 @@ void PhysicsComponent::CreateBodyAndShape(b3World& world)
 
 }
 
-void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float sizeY, float sizeZ, std::string objectTag, bool isSensor)
+void PhysicsComponent::CreateShape(b3Vec3 position, b3Vec3 size, float friction, float density, std::string objectTag, bool isSensor)
 {
 	b3Hull* hull = DBG_NEW b3Hull();
-	hull->SetAsBox(b3Vec3(sizeX, sizeY, sizeZ));
+	hull->SetAsBox(size);
 	b3Polyhedron* polyhedron = DBG_NEW b3Polyhedron();
 	polyhedron->SetHull(hull);
 	//polyhedron->SetTransform(b3Vec3(x, y, z), m_body->GetQuaternion());
@@ -439,13 +438,13 @@ void PhysicsComponent::CreateShape(float x, float y, float z, float sizeX, float
 	b3ShapeDef* s;
 	s = DBG_NEW b3ShapeDef();
 	s->shape = polyhedron;
-	s->density = 1.0f;
+	s->density = density;
 	s->restitution = 0;
-	s->friction = 1;
+	s->friction = friction;
 	s->sensor = isSensor;
 	b3Transform pos;
 	pos.SetIdentity();
-	pos.translation = b3Vec3(x, y, z);
+	pos.translation = position;
 	s->local = pos;
 	m_body->CreateShape(*s);
 	m_shapeDefs.push_back(s);
@@ -548,6 +547,16 @@ b3Body* PhysicsComponent::getBody()
 	return this->m_body;
 }
 
+const b3Hull * PhysicsComponent::getHull()
+{
+	return m_poly->GetHull();
+}
+
+b3Shape * PhysicsComponent::getShape()
+{
+	return this->m_shape;
+}
+
 void PhysicsComponent::setAwakeState(const bool& awa)
 {
 	m_body->SetAwake(awa);
@@ -557,32 +566,35 @@ void PhysicsComponent::setUserDataBody(void* self)
 {
 	if (m_body)
 		this->m_body->SetUserData(self);
-	else
+	
+	for (auto &lol : m_bodys)
 	{
-		for (auto &lol : m_bodys)
-		{
-			lol->SetUserData(self);
-		}
+		lol->SetUserData(self);
 	}
+	
 }
 
 void PhysicsComponent::setObjectTag(const char * type)
 {
 	if (m_body)
 		m_body->SetObjectTag(type);
-	else
+	
+	for (auto &lol : m_bodys)
 	{
-		for (auto &lol : m_bodys)
+		lol->SetObjectTag(type);
+		auto lol2 = lol->GetShapeList();
+		while (lol2 != nullptr)
 		{
-			lol->SetObjectTag(type);
-			auto lol2 = lol->GetShapeList();
-			while (lol2 != nullptr)
-			{
-				lol2->SetObjectTag(type);
-				lol2 = lol2->GetNext();
-			}
+			lol2->SetObjectTag(type);
+			lol2 = lol2->GetNext();
 		}
 	}
+	
+	if (m_shape)
+		m_shape->SetObjectTag(type);
+
+	for (auto s : m_shapes)
+		s->SetObjectTag(type);
 	
 }
 

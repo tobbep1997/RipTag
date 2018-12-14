@@ -18,7 +18,8 @@ enum EntityType
 	GuarddType = 2,
 	ExcludeType = 3,
 	RemotePlayerType = 4,
-	FirstPersonPlayer = 5
+	FirstPersonPlayer = 5,
+	CurrentGuard = 6
 };
 
 class StaticMesh;
@@ -42,10 +43,16 @@ private:
 	Animation::AnimationPlayer* m_anim = nullptr;
 	DirectX::XMFLOAT2A m_textureTileMult = DirectX::XMFLOAT2A(1.0f,1.0f);
 
+	float m_destructionRate;
+	DirectX::XMINT4 m_typeOfAbilityEffect = { 0, 0, 0, 0 };
+
 	bool m_hidden;
 	bool m_outline;
 	bool m_transparant;
 	bool m_castShadow;
+	bool m_destroyState = false;
+	DirectX::XMFLOAT4X4A m_lastTransformation;
+
 	DirectX::XMFLOAT4A m_outLineColor;
 
 	ID3D11Buffer* uavstage = nullptr;
@@ -60,7 +67,8 @@ protected:
 	EntityType p_entityType;
 
 	DirectX::BoundingBox * m_bb = nullptr;
-	ID3D11Buffer * p_vertexBuffer;
+	DirectX::XMFLOAT3 m_extens;
+	ID3D11Buffer * p_vertexBuffer = nullptr;
 
 	std::wstring p_vertexPath;
 	std::wstring p_pixelPath;
@@ -77,11 +85,13 @@ protected:
 public:
 	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & center, const DirectX::XMFLOAT3 & extens);
 	virtual void p_createBoundingBox(const DirectX::XMFLOAT3 & extens);
+	virtual void setBoundingBoxSizeForDynamicObjects(const DirectX::XMFLOAT3 & extens);
 	
 
 	Drawable();
 	virtual ~Drawable();
 	virtual void setTexture(Texture * texture);	
+	virtual Texture * getTexture() const;
 
 	virtual void BindTextures();
 	
@@ -135,9 +145,18 @@ public:
 	virtual void SetTransparant(const bool & bo);
 	virtual bool GetTransparant();
 
+	virtual void setDestroyState(const bool newState) { this->m_destroyState = newState; };
+	virtual const bool getDestroyState() { return this->m_destroyState; };
+
 	std::string getTextureName() const;
 
+	virtual void setDestructionRate(const float updateRate) { this->m_destructionRate = updateRate; };
+	virtual const float getDestructionRate() { return this->m_destructionRate; };
 
+	virtual void setLastTransform(const DirectX::XMFLOAT4X4A lastPos) { this->m_lastTransformation = lastPos; };
+	virtual const DirectX::XMFLOAT4X4A getLastTransform() { return this->m_lastTransformation; };
+	virtual void setTypeOfAbilityUsed(const int ability) { this->m_typeOfAbilityEffect.x = ability; };
+	virtual DirectX::XMINT4 getTypeOfAbilityUsed() const { return this->m_typeOfAbilityEffect; };
 	ID3D11Buffer * GetAnimatedVertex();
 	ID3D11UnorderedAccessView * GetUAV();
 	void DontCallMe();

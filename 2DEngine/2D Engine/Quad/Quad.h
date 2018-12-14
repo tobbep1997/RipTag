@@ -10,24 +10,25 @@ namespace DirectX
 }
 
 namespace Colors
-{
-	static const DirectX::XMFLOAT4A Red = { 1.0f, 0.0f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Green = { 0.0f, 1.0f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Blue = { 0.0f, 0.0f, 1.0f, 1.0f };
-	static const DirectX::XMFLOAT4A White = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Black = { 0.0f, 0.0f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Aqua = { 0.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Magneta = { 1.0f, 0.0f, 1.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Silver = { 0.7529f, 0.7529f, 0.7529f, 1.0f };
-	static const DirectX::XMFLOAT4A Gold = { 1.0f, 0.8431f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Gray = { 0.502f, 0.502f, 0.502f, 1.0f };
-	static const DirectX::XMFLOAT4A Maroon = { 0.502f, 0.0f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Olive = { 0.502f, 0.502f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A GreenDark = { 0.0f, 0.502f, 0.0f, 1.0f };
-	static const DirectX::XMFLOAT4A Purple = { 0.502f, 0.0f, 0.502f, 1.0f };
-	static const DirectX::XMFLOAT4A Teal = { 0.0f, 0.502f, 0.502f, 1.0f };
-	static const DirectX::XMFLOAT4A Navy = { 0.0f, 0.0f, 0.502f, 1.0f };
+{													// Red			Green		Blue		Alpha
+	static const DirectX::XMFLOAT4A Red				       = { 1.0f,		0.0f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Green			       = { 0.0f,		1.0f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Blue			       = { 0.0f,		0.0f,		1.0f,		1.0f };
+	static const DirectX::XMFLOAT4A White			       = { 1.0f,		1.0f,		1.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Black			       = { 0.0f,		0.0f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Yellow			   = { 1.0f,		1.0f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Aqua			       = { 0.0f,		1.0f,		1.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Magneta		   = { 1.0f,		0.0f,		1.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Silver			       = { 0.7529f,	0.7529f,	0.7529f,	1.0f };
+	static const DirectX::XMFLOAT4A Gold			       = { 1.0f,		0.8431f,	0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Gray			       = { 0.502f,		0.502f,		0.502f,		1.0f };
+	static const DirectX::XMFLOAT4A Maroon			   = { 0.502f,		0.0f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Olive			       = { 0.502f,		0.502f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A GreenDark		   = { 0.0f,		0.502f,		0.0f,		1.0f };
+	static const DirectX::XMFLOAT4A Purple			   = { 0.502f,		0.0f,		0.502f,		1.0f };
+	static const DirectX::XMFLOAT4A Teal			       = { 0.0f,		0.502f,		0.502f,		1.0f };
+	static const DirectX::XMFLOAT4A Navy			       = { 0.0f,		0.0f,		0.502f,		1.0f };
+	static const DirectX::XMFLOAT4A Transparent	   = { 0.0f,		0.0f,		0.0f,		0.0f };
 	
 }
 
@@ -91,7 +92,7 @@ private:
 	PivotPoint m_pivotPoint = PivotPoint::center;
 	std::string m_textures[3];
 
-	DirectX::SpriteFont * m_spriteFont;
+	DirectX::SpriteFont * m_spriteFont = nullptr;
 	std::string m_string = "";
 
 	DirectX::XMFLOAT4A m_textColor;
@@ -119,8 +120,8 @@ private:
 	void _rebuildQuad();
 protected:
 	float p_angle = 10.0f;
-	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 public:
+	QUAD_VERTEX * quadVertex = new QUAD_VERTEX[4];
 	Quad();
 	virtual~Quad();
 	const bool Inside(const DirectX::XMFLOAT2 & mousePos) override;
@@ -205,6 +206,8 @@ public:
 	float getV() const;
 	void setU(const float & u);
 	void setV(const float & v);
+
+	size_t GetSize();
 	
 };
 

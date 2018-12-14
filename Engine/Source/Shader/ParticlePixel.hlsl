@@ -7,32 +7,45 @@ struct VS_OUTPUT
 	float2 uv : UV;
 };
 
+cbuffer PARTICLE_MODIFIERS : register(b10)
+{
+	vector <float, 4> alphaMultipliers;
+	vector <float, 4> fadePoints;
+	vector <float, 4> colorModifiers;
+};
+
 SamplerState defaultSampler : register(s1);
 
-Texture2D diffuseTexture : register(t1);
-Texture2D normalTexture : register(t2);
-Texture2D MRATexture : register(t3);
+Texture2D BeginTexture : register(t1);
+Texture2D IntermidiateTexture : register(t2);
+Texture2D EndTexture : register(t3);
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
-	float4 color = diffuseTexture.Sample(defaultSampler, input.uv);
-	float temp = color.w;
+	float4 color = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float lifeLeft = input.tangent.x;
 
-	if(input.tangent.y == 1)
+	if (lifeLeft < fadePoints[0] && lifeLeft > fadePoints[1] && lifeLeft > fadePoints[2])
 	{
-		color = MRATexture.Sample(defaultSampler, input.uv);
-		if (input.tangent.x < 0.55f)
-		{
-			temp = color.w * (1.5 * input.tangent.x);
-		}
+		color = BeginTexture.Sample(defaultSampler, input.uv);
+		color.w *= alphaMultipliers[0] * lifeLeft;
+		color.xyz *= colorModifiers[0] * (lifeLeft);
+		saturate(color);
 	}
-	else
+	else if (lifeLeft < fadePoints[1] && lifeLeft> fadePoints[2])
 	{
-		if (input.tangent.x < 0.55f)
-		{
-			color = MRATexture.Sample(defaultSampler, input.uv);
-			temp = color.w * (1 * input.tangent.x);
-		}
+		color = IntermidiateTexture.Sample(defaultSampler, input.uv);
+		color.w *= alphaMultipliers[1] * lifeLeft;
+		color.xyz *= colorModifiers[1] * (1.0f - lifeLeft);
+		saturate(color);
 	}
-    return float4(color.xyz, temp);
+	else if (lifeLeft < fadePoints[2] && lifeLeft > 0.001f)
+	{
+		color = EndTexture.Sample(defaultSampler, input.uv);
+		color.w *= alphaMultipliers[2] * lifeLeft;
+		color.xyz *= colorModifiers[2] * (1.0f - lifeLeft);
+		saturate(color);
+	}
+	
+	return color;
 }

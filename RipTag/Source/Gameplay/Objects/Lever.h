@@ -14,9 +14,9 @@ public:
 	void Update(double deltaTime);
 	bool isEqual(Lever* target);
 	void BeginPlay() override;
-	void handleContact(RayCastListener::RayContact* contact);
+	void handleContact(RayCastListener::RayContact& contact);
 private:
 	bool m_interacted = false;
-	void _playSound(AudioEngine::SoundType st = AudioEngine::Player) override;
+	void _playSound(AudioEngine::SoundDesc * soundDesc) override;
 };
 

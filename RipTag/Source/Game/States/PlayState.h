@@ -11,6 +11,8 @@
 #include <fstream>
 #include "Source/Timer/DeltaTime.h"
 #include <mutex>
+#include "PauseMenu.h"
+
 namespace FMOD
 {
 	class Channel;
@@ -37,6 +39,15 @@ private:
 	PlayerManager * m_playerManager;	//Released
 
 	b3World m_world;
+
+	PauseMenu* m_pPauseMenu; 
+	bool m_gamePaused = false; 
+	bool m_mainMenuPressed = false; 
+	bool m_pausePressed = false; 
+	bool m_pauseWasPressed = false; 
+	bool m_returnPressed = false; 
+
+	short m_currentState = 0; 
 
 	std::ofstream phy;
 
@@ -75,14 +86,19 @@ private:
 	bool m_physicsFirstRun = true;
 	const double	UPDATE_TIME = 1.0 / 60.0;
 	double			m_timer = 0.0f;
-	int m_rayId = -100;
+	int m_audioRaysIds = -100;
 
 	std::mutex m_physThreadRun;
+
+	std::ofstream fps;
 public:
 	PlayState(RenderingManager * rm, void * coopData = nullptr, const unsigned short & roomIndex = 0);
 	~PlayState();
 	unsigned short m_roomIndex = 0;
 	void Update(double deltaTime) override;
+
+
+	LevelHandler* getLevelHandler(); 
 
 	void Draw() override;
 
@@ -96,11 +112,14 @@ private:
 	void _PhyscisThread(double deltaTime);
 	void _audioAgainstGuards(double deltaTime);
 	void _lightCulling();
+	void _runPause(double deltaTime); 
 	void thread(std::string s);
 	void DrawWorldCollisionboxes(const std::string & type = "");
 	// Inherited via State
 	virtual void unLoad();
 	virtual void Load();
+
+	void _checkPauseState();
 
 	// LOAD functions
 	void _loadTextures();
@@ -121,7 +140,7 @@ private:
 	void _onGameOverPacket();
 	void _onGameWonPacket();
 	void _onDisconnectPacket();
-
+	
 	void _updateOnCoopMode(double deltaTime);
 
 	void _loadAnimations();

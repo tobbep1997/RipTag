@@ -28,8 +28,8 @@ void Lever::Init(float xPos, float yPos, float zPos, float pitch, float yaw, flo
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("SPAK"));
 	auto activateState = machine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_ACTIVATE_ANIMATION").get());
 	auto deactivateState = machine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("SPAK", "SPAK_DEACTIVATE_ANIMATION").get());
-	activateState->SetBlendTime(0.0f);
-	deactivateState->SetBlendTime(0.0f);
+	activateState->SetDefaultBlendTime(0.0f);
+	deactivateState->SetDefaultBlendTime(0.0f);
 	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
@@ -60,22 +60,22 @@ void Lever::Update(double deltaTime)
 void Lever::BeginPlay()
 {
 }
-void Lever::handleContact(RayCastListener::RayContact * contact)
+void Lever::handleContact(RayCastListener::RayContact& contact)
 {
-	if (contact->contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
+	if (contact.contactShape->GetBody()->GetObjectTag() == getBody()->GetObjectTag())
 	{
-		if (static_cast<Lever*>(contact->contactShape->GetBody()->GetUserData()) == this)
+		if (static_cast<Lever*>(contact.contactShape->GetBody()->GetUserData()) == this)
 		{
 			m_interacted = true;
 		}
 	}
 }
 
-void Lever::_playSound(AudioEngine::SoundType st)
+void Lever::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (this->getTriggerState())
-		AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverActivate, &at, soundDesc);
 	else
-		AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_leverDeactivate, &at, soundDesc);
 }

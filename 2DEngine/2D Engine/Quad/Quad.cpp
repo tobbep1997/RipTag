@@ -2,9 +2,6 @@
 #include "Quad.h"
 
 
-
-
-
 void Quad::p_createBuffer()
 {
 	DX::SafeRelease(m_vertexBuffer);
@@ -12,12 +9,17 @@ void Quad::p_createBuffer()
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bufferDesc.ByteWidth = sizeof(QUAD_VERTEX) * 4;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = quadVertex;
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer);
+	HRESULT hr;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &m_vertexBuffer)))
+	{
+		DX::SetName(m_vertexBuffer, "QUAD: m_vertexBuffer");
+	}
 }
 
 void Quad::p_setStaticQuadVertex()
@@ -106,9 +108,6 @@ void Quad::_rebuildQuad()
 	quadVertex[Upper_Right].position.x = quadVertex[0].position.x + this->getSize().x;
 	quadVertex[Upper_Right].position.y = quadVertex[0].position.y + this->getSize().y;
 	
-	//std::cout << this << ":\n\tLowerLeftPos: " << quadVertex[Lower_Left].position.x << ":" << quadVertex[Lower_Left].position.y << std::endl;
-	//std::cout << "Size: " << this->getSize().x << ":" << this->getSize().y << std::endl << std::endl;
-	
 }
 
 Quad::Quad() : Transform2D(), Button(this)
@@ -126,6 +125,7 @@ void Quad::init(DirectX::XMFLOAT2A position, DirectX::XMFLOAT2A size)
 	p_setStaticQuadVertex();
 	setPosition(position);
 	setScale(size);
+	p_createBuffer();
 }
 
 void Quad::Draw()
@@ -196,9 +196,10 @@ void Quad::MapTexture()
 	{
 		Manager::g_textureManager.getGUITextureByName(wName)->Bind(1);
 	}
-	else
-		std::cout << red << "Can't Find Texture: " << this->m_textures[m_buttonState] << std::endl;
-	std::cout << white;
+	else if (Manager::g_textureManager.getDDSTextureByName(wName))
+	{
+		Manager::g_textureManager.getDDSTextureByName(wName)->Bind(1);
+	}
 }
 
 void Quad::setPosition(const float & x, const float & y)
@@ -210,7 +211,7 @@ void Quad::setPosition(const DirectX::XMFLOAT2A & position)
 {
 	Transform2D::setPosition(position);
 	_rebuildQuad();
-	p_createBuffer();
+	
 }
 
 void Quad::setScale(const float & x, const float & y)
@@ -222,7 +223,7 @@ void Quad::setScale(const DirectX::XMFLOAT2A & size)
 {
 	Transform2D::setScale(size);
 	_rebuildQuad();
-	p_createBuffer();
+	//p_createBuffer();
 }
 
 void Quad::setTag(std::string tag)
@@ -233,7 +234,6 @@ void Quad::setTag(std::string tag)
 void Quad::setFont(DirectX::SpriteFont * font)
 {
 	this->m_spriteFont = font;
-	this->m_spriteFont->SetDefaultCharacter('X');
 }
 
 void Quad::setString(const std::string & string)
@@ -302,7 +302,7 @@ const bool Quad::isPressed(const DirectX::XMFLOAT2 & mousepos)
 
 const bool Quad::isReleased(const DirectX::XMFLOAT2 & mousePos)
 {
-	bool b = !this->isPressed(mousePos) && m_preState && this->Inside(mousePos);	
+	bool b = InputHandler::isMLeftReleased() && this->Inside(mousePos);	
 	if (m_selected)
 		m_buttonState = ButtonStates::Hover;
 	return b;
@@ -425,4 +425,9 @@ void Quad::setU(const float & u)
 void Quad::setV(const float & v)
 {
 	this->vScale = v;
+}
+
+size_t Quad::GetSize()
+{
+	return sizeof(QUAD_VERTEX) * 4;
 }

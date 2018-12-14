@@ -9,20 +9,18 @@ Game::Game()
 
 Game::~Game()
 {
-	m_renderingManager->Release();
-	pNetworkInstance->Destroy();
 	while(!m_gameStack.empty())
 	{
+		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
 		m_gameStack.pop();
 	}
+	m_renderingManager->Release();
+	pNetworkInstance->Destroy();
 }
 
 void Game::Init(_In_ HINSTANCE hInstance, bool dbg)
 {
-#ifdef _SHOWSYSTEMINFO
-	system("systeminfo /fo list");
-#endif // _SHOWSYSTEMINFO
 
 	//Rendering Manager Start
 	{
@@ -104,11 +102,6 @@ void Game::Draw()
 	m_gameStack.top()->Draw();
 }
 
-void Game::ImGuiFrameStart()
-{
-	m_renderingManager->ImGuiStartFrame();
-}
-
 void Game::ImGuiPoll()
 {
 	m_renderingManager->ImGuiProc();
@@ -116,10 +109,12 @@ void Game::ImGuiPoll()
 
 void Game::_handleStateSwaps()
 {
-
+	using namespace std::chrono_literals;
 	if (m_gameStack.top()->getNewState() != nullptr)
 	{
 		m_gameStack.top()->unLoad();
+		DX::g_deviceContext->ClearState();
+		//std::this_thread::sleep_for(5s);
 		m_gameStack.push(m_gameStack.top()->getNewState());
 		m_gameStack.top()->Load();
 		m_justSwaped = true;
@@ -130,6 +125,8 @@ void Game::_handleStateSwaps()
 		m_gameStack.top()->resetState(nullptr);
 		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
+		DX::g_deviceContext->ClearState();
+		//std::this_thread::sleep_for(5s);
 		m_gameStack.pop();
 		m_gameStack.top()->resetState(nullptr);
 		m_gameStack.push(ss);
@@ -145,6 +142,8 @@ void Game::_handleStateSwaps()
 		{
 			m_gameStack.top()->unLoad();
 			delete m_gameStack.top();
+			DX::g_deviceContext->ClearState();
+			//std::this_thread::sleep_for(5s);
 			m_gameStack.pop();
 			m_gameStack.top()->pushNewState(nullptr);
 		}
@@ -158,6 +157,8 @@ void Game::_handleStateSwaps()
 	{
 		m_gameStack.top()->unLoad();
 		delete m_gameStack.top();
+		DX::g_deviceContext->ClearState();
+		//std::this_thread::sleep_for(5s);
 		m_gameStack.pop();
 		m_gameStack.top()->pushNewState(nullptr);
 		m_gameStack.top()->Load();
@@ -171,6 +172,7 @@ void Game::_handleStateSwaps()
 		{
 			m_gameStack.top()->unLoad();
 			delete m_gameStack.top();
+			DX::g_deviceContext->ClearState();
 			m_gameStack.pop();
 			m_gameStack.top()->pushNewState(nullptr);
 		}

@@ -16,7 +16,7 @@ namespace Network
 	enum NETWORKMESSAGES
 	{
 		//GAME EVENTS
-		ID_GAME_START				 = ID_USER_PACKET_ENUM,
+		ID_GAME_START								= ID_USER_PACKET_ENUM,
 		//PLAYER EVENTS 1-19
 		ID_PLAYER_CREATE			 = ID_USER_PACKET_ENUM + 1,
 		ID_PLAYER_DISCONNECT		 = ID_USER_PACKET_ENUM + 2,
@@ -26,11 +26,14 @@ namespace Network
 		ID_PLAYER_ANIMATION			 = ID_USER_PACKET_ENUM + 6,
 		ID_PLAYER_THROW_BEGIN		 = ID_USER_PACKET_ENUM + 7,
 		ID_PLAYER_THROW_END			 = ID_USER_PACKET_ENUM + 8,
-		ID_PLAYER_ABILITY_CANCEL	 = ID_USER_PACKET_ENUM + 9,
-		ID_PLAYER_POSESS_BEGIN		 = ID_USER_PACKET_ENUM + 10,
-		ID_PLAYER_POSESS_END		 = ID_USER_PACKET_ENUM + 11,
-		ID_PLAYER_CROUCH_BEGIN		 = ID_USER_PACKET_ENUM + 12,
-		ID_PLAYER_CROUCH_END		 = ID_USER_PACKET_ENUM + 13,
+		ID_PLAYER_THROW_CANCEL		 = ID_USER_PACKET_ENUM + 9,
+		ID_PLAYER_ABILITY_CANCEL	 = ID_USER_PACKET_ENUM + 10,
+		ID_PLAYER_POSESS_BEGIN		 = ID_USER_PACKET_ENUM + 11,
+		ID_PLAYER_POSESS_END		 = ID_USER_PACKET_ENUM + 12,
+		ID_PLAYER_CROUCH_BEGIN		 = ID_USER_PACKET_ENUM + 13,
+		ID_PLAYER_CROUCH_END		 = ID_USER_PACKET_ENUM + 14,
+		ID_PLAYER_BLINK				 = ID_USER_PACKET_ENUM + 15,
+		ID_PLAYER_TELEPORT			 = ID_USER_PACKET_ENUM + 16,
 		// 20-29 is reserved for lobby
 		ID_SERVER_ADVERTISE			 = ID_USER_PACKET_ENUM + 20,
 		ID_CHAR_SELECTED			 = ID_USER_PACKET_ENUM + 21,
@@ -49,7 +52,9 @@ namespace Network
 		ID_ENEMY_UPDATE				= ID_USER_PACKET_ENUM + 33,
 		ID_ENEMY_VISIBILITY			= ID_USER_PACKET_ENUM + 34,
 		ID_ENEMY_POSSESSED			= ID_USER_PACKET_ENUM + 35,
-		ID_ENEMY_DISABLED			= ID_USER_PACKET_ENUM + 36
+		ID_ENEMY_DISABLED			= ID_USER_PACKET_ENUM + 36,
+		ID_SMOKE_DETONATE			= ID_USER_PACKET_ENUM + 37,
+		ID_ENEMY_ANIMATION_STATE	= ID_USER_PACKET_ENUM + 38
 	};
 
 
@@ -74,19 +79,6 @@ namespace Network
 				str = str.substr(0, 32);
 			strcpy(string, str.c_str());
 		}
-	};
-
-	struct CREATEPACKET
-	{
-		unsigned char id; //variable name must be the same for all structs
-		RakNet::Time timeStamp;
-		unsigned char m_id; //this is our identifier
-		RakNet::NetworkID nid;
-		XMFLOAT4A pos;
-		XMFLOAT4A scale;
-		XMFLOAT4A rotation;
-		CREATEPACKET(unsigned char _id, RakNet::NetworkID _nid, XMFLOAT4A _pos, XMFLOAT4A _scale, XMFLOAT4A _rot) 
-			: id(DefaultMessageIDTypes::ID_TIMESTAMP), timeStamp(RakNet::GetTime()), m_id(_id), nid(_nid), pos(_pos), scale(_scale), rotation(_rot) {}
 	};
 
 	struct ENTITYUPDATEPACKET
@@ -121,6 +113,23 @@ namespace Network
 		DirectX::XMFLOAT4A camDir;
 		//Animation data
 		float moveSpeed;
+		float direction;
+	};
+
+	struct ENEMYANIMATIONSTATEPACKET
+	{
+		unsigned char id = ID_ENEMY_ANIMATION_STATE;
+		int uniqueID;
+
+		char string[32];
+
+		ENEMYANIMATIONSTATEPACKET(int _uniqueID, std::string str = "")
+			: id(ID_ENEMY_ANIMATION_STATE), uniqueID(_uniqueID)
+		{
+			if (str.size() > 32)
+				str = str.substr(0, 32);
+			strcpy(string, str.c_str());
+		}
 	};
 
 	struct ENTITYABILITYPACKET
@@ -145,9 +154,10 @@ namespace Network
 		float direction;
 		float speed;
 		float pitch;
+		float peek;
 		DirectX::XMFLOAT4A rot;
-		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, float _pitch, DirectX::XMFLOAT4A _rot)
-			: id(_id), nid(_nid), direction(_dir), speed(_speed), pitch(_pitch), rot(_rot) {}
+		ENTITYANIMATIONPACKET(unsigned char _id, RakNet::NetworkID _nid, float _dir, float _speed, float _pitch, float _peek, DirectX::XMFLOAT4A _rot)
+			: id(_id), nid(_nid), direction(_dir), speed(_speed), pitch(_pitch), peek(_peek), rot(_rot) {}
 	};
 
 	struct TRIGGEREVENTPACKET
@@ -171,8 +181,9 @@ namespace Network
 	{
 		unsigned char id;
 		int seed;
+		bool skipTutorial;
 		RakNet::NetworkID remoteID;
-		GAMESTARTEDPACKET(unsigned char _id, int _seed, RakNet::NetworkID nid) : id(_id), seed(_seed), remoteID(nid) {}
+		GAMESTARTEDPACKET(unsigned char _id, int _seed, bool tut, RakNet::NetworkID nid) : id(_id), seed(_seed), skipTutorial(tut), remoteID(nid) {}
 	};
 
 	struct VISIBILITYPACKET

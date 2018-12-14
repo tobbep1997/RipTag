@@ -7,6 +7,7 @@ struct Node;
 
 class VisibilityComponent;
 class AI;
+class Torch;
 
 class Enemy : public Actor, public CameraHolder, public PhysicsComponent, public AI
 {
@@ -21,14 +22,19 @@ public:
 
 private:
 	friend class AI;
-
-	const float MOVE_SPEED = 4.0f;
-	const float SPRINT_MULT = 2.0f;
+	const float MOVE_SPEED = 3.3f;
+	const float SPRINT_MULT = 1.8f;
 	const float JUMP_POWER = 400.0f;
 	const float INTERACT_RANGE = 3.0f;
 	const float TURN_SPEED = 2.0f;
 	const float REVERSE_SPEED = 0.5f;
 
+	AudioEngine::SoundDesc m_soundFootstep;
+
+
+	float m_currentSpeed = 0.0f;
+	float m_currentDirection = 0.0f;
+	bool m_IsPossessedByTeammate = false;
 private:
 	struct AudioVars
 	{
@@ -82,10 +88,8 @@ private:
 	
 	//Key Input
 	bool m_currClickCrouch = false;
-	bool m_prevClickCrouch = false;
-	bool m_currClickSprint = false;
-	bool m_prevClickSprint = false;
-	bool m_isSprinting = false;
+	unsigned int m_prevClickCrouch = 0;
+	unsigned int m_prevSprintInputType = 0;
 
 	int m_toggleCrouch = 0;
 	int m_toggleSprint = 0;
@@ -115,14 +119,14 @@ private:
 	float m_biggestVisCounter = 0.0f;
 
 	float m_visCounter;
-	float m_visabilityTimer = 1.6f;
+	float m_visabilityTimer = 1.0f;
 
 	bool m_found = false;
 
 	float m_knockOutTimer = 0;
 	float m_possesionRecoverTimer = 0; 
 	float m_possessionRecoverMax = 5; 
-	float m_knockOutMaxTime = 2;
+	float m_knockOutMaxTime = 5.0;
 
 	float enemyX = 0;
 	float enemyY = 0;
@@ -144,6 +148,7 @@ private:
 	 */
 	float m_lenghtToPlayer = 1000000000;
 	float m_lengthToPlayerSpan = 8;
+	float m_playerTooCloseInstaLose = 4;
 
 	Player * m_PlayerPtr		= nullptr;
 	RemotePlayer * m_RemotePtr	= nullptr;
@@ -152,7 +157,8 @@ private:
 
 	int m_interactRayId = -100;
 
-	ParticleEmitter * pEmitter = nullptr;
+	std::vector<Torch*> m_torches;
+
 public:
 	Enemy(b3World* world, unsigned int id, float startPosX, float startPosY, float startPosZ);
 	~Enemy();
@@ -242,6 +248,8 @@ public:
 	int GetGuardUniqueIndex();
 	void SetGuardUniqueIndex(const int & index);
 	const int getInteractRayId();
+
+	void SetTorchContainer(std::vector<Torch*>& v) { m_torches = v; }
 private:
 
 	void _handleInput(double deltaTime);
@@ -257,8 +265,10 @@ private:
 	void _onReleasePossessed(double deltaTime);
 	void _cameraPlacement(double deltaTime); 
 	void _RotateGuard(float x, float y, float angle, float deltaTime);
-	void _activateCrouch();
+	void _activateCrouch(const unsigned int inputType);
 	void _deActivateCrouch();
+	void _startSprint(const unsigned int inputType);
+	void _startWalk();
 
 	void _playFootsteps(double deltaTime);
 	b3Vec3 _slerp(b3Vec3 start, b3Vec3 end, float percent);

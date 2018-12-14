@@ -1,27 +1,22 @@
 #include "EnginePCH.h"
 #include "Engine3D.h"
 
-ID3D11Device*			DX::g_device;
-ID3D11DeviceContext1*	DX::g_deviceContext;
+ID3D11Device*								DX::g_device;
+ID3D11DeviceContext1*						DX::g_deviceContext;
+Shaders::ShaderManager						DX::g_shaderManager;
+Drawable*									DX::g_player;
+Drawable*									DX::g_remotePlayer = nullptr;
+std::vector<Drawable*>						DX::g_animatedGeometryQueue;
+std::vector<PointLight*>					DX::g_lights;
+std::vector<PointLight*>					DX::g_prevlights;
+std::vector<Drawable*>						DX::g_outlineQueue;
+std::vector<Drawable*>						DX::g_wireFrameDrawQueue;
+std::vector<Quad*>							DX::g_2DQueue;
+std::vector<VisibilityComponent*>			DX::g_visibilityComponentQueue;
+std::vector<ParticleEmitter*>				DX::g_emitters;
+RECT										DX::g_backBufferResolution;
 
-Shaders::ShaderManager DX::g_shaderManager;
-
-Drawable* DX::g_player;
-Drawable* DX::g_remotePlayer = nullptr;
-std::vector<Drawable*> DX::g_animatedGeometryQueue;
-
-std::vector<PointLight*> DX::g_lights;
-std::vector<PointLight*> DX::g_prevlights;
-
-std::vector<Drawable*> DX::g_outlineQueue;
-
-std::vector<Drawable*> DX::g_wireFrameDrawQueue;
-
-std::vector<Quad*> DX::g_2DQueue;
-
-std::vector<VisibilityComponent*> DX::g_visibilityComponentQueue;
-
-std::vector<ParticleEmitter*> DX::g_emitters;
+bool DX::g_screenShootCamera = false;
 
 MeshManager Manager::g_meshManager;
 TextureManager Manager::g_textureManager;
@@ -30,6 +25,11 @@ std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceGroups;
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceWireFrameGroups;
 
 std::vector<DX::INSTANCING::GROUP> DX::INSTANCING::g_instanceShadowGroups;
+
+bool Cheet::g_visabilityDisabled = false;
+bool Cheet::g_DBG_CAM = false;
+
+Drawable *	DX::g_skyBox = nullptr;
 
 bool checkLoltest5(Drawable* drawable, PointLight * pl)
 {
@@ -209,6 +209,16 @@ void DX::INSTANCING::tempInstance(Drawable* drawable)
 	attribute.objectColor = drawable->getColor();
 	attribute.textureTileMult = DirectX::XMFLOAT4A(drawable->getTextureTileMult().x, drawable->getTextureTileMult().y, 0, 0);
 	attribute.usingTexture.x = drawable->isTextureAssigned();
+	if (drawable->getTexture()->getIndex() != -1)
+	{
+		attribute.usingTexture.y = 1;
+		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+	}
+	else
+	{
+		attribute.usingTexture.y = -1;
+		attribute.usingTexture.z = drawable->getTexture()->getIndex();
+	}
 
 
 	if (exisitingEntry == queue->end())
@@ -234,6 +244,20 @@ void DX::SafeRelease(IUnknown * unknown)
 	unknown = nullptr;
 }
 
+void DX::SetName(ID3D11DeviceChild * dc, const std::string & name)
+{
+#ifndef _DEPLOY
+	dc->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * name.size(), name.c_str());
+#endif
+}
+
+void DX::SetName(ID3D11DeviceChild * dc, const std::wstring & name)
+{
+#ifndef _DEPLOY
+	dc->SetPrivateData(WKPDID_D3DDebugObjectNameW, sizeof(wchar_t) * name.size(), name.c_str());
+#endif
+}
+
 WindowContext * SettingLoader::g_windowContext;
 
 Engine3D::Engine3D()
@@ -250,7 +274,7 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 {
 	UINT createDeviceFlags = 0;
 
-#ifdef _DEBUG
+#ifndef _DEPLOY
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif //DEBUG
 
@@ -304,14 +328,17 @@ HRESULT Engine3D::Init(HWND hwnd, const WindowContext & windContext)
 
 		m_swapChain->ResizeBuffers(0, windContext.clientWidth, windContext.clientHeight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-		DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV);
-		//we are creating the standard depth buffer here.
-		_createDepthSetencil(windContext.clientWidth, windContext.clientHeight);
-		_initViewPort(windContext.clientWidth, windContext.clientHeight);
+		if (SUCCEEDED(hr = DX::g_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBufferRTV)))
+		{
+			DX::SetName(m_backBufferRTV, "m_backBufferRTV");
+			//we are creating the standard depth buffer here.
+			_createDepthSetencil(windContext.clientWidth, windContext.clientHeight);
+			_initViewPort(windContext.clientWidth, windContext.clientHeight);
 
-	
-		//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
-		pBackBuffer->Release();
+		
+			//DX::g_deviceContext->OMSetRenderTargets(1, &m_backBufferRTV, m_depthStencilView);	//As a standard we set the rendertarget. But it will be changed in the prepareGeoPass
+			pBackBuffer->Release();
+		}
 	}
 	m_forwardRendering = new ForwardRender();
 	m_forwardRendering->Init(m_swapChain, 
@@ -345,8 +372,6 @@ void Engine3D::Release()
 {
 	m_swapChain->SetFullscreenState(false, NULL);
 
-	DX::SafeRelease(DX::g_device);
-	DX::SafeRelease(DX::g_deviceContext);
 	DX::SafeRelease(m_swapChain);
 	DX::SafeRelease(m_backBufferRTV);
 	DX::SafeRelease(m_depthStencilView);
@@ -356,6 +381,25 @@ void Engine3D::Release()
 	
 	m_forwardRendering->Release();
 	delete m_forwardRendering;
+
+	DX::SafeRelease(DX::g_deviceContext);
+	   
+#ifndef _DEPLOY
+	HRESULT hr;
+	if (DX::g_device->Release() > 0)
+	{		
+		ID3D11Debug* dbg_device = nullptr;
+		if (SUCCEEDED(hr = DX::g_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&dbg_device)))
+		{
+			if (SUCCEEDED(hr = dbg_device->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL)))
+			{
+
+			}
+			dbg_device->Release();
+		}
+	}
+#endif
+
 }
 
 void Engine3D::_createDepthSetencil(UINT width, UINT hight)
@@ -378,11 +422,39 @@ void Engine3D::_createDepthSetencil(UINT width, UINT hight)
 	dpd.DepthEnable = TRUE;
 	dpd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dpd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dpd.StencilEnable = TRUE;
+
+	dpd.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	dpd.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	dpd.FrontFace.StencilFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dpd.BackFace.StencilFunc = D3D11_COMPARISON_LESS_EQUAL;
+	
+	dpd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dpd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	
+	dpd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dpd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+
+	dpd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dpd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 
 	//Create the Depth/Stencil View
-	DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState);
-	HRESULT hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex);
-	hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView);
+
+	HRESULT hr;
+
+	if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilState(&dpd, &m_depthStencilState)))
+	{
+		DX::SetName(m_depthStencilState, "ENGINE: m_depthStencilState");
+		if (SUCCEEDED(hr = DX::g_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthBufferTex)))
+		{
+			DX::SetName(m_depthBufferTex, "ENGINE: m_depthBufferTex");
+			if (SUCCEEDED(hr = DX::g_device->CreateDepthStencilView(m_depthBufferTex, NULL, &m_depthStencilView)))
+			{
+				DX::SetName(m_depthStencilView, "ENGINE: m_depthStencilView");
+			}
+		}
+	}
+	
 }
 
 void Engine3D::_initViewPort(UINT width, UINT hight)

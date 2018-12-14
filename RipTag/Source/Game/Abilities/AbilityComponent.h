@@ -16,10 +16,13 @@ class AbilityComponent
 protected: // CD
 	float p_cooldownMax= 8.0f;
 	float p_cooldown = 0;
+	int p_abilityCharges = 1;
+	int p_abilityChargesMax = 1;
 
 protected:
 	void * p_owner;
 	bool isLocal;
+	bool p_wasLocked = false; 
 
 public:
 	AbilityComponent(void * owner = nullptr);
@@ -38,6 +41,10 @@ public:
 	virtual float getMaxCooldWon() const;
 
 	virtual float getPercentage() const;
+
+	virtual int GetAbilityChargeMax() const;
+	virtual int GetAbilityCharges() const;
+	virtual float getAbilityChargesPercent() const;
 
 	virtual void updateCooldown(double deltaTime);
 };

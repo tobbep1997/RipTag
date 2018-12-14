@@ -21,6 +21,7 @@ PressurePlate::~PressurePlate()
 void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float yaw, float roll, float bboxScaleX, float bboxScaleY, float bboxScaleZ, float scaleX, float scaleY, float scaleZ)
 {
 	PhysicsComponent::Init(*RipExtern::g_world, e_staticBody, bboxScaleX, bboxScaleY, bboxScaleZ, true);
+	
 	BaseActor::setPositionRot(xPos, yPos, zPos, pitch, yaw, roll);
 	BaseActor::setScale(scaleX, scaleY, scaleZ);
 	BaseActor::setObjectTag("PressurePlate");
@@ -30,8 +31,8 @@ void PressurePlate::Init(float xPos, float yPos, float zPos, float pitch, float 
 	getAnimationPlayer()->SetSkeleton(Manager::g_animationManager.getSkeleton("PLATE"));
 	auto activateState = stateMachine->AddPlayOnceState("activate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_ACTIVATE_ANIMATION").get());
 	auto deactivateState = stateMachine->AddPlayOnceState("deactivate", Manager::g_animationManager.getAnimation("PLATE", "PLATE_DEACTIVATE_ANIMATION").get());
-	activateState->SetBlendTime(0.0f);
-	deactivateState->SetBlendTime(0.0f);
+	activateState->SetDefaultBlendTime(0.0f);
+	deactivateState->SetDefaultBlendTime(0.0f);
 	getAnimationPlayer()->Pause();
 	BaseActor::setUserDataBody(this);
 }
@@ -54,10 +55,28 @@ void PressurePlate::Update(double deltaTime)
 				if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this ||
 					static_cast<PressurePlate*>(shapeB->GetBody()->GetUserData()) == this)
 				{
-					if (this->getTriggerState())
+					bool useTrigger = true;
+					//Do a check with the remote player if he is inside this objects bounding box, we have a pointer to RemotePlayer in extern
+					//I am assuming the DirectX BoundingBox is equal to the Bounce BB. IF this is not the case, find a solution with the BOUNCE BB.  
+				if (DX::g_remotePlayer)
+					{
+						DirectX::XMFLOAT4A remotePlayerPos = DX::g_remotePlayer->getPosition();
+						b3AABB bb;
+						
+						if (static_cast<PressurePlate*>(shapeA->GetBody()->GetUserData()) == this)
+							shapeA->ComputeAabb(bb, this->getBody()->GetTransform());
+						else
+							shapeB->ComputeAabb(bb, this->getBody()->GetTransform());
+						
+						//Put the position into the same x-z plane
+						remotePlayerPos.y = bb.GetCenter().y;
+						if (bb.ContainsPoint(b3Vec3((r32)remotePlayerPos.x, (r32)remotePlayerPos.y, (r32)remotePlayerPos.z)))
+							useTrigger = false;
+					}
+					if (this->getTriggerState() && useTrigger)
 					{
 						if(shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-							this->setTriggerState(false, "ENEMY");
+							this->setTriggerState(false, true, "ENEMY");
 						else
 							this->setTriggerState(false);
 						this->SendOverNetwork();
@@ -92,7 +111,7 @@ void PressurePlate::Update(double deltaTime)
 							if (!this->getTriggerState())
 							{
 								if (shapeA->GetBody()->GetObjectTag() == "ENEMY" || shapeB->GetBody()->GetObjectTag() == "ENEMY")
-									this->setTriggerState(true, "ENEMY");
+									this->setTriggerState(true, true, "ENEMY");
 								else
 									this->setTriggerState(true);
 								this->SendOverNetwork();
@@ -112,13 +131,13 @@ void PressurePlate::Update(double deltaTime)
 	this->getAnimationPlayer()->Update(deltaTime);
 }
 
-void PressurePlate::_playSound(AudioEngine::SoundType st)
+void PressurePlate::_playSound(AudioEngine::SoundDesc * soundDesc)
 {
 	FMOD_VECTOR at = { getPosition().x, getPosition().y, getPosition().z };
 	if (!this->getTriggerState())
-		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateDeactivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateDeactivate, &at, soundDesc);
 	else
-		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateActivate, &at, st);
+		AudioEngine::PlaySoundEffect(RipSounds::g_pressurePlateActivate, &at, soundDesc);
 }
 
 

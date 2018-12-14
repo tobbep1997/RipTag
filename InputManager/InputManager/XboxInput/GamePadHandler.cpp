@@ -250,7 +250,10 @@ bool GamePadHandler::IsLeftStickPressed()
 {
 	if (m_state.IsConnected())
 	{
-		return m_state.IsLeftStickPressed();
+		if (m_buttons.leftStick == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		{
+			return true;
+		}		
 	}
 	return false;
 }
@@ -544,5 +547,18 @@ bool GamePadHandler::IsStartPressed()
 	{
 		return false;
 	}
+}
+
+bool GamePadHandler::IsStartReleased()
+{
+	static bool previousFrame = false;
+	if (GamePadHandler::IsStartPressed())
+		previousFrame = true;
+	if (!GamePadHandler::IsStartPressed() && previousFrame)
+	{
+		previousFrame = false;
+		return true;
+	}
+	return false;
 }
 

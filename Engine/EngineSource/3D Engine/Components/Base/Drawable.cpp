@@ -18,16 +18,22 @@ void Drawable::_setStaticBuffer()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = m_staticMesh->getRawVertice();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+	HRESULT hr;
 
 
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer)))
+	{
+		DX::SetName(p_vertexBuffer, L"p_vertexBuffer");
+	}
 
 }
 
 void Drawable::_setDynamicBuffer()
 {
 	DX::SafeRelease(p_vertexBuffer);
-
+	DX::SafeRelease(m_animatedUAV);
+	DX::SafeRelease(m_UAVOutput);
+	DX::SafeRelease(uavstage);
 	UINT32 vertexSize = sizeof(DynamicVertex);
 	UINT32 offset = 0;
 	
@@ -58,36 +64,53 @@ void Drawable::_setDynamicBuffer()
 		stuffs.push_back(s);
 	}
 
-
+	HRESULT hr;
+	
 	D3D11_BUFFER_DESC bufferDesc;
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
-	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER ;
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	bufferDesc.ByteWidth = sizeof(stuff) * (UINT)stuffs.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = stuffs.data();
-	HRESULT hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer);
+
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, &vertexData, &p_vertexBuffer)))
+	{
+		DX::SetName(p_vertexBuffer, L"p_vertexBuffer");
+	}
 
 	bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	bufferDesc.StructureByteStride = sizeof(PostAniDynamicVertex);
-	hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput);
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, NULL, &m_UAVOutput)))
+	{
+		DX::SetName(m_UAVOutput, L"m_UAVOutput");
+	}
+
 
 	bufferDesc.BindFlags = 0;
 	bufferDesc.Usage = D3D11_USAGE_STAGING;
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &uavstage);
 
+	
 
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(hr = DX::g_device->CreateBuffer(&bufferDesc, nullptr, &uavstage)))
 	{
+		DX::SetName(uavstage, L"uavstage");
+
 		D3D11_UNORDERED_ACCESS_VIEW_DESC ud = {};
 		ud.Format = DXGI_FORMAT_R32_FLOAT;
 		ud.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 
 		unsigned int numFloatElementsPerVertex = 11; //needed since DXGI_FORMAT_R32_FLOAT format
 		ud.Buffer.NumElements = m_skinnedMesh->getVertices().size() * numFloatElementsPerVertex;
-		hr = DX::g_device->CreateUnorderedAccessView(m_UAVOutput, &ud, &m_animatedUAV);
+
+
+		if (SUCCEEDED(hr = DX::g_device->CreateUnorderedAccessView(m_UAVOutput, &ud, &m_animatedUAV)))
+		{
+			DX::SetName(m_animatedUAV, L"m_animatedUAV");
+		}
 	}
 
 
@@ -136,48 +159,6 @@ ID3D11Buffer* Drawable::GetAnimatedVertex()
 ID3D11UnorderedAccessView* Drawable::GetUAV()
 {
 	return m_animatedUAV;
-}
-
-//Please dont call this function
-//Like ever
-void Drawable::DontCallMe()
-{
-	DX::g_deviceContext->CopyResource(uavstage, m_UAVOutput);
-	D3D11_MAPPED_SUBRESOURCE mr;
-
-	std::vector<DynamicVertex> temp = m_skinnedMesh->getVertices();
-
-	if (SUCCEEDED(DX::g_deviceContext->Map(uavstage, 0, D3D11_MAP_READ, 0, &mr)))
-	{
-		PostAniDynamicVertex* data = (PostAniDynamicVertex*)mr.pData;
-		for (unsigned int i = 0; i < (UINT)m_skinnedMesh->getVertices().size(); ++i)
-		{
-			if (temp.at(i).pos.x != data[i].pos.x)
-			{
-				std::cout << "re" << std::endl;
-			}
-			if (temp.at(i).pos.y != data[i].pos.y)
-			{
-				std::cout << "re" << std::endl;
-			}
-			if (temp.at(i).pos.z != data[i].pos.z)
-			{
-				std::cout << "re" << std::endl;
-			}
-		}
-		
-		DX::g_deviceContext->Unmap(uavstage, 0);
-	}
-	throw std::exception("What did i fucking tell you");
-	//D3D11_MAPPED_SUBRESOURCE dataPtr;
-	//if (SUCCEEDED(DX::g_deviceContext->Map(uavstage, 0, D3D11_MAP_WRITE, 0, &dataPtr)))
-	//{
-	//	ShadowTestData killer = { 0 };
-	//	memcpy(dataPtr.pData, &killer, sizeof(ShadowTestData));
-	//	DX::g_deviceContext->CopyResource(m_UAV.uavTextureBuffer, m_UAV.uavTextureBufferCPU);
-	//	//DX::g_deviceContext->CopyResource(m_uavTextureBuffer, m_uavTextureBufferCPU);
-	//	DX::g_deviceContext->Unmap(m_UAV.uavTextureBufferCPU, 0);
-	//}
 }
 
 void Drawable::CastShadows(const bool& shadows)
@@ -233,11 +214,21 @@ void Drawable::p_createBoundingBox(const DirectX::XMFLOAT3 & extens)
 	this->m_bb->Transform(*m_bb, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&getWorldmatrix())));
 }
 
+void Drawable::setBoundingBoxSizeForDynamicObjects(const DirectX::XMFLOAT3& extens)
+{
+	this->m_extens = extens;
+	p_createBoundingBox(this->m_extens);
+}
+
 void Drawable::setTexture(Texture * texture)
 {
 	this->p_texture = texture;
 }
 
+Texture* Drawable::getTexture() const
+{
+	return this->p_texture;
+}
 
 
 void Drawable::BindTextures()
@@ -257,6 +248,7 @@ Drawable::Drawable() : Transform()
 	m_outline = false;
 	m_transparant = false;
 	m_castShadow = true;
+	this->m_extens = DirectX::XMFLOAT3(5, 5, 5);
 }
 
 
@@ -278,29 +270,30 @@ Drawable::~Drawable()
 
 void Drawable::Draw()
 {
-		switch (p_objectType)
+	switch (p_objectType)
+	{
+	case Static:
+		if (m_staticMesh)
+			DX::g_cullQueue.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
+		if (getEntityType() == EntityType::PlayerType)
 		{
-		case Static:
-			if (m_staticMesh)
-				DX::g_cullQueue.push_back(this);//DX::INSTANCING::submitToInstance(this, CameraHandler::getActiveCamera());
-			if (getEntityType() == EntityType::PlayerType)
-			{
-				DX::g_player = this;
-			}
-			else if (getOutline())
-			{
-				DX::g_outlineQueue.push_back(this);
-			}
-			break;
-		case Dynamic:
-			if (m_skinnedMesh)
-				DX::g_animatedGeometryQueue.push_back(this);
-			if (getEntityType() == EntityType::PlayerType)
-			{
-				DX::g_player = this;
-			}
-			break;
-		}	
+			DX::g_player = this;
+		}
+		else if (getOutline())
+		{
+			DX::g_outlineQueue.push_back(this);
+		}
+		break;
+	case Dynamic:
+		p_createBoundingBox(this->m_extens);
+		if (m_skinnedMesh)
+			DX::g_animatedGeometryQueue.push_back(this);
+		if (getEntityType() == EntityType::PlayerType)
+		{
+			DX::g_player = this;
+		}
+		break;
+	}	
 }
 
 void Drawable::DrawWireFrame()
@@ -416,7 +409,8 @@ void Drawable::setModel(SkinnedMesh * skinnedMesh)
 	setPixelShader(L"../Engine/EngineSource/Shader/PixelShader.hlsl");
 	Drawable::p_setMesh(skinnedMesh);
 	p_createBuffer();
-	m_anim = new Animation::AnimationPlayer(this);
+	if (!m_anim)
+		m_anim = new Animation::AnimationPlayer(this);
 }
 
 void Drawable::setColor(const DirectX::XMFLOAT4A& color)

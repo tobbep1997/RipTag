@@ -10,6 +10,9 @@ xcopy /s /y ..\Configuration ..\Deploy\Configuration
 
 if not exist "..\Deploy\Assets" mkdir ..\Deploy\Assets
 xcopy /s /y ..\Assets ..\Deploy\Assets
+del /s /q /f ..\Deploy\Assets\*.png
+del /s /q /f ..\Deploy\Assets\*.jpg
+
 
 if not exist "..\Deploy\Engine\EngineSource\Shader" mkdir ..\Deploy\Engine\EngineSource\Shader
 xcopy /s /y ..\Engine\EngineSource\Shader ..\Deploy\Engine\EngineSource\Shader
@@ -24,3 +27,7 @@ xcopy /s /y ..\External\FMOD\lib\*.dll ..\Deploy\RipTag\
 
 del /s /q /f ..\Deploy\*.h
 del /s /q /f ..\Deploy\*.cpp
+
+xcopy /s /y ..\Assets\WindowIcon ..\Deploy\RipTag
+
+start "" ..\Deploy\RipTag\IconChanger.exe ..\Deploy\RipTag\RipTag.exe ..\Deploy\RipTag\fav.ico

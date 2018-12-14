@@ -10,59 +10,9 @@ LobbyState::LobbyState(RenderingManager * rm) : State(rm)
 }
 
 
-LobbyState::~LobbyState()
+LobbyState::
+~LobbyState()
 {
-	for (auto &button : this->m_lobbyButtons)
-	{
-		button->Release();
-		delete button;
-	}
-	this->m_lobbyButtons.clear();
-
-	for (auto & button : this->m_charSelectButtons)
-	{
-		button->Release();
-		delete button;
-	}
-	this->m_charSelectButtons.clear();
-
-	for (auto & button : this->m_hostListButtons)
-	{
-		button->Release();
-		delete button;
-	}
-	this->m_hostListButtons.clear();
-
-	if (this->m_infoWindow)
-	{
-		this->m_infoWindow->Release();
-		delete this->m_infoWindow;
-	}
-	if (this->m_background)
-	{
-		this->m_background->Release();
-		delete this->m_background;
-	}
-	if (this->m_charSelectionBG)
-	{
-		this->m_charSelectionBG->Release();
-		delete this->m_charSelectionBG;
-	}
-	if (this->m_charOneInfo)
-	{
-		this->m_charOneInfo->Release();
-		delete this->m_charOneInfo;
-	}
-	if (this->m_charTwoInfo)
-	{
-		this->m_charTwoInfo->Release();
-		delete this->m_charTwoInfo;
-	}
-	if (this->m_charSelectInfo)
-	{
-		this->m_charSelectInfo->Release();
-		delete this->m_charSelectInfo;
-	}
 	if (pCoopData)
 	{
 		delete pCoopData;
@@ -90,31 +40,11 @@ void LobbyState::Update(double deltaTime)
 		m_currentButton = (unsigned int)ButtonOrderLobby::Host;
 	}
 
-	/*static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
-
-	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
-	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
-
-	bool mouseMoved = false;
-	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9 || InputHandler::isMouseLeftPressed())
-	{
-		mouseMoved = true;
-	}
-
-	s_mouseLastFrame = mousePos;*/
-
 	_handleMouseInput();	
 
 	_handleKeyboardInput();
 
 	_handleGamePadInput(deltaTime);
-
-	/*if (mouseMoved)
-	else
-	{
-	}*/
-
-	
 
 	if (!isHosting && !hasJoined && !inServerList)
 	{
@@ -136,6 +66,9 @@ void LobbyState::Update(double deltaTime)
 
 		if (m_lobbyButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
+			m_lobbyButtons[m_currentButton]->setState(ButtonStates::Hover);
+			m_lobbyButtons[m_currentButton]->Select(false);
+
 			switch ((ButtonOrderLobby)m_currentButton)
 			{
 			case ButtonOrderLobby::Host:
@@ -234,6 +167,10 @@ void LobbyState::Update(double deltaTime)
 
 		if (m_charSelectButtons[m_currentButton]->getState() == (unsigned int)ButtonStates::Pressed)
 		{
+
+			m_charSelectButtons[m_currentButton]->setState(ButtonStates::Hover);
+			m_charSelectButtons[m_currentButton]->Select(false);
+
 			switch ((CharacterSelection)m_currentButton)
 			{
 			case CharacterSelection::CharOne:
@@ -250,6 +187,7 @@ void LobbyState::Update(double deltaTime)
 					m_charSelectButtons[m_currentButton]->setTextColor(ActivatedColor);
 				}
 				this->_sendCharacterSelectionPacket();
+
 				break;
 			case CharacterSelection::CharTwo:
 				if (hasCharSelected && selectedChar == 2)
@@ -304,6 +242,7 @@ void LobbyState::Update(double deltaTime)
 						pCoopData->remotePlayerCharacter = remoteSelectedChar;
 						pCoopData->remoteID = this->m_remoteNID;
 						pCoopData->role = Role::Server;
+						pCoopData->skipTutorial = skipTutorial;
 
 						pNetwork->setRole((int)Role::Server);
 						srand(pCoopData->seed);
@@ -311,21 +250,12 @@ void LobbyState::Update(double deltaTime)
 						isReady = false;
 						isRemoteReady = false;
 
-						//loading screen stuff
-						{
-							delete m_charOneInfo;
-							m_charOneInfo = nullptr;
-							delete m_charTwoInfo;
-							m_charTwoInfo = nullptr;
-							delete m_charSelectInfo;
-							m_charSelectInfo = nullptr;
-							delete m_charSelectionBG;
-							m_charSelectionBG = nullptr;
-							m_loadingScreen.removeGUI(this->m_charSelectButtons);
-							m_loadingScreen.draw();
-						}
+						_onLoadingScreen();
 
-						this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
+						if (!pCoopData->skipTutorial)
+							this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 0));
+						else
+							this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 1));
 						
 					}
 				}
@@ -349,6 +279,10 @@ void LobbyState::Update(double deltaTime)
 				hasRemoteCharSelected = false;
 				remoteSelectedChar = 0;
 
+				skipTutorial = false;
+				m_skipTutorialBox->setTextColor(Colors::Transparent);
+				m_skipTutorialBox->setString(" ");
+
 				m_charSelectButtons[CharOne]->setTextColor(DefaultColor);
 				m_charSelectButtons[CharTwo]->setTextColor(DefaultColor);
 
@@ -357,7 +291,22 @@ void LobbyState::Update(double deltaTime)
 				isReady = false;
 				isHosting = false;
 				hasJoined = false;
+
 				this->_resetLobbyButtonStates();
+				break;
+			case CharacterSelection::SkipTutorial:
+				if (!skipTutorial)
+				{
+					skipTutorial = true;
+					m_skipTutorialBox->setString("X");
+					m_skipTutorialBox->setTextColor(Colors::GreenDark);
+				}
+				else
+				{
+					skipTutorial = false;
+					m_skipTutorialBox->setString(" ");
+					m_skipTutorialBox->setTextColor(Colors::Transparent);
+				}
 				break;
 			}
 		}
@@ -366,7 +315,7 @@ void LobbyState::Update(double deltaTime)
 
 void LobbyState::Draw()
 {
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
+	static Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
 
 	if (!this->isHosting && !this->hasJoined)
@@ -390,8 +339,22 @@ void LobbyState::Draw()
 			this->m_charTwoInfo->Draw();
 		if (this->m_charSelectInfo)
 			this->m_charSelectInfo->Draw();
-		for (auto &button : this->m_charSelectButtons)
-			button->Draw();
+		for (int i = 0; i < m_charSelectButtons.size(); i++)
+		{
+			if (i != CharacterSelection::SkipTutorial)
+				m_charSelectButtons[i]->Draw();
+			else
+			{
+				if (isHosting)
+					m_charSelectButtons[i]->Draw();
+			}
+
+		}
+		if (isHosting)
+		{
+			if (m_skipTutorialBox)
+				this->m_skipTutorialBox->Draw();
+		}
 	}
 
 
@@ -504,10 +467,27 @@ void LobbyState::_initButtons()
 		//Return
 		this->m_charSelectButtons.push_back(Quad::CreateButton("Return", 0.617f, 0.113f, 0.29f, 0.11f));
 		this->m_charSelectButtons[CharacterSelection::Back]->setUnpressedTexture("gui_transparent_pixel");
-		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture("gui_pressed_pixelini");
+		this->m_charSelectButtons[CharacterSelection::Back]->setPressedTexture("gui_pressed_pixel");
 		this->m_charSelectButtons[CharacterSelection::Back]->setHoverTexture("gui_hover_pixel");
 		this->m_charSelectButtons[CharacterSelection::Back]->setTextColor(DefaultColor);
 		this->m_charSelectButtons[CharacterSelection::Back]->setFont(FontHandler::getFont("consolas32"));
+		//Skip tutorial
+		this->m_charSelectButtons.push_back(Quad::CreateButton("Skip Tutorial", 0.20f, 0.113f, 0.29f, 0.11f));
+		this->m_charSelectButtons[CharacterSelection::SkipTutorial]->setUnpressedTexture("gui_transparent_pixel");
+		this->m_charSelectButtons[CharacterSelection::SkipTutorial]->setPressedTexture("gui_pressed_pixel");
+		this->m_charSelectButtons[CharacterSelection::SkipTutorial]->setHoverTexture("gui_hover_pixel");
+		this->m_charSelectButtons[CharacterSelection::SkipTutorial]->setTextColor(DefaultColor);
+		this->m_charSelectButtons[CharacterSelection::SkipTutorial]->setFont(FontHandler::getFont("consolas16"));
+
+		//Skip tutorial checkbox
+		this->m_skipTutorialBox = Quad::CreateButton(" ", 0.10f, 0.113f, 0.044f, 0.08f);
+		this->m_skipTutorialBox->setUnpressedTexture("gui_pressed_pixel");
+		this->m_skipTutorialBox->setPressedTexture("gui_pressed_pixel");
+		this->m_skipTutorialBox->setHoverTexture("gui_pressed_pixel");
+		this->m_skipTutorialBox->setTextColor(Colors::White);
+		this->m_skipTutorialBox->setFont(FontHandler::getFont("consolas32"));
+		this->m_skipTutorialBox->setState(ButtonStates::Normal);
+		this->m_skipTutorialBox->setTextAlignment(Quad::TextAlignment::centerAligned);
 	}
 	//Info window
 	{
@@ -600,6 +580,22 @@ void LobbyState::_handleKeyboardInput()
 
 void LobbyState::_handleMouseInput()
 {
+	static DirectX::XMFLOAT2 s_mouseLastFrame = { 0,0 };
+
+	DirectX::XMFLOAT2 mousePos = InputHandler::getMousePosition();
+	DirectX::XMINT2 windowSize = InputHandler::getWindowSize();
+
+	bool returnIfTrue = true;
+	if (fabs(s_mouseLastFrame.x - mousePos.x) > 0.9 || fabs(s_mouseLastFrame.y - mousePos.y) > 0.9)
+		returnIfTrue = false;
+	if (InputHandler::isMLeftReleased())
+		returnIfTrue = false;
+
+	s_mouseLastFrame = mousePos;
+
+	if (returnIfTrue)
+		return;
+
 	if (!isHosting && !hasJoined)
 		_mouseMainLobby();
 	if (!isHosting && !hasJoined && (m_hostListButtons.size() > 0))
@@ -824,7 +820,13 @@ void LobbyState::_gamePadMainLobby(float deltaTime)
 
 void LobbyState::_gamePadCharSelection()
 {
-	if (GamePadHandler::IsDownDpadPressed() || GamePadHandler::IsUpDpadPressed())
+	bool isDownPressed		= GamePadHandler::IsDownDpadPressed();
+	bool isUpPressed		= GamePadHandler::IsUpDpadPressed();
+	bool isRightPressed		= GamePadHandler::IsRightDpadPressed();
+	bool isLeftPressed		= GamePadHandler::IsLeftDpadPressed();
+
+
+	if (isDownPressed || isUpPressed)
 	{
 		switch (m_currentButton)
 		{
@@ -839,10 +841,13 @@ void LobbyState::_gamePadCharSelection()
 			break;
 		case CharacterSelection::Back:
 			m_currentButton = CharacterSelection::CharTwo;
+			break;
+		case CharacterSelection::SkipTutorial:
+			m_currentButton = CharacterSelection::CharOne;
 			break;
 		}
 	}
-	else if (GamePadHandler::IsRightDpadPressed() || GamePadHandler::IsLeftDpadPressed())
+	else if (isRightPressed || isLeftPressed)
 	{
 		switch (m_currentButton)
 		{
@@ -853,10 +858,34 @@ void LobbyState::_gamePadCharSelection()
 			m_currentButton = CharacterSelection::CharOne;
 			break;
 		case CharacterSelection::Ready:
-			m_currentButton = CharacterSelection::Back;
+			if (isHosting)
+			{
+				if (isRightPressed)
+					m_currentButton = CharacterSelection::Back;
+				else if (isLeftPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+			}
+			else
+			{
+				m_currentButton = CharacterSelection::Back;
+			}
 			break;
 		case CharacterSelection::Back:
-			m_currentButton = CharacterSelection::Ready;
+			if (isHosting)
+			{
+				if (isRightPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+				else if (isLeftPressed)
+					m_currentButton = CharacterSelection::Ready;
+			}
+			else
+				m_currentButton = CharacterSelection::Ready;
+			break;
+		case CharacterSelection::SkipTutorial:
+			if (isRightPressed)
+				m_currentButton = CharacterSelection::Ready;
+			else if (isLeftPressed)
+				m_currentButton = CharacterSelection::Back;
 			break;
 		}
 	}
@@ -946,7 +975,12 @@ void LobbyState::_keyboardMainLobby()
 
 void LobbyState::_keyboardCharSelection()
 {
-	if (InputHandler::wasKeyPressed(InputHandler::Up) || InputHandler::wasKeyPressed(InputHandler::Down))
+	bool wasUpPressed		= InputHandler::wasKeyPressed(InputHandler::Up);
+	bool wasDownPressed		= InputHandler::wasKeyPressed(InputHandler::Down);
+	bool wasLeftPressed		= InputHandler::wasKeyPressed(InputHandler::Left);
+	bool wasRightPressed	= InputHandler::wasKeyPressed(InputHandler::Right);
+
+	if (wasUpPressed || wasDownPressed)
 	{
 		switch (m_currentButton)
 		{
@@ -962,9 +996,12 @@ void LobbyState::_keyboardCharSelection()
 			case CharacterSelection::Back:
 				m_currentButton = CharacterSelection::CharTwo;
 				break;
+			case CharacterSelection::SkipTutorial:
+				m_currentButton = CharacterSelection::CharOne;
+				break;
 		}
 	}
-	else if (InputHandler::wasKeyPressed(InputHandler::Right) || InputHandler::wasKeyPressed(InputHandler::Left))
+	else if (wasRightPressed || wasLeftPressed)
 	{
 		switch (m_currentButton)
 		{
@@ -975,10 +1012,32 @@ void LobbyState::_keyboardCharSelection()
 			m_currentButton = CharacterSelection::CharOne;
 			break;
 		case CharacterSelection::Ready:
-			m_currentButton = CharacterSelection::Back;
+			if (isHosting)
+			{
+				if (wasRightPressed)
+					m_currentButton = CharacterSelection::Back;
+				else if (wasLeftPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+			}
+			else
+				m_currentButton = CharacterSelection::Back;
 			break;
 		case CharacterSelection::Back:
-			m_currentButton = CharacterSelection::Ready;
+			if (isHosting)
+			{
+				if (wasRightPressed)
+					m_currentButton = CharacterSelection::SkipTutorial;
+				else if (wasLeftPressed)
+					m_currentButton = CharacterSelection::Ready;
+			}
+			else
+				m_currentButton = CharacterSelection::Ready;
+			break;
+		case CharacterSelection::SkipTutorial:
+			if (wasRightPressed)
+				m_currentButton = CharacterSelection::Ready;
+			else if (wasLeftPressed)
+				m_currentButton = CharacterSelection::Back;
 			break;
 		}
 	}
@@ -1085,6 +1144,11 @@ void LobbyState::_mouseCharSelection()
 	{
 		if (m_charSelectButtons[i]->Inside(mousePos))
 		{
+			if (!isHosting)
+			{
+				if (i == CharacterSelection::SkipTutorial)
+					return;
+			}
 			//set this button to current and on hover state
 			m_currentButton = i;
 			m_charSelectButtons[i]->Select(true);
@@ -1102,6 +1166,27 @@ void LobbyState::_mouseCharSelection()
 				}
 			}
 			break;
+		}
+	}
+	if (isHosting)
+	{
+		if (m_skipTutorialBox)
+		{
+			if (m_skipTutorialBox->isReleased(mousePos))
+			{
+				if (!skipTutorial)
+				{
+					skipTutorial = true;
+					m_skipTutorialBox->setString("X");
+					m_skipTutorialBox->setTextColor(Colors::GreenDark);
+				}
+				else
+				{
+					skipTutorial = false;
+					m_skipTutorialBox->setString(" ");
+					m_skipTutorialBox->setTextColor(Colors::Transparent);
+				}
+			}
 		}
 	}
 
@@ -1352,6 +1437,7 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	pCoopData->remotePlayerCharacter = remoteSelectedChar;
 	pCoopData->remoteID = packet->remoteID;
 	pCoopData->role = Role::Client;
+	pCoopData->skipTutorial = packet->skipTutorial;
 
 	pNetwork->setRole((int)Role::Client);
 
@@ -1360,20 +1446,14 @@ void LobbyState::_onGameStartedPacket(RakNet::Packet * data)
 	isReady = false;
 	isRemoteReady = false;
 	//loading screen stuff
-	{
-		delete m_charOneInfo;
-		m_charOneInfo = nullptr;
-		delete m_charTwoInfo;
-		m_charTwoInfo = nullptr;
-		delete m_charSelectInfo;
-		m_charSelectInfo = nullptr;
-		delete m_charSelectionBG;
-		m_charSelectionBG = nullptr;
-		m_loadingScreen.removeGUI(this->m_charSelectButtons);
-		m_loadingScreen.draw();
-	}
-	this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData));
+	_onLoadingScreen();
+
+	if(!packet->skipTutorial)
+		this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData,0));
+	else
+		this->pushNewState(new PlayState(this->p_renderingManager, (void*)pCoopData, 1));
 }
+
 void LobbyState::_onRequestPacket(unsigned char id, RakNet::Packet * data)
 {
 	if (id == Network::ID_REQUEST_NID)
@@ -1428,7 +1508,7 @@ void LobbyState::_sendReadyPacket()
 
 void LobbyState::_sendGameStartedPacket()
 {
-	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed(), pNetwork->GetNetworkID());
+	Network::GAMESTARTEDPACKET packet(Network::ID_GAME_STARTED, pNetwork->GenerateSeed(), this->skipTutorial, pNetwork->GetNetworkID());
 	
 	Network::Multiplayer::SendPacket((const char*)&packet, sizeof(Network::GAMESTARTEDPACKET), PacketPriority::IMMEDIATE_PRIORITY);
 }
@@ -1460,6 +1540,44 @@ void LobbyState::_newHostEntry(std::string & hostName)
 	m_hostListButtons[size]->setFont(FontHandler::getFont("consolas16"));
 }
 
+void LobbyState::_onLoadingScreen()
+{
+	if (m_charOneInfo)
+	{
+		m_charOneInfo->Release();
+		delete m_charOneInfo;
+		m_charOneInfo = nullptr;
+	}
+	if (m_charTwoInfo)
+	{
+		m_charTwoInfo->Release();
+		delete m_charTwoInfo;
+		m_charTwoInfo = nullptr;
+	}
+	if (m_charSelectInfo)
+	{
+		m_charSelectInfo->Release();
+		delete m_charSelectInfo;
+		m_charSelectInfo = nullptr;
+	}
+	if (m_charSelectionBG)
+	{
+		m_charSelectionBG->Release();
+		delete m_charSelectionBG;
+		m_charSelectionBG = nullptr;
+	}
+	if (m_skipTutorialBox)
+	{
+		m_skipTutorialBox->Release();
+		delete m_skipTutorialBox;
+		m_skipTutorialBox = nullptr;
+	}
+
+	m_loadingScreen.removeGUI(this->m_charSelectButtons);
+
+	m_loadingScreen.draw();
+}
+
 void LobbyState::Load()
 {
 	_initButtons();
@@ -1489,7 +1607,7 @@ void LobbyState::Load()
 				std::wstring stem = file.stem().generic_wstring();
 				std::wstring extension = file.extension().generic_wstring();
 				std::cout << "Attempting to load: " << file.stem().generic_string() << "\n";
-				if (extension == L".png" || extension == L".jpg")
+				if (extension == L".DDS" || extension == L".DDS")
 					Manager::g_textureManager.loadGUITexture(stem, file.generic_wstring());
 			}
 		}
@@ -1506,6 +1624,73 @@ void LobbyState::unLoad()
 	Network::Multiplayer::LobbyOnReceiveMap.clear();
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
+
+	for (auto &button : this->m_lobbyButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_lobbyButtons.clear();
+
+	for (auto & button : this->m_charSelectButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_charSelectButtons.clear();
+
+	for (auto & button : this->m_hostListButtons)
+	{
+		button->Release();
+		delete button;
+	}
+	this->m_hostListButtons.clear();
+
+	if (this->m_infoWindow)
+	{
+		this->m_infoWindow->Release();
+		delete this->m_infoWindow;
+		m_infoWindow = nullptr;
+	}
+	if (this->m_background)
+	{
+		this->m_background->Release();
+		delete this->m_background;
+		m_background = nullptr;
+
+	}
+	if (this->m_charSelectionBG)
+	{
+		this->m_charSelectionBG->Release();
+		delete this->m_charSelectionBG;
+		m_charSelectionBG = nullptr;
+	}
+	if (this->m_charOneInfo)
+	{
+		this->m_charOneInfo->Release();
+		delete this->m_charOneInfo;
+		m_charOneInfo = nullptr;
+	}
+	if (this->m_charTwoInfo)
+	{
+		this->m_charTwoInfo->Release();
+		delete this->m_charTwoInfo;
+		m_charTwoInfo = nullptr;
+	}
+	if (this->m_charSelectInfo)
+	{
+		this->m_charSelectInfo->Release();
+		delete this->m_charSelectInfo;
+		m_charSelectInfo = nullptr;
+	}
+	if (this->m_skipTutorialBox)
+	{
+		this->m_skipTutorialBox->Release();
+		delete this->m_skipTutorialBox;
+		m_skipTutorialBox = nullptr;
+	}
+	
+
 	std::cout << "Lobby unLoad" << std::endl;
 }
 

@@ -53,6 +53,7 @@ void EnemyHandler::Update(float deltaTime)
 			accumulatedTime -= SEND_UPDATES_FREQUENCY;
 			for (auto enemy : m_guards)
 			{
+				
 				if (!enemy->ClientLocked())
 					enemy->sendNetworkUpdate();
 			}
@@ -108,8 +109,31 @@ void EnemyHandler::HandlePacket(unsigned char id, unsigned char * data)
 			_onDisabledPacket(pData);
 		}
 		break;
+		case Network::ID_ENEMY_ANIMATION_STATE:
+		{
+			Network::ENEMYANIMATIONSTATEPACKET * pData = (Network::ENEMYANIMATIONSTATEPACKET*)data;
+			_onAnimationStatePacket(pData);
+		}
+		break;
 
 	}
+}
+
+Enemy* EnemyHandler::GetFirstEnemy()
+{
+	if (!m_guards.empty())
+	{
+		return m_guards.at(0);
+	}
+	return nullptr;
+}
+
+void EnemyHandler::SpawnEnemy(const float & x, const float & y, const float & z)
+{
+	Enemy * e = DBG_NEW Enemy(RipExtern::g_world, m_guards.size() + 1, x, y, z);
+	//e->addTeleportAbility(m_player);
+	//e->SetPlayerPointer(m_player);
+	m_guards.push_back(e);
 }
 
 void EnemyHandler::_isServerUpdate(double deltaTime)
@@ -224,6 +248,7 @@ void EnemyHandler::_registerThisInstanceToNetwork()
 	using namespace std::placeholders;
 
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_UPDATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
+	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_ANIMATION_STATE, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_VISIBILITY, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_DISABLED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
 	Multiplayer::addToOnReceiveFuncMap(ID_ENEMY_POSSESSED, std::bind(&EnemyHandler::HandlePacket, this, _1, _2));
@@ -252,6 +277,7 @@ void EnemyHandler::_onVisibilityPacket(Network::VISIBILITYPACKET * data)
 		if (g->getUniqueID() == data->uniqueID)
 		{
 			g->setCalculatedVisibilityFor(1, data->visibilityValue);
+			std::cout << data->visibilityValue << std::endl;
 			g->setSoundLocationRemote({ data->soundValue, data->soundPos });
 			break;
 		}
@@ -276,5 +302,20 @@ void EnemyHandler::_onDisabledPacket(Network::ENTITYSTATEPACKET * data)
 	if (data->state <= m_guards.size())
 	{
 		m_guards[data->state]->onNetworkDisabled(data);
+	}
+}
+
+void EnemyHandler::_onAnimationStatePacket(Network::ENEMYANIMATIONSTATEPACKET * pData)
+{
+	auto it = std::find_if
+		(m_guards.begin(), m_guards.end(), 
+		[&](const auto& enemy) 
+		{ 
+			return enemy->getUniqueID() == pData->uniqueID; 
+		});
+
+	if (it != std::end(m_guards))
+	{
+		(*it)->getAnimationPlayer()->GetStateMachine()->SetState(pData->string);
 	}
 }

@@ -1,5 +1,7 @@
 #pragma once
 #pragma warning (disable : 4715)
+
+//STD
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -11,6 +13,15 @@
 #include <fstream>
 #include <sstream>
 
+//DX
+#include <DirectXCollision.h>
+#include <d3d11.h>
+#include <d3dcsx.h>
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
+#include <D3DCommon.h>
+
+//Internal
 #include "ConsoleColor.h"
 #include "Source/ParticleSystem/Particle.h"
 #include "Source/ParticleSystem/ParticleEmitter.h"
@@ -28,10 +39,12 @@
 #include "EngineSource/3D Engine/Model/Meshes/AnimationPlayer.h"
 #include "EngineSource/3D Engine/Model/Managers/MeshManager.h"
 #include "EngineSource/3D Engine/Model/Managers/TextureManager.h"
+#include "EngineSource/3D Engine/3DRendering/IRender.h"
 #include "EngineSource/3D Engine/3DRendering/Framework/Engine3D.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/ShadowMap.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/ForwardRender.h"
 #include "EngineSource/3D Engine/3DRendering/Framework/DirectXRenderingHelpClass.h"
+#include "EngineSource/3D Engine/3DRendering/Rendering/Skybox/SkyBox.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/VisabilityPass.h"
 #include "EngineSource/3D Engine/3DRendering/Rendering/VisabilityPass/Component/VisibilityComponent.h"
 
@@ -66,3 +79,4 @@
 #include "Source/Physics/Wrapper/RayCastListener.h"
 #include "Source/Physics/Wrapper/ContactListener.h"
 #include "Source/Physics/Wrapper/PhysicsComponent.h"
+
