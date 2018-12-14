@@ -59,7 +59,7 @@ private:
 	const float SPRINT_MULT = 1.8f;
 	const float JUMP_POWER = 900.0f;
 	const float INTERACT_RANGE = 3.0f;
-	const float OBJECT_INFO_RANGE = 10.0f;
+	const float OBJECT_INFO_RANGE = 20.0f;
 
 	const std::string PlayerOneHUDPath = "../Assets/Player1HUD.txt";
 	const std::string PlayerTwoHUDPath = "../Assets/Player2HUD.txt";
@@ -279,4 +279,5 @@ private:
 	void _initSoundHUD();
 	//Cheats, like changing ability set
 	void _cheats();
+	void _drawCollisionBox(b3Shape* shape);
 };

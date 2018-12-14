@@ -1,7 +1,8 @@
 #include "RipTagPCH.h"
 #include "Player.h"
 #include "../../../Engine/EngineSource/Helper/AnimationDebugHelper.h"
-
+#include <DirectXCollision.h>
+#include "Source/CheetConsole/CheatParser.h"
 void Player::SetThrowing(bool throwing)
 {
 	m_IsThrowing = throwing;
@@ -153,6 +154,9 @@ void Player::Init(b3World& world, b3BodyType bodyType, float x, float y, float z
 	m_smokeBomb.emitter = AudioEngine::Player;
 	m_smokeBomb.owner = this;
 	m_smokeBomb.loudness = 1.5f;
+
+	m_cross->setTextColor({ 1,0,0,1 });
+	m_cross->setFont(FontHandler::getFont("consolas32"));
 }
 
 void Player::BeginPlay()
@@ -1168,11 +1172,14 @@ void Player::_onAbility(double dt)
 void Player::_objectInfo(double deltaTime)
 {
 	const int tempId = m_objectInfoRayId;
+	m_cross->setString("");
 	if (RipExtern::g_rayListener->hasRayHit(m_objectInfoRayId))
 	{
 		RayCastListener::Ray& ray = RipExtern::g_rayListener->ConsumeProcessedRay(m_objectInfoRayId);
 		RayCastListener::RayContact& cContact = ray.getClosestContact(true);
 		float interactFractionRange = Player::INTERACT_RANGE / Player::OBJECT_INFO_RANGE;
+		m_cross->setString(cContact.contactShape->GetBody()->GetObjectTag());
+		RipExtern::g_LOLObject = cContact.contactShape->GetBody();
 		if (cContact.contactShape->GetBody()->GetObjectTag() == "LEVER" && cContact.fraction <= interactFractionRange)
 		{
 			m_cross->setUnpressedTexture("CROSSHAND");
@@ -1214,14 +1221,14 @@ void Player::_objectInfo(double deltaTime)
 		m_cross->setScale(DirectX::XMFLOAT2A(0.1f / 16.0, 0.1f / 9.0f));
 	}
 
-	if (m_objectInfoTime >= 0.1f)
+	//if (m_objectInfoTime >= 0.1f)
 	{
 		if (m_objectInfoRayId == -100)
 			m_objectInfoRayId = RipExtern::g_rayListener->PrepareRay(getBody(), getCamera()->getPosition(), getCamera()->getDirection(), Player::OBJECT_INFO_RANGE);
 
-		m_objectInfoTime = 0;
+		//m_objectInfoTime = 0;
 	}
-	m_objectInfoTime += deltaTime;
+	//m_objectInfoTime += deltaTime;
 }
 
 void Player::_updateFirstPerson(float deltaTime)

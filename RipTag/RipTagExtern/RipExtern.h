@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 
 class b3World;
+class b3Body;
 class ContactListener;
 class RayCastListener;
 class ParticleSystem;
@@ -35,7 +36,8 @@ namespace RipSounds
 
 namespace RipExtern
 {
-	extern b3World * g_world;
+	extern b3World			* g_world;
+	extern b3Body			* g_LOLObject;
 	extern ParticleSystem   * g_particleSystem;
 	extern ContactListener	* g_contactListener;
 	extern RayCastListener	* g_rayListener;

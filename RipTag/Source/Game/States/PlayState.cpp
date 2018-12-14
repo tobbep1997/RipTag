@@ -33,6 +33,7 @@ b3World * RipExtern::g_world = nullptr;
 ContactListener * RipExtern::g_contactListener;
 RayCastListener * RipExtern::g_rayListener;
 ParticleSystem  * RipExtern::g_particleSystem;
+b3Body* RipExtern::g_LOLObject = nullptr;
 
 bool RipExtern::g_kill = false;
 bool PlayState::m_youlost = false;
@@ -376,8 +377,9 @@ void PlayState::Draw()
 		DrawWorldCollisionboxes();
 	}
 
-	//DrawWorldCollisionboxes();
+	DrawWorldCollisionbox(RipExtern::g_LOLObject);
 #ifdef _DEBUG
+	//DrawWorldCollisionboxes();
 #endif
 
 	//Camera * camera = new Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f, 1, 100);
@@ -679,7 +681,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 			
 		_loaded = true;
 
-		const b3Body * b = m_world.getBodyList();
+		const b3Body * b = RipExtern::g_LOLObject;
 
 		while (b != nullptr)
 		{
@@ -730,7 +732,7 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 	else
 	{
 		int counter = 0;
-		const b3Body * b = m_world.getBodyList();
+		const b3Body * b = RipExtern::g_LOLObject;
 		while (b != nullptr)
 		{
 			if (b->GetObjectTag() != "TELEPORT")
@@ -779,6 +781,81 @@ void PlayState::DrawWorldCollisionboxes(const std::string & type)
 
 	for (auto & d : _drawables)
 		d->DrawWireFrame();
+}
+
+void PlayState::DrawWorldCollisionbox(b3Body * body)
+{
+	static const DirectX::XMFLOAT4A _SXMcube[] =
+	{
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},	{ 1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0,  1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},
+		{-1.0,	 1.0, -1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0, -1.0, 1.0},	{ 1.0,	 1.0,	 1.0, 1.0},	{ 1.0,	-1.0,	 1.0, 1.0},
+		{ 1.0,	 1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	-1.0,	 1.0, 1.0},
+		{-1.0,	-1.0,  1.0, 1.0},	{-1.0,	 1.0,	 1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0},
+		{ 1.0,	-1.0, -1.0, 1.0},	{-1.0,	-1.0,	-1.0, 1.0},	{-1.0,	 1.0,	-1.0, 1.0}
+	};
+	static Drawable* d = nullptr;
+	static std::vector<StaticVertex> _vertices;
+	static StaticMesh _sm;
+
+
+	static bool _loaded = false;
+	const b3Body * b = RipExtern::g_LOLObject;
+
+	for (int i = 0; i < 36; i++)
+	{
+		StaticVertex v;
+		v.pos = _SXMcube[i];
+		_vertices.push_back(v);
+	}
+	_sm.setVertices(_vertices);
+
+	if (b != nullptr)
+	{
+		b3Shape * s = b->GetShapeList();
+		auto b3BodyRot = b->GetTransform().rotation;
+		if (s != nullptr)
+		{
+			if (d != nullptr)
+				delete d;
+			d = new Drawable;
+			d->setModel(&_sm);
+			DirectX::XMFLOAT4A shapePos = {
+				s->GetTransform().translation.x + b->GetTransform().translation.x,
+				s->GetTransform().translation.y + b->GetTransform().translation.y,
+				s->GetTransform().translation.z + b->GetTransform().translation.z,
+			1.0f
+			};
+			auto b3ShapeRot = s->GetTransform().rotation;
+			DirectX::XMFLOAT3X3 shapeRot;
+			shapeRot._11 = b3BodyRot.x.x;
+			shapeRot._12 = b3BodyRot.x.y;
+			shapeRot._13 = b3BodyRot.x.z;
+			shapeRot._21 = b3BodyRot.y.x;
+			shapeRot._22 = b3BodyRot.y.y;
+			shapeRot._23 = b3BodyRot.y.z;
+			shapeRot._31 = b3BodyRot.z.x;
+			shapeRot._32 = b3BodyRot.z.y;
+			shapeRot._33 = b3BodyRot.z.z;
+
+			DirectX::XMMATRIX rot = DirectX::XMLoadFloat3x3(&shapeRot);
+			const b3Hull * h = dynamic_cast<b3Polyhedron*>(s)->GetHull();
+			DirectX::XMMATRIX scl = DirectX::XMMatrixScaling(h->rawScale.x, h->rawScale.y, h->rawScale.z);
+			DirectX::XMMATRIX trans = DirectX::XMMatrixTranslation(shapePos.x, shapePos.y, shapePos.z);
+
+			DirectX::XMMATRIX world = scl * rot * trans;
+			d->ForceWorld(DirectX::XMMatrixTranspose(world));
+
+			d->DrawWireFrame();
+		}
+	}
+	
 }
 
 

@@ -115,6 +115,7 @@ private:
 	void _runPause(double deltaTime); 
 	void thread(std::string s);
 	void DrawWorldCollisionboxes(const std::string & type = "");
+	void DrawWorldCollisionbox(b3Body* body);
 	// Inherited via State
 	virtual void unLoad();
 	virtual void Load();
