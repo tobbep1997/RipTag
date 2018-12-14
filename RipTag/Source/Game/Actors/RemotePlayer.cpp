@@ -111,6 +111,9 @@ void RemotePlayer::HandlePacket(unsigned char id, unsigned char * data)
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
 		this->_onNetworkRemoteThrow(id);
 		break;
+	case NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL:
+		this->_onNetworkRemoteThrow(id);
+		break;
 	case NETWORKMESSAGES::ID_PLAYER_POSESS_BEGIN:
 		this->_onNetworkRemotePosess(id);
 		break;
@@ -492,8 +495,14 @@ void RemotePlayer::_onNetworkRemoteThrow(unsigned char id)
 	}
 	case NETWORKMESSAGES::ID_PLAYER_THROW_END:
 	{
-		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
 		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("throw", 1.0f);
+		break;
+	}
+	case NETWORKMESSAGES::ID_PLAYER_THROW_CANCEL:
+	{
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("charge");
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("throw");
 		break;
 	}
 	}

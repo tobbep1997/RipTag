@@ -133,7 +133,9 @@ void LayerMachine::PopLayer(std::string layer)
 void LayerMachine::BlendOutLayer(std::string layer)
 {
 	auto pLayer = m_Layers.at(layer);
-	pLayer->BlendOut();
+	auto it = std::find(m_ActiveLayers.begin(), m_ActiveLayers.end(), pLayer);
+	if (it != std::end(m_ActiveLayers))
+		pLayer->BlendOut();
 }
 
 uint16_t LayerMachine::GetSkeletonJointCount()
