@@ -681,23 +681,11 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 	_makeFloor();
 	_makeRoof();
 
-	Quad * dbg_quad = new Quad();
-	dbg_quad->init();
-	dbg_quad->setPivotPoint(Quad::PivotPoint::center);
-	dbg_quad->setTextAlignment(Quad::TextAlignment::leftAligned);
-	dbg_quad->setFont(FontHandler::getFont("consolas32"));
-	dbg_quad->setPosition(0.95, 0.8);
-	dbg_quad->setString("\n   " + std::to_string((UINT)m_spakCounter));
-	dbg_quad->setTextColor(DirectX::XMFLOAT4A(0.5, 0, 0.5, 1));
-	dbg_quad->setScale(.20f, .25f);
-	dbg_quad->setUnpressedTexture("HUDLEVER");
-	dbg_quad->setPressedTexture("");
-	dbg_quad->setHoverTexture("");
-	dbg_quad->Draw();
 
-	returnableRoom->getPLayerInRoomPtr()->AddQuad(dbg_quad);
+	returnableRoom->setNrOfLevers(m_spakCounter); 
 
 	returnableRoom->setGrid(this->m_generatedGrid);
+
 
 	m_generatedRoomEnemyHandler = DBG_NEW EnemyHandler;
 	m_generatedRoomEnemyHandler->Init(m_generatedRoomEnemies, playerPtr, this->m_generatedGrid);
