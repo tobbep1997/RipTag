@@ -683,6 +683,7 @@ Room * RoomGenerator::getGeneratedRoom( b3World * worldPtr, int arrayIndex, Play
 
 
 	returnableRoom->setNrOfLevers(m_spakCounter); 
+	returnableRoom->initLeversHUD(); 
 
 	returnableRoom->setGrid(this->m_generatedGrid);
 

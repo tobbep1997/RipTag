@@ -53,7 +53,6 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 	m_grid = nullptr;
 	m_pathfindingGrid = DBG_NEW Grid();
 
-	initLeversHUD(); 
 }
 Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 {
@@ -83,8 +82,6 @@ Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 	HUDComponent::AddQuad(m_lose);
 
 	m_grid = nullptr;
-
-	initLeversHUD();
 }
 Room::~Room()
 {
@@ -434,8 +431,6 @@ void Room::loadTriggerPairMap()
 
 void Room::Update(float deltaTime, Camera * camera)
 {
-	m_HUDLevers->setString("\n    " + std::to_string(UINT(m_NrOfLevers))); 
-
 	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler->Update(deltaTime);
 
@@ -604,7 +599,6 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
-
 
 	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
