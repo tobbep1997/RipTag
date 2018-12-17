@@ -579,6 +579,7 @@ void Room::Release()
 		}
 		m_pointLights.clear();
 
+		m_HUDLevers->Release(); 
 		triggerHandler->Release();
 		delete triggerHandler;
 		delete m_enemyHandler;
