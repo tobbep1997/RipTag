@@ -1617,9 +1617,15 @@ void Player::_loadHUD()
 	m_HUDcircleFiller->setScale(DirectX::XMFLOAT2A(m_HUDcircleFiller->getScale().x / 16.0f, m_HUDcircleFiller->getScale().y / 9.0f));
 	dynamic_cast<Circle*>(m_HUDcircleFiller)->setInnerRadie(-1.0f);
 
-
-	m_enemyCircles.clear();
-
+	if (!m_enemyCircles.empty())
+	{
+		for (int i = 0; i < m_enemyCircles.size(); i++)
+		{
+			m_enemyCircles[i]->Release();
+			delete m_enemyCircles[i];
+		}
+		m_enemyCircles.clear();
+	}
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
 		Circle * c = new Circle();
