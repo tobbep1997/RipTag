@@ -466,7 +466,7 @@ void RemotePlayer::_registerAnimationStateMachine()
 		stateMachine->SetState("walk_forward");
 
 		auto& layerMachine = this->getAnimationPlayer()->InitLayerMachine(Manager::g_animationManager.getSkeleton(collection).get());
-		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.0, 0.0);
+		auto crouchState = layerMachine->AddBasicLayer("crouch", crouchClip, 0.3, 0.3);
 		crouchState->UseFirstPoseOnly(true);
 		auto pitchState = layerMachine->Add1DPoseLayer("pitch", &m_currentPitch, -1.0f, 1.0f, { {lookUpPose, -1.0f}, {lookDownPose, 1.0f} });
 		pitchState->UseSmoothDriver(false);
@@ -530,10 +530,10 @@ void RemotePlayer::_onNetworkRemoteCrouch(unsigned char id)
 	switch (id)
 	{
 	case NETWORKMESSAGES::ID_PLAYER_CROUCH_BEGIN:
-		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayer("crouch");
+		this->getAnimationPlayer()->GetLayerMachine()->ActivateLayerIfInactive("crouch");
 		break;
 	case NETWORKMESSAGES::ID_PLAYER_CROUCH_END:
-		this->getAnimationPlayer()->GetLayerMachine()->PopLayer("crouch");
+		this->getAnimationPlayer()->GetLayerMachine()->BlendOutLayer("crouch");
 		break;
 	}
 }
