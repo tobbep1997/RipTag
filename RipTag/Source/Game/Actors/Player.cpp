@@ -1652,7 +1652,7 @@ void Player::_initSoundHUD()
 		*/
 	soundfor->init(
 		{ 0.031f, 0.965f },
-		{ scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
+		{ scl.x / 1280.0f, scl.y / 720.0f});
 
 
 	soundfor->setUnpressedTexture("DAB");
