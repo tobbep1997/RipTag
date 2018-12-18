@@ -900,7 +900,7 @@ void PlayState::Load()
 		DX::g_skyBox->setModel(Manager::g_meshManager.getStaticMesh("SKYBOX"));
 		DX::g_skyBox->setTexture(Manager::g_textureManager.getTexture("SKYBOX"));
 	}
-	if (m_roomIndex == 6)
+	if (m_roomIndex == 11)
 	{
 
 		if (!m_destoryPhysicsThread)
