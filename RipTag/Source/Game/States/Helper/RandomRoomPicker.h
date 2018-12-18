@@ -55,24 +55,18 @@ inline std::vector<RandomRoomPicker::RoomPicker> RandomRoomPicker::RoomPick(int 
 	t.seedNumber = seed;
 	temp.push_back(t);
 
-
-	t.roomNumber = -1;
+	t.roomNumber = 4;
 	t.isRandom = false;
 	t.seedNumber = seed;
 	temp.push_back(t);
 
-	//for (unsigned int i = 0; i < 10000; ++i)
-	//{
-	//	t.roomNumber = (rand() % 3) - 1;
-	//	while (t.roomNumber == 0)
-	//	{
-	//		t.roomNumber = (rand() % 3) - 1;
-	//	}
-	//	t.isRandom = false;
-	//	t.seedNumber = seed;
-	//	temp.push_back(t); 
-	//}
-
+	for (int i = 0; i < 1000; i++)
+	{
+		t.roomNumber = -1;
+		t.isRandom = false;
+		t.seedNumber = seed;
+		temp.push_back(t);
+	}
 
 	return temp;
 }
