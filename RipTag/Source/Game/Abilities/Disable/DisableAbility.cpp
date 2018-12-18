@@ -20,9 +20,10 @@ void DisableAbility::Init()
 {
 	m_obj = DBG_NEW BaseActor();
 	m_obj->PhysicsComponent::Init(*RipExtern::g_world, e_dynamicBody, 0.1f, 0.1f, 0.1f, false, 0.2f);
-	m_obj->Drawable::setModel(Manager::g_meshManager.getStaticMesh("SPHERE"));
+	m_obj->Drawable::setModel(Manager::g_meshManager.getStaticMesh("SMOKEBOMB"));
+	
 	m_obj->Drawable::setScale(0.1f, 0.1f, 0.1f);
-	m_obj->Drawable::setTexture(Manager::g_textureManager.getTexture("SPHERE"));
+	m_obj->Drawable::setTexture(Manager::g_textureManager.getTexture("SMOKEBOMB"));
 	m_obj->BaseActor::setGravityScale(0.01f);
 	m_obj->Transform::setPosition(-999.0f, -999.0f, -999.0f);
 
