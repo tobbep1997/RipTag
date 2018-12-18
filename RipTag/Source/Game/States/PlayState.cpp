@@ -184,7 +184,8 @@ void PlayState::Update(double deltaTime)
 		{
 			_runPause(deltaTime);
 		}
-
+		if (!m_youlost)
+			m_youlost = m_playerManager->isGameLost();
 		// On win or lost
 		if (m_youlost || m_playerManager->isGameWon())
 		{
@@ -861,6 +862,8 @@ void PlayState::Load()
 	//fps.open("fpsData.txt");
 	//phy.open("physData.txt");
 	
+	
+
 	if (isCoop)
 	{
 		//Reset the all relevant networking maps - this is crucial since Multiplayer is a Singleton
@@ -896,6 +899,23 @@ void PlayState::Load()
 		DX::g_skyBox = new Drawable();
 		DX::g_skyBox->setModel(Manager::g_meshManager.getStaticMesh("SKYBOX"));
 		DX::g_skyBox->setTexture(Manager::g_textureManager.getTexture("SKYBOX"));
+	}
+	if (m_roomIndex == 11)
+	{
+
+		if (!m_destoryPhysicsThread)
+		{
+			m_destoryPhysicsThread = true;
+			m_physicsCondition.notify_all();
+
+			if (m_physicsThread.joinable())
+			{
+				m_physicsThread.join();
+			}
+		}
+
+		this->pushNewState(new TransitionState(this->p_renderingManager, Transition::ThankYou, "Everyone here at Group 3\nwants to give you a big Thanks!\nWe hope you enjoyed our little game!", (void*)pCoopData, 0));
+		return;
 	}
 
 	m_physicsThread = std::thread(&PlayState::_PhyscisThread, this, 0);
@@ -989,6 +1009,8 @@ void PlayState::_loadMeshes()
 {
 	//auto future1 = std::async(std::launch::async, &PlayState::thread, this, "SPHERE");// Manager::g_meshManager.loadStaticMesh("KOMBIN");
 	Manager::g_meshManager.loadStaticMesh("SPHERE");
+	Manager::g_meshManager.loadStaticMesh("SMOKEBOMB");
+	Manager::g_textureManager.loadTextures("SMOKEBOMB", true);
 	Manager::g_animationManager.loadSkeleton("../Assets/STATEFOLDER/STATE_SKELETON.bin", "STATE");
 	Manager::g_animationManager.loadSkeleton("../Assets/GUARDFOLDER/GUARD_SKELETON.bin", "GUARD");
 	Manager::g_animationManager.loadClipCollection("STATE", "STATE", "../Assets/STATEFOLDER", Manager::g_animationManager.getSkeleton("STATE"));

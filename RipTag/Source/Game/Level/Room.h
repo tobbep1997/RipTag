@@ -34,6 +34,8 @@ class Room : public HUDComponent
 private:
 	std::vector<Torch*> m_Torches;
 	AudioEngine::SoundDesc m_ambientWindAndDrip;
+	Quad* m_HUDLevers; 
+	int m_NrOfLevers = 0; 
 private:
 	//RoomIndex is needed to identify what room we are in
 	short unsigned int m_arrayIndex;
@@ -98,6 +100,8 @@ public:
 	void setRoomIndex(const short unsigned int roomIndex);
 	short int getRoomIndex();
 
+	void setNrOfLevers(int nrOfLevers); 
+
 	void setAssetFilePath(const std::string & fileName);
 	std::string getAssetFilePath();
 
@@ -137,6 +141,8 @@ public:
 	std::vector<FMOD::Reverb3D*>* getreverbVector() { return &this->m_reverbvector; };
 
 	void setLoaded(const bool & loaded) { this->m_roomLoaded = loaded; }
+
+	void initLeversHUD();
 
 private:
 	void _setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox = false, bool isRandomRoom = false, bool useAudio = false, float occlusionSound = 0.75f, float reverbOcclusionSound = 0.35f);

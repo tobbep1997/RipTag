@@ -135,6 +135,7 @@ void Quad::Draw()
 
 void Quad::Release()
 {
+	if(this != nullptr)
 	DX::SafeRelease(m_vertexBuffer);
 }
 

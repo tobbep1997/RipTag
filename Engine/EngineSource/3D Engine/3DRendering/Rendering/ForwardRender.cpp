@@ -524,10 +524,10 @@ void ForwardRender::AnimatedGeometryPass(Camera & camera)
 			{
 				//ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[i]->getBuffer();
 
-				if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
-				{
-					DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
-				}
+				//if (DX::g_animatedGeometryQueue[i]->getEntityType() == EntityType::FirstPersonPlayer)
+				//{
+				//	DX::g_deviceContext->OMSetDepthStencilState(m_write1State, 0);
+				//}
 
 				switch (camera.getPerspectiv())
 				{

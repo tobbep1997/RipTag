@@ -798,10 +798,15 @@ void Player::RegisterThisInstanceToNetwork()
 void Player::_collision()
 {
 	ContactListener::S_Contact con;
+	std::string tagA, tagB;
+
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfEndContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetEndContact(i);
-		if (con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO")
+		tagA = con.a->GetBody()->GetObjectTag();
+		tagB = con.b->GetBody()->GetObjectTag();
+
+		if ( tagA == "HEADO" || tagB == "HEADO")
 		{
 				m_allowPeek = true;
 				m_recentHeadCollision = true;
@@ -810,13 +815,32 @@ void Player::_collision()
 	for (int i = 0; i < (int)RipExtern::g_contactListener->GetNrOfBeginContacts(); i++)
 	{
 		con = RipExtern::g_contactListener->GetBeginContact(i);
+		tagA = con.a->GetBody()->GetObjectTag();
+		tagB = con.b->GetBody()->GetObjectTag();
 
-		if ((con.a->GetBody()->GetObjectTag() == "HEADO" || con.b->GetBody()->GetObjectTag() == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
+		if ((tagA == "HEADO" || tagB == "HEADO") && !(con.a->IsSensor() || con.b->IsSensor()) )
 		{
 			m_allowPeek = false;
 			peekDir = -LastPeekDir;
 			m_peekRangeA = m_peektimer;
 			m_peekRangeB = 0;
+		}
+
+		if ((tagA == "ENEMY" && tagB == "PLAYER"))
+		{
+			Enemy * ptrE = (Enemy*)con.a->GetBody()->GetUserData();
+			AIState state = ptrE->GetState();
+
+			if (state != AIState::Disabled && state != AIState::Possessed && state != AIState::NoState)
+				hasLost = true;
+		}
+		else if ((tagA == "PLAYER" && tagB == "ENEMY"))
+		{
+			Enemy * ptrE = (Enemy*)con.b->GetBody()->GetUserData();
+			AIState state = ptrE->GetState();
+
+			if (state != AIState::Disabled && state != AIState::Possessed && state != AIState::NoState)
+				hasLost = true;
 		}
 	}
 }
@@ -1593,9 +1617,15 @@ void Player::_loadHUD()
 	m_HUDcircleFiller->setScale(DirectX::XMFLOAT2A(m_HUDcircleFiller->getScale().x / 16.0f, m_HUDcircleFiller->getScale().y / 9.0f));
 	dynamic_cast<Circle*>(m_HUDcircleFiller)->setInnerRadie(-1.0f);
 
-
-	m_enemyCircles.clear();
-
+	if (!m_enemyCircles.empty())
+	{
+		for (int i = 0; i < m_enemyCircles.size(); i++)
+		{
+			m_enemyCircles[i]->Release();
+			delete m_enemyCircles[i];
+		}
+		m_enemyCircles.clear();
+	}
 	for (int i = 0; i < MAX_ENEMY_CIRCLES; i++)
 	{
 		Circle * c = new Circle();
@@ -1628,7 +1658,7 @@ void Player::_initSoundHUD()
 		*/
 	soundfor->init(
 		{ 0.031f, 0.965f },
-		{ scl.x / InputHandler::getViewportSize().x, scl.y / InputHandler::getViewportSize().y });
+		{ scl.x / 1280.0f, scl.y / 720.0f});
 
 
 	soundfor->setUnpressedTexture("DAB");

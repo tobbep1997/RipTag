@@ -68,6 +68,7 @@ void Bars::Update(double deltaTime)
 				}
 			}
 			m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_gateClosening, &at, &m_sd);
+			m_channel->setVolume(0.7f);
 		}
 		if (m_timer < 0.0001f && !m_playedOpenSound)
 		{
@@ -77,7 +78,7 @@ void Bars::Update(double deltaTime)
 			{
 				m_channel->stop();
 			}
-			AudioEngine::PlaySoundEffect(RipSounds::g_gateOpend, &at, &m_sd);
+			AudioEngine::PlaySoundEffect(RipSounds::g_gateOpend, &at, &m_sd)->setVolume(0.7f);
 			m_playedOpenSound = true;
 		}
 		m_playedClosedSound = false;
@@ -104,6 +105,7 @@ void Bars::Update(double deltaTime)
 			}
 
 			m_channel = AudioEngine::PlaySoundEffect(RipSounds::g_gateOpening, &at, &m_sd);
+			m_channel->setVolume(0.7f);
 		}
 
 		if (m_timer > 0.9999f && !m_playedClosedSound)
@@ -115,7 +117,7 @@ void Bars::Update(double deltaTime)
 				m_channel->stop();
 			}
 			m_playedClosedSound = true;
-			AudioEngine::PlaySoundEffect(RipSounds::g_gateClosed, &at, &m_sd);
+			AudioEngine::PlaySoundEffect(RipSounds::g_gateClosed, &at, &m_sd)->setVolume(0.7f);
 		}
 		m_playedOpenSound = false;
 		DirectX::XMVECTOR lerp = DirectX::XMVectorLerp(v1, v2, m_timer);

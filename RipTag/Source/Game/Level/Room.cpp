@@ -52,6 +52,7 @@ Room::Room(const short unsigned int roomIndex, b3World * worldPtr, int arrayInde
 
 	m_grid = nullptr;
 	m_pathfindingGrid = DBG_NEW Grid();
+
 }
 Room::Room(b3World * worldPtr, int arrayIndex, Player * playerPtr)
 {
@@ -95,6 +96,11 @@ void Room::setRoomIndex(const short unsigned int roomIndex)
 short int Room::getRoomIndex()
 {
 	return this->m_roomIndex;
+}
+
+void Room::setNrOfLevers(int nrOfLevers)
+{
+	m_NrOfLevers = nrOfLevers;
 }
 
 void Room::setAssetFilePath(const std::string& fileName)
@@ -425,7 +431,6 @@ void Room::loadTriggerPairMap()
 
 void Room::Update(float deltaTime, Camera * camera)
 {
-
 	m_playerInRoomPtr->setEnemyPositions(this->m_roomGuards);
 	m_enemyHandler->Update(deltaTime);
 
@@ -505,6 +510,9 @@ void Room::Draw()
 		HUDComponent::HUDDraw();
 	}
 
+	if (m_roomIndex == -1)
+		m_HUDLevers->Draw(); 
+
 	for (auto guard : m_roomGuards)
 	{
 		guard->DrawGuardPath();
@@ -566,11 +574,12 @@ void Room::Release()
 		}
 		m_pointLights.clear();
 
+		m_HUDLevers->Release(); 
 		triggerHandler->Release();
 		delete triggerHandler;
 		delete m_enemyHandler;
 		delete m_pathfindingGrid;
-		
+		delete m_HUDLevers;
 	}
 	
 }
@@ -578,6 +587,7 @@ void Room::Release()
 void Room::loadTextures()
 {
 	Manager::g_textureManager.loadTextures(this->getAssetFilePath());
+	Manager::g_textureManager.loadTextures("HUDLEVER"); 
 }
 
 
@@ -589,7 +599,6 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 	Door * tempDoor = nullptr;
 	PressurePlate * tempPressurePlate = nullptr;
 	Bars * tempBars = nullptr;
-
 
 	for (size_t i = 0; i < propsAndAssets.nrOfItems; i++)
 	{
@@ -878,6 +887,18 @@ void Room::_createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float 
 	this->m_audioBoxes.push_back(ge);
 }
 
+void Room::initLeversHUD()
+{
+	m_HUDLevers = Quad::CreateButton("\n     " + std::to_string(UINT(m_NrOfLevers)),0.9f, 0.8f, 0.25f, 0.25f); 
+	m_HUDLevers->setTextAlignment(Quad::leftAligned); 
+	m_HUDLevers->setPivotPoint(Quad::center); 
+	m_HUDLevers->setUnpressedTexture("HUDLEVER"); 
+	m_HUDLevers->setPressedTexture("HUDLEVER");
+	m_HUDLevers->setHoverTexture("HUDLEVER");
+	m_HUDLevers->setTextColor(DirectX::XMFLOAT4A(1.0f, 1.0f, 1.0f, 1.0f)); 
+	m_HUDLevers->setFont(FontHandler::getFont("consolas32")); 
+}
+
 void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string & name, std::vector<BaseActor*> * assetVector, bool useBoundingBox, bool isRandomRoom, bool useAudio, float occlusionSound, float reverbOcclusionSound)
 {
 	BaseActor * tempAsset = DBG_NEW BaseActor();
@@ -950,6 +971,7 @@ void Room::_setPropAttributes(ImporterLibrary::PropItem prop, const std::string 
 	{
 		tempAsset->p_createBoundingBox(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(prop.BBOX_INFO));
 	}
+
 
 	assetVector->push_back(tempAsset);
 	

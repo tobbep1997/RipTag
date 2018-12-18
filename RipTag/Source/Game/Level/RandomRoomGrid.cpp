@@ -9,9 +9,9 @@ RandomRoomGrid::RandomRoomGrid(int width, int depth)
 	m_roomGrid = new int[m_gridSize];
 	m_rooms = new RandomRoom[m_gridSize];
 
-	int randPlaceWinRoom = rand() % m_width;
-	randPlaceWinRoom *= m_depth;
-	int randPlaceStartRoom = (rand() % m_width + 1) * m_width - 1;
+	int randPlaceWinRoom = rand() % m_depth;
+	randPlaceWinRoom *= m_width;
+	int randPlaceStartRoom = (rand() % m_depth + 1) * m_width - 1;
 
 	for (int i = 0; i < m_gridSize; i++)
 	{
@@ -36,21 +36,21 @@ RandomRoomGrid::~RandomRoomGrid()
 void RandomRoomGrid::GenerateRoomLayout()
 {
 	int threshold = rand() % 100 + 1;
-	int nrOfBigRooms = 1;
+	int nrOfBigRooms = 0;
 
-	if (m_width > 3 && m_depth > 3)
+	if (m_width > 2 && m_depth > 2)
 	{
-		if (threshold > 40 && threshold <= 60)
+		nrOfBigRooms = 1;
+		if (m_width > 3 && m_depth > 3)
 		{
-			nrOfBigRooms = 2;
-		}
-		else if (threshold > 60 && threshold <= 80)
-		{
-			nrOfBigRooms = 3;
-		}
-		else if (threshold > 80)
-		{
-			nrOfBigRooms = 4;
+			if (threshold > 33 && threshold <= 67)
+			{
+				nrOfBigRooms = 2;
+			}
+			else if (threshold > 67)
+			{
+				nrOfBigRooms = 3;
+			}
 		}
 	}
 
