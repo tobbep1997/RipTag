@@ -619,14 +619,7 @@ void ForwardRender::Flush(Camera & camera)
 	_simpleLightCulling(camera);
 
 	_mapLightInfoNoMatrix();
-	shadowRun++;
-	if (shadowRun % 2 == 0 || true)
-	{
-		this->m_shadowMap->ShadowPass(this);
-		shadowRun = 0;
-	}
-	else
-		this->m_shadowMap->MapAllLightMatrix(&DX::g_prevlights);
+	this->m_shadowMap->ShadowPass(this);
 	this->m_shadowMap->SetSamplerAndShaderResources();
 
 	DX::g_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);

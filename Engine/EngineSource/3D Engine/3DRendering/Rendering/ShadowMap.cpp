@@ -39,6 +39,7 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 	HRESULT hr;
 
 	this->Clear();
+
 	DX::g_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/VertexShader.hlsl"));
 	DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertex.hlsl"), nullptr, 0);
@@ -48,11 +49,13 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 	DX::g_deviceContext->PSSetShader(nullptr, nullptr, 0);
 	DX::g_deviceContext->RSSetViewports(1, &m_shadowViewport);
 	DX::g_deviceContext->RSSetState(m_rasterizerState);
+
 	m_runned = 0;
 	this->MapAllLightMatrix(&DX::g_lights);
 	DirectX::XMMATRIX proj, viewInv;
 	DirectX::BoundingFrustum boundingFrustum;
 	DX::g_prevlights = DX::g_lights;
+
 	int i = 0;
 	if (DX::g_lights.size())
 	{
@@ -72,71 +75,146 @@ void ShadowMap::ShadowPass(ForwardRender * renderingManager)
 			break;
 		}
 	}
+
+
 	if (DX::g_lights.size())
 	{	
-		DX::g_lights[i]->Clear();
-		DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
-		m_lightIndex.lightPos.x = i;
-		for (int j = 0; j < 6; j++)
+		if (SettingLoader::g_windowContext->graphicsQuality == 3)
 		{
-			m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
-			if (DX::g_lights[i]->useSides()[j])
-			{				
-				for (int k = 0; k < DX::g_cullQueue.size(); k++)
+			for (i = 0; i < DX::g_lights.size(); i++)
+			{
+				DX::g_lights[i]->Clear();
+				DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
+				m_lightIndex.lightPos.x = i;
+				for (int j = 0; j < 6; j++)
 				{
-					proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getProjection()));
-					viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getView())));
-					DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
-					boundingFrustum.Transform(boundingFrustum, viewInv);
-					if (DX::g_cullQueue[k]->getCastShadows() /*&& DX::g_cullQueue[k]->getEntityType() != EntityType::PlayerType*/)
+					m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
+					if (DX::g_lights[i]->useSides()[j])
 					{
-						if (DX::g_cullQueue[k]->getBoundingBox())
+						for (int k = 0; k < DX::g_cullQueue.size(); k++)
 						{
-							if (DX::g_cullQueue[k]->getBoundingBox()->Intersects(boundingFrustum))
+							proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getProjection()));
+							viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getView())));
+							DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+							boundingFrustum.Transform(boundingFrustum, viewInv);
+							if (DX::g_cullQueue[k]->getCastShadows() /*&& DX::g_cullQueue[k]->getEntityType() != EntityType::PlayerType*/)
+							{
+								if (DX::g_cullQueue[k]->getBoundingBox())
+								{
+									if (DX::g_cullQueue[k]->getBoundingBox()->Intersects(boundingFrustum))
+										DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
+								}
+								else
+									DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
+							}
+						}
+					}
+				}
+				if (SUCCEEDED(hr = DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex), 13, 1, ShaderTypes::geometry)))
+				{
+
+				}
+				renderingManager->DrawInstancedCull(nullptr, false);
+
+				UINT32 vertexSize = sizeof(PostAniDynamicVertex);
+				UINT32 offset = 0;
+
+				DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
+				DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertexAnimated.hlsl"), nullptr, 0);
+				if (SettingLoader::g_windowContext->graphicsQuality > 1)
+				{
+					for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
+					{
+						if (!DX::g_animatedGeometryQueue[j]->getHidden() && DX::g_animatedGeometryQueue[j]->getCastShadows())
+						{
+							ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->GetAnimatedVertex();
+
+							_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
+
+							DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+							DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
+
+						}
+					}
+				}
+				if (DX::g_player && true)
+				{
+					ID3D11Buffer * vertexBuffer = DX::g_player->GetAnimatedVertex();
+
+					_mapObjectBuffer(DX::g_player);
+
+					DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+					DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
+				}
+			}
+		}
+		else
+		{
+			DX::g_lights[i]->Clear();
+			DX::g_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, DX::g_lights[i]->getDSV());
+			m_lightIndex.lightPos.x = i;
+			for (int j = 0; j < 6; j++)
+			{
+				m_lightIndex.useSides[j].x = (UINT)DX::g_lights[i]->useSides()[j];
+				if (DX::g_lights[i]->useSides()[j])
+				{
+					for (int k = 0; k < DX::g_cullQueue.size(); k++)
+					{
+						proj = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getProjection()));
+						viewInv = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4A(&DX::g_lights[i]->getSides()[j]->getView())));
+						DirectX::BoundingFrustum::CreateFromMatrix(boundingFrustum, proj);
+						boundingFrustum.Transform(boundingFrustum, viewInv);
+						if (DX::g_cullQueue[k]->getCastShadows() /*&& DX::g_cullQueue[k]->getEntityType() != EntityType::PlayerType*/)
+						{
+							if (DX::g_cullQueue[k]->getBoundingBox())
+							{
+								if (DX::g_cullQueue[k]->getBoundingBox()->Intersects(boundingFrustum))
+									DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
+							}
+							else
 								DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
 						}
-						else
-							DX::INSTANCING::tempInstance(DX::g_cullQueue[k]);
 					}
 				}
 			}
-		}
-		if (SUCCEEDED(hr = DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex),13, 1, ShaderTypes::geometry)))
-		{
-			
-		}
-		renderingManager->DrawInstancedCull(nullptr,false);
-
-		UINT32 vertexSize = sizeof(PostAniDynamicVertex);
-		UINT32 offset = 0;
-
-		DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
-		DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertexAnimated.hlsl"), nullptr, 0);
-		if (SettingLoader::g_windowContext->graphicsQuality > 1)
-		{			
-			for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
+			if (SUCCEEDED(hr = DXRHC::MapBuffer(m_lightIndexBuffer, &m_lightIndex, sizeof(LightIndex), 13, 1, ShaderTypes::geometry)))
 			{
-				if (!DX::g_animatedGeometryQueue[j]->getHidden() && DX::g_animatedGeometryQueue[j]->getCastShadows())
+
+			}
+			renderingManager->DrawInstancedCull(nullptr, false);
+
+			UINT32 vertexSize = sizeof(PostAniDynamicVertex);
+			UINT32 offset = 0;
+
+			DX::g_deviceContext->IASetInputLayout(DX::g_shaderManager.GetInputLayout(L"../Engine/EngineSource/Shader/AnimatedVertexShader.hlsl"));
+			DX::g_deviceContext->VSSetShader(DX::g_shaderManager.GetShader<ID3D11VertexShader>(L"../Engine/EngineSource/Shader/Shaders/ShadowMap/ShadowVertexAnimated.hlsl"), nullptr, 0);
+			if (SettingLoader::g_windowContext->graphicsQuality > 1)
+			{
+				for (unsigned int j = 0; j < DX::g_animatedGeometryQueue.size(); j++)
 				{
-					ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->GetAnimatedVertex();
+					if (!DX::g_animatedGeometryQueue[j]->getHidden() && DX::g_animatedGeometryQueue[j]->getCastShadows())
+					{
+						ID3D11Buffer * vertexBuffer = DX::g_animatedGeometryQueue[j]->GetAnimatedVertex();
 
-					_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
+						_mapObjectBuffer(DX::g_animatedGeometryQueue[j]);
 
-					DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-					DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
+						DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+						DX::g_deviceContext->Draw(DX::g_animatedGeometryQueue[j]->getVertexSize(), 0);
 
+					}
 				}
 			}
-		}
-		if (DX::g_player && true)
-		{
-			ID3D11Buffer * vertexBuffer = DX::g_player->GetAnimatedVertex();
+			if (DX::g_player && true)
+			{
+				ID3D11Buffer * vertexBuffer = DX::g_player->GetAnimatedVertex();
 
-			_mapObjectBuffer(DX::g_player);
+				_mapObjectBuffer(DX::g_player);
 
-			DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
-			DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
+				DX::g_deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexSize, &offset);
+				DX::g_deviceContext->Draw(DX::g_player->getVertexSize(), 0);
+			}
 		}
+		
 
 	}
 	DX::g_deviceContext->RSSetState(nullptr);

@@ -26,6 +26,9 @@ private:
 
 	float m_stickTimer = 0; 
 
+	Quad * m_FmodLogo = nullptr;
+	Quad * m_RakNetLogo = nullptr;
+
 	bool m_gamePadInUse = false;
 public:
 	MainMenu(RenderingManager * rm);

@@ -79,6 +79,9 @@ void MainMenu::Draw()
 	m_background->Draw();
 	for (size_t i = 0; i < m_buttons.size(); i++)
 		m_buttons[i]->Draw();
+
+	m_FmodLogo->Draw();
+	m_RakNetLogo->Draw();
 	p_renderingManager->Flush(camera);
 }
 
@@ -384,6 +387,25 @@ void MainMenu::Load()
 	FontHandler::loadFont("consolas32");
 	FontHandler::loadFont("consolas16");
 	_initButtons();
+
+	this->m_FmodLogo = new Quad();
+	this->m_FmodLogo->init();
+	this->m_FmodLogo->setPivotPoint(Quad::PivotPoint::lowerLeft);
+	this->m_FmodLogo->setPosition(0.055f, 0.06f);
+	this->m_FmodLogo->setScale(0.4f, 0.25f);
+	this->m_FmodLogo->setUnpressedTexture("FMOD_LOGO");
+	this->m_FmodLogo->setPressedTexture("FMOD_LOGO");
+	this->m_FmodLogo->setHoverTexture("FMOD_LOGO");
+	
+	this->m_RakNetLogo = new Quad();
+	this->m_RakNetLogo->init();
+	this->m_RakNetLogo->setPivotPoint(Quad::PivotPoint::lowerRight);
+	this->m_RakNetLogo->setPosition(0.94f, 0.06f);
+	this->m_RakNetLogo->setScale(4.0f / 16.0f, 4.0f / 9.0f);
+	this->m_RakNetLogo->setUnpressedTexture("RAKNET_LOGO");
+	this->m_RakNetLogo->setPressedTexture("RAKNET_LOGO");
+	this->m_RakNetLogo->setHoverTexture("RAKNET_LOGO");
+
 	m_loadingScreen.Init();
 #ifdef _DEPLOY
 	m_currentButton = (unsigned int)ButtonOrder::Lobby;
@@ -410,6 +432,14 @@ void MainMenu::unLoad()
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
 	m_music->stop();
+
+	m_FmodLogo->Release();
+	delete m_FmodLogo;
+	m_FmodLogo = nullptr;
+
+	m_RakNetLogo->Release();
+	delete m_RakNetLogo;
+	m_RakNetLogo = nullptr;
 
 	//HUDComponent::removeHUD();
 

@@ -51,6 +51,9 @@ private:
 	std::vector<Quad* > m_text;
 	Quad* m_background = nullptr;
 	Quad * m_restart;
+
+	Quad * m_soundCredits = nullptr;
+
 	int m_fov;
 	DirectX::XMINT2 m_sens;
 	unsigned short m_resSelection;

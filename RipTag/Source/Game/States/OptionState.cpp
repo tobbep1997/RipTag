@@ -40,6 +40,13 @@ OptionState::~OptionState()
 		delete this->m_background;
 	}
 
+	if (m_soundCredits)
+	{
+		m_soundCredits->Release();
+		delete m_soundCredits;
+		m_soundCredits = nullptr;
+	}
+
 	m_restart->Release();
 	delete m_restart;
 }
@@ -284,6 +291,9 @@ void OptionState::Draw()
 		b->Draw();
 	if (m_drawMustRestart)
 		m_restart->Draw();
+
+	m_soundCredits->Draw();
+
 	p_renderingManager->Flush(camera);
 }
 
@@ -399,6 +409,23 @@ void OptionState::_initButtons()
 	m_restart->setHoverTexture("gui_button_hover_small");
 	m_restart->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
 	m_restart->setFont(FontHandler::getFont("consolas16"));
+
+
+
+	this->m_soundCredits = new Quad();
+	this->m_soundCredits->init();
+	this->m_soundCredits->setPivotPoint(Quad::PivotPoint::lowerRight);
+	this->m_soundCredits->setPosition(0.95f, 0.0f);
+	this->m_soundCredits->setScale(1.0f, 0.20f);
+	this->m_soundCredits->setUnpressedTexture("gui_transparent_pixel");
+	this->m_soundCredits->setPressedTexture("gui_transparent_pixel");
+	this->m_soundCredits->setHoverTexture("gui_transparent_pixel");
+	this->m_soundCredits->setFont(FontHandler::getFont("consolas16"));
+	this->m_soundCredits->setTextAlignment(Quad::TextAlignment::rightAligned);
+	this->m_soundCredits->setString("Sounds by: Viktor Dahlsten");
+	this->m_soundCredits->setTextColor(DirectX::XMFLOAT4A(1, 1, 1, 1));
+
+
 
 	//Background Window
 	{
@@ -780,6 +807,9 @@ void OptionState::Load()
 
 void OptionState::unLoad()
 {
+	m_soundCredits->Release();
+	delete m_soundCredits;
+	m_soundCredits = nullptr;
 	Manager::g_textureManager.UnloadAllTexture();
 	Manager::g_textureManager.UnloadGUITextures();
 }
