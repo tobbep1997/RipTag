@@ -27,10 +27,12 @@ OptionSound::~OptionSound()
 	{
 		this->m_background->Release();
 		delete this->m_background;
+		this->m_background = nullptr;
 	}
 
-	//m_restart->Release();
-	//delete m_restart;
+	m_restart->Release();
+	delete m_restart;
+	this->m_restart = nullptr;
 }
 
 void OptionSound::Update(double deltaTime)
@@ -230,7 +232,7 @@ void OptionSound::Update(double deltaTime)
 
 void OptionSound::Draw()
 {
-	Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
+	static Camera camera = Camera(DirectX::XM_PI * 0.5f, 16.0f / 9.0f);
 	camera.setPosition(0, 0, -10);
 	if (this->m_background)
 		this->m_background->Draw();

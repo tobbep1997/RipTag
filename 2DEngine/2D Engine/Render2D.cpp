@@ -125,7 +125,7 @@ void Render2D::GUIPass()
 	}
 	for (unsigned int j = 0; j < DX::g_2DQueue.size(); j++)
 	{
-		if (DX::g_2DQueue[j]->getString() == "")
+		if (DX::g_2DQueue[j] == nullptr || DX::g_2DQueue[j]->getString() == "")
 			continue;
 		//Draw font on quad
 		m_spriteBatch->Begin();
