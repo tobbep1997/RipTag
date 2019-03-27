@@ -56,7 +56,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 	switch (windowContext.graphicsQuality)
 	{
 	case 0:
-		if (SUCCEEDED(hr = m_shadowMap->Init(32, 32)))
+		if (SUCCEEDED(hr = m_shadowMap->Init(128, 128)))
 		{
 			m_lightCullingDistance = 50;
 			m_forceCullingLimit = 4;
@@ -65,7 +65,7 @@ void ForwardRender::Init(IDXGISwapChain * swapChain,
 			throw hr;		
 		break;
 	case 1:
-		if (SUCCEEDED(hr = m_shadowMap->Init(64, 64)))
+		if (SUCCEEDED(hr = m_shadowMap->Init(256, 256)))
 		{
 			m_lightCullingDistance = 50;
 			m_forceCullingLimit = 6;

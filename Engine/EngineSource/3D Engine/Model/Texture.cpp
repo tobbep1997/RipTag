@@ -28,12 +28,12 @@ HRESULT Texture::Load(const wchar_t * file, bool staticTexture, const std::strin
 		switch (SettingLoader::g_windowContext->graphicsQuality)
 		{
 		case 0:
-			setting = L"_256";
-			maxTextureSize = 256;
-			break;
-		case 1:
 			setting = L"_512";
 			maxTextureSize = 512;
+			break;
+		case 1:
+			setting = L"_1024";
+			maxTextureSize = 1024;
 			break;
 		case 2:
 			setting = L"_1024";

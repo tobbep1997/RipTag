@@ -493,10 +493,10 @@ void PointLight::_initDirectX()
 	switch (SettingLoader::g_windowContext->graphicsQuality)
 	{
 	case 0:
-		size = 32U;
+		size = 128U;
 		break;
 	case 1:
-		size = 64U;
+		size = 256U;
 		break;
 	case 2:
 		size = 1024U;
