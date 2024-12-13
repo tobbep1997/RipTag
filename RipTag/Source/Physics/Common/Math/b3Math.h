@@ -23,6 +23,7 @@
 #include "b3Vec3.h"
 #include "b3Mat33.h"
 #include "b3Quaternion.h"
+#include <string>
 
 template <class T>
 inline T b3Min(T a, T b) {

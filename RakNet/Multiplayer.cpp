@@ -77,8 +77,9 @@ namespace Network
 	{
 		RakNet::StartupResult result;
 		m_isRunning = true;
+		auto lol = RakNet::SocketDescriptor(PEER_PORT, 0);
 		//specify the port(s) to listen on
-		result = this->pPeer->Startup(MAX_CONNECTIONS, &RakNet::SocketDescriptor(PEER_PORT, 0), 1, THREAD_PRIORITY_NORMAL);
+		result = this->pPeer->Startup(MAX_CONNECTIONS, &lol, 1, THREAD_PRIORITY_NORMAL);
 		if (result != RakNet::RAKNET_STARTED && result != RakNet::RAKNET_ALREADY_STARTED)
 		{
 			m_isRunning = false;

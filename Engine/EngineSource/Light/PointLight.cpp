@@ -194,7 +194,8 @@ const DirectX::XMFLOAT4A PointLight::MovmentEffect(double deltaTime, const Direc
 	const float distance = XMVectorGetX(XMVector4LengthEst(XMVectorSubtract(current, target)));
 	if (distance < stride / 2.0f)
 	{
-		XMVECTOR direction = XMLoadFloat4(&getRandomDirection());
+		auto lol = getRandomDirection();
+		XMVECTOR direction = XMLoadFloat4(&lol);
 		direction *= stride;
 		target = XMVectorAdd(base, direction);
 
