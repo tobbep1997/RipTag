@@ -854,14 +854,14 @@ void Room::addPropsAndAssets(ImporterLibrary::PropItemToEngine propsAndAssets, T
 void Room::_createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float occlusion, float reverbOcclusion)
 {
 	DirectX::XMVECTOR translation, rotation, scale;
-		
-	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));
-
-	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(
+	auto lol = DirectX::XMFLOAT3(prop.transform_position);
+	translation = DirectX::XMLoadFloat3(&lol);
+	auto lol2 = DirectX::XMFLOAT3(
 		DirectX::XMConvertToRadians(prop.transform_rotation[0]),
 		DirectX::XMConvertToRadians(prop.transform_rotation[1]),
 		DirectX::XMConvertToRadians(prop.transform_rotation[2])
-	));
+	);
+	rotation = DirectX::XMLoadFloat3(&lol2);
 	
 	rotation = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotation);
 
@@ -871,7 +871,8 @@ void Room::_createAudioBox(ImporterLibrary::PropItem prop, bool useAudio, float 
 	{
 		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
 	}
-	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
+	auto lol3 = DirectX::XMFLOAT3(newScale);
+	scale = DirectX::XMLoadFloat3(&lol3);
 
 	DirectX::XMFLOAT4 xmQ;
 	DirectX::XMFLOAT4 xmPos;

@@ -39,60 +39,60 @@
     <ProjectGuid>{97B14588-BACB-4429-9AF5-15EAD901C72E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RipTag</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithConsole|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithConsole|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -180,7 +180,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_SHOWSYSTEMINFO;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SHOWSYSTEMINFO;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)RipTag\RakNet;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Source;$(SolutionDir)RipTag</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -265,7 +265,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions);_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)RipTag</AdditionalIncludeDirectories>
@@ -289,7 +289,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEPLOY;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEPLOY;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions);_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)RipTag</AdditionalIncludeDirectories>
@@ -316,7 +316,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_RELEASE_DBG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_RELEASE_DBG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGSNDEBUG;_WINDOWS;%(PreprocessorDefinitions);_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)Lua Talker\Source;$(SolutionDir)RipTag\RakNet</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(SolutionDir)External\RakNet\Include;$(SolutionDir)2DEngine;$(SolutionDir)RakNet;$(SolutionDir)Engine;$(SolutionDir)New_Library;$(SolutionDir)InputManager;$(SolutionDir)RipTag\RakNet;$(SolutionDir)External\FMOD\inc;$(SolutionDir)AudioEngine\AudioSource;$(SolutionDir)RipTag</AdditionalIncludeDirectories>

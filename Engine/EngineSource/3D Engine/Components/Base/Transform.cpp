@@ -45,7 +45,10 @@ void Transform::p_calcWorldMatrix()
 	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
 
 	if (m_parent)
-		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+	{
+		auto lol = m_parent->getWorldmatrix();
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&lol), worldMatrix);
+	}
 
 	
 	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);
@@ -85,7 +88,10 @@ void Transform::p_calcWorldMatrixForOutline(const float & lenght)
 	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
 
 	if (m_parent)
-		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+	{
+		auto lol = m_parent->getWorldmatrix();
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&lol), worldMatrix);
+	}
 
 
 	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);
@@ -122,7 +128,10 @@ void Transform::p_calcWorldMatrixForInsideOutline(const float& lenght)
 	//XMMATRIX worldMatrix = XMMatrixTranspose(rotation * scaling * translation);
 
 	if (m_parent)
-		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&m_parent->getWorldmatrix()), worldMatrix);
+	{
+		auto lol = m_parent->getWorldmatrix();
+		worldMatrix = XMMatrixMultiply(XMLoadFloat4x4A(&lol), worldMatrix);
+	}
 
 
 	XMStoreFloat4x4A(&this->p_worldMatrix, worldMatrix);

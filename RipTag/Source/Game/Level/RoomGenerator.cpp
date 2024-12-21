@@ -311,7 +311,8 @@ void RoomGenerator::_createEntireWorld()
 
 					if (x == 0)
 					{
-						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						auto lol = asset->getWorldmatrix();
+						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						roomSpace = DirectX::XMMatrixTranspose(roomSpace);
 						applyTransformationToBoundingBox(roomSpace, modCollisionBoxes);
 						asset->Init(*RipExtern::g_world, modCollisionBoxes);
@@ -341,14 +342,16 @@ void RoomGenerator::_createEntireWorld()
 					else if (x == 1)
 					{
 						asset->setRotation(0, 90, 0, false);
-						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						auto lol = asset->getWorldmatrix();
+						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						roomSpace = DirectX::XMMatrixTranspose(roomSpace);
 						applyTransformationToBoundingBox(roomSpace, modCollisionBoxes);
 						asset->Init(*RipExtern::g_world, modCollisionBoxes);
 						asset->setPosition(j + 10.f, 2.5, i);
 						asset->setObjectTag("WALL");
 						m_generated_assetVector.push_back(asset);
-						roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						lol = asset->getWorldmatrix();
+						roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
 							float xPos = modCollisionBoxes.boxes[h].translation[0] + j + 10;
@@ -370,14 +373,16 @@ void RoomGenerator::_createEntireWorld()
 					}
 					else if (x == 2)
 					{
-						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						auto lol = asset->getWorldmatrix();
+						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						roomSpace = DirectX::XMMatrixTranspose(roomSpace);
 						applyTransformationToBoundingBox(roomSpace, modCollisionBoxes);
 						asset->Init(*RipExtern::g_world, modCollisionBoxes);
 						asset->setPosition(j, 2.5, i + 10.f);
 						asset->setObjectTag("WALL");
 						m_generated_assetVector.push_back(asset);
-						roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						lol = asset->getWorldmatrix();
+						roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						for (int h = 0; h < (int)modCollisionBoxes.nrOfBoxes; h++)
 						{
 							float xPos = modCollisionBoxes.boxes[h].translation[0] + j;
@@ -400,10 +405,11 @@ void RoomGenerator::_createEntireWorld()
 					else if (x == 3)
 					{
 						asset->setRotation(0, 90, 0, false);
-						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						auto lol = asset->getWorldmatrix();
+						DirectX::XMMATRIX roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						roomSpace = DirectX::XMMatrixTranspose(roomSpace);
 						asset->setObjectTag("WALL");
-						roomSpace = DirectX::XMLoadFloat4x4A(&asset->getWorldmatrix());
+						roomSpace = DirectX::XMLoadFloat4x4A(&lol);
 						if (isWinRoom)
 						{
 							if (modCollisionBoxes.boxes)
@@ -616,14 +622,13 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 {
 	DirectX::XMVECTOR translation, rotation, scale;
 
-
-	translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(prop.transform_position));	
-
-	rotation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(
+	auto lol = DirectX::XMFLOAT3(prop.transform_position);
+	translation = DirectX::XMLoadFloat3(&lol);
+	auto lol2 = DirectX::XMFLOAT3(
 		DirectX::XMConvertToRadians(prop.transform_rotation[0]),
 		DirectX::XMConvertToRadians(prop.transform_rotation[1]),
-		DirectX::XMConvertToRadians(prop.transform_rotation[2])
-	));
+		DirectX::XMConvertToRadians(prop.transform_rotation[2]));
+	rotation = DirectX::XMLoadFloat3(&lol2);
 
 	rotation = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotation);
 
@@ -632,7 +637,8 @@ void RoomGenerator::_modifyPropBoundingBoxes(ImporterLibrary::PropItem prop)
 	{
 		newScale[i] = prop.BBOX_INFO[i] * prop.transform_scale[i];
 	}
-	scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(newScale));
+	auto lol3 = DirectX::XMFLOAT3(newScale);
+	scale = DirectX::XMLoadFloat3(&lol3);
 
 	DirectX::BoundingBox * bb = DBG_NEW DirectX::BoundingBox(DirectX::XMFLOAT3(0,0,0), DirectX::XMFLOAT3(newScale[0], newScale[1], newScale[2]));
 	bb->Transform(*bb, 1, rotation, translation);
@@ -645,10 +651,13 @@ void RoomGenerator::moveCheckBoxes(DirectX::XMFLOAT3 startPos, ImporterLibrary::
 	{
 		using namespace DirectX;
 		DirectX::XMVECTOR translation, rotation, scale;
-		translation = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].translation));
+		auto lol = DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].translation);
+		translation = DirectX::XMLoadFloat3(&lol);
 		translation = DirectX::XMVectorAdd(translation, DirectX::XMLoadFloat3(&startPos));
-		rotation = DirectX::XMLoadFloat4(&DirectX::XMFLOAT4(modCollisionBoxes.boxes[h].rotation));
-		scale = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale));
+		auto lol2 = DirectX::XMFLOAT4(modCollisionBoxes.boxes[h].rotation);
+		rotation = DirectX::XMLoadFloat4(&lol2);
+		auto lol3 = DirectX::XMFLOAT3(modCollisionBoxes.boxes[h].scale);
+		scale = DirectX::XMLoadFloat3(&lol3);
 
 		XMMATRIX matrixTranslation = XMMatrixTranslationFromVector(translation);
 		XMMATRIX matrixRotation = XMMatrixRotationQuaternion(rotation);
